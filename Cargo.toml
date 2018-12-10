@@ -1,0 +1,11 @@
+[workspace]
+
+members = [
+	"pdsl_core",
+	"pdsl_derive",
+	"pdsl_tests"
+]
+
+[profile.release]
+panic = "abort"
+lto = true
