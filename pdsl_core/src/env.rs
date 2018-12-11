@@ -25,6 +25,8 @@ pub mod c_abi {
 			input_data_len: u32
 		) -> u32;
 
+		pub fn ext_caller();
+
 		pub fn ext_set_storage(key_ptr: u32, value_non_null: u32, value_ptr: u32, value_len: u32);
 		pub fn ext_get_storage(key_ptr: u32) -> u32;
 
@@ -40,6 +42,8 @@ pub mod c_abi {
 
 /// The evironment API usable by SRML contracts.
 pub trait Env {
+	/// Returns the chain address of the caller.
+	fn caller() -> Vec<u8>;
 	/// Stores the given value under the given key.
 	fn store(key: &[u8], value: &[u8]);
 	/// Clears the value stored under the given key.
@@ -60,6 +64,19 @@ mod default {
 	pub struct DefaultEnv;
 
 	impl Env for DefaultEnv {
+		fn caller() -> Vec<u8> {
+			unsafe { c_abi::ext_caller() };
+			let size = unsafe { c_abi::ext_scratch_size() };
+			let mut value = Vec::new();
+			if size > 0 {
+				value.resize(size as usize, 0);
+				unsafe {
+					c_abi::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
+				}
+			}
+			value
+		}
+
 		fn store(key: &[u8], value: &[u8]) {
 			unsafe {
 				c_abi::ext_set_storage(
@@ -123,6 +140,9 @@ mod test {
 	use std::sync::Mutex;
 
 	lazy_static! {
+		static ref CALLER: Mutex<Vec<u8>> = {
+			Mutex::new(Vec::new())
+		};
 		static ref STORAGE: Mutex<HashMap<Vec<u8>, Vec<u8>>> = {
 			Mutex::new(HashMap::new())
 		};
@@ -150,6 +170,11 @@ mod test {
 	}
 
 	impl Env for TestEnv {
+		fn caller() -> Vec<u8> {
+			println!("TestEnv::caller()");
+			CALLER.lock().unwrap().clone()
+		}
+
 		fn store(key: &[u8], value: &[u8]) {
 			println!("TestEnv::store(\n\tkey: {:?},\n\tval: {:?}\n)", key, value);
 			STORAGE.lock().unwrap().insert(key.to_vec(), value.to_vec());
