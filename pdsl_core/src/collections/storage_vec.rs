@@ -65,7 +65,15 @@ where
 		if n >= self.len() {
 			return None
 		}
-		Some(self.synced.get(n).expect("TODO"))
+		Some(
+			self
+				.synced
+				.get(n)
+				.expect(
+					"[pdsl_core::StorageVec::get] Error: \
+					 expected an element since `n < self.len()`."
+				)
+		)
 	}
 
 	/// Returns a mutable reference to the n-th element of this storage vec.
@@ -75,15 +83,22 @@ where
 		if n >= self.len() {
 			return None
 		}
-		Some(self.get_mut(n).expect("TODO"))
+		Some(
+			self
+				.get_mut(n)
+				.expect(
+					"[pdsl_core::StorageVec::get_mut] Error: \
+					 expected an element since `n < self.len()`."
+				)
+		)
 	}
 
 	/// Appends an element to the back of a collection.
 	pub fn push(&mut self, val: T) {
 		if self.len() == u32::max_value() {
 			panic!(
-				"[pdsl_core::StorageVec::push] \
-				 Error: cannot push more elements than `u32::MAX`"
+				"[pdsl_core::StorageVec::push] Error: \
+				 cannot push more elements than `u32::MAX`"
 			)
 		}
 		let last_index = self.len();
@@ -97,7 +112,15 @@ where
 			return None
 		}
 		let last_index = self.len() - 1;
-		Some(self.synced.remove(last_index).expect("TODO"))
+		Some(
+			self
+				.synced
+				.remove(last_index)
+				.expect(
+					"[pdsl_core::StorageVec::pop] Error: \
+					 expected an element since the vec is not empty."
+				)
+		)
 	}
 
 	/// Replaces the element at the given index with what is produced
@@ -134,14 +157,14 @@ where
 		let ret = self
 			.synced.remove(index)
 			.expect(
-				"[pdsl_core::StorageVec::swap_remove] \
-				 Error: expected element at given index"
+				"[pdsl_core::StorageVec::swap_remove] Error: \
+				 expected element since `index < self.len()`"
 			);
 		let last = self
 			.pop()
 			.expect(
-				"[pdsl_core::StorageVec::swap_remove] \
-				 Error: expected element for pop()"
+				"[pdsl_core::StorageVec::swap_remove] Error: \
+				 expected element since vec is not empty"
 			);
 		self.synced.insert(index, last);
 		Some(ret)
