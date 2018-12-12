@@ -118,6 +118,57 @@ where
 	K: parity_codec::Codec + HashAsKeccak256 + Eq,
 	V: parity_codec::Codec,
 {
+	/// Inserts a key-value pair into the map.
+	///
+	/// If the map did not have this key present, `None` is returned.
+	///
+	/// If the map did have this key present, the value is updated,
+	/// and the old value is returned.
+	/// The key is not updated, though;
+	/// this matters for types that can be == without being identical.
+	/// See the module-level documentation for more.
+	pub fn insert(&mut self, key: K, val: V) -> Option<V> {
+		match self.probe_inserting(&key) {
+			Some((true, probe_index)) => {
+				// Keys match, values might not.
+				// So we have to overwrite this entry with the new value.
+				let old = self.entries.remove(probe_index);
+				self.entries.insert(
+					probe_index, Entry::Occupied(OccupiedEntry{key, val})
+				);
+				return match old.unwrap() {
+					Entry::Occupied(OccupiedEntry{val, ..}) => Some(val),
+					Entry::Removed => None,
+				}
+			}
+			Some((false, probe_index)) => {
+				// We can insert into this slot.
+				self.entries.insert(
+					probe_index,
+					Entry::Occupied(OccupiedEntry{key, val})
+				);
+				return None
+			}
+			None => {
+				panic!(
+					"[pdsl_core::StorageMap::insert] Error: failed finding a valid entry"
+				)
+			}
+		}
+	}
+}
+
+impl<K, V> StorageMap<K, V>
+where
+	K: parity_codec::Codec,
+	V: parity_codec::Codec,
+{
+	/// The maximum amount of probing hops through the hash map.
+	///
+	/// Look-ups into the hashtable will fail if no appropriate
+	/// slot has been found after this amount of hops.
+	const MAX_PROBE_HOPS: u32 = 1000;
+
 	/// Probes for a free or usable slot.
 	///
 	/// # Note
@@ -126,7 +177,7 @@ where
 	/// - Returns `(true, _)` if there was a key-match of an already
 	///   occupied slot, returns `(false, _)` if the found slot is empty.
 	/// - Returns `(_, n)` if `n` is the found probed index.
-	fn probe<Q>(&self, key: &Q, inserting: bool) -> (bool, u32)
+	fn probe<Q>(&self, key: &Q, inserting: bool) -> Option<(bool, u32)>
 	where
 		K: Borrow<Q>,
 		Q: HashAsKeccak256 + Eq
@@ -145,21 +196,32 @@ where
 		let mut probe_hops = 0;
 		let mut probe_offset = 0;
 		'outer: loop {
+			if probe_hops == Self::MAX_PROBE_HOPS {
+				return None
+			}
 			let probe_index = probe_start.wrapping_add(probe_offset);
 			match self.entries.get(probe_index) {
 				Some(Entry::Occupied(entry)) => {
 					if key == entry.key.borrow() {
-						return (true, probe_index)
+						return Some((true, probe_index))
 					}
 					// Need to jump using quadratic probing.
 					probe_hops += 1;
 					probe_offset = probe_hops * probe_hops;
 					continue 'outer
 				}
-				Some(Entry::Removed) | None => {
+				None => {
 					// We can insert into this slot.
 					if inserting {
-						return (false, probe_index)
+						return Some((false, probe_index))
+					} else {
+						return None
+					}
+				}
+				Some(Entry::Removed) => {
+					// We can insert into this slot.
+					if inserting {
+						return Some((false, probe_index))
 					}
 					continue 'outer
 				}
@@ -172,7 +234,7 @@ where
 	/// # Note
 	///
 	/// For more information refer to the `fn probe` documentation.
-	fn probe_inserting<Q>(&self, key: &Q) -> (bool, u32)
+	fn probe_inserting<Q>(&self, key: &Q) -> Option<(bool, u32)>
 	where
 		K: Borrow<Q>,
 		Q: HashAsKeccak256 + Eq
@@ -185,46 +247,12 @@ where
 	/// # Note
 	///
 	/// For more information refer to the `fn probe` documentation.
-	fn probe_inspecting<Q>(&self, key: &Q) -> u32
+	fn probe_inspecting<Q>(&self, key: &Q) -> Option<u32>
 	where
 		K: Borrow<Q>,
 		Q: HashAsKeccak256 + Eq
 	{
-		self.probe(key, false).1
-	}
-
-	/// Inserts a key-value pair into the map.
-	///
-	/// If the map did not have this key present, `None` is returned.
-	///
-	/// If the map did have this key present, the value is updated,
-	/// and the old value is returned.
-	/// The key is not updated, though;
-	/// this matters for types that can be == without being identical.
-	/// See the module-level documentation for more.
-	pub fn insert(&mut self, key: K, val: V) -> Option<V> {
-		match self.probe_inserting(&key) {
-			(true, probe_index) => {
-				// Keys match, values might not.
-				// So we have to overwrite this entry with the new value.
-				let old = self.entries.remove(probe_index);
-				self.entries.insert(
-					probe_index, Entry::Occupied(OccupiedEntry{key, val})
-				);
-				return match old.unwrap() {
-					Entry::Occupied(OccupiedEntry{val, ..}) => Some(val),
-					Entry::Removed => None,
-				}
-			}
-			(false, probe_index) => {
-				// We can insert into this slot.
-				self.entries.insert(
-					probe_index,
-					Entry::Occupied(OccupiedEntry{key, val})
-				);
-				return None
-			}
-		}
+		self.probe(key, false).map(|(_, slot)| slot)
 	}
 
 	/// Removes a key from the map,
@@ -239,7 +267,12 @@ where
 		K: Borrow<Q>,
 		Q: HashAsKeccak256 + Eq
 	{
-		let probe_index = self.probe_inspecting(key);
+		let probe_index = self
+			.probe_inspecting(key)
+			.expect(
+				"[pdsl_core::StorageMap::remove] Error: \
+				 failed at finding a valid entry"
+			);
 		match self.entries.remove(probe_index) {
 			Some(Entry::Removed) | None => None,
 			Some(Entry::Occupied(OccupiedEntry{val, ..})) => Some(val),
@@ -270,6 +303,9 @@ where
 		K: Borrow<Q>,
 		Q: HashAsKeccak256 + Eq
 	{
-		self.entries.get(self.probe_inspecting(key))
+		if let Some(slot) = self.probe_inspecting(key) {
+			return self.entries.get(slot)
+		}
+		None
 	}
 }
