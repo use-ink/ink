@@ -1,5 +1,6 @@
 use crate::storage::{
 	Key,
+	Stored,
 	Synced,
 	SyncedRef,
 	SyncedChunk,
@@ -22,7 +23,7 @@ use std::marker::PhantomData;
 #[derive(Debug)]
 pub struct StorageVec<T> {
 	/// The length of this storage vec.
-	len: Synced<u32>,
+	len: Stored<u32>,
 	/// Synced chunk of elements.
 	synced: SyncedChunk<T>,
 	/// Marker to make Rust's type system happy.
@@ -32,7 +33,7 @@ pub struct StorageVec<T> {
 impl<T> From<Key> for StorageVec<T> {
 	fn from(key: Key) -> Self {
 		StorageVec{
-			len: Synced::from(key),
+			len: Stored::from(key),
 			synced: SyncedChunk::from(
 				Key::with_offset(key, 1)
 			),
@@ -44,7 +45,7 @@ impl<T> From<Key> for StorageVec<T> {
 impl<T> StorageVec<T> {
 	/// Returns the number of elements in the vector.
 	pub fn len(&self) -> u32 {
-		*self.len.get()
+		self.len.load()
 	}
 
 	/// Returns `true` if the vector contains no elements.
@@ -64,7 +65,6 @@ where
 		if n >= self.len() {
 			return None
 		}
-		// Some(self.storage_at(n).get())
 		Some(self.synced.get(n).expect("TODO"))
 	}
 
@@ -87,8 +87,8 @@ where
 			)
 		}
 		let last_index = self.len();
-		self.len.set(last_index + 1);
-		self.synced.insert(last_index, val)
+		self.len.store(&(last_index + 1));
+		self.synced.insert(last_index, val);
 	}
 
 	/// Removes the last element from a vector and returns it, or `None` if it is empty.
