@@ -56,7 +56,7 @@ pub trait Env {
 	fn return_(value: &[u8]) -> !;
 }
 
-#[cfg(not(test))]
+#[cfg(not(feature = "test-env"))]
 mod default {
 	use super::*;
 
@@ -131,7 +131,7 @@ mod default {
 	}
 }
 
-#[cfg(test)]
+#[cfg(feature = "test-env")]
 mod test {
 	use super::*;
 
@@ -208,10 +208,10 @@ mod test {
 	}
 }
 
-#[cfg(not(test))]
+#[cfg(not(feature = "test-env"))]
 pub use self::default::DefaultEnv;
 
-#[cfg(test)]
+#[cfg(feature = "test-env")]
 pub use self::test::TestEnv;
 
 /// The environment implementation that is currently being used.
@@ -222,9 +222,9 @@ pub use self::test::TestEnv;
 /// - `TestEnv` for emulating a contract environment
 ///   that can be inspected by the user and used
 ///   for testing contracts off-chain.
-#[cfg(not(test))]
+#[cfg(not(feature = "test-env"))]
 pub type ContractEnv = self::default::DefaultEnv;
 
 /// The environment implementation that is currently being used.
-#[cfg(test)]
+#[cfg(feature = "test-env")]
 pub type ContractEnv = self::test::TestEnv;
