@@ -38,9 +38,12 @@ pub trait HashAsKeccak256 {
 	fn hash_as_keccak256(&self, hasher: &mut Keccak256Hasher);
 }
 
-impl HashAsKeccak256 for [u8] {
+impl<T> HashAsKeccak256 for T
+where
+	T: ?Sized + AsRef<[u8]>
+{
 	fn hash_as_keccak256(&self, hasher: &mut Keccak256Hasher) {
-		hasher.write(self)
+		hasher.write(self.as_ref())
 	}
 }
 
