@@ -19,7 +19,7 @@ pub struct Key(pub [u8; 32]);
 
 impl Key {
 	/// Create a new key from another given key with given offset.
-	pub fn with_offset(key: &Key, offset: u32) -> Self {
+	pub fn with_offset(key: Key, offset: u32) -> Self {
 		let mut offset_key: Self = key.clone();
 		utils::bytes_add_u32_inplace(offset_key.as_bytes_mut(), offset);
 		offset_key

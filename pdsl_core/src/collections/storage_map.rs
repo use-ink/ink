@@ -66,7 +66,7 @@ where
 		StorageMap{
 			len: Synced::from(key),
 			entries: SyncedChunk::from(
-				Key::with_offset(&key, 1)
+				Key::with_offset(key, 1)
 			),
 		}
 	}

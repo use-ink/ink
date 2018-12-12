@@ -39,7 +39,7 @@ where
 {
 	/// Returns a contract storage at the given offset.
 	pub(crate) fn storage_at(&self, offset: u32) -> Stored<T> {
-		Key::with_offset(&self.key, offset).into()
+		Key::with_offset(self.key, offset).into()
 	}
 
 	/// Loads the given entity at the given offset.

@@ -34,7 +34,7 @@ impl<T> From<Key> for StorageVec<T> {
 		StorageVec{
 			len: Synced::from(key),
 			synced: SyncedChunk::from(
-				Key::with_offset(&key, 1)
+				Key::with_offset(key, 1)
 			),
 			marker: PhantomData,
 		}
