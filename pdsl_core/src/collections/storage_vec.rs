@@ -100,6 +100,24 @@ where
 		Some(self.synced.remove(last_index).expect("TODO"))
 	}
 
+	/// Replaces the element at the given index with what is produced
+	/// by the given closure.
+	///
+	/// Returns the replaced element or `None` if the index is out of bounds.
+	///
+	/// # Note
+	///
+	/// This will not call the given closure if index is out of bounds.
+	pub fn replace<F>(&mut self, index: u32, f: F) -> Option<T>
+	where
+		F: FnOnce() -> T
+	{
+		if index >= self.len() {
+			return None
+		}
+		Some(self.synced.insert(index, f()).expect("TODO"))
+	}
+
 	/// Removes an element from the vector and returns it.
 	/// 
 	/// The removed element is replaced by the last element of the vector.
