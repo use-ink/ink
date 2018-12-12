@@ -131,25 +131,22 @@ where
 		None
 	}
 
-	/// Inserts an entity into the n-th storage slot starting
-	/// from the key slot.
+	/// Inserts an entity into the n-th storage slot.
 	///
 	/// # Note
 	///
 	/// This will overwrite an already existing element.
 	/// The inserted element is going to be synchonized from then on.
-	pub fn insert(&mut self, n: u32, val: T) {
+	pub fn insert(&mut self, n: u32, val: T) -> Option<T> {
 		self.store_at(n, &val);
-		self.map_mut().insert(n, val);
+		self.map_mut().insert(n, val)
 	}
 
-	/// Removes the entity stored at the n-th storage slot
-	/// starting from the key slot.
+	/// Removes the entity stored at the n-th storage slot.
 	///
 	/// # Note
 	///
-	/// Returns the value that was previously stored in that slot
-	/// and otherwise `None`.
+	/// Returns the value that was previously stored in that slot if any.
 	pub fn remove(&mut self, n: u32) -> Option<T> {
 		if let Some(val) = self.load_at(n) {
 			self.clear_at(n);
