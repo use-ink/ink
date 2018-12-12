@@ -56,7 +56,8 @@ where
 	///
 	/// Returns `None` if the storage slot was empty.
 	pub fn try_load(&self) -> Option<T> {
-		self.key.load()
+		self.key
+			.load()
 			.and_then(|bytes| T::decode(&mut &bytes[..]))
 	}
 }
