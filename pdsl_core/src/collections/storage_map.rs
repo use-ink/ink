@@ -1,5 +1,6 @@
 use crate::storage::{Key, Stored, SyncedChunk};
 use crate::hash::{self, HashAsKeccak256};
+use crate::Setup;
 
 use std::borrow::Borrow;
 
@@ -69,6 +70,12 @@ where
 				Key::with_offset(key, 1)
 			),
 		}
+	}
+}
+
+impl<K, V> Setup for StorageMap<K, V> {
+	fn setup(&mut self) {
+		self.len.store(&0);
 	}
 }
 
@@ -182,6 +189,7 @@ where
 		K: Borrow<Q>,
 		Q: HashAsKeccak256 + Eq
 	{
+		println!("StorageMap::probe - 0");
 		// Convert the first 4 bytes in the keccak256 hash
 		// of the key into a big-endian unsigned integer.
 		let probe_start = bytes_to_u32(
@@ -192,16 +200,24 @@ where
 				 couldn't convert to probe_start byte array"
 			)
 		);
+		println!("StorageMap::probe - 1 probe_start = {:?}", probe_start);
 		// This is the offset for the quadratic probing.
 		let mut probe_hops = 0;
 		let mut probe_offset = 0;
+		use std::collections::HashSet;
+		let mut probed_set = HashSet::<u32>::new();
+		println!("StorageMap::probe - 2");
 		'outer: loop {
 			if probe_hops == Self::MAX_PROBE_HOPS {
 				return None
 			}
 			let probe_index = probe_start.wrapping_add(probe_offset);
+			probed_set.insert(probe_index);
+			println!("StorageMap::probe - 3 probed_set = {:?}", probed_set);
+			println!("StorageMap::probe - 3 probe_index = {:?}", probe_index);
 			match self.entries.get(probe_index) {
 				Some(Entry::Occupied(entry)) => {
+					println!("StorageMap::probe - 3 occupied");
 					if key == entry.key.borrow() {
 						return Some((true, probe_index))
 					}
@@ -211,6 +227,7 @@ where
 					continue 'outer
 				}
 				None => {
+					println!("StorageMap::probe - 3 none");
 					// We can insert into this slot.
 					if inserting {
 						return Some((false, probe_index))
@@ -219,6 +236,7 @@ where
 					}
 				}
 				Some(Entry::Removed) => {
+					println!("StorageMap::probe - 3 removed|none");
 					// We can insert into this slot.
 					if inserting {
 						return Some((false, probe_index))

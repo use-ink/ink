@@ -4,6 +4,7 @@ use crate::storage::{
 	SyncedMut,
 	SyncedChunk,
 };
+use crate::Setup;
 
 use std::marker::PhantomData;
 
@@ -38,6 +39,12 @@ impl<T> From<Key> for StorageVec<T> {
 			),
 			marker: PhantomData,
 		}
+	}
+}
+
+impl<T> Setup for StorageVec<T> {
+	fn setup(&mut self) {
+		self.len.store(&0);
 	}
 }
 
