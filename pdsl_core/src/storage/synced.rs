@@ -48,7 +48,7 @@ where
 
 	/// Synchronizes storage with main memory.
 	fn sync(&self) {
-		*self.synced_mut() = self.stored.try_load();
+		*self.synced_mut() = self.stored.load();
 	}
 
 	/// Returns a reference to the synced element.

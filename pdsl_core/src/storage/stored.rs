@@ -48,16 +48,10 @@ impl<T> Stored<T>
 where
 	T: parity_codec::Decode
 {
-	/// Loads and decodes the data from the contract storage.
-	pub fn load(self) -> T {
-		self.try_load()
-		    .expect("[pdsl_core::Stored::load] failed")
-	}
-
-	/// Tries to load and decode the data from the contract storage.
+	/// Loads and decodes the data from the contract storage if any.
 	///
 	/// Returns `None` if the storage slot was empty.
-	pub fn try_load(self) -> Option<T> {
+	pub fn load(self) -> Option<T> {
 		self.key
 			.load()
 			.and_then(|bytes| T::decode(&mut &bytes[..]))

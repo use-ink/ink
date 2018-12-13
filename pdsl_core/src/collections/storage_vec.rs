@@ -51,7 +51,13 @@ impl<T> Setup for StorageVec<T> {
 impl<T> StorageVec<T> {
 	/// Returns the number of elements in the vector.
 	pub fn len(&self) -> u32 {
-		self.len.load()
+		self
+			.len
+			.load()
+			.expect(
+				"[pdsl_core::StorageVec] Error: \
+				 expected a value at storage slot associated with the len field"
+			)
 	}
 
 	/// Returns `true` if the vector contains no elements.

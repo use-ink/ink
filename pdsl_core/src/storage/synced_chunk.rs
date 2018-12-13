@@ -48,7 +48,7 @@ where
 	///
 	/// This does not syncrhonize with main memory.
 	fn load_at(&self, offset: u32) -> Option<T> {
-		self.storage_at(offset).try_load()
+		self.storage_at(offset).load()
 	}
 
 	/// Stores the given value at the given offset.

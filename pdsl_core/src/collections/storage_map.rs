@@ -82,7 +82,13 @@ impl<K, V> Setup for StorageMap<K, V> {
 impl<K, V> StorageMap<K, V> {
 	/// Returns the number of key-value pairs in the map.
 	pub fn len(&self) -> u32 {
-		self.len.load()
+		self
+			.len
+			.load()
+			.expect(
+				"[pdsl_core::StorageMap] Error: \
+				 expected a value at storage slot associated with the len field"
+			)
 	}
 
 	/// Returns `true` if the map contains no elements.
