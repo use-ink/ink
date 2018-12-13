@@ -140,14 +140,56 @@ mod default {
 mod test {
 	use super::*;
 
+	use std::cell::Cell;
+
 	use std::collections::HashMap;
 	use std::cell::RefCell;
 
+	pub struct StorageEntry {
+		data: Vec<u8>,
+		reads: Cell<u64>,
+		writes: u64,
+	}
+
+	impl StorageEntry {
+		pub fn new(data: Vec<u8>) -> Self {
+			Self{data, reads: Cell::new(0), writes: 0}
+		}
+
+		fn inc_reads(&self) {
+			self.reads.set(self.reads.get() + 1);
+		}
+
+		fn inc_writes(&mut self) {
+			self.writes += 1;
+		}
+
+		pub fn reads(&self) -> u64 {
+			self.reads.get()
+		}
+
+		pub fn writes(&self) -> u64 {
+			self.writes
+		}
+
+		pub fn read(&self) -> Vec<u8> {
+			self.inc_reads();
+			self.data.clone()
+		}
+
+		pub fn write(&mut self, new_data: Vec<u8>) {
+			self.inc_writes();
+			self.data = new_data;
+		}
+	}
+
 	pub struct TestEnvData {
-		pub storage: HashMap<Vec<u8>, Vec<u8>>,
-		pub caller: Vec<u8>,
-		pub input: Vec<u8>,
-		pub expected_return: Vec<u8>,
+		storage: HashMap<Vec<u8>, StorageEntry>,
+		caller: Vec<u8>,
+		input: Vec<u8>,
+		expected_return: Vec<u8>,
+		total_reads: Cell<u64>,
+		total_writes: u64,
 	}
 
 	impl Default for TestEnvData {
@@ -157,6 +199,8 @@ mod test {
 				caller: Vec::new(),
 				input: Vec::new(),
 				expected_return: Vec::new(),
+				total_reads: Cell::new(0),
+				total_writes: 0,
 			}
 		}
 	}
@@ -167,6 +211,32 @@ mod test {
 			self.caller.clear();
 			self.input.clear();
 			self.expected_return.clear();
+			self.total_reads.set(0);
+			self.total_writes = 0;
+		}
+
+		fn inc_total_reads(&self) {
+			self.total_reads.set(self.total_reads.get() + 1)
+		}
+
+		fn inc_total_writes(&mut self) {
+			self.total_writes += 1
+		}
+
+		pub fn total_reads(&self) -> u64 {
+			self.total_reads.get()
+		}
+
+		pub fn total_writes(&self) -> u64 {
+			self.total_writes
+		}
+
+		pub fn reads_for(&self, key: &[u8]) -> Option<u64> {
+			self.storage.get(key).map(|loaded| loaded.reads())
+		}
+
+		pub fn writes_for(&self, key: &[u8]) -> Option<u64> {
+			self.storage.get(key).map(|loaded| loaded.writes())
 		}
 
 		pub fn expect_return(&mut self, expected_bytes: &[u8]) {
@@ -178,6 +248,8 @@ mod test {
 		}
 	}
 
+	use std::collections::hash_map::Entry;
+
 	impl TestEnvData {
 		const SUCCESS: i32 = 0;
 		const FAILURE: i32 = -1;
@@ -187,18 +259,31 @@ mod test {
 		}
 
 		pub fn store(&mut self, key: &[u8], value: &[u8]) {
-			self.storage.insert(key.to_vec(), value.to_vec());
+			self.inc_total_writes();
+			match self.storage.entry(key.to_vec()) {
+				Entry::Occupied(mut occupied) => {
+					occupied.get_mut().write(value.to_vec())
+				}
+				Entry::Vacant(vacant) => {
+					vacant.insert(
+						StorageEntry::new(value.to_vec())
+					);
+				}
+			}
 		}
 
 		pub fn clear(&mut self, key: &[u8]) {
+			// Storage clears count as storage write.
+			self.inc_total_writes();
 			self.storage.remove(key);
 		}
 
 		pub fn load(&self, key: &[u8]) -> Option<Vec<u8>> {
+			self.inc_total_reads();
 			self
 				.storage
 				.get(key)
-				.map(|loaded| loaded.to_vec())
+				.map(|loaded| loaded.read())
 		}
 
 		pub fn input(&self) -> Vec<u8> {
@@ -226,6 +311,30 @@ mod test {
 	pub struct TestEnv;
 
 	impl TestEnv {
+		pub fn total_reads() -> u64 {
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow().total_reads()
+			})
+		}
+
+		pub fn total_writes() -> u64 {
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow().total_writes()
+			})
+		}
+
+		pub fn reads_for(key: &[u8]) -> Option<u64> {
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow().reads_for(key)
+			})
+		}
+
+		pub fn writes_for(key: &[u8]) -> Option<u64> {
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow().writes_for(key)
+			})
+		}
+
 		pub fn reset() {
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow_mut().reset()
