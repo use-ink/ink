@@ -19,7 +19,7 @@ pub use self::{
 	},
 	synced::{
 		Synced,
-		SyncedRef,
+		SyncedMut,
 	},
 	synced_chunk::{
 		SyncedChunk,

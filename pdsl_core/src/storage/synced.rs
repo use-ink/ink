@@ -35,50 +35,59 @@ impl<T> Synced<T>
 where
 	T: parity_codec::Codec
 {
+	/// Returns a mutable reference to the synchronized element.
+	///
+	/// # Note
+	///
+	/// This function is inherently unsafe to call since it allows
+	/// to mutate state from within a method marked as non-mutating (`&self`).
+	fn synced_mut(&self) -> &mut Option<T> {
+		let ptr: *mut Option<T> = self.synced.get();
+		unsafe { &mut *ptr }
+	}
+
 	/// Synchronizes storage with main memory.
 	fn sync(&self) {
-		let ptr: *mut Option<T> = self.synced.get() as *mut Option<T>;
-		let snc: &mut Option<T> = unsafe { &mut *ptr };
-		if snc.is_none() {
-			*snc = Some(self.stored.load())
-		}
+		*self.synced_mut() = self.stored.try_load();
 	}
 
 	/// Returns a reference to the synced element.
-	pub fn get(&self) -> &T {
+	pub fn get(&self) -> Option<&T> {
 		self.sync();
-		let ptr: *const Option<T> = self.synced.get() as *const Option<T>;
-		unsafe { (&*ptr).as_ref().unwrap() }
+		match self.synced_mut() {
+			Some(mutref) => Some(&*mutref),
+			None => None
+		}
 	}
 
 	/// Returns a special mutable reference to the synced element.
-	pub fn get_mut(&mut self) -> SyncedRef<T> {
+	pub fn get_mut(&mut self) -> Option<SyncedMut<T>> {
 		self.sync();
-		SyncedRef{
-			stored: self.stored.clone(),
-			synref: {
-				let ptr: *mut Option<T> = self.synced.get() as *mut Option<T>;
-				unsafe { (&mut *ptr).as_mut().unwrap() }
-			}
+		match self.synced_mut() {
+			Some(mutref) => {
+				Some(SyncedMut::from_raw_parts(self.stored, mutref))
+			},
+			None => None
 		}
 	}
 
 	/// Sets the synced element to a new value.
 	pub fn set(&mut self, val: T) {
 		self.stored.store(&val);
-		self.sync();
+		*self.synced_mut() = Some(val);
 	}
 }
 
 /// A mutable reference to a synced element.
 ///
 /// This will keep the referenced element in sync.
-pub struct SyncedRef<'a, T> {
+#[derive(Debug)]
+pub struct SyncedMut<'a, T> {
 	stored: Stored<T>,
-	synref: &'a mut T,
+	mutref: &'a mut T,
 }
 
-impl<'a, T> SyncedRef<'a, T>
+impl<'a, T> SyncedMut<'a, T>
 where
 	T: parity_codec::Encode
 {
@@ -86,13 +95,13 @@ where
 	///
 	/// This allows mutable reference access to entities that
 	/// are synchronized to the contract storage.
-	pub(crate) fn new(stored: Stored<T>, synref: &'a mut T) -> Self {
-		Self{ stored, synref }
+	pub(crate) fn from_raw_parts(stored: Stored<T>, mutref: &'a mut T) -> Self {
+		Self{ stored, mutref }
 	}
 
 	/// Returns a read-only reference to the synced entity.
 	pub fn get(&self) -> &T {
-		&self.synref
+		&self.mutref
 	}
 
 	/// Mutates the synced entity inplace with the given closure.
@@ -104,7 +113,7 @@ where
 	where
 		F: FnOnce(&mut T)
 	{
-		f(self.synref);
-		self.stored.store(&self.synref);
+		f(self.mutref);
+		self.stored.store(&self.mutref);
 	}
 }

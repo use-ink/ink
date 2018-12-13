@@ -2,7 +2,7 @@ use crate::{
 	storage::{
 		Key,
 		Stored,
-		SyncedRef,
+		SyncedMut,
 	},
 };
 
@@ -105,14 +105,14 @@ where
 	///
 	/// Instead of returning a raw mutable reference it returns a
 	/// reference that automatically synchronizes upon manipulation.
-	pub fn get_mut(&self, n: u32) -> Option<SyncedRef<T>> {
+	pub fn get_mut(&self, n: u32) -> Option<SyncedMut<T>> {
 		if let Some(loaded) = self.load_at(n) {
 			use std::collections::hash_map::Entry;
 			match self.map_mut().entry(n) {
 				Entry::Occupied(mut occupied) => {
 					occupied.insert(loaded);
 					return Some(
-						SyncedRef::new(
+						SyncedMut::from_raw_parts(
 							self.storage_at(n),
 							occupied.into_mut()
 						)
@@ -120,7 +120,7 @@ where
 				}
 				Entry::Vacant(vacant) => {
 					return Some(
-						SyncedRef::new(
+						SyncedMut::from_raw_parts(
 							self.storage_at(n),
 							vacant.insert(loaded)
 						)
