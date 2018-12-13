@@ -1,6 +1,9 @@
 //! Convenience utilities for writing smart contracts.
 
-use super::Key;
+use crate::{
+	storage::Key,
+	env::{Env, ContractEnv},
+};
 
 use std::marker::PhantomData;
 
@@ -40,7 +43,7 @@ where
 {
 	/// Encodes and stores the data to the contract storage.
 	pub fn store(self, new_val: &T) {
-		self.key.store(&T::encode(&new_val))
+		ContractEnv::store(self.key, &T::encode(&new_val))
 	}
 }
 
@@ -52,8 +55,7 @@ where
 	///
 	/// Returns `None` if the storage slot was empty.
 	pub fn load(self) -> Option<T> {
-		self.key
-			.load()
+		ContractEnv::load(self.key)
 			.and_then(|bytes| T::decode(&mut &bytes[..]))
 	}
 }

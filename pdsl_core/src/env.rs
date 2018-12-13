@@ -2,6 +2,8 @@
 //!
 //! Refer to substrate SRML for more information.
 
+use crate::storage::Key;
+
 /// Refer to substrate SRML contract module for more documentation.
 pub mod c_abi {
 	extern "C" {
@@ -50,11 +52,11 @@ pub trait Env {
 	/// Returns the chain address of the caller.
 	fn caller() -> Vec<u8>;
 	/// Stores the given value under the given key.
-	fn store(key: &[u8], value: &[u8]);
+	fn store(key: Key, value: &[u8]);
 	/// Clears the value stored under the given key.
-	fn clear(key: &[u8]);
+	fn clear(key: Key);
 	/// Loads data stored under the given key.
-	fn load(key: &[u8]) -> Option<Vec<u8>>;
+	fn load(key: Key) -> Option<Vec<u8>>;
 	/// Loads input data for contract execution.
 	fn input() -> Vec<u8>;
 	/// Returns from the contract execution with the given value.
@@ -82,10 +84,10 @@ mod default {
 			value
 		}
 
-		fn store(key: &[u8], value: &[u8]) {
+		fn store(key: Key, value: &[u8]) {
 			unsafe {
 				c_abi::ext_set_storage(
-					key.as_ptr() as u32,
+					key.as_bytes().as_ptr() as u32,
 					1,
 					value.as_ptr() as u32,
 					value.len() as u32
@@ -93,15 +95,17 @@ mod default {
 			}
 		}
 
-		fn clear(key: &[u8]) {
+		fn clear(key: Key) {
 			unsafe {
-				c_abi::ext_set_storage(key.as_ptr() as u32, 0, 0, 0)
+				c_abi::ext_set_storage(key.as_bytes().as_ptr() as u32, 0, 0, 0)
 			}
 		}
 
-		fn load(key: &[u8]) -> Option<Vec<u8>> {
+		fn load(key: Key) -> Option<Vec<u8>> {
 			const SUCCESS: u32 = 0;
-			let result = unsafe { c_abi::ext_get_storage(key.as_ptr() as u32) };
+			let result = unsafe {
+				c_abi::ext_get_storage(key.as_bytes().as_ptr() as u32)
+			};
 			if result != SUCCESS {
 				return None
 			}
@@ -210,7 +214,7 @@ mod test {
 	/// The data underlying to a test environment.
 	pub struct TestEnvData {
 		/// The storage entries.
-		storage: HashMap<Vec<u8>, StorageEntry>,
+		storage: HashMap<Key, StorageEntry>,
 		/// The caller address for the next contract invocation.
 		///
 		/// # Note
@@ -280,13 +284,13 @@ mod test {
 		}
 
 		/// Returns the number of reads from the entry associated by the given key if any.
-		pub fn reads_for(&self, key: &[u8]) -> Option<u64> {
-			self.storage.get(key).map(|loaded| loaded.reads())
+		pub fn reads_for(&self, key: Key) -> Option<u64> {
+			self.storage.get(&key).map(|loaded| loaded.reads())
 		}
 
 		/// Returns the number of writes to the entry associated by the given key if any.
-		pub fn writes_for(&self, key: &[u8]) -> Option<u64> {
-			self.storage.get(key).map(|loaded| loaded.writes())
+		pub fn writes_for(&self, key: Key) -> Option<u64> {
+			self.storage.get(&key).map(|loaded| loaded.writes())
 		}
 
 		/// Sets the expected return data for the next contract invocation.
@@ -329,9 +333,9 @@ mod test {
 		}
 
 		/// Stores the given value under the given key in the contract storage.
-		pub fn store(&mut self, key: &[u8], value: &[u8]) {
+		pub fn store(&mut self, key: Key, value: &[u8]) {
 			self.inc_total_writes();
-			match self.storage.entry(key.to_vec()) {
+			match self.storage.entry(key) {
 				Entry::Occupied(mut occupied) => {
 					occupied.get_mut().write(value.to_vec())
 				}
@@ -344,18 +348,18 @@ mod test {
 		}
 
 		/// Clears the value under the given key in the contract storage.
-		pub fn clear(&mut self, key: &[u8]) {
+		pub fn clear(&mut self, key: Key) {
 			// Storage clears count as storage write.
 			self.inc_total_writes();
-			self.storage.remove(key);
+			self.storage.remove(&key);
 		}
 
 		/// Returns the value under the given key in the contract storage if any.
-		pub fn load(&self, key: &[u8]) -> Option<Vec<u8>> {
+		pub fn load(&self, key: Key) -> Option<Vec<u8>> {
 			self.inc_total_reads();
 			self
 				.storage
-				.get(key)
+				.get(&key)
 				.map(|loaded| loaded.read())
 		}
 
@@ -418,14 +422,14 @@ mod test {
 		}
 
 		/// Returns the number of reads from the entry associated by the given key if any.
-		pub fn reads_for(key: &[u8]) -> Option<u64> {
+		pub fn reads_for(key: Key) -> Option<u64> {
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow().reads_for(key)
 			})
 		}
 
 		/// Returns the number of writes to the entry associated by the given key if any.
-		pub fn writes_for(key: &[u8]) -> Option<u64> {
+		pub fn writes_for(key: Key) -> Option<u64> {
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow().writes_for(key)
 			})
@@ -466,7 +470,7 @@ mod test {
 			})
 		}
 
-		fn store(key: &[u8], value: &[u8]) {
+		fn store(key: Key, value: &[u8]) {
 			log::debug!(
 				target: TEST_ENV_LOG_TARGET,
 				"TestEnv::store(\n\tkey: {:?},\n\tval: {:?}\n)",
@@ -478,7 +482,7 @@ mod test {
 			})
 		}
 
-		fn clear(key: &[u8]) {
+		fn clear(key: Key) {
 			log::debug!(
 				target: TEST_ENV_LOG_TARGET,
 				"TestEnv::clear(\n\tkey: {:?}\n)",
@@ -489,7 +493,7 @@ mod test {
 			})
 		}
 
-		fn load(key: &[u8]) -> Option<Vec<u8>> {
+		fn load(key: Key) -> Option<Vec<u8>> {
 			log::debug!(
 				target: TEST_ENV_LOG_TARGET,
 				"TestEnv::load(\n\tkey: {:?}\n)",

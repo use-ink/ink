@@ -4,6 +4,7 @@ use crate::{
 		Stored,
 		SyncedMut,
 	},
+	env::{Env, ContractEnv},
 };
 
 use std::collections::HashMap;
@@ -66,7 +67,7 @@ where
 	///
 	/// This does not syncrhonize with main memory.
 	fn clear_at(&self, offset: u32) {
-		self.storage_at(offset).key().clear()
+		ContractEnv::clear(self.storage_at(offset).key())
 	}
 
 	/// Returns a mutable reference to the hashmap

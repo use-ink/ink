@@ -187,19 +187,19 @@ where
 mod test {
 	use super::*;
 
-	use crate::env::{Env, TestEnv};
+	use crate::env::{Env, ContractEnv};
 	use parity_codec::{Encode};
 
 	#[test]
 	fn new() {
 		let k0 = Key([0x0; 32]);
 		{
-			TestEnv::store(k0.as_bytes(), &u32::encode(&0));
+			ContractEnv::store(k0, &u32::encode(&0));
 			assert_eq!(StorageVec::<i32>::from(k0).len(), 0);
 		}
 		{
-			TestEnv::reset(); // Not necesarily required.
-			TestEnv::store(k0.as_bytes(), &u32::encode(&42));
+			ContractEnv::reset(); // Not necesarily required.
+			ContractEnv::store(k0, &u32::encode(&42));
 			assert_eq!(StorageVec::<i32>::from(k0).len(), 42);
 		}
 	}

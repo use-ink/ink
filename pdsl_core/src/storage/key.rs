@@ -1,5 +1,3 @@
-use crate::env::{Env, ContractEnv};
-
 /// Typeless generic key into contract storage.
 ///
 /// # Note
@@ -14,7 +12,7 @@ use crate::env::{Env, ContractEnv};
 /// - Violates Rust's mutability and immutability guarantees.
 ///
 /// Prefer using types found in `collections` or `Synced` type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Key(pub [u8; 32]);
 
 impl Key {
@@ -26,35 +24,13 @@ impl Key {
 	}
 
 	/// Returns the byte slice of this key.
-	pub(crate) fn as_bytes(&self) -> &[u8] {
+	pub fn as_bytes(&self) -> &[u8] {
 		&self.0
 	}
 
 	/// Returns the mutable byte slice of this key.
-	pub(crate) fn as_bytes_mut(&mut self) -> &mut [u8] {
+	pub fn as_bytes_mut(&mut self) -> &mut [u8] {
 		&mut self.0
-	}
-
-	/// Returns data stored in the storage slot associated with `self`.
-	///
-	/// # Errors
-	///
-	/// - Fails if the associated storage slot does not contain data.
-	///   This does not count for slots that store empty data.
-	pub fn load(self) -> Option<Vec<u8>> {
-		ContractEnv::load(self.as_bytes())
-	}
-
-	/// Stores the given data into the storage slot associated with `self`.
-	pub fn store(self, value: &[u8]) {
-		ContractEnv::store(self.as_bytes(), value)
-	}
-
-	/// Clears the storage slot associated with `self`.
-	///
-	/// Afterswards loading from this slot will fail.
-	pub fn clear(self) {
-		ContractEnv::clear(self.as_bytes())
 	}
 }
 
@@ -181,14 +157,16 @@ mod utils {
 mod tests {
 	use super::*;
 
+	use crate::env::{Env, ContractEnv};
+
 	#[test]
 	fn store_load_clear() {
 		let key = Key([0x42; 32]);
-		assert_eq!(key.load(), None);
-		key.store(&[0x5]);
-		assert_eq!(key.load(), Some(vec![0x5]));
-		key.clear();
-		assert_eq!(key.load(), None);
+		assert_eq!(ContractEnv::load(key), None);
+		ContractEnv::store(key, &[0x5]);
+		assert_eq!(ContractEnv::load(key), Some(vec![0x5]));
+		ContractEnv::clear(key);
+		assert_eq!(ContractEnv::load(key), None);
 	}
 
 	#[test]
@@ -197,10 +175,10 @@ mod tests {
 		let key05 = Key::with_offset(key00, 5);  // -> 5
 		let key10 = Key::with_offset(key00, 10); // -> 10         | same as key55
 		let key55 = Key::with_offset(key05, 5);  // -> 5 + 5 = 10 | same as key10
-		key55.store(&[42]);
-		assert_eq!(key10.load(), Some(vec![42]));
-		key10.store(&[13, 37]);
-		assert_eq!(key55.load(), Some(vec![13, 37]));
+		ContractEnv::store(key55, &[42]);
+		assert_eq!(ContractEnv::load(key10), Some(vec![42]));
+		ContractEnv::store(key10, &[13, 37]);
+		assert_eq!(ContractEnv::load(key55), Some(vec![13, 37]));
 	}
 
 	#[test]
