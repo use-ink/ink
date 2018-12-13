@@ -13,6 +13,8 @@ pub struct Stored<T> {
 	marker: PhantomData<T>,
 }
 
+impl<T> Copy for Stored<T> {}
+
 impl<T> Clone for Stored<T> {
 	fn clone(&self) -> Self {
 		Stored::from(self.key())
