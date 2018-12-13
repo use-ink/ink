@@ -135,19 +135,86 @@ mod default {
 mod test {
 	use super::*;
 
-	use lazy_static::lazy_static;
 	use std::collections::HashMap;
-	use std::sync::Mutex;
+	use std::cell::RefCell;
 
-	lazy_static! {
-		static ref CALLER: Mutex<Vec<u8>> = {
-			Mutex::new(Vec::new())
+	pub struct TestEnvData {
+		pub storage: HashMap<Vec<u8>, Vec<u8>>,
+		pub caller: Vec<u8>,
+		pub input: Vec<u8>,
+		pub expected_return: Vec<u8>,
+	}
+
+	impl Default for TestEnvData {
+		fn default() -> Self {
+			Self{
+				storage: HashMap::new(),
+				caller: Vec::new(),
+				input: Vec::new(),
+				expected_return: Vec::new(),
+			}
+		}
+	}
+
+	impl TestEnvData {
+		pub fn reset(&mut self) {
+			self.storage.clear();
+			self.caller.clear();
+			self.input.clear();
+			self.expected_return.clear();
+		}
+
+		pub fn expect_return(&mut self, expected_bytes: &[u8]) {
+			self.expected_return = expected_bytes.to_vec();
+		}
+
+		pub fn set_input(&mut self, input_bytes: &[u8]) {
+			self.input = input_bytes.to_vec();
+		}
+	}
+
+	impl TestEnvData {
+		const SUCCESS: i32 = 0;
+		const FAILURE: i32 = -1;
+
+		pub fn caller(&self) -> Vec<u8> {
+			self.caller.clone()
+		}
+
+		pub fn store(&mut self, key: &[u8], value: &[u8]) {
+			self.storage.insert(key.to_vec(), value.to_vec());
+		}
+
+		pub fn clear(&mut self, key: &[u8]) {
+			self.storage.remove(key);
+		}
+
+		pub fn load(&self, key: &[u8]) -> Option<Vec<u8>> {
+			self
+				.storage
+				.get(key)
+				.map(|loaded| loaded.to_vec())
+		}
+
+		pub fn input(&self) -> Vec<u8> {
+			self.input.clone()
+		}
+
+		pub fn return_(&self, data: &[u8]) -> ! {
+			let expected_bytes = self.expected_return.clone();
+			let exit_code = if expected_bytes == data {
+				Self::SUCCESS
+			} else {
+				Self::FAILURE
+			};
+			std::process::exit(exit_code)
+		}
+	}
+
+	thread_local! {
+		pub static TEST_ENV_DATA: RefCell<TestEnvData> = {
+			RefCell::new(TestEnvData::default())
 		};
-		static ref STORAGE: Mutex<HashMap<Vec<u8>, Vec<u8>>> = {
-			Mutex::new(HashMap::new())
-		};
-		static ref INPUT: Mutex<Vec<u8>> = Mutex::new(Vec::new());
-		static ref EXPECTED_RETURN: Mutex<Vec<u8>> = Mutex::new(Vec::new());
 	}
 
 	/// Test environment for testing SRML contract off-chain.
@@ -155,55 +222,63 @@ mod test {
 
 	impl TestEnv {
 		pub fn reset() {
-			STORAGE.lock().unwrap().clear();
-			INPUT.lock().unwrap().clear();
-			EXPECTED_RETURN.lock().unwrap().clear();
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow_mut().reset()
+			})
 		}
 
 		pub fn expect_return(expected_bytes: &[u8]) {
-			*EXPECTED_RETURN.lock().unwrap() = expected_bytes.to_vec();
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow_mut().expect_return(expected_bytes)
+			})
 		}
 
 		pub fn set_input(input_bytes: &[u8]) {
-			*INPUT.lock().unwrap() = input_bytes.to_vec();
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow_mut().set_input(input_bytes)
+			})
 		}
 	}
 
 	impl Env for TestEnv {
 		fn caller() -> Vec<u8> {
 			println!("TestEnv::caller()");
-			CALLER.lock().unwrap().clone()
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow().caller()
+			})
 		}
 
 		fn store(key: &[u8], value: &[u8]) {
 			println!("TestEnv::store(\n\tkey: {:?},\n\tval: {:?}\n)", key, value);
-			STORAGE.lock().unwrap().insert(key.to_vec(), value.to_vec());
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow_mut().store(key, value)
+			})
 		}
 
 		fn clear(key: &[u8]) {
 			println!("TestEnv::clear(\n\tkey: {:?}\n)", key);
-			STORAGE.lock().unwrap().remove(key);
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow_mut().clear(key)
+			})
 		}
 
 		fn load(key: &[u8]) -> Option<Vec<u8>> {
 			println!("TestEnv::load(\n\tkey: {:?}\n)", key);
-			STORAGE.lock().unwrap().get(key).map(|loaded| loaded.to_vec())
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow().load(key)
+			})
 		}
 
 		fn input() -> Vec<u8> {
-			INPUT.lock().unwrap().clone()
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow().input()
+			})
 		}
 
 		fn return_(data: &[u8]) -> ! {
-			const SUCCESS: i32 = 0;
-			const FAILURE: i32 = -1;
-			*EXPECTED_RETURN.lock().unwrap() = data.to_vec();
-			let exit_code = if data == EXPECTED_RETURN.lock().unwrap().as_slice() {
-				SUCCESS
-			} else {
-				FAILURE
-			};
-			std::process::exit(exit_code)
+			TEST_ENV_DATA.with(|test_env| {
+				test_env.borrow().return_(data)
+			})
 		}
 	}
 }
