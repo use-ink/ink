@@ -1,7 +1,6 @@
 use crate::storage::{
 	Key,
 	Stored,
-	Synced,
 	SyncedRef,
 	SyncedChunk,
 };
