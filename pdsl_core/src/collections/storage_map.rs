@@ -298,7 +298,7 @@ where
 	///
 	/// The key may be any borrowed form of the map's key type,
 	/// but Hash and Eq on the borrowed form must match those for the key type.
-	pub fn entry<Q>(&self, key: &Q) -> Option<&Entry<K, V>>
+	fn entry<Q>(&self, key: &Q) -> Option<&Entry<K, V>>
 	where
 		K: Borrow<Q>,
 		Q: HashAsKeccak256 + Eq
