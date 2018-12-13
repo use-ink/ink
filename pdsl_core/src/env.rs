@@ -453,42 +453,69 @@ mod test {
 		}
 	}
 
+	const TEST_ENV_LOG_TARGET: &'static str = "test-env";
+
 	impl Env for TestEnv {
 		fn caller() -> Vec<u8> {
-			println!("TestEnv::caller()");
+			log::debug!(
+				target: TEST_ENV_LOG_TARGET,
+				"TestEnv::caller()"
+			);
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow().caller()
 			})
 		}
 
 		fn store(key: &[u8], value: &[u8]) {
-			println!("TestEnv::store(\n\tkey: {:?},\n\tval: {:?}\n)", key, value);
+			log::debug!(
+				target: TEST_ENV_LOG_TARGET,
+				"TestEnv::store(\n\tkey: {:?},\n\tval: {:?}\n)",
+				key,
+				value,
+			);
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow_mut().store(key, value)
 			})
 		}
 
 		fn clear(key: &[u8]) {
-			println!("TestEnv::clear(\n\tkey: {:?}\n)", key);
+			log::debug!(
+				target: TEST_ENV_LOG_TARGET,
+				"TestEnv::clear(\n\tkey: {:?}\n)",
+				key,
+			);
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow_mut().clear(key)
 			})
 		}
 
 		fn load(key: &[u8]) -> Option<Vec<u8>> {
-			println!("TestEnv::load(\n\tkey: {:?}\n)", key);
+			log::debug!(
+				target: TEST_ENV_LOG_TARGET,
+				"TestEnv::load(\n\tkey: {:?}\n)",
+				key,
+			);
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow().load(key)
 			})
 		}
 
 		fn input() -> Vec<u8> {
+			log::debug!(
+				target: TEST_ENV_LOG_TARGET,
+				"TestEnv::input()",
+			);
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow().input()
 			})
 		}
 
 		fn return_(data: &[u8]) -> ! {
+			log::debug!(
+				target: TEST_ENV_LOG_TARGET,
+				"TestEnv::return_(\n\tdata: {:?}\n)",
+				data,
+			);
 			TEST_ENV_DATA.with(|test_env| {
 				test_env.borrow().return_(data)
 			})
