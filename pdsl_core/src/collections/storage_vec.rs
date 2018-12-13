@@ -1,7 +1,7 @@
 use crate::storage::{
 	Key,
 	Stored,
-	SyncedRef,
+	SyncedMut,
 	SyncedChunk,
 };
 
@@ -78,7 +78,7 @@ where
 	/// Returns a mutable reference to the n-th element of this storage vec.
 	///
 	/// Returns `None` if given `n` is out of bounds.
-	pub fn get_mut(&mut self, n: u32) -> Option<SyncedRef<T>> {
+	pub fn get_mut(&mut self, n: u32) -> Option<SyncedMut<T>> {
 		if n >= self.len() {
 			return None
 		}

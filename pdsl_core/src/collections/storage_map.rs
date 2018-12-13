@@ -1,4 +1,4 @@
-use crate::storage::{Key, Synced, SyncedChunk};
+use crate::storage::{Key, Stored, SyncedChunk};
 use crate::hash::{self, HashAsKeccak256};
 
 use std::borrow::Borrow;
@@ -23,7 +23,7 @@ use std::borrow::Borrow;
 #[derive(Debug)]
 pub struct StorageMap<K, V> {
 	/// The storage key to the length of this storage map.
-	len: Synced<u32>,
+	len: Stored<u32>,
 	/// The first half of the entry buffer is equal to the key,
 	/// the second half will be replaced with the respective
 	/// hash of any given key upon usage.
@@ -64,7 +64,7 @@ where
 {
 	fn from(key: Key) -> Self {
 		StorageMap{
-			len: Synced::from(key),
+			len: Stored::from(key),
 			entries: SyncedChunk::from(
 				Key::with_offset(key, 1)
 			),
@@ -75,7 +75,7 @@ where
 impl<K, V> StorageMap<K, V> {
 	/// Returns the number of key-value pairs in the map.
 	pub fn len(&self) -> u32 {
-		*self.len.get()
+		self.len.load()
 	}
 
 	/// Returns `true` if the map contains no elements.
