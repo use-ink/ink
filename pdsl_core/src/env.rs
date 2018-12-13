@@ -27,7 +27,12 @@ pub mod c_abi {
 
 		pub fn ext_caller();
 
-		pub fn ext_set_storage(key_ptr: u32, value_non_null: u32, value_ptr: u32, value_len: u32);
+		pub fn ext_set_storage(
+			key_ptr: u32,
+			value_non_null: u32,
+			value_ptr: u32,
+			value_len: u32
+		);
 		pub fn ext_get_storage(key_ptr: u32) -> u32;
 
 		pub fn ext_scratch_size() -> u32;
