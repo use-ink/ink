@@ -176,3 +176,37 @@ mod utils {
 		}
 	}
 }
+
+#[cfg(all(test, feature = "test-env"))]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn store_load_clear() {
+		let mut key = Key([0x42; 32]);
+		assert_eq!(key.load(), None);
+		key.store(&[0x5]);
+		assert_eq!(key.load(), Some(vec![0x5]));
+		key.clear();
+		assert_eq!(key.load(), None);
+	}
+
+	#[test]
+	fn key_with_offset() {
+		let     key00 = Key([0x0; 32]);
+		let     key05 = Key::with_offset(key00, 5);  // -> 5
+		let mut key10 = Key::with_offset(key00, 10); // -> 10         | same as key55
+		let mut key55 = Key::with_offset(key05, 5);  // -> 5 + 5 = 10 | same as key10
+		key55.store(&[42]);
+		assert_eq!(key10.load(), Some(vec![42]));
+		key10.store(&[13, 37]);
+		assert_eq!(key55.load(), Some(vec![13, 37]));
+	}
+
+	#[test]
+	fn as_bytes() {
+		let mut key = Key([0x42; 32]);
+		assert_eq!(key.as_bytes(), &[0x42; 32]);
+		assert_eq!(key.as_bytes_mut(), &mut [0x42; 32]);
+	}
+}
