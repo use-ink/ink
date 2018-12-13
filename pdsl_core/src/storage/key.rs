@@ -41,19 +41,19 @@ impl Key {
 	///
 	/// - Fails if the associated storage slot does not contain data.
 	///   This does not count for slots that store empty data.
-	pub fn load(&self) -> Option<Vec<u8>> {
+	pub fn load(self) -> Option<Vec<u8>> {
 		ContractEnv::load(self.as_bytes())
 	}
 
 	/// Stores the given data into the storage slot associated with `self`.
-	pub fn store(&mut self, value: &[u8]) {
+	pub fn store(self, value: &[u8]) {
 		ContractEnv::store(self.as_bytes(), value)
 	}
 
 	/// Clears the storage slot associated with `self`.
 	///
 	/// Afterswards loading from this slot will fail.
-	pub fn clear(&mut self) {
+	pub fn clear(self) {
 		ContractEnv::clear(self.as_bytes())
 	}
 }
@@ -183,7 +183,7 @@ mod tests {
 
 	#[test]
 	fn store_load_clear() {
-		let mut key = Key([0x42; 32]);
+		let key = Key([0x42; 32]);
 		assert_eq!(key.load(), None);
 		key.store(&[0x5]);
 		assert_eq!(key.load(), Some(vec![0x5]));
@@ -193,10 +193,10 @@ mod tests {
 
 	#[test]
 	fn key_with_offset() {
-		let     key00 = Key([0x0; 32]);
-		let     key05 = Key::with_offset(key00, 5);  // -> 5
-		let mut key10 = Key::with_offset(key00, 10); // -> 10         | same as key55
-		let mut key55 = Key::with_offset(key05, 5);  // -> 5 + 5 = 10 | same as key10
+		let key00 = Key([0x0; 32]);
+		let key05 = Key::with_offset(key00, 5);  // -> 5
+		let key10 = Key::with_offset(key00, 10); // -> 10         | same as key55
+		let key55 = Key::with_offset(key05, 5);  // -> 5 + 5 = 10 | same as key10
 		key55.store(&[42]);
 		assert_eq!(key10.load(), Some(vec![42]));
 		key10.store(&[13, 37]);

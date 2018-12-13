@@ -39,7 +39,7 @@ where
 	T: parity_codec::Encode
 {
 	/// Encodes and stores the data to the contract storage.
-	pub fn store(&mut self, new_val: &T) {
+	pub fn store(self, new_val: &T) {
 		self.key.store(&T::encode(&new_val))
 	}
 }
@@ -49,7 +49,7 @@ where
 	T: parity_codec::Decode
 {
 	/// Loads and decodes the data from the contract storage.
-	pub fn load(&self) -> T {
+	pub fn load(self) -> T {
 		self.try_load()
 		    .expect("[pdsl_core::Stored::load] failed")
 	}
@@ -57,7 +57,7 @@ where
 	/// Tries to load and decode the data from the contract storage.
 	///
 	/// Returns `None` if the storage slot was empty.
-	pub fn try_load(&self) -> Option<T> {
+	pub fn try_load(self) -> Option<T> {
 		self.key
 			.load()
 			.and_then(|bytes| T::decode(&mut &bytes[..]))
