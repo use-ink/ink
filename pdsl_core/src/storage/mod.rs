@@ -9,8 +9,10 @@ mod non_clone;
 mod key;
 mod stored;
 mod synced;
+
 mod synced_chunk;
 
+pub mod cell;
 
 use self::non_clone::NonCloneMarker;
 
