@@ -13,6 +13,7 @@ mod synced;
 mod synced_chunk;
 
 pub mod cell;
+pub mod chunk;
 
 use self::non_clone::NonCloneMarker;
 
