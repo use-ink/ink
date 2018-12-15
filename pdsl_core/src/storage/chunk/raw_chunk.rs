@@ -47,6 +47,18 @@ impl RawChunk {
 		}
 	}
 
+	/// Returns `Ok` if `n` is within bounds for `self`.
+	///
+	/// # Error
+	///
+	/// Returns an error if `n` is not within bounds.
+	fn offset_key(&self, n: u32) -> Result<Key> {
+		if n >= self.capacity() {
+			return Err(ChunkError::access_out_of_bounds(n, self.capacity()))
+		}
+		Ok(Key::with_offset(self.key, n))
+	}
+
 	/// Returns the capacity of this chunk.
 	///
 	/// # Note
@@ -58,28 +70,23 @@ impl RawChunk {
 
 	/// Loads the data at offset `n` if any.
 	pub fn load(&self, n: u32) -> Result<Option<Vec<u8>>> {
-		if n >= self.capacity() {
-			return Err(ChunkError::access_out_of_bounds(n, self.capacity()))
-		}
-		Ok(ContractEnv::load(Key::with_offset(self.key, n)))
+		self.offset_key(n).map(|key| {
+			ContractEnv::load(key)
+		})
 	}
 
 	/// Stores the given data at offset `n`.
 	pub fn store(&mut self, n: u32, bytes: &[u8]) -> Result<()> {
-		if n >= self.capacity() {
-			return Err(ChunkError::access_out_of_bounds(n, self.capacity()))
-		}
-		ContractEnv::store(Key::with_offset(self.key, n), bytes);
-		Ok(())
+		self.offset_key(n).map(|key| {
+			ContractEnv::store(key, bytes)
+		})
 	}
 
 	/// Removes the data at offset `n` from the associated contract storage slot.
 	pub fn clear(&mut self, n: u32) -> Result<()> {
-		if n >= self.capacity() {
-			return Err(ChunkError::access_out_of_bounds(n, self.capacity()))
-		}
-		ContractEnv::clear(Key::with_offset(self.key, n));
-		Ok(())
+		self.offset_key(n).map(|key| {
+			ContractEnv::clear(key)
+		})
 	}
 }
 
