@@ -15,7 +15,7 @@ description = "[pDSL: Parity eDSL] Rust based eDSL for writing smart contracts f
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 categories = ["no-std", "embedded"]
 
-include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
 parity-codec = { version = "2.0" }
