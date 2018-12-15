@@ -58,7 +58,6 @@ mod utils {
 	/// The first byte in the byte slice is interpreted as its
 	/// most significant byte.
 	pub fn bytes_add_byte_inplace(bytes: &mut [u8], byte: u8) {
-		println!("bytes_add_byte_inplace({:?}, {:?})", bytes, byte);
 		assert!(bytes.len() > 0);
 		match bytes.len() {
 			1 => {
@@ -84,7 +83,6 @@ mod utils {
 		let rhs_bytes = u32_to_bytes(rhs);
 		let n = lhs.len();
 		for (i, &rhs_byte) in rhs_bytes.iter().rev().enumerate() {
-			println!("i = {}", i);
 			let lhs_head = &mut lhs[..(n - i)];
 			bytes_add_byte_inplace(lhs_head, rhs_byte);
 		}
