@@ -5,10 +5,14 @@
 //! for example the ones that can be found in the `collections`
 //! crate module.
 
+mod non_clone;
 mod key;
 mod stored;
 mod synced;
 mod synced_chunk;
+
+
+use self::non_clone::NonCloneMarker;
 
 pub use self::{
 	key::{
