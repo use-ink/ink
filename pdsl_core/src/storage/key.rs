@@ -12,7 +12,7 @@
 /// - Violates Rust's mutability and immutability guarantees.
 ///
 /// Prefer using types found in `collections` or `Synced` type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Key(pub [u8; 32]);
 
 impl Key {
