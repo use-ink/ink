@@ -1,9 +1,66 @@
-//! Low-level abstraction around the contract storage.
+//! Provides low-level primitives to operate on contract storage.
 //!
-//! Users should avoid using these abstractions directly
-//! and instead prefer using higher level abstractions,
-//! for example the ones that can be found in the `collections`
-//! crate module.
+//! The following table lists all kinds of guarantees and what they provide for their users.
+//!
+//! ## Guarantees
+//!
+//! | Guarantee     | Description |
+//! |:--------------|:------------|
+//! | `Owned`       | Disallows aliasing between different kinds of these primitives. |
+//! | `Typed`       | Automatically encodes and decodes the stored entity. |
+//! | `Avoid Reads` | Tries to avoid unnecesary reads to the storage. |
+//! | `Mutable`     | Allows inplace mutation of the stored entity. |
+//! | `Safe Load`   | Guarantees to always have a valid element stored in the associated contract storage slot. |
+//!
+//! ## Structure
+//!
+//! ### Key
+//!
+//! The bare metal abstraction.
+//!
+//! It can be compared to a C-style raw void pointer that points to arbitrary memory.
+//! `Key` allows arbitrary pointer-arithmetic and provides absolutely no guarantees to its users.
+//!
+//! ### Cells
+//!
+//! There are many different cell types.
+//!
+//! In essence all `Cell` types guarantee anti-aliased memory access.
+//!
+//! ### Entities
+//!
+//! The highest-level abstraction concerning constract storage primitive.
+//!
+//! They provide the most guarantees and should be preferred over the other
+//! primitive types if possible.
+//!
+//! ## Primitives
+//!
+//! These are the new primitives for contract storage access and their provided guarantees.
+//!
+//! | Primitive   | Owned | Typed | Avoids Reads | Mutable | Safe Load | Requirements |
+//! |:-----------:|:-----:|:-----:|:------------:|:-------:|:---------:|:-------------|
+//! | `Key`       | No    | No    | No           | No      | No        |              |
+//! | `RawCell`   | Yes   | No    | No           | No      | No        |              |
+//! | `TypedCell` | Yes   | Yes   | No           | No      | No        |              |
+//! | `CopyCell`  | Yes   | Yes   | Yes          | No      | No        | `T: Copy`    |
+//! | `MutCell`   | Yes   | Yes   | Yes          | Yes     | No        |              |
+//!
+//! **Note:** `CopyCell` and `CopyChunk` are preferred for `Copy` types.
+//!
+//! ## Chunks
+//!
+//! Chunks allow to operate on a collection of cells.
+//! They can be compared to an array or a vector of cells.
+//! There is one chunked version of every cell type and it provides the same guarantees.
+//!
+//! ### Kinds
+//!
+//! - `RawChunk`
+//! - `TypedChunk`
+//! - `CopyChunk`
+//! - `MutChunk`
+//!
 
 mod non_clone;
 mod key;
