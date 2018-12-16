@@ -512,4 +512,53 @@ mod tests {
 		assert_eq!(TestEnv::total_reads(), CAPACITY as u64);
 		assert_eq!(TestEnv::total_writes(), CAPACITY as u64 + STORE_REPEATS as u64);
 	}
+
+	#[test]
+	fn replace() {
+		const CAPACITY: u32 = 5;
+
+		let mut chunk = unsafe {
+			MutChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+		};
+
+		// Out of bounds replacement
+		assert!(chunk.replace(CAPACITY, 5).is_err());
+
+		// Replace some with none.
+		assert_eq!(chunk.replace(0, 42), Ok(None));
+		// Again will yield previous result.
+		assert_eq!(chunk.replace(0, 42), Ok(Some(42)));
+
+		// After clearing it will be none again.
+		assert!(chunk.clear(0).is_ok());
+		assert_eq!(chunk.replace(0, 42), Ok(None));
+	}
+
+	#[test]
+	fn remove() {
+		const CAPACITY: u32 = 5;
+
+		let mut chunk = unsafe {
+			MutChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+		};
+
+		// Out of bounds replacement
+		assert!(chunk.remove(CAPACITY).is_err());
+
+		// Remove at none.
+		assert_eq!(chunk.remove(0), Ok(None));
+		// Again will yield none again.
+		assert_eq!(chunk.remove(0), Ok(None));
+		// Also get will return none.
+		assert_eq!(chunk.get(0), Ok(None));
+
+		// After inserting it will yield the inserted value.
+		assert!(chunk.set(0, 1337).is_ok());
+		// Before remove returns the inserted value.
+		assert_eq!(chunk.get(0), Ok(Some(&1337)));
+		// Remove yields the removed value.
+		assert_eq!(chunk.remove(0), Ok(Some(1337)));
+		// After remove returns none again.
+		assert_eq!(chunk.get(0), Ok(None));
+	}
 }
