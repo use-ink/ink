@@ -5,7 +5,7 @@ use crate::{
 	},
 };
 
-use std::cell::{RefCell};
+use std::cell::RefCell;
 
 /// A synchronized cell.
 ///
@@ -17,59 +17,82 @@ use std::cell::{RefCell};
 /// - `Owned`, `Typed`, `Avoid Reads`, `Mutable`
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct SyncCell<T> {
 	/// The underlying typed cell.
 	cell: TypedCell<T>,
-	/// The cached entity.
-	elem: RefCell<Cached<T>>,
+	/// The cache for the synchronized value.
+	cache: Cache<T>,
 }
 
-/// A cached entity.
-///
-/// This is either in sync with the contract storage or out of sync.
-#[derive(Debug, PartialEq, Eq)]
-pub enum Cached<T> {
-	/// Desync mode.
+#[derive(Debug)]
+pub enum CacheEntry<T> {
 	Desync,
-	/// Synced with synced contract storage slot state.
 	Sync(Option<T>),
 }
 
-impl<T> Cached<T> {
-	/// Returns `true` is the value of the cache is in sync.
+#[derive(Debug)]
+pub struct Cache<T> {
+	/// The cached value.
+	entry: RefCell<CacheEntry<T>>,
+}
+
+impl<T> Default for Cache<T> {
+	fn default() -> Self {
+		Self{ entry: RefCell::new(CacheEntry::Desync) }
+	}
+}
+
+impl<T> CacheEntry<T> {
 	pub fn is_synced(&self) -> bool {
 		match self {
-			Cached::Sync(_) => true,
+			CacheEntry::Sync(_) => true,
 			_ => false,
 		}
 	}
 
-	/// Returns a `Cached` of an immutable reference to the cell value.
-	pub fn as_ref(&self) -> Cached<&T> {
+	pub fn unwrap_get(&self) -> Option<&T> {
 		match self {
-			Cached::Desync => Cached::Desync,
-			Cached::Sync(opt_elem) => Cached::Sync(opt_elem.as_ref()),
+			CacheEntry::Sync(opt_elem) => opt_elem.into(),
+			CacheEntry::Desync => {
+				panic!(
+					"[pdsl_core::sync_cell::CacheEntry::unwrap] Error: \
+					 tried to unwrap a desynchronized value"
+				)
+			}
 		}
 	}
+}
 
-	/// Converts `self` to an `Option` of immutable reference.
-	///
-	/// Returns `None` if it is desync.
-	pub fn as_opt(&self) -> Option<&T> {
-		match self {
-			Cached::Desync => None,
-			Cached::Sync(opt_elem) => opt_elem.into(),
-		}
+impl<T> Cache<T> {
+	pub fn is_synced(&self) -> bool {
+		self.entry.borrow().is_synced()
 	}
 
-	/// Converts `self` to an `Option` of mutable reference.
-	///
-	/// Returns `None` if it is desync.
-	pub fn as_opt_mut(&mut self) -> Option<&mut T> {
-		match self {
-			Cached::Desync => None,
-			Cached::Sync(opt_elem) => opt_elem.into(),
+	pub fn update(&self, new_val: Option<T>) {
+		self.entry.replace(
+			CacheEntry::Sync(new_val)
+		);
+	}
+
+	pub fn get(&self) -> &CacheEntry<T> {
+		unsafe{ &*self.entry.as_ptr() }
+	}
+
+	pub fn mutate_with<F>(&mut self, f: F) -> Option<&T>
+	where
+		F: FnOnce(&mut T)
+	{
+		match self.entry.get_mut() {
+			CacheEntry::Desync => None,
+			CacheEntry::Sync(opt_val) => {
+				if let Some(val) = opt_val {
+					f(val);
+					Some(&*val)
+				} else {
+					None
+				}
+			}
 		}
 	}
 }
@@ -84,14 +107,14 @@ impl<T> SyncCell<T> {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			cell: TypedCell::new_unchecked(key),
-			elem: RefCell::new(Cached::Desync)
+			cache: Cache::default(),
 		}
 	}
 
 	/// Removes the value from the cell.
 	pub fn clear(&mut self) {
 		self.cell.clear();
-		self.elem.replace(Cached::Sync(None));
+		self.cache.update(None);
 	}
 }
 
@@ -99,21 +122,16 @@ impl<T> SyncCell<T>
 where
 	T: parity_codec::Decode
 {
-	/// Returns the synchronized value of the cell if any.
-	fn cached(&self) -> Cached<&T> {
-		let elem_ref = unsafe { &*self.elem.as_ptr() };
-		match elem_ref {
-			Cached::Desync => Cached::Desync,
-			cached @ Cached::Sync(_) => cached.as_ref(),
-		}
-	}
-
 	/// Returns the value of the cell if any.
 	pub fn get(&self) -> Option<&T> {
-		if let Cached::Sync(opt_elem) = self.cached() {
-			return opt_elem
+		match self.cache.get() {
+			CacheEntry::Desync => {
+				self.load()
+			}
+			CacheEntry::Sync(opt_elem) => {
+				opt_elem.into()
+			}
 		}
-		self.load()
 	}
 
 	/// Returns an immutable reference to the entity if any.
@@ -123,13 +141,11 @@ where
 	/// Prefer using [`get`](struct.SyncCell.html#method.get)
 	/// to avoid unnecesary contract storage accesses.
 	fn load(&self) -> Option<&T> {
-		self.elem.replace(Cached::Sync(self.cell.load()));
-		{
-			let cached: &Cached<T> = unsafe {
-				&*self.elem.as_ptr()
-			};
-			cached.as_opt()
-		}
+		self.cache.update(self.cell.load());
+		// Now cache is certainly synchronized
+		// so we can safely unwrap the cached value.
+		debug_assert!(self.cache.is_synced());
+		self.cache.get().unwrap_get()
 	}
 }
 
@@ -140,7 +156,7 @@ where
 	/// Sets the value of the cell.
 	pub fn set(&mut self, val: T) {
 		self.cell.store(&val);
-		self.elem.replace(Cached::Sync(Some(val)));
+		self.cache.update(Some(val))
 	}
 }
 
@@ -153,15 +169,17 @@ where
 	where
 		F: FnOnce(&mut T)
 	{
-		if !self.elem.borrow().is_synced() {
+		if !self.cache.is_synced() {
 			self.load();
 		}
-		if let Some(elem) = self.elem.get_mut().as_opt_mut() {
-			f(elem);
-			self.cell.store(&elem);
-			return true;
+		debug_assert!(self.cache.is_synced());
+		match self.cache.mutate_with(f) {
+			Some(res) => {
+				self.cell.store(res);
+				true
+			}
+			None => false
 		}
-		false
 	}
 }
 
@@ -176,13 +194,13 @@ mod tests {
 		let mut cell: SyncCell<i32> = unsafe {
 			SyncCell::new_unchecked(Key([0x42; 32]))
 		};
-		assert_eq!(cell.load(), None);
+		assert_eq!(cell.get(), None);
 		cell.set(5);
-		assert_eq!(cell.load(), Some(&5));
-		cell.mutate_with(|val| *val += 10);
-		assert_eq!(cell.load(), Some(&15));
+		assert_eq!(cell.get(), Some(&5));
+		assert!(cell.mutate_with(|val| *val += 10));
+		assert_eq!(cell.get(), Some(&15));
 		cell.clear();
-		assert_eq!(cell.load(), None);
+		assert_eq!(cell.get(), None);
 	}
 
 	#[test]
