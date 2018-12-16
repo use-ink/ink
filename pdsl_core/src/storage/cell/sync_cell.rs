@@ -37,6 +37,14 @@ pub enum Cached<T> {
 }
 
 impl<T> Cached<T> {
+	/// Returns `true` is the value of the cache is in sync.
+	pub fn is_synced(&self) -> bool {
+		match self {
+			Cached::Sync(_) => true,
+			_ => false,
+		}
+	}
+
 	/// Returns a `Cached` of an immutable reference to the cell value.
 	pub fn as_ref(&self) -> Cached<&T> {
 		match self {
@@ -134,16 +142,26 @@ where
 		self.cell.store(&val);
 		self.elem.replace(Cached::Sync(Some(val)));
 	}
+}
 
+impl<T> SyncCell<T>
+where
+	T: parity_codec::Codec
+{
 	/// Mutates the value stored in the cell.
-	pub fn mutate_with<F>(&mut self, f: F)
+	pub fn mutate_with<F>(&mut self, f: F) -> bool
 	where
 		F: FnOnce(&mut T)
 	{
+		if !self.elem.borrow().is_synced() {
+			self.load();
+		}
 		if let Some(elem) = self.elem.get_mut().as_opt_mut() {
 			f(elem);
 			self.cell.store(&elem);
+			return true;
 		}
+		false
 	}
 }
 
