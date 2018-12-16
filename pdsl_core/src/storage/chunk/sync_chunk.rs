@@ -28,7 +28,7 @@ use std::{
 ///
 /// - `Owned`
 /// - `Typed`
-/// - `Avoid Reads`
+/// - `Opt. Reads`
 /// - `Mutable`
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).

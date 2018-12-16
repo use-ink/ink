@@ -4,13 +4,13 @@
 //!
 //! ## Guarantees
 //!
-//! | Guarantee     | Description |
-//! |:--------------|:------------|
-//! | `Owned`       | Disallows aliasing between different kinds of these primitives. |
-//! | `Typed`       | Automatically encodes and decodes the stored entity. |
-//! | `Avoid Reads` | Tries to avoid unnecesary reads to the storage. |
-//! | `Mutable`     | Allows inplace mutation of the stored entity. |
-//! | `Safe Load`   | Guarantees to always have a valid element stored in the associated contract storage slot. |
+//! | Guarantee    | Description |
+//! |:-------------|:------------|
+//! | `Owned`      | Disallows aliasing between different kinds of these primitives. |
+//! | `Typed`      | Automatically encodes and decodes the stored entity. |
+//! | `Opt. Reads` | Tries to avoid unnecesary reads to the storage. |
+//! | `Mutable`    | Allows inplace mutation of the stored entity. |
+//! | `Safe Load`  | Guarantees to always have a valid element stored in the associated contract storage slot. |
 //!
 //! ## Structure
 //!
@@ -38,15 +38,12 @@
 //!
 //! These are the new primitives for contract storage access and their provided guarantees.
 //!
-//! | Primitive   | Owned | Typed | Avoids Reads | Mutable | Safe Load | Requirements |
-//! |:-----------:|:-----:|:-----:|:------------:|:-------:|:---------:|:-------------|
-//! | `Key`       | No    | No    | No           | No      | No        |              |
-//! | `RawCell`   | Yes   | No    | No           | No      | No        |              |
-//! | `TypedCell` | Yes   | Yes   | No           | No      | No        |              |
-//! | `CopyCell`  | Yes   | Yes   | Yes          | No      | No        | `T: Copy`    |
-//! | `MutCell`   | Yes   | Yes   | Yes          | Yes     | No        |              |
-//!
-//! **Note:** `CopyCell` and `CopyChunk` are preferred for `Copy` types.
+//! | Primitive   | Owned | Typed | Opt. Reads | Mutable | Safe Load | Requirements |
+//! |:-----------:|:-----:|:-----:|:----------:|:-------:|:---------:|:-------------|
+//! | `Key`       | No    | No    | No         | No      | No        |              |
+//! | `RawCell`   | Yes   | No    | No         | No      | No        |              |
+//! | `TypedCell` | Yes   | Yes   | No         | No      | No        |              |
+//! | `SnycCell`  | Yes   | Yes   | Yes        | Yes     | No        |              |
 //!
 //! ## Chunks
 //!
@@ -58,8 +55,7 @@
 //!
 //! - `RawChunk`
 //! - `TypedChunk`
-//! - `CopyChunk`
-//! - `MutChunk`
+//! - `SyncChunk`
 //!
 
 mod non_clone;
