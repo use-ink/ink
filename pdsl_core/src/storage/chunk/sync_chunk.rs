@@ -322,7 +322,7 @@ where
 	///
 	/// # Note
 	///
-	/// Prefer using [`get`](struct.MutChunk.html#method.get)
+	/// Prefer using [`get`](struct.SyncChunk.html#method.get)
 	/// to avoid unnecesary contract storage accesses.
 	///
 	/// # Errors
@@ -341,7 +341,7 @@ where
 	///
 	/// # Note
 	///
-	/// Use [`clear`](struct.MutChunk.html#method.clear) instead
+	/// Use [`clear`](struct.SyncChunk.html#method.clear) instead
 	/// if you are not interested in the old return value.
 	///
 	/// # Errors
@@ -377,7 +377,7 @@ where
 	///
 	/// # Note
 	///
-	/// Use [`set`](struct.MutChunk.html#method.set) instead
+	/// Use [`set`](struct.SyncChunk.html#method.set) instead
 	/// if you are not interested in the old return value.
 	///
 	/// # Errors
