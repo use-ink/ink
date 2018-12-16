@@ -41,6 +41,10 @@ pub struct TypedChunkCell<'a, T> {
 
 impl<'a, T> TypedChunkCell<'a, T> {
 	/// Creates a new raw chunk cell from the given key.
+	///
+	/// # Safety
+	///
+	/// This is unsafe since it doesn't check aliasing of cells.
 	pub(self) unsafe fn new_unchecked(cell: RawChunkCell<'a>) -> Self {
 		Self{
 			cell,
@@ -48,7 +52,7 @@ impl<'a, T> TypedChunkCell<'a, T> {
 		}
 	}
 
-	/// Removes the stored data.
+	/// Removes the value stored in this cell.
 	pub fn clear(&mut self) {
 		self.cell.clear()
 	}
@@ -58,7 +62,11 @@ impl<'a, T> TypedChunkCell<'a, T>
 where
 	T: parity_codec::Decode
 {
-	/// Loads the data if any.
+	/// Loads the value stored in the cell if any.
+	///
+	/// # Panics
+	///
+	/// If decoding of the loaded bytes fails.
 	pub fn load(&self) -> Option<T> {
 		self
 			.cell
@@ -78,7 +86,7 @@ impl<'a, T> TypedChunkCell<'a, T>
 where
 	T: parity_codec::Encode
 {
-	/// Stores the given data.
+	/// Stores the value into the cell.
 	pub fn store(&mut self, val: &T) {
 		self.cell.store(&T::encode(val))
 	}
@@ -100,16 +108,12 @@ impl<T> TypedChunk<T> {
 		}
 	}
 
-	/// Returns the length of this chunk.
-	///
-	/// # Note
-	///
-	/// The returned length is guaranteed to always be greater than zero.
+	/// Returns the capacity of this chunk.
 	pub fn capacity(&self) -> u32 {
 		self.chunk.capacity()
 	}
 
-	/// Returns the cell at offset `n`.
+	/// Returns an accessor to the `n`-th cell.
 	pub(crate) fn cell_at(&mut self, n: u32) -> Result<TypedChunkCell<T>> {
 		self
 			.chunk
@@ -119,7 +123,7 @@ impl<T> TypedChunk<T> {
 			})
 	}
 
-	/// Removes the entity at offset `n` from the associated contract storage slot.
+	/// Removes the value stored in the `n`-th cell.
 	pub fn clear(&mut self, n: u32) -> Result<()> {
 		self.chunk.clear(n)
 	}
@@ -129,7 +133,11 @@ impl<T> TypedChunk<T>
 where
 	T: parity_codec::Decode
 {
-	/// Loads the entity at offset `n` if any.
+	/// Loads the value stored in the `n`-th cell if any.
+	///
+	/// # Panics
+	///
+	/// If decoding of the loaded bytes fails.
 	pub fn load(&self, n: u32) -> Result<Option<T>> {
 		self
 			.chunk
@@ -151,7 +159,7 @@ impl<T> TypedChunk<T>
 where
 	T: parity_codec::Encode
 {
-	/// Stores the given entity at offset `n`.
+	/// Stores the value into the `n`-th cell.
 	pub fn store(&mut self, n: u32, val: &T) -> Result<()> {
 		self.cell_at(n).map(|mut cell| cell.store(val))
 	}
