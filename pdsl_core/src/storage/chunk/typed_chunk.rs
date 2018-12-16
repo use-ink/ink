@@ -135,8 +135,13 @@ where
 			.chunk
 			.load(n)
 			.map(|opt_loaded| {
-				opt_loaded.and_then(|loaded| {
+				opt_loaded.map(|loaded| {
 					T::decode(&mut &loaded[..])
+						// Maybe we should return an error instead of panicking.
+						.expect(
+							"[pdsl_core::TypedChunk::load] Error: \
+							failed upon decoding"
+						)
 				})
 			})
 	}
