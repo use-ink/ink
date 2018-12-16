@@ -26,7 +26,7 @@ pub struct RawCell {
 impl RawCell {
 	/// Creates a new raw cell for the given key.
 	///
-	/// # Note
+	/// # Safety
 	///
 	/// This is unsafe since it does not check if the associated
 	/// contract storage does not alias with other accesses.
@@ -39,17 +39,17 @@ impl RawCell {
 }
 
 impl RawCell {
-	/// Loads the data if any.
+	/// Loads the bytes stored in the cell if not empty.
 	pub fn load(&self) -> Option<Vec<u8>> {
 		ContractEnv::load(self.key)
 	}
 
-	/// Stores the given data.
+	/// Stores the given bytes into the cell.
 	pub fn store(&mut self, bytes: &[u8]) {
 		ContractEnv::store(self.key, bytes)
 	}
 
-	/// Removes the data from the associated contract storage slot.
+	/// Removes the bytes stored in the cell.
 	pub fn clear(&mut self) {
 		ContractEnv::clear(self.key)
 	}

@@ -71,7 +71,7 @@ impl RawChunkCell<'_> {
 impl RawChunk {
 	/// Creates a new raw cell chunk for the given key and capacity.
 	///
-	/// # Note
+	/// # Safety
 	///
 	/// This is unsafe because ...
 	/// - ... it does not check if the associated

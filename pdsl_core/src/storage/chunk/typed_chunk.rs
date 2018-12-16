@@ -95,7 +95,7 @@ where
 impl<T> TypedChunk<T> {
 	/// Creates a new typed cell chunk for the given key and length.
 	///
-	/// # Note
+	/// # Safety
 	///
 	/// This is unsafe because ..
 	/// - .. it does not check if the associated
