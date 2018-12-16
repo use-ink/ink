@@ -25,9 +25,12 @@ pub struct SyncCell<T> {
 	cache: Cache<T>,
 }
 
+/// A cache entry storing the value if synchronized.
 #[derive(Debug)]
 pub enum CacheEntry<T> {
+	/// The cache is desychronized with the contract storage.
 	Desync,
+	/// The cache is in sync with the contract storage.
 	Sync(Option<T>),
 }
 
@@ -44,6 +47,7 @@ impl<T> Default for Cache<T> {
 }
 
 impl<T> CacheEntry<T> {
+	/// Returns `true` if the cache is in sync.
 	pub fn is_synced(&self) -> bool {
 		match self {
 			CacheEntry::Sync(_) => true,
@@ -51,6 +55,11 @@ impl<T> CacheEntry<T> {
 		}
 	}
 
+	/// Unwraps an immutable reference to the synchronized value.
+	///
+	/// # Panics
+	///
+	/// Panics if the cache is in a desynchronized state.
 	pub fn unwrap_get(&self) -> Option<&T> {
 		match self {
 			CacheEntry::Sync(opt_elem) => opt_elem.into(),
@@ -65,20 +74,33 @@ impl<T> CacheEntry<T> {
 }
 
 impl<T> Cache<T> {
+	/// Returns `true` if the cache is in sync.
 	pub fn is_synced(&self) -> bool {
 		self.entry.borrow().is_synced()
 	}
 
+	/// Updates the synchronized value.
+	///
+	/// # Note
+	///
+	/// The cache will be in sync after this operation.
 	pub fn update(&self, new_val: Option<T>) {
 		self.entry.replace(
 			CacheEntry::Sync(new_val)
 		);
 	}
 
+	/// Returns an immutable reference to the cache entry.
 	pub fn get(&self) -> &CacheEntry<T> {
 		unsafe{ &*self.entry.as_ptr() }
 	}
 
+	/// Mutates the synchronized value if any.
+	///
+	/// # Note
+	///
+	/// Returns an immutable reference to the result if
+	/// a mutation happened, otherwise `None` is returned.
 	pub fn mutate_with<F>(&mut self, f: F) -> Option<&T>
 	where
 		F: FnOnce(&mut T)
