@@ -386,6 +386,21 @@ impl<T> MutChunk<T>
 where
 	T: parity_codec::Codec
 {
+	/// Sets the value of the `n`-th cell and returns its old value if any.
+	///
+	/// # Note
+	///
+	/// Use [`set`](struct.MutChunk.html#method.set) instead
+	/// if you are not interested in the old return value.
+	///
+	/// # Errors
+	///
+	/// If `n` is out of bounds.
+	#[must_use]
+	pub fn replace(&mut self, n: u32, val: T) -> Result<Option<T>> {
+		self.cell_at(n)
+			.map(|cell| cell.replace(val))
+	}
 
 	/// Mutates the value of the `n`-th cell if any.
 	///
