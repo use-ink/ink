@@ -41,6 +41,10 @@ pub struct RawChunkCell<'a> {
 
 impl RawChunkCell<'_> {
 	/// Creates a new raw chunk cell from the given key.
+	///
+	/// # Safety
+	///
+	/// This is unsafe since it doesn't check aliasing of cells.
 	pub(self) unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			key,
@@ -48,17 +52,17 @@ impl RawChunkCell<'_> {
 		}
 	}
 
-	/// Loads the data if any.
+	/// Load the bytes from the cell if not empty.
 	pub fn load(&self) -> Option<Vec<u8>> {
 		ContractEnv::load(self.key)
 	}
 
-	/// Stores the given data.
-	pub fn store(&mut self, val: &[u8]) {
-		ContractEnv::store(self.key, val)
+	/// Store the bytes into the cell.
+	pub fn store(&mut self, bytes: &[u8]) {
+		ContractEnv::store(self.key, bytes)
 	}
 
-	/// Removes the stored data.
+	/// Remove the bytes stored in the cell.
 	pub fn clear(&mut self) {
 		ContractEnv::clear(self.key)
 	}
@@ -81,7 +85,7 @@ impl RawChunk {
 		}
 	}
 
-	/// Returns `Ok` if `n` is within bounds for `self`.
+	/// Returns a key for the `n`-th cell if within bounds.
 	///
 	/// # Error
 	///
@@ -94,36 +98,32 @@ impl RawChunk {
 	}
 
 	/// Returns the capacity of this chunk.
-	///
-	/// # Note
-	///
-	/// The returned length is guaranteed to always be greater than zero.
 	pub fn capacity(&self) -> u32 {
 		self.capacity.get()
 	}
 
-	/// Returns the cell at offset `n`.
+	/// Returns an accessor to the `n`th cell.
 	pub(crate) fn cell_at(&mut self, n: u32) -> Result<RawChunkCell> {
 		self.offset_key(n).map(|key| unsafe {
 			RawChunkCell::new_unchecked(key)
 		})
 	}
 
-	/// Loads the data at offset `n` if any.
+	/// Loads the bytes stored in the `n`-th cell.
 	pub fn load(&self, n: u32) -> Result<Option<Vec<u8>>> {
 		self
 			.offset_key(n)
 			.map(|key| ContractEnv::load(key))
 	}
 
-	/// Stores the given data at offset `n`.
+	/// Stores the given bytes into the `n`-th cell.
 	pub fn store(&mut self, n: u32, bytes: &[u8]) -> Result<()> {
 		self
 			.offset_key(n)
 			.map(|key| ContractEnv::store(key, bytes))
 	}
 
-	/// Removes the data at offset `n` from the associated contract storage slot.
+	/// Removes the bytes stores in the `n`-th cell.
 	pub fn clear(&mut self, n: u32) -> Result<()> {
 		self
 			.offset_key(n)
