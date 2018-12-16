@@ -141,7 +141,7 @@ where
 	/// # Note
 	///
 	/// Synchronizes contract storage after the mutation.
-	pub fn set_with<F>(&mut self, f: F)
+	pub fn mutate_with<F>(&mut self, f: F)
 	where
 		F: FnOnce(&mut T)
 	{
