@@ -14,5 +14,5 @@ pub(crate) use self::{
 pub use self::{
 	raw_chunk::RawChunk,
 	typed_chunk::TypedChunk,
-	mut_chunk::MutChunk,
+	mut_chunk::SyncChunk,
 };

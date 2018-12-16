@@ -9,5 +9,5 @@ pub use self::{
 	raw_cell::RawCell,
 	typed_cell::TypedCell,
 	copy_cell::CopyCell,
-	mut_cell::MutCell,
+	mut_cell::SyncCell,
 };

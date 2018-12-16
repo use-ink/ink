@@ -7,7 +7,7 @@ use crate::{
 
 use std::cell::{RefCell};
 
-/// A mutable cell.
+/// A synchronized cell.
 ///
 /// Provides interpreted, read-optimized and inplace-mutable
 /// access to the associated constract storage slot.
@@ -18,7 +18,7 @@ use std::cell::{RefCell};
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug, PartialEq, Eq)]
-pub struct MutCell<T> {
+pub struct SyncCell<T> {
 	/// The underlying typed cell.
 	cell: TypedCell<T>,
 	/// The cached entity.
@@ -66,7 +66,7 @@ impl<T> Cached<T> {
 	}
 }
 
-impl<T> MutCell<T> {
+impl<T> SyncCell<T> {
 	/// Creates a new copy cell for the given key.
 	///
 	/// # Note
@@ -81,7 +81,7 @@ impl<T> MutCell<T> {
 	}
 }
 
-impl<T> MutCell<T>
+impl<T> SyncCell<T>
 where
 	T: parity_codec::Decode
 {
@@ -122,7 +122,7 @@ where
 	}
 }
 
-impl<T> MutCell<T>
+impl<T> SyncCell<T>
 where
 	T: parity_codec::Encode
 {
@@ -171,13 +171,13 @@ mod tests {
 
 	#[test]
 	fn simple() {
-		let mut cell: MutCell<i32> = unsafe {
-			MutCell::new_unchecked(Key([0x42; 32]))
+		let mut cell: SyncCell<i32> = unsafe {
+			SyncCell::new_unchecked(Key([0x42; 32]))
 		};
 		assert_eq!(cell.load(), None);
 		cell.set(5);
 		assert_eq!(cell.load(), Some(&5));
-		cell.set_with(|val| *val += 10);
+		cell.mutate_with(|val| *val += 10);
 		assert_eq!(cell.load(), Some(&15));
 		cell.clear();
 		assert_eq!(cell.load(), None);
@@ -185,8 +185,8 @@ mod tests {
 
 	#[test]
 	fn count_reads() {
-		let cell: MutCell<i32> = unsafe {
-			MutCell::new_unchecked(Key([0x42; 32]))
+		let cell: SyncCell<i32> = unsafe {
+			SyncCell::new_unchecked(Key([0x42; 32]))
 		};
 		assert_eq!(TestEnv::total_reads(), 0);
 		cell.get();
@@ -198,8 +198,8 @@ mod tests {
 
 	#[test]
 	fn count_writes() {
-		let mut cell: MutCell<i32> = unsafe {
-			MutCell::new_unchecked(Key([0x42; 32]))
+		let mut cell: SyncCell<i32> = unsafe {
+			SyncCell::new_unchecked(Key([0x42; 32]))
 		};
 		assert_eq!(TestEnv::total_writes(), 0);
 		cell.set(1);

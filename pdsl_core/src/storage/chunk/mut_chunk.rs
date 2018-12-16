@@ -20,7 +20,7 @@ use std::{
 	cell::RefCell
 };
 
-/// A chunk of mutable cells.
+/// A chunk of synchronized cells.
 ///
 /// Provides mutable and read-optimized access to the associated constract storage slot.
 ///
@@ -33,7 +33,7 @@ use std::{
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug)]
-pub struct MutChunk<T> {
+pub struct SyncChunk<T> {
 	/// The underlying chunk of cells.
 	chunk: TypedChunk<T>,
 	/// The cached element.
@@ -45,14 +45,14 @@ type CacheEntry<'a, T> = Entry<'a, u32, Option<T>>;
 
 /// A single cell within a chunk of copy cells.
 #[derive(Debug)]
-pub struct MutChunkCell<'a, T> {
+pub struct SyncChunkCell<'a, T> {
 	/// The underlying cell within the chunk of cells.
 	cell: TypedChunkCell<'a, T>,
 	/// The cached entry for the cell.
 	elem: CacheEntry<'a, T>,
 }
 
-impl<'a, T> MutChunkCell<'a, T> {
+impl<'a, T> SyncChunkCell<'a, T> {
 	/// Creates a new cell within a chunk of copy cells.
 	///
 	/// # Safety
@@ -83,7 +83,7 @@ impl<'a, T> MutChunkCell<'a, T> {
 	}
 }
 
-impl<'a, T> MutChunkCell<'a, T>
+impl<'a, T> SyncChunkCell<'a, T>
 where
 	T: parity_codec::Decode
 {
@@ -110,7 +110,7 @@ where
 	}
 }
 
-impl<'a, T> MutChunkCell<'a, T>
+impl<'a, T> SyncChunkCell<'a, T>
 where
 	T: parity_codec::Encode
 {
@@ -130,7 +130,7 @@ where
 	}
 }
 
-impl<'a, T> MutChunkCell<'a, T>
+impl<'a, T> SyncChunkCell<'a, T>
 where
 	T: parity_codec::Codec
 {
@@ -257,7 +257,7 @@ impl<T> Cache<T> {
 	}
 }
 
-impl<T> MutChunk<T> {
+impl<T> SyncChunk<T> {
 	/// Creates a new mutable cell chunk for the given key and capacity.
 	///
 	/// # Safety
@@ -274,9 +274,9 @@ impl<T> MutChunk<T> {
 	}
 
 	/// Returns an accessor to the `n`-th cell.
-	pub(crate) fn cell_at(&mut self, n: u32) -> Result<MutChunkCell<T>> {
+	pub(crate) fn cell_at(&mut self, n: u32) -> Result<SyncChunkCell<T>> {
 		Ok(unsafe {
-			MutChunkCell::new_unchecked(
+			SyncChunkCell::new_unchecked(
 				self.chunk.cell_at(n)?,
 				self.elems.entry(n)
 			)
@@ -299,7 +299,7 @@ impl<T> MutChunk<T> {
 	}
 }
 
-impl<T> MutChunk<T>
+impl<T> SyncChunk<T>
 where
 	T: parity_codec::Decode
 {
@@ -354,7 +354,7 @@ where
 	}
 }
 
-impl<T> MutChunk<T>
+impl<T> SyncChunk<T>
 where
 	T: parity_codec::Encode
 {
@@ -369,7 +369,7 @@ where
 	}
 }
 
-impl<T> MutChunk<T>
+impl<T> SyncChunk<T>
 where
 	T: parity_codec::Codec
 {
@@ -417,7 +417,7 @@ mod tests {
 		const CAPACITY: u32 = 5;
 
 		let mut chunk = unsafe {
-			MutChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+			SyncChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
 		};
 
 		// Invariants after initialization
@@ -456,7 +456,7 @@ mod tests {
 		const CAPACITY: u32 = 5;
 
 		let mut chunk = unsafe {
-			MutChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+			SyncChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
 		};
 
 		// Reads and writes after init.
@@ -505,7 +505,7 @@ mod tests {
 		const CAPACITY: u32 = 5;
 
 		let mut chunk = unsafe {
-			MutChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+			SyncChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
 		};
 
 		// Out of bounds replacement
@@ -526,7 +526,7 @@ mod tests {
 		const CAPACITY: u32 = 5;
 
 		let mut chunk = unsafe {
-			MutChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+			SyncChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
 		};
 
 		// Out of bounds replacement
