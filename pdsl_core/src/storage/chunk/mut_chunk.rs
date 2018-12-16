@@ -87,19 +87,6 @@ impl<'a, T> MutChunkCell<'a, T>
 where
 	T: parity_codec::Decode
 {
-	/// Returns an immutable reference to the value stored in this cell.
-	pub fn get(self) -> Option<&'a T> {
-		match self.elem {
-			Entry::Occupied(occupied) => {
-				(&*occupied.into_mut()).into()
-			}
-			Entry::Vacant(vacant) => {
-				(&*vacant.insert(self.cell.load()))
-					.into()
-			}
-		}
-	}
-
 	/// Removes the value from the cell and returns the removed value.
 	///
 	/// # Note
