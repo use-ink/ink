@@ -3,6 +3,7 @@ use crate::{
 		Key,
 		chunk::{
 			TypedChunk,
+			TypedChunkCell,
 			error::{
 				Result,
 				ChunkError,
@@ -12,7 +13,10 @@ use crate::{
 };
 
 use std::{
-	collections::HashMap,
+	collections::{
+		HashMap,
+		hash_map::Entry,
+	},
 	cell::RefCell
 };
 
@@ -28,17 +32,189 @@ use std::{
 /// - `Mutable`
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct MutChunk<T> {
 	/// The underlying chunk of cells.
 	chunk: TypedChunk<T>,
-	/// The cached elements.
+	/// The cached element.
 	elems: Cache<T>,
 }
 
+/// A single cache entry for a copy chunk cell.
+type CacheEntry<'a, T> = Entry<'a, u32, Option<T>>;
+
+/// A single cell within a chunk of copy cells.
+#[derive(Debug)]
+pub struct MutChunkCell<'a, T> {
+	/// The underlying cell within the chunk of cells.
+	cell: TypedChunkCell<'a, T>,
+	/// The cached entry for the cell.
+	elem: CacheEntry<'a, T>,
+}
+
+impl<'a, T> MutChunkCell<'a, T> {
+	/// Creates a new cell within a chunk of copy cells.
+	///
+	/// # Safety
+	///
+	/// This is unsafe since it doesn't check aliasing of cells
+	/// or if the cell and the cache entry are actually associated
+	/// with each other.
+	pub(self) unsafe fn new_unchecked(
+		cell: TypedChunkCell<'a, T>,
+		elem: CacheEntry<'a, T>
+	) -> Self {
+		Self{cell, elem}
+	}
+
+	/// Removes the value stored in this cell.
+	pub fn clear(self) {
+		let mut this = self;
+		match this.elem {
+			Entry::Occupied(mut occupied) => {
+				this.cell.clear();
+				occupied.insert(None);
+			}
+			Entry::Vacant(vacant) => {
+				this.cell.clear();
+				vacant.insert(None);
+			}
+		}
+	}
+}
+
+impl<'a, T> MutChunkCell<'a, T>
+where
+	T: parity_codec::Decode
+{
+	/// Returns an immutable reference to the value stored in this cell.
+	pub fn get(self) -> Option<&'a T> {
+		match self.elem {
+			Entry::Occupied(occupied) => {
+				(&*occupied.into_mut()).into()
+			}
+			Entry::Vacant(vacant) => {
+				(&*vacant.insert(self.cell.load()))
+					.into()
+			}
+		}
+	}
+
+	/// Removes the value from the cell and returns the removed value.
+	///
+	/// # Note
+	///
+	/// Prefer using `clear` if you are not interested in the return value.
+	#[must_use]
+	pub fn remove(self) -> Option<T> {
+		let mut this = self;
+		match this.elem {
+			Entry::Occupied(mut occupied) => {
+				this.cell.clear();
+				occupied.insert(None)
+			}
+			Entry::Vacant(vacant) => {
+				let old = this.cell.load();
+				this.cell.clear();
+				vacant.insert(None);
+				old
+			}
+		}
+	}
+}
+
+impl<'a, T> MutChunkCell<'a, T>
+where
+	T: parity_codec::Encode
+{
+	/// Stores the new value into the cell.
+	pub fn set(self, val: T) {
+		let mut this = self;
+		match this.elem {
+			Entry::Occupied(mut occupied) => {
+				this.cell.store(&val);
+				occupied.insert(Some(val));
+			}
+			Entry::Vacant(vacant) => {
+				this.cell.store(&val);
+				vacant.insert(Some(val));
+			}
+		}
+	}
+}
+
+impl<'a, T> MutChunkCell<'a, T>
+where
+	T: parity_codec::Codec
+{
+	/// Mutates the value of this cell.
+	///
+	/// Returns `true` if an actual mutation has happened.
+	/// No mutation happens if the value stored in the cell is `None`.
+	///
+	/// # Note
+	///
+	/// Prefer using `set` if you are not interested in the return value.
+	pub fn mutate_with<F>(self, f: F) -> bool
+	where
+		F: FnOnce(&mut T)
+	{
+		let mut this = self;
+		match this.elem {
+			Entry::Occupied(mut occupied) => {
+				if let Some(elem) = occupied.get_mut() {
+					f(elem);
+					this.cell.store(elem);
+					return true
+				}
+				false
+			}
+			Entry::Vacant(vacant) => {
+				let mut ret = false;
+				let mut elem = this.cell.load();
+				if let Some(elem) = &mut elem {
+					f(elem);
+					this.cell.store(&elem);
+					ret = true;
+				}
+				vacant.insert(elem);
+				ret
+			}
+		}
+	}
+
+	/// Replaces the value of this cell and returns its previous value.
+	///
+	/// # Note
+	///
+	/// Prefer using `set` if you are not interested in the return value.
+	#[must_use]
+	pub fn replace(self, val: T) -> Option<T> {
+		let mut this = self;
+		match this.elem {
+			Entry::Occupied(mut occupied) => {
+				this.cell.store(&val);
+				occupied.insert(Some(val))
+			}
+			Entry::Vacant(vacant) => {
+				let old = this.cell.load();
+				this.cell.store(&val);
+				vacant.insert(Some(val));
+				old
+			}
+		}
+	}
+}
+
+/// Stores the values of synchronized cells.
+///
+/// # Note
+///
+/// An element counts as synchronized if its version in the contract
+/// storage and the version in the cache are identical.
 #[derive(Debug, PartialEq, Eq)]
 struct Cache<T> {
-	/// The synchronized elements.
+	/// The synchronized values of associated cells.
 	elems: RefCell<HashMap<u32, Option<T>>>,
 }
 
@@ -57,17 +233,11 @@ pub enum Cached<T> {
 	Sync(Option<T>),
 }
 
-/// A cache for all synchronized elements.
-///
-/// # Note
-///
-/// An element counts as synchronized if its version in the contract
-/// storage and the version in the cache are identical.
 impl<T> Cache<T> {
-	/// Inserts or updates the element at offset `n`.
+	/// Inserts or updates a value associated with the `n`-th cell.
 	///
-	/// Returns an immutable reference to the element.
-	pub fn insert(&self, n: u32, val: Option<T>) -> Option<&mut T> {
+	/// Returns an immutable reference to the new value.
+	pub fn upsert(&self, n: u32, val: Option<T>) -> Option<&T> {
 		use std::collections::hash_map::{Entry};
 		let elems: &mut HashMap<u32, Option<T>> = unsafe {
 			&mut *self.elems.as_ptr()
@@ -75,15 +245,15 @@ impl<T> Cache<T> {
 		match elems.entry(n) {
 			Entry::Occupied(mut occupied) => {
 				occupied.insert(val);
-				occupied.into_mut().as_mut()
+				(&*occupied.into_mut()).into()
 			}
 			Entry::Vacant(vacant) => {
-				vacant.insert(val).as_mut()
+				(&*vacant.insert(val)).into()
 			}
 		}
 	}
 
-	/// Returns the element at offset `n`.
+	/// Returns the synchronized value of the `n`-th cell if any.
 	pub fn get(&self, n: u32) -> Cached<&T> {
 		let elems: &mut HashMap<u32, Option<T>> = unsafe {
 			&mut *self.elems.as_ptr()
@@ -94,22 +264,16 @@ impl<T> Cache<T> {
 		}
 	}
 
-	/// Returns the element at offset `n`.
-	pub fn get_mut(&self, n: u32) -> Cached<&mut T> {
-		let elems: &mut HashMap<u32, Option<T>> = unsafe {
-			&mut *self.elems.as_ptr()
-		};
-		match elems.get_mut(&n) {
-			Some(opt_elem) => Cached::Sync(opt_elem.into()),
-			None => Cached::Desync,
-		}
+	/// Returns the cache entry for the `n`-th cell.
+	pub fn entry(&mut self, n: u32) -> CacheEntry<T> {
+		self.elems.get_mut().entry(n)
 	}
 }
 
 impl<T> MutChunk<T> {
 	/// Creates a new mutable cell chunk for the given key and capacity.
 	///
-	/// # Note
+	/// # Safety
 	///
 	/// This is unsafe because ..
 	/// - .. it does not check if the associated
@@ -122,13 +286,29 @@ impl<T> MutChunk<T> {
 		}
 	}
 
-	/// Returns the length of this chunk.
-	///
-	/// # Note
-	///
-	/// The returned length is guaranteed to always be greater than zero.
+	/// Returns an accessor to the `n`-th cell.
+	pub(crate) fn cell_at(&mut self, n: u32) -> Result<MutChunkCell<T>> {
+		Ok(unsafe {
+			MutChunkCell::new_unchecked(
+				self.chunk.cell_at(n)?,
+				self.elems.entry(n)
+			)
+		})
+	}
+
+	/// Returns the capacity of this chunk.
 	pub fn capacity(&self) -> u32 {
 		self.chunk.capacity()
+	}
+
+	/// Clear the `n`-th cell.
+	///
+	/// # Errors
+	///
+	/// If `n` is out of bounds.
+	pub fn clear(&mut self, n: u32) -> Result<()> {
+		self.cell_at(n)
+			.map(|cell| cell.clear())
 	}
 }
 
@@ -136,15 +316,11 @@ impl<T> MutChunk<T>
 where
 	T: parity_codec::Decode
 {
-	/// Returns an immutable reference to the entity at offset `n` if any.
-	///
-	/// # Note
-	///
-	/// This avoid unnecesary contract storage read access if possible.
+	/// Returns the value of the `n`-th cell if any.
 	///
 	/// # Errors
 	///
-	/// - If `n` is out of bounds.
+	/// If `n` is out of bounds.
 	pub fn get(&self, n: u32) -> Result<Option<&T>> {
 		if n >= self.capacity() {
 			return Err(ChunkError::access_out_of_bounds(n, self.capacity()))
@@ -155,23 +331,39 @@ where
 		self.load(n)
 	}
 
-	/// Loads the entity at offset `n` if any.
+	/// Returns the value of the `n`-th cell if any.
 	///
 	/// # Note
 	///
-	/// This doesn't use optimized read access.
-	/// Prefer using `MutChunk::get` instead of this.
+	/// Prefer using [`get`](struct.MutChunk.html#method.get)
+	/// to avoid unnecesary contract storage accesses.
 	///
 	/// # Errors
 	///
-	/// - If `n` is out of bounds.
-	pub fn load(&self, n: u32) -> Result<Option<&T>> {
+	/// If `n` is out of bounds.
+	fn load(&self, n: u32) -> Result<Option<&T>> {
 		Ok(
-			self.elems.insert(
+			self.elems.upsert(
 				n,
 				self.chunk.load(n)?
-			).map(|opt| &*opt)
+			)
 		)
+	}
+
+	/// Clears the `n`-th cell and returns its previous value if any.
+	///
+	/// # Note
+	///
+	/// Use [`clear`](struct.MutChunk.html#method.clear) instead
+	/// if you are not interested in the old return value.
+	///
+	/// # Errors
+	///
+	/// If `n` is out of bounds.
+	#[must_use]
+	pub fn remove(&mut self, n: u32) -> Result<Option<T>> {
+		self.cell_at(n)
+			.map(|cell| cell.remove())
 	}
 }
 
@@ -179,32 +371,14 @@ impl<T> MutChunk<T>
 where
 	T: parity_codec::Encode
 {
-	/// Sets the entity to the given entity.
-	///
-	/// # Note
-	///
-	/// This always accesses the contract storage.
+	/// Sets the value of the `n`-th cell.
 	///
 	/// # Errors
 	///
-	/// - If `n` is out of bounds.
+	/// If `n` is out of bounds.
 	pub fn set(&mut self, n: u32, val: T) -> Result<()> {
-		// Operation on chunk must come first since it checks for errors.
-		self.chunk.store(n, &val)?;
-		self.elems.insert(n, Some(val));
-		Ok(())
-	}
-
-	/// Removes the entity from the contract storage.
-	///
-	/// # Errors
-	///
-	/// - If `n` is out of bounds.
-	pub fn clear(&mut self, n: u32) -> Result<()> {
-		// Operation on chunk must come first since it checks for errors.
-		self.chunk.clear(n)?;
-		self.elems.insert(n, None);
-		Ok(())
+		self.cell_at(n)
+			.map(|cell| cell.set(val))
 	}
 }
 
@@ -212,29 +386,21 @@ impl<T> MutChunk<T>
 where
 	T: parity_codec::Codec
 {
-	/// Mutates the entity at offset `n` if any.
+
+	/// Mutates the value of the `n`-th cell if any.
+	///
+	/// Returns `true` if an actual mutation has happened.
+	/// No mutation happens if the value stored in the cell is `None`.
 	///
 	/// # Errors
 	///
-	/// - If `n` is out of bounds.
-	/// - If there was no entity at offset `n` to mutate.
-	pub fn mutate_with<F>(&mut self, n: u32, f: F) -> Result<()>
+	/// If `n` is out of bounds.
+	pub fn mutate_with<F>(&mut self, n: u32, f: F) -> Result<bool>
 	where
 		F: FnOnce(&mut T)
 	{
-		if n >= self.capacity() {
-			return Err(ChunkError::access_out_of_bounds(n, self.capacity()))
-		}
-		if let Cached::Sync(elem) = self.elems.get_mut(n) {
-			match elem {
-				Some(elem) => {
-					f(elem);
-					self.chunk.store(n, &*elem)?;
-				}
-				None => return Err(ChunkError::empty_slot(n)),
-			}
-		}
-		Ok(())
+		self.cell_at(n)
+			.map(|cell| cell.mutate_with(f))
 	}
 }
 
