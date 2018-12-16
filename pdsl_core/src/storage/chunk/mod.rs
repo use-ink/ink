@@ -4,7 +4,7 @@ pub mod error;
 
 mod raw_chunk;
 mod typed_chunk;
-mod mut_chunk;
+mod sync_chunk;
 
 pub(crate) use self::{
 	raw_chunk::RawChunkCell,
@@ -14,5 +14,5 @@ pub(crate) use self::{
 pub use self::{
 	raw_chunk::RawChunk,
 	typed_chunk::TypedChunk,
-	mut_chunk::SyncChunk,
+	sync_chunk::SyncChunk,
 };
