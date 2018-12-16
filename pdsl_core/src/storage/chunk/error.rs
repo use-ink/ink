@@ -11,10 +11,6 @@ pub enum ChunkErrorKind {
 		access_at: u32,
 		limit_at: u32,
 	},
-	/// When trying to operate on a valid but empty (or uninitialized) storage slot.
-	EmptyStorageSlot{
-		at: u32,
-	},
 }
 
 /// A chunk error.
@@ -37,11 +33,6 @@ impl ChunkError {
 	pub(crate) fn access_out_of_bounds(access_at: u32, limit_at: u32) -> Self {
 		Self{ kind: ChunkErrorKind::AccessOutOfBounds{access_at, limit_at}}
 	}
-
-	/// Creates an empty-storage-slot chunk error.
-	pub(crate) fn empty_slot(at: u32) -> Self {
-		Self{ kind: ChunkErrorKind::EmptyStorageSlot{at}}
-	}
 }
 
 impl Error for ChunkError {}
@@ -55,13 +46,6 @@ impl Display for ChunkError {
 					"[pdsl_core] Error: encountered cell chunk access out of bounds (at: {:?}, limit: {:?})",
 					access_at,
 					limit_at,
-				)
-			}
-			ChunkErrorKind::EmptyStorageSlot{at} => {
-				write!(
-					f,
-					"[pdsl_core] Error: tried to operate on a valid but empty storage slot (at: {:?})",
-					at,
 				)
 			}
 		}
