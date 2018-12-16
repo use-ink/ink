@@ -53,6 +53,11 @@ impl<T> TypedChunk<T> {
 	pub fn capacity(&self) -> u32 {
 		self.chunk.capacity()
 	}
+
+	/// Removes the entity at offset `n` from the associated contract storage slot.
+	pub fn clear(&mut self, n: u32) -> Result<()> {
+		self.chunk.clear(n)
+	}
 }
 
 impl<T> TypedChunk<T>
@@ -79,11 +84,6 @@ where
 	/// Stores the given entity at offset `n`.
 	pub fn store(&mut self, n: u32, val: &T) -> Result<()> {
 		self.chunk.store(n, &T::encode(&val))
-	}
-
-	/// Removes the entity at offset `n` from the associated contract storage slot.
-	pub fn clear(&mut self, n: u32) -> Result<()> {
-		self.chunk.clear(n)
 	}
 }
 
