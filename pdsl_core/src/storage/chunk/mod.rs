@@ -7,6 +7,11 @@ mod typed_chunk;
 mod copy_chunk;
 mod mut_chunk;
 
+pub(crate) use self::{
+	raw_chunk::RawChunkCell,
+	typed_chunk::TypedChunkCell,
+};
+
 pub use self::{
 	raw_chunk::RawChunk,
 	typed_chunk::TypedChunk,
