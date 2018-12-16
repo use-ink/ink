@@ -70,23 +70,23 @@ impl RawChunk {
 
 	/// Loads the data at offset `n` if any.
 	pub fn load(&self, n: u32) -> Result<Option<Vec<u8>>> {
-		self.offset_key(n).map(|key| {
-			ContractEnv::load(key)
-		})
+		self
+			.offset_key(n)
+			.map(|key| ContractEnv::load(key))
 	}
 
 	/// Stores the given data at offset `n`.
 	pub fn store(&mut self, n: u32, bytes: &[u8]) -> Result<()> {
-		self.offset_key(n).map(|key| {
-			ContractEnv::store(key, bytes)
-		})
+		self
+			.offset_key(n)
+			.map(|key| ContractEnv::store(key, bytes))
 	}
 
 	/// Removes the data at offset `n` from the associated contract storage slot.
 	pub fn clear(&mut self, n: u32) -> Result<()> {
-		self.offset_key(n).map(|key| {
-			ContractEnv::clear(key)
-		})
+		self
+			.offset_key(n)
+			.map(|key| ContractEnv::clear(key))
 	}
 }
 
