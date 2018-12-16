@@ -79,6 +79,12 @@ impl<T> SyncCell<T> {
 			elem: RefCell::new(Cached::Desync)
 		}
 	}
+
+	/// Removes the value from the cell.
+	pub fn clear(&mut self) {
+		self.cell.clear();
+		self.elem.replace(Cached::Sync(None));
+	}
 }
 
 impl<T> SyncCell<T>
@@ -138,12 +144,6 @@ where
 			f(elem);
 			self.cell.store(&elem);
 		}
-	}
-
-	/// Removes the value from the cell.
-	pub fn clear(&mut self) {
-		self.cell.clear();
-		self.elem.replace(Cached::Sync(None));
 	}
 }
 
