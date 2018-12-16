@@ -4,6 +4,7 @@ use crate::{
 		NonCloneMarker,
 		chunk::{
 			RawChunk,
+			RawChunkCell,
 			error::{
 				Result,
 			}
@@ -29,6 +30,60 @@ pub struct TypedChunk<T> {
 	non_clone: NonCloneMarker<T>,
 }
 
+/// A single cell within a chunk of typed cells.
+#[derive(Debug, PartialEq, Eq)]
+pub struct TypedChunkCell<'a, T> {
+	/// The underlying cell within the chunk of cells.
+	cell: RawChunkCell<'a>,
+	/// Marker that prevents this type from being `Copy` or `Clone` by accident.
+	non_clone: NonCloneMarker<T>,
+}
+
+impl<'a, T> TypedChunkCell<'a, T> {
+	/// Creates a new raw chunk cell from the given key.
+	pub(self) unsafe fn new_unchecked(cell: RawChunkCell<'a>) -> Self {
+		Self{
+			cell,
+			non_clone: NonCloneMarker::default()
+		}
+	}
+
+	/// Removes the stored data.
+	pub fn clear(&mut self) {
+		self.cell.clear()
+	}
+}
+
+impl<'a, T> TypedChunkCell<'a, T>
+where
+	T: parity_codec::Decode
+{
+	/// Loads the data if any.
+	pub fn load(&self) -> Option<T> {
+		self
+			.cell
+			.load()
+			.map(|loaded| {
+				T::decode(&mut &loaded[..])
+					// Maybe we should return an error instead of panicking.
+					.expect(
+						"[pdsl_core::TypedChunkCell::load] Error: \
+						 failed upon decoding"
+					)
+			})
+	}
+}
+
+impl<'a, T> TypedChunkCell<'a, T>
+where
+	T: parity_codec::Encode
+{
+	/// Stores the given data.
+	pub fn store(&mut self, val: &T) {
+		self.cell.store(&T::encode(val))
+	}
+}
+
 impl<T> TypedChunk<T> {
 	/// Creates a new typed cell chunk for the given key and length.
 	///
@@ -52,6 +107,16 @@ impl<T> TypedChunk<T> {
 	/// The returned length is guaranteed to always be greater than zero.
 	pub fn capacity(&self) -> u32 {
 		self.chunk.capacity()
+	}
+
+	/// Returns the cell at offset `n`.
+	pub(crate) fn cell_at(&mut self, n: u32) -> Result<TypedChunkCell<T>> {
+		self
+			.chunk
+			.cell_at(n)
+			.map(|raw_cell| unsafe {
+				TypedChunkCell::new_unchecked(raw_cell)
+			})
 	}
 
 	/// Removes the entity at offset `n` from the associated contract storage slot.
@@ -83,7 +148,7 @@ where
 {
 	/// Stores the given entity at offset `n`.
 	pub fn store(&mut self, n: u32, val: &T) -> Result<()> {
-		self.chunk.store(n, &T::encode(&val))
+		self.cell_at(n).map(|mut cell| cell.store(val))
 	}
 }
 

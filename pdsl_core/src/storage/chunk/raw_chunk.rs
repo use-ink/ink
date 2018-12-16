@@ -30,6 +30,40 @@ pub struct RawChunk {
 	non_clone: NonCloneMarker<()>,
 }
 
+/// A single cell within a chunk of raw cells.
+#[derive(Debug, PartialEq, Eq)]
+pub struct RawChunkCell<'a> {
+	/// The key to the corresponding cell within the raw chunk.
+	key: Key,
+	/// Marker that prevents this type from being `Copy` or `Clone` by accident.
+	non_clone: NonCloneMarker<&'a mut ()>,
+}
+
+impl RawChunkCell<'_> {
+	/// Creates a new raw chunk cell from the given key.
+	pub(self) unsafe fn new_unchecked(key: Key) -> Self {
+		Self{
+			key,
+			non_clone: NonCloneMarker::default()
+		}
+	}
+
+	/// Loads the data if any.
+	pub fn load(&self) -> Option<Vec<u8>> {
+		ContractEnv::load(self.key)
+	}
+
+	/// Stores the given data.
+	pub fn store(&mut self, val: &[u8]) {
+		ContractEnv::store(self.key, val)
+	}
+
+	/// Removes the stored data.
+	pub fn clear(&mut self) {
+		ContractEnv::clear(self.key)
+	}
+}
+
 impl RawChunk {
 	/// Creates a new raw cell chunk for the given key and capacity.
 	///
@@ -66,6 +100,13 @@ impl RawChunk {
 	/// The returned length is guaranteed to always be greater than zero.
 	pub fn capacity(&self) -> u32 {
 		self.capacity.get()
+	}
+
+	/// Returns the cell at offset `n`.
+	pub(crate) fn cell_at(&mut self, n: u32) -> Result<RawChunkCell> {
+		self.offset_key(n).map(|key| unsafe {
+			RawChunkCell::new_unchecked(key)
+		})
 	}
 
 	/// Loads the data at offset `n` if any.
