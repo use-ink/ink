@@ -27,7 +27,7 @@ pub struct TypedCell<T> {
 impl<T> TypedCell<T> {
 	/// Creates a new typed cell for the given key.
 	///
-	/// # Note
+	/// # Safety
 	///
 	/// This is unsafe since it does not check if the associated
 	/// contract storage does not alias with other accesses.
@@ -37,13 +37,18 @@ impl<T> TypedCell<T> {
 			non_clone: NonCloneMarker::default()
 		}
 	}
+
+	/// Removes the value stored in the cell.
+	pub fn clear(&mut self) {
+		self.cell.clear()
+	}
 }
 
 impl<T> TypedCell<T>
 where
 	T: parity_codec::Decode
 {
-	/// Loads the typed entity if any.
+	/// Loads the value stored in the cell if any.
 	pub fn load(&self) -> Option<T> {
 		self.cell.load().and_then(|bytes| T::decode(&mut &bytes[..]))
 	}
@@ -53,14 +58,9 @@ impl<T> TypedCell<T>
 where
 	T: parity_codec::Encode
 {
-	/// Stores the given entity.
+	/// Stores the value into the cell.
 	pub fn store(&mut self, val: &T) {
 		self.cell.store(&T::encode(&val))
-	}
-
-	/// Removes the entity in the associated constract storage slot.
-	pub fn clear(&mut self) {
-		self.cell.clear()
 	}
 }
 
