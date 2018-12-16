@@ -37,7 +37,7 @@ pub enum Cached<T> {
 }
 
 impl<T> Cached<T> {
-	/// Returns a `Cached` of an immutable reference to the entity.
+	/// Returns a `Cached` of an immutable reference to the cell value.
 	pub fn as_ref(&self) -> Cached<&T> {
 		match self {
 			Cached::Desync => Cached::Desync,
@@ -69,7 +69,7 @@ impl<T> Cached<T> {
 impl<T> SyncCell<T> {
 	/// Creates a new copy cell for the given key.
 	///
-	/// # Note
+	/// # Safety
 	///
 	/// This is unsafe since it does not check if the associated
 	/// contract storage does not alias with other accesses.
@@ -85,7 +85,7 @@ impl<T> SyncCell<T>
 where
 	T: parity_codec::Decode
 {
-	/// Returns an immutable reference to the cached entity if any.
+	/// Returns the synchronized value of the cell if any.
 	fn cached(&self) -> Cached<&T> {
 		let elem_ref = unsafe { &*self.elem.as_ptr() };
 		match elem_ref {
@@ -94,11 +94,7 @@ where
 		}
 	}
 
-	/// Returns an immutable reference to the entity if any.
-	///
-	/// # Note
-	///
-	/// Avoids unnecesary accesses from the contract storage.
+	/// Returns the value of the cell if any.
 	pub fn get(&self) -> Option<&T> {
 		if let Cached::Sync(opt_elem) = self.cached() {
 			return opt_elem
@@ -110,8 +106,9 @@ where
 	///
 	/// # Note
 	///
-	/// Always reads from the contract storage.
-	pub fn load(&self) -> Option<&T> {
+	/// Prefer using [`get`](struct.SyncCell.html#method.get)
+	/// to avoid unnecesary contract storage accesses.
+	fn load(&self) -> Option<&T> {
 		self.elem.replace(Cached::Sync(self.cell.load()));
 		{
 			let cached: &Cached<T> = unsafe {
@@ -126,21 +123,13 @@ impl<T> SyncCell<T>
 where
 	T: parity_codec::Encode
 {
-	/// Sets the entity to the given entity.
-	///
-	/// # Note
-	///
-	/// This always accesses the contract storage.
+	/// Sets the value of the cell.
 	pub fn set(&mut self, val: T) {
 		self.cell.store(&val);
 		self.elem.replace(Cached::Sync(Some(val)));
 	}
 
-	/// Mutates the entity by the given mutator.
-	///
-	/// # Note
-	///
-	/// Synchronizes contract storage after the mutation.
+	/// Mutates the value stored in the cell.
 	pub fn mutate_with<F>(&mut self, f: F)
 	where
 		F: FnOnce(&mut T)
@@ -151,12 +140,7 @@ where
 		}
 	}
 
-	/// Removes the entity from the contract storage.
-	///
-	/// # Note
-	///
-	/// This also clears the cache and cause a guaranteed
-	/// contract storage access upon the next read.
+	/// Removes the value from the cell.
 	pub fn clear(&mut self) {
 		self.cell.clear();
 		self.elem.replace(Cached::Sync(None));
