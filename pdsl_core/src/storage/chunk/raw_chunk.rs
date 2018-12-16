@@ -123,7 +123,7 @@ impl RawChunk {
 			.map(|key| ContractEnv::store(key, bytes))
 	}
 
-	/// Removes the bytes stores in the `n`-th cell.
+	/// Removes the bytes stored in the `n`-th cell.
 	pub fn clear(&mut self, n: u32) -> Result<()> {
 		self
 			.offset_key(n)
