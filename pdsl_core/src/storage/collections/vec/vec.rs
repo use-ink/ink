@@ -1,5 +1,3 @@
-//! A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.
-
 use crate::{
 	storage::{
 		Key,
@@ -313,8 +311,6 @@ where
 				"[pdsl_core::Vec::swap_remove] Error: \
 				 expected `Some` value since vector is not empty"
 			);
-		let last_index = self.len() - 1;
-		self.len.set(last_index);
 		Some(
 			self
 				.cells
