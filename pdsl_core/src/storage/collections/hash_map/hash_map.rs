@@ -88,10 +88,7 @@ impl<K, V> HashMap<K, V> {
 		*self
 			.len
 			.get()
-			.expect(
-				"[pdsl_core::HashMap] Error: \
-				 expected a value at storage slot associated with the len field"
-			)
+			.unwrap_or(&0)
 	}
 
 	/// Returns `true` if the map contains no elements.
