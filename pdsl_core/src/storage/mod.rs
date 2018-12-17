@@ -38,12 +38,12 @@
 //!
 //! These are the new primitives for contract storage access and their provided guarantees.
 //!
-//! | Primitive   | Owned | Typed | Opt. Reads | Mutable | Safe Load | Requirements |
-//! |:-----------:|:-----:|:-----:|:----------:|:-------:|:---------:|:-------------|
-//! | `Key`       | No    | No    | No         | No      | No        |              |
-//! | `RawCell`   | Yes   | No    | No         | No      | No        |              |
-//! | `TypedCell` | Yes   | Yes   | No         | No      | No        |              |
-//! | `SnycCell`  | Yes   | Yes   | Yes        | Yes     | No        |              |
+//! | Primitive   | Owned | Typed | Opt. Reads | Mutable | Safe Load |
+//! |:-----------:|:-----:|:-----:|:----------:|:-------:|:---------:|
+//! | `Key`       | No    | No    | No         | No      | No        |
+//! | `RawCell`   | Yes   | No    | No         | No      | No        |
+//! | `TypedCell` | Yes   | Yes   | No         | No      | No        |
+//! | `SyncCell`  | Yes   | Yes   | Yes        | Yes     | No        |
 //!
 //! ## Chunks
 //!
