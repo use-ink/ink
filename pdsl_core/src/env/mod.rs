@@ -1,3 +1,16 @@
+//! Contract environments.
+//!
+//! A contract is able to operate on different environments.
+//!
+//! Currently the SRML environment operating directly on the
+//! substrate runtime module library (SRML) and the test
+//! environment for testing and inspecting contracts are
+//! provided.
+//!
+//! By default the SRML environment is used.
+//! To enable the test environment the `test-env` crate feature
+//! has to be enabled.
+
 #[cfg(not(feature = "test-env"))]
 mod srml_env;
 
