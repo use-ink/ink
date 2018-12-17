@@ -1,5 +1,12 @@
-use crate::storage::{Key, cell::SyncCell, chunk::SyncChunk};
-use crate::hash::{self, HashAsKeccak256};
+use crate::storage::{
+	Key,
+	cell::SyncCell,
+	chunk::SyncChunk
+};
+use crate::hash::{
+	self,
+	HashAsKeccak256,
+};
 use crate::Setup;
 
 use std::borrow::Borrow;
@@ -58,6 +65,11 @@ pub struct OccupiedEntry<K, V> {
 	val: V,
 }
 
+impl<K, V> Setup for HashMap<K, V> {
+	fn setup(&mut self) {
+		self.len.set(0);
+	}
+}
 
 impl<K, V> HashMap<K, V> {
 	/// Creates a new storage hash map for the given key.
@@ -82,13 +94,7 @@ impl<K, V> HashMap<K, V> {
 			},
 		}
 	}
-impl<K, V> Setup for HashMap<K, V> {
-	fn setup(&mut self) {
-		self.len.set(0);
-	}
-}
 
-impl<K, V> HashMap<K, V> {
 	/// Returns the number of key-value pairs in the map.
 	pub fn len(&self) -> u32 {
 		*self
