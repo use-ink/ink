@@ -183,7 +183,7 @@ where
 	///
 	/// Look-ups into the hashtable will fail if no appropriate
 	/// slot has been found after this amount of hops.
-	const MAX_PROBE_HOPS: u32 = 1000;
+	const MAX_PROBE_HOPS: u32 = 32;
 
 	/// Probes for a free or usable slot.
 	///
