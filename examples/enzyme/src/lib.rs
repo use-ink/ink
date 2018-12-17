@@ -1,4 +1,3 @@
-#![feature(alloc_error_handler)]
 #![feature(alloc)]
 
 #[cfg(all(test, feature = "test-env"))]
