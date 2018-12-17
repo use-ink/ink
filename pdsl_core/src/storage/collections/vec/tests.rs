@@ -88,6 +88,7 @@ fn index() {
 	assert_eq!(vec[3], 77);
 }
 
+#[test]
 fn index_comp() {
 	let vec = {
 		let mut vec = unsafe {
