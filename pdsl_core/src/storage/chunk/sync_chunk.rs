@@ -136,36 +136,39 @@ where
 {
 	/// Mutates the value of this cell.
 	///
-	/// Returns `true` if an actual mutation has happened.
-	/// No mutation happens if the value stored in the cell is `None`.
+	/// Returns an immutable reference to the result if
+	/// a mutation happened, otherwise `None` is returned.
 	///
 	/// # Note
 	///
 	/// Prefer using `set` if you are not interested in the return value.
-	pub fn mutate_with<F>(self, f: F) -> bool
+	pub fn mutate_with<F>(self, f: F) -> Option<&'a T>
 	where
 		F: FnOnce(&mut T)
 	{
 		let mut this = self;
 		match this.elem {
-			Entry::Occupied(mut occupied) => {
-				if let Some(elem) = occupied.get_mut() {
+			Entry::Occupied(occupied) => {
+				if let Some(elem) = occupied.into_mut() {
 					f(elem);
 					this.cell.store(elem);
-					return true
+					return Some(&*elem)
 				}
-				false
+				None
 			}
 			Entry::Vacant(vacant) => {
 				let mut ret = false;
 				let mut elem = this.cell.load();
 				if let Some(elem) = &mut elem {
 					f(elem);
-					this.cell.store(&elem);
+					this.cell.store(&*elem);
 					ret = true;
 				}
-				vacant.insert(elem);
-				ret
+				let res = (&*vacant.insert(elem)).into();
+				if ret {
+					return res
+				}
+				None
 			}
 		}
 	}
@@ -391,13 +394,13 @@ where
 
 	/// Mutates the value of the `n`-th cell if any.
 	///
-	/// Returns `true` if an actual mutation has happened.
-	/// No mutation happens if the value stored in the cell is `None`.
+	/// Returns an immutable reference to the result if
+	/// a mutation happened, otherwise `None` is returned.
 	///
 	/// # Errors
 	///
 	/// If `n` is out of bounds.
-	pub fn mutate_with<F>(&mut self, n: u32, f: F) -> Result<bool>
+	pub fn mutate_with<F>(&mut self, n: u32, f: F) -> Result<Option<&T>>
 	where
 		F: FnOnce(&mut T)
 	{

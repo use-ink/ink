@@ -97,8 +97,6 @@ impl<T> Cache<T> {
 
 	/// Mutates the synchronized value if any.
 	///
-	/// # Note
-	///
 	/// Returns an immutable reference to the result if
 	/// a mutation happened, otherwise `None` is returned.
 	pub fn mutate_with<F>(&mut self, f: F) -> Option<&T>
@@ -187,7 +185,10 @@ where
 	T: parity_codec::Codec
 {
 	/// Mutates the value stored in the cell.
-	pub fn mutate_with<F>(&mut self, f: F) -> bool
+	///
+	/// Returns an immutable reference to the result if
+	/// a mutation happened, otherwise `None` is returned.
+	pub fn mutate_with<F>(&mut self, f: F) -> Option<&T>
 	where
 		F: FnOnce(&mut T)
 	{
@@ -198,9 +199,9 @@ where
 		match self.cache.mutate_with(f) {
 			Some(res) => {
 				self.cell.store(res);
-				true
+				Some(&*res)
 			}
-			None => false
+			None => None
 		}
 	}
 }
@@ -219,7 +220,7 @@ mod tests {
 		assert_eq!(cell.get(), None);
 		cell.set(5);
 		assert_eq!(cell.get(), Some(&5));
-		assert!(cell.mutate_with(|val| *val += 10));
+		assert_eq!(cell.mutate_with(|val| *val += 10), Some(&15));
 		assert_eq!(cell.get(), Some(&15));
 		cell.clear();
 		assert_eq!(cell.get(), None);
