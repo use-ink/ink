@@ -100,7 +100,7 @@ impl Default for TestEnvData {
 	fn default() -> Self {
 		Self{
 			storage: HashMap::new(),
-			caller: Vec::new(),
+			caller: vec![0x0; 32],
 			input: Vec::new(),
 			expected_return: Vec::new(),
 			total_reads: Cell::new(0),
