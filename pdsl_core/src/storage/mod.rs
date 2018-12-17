@@ -85,6 +85,9 @@ pub use self::{
 	synced_chunk::{
 		SyncedChunk,
 	},
-	collections::vec::Vec,
-	collections::vec,
+	collections::{
+		vec::Vec,
+		hash_map::HashMap,
+	},
+	collections::{vec, hash_map},
 };
