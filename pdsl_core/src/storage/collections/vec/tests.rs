@@ -186,3 +186,10 @@ fn swap_remove_empty() {
 	let mut vec = new_empty_vec();
 	assert_eq!(vec.swap_remove(0), None);
 }
+
+#[test]
+fn iter_size_hint() {
+	let vec = new_filled_vec();
+	let iter = vec.iter();
+	assert_eq!(iter.size_hint(), (4, Some(4)));
+}
