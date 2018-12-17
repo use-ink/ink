@@ -168,6 +168,7 @@ where
 			}
 			Some((false, probe_index)) => {
 				// We can insert into this slot.
+				self.len.set(self.len() + 1);
 				self.entries.set(
 					probe_index,
 					Entry::Occupied(OccupiedEntry{key, val})
@@ -311,7 +312,10 @@ where
 			);
 		match self.entries.remove(probe_index).unwrap() {
 			Some(Entry::Removed) | None => None,
-			Some(Entry::Occupied(OccupiedEntry{val, ..})) => Some(val),
+			Some(Entry::Occupied(OccupiedEntry{val, ..})) => {
+				self.len.set(self.len() - 1);
+				Some(val)
+			},
 		}
 	}
 
