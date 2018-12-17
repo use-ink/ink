@@ -58,12 +58,8 @@
 //! - `SyncChunk`
 //!
 
-mod non_clone;
 mod key;
-mod stored;
-mod synced;
-
-mod synced_chunk;
+mod non_clone;
 
 pub mod cell;
 pub mod chunk;
@@ -75,19 +71,14 @@ pub use self::{
 	key::{
 		Key,
 	},
-	stored::{
-		Stored,
-	},
-	synced::{
-		Synced,
-		SyncedMut,
-	},
-	synced_chunk::{
-		SyncedChunk,
-	},
 	collections::{
-		vec::Vec,
-		hash_map::HashMap,
+		vec::{
+			self,
+			Vec,
+		},
+		hash_map::{
+			self,
+			HashMap,
+		},
 	},
-	collections::{vec, hash_map},
 };
