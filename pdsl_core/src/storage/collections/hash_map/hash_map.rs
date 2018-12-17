@@ -334,6 +334,18 @@ where
 		}
 	}
 
+	/// Returns `true` if there is an entry corresponding to the key in the map.
+	pub fn contains_key<Q>(&self, key: &Q) -> bool
+	where
+		K: Borrow<Q>,
+		Q: HashAsKeccak256 + Eq + ?Sized,
+	{
+		match self.get(key) {
+			Some(_) => true,
+			None => false,
+		}
+	}
+
 	/// Returns the entry corresponding to the key.
 	///
 	/// The key may be any borrowed form of the map's key type,
