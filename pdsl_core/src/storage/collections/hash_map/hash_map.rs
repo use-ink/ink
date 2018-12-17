@@ -196,7 +196,7 @@ where
 	fn probe<Q>(&self, key: &Q, inserting: bool) -> Option<(bool, u32)>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq
+		Q: HashAsKeccak256 + Eq + ?Sized,
 	{
 		println!("HashMap::probe - 0");
 		// Convert the first 4 bytes in the keccak256 hash
@@ -277,7 +277,7 @@ where
 	fn probe_inspecting<Q>(&self, key: &Q) -> Option<u32>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq
+		Q: HashAsKeccak256 + Eq + ?Sized,
 	{
 		self.probe(key, false).map(|(_, slot)| slot)
 	}
@@ -292,7 +292,7 @@ where
 	pub fn remove<Q>(&mut self, key: &Q) -> Option<V>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq
+		Q: HashAsKeccak256 + Eq + ?Sized
 	{
 		let probe_index = self
 			.probe_inspecting(key)
@@ -313,7 +313,7 @@ where
 	pub fn get<Q>(&self, key: &Q) -> Option<&V>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq
+		Q: HashAsKeccak256 + Eq + ?Sized,
 	{
 		match self.entry(key) {
 			Some(Entry::Removed) | None => None,
@@ -328,7 +328,7 @@ where
 	fn entry<Q>(&self, key: &Q) -> Option<&Entry<K, V>>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq
+		Q: HashAsKeccak256 + Eq + ?Sized,
 	{
 		if let Some(slot) = self.probe_inspecting(key) {
 			return self.entries.get(slot).unwrap()
