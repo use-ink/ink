@@ -58,15 +58,23 @@ pub struct OccupiedEntry<K, V> {
 	val: V,
 }
 
-impl<K, V> From<Key> for HashMap<K, V>
-where
-	K: parity_codec::Codec,
-	V: parity_codec::Codec,
-{
-	fn from(key: Key) -> Self {
+
+impl<K, V> HashMap<K, V> {
+	/// Creates a new storage hash map for the given key.
+	///
+	/// # Safety
+	///
+	/// This is an inherently unsafe operation since it does not check
+	/// for the storage hash map's invariances, such as
+	///
+	/// - Is the storage region determined by the given key aliasing?
+	/// - Is the storage region correctly formatted to be used as storage hash map?
+	///
+	/// Users should not use this routine directly if possible.
+	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
-			len: unsafe { SyncCell::new_unchecked(key) },
-			entries: unsafe {
+			len: SyncCell::new_unchecked(key),
+			entries: {
 				SyncChunk::new_unchecked(
 					Key::with_offset(key, 1),
 					u32::max_value()
@@ -74,8 +82,6 @@ where
 			},
 		}
 	}
-}
-
 impl<K, V> Setup for HashMap<K, V> {
 	fn setup(&mut self) {
 		self.len.set(0);
