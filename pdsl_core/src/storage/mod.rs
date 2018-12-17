@@ -67,6 +67,7 @@ mod synced_chunk;
 
 pub mod cell;
 pub mod chunk;
+mod collections;
 
 use self::non_clone::NonCloneMarker;
 
@@ -83,5 +84,7 @@ pub use self::{
 	},
 	synced_chunk::{
 		SyncedChunk,
-	}
+	},
+	collections::vec::Vec,
+	collections::vec,
 };
