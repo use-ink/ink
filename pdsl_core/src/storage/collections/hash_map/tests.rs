@@ -26,6 +26,8 @@ fn insert() {
 	assert_eq!(map.insert("1".into(), ", World!".into()), Some("Hello".into()));
 	// Should *not* increase len.
 	assert_eq!(map.len(), 1);
+	// Should return the new value
+	assert_eq!(map.get("1"), Some(&", World!".into()));
 }
 
 #[test]
