@@ -3,6 +3,7 @@
 /pdsl_tests/target/
 /pdsl_core/target/
 /pdsl_derive/target/
+/examples/**/target/
 
 /design/
 /pdsl_tests/examples/
