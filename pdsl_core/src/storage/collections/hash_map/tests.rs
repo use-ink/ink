@@ -69,6 +69,20 @@ fn remove() {
 }
 
 #[test]
+fn get() {
+	let mut map = unsafe {
+		storage::HashMap::<String, String>::new_unchecked(Key([0x77; 32]))
+	};
+	// Inserts some elements
+	assert_eq!(map.insert("Black".into(), "White".into()), None);
+	assert_eq!(map.insert("Up".into(), "Down".into()), None);
+	// Check if get returns the right answer
+	assert_eq!(map.get("Black"), Some(&"White".into()));
+	assert_eq!(map.get("Up"), Some(&"Down".into()));
+	assert_eq!(map.get("Forward"), None);
+}
+
+#[test]
 fn mutate_with() {
 	let mut map = unsafe {
 		storage::HashMap::<String, String>::new_unchecked(Key([0x77; 32]))
