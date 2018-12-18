@@ -154,24 +154,31 @@ where
 		match self.probe_inserting(&key) {
 			Some(ProbeSlot::Occupied(probe_index)) => {
 				// Keys match, values might not.
-				// So we have to overwrite this entry with the new value.
-				let old = self.entries.remove(probe_index).unwrap();
-				self.entries.set(
-					probe_index, Entry::Occupied(OccupiedEntry{key, val})
-				).unwrap();
-				return match old.unwrap() {
-					Entry::Occupied(OccupiedEntry{val, ..}) => Some(val),
-					Entry::Removed => None,
-				}
+				self
+					.entries
+					.replace(
+						probe_index,
+						Entry::Occupied(OccupiedEntry{key, val}),
+					)
+					.unwrap()
+					.and_then(|old| {
+						match old {
+							Entry::Occupied(OccupiedEntry{val, ..}) => Some(val),
+							Entry::Removed => None,
+						}
+					})
 			}
 			Some(ProbeSlot::Vacant(probe_index)) => {
 				// We can insert into this slot.
 				self.len.set(self.len() + 1);
-				self.entries.set(
-					probe_index,
-					Entry::Occupied(OccupiedEntry{key, val})
-				).unwrap();
-				return None
+				self
+					.entries
+					.set(
+						probe_index,
+						Entry::Occupied(OccupiedEntry{key, val})
+					)
+					.unwrap();
+				None
 			}
 			None => {
 				panic!(
@@ -269,6 +276,8 @@ where
 
 	/// Probes for a free or usable slot while inserting.
 	///
+	/// Returns `None` if there is no mapping for the key.
+	///
 	/// # Note
 	///
 	/// For more information refer to the `fn probe` documentation.
@@ -280,7 +289,7 @@ where
 		self.probe(key, true)
 	}
 
-	/// Probes for a free or usable slot while inspecting.
+	/// Probes an occupied or once occupied slot with the given key.
 	///
 	/// # Note
 	///
