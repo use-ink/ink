@@ -152,7 +152,7 @@ where
 	/// See the module-level documentation for more.
 	pub fn insert(&mut self, key: K, val: V) -> Option<V> {
 		match self.probe_inserting(&key) {
-			Some((true, probe_index)) => {
+			Some(ProbeSlot::Occupied(probe_index)) => {
 				// Keys match, values might not.
 				// So we have to overwrite this entry with the new value.
 				let old = self.entries.remove(probe_index).unwrap();
@@ -164,7 +164,7 @@ where
 					Entry::Removed => None,
 				}
 			}
-			Some((false, probe_index)) => {
+			Some(ProbeSlot::Vacant(probe_index)) => {
 				// We can insert into this slot.
 				self.len.set(self.len() + 1);
 				self.entries.set(
@@ -178,6 +178,24 @@ where
 					"[pdsl_core::HashMap::insert] Error: failed finding a valid entry"
 				)
 			}
+		}
+	}
+}
+
+/// The result of a slot probe.
+enum ProbeSlot {
+	/// The probed slot is empty or removed.
+	Vacant(u32),
+	/// The probed slot is occupied.
+	Occupied(u32),
+}
+
+impl ProbeSlot {
+	/// Returns the index of the probe slot.
+	fn index(&self) -> u32 {
+		match self {
+			| ProbeSlot::Vacant(index)
+			| ProbeSlot::Occupied(index) => *index
 		}
 	}
 }
@@ -201,7 +219,7 @@ where
 	/// - Returns `(true, _)` if there was a key-match of an already
 	///   occupied slot, returns `(false, _)` if the found slot is empty.
 	/// - Returns `(_, n)` if `n` is the found probed index.
-	fn probe<Q>(&self, key: &Q, inserting: bool) -> Option<(bool, u32)>
+	fn probe<Q>(&self, key: &Q, inserting: bool) -> Option<ProbeSlot>
 	where
 		K: Borrow<Q>,
 		Q: Hash + Eq + ?Sized,
@@ -216,37 +234,35 @@ where
 				 couldn't convert to probe_start byte array"
 			)
 		);
-		// This is the offset for the quadratic probing.
+		// We need the hops counter to prevent theroretical endless loop situations.
 		let mut probe_hops = 0;
-		let mut probe_offset = 0;
-		'outer: while probe_hops < Self::MAX_PROBE_HOPS {
+		while probe_hops < Self::MAX_PROBE_HOPS {
+			let probe_offset = probe_hops * probe_hops;
 			let probe_index = probe_start.wrapping_add(probe_offset);
 			match self.entries.get(probe_index).unwrap() {
 				Some(Entry::Occupied(entry)) => {
 					if key == entry.key.borrow() {
-						return Some((true, probe_index))
+						// Keys match so we can return this probed slot.
+						return Some(ProbeSlot::Occupied(probe_index))
 					}
-					// Need to jump using quadratic probing.
-					probe_hops += 1;
-					probe_offset = probe_hops * probe_hops;
-					continue 'outer
 				}
 				None => {
-					// We can insert into this slot.
 					if inserting {
-						return Some((false, probe_index))
+						// We can insert into this slot.
+						return Some(ProbeSlot::Vacant(probe_index))
 					} else {
+						// The searched for element does not exist.
 						return None
 					}
 				}
 				Some(Entry::Removed) => {
 					// We can insert into this slot.
 					if inserting {
-						return Some((false, probe_index))
+						return Some(ProbeSlot::Vacant(probe_index))
 					}
-					continue 'outer
 				}
 			}
+			probe_hops += 1;
 		}
 		None
 	}
@@ -256,7 +272,7 @@ where
 	/// # Note
 	///
 	/// For more information refer to the `fn probe` documentation.
-	fn probe_inserting<Q>(&self, key: &Q) -> Option<(bool, u32)>
+	fn probe_inserting<Q>(&self, key: &Q) -> Option<ProbeSlot>
 	where
 		K: Borrow<Q>,
 		Q: Hash + Eq
@@ -274,7 +290,9 @@ where
 		K: Borrow<Q>,
 		Q: Hash + Eq + ?Sized,
 	{
-		self.probe(key, false).map(|(_, slot)| slot)
+		self
+			.probe(key, false)
+			.map(|slot| slot.index())
 	}
 
 	/// Removes a key from the map,
