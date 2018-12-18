@@ -2,7 +2,13 @@
 
 use tiny_keccak;
 
+use std::hash::{
+	Hash,
+	Hasher,
+};
+
 /// Keccak256 hasher.
+#[derive(Clone)]
 pub struct Keccak256Hasher {
 	/// The internal keccak hasher.
 	hasher: tiny_keccak::Keccak,
@@ -20,44 +26,50 @@ impl Keccak256Hasher {
 	/// Returns the hash value for the values written so far.
 	///
 	/// If you need to start a fresh hash value, you will have to create a new hasher.
-	pub fn finish(self) -> [u8; 32] {
+	pub fn finish256(self) -> [u8; 32] {
 		let mut res = [0; 32];
 		self.hasher.finalize(&mut res);
 		res
 	}
 
-	/// Writes some data into the hasher.
-	pub fn write(&mut self, bytes: &[u8]) {
-		self.hasher.update(bytes)
+	pub fn finish64(self) -> [u8; 8] {
+		let mut arr = [0; 8];
+		let res = self.finish256();
+		for n in 0..8 {
+			arr[n] = res[n];
+		}
+		arr
 	}
 }
 
-/// Types implementing this trait are keccak256 hashable.
-pub trait HashAsKeccak256 {
-	/// Hash `self` with the given hasher.
-	fn hash_as_keccak256(&self, hasher: &mut Keccak256Hasher);
+fn bytes8_to_u64(bytes: [u8; 8]) -> u64 {
+	let mut val = 0;
+	for n_byte in 0..7 {
+		val |= (bytes[n_byte] as u64) << (n_byte * 8);
+	}
+	val
 }
 
-impl<T> HashAsKeccak256 for T
-where
-	T: ?Sized + AsRef<[u8]>
-{
-	fn hash_as_keccak256(&self, hasher: &mut Keccak256Hasher) {
-		hasher.write(self.as_ref())
+impl Hasher for Keccak256Hasher {
+	/// Returns the hash value for the values written so far.
+	///
+	/// If you need to start a fresh hash value, you will have to create a new hasher.
+	fn finish(&self) -> u64 {
+		bytes8_to_u64(self.clone().finish64())
+	}
+
+	/// Writes some data into the hasher.
+	fn write(&mut self, bytes: &[u8]) {
+		self.hasher.update(bytes)
 	}
 }
 
 /// Returns the keccak-256 hash for the given byte slice.
 pub fn keccak256<T>(val: &T) -> [u8; 32]
 where
-	T: ?Sized + HashAsKeccak256
+	T: ?Sized + Hash
 {
 	let mut hasher = Keccak256Hasher::default();
-	val.hash_as_keccak256(&mut hasher);
-	hasher.finish()
-}
-
-/// Copies the keccak-256 hash into the given destination byte slice.
-pub fn keccak256_inplace(source: &[u8], dest: &mut [u8; 32]) {
-	dest.copy_from_slice(&keccak256(source));
+	val.hash(&mut hasher);
+	hasher.finish256()
 }

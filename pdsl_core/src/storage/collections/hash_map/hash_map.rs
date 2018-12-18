@@ -3,13 +3,11 @@ use crate::storage::{
 	cell::SyncCell,
 	chunk::SyncChunk
 };
-use crate::hash::{
-	self,
-	HashAsKeccak256,
-};
+use crate::hash;
 use crate::Setup;
 
 use std::borrow::Borrow;
+use std::hash::Hash;
 
 /// Mapping stored in the contract storage.
 ///
@@ -140,7 +138,7 @@ where
 
 impl<K, V> HashMap<K, V>
 where
-	K: parity_codec::Codec + HashAsKeccak256 + Eq,
+	K: parity_codec::Codec + Hash + Eq,
 	V: parity_codec::Codec,
 {
 	/// Inserts a key-value pair into the map.
@@ -206,7 +204,7 @@ where
 	fn probe<Q>(&self, key: &Q, inserting: bool) -> Option<(bool, u32)>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq + ?Sized,
+		Q: Hash + Eq + ?Sized,
 	{
 		// Convert the first 4 bytes in the keccak256 hash
 		// of the key into a big-endian unsigned integer.
@@ -266,7 +264,7 @@ where
 	fn probe_inserting<Q>(&self, key: &Q) -> Option<(bool, u32)>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq
+		Q: Hash + Eq
 	{
 		self.probe(key, true)
 	}
@@ -279,7 +277,7 @@ where
 	fn probe_inspecting<Q>(&self, key: &Q) -> Option<u32>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq + ?Sized,
+		Q: Hash + Eq + ?Sized,
 	{
 		self.probe(key, false).map(|(_, slot)| slot)
 	}
@@ -294,7 +292,7 @@ where
 	pub fn remove<Q>(&mut self, key: &Q) -> Option<V>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq + ?Sized
+		Q: Hash + Eq + ?Sized
 	{
 		let probe_index = self
 			.probe_inspecting(key)
@@ -318,7 +316,7 @@ where
 	pub fn get<Q>(&self, key: &Q) -> Option<&V>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq + ?Sized,
+		Q: Hash + Eq + ?Sized,
 	{
 		match self.entry(key) {
 			Some(Entry::Removed) | None => None,
@@ -330,7 +328,7 @@ where
 	pub fn contains_key<Q>(&self, key: &Q) -> bool
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq + ?Sized,
+		Q: Hash + Eq + ?Sized,
 	{
 		match self.get(key) {
 			Some(_) => true,
@@ -345,7 +343,7 @@ where
 	fn entry<Q>(&self, key: &Q) -> Option<&Entry<K, V>>
 	where
 		K: Borrow<Q>,
-		Q: HashAsKeccak256 + Eq + ?Sized,
+		Q: Hash + Eq + ?Sized,
 	{
 		if let Some(slot) = self.probe_inspecting(key) {
 			return self.entries.get(slot).unwrap()
