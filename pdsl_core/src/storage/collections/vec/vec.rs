@@ -137,6 +137,12 @@ where
 	}
 
 	/// Returns an iterator over the references of all elements stored in the vector.
+	///
+	/// # Note
+	///
+	/// Note it is **not** recommended to iterate over all elements of a storage vector.
+	/// Make sure that you really need to do this and if you do try to only iterate over a
+	/// limited subset, using e.g. `Iterator::take(n)`.
 	pub fn iter(&self) -> Iter<T> {
 		Iter::new(self)
 	}
