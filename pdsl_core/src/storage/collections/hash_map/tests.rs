@@ -67,3 +67,30 @@ fn remove() {
 	assert_eq!(map.remove("Robin"), Some("Bird".into()));
 	assert_eq!(map.len(), 0);
 }
+
+#[test]
+fn mutate_with() {
+	let mut map = unsafe {
+		storage::HashMap::<String, String>::new_unchecked(Key([0x77; 32]))
+	};
+	// Inserts some elements
+	assert_eq!(map.insert("Dog Breed".into(), "Akita".into()), None); // Shiba Inu
+	assert_eq!(map.insert("Cat Breed".into(), "Bengal".into()), None); // Burmilla
+	// Verify the inserted breeds
+	assert_eq!(map.get("Dog Breed"), Some(&"Akita".into()));
+	assert_eq!(map.get("Cat Breed"), Some(&"Bengal".into()));
+	// Change the breeds
+	assert_eq!(
+		map.mutate_with("Dog Breed", |breed| *breed = "Shiba Inu".into()),
+		Some(&"Shiba Inu".into())
+	);
+	assert_eq!(
+		map.mutate_with("Cat Breed", |breed| breed.push_str(" Shorthair")),
+		Some(&"Bengal Shorthair".into())
+	);
+	// Verify the mutated breeds
+	assert_eq!(map.get("Dog Breed"), Some(&"Shiba Inu".into()));
+	assert_eq!(map.get("Cat Breed"), Some(&"Bengal Shorthair".into()));
+	// Mutate for non-existing key
+	assert_eq!(map.mutate_with("Bird Breed", |breed| *breed = "Parrot".into()), None);
+}

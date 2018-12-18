@@ -218,6 +218,41 @@ where
 	/// slot has been found after this amount of hops.
 	const MAX_PROBE_HOPS: u32 = 32;
 
+	/// Mutates the value associated with the key if any.
+	///
+	/// Returns a reference to the mutated element or
+	/// Returns `None` and won't mutate if there is no value
+	/// associated to the key.
+	pub fn mutate_with<Q, F>(&mut self, key: &Q, f: F) -> Option<&V>
+	where
+		K: Borrow<Q>,
+		Q: Hash + Eq + ?Sized,
+		F: FnOnce(&mut V)
+	{
+		// Use a wrapper closure that wraps the given mutator.
+		//
+		// This wrapper closure actually works on hashmap entries
+		// instead of values directly.
+		let wrapped_f = move |entry: &mut Entry<K, V>| match entry {
+			Entry::Occupied(occupied) => {
+				f(&mut occupied.val)
+			}
+			Entry::Removed => ()
+		};
+		self
+			.probe_inspecting(key)
+			.and_then(move |probe_index| {
+				self
+					.entries
+					.mutate_with(probe_index, wrapped_f)
+					.unwrap()
+			})
+			.and_then(|entry| match entry {
+				Entry::Occupied(occupied) => Some(&occupied.val),
+				Entry::Removed => None
+			})
+	}
+
 	/// Probes for a free or usable slot.
 	///
 	/// # Note
