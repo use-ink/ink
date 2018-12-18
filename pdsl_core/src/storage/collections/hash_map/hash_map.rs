@@ -110,7 +110,7 @@ impl<K, V> HashMap<K, V> {
 /// Converts the given bytes into a `u32` value.
 ///
 /// The first byte in the array will be the most significant byte.
-fn bytes_to_u32(bytes: [u8; 4]) -> u32 {
+fn bytes4_to_u32(bytes: [u8; 4]) -> u32 {
 	let mut res = 0;
 	res |= (bytes[0] as u32) << 24;
 	res |= (bytes[1] as u32) << 16;
@@ -208,7 +208,7 @@ where
 	{
 		// Convert the first 4 bytes in the keccak256 hash
 		// of the key into a big-endian unsigned integer.
-		let probe_start = bytes_to_u32(
+		let probe_start = bytes4_to_u32(
 			slice_as_array4(
 				&(hash::keccak256(key.borrow())[0..4])
 			).expect(
@@ -219,14 +219,8 @@ where
 		// This is the offset for the quadratic probing.
 		let mut probe_hops = 0;
 		let mut probe_offset = 0;
-		use std::collections::HashSet;
-		let mut probed_set = HashSet::<u32>::new();
-		'outer: loop {
-			if probe_hops == Self::MAX_PROBE_HOPS {
-				return None
-			}
+		'outer: while probe_hops < Self::MAX_PROBE_HOPS {
 			let probe_index = probe_start.wrapping_add(probe_offset);
-			probed_set.insert(probe_index);
 			match self.entries.get(probe_index).unwrap() {
 				Some(Entry::Occupied(entry)) => {
 					if key == entry.key.borrow() {
@@ -254,6 +248,7 @@ where
 				}
 			}
 		}
+		None
 	}
 
 	/// Probes for a free or usable slot while inserting.
