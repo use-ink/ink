@@ -190,18 +190,24 @@ impl Enzyme {
 			println!("Enzyme::tweet_message - Some({:?})", registered_address);
 			if registered_address == &caller_as_array() {
 				println!("Enzyme::tweet_message - *is* caller");
-				// There is currently no way to mutate inplace
-				// while using storage map. This feature will be
-				// added in the future.
-				let mut tweets = self
-					.user_tweets
-					.get(&username)
-					.unwrap_or(&Vec::new())
-					.clone();
+				if !self.user_tweets.contains_key(&username) {
+					self.user_tweets.insert(username, vec![message.clone()]);
+					println!("Enzyme::tweet_message - tweets = [{:?}]", message);
+				} else {
+					self
+						.user_tweets
+						.mutate_with(&username, |tweets| {
+							tweets.push(message.clone());
+						})
+						.iter()
+						.inspect(|tweets| {
+							println!(
+								"Enzyme::tweet_message - tweets = {:?}",
+								tweets
+							);
+						});
+				}
 				self.tweet_global(message.clone());
-				tweets.push(message);
-				println!("Enzyme::tweet_message - tweets = {:?}", tweets);
-				self.user_tweets.insert(username, tweets);
 			} else {
 				println!("Enzyme::tweet_message - *not* caller");
 			}
