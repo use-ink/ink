@@ -4,6 +4,8 @@
 
 Write WebAssembly based smart contracts in the Rust programming language.
 
+- [`pdsl-core` API documentation](https://robbepop.github.io/pdsl/pdsl_core/index.html).
+
 ## Goals
 
 | Core Goals | |
