@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Iter","An iterator over the values of a storage `Vec`."],["Vec","A contiguous growable array type, written `Vec<T>` but pronounced 'vector'."]]});
