@@ -27,8 +27,6 @@ proc-macro2 = "0.4"
 parity-codec = { version = "2.0" }
 parity-codec-derive = { version = "2.0" }
 
-itertools = "0.7"
-
 [lib]
 name = "pdsl"
 proc-macro = true
