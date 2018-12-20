@@ -21,7 +21,7 @@ use lazy_static::lazy_static;
 #[derive(Encode, Decode)]
 pub struct Tweet {
 	/// By whom the tweet was done.
-	by: Username,
+	by: String,
 	/// The message of the tweet.
 	message: String,
 }
@@ -33,21 +33,13 @@ impl Tweet {
 	}
 }
 
-// / The name of a registered user.
-// #[derive(Debug, Clone, PartialEq, Eq)]
-// #[derive(Encode, Decode)]
-// pub struct Username(pub String);
-
-/// The name of a registered user.
-pub type Username = String;
-
 /// The data of a registered user.
 #[derive(Encode, Decode)]
 pub struct UserData {
 	/// The tweets.
 	tweets: storage::Vec<String>,
 	/// The follows.
-	following: storage::Vec<Username>,
+	following: storage::Vec<String>,
 }
 
 impl UserData {
@@ -76,7 +68,7 @@ pub struct Enzyme {
 	/// All tweets done by all users.
 	tweets: storage::Vec<Tweet>,
 	/// Database of all registered users and their data.
-	users: storage::HashMap<Username, UserData>,
+	users: storage::HashMap<String, UserData>,
 }
 
 impl Default for Enzyme {
@@ -139,37 +131,37 @@ impl Enzyme {
 	/// Posts a message to the global channel.
 	/// 
 	/// Will only ever store the latest 10 messages in the channel at most.
-	fn tweet_global(&mut self, username: &str, message: String) {
-		self.tweets.push(Tweet::new(username.into(), message))
+	fn tweet_global(&mut self, username: &str, message: &str) {
+		self.tweets.push(Tweet::new(username.into(), message.into()))
 	}
 
 	/// Register a new user.
 	///
 	/// Returns `true` if registration was successful.
-	pub fn register(&mut self, username: String) -> bool {
-		if self.users.get(&username).is_none() {
-			self.users.insert(username, UserData::new());
+	pub fn register(&mut self, username: &str) -> bool {
+		if self.users.get(username).is_none() {
+			self.users.insert(username.into(), UserData::new());
 			return true
 		}
 		false
 	}
 
 	/// Post a message by a user.
-	pub fn tweet_message(&mut self, username: String, message: String) {
-		self.tweet_global(&username, message.clone());
+	pub fn tweet_message(&mut self, username: &str, message: &str) {
+		self.tweet_global(username, message);
 		self
 			.users
-			.mutate_with(&username, |user| {
-				user.tweets.push(message)
+			.mutate_with(username, |user| {
+				user.tweets.push(message.into())
 			});
 	}
 
 	/// Make a user follow the other.
-	pub fn follow(&mut self, following: String, followed: String) {
+	pub fn follow(&mut self, following: &str, followed: &str) {
 		self
 			.users
-			.mutate_with(&following, |following| {
-				following.following.push(followed)
+			.mutate_with(following, |following| {
+				following.following.push(followed.into())
 			});
 	}
 }
@@ -214,13 +206,13 @@ pub extern "C" fn call() {
 	let mut enzyme = Enzyme::default();
 	match action {
 		Action::Register{username} => {
-			enzyme.register(username);
+			enzyme.register(&username);
 		}
 		Action::TweetMessage{username, message} => {
-			enzyme.tweet_message(username, message)
+			enzyme.tweet_message(&username, &message)
 		}
 		Action::Follow{following, followed} => {
-			enzyme.follow(following, followed)
+			enzyme.follow(&following, &followed)
 		}
 	}
 }
