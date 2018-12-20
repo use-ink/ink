@@ -3,86 +3,91 @@
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 
-pub type Address = [u8; 32];
+pub mod utils;
+
+use crate::utils::*;
 
 use parity_codec_derive::{Encode, Decode};
 
 use pdsl_core::{
-	env::{Env, ContractEnv},
-	storage::{self, Key, cell::SyncCell},
+	storage::{self, Key},
 	Setup,
 };
 
 use lazy_static::lazy_static;
-use std::sync::Mutex;
 
-struct StorageAlloc {
-	/// Current key with highest offset.
-	cur: Key,
+/// A tweet done by a registered user.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Encode, Decode)]
+pub struct Tweet {
+	/// By whom the tweet was done.
+	by: Username,
+	/// The message of the tweet.
+	message: String,
 }
 
-impl Default for StorageAlloc {
-	fn default() -> Self {
+impl Tweet {
+	/// Creates a new tweet from `by` with content `message`.
+	pub fn new(by: String, message: String) -> Self {
+		Self{by, message}
+	}
+}
+
+// / The name of a registered user.
+// #[derive(Debug, Clone, PartialEq, Eq)]
+// #[derive(Encode, Decode)]
+// pub struct Username(pub String);
+
+/// The name of a registered user.
+pub type Username = String;
+
+/// The data of a registered user.
+#[derive(Encode, Decode)]
+pub struct UserData {
+	/// The tweets.
+	tweets: storage::Vec<String>,
+	/// The follows.
+	following: storage::Vec<Username>,
+}
+
+impl UserData {
+	pub fn new() -> Self {
 		Self{
-			cur: Key([0; 32])
+			tweets: unsafe {
+				storage::Vec::new_unchecked({
+					let key = alloc(1);
+					alloc(u32::max_value());
+					key
+				})
+			},
+			following: unsafe {
+				storage::Vec::new_unchecked({
+					let key = alloc(1);
+					alloc(u32::max_value());
+					key
+				})
+			},
 		}
 	}
 }
 
-impl StorageAlloc {
-	pub fn alloc(&mut self, size: u32) -> Key {
-		let ret = self.cur;
-		self.cur = Key::with_offset(ret, size);
-		ret
-	}
-}
-
-/// Allocates an amount of contract storage.
-///
-/// Doesn't actually touch the storage but keeps it from
-/// getting reused by another instance.
-fn alloc(size: u32) -> Key {
-	STORAGE_ALLOC.lock().unwrap().alloc(size)
-}
-
-pub type Username = String;
-pub type Tweet = String;
-
-/// Decentralized FAKE-NEWs distribution.
+/// The entire enzyme contract.
 pub struct Enzyme {
-	/// Latest global tweet ID.
-	global_tweets_latest: SyncCell<u32>,
-	/// The last tweets posted by all users.
-	global_tweets: storage::Vec<Tweet>,
-	/// The users address. (For Authentification purpose.)
-	auth: storage::HashMap<Username, Address>,
-	/// All tweets posted by the user.
-	user_tweets: storage::HashMap<Username, Vec<Tweet>>,
-	/// Who this user is following.
-	following: storage::HashMap<Username, Vec<Username>>,
+	/// All tweets done by all users.
+	tweets: storage::Vec<Tweet>,
+	/// Database of all registered users and their data.
+	users: storage::HashMap<Username, UserData>,
 }
 
 impl Default for Enzyme {
 	fn default() -> Self {
 		unsafe {
 			Enzyme{
-				global_tweets_latest: SyncCell::new_unchecked(*GLOBAL_TWEETS_LATEST_KEY),
-				global_tweets: storage::Vec::new_unchecked(*GLOBAL_TWEETS_KEY),
-				auth: storage::HashMap::new_unchecked(*AUTH_KEY),
-				user_tweets: storage::HashMap::new_unchecked(*USER_TWEETS_KEY),
-				following: storage::HashMap::new_unchecked(*FOLLOWING_KEY),
+				tweets: storage::Vec::new_unchecked(*TWEETS_KEY),
+				users: storage::HashMap::new_unchecked(*USERS_KEY),
 			}
 		}
 	}
-}
-
-/// Return current contract caller as 32-bytes array.
-pub fn caller_as_array() -> [u8; 32] {
-	let caller_as_vec = ContractEnv::caller();
-	assert_eq!(caller_as_vec.len(), 32);
-	let mut buffer: [u8; 32] = [0; 32];
-	buffer.copy_from_slice(&caller_as_vec);
-	buffer
 }
 
 impl Setup for Enzyme {
@@ -90,178 +95,90 @@ impl Setup for Enzyme {
 	///
 	/// This should be called only once upon deployment of a contract.
 	fn setup(&mut self) {
-		self.auth.setup();
-		self.user_tweets.setup();
-		self.following.setup();
-		// Fill global tweets after normal setup.
-		self.global_tweets_latest.set(0);
-		assert_eq!(self.global_tweets.len(), 0);
-		for _ in 0..10 {
-			self.global_tweets.push(String::from(""));
-		}
-		assert_eq!(self.global_tweets.len(), 10);
+		// Nothing to do here at the moment.
 	}
 }
 
 impl Enzyme {
-	/// Maximum number of global posts.
-	const MAX_GLOBAL_TWEETS: u32 = 10;
-
 	/// Returns all recent global posts as vector.
-	pub(crate) fn global_tweets(&self) -> Vec<Tweet> {
-		println!("Enzyme::global_tweets - start");
-		let mut buffer = Vec::new();
-		for (i, global_tweet) in self.global_tweets.iter().take(10).enumerate() {
-			println!("Enzyme::global_tweets - ({:?}, {:?})", i, global_tweet);
-			buffer.push(global_tweet.clone());
-		}
-		// println!("Enzyme::global_tweets - 2");
-		// buffer.rotate_left(*self.global_tweets_latest.get() as usize);
-		// println!("Enzyme::global_tweets - 3");
-		// buffer.reverse();
-		println!("Enzyme::global_tweets - end");
-		buffer
+	pub(crate) fn recent_tweets(&self, amount: usize) -> Vec<Tweet> {
+		self
+			.tweets
+			.iter()
+			.rev()
+			.take(amount)
+			.cloned()
+			.collect()
 	}
 
 	/// Returns the `n` most recent tweets of the given user.
-	pub(crate) fn recent_user_tweets(&self, n: u32, username: Username) -> Vec<Tweet> {
-		println!("Enzyme::recent_user_tweets - 0 - username = {:?}", username);
-		let mut buffer = Vec::new();
-		println!("Enzyme::recent_user_tweets - 1");
-		if let Some(user_tweets) = self.user_tweets.get(&username) {
-			println!("Enzyme::recent_user_tweets - user_tweets.len() = {:?}", user_tweets.len());
-			println!("Enzyme::recent_user_tweets - user_tweets = {:?}", user_tweets);
-			let len = user_tweets.len();
-			if len == 0 {
-				return Vec::new()
-			}
-			let last_index: i32 = std::cmp::max(0, len as i32);
-			let start_index: i32 = std::cmp::max(0, last_index - n as i32);
-			println!("Enzyme::recent_user_tweets - last_index = {:?}", last_index);
-			println!("Enzyme::recent_user_tweets - start_index = {:?}", start_index);
-			for i in start_index..last_index {
-				buffer.push(user_tweets[i as usize].clone());
-			}
-		}
-		println!("Enzyme::recent_user_tweets - end");
-		buffer
+	///
+	/// Returns `None` if the user does not exist.
+	pub(crate) fn recent_user_tweets(
+		&self,
+		amount: usize,
+		username: &str,
+	) -> Option<Vec<Tweet>> {
+		self
+			.users
+			.get(username)
+			.map(|user| {
+				user
+					.tweets
+					.iter()
+					.rev()
+					.take(amount)
+					.cloned()
+					.map(|message| {
+						Tweet::new(username.into(), message)
+					})
+					.collect()
+			})
 	}
 
 	/// Posts a message to the global channel.
 	/// 
 	/// Will only ever store the latest 10 messages in the channel at most.
-	fn tweet_global(&mut self, message: String) {
-		println!("Enzyme::tweet_global - 0");
-		let latest_index = *self.global_tweets_latest.get().unwrap_or(&0);
-		println!("Enzyme::tweet_global - latest_index¹ = {:?}", latest_index);
-		// Reset latest_index if it reached the maximum number of global posts.
-		let latest_index = if latest_index == Self::MAX_GLOBAL_TWEETS {
-			self.global_tweets_latest.set(0);
-			0
-		} else {
-			self.global_tweets_latest.set(latest_index + 1);
-			latest_index
-		};
-		println!("Enzyme::tweet_global - latest_index² = {:?}", latest_index);
-		self.global_tweets.replace(latest_index, || message);
-		self.global_tweets_latest.set(latest_index + 1);
+	fn tweet_global(&mut self, username: &str, message: String) {
+		self.tweets.push(Tweet::new(username.into(), message))
 	}
 
 	/// Register a new user.
-	pub fn register(&mut self, username: String) {
-		// Only register the caller for the given username
-		// if there is not already a registration for it.
-		if self.auth.get(&username).is_none() {
-			println!("Enzyme::register - success");
-			self.auth.insert(username, caller_as_array());
-		} else {
-			println!("Enzyme::register - fail");
+	///
+	/// Returns `true` if registration was successful.
+	pub fn register(&mut self, username: String) -> bool {
+		if self.users.get(&username).is_none() {
+			self.users.insert(username, UserData::new());
+			return true
 		}
+		false
 	}
 
 	/// Post a message by a user.
 	pub fn tweet_message(&mut self, username: String, message: String) {
-		println!(
-			"Enzyme::tweet_message - from = {:?}, message = {:?}",
-			username,
-			message,
-		);
-		if let Some(registered_address) = self.auth.get(&username) {
-			println!("Enzyme::tweet_message - Some({:?})", registered_address);
-			if registered_address == &caller_as_array() {
-				println!("Enzyme::tweet_message - *is* caller");
-				if !self.user_tweets.contains_key(&username) {
-					self.user_tweets.insert(username, vec![message.clone()]);
-					println!("Enzyme::tweet_message - tweets = [{:?}]", message);
-				} else {
-					self
-						.user_tweets
-						.mutate_with(&username, |tweets| {
-							tweets.push(message.clone());
-						})
-						.iter()
-						.inspect(|tweets| {
-							println!(
-								"Enzyme::tweet_message - tweets = {:?}",
-								tweets
-							);
-						});
-				}
-				self.tweet_global(message.clone());
-			} else {
-				println!("Enzyme::tweet_message - *not* caller");
-			}
-		} else {
-			println!("Enzyme::tweet_message - None")
-		}
-		println!("Enzyme::tweet_message - end");
+		self.tweet_global(&username, message.clone());
+		self
+			.users
+			.mutate_with(&username, |user| {
+				user.tweets.push(message)
+			});
 	}
 
 	/// Make a user follow the other.
 	pub fn follow(&mut self, following: String, followed: String) {
-		if let Some(registered_following) = self.auth.get(&following) {
-			if registered_following != &caller_as_array() {
-				return;
-			}
-			if self.auth.get(&followed).is_none() {
-				return;
-			}
-			let mut list_followed = self
-				.following
-				.get(&following)
-				.unwrap()
-				.clone();
-			if list_followed.contains(&followed) {
-				list_followed.push(followed);
-			}
-			self.following.insert(following, list_followed);
-		}
+		self
+			.users
+			.mutate_with(&following, |following| {
+				following.following.push(followed)
+			});
 	}
 }
 
 lazy_static! {
-	static ref STORAGE_ALLOC: Mutex<StorageAlloc> = {
-		Mutex::new(StorageAlloc::default())
-	};
-	static ref GLOBAL_TWEETS_LATEST_KEY: Key = {
+	static ref TWEETS_KEY: Key = {
 		alloc(1)
 	};
-	static ref GLOBAL_TWEETS_KEY: Key = {
-		let ret = alloc(1);
-		alloc(u32::max_value());
-		ret
-	};
-	static ref AUTH_KEY: Key = {
-		let ret = alloc(1);
-		alloc(u32::max_value());
-		ret
-	};
-	static ref USER_TWEETS_KEY: Key = {
-		let ret = alloc(1);
-		alloc(u32::max_value());
-		ret
-	};
-	static ref FOLLOWING_KEY: Key = {
+	static ref USERS_KEY: Key = {
 		let ret = alloc(1);
 		alloc(u32::max_value());
 		ret
@@ -297,7 +214,7 @@ pub extern "C" fn call() {
 	let mut enzyme = Enzyme::default();
 	match action {
 		Action::Register{username} => {
-			enzyme.register(username)
+			enzyme.register(username);
 		}
 		Action::TweetMessage{username, message} => {
 			enzyme.tweet_message(username, message)
