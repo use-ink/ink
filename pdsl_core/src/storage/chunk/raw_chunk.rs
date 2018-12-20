@@ -68,6 +68,21 @@ impl RawChunkCell<'_> {
 	}
 }
 
+impl parity_codec::Encode for RawChunk {
+	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+		self.key.encode_to(dest)
+	}
+}
+
+impl parity_codec::Decode for RawChunk {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		Key::decode(input)
+			.map(|key| unsafe {
+				Self::new_unchecked(key, u32::max_value())
+			})
+	}
+}
+
 impl RawChunk {
 	/// Creates a new raw cell chunk for the given key and capacity.
 	///

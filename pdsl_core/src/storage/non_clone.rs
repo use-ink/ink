@@ -1,3 +1,5 @@
+use parity_codec_derive::{Encode, Decode};
+
 use std::marker::PhantomData;
 
 /// Marks types as non-`Copy` and non-`Clone`.
@@ -12,6 +14,7 @@ use std::marker::PhantomData;
 ///   non-`Copy` and non-`Clone` since that would violate their
 ///   ownership guarantees over their contract storage slot.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Encode, Decode)]
 pub struct NonCloneMarker<T>(PhantomData<T>);
 
 impl<T> Default for NonCloneMarker<T> {

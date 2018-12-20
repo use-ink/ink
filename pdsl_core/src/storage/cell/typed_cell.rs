@@ -24,6 +24,22 @@ pub struct TypedCell<T> {
 	non_clone: NonCloneMarker<T>,
 }
 
+impl<T> parity_codec::Encode for TypedCell<T> {
+	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+		self.cell.encode_to(dest)
+	}
+}
+
+impl<T> parity_codec::Decode for TypedCell<T> {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		RawCell::decode(input)
+			.map(|raw_cell| Self{
+				cell: raw_cell,
+				non_clone: NonCloneMarker::default()
+			})
+	}
+}
+
 impl<T> TypedCell<T> {
 	/// Creates a new typed cell for the given key.
 	///

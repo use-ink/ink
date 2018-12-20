@@ -1,3 +1,5 @@
+use parity_codec_derive::{Encode, Decode};
+
 /// Typeless generic key into contract storage.
 ///
 /// # Note
@@ -13,6 +15,7 @@
 ///
 /// Prefer using types found in `collections` or `Synced` type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Encode, Decode)]
 pub struct Key(pub [u8; 32]);
 
 impl Key {

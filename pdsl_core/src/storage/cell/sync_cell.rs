@@ -117,6 +117,22 @@ impl<T> Cache<T> {
 	}
 }
 
+impl<T> parity_codec::Encode for SyncCell<T> {
+	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+		self.cell.encode_to(dest)
+	}
+}
+
+impl<T> parity_codec::Decode for SyncCell<T> {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		TypedCell::decode(input)
+			.map(|typed_cell| Self{
+				cell: typed_cell,
+				cache: Cache::default()
+			})
+	}
+}
+
 impl<T> SyncCell<T> {
 	/// Creates a new copy cell for the given key.
 	///

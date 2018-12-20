@@ -94,6 +94,21 @@ where
 	}
 }
 
+impl<T> parity_codec::Encode for Vec<T> {
+	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+		self.len.encode_to(dest);
+		self.cells.encode_to(dest);
+	}
+}
+
+impl<T> parity_codec::Decode for Vec<T> {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		let len = SyncCell::decode(input)?;
+		let cells = SyncChunk::decode(input)?;
+		Some(Self{len, cells})
+	}
+}
+
 impl<T> Vec<T> {
 	/// Creates a new storage vector for the given key.
 	///

@@ -260,6 +260,22 @@ impl<T> Cache<T> {
 	}
 }
 
+impl<T> parity_codec::Encode for SyncChunk<T> {
+	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+		self.chunk.encode_to(dest)
+	}
+}
+
+impl<T> parity_codec::Decode for SyncChunk<T> {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		TypedChunk::decode(input)
+			.map(|typed_chunk| Self{
+				chunk: typed_chunk,
+				elems: Cache::default(),
+			})
+	}
+}
+
 impl<T> SyncChunk<T> {
 	/// Creates a new mutable cell chunk for the given key and capacity.
 	///

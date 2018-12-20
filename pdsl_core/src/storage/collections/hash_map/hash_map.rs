@@ -69,6 +69,21 @@ impl<K, V> Setup for HashMap<K, V> {
 	}
 }
 
+impl<K, V> parity_codec::Encode for HashMap<K, V> {
+	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+		self.len.encode_to(dest);
+		self.entries.encode_to(dest);
+	}
+}
+
+impl<K, V> parity_codec::Decode for HashMap<K, V> {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		let len = SyncCell::decode(input)?;
+		let entries = SyncChunk::decode(input)?;
+		Some(Self{len, entries})
+	}
+}
+
 impl<K, V> HashMap<K, V> {
 	/// Creates a new storage hash map for the given key.
 	///

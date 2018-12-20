@@ -92,6 +92,22 @@ where
 	}
 }
 
+impl<T> parity_codec::Encode for TypedChunk<T> {
+	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+		self.chunk.encode_to(dest)
+	}
+}
+
+impl<T> parity_codec::Decode for TypedChunk<T> {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		RawChunk::decode(input)
+			.map(|raw_chunk| Self{
+				chunk: raw_chunk,
+				non_clone: NonCloneMarker::default(),
+			})
+	}
+}
+
 impl<T> TypedChunk<T> {
 	/// Creates a new typed cell chunk for the given key and length.
 	///
