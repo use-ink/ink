@@ -7,14 +7,8 @@ pub mod utils;
 
 use crate::utils::*;
 
+use pdsl_core::storage;
 use parity_codec_derive::{Encode, Decode};
-
-use pdsl_core::{
-	storage::{self, Key},
-	Setup,
-};
-
-use lazy_static::lazy_static;
 
 /// A tweet done by a registered user.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -43,6 +37,7 @@ pub struct UserData {
 }
 
 impl UserData {
+	/// Creates new user data with default data.
 	pub fn new() -> Self {
 		Self{
 			tweets: unsafe {
@@ -79,15 +74,6 @@ impl Default for Enzyme {
 				users: storage::HashMap::new_unchecked(*USERS_KEY),
 			}
 		}
-	}
-}
-
-impl Setup for Enzyme {
-	/// Sets up enzyme.
-	///
-	/// This should be called only once upon deployment of a contract.
-	fn setup(&mut self) {
-		// Nothing to do here at the moment.
 	}
 }
 
@@ -166,17 +152,6 @@ impl Enzyme {
 	}
 }
 
-lazy_static! {
-	static ref TWEETS_KEY: Key = {
-		alloc(1)
-	};
-	static ref USERS_KEY: Key = {
-		let ret = alloc(1);
-		alloc(u32::max_value());
-		ret
-	};
-}
-
 /// Enzyme API.
 #[derive(Encode, Decode)]
 enum Action {
@@ -189,9 +164,7 @@ enum Action {
 }
 
 #[no_mangle]
-pub extern "C" fn deploy() {
-	Enzyme::default().setup()
-}
+pub extern "C" fn deploy() {}
 
 #[no_mangle]
 pub extern "C" fn call() {

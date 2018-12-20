@@ -48,4 +48,12 @@ lazy_static! {
 	static ref STORAGE_ALLOC: Mutex<StorageAlloc> = {
 		Mutex::new(crate::utils::StorageAlloc::default())
 	};
+	pub(crate) static ref TWEETS_KEY: Key = {
+		alloc(1)
+	};
+	pub(crate) static ref USERS_KEY: Key = {
+		let ret = alloc(1);
+		alloc(u32::max_value());
+		ret
+	};
 }
