@@ -27,3 +27,6 @@ pdsl_core = { path = "../pdsl_core" }
 parity-codec = { version = "2.0.4", default-features = false }
 parity-codec-derive = { version = "2.0.4", default-features = false }
 wee_alloc = "0.4"
+
+[features]
+test-env = ["pdsl_core/test-env"]
