@@ -4,10 +4,6 @@ use crate::{
 		chunk::{
 			TypedChunk,
 			TypedChunkCell,
-			error::{
-				Result,
-				ChunkError,
-			}
 		},
 	},
 };
@@ -285,26 +281,21 @@ impl<T> SyncChunk<T> {
 	/// - .. it does not check if the associated
 	///   contract storage does not alias with other accesses.
 	/// - .. it does not check if given capacity is non zero.
-	pub unsafe fn new_unchecked(key: Key, len: u32) -> Self {
+	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
-			chunk: TypedChunk::new_unchecked(key, len),
+			chunk: TypedChunk::new_unchecked(key),
 			elems: Cache::default(),
 		}
 	}
 
 	/// Returns an accessor to the `n`-th cell.
-	pub(crate) fn cell_at(&mut self, n: u32) -> Result<SyncChunkCell<T>> {
-		Ok(unsafe {
+	pub(crate) fn cell_at(&mut self, n: u32) -> SyncChunkCell<T> {
+		unsafe {
 			SyncChunkCell::new_unchecked(
-				self.chunk.cell_at(n)?,
+				self.chunk.cell_at(n),
 				self.elems.entry(n)
 			)
-		})
-	}
-
-	/// Returns the capacity of this chunk.
-	pub fn capacity(&self) -> u32 {
-		self.chunk.capacity()
+		}
 	}
 
 	/// Clear the `n`-th cell.
@@ -312,9 +303,8 @@ impl<T> SyncChunk<T> {
 	/// # Errors
 	///
 	/// If `n` is out of bounds.
-	pub fn clear(&mut self, n: u32) -> Result<()> {
-		self.cell_at(n)
-			.map(|cell| cell.clear())
+	pub fn clear(&mut self, n: u32) {
+		self.cell_at(n).clear()
 	}
 }
 
@@ -327,12 +317,9 @@ where
 	/// # Errors
 	///
 	/// If `n` is out of bounds.
-	pub fn get(&self, n: u32) -> Result<Option<&T>> {
-		if n >= self.capacity() {
-			return Err(ChunkError::access_out_of_bounds(n, self.capacity()))
-		}
+	pub fn get(&self, n: u32) -> Option<&T> {
 		if let Cached::Sync(cached) = self.elems.get(n) {
-			return Ok(cached)
+			return cached
 		}
 		self.load(n)
 	}
@@ -347,12 +334,10 @@ where
 	/// # Errors
 	///
 	/// If `n` is out of bounds.
-	fn load(&self, n: u32) -> Result<Option<&T>> {
-		Ok(
-			self.elems.upsert(
-				n,
-				self.chunk.load(n)?
-			)
+	fn load(&self, n: u32) -> Option<&T> {
+		self.elems.upsert(
+			n,
+			self.chunk.load(n)
 		)
 	}
 
@@ -367,9 +352,8 @@ where
 	///
 	/// If `n` is out of bounds.
 	#[must_use]
-	pub fn remove(&mut self, n: u32) -> Result<Option<T>> {
-		self.cell_at(n)
-			.map(|cell| cell.remove())
+	pub fn remove(&mut self, n: u32) -> Option<T> {
+		self.cell_at(n).remove()
 	}
 }
 
@@ -382,9 +366,8 @@ where
 	/// # Errors
 	///
 	/// If `n` is out of bounds.
-	pub fn set(&mut self, n: u32, val: T) -> Result<()> {
-		self.cell_at(n)
-			.map(|cell| cell.set(val))
+	pub fn set(&mut self, n: u32, val: T) {
+		self.cell_at(n).set(val)
 	}
 }
 
@@ -403,9 +386,8 @@ where
 	///
 	/// If `n` is out of bounds.
 	#[must_use]
-	pub fn replace(&mut self, n: u32, val: T) -> Result<Option<T>> {
-		self.cell_at(n)
-			.map(|cell| cell.replace(val))
+	pub fn replace(&mut self, n: u32, val: T) -> Option<T> {
+		self.cell_at(n).replace(val)
 	}
 
 	/// Mutates the value of the `n`-th cell if any.
@@ -416,12 +398,11 @@ where
 	/// # Errors
 	///
 	/// If `n` is out of bounds.
-	pub fn mutate_with<F>(&mut self, n: u32, f: F) -> Result<Option<&T>>
+	pub fn mutate_with<F>(&mut self, n: u32, f: F) -> Option<&T>
 	where
 		F: FnOnce(&mut T)
 	{
-		self.cell_at(n)
-			.map(|cell| cell.mutate_with(f))
+		self.cell_at(n).mutate_with(f)
 	}
 }
 
@@ -433,49 +414,38 @@ mod tests {
 
 	#[test]
 	fn simple() {
-		const CAPACITY: u32 = 5;
+		const TEST_LEN: u32 = 5;
 
 		let mut chunk = unsafe {
-			SyncChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+			SyncChunk::new_unchecked(Key([0x42; 32]))
 		};
 
 		// Invariants after initialization
-		assert_eq!(chunk.capacity(), CAPACITY);
-		for i in 0..CAPACITY {
-			assert_eq!(chunk.load(i), Ok(None));
+		for i in 0..TEST_LEN {
+			assert_eq!(chunk.load(i), None);
 		}
-		// Out of bounds load.
-		assert!(chunk.load(CAPACITY).is_err());
 
 		// Store some elements
-		for i in 0..CAPACITY {
-			assert!(chunk.set(i, i).is_ok());
-			assert_eq!(chunk.get(i), Ok(Some(&i)));
-			assert_eq!(chunk.load(i), Ok(Some(&i)));
+		for i in 0..TEST_LEN {
+			chunk.set(i, i);
+			assert_eq!(chunk.get(i), Some(&i));
+			assert_eq!(chunk.load(i), Some(&i));
 		}
-		assert_eq!(chunk.capacity(), CAPACITY);
-
-		// Out of bounds storing.
-		assert!(chunk.set(CAPACITY, 10).is_err());
 
 		// Clear all elements.
-		for i in 0..CAPACITY {
-			assert!(chunk.clear(i).is_ok());
-			assert_eq!(chunk.get(i), Ok(None));
-			assert_eq!(chunk.load(i), Ok(None));
+		for i in 0..TEST_LEN {
+			chunk.clear(i);
+			assert_eq!(chunk.get(i), None);
+			assert_eq!(chunk.load(i), None);
 		}
-		assert_eq!(chunk.capacity(), CAPACITY);
-
-		// Clear out of bounds.
-		assert!(chunk.clear(CAPACITY).is_err());
 	}
 
 	#[test]
 	fn count_reads_writes() {
-		const CAPACITY: u32 = 5;
+		const TEST_LEN: u32 = 5;
 
 		let mut chunk = unsafe {
-			SyncChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+			SyncChunk::new_unchecked(Key([0x42; 32]))
 		};
 
 		// Reads and writes after init.
@@ -483,88 +453,78 @@ mod tests {
 		assert_eq!(TestEnv::total_writes(), 0);
 
 		// Loading from all cells.
-		for i in 0..CAPACITY {
-			chunk.load(i).unwrap();
+		for i in 0..TEST_LEN {
+			chunk.load(i);
 			assert_eq!(TestEnv::total_reads(), i as u64 + 1);
 			assert_eq!(TestEnv::total_writes(), 0);
 		}
-		assert_eq!(TestEnv::total_reads(), CAPACITY as u64);
+		assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
 		assert_eq!(TestEnv::total_writes(), 0);
 
 		// Writing to all cells.
-		for i in 0..CAPACITY {
-			chunk.set(i, i).unwrap();
-			assert_eq!(TestEnv::total_reads(), CAPACITY as u64);
+		for i in 0..TEST_LEN {
+			chunk.set(i, i);
+			assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
 			assert_eq!(TestEnv::total_writes(), i as u64 + 1);
 		}
-		assert_eq!(TestEnv::total_reads(), CAPACITY as u64);
-		assert_eq!(TestEnv::total_writes(), CAPACITY as u64);
+		assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
+		assert_eq!(TestEnv::total_writes(), TEST_LEN as u64);
 
 		// Loading multiple times from a single cell.
 		const LOAD_REPEATS: usize = 3;
 		for _ in 0..LOAD_REPEATS {
-			chunk.get(0).unwrap();
-			assert_eq!(TestEnv::total_reads(), CAPACITY as u64);
-			assert_eq!(TestEnv::total_writes(), CAPACITY as u64);
+			chunk.get(0);
+			assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
+			assert_eq!(TestEnv::total_writes(), TEST_LEN as u64);
 		}
 
 		// Storing multiple times to a single cell.
 		const STORE_REPEATS: usize = 3;
 		for n in 0..STORE_REPEATS {
-			chunk.set(0, 10).unwrap();
-			assert_eq!(TestEnv::total_reads(), CAPACITY as u64);
-			assert_eq!(TestEnv::total_writes(), CAPACITY as u64 + n as u64 + 1);
+			chunk.set(0, 10);
+			assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
+			assert_eq!(TestEnv::total_writes(), TEST_LEN as u64 + n as u64 + 1);
 		}
-		assert_eq!(TestEnv::total_reads(), CAPACITY as u64);
-		assert_eq!(TestEnv::total_writes(), CAPACITY as u64 + STORE_REPEATS as u64);
+		assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
+		assert_eq!(TestEnv::total_writes(), TEST_LEN as u64 + STORE_REPEATS as u64);
 	}
 
 	#[test]
 	fn replace() {
-		const CAPACITY: u32 = 5;
-
 		let mut chunk = unsafe {
-			SyncChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+			SyncChunk::new_unchecked(Key([0x42; 32]))
 		};
 
-		// Out of bounds replacement
-		assert!(chunk.replace(CAPACITY, 5).is_err());
-
 		// Replace some with none.
-		assert_eq!(chunk.replace(0, 42), Ok(None));
+		assert_eq!(chunk.replace(0, 42), None);
 		// Again will yield previous result.
-		assert_eq!(chunk.replace(0, 42), Ok(Some(42)));
+		assert_eq!(chunk.replace(0, 42), Some(42));
 
 		// After clearing it will be none again.
-		assert!(chunk.clear(0).is_ok());
-		assert_eq!(chunk.replace(0, 42), Ok(None));
+		chunk.clear(0);
+		assert_eq!(chunk.replace(0, 42), None);
 	}
 
 	#[test]
 	fn remove() {
-		const CAPACITY: u32 = 5;
-
 		let mut chunk = unsafe {
-			SyncChunk::new_unchecked(Key([0x42; 32]), CAPACITY)
+			SyncChunk::new_unchecked(Key([0x42; 32]))
 		};
 
-		// Out of bounds replacement
-		assert!(chunk.remove(CAPACITY).is_err());
-
 		// Remove at none.
-		assert_eq!(chunk.remove(0), Ok(None));
+		assert_eq!(chunk.remove(0), None);
 		// Again will yield none again.
-		assert_eq!(chunk.remove(0), Ok(None));
+		assert_eq!(chunk.remove(0), None);
 		// Also get will return none.
-		assert_eq!(chunk.get(0), Ok(None));
+		assert_eq!(chunk.get(0), None);
 
 		// After inserting it will yield the inserted value.
-		assert!(chunk.set(0, 1337).is_ok());
+		chunk.set(0, 1337);
 		// Before remove returns the inserted value.
-		assert_eq!(chunk.get(0), Ok(Some(&1337)));
+		assert_eq!(chunk.get(0), Some(&1337));
 		// Remove yields the removed value.
-		assert_eq!(chunk.remove(0), Ok(Some(1337)));
+		assert_eq!(chunk.remove(0), Some(1337));
 		// After remove returns none again.
-		assert_eq!(chunk.get(0), Ok(None));
+		assert_eq!(chunk.get(0), None);
 	}
 }

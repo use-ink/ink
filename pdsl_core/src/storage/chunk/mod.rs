@@ -1,7 +1,5 @@
 //! Provides low-level primitives to operate on chunks of cells.
 
-pub mod error;
-
 mod raw_chunk;
 mod typed_chunk;
 mod sync_chunk;

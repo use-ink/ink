@@ -124,7 +124,7 @@ impl<T> Vec<T> {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			len: SyncCell::new_unchecked(key),
-			cells: SyncChunk::new_unchecked(Key::with_offset(key, 1), u32::max_value()),
+			cells: SyncChunk::new_unchecked(Key::with_offset(key, 1)),
 		}
 	}
 
@@ -168,15 +168,7 @@ where
 	pub fn get(&self, n: u32) -> Option<&T> {
 		self
 			.within_bounds(n)
-			.and_then(|n| {
-				self
-					.cells
-					.get(n)
-					.expect(
-						"[pdsl_core::Vec::get] Error: \
-						 expected success due to access within bounds"
-					)
-			})
+			.and_then(|n| self.cells.get(n))
 	}
 
 	/// Mutates the `n`-th element of the vector.
@@ -189,15 +181,7 @@ where
 	{
 		self
 			.within_bounds(n)
-			.and_then(move |n| {
-				self
-					.cells
-					.mutate_with(n, f)
-					.expect(
-						"[pdsl_core::Vec::mutate_with] Error: \
-						 expected success due to access within bounds"
-					)
-			})
+			.and_then(move |n| self.cells.mutate_with(n, f))
 	}
 
 	/// Appends an element to the back of the vector.
@@ -211,11 +195,7 @@ where
 		let last_index = self.len();
 		self.len.set(last_index + 1);
 		self.cells
-			.set(last_index, val)
-			.expect(
-				"[pdsl_core::Vec::push] Error: \
-				 expected success since `self.len() < u32::MAX`"
-			);
+			.set(last_index, val);
 	}
 
 	/// Removes the last element from the vector and returns it,
@@ -229,10 +209,6 @@ where
 		self
 			.cells
 			.remove(last_index)
-			.expect(
-				"[pdsl_core::Vec::pop] Error: \
-				 expected success since the vector is not empty"
-			)
 	}
 
 	/// Replaces the `n`-th element of the vector and returns its replaced value.
@@ -251,10 +227,6 @@ where
 					.expect(
 						"[pdsl_core::Vec::replace] Error: \
 						 expected success due to access within bounds"
-					)
-					.expect(
-						"[pdsl_core::Vec::replace] Error: \
-						 expected some return value due to access within bounds"
 					)
 				)
 			})
@@ -284,10 +256,6 @@ where
 			.expect(
 				"[pdsl_core::Vec::swap] Error: \
 				 expected succes due to `a` being within bounds"
-			)
-			.expect(
-				"[pdsl_core::Vec::swap] Error: \
-				 expected `Some` value due to `a` being within bounds"
 			);
 		let item_b = self
 			.cells
@@ -295,18 +263,10 @@ where
 			.expect(
 				"[pdsl_core::Vec::swap] Error: \
 				 expected success due to `b` being within bounds"
-			)
-			.expect(
-				"[pdsl_core::Vec::swap] Error: \
-				 expected `Some` value due to `b` being within bounds"
 			);
 		self
 			.cells
-			.set(a, item_b)
-			.expect(
-				"[pdsl_core::Vec::swap] Error: \
-				 expected success due to `b` being within bounds"
-			);
+			.set(a, item_b);
 	}
 
 	/// Removes the `n`-th element from the vector and returns it.
@@ -339,10 +299,6 @@ where
 				.expect(
 					"[pdsl_core::Vec::swap_remove] Error: \
 					expected success since the vector is not empty"
-				)
-				.expect(
-					"[pdsl_core::Vec::swap_remove] Error: \
-					expected `Some` value since vector is not empty"
 				)
 		)
 	}

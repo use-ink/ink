@@ -99,12 +99,7 @@ impl<K, V> HashMap<K, V> {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			len: SyncCell::new_unchecked(key),
-			entries: {
-				SyncChunk::new_unchecked(
-					Key::with_offset(key, 1),
-					u32::max_value()
-				)
-			},
+			entries: SyncChunk::new_unchecked(Key::with_offset(key, 1)),
 		}
 	}
 
@@ -175,7 +170,6 @@ where
 						probe_index,
 						Entry::Occupied(OccupiedEntry{key, val}),
 					)
-					.unwrap()
 					.and_then(|old| {
 						match old {
 							Entry::Occupied(OccupiedEntry{val, ..}) => Some(val),
@@ -191,8 +185,7 @@ where
 					.set(
 						probe_index,
 						Entry::Occupied(OccupiedEntry{key, val})
-					)
-					.unwrap();
+					);
 				None
 			}
 			None => {
@@ -260,7 +253,6 @@ where
 				self
 					.entries
 					.mutate_with(probe_index, wrapped_f)
-					.unwrap()
 			})
 			.and_then(|entry| match entry {
 				Entry::Occupied(occupied) => Some(&occupied.val),
@@ -296,7 +288,7 @@ where
 		while probe_hops < Self::MAX_PROBE_HOPS {
 			let probe_offset = probe_hops * probe_hops;
 			let probe_index = probe_start.wrapping_add(probe_offset);
-			match self.entries.get(probe_index).unwrap() {
+			match self.entries.get(probe_index) {
 				Some(Entry::Occupied(entry)) => {
 					if key == entry.key.borrow() {
 						// Keys match so we can return this probed slot.
@@ -372,7 +364,7 @@ where
 				"[pdsl_core::HashMap::remove] Error: \
 				 failed at finding a valid entry"
 			);
-		match self.entries.remove(probe_index).unwrap() {
+		match self.entries.remove(probe_index) {
 			Some(Entry::Removed) | None => None,
 			Some(Entry::Occupied(OccupiedEntry{val, ..})) => {
 				self.len.set(self.len() - 1);
@@ -418,7 +410,7 @@ where
 		Q: Hash + Eq + ?Sized,
 	{
 		if let Some(slot) = self.probe_inspecting(key) {
-			return self.entries.get(slot).unwrap()
+			return self.entries.get(slot)
 		}
 		None
 	}
