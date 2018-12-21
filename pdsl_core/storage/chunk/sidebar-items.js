@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["error","Errors that may be encountered while working with chunks of cells."]],"struct":[["RawChunk","A chunk of raw cells."],["SyncChunk","A chunk of synchronized cells."],["TypedChunk","A chunk of typed cells."]]});
+initSidebarItems({"struct":[["RawChunk","A chunk of raw cells."],["SyncChunk","A chunk of synchronized cells."],["TypedChunk","A chunk of typed cells."]]});

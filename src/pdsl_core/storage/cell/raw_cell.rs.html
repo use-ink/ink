@@ -99,6 +99,9 @@
 <span id="99"> 99</span>
 <span id="100">100</span>
 <span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
@@ -107,6 +110,8 @@
 	},
 	<span class="ident">env</span>::{<span class="ident">Env</span>, <span class="ident">ContractEnv</span>},
 };
+
+<span class="kw">use</span> <span class="ident">parity_codec_derive</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
 
 <span class="doccomment">/// A raw cell.</span>
 <span class="doccomment">///</span>
@@ -118,6 +123,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawCell</span> {
 	<span class="doccomment">/// The key to the associated constract storage slot.</span>
 	<span class="ident">key</span>: <span class="ident">Key</span>,

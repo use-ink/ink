@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Stash","A stash collection."]]});

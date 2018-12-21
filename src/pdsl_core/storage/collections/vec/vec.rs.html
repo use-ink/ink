@@ -319,35 +319,6 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
@@ -445,6 +416,21 @@
 	}
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">parity_codec</span>::<span class="ident">Encode</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">parity_codec</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) {
+		<span class="self">self</span>.<span class="ident">len</span>.<span class="ident">encode_to</span>(<span class="ident">dest</span>);
+		<span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">encode_to</span>(<span class="ident">dest</span>);
+	}
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">parity_codec</span>::<span class="ident">Decode</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">parity_codec</span>::<span class="ident">Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+		<span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">SyncCell</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">cells</span> <span class="op">=</span> <span class="ident">SyncChunk</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+		<span class="prelude-val">Some</span>(<span class="self">Self</span>{<span class="ident">len</span>, <span class="ident">cells</span>})
+	}
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// Creates a new storage vector for the given key.</span>
 	<span class="doccomment">///</span>
@@ -460,7 +446,7 @@
 	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
 		<span class="self">Self</span>{
 			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span>),
-			<span class="ident">cells</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">key</span>, <span class="number">1</span>), <span class="ident">u32</span>::<span class="ident">max_value</span>()),
+			<span class="ident">cells</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">key</span>, <span class="number">1</span>)),
 		}
 	}
 
@@ -504,15 +490,7 @@
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
 		<span class="self">self</span>
 			.<span class="ident">within_bounds</span>(<span class="ident">n</span>)
-			.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> {
-				<span class="self">self</span>
-					.<span class="ident">cells</span>
-					.<span class="ident">get</span>(<span class="ident">n</span>)
-					.<span class="ident">expect</span>(
-						<span class="string">&quot;[pdsl_core::Vec::get] Error: \
-						 expected success due to access within bounds&quot;</span>
-					)
-			})
+			.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">get</span>(<span class="ident">n</span>))
 	}
 
 	<span class="doccomment">/// Mutates the `n`-th element of the vector.</span>
@@ -525,15 +503,7 @@
 	{
 		<span class="self">self</span>
 			.<span class="ident">within_bounds</span>(<span class="ident">n</span>)
-			.<span class="ident">and_then</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">n</span><span class="op">|</span> {
-				<span class="self">self</span>
-					.<span class="ident">cells</span>
-					.<span class="ident">mutate_with</span>(<span class="ident">n</span>, <span class="ident">f</span>)
-					.<span class="ident">expect</span>(
-						<span class="string">&quot;[pdsl_core::Vec::mutate_with] Error: \
-						 expected success due to access within bounds&quot;</span>
-					)
-			})
+			.<span class="ident">and_then</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">mutate_with</span>(<span class="ident">n</span>, <span class="ident">f</span>))
 	}
 
 	<span class="doccomment">/// Appends an element to the back of the vector.</span>
@@ -547,11 +517,7 @@
 		<span class="kw">let</span> <span class="ident">last_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>();
 		<span class="self">self</span>.<span class="ident">len</span>.<span class="ident">set</span>(<span class="ident">last_index</span> <span class="op">+</span> <span class="number">1</span>);
 		<span class="self">self</span>.<span class="ident">cells</span>
-			.<span class="ident">set</span>(<span class="ident">last_index</span>, <span class="ident">val</span>)
-			.<span class="ident">expect</span>(
-				<span class="string">&quot;[pdsl_core::Vec::push] Error: \
-				 expected success since `self.len() &lt; u32::MAX`&quot;</span>
-			);
+			.<span class="ident">set</span>(<span class="ident">last_index</span>, <span class="ident">val</span>);
 	}
 
 	<span class="doccomment">/// Removes the last element from the vector and returns it,</span>
@@ -565,10 +531,6 @@
 		<span class="self">self</span>
 			.<span class="ident">cells</span>
 			.<span class="ident">remove</span>(<span class="ident">last_index</span>)
-			.<span class="ident">expect</span>(
-				<span class="string">&quot;[pdsl_core::Vec::pop] Error: \
-				 expected success since the vector is not empty&quot;</span>
-			)
 	}
 
 	<span class="doccomment">/// Replaces the `n`-th element of the vector and returns its replaced value.</span>
@@ -587,10 +549,6 @@
 					.<span class="ident">expect</span>(
 						<span class="string">&quot;[pdsl_core::Vec::replace] Error: \
 						 expected success due to access within bounds&quot;</span>
-					)
-					.<span class="ident">expect</span>(
-						<span class="string">&quot;[pdsl_core::Vec::replace] Error: \
-						 expected some return value due to access within bounds&quot;</span>
 					)
 				)
 			})
@@ -620,10 +578,6 @@
 			.<span class="ident">expect</span>(
 				<span class="string">&quot;[pdsl_core::Vec::swap] Error: \
 				 expected succes due to `a` being within bounds&quot;</span>
-			)
-			.<span class="ident">expect</span>(
-				<span class="string">&quot;[pdsl_core::Vec::swap] Error: \
-				 expected `Some` value due to `a` being within bounds&quot;</span>
 			);
 		<span class="kw">let</span> <span class="ident">item_b</span> <span class="op">=</span> <span class="self">self</span>
 			.<span class="ident">cells</span>
@@ -631,18 +585,10 @@
 			.<span class="ident">expect</span>(
 				<span class="string">&quot;[pdsl_core::Vec::swap] Error: \
 				 expected success due to `b` being within bounds&quot;</span>
-			)
-			.<span class="ident">expect</span>(
-				<span class="string">&quot;[pdsl_core::Vec::swap] Error: \
-				 expected `Some` value due to `b` being within bounds&quot;</span>
 			);
 		<span class="self">self</span>
 			.<span class="ident">cells</span>
-			.<span class="ident">set</span>(<span class="ident">a</span>, <span class="ident">item_b</span>)
-			.<span class="ident">expect</span>(
-				<span class="string">&quot;[pdsl_core::Vec::swap] Error: \
-				 expected success due to `b` being within bounds&quot;</span>
-			);
+			.<span class="ident">set</span>(<span class="ident">a</span>, <span class="ident">item_b</span>);
 	}
 
 	<span class="doccomment">/// Removes the `n`-th element from the vector and returns it.</span>
@@ -675,10 +621,6 @@
 				.<span class="ident">expect</span>(
 					<span class="string">&quot;[pdsl_core::Vec::swap_remove] Error: \
 					expected success since the vector is not empty&quot;</span>
-				)
-				.<span class="ident">expect</span>(
-					<span class="string">&quot;[pdsl_core::Vec::swap_remove] Error: \
-					expected `Some` value since vector is not empty&quot;</span>
 				)
 		)
 	}

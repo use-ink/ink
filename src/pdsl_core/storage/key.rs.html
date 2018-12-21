@@ -186,7 +186,12 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="ident">parity_codec_derive</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
+
 <span class="doccomment">/// Typeless generic key into contract storage.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
@@ -202,6 +207,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Prefer using types found in `collections` or `Synced` type.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Key</span>(<span class="kw">pub</span> [<span class="ident">u8</span>; <span class="number">32</span>]);
 
 <span class="kw">impl</span> <span class="ident">Key</span> {

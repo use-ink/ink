@@ -251,14 +251,6 @@
 <span id="251">251</span>
 <span id="252">252</span>
 <span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
@@ -267,9 +259,6 @@
 		<span class="ident">chunk</span>::{
 			<span class="ident">RawChunk</span>,
 			<span class="ident">RawChunkCell</span>,
-			<span class="ident">error</span>::{
-				<span class="prelude-ty">Result</span>,
-			}
 		},
 	},
 };
@@ -354,6 +343,22 @@
 	}
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">parity_codec</span>::<span class="ident">Encode</span> <span class="kw">for</span> <span class="ident">TypedChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">parity_codec</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) {
+		<span class="self">self</span>.<span class="ident">chunk</span>.<span class="ident">encode_to</span>(<span class="ident">dest</span>)
+	}
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">parity_codec</span>::<span class="ident">Decode</span> <span class="kw">for</span> <span class="ident">TypedChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+	<span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">parity_codec</span>::<span class="ident">Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+		<span class="ident">RawChunk</span>::<span class="ident">decode</span>(<span class="ident">input</span>)
+			.<span class="ident">map</span>(<span class="op">|</span><span class="ident">raw_chunk</span><span class="op">|</span> <span class="self">Self</span>{
+				<span class="ident">chunk</span>: <span class="ident">raw_chunk</span>,
+				<span class="ident">non_clone</span>: <span class="ident">NonCloneMarker</span>::<span class="ident">default</span>(),
+			})
+	}
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypedChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// Creates a new typed cell chunk for the given key and length.</span>
 	<span class="doccomment">///</span>
@@ -363,30 +368,22 @@
 	<span class="doccomment">/// - .. it does not check if the associated</span>
 	<span class="doccomment">///   contract storage does not alias with other accesses.</span>
 	<span class="doccomment">/// - .. it does not check if given length is non zero.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">key</span>: <span class="ident">Key</span>, <span class="ident">capacity</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
 		<span class="self">Self</span>{
-			<span class="ident">chunk</span>: <span class="ident">RawChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span>, <span class="ident">capacity</span>),
+			<span class="ident">chunk</span>: <span class="ident">RawChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span>),
 			<span class="ident">non_clone</span>: <span class="ident">NonCloneMarker</span>::<span class="ident">default</span>(),
 		}
 	}
 
-	<span class="doccomment">/// Returns the capacity of this chunk.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
-		<span class="self">self</span>.<span class="ident">chunk</span>.<span class="ident">capacity</span>()
-	}
-
 	<span class="doccomment">/// Returns an accessor to the `n`-th cell.</span>
-	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cell_at</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TypedChunkCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
-		<span class="self">self</span>
-			.<span class="ident">chunk</span>
-			.<span class="ident">cell_at</span>(<span class="ident">n</span>)
-			.<span class="ident">map</span>(<span class="op">|</span><span class="ident">raw_cell</span><span class="op">|</span> <span class="kw">unsafe</span> {
-				<span class="ident">TypedChunkCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">raw_cell</span>)
-			})
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cell_at</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">TypedChunkCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+		<span class="kw">unsafe</span> {
+			<span class="ident">TypedChunkCell</span>::<span class="ident">new_unchecked</span>(<span class="self">self</span>.<span class="ident">chunk</span>.<span class="ident">cell_at</span>(<span class="ident">n</span>))
+		}
 	}
 
 	<span class="doccomment">/// Removes the value stored in the `n`-th cell.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>) {
 		<span class="self">self</span>.<span class="ident">chunk</span>.<span class="ident">clear</span>(<span class="ident">n</span>)
 	}
 }
@@ -400,19 +397,17 @@
 	<span class="doccomment">/// # Panics</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// If decoding of the loaded bytes fails.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 		<span class="self">self</span>
 			.<span class="ident">chunk</span>
 			.<span class="ident">load</span>(<span class="ident">n</span>)
-			.<span class="ident">map</span>(<span class="op">|</span><span class="ident">opt_loaded</span><span class="op">|</span> {
-				<span class="ident">opt_loaded</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">loaded</span><span class="op">|</span> {
-					<span class="ident">T</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">loaded</span>[..])
-						<span class="comment">// Maybe we should return an error instead of panicking.</span>
-						.<span class="ident">expect</span>(
-							<span class="string">&quot;[pdsl_core::TypedChunk::load] Error: \
-							failed upon decoding&quot;</span>
-						)
-				})
+			.<span class="ident">map</span>(<span class="op">|</span><span class="ident">loaded</span><span class="op">|</span> {
+				<span class="ident">T</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">loaded</span>[..])
+					<span class="comment">// Maybe we should return an error instead of panicking.</span>
+					.<span class="ident">expect</span>(
+						<span class="string">&quot;[pdsl_core::TypedChunkCell::load] Error: \
+						 failed upon decoding&quot;</span>
+					)
 			})
 	}
 }
@@ -422,8 +417,8 @@
 	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Encode</span>
 {
 	<span class="doccomment">/// Stores the value into the `n`-th cell.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">store</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-		<span class="self">self</span>.<span class="ident">cell_at</span>(<span class="ident">n</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">cell</span><span class="op">|</span> <span class="ident">cell</span>.<span class="ident">store</span>(<span class="ident">val</span>))
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">store</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) {
+		<span class="self">self</span>.<span class="ident">cell_at</span>(<span class="ident">n</span>).<span class="ident">store</span>(<span class="ident">val</span>)
 	}
 }
 
@@ -435,47 +430,36 @@
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">simple</span>() {
-		<span class="kw">const</span> <span class="ident">CAPACITY</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">5</span>;
+		<span class="kw">const</span> <span class="ident">TEST_LEN</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">5</span>;
 
 		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-			<span class="ident">TypedChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]), <span class="ident">CAPACITY</span>)
+			<span class="ident">TypedChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
 		};
 
 		<span class="comment">// Invariants after initialization</span>
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">capacity</span>(), <span class="ident">CAPACITY</span>);
-		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">CAPACITY</span> {
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">i</span>), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
+		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">TEST_LEN</span> {
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">i</span>), <span class="prelude-val">None</span>);
 		}
-		<span class="comment">// Out of bounds load.</span>
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">CAPACITY</span>).<span class="ident">is_err</span>());
 
 		<span class="comment">// Store some elements</span>
-		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">CAPACITY</span> {
-			<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">store</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">i</span>).<span class="ident">is_ok</span>());
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">i</span>), <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">i</span>)));
+		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">TEST_LEN</span> {
+			<span class="ident">chunk</span>.<span class="ident">store</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">i</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">i</span>), <span class="prelude-val">Some</span>(<span class="ident">i</span>));
 		}
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">capacity</span>(), <span class="ident">CAPACITY</span>);
-
-		<span class="comment">// Out of bounds storing.</span>
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">store</span>(<span class="ident">CAPACITY</span>, <span class="kw-2">&amp;</span><span class="number">10</span>).<span class="ident">is_err</span>());
 
 		<span class="comment">// Clear all elements.</span>
-		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">CAPACITY</span> {
-			<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">clear</span>(<span class="ident">i</span>).<span class="ident">is_ok</span>());
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">i</span>), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
+		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">TEST_LEN</span> {
+			<span class="ident">chunk</span>.<span class="ident">clear</span>(<span class="ident">i</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">i</span>), <span class="prelude-val">None</span>);
 		}
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">capacity</span>(), <span class="ident">CAPACITY</span>);
-
-		<span class="comment">// Clear out of bounds.</span>
-		<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">chunk</span>.<span class="ident">clear</span>(<span class="ident">CAPACITY</span>).<span class="ident">is_err</span>());
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">count_reads_writes</span>() {
-		<span class="kw">const</span> <span class="ident">CAPACITY</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">5</span>;
+		<span class="kw">const</span> <span class="ident">TEST_LEN</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">5</span>;
 
 		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-			<span class="ident">TypedChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]), <span class="ident">CAPACITY</span>)
+			<span class="ident">TypedChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
 		};
 
 		<span class="comment">// Reads and writes after init.</span>
@@ -483,42 +467,42 @@
 		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">0</span>);
 
 		<span class="comment">// Loading from all cells.</span>
-		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">CAPACITY</span> {
-			<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">i</span>).<span class="ident">unwrap</span>();
+		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">TEST_LEN</span> {
+			<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="ident">i</span>);
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="number">1</span>);
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">0</span>);
 		}
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span>);
 		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">0</span>);
 
 		<span class="comment">// Writing to all cells.</span>
-		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">CAPACITY</span> {
-			<span class="ident">chunk</span>.<span class="ident">store</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">i</span>).<span class="ident">unwrap</span>();
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">TEST_LEN</span> {
+			<span class="ident">chunk</span>.<span class="ident">store</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">i</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span>);
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="number">1</span>);
 		}
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span>);
 
 		<span class="comment">// Loading multiple times from a single cell.</span>
 		<span class="kw">const</span> <span class="ident">LOAD_REPEATS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">LOAD_REPEATS</span> {
-			<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="number">1</span>);
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span>);
+			<span class="ident">chunk</span>.<span class="ident">load</span>(<span class="number">0</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="number">1</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span>);
 		}
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">LOAD_REPEATS</span> <span class="kw">as</span> <span class="ident">u64</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">LOAD_REPEATS</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span>);
 
 		<span class="comment">// Storing multiple times to a single cell.</span>
 		<span class="kw">const</span> <span class="ident">STORE_REPEATS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
 		<span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">STORE_REPEATS</span> {
-			<span class="ident">chunk</span>.<span class="ident">store</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="number">10</span>).<span class="ident">unwrap</span>();
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">LOAD_REPEATS</span> <span class="kw">as</span> <span class="ident">u64</span>);
-			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="number">1</span>);
+			<span class="ident">chunk</span>.<span class="ident">store</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="number">10</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">LOAD_REPEATS</span> <span class="kw">as</span> <span class="ident">u64</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="number">1</span>);
 		}
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">LOAD_REPEATS</span> <span class="kw">as</span> <span class="ident">u64</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">CAPACITY</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">STORE_REPEATS</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">LOAD_REPEATS</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="ident">TEST_LEN</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">STORE_REPEATS</span> <span class="kw">as</span> <span class="ident">u64</span>);
 	}
 }
 </pre></div>
