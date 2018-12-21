@@ -2,7 +2,7 @@
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
-Write WebAssembly based smart contracts in the Rust programming language.
+An [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts in the Rust programming language.
 
 - [`pdsl-core` API documentation](https://robbepop.github.io/pdsl/pdsl_core/index.html).
 
