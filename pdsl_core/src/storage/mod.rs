@@ -80,5 +80,9 @@ pub use self::{
 			self,
 			HashMap,
 		},
+		stash::{
+			self,
+			Stash,
+		}
 	},
 };
