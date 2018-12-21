@@ -289,7 +289,7 @@ impl<T> SyncChunk<T> {
 	}
 
 	/// Returns an accessor to the `n`-th cell.
-	pub(crate) fn cell_at(&mut self, n: u32) -> SyncChunkCell<T> {
+	fn cell_at(&mut self, n: u32) -> SyncChunkCell<T> {
 		unsafe {
 			SyncChunkCell::new_unchecked(
 				self.chunk.cell_at(n),
