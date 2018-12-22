@@ -2,8 +2,7 @@ use super::*;
 
 #[test]
 fn deploy() {
-	let mut enzyme = Enzyme::default();
-	enzyme.setup();
+	let enzyme = Enzyme::default();
 	assert_eq!(
 		enzyme.recent_tweets(10),
 		vec![]
@@ -17,7 +16,6 @@ fn deploy() {
 #[test]
 fn tweet_message() {
 	let mut enzyme = Enzyme::default();
-	enzyme.setup();
 	let test_user = "Alice";
 	let test_message = "Hello, World!";
 	enzyme.register(test_user.into());
