@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Pages","Memory size specified in WebAssembly [memory pages][memory page]."],["Words","Memory size specified in `wasm32` words."]]});

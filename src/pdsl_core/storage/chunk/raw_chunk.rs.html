@@ -210,6 +210,16 @@
 <span id="210">210</span>
 <span id="211">211</span>
 <span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
@@ -304,6 +314,16 @@
 			<span class="ident">key</span>,
 			<span class="ident">non_clone</span>: <span class="ident">NonCloneMarker</span>::<span class="ident">default</span>(),
 		}
+	}
+
+	<span class="doccomment">/// Returns the unterlying key to the cells.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Note</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// This is a low-level utility getter and should</span>
+	<span class="doccomment">/// normally not be required by users.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cells_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
+		<span class="self">self</span>.<span class="ident">key</span>
 	}
 
 	<span class="doccomment">/// Returns a key for the `n`-th cell if within bounds.</span>

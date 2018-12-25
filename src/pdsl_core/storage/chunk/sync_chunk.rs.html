@@ -528,6 +528,16 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
@@ -817,6 +827,16 @@
 			<span class="ident">chunk</span>: <span class="ident">TypedChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span>),
 			<span class="ident">elems</span>: <span class="ident">Cache</span>::<span class="ident">default</span>(),
 		}
+	}
+
+	<span class="doccomment">/// Returns the unterlying key to the cells.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Note</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// This is a low-level utility getter and should</span>
+	<span class="doccomment">/// normally not be required by users.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cells_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
+		<span class="self">self</span>.<span class="ident">chunk</span>.<span class="ident">cells_key</span>()
 	}
 
 	<span class="doccomment">/// Returns an accessor to the `n`-th cell.</span>
