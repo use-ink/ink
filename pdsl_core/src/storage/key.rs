@@ -1,3 +1,5 @@
+use crate::byte_utils;
+
 use parity_codec_derive::{Encode, Decode};
 
 /// Typeless generic key into contract storage.
@@ -21,8 +23,23 @@ pub struct Key(pub [u8; 32]);
 impl Key {
 	/// Create a new key from another given key with given offset.
 	pub fn with_offset(key: Key, offset: u32) -> Self {
-		let mut offset_key: Self = key.clone();
-		utils::bytes_add_u32_inplace(offset_key.as_bytes_mut(), offset);
+		let mut offset_key = key.clone();
+		byte_utils::bytes_add_u32(offset_key.as_bytes_mut(), offset);
+		offset_key
+	}
+
+	/// Create a new key from another given key with given chunk offset.
+	///
+	/// # Note
+	///
+	/// A chunk offset is an offset that is a multiple of the chunk size.
+	/// The chunk size is 2^32.
+	pub fn with_chunk_offset(key: Key, offset: u32) -> Self {
+		let mut offset_key = key.clone();
+		byte_utils::bytes_add_u64(
+			offset_key.as_bytes_mut(),
+			(1 << 32) * (offset as u64)
+		);
 		offset_key
 	}
 
@@ -34,123 +51,6 @@ impl Key {
 	/// Returns the mutable byte slice of this key.
 	pub fn as_bytes_mut(&mut self) -> &mut [u8] {
 		&mut self.0
-	}
-}
-
-/// Arithmetic utilities for key manipulation such as integer addition.
-///
-/// # Note
-///
-/// This makes it possible to use key arithmetic similar to C's pointer arithmetic.
-mod utils {
-	/// Converts the given `u32` into a slice of bytes.
-	///
-	/// The resulting bytes start with the most significant byte
-	/// of the given `u32`.
-	pub fn u32_to_bytes(val: u32) -> [u8; 4] {
-		[
-			((val >> 24) & 0xFF) as u8,
-			((val >> 16) & 0xFF) as u8,
-			((val >>  8) & 0xFF) as u8,
-			((val >>  0) & 0xFF) as u8,
-		]
-	}
-
-	/// Adds the given byte to the given byte slice.
-	///
-	/// The first byte in the byte slice is interpreted as its
-	/// most significant byte.
-	pub fn bytes_add_byte_inplace(bytes: &mut [u8], byte: u8) {
-		assert!(bytes.len() > 0);
-		match bytes.len() {
-			1 => {
-				bytes[0] = bytes[0].wrapping_add(byte)
-			}
-			n => {
-				let ls_byte = &mut bytes[n - 1];
-				let (res, ovfl) = ls_byte.overflowing_add(byte);
-				*ls_byte = res;
-				if ovfl {
-					bytes_add_byte_inplace(&mut bytes[..(n-1)], 1)
-				}
-			}
-		}
-	}
-
-	/// Adds the given `u32` to the given byte slice.
-	///
-	/// The first byte in the byte slice is interpreted as its
-	/// most significant byte.
-	pub fn bytes_add_u32_inplace(lhs: &mut [u8], rhs: u32) {
-		assert!(lhs.len() >= 4);
-		let rhs_bytes = u32_to_bytes(rhs);
-		let n = lhs.len();
-		for (i, &rhs_byte) in rhs_bytes.iter().rev().enumerate() {
-			let lhs_head = &mut lhs[..(n - i)];
-			bytes_add_byte_inplace(lhs_head, rhs_byte);
-		}
-	}
-
-	#[cfg(test)]
-	mod tests {
-		use super::*;
-
-		#[test]
-		fn test_u32_to_bytes() {
-			assert_eq!(u32_to_bytes(0), [0, 0, 0, 0]);
-			assert_eq!(u32_to_bytes(42), [0, 0, 0, 42]);
-			assert_eq!(u32_to_bytes(0xFE_DC_BA_98), [0xFE, 0xDC, 0xBA, 0x98]);
-			assert_eq!(u32_to_bytes(0xFF_FF_FF_FF), [0xFF, 0xFF, 0xFF, 0xFF]);
-		}
-
-		#[test]
-		fn test_bytes_add_byte_inplace() {
-			fn bytes_add_byte(bytes: &[u8], byte: u8) -> Vec<u8> {
-				let mut buffer = bytes.to_vec();
-				bytes_add_byte_inplace(&mut buffer, byte);
-				buffer
-			}
-
-			assert_eq!(bytes_add_byte(&[0x00], 0x00), vec![0x00]);
-			assert_eq!(bytes_add_byte(&[0x00], 0x01), vec![0x01]);
-			assert_eq!(bytes_add_byte(&[0x00, 0xFF], 0x01), vec![0x01, 0x00]);
-			assert_eq!(bytes_add_byte(&[0x00, 0xFF], 0xFF), vec![0x01, 0xFE]);
-			assert_eq!(bytes_add_byte(&[0x00, 0xFF, 0xFF], 0xFF), vec![0x01, 0x00, 0xFE]);
-		}
-
-		#[test]
-		fn test_bytes_add_u32_inplace() {
-			fn bytes_add_u32(bytes: &[u8], val: u32) -> Vec<u8> {
-				let mut buffer = bytes.to_vec();
-				bytes_add_u32_inplace(&mut buffer, val);
-				buffer
-			}
-
-			assert_eq!(
-				bytes_add_u32(&[0x00, 0x00, 0x00, 0x00], 0x0),
-				vec![0x00, 0x00, 0x00, 0x00]
-			);
-			assert_eq!(
-				bytes_add_u32(&[0x00, 0x00, 0x00, 0x00], 0x1),
-				vec![0x00, 0x00, 0x00, 0x01]
-			);
-			assert_eq!(
-				bytes_add_u32(&[0x00, 0x00, 0x00, 0xFF], 0x1),
-				vec![0x00, 0x00, 0x01, 0x00]
-			);
-			assert_eq!(
-				bytes_add_u32(&[0x00, 0x00, 0x00, 0xFF], 0xFF),
-				vec![0x00, 0x00, 0x01, 0xFE]
-			);
-			assert_eq!(
-				bytes_add_u32(&[0x00, 0xEF, 0xFF, 0xFF], 0x1),
-				vec![0x00, 0xF0, 0x00, 0x00]
-			);
-			assert_eq!(
-				bytes_add_u32(&[0x00, 0xEF, 0xFF, 0xFF], 0xFF),
-				vec![0x00, 0xF0, 0x00, 0xFE]
-			);
-		}
 	}
 }
 
