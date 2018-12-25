@@ -91,6 +91,16 @@ impl<T> Stash<T> {
 		}
 	}
 
+	/// Returns the unterlying key to the cells.
+	///
+	/// # Note
+	///
+	/// This is a low-level utility getter and should
+	/// normally not be required by users.
+	pub fn entries_key(&self) -> Key {
+		self.entries.cells_key()
+	}
+
 	/// Returns the number of elements stored in the stash.
 	pub fn len(&self) -> u32 {
 		*self.len.get().unwrap_or(&0)
