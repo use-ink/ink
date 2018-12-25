@@ -54,6 +54,23 @@ enum Entry<T> {
 	Occupied(T),
 }
 
+impl<T> parity_codec::Encode for Stash<T> {
+	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+		self.next_vacant.encode_to(dest);
+		self.len.encode_to(dest);
+		self.entries.encode_to(dest);
+	}
+}
+
+impl<T> parity_codec::Decode for Stash<T> {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		let next_vacant = SyncCell::decode(input)?;
+		let len = SyncCell::decode(input)?;
+		let entries = SyncChunk::decode(input)?;
+		Some(Self{next_vacant, len, entries})
+	}
+}
+
 impl<T> Stash<T> {
 	/// Creates a new storage vector for the given key.
 	///
