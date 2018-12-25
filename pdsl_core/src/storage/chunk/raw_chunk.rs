@@ -93,6 +93,16 @@ impl RawChunk {
 		}
 	}
 
+	/// Returns the unterlying key to the cells.
+	///
+	/// # Note
+	///
+	/// This is a low-level utility getter and should
+	/// normally not be required by users.
+	pub fn cells_key(&self) -> Key {
+		self.key
+	}
+
 	/// Returns a key for the `n`-th cell if within bounds.
 	///
 	/// # Error
