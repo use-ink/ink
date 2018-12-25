@@ -56,6 +56,7 @@ ALIASES['pdsl_core'] = {};
 ALIASES['pdsl_tests'] = {};
 ALIASES['pdsl_tests'] = {};
 ALIASES['pdsl_tests'] = {};
+ALIASES['pdsl_tests'] = {};
 ALIASES['proc_macro2'] = {};
 ALIASES['proc_macro2'] = {};
 ALIASES['proc_macro2'] = {};

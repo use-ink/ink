@@ -56,6 +56,7 @@ sourcesIndex['pdsl_core'] = {"name":"","dirs":[{"name":"env","dirs":[],"files":[
 sourcesIndex['pdsl_tests'] = {"name":"","dirs":[],"files":["lib.rs"]};
 sourcesIndex['pdsl_tests'] = {"name":"","dirs":[],"files":["lib.rs"]};
 sourcesIndex['pdsl_tests'] = {"name":"","dirs":[],"files":["lib.rs"]};
+sourcesIndex['pdsl_tests'] = {"name":"","dirs":[],"files":["lib.rs"]};
 sourcesIndex['proc_macro2'] = {"name":"","dirs":[],"files":["lib.rs","stable.rs","strnom.rs","unstable.rs"]};
 sourcesIndex['proc_macro2'] = {"name":"","dirs":[],"files":["lib.rs","stable.rs","strnom.rs","unstable.rs"]};
 sourcesIndex['proc_macro2'] = {"name":"","dirs":[],"files":["lib.rs","stable.rs","strnom.rs","unstable.rs"]};
