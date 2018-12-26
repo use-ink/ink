@@ -13,7 +13,8 @@ fn simple() {
 		]
 	);
 	let cells_len = Key::with_offset(cells_next_vacant, 1);
-	let cells_entries = Key::with_offset(cells_len, u32::max_value());
+	let cells_len_max = Key::with_offset(cells_next_vacant, 1);
+	let cells_entries = Key::with_offset(cells_len_max, u32::max_value());
 	let chunks_next_vacant = Key(
 		[
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -23,17 +24,20 @@ fn simple() {
 		]
 	);
 	let chunks_len = Key::with_offset(chunks_next_vacant, 1);
-	let chunks_entries = Key::with_offset(chunks_len, u32::max_value());
+	let chunks_len_max = Key::with_offset(chunks_len, 1);
+	let chunks_entries = Key::with_offset(chunks_len_max, u32::max_value());
 	let mut alloc = unsafe {
 		CellChunkAlloc::from_raw_parts(
 			storage::Stash::new_unchecked(
 				cells_next_vacant,
 				cells_len,
+				cells_len_max,
 				cells_entries,
 			),
 			storage::Stash::new_unchecked(
 				chunks_next_vacant,
 				chunks_len,
+				chunks_len_max,
 				chunks_entries,
 			),
 		)

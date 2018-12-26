@@ -37,6 +37,8 @@ pub struct Stash<T> {
 	/// We cannot simply use the underlying length of the vector
 	/// since it would include vacant slots as well.
 	len: SyncCell<u32>,
+	/// The maximum length the stash ever had.
+	max_len: SyncCell<u32>,
 	/// The entries of the stash.
 	entries: SyncChunk<Entry<T>>,
 }
@@ -58,6 +60,7 @@ impl<T> parity_codec::Encode for Stash<T> {
 	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
 		self.next_vacant.encode_to(dest);
 		self.len.encode_to(dest);
+		self.max_len.encode_to(dest);
 		self.entries.encode_to(dest);
 	}
 }
@@ -66,8 +69,9 @@ impl<T> parity_codec::Decode for Stash<T> {
 	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
 		let next_vacant = SyncCell::decode(input)?;
 		let len = SyncCell::decode(input)?;
+		let max_len = SyncCell::decode(input)?;
 		let entries = SyncChunk::decode(input)?;
-		Some(Self{next_vacant, len, entries})
+		Some(Self{next_vacant, len, max_len, entries})
 	}
 }
 
@@ -83,10 +87,16 @@ impl<T> Stash<T> {
 	/// - Is the storage region correctly formatted to be used as storage vec?
 	///
 	/// Users should not use this routine directly if possible.
-	pub unsafe fn new_unchecked(next_key: Key, len_key: Key, entries_key: Key) -> Self {
+	pub unsafe fn new_unchecked(
+		next_key: Key,
+		len_key: Key,
+		max_len_key: Key,
+		entries_key: Key
+	) -> Self {
 		Self{
 			next_vacant: SyncCell::new_unchecked(next_key),
 			len: SyncCell::new_unchecked(len_key),
+			max_len: SyncCell::new_unchecked(max_len_key),
 			entries: SyncChunk::new_unchecked(entries_key),
 		}
 	}
@@ -104,6 +114,12 @@ impl<T> Stash<T> {
 	/// Returns the number of elements stored in the stash.
 	pub fn len(&self) -> u32 {
 		*self.len.get().unwrap_or(&0)
+	}
+
+	/// Returns the maximum number of element stored in the
+	/// stash at the same time.
+	pub fn max_len(&self) -> u32 {
+		*self.max_len.get().unwrap_or(&0)
 	}
 
 	/// Returns `true` if the stash contains no elements.
@@ -145,6 +161,7 @@ where
 		if current_vacant == self.len() {
 			self.entries.set(current_vacant, Entry::Occupied(val));
 			self.next_vacant.set(current_vacant + 1);
+			self.max_len.set(self.max_len() + 1);
 		} else {
 			let next_vacant = match
 				self
