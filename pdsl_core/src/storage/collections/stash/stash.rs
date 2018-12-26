@@ -43,7 +43,51 @@ pub struct Stash<T> {
 	entries: SyncChunk<Entry<T>>,
 }
 
-/// Iterator over the enumerated values of a stash.
+/// Iterator over the values of a stash.
+#[derive(Debug)]
+pub struct Values<'a, T> {
+	/// The underlying iterator.
+	iter: Iter<'a, T>,
+}
+
+impl<'a, T> Values<'a, T> {
+	/// Creates a new iterator for the given storage stash.
+	pub(crate) fn new(stash: &'a Stash<T>) -> Self {
+		Self{iter: stash.iter()}
+	}
+}
+
+impl<'a, T> Iterator for Values<'a, T>
+where
+	T: parity_codec::Codec
+{
+	type Item = &'a T;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		self.iter.next().map(|(_index, value)| value)
+	}
+
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		self.iter.size_hint()
+	}
+}
+
+impl<'a, T> ExactSizeIterator for Values<'a, T>
+where
+	T: parity_codec::Codec
+{}
+
+impl<'a, T> DoubleEndedIterator for Values<'a, T>
+where
+	T: parity_codec::Codec
+{
+	fn next_back(&mut self) -> Option<Self::Item> {
+		self.iter.next_back().map(|(_index, value)| value)
+	}
+}
+
+/// Iterator over the entries of a stash.
+#[derive(Debug)]
 pub struct Iter<'a, T> {
 	/// The stash that is iterated over.
 	stash: &'a Stash<T>,
@@ -97,6 +141,11 @@ where
 		(remaining, Some(remaining))
 	}
 }
+
+impl<'a, T> ExactSizeIterator for Iter<'a, T>
+where
+	T: parity_codec::Codec
+{}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
@@ -185,6 +234,17 @@ impl<T> Stash<T> {
 	///   all elements using e.g. `Iterator::take(n)`.
 	pub fn iter(&self) -> Iter<T> {
 		Iter::new(self)
+	}
+
+	/// Returns an iterator over the references of all values of the stash.
+	///
+	/// # Note
+	///
+	/// - It is **not** recommended to iterate over all elements of a storage stash.
+	/// - Try to avoid this if possible or iterate only over a minimal subset of
+	///   all elements using e.g. `Iterator::take(n)`.
+	pub fn values(&self) -> Values<T> {
+		Values::new(self)
 	}
 
 	/// Returns the unterlying key to the cells.
