@@ -202,6 +202,8 @@ fn swap_remove_empty() {
 #[test]
 fn iter_size_hint() {
 	let vec = new_filled_vec();
-	let iter = vec.iter();
+	let mut iter = vec.iter();
 	assert_eq!(iter.size_hint(), (4, Some(4)));
+	iter.next();
+	assert_eq!(iter.size_hint(), (3, Some(3)));
 }
