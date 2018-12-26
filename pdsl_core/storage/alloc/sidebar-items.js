@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CellChunkAlloc","An allocator for the contract storage."],["ForwardAlloc","An allocator that is meant to simply forward allocate contract storage at compile-time."]],"trait":[["Allocator","Types implementing this trait are storage allocators."]]});

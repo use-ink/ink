@@ -477,9 +477,9 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// # Note</span>
 	<span class="doccomment">///</span>
-	<span class="doccomment">/// Note it is **not** recommended to iterate over all elements of a storage vector.</span>
-	<span class="doccomment">/// Make sure that you really need to do this and if you do try to only iterate over a</span>
-	<span class="doccomment">/// limited subset, using e.g. `Iterator::take(n)`.</span>
+	<span class="doccomment">/// - It is **not** recommended to iterate over all elements of a storage vector.</span>
+	<span class="doccomment">/// - Try to avoid this if possible or iterate only over a minimal subset of</span>
+	<span class="doccomment">///   all elements using e.g. `Iterator::take(n)`.</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 		<span class="ident">Iter</span>::<span class="ident">new</span>(<span class="self">self</span>)
 	}
