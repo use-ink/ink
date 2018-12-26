@@ -43,6 +43,81 @@ pub struct Stash<T> {
 	entries: SyncChunk<Entry<T>>,
 }
 
+/// Iterator over the enumerated values of a stash.
+pub struct Iter<'a, T> {
+	/// The stash that is iterated over.
+	stash: &'a Stash<T>,
+	/// The index of the current start item of the iteration.
+	begin: u32,
+	/// The index of the current end item of the iteration.
+	end: u32,
+	/// The amount of already yielded items.
+	///
+	/// Required to offer an exact `size_hint` implementation.
+	/// Also can be used to exit iteration as early as possible.
+	yielded: u32,
+}
+
+impl<'a, T> Iter<'a, T> {
+	/// Creates a new iterator for the given storage stash.
+	pub fn new(stash: &'a Stash<T>) -> Self {
+		Self{
+			stash,
+			begin: 0,
+			end: stash.max_len(),
+			yielded: 0,
+		}
+	}
+}
+
+impl<'a, T> Iterator for Iter<'a, T>
+where
+	T: parity_codec::Codec
+{
+	type Item = (u32, &'a T);
+
+	fn next(&mut self) -> Option<Self::Item> {
+		debug_assert!(self.begin <= self.end);
+		if self.yielded == self.stash.len() {
+			return None
+		}
+		while self.begin < self.end {
+			let cur = self.begin;
+			self.begin += 1;
+			if let Some(elem) = self.stash.get(cur) {
+				self.yielded += 1;
+				return Some((cur, elem))
+			}
+		}
+		None
+	}
+
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		let remaining = (self.stash.len() - self.yielded) as usize;
+		(remaining, Some(remaining))
+	}
+}
+
+impl<'a, T> DoubleEndedIterator for Iter<'a, T>
+where
+	T: parity_codec::Codec
+{
+	fn next_back(&mut self) -> Option<Self::Item> {
+		debug_assert!(self.begin <= self.end);
+		if self.yielded == self.stash.len() {
+			return None
+		}
+		while self.begin < self.end {
+			self.end -= 1;
+			if let Some(elem) = self.stash.get(self.end) {
+				self.yielded += 1;
+				return Some((self.end, elem))
+			}
+		}
+		None
+	}
+}
+
 /// An entry within a stash collection.
 ///
 /// This represents either an occupied entry with its associated value
@@ -99,6 +174,17 @@ impl<T> Stash<T> {
 			max_len: SyncCell::new_unchecked(max_len_key),
 			entries: SyncChunk::new_unchecked(entries_key),
 		}
+	}
+
+	/// Returns an iterator over the references of all elements stored in the stash.
+	///
+	/// # Note
+	///
+	/// - It is **not** recommended to iterate over all elements of a storage stash.
+	/// - Try to avoid this if possible or iterate only over a minimal subset of
+	///   all elements using e.g. `Iterator::take(n)`.
+	pub fn iter(&self) -> Iter<T> {
+		Iter::new(self)
 	}
 
 	/// Returns the unterlying key to the cells.

@@ -32,6 +32,7 @@ fn new_unchecked() {
 	// Initial invariant.
 	assert_eq!(stash.len(), 0);
 	assert!(stash.is_empty());
+	assert_eq!(stash.iter().next(), None);
 }
 
 #[test]
@@ -170,4 +171,63 @@ fn put_take() {
 	// Vacant   |      |    3 |      |    5 |      |      |
 	//          |------------------------------------------
 	// next_vacant = 1
+}
+
+#[test]
+fn iter() {
+	let stash = filled_stash();
+	let mut iter = stash.iter();
+	assert_eq!(iter.next(), Some((0, &5)));
+	assert_eq!(iter.next(), Some((1, &42)));
+	assert_eq!(iter.next(), Some((2, &1337)));
+	assert_eq!(iter.next(), Some((3, &77)));
+	assert_eq!(iter.next(), None);
+}
+
+fn holey_stash() -> Stash<i32> {
+	let mut stash = filled_stash();
+	stash.put(123);
+	stash.take(1);
+	stash.take(3);
+	stash
+}
+
+#[test]
+fn iter_holey() {
+	let stash = holey_stash();
+	let mut iter = stash.iter();
+	assert_eq!(iter.next(), Some((0, &5)));
+	assert_eq!(iter.next(), Some((2, &1337)));
+	assert_eq!(iter.next(), Some((4, &123)));
+	assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn iter_back() {
+	let stash = filled_stash();
+	let mut iter = stash.iter();
+	assert_eq!(iter.next_back(), Some((3, &77)));
+	assert_eq!(iter.next_back(), Some((2, &1337)));
+	assert_eq!(iter.next_back(), Some((1, &42)));
+	assert_eq!(iter.next_back(), Some((0, &5)));
+	assert_eq!(iter.next_back(), None);
+}
+
+#[test]
+fn iter_back_holey() {
+	let stash = holey_stash();
+	let mut iter = stash.iter();
+	assert_eq!(iter.next_back(), Some((4, &123)));
+	assert_eq!(iter.next_back(), Some((2, &1337)));
+	assert_eq!(iter.next_back(), Some((0, &5)));
+	assert_eq!(iter.next_back(), None);
+}
+
+#[test]
+fn iter_size_hint() {
+	let stash = filled_stash();
+	let mut iter = stash.iter();
+	assert_eq!(iter.size_hint(), (4, Some(4)));
+	iter.next();
+	assert_eq!(iter.size_hint(), (3, Some(3)));
 }
