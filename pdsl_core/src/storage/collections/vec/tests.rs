@@ -69,6 +69,17 @@ fn iter() {
 }
 
 #[test]
+fn iter_back() {
+	let vec = new_filled_vec();
+	let mut iter = vec.iter();
+	assert_eq!(iter.next_back(), Some(&77));
+	assert_eq!(iter.next_back(), Some(&1337));
+	assert_eq!(iter.next_back(), Some(&42));
+	assert_eq!(iter.next_back(), Some(&5));
+	assert_eq!(iter.next_back(), None);
+}
+
+#[test]
 fn get() {
 	let vec = new_filled_vec();
 	assert_eq!(vec.get(0), Some(&5));
