@@ -1,10 +1,10 @@
 use crate::storage::{
 	Key,
 	cell::SyncCell,
-	chunk::SyncChunk
+	chunk::SyncChunk,
+	Setup,
 };
 use crate::hash;
-use crate::Setup;
 
 use std::borrow::Borrow;
 use std::hash::Hash;

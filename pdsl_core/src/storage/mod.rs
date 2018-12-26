@@ -65,6 +65,7 @@ pub mod alloc;
 pub mod cell;
 pub mod chunk;
 mod collections;
+mod setup;
 
 use self::non_clone::NonCloneMarker;
 
@@ -85,5 +86,8 @@ pub use self::{
 			self,
 			Stash,
 		}
+	},
+	setup::{
+		Setup,
 	},
 };

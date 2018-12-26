@@ -1,6 +1,11 @@
 //! Setup contract storage underlying an entity.
 
-/// Types implementing this trait are deployable on the chain.
+/// Types implementing this trait are initializable on the contract storage.
+///
+/// # Note
+///
+/// Some types require special initialization routines on the contract storage
+/// upon creation to properly operate on it.
 pub trait Setup {
 	/// Setup contract storage underlying to `self`.
 	///
