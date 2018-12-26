@@ -155,9 +155,9 @@ where
 	///
 	/// # Note
 	///
-	/// Note it is **not** recommended to iterate over all elements of a storage vector.
-	/// Make sure that you really need to do this and if you do try to only iterate over a
-	/// limited subset, using e.g. `Iterator::take(n)`.
+	/// - It is **not** recommended to iterate over all elements of a storage vector.
+	/// - Try to avoid this if possible or iterate only over a minimal subset of
+	///   all elements using e.g. `Iterator::take(n)`.
 	pub fn iter(&self) -> Iter<T> {
 		Iter::new(self)
 	}
