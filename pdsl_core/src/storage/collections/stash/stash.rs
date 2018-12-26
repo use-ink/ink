@@ -60,7 +60,7 @@ pub struct Iter<'a, T> {
 
 impl<'a, T> Iter<'a, T> {
 	/// Creates a new iterator for the given storage stash.
-	pub fn new(stash: &'a Stash<T>) -> Self {
+	pub(crate) fn new(stash: &'a Stash<T>) -> Self {
 		Self{
 			stash,
 			begin: 0,
@@ -176,7 +176,7 @@ impl<T> Stash<T> {
 		}
 	}
 
-	/// Returns an iterator over the references of all elements stored in the stash.
+	/// Returns an iterator over the references of all entries of the stash.
 	///
 	/// # Note
 	///

@@ -22,4 +22,5 @@ mod stash;
 
 pub use self::stash::{
 	Stash,
+	Iter,
 };
