@@ -21,9 +21,7 @@ impl Default for StorageAlloc {
 
 impl StorageAlloc {
 	pub fn alloc(&mut self, size: u32) -> Key {
-		let ret = self.cur;
-		self.cur = Key::with_offset(ret, size);
-		ret
+		Key::with_offset(self.cur, size)
 	}
 }
 
