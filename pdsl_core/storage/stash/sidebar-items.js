@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Stash","A stash collection."]]});
+initSidebarItems({"struct":[["Iter","Iterator over the entries of a stash."],["Stash","A stash collection."],["Values","Iterator over the values of a stash."]]});
