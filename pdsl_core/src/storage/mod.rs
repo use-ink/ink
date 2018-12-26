@@ -60,7 +60,7 @@
 
 mod key;
 mod non_clone;
-mod alloc;
+pub mod alloc;
 
 pub mod cell;
 pub mod chunk;
@@ -86,8 +86,4 @@ pub use self::{
 			Stash,
 		}
 	},
-	alloc::{
-		Allocator,
-		CellChunkAlloc,
-	}
 };
