@@ -2,6 +2,7 @@ use crate::{
 	storage::{
 		Key,
 		cell::TypedCell,
+		alloc::Allocator,
 	},
 };
 
@@ -143,7 +144,23 @@ impl<T> SyncCell<T> {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			cell: TypedCell::new_unchecked(key),
-			cache: Cache::default(),
+			cache: Default::default(),
+		}
+	}
+
+	/// Allocates a new sync cell using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			cell: TypedCell::new_using_alloc(alloc),
+			cache: Default::default(),
 		}
 	}
 

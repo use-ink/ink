@@ -3,6 +3,7 @@ use crate::{
 		Key,
 		cell::SyncCell,
 		chunk::SyncChunk,
+		alloc::Allocator,
 	},
 };
 use std::iter::{
@@ -125,6 +126,22 @@ impl<T> Vec<T> {
 		Self{
 			len: SyncCell::new_unchecked(key),
 			cells: SyncChunk::new_unchecked(Key::with_offset(key, 1)),
+		}
+	}
+
+	/// Allocates a new storage vector using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			len: SyncCell::new_using_alloc(alloc),
+			cells: SyncChunk::new_using_alloc(alloc),
 		}
 	}
 

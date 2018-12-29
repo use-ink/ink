@@ -2,6 +2,7 @@ use crate::{
 	storage::{
 		Key,
 		NonCloneMarker,
+		alloc::Allocator,
 	},
 	env::{Env, ContractEnv},
 };
@@ -37,6 +38,22 @@ impl RawCell {
 		Self{
 			key: key,
 			non_clone: NonCloneMarker::default()
+		}
+	}
+
+	/// Allocates a new raw cell using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			key: alloc.alloc(1),
+			non_clone: Default::default(),
 		}
 	}
 }

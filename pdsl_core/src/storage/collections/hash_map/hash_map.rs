@@ -3,6 +3,7 @@ use crate::storage::{
 	cell::SyncCell,
 	chunk::SyncChunk,
 	Setup,
+	alloc::Allocator,
 };
 use crate::hash;
 
@@ -100,6 +101,22 @@ impl<K, V> HashMap<K, V> {
 		Self{
 			len: SyncCell::new_unchecked(key),
 			entries: SyncChunk::new_unchecked(Key::with_offset(key, 1)),
+		}
+	}
+
+	/// Allocates a new storage hash map using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			len: SyncCell::new_using_alloc(alloc),
+			entries: SyncChunk::new_using_alloc(alloc),
 		}
 	}
 

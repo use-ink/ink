@@ -2,6 +2,7 @@ use crate::storage::{
 	Key,
 	cell::SyncCell,
 	chunk::SyncChunk,
+	alloc::Allocator,
 };
 
 use parity_codec_derive::{Encode, Decode};
@@ -222,6 +223,24 @@ impl<T> Stash<T> {
 			len: SyncCell::new_unchecked(len_key),
 			max_len: SyncCell::new_unchecked(max_len_key),
 			entries: SyncChunk::new_unchecked(entries_key),
+		}
+	}
+
+	/// Allocates a new storage hash map using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			next_vacant: SyncCell::new_using_alloc(alloc),
+			len: SyncCell::new_using_alloc(alloc),
+			max_len: SyncCell::new_using_alloc(alloc),
+			entries: SyncChunk::new_using_alloc(alloc),
 		}
 	}
 

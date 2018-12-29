@@ -6,6 +6,7 @@ use crate::{
 			RawChunk,
 			RawChunkCell,
 		},
+		alloc::Allocator,
 	},
 };
 
@@ -117,7 +118,23 @@ impl<T> TypedChunk<T> {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			chunk: RawChunk::new_unchecked(key),
-			non_clone: NonCloneMarker::default(),
+			non_clone: Default::default(),
+		}
+	}
+
+	/// Allocates a new typed cell chunk using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			chunk: RawChunk::new_using_alloc(alloc),
+			non_clone: Default::default(),
 		}
 	}
 

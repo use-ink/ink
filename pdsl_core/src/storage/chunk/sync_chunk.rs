@@ -5,6 +5,7 @@ use crate::{
 			TypedChunk,
 			TypedChunkCell,
 		},
+		alloc::Allocator,
 	},
 };
 
@@ -284,6 +285,22 @@ impl<T> SyncChunk<T> {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			chunk: TypedChunk::new_unchecked(key),
+			elems: Cache::default(),
+		}
+	}
+
+	/// Allocates a new sync cell chunk using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			chunk: TypedChunk::new_using_alloc(alloc),
 			elems: Cache::default(),
 		}
 	}

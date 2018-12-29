@@ -2,6 +2,7 @@ use crate::{
 	storage::{
 		Key,
 		NonCloneMarker,
+		alloc::Allocator,
 	},
 	env::{Env, ContractEnv},
 };
@@ -89,7 +90,23 @@ impl RawChunk {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			key,
-			non_clone: NonCloneMarker::default(),
+			non_clone: Default::default(),
+		}
+	}
+
+	/// Allocates a new raw cell chunk using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			key: alloc.alloc(u32::max_value()),
+			non_clone: Default::default(),
 		}
 	}
 

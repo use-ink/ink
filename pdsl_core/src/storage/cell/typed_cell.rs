@@ -3,6 +3,7 @@ use crate::{
 		Key,
 		NonCloneMarker,
 		cell::RawCell,
+		alloc::Allocator,
 	},
 };
 
@@ -51,6 +52,22 @@ impl<T> TypedCell<T> {
 		Self{
 			cell: RawCell::new_unchecked(key),
 			non_clone: NonCloneMarker::default()
+		}
+	}
+
+	/// Allocates a new typed cell using the given storage allocator.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			cell: RawCell::new_using_alloc(alloc),
+			non_clone: Default::default(),
 		}
 	}
 
