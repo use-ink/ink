@@ -83,32 +83,6 @@ pub fn bytes_add_bytes(lhs: &mut [u8], rhs: &[u8]) {
 	}
 }
 
-/// Adds the `u32` to the given byte slice.
-///
-/// This interprets the byte slice as twos-complement number.
-///
-/// # Panics
-///
-/// If the byte slice is not at least 4 byte long.
-pub fn bytes_add_u32(lhs: &mut [u8], rhs: u32) {
-	assert!(lhs.len() >= 4);
-	let len = lhs.len();
-	bytes_add_bytes(&mut lhs[(len-4)..len], &u32_to_bytes4(rhs))
-}
-
-/// Adds the `u64` to the given byte slice.
-///
-/// This interprets the byte slice as twos-complement number.
-///
-/// # Panics
-///
-/// If the byte slice is not at least 8 byte long.
-pub fn bytes_add_u64(lhs: &mut [u8], rhs: u64) {
-	assert!(lhs.len() >= 8);
-	let len = lhs.len();
-	bytes_add_bytes(&mut lhs[(len-8)..len], &u64_to_bytes8(rhs))
-}
-
 macro_rules! primitives_impl {
 	( $prim:ty, $bytes_to_prim:ident, $prim_to_bytes:ident ) => {
 		/// Converts the byte array to the primitive number.
@@ -181,45 +155,45 @@ mod tests {
 		assert_eq!(slice4_as_array4(&[1, 2, 3]), None);
 	}
 
-	#[test]
-	fn test_bytes_add_u32() {
-		fn test_for(lhs: &[u8], rhs: u32, expected: &[u8]) {
-			fn bytes_add_u32_copy(lhs: &[u8], rhs: u32) -> Vec<u8> {
-				let mut buf = lhs.to_vec();
-				bytes_add_u32(&mut buf, rhs);
-				buf
-			}
-			assert_eq!(
-				bytes_add_u32_copy(lhs, rhs).as_slice(),
-				expected
-			)
-		}
-		test_for(
-			&[0x00, 0x00, 0x00, 0x00],
-			0x00,
-			&[0x00, 0x00, 0x00, 0x00],
-		);
-		test_for(
-			&[0x00, 0x00, 0x00, 0x00],
-			0x42,
-			&[0x00, 0x00, 0x00, 0x42],
-		);
-		test_for(
-			&[0xFF, 0xFF, 0xFF, 0xFF],
-			0x01,
-			&[0x00, 0x00, 0x00, 0x00],
-		);
-		test_for(
-			&[0x00, 0x00, 0x00, 0x00],
-			0xFF_FF_FF_FF,
-			&[0xFF, 0xFF, 0xFF, 0xFF],
-		);
-		test_for(
-			&[0x12, 0x34, 0x56, 0x78],
-			0x9A_BC_DE_F0,
-			&[0xAC, 0xF1, 0x35, 0x68],
-		);
-	}
+	// #[test]
+	// fn test_bytes_add_u32() {
+	// 	fn test_for(lhs: &[u8], rhs: u32, expected: &[u8]) {
+	// 		fn bytes_add_u32_copy(lhs: &[u8], rhs: u32) -> Vec<u8> {
+	// 			let mut buf = lhs.to_vec();
+	// 			bytes_add_u32(&mut buf, rhs);
+	// 			buf
+	// 		}
+	// 		assert_eq!(
+	// 			bytes_add_u32_copy(lhs, rhs).as_slice(),
+	// 			expected
+	// 		)
+	// 	}
+	// 	test_for(
+	// 		&[0x00, 0x00, 0x00, 0x00],
+	// 		0x00,
+	// 		&[0x00, 0x00, 0x00, 0x00],
+	// 	);
+	// 	test_for(
+	// 		&[0x00, 0x00, 0x00, 0x00],
+	// 		0x42,
+	// 		&[0x00, 0x00, 0x00, 0x42],
+	// 	);
+	// 	test_for(
+	// 		&[0xFF, 0xFF, 0xFF, 0xFF],
+	// 		0x01,
+	// 		&[0x00, 0x00, 0x00, 0x00],
+	// 	);
+	// 	test_for(
+	// 		&[0x00, 0x00, 0x00, 0x00],
+	// 		0xFF_FF_FF_FF,
+	// 		&[0xFF, 0xFF, 0xFF, 0xFF],
+	// 	);
+	// 	test_for(
+	// 		&[0x12, 0x34, 0x56, 0x78],
+	// 		0x9A_BC_DE_F0,
+	// 		&[0xAC, 0xF1, 0x35, 0x68],
+	// 	);
+	// }
 
 	#[test]
 	fn u32_and_bytes_conv() {
