@@ -2,7 +2,7 @@ use crate::{
 	storage::{
 		Key,
 		NonCloneMarker,
-		alloc::Allocator,
+		Allocator,
 	},
 	env::{Env, ContractEnv},
 };

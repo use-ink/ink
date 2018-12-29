@@ -2,7 +2,7 @@ use crate::storage::{
 	Key,
 	cell::SyncCell,
 	chunk::SyncChunk,
-	alloc::Allocator,
+	Allocator,
 };
 
 use parity_codec_derive::{Encode, Decode};

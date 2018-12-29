@@ -5,7 +5,7 @@ use crate::{
 			TypedChunk,
 			TypedChunkCell,
 		},
-		alloc::Allocator,
+		Allocator,
 	},
 };
 

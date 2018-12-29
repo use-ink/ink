@@ -3,9 +3,10 @@ use crate::{
 		Key,
 		cell::SyncCell,
 		chunk::SyncChunk,
-		alloc::Allocator,
+		Allocator,
 	},
 };
+
 use std::iter::{
 	ExactSizeIterator,
 	DoubleEndedIterator,

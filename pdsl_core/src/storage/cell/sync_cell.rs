@@ -2,7 +2,7 @@ use crate::{
 	storage::{
 		Key,
 		cell::TypedCell,
-		alloc::Allocator,
+		Allocator,
 	},
 };
 

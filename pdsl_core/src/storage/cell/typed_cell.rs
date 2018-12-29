@@ -3,7 +3,7 @@ use crate::{
 		Key,
 		NonCloneMarker,
 		cell::RawCell,
-		alloc::Allocator,
+		Allocator,
 	},
 };
 

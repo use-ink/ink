@@ -91,3 +91,6 @@ pub use self::{
 		Setup,
 	},
 };
+
+#[doc(inline)]
+pub use self::alloc::Allocator;

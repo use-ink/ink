@@ -3,7 +3,7 @@ use crate::storage::{
 	cell::SyncCell,
 	chunk::SyncChunk,
 	Setup,
-	alloc::Allocator,
+	Allocator,
 };
 use crate::hash;
 

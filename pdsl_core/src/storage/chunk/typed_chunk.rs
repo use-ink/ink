@@ -6,7 +6,7 @@ use crate::{
 			RawChunk,
 			RawChunkCell,
 		},
-		alloc::Allocator,
+		Allocator,
 	},
 };
 
