@@ -25,6 +25,7 @@ use std::iter::{
 ///
 /// Allows to store up to `2^32` elements and is guaranteed to not reallocate
 /// upon pushing new elements to it.
+#[derive(Debug)]
 pub struct Vec<T> {
 	/// The length of the vector.
 	len: SyncCell<u32>,
@@ -33,6 +34,7 @@ pub struct Vec<T> {
 }
 
 /// An iterator over the values of a storage `Vec`.
+#[derive(Debug)]
 pub struct Iter<'a, T> {
 	/// The storage vector to iterate over.
 	vec: &'a Vec<T>,
