@@ -1,29 +1,21 @@
-use pdsl_core::storage::Key;
-use pdsl_core::env::{Env, ContractEnv};
+use pdsl_core::{
+	storage::{
+		Key,
+		alloc::{
+			Allocator,
+			ForwardAlloc,
+		},
+	},
+	env::{
+		Env,
+		ContractEnv,
+	},
+};
 
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 
 pub type Address = [u8; 32];
-
-pub struct StorageAlloc {
-	/// Current key with highest offset.
-	cur: Key,
-}
-
-impl Default for StorageAlloc {
-	fn default() -> Self {
-		Self{
-			cur: Key([0; 32])
-		}
-	}
-}
-
-impl StorageAlloc {
-	pub fn alloc(&mut self, size: u32) -> Key {
-		Key::with_offset(self.cur, size)
-	}
-}
 
 /// Allocates an amount of contract storage.
 ///
@@ -43,8 +35,12 @@ pub fn caller_as_array() -> [u8; 32] {
 }
 
 lazy_static! {
-	static ref STORAGE_ALLOC: Mutex<StorageAlloc> = {
-		Mutex::new(crate::utils::StorageAlloc::default())
+	static ref STORAGE_ALLOC: Mutex<ForwardAlloc> = {
+		Mutex::new(unsafe {
+			crate::utils::ForwardAlloc::from_raw_parts(
+				Key([0x0; 32])
+			)
+		})
 	};
 	pub(crate) static ref TWEETS_KEY: Key = {
 		alloc(1)
