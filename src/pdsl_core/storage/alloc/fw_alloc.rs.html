@@ -116,6 +116,7 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
+<span id="119">119</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -131,8 +132,8 @@
 <span class="doccomment">/// It is not designed to be used during contract execution and it</span>
 <span class="doccomment">/// also cannot deallocate key allocated by it.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Users are recommended to use the `CellChunkAlloc` for dynamic</span>
-<span class="doccomment">/// storage allocation purposes instead.</span>
+<span class="doccomment">/// Users are recommended to use the [`CellChunkAlloc`](struct.CellChunkAlloc.html)</span>
+<span class="doccomment">/// for dynamic storage allocation purposes instead.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ForwardAlloc</span> {
 	<span class="doccomment">/// The key offset used for all allocations.</span>
 	<span class="ident">offset_key</span>: <span class="ident">Key</span>,
@@ -172,7 +173,8 @@
 
 	<span class="doccomment">/// Not supported by this allocator!</span>
 	<span class="doccomment">///</span>
-	<span class="doccomment">/// Use `CellChunkAlloc` for dynamic allocation purposes instead.</span>
+	<span class="doccomment">/// Use [`CellChunkAlloc`](struct.CellChunkAlloc.html)</span>
+	<span class="doccomment">/// for dynamic allocation purposes instead.</span>
 	<span class="kw">fn</span> <span class="ident">dealloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_key</span>: <span class="ident">Key</span>) {
 		<span class="macro">unreachable</span><span class="macro">!</span>(
 			<span class="string">&quot;The forward allocator is meant to be only used in compile-time
