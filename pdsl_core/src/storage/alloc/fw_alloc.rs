@@ -4,11 +4,6 @@ use crate::{
 	storage::Key,
 };
 
-use std::sync::atomic::{
-	AtomicUsize,
-	Ordering,
-};
-
 /// An allocator that is meant to simply forward allocate contract
 /// storage at compile-time.
 ///
@@ -22,8 +17,6 @@ use std::sync::atomic::{
 pub struct ForwardAlloc {
 	/// The key offset used for all allocations.
 	offset_key: Key,
-	/// The offset added to the key offset for the next allocation.
-	offset_idx: AtomicUsize,
 }
 
 impl ForwardAlloc {
@@ -36,21 +29,26 @@ impl ForwardAlloc {
 	pub unsafe fn from_raw_parts(offset_key: Key) -> Self {
 		Self{
 			offset_key,
-			offset_idx: AtomicUsize::new(0)
 		}
+	}
+
+	/// Increase the forward alloc offset key by the given amount.
+	fn inc_offset_key(&mut self, by: u32) {
+		self.offset_key = Key::with_offset(self.offset_key, by);
 	}
 }
 
 impl Allocator for ForwardAlloc {
 	fn alloc(&mut self, size: u32) -> Key {
-		let next_idx = self.offset_idx.fetch_add(size as usize, Ordering::SeqCst);
-		if next_idx >= u32::max_value() as usize {
+		if size == 0 {
 			panic!(
-				"[pdsl_core::ForwardAlloc::alloc] Error: \
-				 cannot allocate more than u32::MAX entities"
+				"[psdl_core::ForwardAlloc::alloc] Error: \
+				 cannot allocate zero (0) bytes"
 			)
 		}
-		Key::with_offset(self.offset_key, next_idx as u32)
+		let key = self.offset_key.clone();
+		self.inc_offset_key(size);
+		key
 	}
 
 	/// Not supported by this allocator!
@@ -81,6 +79,29 @@ mod tests {
 		assert_eq!(fw_alloc.alloc(u16::max_value() as u32), Key::with_offset(offset_key, 11));
 		assert_eq!(fw_alloc.alloc(2), Key::with_offset(offset_key, 0x1000A));
 		assert_eq!(fw_alloc.alloc(1), Key::with_offset(offset_key, 0x1000C));
+		assert_eq!(
+			fw_alloc.alloc(u32::max_value()),
+			Key::with_offset(offset_key, 0x1000D),
+		);
+		assert_eq!(
+			fw_alloc.alloc(1),
+			Key([
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0C,
+			])
+		)
+	}
+
+	#[test]
+	#[should_panic]
+	fn allocate_zero() {
+		let offset_key = Key([0x00; 32]);
+		let mut fw_alloc = unsafe {
+			ForwardAlloc::from_raw_parts(offset_key)
+		};
+		fw_alloc.alloc(0);
 	}
 
 	#[test]
