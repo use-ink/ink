@@ -12,8 +12,8 @@ use crate::{
 /// It is not designed to be used during contract execution and it
 /// also cannot deallocate key allocated by it.
 ///
-/// Users are recommended to use the `CellChunkAlloc` for dynamic
-/// storage allocation purposes instead.
+/// Users are recommended to use the [`CellChunkAlloc`](struct.CellChunkAlloc.html)
+/// for dynamic storage allocation purposes instead.
 pub struct ForwardAlloc {
 	/// The key offset used for all allocations.
 	offset_key: Key,
@@ -53,7 +53,8 @@ impl Allocator for ForwardAlloc {
 
 	/// Not supported by this allocator!
 	///
-	/// Use `CellChunkAlloc` for dynamic allocation purposes instead.
+	/// Use [`CellChunkAlloc`](struct.CellChunkAlloc.html)
+	/// for dynamic allocation purposes instead.
 	fn dealloc(&mut self, _key: Key) {
 		unreachable!(
 			"The forward allocator is meant to be only used in compile-time
