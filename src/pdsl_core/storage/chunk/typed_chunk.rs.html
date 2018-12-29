@@ -261,6 +261,23 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
@@ -270,6 +287,7 @@
 			<span class="ident">RawChunk</span>,
 			<span class="ident">RawChunkCell</span>,
 		},
+		<span class="ident">alloc</span>::<span class="ident">Allocator</span>,
 	},
 };
 
@@ -381,7 +399,23 @@
 	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
 		<span class="self">Self</span>{
 			<span class="ident">chunk</span>: <span class="ident">RawChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span>),
-			<span class="ident">non_clone</span>: <span class="ident">NonCloneMarker</span>::<span class="ident">default</span>(),
+			<span class="ident">non_clone</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+		}
+	}
+
+	<span class="doccomment">/// Allocates a new typed cell chunk using the given storage allocator.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Safety</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
+	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
+	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">where</span>
+		<span class="ident">A</span>: <span class="ident">Allocator</span>
+	{
+		<span class="self">Self</span>{
+			<span class="ident">chunk</span>: <span class="ident">RawChunk</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">non_clone</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
 		}
 	}
 

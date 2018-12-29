@@ -355,11 +355,31 @@
 <span id="355">355</span>
 <span id="356">356</span>
 <span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage</span>::{
 	<span class="ident">Key</span>,
 	<span class="ident">cell</span>::<span class="ident">SyncCell</span>,
 	<span class="ident">chunk</span>::<span class="ident">SyncChunk</span>,
+	<span class="ident">alloc</span>::<span class="ident">Allocator</span>,
 };
 
 <span class="kw">use</span> <span class="ident">parity_codec_derive</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
@@ -580,6 +600,24 @@
 			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">len_key</span>),
 			<span class="ident">max_len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">max_len_key</span>),
 			<span class="ident">entries</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">entries_key</span>),
+		}
+	}
+
+	<span class="doccomment">/// Allocates a new storage hash map using the given storage allocator.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Safety</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
+	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
+	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">where</span>
+		<span class="ident">A</span>: <span class="ident">Allocator</span>
+	{
+		<span class="self">Self</span>{
+			<span class="ident">next_vacant</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">max_len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">entries</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
 		}
 	}
 

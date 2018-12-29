@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["alloc","Allocates an amount of contract storage."],["caller_as_array","Return current contract caller as 32-bytes array."]],"struct":[["StorageAlloc",""]],"type":[["Address",""]]});
+initSidebarItems({"fn":[["alloc","Allocates an amount of contract storage."],["caller_as_array","Return current contract caller as 32-bytes array."]],"type":[["Address",""]]});

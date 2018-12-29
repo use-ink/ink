@@ -319,12 +319,32 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
 		<span class="ident">Key</span>,
 		<span class="ident">cell</span>::<span class="ident">SyncCell</span>,
 		<span class="ident">chunk</span>::<span class="ident">SyncChunk</span>,
+		<span class="ident">alloc</span>::<span class="ident">Allocator</span>,
 	},
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::{
@@ -346,6 +366,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Allows to store up to `2^32` elements and is guaranteed to not reallocate</span>
 <span class="doccomment">/// upon pushing new elements to it.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// The length of the vector.</span>
 	<span class="ident">len</span>: <span class="ident">SyncCell</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
@@ -354,6 +375,7 @@
 }
 
 <span class="doccomment">/// An iterator over the values of a storage `Vec`.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// The storage vector to iterate over.</span>
 	<span class="ident">vec</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
@@ -447,6 +469,22 @@
 		<span class="self">Self</span>{
 			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span>),
 			<span class="ident">cells</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">key</span>, <span class="number">1</span>)),
+		}
+	}
+
+	<span class="doccomment">/// Allocates a new storage vector using the given storage allocator.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Safety</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
+	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
+	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">where</span>
+		<span class="ident">A</span>: <span class="ident">Allocator</span>
+	{
+		<span class="self">Self</span>{
+			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">cells</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
 		}
 	}
 

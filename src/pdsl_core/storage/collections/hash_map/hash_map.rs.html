@@ -415,12 +415,30 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage</span>::{
 	<span class="ident">Key</span>,
 	<span class="ident">cell</span>::<span class="ident">SyncCell</span>,
 	<span class="ident">chunk</span>::<span class="ident">SyncChunk</span>,
 	<span class="ident">Setup</span>,
+	<span class="ident">alloc</span>::<span class="ident">Allocator</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">hash</span>;
 
@@ -518,6 +536,22 @@
 		<span class="self">Self</span>{
 			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span>),
 			<span class="ident">entries</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">key</span>, <span class="number">1</span>)),
+		}
+	}
+
+	<span class="doccomment">/// Allocates a new storage hash map using the given storage allocator.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Safety</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
+	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
+	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">where</span>
+		<span class="ident">A</span>: <span class="ident">Allocator</span>
+	{
+		<span class="self">Self</span>{
+			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">entries</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
 		}
 	}
 

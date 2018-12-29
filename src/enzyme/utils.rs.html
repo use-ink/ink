@@ -51,37 +51,25 @@
 <span id="51">51</span>
 <span id="52">52</span>
 <span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">pdsl_core</span>::<span class="ident">storage</span>::<span class="ident">Key</span>;
-<span class="kw">use</span> <span class="ident">pdsl_core</span>::<span class="ident">env</span>::{<span class="ident">Env</span>, <span class="ident">ContractEnv</span>};
+<span class="kw">use</span> <span class="ident">pdsl_core</span>::{
+	<span class="ident">storage</span>::{
+		<span class="ident">Key</span>,
+		<span class="ident">alloc</span>::{
+			<span class="ident">Allocator</span>,
+			<span class="ident">ForwardAlloc</span>,
+		},
+	},
+	<span class="ident">env</span>::{
+		<span class="ident">Env</span>,
+		<span class="ident">ContractEnv</span>,
+	},
+};
 
 <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Address</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
-
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StorageAlloc</span> {
-	<span class="doccomment">/// Current key with highest offset.</span>
-	<span class="ident">cur</span>: <span class="ident">Key</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">StorageAlloc</span> {
-	<span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
-		<span class="self">Self</span>{
-			<span class="ident">cur</span>: <span class="ident">Key</span>([<span class="number">0</span>; <span class="number">32</span>])
-		}
-	}
-}
-
-<span class="kw">impl</span> <span class="ident">StorageAlloc</span> {
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
-		<span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="self">self</span>.<span class="ident">cur</span>, <span class="ident">size</span>)
-	}
-}
 
 <span class="doccomment">/// Allocates an amount of contract storage.</span>
 <span class="doccomment">///</span>
@@ -101,8 +89,12 @@
 }
 
 <span class="macro">lazy_static</span><span class="macro">!</span> {
-	<span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">STORAGE_ALLOC</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">StorageAlloc</span><span class="op">&gt;</span> <span class="op">=</span> {
-		<span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">StorageAlloc</span>::<span class="ident">default</span>())
+	<span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">STORAGE_ALLOC</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">ForwardAlloc</span><span class="op">&gt;</span> <span class="op">=</span> {
+		<span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="kw">unsafe</span> {
+			<span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(
+				<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>])
+			)
+		})
 	};
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">TWEETS_KEY</span>: <span class="ident">Key</span> <span class="op">=</span> {
 		<span class="ident">alloc</span>(<span class="number">1</span>)

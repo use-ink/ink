@@ -261,32 +261,6 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Utilities to operate on byte or slices of bytes.</span>
 
@@ -373,32 +347,6 @@
 	}
 }
 
-<span class="doccomment">/// Adds the `u32` to the given byte slice.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This interprets the byte slice as twos-complement number.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the byte slice is not at least 4 byte long.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bytes_add_u32</span>(<span class="ident">lhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>], <span class="ident">rhs</span>: <span class="ident">u32</span>) {
-	<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">lhs</span>.<span class="ident">len</span>() <span class="op">&gt;=</span> <span class="number">4</span>);
-	<span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lhs</span>.<span class="ident">len</span>();
-	<span class="ident">bytes_add_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lhs</span>[(<span class="ident">len</span><span class="op">-</span><span class="number">4</span>)..<span class="ident">len</span>], <span class="kw-2">&amp;</span><span class="ident">u32_to_bytes4</span>(<span class="ident">rhs</span>))
-}
-
-<span class="doccomment">/// Adds the `u64` to the given byte slice.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This interprets the byte slice as twos-complement number.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the byte slice is not at least 8 byte long.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bytes_add_u64</span>(<span class="ident">lhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>], <span class="ident">rhs</span>: <span class="ident">u64</span>) {
-	<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">lhs</span>.<span class="ident">len</span>() <span class="op">&gt;=</span> <span class="number">8</span>);
-	<span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lhs</span>.<span class="ident">len</span>();
-	<span class="ident">bytes_add_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lhs</span>[(<span class="ident">len</span><span class="op">-</span><span class="number">8</span>)..<span class="ident">len</span>], <span class="kw-2">&amp;</span><span class="ident">u64_to_bytes8</span>(<span class="ident">rhs</span>))
-}
-
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">primitives_impl</span> {
 	( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prim</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes_to_prim</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prim_to_bytes</span>:<span class="ident">ident</span> ) <span class="op">=&gt;</span> {
 		<span class="doccomment">/// Converts the byte array to the primitive number.</span>
@@ -471,45 +419,45 @@
 		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">slice4_as_array4</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]), <span class="prelude-val">None</span>);
 	}
 
-	<span class="attribute">#[<span class="ident">test</span>]</span>
-	<span class="kw">fn</span> <span class="ident">test_bytes_add_u32</span>() {
-		<span class="kw">fn</span> <span class="ident">test_for</span>(<span class="ident">lhs</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">rhs</span>: <span class="ident">u32</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-			<span class="kw">fn</span> <span class="ident">bytes_add_u32_copy</span>(<span class="ident">lhs</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">rhs</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">lhs</span>.<span class="ident">to_vec</span>();
-				<span class="ident">bytes_add_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>, <span class="ident">rhs</span>);
-				<span class="ident">buf</span>
-			}
-			<span class="macro">assert_eq</span><span class="macro">!</span>(
-				<span class="ident">bytes_add_u32_copy</span>(<span class="ident">lhs</span>, <span class="ident">rhs</span>).<span class="ident">as_slice</span>(),
-				<span class="ident">expected</span>
-			)
-		}
-		<span class="ident">test_for</span>(
-			<span class="kw-2">&amp;</span>[<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>],
-			<span class="number">0x00</span>,
-			<span class="kw-2">&amp;</span>[<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>],
-		);
-		<span class="ident">test_for</span>(
-			<span class="kw-2">&amp;</span>[<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>],
-			<span class="number">0x42</span>,
-			<span class="kw-2">&amp;</span>[<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x42</span>],
-		);
-		<span class="ident">test_for</span>(
-			<span class="kw-2">&amp;</span>[<span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>],
-			<span class="number">0x01</span>,
-			<span class="kw-2">&amp;</span>[<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>],
-		);
-		<span class="ident">test_for</span>(
-			<span class="kw-2">&amp;</span>[<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>],
-			<span class="number">0xFF_FF_FF_FF</span>,
-			<span class="kw-2">&amp;</span>[<span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>],
-		);
-		<span class="ident">test_for</span>(
-			<span class="kw-2">&amp;</span>[<span class="number">0x12</span>, <span class="number">0x34</span>, <span class="number">0x56</span>, <span class="number">0x78</span>],
-			<span class="number">0x9A_BC_DE_F0</span>,
-			<span class="kw-2">&amp;</span>[<span class="number">0xAC</span>, <span class="number">0xF1</span>, <span class="number">0x35</span>, <span class="number">0x68</span>],
-		);
-	}
+	<span class="comment">// #[test]</span>
+	<span class="comment">// fn test_bytes_add_u32() {</span>
+	<span class="comment">// 	fn test_for(lhs: &amp;[u8], rhs: u32, expected: &amp;[u8]) {</span>
+	<span class="comment">// 		fn bytes_add_u32_copy(lhs: &amp;[u8], rhs: u32) -&gt; Vec&lt;u8&gt; {</span>
+	<span class="comment">// 			let mut buf = lhs.to_vec();</span>
+	<span class="comment">// 			bytes_add_u32(&amp;mut buf, rhs);</span>
+	<span class="comment">// 			buf</span>
+	<span class="comment">// 		}</span>
+	<span class="comment">// 		assert_eq!(</span>
+	<span class="comment">// 			bytes_add_u32_copy(lhs, rhs).as_slice(),</span>
+	<span class="comment">// 			expected</span>
+	<span class="comment">// 		)</span>
+	<span class="comment">// 	}</span>
+	<span class="comment">// 	test_for(</span>
+	<span class="comment">// 		&amp;[0x00, 0x00, 0x00, 0x00],</span>
+	<span class="comment">// 		0x00,</span>
+	<span class="comment">// 		&amp;[0x00, 0x00, 0x00, 0x00],</span>
+	<span class="comment">// 	);</span>
+	<span class="comment">// 	test_for(</span>
+	<span class="comment">// 		&amp;[0x00, 0x00, 0x00, 0x00],</span>
+	<span class="comment">// 		0x42,</span>
+	<span class="comment">// 		&amp;[0x00, 0x00, 0x00, 0x42],</span>
+	<span class="comment">// 	);</span>
+	<span class="comment">// 	test_for(</span>
+	<span class="comment">// 		&amp;[0xFF, 0xFF, 0xFF, 0xFF],</span>
+	<span class="comment">// 		0x01,</span>
+	<span class="comment">// 		&amp;[0x00, 0x00, 0x00, 0x00],</span>
+	<span class="comment">// 	);</span>
+	<span class="comment">// 	test_for(</span>
+	<span class="comment">// 		&amp;[0x00, 0x00, 0x00, 0x00],</span>
+	<span class="comment">// 		0xFF_FF_FF_FF,</span>
+	<span class="comment">// 		&amp;[0xFF, 0xFF, 0xFF, 0xFF],</span>
+	<span class="comment">// 	);</span>
+	<span class="comment">// 	test_for(</span>
+	<span class="comment">// 		&amp;[0x12, 0x34, 0x56, 0x78],</span>
+	<span class="comment">// 		0x9A_BC_DE_F0,</span>
+	<span class="comment">// 		&amp;[0xAC, 0xF1, 0x35, 0x68],</span>
+	<span class="comment">// 	);</span>
+	<span class="comment">// }</span>
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">u32_and_bytes_conv</span>() {
