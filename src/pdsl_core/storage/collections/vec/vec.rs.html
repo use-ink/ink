@@ -349,7 +349,7 @@
 	},
 };
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::{
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::{
 	<span class="ident">ExactSizeIterator</span>,
 	<span class="ident">DoubleEndedIterator</span>,
 };
@@ -666,7 +666,7 @@
 	}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
 	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Codec</span>
 {
