@@ -66,6 +66,7 @@ pub mod cell;
 pub mod chunk;
 mod collections;
 mod setup;
+mod value;
 
 use self::non_clone::NonCloneMarker;
 
@@ -94,3 +95,6 @@ pub use self::{
 
 #[doc(inline)]
 pub use self::alloc::Allocator;
+
+#[doc(inline)]
+pub use self::value::Value;
