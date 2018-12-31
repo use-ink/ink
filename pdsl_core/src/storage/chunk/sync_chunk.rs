@@ -9,12 +9,12 @@ use crate::{
 	},
 };
 
+use core::cell::RefCell;
 use std::{
 	collections::{
 		HashMap,
 		hash_map::Entry,
 	},
-	cell::RefCell
 };
 
 /// A chunk of synchronized cells.

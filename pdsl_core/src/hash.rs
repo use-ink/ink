@@ -2,7 +2,7 @@
 
 use tiny_keccak;
 
-use std::hash::{
+use core::hash::{
 	Hash,
 	Hasher,
 };

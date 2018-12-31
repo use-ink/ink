@@ -7,8 +7,8 @@ use crate::storage::{
 };
 use crate::hash;
 
-use std::borrow::Borrow;
-use std::hash::Hash;
+use core::borrow::Borrow;
+use core::hash::Hash;
 
 /// Mapping stored in the contract storage.
 ///

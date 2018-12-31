@@ -6,7 +6,7 @@ use crate::{
 	},
 };
 
-use std::cell::RefCell;
+use core::cell::RefCell;
 
 /// A synchronized cell.
 ///

@@ -1,6 +1,6 @@
 use parity_codec_derive::{Encode, Decode};
 
-use std::marker::PhantomData;
+use core::marker::PhantomData;
 
 /// Marks types as non-`Copy` and non-`Clone`.
 ///

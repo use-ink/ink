@@ -1,6 +1,6 @@
 //! Utilities to operate on byte or slices of bytes.
 
-use std::mem::size_of;
+use core::mem::size_of;
 
 /// Add byte to the given byte slice.
 ///
@@ -54,7 +54,7 @@ macro_rules! impl_slice_as_array {
 				return None
 			}
 			Some(unsafe {
-				std::mem::transmute::<*const T, &[T; $n]>(slice.as_ptr())
+				core::mem::transmute::<*const T, &[T; $n]>(slice.as_ptr())
 			})
 		}
 	};

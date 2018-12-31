@@ -7,7 +7,7 @@ use crate::{
 	},
 };
 
-use std::iter::{
+use core::iter::{
 	ExactSizeIterator,
 	DoubleEndedIterator,
 };
@@ -324,7 +324,7 @@ where
 	}
 }
 
-impl<T> std::ops::Index<u32> for Vec<T>
+impl<T> core::ops::Index<u32> for Vec<T>
 where
 	T: parity_codec::Codec
 {
