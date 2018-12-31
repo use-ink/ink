@@ -6,6 +6,8 @@ use crate::{
 	},
 };
 
+use parity_codec_derive::{Encode, Decode};
+
 // Missing traits:
 //
 // - DerefMut
@@ -25,7 +27,7 @@ use crate::{
 /// For assigning new values or mutating the value inside of it either use
 /// [`set`](struct.Value.html#method.set) or
 /// [`mutate_with`](struct.Value.html#method.mutate_with).
-#[derive(Debug)]
+#[derive(Debug, Encode, Decode)]
 pub struct Value<T> {
 	/// The cell of the storage value.
 	cell: SyncCell<T>,
