@@ -74,17 +74,6 @@ impl Key {
 		key + offset
 	}
 
-	/// Create a new key from another given key with given chunk offset.
-	///
-	/// # Note
-	///
-	/// A chunk offset is an offset that is a multiple of the chunk size.
-	/// The chunk size is 2^32.
-	pub fn with_chunk_offset(key: Key, offset: u32) -> Self {
-		let chunk_offset: u64 = (1 << 32) * (offset as u64);
-		key + chunk_offset
-	}
-
 	/// Returns the byte slice of this key.
 	pub fn as_bytes(&self) -> &[u8] {
 		&self.0

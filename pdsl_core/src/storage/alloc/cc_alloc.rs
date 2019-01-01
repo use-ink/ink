@@ -146,7 +146,8 @@ impl CellChunkAlloc {
 	///
 	/// The reverse of `key_to_chunk_index`.
 	fn chunk_index_to_key(&self, index: u32) -> Key {
-		Key::with_chunk_offset(self.chunks_offset_key(), index)
+		let chunk_offset: u64 = (1 << 32) * (index as u64);
+		self.chunks_offset_key() + chunk_offset
 	}
 
 	/// Converts keys to chunk indices.

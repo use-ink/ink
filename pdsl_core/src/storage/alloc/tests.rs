@@ -20,14 +20,14 @@ fn simple() {
 	// Cell allocations
 	for i in 0..5 {
 		cell_allocs[i] = alloc.alloc(1);
-		assert_eq!(cell_allocs[i], Key::with_offset(cells_entries, i as u32));
+		assert_eq!(cell_allocs[i], cells_entries + (i as u32));
 	}
 
 	// Chunk allocations
 	let alloc_sizes = &[10, u32::max_value(), 1337, 2, 9999_9999];
 	for (i, &size) in alloc_sizes.into_iter().enumerate() {
 		chunk_allocs[i] = alloc.alloc(size);
-		assert_eq!(chunk_allocs[i], Key::with_chunk_offset(chunks_entries, i as u32));
+		assert_eq!(chunk_allocs[i], chunks_entries + ((1 << 32) * (i as u64)));
 	}
 
 	// Deallocate first cell again
