@@ -4,23 +4,27 @@ use core::mem::size_of;
 
 /// Add byte to the given byte slice.
 ///
-/// The byte slice as well as the byte are interpreted
-/// as twos-complement numbers.
+/// Returns `true` if there was an overflow.
 ///
 /// # Note
 ///
-/// This computes the result inplace of the byte slice.
-fn bytes_add_byte(lhs: &mut [u8], rhs: u8) {
+/// For this the byte slices are interpreted as twos-complement numbers.
+///
+/// # Panics
+///
+/// If `lhs` is an empty slice.
+fn bytes_add_byte(lhs: &mut [u8], rhs: u8) -> bool {
 	assert!(lhs.len() >= 1);
 	let mut carry = rhs;
 	for lhs in lhs.into_iter().rev() {
 		if carry == 0 {
-			return
+			return false
 		}
 		let (res, ovfl) = lhs.overflowing_add(carry);
 		*lhs = res;
 		carry = u8::from(ovfl);
 	}
+	if carry == 0 { false } else { true }
 }
 
 /// Flips all bytes in the byte slice inplace.
