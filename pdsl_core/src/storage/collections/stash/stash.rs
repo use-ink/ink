@@ -1,4 +1,5 @@
 use crate::storage::{
+	self,
 	Key,
 	cell::SyncCell,
 	chunk::SyncChunk,
@@ -30,16 +31,16 @@ use parity_codec_derive::{Encode, Decode};
 #[derive(Debug)]
 pub struct Stash<T> {
 	/// The latest vacant index.
-	next_vacant: SyncCell<u32>,
+	next_vacant: storage::Value<u32>,
 	/// The number of items stored in the stash.
 	///
 	/// # Note
 	///
 	/// We cannot simply use the underlying length of the vector
 	/// since it would include vacant slots as well.
-	len: SyncCell<u32>,
+	len: storage::Value<u32>,
 	/// The maximum length the stash ever had.
-	max_len: SyncCell<u32>,
+	max_len: storage::Value<u32>,
 	/// The entries of the stash.
 	entries: SyncChunk<Entry<T>>,
 }
@@ -192,9 +193,9 @@ impl<T> parity_codec::Encode for Stash<T> {
 
 impl<T> parity_codec::Decode for Stash<T> {
 	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
-		let next_vacant = SyncCell::decode(input)?;
-		let len = SyncCell::decode(input)?;
-		let max_len = SyncCell::decode(input)?;
+		let next_vacant = storage::Value::decode(input)?;
+		let len = storage::Value::decode(input)?;
+		let max_len = storage::Value::decode(input)?;
 		let entries = SyncChunk::decode(input)?;
 		Some(Self{next_vacant, len, max_len, entries})
 	}
@@ -219,9 +220,9 @@ impl<T> Stash<T> {
 		entries_key: Key
 	) -> Self {
 		Self{
-			next_vacant: SyncCell::new_unchecked(next_key),
-			len: SyncCell::new_unchecked(len_key),
-			max_len: SyncCell::new_unchecked(max_len_key),
+			next_vacant: storage::Value::from_raw_parts(next_key),
+			len: storage::Value::from_raw_parts(len_key),
+			max_len: storage::Value::from_raw_parts(max_len_key),
 			entries: SyncChunk::new_unchecked(entries_key),
 		}
 	}
@@ -237,9 +238,9 @@ impl<T> Stash<T> {
 		A: Allocator
 	{
 		Self{
-			next_vacant: SyncCell::new_using_alloc(alloc),
-			len: SyncCell::new_using_alloc(alloc),
-			max_len: SyncCell::new_using_alloc(alloc),
+			next_vacant: storage::Value::new_using_alloc(alloc, 0),
+			len: storage::Value::new_using_alloc(alloc, 0),
+			max_len: storage::Value::new_using_alloc(alloc, 0),
 			entries: SyncChunk::new_using_alloc(alloc),
 		}
 	}
@@ -278,13 +279,13 @@ impl<T> Stash<T> {
 
 	/// Returns the number of elements stored in the stash.
 	pub fn len(&self) -> u32 {
-		*self.len.get().unwrap_or(&0)
+		*self.len.get()
 	}
 
 	/// Returns the maximum number of element stored in the
 	/// stash at the same time.
 	pub fn max_len(&self) -> u32 {
-		*self.max_len.get().unwrap_or(&0)
+		*self.max_len.get()
 	}
 
 	/// Returns `true` if the stash contains no elements.
@@ -294,7 +295,7 @@ impl<T> Stash<T> {
 
 	/// Returns the next vacant index.
 	fn next_vacant(&self) -> u32 {
-		*self.next_vacant.get().unwrap_or(&0)
+		*self.next_vacant.get()
 	}
 
 }
@@ -320,8 +321,7 @@ where
 	pub fn put(&mut self, val: T) -> u32 {
 		let current_vacant = *self
 			.next_vacant
-			.get()
-			.unwrap_or(&0);
+			.get();
 		debug_assert!(current_vacant <= self.len());
 		if current_vacant == self.len() {
 			self.entries.set(current_vacant, Entry::Occupied(val));

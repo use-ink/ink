@@ -1,18 +1,11 @@
 use crate::storage::{Key, Stash};
 
-const NEXT_VACANT_KEY: Key = Key([0x0; 32]);
-const LEN_KEY: Key = Key([0x1; 32]);
-const LEN_MAX_KEY: Key = Key([0x2; 32]);
-const ENTRIES_KEY: Key = Key([0x3; 32]);
-
 fn empty_stash() -> Stash<i32> {
 	unsafe {
-		Stash::new_unchecked(
-			NEXT_VACANT_KEY,
-			LEN_KEY,
-			LEN_MAX_KEY,
-			ENTRIES_KEY,
-		)
+		let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+			Key([0x0; 32])
+		);
+		Stash::new_using_alloc(&mut alloc)
 	}
 }
 
