@@ -23,10 +23,11 @@ pub struct Key(pub [u8; 32]);
 impl Key {
 	/// Create a new key from another given key with given offset.
 	pub fn with_offset(key: Key, offset: u32) -> Self {
-		let mut result = key.clone();
-		let mut by_array = [0x0; 32];
-		(&mut by_array[28..32]).copy_from_slice(&byte_utils::u32_to_bytes4(offset));
-		byte_utils::bytes_add_bytes(result.as_bytes_mut(), &by_array);
+		let mut result = key;
+		byte_utils::bytes_add_bytes(
+			result.as_bytes_mut(),
+			&byte_utils::u32_to_bytes4(offset)
+		);
 		result
 	}
 
@@ -37,12 +38,13 @@ impl Key {
 	/// A chunk offset is an offset that is a multiple of the chunk size.
 	/// The chunk size is 2^32.
 	pub fn with_chunk_offset(key: Key, offset: u32) -> Self {
-		let mut result = key.clone();
-		let mut by_array = [0x0; 32];
-		(&mut by_array[24..32]).copy_from_slice(&byte_utils::u64_to_bytes8(
-			(1 << 32) * (offset as u64)
-		));
-		byte_utils::bytes_add_bytes(result.as_bytes_mut(), &by_array);
+		let mut result = key;
+		byte_utils::bytes_add_bytes(
+			result.as_bytes_mut(),
+			&byte_utils::u64_to_bytes8(
+				(1 << 32) * (offset as u64)
+			)
+		);
 		result
 	}
 
