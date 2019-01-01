@@ -201,15 +201,15 @@ impl<T> parity_codec::Decode for Stash<T> {
 }
 
 impl<T> Stash<T> {
-	/// Creates a new storage vector for the given key.
+	/// Creates a new storage stash for the given key.
 	///
 	/// # Safety
 	///
 	/// This is an inherently unsafe operation since it does not check
-	/// for the storage vector's invariances, such as
+	/// for the storage stash's invariances, such as
 	///
 	/// - Is the storage region determined by the given key aliasing?
-	/// - Is the storage region correctly formatted to be used as storage vec?
+	/// - Is the storage region correctly formatted to be used as storage stash?
 	///
 	/// Users should not use this routine directly if possible.
 	pub unsafe fn new_unchecked(
@@ -226,7 +226,7 @@ impl<T> Stash<T> {
 		}
 	}
 
-	/// Allocates a new storage hash map using the given storage allocator.
+	/// Allocates a new storage stash using the given storage allocator.
 	///
 	/// # Safety
 	///
