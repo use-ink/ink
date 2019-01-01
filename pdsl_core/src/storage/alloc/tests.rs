@@ -4,44 +4,15 @@ use super::*;
 fn simple() {
 	use crate::storage;
 
-	let cells_next_vacant = Key(
-		[
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		]
-	);
-	let cells_len = Key::with_offset(cells_next_vacant, 1);
-	let cells_len_max = Key::with_offset(cells_next_vacant, 1);
-	let cells_entries = Key::with_offset(cells_len_max, u32::max_value());
-	let chunks_next_vacant = Key(
-		[
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		]
-	);
-	let chunks_len = Key::with_offset(chunks_next_vacant, 1);
-	let chunks_len_max = Key::with_offset(chunks_len, 1);
-	let chunks_entries = Key::with_offset(chunks_len_max, u32::max_value());
 	let mut alloc = unsafe {
-		CellChunkAlloc::from_raw_parts(
-			storage::Stash::new_unchecked(
-				cells_next_vacant,
-				cells_len,
-				cells_len_max,
-				cells_entries,
-			),
-			storage::Stash::new_unchecked(
-				chunks_next_vacant,
-				chunks_len,
-				chunks_len_max,
-				chunks_entries,
-			),
-		)
+		let mut fw_alloc = storage::alloc::ForwardAlloc::from_raw_parts(
+			Key([0x0; 32])
+		);
+		storage::alloc::CellChunkAlloc::new_using_alloc(&mut fw_alloc)
 	};
+
+	let cells_entries = alloc.cells_offset_key();
+	let chunks_entries = alloc.chunks_offset_key();
 
 	let mut cell_allocs = [Key([0; 32]); 5];
 	let mut chunk_allocs = [Key([0; 32]); 5];

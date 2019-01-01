@@ -27,20 +27,42 @@ pub struct CellChunkAlloc {
 	cells: storage::Stash<()>,
 	/// Allocator stash for cell chunks.
 	chunks: storage::Stash<()>,
+	/// Cells key offset.
+	cells_off: storage::Key,
+	/// Chunks key offset.
+	chunks_off: storage::Key,
 }
 
 impl CellChunkAlloc {
-	/// Creates a new cell and chunks allocator for the given raw parts.
+	/// Creates a new cell & chunks allocator using the given allocator.
 	///
 	/// # Note
 	///
-	/// Do not use this directly!
-	/// This is meant to be used by pDSL internals only.
-	pub unsafe fn from_raw_parts(
-		cells: storage::Stash<()>,
-		chunks: storage::Stash<()>,
-	) -> Self {
-		Self{cells, chunks}
+	/// At first it might seem strange to initialize the one allocator
+	/// with another. Normally a `CellChunkAllocator` should be allocated
+	/// using a `ForwardAllocator`. The `ForwardAllocator` cannot be
+	/// stored in the contract storage and is not useful for dynamic
+	/// memory allocations but only for compile time allocations. The
+	/// `CellChunkAllocator`, however, is made especially for the purpose
+	/// of dynamic contract storage allocations and can and should be itself
+	/// stored in the contract storage.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: storage::Allocator
+	{
+		Self {
+			cells: storage::Stash::new_using_alloc(alloc),
+			chunks: storage::Stash::new_using_alloc(alloc),
+			cells_off: alloc.alloc(u32::max_value()),
+			chunks_off:
+				// We need `u64::max_value()` here.
+				// This depends on work on the Key API
+				// to allow for `std::ops::Add<u64>`.
+				//
+				// As first iteration this should suffice our needs
+				// as long as we allocate the `CellChunkAlloc` at last.
+				alloc.alloc(u32::max_value()),
+		}
 	}
 
 	/// Returns the key to the first cell allocation.
@@ -49,8 +71,8 @@ impl CellChunkAlloc {
 	///
 	/// This key is then used to determine the key for every
 	/// other cell allocation using its allocation index.
-	fn cells_offset_key(&self) -> Key {
-		self.cells.entries_key()
+	pub(crate) fn cells_offset_key(&self) -> Key {
+		self.cells_off
 	}
 
 	/// Returns the key to the first chunk allocation.
@@ -59,8 +81,8 @@ impl CellChunkAlloc {
 	///
 	/// This key is then used to determine the key for every
 	/// other chunk allocation using its allocation index.
-	fn chunks_offset_key(&self) -> Key {
-		self.chunks.entries_key()
+	pub(crate) fn chunks_offset_key(&self) -> Key {
+		self.chunks_off
 	}
 
 	/// Allocates a new storage region that fits for a single cell.
