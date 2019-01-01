@@ -10,22 +10,16 @@ use core::mem::size_of;
 /// # Note
 ///
 /// This computes the result inplace of the byte slice.
-fn bytes_add_byte(bytes: &mut [u8], byte: u8) {
-	assert!(bytes.len() >= 1);
-	let len = bytes.len();
-	let (res, ovfl) = bytes[len-1].overflowing_add(byte);
-	bytes[len-1] = res;
-	let mut carry = u8::from(ovfl);
-	if carry == 0 {
-		return
-	}
-	for i in (0..(len-1)).into_iter().rev() {
-		let (res, ovfl) = bytes[i].overflowing_add(carry);
-		bytes[i] = res;
-		carry = u8::from(ovfl);
+fn bytes_add_byte(lhs: &mut [u8], rhs: u8) {
+	assert!(lhs.len() >= 1);
+	let mut carry = rhs;
+	for lhs in lhs.into_iter().rev() {
 		if carry == 0 {
 			return
 		}
+		let (res, ovfl) = lhs.overflowing_add(carry);
+		*lhs = res;
+		carry = u8::from(ovfl);
 	}
 }
 
