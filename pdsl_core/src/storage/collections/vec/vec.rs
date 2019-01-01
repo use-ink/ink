@@ -1,7 +1,7 @@
 use crate::{
 	storage::{
+		self,
 		Key,
-		cell::SyncCell,
 		chunk::SyncChunk,
 		Allocator,
 	},
@@ -29,7 +29,7 @@ use core::iter::{
 #[derive(Debug)]
 pub struct Vec<T> {
 	/// The length of the vector.
-	len: SyncCell<u32>,
+	len: storage::Value<u32>,
 	/// The synchronized cells to operate on the contract storage.
 	cells: SyncChunk<T>,
 }
@@ -107,7 +107,7 @@ impl<T> parity_codec::Encode for Vec<T> {
 
 impl<T> parity_codec::Decode for Vec<T> {
 	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
-		let len = SyncCell::decode(input)?;
+		let len = storage::Value::decode(input)?;
 		let cells = SyncChunk::decode(input)?;
 		Some(Self{len, cells})
 	}
@@ -127,7 +127,7 @@ impl<T> Vec<T> {
 	/// Users should not use this routine directly if possible.
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
-			len: SyncCell::new_unchecked(key),
+			len: storage::Value::from_raw_parts(key),
 			cells: SyncChunk::new_unchecked(Key::with_offset(key, 1)),
 		}
 	}
@@ -143,14 +143,14 @@ impl<T> Vec<T> {
 		A: Allocator
 	{
 		Self{
-			len: SyncCell::new_using_alloc(alloc),
+			len: storage::Value::new_using_alloc(alloc, 0),
 			cells: SyncChunk::new_using_alloc(alloc),
 		}
 	}
 
 	/// Returns the number of elements in the vector, also referred to as its 'length'.
 	pub fn len(&self) -> u32 {
-		*self.len.get().unwrap_or(&0)
+		*self.len.get()
 	}
 
 	/// Returns `true` if the vector contains no elements.

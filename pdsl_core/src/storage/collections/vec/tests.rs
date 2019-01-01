@@ -4,9 +4,11 @@ use crate::storage;
 use crate::storage::Key;
 
 /// Returns an empty storage vector at address `0x42`.
-fn new_empty_vec() -> storage::Vec<i32> {
+fn new_empty_vec<T>() -> storage::Vec<T> {
+	use crate::storage::alloc::ForwardAlloc;
 	unsafe {
-		Vec::<i32>::new_unchecked(Key([0x42; 32]))
+		let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+		Vec::<T>::new_using_alloc(&mut fw_alloc)
 	}
 }
 
@@ -24,10 +26,19 @@ fn new_filled_vec() -> storage::Vec<i32> {
 }
 
 #[test]
-fn new_unchecked() {
-	let vec = 	unsafe {
+#[should_panic]
+fn new_unchecked_uninit() {
+	let vec = unsafe {
 		Vec::<i32>::new_unchecked(Key([0x42; 32]))
 	};
+	assert_eq!(vec.len(), 0);
+	// assert_eq!(vec.is_empty(), true);
+	// assert_eq!(vec.iter().next(), None);
+}
+
+#[test]
+fn init() {
+	let vec = new_empty_vec::<i32>();
 	assert_eq!(vec.len(), 0);
 	assert_eq!(vec.is_empty(), true);
 	assert_eq!(vec.iter().next(), None);
@@ -51,7 +62,7 @@ fn simple() {
 
 #[test]
 fn pop_empty() {
-	let mut vec = new_empty_vec();
+	let mut vec = new_empty_vec::<i32>();
 	assert_eq!(vec.len(), 0);
 	assert_eq!(vec.pop(), None);
 	assert_eq!(vec.len(), 0);
@@ -102,9 +113,7 @@ fn index() {
 #[test]
 fn index_comp() {
 	let vec = {
-		let mut vec = unsafe {
-			Vec::new_unchecked(Key([0x42; 32]))
-		};
+		let mut vec = new_empty_vec();
 		vec.push(String::from("Hello"));
 		vec.push(String::from(", "));
 		vec.push(String::from("World!"));
@@ -131,7 +140,7 @@ fn index_fail_1() {
 #[test]
 #[should_panic]
 fn index_fail_2() {
-	let vec = new_empty_vec();
+	let vec = new_empty_vec::<i32>();
 	vec[0];
 }
 
@@ -195,7 +204,7 @@ fn swap_remove() {
 
 #[test]
 fn swap_remove_empty() {
-	let mut vec = new_empty_vec();
+	let mut vec = new_empty_vec::<i32>();
 	assert_eq!(vec.swap_remove(0), None);
 }
 
