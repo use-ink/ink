@@ -126,7 +126,7 @@ impl RawChunk {
 	///
 	/// Returns an error if `n` is not within bounds.
 	fn offset_key(&self, n: u32) -> Key {
-		Key::with_offset(self.key, n)
+		self.key + n
 	}
 
 	/// Returns an accessor to the `n`-th cell.
@@ -138,7 +138,7 @@ impl RawChunk {
 
 	/// Loads the bytes stored in the `n`-th cell.
 	pub fn load(&self, n: u32) -> Option<Vec<u8>> {
-		ContractEnv::load(Key::with_offset(self.key, n))
+		ContractEnv::load(self.key + n)
 	}
 
 	/// Stores the given bytes into the `n`-th cell.

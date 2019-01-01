@@ -121,7 +121,7 @@ impl CellChunkAlloc {
 	///
 	/// The reverse of `key_to_cell_index`.
 	fn cell_index_to_key(&self, index: u32) -> Key {
-		Key::with_offset(self.cells_offset_key(), index)
+		self.cells_offset_key() + index
 	}
 
 	/// Converts keys to cell indices.

@@ -100,7 +100,7 @@ impl<K, V> HashMap<K, V> {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			len: storage::Value::from_raw_parts(key),
-			entries: SyncChunk::new_unchecked(Key::with_offset(key, 1)),
+			entries: SyncChunk::new_unchecked(key + 1_u32),
 		}
 	}
 

@@ -69,11 +69,6 @@ impl core::ops::AddAssign<u64> for Key {
 }
 
 impl Key {
-	/// Create a new key from another given key with given offset.
-	pub fn with_offset(key: Key, offset: u32) -> Self {
-		key + offset
-	}
-
 	/// Returns the byte slice of this key.
 	pub fn as_bytes(&self) -> &[u8] {
 		&self.0
@@ -104,9 +99,9 @@ mod tests {
 	#[test]
 	fn key_with_offset() {
 		let key00 = Key([0x0; 32]);
-		let key05 = Key::with_offset(key00, 5);  // -> 5
-		let key10 = Key::with_offset(key00, 10); // -> 10         | same as key55
-		let key55 = Key::with_offset(key05, 5);  // -> 5 + 5 = 10 | same as key10
+		let key05 = key00 + 5_u32;  // -> 5
+		let key10 = key00 + 10_u32; // -> 10         | same as key55
+		let key55 = key05 + 5_u32;  // -> 5 + 5 = 10 | same as key10
 		ContractEnv::store(key55, &[42]);
 		assert_eq!(ContractEnv::load(key10), Some(vec![42]));
 		ContractEnv::store(key10, &[13, 37]);

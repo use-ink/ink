@@ -34,7 +34,7 @@ impl ForwardAlloc {
 
 	/// Increase the forward alloc offset key by the given amount.
 	fn inc_offset_key(&mut self, by: u32) {
-		self.offset_key = Key::with_offset(self.offset_key, by);
+		self.offset_key += by;
 	}
 }
 
@@ -75,14 +75,14 @@ mod tests {
 		let mut fw_alloc = unsafe {
 			ForwardAlloc::from_raw_parts(offset_key)
 		};
-		assert_eq!(fw_alloc.alloc(1), Key::with_offset(offset_key, 0));
-		assert_eq!(fw_alloc.alloc(10), Key::with_offset(offset_key, 1));
-		assert_eq!(fw_alloc.alloc(u16::max_value() as u32), Key::with_offset(offset_key, 11));
-		assert_eq!(fw_alloc.alloc(2), Key::with_offset(offset_key, 0x1000A));
-		assert_eq!(fw_alloc.alloc(1), Key::with_offset(offset_key, 0x1000C));
+		assert_eq!(fw_alloc.alloc(1), offset_key + 0_u32);
+		assert_eq!(fw_alloc.alloc(10), offset_key + 1_u32);
+		assert_eq!(fw_alloc.alloc(u16::max_value() as u32), offset_key + 11_u32);
+		assert_eq!(fw_alloc.alloc(2), offset_key + 0x1000A_u32);
+		assert_eq!(fw_alloc.alloc(1), offset_key + 0x1000C_u32);
 		assert_eq!(
 			fw_alloc.alloc(u32::max_value()),
-			Key::with_offset(offset_key, 0x1000D),
+			offset_key + 0x1000D_u32,
 		);
 		assert_eq!(
 			fw_alloc.alloc(1),
@@ -113,7 +113,7 @@ mod tests {
 			ForwardAlloc::from_raw_parts(offset_key)
 		};
 		let allocated_key = fw_alloc.alloc(1);
-		assert_eq!(allocated_key, Key::with_offset(offset_key, 0));
+		assert_eq!(allocated_key, offset_key + 0_u32);
 		fw_alloc.dealloc(allocated_key);
 	}
 }

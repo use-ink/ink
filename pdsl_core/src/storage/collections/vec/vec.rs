@@ -128,7 +128,7 @@ impl<T> Vec<T> {
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			len: storage::Value::from_raw_parts(key),
-			cells: SyncChunk::new_unchecked(Key::with_offset(key, 1)),
+			cells: SyncChunk::new_unchecked(key + 1_u32),
 		}
 	}
 
