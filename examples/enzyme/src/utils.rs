@@ -2,7 +2,6 @@ use pdsl_core::{
 	storage::{
 		Key,
 		alloc::{
-			Allocator,
 			ForwardAlloc,
 		},
 	},
@@ -16,14 +15,6 @@ use lazy_static::lazy_static;
 use std::sync::Mutex;
 
 pub type Address = [u8; 32];
-
-/// Allocates an amount of contract storage.
-///
-/// Doesn't actually touch the storage but keeps it from
-/// getting reused by another instance.
-pub fn alloc(size: u32) -> Key {
-	STORAGE_ALLOC.lock().unwrap().alloc(size)
-}
 
 /// Return current contract caller as 32-bytes array.
 pub fn caller_as_array() -> [u8; 32] {
@@ -41,13 +32,5 @@ lazy_static! {
 				Key([0x0; 32])
 			)
 		})
-	};
-	pub(crate) static ref TWEETS_KEY: Key = {
-		alloc(1)
-	};
-	pub(crate) static ref USERS_KEY: Key = {
-		let ret = alloc(1);
-		alloc(u32::max_value());
-		ret
 	};
 }
