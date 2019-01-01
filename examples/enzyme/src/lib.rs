@@ -5,8 +5,6 @@ mod tests;
 
 pub mod utils;
 
-use crate::utils::*;
-
 use pdsl_core::storage;
 use parity_codec_derive::{Encode, Decode};
 
@@ -37,23 +35,20 @@ pub struct UserData {
 }
 
 impl UserData {
-	/// Creates new user data with default data.
-	pub fn new() -> Self {
-		Self{
-			tweets: unsafe {
-				storage::Vec::new_unchecked({
-					let key = alloc(1);
-					alloc(u32::max_value());
-					key
-				})
-			},
-			following: unsafe {
-				storage::Vec::new_unchecked({
-					let key = alloc(1);
-					alloc(u32::max_value());
-					key
-				})
-			},
+	/// Creates new user data using the given allocator.
+	///
+	/// # Note
+	///
+	/// The `CellChunkAlloc` should be preferred here since
+	/// allocations of this type are dynamic. For this reason
+	/// the `Enzyme` type has a built-in `CellChunkAlloc`.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: storage::Allocator
+	{
+		Self {
+			tweets: storage::Vec::new_using_alloc(alloc),
+			following: storage::Vec::new_using_alloc(alloc),
 		}
 	}
 }
@@ -64,20 +59,41 @@ pub struct Enzyme {
 	tweets: storage::Vec<Tweet>,
 	/// Database of all registered users and their data.
 	users: storage::HashMap<String, UserData>,
+	/// The allocator for newly allocated entities.
+	alloc: storage::alloc::CellChunkAlloc,
 }
 
 impl Default for Enzyme {
 	fn default() -> Self {
 		unsafe {
-			Enzyme{
-				tweets: storage::Vec::new_unchecked(*TWEETS_KEY),
-				users: storage::HashMap::new_unchecked(*USERS_KEY),
-			}
+			use pdsl_core::storage::alloc::ForwardAlloc;
+			let mut alloc = ForwardAlloc::from_raw_parts(
+				pdsl_core::storage::Key([0x0; 32])
+			);
+			Enzyme::new_using_alloc(&mut alloc)
 		}
 	}
 }
 
 impl Enzyme {
+	/// Creates new enzyme platform using the given allocator.
+	///
+	/// # Note
+	///
+	/// The `ForwardAlloc` should be preferred here since there is
+	/// normally only one instance of this type and it can be registered
+	/// during contract compiĺe-time.
+	unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: pdsl_core::storage::Allocator
+	{
+		Self {
+			tweets: storage::Vec::new_using_alloc(alloc),
+			users: storage::HashMap::new_using_alloc(alloc),
+			alloc: storage::alloc::CellChunkAlloc::new_using_alloc(alloc),
+		}
+	}
+
 	/// Returns all recent global posts as vector.
 	pub(crate) fn recent_tweets(&self, amount: usize) -> Vec<Tweet> {
 		self
@@ -126,7 +142,8 @@ impl Enzyme {
 	/// Returns `true` if registration was successful.
 	pub fn register(&mut self, username: &str) -> bool {
 		if self.users.get(username).is_none() {
-			self.users.insert(username.into(), UserData::new());
+			let user_data = unsafe { UserData::new_using_alloc(&mut self.alloc) };
+			self.users.insert(username.into(), user_data);
 			return true
 		}
 		false
