@@ -35,7 +35,7 @@ pub fn caller_as_array() -> [u8; 32] {
 }
 
 lazy_static! {
-	static ref STORAGE_ALLOC: Mutex<ForwardAlloc> = {
+	pub(crate) static ref STORAGE_ALLOC: Mutex<ForwardAlloc> = {
 		Mutex::new(unsafe {
 			crate::utils::ForwardAlloc::from_raw_parts(
 				Key([0x0; 32])

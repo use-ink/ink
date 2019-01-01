@@ -66,11 +66,9 @@ pub struct Enzyme {
 impl Default for Enzyme {
 	fn default() -> Self {
 		unsafe {
-			use pdsl_core::storage::alloc::ForwardAlloc;
-			let mut alloc = ForwardAlloc::from_raw_parts(
-				pdsl_core::storage::Key([0x0; 32])
-			);
-			Enzyme::new_using_alloc(&mut alloc)
+			Enzyme::new_using_alloc(
+				&mut* utils::STORAGE_ALLOC.lock().unwrap()
+			)
 		}
 	}
 }
