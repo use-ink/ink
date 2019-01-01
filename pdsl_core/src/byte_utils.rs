@@ -68,18 +68,13 @@ impl_slice_as_array!(slice8_as_array8, 8);
 /// For this the byte slices are interpreted as twos-complement numbers.
 pub fn bytes_add_bytes(lhs: &mut [u8], rhs: &[u8]) {
 	assert_eq!(lhs.len(), rhs.len());
-	let len = lhs.len();
-	let (res, ovfl) = lhs[len-1].overflowing_add(rhs[len-1]);
-	lhs[len-1] = res;
-	let mut carry = u8::from(ovfl);
-	for (lhs, rhs) in lhs.into_iter().zip(rhs.into_iter()).rev().skip(1) {
-		let (temp_res, temp_carry1) = lhs.overflowing_add(carry);
-		let (     res, temp_carry2) = temp_res.overflowing_add(*rhs);
-		// Not both overflowing_add can result in a carry at the same time.
-		debug_assert!(!(temp_carry1 && temp_carry2));
-		*lhs = res;
-		carry = u8::from(temp_carry1) + u8::from(temp_carry2);
-		debug_assert!(carry <= 1);
+	let mut carry = 0;
+	for (lhs, rhs) in lhs.into_iter().zip(rhs.into_iter()).rev() {
+		let (res1, carry1) = lhs.overflowing_add(carry);
+		let (res2, carry2) = res1.overflowing_add(*rhs);
+		debug_assert!(!(carry1 && carry2));
+		*lhs = res2;
+		carry = u8::from(carry1 || carry2);
 	}
 }
 
@@ -155,45 +150,55 @@ mod tests {
 		assert_eq!(slice4_as_array4(&[1, 2, 3]), None);
 	}
 
-	// #[test]
-	// fn test_bytes_add_u32() {
-	// 	fn test_for(lhs: &[u8], rhs: u32, expected: &[u8]) {
-	// 		fn bytes_add_u32_copy(lhs: &[u8], rhs: u32) -> Vec<u8> {
-	// 			let mut buf = lhs.to_vec();
-	// 			bytes_add_u32(&mut buf, rhs);
-	// 			buf
-	// 		}
-	// 		assert_eq!(
-	// 			bytes_add_u32_copy(lhs, rhs).as_slice(),
-	// 			expected
-	// 		)
-	// 	}
-	// 	test_for(
-	// 		&[0x00, 0x00, 0x00, 0x00],
-	// 		0x00,
-	// 		&[0x00, 0x00, 0x00, 0x00],
-	// 	);
-	// 	test_for(
-	// 		&[0x00, 0x00, 0x00, 0x00],
-	// 		0x42,
-	// 		&[0x00, 0x00, 0x00, 0x42],
-	// 	);
-	// 	test_for(
-	// 		&[0xFF, 0xFF, 0xFF, 0xFF],
-	// 		0x01,
-	// 		&[0x00, 0x00, 0x00, 0x00],
-	// 	);
-	// 	test_for(
-	// 		&[0x00, 0x00, 0x00, 0x00],
-	// 		0xFF_FF_FF_FF,
-	// 		&[0xFF, 0xFF, 0xFF, 0xFF],
-	// 	);
-	// 	test_for(
-	// 		&[0x12, 0x34, 0x56, 0x78],
-	// 		0x9A_BC_DE_F0,
-	// 		&[0xAC, 0xF1, 0x35, 0x68],
-	// 	);
-	// }
+	#[test]
+	fn test_bytes_add_bytes() {
+		fn test_for(lhs: &[u8], rhs: &[u8], expected: &[u8]) {
+			fn bytes_add_bytes_copy(lhs: &[u8], rhs: &[u8]) -> Vec<u8> {
+				let mut lhs_vec = lhs.to_vec();
+				bytes_add_bytes(&mut lhs_vec, rhs);
+				lhs_vec
+			}
+			assert_eq!(
+				bytes_add_bytes_copy(lhs, rhs).as_slice(),
+				expected
+			);
+			// Changing lhs with rhs should not change the result.
+			assert_eq!(
+				bytes_add_bytes_copy(rhs, lhs).as_slice(),
+				expected
+			);
+		}
+		// 0 + 0 == 0
+		test_for(
+			&[0x00, 0x00, 0x00, 0x00],
+			&[0x00, 0x00, 0x00, 0x00],
+			&[0x00, 0x00, 0x00, 0x00],
+		);
+		// 0 + 0x42 == 0x42
+		test_for(
+			&[0x00, 0x00, 0x00, 0x00],
+			&[0x00, 0x00, 0x00, 0x42],
+			&[0x00, 0x00, 0x00, 0x42],
+		);
+		// u32::MAX + 1 == 0
+		test_for(
+			&[0xFF, 0xFF, 0xFF, 0xFF],
+			&[0x00, 0x00, 0x00, 0x01],
+			&[0x00, 0x00, 0x00, 0x00],
+		);
+		// 0 + u32::MAX == u32::MAX
+		test_for(
+			&[0x00, 0x00, 0x00, 0x00],
+			&[0xFF, 0xFF, 0xFF, 0xFF],
+			&[0xFF, 0xFF, 0xFF, 0xFF],
+		);
+		// 0x12345678 + 0x9ABCDEF0 = 0xACF13568
+		test_for(
+			&[0x12, 0x34, 0x56, 0x78],
+			&[0x9A, 0xBC, 0xDE, 0xF0],
+			&[0xAC, 0xF1, 0x35, 0x68],
+		);
+	}
 
 	#[test]
 	fn u32_and_bytes_conv() {
