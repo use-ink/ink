@@ -3,20 +3,25 @@ use crate::storage::{
 	Key,
 };
 
+fn new_empty<K, V>() -> storage::HashMap<K, V> {
+	unsafe {
+		let mut alloc = storage::alloc::ForwardAlloc::from_raw_parts(
+			Key([0x0; 32])
+		);
+		storage::HashMap::new_using_alloc(&mut alloc)
+	}
+}
+
 #[test]
 fn new_unchecked() {
-	let map = unsafe {
-		storage::HashMap::<u8, String>::new_unchecked(Key([0x77; 32]))
-	};
+	let map = new_empty::<u8, String>();
 	assert_eq!(map.len(), 0);
 	assert_eq!(map.is_empty(), true);
 }
 
 #[test]
 fn insert() {
-	let mut map = unsafe {
-		storage::HashMap::<String, String>::new_unchecked(Key([0x77; 32]))
-	};
+	let mut map = new_empty::<String, String>();
 	assert_eq!(map.len(), 0);
 	// Insert empty
 	assert_eq!(map.insert("1".into(), "Hello".into()), None);
@@ -32,9 +37,7 @@ fn insert() {
 
 #[test]
 fn contains() {
-	let mut map = unsafe {
-		storage::HashMap::<String, String>::new_unchecked(Key([0x77; 32]))
-	};
+	let mut map = new_empty::<String, String>();
 	// Inserts some elements
 	assert_eq!(map.insert("x".into(), "Anton".into()), None);
 	assert_eq!(map.insert("y".into(), "Wolfram".into()), None);
@@ -48,9 +51,7 @@ fn contains() {
 
 #[test]
 fn remove() {
-	let mut map = unsafe {
-		storage::HashMap::<String, String>::new_unchecked(Key([0x77; 32]))
-	};
+	let mut map = new_empty::<String, String>();
 	// Inserts some elements
 	assert_eq!(map.insert("Dog".into(), "Animal".into()), None);
 	assert_eq!(map.insert("Ant".into(), "Insect".into()), None);
@@ -70,9 +71,7 @@ fn remove() {
 
 #[test]
 fn get() {
-	let mut map = unsafe {
-		storage::HashMap::<String, String>::new_unchecked(Key([0x77; 32]))
-	};
+	let mut map = new_empty::<String, String>();
 	// Inserts some elements
 	assert_eq!(map.insert("Black".into(), "White".into()), None);
 	assert_eq!(map.insert("Up".into(), "Down".into()), None);
@@ -84,9 +83,7 @@ fn get() {
 
 #[test]
 fn mutate_with() {
-	let mut map = unsafe {
-		storage::HashMap::<String, String>::new_unchecked(Key([0x77; 32]))
-	};
+	let mut map = new_empty::<String, String>();
 	// Inserts some elements
 	assert_eq!(map.insert("Dog Breed".into(), "Akita".into()), None); // Shiba Inu
 	assert_eq!(map.insert("Cat Breed".into(), "Bengal".into()), None); // Burmilla

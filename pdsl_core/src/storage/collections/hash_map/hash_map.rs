@@ -1,4 +1,5 @@
 use crate::storage::{
+	self,
 	Key,
 	cell::SyncCell,
 	chunk::SyncChunk,
@@ -30,7 +31,7 @@ use core::hash::Hash;
 #[derive(Debug)]
 pub struct HashMap<K, V> {
 	/// The storage key to the length of this storage map.
-	len: SyncCell<u32>,
+	len: storage::Value<u32>,
 	/// The first half of the entry buffer is equal to the key,
 	/// the second half will be replaced with the respective
 	/// hash of any given key upon usage.
@@ -79,7 +80,7 @@ impl<K, V> parity_codec::Encode for HashMap<K, V> {
 
 impl<K, V> parity_codec::Decode for HashMap<K, V> {
 	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
-		let len = SyncCell::decode(input)?;
+		let len = storage::Value::decode(input)?;
 		let entries = SyncChunk::decode(input)?;
 		Some(Self{len, entries})
 	}
@@ -99,7 +100,7 @@ impl<K, V> HashMap<K, V> {
 	/// Users should not use this routine directly if possible.
 	pub unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
-			len: SyncCell::new_unchecked(key),
+			len: storage::Value::from_raw_parts(key),
 			entries: SyncChunk::new_unchecked(Key::with_offset(key, 1)),
 		}
 	}
@@ -115,7 +116,7 @@ impl<K, V> HashMap<K, V> {
 		A: Allocator
 	{
 		Self{
-			len: SyncCell::new_using_alloc(alloc),
+			len: storage::Value::new_using_alloc(alloc, 0),
 			entries: SyncChunk::new_using_alloc(alloc),
 		}
 	}
@@ -125,7 +126,6 @@ impl<K, V> HashMap<K, V> {
 		*self
 			.len
 			.get()
-			.unwrap_or(&0)
 	}
 
 	/// Returns `true` if the map contains no elements.

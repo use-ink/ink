@@ -1,7 +1,6 @@
 use crate::storage::{
 	self,
 	Key,
-	cell::SyncCell,
 	chunk::SyncChunk,
 	Allocator,
 };
