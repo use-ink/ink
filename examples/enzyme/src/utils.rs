@@ -11,6 +11,8 @@ use pdsl_core::{
 	},
 };
 
+use parity_codec_derive::{Encode, Decode};
+
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 
@@ -33,4 +35,42 @@ lazy_static! {
 			)
 		})
 	};
+}
+
+/// Enzyme API.
+#[derive(Encode, Decode)]
+enum Action {
+	/// Register a new user.
+	Register{username: String},
+	/// Post a message by a user.
+	TweetMessage{username: String, message: String},
+	/// Make a user follow the other.
+	Follow{following: String, followed: String},
+}
+
+#[no_mangle]
+pub extern "C" fn deploy() {}
+
+#[no_mangle]
+pub extern "C" fn call() {
+	use parity_codec::{Decode};
+	use pdsl_core::{
+		env::{Env, ContractEnv},
+	};
+
+	let input = ContractEnv::input();
+	let action = Action::decode(&mut &input[..]).unwrap();
+
+	let mut enzyme = crate::Enzyme::default();
+	match action {
+		Action::Register{username} => {
+			enzyme.register(&username);
+		}
+		Action::TweetMessage{username, message} => {
+			enzyme.tweet_message(&username, &message)
+		}
+		Action::Follow{following, followed} => {
+			enzyme.follow(&following, &followed)
+		}
+	}
 }
