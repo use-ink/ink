@@ -20,15 +20,58 @@ use parity_codec_derive::{Encode, Decode};
 #[derive(Encode, Decode)]
 pub struct Key(pub [u8; 32]);
 
+impl core::ops::Add<u32> for Key {
+	type Output = Key;
+
+	fn add(self, rhs: u32) -> Self::Output {
+		let mut result = self;
+		let ovfl = byte_utils::bytes_add_bytes(
+			result.as_bytes_mut(),
+			&byte_utils::u32_to_bytes4(rhs)
+		);
+		assert!(!ovfl, "overflows should not occure for 256-bit keys");
+		result
+	}
+}
+
+impl core::ops::AddAssign<u32> for Key {
+	fn add_assign(&mut self, rhs: u32) {
+		let ovfl = byte_utils::bytes_add_bytes(
+			self.as_bytes_mut(),
+			&byte_utils::u32_to_bytes4(rhs)
+		);
+		assert!(!ovfl, "overflows should not occure for 256-bit keys");
+	}
+}
+
+impl core::ops::Add<u64> for Key {
+	type Output = Key;
+
+	fn add(self, rhs: u64) -> Self::Output {
+		let mut result = self;
+		let ovfl = byte_utils::bytes_add_bytes(
+			result.as_bytes_mut(),
+			&byte_utils::u64_to_bytes8(rhs)
+		);
+		debug_assert!(!ovfl, "overflows should not occure for 256-bit keys");
+		result
+	}
+}
+
+impl core::ops::AddAssign<u64> for Key {
+	fn add_assign(&mut self, rhs: u64) {
+		let ovfl = byte_utils::bytes_add_bytes(
+			self.as_bytes_mut(),
+			&byte_utils::u64_to_bytes8(rhs)
+		);
+		debug_assert!(!ovfl, "overflows should not occure for 256-bit keys");
+	}
+}
+
 impl Key {
 	/// Create a new key from another given key with given offset.
 	pub fn with_offset(key: Key, offset: u32) -> Self {
-		let mut result = key;
-		byte_utils::bytes_add_bytes(
-			result.as_bytes_mut(),
-			&byte_utils::u32_to_bytes4(offset)
-		);
-		result
+		key + offset
 	}
 
 	/// Create a new key from another given key with given chunk offset.
@@ -38,14 +81,8 @@ impl Key {
 	/// A chunk offset is an offset that is a multiple of the chunk size.
 	/// The chunk size is 2^32.
 	pub fn with_chunk_offset(key: Key, offset: u32) -> Self {
-		let mut result = key;
-		byte_utils::bytes_add_bytes(
-			result.as_bytes_mut(),
-			&byte_utils::u64_to_bytes8(
-				(1 << 32) * (offset as u64)
-			)
-		);
-		result
+		let chunk_offset: u64 = (1 << 32) * (offset as u64);
+		key + chunk_offset
 	}
 
 	/// Returns the byte slice of this key.
