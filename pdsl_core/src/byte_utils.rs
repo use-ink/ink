@@ -63,9 +63,20 @@ impl_slice_as_array!(slice8_as_array8, 8);
 
 /// Adds the given bytes slices inplace.
 ///
+/// Returns `true` if there was an overflow.
+///
+/// # Note
+///
 /// For this the byte slices are interpreted as twos-complement numbers.
-pub fn bytes_add_bytes(lhs: &mut [u8], rhs: &[u8]) {
+///
+/// # Panics
+///
+/// If `lhs` and `rhs` do not have the same lengths.
+/// - If `lhs` or `rhs` is empty slice.
+fn bytes_add_bytes_eq(lhs: &mut [u8], rhs: &[u8]) -> bool {
 	assert_eq!(lhs.len(), rhs.len());
+	assert!(lhs.len() > 0);
+	debug_assert!(rhs.len() > 0);
 	let mut carry = 0;
 	for (lhs, rhs) in lhs.into_iter().zip(rhs.into_iter()).rev() {
 		let (res1, carry1) = lhs.overflowing_add(carry);
@@ -74,6 +85,40 @@ pub fn bytes_add_bytes(lhs: &mut [u8], rhs: &[u8]) {
 		*lhs = res2;
 		carry = u8::from(carry1 || carry2);
 	}
+	if carry == 0 { false } else { true }
+}
+
+/// Adds the given bytes slices inplace.
+///
+/// Returns `true` if there was an overflow.
+///
+/// # Note
+///
+/// For this the byte slices are interpreted as twos-complement numbers.
+///
+/// # Panics
+///
+/// - If the length of `lhs` is less than the length of `rhs`.
+/// - If `lhs` or `rhs` is empty slice.
+pub fn bytes_add_bytes(lhs: &mut [u8], rhs: &[u8]) -> bool {
+	let lhs_len = lhs.len();
+	let rhs_len = rhs.len();
+	assert!(lhs_len > 0);
+	assert!(rhs_len > 0);
+	assert!(lhs_len >= rhs_len);
+	if rhs_len == 1 {
+		return bytes_add_byte(lhs, rhs[0])
+	}
+	if lhs_len == rhs_len {
+		return bytes_add_bytes_eq(lhs, rhs)
+	}
+	let (lhs_msb, lhs_lsb) = lhs.split_at_mut(lhs_len - rhs_len);
+	assert_eq!(lhs_lsb.len(), rhs_len);
+	let ovfl = bytes_add_bytes(lhs_lsb, rhs);
+	if ovfl {
+		return bytes_add_byte(lhs_msb, 0x1);
+	}
+	false
 }
 
 macro_rules! primitives_impl {
@@ -149,7 +194,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_bytes_add_bytes() {
+	fn test_bytes_add_bytes_eq() {
 		fn test_for(lhs: &[u8], rhs: &[u8], expected: &[u8]) {
 			fn bytes_add_bytes_copy(lhs: &[u8], rhs: &[u8]) -> Vec<u8> {
 				let mut lhs_vec = lhs.to_vec();
@@ -195,6 +240,45 @@ mod tests {
 			&[0x12, 0x34, 0x56, 0x78],
 			&[0x9A, 0xBC, 0xDE, 0xF0],
 			&[0xAC, 0xF1, 0x35, 0x68],
+		);
+	}
+
+	#[test]
+	fn test_bytes_add_bytes() {
+		fn test_for(lhs: &[u8], rhs: &[u8], expected: &[u8]) {
+			fn bytes_add_bytes_copy(lhs: &[u8], rhs: &[u8]) -> Vec<u8> {
+				let mut lhs_vec = lhs.to_vec();
+				bytes_add_bytes(&mut lhs_vec, rhs);
+				lhs_vec
+			}
+			assert_eq!(
+				bytes_add_bytes_copy(lhs, rhs).as_slice(),
+				expected
+			);
+		}
+		// 0 + 0 == 0
+		test_for(
+			&[0x00, 0x00, 0x00, 0x00],
+			&[0x00],
+			&[0x00, 0x00, 0x00, 0x00],
+		);
+		// 0 + 0x42 == 0x42
+		test_for(
+			&[0x00, 0x00, 0x00, 0x00],
+			&[0x42],
+			&[0x00, 0x00, 0x00, 0x42],
+		);
+		// 0xAB_CD_00_00 + 0x00_00_98_76 == 0xAB_CD_98_76
+		test_for(
+			&[0xAB, 0xCD, 0x00, 0x00],
+			&[0x98, 0x76],
+			&[0xAB, 0xCD, 0x98, 0x76],
+		);
+		// 0xFFFF + 0xFFFF == 0x0001_FFFE
+		test_for(
+			&[0x00, 0x00, 0xFF, 0xFF],
+			&[0xFF, 0xFF],
+			&[0x00, 0x01, 0xFF, 0xFE],
 		);
 	}
 
