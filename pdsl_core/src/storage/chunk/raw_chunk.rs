@@ -49,7 +49,7 @@ impl RawChunkCell<'_> {
 
 	/// Load the bytes from the cell if not empty.
 	pub fn load(&self) -> Option<Vec<u8>> {
-		ContractEnv::load(self.key)
+		unsafe { ContractEnv::load(self.key) }
 	}
 
 	/// Store the bytes into the cell.
@@ -138,7 +138,7 @@ impl RawChunk {
 
 	/// Loads the bytes stored in the `n`-th cell.
 	pub fn load(&self, n: u32) -> Option<Vec<u8>> {
-		ContractEnv::load(self.key + n)
+		unsafe { ContractEnv::load(self.key + n) }
 	}
 
 	/// Stores the given bytes into the `n`-th cell.

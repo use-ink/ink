@@ -28,7 +28,13 @@ pub trait Env {
 	/// Clears the value stored under the given key.
 	fn clear(key: Key);
 	/// Loads data stored under the given key.
-	fn load(key: Key) -> Option<Vec<u8>>;
+	///
+	/// # Safety
+	///
+	/// Is unsafe since there is no check for key integrity.
+	/// This operation can be compared to a pointer deref in Rust
+	/// which itself is also considered unsafe.
+	unsafe fn load(key: Key) -> Option<Vec<u8>>;
 	/// Loads input data for contract execution.
 	fn input() -> Vec<u8>;
 	/// Returns from the contract execution with the given value.

@@ -60,15 +60,13 @@ impl Env for SrmlEnv {
 		value
 	}
 
-	fn store(key: Key, value: &[u8]) {
-		unsafe {
-			c_abi::ext_set_storage(
-				key.as_bytes().as_ptr() as u32,
-				1,
-				value.as_ptr() as u32,
-				value.len() as u32
-			);
-		}
+	unsafe fn store(key: Key, value: &[u8]) {
+		c_abi::ext_set_storage(
+			key.as_bytes().as_ptr() as u32,
+			1,
+			value.as_ptr() as u32,
+			value.len() as u32
+		);
 	}
 
 	fn clear(key: Key) {

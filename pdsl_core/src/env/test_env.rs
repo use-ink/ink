@@ -348,7 +348,7 @@ impl Env for TestEnv {
 		})
 	}
 
-	fn load(key: Key) -> Option<Vec<u8>> {
+	unsafe fn load(key: Key) -> Option<Vec<u8>> {
 		log::debug!(
 			target: TEST_ENV_LOG_TARGET,
 			"TestEnv::load(\n\tkey: {:?}\n)",

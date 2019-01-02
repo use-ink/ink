@@ -89,11 +89,11 @@ mod tests {
 	#[test]
 	fn store_load_clear() {
 		let key = Key([0x42; 32]);
-		assert_eq!(ContractEnv::load(key), None);
+		assert_eq!(unsafe { ContractEnv::load(key) }, None);
 		ContractEnv::store(key, &[0x5]);
-		assert_eq!(ContractEnv::load(key), Some(vec![0x5]));
+		assert_eq!(unsafe { ContractEnv::load(key) }, Some(vec![0x5]));
 		ContractEnv::clear(key);
-		assert_eq!(ContractEnv::load(key), None);
+		assert_eq!(unsafe { ContractEnv::load(key) }, None);
 	}
 
 	#[test]
@@ -103,9 +103,9 @@ mod tests {
 		let key10 = key00 + 10_u32; // -> 10         | same as key55
 		let key55 = key05 + 5_u32;  // -> 5 + 5 = 10 | same as key10
 		ContractEnv::store(key55, &[42]);
-		assert_eq!(ContractEnv::load(key10), Some(vec![42]));
+		assert_eq!(unsafe { ContractEnv::load(key10) }, Some(vec![42]));
 		ContractEnv::store(key10, &[13, 37]);
-		assert_eq!(ContractEnv::load(key55), Some(vec![13, 37]));
+		assert_eq!(unsafe { ContractEnv::load(key55) }, Some(vec![13, 37]));
 	}
 
 	#[test]

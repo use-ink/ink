@@ -61,7 +61,7 @@ impl RawCell {
 impl RawCell {
 	/// Loads the bytes stored in the cell if not empty.
 	pub fn load(&self) -> Option<Vec<u8>> {
-		ContractEnv::load(self.key)
+		unsafe { ContractEnv::load(self.key) }
 	}
 
 	/// Stores the given bytes into the cell.
