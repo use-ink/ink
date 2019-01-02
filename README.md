@@ -1,8 +1,8 @@
 # pDSL - Parity's DSL for Smart Contracts
 
-| Linux              | Codecov              | Coveralls              |      LoC         |
-|:------------------:|:--------------------:|:----------------------:|:----------------:|
-| [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] |
+| Linux              | Codecov              | Coveralls              | LoC              | Docs              |
+|:------------------:|:--------------------:|:----------------------:|:----------------:|:-----------------:|
+| [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] | [![docs][F1]][F2] |
 
 [A1]: https://travis-ci.org/Robbepop/pdsl.svg?branch=master
 [A2]: https://travis-ci.org/Robbepop/pdsl
@@ -12,12 +12,12 @@
 [D2]: https://coveralls.io/github/Robbepop/pdsl?branch=master
 [E1]: https://tokei.rs/b1/github/Robbepop/pdsl?category=code
 [E2]: https://github.com/Aaronepower/tokei#badges
+[F1]: https://img.shields.io/badge/docs-nightly-black.svg
+[F2]: https://robbepop.github.io/pdsl/pdsl_core/index.html
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
 An [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts in the Rust programming language.
-
-- [`pdsl-core` API documentation](https://robbepop.github.io/pdsl/pdsl_core/index.html).
 
 ## Goals
 
