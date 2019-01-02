@@ -54,12 +54,12 @@ impl RawChunkCell<'_> {
 
 	/// Store the bytes into the cell.
 	pub fn store(&mut self, bytes: &[u8]) {
-		ContractEnv::store(self.key, bytes)
+		unsafe { ContractEnv::store(self.key, bytes) }
 	}
 
 	/// Remove the bytes stored in the cell.
 	pub fn clear(&mut self) {
-		ContractEnv::clear(self.key)
+		unsafe { ContractEnv::clear(self.key) }
 	}
 }
 

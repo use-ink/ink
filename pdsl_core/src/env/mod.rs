@@ -24,9 +24,21 @@ pub trait Env {
 	/// Returns the chain address of the caller.
 	fn caller() -> Vec<u8>;
 	/// Stores the given value under the given key.
-	fn store(key: Key, value: &[u8]);
+	///
+	/// # Safety
+	///
+	/// Is unsafe since there is no check for key integrity.
+	/// This operation can be compared to a pointer deref in Rust
+	/// which itself is also considered unsafe.
+	unsafe fn store(key: Key, value: &[u8]);
 	/// Clears the value stored under the given key.
-	fn clear(key: Key);
+	///
+	/// # Safety
+	///
+	/// Is unsafe since there is no check for key integrity.
+	/// This operation can be compared to a pointer deref in Rust
+	/// which itself is also considered unsafe.
+	unsafe fn clear(key: Key);
 	/// Loads data stored under the given key.
 	///
 	/// # Safety

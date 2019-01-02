@@ -325,7 +325,7 @@ impl Env for TestEnv {
 		})
 	}
 
-	fn store(key: Key, value: &[u8]) {
+	unsafe fn store(key: Key, value: &[u8]) {
 		log::debug!(
 			target: TEST_ENV_LOG_TARGET,
 			"TestEnv::store(\n\tkey: {:?},\n\tval: {:?}\n)",
@@ -337,7 +337,7 @@ impl Env for TestEnv {
 		})
 	}
 
-	fn clear(key: Key) {
+	unsafe fn clear(key: Key) {
 		log::debug!(
 			target: TEST_ENV_LOG_TARGET,
 			"TestEnv::clear(\n\tkey: {:?}\n)",
