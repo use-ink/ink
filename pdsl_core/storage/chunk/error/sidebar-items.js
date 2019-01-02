@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ChunkErrorKind","A kind of a chunk error."]],"struct":[["ChunkError","A chunk error."]],"type":[["Result","The chunk error result type."]]});

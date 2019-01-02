@@ -198,14 +198,35 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
+<span class="comment">// This file is part of pDSL.</span>
+<span class="comment">//</span>
+<span class="comment">// pDSL is free software: you can redistribute it and/or modify</span>
+<span class="comment">// it under the terms of the GNU General Public License as published by</span>
+<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
+<span class="comment">// (at your option) any later version.</span>
+<span class="comment">//</span>
+<span class="comment">// pDSL is distributed in the hope that it will be useful,</span>
+<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="comment">// GNU General Public License for more details.</span>
+<span class="comment">//</span>
+<span class="comment">// You should have received a copy of the GNU General Public License</span>
+<span class="comment">// along with pDSL.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
 		<span class="self">self</span>,
 		<span class="ident">Key</span>,
 	},
-	<span class="ident">byte_utils</span>,
 };
 
 <span class="kw">use</span> <span class="ident">parity_codec_derive</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
@@ -329,18 +350,13 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// The reverse of `cell_index_to_key`.</span>
 	<span class="kw">fn</span> <span class="ident">key_to_cell_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
-		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell_offset</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cells_offset_key</span>();
-		<span class="ident">byte_utils</span>::<span class="ident">negate_bytes</span>(<span class="ident">cell_offset</span>.<span class="ident">as_bytes_mut</span>());
-		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">key</span>;
-		<span class="ident">byte_utils</span>::<span class="ident">bytes_add_bytes</span>(<span class="ident">res</span>.<span class="ident">as_bytes_mut</span>(), <span class="ident">cell_offset</span>.<span class="ident">as_bytes</span>());
-		<span class="macro">debug_assert</span><span class="macro">!</span>(
-			<span class="ident">res</span>.<span class="ident">as_bytes</span>()[<span class="number">0</span>..<span class="number">28</span>].<span class="ident">into_iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">byte</span><span class="op">|</span> <span class="ident">byte</span> <span class="op">==</span> <span class="number">0x0</span>)
-		);
-		<span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">byte_utils</span>::<span class="ident">bytes4_to_u32</span>(
-			<span class="ident">byte_utils</span>::<span class="ident">slice4_as_array4</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>.<span class="ident">as_bytes</span>()[<span class="number">28</span>..<span class="number">32</span>])
-				.<span class="ident">unwrap</span>()
-		);
-		<span class="ident">index</span>
+		<span class="kw">let</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">key</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">cells_offset_key</span>();
+		<span class="ident">diff</span>.<span class="ident">try_to_u32</span>()
+			.<span class="ident">expect</span>(
+				<span class="string">&quot;if allocated by this allocator the difference between
+				 the given key and offset key must be less-than or equal
+				 to u32::MAX.&quot;</span>
+			)
 	}
 
 	<span class="doccomment">/// Converts chunk indices to keys.</span>
@@ -355,17 +371,13 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// The reverse of `chunk_index_to_key`.</span>
 	<span class="kw">fn</span> <span class="ident">key_to_chunk_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
-		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chunk_offset</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chunks_offset_key</span>();
-		<span class="ident">byte_utils</span>::<span class="ident">negate_bytes</span>(<span class="ident">chunk_offset</span>.<span class="ident">as_bytes_mut</span>());
-		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">key</span>;
-		<span class="ident">byte_utils</span>::<span class="ident">bytes_add_bytes</span>(<span class="ident">res</span>.<span class="ident">as_bytes_mut</span>(), <span class="ident">chunk_offset</span>.<span class="ident">as_bytes</span>());
-		<span class="macro">debug_assert</span><span class="macro">!</span>(
-			<span class="ident">res</span>.<span class="ident">as_bytes</span>()[<span class="number">0</span>..<span class="number">24</span>].<span class="ident">into_iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">byte</span><span class="op">|</span> <span class="ident">byte</span> <span class="op">==</span> <span class="number">0x0</span>)
-		);
-		<span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">byte_utils</span>::<span class="ident">bytes8_to_u64</span>(
-			<span class="ident">byte_utils</span>::<span class="ident">slice8_as_array8</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>.<span class="ident">as_bytes</span>()[<span class="number">24</span>..<span class="number">32</span>])
-				.<span class="ident">unwrap</span>()
-		);
+		<span class="kw">let</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">key</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">cells_offset_key</span>();
+		<span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">diff</span>.<span class="ident">try_to_u64</span>()
+			.<span class="ident">expect</span>(
+				<span class="string">&quot;if allocated by this allocator the difference between
+				 the given key and offset key must be less-than or equal
+				 to u64::MAX.&quot;</span>
+			);
 		(<span class="ident">index</span> <span class="op">&gt;&gt;</span> <span class="number">32</span>) <span class="kw">as</span> <span class="ident">u32</span>
 	}
 }
