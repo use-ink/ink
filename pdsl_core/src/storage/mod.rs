@@ -89,6 +89,7 @@ use self::non_clone::NonCloneMarker;
 pub use self::{
 	key::{
 		Key,
+		KeyDiff,
 	},
 	collections::{
 		vec::{
