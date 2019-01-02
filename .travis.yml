@@ -39,19 +39,25 @@ install:
   # Install kcov binary
   - wget https://github.com/SimonKagstrom/kcov/archive/v36.tar.gz
   - tar xzf v36.tar.gz
-  - cd kcov-36
+  - pushd kcov-36
   - mkdir build
-  - cd build
+  - pushd build
   - cmake ..
   - make
   - sudo make install # Puts kcov in the default location usually /usr/local/bin/kcov
   - kcov --version
+  - popd
+  - popd
   # Export cargo binaries, python and misc settings
   - export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$HOME/Library/Python/2.7/bin:$PATH
 
 script:
 - |
+  ls -lah &&
   cargo check --verbose --all --all-features &&
+  ls -lah &&
   cargo test --verbose --all --all-features &&
+  ls -lah &&
   cargo kcov --verbose --manifest-path=pdsl_core/Cargo.toml --features=test-env &&
+  ls -lah &&
   bash <(curl -s https://codecov.io/bash)
