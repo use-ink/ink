@@ -37,7 +37,6 @@ install:
   - cargo install cargo-kcov
   - cargo kcov -vV
   # Install kcov binary
-  - pushd kcov-install
   - wget https://github.com/SimonKagstrom/kcov/archive/v36.tar.gz
   - tar xzf master.tar.gz
   - cd kcov-master
