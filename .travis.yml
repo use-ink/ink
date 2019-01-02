@@ -26,6 +26,8 @@ addons:
       - binutils-dev
       - libiberty-dev
       - g++
+      - cmake
+      - zlib1g-dev
 
 install:
   # Print rustc and cargo versions
@@ -35,11 +37,20 @@ install:
   - cargo install cargo-kcov
   - cargo kcov -vV
   # Install kcov binary
-  - mkdir -p $HOME/.cargo/bin
-  - cargo kcov --print-install-kcov-sh | sh
+  # - mkdir -p $HOME/.cargo/bin
+  # - cargo kcov --print-install-kcov-sh | sh
+  - pushd kcov-install
+  - wget https://github.com/SimonKagstrom/kcov/archive/v36.tar.gz
+  - tar xzf master.tar.gz
+  - cd kcov-master
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - sudo make install # Puts kcov in the default location usually /usr/local/bin/kcov
+  - kcov --version
   # Export cargo binaries, python and misc settings
   - export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$HOME/Library/Python/2.7/bin:$PATH
-  - kcov --version
 
 # if [ ! -x $HOME/.cargo/bin/kcov ] || [ ! -f $HOME/.cargo/bin/kcov ]; then
 #   mkdir kcov
