@@ -20,6 +20,81 @@ use parity_codec_derive::{Encode, Decode};
 #[derive(Encode, Decode)]
 pub struct Key(pub [u8; 32]);
 
+impl Key {
+	/// Returns the byte slice of this key.
+	pub fn as_bytes(&self) -> &[u8] {
+		&self.0
+	}
+
+	/// Returns the mutable byte slice of this key.
+	pub fn as_bytes_mut(&mut self) -> &mut [u8] {
+		&mut self.0
+	}
+}
+
+impl core::ops::Sub for Key {
+	type Output = KeyDiff;
+
+	fn sub(self, rhs: Self) -> KeyDiff {
+		let mut lhs = self;
+		let mut rhs = rhs;
+		byte_utils::negate_bytes(rhs.as_bytes_mut());
+		byte_utils::bytes_add_bytes(lhs.as_bytes_mut(), rhs.as_bytes());
+		KeyDiff::from(lhs.0)
+	}
+}
+
+/// The difference between two keys.
+///
+/// This is the result of substracting one key from another.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct KeyDiff([u8; 32]);
+
+impl From<[u8; 32]> for KeyDiff {
+	fn from(bytes: [u8; 32]) -> Self {
+		Self(bytes)
+	}
+}
+
+impl KeyDiff {
+	/// Returns the byte slice of this key difference.
+	fn as_bytes(&self) -> &[u8] {
+		&self.0
+	}
+
+	/// Tries to convert the key difference to a `u32` if possible.
+	///
+	/// Returns `None` if the resulting value is out of bounds.
+	pub fn try_to_u32(&self) -> Option<u32> {
+		const KEY_BYTES: usize = 32;
+		const U32_BYTES: usize = core::mem::size_of::<u32>();
+		if self.as_bytes().into_iter().take(KEY_BYTES - U32_BYTES).any(|&byte| byte != 0x0) {
+			return None
+		}
+		let value = byte_utils::bytes4_to_u32(
+			byte_utils::slice4_as_array4(&self.as_bytes()[(KEY_BYTES - U32_BYTES)..KEY_BYTES])
+				.unwrap()
+		);
+		Some(value)
+	}
+
+	/// Tries to convert the key difference to a `u64` if possible.
+	///
+	/// Returns `None` if the resulting value is out of bounds.
+	pub fn try_to_u64(&self) -> Option<u64> {
+		const KEY_BYTES: usize = 32;
+		const U64_BYTES: usize = core::mem::size_of::<u64>();
+		if self.as_bytes().into_iter().take(KEY_BYTES - U64_BYTES).any(|&byte| byte != 0x0) {
+			return None
+		}
+		let value = byte_utils::bytes8_to_u64(
+			byte_utils::slice8_as_array8(&self.as_bytes()[(KEY_BYTES - U64_BYTES)..KEY_BYTES])
+				.unwrap()
+		);
+		Some(value)
+	}
+}
+
 impl core::ops::Add<u32> for Key {
 	type Output = Key;
 
@@ -65,18 +140,6 @@ impl core::ops::AddAssign<u64> for Key {
 			&byte_utils::u64_to_bytes8(rhs)
 		);
 		debug_assert!(!ovfl, "overflows should not occure for 256-bit keys");
-	}
-}
-
-impl Key {
-	/// Returns the byte slice of this key.
-	pub fn as_bytes(&self) -> &[u8] {
-		&self.0
-	}
-
-	/// Returns the mutable byte slice of this key.
-	pub fn as_bytes_mut(&mut self) -> &mut [u8] {
-		&mut self.0
 	}
 }
 
