@@ -58,5 +58,5 @@ script:
   ls -lah
   cargo check --verbose --all --all-features &&
   cargo test --verbose --all --all-features &&
-  cargo kcov --verbose --manifest-path=pdsl_core/Cargo.toml --features=test-env &&
+  cargo kcov --verbose --coveralls --manifest-path=pdsl_core/Cargo.toml --features=test-env &&
   bash <(curl -s https://codecov.io/bash)
