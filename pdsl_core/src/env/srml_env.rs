@@ -85,27 +85,21 @@ impl Env for SrmlEnv {
 		);
 	}
 
-	fn clear(key: Key) {
-		unsafe {
-			c_abi::ext_set_storage(key.as_bytes().as_ptr() as u32, 0, 0, 0)
-		}
+	unsafe fn clear(key: Key) {
+		c_abi::ext_set_storage(key.as_bytes().as_ptr() as u32, 0, 0, 0)
 	}
 
-	fn load(key: Key) -> Option<Vec<u8>> {
+	unsafe fn load(key: Key) -> Option<Vec<u8>> {
 		const SUCCESS: u32 = 0;
-		let result = unsafe {
-			c_abi::ext_get_storage(key.as_bytes().as_ptr() as u32)
-		};
+		let result = c_abi::ext_get_storage(key.as_bytes().as_ptr() as u32);
 		if result != SUCCESS {
 			return None
 		}
-		let size = unsafe { c_abi::ext_scratch_size() };
+		let size = c_abi::ext_scratch_size();
 		let mut value = Vec::new();
 		if size > 0 {
 			value.resize(size as usize, 0);
-			unsafe {
-				c_abi::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
-			}
+			c_abi::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
 		}
 		Some(value)
 	}
