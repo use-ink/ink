@@ -1,0 +1,45 @@
+language: rust
+cache: cargo
+dist: trusty
+sudo: true
+
+rust:
+  - stable
+  - beta
+  - nightly
+
+matrix:
+  allow_failures:
+    - rust: stable
+    - rust: beta
+
+env:
+  global:
+  - RUSTFLAGS="-C link-dead-code"
+
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+      - libelf-dev
+      - libdw-dev
+      - binutils-dev
+      - libiberty-dev
+
+before_script:
+- |
+  cargo install cargo-kcov
+  if [ ! -x $HOME/.cargo/bin/kcov ] || [ ! -f $HOME/.cargo/bin/kcov ]; then
+    mkdir kcov
+    cd kcov
+    cargo kcov --print-install-kcov-sh | sh
+    cd ${TRAVIS_BUILD_DIR}
+    rm -rf kcov
+  fi
+
+script:
+- |
+  cargo check --verbose --all --all-features &&
+  cargo test --verbose --all --all-features &&
+  cargo kcov --verbose --coveralls --all --features=test-env &&
+  bash <(curl -s https://codecov.io/bash)
