@@ -38,8 +38,8 @@ install:
   - cargo kcov -vV
   # Install kcov binary
   - wget https://github.com/SimonKagstrom/kcov/archive/v36.tar.gz
-  - tar xzf master.tar.gz
-  - cd kcov-master
+  - tar xzf v36.tar.gz
+  - cd kcov-36
   - mkdir build
   - cd build
   - cmake ..
