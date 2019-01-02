@@ -34,7 +34,7 @@ install:
   - rustc -vV
   - cargo -vV
   # Install cargo-kcov Cargo plugin
-  - cargo install cargo-kcov
+  - cargo install --force cargo-kcov
   - cargo kcov -vV
   # Install kcov binary
   - wget https://github.com/SimonKagstrom/kcov/archive/v36.tar.gz
@@ -50,14 +50,13 @@ install:
   - popd
   # Export cargo binaries, python and misc settings
   - export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$HOME/Library/Python/2.7/bin:$PATH
+  # Print current work directory state as directions.
+  - ls -lah
 
 script:
 - |
-  ls -lah &&
+  ls -lah
   cargo check --verbose --all --all-features &&
-  ls -lah &&
   cargo test --verbose --all --all-features &&
-  ls -lah &&
   cargo kcov --verbose --manifest-path=pdsl_core/Cargo.toml --features=test-env &&
-  ls -lah &&
   bash <(curl -s https://codecov.io/bash)
