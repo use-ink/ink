@@ -40,6 +40,6 @@ before_script:
 script:
 - |
   cargo check --verbose --all --all-features &&
-  cargo test --verbose --all --all-features &&
-  cargo kcov --verbose --manifest-path=pdsl_core/Cargo.toml --features=test-env &&
-  bash <(curl -s https://codecov.io/bash)
+  cargo test --verbose --all --all-features
+  # cargo kcov --verbose --manifest-path=pdsl_core/Cargo.toml --features=test-env &&
+  # bash <(curl -s https://codecov.io/bash)
