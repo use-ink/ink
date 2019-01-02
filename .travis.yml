@@ -25,21 +25,33 @@ addons:
       - libdw-dev
       - binutils-dev
       - libiberty-dev
+      - g++
 
-before_script:
-- |
-  cargo install cargo-kcov
-  if [ ! -x $HOME/.cargo/bin/kcov ] || [ ! -f $HOME/.cargo/bin/kcov ]; then
-    mkdir kcov
-    cd kcov
-    cargo kcov --print-install-kcov-sh | sh
-    cd ${TRAVIS_BUILD_DIR}
-    rm -rf kcov
-  fi
+install:
+  # Print rustc and cargo versions
+  - rustc -vV
+  - cargo -vV
+  # Install cargo-kcov Cargo plugin
+  - cargo install cargo-kcov
+  - cargo kcov -vV
+  # Install kcov binary
+  - mkdir -p $HOME/.cargo/bin
+  - cargo kcov --print-install-kcov-sh | sh
+  # Export cargo binaries, python and misc settings
+  - export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$HOME/Library/Python/2.7/bin:$PATH
+  - kcov --version
+
+# if [ ! -x $HOME/.cargo/bin/kcov ] || [ ! -f $HOME/.cargo/bin/kcov ]; then
+#   mkdir kcov
+#   cd kcov
+#   cargo kcov --print-install-kcov-sh | sh
+#   cd ${TRAVIS_BUILD_DIR}
+#   rm -rf kcov
+# fi
 
 script:
 - |
   cargo check --verbose --all --all-features &&
-  cargo test --verbose --all --all-features
-  # cargo kcov --verbose --manifest-path=pdsl_core/Cargo.toml --features=test-env &&
-  # bash <(curl -s https://codecov.io/bash)
+  cargo test --verbose --all --all-features &&
+  cargo kcov --verbose --manifest-path=pdsl_core/Cargo.toml --features=test-env &&
+  bash <(curl -s https://codecov.io/bash)
