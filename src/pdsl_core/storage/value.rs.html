@@ -475,6 +475,8 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
@@ -483,6 +485,8 @@
 		<span class="ident">cell</span>::<span class="ident">SyncCell</span>,
 	},
 };
+
+<span class="kw">use</span> <span class="ident">parity_codec_derive</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
 
 <span class="comment">// Missing traits:</span>
 <span class="comment">//</span>
@@ -503,7 +507,7 @@
 <span class="doccomment">/// For assigning new values or mutating the value inside of it either use</span>
 <span class="doccomment">/// [`set`](struct.Value.html#method.set) or</span>
 <span class="doccomment">/// [`mutate_with`](struct.Value.html#method.mutate_with).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// The cell of the storage value.</span>
 	<span class="ident">cell</span>: <span class="ident">SyncCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,

@@ -175,6 +175,29 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -205,20 +228,42 @@
 	<span class="ident">cells</span>: <span class="ident">storage</span>::<span class="ident">Stash</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
 	<span class="doccomment">/// Allocator stash for cell chunks.</span>
 	<span class="ident">chunks</span>: <span class="ident">storage</span>::<span class="ident">Stash</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
+	<span class="doccomment">/// Cells key offset.</span>
+	<span class="ident">cells_off</span>: <span class="ident">storage</span>::<span class="ident">Key</span>,
+	<span class="doccomment">/// Chunks key offset.</span>
+	<span class="ident">chunks_off</span>: <span class="ident">storage</span>::<span class="ident">Key</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">CellChunkAlloc</span> {
-	<span class="doccomment">/// Creates a new cell and chunks allocator for the given raw parts.</span>
+	<span class="doccomment">/// Creates a new cell &amp; chunks allocator using the given allocator.</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// # Note</span>
 	<span class="doccomment">///</span>
-	<span class="doccomment">/// Do not use this directly!</span>
-	<span class="doccomment">/// This is meant to be used by pDSL internals only.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw_parts</span>(
-		<span class="ident">cells</span>: <span class="ident">storage</span>::<span class="ident">Stash</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
-		<span class="ident">chunks</span>: <span class="ident">storage</span>::<span class="ident">Stash</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
-	) <span class="op">-&gt;</span> <span class="self">Self</span> {
-		<span class="self">Self</span>{<span class="ident">cells</span>, <span class="ident">chunks</span>}
+	<span class="doccomment">/// At first it might seem strange to initialize the one allocator</span>
+	<span class="doccomment">/// with another. Normally a `CellChunkAllocator` should be allocated</span>
+	<span class="doccomment">/// using a `ForwardAllocator`. The `ForwardAllocator` cannot be</span>
+	<span class="doccomment">/// stored in the contract storage and is not useful for dynamic</span>
+	<span class="doccomment">/// memory allocations but only for compile time allocations. The</span>
+	<span class="doccomment">/// `CellChunkAllocator`, however, is made especially for the purpose</span>
+	<span class="doccomment">/// of dynamic contract storage allocations and can and should be itself</span>
+	<span class="doccomment">/// stored in the contract storage.</span>
+	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">where</span>
+		<span class="ident">A</span>: <span class="ident">storage</span>::<span class="ident">Allocator</span>
+	{
+		<span class="self">Self</span> {
+			<span class="ident">cells</span>: <span class="ident">storage</span>::<span class="ident">Stash</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">chunks</span>: <span class="ident">storage</span>::<span class="ident">Stash</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">cells_off</span>: <span class="ident">alloc</span>.<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>()),
+			<span class="ident">chunks_off</span>:
+				<span class="comment">// We need `u64::max_value()` here.</span>
+				<span class="comment">// This depends on work on the Key API</span>
+				<span class="comment">// to allow for `std::ops::Add&lt;u64&gt;`.</span>
+				<span class="comment">//</span>
+				<span class="comment">// As first iteration this should suffice our needs</span>
+				<span class="comment">// as long as we allocate the `CellChunkAlloc` at last.</span>
+				<span class="ident">alloc</span>.<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>()),
+		}
 	}
 
 	<span class="doccomment">/// Returns the key to the first cell allocation.</span>
@@ -227,8 +272,8 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// This key is then used to determine the key for every</span>
 	<span class="doccomment">/// other cell allocation using its allocation index.</span>
-	<span class="kw">fn</span> <span class="ident">cells_offset_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
-		<span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">entries_key</span>()
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cells_offset_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
+		<span class="self">self</span>.<span class="ident">cells_off</span>
 	}
 
 	<span class="doccomment">/// Returns the key to the first chunk allocation.</span>
@@ -237,8 +282,8 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// This key is then used to determine the key for every</span>
 	<span class="doccomment">/// other chunk allocation using its allocation index.</span>
-	<span class="kw">fn</span> <span class="ident">chunks_offset_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
-		<span class="self">self</span>.<span class="ident">chunks</span>.<span class="ident">entries_key</span>()
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">chunks_offset_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
+		<span class="self">self</span>.<span class="ident">chunks_off</span>
 	}
 
 	<span class="doccomment">/// Allocates a new storage region that fits for a single cell.</span>
@@ -277,7 +322,7 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// The reverse of `key_to_cell_index`.</span>
 	<span class="kw">fn</span> <span class="ident">cell_index_to_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
-		<span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="self">self</span>.<span class="ident">cells_offset_key</span>(), <span class="ident">index</span>)
+		<span class="self">self</span>.<span class="ident">cells_offset_key</span>() <span class="op">+</span> <span class="ident">index</span>
 	}
 
 	<span class="doccomment">/// Converts keys to cell indices.</span>
@@ -302,7 +347,8 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// The reverse of `key_to_chunk_index`.</span>
 	<span class="kw">fn</span> <span class="ident">chunk_index_to_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
-		<span class="ident">Key</span>::<span class="ident">with_chunk_offset</span>(<span class="self">self</span>.<span class="ident">chunks_offset_key</span>(), <span class="ident">index</span>)
+		<span class="kw">let</span> <span class="ident">chunk_offset</span>: <span class="ident">u64</span> <span class="op">=</span> (<span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">32</span>) <span class="op">*</span> (<span class="ident">index</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="self">self</span>.<span class="ident">chunks_offset_key</span>() <span class="op">+</span> <span class="ident">chunk_offset</span>
 	}
 
 	<span class="doccomment">/// Converts keys to chunk indices.</span>
@@ -352,5 +398,6 @@
 			<span class="self">self</span>.<span class="ident">dealloc_chunk</span>(<span class="ident">key</span>)
 		}
 	}
-}</pre></div>
+}
+</pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../../../";window.currentCrate = "pdsl_core";</script><script src="../../../../aliases.js"></script><script src="../../../../main.js"></script><script src="../../../../source-files.js"></script><script src="../../../../source-script.js"></script><script defer src="../../../../search-index.js"></script></body></html>

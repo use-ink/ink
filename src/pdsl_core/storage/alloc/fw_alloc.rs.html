@@ -154,7 +154,7 @@
 
 	<span class="doccomment">/// Increase the forward alloc offset key by the given amount.</span>
 	<span class="kw">fn</span> <span class="ident">inc_offset_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">by</span>: <span class="ident">u32</span>) {
-		<span class="self">self</span>.<span class="ident">offset_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="self">self</span>.<span class="ident">offset_key</span>, <span class="ident">by</span>);
+		<span class="self">self</span>.<span class="ident">offset_key</span> <span class="op">+=</span> <span class="ident">by</span>;
 	}
 }
 
@@ -195,14 +195,14 @@
 		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fw_alloc</span> <span class="op">=</span> <span class="kw">unsafe</span> {
 			<span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">offset_key</span>)
 		};
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">1</span>), <span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">offset_key</span>, <span class="number">0</span>));
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">10</span>), <span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">offset_key</span>, <span class="number">1</span>));
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="ident">u16</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">u32</span>), <span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">offset_key</span>, <span class="number">11</span>));
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">2</span>), <span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">offset_key</span>, <span class="number">0x1000A</span>));
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">1</span>), <span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">offset_key</span>, <span class="number">0x1000C</span>));
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">1</span>), <span class="ident">offset_key</span> <span class="op">+</span> <span class="number">0_u32</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">10</span>), <span class="ident">offset_key</span> <span class="op">+</span> <span class="number">1_u32</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="ident">u16</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">u32</span>), <span class="ident">offset_key</span> <span class="op">+</span> <span class="number">11_u32</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">2</span>), <span class="ident">offset_key</span> <span class="op">+</span> <span class="number">0x1000A_u32</span>);
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">1</span>), <span class="ident">offset_key</span> <span class="op">+</span> <span class="number">0x1000C_u32</span>);
 		<span class="macro">assert_eq</span><span class="macro">!</span>(
 			<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>()),
-			<span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">offset_key</span>, <span class="number">0x1000D</span>),
+			<span class="ident">offset_key</span> <span class="op">+</span> <span class="number">0x1000D_u32</span>,
 		);
 		<span class="macro">assert_eq</span><span class="macro">!</span>(
 			<span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">1</span>),
@@ -233,7 +233,7 @@
 			<span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">offset_key</span>)
 		};
 		<span class="kw">let</span> <span class="ident">allocated_key</span> <span class="op">=</span> <span class="ident">fw_alloc</span>.<span class="ident">alloc</span>(<span class="number">1</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">allocated_key</span>, <span class="ident">Key</span>::<span class="ident">with_offset</span>(<span class="ident">offset_key</span>, <span class="number">0</span>));
+		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">allocated_key</span>, <span class="ident">offset_key</span> <span class="op">+</span> <span class="number">0_u32</span>);
 		<span class="ident">fw_alloc</span>.<span class="ident">dealloc</span>(<span class="ident">allocated_key</span>);
 	}
 }

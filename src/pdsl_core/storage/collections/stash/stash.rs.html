@@ -373,11 +373,10 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
-<span id="376">376</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage</span>::{
+	<span class="self">self</span>,
 	<span class="ident">Key</span>,
-	<span class="ident">cell</span>::<span class="ident">SyncCell</span>,
 	<span class="ident">chunk</span>::<span class="ident">SyncChunk</span>,
 	<span class="ident">Allocator</span>,
 };
@@ -407,16 +406,16 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// The latest vacant index.</span>
-	<span class="ident">next_vacant</span>: <span class="ident">SyncCell</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+	<span class="ident">next_vacant</span>: <span class="ident">storage</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
 	<span class="doccomment">/// The number of items stored in the stash.</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// # Note</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// We cannot simply use the underlying length of the vector</span>
 	<span class="doccomment">/// since it would include vacant slots as well.</span>
-	<span class="ident">len</span>: <span class="ident">SyncCell</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+	<span class="ident">len</span>: <span class="ident">storage</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
 	<span class="doccomment">/// The maximum length the stash ever had.</span>
-	<span class="ident">max_len</span>: <span class="ident">SyncCell</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+	<span class="ident">max_len</span>: <span class="ident">storage</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
 	<span class="doccomment">/// The entries of the stash.</span>
 	<span class="ident">entries</span>: <span class="ident">SyncChunk</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span>,
 }
@@ -569,24 +568,24 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">parity_codec</span>::<span class="ident">Decode</span> <span class="kw">for</span> <span class="ident">Stash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">parity_codec</span>::<span class="ident">Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-		<span class="kw">let</span> <span class="ident">next_vacant</span> <span class="op">=</span> <span class="ident">SyncCell</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
-		<span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">SyncCell</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
-		<span class="kw">let</span> <span class="ident">max_len</span> <span class="op">=</span> <span class="ident">SyncCell</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">next_vacant</span> <span class="op">=</span> <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">max_len</span> <span class="op">=</span> <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
 		<span class="kw">let</span> <span class="ident">entries</span> <span class="op">=</span> <span class="ident">SyncChunk</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
 		<span class="prelude-val">Some</span>(<span class="self">Self</span>{<span class="ident">next_vacant</span>, <span class="ident">len</span>, <span class="ident">max_len</span>, <span class="ident">entries</span>})
 	}
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Stash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-	<span class="doccomment">/// Creates a new storage vector for the given key.</span>
+	<span class="doccomment">/// Creates a new storage stash for the given key.</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// # Safety</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// This is an inherently unsafe operation since it does not check</span>
-	<span class="doccomment">/// for the storage vector&#39;s invariances, such as</span>
+	<span class="doccomment">/// for the storage stash&#39;s invariances, such as</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// - Is the storage region determined by the given key aliasing?</span>
-	<span class="doccomment">/// - Is the storage region correctly formatted to be used as storage vec?</span>
+	<span class="doccomment">/// - Is the storage region correctly formatted to be used as storage stash?</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// Users should not use this routine directly if possible.</span>
 	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(
@@ -596,14 +595,14 @@
 		<span class="ident">entries_key</span>: <span class="ident">Key</span>
 	) <span class="op">-&gt;</span> <span class="self">Self</span> {
 		<span class="self">Self</span>{
-			<span class="ident">next_vacant</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">next_key</span>),
-			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">len_key</span>),
-			<span class="ident">max_len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">max_len_key</span>),
+			<span class="ident">next_vacant</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">from_raw_parts</span>(<span class="ident">next_key</span>),
+			<span class="ident">len</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">from_raw_parts</span>(<span class="ident">len_key</span>),
+			<span class="ident">max_len</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">from_raw_parts</span>(<span class="ident">max_len_key</span>),
 			<span class="ident">entries</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">entries_key</span>),
 		}
 	}
 
-	<span class="doccomment">/// Allocates a new storage hash map using the given storage allocator.</span>
+	<span class="doccomment">/// Allocates a new storage stash using the given storage allocator.</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// # Safety</span>
 	<span class="doccomment">///</span>
@@ -614,9 +613,9 @@
 		<span class="ident">A</span>: <span class="ident">Allocator</span>
 	{
 		<span class="self">Self</span>{
-			<span class="ident">next_vacant</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
-			<span class="ident">len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
-			<span class="ident">max_len</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">next_vacant</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>, <span class="number">0</span>),
+			<span class="ident">len</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>, <span class="number">0</span>),
+			<span class="ident">max_len</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>, <span class="number">0</span>),
 			<span class="ident">entries</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
 		}
 	}
@@ -655,13 +654,13 @@
 
 	<span class="doccomment">/// Returns the number of elements stored in the stash.</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
-		<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span>.<span class="ident">get</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">0</span>)
+		<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span>.<span class="ident">get</span>()
 	}
 
 	<span class="doccomment">/// Returns the maximum number of element stored in the</span>
 	<span class="doccomment">/// stash at the same time.</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
-		<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">max_len</span>.<span class="ident">get</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">0</span>)
+		<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">max_len</span>.<span class="ident">get</span>()
 	}
 
 	<span class="doccomment">/// Returns `true` if the stash contains no elements.</span>
@@ -671,7 +670,7 @@
 
 	<span class="doccomment">/// Returns the next vacant index.</span>
 	<span class="kw">fn</span> <span class="ident">next_vacant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
-		<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">next_vacant</span>.<span class="ident">get</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">0</span>)
+		<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">next_vacant</span>.<span class="ident">get</span>()
 	}
 
 }
@@ -697,8 +696,7 @@
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
 		<span class="kw">let</span> <span class="ident">current_vacant</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>
 			.<span class="ident">next_vacant</span>
-			.<span class="ident">get</span>()
-			.<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">0</span>);
+			.<span class="ident">get</span>();
 		<span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">current_vacant</span> <span class="op">&lt;=</span> <span class="self">self</span>.<span class="ident">len</span>());
 		<span class="kw">if</span> <span class="ident">current_vacant</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">len</span>() {
 			<span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">set</span>(<span class="ident">current_vacant</span>, <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">val</span>));

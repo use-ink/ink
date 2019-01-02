@@ -708,7 +708,7 @@
 		})
 	}
 
-	<span class="kw">fn</span> <span class="ident">store</span>(<span class="ident">key</span>: <span class="ident">Key</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
+	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">store</span>(<span class="ident">key</span>: <span class="ident">Key</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
 		<span class="ident">log</span>::<span class="macro">debug</span><span class="macro">!</span>(
 			<span class="ident">target</span>: <span class="ident">TEST_ENV_LOG_TARGET</span>,
 			<span class="string">&quot;TestEnv::store(\n\tkey: {:?},\n\tval: {:?}\n)&quot;</span>,
@@ -720,7 +720,7 @@
 		})
 	}
 
-	<span class="kw">fn</span> <span class="ident">clear</span>(<span class="ident">key</span>: <span class="ident">Key</span>) {
+	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="ident">key</span>: <span class="ident">Key</span>) {
 		<span class="ident">log</span>::<span class="macro">debug</span><span class="macro">!</span>(
 			<span class="ident">target</span>: <span class="ident">TEST_ENV_LOG_TARGET</span>,
 			<span class="string">&quot;TestEnv::clear(\n\tkey: {:?}\n)&quot;</span>,
@@ -731,7 +731,7 @@
 		})
 	}
 
-	<span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span> {
+	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span> {
 		<span class="ident">log</span>::<span class="macro">debug</span><span class="macro">!</span>(
 			<span class="ident">target</span>: <span class="ident">TEST_ENV_LOG_TARGET</span>,
 			<span class="string">&quot;TestEnv::load(\n\tkey: {:?}\n)&quot;</span>,

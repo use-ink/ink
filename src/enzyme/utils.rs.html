@@ -51,12 +51,34 @@
 <span id="51">51</span>
 <span id="52">52</span>
 <span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">pdsl_core</span>::{
 	<span class="ident">storage</span>::{
 		<span class="ident">Key</span>,
 		<span class="ident">alloc</span>::{
-			<span class="ident">Allocator</span>,
 			<span class="ident">ForwardAlloc</span>,
 		},
 	},
@@ -66,18 +88,12 @@
 	},
 };
 
+<span class="kw">use</span> <span class="ident">parity_codec_derive</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
+
 <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Address</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
-
-<span class="doccomment">/// Allocates an amount of contract storage.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Doesn&#39;t actually touch the storage but keeps it from</span>
-<span class="doccomment">/// getting reused by another instance.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="ident">size</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
-	<span class="ident">STORAGE_ALLOC</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>().<span class="ident">alloc</span>(<span class="ident">size</span>)
-}
 
 <span class="doccomment">/// Return current contract caller as 32-bytes array.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">caller_as_array</span>() <span class="op">-&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
@@ -89,21 +105,51 @@
 }
 
 <span class="macro">lazy_static</span><span class="macro">!</span> {
-	<span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">STORAGE_ALLOC</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">ForwardAlloc</span><span class="op">&gt;</span> <span class="op">=</span> {
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">STORAGE_ALLOC</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">ForwardAlloc</span><span class="op">&gt;</span> <span class="op">=</span> {
 		<span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="kw">unsafe</span> {
 			<span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(
 				<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>])
 			)
 		})
 	};
-	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">TWEETS_KEY</span>: <span class="ident">Key</span> <span class="op">=</span> {
-		<span class="ident">alloc</span>(<span class="number">1</span>)
+}
+
+<span class="doccomment">/// Enzyme API.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="kw">enum</span> <span class="ident">Action</span> {
+	<span class="doccomment">/// Register a new user.</span>
+	<span class="ident">Register</span>{<span class="ident">username</span>: <span class="ident">String</span>},
+	<span class="doccomment">/// Post a message by a user.</span>
+	<span class="ident">TweetMessage</span>{<span class="ident">username</span>: <span class="ident">String</span>, <span class="ident">message</span>: <span class="ident">String</span>},
+	<span class="doccomment">/// Make a user follow the other.</span>
+	<span class="ident">Follow</span>{<span class="ident">following</span>: <span class="ident">String</span>, <span class="ident">followed</span>: <span class="ident">String</span>},
+}
+
+<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">deploy</span>() {}
+
+<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">call</span>() {
+	<span class="kw">use</span> <span class="ident">parity_codec</span>::{<span class="ident">Decode</span>};
+	<span class="kw">use</span> <span class="ident">pdsl_core</span>::{
+		<span class="ident">env</span>::{<span class="ident">Env</span>, <span class="ident">ContractEnv</span>},
 	};
-	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">USERS_KEY</span>: <span class="ident">Key</span> <span class="op">=</span> {
-		<span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">alloc</span>(<span class="number">1</span>);
-		<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>());
-		<span class="ident">ret</span>
-	};
+
+	<span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">ContractEnv</span>::<span class="ident">input</span>();
+	<span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">Action</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[..]).<span class="ident">unwrap</span>();
+
+	<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">enzyme</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">Enzyme</span>::<span class="ident">default</span>();
+	<span class="kw">match</span> <span class="ident">action</span> {
+		<span class="ident">Action</span>::<span class="ident">Register</span>{<span class="ident">username</span>} <span class="op">=&gt;</span> {
+			<span class="ident">enzyme</span>.<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="ident">username</span>);
+		}
+		<span class="ident">Action</span>::<span class="ident">TweetMessage</span>{<span class="ident">username</span>, <span class="ident">message</span>} <span class="op">=&gt;</span> {
+			<span class="ident">enzyme</span>.<span class="ident">tweet_message</span>(<span class="kw-2">&amp;</span><span class="ident">username</span>, <span class="kw-2">&amp;</span><span class="ident">message</span>)
+		}
+		<span class="ident">Action</span>::<span class="ident">Follow</span>{<span class="ident">following</span>, <span class="ident">followed</span>} <span class="op">=&gt;</span> {
+			<span class="ident">enzyme</span>.<span class="ident">follow</span>(<span class="kw-2">&amp;</span><span class="ident">following</span>, <span class="kw-2">&amp;</span><span class="ident">followed</span>)
+		}
+	}
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "enzyme";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-files.js"></script><script src="../../source-script.js"></script><script defer src="../../search-index.js"></script></body></html>

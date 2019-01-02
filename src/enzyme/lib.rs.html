@@ -166,29 +166,6 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">alloc</span>)]</span>
 
@@ -196,8 +173,6 @@
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">utils</span>;
-
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">pdsl_core</span>::<span class="ident">storage</span>;
 <span class="kw">use</span> <span class="ident">parity_codec_derive</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
@@ -229,23 +204,20 @@
 }
 
 <span class="kw">impl</span> <span class="ident">UserData</span> {
-	<span class="doccomment">/// Creates new user data with default data.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
-		<span class="self">Self</span>{
-			<span class="ident">tweets</span>: <span class="kw">unsafe</span> {
-				<span class="ident">storage</span>::<span class="ident">Vec</span>::<span class="ident">new_unchecked</span>({
-					<span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">alloc</span>(<span class="number">1</span>);
-					<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>());
-					<span class="ident">key</span>
-				})
-			},
-			<span class="ident">following</span>: <span class="kw">unsafe</span> {
-				<span class="ident">storage</span>::<span class="ident">Vec</span>::<span class="ident">new_unchecked</span>({
-					<span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">alloc</span>(<span class="number">1</span>);
-					<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>());
-					<span class="ident">key</span>
-				})
-			},
+	<span class="doccomment">/// Creates new user data using the given allocator.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Note</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// The `CellChunkAlloc` should be preferred here since</span>
+	<span class="doccomment">/// allocations of this type are dynamic. For this reason</span>
+	<span class="doccomment">/// the `Enzyme` type has a built-in `CellChunkAlloc`.</span>
+	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">where</span>
+		<span class="ident">A</span>: <span class="ident">storage</span>::<span class="ident">Allocator</span>
+	{
+		<span class="self">Self</span> {
+			<span class="ident">tweets</span>: <span class="ident">storage</span>::<span class="ident">Vec</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">following</span>: <span class="ident">storage</span>::<span class="ident">Vec</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
 		}
 	}
 }
@@ -256,20 +228,39 @@
 	<span class="ident">tweets</span>: <span class="ident">storage</span>::<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Tweet</span><span class="op">&gt;</span>,
 	<span class="doccomment">/// Database of all registered users and their data.</span>
 	<span class="ident">users</span>: <span class="ident">storage</span>::<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UserData</span><span class="op">&gt;</span>,
+	<span class="doccomment">/// The allocator for newly allocated entities.</span>
+	<span class="ident">alloc</span>: <span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">CellChunkAlloc</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Enzyme</span> {
 	<span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
 		<span class="kw">unsafe</span> {
-			<span class="ident">Enzyme</span>{
-				<span class="ident">tweets</span>: <span class="ident">storage</span>::<span class="ident">Vec</span>::<span class="ident">new_unchecked</span>(<span class="kw-2">*</span><span class="ident">TWEETS_KEY</span>),
-				<span class="ident">users</span>: <span class="ident">storage</span>::<span class="ident">HashMap</span>::<span class="ident">new_unchecked</span>(<span class="kw-2">*</span><span class="ident">USERS_KEY</span>),
-			}
+			<span class="ident">Enzyme</span>::<span class="ident">new_using_alloc</span>(
+				<span class="kw-2">&amp;</span><span class="kw-2">mut</span><span class="op">*</span> <span class="ident">utils</span>::<span class="ident">STORAGE_ALLOC</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>()
+			)
 		}
 	}
 }
 
 <span class="kw">impl</span> <span class="ident">Enzyme</span> {
+	<span class="doccomment">/// Creates new enzyme platform using the given allocator.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Note</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// The `ForwardAlloc` should be preferred here since there is</span>
+	<span class="doccomment">/// normally only one instance of this type and it can be registered</span>
+	<span class="doccomment">/// during contract compiĺe-time.</span>
+	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">where</span>
+		<span class="ident">A</span>: <span class="ident">pdsl_core</span>::<span class="ident">storage</span>::<span class="ident">Allocator</span>
+	{
+		<span class="self">Self</span> {
+			<span class="ident">tweets</span>: <span class="ident">storage</span>::<span class="ident">Vec</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">users</span>: <span class="ident">storage</span>::<span class="ident">HashMap</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">alloc</span>: <span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">CellChunkAlloc</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+		}
+	}
+
 	<span class="doccomment">/// Returns all recent global posts as vector.</span>
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">recent_tweets</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">amount</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Tweet</span><span class="op">&gt;</span> {
 		<span class="self">self</span>
@@ -318,7 +309,8 @@
 	<span class="doccomment">/// Returns `true` if registration was successful.</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
 		<span class="kw">if</span> <span class="self">self</span>.<span class="ident">users</span>.<span class="ident">get</span>(<span class="ident">username</span>).<span class="ident">is_none</span>() {
-			<span class="self">self</span>.<span class="ident">users</span>.<span class="ident">insert</span>(<span class="ident">username</span>.<span class="ident">into</span>(), <span class="ident">UserData</span>::<span class="ident">new</span>());
+			<span class="kw">let</span> <span class="ident">user_data</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">UserData</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">alloc</span>) };
+			<span class="self">self</span>.<span class="ident">users</span>.<span class="ident">insert</span>(<span class="ident">username</span>.<span class="ident">into</span>(), <span class="ident">user_data</span>);
 			<span class="kw">return</span> <span class="bool-val">true</span>
 		}
 		<span class="bool-val">false</span>
@@ -341,44 +333,6 @@
 			.<span class="ident">mutate_with</span>(<span class="ident">following</span>, <span class="op">|</span><span class="ident">following</span><span class="op">|</span> {
 				<span class="ident">following</span>.<span class="ident">following</span>.<span class="ident">push</span>(<span class="ident">followed</span>.<span class="ident">into</span>())
 			});
-	}
-}
-
-<span class="doccomment">/// Enzyme API.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Action</span> {
-	<span class="doccomment">/// Register a new user.</span>
-	<span class="ident">Register</span>{<span class="ident">username</span>: <span class="ident">String</span>},
-	<span class="doccomment">/// Post a message by a user.</span>
-	<span class="ident">TweetMessage</span>{<span class="ident">username</span>: <span class="ident">String</span>, <span class="ident">message</span>: <span class="ident">String</span>},
-	<span class="doccomment">/// Make a user follow the other.</span>
-	<span class="ident">Follow</span>{<span class="ident">following</span>: <span class="ident">String</span>, <span class="ident">followed</span>: <span class="ident">String</span>},
-}
-
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">deploy</span>() {}
-
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">call</span>() {
-	<span class="kw">use</span> <span class="ident">parity_codec</span>::{<span class="ident">Decode</span>};
-	<span class="kw">use</span> <span class="ident">pdsl_core</span>::{
-		<span class="ident">env</span>::{<span class="ident">Env</span>, <span class="ident">ContractEnv</span>},
-	};
-
-	<span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">ContractEnv</span>::<span class="ident">input</span>();
-	<span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">Action</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[..]).<span class="ident">unwrap</span>();
-
-	<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">enzyme</span> <span class="op">=</span> <span class="ident">Enzyme</span>::<span class="ident">default</span>();
-	<span class="kw">match</span> <span class="ident">action</span> {
-		<span class="ident">Action</span>::<span class="ident">Register</span>{<span class="ident">username</span>} <span class="op">=&gt;</span> {
-			<span class="ident">enzyme</span>.<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="ident">username</span>);
-		}
-		<span class="ident">Action</span>::<span class="ident">TweetMessage</span>{<span class="ident">username</span>, <span class="ident">message</span>} <span class="op">=&gt;</span> {
-			<span class="ident">enzyme</span>.<span class="ident">tweet_message</span>(<span class="kw-2">&amp;</span><span class="ident">username</span>, <span class="kw-2">&amp;</span><span class="ident">message</span>)
-		}
-		<span class="ident">Action</span>::<span class="ident">Follow</span>{<span class="ident">following</span>, <span class="ident">followed</span>} <span class="op">=&gt;</span> {
-			<span class="ident">enzyme</span>.<span class="ident">follow</span>(<span class="kw-2">&amp;</span><span class="ident">following</span>, <span class="kw-2">&amp;</span><span class="ident">followed</span>)
-		}
 	}
 }
 </pre></div>
