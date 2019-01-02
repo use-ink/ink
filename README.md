@@ -21,14 +21,18 @@ An [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write W
 
 ## Goals
 
-| Core Goals | |
+### Core Goals
+
+| | |
 |:-:|:-|
 | **Ecosystem** | Allow for easy integration with the current Rust library ecosystem. |
 | **Tooling** | Make the great Rust tooling work out-of-the-box for smart contract code. This includes auto-completion, syntax highlighting, code coverage for tests, go-to definitions and other IDE goodies. These should all work without any custom configuration. |
 | **Testing** | Make smart contract code as easy to test as using `cargo test`, and make most testing be possible without a blockchain environment at all. |
 | **Building** | Make building of smart contract code as easy as using `cargo build`. This does not necessarily mean that you will be able to just type `cargo build`. It might need a separate subcommand. |
 
-| Key Attributes | |
+### Key Attributes
+
+| | |
 |:-:|:-|
 | **Efficient** | Compile smart contract code to machine code that is _at least_ as efficient as if you used the low-level function calls directly. |
 | **Robust** | Make it as simple as possible to write code that just does what is expected and as difficult as possible to write incorrect or exploitable code. |
