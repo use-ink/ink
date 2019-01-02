@@ -4,7 +4,6 @@ use crate::{
 		self,
 		Key,
 	},
-	byte_utils,
 };
 
 use parity_codec_derive::{Encode, Decode};
@@ -128,18 +127,13 @@ impl CellChunkAlloc {
 	///
 	/// The reverse of `cell_index_to_key`.
 	fn key_to_cell_index(&self, key: Key) -> u32 {
-		let mut cell_offset = self.cells_offset_key();
-		byte_utils::negate_bytes(cell_offset.as_bytes_mut());
-		let mut res = key;
-		byte_utils::bytes_add_bytes(res.as_bytes_mut(), cell_offset.as_bytes());
-		debug_assert!(
-			res.as_bytes()[0..28].into_iter().all(|&byte| byte == 0x0)
-		);
-		let index = byte_utils::bytes4_to_u32(
-			byte_utils::slice4_as_array4(&res.as_bytes()[28..32])
-				.unwrap()
-		);
-		index
+		let diff = key - self.cells_offset_key();
+		diff.try_to_u32()
+			.expect(
+				"if allocated by this allocator the difference between
+				 the given key and offset key must be less-than or equal
+				 to u32::MAX."
+			)
 	}
 
 	/// Converts chunk indices to keys.
@@ -154,17 +148,13 @@ impl CellChunkAlloc {
 	///
 	/// The reverse of `chunk_index_to_key`.
 	fn key_to_chunk_index(&self, key: Key) -> u32 {
-		let mut chunk_offset = self.chunks_offset_key();
-		byte_utils::negate_bytes(chunk_offset.as_bytes_mut());
-		let mut res = key;
-		byte_utils::bytes_add_bytes(res.as_bytes_mut(), chunk_offset.as_bytes());
-		debug_assert!(
-			res.as_bytes()[0..24].into_iter().all(|&byte| byte == 0x0)
-		);
-		let index = byte_utils::bytes8_to_u64(
-			byte_utils::slice8_as_array8(&res.as_bytes()[24..32])
-				.unwrap()
-		);
+		let diff = key - self.cells_offset_key();
+		let index = diff.try_to_u64()
+			.expect(
+				"if allocated by this allocator the difference between
+				 the given key and offset key must be less-than or equal
+				 to u64::MAX."
+			);
 		(index >> 32) as u32
 	}
 }
