@@ -58,6 +58,30 @@ pub fn negate_bytes(bytes: &mut [u8]) {
 	bytes_add_byte(bytes, 0x01);
 }
 
+/// Sign-extend `src` to `dst`.
+///
+/// This interprets the `src` and `dst` byte slices as
+/// big-endian twos-complement numbers.
+///
+/// # Note
+///
+/// This will copy the most-significant bit (sign bit)
+/// of `src` into `dst`.
+///
+/// # Panics
+///
+/// If `src` length is not smaller than `dst` length.
+pub fn sign_extend_to(dst: &mut [u8], src: &[u8]) {
+	let dst_len = dst.len();
+	let src_len = src.len();
+	assert!(src_len < dst_len);
+	let (dst_head, dst_src) = dst.split_at_mut(dst_len - src_len);
+	dst_src.copy_from_slice(src);
+	let sign_bit = (src[0] & 0b1000_0000) != 0;
+	let extend_byte = if sign_bit { 0xFF } else { 0x00 };
+	for byte in dst_head { *byte = extend_byte; }
+}
+
 macro_rules! impl_slice_as_array {
 	( $name:ident, $n:expr ) => {
 		/// Interprets the slice as exact size array if possible.
@@ -362,5 +386,24 @@ mod tests {
 				0x9A, 0xBC, 0xDE, 0xF0,
 			]
 		);
+	}
+
+	#[test]
+	fn test_sign_extend_to() {
+		let mut dst = [0x0; 4];
+		let src1 = [0b1000_0000]; // 0x80
+		let src2 = [0b0111_1111]; // 0x7F
+		sign_extend_to(&mut dst, &src1);
+		assert_eq!(dst, [0xFF, 0xFF, 0xFF, 0x80]);
+		sign_extend_to(&mut dst, &src2);
+		assert_eq!(dst, [0x00, 0x00, 0x00, 0x7F]);
+	}
+
+	#[test]
+	#[should_panic]
+	fn test_sign_extend_to_panic() {
+		let mut dst = [0x0; 4];
+		let src = [0x42; 4];
+		sign_extend_to(&mut dst, &src);
 	}
 }
