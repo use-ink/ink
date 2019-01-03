@@ -18,31 +18,6 @@
 
 use core::mem::size_of;
 
-/// Add byte to the given byte slice.
-///
-/// Returns `true` if there was an overflow.
-///
-/// # Note
-///
-/// For this the byte slices are interpreted as twos-complement numbers.
-///
-/// # Panics
-///
-/// If `lhs` is an empty slice.
-fn bytes_add_byte(lhs: &mut [u8], rhs: u8) -> bool {
-	assert!(lhs.len() >= 1);
-	let mut carry = rhs;
-	for lhs in lhs.into_iter().rev() {
-		if carry == 0 {
-			return false
-		}
-		let (res, ovfl) = lhs.overflowing_add(carry);
-		*lhs = res;
-		carry = u8::from(ovfl);
-	}
-	if carry == 0 { false } else { true }
-}
-
 /// Flips all bytes in the byte slice inplace.
 fn invert_bytes(bytes: &mut [u8]) {
 	for byte in bytes.into_iter() {
@@ -55,7 +30,7 @@ fn invert_bytes(bytes: &mut [u8]) {
 /// Interprets the bytes as twos-complement number.
 pub fn negate_bytes(bytes: &mut [u8]) {
 	invert_bytes(bytes);
-	bytes_add_byte(bytes, 0x01);
+	bytes_add_bytes(bytes, &[0x01]);
 }
 
 /// Sign-extend `src` to `dst`.
@@ -101,31 +76,102 @@ macro_rules! impl_slice_as_array {
 impl_slice_as_array!(slice4_as_array4, 4);
 impl_slice_as_array!(slice8_as_array8, 8);
 
-/// Adds the given bytes slices inplace.
+/// Generic carry add/sub implementation
+/// between a byte slice and a byte.
+///
+/// Used by `bytes_add_byte` and `bytes_sub_byte`.
 ///
 /// Returns `true` if there was an overflow.
 ///
 /// # Note
 ///
-/// For this the byte slices are interpreted as twos-complement numbers.
+/// Interprets the byte slices and the byte
+/// as big-endian twos-complement numbers.
 ///
 /// # Panics
 ///
-/// If `lhs` and `rhs` do not have the same lengths.
+/// If `lhs` is an empty slice.
+fn bytes_ops_byte<F>(lhs: &mut [u8], rhs: u8, ops: F) -> bool
+where
+	F: Copy + Fn(u8, u8) -> (u8, bool)
+{
+	assert!(lhs.len() >= 1);
+	let mut carry = rhs;
+	for lhs in lhs.into_iter().rev() {
+		if carry == 0 {
+			return false
+		}
+		let (res, ovfl) = ops(*lhs, carry);
+		*lhs = res;
+		carry = u8::from(ovfl);
+	}
+	if carry == 0 { false } else { true }
+}
+
+/// Generic carry-operation implementation for two byte slices
+/// of equal sizes.
+///
+/// # Note
+///
+/// Interprets the byte slices as big-endian twos-complement numbers.
+///
+/// # Panics
+///
+/// - If `lhs` and `rhs` do not have the same lengths.
 /// - If `lhs` or `rhs` is empty slice.
-fn bytes_add_bytes_eq(lhs: &mut [u8], rhs: &[u8]) -> bool {
+fn bytes_ops_bytes_eq<F>(lhs: &mut [u8], rhs: &[u8], ops: F) -> bool
+where
+	F: Copy + Fn(u8, u8) -> (u8, bool)
+{
 	assert_eq!(lhs.len(), rhs.len());
 	assert!(lhs.len() > 0);
 	debug_assert!(rhs.len() > 0);
 	let mut carry = 0;
 	for (lhs, rhs) in lhs.into_iter().zip(rhs.into_iter()).rev() {
-		let (res1, carry1) = lhs.overflowing_add(carry);
-		let (res2, carry2) = res1.overflowing_add(*rhs);
+		let (res1, carry1) = ops(*lhs, carry);
+		let (res2, carry2) = ops(res1, *rhs);
 		debug_assert!(!(carry1 && carry2));
 		*lhs = res2;
 		carry = u8::from(carry1 || carry2);
 	}
 	if carry == 0 { false } else { true }
+}
+
+/// Generic carry-operation implementation for two byte slices.
+///
+/// Used as underlying implementation of
+/// `bytes_add_bytes` and `bytes_sub_bytes`.
+///
+/// # Note
+///
+/// Interprets the byte slices as big-endian twos-complement numbers.
+///
+/// # Panics
+///
+/// - If the length of `lhs` is less than the length of `rhs`.
+/// - If `lhs` or `rhs` is empty slice.
+fn bytes_ops_bytes<F>(lhs: &mut [u8], rhs: &[u8], ops: F) -> bool
+where
+	F: Copy + Fn(u8, u8) -> (u8, bool),
+{
+	let lhs_len = lhs.len();
+	let rhs_len = rhs.len();
+	assert!(lhs_len > 0);
+	assert!(rhs_len > 0);
+	assert!(lhs_len >= rhs_len);
+	if rhs_len == 1 {
+		return bytes_ops_byte(lhs, rhs[0], ops)
+	}
+	if lhs_len == rhs_len {
+		return bytes_ops_bytes_eq(lhs, rhs, ops)
+	}
+	let (lhs_msb, lhs_lsb) = lhs.split_at_mut(lhs_len - rhs_len);
+	assert_eq!(lhs_lsb.len(), rhs_len);
+	let ovfl = bytes_ops_bytes_eq(lhs_lsb, rhs, ops);
+	if ovfl {
+		return bytes_ops_byte(lhs_msb, 0x1, ops);
+	}
+	false
 }
 
 /// Adds the given bytes slices inplace.
@@ -134,31 +180,30 @@ fn bytes_add_bytes_eq(lhs: &mut [u8], rhs: &[u8]) -> bool {
 ///
 /// # Note
 ///
-/// For this the byte slices are interpreted as twos-complement numbers.
+/// Interprets the byte slices as big-endian twos-complement numbers.
 ///
 /// # Panics
 ///
 /// - If the length of `lhs` is less than the length of `rhs`.
 /// - If `lhs` or `rhs` is empty slice.
 pub fn bytes_add_bytes(lhs: &mut [u8], rhs: &[u8]) -> bool {
-	let lhs_len = lhs.len();
-	let rhs_len = rhs.len();
-	assert!(lhs_len > 0);
-	assert!(rhs_len > 0);
-	assert!(lhs_len >= rhs_len);
-	if rhs_len == 1 {
-		return bytes_add_byte(lhs, rhs[0])
-	}
-	if lhs_len == rhs_len {
-		return bytes_add_bytes_eq(lhs, rhs)
-	}
-	let (lhs_msb, lhs_lsb) = lhs.split_at_mut(lhs_len - rhs_len);
-	assert_eq!(lhs_lsb.len(), rhs_len);
-	let ovfl = bytes_add_bytes(lhs_lsb, rhs);
-	if ovfl {
-		return bytes_add_byte(lhs_msb, 0x1);
-	}
-	false
+	bytes_ops_bytes(lhs, rhs, u8::overflowing_add)
+}
+
+/// Subtracts the given bytes slices inplace.
+///
+/// Returns `true` if there was an overflow.
+///
+/// # Note
+///
+/// Interprets the byte slices as big-endian twos-complement numbers.
+///
+/// # Panics
+///
+/// - If the length of `lhs` is less than the length of `rhs`.
+/// - If `lhs` or `rhs` is empty slice.
+pub fn bytes_sub_bytes(lhs: &mut [u8], rhs: &[u8]) -> bool {
+	bytes_ops_bytes(lhs, rhs, u8::overflowing_sub)
 }
 
 macro_rules! primitives_impl {
