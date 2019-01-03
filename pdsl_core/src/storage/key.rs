@@ -18,6 +18,8 @@ use crate::byte_utils;
 
 use parity_codec_derive::{Encode, Decode};
 
+const KEY_LOG_TARGET: &'static str = "key";
+
 /// Typeless generic key into contract storage.
 ///
 /// # Note
@@ -121,7 +123,14 @@ impl core::ops::AddAssign<u32> for Key {
 			self.as_bytes_mut(),
 			&byte_utils::u32_to_bytes4(rhs)
 		);
-		assert!(!ovfl, "overflows should not occure for 256-bit keys");
+		if ovfl {
+			log::warn!(
+				target: KEY_LOG_TARGET,
+				"`lhs += rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
+				self,
+				rhs,
+			);
+		}
 	}
 }
 
@@ -141,7 +150,68 @@ impl core::ops::AddAssign<u64> for Key {
 			self.as_bytes_mut(),
 			&byte_utils::u64_to_bytes8(rhs)
 		);
-		debug_assert!(!ovfl, "overflows should not occure for 256-bit keys");
+		if ovfl {
+			log::warn!(
+				target: KEY_LOG_TARGET,
+				"`lhs += rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
+				self,
+				rhs,
+			);
+		}
+	}
+}
+
+impl core::ops::Sub<u32> for Key {
+	type Output = Self;
+
+	fn sub(self, rhs: u32) -> Self::Output {
+		let mut result = self;
+		result -= rhs;
+		result
+	}
+}
+
+impl core::ops::Sub<u64> for Key {
+	type Output = Self;
+
+	fn sub(self, rhs: u64) -> Self::Output {
+		let mut result = self;
+		result -= rhs;
+		result
+	}
+}
+
+impl core::ops::SubAssign<u32> for Key {
+	fn sub_assign(&mut self, rhs: u32) {
+		let ovfl = byte_utils::bytes_sub_bytes(
+			self.as_bytes_mut(),
+			&byte_utils::u32_to_bytes4(rhs)
+		);
+		if ovfl {
+			log::warn!(
+				target: KEY_LOG_TARGET,
+				"`lhs -= rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
+				self,
+				rhs,
+			);
+		}
+	}
+}
+
+impl core::ops::SubAssign<u64> for Key {
+	fn sub_assign(&mut self, rhs: u64) {
+		let ovfl = byte_utils::bytes_sub_bytes(
+			self.as_bytes_mut(),
+			&byte_utils::u64_to_bytes8(rhs)
+		);
+		if ovfl {
+			log::warn!(
+				target: KEY_LOG_TARGET,
+				"`lhs -= rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
+				self,
+				rhs,
+			);
+		}
 	}
 }
 
@@ -162,7 +232,7 @@ mod tests {
 	}
 
 	#[test]
-	fn key_with_offset() {
+	fn key_add() {
 		let key00 = Key([0x0; 32]);
 		let key05 = key00 + 5_u32;  // -> 5
 		let key10 = key00 + 10_u32; // -> 10         | same as key55
@@ -171,6 +241,86 @@ mod tests {
 		assert_eq!(unsafe { ContractEnv::load(key10) }, Some(vec![42]));
 		unsafe { ContractEnv::store(key10, &[13, 37]); }
 		assert_eq!(unsafe { ContractEnv::load(key55) }, Some(vec![13, 37]));
+	}
+
+	#[test]
+	fn key_add_sub() {
+		let key0a = Key([0x0; 32]);
+		unsafe { ContractEnv::store(key0a, &[0x01]); }
+		let key1a = key0a + 1337_u32;
+		unsafe { ContractEnv::store(key1a, &[0x02]); }
+		let key2a = key0a + 42_u32;
+		unsafe { ContractEnv::store(key2a, &[0x03]); }
+		let key3a = key0a + 52_u32;
+		let key2b = key3a - 10_u32;
+		assert_eq!(unsafe { ContractEnv::load(key2b) }, Some(vec![0x03]));
+		let key1b = key2b - 42_u32;
+		assert_eq!(unsafe { ContractEnv::load(key1b) }, Some(vec![0x01]));
+		let key0b = key1b + 2000_u32 - 663_u32;
+		assert_eq!(unsafe { ContractEnv::load(key0b) }, Some(vec![0x02]));
+	}
+
+	#[test]
+	fn key_sub() {
+		assert_eq!(
+			Key([0x42; 32]) - 0_u32,
+			Key([0x42; 32])
+		);
+		assert_eq!(
+			Key([0x00; 32]) - 1_u32,
+			Key([0xFF; 32])
+		);
+		assert_eq!(
+			Key([0x01; 32]) - 1_u32,
+			Key([
+				0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+				0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+				0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+				0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00
+			])
+		);
+		{
+			let key_u32_max_value = Key([
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF
+			]);
+			assert_eq!(
+				key_u32_max_value - u32::max_value(),
+				Key([0x00; 32])
+			);
+		}
+		{
+			let key_a = Key([
+				0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
+				0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,
+				0xA0, 0xB1, 0xC2, 0xD3, 0xE4, 0xF5, 0x06, 0x17,
+				0x00, 0x22, 0x44, 0x66, 0x88, 0xAA, 0xCC, 0xEE,
+			]);
+			let b: u32 = 0xFA09_51C3;
+			let expected_b = Key([
+				0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
+				0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,
+				0xA0, 0xB1, 0xC2, 0xD3, 0xE4, 0xF5, 0x06, 0x17,
+				0x00, 0x22, 0x44, 0x65, 0x8E, 0xA1, 0x7B, 0x2B
+			]);
+			assert_eq!(
+				key_a - b,
+				expected_b
+			);
+			let c: u64 = 0xFBDC_BEEF_9999_1234;
+			let expected_c = Key([
+				0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
+				0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,
+				0xA0, 0xB1, 0xC2, 0xD3, 0xE4, 0xF5, 0x06, 0x16,
+				0x04, 0x45, 0x85, 0x76, 0xEF, 0x11, 0xBA, 0xBA
+			]);
+			assert_eq!(
+				key_a - c,
+				expected_c
+			);
+		}
 	}
 
 	#[test]
