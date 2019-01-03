@@ -106,15 +106,11 @@ impl KeyDiff {
 }
 
 impl core::ops::Add<u32> for Key {
-	type Output = Key;
+	type Output = Self;
 
 	fn add(self, rhs: u32) -> Self::Output {
 		let mut result = self;
-		let ovfl = byte_utils::bytes_add_bytes(
-			result.as_bytes_mut(),
-			&byte_utils::u32_to_bytes4(rhs)
-		);
-		assert!(!ovfl, "overflows should not occure for 256-bit keys");
+		result += rhs;
 		result
 	}
 }
@@ -130,15 +126,11 @@ impl core::ops::AddAssign<u32> for Key {
 }
 
 impl core::ops::Add<u64> for Key {
-	type Output = Key;
+	type Output = Self;
 
 	fn add(self, rhs: u64) -> Self::Output {
 		let mut result = self;
-		let ovfl = byte_utils::bytes_add_bytes(
-			result.as_bytes_mut(),
-			&byte_utils::u64_to_bytes8(rhs)
-		);
-		debug_assert!(!ovfl, "overflows should not occure for 256-bit keys");
+		result += rhs;
 		result
 	}
 }
