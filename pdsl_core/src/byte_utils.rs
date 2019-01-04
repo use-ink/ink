@@ -220,192 +220,205 @@ primitives_impl!(u64, bytes8_to_u64, u64_to_bytes8);
 mod tests {
 	use super::*;
 
+	use crate::test_utils::run_test;
+
 	#[test]
 	fn test_negate_bytes() {
-		fn negate_bytes_copy(bytes: &[u8]) -> Vec<u8> {
-			let mut buf = bytes.to_vec();
-			negate_bytes(&mut buf);
-			buf
-		}
-		fn test_for(bytes: &[u8], expected: &[u8]) {
-			assert_eq!(negate_bytes_copy(bytes), expected)
-		}
-		// Test for '0'
-		test_for(&[0x00], &[0x00]);
-		// Test for '1'
-		test_for(&[0x00, 0x01], &[0xFF, 0xFF]);
-		// Test for '-1' == '0xFF'
-		test_for(&[0xFF, 0xFF], &[0x00, 0x01]);
-		// Test for '42' == '0x2A'
-		//
-		// 0000 0000 0010 1010 | input
-		// 1111 1111 1101 0101 | flipped
-		// 1111 1111 1101 0110 | +1
-		//    F    F    D    6 | hex
-		test_for(&[0x00, 0x2A], &[0xFF, 0xD6]);
-
+		run_test(|| {
+			fn negate_bytes_copy(bytes: &[u8]) -> Vec<u8> {
+				let mut buf = bytes.to_vec();
+				negate_bytes(&mut buf);
+				buf
+			}
+			fn test_for(bytes: &[u8], expected: &[u8]) {
+				assert_eq!(negate_bytes_copy(bytes), expected)
+			}
+			// Test for '0'
+			test_for(&[0x00], &[0x00]);
+			// Test for '1'
+			test_for(&[0x00, 0x01], &[0xFF, 0xFF]);
+			// Test for '-1' == '0xFF'
+			test_for(&[0xFF, 0xFF], &[0x00, 0x01]);
+			// Test for '42' == '0x2A'
+			//
+			// 0000 0000 0010 1010 | input
+			// 1111 1111 1101 0101 | flipped
+			// 1111 1111 1101 0110 | +1
+			//    F    F    D    6 | hex
+			test_for(&[0x00, 0x2A], &[0xFF, 0xD6]);
+		})
 	}
 
 	#[test]
 	fn test_slice_as_array() {
-		assert_eq!(slice4_as_array4::<i32>(&[]), None);
-		assert_eq!(slice4_as_array4(&[1, 2, 3, 4, 5]), None);
-		assert_eq!(slice4_as_array4(&[1, 2, 3, 4]), Some(&[1, 2, 3, 4]));
-		assert_eq!(slice4_as_array4(&[1, 2, 3]), None);
+		run_test(|| {
+			assert_eq!(slice4_as_array4::<i32>(&[]), None);
+			assert_eq!(slice4_as_array4(&[1, 2, 3, 4, 5]), None);
+			assert_eq!(slice4_as_array4(&[1, 2, 3, 4]), Some(&[1, 2, 3, 4]));
+			assert_eq!(slice4_as_array4(&[1, 2, 3]), None);
+		})
 	}
 
 	#[test]
 	fn test_bytes_add_bytes_eq() {
-		fn test_for(lhs: &[u8], rhs: &[u8], expected: &[u8]) {
-			fn bytes_add_bytes_copy(lhs: &[u8], rhs: &[u8]) -> Vec<u8> {
-				let mut lhs_vec = lhs.to_vec();
-				bytes_add_bytes(&mut lhs_vec, rhs);
-				lhs_vec
+		run_test(|| {
+			fn test_for(lhs: &[u8], rhs: &[u8], expected: &[u8]) {
+				fn bytes_add_bytes_copy(lhs: &[u8], rhs: &[u8]) -> Vec<u8> {
+					let mut lhs_vec = lhs.to_vec();
+					bytes_add_bytes(&mut lhs_vec, rhs);
+					lhs_vec
+				}
+				assert_eq!(
+					bytes_add_bytes_copy(lhs, rhs).as_slice(),
+					expected
+				);
+				// Changing lhs with rhs should not change the result.
+				assert_eq!(
+					bytes_add_bytes_copy(rhs, lhs).as_slice(),
+					expected
+				);
 			}
-			assert_eq!(
-				bytes_add_bytes_copy(lhs, rhs).as_slice(),
-				expected
+			// 0 + 0 == 0
+			test_for(
+				&[0x00, 0x00, 0x00, 0x00],
+				&[0x00, 0x00, 0x00, 0x00],
+				&[0x00, 0x00, 0x00, 0x00],
 			);
-			// Changing lhs with rhs should not change the result.
-			assert_eq!(
-				bytes_add_bytes_copy(rhs, lhs).as_slice(),
-				expected
+			// 0 + 0x42 == 0x42
+			test_for(
+				&[0x00, 0x00, 0x00, 0x00],
+				&[0x00, 0x00, 0x00, 0x42],
+				&[0x00, 0x00, 0x00, 0x42],
 			);
-		}
-		// 0 + 0 == 0
-		test_for(
-			&[0x00, 0x00, 0x00, 0x00],
-			&[0x00, 0x00, 0x00, 0x00],
-			&[0x00, 0x00, 0x00, 0x00],
-		);
-		// 0 + 0x42 == 0x42
-		test_for(
-			&[0x00, 0x00, 0x00, 0x00],
-			&[0x00, 0x00, 0x00, 0x42],
-			&[0x00, 0x00, 0x00, 0x42],
-		);
-		// u32::MAX + 1 == 0
-		test_for(
-			&[0xFF, 0xFF, 0xFF, 0xFF],
-			&[0x00, 0x00, 0x00, 0x01],
-			&[0x00, 0x00, 0x00, 0x00],
-		);
-		// 0 + u32::MAX == u32::MAX
-		test_for(
-			&[0x00, 0x00, 0x00, 0x00],
-			&[0xFF, 0xFF, 0xFF, 0xFF],
-			&[0xFF, 0xFF, 0xFF, 0xFF],
-		);
-		// 0x12345678 + 0x9ABCDEF0 = 0xACF13568
-		test_for(
-			&[0x12, 0x34, 0x56, 0x78],
-			&[0x9A, 0xBC, 0xDE, 0xF0],
-			&[0xAC, 0xF1, 0x35, 0x68],
-		);
+			// u32::MAX + 1 == 0
+			test_for(
+				&[0xFF, 0xFF, 0xFF, 0xFF],
+				&[0x00, 0x00, 0x00, 0x01],
+				&[0x00, 0x00, 0x00, 0x00],
+			);
+			// 0 + u32::MAX == u32::MAX
+			test_for(
+				&[0x00, 0x00, 0x00, 0x00],
+				&[0xFF, 0xFF, 0xFF, 0xFF],
+				&[0xFF, 0xFF, 0xFF, 0xFF],
+			);
+			// 0x12345678 + 0x9ABCDEF0 = 0xACF13568
+			test_for(
+				&[0x12, 0x34, 0x56, 0x78],
+				&[0x9A, 0xBC, 0xDE, 0xF0],
+				&[0xAC, 0xF1, 0x35, 0x68],
+			);
+		})
 	}
 
 	#[test]
 	fn test_bytes_add_bytes() {
-		fn test_for(lhs: &[u8], rhs: &[u8], expected: &[u8]) {
-			fn bytes_add_bytes_copy(lhs: &[u8], rhs: &[u8]) -> Vec<u8> {
-				let mut lhs_vec = lhs.to_vec();
-				bytes_add_bytes(&mut lhs_vec, rhs);
-				lhs_vec
+		run_test(|| {
+			fn test_for(lhs: &[u8], rhs: &[u8], expected: &[u8]) {
+				fn bytes_add_bytes_copy(lhs: &[u8], rhs: &[u8]) -> Vec<u8> {
+					let mut lhs_vec = lhs.to_vec();
+					bytes_add_bytes(&mut lhs_vec, rhs);
+					lhs_vec
+				}
+				assert_eq!(
+					bytes_add_bytes_copy(lhs, rhs).as_slice(),
+					expected
+				);
 			}
-			assert_eq!(
-				bytes_add_bytes_copy(lhs, rhs).as_slice(),
-				expected
+			// 0 + 0 == 0
+			test_for(
+				&[0x00, 0x00, 0x00, 0x00],
+				&[0x00],
+				&[0x00, 0x00, 0x00, 0x00],
 			);
-		}
-		// 0 + 0 == 0
-		test_for(
-			&[0x00, 0x00, 0x00, 0x00],
-			&[0x00],
-			&[0x00, 0x00, 0x00, 0x00],
-		);
-		// 0 + 0x42 == 0x42
-		test_for(
-			&[0x00, 0x00, 0x00, 0x00],
-			&[0x42],
-			&[0x00, 0x00, 0x00, 0x42],
-		);
-		// 0xAB_CD_00_00 + 0x00_00_98_76 == 0xAB_CD_98_76
-		test_for(
-			&[0xAB, 0xCD, 0x00, 0x00],
-			&[0x98, 0x76],
-			&[0xAB, 0xCD, 0x98, 0x76],
-		);
-		// 0xFFFF + 0xFFFF == 0x0001_FFFE
-		test_for(
-			&[0x00, 0x00, 0xFF, 0xFF],
-			&[0xFF, 0xFF],
-			&[0x00, 0x01, 0xFF, 0xFE],
-		);
+			// 0 + 0x42 == 0x42
+			test_for(
+				&[0x00, 0x00, 0x00, 0x00],
+				&[0x42],
+				&[0x00, 0x00, 0x00, 0x42],
+			);
+			// 0xAB_CD_00_00 + 0x00_00_98_76 == 0xAB_CD_98_76
+			test_for(
+				&[0xAB, 0xCD, 0x00, 0x00],
+				&[0x98, 0x76],
+				&[0xAB, 0xCD, 0x98, 0x76],
+			);
+			// 0xFFFF + 0xFFFF == 0x0001_FFFE
+			test_for(
+				&[0x00, 0x00, 0xFF, 0xFF],
+				&[0xFF, 0xFF],
+				&[0x00, 0x01, 0xFF, 0xFE],
+			);
+		})
 	}
 
 	#[test]
 	fn u32_and_bytes_conv() {
-		fn test_for(val: u32, bytes: [u8; 4]) {
-			assert_eq!(bytes4_to_u32(&u32_to_bytes4(val)), val);
-			assert_eq!(u32_to_bytes4(bytes4_to_u32(&bytes)), bytes);
-			assert_eq!(u32_to_bytes4(val), bytes);
-		}
-		test_for(
-			0x00_00_00_00,
-			[0x00, 0x00, 0x00, 0x00]
-		);
-		test_for(
-			0xFF_FF_FF_FF,
-			[0xFF, 0xFF, 0xFF, 0xFF]
-		);
-		test_for(
-			0x00_00_00_01,
-			[0x00, 0x00, 0x00, 0x01]
-		);
-		test_for(
-			0x12_34_56_78,
-			[0x12, 0x34, 0x56, 0x78]
-		);
+		run_test(|| {
+			fn test_for(val: u32, bytes: [u8; 4]) {
+				assert_eq!(bytes4_to_u32(&u32_to_bytes4(val)), val);
+				assert_eq!(u32_to_bytes4(bytes4_to_u32(&bytes)), bytes);
+				assert_eq!(u32_to_bytes4(val), bytes);
+			}
+			test_for(
+				0x00_00_00_00,
+				[0x00, 0x00, 0x00, 0x00]
+			);
+			test_for(
+				0xFF_FF_FF_FF,
+				[0xFF, 0xFF, 0xFF, 0xFF]
+			);
+			test_for(
+				0x00_00_00_01,
+				[0x00, 0x00, 0x00, 0x01]
+			);
+			test_for(
+				0x12_34_56_78,
+				[0x12, 0x34, 0x56, 0x78]
+			);
+		})
 	}
 
 	#[test]
 	fn u64_and_bytes_conv() {
-		fn test_for(val: u64, bytes: [u8; 8]) {
-			assert_eq!(bytes8_to_u64(&u64_to_bytes8(val)), val);
-			assert_eq!(u64_to_bytes8(bytes8_to_u64(&bytes)), bytes);
-			assert_eq!(u64_to_bytes8(val), bytes);
-		}
-		// Test for 0
-		test_for(
-			0x00_00_00_00_00_00_00_00,
-			[
-				0x00, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00,
-			]
-		);
-		// Test for MAX
-		test_for(
-			0xFF_FF_FF_FF_FF_FF_FF_FF,
-			[
-				0xFF, 0xFF, 0xFF, 0xFF,
-				0xFF, 0xFF, 0xFF, 0xFF,
-			]
-		);
-		// Test for 1
-		test_for(
-			0x00_00_00_00_00_00_00_01,
-			[
-				0x00, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x01,
-			]
-		);
-		// Test for unique bytes
-		test_for(
-			0x12_34_56_78_9A_BC_DE_F0,
-			[
-				0x12, 0x34, 0x56, 0x78,
-				0x9A, 0xBC, 0xDE, 0xF0,
-			]
-		);
+		run_test(|| {
+			fn test_for(val: u64, bytes: [u8; 8]) {
+				assert_eq!(bytes8_to_u64(&u64_to_bytes8(val)), val);
+				assert_eq!(u64_to_bytes8(bytes8_to_u64(&bytes)), bytes);
+				assert_eq!(u64_to_bytes8(val), bytes);
+			}
+			// Test for 0
+			test_for(
+				0x00_00_00_00_00_00_00_00,
+				[
+					0x00, 0x00, 0x00, 0x00,
+					0x00, 0x00, 0x00, 0x00,
+				]
+			);
+			// Test for MAX
+			test_for(
+				0xFF_FF_FF_FF_FF_FF_FF_FF,
+				[
+					0xFF, 0xFF, 0xFF, 0xFF,
+					0xFF, 0xFF, 0xFF, 0xFF,
+				]
+			);
+			// Test for 1
+			test_for(
+				0x00_00_00_00_00_00_00_01,
+				[
+					0x00, 0x00, 0x00, 0x00,
+					0x00, 0x00, 0x00, 0x01,
+				]
+			);
+			// Test for unique bytes
+			test_for(
+				0x12_34_56_78_9A_BC_DE_F0,
+				[
+					0x12, 0x34, 0x56, 0x78,
+					0x9A, 0xBC, 0xDE, 0xF0,
+				]
+			);
+		})
 	}
 }

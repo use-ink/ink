@@ -344,6 +344,7 @@ mod tests {
 	use super::*;
 
 	use crate::{
+		test_utils::run_test,
 		storage::{
 			alloc::ForwardAlloc,
 		},
@@ -353,49 +354,53 @@ mod tests {
 		( $test_name:ident, $tok:tt; $test_name_assign:ident, $tok_eq:tt) => {
 			#[test]
 			fn $test_name() {
-				let (val1, val2, val3) = unsafe {
-					let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
-					let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-					let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 5);
-					let val3 = Value::new_using_alloc(&mut fw_alloc, &val1 $tok &val2);
-					(val1, val2, val3)
-				};
-				// Check init values
-				assert_eq!(val1.get(), &42);
-				assert_eq!(val2.get(), &5);
-				assert_eq!(val3.get(), &(42 $tok 5));
-				// Operations with primitives
-				assert_eq!(&val1 $tok 5, 42 $tok 5);
-				// Operations with `Value<T>`
-				assert_eq!(&val1 $tok &val2, 42 $tok 5);
+				run_test(|| {
+					let (val1, val2, val3) = unsafe {
+						let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+						let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
+						let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 5);
+						let val3 = Value::new_using_alloc(&mut fw_alloc, &val1 $tok &val2);
+						(val1, val2, val3)
+					};
+					// Check init values
+					assert_eq!(val1.get(), &42);
+					assert_eq!(val2.get(), &5);
+					assert_eq!(val3.get(), &(42 $tok 5));
+					// Operations with primitives
+					assert_eq!(&val1 $tok 5, 42 $tok 5);
+					// Operations with `Value<T>`
+					assert_eq!(&val1 $tok &val2, 42 $tok 5);
+				})
 			}
 
 			#[test]
 			fn $test_name_assign() {
-				let (mut val1, mut copy, val2, val3) = unsafe {
-					let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
-					let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-					let copy: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-					let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 13);
-					let val3 = Value::new_using_alloc(&mut fw_alloc, 42 $tok 13);
-					(val1, copy, val2, val3)
-				};
-				// Check init values
-				assert_eq!(val1.get(), &42);
-				assert_eq!(val2.get(), &13);
-				assert_eq!(val3.get(), &(42 $tok 13));
-				// Operation with primitives
-				{
-					val1 $tok_eq 13;
-					assert_eq!(val1.get(), &(42 $tok 13));
-					assert_eq!(val1, val3);
-				}
-				// Operation between `Value<T>`
-				{
-					copy $tok_eq &val2;
-					assert_eq!(copy.get(), &(42 $tok 13));
-					assert_eq!(copy, val3);
-				}
+				run_test(|| {
+					let (mut val1, mut copy, val2, val3) = unsafe {
+						let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+						let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
+						let copy: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
+						let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 13);
+						let val3 = Value::new_using_alloc(&mut fw_alloc, 42 $tok 13);
+						(val1, copy, val2, val3)
+					};
+					// Check init values
+					assert_eq!(val1.get(), &42);
+					assert_eq!(val2.get(), &13);
+					assert_eq!(val3.get(), &(42 $tok 13));
+					// Operation with primitives
+					{
+						val1 $tok_eq 13;
+						assert_eq!(val1.get(), &(42 $tok 13));
+						assert_eq!(val1, val3);
+					}
+					// Operation between `Value<T>`
+					{
+						copy $tok_eq &val2;
+						assert_eq!(copy.get(), &(42 $tok 13));
+						assert_eq!(copy, val3);
+					}
+				})
 			}
 		};
 	}
@@ -413,21 +418,23 @@ mod tests {
 		( $test_name:ident, $trait_name:ident, $fn_name:ident, $tok:tt ) => {
 			#[test]
 			fn $test_name() {
-				let (val1, val2) = unsafe {
-					let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
-					let val1: Value<i32>
-						= Value::new_using_alloc(&mut fw_alloc, 42);
-					let val2
-						= Value::new_using_alloc(&mut fw_alloc, $tok 42);
-					(val1, val2)
-				};
-				// Check init values
-				assert_eq!(val1.get(), &42);
-				assert_eq!(val2.get(), &($tok 42));
-				// Simple test
-				assert_eq!($tok &val1, $tok 42);
-				use core::ops::$trait_name;
-				assert_eq!(val1.$fn_name(), $tok 42);
+				run_test(|| {
+					let (val1, val2) = unsafe {
+						let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+						let val1: Value<i32>
+							= Value::new_using_alloc(&mut fw_alloc, 42);
+						let val2
+							= Value::new_using_alloc(&mut fw_alloc, $tok 42);
+						(val1, val2)
+					};
+					// Check init values
+					assert_eq!(val1.get(), &42);
+					assert_eq!(val2.get(), &($tok 42));
+					// Simple test
+					assert_eq!($tok &val1, $tok 42);
+					use core::ops::$trait_name;
+					assert_eq!(val1.$fn_name(), $tok 42);
+				})
 			}
 		};
 	}
@@ -437,59 +444,65 @@ mod tests {
 
 	#[test]
 	fn test_shift() {
-		let (mut value, result) = unsafe {
-			let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
-			let value: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 10);
-			let result = Value::new_using_alloc(&mut fw_alloc, 10 << 5);
-			(value, result)
-		};
-		// Check init values
-		assert_eq!(value.get(), &10);
-		assert_eq!(result.get(), &(10 << 5));
-		// Simple tests
-		assert_eq!(&value << 5, 10 << 5);
-		// Assign test
-		value <<= 5;
-		assert_eq!(&value, &result);
+		run_test(|| {
+			let (mut value, result) = unsafe {
+				let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+				let value: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 10);
+				let result = Value::new_using_alloc(&mut fw_alloc, 10 << 5);
+				(value, result)
+			};
+			// Check init values
+			assert_eq!(value.get(), &10);
+			assert_eq!(result.get(), &(10 << 5));
+			// Simple tests
+			assert_eq!(&value << 5, 10 << 5);
+			// Assign test
+			value <<= 5;
+			assert_eq!(&value, &result);
+		})
 	}
 
 	#[test]
 	fn test_eq_ord() {
-		let (val1, val2, val3) = unsafe {
-			let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
-			let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-			let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-			let val3: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 1337);
-			(val1, val2, val3)
-		};
-		// Eq & Ne
-		assert!(val1 == val2);
-		assert!(val2 != val3);
-		// Less-Than
-		assert!(!(val1 < val2));
-		assert!(val2 < val3);
-		assert!(val1 < val3);
-		// Less-Than or Eq
-		assert!(val1 <= val2);
-		assert!(val2 <= val3);
-		assert!(val1 <= val3);
+		run_test(|| {
+			let (val1, val2, val3) = unsafe {
+				let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+				let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
+				let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
+				let val3: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 1337);
+				(val1, val2, val3)
+			};
+			// Eq & Ne
+			assert!(val1 == val2);
+			assert!(val2 != val3);
+			// Less-Than
+			assert!(!(val1 < val2));
+			assert!(val2 < val3);
+			assert!(val1 < val3);
+			// Less-Than or Eq
+			assert!(val1 <= val2);
+			assert!(val2 <= val3);
+			assert!(val1 <= val3);
+		})
 	}
 
 	#[test]
 	fn test_index() {
-		let val1 = unsafe {
-			let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
-			let val1: Value<Vec<i32>> = Value::new_using_alloc(
-				&mut fw_alloc,
-				vec![2, 3, 5, 7, 11, 13]
-			);
-			val1
-		};
-		assert_eq!(val1[0], 2);
-		assert_eq!(val1[1], 3);
-		assert_eq!(val1[2], 5);
-		assert_eq!(val1[3], 7);
-		assert_eq!(val1[4], 11);
-		assert_eq!(val1[5], 13);
+		run_test(|| {
+			let val1 = unsafe {
+				let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+				let val1: Value<Vec<i32>> = Value::new_using_alloc(
+					&mut fw_alloc,
+					vec![2, 3, 5, 7, 11, 13]
+				);
+				val1
+			};
+			assert_eq!(val1[0], 2);
+			assert_eq!(val1[1], 3);
+			assert_eq!(val1[2], 5);
+			assert_eq!(val1[3], 7);
+			assert_eq!(val1[4], 11);
+			assert_eq!(val1[5], 13);
+		})
 	}
 }
