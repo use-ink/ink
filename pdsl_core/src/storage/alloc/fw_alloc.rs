@@ -20,6 +20,8 @@ use crate::{
 	storage::Key,
 };
 
+const FW_ALLOC_LOG_TARGET: &'static str = "fw_alloc";
+
 /// An allocator that is meant to simply forward allocate contract
 /// storage at compile-time.
 ///
@@ -57,6 +59,10 @@ impl ForwardAlloc {
 impl Allocator for ForwardAlloc {
 	fn alloc(&mut self, size: u32) -> Key {
 		if size == 0 {
+			log::warn!(
+				target: FW_ALLOC_LOG_TARGET,
+				"tried allocating for a zero size",
+			);
 			panic!(
 				"[psdl_core::ForwardAlloc::alloc] Error: \
 				 cannot allocate zero (0) bytes"
@@ -64,6 +70,12 @@ impl Allocator for ForwardAlloc {
 		}
 		let key = self.offset_key.clone();
 		self.inc_offset_key(size);
+		log::info!(
+			target: FW_ALLOC_LOG_TARGET,
+			"allocated {:?} of size (= {:?})",
+			key,
+			size,
+		);
 		key
 	}
 
@@ -71,7 +83,12 @@ impl Allocator for ForwardAlloc {
 	///
 	/// Use [`CellChunkAlloc`](struct.CellChunkAlloc.html)
 	/// for dynamic allocation purposes instead.
-	fn dealloc(&mut self, _key: Key) {
+	fn dealloc(&mut self, key: Key) {
+		log::warn!(
+			target: FW_ALLOC_LOG_TARGET,
+			"tried to deallocate a key (= {:?}) with a forward allocator",
+			key,
+		);
 		unreachable!(
 			"The forward allocator is meant to be only used in compile-time
 			 context for entities that shall not be deallocated during the

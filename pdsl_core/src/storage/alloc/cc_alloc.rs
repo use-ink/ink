@@ -24,6 +24,8 @@ use crate::{
 
 use parity_codec_derive::{Encode, Decode};
 
+const CC_ALLOC_LOG_TARGET: &'static str = "cc_alloc";
+
 /// An allocator for the contract storage.
 ///
 /// Specialized to efficiently allocate and deallocate cells and chunks.
@@ -103,18 +105,35 @@ impl CellChunkAlloc {
 	/// Allocates a new storage region that fits for a single cell.
 	fn alloc_cell(&mut self) -> Key {
 		let index = self.cells.put(());
-		self.cell_index_to_key(index)
+		let key = self.cell_index_to_key(index);
+		log::info!(
+			target: CC_ALLOC_LOG_TARGET,
+			"allocated cell at {:?}",
+			key,
+		);
+		key
 	}
 
 	/// Allocates a new storage region that fits for a whole chunk.
 	fn alloc_chunk(&mut self) -> Key {
 		let index = self.chunks.put(());
-		self.chunk_index_to_key(index)
+		let key = self.chunk_index_to_key(index);
+		log::info!(
+			target: CC_ALLOC_LOG_TARGET,
+			"allocated chunk at {:?}",
+			key,
+		);
+		key
 	}
 
 	/// Deallocates a storage region fit for a single cell.
 	fn dealloc_cell(&mut self, key: Key) {
 		let index = self.key_to_cell_index(key);
+		log::info!(
+			target: CC_ALLOC_LOG_TARGET,
+			"deallocate cell at {:?}",
+			key,
+		);
 		self.cells.take(index)
 			.expect(
 				"[pdsl_core::CellChunkAlloc::dealloc_cell] Error: \
@@ -125,6 +144,11 @@ impl CellChunkAlloc {
 	/// Deallocates a storage region fit for a whole chunk.
 	fn dealloc_chunk(&mut self, key: Key) {
 		let index = self.key_to_chunk_index(key);
+		log::info!(
+			target: CC_ALLOC_LOG_TARGET,
+			"deallocate chunk at {:?}",
+			key,
+		);
 		self.chunks.take(index)
 			.expect(
 				"[pdsl_core::CellChunkAlloc::dealloc_chunk] Error: \
@@ -177,7 +201,18 @@ impl CellChunkAlloc {
 
 impl Allocator for CellChunkAlloc {
 	fn alloc(&mut self, size: u32) -> Key {
+		if size == 0 {
+			log::warn!(
+				target: CC_ALLOC_LOG_TARGET,
+				"tried to allocate size zero (0)",
+			);
+		}
 		debug_assert!(size != 0);
+		log::debug!(
+			target: CC_ALLOC_LOG_TARGET,
+			"allocate for size {:?}",
+			size,
+		);
 		if size <= 1 {
 			self.alloc_cell()
 		} else {
