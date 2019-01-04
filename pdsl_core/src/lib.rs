@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+#[cfg(test)]
+#[macro_use]
+mod test_utils;
+
 mod byte_utils;
 pub mod env;
 pub mod hash;
