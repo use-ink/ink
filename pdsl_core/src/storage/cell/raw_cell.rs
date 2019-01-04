@@ -95,43 +95,52 @@ impl RawCell {
 mod tests {
 	use super::*;
 
-	use crate::env::TestEnv;
+	use crate::{
+		test_utils::run_test,
+		env::TestEnv,
+	};
 
 	#[test]
 	fn simple() {
-		let mut cell = unsafe {
-			RawCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(cell.load(), None);
-		cell.store(b"Hello, World!");
-		assert_eq!(cell.load(), Some(b"Hello, World!".to_vec()));
-		cell.clear();
-		assert_eq!(cell.load(), None);
+		run_test(|| {
+			let mut cell = unsafe {
+				RawCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(cell.load(), None);
+			cell.store(b"Hello, World!");
+			assert_eq!(cell.load(), Some(b"Hello, World!".to_vec()));
+			cell.clear();
+			assert_eq!(cell.load(), None);
+		})
 	}
 
 	#[test]
 	fn count_reads() {
-		let cell = unsafe {
-			RawCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(TestEnv::total_reads(), 0);
-		cell.load();
-		assert_eq!(TestEnv::total_reads(), 1);
-		cell.load();
-		cell.load();
-		assert_eq!(TestEnv::total_reads(), 3);
+		run_test(|| {
+			let cell = unsafe {
+				RawCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(TestEnv::total_reads(), 0);
+			cell.load();
+			assert_eq!(TestEnv::total_reads(), 1);
+			cell.load();
+			cell.load();
+			assert_eq!(TestEnv::total_reads(), 3);
+		})
 	}
 
 	#[test]
 	fn count_writes() {
-		let mut cell = unsafe {
-			RawCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(TestEnv::total_writes(), 0);
-		cell.store(b"a");
-		assert_eq!(TestEnv::total_writes(), 1);
-		cell.store(b"b");
-		cell.store(b"c");
-		assert_eq!(TestEnv::total_writes(), 3);
+		run_test(|| {
+			let mut cell = unsafe {
+				RawCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(TestEnv::total_writes(), 0);
+			cell.store(b"a");
+			assert_eq!(TestEnv::total_writes(), 1);
+			cell.store(b"b");
+			cell.store(b"c");
+			assert_eq!(TestEnv::total_writes(), 3);
+		})
 	}
 }

@@ -259,45 +259,54 @@ where
 mod tests {
 	use super::*;
 
-	use crate::env::TestEnv;
+	use crate::{
+		test_utils::run_test,
+		env::TestEnv,
+	};
 
 	#[test]
 	fn simple() {
-		let mut cell: SyncCell<i32> = unsafe {
-			SyncCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(cell.get(), None);
-		cell.set(5);
-		assert_eq!(cell.get(), Some(&5));
-		assert_eq!(cell.mutate_with(|val| *val += 10), Some(&15));
-		assert_eq!(cell.get(), Some(&15));
-		cell.clear();
-		assert_eq!(cell.get(), None);
+		run_test(|| {
+			let mut cell: SyncCell<i32> = unsafe {
+				SyncCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(cell.get(), None);
+			cell.set(5);
+			assert_eq!(cell.get(), Some(&5));
+			assert_eq!(cell.mutate_with(|val| *val += 10), Some(&15));
+			assert_eq!(cell.get(), Some(&15));
+			cell.clear();
+			assert_eq!(cell.get(), None);
+		})
 	}
 
 	#[test]
 	fn count_reads() {
-		let cell: SyncCell<i32> = unsafe {
-			SyncCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(TestEnv::total_reads(), 0);
-		cell.get();
-		assert_eq!(TestEnv::total_reads(), 1);
-		cell.get();
-		cell.get();
-		assert_eq!(TestEnv::total_reads(), 1);
+		run_test(|| {
+			let cell: SyncCell<i32> = unsafe {
+				SyncCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(TestEnv::total_reads(), 0);
+			cell.get();
+			assert_eq!(TestEnv::total_reads(), 1);
+			cell.get();
+			cell.get();
+			assert_eq!(TestEnv::total_reads(), 1);
+		})
 	}
 
 	#[test]
 	fn count_writes() {
-		let mut cell: SyncCell<i32> = unsafe {
-			SyncCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(TestEnv::total_writes(), 0);
-		cell.set(1);
-		assert_eq!(TestEnv::total_writes(), 1);
-		cell.set(2);
-		cell.set(3);
-		assert_eq!(TestEnv::total_writes(), 3);
+		run_test(|| {
+			let mut cell: SyncCell<i32> = unsafe {
+				SyncCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(TestEnv::total_writes(), 0);
+			cell.set(1);
+			assert_eq!(TestEnv::total_writes(), 1);
+			cell.set(2);
+			cell.set(3);
+			assert_eq!(TestEnv::total_writes(), 3);
+		})
 	}
 }

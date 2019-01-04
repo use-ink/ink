@@ -453,121 +453,132 @@ where
 mod tests {
 	use super::*;
 
-	use crate::env::TestEnv;
+	use crate::{
+		test_utils::run_test,
+		env::TestEnv,
+	};
 
 	#[test]
 	fn simple() {
-		const TEST_LEN: u32 = 5;
+		run_test(|| {
+			const TEST_LEN: u32 = 5;
 
-		let mut chunk = unsafe {
-			SyncChunk::new_unchecked(Key([0x42; 32]))
-		};
+			let mut chunk = unsafe {
+				SyncChunk::new_unchecked(Key([0x42; 32]))
+			};
 
-		// Invariants after initialization
-		for i in 0..TEST_LEN {
-			assert_eq!(chunk.load(i), None);
-		}
+			// Invariants after initialization
+			for i in 0..TEST_LEN {
+				assert_eq!(chunk.load(i), None);
+			}
 
-		// Store some elements
-		for i in 0..TEST_LEN {
-			chunk.set(i, i);
-			assert_eq!(chunk.get(i), Some(&i));
-			assert_eq!(chunk.load(i), Some(&i));
-		}
+			// Store some elements
+			for i in 0..TEST_LEN {
+				chunk.set(i, i);
+				assert_eq!(chunk.get(i), Some(&i));
+				assert_eq!(chunk.load(i), Some(&i));
+			}
 
-		// Clear all elements.
-		for i in 0..TEST_LEN {
-			chunk.clear(i);
-			assert_eq!(chunk.get(i), None);
-			assert_eq!(chunk.load(i), None);
-		}
+			// Clear all elements.
+			for i in 0..TEST_LEN {
+				chunk.clear(i);
+				assert_eq!(chunk.get(i), None);
+				assert_eq!(chunk.load(i), None);
+			}
+		})
 	}
 
 	#[test]
 	fn count_reads_writes() {
-		const TEST_LEN: u32 = 5;
+		run_test(|| {
+			const TEST_LEN: u32 = 5;
 
-		let mut chunk = unsafe {
-			SyncChunk::new_unchecked(Key([0x42; 32]))
-		};
+			let mut chunk = unsafe {
+				SyncChunk::new_unchecked(Key([0x42; 32]))
+			};
 
-		// Reads and writes after init.
-		assert_eq!(TestEnv::total_reads(), 0);
-		assert_eq!(TestEnv::total_writes(), 0);
-
-		// Loading from all cells.
-		for i in 0..TEST_LEN {
-			chunk.load(i);
-			assert_eq!(TestEnv::total_reads(), i as u64 + 1);
+			// Reads and writes after init.
+			assert_eq!(TestEnv::total_reads(), 0);
 			assert_eq!(TestEnv::total_writes(), 0);
-		}
-		assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
-		assert_eq!(TestEnv::total_writes(), 0);
 
-		// Writing to all cells.
-		for i in 0..TEST_LEN {
-			chunk.set(i, i);
+			// Loading from all cells.
+			for i in 0..TEST_LEN {
+				chunk.load(i);
+				assert_eq!(TestEnv::total_reads(), i as u64 + 1);
+				assert_eq!(TestEnv::total_writes(), 0);
+			}
 			assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
-			assert_eq!(TestEnv::total_writes(), i as u64 + 1);
-		}
-		assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
-		assert_eq!(TestEnv::total_writes(), TEST_LEN as u64);
+			assert_eq!(TestEnv::total_writes(), 0);
 
-		// Loading multiple times from a single cell.
-		const LOAD_REPEATS: usize = 3;
-		for _ in 0..LOAD_REPEATS {
-			chunk.get(0);
+			// Writing to all cells.
+			for i in 0..TEST_LEN {
+				chunk.set(i, i);
+				assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
+				assert_eq!(TestEnv::total_writes(), i as u64 + 1);
+			}
 			assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
 			assert_eq!(TestEnv::total_writes(), TEST_LEN as u64);
-		}
 
-		// Storing multiple times to a single cell.
-		const STORE_REPEATS: usize = 3;
-		for n in 0..STORE_REPEATS {
-			chunk.set(0, 10);
+			// Loading multiple times from a single cell.
+			const LOAD_REPEATS: usize = 3;
+			for _ in 0..LOAD_REPEATS {
+				chunk.get(0);
+				assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
+				assert_eq!(TestEnv::total_writes(), TEST_LEN as u64);
+			}
+
+			// Storing multiple times to a single cell.
+			const STORE_REPEATS: usize = 3;
+			for n in 0..STORE_REPEATS {
+				chunk.set(0, 10);
+				assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
+				assert_eq!(TestEnv::total_writes(), TEST_LEN as u64 + n as u64 + 1);
+			}
 			assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
-			assert_eq!(TestEnv::total_writes(), TEST_LEN as u64 + n as u64 + 1);
-		}
-		assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
-		assert_eq!(TestEnv::total_writes(), TEST_LEN as u64 + STORE_REPEATS as u64);
+			assert_eq!(TestEnv::total_writes(), TEST_LEN as u64 + STORE_REPEATS as u64);
+		})
 	}
 
 	#[test]
 	fn replace() {
-		let mut chunk = unsafe {
-			SyncChunk::new_unchecked(Key([0x42; 32]))
-		};
+		run_test(|| {
+			let mut chunk = unsafe {
+				SyncChunk::new_unchecked(Key([0x42; 32]))
+			};
 
-		// Replace some with none.
-		assert_eq!(chunk.replace(0, 42), None);
-		// Again will yield previous result.
-		assert_eq!(chunk.replace(0, 42), Some(42));
+			// Replace some with none.
+			assert_eq!(chunk.replace(0, 42), None);
+			// Again will yield previous result.
+			assert_eq!(chunk.replace(0, 42), Some(42));
 
-		// After clearing it will be none again.
-		chunk.clear(0);
-		assert_eq!(chunk.replace(0, 42), None);
+			// After clearing it will be none again.
+			chunk.clear(0);
+			assert_eq!(chunk.replace(0, 42), None);
+		})
 	}
 
 	#[test]
 	fn remove() {
-		let mut chunk = unsafe {
-			SyncChunk::new_unchecked(Key([0x42; 32]))
-		};
+		run_test(|| {
+			let mut chunk = unsafe {
+				SyncChunk::new_unchecked(Key([0x42; 32]))
+			};
 
-		// Remove at none.
-		assert_eq!(chunk.remove(0), None);
-		// Again will yield none again.
-		assert_eq!(chunk.remove(0), None);
-		// Also get will return none.
-		assert_eq!(chunk.get(0), None);
+			// Remove at none.
+			assert_eq!(chunk.remove(0), None);
+			// Again will yield none again.
+			assert_eq!(chunk.remove(0), None);
+			// Also get will return none.
+			assert_eq!(chunk.get(0), None);
 
-		// After inserting it will yield the inserted value.
-		chunk.set(0, 1337);
-		// Before remove returns the inserted value.
-		assert_eq!(chunk.get(0), Some(&1337));
-		// Remove yields the removed value.
-		assert_eq!(chunk.remove(0), Some(1337));
-		// After remove returns none again.
-		assert_eq!(chunk.get(0), None);
+			// After inserting it will yield the inserted value.
+			chunk.set(0, 1337);
+			// Before remove returns the inserted value.
+			assert_eq!(chunk.get(0), Some(&1337));
+			// Remove yields the removed value.
+			assert_eq!(chunk.remove(0), Some(1337));
+			// After remove returns none again.
+			assert_eq!(chunk.get(0), None);
+		})
 	}
 }

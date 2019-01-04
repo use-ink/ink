@@ -117,43 +117,52 @@ where
 mod tests {
 	use super::*;
 
-	use crate::env::TestEnv;
+	use crate::{
+		test_utils::run_test,
+		env::TestEnv,
+	};
 
 	#[test]
 	fn simple() {
-		let mut cell: TypedCell<i32> = unsafe {
-			TypedCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(cell.load(), None);
-		cell.store(&5);
-		assert_eq!(cell.load(), Some(5));
-		cell.clear();
-		assert_eq!(cell.load(), None);
+		run_test(|| {
+			let mut cell: TypedCell<i32> = unsafe {
+				TypedCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(cell.load(), None);
+			cell.store(&5);
+			assert_eq!(cell.load(), Some(5));
+			cell.clear();
+			assert_eq!(cell.load(), None);
+		})
 	}
 
 	#[test]
 	fn count_reads() {
-		let cell: TypedCell<i32> = unsafe {
-			TypedCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(TestEnv::total_reads(), 0);
-		cell.load();
-		assert_eq!(TestEnv::total_reads(), 1);
-		cell.load();
-		cell.load();
-		assert_eq!(TestEnv::total_reads(), 3);
+		run_test(|| {
+			let cell: TypedCell<i32> = unsafe {
+				TypedCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(TestEnv::total_reads(), 0);
+			cell.load();
+			assert_eq!(TestEnv::total_reads(), 1);
+			cell.load();
+			cell.load();
+			assert_eq!(TestEnv::total_reads(), 3);
+		})
 	}
 
 	#[test]
 	fn count_writes() {
-		let mut cell: TypedCell<i32> = unsafe {
-			TypedCell::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(TestEnv::total_writes(), 0);
-		cell.store(&1);
-		assert_eq!(TestEnv::total_writes(), 1);
-		cell.store(&2);
-		cell.store(&3);
-		assert_eq!(TestEnv::total_writes(), 3);
+		run_test(|| {
+			let mut cell: TypedCell<i32> = unsafe {
+				TypedCell::new_unchecked(Key([0x42; 32]))
+			};
+			assert_eq!(TestEnv::total_writes(), 0);
+			cell.store(&1);
+			assert_eq!(TestEnv::total_writes(), 1);
+			cell.store(&2);
+			cell.store(&3);
+			assert_eq!(TestEnv::total_writes(), 3);
+		})
 	}
 }
