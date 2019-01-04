@@ -34,9 +34,43 @@ const KEY_LOG_TARGET: &'static str = "key";
 /// - Violates Rust's mutability and immutability guarantees.
 ///
 /// Prefer using types found in `collections` or `Synced` type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[derive(Encode, Decode)]
 pub struct Key(pub [u8; 32]);
+
+impl core::fmt::Debug for Key {
+	fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+		write!(f, "Key(")?;
+		<Self as core::fmt::Display>::fmt(self, f)?;
+		write!(f, ")")?;
+		Ok(())
+	}
+}
+
+impl core::fmt::Display for Key {
+	fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+		write!(f, "0x")?;
+		if f.alternate() {
+			let bytes = self.as_bytes();
+			write!(
+				f,
+				"{:X}{:X}_{:X}{:X}_……_{:X}{:X}_{:X}{:X}",
+				bytes[0], bytes[1], bytes[2], bytes[3],
+				bytes[28], bytes[29], bytes[30], bytes[31],
+			)?;
+		} else {
+			let mut counter = 0;
+			for byte in self.as_bytes() {
+				write!(f, "{:X}", byte)?;
+				counter += 1;
+				if counter % 4 == 0 && counter != 32 {
+					write!(f, "_")?;
+				}
+			}
+		}
+		Ok(())
+	}
+}
 
 impl Key {
 	/// Returns the byte slice of this key.
