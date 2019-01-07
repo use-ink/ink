@@ -201,6 +201,7 @@ macro_rules! impl_add_sub_for_key {
 
 impl_add_sub_for_key!(u32, u32_to_bytes4);
 impl_add_sub_for_key!(u64, u64_to_bytes8);
+impl_add_sub_for_key!(u128, u128_to_bytes16);
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
