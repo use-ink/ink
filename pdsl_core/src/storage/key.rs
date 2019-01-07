@@ -139,6 +139,22 @@ impl KeyDiff {
 		);
 		Some(value)
 	}
+
+	/// Tries to convert the key difference to a `u128` if possible.
+	///
+	/// Returns `None` if the resulting value is out of bounds.
+	pub fn try_to_u128(&self) -> Option<u128> {
+		const KEY_BYTES: usize = 32;
+		const U128_BYTES: usize = core::mem::size_of::<u128>();
+		if self.as_bytes().into_iter().take(KEY_BYTES - U128_BYTES).any(|&byte| byte != 0x0) {
+			return None
+		}
+		let value = byte_utils::bytes16_to_u128(
+			byte_utils::slice16_as_array16(&self.as_bytes()[(KEY_BYTES - U128_BYTES)..KEY_BYTES])
+				.unwrap()
+		);
+		Some(value)
+	}
 }
 
 macro_rules! impl_add_sub_for_key {
