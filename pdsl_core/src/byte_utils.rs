@@ -51,6 +51,7 @@ macro_rules! impl_slice_as_array {
 
 impl_slice_as_array!(slice4_as_array4, 4);
 impl_slice_as_array!(slice8_as_array8, 8);
+impl_slice_as_array!(slice16_as_array16, 16);
 
 /// Generic carry add/sub implementation
 /// between a byte slice and a byte.
@@ -215,6 +216,7 @@ macro_rules! primitives_impl {
 
 primitives_impl!(u32, bytes4_to_u32, u32_to_bytes4);
 primitives_impl!(u64, bytes8_to_u64, u64_to_bytes8);
+primitives_impl!(u128, bytes16_to_u128, u128_to_bytes16);
 
 #[cfg(test)]
 mod tests {
