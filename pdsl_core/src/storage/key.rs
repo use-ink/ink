@@ -141,113 +141,66 @@ impl KeyDiff {
 	}
 }
 
-impl core::ops::Add<u32> for Key {
-	type Output = Self;
+macro_rules! impl_add_sub_for_key {
+	( $prim:ty, $prim_to_bytes_fn:ident ) => {
+		impl core::ops::Add<$prim> for Key {
+			type Output = Self;
 
-	fn add(self, rhs: u32) -> Self::Output {
-		let mut result = self;
-		result += rhs;
-		result
-	}
-}
-
-impl core::ops::AddAssign<u32> for Key {
-	fn add_assign(&mut self, rhs: u32) {
-		let ovfl = byte_utils::bytes_add_bytes(
-			self.as_bytes_mut(),
-			&byte_utils::u32_to_bytes4(rhs)
-		);
-		if ovfl {
-			log::warn!(
-				target: KEY_LOG_TARGET,
-				"`lhs += rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
-				self,
-				rhs,
-			);
+			fn add(self, rhs: $prim) -> Self::Output {
+				let mut result = self;
+				result += rhs;
+				result
+			}
 		}
-	}
-}
 
-impl core::ops::Add<u64> for Key {
-	type Output = Self;
-
-	fn add(self, rhs: u64) -> Self::Output {
-		let mut result = self;
-		result += rhs;
-		result
-	}
-}
-
-impl core::ops::AddAssign<u64> for Key {
-	fn add_assign(&mut self, rhs: u64) {
-		let ovfl = byte_utils::bytes_add_bytes(
-			self.as_bytes_mut(),
-			&byte_utils::u64_to_bytes8(rhs)
-		);
-		if ovfl {
-			log::warn!(
-				target: KEY_LOG_TARGET,
-				"`lhs += rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
-				self,
-				rhs,
-			);
+		impl core::ops::AddAssign<$prim> for Key {
+			fn add_assign(&mut self, rhs: $prim) {
+				let ovfl = byte_utils::bytes_add_bytes(
+					self.as_bytes_mut(),
+					&byte_utils::$prim_to_bytes_fn(rhs)
+				);
+				if ovfl {
+					log::warn!(
+						target: KEY_LOG_TARGET,
+						"`lhs += rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
+						self,
+						rhs,
+					);
+				}
+			}
 		}
-	}
-}
 
-impl core::ops::Sub<u32> for Key {
-	type Output = Self;
+		impl core::ops::Sub<$prim> for Key {
+			type Output = Self;
 
-	fn sub(self, rhs: u32) -> Self::Output {
-		let mut result = self;
-		result -= rhs;
-		result
-	}
-}
-
-impl core::ops::Sub<u64> for Key {
-	type Output = Self;
-
-	fn sub(self, rhs: u64) -> Self::Output {
-		let mut result = self;
-		result -= rhs;
-		result
-	}
-}
-
-impl core::ops::SubAssign<u32> for Key {
-	fn sub_assign(&mut self, rhs: u32) {
-		let ovfl = byte_utils::bytes_sub_bytes(
-			self.as_bytes_mut(),
-			&byte_utils::u32_to_bytes4(rhs)
-		);
-		if ovfl {
-			log::warn!(
-				target: KEY_LOG_TARGET,
-				"`lhs -= rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
-				self,
-				rhs,
-			);
+			fn sub(self, rhs: $prim) -> Self::Output {
+				let mut result = self;
+				result -= rhs;
+				result
+			}
 		}
-	}
+
+		impl core::ops::SubAssign<$prim> for Key {
+			fn sub_assign(&mut self, rhs: $prim) {
+				let ovfl = byte_utils::bytes_sub_bytes(
+					self.as_bytes_mut(),
+					&byte_utils::$prim_to_bytes_fn(rhs)
+				);
+				if ovfl {
+					log::warn!(
+						target: KEY_LOG_TARGET,
+						"`lhs -= rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
+						self,
+						rhs,
+					);
+				}
+			}
+		}
+	};
 }
 
-impl core::ops::SubAssign<u64> for Key {
-	fn sub_assign(&mut self, rhs: u64) {
-		let ovfl = byte_utils::bytes_sub_bytes(
-			self.as_bytes_mut(),
-			&byte_utils::u64_to_bytes8(rhs)
-		);
-		if ovfl {
-			log::warn!(
-				target: KEY_LOG_TARGET,
-				"`lhs -= rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
-				self,
-				rhs,
-			);
-		}
-	}
-}
+impl_add_sub_for_key!(u32, u32_to_bytes4);
+impl_add_sub_for_key!(u64, u64_to_bytes8);
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
