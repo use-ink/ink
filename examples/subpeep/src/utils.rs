@@ -18,21 +18,6 @@ use spin::Mutex;
 
 use alloc::string::String;
 
-#[panic_handler]
-#[no_mangle]
-pub fn panic(_info: &::core::panic::PanicInfo) -> ! {
-	unsafe {
-		core::intrinsics::abort()
-	}
-}
-
-#[alloc_error_handler]
-pub extern fn oom(_: ::core::alloc::Layout) -> ! {
-	unsafe {
-		core::intrinsics::abort();
-	}
-}
-
 pub type Address = [u8; 32];
 
 /// Return current contract caller as 32-bytes array.

@@ -15,15 +15,27 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(not(feature = "std"), feature(alloc))]
+#![cfg_attr(not(feature = "std"), feature(
+	alloc,
+	core_intrinsics,
+	lang_items,
+	alloc_error_handler,
+))]
 
 #[cfg(not(feature = "std"))]
 // #[macro_use]
 extern crate alloc;
 
+// Use `wee_alloc` as the global allocator.
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
 #[cfg(all(test, feature = "std"))]
 #[macro_use]
 mod test_utils;
+
+#[cfg(not(feature = "std"))]
+mod panic_handler;
 
 pub mod memory;
 mod byte_utils;
