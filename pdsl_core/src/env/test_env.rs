@@ -16,11 +16,10 @@
 
 use super::*;
 
-use std::cell::Cell;
+use core::cell::{Cell, RefCell};
 
 use hashbrown::HashMap;
 use hashbrown::hash_map::Entry;
-use std::cell::RefCell;
 
 /// An entry in the storage of the test environment.
 ///
@@ -253,7 +252,7 @@ impl TestEnvData {
 		} else {
 			Self::FAILURE
 		};
-		std::process::exit(exit_code)
+		core::process::exit(exit_code)
 	}
 }
 

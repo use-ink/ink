@@ -74,7 +74,7 @@ impl CellChunkAlloc {
 			chunks_off:
 				// We need `u64::max_value()` here.
 				// This depends on work on the Key API
-				// to allow for `std::ops::Add<u64>`.
+				// to allow for `core::ops::Add<u64>`.
 				//
 				// As first iteration this should suffice our needs
 				// as long as we allocate the `CellChunkAlloc` at last.
