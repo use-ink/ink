@@ -22,18 +22,18 @@ use parity_codec_derive::{Encode, Decode};
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-/// A tweet done by a registered user.
+/// A peep done by a registered user.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[derive(Encode, Decode)]
-pub struct Tweet {
-	/// By whom the tweet was done.
+pub struct Peep {
+	/// By whom the peep was done.
 	by: String,
-	/// The message of the tweet.
+	/// The message of the peep.
 	message: String,
 }
 
-impl Tweet {
-	/// Creates a new tweet from `by` with content `message`.
+impl Peep {
+	/// Creates a new peep from `by` with content `message`.
 	pub fn new(by: String, message: String) -> Self {
 		Self{by, message}
 	}
@@ -42,8 +42,8 @@ impl Tweet {
 /// The data of a registered user.
 #[derive(Encode, Decode)]
 pub struct UserData {
-	/// The tweets.
-	tweets: storage::Vec<String>,
+	/// The peeps.
+	peeps: storage::Vec<String>,
 	/// The follows.
 	following: storage::Vec<String>,
 }
@@ -55,40 +55,40 @@ impl UserData {
 	///
 	/// The `CellChunkAlloc` should be preferred here since
 	/// allocations of this type are dynamic. For this reason
-	/// the `Enzyme` type has a built-in `CellChunkAlloc`.
+	/// the `Subpeep` type has a built-in `CellChunkAlloc`.
 	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
 	where
 		A: storage::Allocator
 	{
 		Self {
-			tweets: storage::Vec::new_using_alloc(alloc),
+			peeps: storage::Vec::new_using_alloc(alloc),
 			following: storage::Vec::new_using_alloc(alloc),
 		}
 	}
 }
 
-/// The entire enzyme contract.
-pub struct Enzyme {
-	/// All tweets done by all users.
-	tweets: storage::Vec<Tweet>,
+/// The entire subpeep contract.
+pub struct Subpeep {
+	/// All peeps done by all users.
+	peeps: storage::Vec<Peep>,
 	/// Database of all registered users and their data.
 	users: storage::HashMap<String, UserData>,
 	/// The allocator for newly allocated entities.
 	alloc: storage::alloc::CellChunkAlloc,
 }
 
-impl Default for Enzyme {
+impl Default for Subpeep {
 	fn default() -> Self {
 		unsafe {
-			Enzyme::new_using_alloc(
+			Subpeep::new_using_alloc(
 				&mut* utils::STORAGE_ALLOC.lock().unwrap()
 			)
 		}
 	}
 }
 
-impl Enzyme {
-	/// Creates new enzyme platform using the given allocator.
+impl Subpeep {
+	/// Creates new subpeep platform using the given allocator.
 	///
 	/// # Note
 	///
@@ -100,16 +100,16 @@ impl Enzyme {
 		A: pdsl_core::storage::Allocator
 	{
 		Self {
-			tweets: storage::Vec::new_using_alloc(alloc),
+			peeps: storage::Vec::new_using_alloc(alloc),
 			users: storage::HashMap::new_using_alloc(alloc),
 			alloc: storage::alloc::CellChunkAlloc::new_using_alloc(alloc),
 		}
 	}
 
 	/// Returns all recent global posts as vector.
-	pub(crate) fn recent_tweets(&self, amount: usize) -> Vec<Tweet> {
+	pub(crate) fn recent_peeps(&self, amount: usize) -> Vec<Peep> {
 		self
-			.tweets
+			.peeps
 			.iter()
 			.rev()
 			.take(amount)
@@ -117,26 +117,26 @@ impl Enzyme {
 			.collect()
 	}
 
-	/// Returns the `n` most recent tweets of the given user.
+	/// Returns the `n` most recent peeps of the given user.
 	///
 	/// Returns `None` if the user does not exist.
-	pub(crate) fn recent_user_tweets(
+	pub(crate) fn recent_user_peeps(
 		&self,
 		amount: usize,
 		username: &str,
-	) -> Option<Vec<Tweet>> {
+	) -> Option<Vec<Peep>> {
 		self
 			.users
 			.get(username)
 			.map(|user| {
 				user
-					.tweets
+					.peeps
 					.iter()
 					.rev()
 					.take(amount)
 					.cloned()
 					.map(|message| {
-						Tweet::new(username.into(), message)
+						Peep::new(username.into(), message)
 					})
 					.collect()
 			})
@@ -145,8 +145,8 @@ impl Enzyme {
 	/// Posts a message to the global channel.
 	/// 
 	/// Will only ever store the latest 10 messages in the channel at most.
-	fn tweet_global(&mut self, username: &str, message: &str) {
-		self.tweets.push(Tweet::new(username.into(), message.into()))
+	fn peep_global(&mut self, username: &str, message: &str) {
+		self.peeps.push(Peep::new(username.into(), message.into()))
 	}
 
 	/// Register a new user.
@@ -162,12 +162,12 @@ impl Enzyme {
 	}
 
 	/// Post a message by a user.
-	pub fn tweet_message(&mut self, username: &str, message: &str) {
-		self.tweet_global(username, message);
+	pub fn peep_message(&mut self, username: &str, message: &str) {
+		self.peep_global(username, message);
 		self
 			.users
 			.mutate_with(username, |user| {
-				user.tweets.push(message.into())
+				user.peeps.push(message.into())
 			});
 	}
 

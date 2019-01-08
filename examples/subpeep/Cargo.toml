@@ -1,5 +1,5 @@
 [package]
-name = "enzyme"
+name = "subpeep"
 version = "0.1.0"
 authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -15,7 +15,7 @@ lazy_static = "1.2"
 spin = { version = "0.4", default-features = false }
 
 [lib]
-name = "enzyme"
+name = "subpeep"
 crate-type = ["cdylib"]
 
 [features]
