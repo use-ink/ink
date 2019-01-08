@@ -22,6 +22,8 @@ const KEY_LOG_TARGET: &'static str = "key";
 
 /// Typeless generic key into contract storage.
 ///
+/// Can be compared to a raw pointer featuring pointer arithmetic.
+///
 /// # Note
 ///
 /// This is the most low-level method to access contract storage.
@@ -54,14 +56,14 @@ impl core::fmt::Display for Key {
 			let bytes = self.as_bytes();
 			write!(
 				f,
-				"{:X}{:X}_{:X}{:X}_……_{:X}{:X}_{:X}{:X}",
+				"{:02X}{:02X}_{:02X}{:02X}_……_{:02X}{:02X}_{:02X}{:02X}",
 				bytes[0], bytes[1], bytes[2], bytes[3],
 				bytes[28], bytes[29], bytes[30], bytes[31],
 			)?;
 		} else {
 			let mut counter = 0;
 			for byte in self.as_bytes() {
-				write!(f, "{:X}", byte)?;
+				write!(f, "{:02X}", byte)?;
 				counter += 1;
 				if counter % 4 == 0 && counter != 32 {
 					write!(f, "_")?;
