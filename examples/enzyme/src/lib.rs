@@ -1,12 +1,26 @@
+#![feature(alloc_error_handler)]
+#![feature(core_intrinsics)]
 #![feature(alloc)]
+
+#![no_std]
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
+
+#[cfg_attr(test, macro_use)]
+extern crate alloc;
+
+use alloc::string::String;
+use alloc::vec::Vec;
 
 pub mod utils;
 
 use pdsl_core::storage;
 use parity_codec_derive::{Encode, Decode};
+
+// Use `wee_alloc` as the global allocator.
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 /// A tweet done by a registered user.
 #[derive(Debug, Clone, PartialEq, Eq)]
