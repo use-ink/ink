@@ -7,20 +7,20 @@ Decentralized message distribution inspired by Twitter.
 ### Required
 
 - Register users by their name.
-- Checks if the account is allowed to tweet.
-- Users can tweet messages that are prodcasted to the global channel.
+- Checks if the account is allowed to peep.
+- Users can peep messages that are prodcasted to the global channel.
 - Users can follow other users by their name.
 
 ## Data Structures
 
 ```rust
-// All global tweets.
-GLOBAL_TWEETS = [Tweet; 10]
+// All global peeps.
+GLOBAL_TWEETS = [Peep; 10]
 
 // The address for the registered user
 AUTH = mapping Username -> Address
-// All tweets by a single user
-USER_TWEETS = mapping Username -> Vec<Tweet>
+// All peeps by a single user
+USER_TWEETS = mapping Username -> Vec<Peep>
 // All users that this user is following
 USER_FOLLOWS = mapping Username -> Vec<Username>
 ```
@@ -33,9 +33,9 @@ USER_FOLLOWS = mapping Username -> Vec<Username>
 fn register(username)
     AUTH[username] = caller()
 
-fn tweet(username, tweet)
+fn peep(username, peep)
     if AUTH[username] = caller()
-        TWEETS[username].append(tweet)
+        TWEETS[username].append(peep)
 
 fn follow(username: String, followed: String)
     if AUTH[username] == caller() and AUTH[followed].is_some()

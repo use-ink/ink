@@ -43,7 +43,7 @@ enum Action {
 	/// Register a new user.
 	Register{username: String},
 	/// Post a message by a user.
-	TweetMessage{username: String, message: String},
+	PeepMessage{username: String, message: String},
 	/// Make a user follow the other.
 	Follow{following: String, followed: String},
 }
@@ -66,8 +66,8 @@ pub extern "C" fn call() {
 		Action::Register{username} => {
 			subpeep.register(&username);
 		}
-		Action::TweetMessage{username, message} => {
-			subpeep.tweet_message(&username, &message)
+		Action::PeepMessage{username, message} => {
+			subpeep.peep_message(&username, &message)
 		}
 		Action::Follow{following, followed} => {
 			subpeep.follow(&following, &followed)
