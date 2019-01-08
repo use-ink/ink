@@ -15,6 +15,7 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+	memory::vec::Vec,
 	storage::{
 		Key,
 		NonCloneMarker,
@@ -22,7 +23,6 @@ use crate::{
 	},
 	env::{Env, ContractEnv},
 };
-use alloc::vec::Vec;
 
 /// A chunk of raw cells.
 ///

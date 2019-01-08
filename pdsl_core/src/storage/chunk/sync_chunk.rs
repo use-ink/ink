@@ -23,16 +23,16 @@ use crate::{
 		},
 		Allocator,
 	},
-};
-
-use core::cell::RefCell;
-use hashbrown::{
-	HashMap,
-	hash_map::{
+	memory::collections::hash_map::{
+		HashMap,
 		Entry,
-		DefaultHashBuilder,
 	},
 };
+
+#[cfg(not(feature = "std"))]
+use crate::memory::collections::hash_map::DefaultHashBuilder;
+
+use core::cell::RefCell;
 
 /// A chunk of synchronized cells.
 ///
@@ -55,7 +55,12 @@ pub struct SyncChunk<T> {
 }
 
 /// A single cache entry for a copy chunk cell.
+#[cfg(not(feature = "std"))]
 type CacheEntry<'a, T> = Entry<'a, u32, Option<T>, DefaultHashBuilder>;
+
+/// A single cache entry for a copy chunk cell.
+#[cfg(feature = "std")]
+type CacheEntry<'a, T> = Entry<'a, u32, Option<T>>;
 
 /// A single cell within a chunk of copy cells.
 #[derive(Debug)]
@@ -242,7 +247,7 @@ impl<T> Cache<T> {
 	///
 	/// Returns an immutable reference to the new value.
 	pub fn upsert(&self, n: u32, val: Option<T>) -> Option<&T> {
-		use hashbrown::hash_map::{Entry};
+		use crate::memory::collections::hash_map::Entry;
 		let elems: &mut HashMap<u32, Option<T>> = unsafe {
 			&mut *self.elems.as_ptr()
 		};

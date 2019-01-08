@@ -17,9 +17,7 @@
 use super::*;
 
 use core::cell::{Cell, RefCell};
-
-use hashbrown::HashMap;
-use hashbrown::hash_map::Entry;
+use crate::memory::collections::hash_map::{HashMap, Entry};
 
 /// An entry in the storage of the test environment.
 ///

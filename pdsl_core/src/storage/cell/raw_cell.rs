@@ -15,6 +15,7 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+	memory::vec::Vec,
 	storage::{
 		Key,
 		NonCloneMarker,
@@ -24,7 +25,6 @@ use crate::{
 };
 
 use parity_codec_derive::{Encode, Decode};
-use alloc::vec::Vec;
 
 /// A raw cell.
 ///

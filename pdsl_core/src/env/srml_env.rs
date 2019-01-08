@@ -16,7 +16,7 @@
 
 use super::*;
 
-use alloc::vec::Vec;
+use crate::memory::vec::Vec;
 
 /// Refer to substrate SRML contract module for more documentation.
 pub mod c_abi {

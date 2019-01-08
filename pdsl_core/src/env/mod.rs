@@ -33,9 +33,10 @@ mod srml_env;
 #[cfg(feature = "test-env")]
 mod test_env;
 
-use crate::storage::Key;
-
-use alloc::vec::Vec;
+use crate::{
+	storage::Key,
+	memory::vec::Vec
+};
 
 /// The evironment API usable by SRML contracts.
 pub trait Env {
