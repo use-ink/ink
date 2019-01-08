@@ -4,7 +4,7 @@ members = [
 	"pdsl_core",
 	# "pdsl_derive",
 	"pdsl_tests",
-	"examples/enzyme",
+	"examples/subpeep",
 ]
 
 [profile.release]

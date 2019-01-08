@@ -37,7 +37,7 @@ lazy_static! {
 	};
 }
 
-/// Enzyme API.
+/// Subpeep API.
 #[derive(Encode, Decode)]
 enum Action {
 	/// Register a new user.
@@ -61,16 +61,16 @@ pub extern "C" fn call() {
 	let input = ContractEnv::input();
 	let action = Action::decode(&mut &input[..]).unwrap();
 
-	let mut enzyme = crate::Enzyme::default();
+	let mut subpeep = crate::Subpeep::default();
 	match action {
 		Action::Register{username} => {
-			enzyme.register(&username);
+			subpeep.register(&username);
 		}
 		Action::TweetMessage{username, message} => {
-			enzyme.tweet_message(&username, &message)
+			subpeep.tweet_message(&username, &message)
 		}
 		Action::Follow{following, followed} => {
-			enzyme.follow(&following, &followed)
+			subpeep.follow(&following, &followed)
 		}
 	}
 }

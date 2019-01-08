@@ -1,4 +1,4 @@
-# Enzyme
+# Subpeep
 
 Decentralized message distribution inspired by Twitter.
 
