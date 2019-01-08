@@ -15,12 +15,12 @@ Decentralized message distribution inspired by Twitter.
 
 ```rust
 // All global peeps.
-GLOBAL_TWEETS = [Peep; 10]
+GLOBAL_PEEPS = [Peep; 10]
 
 // The address for the registered user
 AUTH = mapping Username -> Address
 // All peeps by a single user
-USER_TWEETS = mapping Username -> Vec<Peep>
+USER_PEEPS = mapping Username -> Vec<Peep>
 // All users that this user is following
 USER_FOLLOWS = mapping Username -> Vec<Username>
 ```
@@ -35,7 +35,7 @@ fn register(username)
 
 fn peep(username, peep)
     if AUTH[username] = caller()
-        TWEETS[username].append(peep)
+        PEEPS[username].append(peep)
 
 fn follow(username: String, followed: String)
     if AUTH[username] == caller() and AUTH[followed].is_some()
