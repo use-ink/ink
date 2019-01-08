@@ -218,7 +218,7 @@ primitives_impl!(u32, bytes4_to_u32, u32_to_bytes4);
 primitives_impl!(u64, bytes8_to_u64, u64_to_bytes8);
 primitives_impl!(u128, bytes16_to_u128, u128_to_bytes16);
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod tests {
 	use super::*;
 

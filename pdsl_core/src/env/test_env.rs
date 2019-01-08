@@ -252,7 +252,7 @@ impl TestEnvData {
 		} else {
 			Self::FAILURE
 		};
-		core::process::exit(exit_code)
+		std::process::exit(exit_code)
 	}
 }
 
