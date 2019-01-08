@@ -12,6 +12,7 @@ parity-codec-derive = { version = "2.0.4", default-features = false }
 wee_alloc = "0.4"
 
 lazy_static = "1.2"
+spin = { version = "0.4", default-features = false }
 
 [lib]
 name = "enzyme"
