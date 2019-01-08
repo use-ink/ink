@@ -25,6 +25,7 @@ extern crate alloc;
 #[macro_use]
 mod test_utils;
 
+pub mod memory;
 mod byte_utils;
 pub mod env;
 pub mod hash;
