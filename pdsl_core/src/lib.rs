@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), feature(alloc))]
 
-#![feature(alloc)]
-
+#[cfg(not(feature = "std"))]
 // #[macro_use]
 extern crate alloc;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 #[macro_use]
 mod test_utils;
 

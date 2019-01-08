@@ -29,4 +29,5 @@ env_logger = { version = "0.6", default-features = false }
 
 [features]
 default = []
-test-env = []
+test-env = ["std"]
+std = []
