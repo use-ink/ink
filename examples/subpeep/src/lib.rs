@@ -41,7 +41,7 @@ impl UserData {
 	///
 	/// The `CellChunkAlloc` should be preferred here since
 	/// allocations of this type are dynamic. For this reason
-	/// the `Enzyme` type has a built-in `CellChunkAlloc`.
+	/// the `Subpeep` type has a built-in `CellChunkAlloc`.
 	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
 	where
 		A: storage::Allocator
@@ -53,8 +53,8 @@ impl UserData {
 	}
 }
 
-/// The entire enzyme contract.
-pub struct Enzyme {
+/// The entire subpeep contract.
+pub struct Subpeep {
 	/// All tweets done by all users.
 	tweets: storage::Vec<Tweet>,
 	/// Database of all registered users and their data.
@@ -63,18 +63,18 @@ pub struct Enzyme {
 	alloc: storage::alloc::CellChunkAlloc,
 }
 
-impl Default for Enzyme {
+impl Default for Subpeep {
 	fn default() -> Self {
 		unsafe {
-			Enzyme::new_using_alloc(
+			Subpeep::new_using_alloc(
 				&mut* utils::STORAGE_ALLOC.lock().unwrap()
 			)
 		}
 	}
 }
 
-impl Enzyme {
-	/// Creates new enzyme platform using the given allocator.
+impl Subpeep {
+	/// Creates new subpeep platform using the given allocator.
 	///
 	/// # Note
 	///

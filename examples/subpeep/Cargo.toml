@@ -1,5 +1,5 @@
 [package]
-name = "enzyme"
+name = "subpeep"
 version = "0.1.0"
 authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -14,7 +14,7 @@ wee_alloc = "0.4"
 lazy_static = "1.2"
 
 [lib]
-name = "enzyme"
+name = "subpeep"
 
 [features]
 default = []
