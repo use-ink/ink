@@ -24,6 +24,7 @@ use crate::{
 };
 
 use parity_codec_derive::{Encode, Decode};
+use alloc::vec::Vec;
 
 /// A raw cell.
 ///

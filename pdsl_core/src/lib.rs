@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+#![no_std]
+
+#![feature(alloc)]
+
+// #[macro_use]
+extern crate alloc;
+
 #[cfg(test)]
 #[macro_use]
 mod test_utils;

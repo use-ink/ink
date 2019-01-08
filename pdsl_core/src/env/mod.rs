@@ -35,6 +35,8 @@ mod test_env;
 
 use crate::storage::Key;
 
+use alloc::vec::Vec;
+
 /// The evironment API usable by SRML contracts.
 pub trait Env {
 	/// Returns the chain address of the caller.

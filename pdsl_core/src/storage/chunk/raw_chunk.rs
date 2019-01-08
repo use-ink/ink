@@ -22,6 +22,7 @@ use crate::{
 	},
 	env::{Env, ContractEnv},
 };
+use alloc::vec::Vec;
 
 /// A chunk of raw cells.
 ///
