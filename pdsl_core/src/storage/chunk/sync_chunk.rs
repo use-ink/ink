@@ -26,10 +26,11 @@ use crate::{
 };
 
 use core::cell::RefCell;
-use std::{
-	collections::{
-		HashMap,
-		hash_map::Entry,
+use hashbrown::{
+	HashMap,
+	hash_map::{
+		Entry,
+		DefaultHashBuilder,
 	},
 };
 
@@ -54,7 +55,7 @@ pub struct SyncChunk<T> {
 }
 
 /// A single cache entry for a copy chunk cell.
-type CacheEntry<'a, T> = Entry<'a, u32, Option<T>>;
+type CacheEntry<'a, T> = Entry<'a, u32, Option<T>, DefaultHashBuilder>;
 
 /// A single cell within a chunk of copy cells.
 #[derive(Debug)]
@@ -241,7 +242,7 @@ impl<T> Cache<T> {
 	///
 	/// Returns an immutable reference to the new value.
 	pub fn upsert(&self, n: u32, val: Option<T>) -> Option<&T> {
-		use std::collections::hash_map::{Entry};
+		use hashbrown::hash_map::{Entry};
 		let elems: &mut HashMap<u32, Option<T>> = unsafe {
 			&mut *self.elems.as_ptr()
 		};

@@ -18,8 +18,8 @@ use super::*;
 
 use std::cell::Cell;
 
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
+use hashbrown::HashMap;
+use hashbrown::hash_map::Entry;
 use std::cell::RefCell;
 
 /// An entry in the storage of the test environment.
