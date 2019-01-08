@@ -15,7 +15,12 @@ lazy_static = "1.2"
 
 [lib]
 name = "enzyme"
+crate-type = ["cdylib"]
 
 [features]
 default = []
 test-env = ["pdsl_core/test-env"]
+
+[profile.release]
+panic = "abort"
+lto = true
