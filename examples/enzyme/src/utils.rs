@@ -14,7 +14,10 @@ use pdsl_core::{
 use parity_codec_derive::{Encode, Decode};
 
 use lazy_static::lazy_static;
-use std::sync::Mutex;
+use spin::Mutex;
+
+use alloc::string::String;
+
 
 pub type Address = [u8; 32];
 
