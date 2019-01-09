@@ -11,8 +11,7 @@ use pdsl_core::{
 	},
 };
 
-use parity_codec_derive::{Encode, Decode};
-
+use parity_codec::{Encode, Decode};
 use lazy_static::lazy_static;
 use spin::Mutex;
 

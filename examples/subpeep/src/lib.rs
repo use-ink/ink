@@ -16,10 +16,10 @@ use alloc::vec::Vec;
 
 use pdsl_core::storage;
 use parity_codec_derive::{Encode, Decode};
+use parity_codec::{Encode, Decode};
 
 /// A peep done by a registered user.
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[derive(Encode, Decode)]
+#[derive(Debug, Clone, PartialEq, Eq, Encode, Decode)]
 pub struct Peep {
 	/// By whom the peep was done.
 	by: String,
@@ -35,7 +35,7 @@ impl Peep {
 }
 
 /// The data of a registered user.
-#[derive(Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 pub struct UserData {
 	/// The peeps.
 	peeps: storage::Vec<String>,

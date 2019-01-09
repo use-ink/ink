@@ -1,5 +1,9 @@
 use super::*;
 
+
+#[macro_use]
+use pdsl_core::memory::vec;
+
 #[test]
 fn deploy() {
 	let subpeep = Subpeep::default();
