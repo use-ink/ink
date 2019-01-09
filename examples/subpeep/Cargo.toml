@@ -10,7 +10,7 @@ pdsl_core = { path = "../../pdsl_core" }
 parity-codec = { version = "2.0.4", default-features = false }
 parity-codec-derive = { version = "2.0.4", default-features = false }
 
-lazy_static = "1.2"
+lazy_static = { version = "1.2", features = ["spin_no_std"] }
 spin = { version = "0.4", default-features = false }
 
 [lib]
