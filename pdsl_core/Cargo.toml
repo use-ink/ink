@@ -20,9 +20,9 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 parity-codec = { version = "2.0" }
 parity-codec-derive = { version = "2.0" }
+hashbrown = { version = "0.1.7", features = ["nightly"] }
 tiny-keccak = "1.4"
 log = "0.4"
-hashbrown = "0.1.7"
 wee_alloc = "0.4"
 
 [features]
