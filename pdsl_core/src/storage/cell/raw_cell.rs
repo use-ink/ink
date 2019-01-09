@@ -24,7 +24,7 @@ use crate::{
 	env::{Env, ContractEnv},
 };
 
-use parity_codec_derive::{Encode, Decode};
+use parity_codec::{Encode, Decode};
 
 /// A raw cell.
 ///
@@ -35,8 +35,7 @@ use parity_codec_derive::{Encode, Decode};
 /// - `Owned`
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
-#[derive(Debug, PartialEq, Eq, Hash)]
-#[derive(Encode, Decode)]
+#[derive(Debug, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct RawCell {
 	/// The key to the associated constract storage slot.
 	key: Key,

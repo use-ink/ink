@@ -21,8 +21,7 @@ use crate::{
 		cell::SyncCell,
 	},
 };
-
-use parity_codec_derive::{Encode, Decode};
+use parity_codec::{Encode, Decode};
 
 // Missing traits:
 //

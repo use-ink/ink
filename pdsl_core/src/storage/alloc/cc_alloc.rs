@@ -22,7 +22,7 @@ use crate::{
 	},
 };
 
-use parity_codec_derive::{Encode, Decode};
+use parity_codec::{Encode, Decode};
 
 const CC_ALLOC_LOG_TARGET: &'static str = "cc_alloc";
 

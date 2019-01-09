@@ -16,7 +16,7 @@
 
 use crate::byte_utils;
 
-use parity_codec_derive::{Encode, Decode};
+use parity_codec::{Encode, Decode};
 
 const KEY_LOG_TARGET: &'static str = "key";
 
@@ -36,8 +36,7 @@ const KEY_LOG_TARGET: &'static str = "key";
 /// - Violates Rust's mutability and immutability guarantees.
 ///
 /// Prefer using types found in `collections` or `Synced` type.
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[derive(Encode, Decode)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
 pub struct Key(pub [u8; 32]);
 
 impl core::fmt::Debug for Key {

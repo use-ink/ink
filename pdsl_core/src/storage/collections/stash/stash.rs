@@ -21,7 +21,7 @@ use crate::storage::{
 	Allocator,
 };
 
-use parity_codec_derive::{Encode, Decode};
+use parity_codec::{Encode, Decode};
 
 /// A stash collection.
 ///

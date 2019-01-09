@@ -62,7 +62,7 @@ pub struct HashMap<K, V> {
 /// or represent an entry that was removed after it
 /// has been occupied with key and value.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[derive(parity_codec_derive::Encode, parity_codec_derive::Decode)]
+#[derive(parity_codec::Encode, parity_codec::Decode)]
 pub enum Entry<K, V> {
 	/// An occupied slot with a key and a value.
 	Occupied(OccupiedEntry<K, V>),
@@ -72,7 +72,7 @@ pub enum Entry<K, V> {
 
 /// An occupied entry of a storage map.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[derive(parity_codec_derive::Encode, parity_codec_derive::Decode)]
+#[derive(parity_codec::Encode, parity_codec::Decode)]
 pub struct OccupiedEntry<K, V> {
 	/// The entry's key.
 	key: K,
