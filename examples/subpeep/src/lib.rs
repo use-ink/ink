@@ -101,42 +101,6 @@ impl Subpeep {
 		}
 	}
 
-	/// Returns all recent global posts as vector.
-	pub(crate) fn recent_peeps(&self, amount: usize) -> Vec<Peep> {
-		self
-			.peeps
-			.iter()
-			.rev()
-			.take(amount)
-			.cloned()
-			.collect()
-	}
-
-	/// Returns the `n` most recent peeps of the given user.
-	///
-	/// Returns `None` if the user does not exist.
-	pub(crate) fn recent_user_peeps(
-		&self,
-		amount: usize,
-		username: &str,
-	) -> Option<Vec<Peep>> {
-		self
-			.users
-			.get(username)
-			.map(|user| {
-				user
-					.peeps
-					.iter()
-					.rev()
-					.take(amount)
-					.cloned()
-					.map(|message| {
-						Peep::new(username.into(), message)
-					})
-					.collect()
-			})
-	}
-
 	/// Posts a message to the global channel.
 	/// 
 	/// Will only ever store the latest 10 messages in the channel at most.
