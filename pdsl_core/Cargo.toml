@@ -18,11 +18,17 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-parity-codec = { version = "2.0.4", default-features = false }
 hashbrown = { version = "0.1.7", features = ["nightly"] }
 tiny-keccak = "1.4"
 log = "0.4"
 wee_alloc = "0.4"
+
+[dependencies.parity-codec]
+version = "2.0"
+default-features = false
+features = ["derive"]
+git = "https://github.com/robbepop/parity-codec"
+branch = "pdsl_impl"
 
 [features]
 default = []
