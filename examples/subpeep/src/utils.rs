@@ -5,17 +5,13 @@ use pdsl_core::{
 			ForwardAlloc,
 		},
 	},
-	env::{
-		Env,
-		ContractEnv,
-	},
+	memory::string::String,
 };
 
 use parity_codec::{Encode, Decode};
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-use alloc::string::String;
 
 pub type Address = [u8; 32];
 

@@ -1,21 +1,15 @@
-#![feature(alloc_error_handler)]
-#![feature(core_intrinsics)]
-#![feature(alloc)]
-
 #![no_std]
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 mod utils;
 
-#[cfg_attr(test, macro_use)]
-extern crate alloc;
-
-use alloc::string::String;
-use alloc::vec::Vec;
-
-use pdsl_core::storage;
-use parity_codec_derive::{Encode, Decode};
+use pdsl_core::{
+	memory::{
+		string::String,
+	},
+	storage,
+};
 use parity_codec::{Encode, Decode};
 
 /// A peep done by a registered user.
