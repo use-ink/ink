@@ -25,9 +25,6 @@ log = "0.4"
 hashbrown = "0.1.7"
 wee_alloc = "0.4"
 
-[dev-dependencies]
-env_logger = { version = "0.6", default-features = false }
-
 [features]
 default = []
 test-env = ["std"]

@@ -1,9 +1,7 @@
 //! The minimal test framework for the pdsl core libraries.
 
 /// The set-up procedure of the entire crate under test.
-fn setup() {
-	let _ = env_logger::try_init();
-}
+fn setup() {}
 
 /// The tear-down procedure of the entire crate under test.
 fn teardown() {}
