@@ -70,7 +70,7 @@ impl Default for Subpeep {
 	fn default() -> Self {
 		unsafe {
 			Subpeep::new_using_alloc(
-				&mut* utils::STORAGE_ALLOC.lock().unwrap()
+				&mut* utils::STORAGE_ALLOC.lock()
 			)
 		}
 	}
