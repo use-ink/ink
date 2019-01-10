@@ -13,9 +13,9 @@ spin = { version = "0.4", default-features = false }
 [dependencies.parity-codec]
 version = "2.0"
 default-features = false
-features = ["derive"]
-git = "https://github.com/robbepop/parity-codec"
-branch = "pdsl_impl"
+features = ["derive", "full"]
+git = "https://github.com/paritytech/parity-codec"
+branch = "no_std_impls"
 
 [lib]
 name = "subpeep"
