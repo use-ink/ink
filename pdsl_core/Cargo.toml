@@ -26,9 +26,9 @@ wee_alloc = "0.4"
 [dependencies.parity-codec]
 version = "2.0"
 default-features = false
-features = ["derive"]
-git = "https://github.com/robbepop/parity-codec"
-branch = "pdsl_impl"
+features = ["derive", "full"]
+git = "https://github.com/paritytech/parity-codec/"
+branch = "no_std_impls"
 
 [features]
 default = []
