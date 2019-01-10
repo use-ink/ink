@@ -12,15 +12,12 @@ mod no_std_defs {
 	/// Collection types.
 	pub mod collections {
 		pub use alloc::collections::*;
-		pub use hashbrown::{hash_map, hash_set};
 		pub use self::{
 			BinaryHeap,
 			BTreeMap,
 			BTreeSet,
 			LinkedList,
 			VecDeque,
-			hash_map::HashMap,
-			hash_set::HashSet,
 		};
 		pub use core::ops::Bound;
 	}
@@ -42,8 +39,6 @@ mod std_defs {
 			btree_set::BTreeSet,
 			linked_list::LinkedList,
 			vec_deque::VecDeque,
-			hash_map::HashMap,
-			hash_set::HashSet,
 			Bound,
 		};
 	}
