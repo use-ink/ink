@@ -23,14 +23,11 @@ use crate::{
 		},
 		Allocator,
 	},
-	memory::collections::hash_map::{
-		HashMap,
+	memory::collections::btree_map::{
+		BTreeMap,
 		Entry,
 	},
 };
-
-#[cfg(not(feature = "std"))]
-use crate::memory::collections::hash_map::DefaultHashBuilder;
 
 use core::cell::RefCell;
 
@@ -56,7 +53,7 @@ pub struct SyncChunk<T> {
 
 /// A single cache entry for a copy chunk cell.
 #[cfg(not(feature = "std"))]
-type CacheEntry<'a, T> = Entry<'a, u32, Option<T>, DefaultHashBuilder>;
+type CacheEntry<'a, T> = Entry<'a, u32, Option<T>>;
 
 /// A single cache entry for a copy chunk cell.
 #[cfg(feature = "std")]
@@ -224,12 +221,12 @@ where
 #[derive(Debug, PartialEq, Eq)]
 struct Cache<T> {
 	/// The synchronized values of associated cells.
-	elems: RefCell<HashMap<u32, Option<T>>>,
+	elems: RefCell<BTreeMap<u32, Option<T>>>,
 }
 
 impl<T> Default for Cache<T> {
 	fn default() -> Self {
-		Self{ elems: RefCell::new(HashMap::new()) }
+		Self{ elems: RefCell::new(BTreeMap::new()) }
 	}
 }
 
@@ -247,8 +244,7 @@ impl<T> Cache<T> {
 	///
 	/// Returns an immutable reference to the new value.
 	pub fn upsert(&self, n: u32, val: Option<T>) -> Option<&T> {
-		use crate::memory::collections::hash_map::Entry;
-		let elems: &mut HashMap<u32, Option<T>> = unsafe {
+		let elems: &mut BTreeMap<u32, Option<T>> = unsafe {
 			&mut *self.elems.as_ptr()
 		};
 		match elems.entry(n) {
@@ -264,7 +260,7 @@ impl<T> Cache<T> {
 
 	/// Returns the synchronized value of the `n`-th cell if any.
 	pub fn get(&self, n: u32) -> Cached<&T> {
-		let elems: &mut HashMap<u32, Option<T>> = unsafe {
+		let elems: &mut BTreeMap<u32, Option<T>> = unsafe {
 			&mut *self.elems.as_ptr()
 		};
 		match elems.get(&n) {
