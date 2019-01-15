@@ -18,7 +18,6 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-hashbrown = { version = "0.1.7", features = ["nightly"] }
 tiny-keccak = "1.4"
 log = "0.4"
 wee_alloc = "0.4"
