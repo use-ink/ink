@@ -1,0 +1,27 @@
+[package]
+name = "erc20_token"
+version = "0.1.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+[dependencies]
+pdsl_core = { path = "../../pdsl_core" }
+
+[dependencies.parity-codec]
+version = "2.0"
+default-features = false
+features = ["derive"]
+git = "https://github.com/paritytech/parity-codec/"
+branch = "master"
+
+[lib]
+name = "erc20_token"
+crate-type = ["cdylib"]
+
+[features]
+default = []
+test-env = ["pdsl_core/test-env"]
+
+[profile.release]
+panic = "abort"
+lto = true
