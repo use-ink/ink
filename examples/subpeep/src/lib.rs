@@ -5,6 +5,8 @@ mod tests;
 mod utils;
 
 use pdsl_core::{
+	env::srml::Address,
+	env::{Env, ContractEnv},
 	memory::{
 		string::String,
 	},
@@ -31,6 +33,8 @@ impl Peep {
 /// The data of a registered user.
 #[derive(Debug, Encode, Decode)]
 pub struct UserData {
+	/// Owner address.
+	owner: Address,
 	/// The peeps.
 	peeps: storage::Vec<String>,
 	/// The follows.
@@ -45,11 +49,12 @@ impl UserData {
 	/// The `CellChunkAlloc` should be preferred here since
 	/// allocations of this type are dynamic. For this reason
 	/// the `Subpeep` type has a built-in `CellChunkAlloc`.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A, owner: Address) -> Self
 	where
 		A: storage::Allocator
 	{
 		Self {
+			owner,
 			peeps: storage::Vec::new_using_alloc(alloc),
 			following: storage::Vec::new_using_alloc(alloc),
 		}
@@ -107,7 +112,7 @@ impl Subpeep {
 	/// Returns `true` if registration was successful.
 	pub fn register(&mut self, username: &str) -> bool {
 		if self.users.get(username).is_none() {
-			let user_data = unsafe { UserData::new_using_alloc(&mut self.alloc) };
+			let user_data = unsafe { UserData::new_using_alloc(&mut self.alloc, ContractEnv::caller()) };
 			self.users.insert(username.into(), user_data);
 			return true
 		}
@@ -116,6 +121,15 @@ impl Subpeep {
 
 	/// Post a message by a user.
 	pub fn peep_message(&mut self, username: &str, message: &str) {
+		// Check if the caller is registered as the peeping user.
+		assert_eq!(
+			self
+				.users
+				.get(username)
+				.map(|data| data.owner)
+				.unwrap(),
+			ContractEnv::caller()
+		);
 		self.peep_global(username, message);
 		self
 			.users
@@ -126,6 +140,15 @@ impl Subpeep {
 
 	/// Make a user follow the other.
 	pub fn follow(&mut self, following: &str, followed: &str) {
+		// Check if the caller is registered as the following user.
+		assert_eq!(
+			self
+				.users
+				.get(following)
+				.map(|data| data.owner)
+				.unwrap(),
+			ContractEnv::caller()
+		);
 		self
 			.users
 			.mutate_with(following, |following| {

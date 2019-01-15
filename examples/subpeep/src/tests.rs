@@ -48,7 +48,7 @@ fn deploy() {
 	let subpeep = Subpeep::default();
 	assert_eq!(
 		subpeep.recent_peeps(10),
-		vec![]
+		Vec::new()
 	);
 	assert_eq!(
 		subpeep.recent_user_peeps(10, "alice"),
