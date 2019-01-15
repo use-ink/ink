@@ -12,12 +12,12 @@ buffer. Using <code>DeserializeSeed</code> instead makes this possible as in the
 example code below.</p>
 <p>The canonical API for stateless deserialization looks like this:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
+<div class='information'><div class='tooltip edition'>ⓘ<span class='tooltiptext'>This code runs with edition 2018</span></div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition ">
 <span class="kw">fn</span> <span class="ident">func</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;&gt;</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span></pre></div>
 <p>Adjusting an API like this to support stateful deserialization is a matter
 of accepting a seed as input:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
+<div class='information'><div class='tooltip edition'>ⓘ<span class='tooltiptext'>This code runs with edition 2018</span></div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition ">
 <span class="kw">fn</span> <span class="ident">func_seed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>: <span class="ident">DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;&gt;</span>(<span class="ident">seed</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Value</span>, <span class="ident">Error</span><span class="op">&gt;</span></pre></div>
 <p>In practice the majority of deserialization is stateless. An API expecting a
 seed can be appeased by passing <code>std::marker::PhantomData</code> as a seed in the
@@ -34,7 +34,7 @@ would like to allocate a single <code>Vec&lt;T&gt;</code> and then deserialize e
 into it. This requires stateful deserialization using the <code>DeserializeSeed</code>
 trait.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
+<div class='information'><div class='tooltip edition'>ⓘ<span class='tooltiptext'>This code runs with edition 2018</span></div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 

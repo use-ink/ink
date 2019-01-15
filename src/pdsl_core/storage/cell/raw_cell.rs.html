@@ -135,6 +135,15 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">// This file is part of pDSL.</span>
@@ -153,6 +162,7 @@
 <span class="comment">// along with pDSL.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
+	<span class="ident">memory</span>::<span class="ident">vec</span>::<span class="ident">Vec</span>,
 	<span class="ident">storage</span>::{
 		<span class="ident">Key</span>,
 		<span class="ident">NonCloneMarker</span>,
@@ -161,7 +171,7 @@
 	<span class="ident">env</span>::{<span class="ident">Env</span>, <span class="ident">ContractEnv</span>},
 };
 
-<span class="kw">use</span> <span class="ident">parity_codec_derive</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
+<span class="kw">use</span> <span class="ident">parity_codec</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
 
 <span class="doccomment">/// A raw cell.</span>
 <span class="doccomment">///</span>
@@ -172,8 +182,7 @@
 <span class="doccomment">/// - `Owned`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawCell</span> {
 	<span class="doccomment">/// The key to the associated constract storage slot.</span>
 	<span class="ident">key</span>: <span class="ident">Key</span>,
@@ -233,45 +242,54 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
 	<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-	<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">TestEnv</span>;
+	<span class="kw">use</span> <span class="kw">crate</span>::{
+		<span class="ident">test_utils</span>::<span class="ident">run_test</span>,
+		<span class="ident">env</span>::<span class="ident">TestEnv</span>,
+	};
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">simple</span>() {
-		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-			<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
-		};
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cell</span>.<span class="ident">load</span>(), <span class="prelude-val">None</span>);
-		<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;Hello, World!&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cell</span>.<span class="ident">load</span>(), <span class="prelude-val">Some</span>(<span class="string">b&quot;Hello, World!&quot;</span>.<span class="ident">to_vec</span>()));
-		<span class="ident">cell</span>.<span class="ident">clear</span>();
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cell</span>.<span class="ident">load</span>(), <span class="prelude-val">None</span>);
+		<span class="ident">run_test</span>(<span class="op">||</span> {
+			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+				<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
+			};
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cell</span>.<span class="ident">load</span>(), <span class="prelude-val">None</span>);
+			<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;Hello, World!&quot;</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cell</span>.<span class="ident">load</span>(), <span class="prelude-val">Some</span>(<span class="string">b&quot;Hello, World!&quot;</span>.<span class="ident">to_vec</span>()));
+			<span class="ident">cell</span>.<span class="ident">clear</span>();
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cell</span>.<span class="ident">load</span>(), <span class="prelude-val">None</span>);
+		})
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">count_reads</span>() {
-		<span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-			<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
-		};
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="number">0</span>);
-		<span class="ident">cell</span>.<span class="ident">load</span>();
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="number">1</span>);
-		<span class="ident">cell</span>.<span class="ident">load</span>();
-		<span class="ident">cell</span>.<span class="ident">load</span>();
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="number">3</span>);
+		<span class="ident">run_test</span>(<span class="op">||</span> {
+			<span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+				<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
+			};
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="number">0</span>);
+			<span class="ident">cell</span>.<span class="ident">load</span>();
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="number">1</span>);
+			<span class="ident">cell</span>.<span class="ident">load</span>();
+			<span class="ident">cell</span>.<span class="ident">load</span>();
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="number">3</span>);
+		})
 	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">count_writes</span>() {
-		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-			<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
-		};
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">0</span>);
-		<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;a&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">1</span>);
-		<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;b&quot;</span>);
-		<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;c&quot;</span>);
-		<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">3</span>);
+		<span class="ident">run_test</span>(<span class="op">||</span> {
+			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+				<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
+			};
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">0</span>);
+			<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;a&quot;</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">1</span>);
+			<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;b&quot;</span>);
+			<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;c&quot;</span>);
+			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">3</span>);
+		})
 	}
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../../../";window.currentCrate = "pdsl_core";</script><script src="../../../../aliases.js"></script><script src="../../../../main.js"></script><script src="../../../../source-files.js"></script><script src="../../../../source-script.js"></script><script defer src="../../../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../../../";window.currentCrate = "pdsl_core";</script><script src="../../../../aliases.js"></script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>

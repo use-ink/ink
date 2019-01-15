@@ -4,11 +4,8 @@
 }</pre></div>
 </div><div class='docblock'><p>Parse a set of parentheses and expose their content to subsequent parsers.</p>
 <h1 id="example" class="section-header"><a href="#example">Example</a></h1>
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">syn</span>;
-
-<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">token</span>, <span class="ident">Ident</span>, <span class="prelude-ty">Result</span>, <span class="ident">Type</span>};
+<div class='information'><div class='tooltip edition'>ⓘ<span class='tooltiptext'>This code runs with edition 2018</span></div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition ">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parenthesized</span>, <span class="ident">token</span>, <span class="ident">Ident</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>, <span class="ident">Type</span>};
 <span class="kw">use</span> <span class="ident">syn</span>::<span class="ident">parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
 <span class="kw">use</span> <span class="ident">syn</span>::<span class="ident">punctuated</span>::<span class="ident">Punctuated</span>;
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/arrayvec-0.4.8/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/arrayvec-0.4.10/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1077,16 +1077,6 @@
 <span id="1077">1077</span>
 <span id="1078">1078</span>
 <span id="1079">1079</span>
-<span id="1080">1080</span>
-<span id="1081">1081</span>
-<span id="1082">1082</span>
-<span id="1083">1083</span>
-<span id="1084">1084</span>
-<span id="1085">1085</span>
-<span id="1086">1086</span>
-<span id="1087">1087</span>
-<span id="1088">1088</span>
-<span id="1089">1089</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! **arrayvec** provides the types `ArrayVec` and `ArrayString`: </span>
 <span class="doccomment">//! array-backed vector and string types, which store their contents inline.</span>
@@ -1097,14 +1087,6 @@
 <span class="doccomment">//!   - Optional, enabled by default</span>
 <span class="doccomment">//!   - Use libstd; disable to use `no_std` instead.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! - `use_union`</span>
-<span class="doccomment">//!   - Optional</span>
-<span class="doccomment">//!   - Requires Rust nightly channel</span>
-<span class="doccomment">//!   - Experimental: This flag uses nightly so it *may break* unexpectedly</span>
-<span class="doccomment">//!     at some point; since it doesn&#39;t change API this flag may also change</span>
-<span class="doccomment">//!     to do nothing in the future.</span>
-<span class="doccomment">//!   - Use the unstable feature untagged unions for the internal implementation,</span>
-<span class="doccomment">//!     which may have reduced space overhead</span>
 <span class="doccomment">//! - `serde-1`</span>
 <span class="doccomment">//!   - Optional</span>
 <span class="doccomment">//!   - Enable serialization for ArrayVec and ArrayString using serde 1.0</span>
@@ -1118,12 +1100,16 @@
 <span class="doccomment">//!</span>
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span><span class="op">=</span><span class="string">&quot;https://docs.rs/arrayvec/0.4/&quot;</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">nodrop</span>;
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">has_union_feature</span>, <span class="ident">feature</span>(<span class="ident">untagged_unions</span>))]</span>
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;serde-1&quot;</span>)]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">core</span> <span class="kw">as</span> <span class="ident">std</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">has_manually_drop_in_union</span>))]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">nodrop</span>;
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
@@ -1143,11 +1129,14 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;use_union&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">nodrop</span>::<span class="ident">NoDrop</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;use_union&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">ManuallyDrop</span> <span class="kw">as</span> <span class="ident">NoDrop</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">has_manually_drop_in_union</span>)]</span>
+<span class="kw">mod</span> <span class="ident">maybe_uninit</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">has_manually_drop_in_union</span>))]</span>
+<span class="attribute">#[<span class="ident">path</span><span class="op">=</span><span class="string">&quot;maybe_uninit_nodrop.rs&quot;</span>]</span>
+<span class="kw">mod</span> <span class="ident">maybe_uninit</span>;
+
+<span class="kw">use</span> <span class="ident">maybe_uninit</span>::<span class="ident">MaybeUninit</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;serde-1&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Serializer</span>, <span class="ident">Deserializer</span>};
@@ -1165,14 +1154,6 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">errors</span>::<span class="ident">CapacityError</span>;
 
 
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_array</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Array</span><span class="op">&gt;</span>() <span class="op">-&gt;</span> <span class="ident">A</span> {
-    <span class="comment">// Note: Returning an uninitialized value here only works</span>
-    <span class="comment">// if we can be sure the data is never used. The nullable pointer</span>
-    <span class="comment">// inside enum optimization conflicts with this this for example,</span>
-    <span class="comment">// so we need to be extra careful. See `NoDrop` enum.</span>
-    <span class="ident">mem</span>::<span class="ident">uninitialized</span>()
-}
-
 <span class="doccomment">/// A vector with a fixed capacity.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The `ArrayVec` is a vector backed by a fixed size array. It keeps track of</span>
@@ -1186,7 +1167,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ArrayVec can be converted into a by value iterator.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArrayVec</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Array</span><span class="op">&gt;</span> {
-    <span class="ident">xs</span>: <span class="ident">NoDrop</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
+    <span class="ident">xs</span>: <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
     <span class="ident">len</span>: <span class="ident">A</span>::<span class="ident">Index</span>,
 }
 
@@ -1223,7 +1204,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">ArrayVec</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">ArrayVec</span> { <span class="ident">xs</span>: <span class="ident">NoDrop</span>::<span class="ident">new</span>(<span class="ident">new_array</span>()), <span class="ident">len</span>: <span class="ident">Index</span>::<span class="ident">from</span>(<span class="number">0</span>) }
+            <span class="ident">ArrayVec</span> { <span class="ident">xs</span>: <span class="ident">MaybeUninit</span>::<span class="ident">uninitialized</span>(), <span class="ident">len</span>: <span class="ident">Index</span>::<span class="ident">from</span>(<span class="number">0</span>) }
         }
     }
 
@@ -1607,7 +1588,6 @@
         <span class="self">self</span>.<span class="ident">len</span> <span class="op">=</span> <span class="ident">Index</span>::<span class="ident">from</span>(<span class="ident">length</span>);
     }
 
-
     <span class="doccomment">/// Create a draining iterator that removes the specified range in the vector</span>
     <span class="doccomment">/// and yields the removed items from start to end. The element range is</span>
     <span class="doccomment">/// removed even if the iterator is not consumed until the end.</span>
@@ -1667,7 +1647,7 @@
             <span class="prelude-val">Err</span>(<span class="self">self</span>)
         } <span class="kw">else</span> {
             <span class="kw">unsafe</span> {
-                <span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">xs</span>);
+                <span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">read</span>(<span class="self">self</span>.<span class="ident">xs</span>.<span class="ident">ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">A</span>);
                 <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="self">self</span>);
                 <span class="prelude-val">Ok</span>(<span class="ident">array</span>)
             }
@@ -1696,7 +1676,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">A</span>::<span class="ident">Item</span>] {
         <span class="kw">unsafe</span> {
-            <span class="ident">slice</span>::<span class="ident">from_raw_parts</span>(<span class="self">self</span>.<span class="ident">xs</span>.<span class="ident">as_ptr</span>(), <span class="self">self</span>.<span class="ident">len</span>())
+            <span class="ident">slice</span>::<span class="ident">from_raw_parts</span>(<span class="self">self</span>.<span class="ident">xs</span>.<span class="ident">ptr</span>(), <span class="self">self</span>.<span class="ident">len</span>())
         }
     }
 }
@@ -1706,7 +1686,7 @@
     <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">A</span>::<span class="ident">Item</span>] {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>();
         <span class="kw">unsafe</span> {
-            <span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="self">self</span>.<span class="ident">xs</span>.<span class="ident">as_mut_ptr</span>(), <span class="ident">len</span>)
+            <span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="self">self</span>.<span class="ident">xs</span>.<span class="ident">ptr_mut</span>(), <span class="ident">len</span>)
         }
     }
 }
@@ -1722,7 +1702,7 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Array</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ArrayVec</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">array</span>: <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-        <span class="ident">ArrayVec</span> { <span class="ident">xs</span>: <span class="ident">NoDrop</span>::<span class="ident">new</span>(<span class="ident">array</span>), <span class="ident">len</span>: <span class="ident">Index</span>::<span class="ident">from</span>(<span class="ident">A</span>::<span class="ident">capacity</span>()) }
+        <span class="ident">ArrayVec</span> { <span class="ident">xs</span>: <span class="ident">MaybeUninit</span>::<span class="ident">from</span>(<span class="ident">array</span>), <span class="ident">len</span>: <span class="ident">Index</span>::<span class="ident">from</span>(<span class="ident">A</span>::<span class="ident">capacity</span>()) }
     }
 }
 
@@ -2178,4 +2158,4 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "arrayvec";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-files.js"></script><script src="../../source-script.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "arrayvec";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

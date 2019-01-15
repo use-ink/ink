@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/libc-0.2.44/src/unix/notbsd/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="https://doc.rust-lang.org/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../libc/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/libc-0.2.46/src/unix/notbsd/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="https://doc.rust-lang.org/favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../libc/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1249,6 +1249,19 @@
 <span id="1249">1249</span>
 <span id="1250">1250</span>
 <span id="1251">1251</span>
+<span id="1252">1252</span>
+<span id="1253">1253</span>
+<span id="1254">1254</span>
+<span id="1255">1255</span>
+<span id="1256">1256</span>
+<span id="1257">1257</span>
+<span id="1258">1258</span>
+<span id="1259">1259</span>
+<span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
+<span id="1264">1264</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">dox</span>::<span class="ident">mem</span>;
 
@@ -1305,8 +1318,7 @@
         <span class="kw">pub</span> <span class="ident">ai_addrlen</span>: <span class="ident">socklen_t</span>,
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>,
-                  <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;emscripten&quot;</span>,
-                  <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>))]</span>
+                  <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;emscripten&quot;</span>))]</span>
         <span class="kw">pub</span> <span class="ident">ai_addr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> ::<span class="ident">sockaddr</span>,
 
         <span class="kw">pub</span> <span class="ident">ai_canonname</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>,
@@ -1766,6 +1778,7 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SOL_DCCP</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">269</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SOL_NETLINK</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">270</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SOL_TIPC</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">271</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SOL_BLUETOOTH</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">274</span>;
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">AF_UNSPEC</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">AF_UNIX</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
@@ -1875,9 +1888,11 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_MULTICAST_IF</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">32</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_MULTICAST_TTL</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">33</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_MULTICAST_LOOP</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">34</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_TOS</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_TTL</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_HDRINCL</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_PKTINFO</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">8</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_RECVTOS</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">13</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_ADD_MEMBERSHIP</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">35</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_DROP_MEMBERSHIP</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">36</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IP_TRANSPARENT</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">19</span>;
@@ -1890,6 +1905,8 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPV6_V6ONLY</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">26</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPV6_RECVPKTINFO</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">49</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPV6_PKTINFO</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">50</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPV6_RECVTCLASS</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">66</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPV6_TCLASS</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">67</span>;
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TCP_NODELAY</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TCP_MAXSEG</span>: ::<span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
@@ -2126,6 +2143,11 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPTOS_PREC_PRIORITY</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x20</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPTOS_PREC_ROUTINE</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x00</span>;
 
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPTOS_ECN_MASK</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x03</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPTOS_ECN_ECT1</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x01</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPTOS_ECN_ECT0</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x02</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPTOS_ECN_CE</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x03</span>;
+
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPOPT_COPY</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x80</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPOPT_CLASS_MASK</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x60</span>;
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IPOPT_NUMBER_MASK</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0x1f</span>;
@@ -2339,6 +2361,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">IPOPT_NUMBER</span>(<span class="ident">o</span>: <span class="ident">u8</span>) <span class="op">-&gt;</span> <span class="ident">u8</span> {
         <span class="ident">o</span> <span class="op">&amp;</span> <span class="ident">IPOPT_NUMBER_MASK</span>
     }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">IPTOS_ECN</span>(<span class="ident">x</span>: <span class="ident">u8</span>) <span class="op">-&gt;</span> <span class="ident">u8</span> {
+        <span class="ident">x</span> <span class="op">&amp;</span> ::<span class="ident">IPTOS_ECN_MASK</span>
+    }
 }
 
 <span class="kw">extern</span> {
@@ -2487,7 +2513,7 @@
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;emscripten&quot;</span>)]</span> {
         <span class="kw">mod</span> <span class="ident">emscripten</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">emscripten</span>::<span class="kw-2">*</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;fuchsia&quot;</span>))]</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)]</span> {
         <span class="kw">mod</span> <span class="ident">linux</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">linux</span>::<span class="kw-2">*</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>)]</span> {
@@ -2502,4 +2528,4 @@
     <span class="comment">//             termp: *const termios,</span>
     <span class="comment">//             winp: *const ::winsize) -&gt; ::pid_t;</span>
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../../../";window.currentCrate = "libc";</script><script src="../../../../aliases.js"></script><script src="../../../../main.js"></script><script src="../../../../source-files.js"></script><script src="../../../../source-script.js"></script><script defer src="../../../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../../../";window.currentCrate = "libc";</script><script src="../../../../aliases.js"></script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>

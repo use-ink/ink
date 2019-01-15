@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["call",""],["caller_as_array","Return current contract caller as 32-bytes array."],["deploy",""]],"type":[["Address",""]]});
