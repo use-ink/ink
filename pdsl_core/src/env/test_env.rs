@@ -17,7 +17,10 @@
 use super::*;
 
 use core::cell::{Cell, RefCell};
-use crate::memory::collections::hash_map::{HashMap, Entry};
+use crate::{
+	env::srml,
+	memory::collections::hash_map::{HashMap, Entry},
+};
 
 /// An entry in the storage of the test environment.
 ///
@@ -196,8 +199,8 @@ impl TestEnvData {
 	const FAILURE: i32 = -1;
 
 	/// Returns the caller of the contract invocation.
-	pub fn caller(&self) -> Vec<u8> {
-		self.caller.clone()
+	pub fn caller(&self) -> srml::Address {
+		srml::Address::from(self.caller.as_slice())
 	}
 
 	/// Stores the given value under the given key in the contract storage.
@@ -327,8 +330,16 @@ impl TestEnv {
 
 const TEST_ENV_LOG_TARGET: &'static str = "test-env";
 
-impl Env for TestEnv {
-	fn caller() -> Vec<u8> {
+impl EnvTypes for TestEnv {
+	type Address = srml::Address;
+	type Balance = srml::Balance;
+}
+
+impl Env for TestEnv
+where
+	<Self as EnvTypes>::Address: for<'a> From<&'a [u8]>
+{
+	fn caller() -> <Self as EnvTypes>::Address {
 		log::debug!(
 			target: TEST_ENV_LOG_TARGET,
 			"TestEnv::caller()"

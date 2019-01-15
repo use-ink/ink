@@ -27,8 +27,7 @@
 //! To enable the test environment the `test-env` crate feature
 //! has to be enabled.
 
-#[cfg(not(feature = "test-env"))]
-mod srml_env;
+pub mod srml;
 
 #[cfg(feature = "test-env")]
 mod test_env;
@@ -38,10 +37,22 @@ use crate::{
 	memory::vec::Vec
 };
 
-/// The evironment API usable by SRML contracts.
-pub trait Env {
+use parity_codec::Codec;
+
+/// The environmental types usable by contracts defined with pDSL.
+pub trait EnvTypes {
+	/// The type of an address.
+	type Address: Codec + PartialEq + Eq;
+	/// The type of balances.
+	type Balance: Codec;
+	// /// The type of gas.
+	// type Gas: Codec;
+}
+
+/// The evironment API usable by contracts defined with pDSL.
+pub trait Env: EnvTypes {
 	/// Returns the chain address of the caller.
-	fn caller() -> Vec<u8>;
+	fn caller() -> <Self as EnvTypes>::Address;
 	/// Stores the given value under the given key.
 	///
 	/// # Safety
@@ -73,7 +84,7 @@ pub trait Env {
 }
 
 #[cfg(not(feature = "test-env"))]
-pub use self::srml_env::SrmlEnv;
+pub use self::srml::SrmlEnv;
 
 #[cfg(feature = "test-env")]
 pub use self::test_env::TestEnv;
@@ -87,7 +98,7 @@ pub use self::test_env::TestEnv;
 ///   that can be inspected by the user and used
 ///   for testing contracts off-chain.
 #[cfg(not(feature = "test-env"))]
-pub type ContractEnv = self::srml_env::SrmlEnv;
+pub type ContractEnv = self::srml::DefaultSrmlEnv;
 
 /// The environment implementation that is currently being used.
 #[cfg(feature = "test-env")]
