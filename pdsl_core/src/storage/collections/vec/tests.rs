@@ -44,19 +44,6 @@ fn new_filled_vec() -> storage::Vec<i32> {
 }
 
 #[test]
-#[should_panic]
-fn new_unchecked_uninit() {
-	run_test(|| {
-		let vec = unsafe {
-			Vec::<i32>::new_unchecked(Key([0x42; 32]))
-		};
-		assert_eq!(vec.len(), 0);
-		assert_eq!(vec.is_empty(), true);
-		assert_eq!(vec.iter().next(), None);
-	})
-}
-
-#[test]
 fn init() {
 	run_test(|| {
 		let vec = new_empty_vec::<i32>();

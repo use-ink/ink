@@ -130,24 +130,6 @@ impl<T> parity_codec::Decode for Vec<T> {
 }
 
 impl<T> Vec<T> {
-	/// Creates a new storage vector for the given key.
-	///
-	/// # Safety
-	///
-	/// This is an inherently unsafe operation since it does not check
-	/// for the storage vector's invariances, such as
-	///
-	/// - Is the storage region determined by the given key aliasing?
-	/// - Is the storage region correctly formatted to be used as storage vec?
-	///
-	/// Users should not use this routine directly if possible.
-	pub unsafe fn new_unchecked(key: Key) -> Self {
-		Self{
-			len: storage::Value::from_raw_parts(key),
-			cells: SyncChunk::new_unchecked(key + 1_u32),
-		}
-	}
-
 	/// Allocates a new storage vector using the given storage allocator.
 	///
 	/// # Safety
