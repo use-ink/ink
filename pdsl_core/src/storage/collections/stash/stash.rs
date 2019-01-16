@@ -217,31 +217,6 @@ impl<T> parity_codec::Decode for Stash<T> {
 }
 
 impl<T> Stash<T> {
-	/// Creates a new storage stash for the given key.
-	///
-	/// # Safety
-	///
-	/// This is an inherently unsafe operation since it does not check
-	/// for the storage stash's invariances, such as
-	///
-	/// - Is the storage region determined by the given key aliasing?
-	/// - Is the storage region correctly formatted to be used as storage stash?
-	///
-	/// Users should not use this routine directly if possible.
-	pub unsafe fn new_unchecked(
-		next_key: Key,
-		len_key: Key,
-		max_len_key: Key,
-		entries_key: Key
-	) -> Self {
-		Self{
-			next_vacant: storage::Value::from_raw_parts(next_key),
-			len: storage::Value::from_raw_parts(len_key),
-			max_len: storage::Value::from_raw_parts(max_len_key),
-			entries: SyncChunk::new_unchecked(entries_key),
-		}
-	}
-
 	/// Allocates a new storage stash using the given storage allocator.
 	///
 	/// # Safety

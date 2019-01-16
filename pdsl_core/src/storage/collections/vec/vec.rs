@@ -17,7 +17,6 @@
 use crate::{
 	storage::{
 		self,
-		Key,
 		chunk::SyncChunk,
 		Allocator,
 	},
