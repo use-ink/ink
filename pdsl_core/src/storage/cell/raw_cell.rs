@@ -50,7 +50,7 @@ impl RawCell {
 	///
 	/// This is unsafe since it does not check if the associated
 	/// contract storage does not alias with other accesses.
-	pub unsafe fn new_unchecked(key: Key) -> Self {
+	unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			key: key,
 			non_clone: NonCloneMarker::default()
@@ -67,10 +67,7 @@ impl RawCell {
 	where
 		A: Allocator
 	{
-		Self{
-			key: alloc.alloc(1),
-			non_clone: Default::default(),
-		}
+		Self::new_unchecked(alloc.alloc(1))
 	}
 }
 

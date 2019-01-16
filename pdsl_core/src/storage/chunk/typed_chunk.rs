@@ -123,21 +123,6 @@ impl<T> parity_codec::Decode for TypedChunk<T> {
 }
 
 impl<T> TypedChunk<T> {
-	/// Creates a new typed cell chunk for the given key and length.
-	///
-	/// # Safety
-	///
-	/// This is unsafe because ..
-	/// - .. it does not check if the associated
-	///   contract storage does not alias with other accesses.
-	/// - .. it does not check if given length is non zero.
-	pub unsafe fn new_unchecked(key: Key) -> Self {
-		Self{
-			chunk: RawChunk::new_unchecked(key),
-			non_clone: Default::default(),
-		}
-	}
-
 	/// Allocates a new typed cell chunk using the given storage allocator.
 	///
 	/// # Safety
@@ -226,7 +211,10 @@ mod tests {
 			const TEST_LEN: u32 = 5;
 
 			let mut chunk = unsafe {
-				TypedChunk::new_unchecked(Key([0x42; 32]))
+				let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+					Key([0x0; 32])
+				);
+				TypedChunk::new_using_alloc(&mut alloc)
 			};
 
 			// Invariants after initialization
@@ -254,7 +242,10 @@ mod tests {
 			const TEST_LEN: u32 = 5;
 
 			let mut chunk = unsafe {
-				TypedChunk::new_unchecked(Key([0x42; 32]))
+				let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+					Key([0x0; 32])
+				);
+				TypedChunk::new_using_alloc(&mut alloc)
 			};
 
 			// Reads and writes after init.

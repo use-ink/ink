@@ -292,21 +292,6 @@ impl<T> parity_codec::Decode for SyncChunk<T> {
 }
 
 impl<T> SyncChunk<T> {
-	/// Creates a new mutable cell chunk for the given key and capacity.
-	///
-	/// # Safety
-	///
-	/// This is unsafe because ..
-	/// - .. it does not check if the associated
-	///   contract storage does not alias with other accesses.
-	/// - .. it does not check if given capacity is non zero.
-	pub unsafe fn new_unchecked(key: Key) -> Self {
-		Self{
-			chunk: TypedChunk::new_unchecked(key),
-			elems: Cache::default(),
-		}
-	}
-
 	/// Allocates a new sync cell chunk using the given storage allocator.
 	///
 	/// # Safety
@@ -460,14 +445,21 @@ mod tests {
 		env::TestEnv,
 	};
 
+	fn dummy_chunk() -> SyncChunk<u32> {
+		unsafe {
+			let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+				Key([0x0; 32])
+			);
+			SyncChunk::new_using_alloc(&mut alloc)
+		}
+	}
+
 	#[test]
 	fn simple() {
 		run_test(|| {
 			const TEST_LEN: u32 = 5;
 
-			let mut chunk = unsafe {
-				SyncChunk::new_unchecked(Key([0x42; 32]))
-			};
+			let mut chunk = dummy_chunk();
 
 			// Invariants after initialization
 			for i in 0..TEST_LEN {
@@ -495,9 +487,7 @@ mod tests {
 		run_test(|| {
 			const TEST_LEN: u32 = 5;
 
-			let mut chunk = unsafe {
-				SyncChunk::new_unchecked(Key([0x42; 32]))
-			};
+			let mut chunk = dummy_chunk();
 
 			// Reads and writes after init.
 			assert_eq!(TestEnv::total_reads(), 0);
@@ -544,9 +534,7 @@ mod tests {
 	#[test]
 	fn replace() {
 		run_test(|| {
-			let mut chunk = unsafe {
-				SyncChunk::new_unchecked(Key([0x42; 32]))
-			};
+			let mut chunk = dummy_chunk();
 
 			// Replace some with none.
 			assert_eq!(chunk.replace(0, 42), None);
@@ -562,9 +550,7 @@ mod tests {
 	#[test]
 	fn remove() {
 		run_test(|| {
-			let mut chunk = unsafe {
-				SyncChunk::new_unchecked(Key([0x42; 32]))
-			};
+			let mut chunk = dummy_chunk();
 
 			// Remove at none.
 			assert_eq!(chunk.remove(0), None);

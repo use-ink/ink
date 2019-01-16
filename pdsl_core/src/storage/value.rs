@@ -17,7 +17,6 @@
 use crate::{
 	storage::{
 		self,
-		Key,
 		cell::SyncCell,
 	},
 };
@@ -46,25 +45,6 @@ use parity_codec::{Encode, Decode};
 pub struct Value<T> {
 	/// The cell of the storage value.
 	cell: SyncCell<T>,
-}
-
-impl<T> Value<T> {
-	/// Creates a new storage value for the given key.
-	///
-	/// # Safety
-	///
-	/// This is an inherently unsafe operation since it does not check
-	/// for the storage values's invariances, such as
-	///
-	/// - Is the storage region determined by the given key aliasing?
-	/// - Is the storage region correctly formatted to be used as storage value?
-	///
-	/// Users should not use this routine directly if possible.
-	pub unsafe fn from_raw_parts(key: Key) -> Self {
-		Self{
-			cell: SyncCell::new_unchecked(key)
-		}
-	}
 }
 
 impl<T> Value<T>
@@ -341,6 +321,7 @@ where
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
 	use super::*;
+	use crate::storage::Key;
 
 	use crate::{
 		test_utils::run_test,

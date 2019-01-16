@@ -16,7 +16,6 @@
 
 use crate::{
 	storage::{
-		Key,
 		NonCloneMarker,
 		cell::RawCell,
 		Allocator,
@@ -58,19 +57,6 @@ impl<T> parity_codec::Decode for TypedCell<T> {
 }
 
 impl<T> TypedCell<T> {
-	/// Creates a new typed cell for the given key.
-	///
-	/// # Safety
-	///
-	/// This is unsafe since it does not check if the associated
-	/// contract storage does not alias with other accesses.
-	pub unsafe fn new_unchecked(key: Key) -> Self {
-		Self{
-			cell: RawCell::new_unchecked(key),
-			non_clone: NonCloneMarker::default()
-		}
-	}
-
 	/// Allocates a new typed cell using the given storage allocator.
 	///
 	/// # Safety
@@ -116,18 +102,26 @@ where
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
 	use super::*;
+	use crate::storage::Key;
 
 	use crate::{
 		test_utils::run_test,
 		env::TestEnv,
 	};
 
+	fn dummy_cell() -> TypedCell<i32> {
+		unsafe {
+			let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+				Key([0x0; 32])
+			);
+			TypedCell::new_using_alloc(&mut alloc)
+		}
+	}
+
 	#[test]
 	fn simple() {
 		run_test(|| {
-			let mut cell: TypedCell<i32> = unsafe {
-				TypedCell::new_unchecked(Key([0x42; 32]))
-			};
+			let mut cell = dummy_cell();
 			assert_eq!(cell.load(), None);
 			cell.store(&5);
 			assert_eq!(cell.load(), Some(5));
@@ -139,9 +133,7 @@ mod tests {
 	#[test]
 	fn count_reads() {
 		run_test(|| {
-			let cell: TypedCell<i32> = unsafe {
-				TypedCell::new_unchecked(Key([0x42; 32]))
-			};
+			let mut cell = dummy_cell();
 			assert_eq!(TestEnv::total_reads(), 0);
 			cell.load();
 			assert_eq!(TestEnv::total_reads(), 1);
@@ -154,9 +146,7 @@ mod tests {
 	#[test]
 	fn count_writes() {
 		run_test(|| {
-			let mut cell: TypedCell<i32> = unsafe {
-				TypedCell::new_unchecked(Key([0x42; 32]))
-			};
+			let mut cell = dummy_cell();
 			assert_eq!(TestEnv::total_writes(), 0);
 			cell.store(&1);
 			assert_eq!(TestEnv::total_writes(), 1);

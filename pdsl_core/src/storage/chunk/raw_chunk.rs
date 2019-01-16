@@ -104,7 +104,7 @@ impl RawChunk {
 	/// - ... it does not check if the associated
 	///   contract storage does not alias with other accesses.
 	/// - ... it does not check if given capacity is non zero.
-	pub unsafe fn new_unchecked(key: Key) -> Self {
+	unsafe fn new_unchecked(key: Key) -> Self {
 		Self{
 			key,
 			non_clone: Default::default(),
@@ -115,16 +115,13 @@ impl RawChunk {
 	///
 	/// # Safety
 	///
-	/// The is unsafe because it does not check if the associated storage
+	/// This is unsafe because it does not check if the associated storage
 	/// does not alias with storage allocated by other storage allocators.
 	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
 	where
 		A: Allocator
 	{
-		Self{
-			key: alloc.alloc(u32::max_value()),
-			non_clone: Default::default(),
-		}
+		Self::new_unchecked(alloc.alloc(u32::max_value()))
 	}
 
 	/// Returns the unterlying key to the cells.
