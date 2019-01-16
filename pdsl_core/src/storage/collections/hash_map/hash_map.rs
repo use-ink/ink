@@ -16,7 +16,6 @@
 
 use crate::storage::{
 	self,
-	Key,
 	chunk::SyncChunk,
 	Setup,
 	Allocator,
@@ -102,24 +101,6 @@ impl<K, V> parity_codec::Decode for HashMap<K, V> {
 }
 
 impl<K, V> HashMap<K, V> {
-	/// Creates a new storage hash map for the given key.
-	///
-	/// # Safety
-	///
-	/// This is an inherently unsafe operation since it does not check
-	/// for the storage hash map's invariances, such as
-	///
-	/// - Is the storage region determined by the given key aliasing?
-	/// - Is the storage region correctly formatted to be used as storage hash map?
-	///
-	/// Users should not use this routine directly if possible.
-	pub unsafe fn new_unchecked(key: Key) -> Self {
-		Self{
-			len: storage::Value::from_raw_parts(key),
-			entries: SyncChunk::new_unchecked(key + 1_u32),
-		}
-	}
-
 	/// Allocates a new storage hash map using the given storage allocator.
 	///
 	/// # Safety
