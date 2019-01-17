@@ -133,7 +133,7 @@ mod tests {
 	#[test]
 	fn count_reads() {
 		run_test(|| {
-			let mut cell = dummy_cell();
+			let cell = dummy_cell();
 			assert_eq!(TestEnv::total_reads(), 0);
 			cell.load();
 			assert_eq!(TestEnv::total_reads(), 1);

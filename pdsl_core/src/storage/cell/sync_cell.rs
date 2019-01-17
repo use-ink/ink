@@ -21,7 +21,10 @@ use crate::{
 	},
 };
 
-use core::cell::RefCell;
+use core::{
+	cell::RefCell,
+	pin::Pin,
+};
 
 /// A synchronized cell.
 ///
@@ -41,24 +44,66 @@ pub struct SyncCell<T> {
 	cache: Cache<T>,
 }
 
+/// A synchronized cache entry.
+#[derive(Debug)]
+pub struct SyncCacheEntry<T> {
+	/// If the entry needs to be written back upon a flush.
+	///
+	/// This is required as soon as there are potential writes to the
+	/// value stored in the associated cell.
+	dirty: bool,
+	/// The value of the cell.
+	///
+	/// Being captured in a `Pin` allows to provide robust references to the outside.
+	cell_val: Pin<Box<Option<T>>>,
+}
+
+impl<T> SyncCacheEntry<T> {
+	/// Initializes this synchronized cache entry with the given value.
+	pub fn new(val: Option<T>) -> Self {
+		Self{
+			dirty: false,
+			cell_val: Box::pin(val),
+		}
+	}
+
+	/// Returns `true` if this synchronized cache entry is dirty.
+	pub fn is_dirty(&self) -> bool {
+		self.dirty
+	}
+
+	/// Returns an immutable reference to the synchronized cached value.
+	pub fn get(&self) -> Option<&T> {
+		(&*self.cell_val).into()
+	}
+}
+
+impl<T> SyncCacheEntry<T>
+where
+	T: Unpin
+{
+	/// Returns a mutable reference to the synchronized cached value.
+	///
+	/// This also marks the cache entry as being dirty since
+	/// the callee could potentially mutate the value.
+	pub fn get_mut(&mut self) -> Option<&mut T> {
+		self.dirty = true;
+		self.cell_val.as_mut().get_mut().into()
+	}
+}
+
 /// A cache entry storing the value if synchronized.
 #[derive(Debug)]
 pub enum CacheEntry<T> {
 	/// The cache is desychronized with the contract storage.
 	Desync,
 	/// The cache is in sync with the contract storage.
-	Sync(Option<T>),
+	Sync(SyncCacheEntry<T>),
 }
 
-#[derive(Debug)]
-pub struct Cache<T> {
-	/// The cached value.
-	entry: RefCell<CacheEntry<T>>,
-}
-
-impl<T> Default for Cache<T> {
+impl<T> Default for CacheEntry<T> {
 	fn default() -> Self {
-		Self{ entry: RefCell::new(CacheEntry::Desync) }
+		CacheEntry::Desync
 	}
 }
 
@@ -71,21 +116,68 @@ impl<T> CacheEntry<T> {
 		}
 	}
 
-	/// Unwraps an immutable reference to the synchronized value.
+	/// Returns `true` if the cache is dirty.
+	pub fn is_dirty(&self) -> bool {
+		match self {
+			CacheEntry::Desync => false,
+			CacheEntry::Sync(sync_entry) => sync_entry.is_dirty(),
+		}
+	}
+
+	/// Returns an immutable reference to the internal cached entity if any.
 	///
 	/// # Panics
 	///
-	/// Panics if the cache is in a desynchronized state.
-	pub fn unwrap_get(&self) -> Option<&T> {
+	/// If the cache is in desync state and thus has no cached entity.
+	pub fn get(&self) -> Option<&T> {
 		match self {
-			CacheEntry::Sync(opt_elem) => opt_elem.into(),
 			CacheEntry::Desync => {
 				panic!(
-					"[pdsl_core::sync_cell::CacheEntry::unwrap] Error: \
-					 tried to unwrap a desynchronized value"
+					"[pdsl_core::sync_cell::CacheEntry::get] Error: \
+					 tried to get the value from a desync cache"
 				)
 			}
+			CacheEntry::Sync(sync_entry) => {
+				sync_entry.get()
+			}
 		}
+	}
+}
+
+impl<T> CacheEntry<T>
+where
+	T: Unpin
+{
+	/// Returns a mutable reference to the internal cached entity if any.
+	///
+	/// # Panics
+	///
+	/// If the cache is in desync state and thus has no cached entity.
+	pub fn get_mut(&mut self) -> Option<&mut T> {
+		match self {
+			CacheEntry::Desync => {
+				panic!(
+					"[pdsl_core::sync_cell::CacheEntry::get_mut] Error: \
+					 tried to get the value from a desync cache"
+				)
+			}
+			CacheEntry::Sync(sync_entry) => {
+				sync_entry.get_mut()
+			}
+		}
+	}
+}
+
+/// A cache for synchronizing values between memory and storage.
+#[derive(Debug)]
+pub struct Cache<T> {
+	/// The cached value.
+	entry: RefCell<CacheEntry<T>>,
+}
+
+impl<T> Default for Cache<T> {
+	fn default() -> Self {
+		Self{ entry: Default::default() }
 	}
 }
 
@@ -95,41 +187,61 @@ impl<T> Cache<T> {
 		self.entry.borrow().is_synced()
 	}
 
+	/// Returns `true` if the cache is dirty.
+	pub fn is_dirty(&self) -> bool {
+		match self.get_entry() {
+			CacheEntry::Desync => false,
+			CacheEntry::Sync(sync_entry) => sync_entry.is_dirty(),
+		}
+	}
+
 	/// Updates the synchronized value.
 	///
 	/// # Note
 	///
-	/// The cache will be in sync after this operation.
+	/// - The cache will be in sync after this operation.
+	/// - The cache will not be dirty after this operation.
 	pub fn update(&self, new_val: Option<T>) {
 		self.entry.replace(
-			CacheEntry::Sync(new_val)
+			CacheEntry::Sync(SyncCacheEntry::new(new_val))
 		);
 	}
 
-	/// Returns an immutable reference to the cache entry.
-	pub fn get(&self) -> &CacheEntry<T> {
-		unsafe{ &*self.entry.as_ptr() }
+	/// Returns an immutable reference to the internal cache entry.
+	///
+	/// Used to returns references from the inside to the outside.
+	fn get_entry(&self) -> &CacheEntry<T> {
+		unsafe { &*self.entry.as_ptr() }
 	}
 
-	/// Mutates the synchronized value if any.
+	/// Returns an immutable reference to the internal cache entry.
 	///
-	/// Returns an immutable reference to the result if
-	/// a mutation happened, otherwise `None` is returned.
-	pub fn mutate_with<F>(&mut self, f: F) -> Option<&T>
-	where
-		F: FnOnce(&mut T)
-	{
-		match self.entry.get_mut() {
-			CacheEntry::Desync => None,
-			CacheEntry::Sync(opt_val) => {
-				if let Some(val) = opt_val {
-					f(val);
-					Some(&*val)
-				} else {
-					None
-				}
-			}
-		}
+	/// Used to returns references from the inside to the outside.
+	fn get_entry_mut(&mut self) -> &mut CacheEntry<T> {
+		unsafe { &mut *self.entry.as_ptr() }
+	}
+
+	/// Returns an immutable reference to the value if any.
+	///
+	/// # Panics
+	///
+	/// If the cache is desnyc and thus has no synchronized value.
+	pub fn get(&self) -> Option<&T> {
+		self.get_entry().get()
+	}
+}
+
+impl<T> Cache<T>
+where
+	T: Unpin
+{
+	/// Returns an immutable reference to the value if any.
+	///
+	/// # Panics
+	///
+	/// If the cache is desnyc and thus has no synchronized value.
+	pub fn get_mut(&mut self) -> Option<&mut T> {
+		self.get_entry_mut().get_mut()
 	}
 }
 
@@ -177,30 +289,13 @@ impl<T> SyncCell<T>
 where
 	T: parity_codec::Decode
 {
-	/// Returns the value of the cell if any.
+	/// Returns an immutable reference to the value of the cell.
 	pub fn get(&self) -> Option<&T> {
-		match self.cache.get() {
-			CacheEntry::Desync => {
-				self.load()
-			}
-			CacheEntry::Sync(opt_elem) => {
-				opt_elem.into()
-			}
+		if !self.cache.is_synced() {
+			let loaded = self.cell.load();
+			self.cache.update(loaded);
 		}
-	}
-
-	/// Returns an immutable reference to the entity if any.
-	///
-	/// # Note
-	///
-	/// Prefer using [`get`](struct.SyncCell.html#method.get)
-	/// to avoid unnecesary contract storage accesses.
-	fn load(&self) -> Option<&T> {
-		self.cache.update(self.cell.load());
-		// Now cache is certainly synchronized
-		// so we can safely unwrap the cached value.
-		debug_assert!(self.cache.is_synced());
-		self.cache.get().unwrap_get()
+		self.cache.get()
 	}
 }
 
@@ -217,8 +312,17 @@ where
 
 impl<T> SyncCell<T>
 where
-	T: parity_codec::Codec
+	T: parity_codec::Codec + Unpin,
 {
+	/// Returns a mutable reference to the value of the cell.
+	pub fn get_mut(&mut self) -> Option<&mut T> {
+		if !self.cache.is_synced() {
+			let loaded = self.cell.load();
+			self.cache.update(loaded);
+		}
+		self.cache.get_mut()
+	}
+
 	/// Mutates the value stored in the cell.
 	///
 	/// Returns an immutable reference to the result if
@@ -227,17 +331,11 @@ where
 	where
 		F: FnOnce(&mut T)
 	{
-		if !self.cache.is_synced() {
-			self.load();
+		if let Some(value) = self.get_mut() {
+			f(value);
+			return Some(&*value)
 		}
-		debug_assert!(self.cache.is_synced());
-		match self.cache.mutate_with(f) {
-			Some(res) => {
-				self.cell.store(res);
-				Some(&*res)
-			}
-			None => None
-		}
+		None
 	}
 }
 
@@ -277,7 +375,7 @@ mod tests {
 	#[test]
 	fn count_reads() {
 		run_test(|| {
-			let mut cell = dummy_cell();
+			let cell = dummy_cell();
 			assert_eq!(TestEnv::total_reads(), 0);
 			cell.get();
 			assert_eq!(TestEnv::total_reads(), 1);

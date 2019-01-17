@@ -91,6 +91,16 @@ where
 		self.cell.get().unwrap()
 	}
 
+	/// Sets the wrapped value to the given value.
+	pub fn set(&mut self, val: T) {
+		self.cell.set(val)
+	}
+}
+
+impl<T> Value<T>
+where
+	T: parity_codec::Codec + Unpin,
+{
 	/// Mutates the wrapped value inplace by the given closure.
 	///
 	/// Returns a reference to the resulting value.
@@ -99,11 +109,6 @@ where
 		F: FnOnce(&mut T)
 	{
 		self.cell.mutate_with(f).unwrap()
-	}
-
-	/// Sets the wrapped value to the given value.
-	pub fn set(&mut self, val: T) {
-		self.cell.set(val)
 	}
 }
 
@@ -163,7 +168,7 @@ macro_rules! impl_ops_for_value {
 
 		impl<T> core::ops::$trait_name_assign<T> for Value<T>
 		where
-			T: core::ops::$trait_name_assign<T> + parity_codec::Codec,
+			T: core::ops::$trait_name_assign<T> + parity_codec::Codec + Unpin,
 		{
 			fn $fn_name_assign(&mut self, rhs: T) {
 				self.mutate_with(|val| (*val) $tok_eq rhs);
@@ -172,7 +177,7 @@ macro_rules! impl_ops_for_value {
 
 		impl<T> core::ops::$trait_name_assign<&Self> for Value<T>
 		where
-			T: core::ops::$trait_name_assign<T> + Copy + parity_codec::Codec,
+			T: core::ops::$trait_name_assign<T> + Copy + parity_codec::Codec + Unpin,
 		{
 			fn $fn_name_assign(&mut self, rhs: &Value<T>) {
 				self.mutate_with(|val| (*val) $tok_eq *rhs.get());
@@ -231,7 +236,7 @@ macro_rules! impl_shift_for_value {
 
 		impl<T, R> core::ops::$trait_name_assign<R> for Value<T>
 		where
-			T: core::ops::$trait_name_assign<R> + Copy + parity_codec::Codec,
+			T: core::ops::$trait_name_assign<R> + Copy + parity_codec::Codec + Unpin,
 		{
 			fn $fn_name_assign(&mut self, rhs: R) {
 				self.mutate_with(|value| (*value) $tok_eq rhs);
