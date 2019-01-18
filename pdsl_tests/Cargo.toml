@@ -3,30 +3,22 @@ name = "pdsl_tests"
 version = "0.1.0"
 authors = ["Robin Freyler <robbepop@web.de>"]
 edition = "2018"
-
-# license = "MIT/Apache-2.0"
+description = "Tests for the Substrate smart constracts Rust eDSL"
+license = "GPL-3.0"
 # readme = "README.md"
-
-# description = "Tests for the Substrate smart constracts Rust eDSL"
-
-# repository = "https://github.com/robbepop/stevia"
-# documentation = "https://docs.rs/stevia"
+# repository = "https://github.com/robbepop/pdsl"
+# documentation = "https://docs.rs/pdsl"
 # homepage =
-
-# keywords   = ["smt", "solver", "formal methods"]
-# categories = ["science"]
+# keywords   = []
+# categories = []
 
 [lib]
 crate-type = ["cdylib"]
 name = "pdsl_tests"
 
 [dependencies]
-pdsl = { path = "../pdsl_derive", package = "pdsl_derive" }
 pdsl_core = { path = "../pdsl_core" }
-
-parity-codec = { version = "2.0.4", default-features = false }
-parity-codec-derive = { version = "2.0.4", default-features = false }
-wee_alloc = "0.4"
+parity-codec = { version = "2.2", default-features = false, features = ["derive"] }
 
 [features]
 test-env = ["pdsl_core/test-env"]

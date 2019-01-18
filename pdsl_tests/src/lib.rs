@@ -1,22 +1,28 @@
-#![feature(alloc_error_handler)]
-#![feature(alloc)]
+#![no_std]
 
 pub mod incrementer {
-	use pdsl_core::env::{Env, ContractEnv};
-	use pdsl_core::storage::{Key, cell::SyncCell};
+	use pdsl_core::{
+		env::{Env, ContractEnv},
+		storage::{
+			alloc,
+			Key,
+			cell::SyncCell,
+		},
+	};
 
-	#[derive(parity_codec_derive::Encode, parity_codec_derive::Decode)]
+	#[derive(parity_codec::Encode, parity_codec::Decode)]
 	enum Action {
 		Inc(u32),
 		Get,
 	}
 
-	const COUNTER_KEY: Key = Key([1; 32]);
+	const ALLOC_KEY: Key = Key([0x0; 32]);
 
 	#[no_mangle]
 	pub extern "C" fn deploy() {
 		unsafe {
-			SyncCell::new_unchecked(COUNTER_KEY).set(0)
+			let mut alloc = alloc::ForwardAlloc::from_raw_parts(ALLOC_KEY);
+			SyncCell::new_using_alloc(&mut alloc).set(0)
 		}
 	}
 
@@ -28,7 +34,8 @@ pub mod incrementer {
 		let action = Action::decode(&mut &input[..]).unwrap();
 
 		let mut counter = unsafe {
-			SyncCell::<u32>::new_unchecked(COUNTER_KEY)
+			let mut alloc = alloc::ForwardAlloc::from_raw_parts(ALLOC_KEY);
+			SyncCell::new_using_alloc(&mut alloc)
 		};
 
 		match action {
