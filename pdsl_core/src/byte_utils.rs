@@ -16,8 +16,6 @@
 
 //! Utilities to operate on byte or slices of bytes.
 
-use core::mem::size_of;
-
 /// Flips all bytes in the byte slice inplace.
 fn invert_bytes(bytes: &mut [u8]) {
 	for byte in bytes.into_iter() {
@@ -183,41 +181,6 @@ pub fn bytes_sub_bytes(lhs: &mut [u8], rhs: &[u8]) -> bool {
 	bytes_ops_bytes(lhs, rhs, u8::overflowing_sub)
 }
 
-macro_rules! primitives_impl {
-	( $prim:ty, $bytes_to_prim:ident, $prim_to_bytes:ident ) => {
-		/// Converts the byte array to the primitive number.
-		///
-		/// # Panics
-		///
-		/// If the byte slice does not match the number of byte
-		/// in the primitive.
-		pub fn $bytes_to_prim(bytes: &[u8; size_of::<$prim>()]) -> $prim {
-			let mut res = 0;
-			const N_BYTES: usize = size_of::<$prim>();
-			const N_BITS: usize = N_BYTES * 8;
-			for i in 0..N_BYTES {
-				res |= (bytes[i] as $prim) << (N_BITS - ((i + 1) * 8));
-			}
-			res
-		}
-
-		/// Converts the primitive number to a byte array.
-		pub fn $prim_to_bytes(val: $prim) -> [u8; size_of::<$prim>()] {
-			const N_BYTES: usize = size_of::<$prim>();
-			const N_BITS: usize = N_BYTES * 8;
-			let mut buf = [0x0; N_BYTES];
-			for i in 0..N_BYTES {
-				buf[i] = ((val >> (N_BITS - ((i + 1) * 8))) & 0xFF) as u8
-			}
-			buf
-		}
-	};
-}
-
-primitives_impl!(u32, bytes4_to_u32, u32_to_bytes4);
-primitives_impl!(u64, bytes8_to_u64, u64_to_bytes8);
-primitives_impl!(u128, bytes16_to_u128, u128_to_bytes16);
-
 #[cfg(all(test, feature = "std"))]
 mod tests {
 	use super::*;
@@ -350,76 +313,6 @@ mod tests {
 				&[0x00, 0x00, 0xFF, 0xFF],
 				&[0xFF, 0xFF],
 				&[0x00, 0x01, 0xFF, 0xFE],
-			);
-		})
-	}
-
-	#[test]
-	fn u32_and_bytes_conv() {
-		run_test(|| {
-			fn test_for(val: u32, bytes: [u8; 4]) {
-				assert_eq!(bytes4_to_u32(&u32_to_bytes4(val)), val);
-				assert_eq!(u32_to_bytes4(bytes4_to_u32(&bytes)), bytes);
-				assert_eq!(u32_to_bytes4(val), bytes);
-			}
-			test_for(
-				0x00_00_00_00,
-				[0x00, 0x00, 0x00, 0x00]
-			);
-			test_for(
-				0xFF_FF_FF_FF,
-				[0xFF, 0xFF, 0xFF, 0xFF]
-			);
-			test_for(
-				0x00_00_00_01,
-				[0x00, 0x00, 0x00, 0x01]
-			);
-			test_for(
-				0x12_34_56_78,
-				[0x12, 0x34, 0x56, 0x78]
-			);
-		})
-	}
-
-	#[test]
-	fn u64_and_bytes_conv() {
-		run_test(|| {
-			fn test_for(val: u64, bytes: [u8; 8]) {
-				assert_eq!(bytes8_to_u64(&u64_to_bytes8(val)), val);
-				assert_eq!(u64_to_bytes8(bytes8_to_u64(&bytes)), bytes);
-				assert_eq!(u64_to_bytes8(val), bytes);
-			}
-			// Test for 0
-			test_for(
-				0x00_00_00_00_00_00_00_00,
-				[
-					0x00, 0x00, 0x00, 0x00,
-					0x00, 0x00, 0x00, 0x00,
-				]
-			);
-			// Test for MAX
-			test_for(
-				0xFF_FF_FF_FF_FF_FF_FF_FF,
-				[
-					0xFF, 0xFF, 0xFF, 0xFF,
-					0xFF, 0xFF, 0xFF, 0xFF,
-				]
-			);
-			// Test for 1
-			test_for(
-				0x00_00_00_00_00_00_00_01,
-				[
-					0x00, 0x00, 0x00, 0x00,
-					0x00, 0x00, 0x00, 0x01,
-				]
-			);
-			// Test for unique bytes
-			test_for(
-				0x12_34_56_78_9A_BC_DE_F0,
-				[
-					0x12, 0x34, 0x56, 0x78,
-					0x9A, 0xBC, 0xDE, 0xF0,
-				]
 			);
 		})
 	}

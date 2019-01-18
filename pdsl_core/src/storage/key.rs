@@ -118,8 +118,8 @@ impl KeyDiff {
 		if self.as_bytes().into_iter().take(KEY_BYTES - U32_BYTES).any(|&byte| byte != 0x0) {
 			return None
 		}
-		let value = byte_utils::bytes4_to_u32(
-			byte_utils::slice4_as_array4(&self.as_bytes()[(KEY_BYTES - U32_BYTES)..KEY_BYTES])
+		let value = u32::from_be_bytes(
+			*byte_utils::slice4_as_array4(&self.as_bytes()[(KEY_BYTES - U32_BYTES)..KEY_BYTES])
 				.unwrap()
 		);
 		Some(value)
@@ -134,8 +134,8 @@ impl KeyDiff {
 		if self.as_bytes().into_iter().take(KEY_BYTES - U64_BYTES).any(|&byte| byte != 0x0) {
 			return None
 		}
-		let value = byte_utils::bytes8_to_u64(
-			byte_utils::slice8_as_array8(&self.as_bytes()[(KEY_BYTES - U64_BYTES)..KEY_BYTES])
+		let value = u64::from_be_bytes(
+			*byte_utils::slice8_as_array8(&self.as_bytes()[(KEY_BYTES - U64_BYTES)..KEY_BYTES])
 				.unwrap()
 		);
 		Some(value)
@@ -150,8 +150,8 @@ impl KeyDiff {
 		if self.as_bytes().into_iter().take(KEY_BYTES - U128_BYTES).any(|&byte| byte != 0x0) {
 			return None
 		}
-		let value = byte_utils::bytes16_to_u128(
-			byte_utils::slice16_as_array16(&self.as_bytes()[(KEY_BYTES - U128_BYTES)..KEY_BYTES])
+		let value = u128::from_be_bytes(
+			*byte_utils::slice16_as_array16(&self.as_bytes()[(KEY_BYTES - U128_BYTES)..KEY_BYTES])
 				.unwrap()
 		);
 		Some(value)
@@ -159,7 +159,7 @@ impl KeyDiff {
 }
 
 macro_rules! impl_add_sub_for_key {
-	( $prim:ty, $prim_to_bytes_fn:ident ) => {
+	( $prim:ty ) => {
 		impl core::ops::Add<$prim> for Key {
 			type Output = Self;
 
@@ -174,7 +174,7 @@ macro_rules! impl_add_sub_for_key {
 			fn add_assign(&mut self, rhs: $prim) {
 				let ovfl = byte_utils::bytes_add_bytes(
 					self.as_bytes_mut(),
-					&byte_utils::$prim_to_bytes_fn(rhs)
+					&(rhs.to_be_bytes())
 				);
 				if ovfl {
 					log::warn!(
@@ -201,7 +201,7 @@ macro_rules! impl_add_sub_for_key {
 			fn sub_assign(&mut self, rhs: $prim) {
 				let ovfl = byte_utils::bytes_sub_bytes(
 					self.as_bytes_mut(),
-					&byte_utils::$prim_to_bytes_fn(rhs)
+					&rhs.to_be_bytes()
 				);
 				if ovfl {
 					log::warn!(
@@ -216,9 +216,9 @@ macro_rules! impl_add_sub_for_key {
 	};
 }
 
-impl_add_sub_for_key!(u32, u32_to_bytes4);
-impl_add_sub_for_key!(u64, u64_to_bytes8);
-impl_add_sub_for_key!(u128, u128_to_bytes16);
+impl_add_sub_for_key!(u32);
+impl_add_sub_for_key!(u64);
+impl_add_sub_for_key!(u128);
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
