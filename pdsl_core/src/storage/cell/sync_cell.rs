@@ -18,7 +18,9 @@ use crate::{
 	storage::{
 		cell::TypedCell,
 		Allocator,
+		Flush,
 	},
+	memory::boxed::Box,
 };
 
 use core::{
@@ -58,8 +60,22 @@ pub struct SyncCacheEntry<T> {
 	cell_val: Pin<Box<Option<T>>>,
 }
 
+impl<T> SyncCacheEntry<T>
+where
+	T: Unpin
+{
+	/// Updates the cached value.
+	pub fn update(&mut self, new_val: Option<T>) {
+		*self.cell_val = new_val;
+	}
+}
+
 impl<T> SyncCacheEntry<T> {
 	/// Initializes this synchronized cache entry with the given value.
+	///
+	/// # Note
+	///
+	/// The cache will _not_ be marked as dirty after this operation.
 	pub fn new(val: Option<T>) -> Self {
 		Self{
 			dirty: false,
@@ -70,6 +86,16 @@ impl<T> SyncCacheEntry<T> {
 	/// Returns `true` if this synchronized cache entry is dirty.
 	pub fn is_dirty(&self) -> bool {
 		self.dirty
+	}
+
+	/// Marks the cached value as dirty.
+	pub fn mark_dirty(&mut self) {
+		self.dirty = true;
+	}
+
+	/// Marks the cached value as clean.
+	pub fn mark_clean(&mut self) {
+		self.dirty = false;
 	}
 
 	/// Returns an immutable reference to the synchronized cached value.
@@ -87,7 +113,7 @@ where
 	/// This also marks the cache entry as being dirty since
 	/// the callee could potentially mutate the value.
 	pub fn get_mut(&mut self) -> Option<&mut T> {
-		self.dirty = true;
+		self.mark_dirty();
 		self.cell_val.as_mut().get_mut().into()
 	}
 }
@@ -107,6 +133,23 @@ impl<T> Default for CacheEntry<T> {
 	}
 }
 
+impl<T> CacheEntry<T>
+where
+	T: Unpin
+{
+	/// Updates the cached value.
+	pub fn update(&mut self, new_val: Option<T>) {
+		match self {
+			CacheEntry::Desync => {
+				*self = CacheEntry::Sync(SyncCacheEntry::new(new_val))
+			}
+			CacheEntry::Sync(sync_entry) => {
+				sync_entry.update(new_val)
+			}
+		}
+	}
+}
+
 impl<T> CacheEntry<T> {
 	/// Returns `true` if the cache is in sync.
 	pub fn is_synced(&self) -> bool {
@@ -121,6 +164,22 @@ impl<T> CacheEntry<T> {
 		match self {
 			CacheEntry::Desync => false,
 			CacheEntry::Sync(sync_entry) => sync_entry.is_dirty(),
+		}
+	}
+
+	/// Marks the cache as dirty.
+	pub fn mark_dirty(&mut self) {
+		match self {
+			CacheEntry::Sync(sync_entry) => sync_entry.mark_dirty(),
+			CacheEntry::Desync => (),
+		}
+	}
+
+	/// Marks the cache as clean.
+	pub fn mark_clean(&mut self) {
+		match self {
+			CacheEntry::Sync(sync_entry) => sync_entry.mark_clean(),
+			CacheEntry::Desync => (),
 		}
 	}
 
@@ -181,6 +240,21 @@ impl<T> Default for Cache<T> {
 	}
 }
 
+impl<T> Cache<T>
+where
+	T: Unpin
+{
+	/// Updates the synchronized value.
+	///
+	/// # Note
+	///
+	/// - The cache will be in sync after this operation.
+	/// - The cache will not be dirty after this operation.
+	pub fn update(&self, new_val: Option<T>) {
+		self.entry.borrow_mut().update(new_val)
+	}
+}
+
 impl<T> Cache<T> {
 	/// Returns `true` if the cache is in sync.
 	pub fn is_synced(&self) -> bool {
@@ -189,22 +263,17 @@ impl<T> Cache<T> {
 
 	/// Returns `true` if the cache is dirty.
 	pub fn is_dirty(&self) -> bool {
-		match self.get_entry() {
-			CacheEntry::Desync => false,
-			CacheEntry::Sync(sync_entry) => sync_entry.is_dirty(),
-		}
+		self.entry.borrow().is_dirty()
 	}
 
-	/// Updates the synchronized value.
-	///
-	/// # Note
-	///
-	/// - The cache will be in sync after this operation.
-	/// - The cache will not be dirty after this operation.
-	pub fn update(&self, new_val: Option<T>) {
-		self.entry.replace(
-			CacheEntry::Sync(SyncCacheEntry::new(new_val))
-		);
+	/// Marks the cache dirty.
+	pub fn mark_dirty(&mut self) {
+		self.entry.borrow_mut().mark_dirty()
+	}
+
+	/// Marks the cache clean.
+	pub fn mark_clean(&mut self) {
+		self.entry.borrow_mut().mark_clean()
 	}
 
 	/// Returns an immutable reference to the internal cache entry.
@@ -261,6 +330,21 @@ impl<T> parity_codec::Decode for SyncCell<T> {
 	}
 }
 
+impl<T> Flush for SyncCell<T>
+where
+	T: parity_codec::Codec,
+{
+	fn flush(&mut self) {
+		if self.cache.is_dirty() {
+			match self.cache.get() {
+				Some(val) => self.cell.store(val),
+				None => self.cell.clear(),
+			}
+			self.cache.mark_clean();
+		}
+	}
+}
+
 impl<T> SyncCell<T> {
 	/// Allocates a new sync cell using the given storage allocator.
 	///
@@ -277,17 +361,23 @@ impl<T> SyncCell<T> {
 			cache: Default::default(),
 		}
 	}
+}
 
+impl<T> SyncCell<T>
+where
+	T: Unpin
+{
 	/// Removes the value from the cell.
 	pub fn clear(&mut self) {
-		self.cell.clear();
+		self.cell.clear(); // TODO: Removes this after implementation of flushing
 		self.cache.update(None);
+		self.cache.mark_dirty();
 	}
 }
 
 impl<T> SyncCell<T>
 where
-	T: parity_codec::Decode
+	T: parity_codec::Decode + Unpin
 {
 	/// Returns an immutable reference to the value of the cell.
 	pub fn get(&self) -> Option<&T> {
@@ -301,12 +391,13 @@ where
 
 impl<T> SyncCell<T>
 where
-	T: parity_codec::Encode
+	T: parity_codec::Encode + Unpin
 {
 	/// Sets the value of the cell.
 	pub fn set(&mut self, val: T) {
-		self.cell.store(&val);
-		self.cache.update(Some(val))
+		self.cell.store(&val); // TODO: Removes this after implementation of flushing
+		self.cache.update(Some(val));
+		self.cache.mark_dirty();
 	}
 }
 
@@ -320,6 +411,7 @@ where
 			let loaded = self.cell.load();
 			self.cache.update(loaded);
 		}
+		self.cache.mark_dirty();
 		self.cache.get_mut()
 	}
 

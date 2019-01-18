@@ -83,6 +83,7 @@ pub mod chunk;
 mod collections;
 mod setup;
 mod value;
+mod flush;
 
 use self::non_clone::NonCloneMarker;
 
@@ -107,6 +108,9 @@ pub use self::{
 	},
 	setup::{
 		Setup,
+	},
+	flush::{
+		Flush,
 	},
 };
 

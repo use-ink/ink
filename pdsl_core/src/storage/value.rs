@@ -18,6 +18,7 @@ use crate::{
 	storage::{
 		self,
 		cell::SyncCell,
+		Flush,
 	},
 };
 use parity_codec::{Encode, Decode};
@@ -42,14 +43,17 @@ use parity_codec::{Encode, Decode};
 /// [`set`](struct.Value.html#method.set) or
 /// [`mutate_with`](struct.Value.html#method.mutate_with).
 #[derive(Debug, Encode, Decode)]
-pub struct Value<T> {
+pub struct Value<T>
+where
+	T: Unpin,
+{
 	/// The cell of the storage value.
 	cell: SyncCell<T>,
 }
 
 impl<T> Value<T>
 where
-	T: parity_codec::Codec + Default
+	T: parity_codec::Codec + Default + Unpin,
 {
 	/// Creates a new storage value initialized as its default value.
 	///
@@ -67,7 +71,7 @@ where
 
 impl<T> Value<T>
 where
-	T: parity_codec::Codec,
+	T: parity_codec::Codec + Unpin,
 {
 	/// Creates a new storage value initialized by the given value.
 	///
@@ -114,7 +118,7 @@ where
 
 impl<T, R> core::convert::AsRef<R> for Value<T>
 where
-	T: core::convert::AsRef<R> + parity_codec::Codec,
+	T: core::convert::AsRef<R> + parity_codec::Codec + Unpin,
 {
 	fn as_ref(&self) -> &R {
 		self.get().as_ref()
@@ -123,7 +127,7 @@ where
 
 impl<T> core::ops::Deref for Value<T>
 where
-	T: parity_codec::Codec,
+	T: parity_codec::Codec + Unpin,
 {
 	type Target = T;
 
@@ -132,9 +136,21 @@ where
 	}
 }
 
-impl<T> Drop for Value<T> {
+impl<T> Flush for Value<T>
+where
+	T: parity_codec::Codec + Unpin,
+{
+	fn flush(&mut self) {
+		self.cell.flush()
+	}
+}
+
+impl<T> Drop for Value<T>
+where
+	T: Unpin,
+{
 	fn drop(&mut self) {
-		self.cell.clear();
+		self.cell.clear()
 	}
 }
 
@@ -146,7 +162,7 @@ macro_rules! impl_ops_for_value {
 	) => {
 		impl<T> core::ops::$trait_name<T> for &Value<T>
 		where
-			T: core::ops::$trait_name<T> + Copy + parity_codec::Codec,
+			T: core::ops::$trait_name<T> + Copy + parity_codec::Codec + Unpin,
 		{
 			type Output = <T as core::ops::$trait_name>::Output;
 
@@ -157,7 +173,7 @@ macro_rules! impl_ops_for_value {
 
 		impl<T> core::ops::$trait_name for &Value<T>
 		where
-			T: core::ops::$trait_name<T> + Copy + parity_codec::Codec,
+			T: core::ops::$trait_name<T> + Copy + parity_codec::Codec + Unpin,
 		{
 			type Output = <T as core::ops::$trait_name>::Output;
 
@@ -198,7 +214,7 @@ impl_ops_for_value!(BitXor, bitxor, BitXorAssign, bitxor_assign; ^, ^=);
 
 impl<T> core::ops::Neg for &Value<T>
 where
-	T: core::ops::Neg + Copy + parity_codec::Codec,
+	T: core::ops::Neg + Copy + parity_codec::Codec + Unpin,
 {
 	type Output = <T as core::ops::Neg>::Output;
 
@@ -209,7 +225,7 @@ where
 
 impl<T> core::ops::Not for &Value<T>
 where
-	T: core::ops::Not + Copy + parity_codec::Codec,
+	T: core::ops::Not + Copy + parity_codec::Codec + Unpin,
 {
 	type Output = <T as core::ops::Not>::Output;
 
@@ -225,7 +241,7 @@ macro_rules! impl_shift_for_value {
 	) => {
 		impl<T, R> core::ops::$trait_name<R> for &Value<T>
 		where
-			T: core::ops::$trait_name<R> + Copy + parity_codec::Codec,
+			T: core::ops::$trait_name<R> + Copy + parity_codec::Codec + Unpin,
 		{
 			type Output = <T as core::ops::$trait_name<R>>::Output;
 
@@ -250,7 +266,7 @@ impl_shift_for_value!(Shr, shr, >>; ShrAssign, shr_assign, >>=);
 
 impl<T, I> core::ops::Index<I> for Value<T>
 where
-	T: core::ops::Index<I> + parity_codec::Codec,
+	T: core::ops::Index<I> + parity_codec::Codec + Unpin,
 {
 	type Output = <T as core::ops::Index<I>>::Output;
 
@@ -261,7 +277,7 @@ where
 
 impl<T> PartialEq<T> for Value<T>
 where
-	T: PartialEq + parity_codec::Codec,
+	T: PartialEq + parity_codec::Codec + Unpin,
 {
 	fn eq(&self, rhs: &T) -> bool {
 		self.get().eq(rhs)
@@ -270,20 +286,23 @@ where
 
 impl<T> PartialEq for Value<T>
 where
-	T: PartialEq + parity_codec::Codec,
+	T: PartialEq + parity_codec::Codec + Unpin,
 {
 	fn eq(&self, rhs: &Self) -> bool {
 		self.get().eq(rhs.get())
 	}
 }
 
-impl<T> Eq for Value<T> where T: Eq + parity_codec::Codec {}
+impl<T> Eq for Value<T>
+where
+	T: Eq + parity_codec::Codec + Unpin
+{}
 
 use core::cmp::Ordering;
 
 impl<T> PartialOrd<T> for Value<T>
 where
-	T: PartialOrd + parity_codec::Codec,
+	T: PartialOrd + parity_codec::Codec + Unpin,
 {
 	fn partial_cmp(&self, other: &T) -> Option<Ordering> {
 		self.get().partial_cmp(other)
@@ -292,14 +311,17 @@ where
 
 impl<T> PartialOrd<Value<T>> for Value<T>
 where
-	T: PartialOrd + parity_codec::Codec,
+	T: PartialOrd + parity_codec::Codec + Unpin,
 {
 	fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
 		self.get().partial_cmp(other.get())
 	}
 }
 
-impl<T> Ord for Value<T> where T: Ord + parity_codec::Codec {
+impl<T> Ord for Value<T>
+where
+	T: Ord + parity_codec::Codec + Unpin
+{
 	fn cmp(&self, other: &Self) -> Ordering {
 		self.get().cmp(other.get())
 	}
@@ -307,7 +329,7 @@ impl<T> Ord for Value<T> where T: Ord + parity_codec::Codec {
 
 impl<T> core::hash::Hash for Value<T>
 where
-	T: core::hash::Hash + parity_codec::Codec,
+	T: core::hash::Hash + parity_codec::Codec + Unpin,
 {
 	fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
 		self.get().hash(state)
@@ -316,7 +338,7 @@ where
 
 impl<T> core::fmt::Display for Value<T>
 where
-	T: core::fmt::Display + parity_codec::Codec,
+	T: core::fmt::Display + parity_codec::Codec + Unpin,
 {
 	fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
 		self.get().fmt(f)

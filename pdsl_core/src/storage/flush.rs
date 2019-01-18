@@ -33,5 +33,5 @@
 /// `storage::Vec` or `storage::Value`.
 pub trait Flush {
 	/// Flushes the cached state back to the contract storage, if any.
-	fn flush();
+	fn flush(&mut self);
 }
