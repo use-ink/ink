@@ -38,6 +38,53 @@ fn new_unchecked() {
 }
 
 #[test]
+fn get() {
+	run_test(|| {
+		let mut map = new_empty::<String, String>();
+		// Inserts some elements
+		assert_eq!(map.insert("Black".into(), "White".into()), None);
+		assert_eq!(map.insert("Up".into(), "Down".into()), None);
+		// Check if get returns the right answer
+		assert_eq!(map.get("Black"), Some(&"White".into()));
+		assert_eq!(map.get("Up"), Some(&"Down".into()));
+		assert_eq!(map.get("Forward"), None);
+	})
+}
+
+#[test]
+fn index() {
+	run_test(|| {
+		let mut map = new_empty::<String, String>();
+		// Inserts some elements
+		assert_eq!(map.insert("Black".into(), "White".into()), None);
+		assert_eq!(map.insert("Up".into(), "Down".into()), None);
+		// Check if get returns the right answer
+		assert_eq!(map["Black"], "White");
+		assert_eq!(map["Up"], "Down");
+	})
+}
+
+#[test]
+fn index_repeat() {
+	run_test(|| {
+		let mut map = new_empty::<String, String>();
+		// Inserts some elements
+		assert_eq!(map.insert("Something".into(), "There it is!".into()), None);
+		// Check if get returns the right answer repeatedly
+		assert_eq!(map["Something"], "There it is!");
+		assert_eq!(map["Something"], "There it is!");
+	})
+}
+
+#[test]
+#[should_panic]
+fn index_fail0() {
+	let map = new_empty::<String, String>();
+	// This will just fail and panic
+	&map["Won't catch this!"];
+}
+
+#[test]
 fn insert() {
 	run_test(|| {
 		let mut map = new_empty::<String, String>();
@@ -51,7 +98,7 @@ fn insert() {
 		// Should *not* increase len.
 		assert_eq!(map.len(), 1);
 		// Should return the new value
-		assert_eq!(map.get("1"), Some(&", World!".into()));
+		assert_eq!(map["1"], ", World!");
 	})
 }
 
@@ -94,20 +141,6 @@ fn remove() {
 }
 
 #[test]
-fn get() {
-	run_test(|| {
-		let mut map = new_empty::<String, String>();
-		// Inserts some elements
-		assert_eq!(map.insert("Black".into(), "White".into()), None);
-		assert_eq!(map.insert("Up".into(), "Down".into()), None);
-		// Check if get returns the right answer
-		assert_eq!(map.get("Black"), Some(&"White".into()));
-		assert_eq!(map.get("Up"), Some(&"Down".into()));
-		assert_eq!(map.get("Forward"), None);
-	})
-}
-
-#[test]
 fn mutate_with() {
 	run_test(|| {
 		let mut map = new_empty::<String, String>();
@@ -115,8 +148,8 @@ fn mutate_with() {
 		assert_eq!(map.insert("Dog Breed".into(), "Akita".into()), None); // Shiba Inu
 		assert_eq!(map.insert("Cat Breed".into(), "Bengal".into()), None); // Burmilla
 		// Verify the inserted breeds
-		assert_eq!(map.get("Dog Breed"), Some(&"Akita".into()));
-		assert_eq!(map.get("Cat Breed"), Some(&"Bengal".into()));
+		assert_eq!(map["Dog Breed"], "Akita");
+		assert_eq!(map["Cat Breed"], "Bengal");
 		// Change the breeds
 		assert_eq!(
 			map.mutate_with("Dog Breed", |breed| *breed = "Shiba Inu".into()),
@@ -127,8 +160,8 @@ fn mutate_with() {
 			Some(&"Bengal Shorthair".into())
 		);
 		// Verify the mutated breeds
-		assert_eq!(map.get("Dog Breed"), Some(&"Shiba Inu".into()));
-		assert_eq!(map.get("Cat Breed"), Some(&"Bengal Shorthair".into()));
+		assert_eq!(map["Dog Breed"], "Shiba Inu");
+		assert_eq!(map["Cat Breed"], "Bengal Shorthair");
 		// Mutate for non-existing key
 		assert_eq!(map.mutate_with("Bird Breed", |breed| *breed = "Parrot".into()), None);
 	})

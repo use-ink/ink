@@ -360,8 +360,7 @@ where
 			.map(|slot| slot.index())
 	}
 
-	/// Removes a key from the map,
-	/// returning the value at the key if the key was previously in the map.
+	/// Removes a key from the map, returning the value at the key if the key was previously in the map.
 	///
 	/// # Note
 	///
@@ -387,7 +386,7 @@ where
 		}
 	}
 
-	/// Returns the value corresponding to the key.
+	/// Returns an immutable reference to the value corresponding to the key.
 	///
 	/// The key may be any borrowed form of the map's key type,
 	/// but Hash and Eq on the borrowed form must match those for the key type.
@@ -397,6 +396,21 @@ where
 		Q: Hash + Eq + ?Sized,
 	{
 		match self.entry(key) {
+			Some(Entry::Removed) | None => None,
+			Some(Entry::Occupied(OccupiedEntry{val, ..})) => Some(val),
+		}
+	}
+
+	/// Returns a mutable reference to the value corresponding to the key.
+	///
+	/// The key may be any borrowed form of the map's key type,
+	/// but Hash and Eq on the borrowed form must match those for the key type.
+	pub fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
+	where
+		K: Borrow<Q>,
+		Q: Hash + Eq + ?Sized,
+	{
+		match self.entry_mut(key) {
 			Some(Entry::Removed) | None => None,
 			Some(Entry::Occupied(OccupiedEntry{val, ..})) => Some(val),
 		}
@@ -414,7 +428,7 @@ where
 		}
 	}
 
-	/// Returns the entry corresponding to the key.
+	/// Returns an immutable reference to the entry corresponding to the key.
 	///
 	/// The key may be any borrowed form of the map's key type,
 	/// but Hash and Eq on the borrowed form must match those for the key type.
@@ -427,5 +441,54 @@ where
 			return self.entries.get(slot)
 		}
 		None
+	}
+
+	/// Returns a mutable reference to the entry corresponding to the key.
+	///
+	/// The key may be any borrowed form of the map's key type,
+	/// but Hash and Eq on the borrowed form must match those for the key type.
+	fn entry_mut<Q>(&mut self, key: &Q) -> Option<&mut Entry<K, V>>
+	where
+		K: Borrow<Q>,
+		Q: Hash + Eq + ?Sized,
+	{
+		if let Some(slot) = self.probe_inspecting(key) {
+			return self.entries.get_mut(slot)
+		}
+		None
+	}
+}
+
+impl<'a, K, Q: ?Sized, V> core::ops::Index<&'a Q> for HashMap<K, V>
+where
+	K: Eq + Hash + Borrow<Q> + parity_codec::Codec,
+	V: parity_codec::Codec,
+	Q: Eq + Hash,
+{
+	type Output = V;
+
+	fn index(&self, index: &Q) -> &Self::Output {
+		self
+			.get(index)
+			.expect(
+				"[pdsl_core::HashMap::index] Error: \
+				 expected `index` to be within bounds"
+			)
+	}
+}
+
+impl<'a, K, Q: ?Sized, V> core::ops::IndexMut<&'a Q> for HashMap<K, V>
+where
+	K: Eq + Hash + Borrow<Q> + parity_codec::Codec,
+	V: parity_codec::Codec,
+	Q: Eq + Hash,
+{
+	fn index_mut(&mut self, index: &Q) -> &mut Self::Output {
+		self
+			.get_mut(index)
+			.expect(
+				"[pdsl_core::HashMap::index_mut] Error: \
+				 expected `index` to be within bounds"
+			)
 	}
 }
