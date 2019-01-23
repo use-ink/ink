@@ -188,6 +188,15 @@ where
 			.and_then(|n| self.cells.get(n))
 	}
 
+	/// Returns a mutable reference to the `n`-th element of the vector.
+	///
+	/// Returns `None` if `n` is out of bounds.
+	pub fn get_mut(&mut self, n: u32) -> Option<&mut T> {
+		self
+			.within_bounds(n)
+			.and_then(move |n| self.cells.get_mut(n))
+	}
+
 	/// Mutates the `n`-th element of the vector.
 	///
 	/// Returns a reference to the mutated element.
