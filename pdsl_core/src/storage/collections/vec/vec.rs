@@ -198,7 +198,13 @@ where
 	{
 		self
 			.within_bounds(n)
-			.and_then(move |n| self.cells.mutate_with(n, f))
+			.and_then(move |n| {
+				let mut val = self.cells.get_mut(n);
+				if let Some(val) = &mut val {
+					f(val);
+				}
+				val.map(|v| &*v)
+			})
 	}
 
 	/// Appends an element to the back of the vector.
@@ -225,7 +231,7 @@ where
 		self.len.set(last_index);
 		self
 			.cells
-			.remove(last_index)
+			.take(last_index)
 	}
 
 	/// Replaces the `n`-th element of the vector and returns its replaced value.
@@ -240,7 +246,7 @@ where
 			.and_then(|n| {
 				Some(self
 					.cells
-					.replace(n, f())
+					.put(n, f())
 					.expect(
 						"[pdsl_core::Vec::replace] Error: \
 						 expected success due to access within bounds"
@@ -269,14 +275,14 @@ where
 			);
 		let item_a = self
 			.cells
-			.remove(a)
+			.take(a)
 			.expect(
 				"[pdsl_core::Vec::swap] Error: \
 				 expected succes due to `a` being within bounds"
 			);
 		let item_b = self
 			.cells
-			.replace(b, item_a)
+			.put(b, item_a)
 			.expect(
 				"[pdsl_core::Vec::swap] Error: \
 				 expected success due to `b` being within bounds"
@@ -312,7 +318,7 @@ where
 		Some(
 			self
 				.cells
-				.replace(n, popped)
+				.put(n, popped)
 				.expect(
 					"[pdsl_core::Vec::swap_remove] Error: \
 					expected success since the vector is not empty"

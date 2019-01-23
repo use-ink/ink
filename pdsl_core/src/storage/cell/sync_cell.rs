@@ -369,7 +369,6 @@ where
 {
 	/// Removes the value from the cell.
 	pub fn clear(&mut self) {
-		self.cell.clear(); // TODO: Removes this after implementation of flushing
 		self.cache.update(None);
 		self.cache.mark_dirty();
 	}
@@ -395,7 +394,6 @@ where
 {
 	/// Sets the value of the cell.
 	pub fn set(&mut self, val: T) {
-		self.cell.store(&val); // TODO: Removes this after implementation of flushing
 		self.cache.update(Some(val));
 		self.cache.mark_dirty();
 	}
@@ -434,16 +432,19 @@ where
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
 	use super::*;
-	use crate::storage::Key;
 
 	use crate::{
+		storage::{
+			Key,
+			alloc::ForwardAlloc,
+		},
 		test_utils::run_test,
 		env::TestEnv,
 	};
 
 	fn dummy_cell() -> SyncCell<i32> {
 		unsafe {
-			let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+			let mut alloc = ForwardAlloc::from_raw_parts(
 				Key([0x0; 32])
 			);
 			SyncCell::new_using_alloc(&mut alloc)
@@ -465,28 +466,98 @@ mod tests {
 	}
 
 	#[test]
-	fn count_reads() {
-		run_test(|| {
-			let cell = dummy_cell();
-			assert_eq!(TestEnv::total_reads(), 0);
+	fn count_rw_get() {
+		// Repetitions performed.
+		const N: u32 = 5;
+
+		let mut cell = dummy_cell();
+
+		// Asserts initial reads and writes are zero.
+		assert_eq!(TestEnv::total_reads(), 0);
+		assert_eq!(TestEnv::total_writes(), 0);
+
+		// Repeated reads on the same cell.
+		for _i in 0..N {
 			cell.get();
 			assert_eq!(TestEnv::total_reads(), 1);
-			cell.get();
-			cell.get();
-			assert_eq!(TestEnv::total_reads(), 1);
-		})
+			assert_eq!(TestEnv::total_writes(), 0);
+		}
+
+		// Flush the cell and assert reads and writes.
+		cell.flush();
+		assert_eq!(TestEnv::total_reads(), 1);
+		assert_eq!(TestEnv::total_writes(), 0);
 	}
 
 	#[test]
-	fn count_writes() {
-		run_test(|| {
-			let mut cell = dummy_cell();
+	fn count_rw_get_mut() {
+		// Repetitions performed.
+		const N: u32 = 5;
+
+		let mut cell = dummy_cell();
+
+		// Asserts initial reads and writes are zero.
+		assert_eq!(TestEnv::total_reads(), 0);
+		assert_eq!(TestEnv::total_writes(), 0);
+
+		// Repeated mutable reads on the same cell.
+		for _i in 0..N {
+			cell.get_mut();
+			assert_eq!(TestEnv::total_reads(), 1);
 			assert_eq!(TestEnv::total_writes(), 0);
-			cell.set(1);
-			assert_eq!(TestEnv::total_writes(), 1);
-			cell.set(2);
-			cell.set(3);
-			assert_eq!(TestEnv::total_writes(), 3);
-		})
+		}
+
+		// Flush the cell and assert reads and writes.
+		cell.flush();
+		assert_eq!(TestEnv::total_reads(), 1);
+		assert_eq!(TestEnv::total_writes(), 1);
+	}
+
+	#[test]
+	fn count_rw_set() {
+		// Repetitions performed.
+		const N: u32 = 5;
+
+		let mut cell = dummy_cell();
+
+		// Asserts initial reads and writes are zero.
+		assert_eq!(TestEnv::total_reads(), 0);
+		assert_eq!(TestEnv::total_writes(), 0);
+
+		// Repeated writes to the same cell.
+		for _i in 0..N {
+			cell.set(42);
+			assert_eq!(TestEnv::total_reads(), 0);
+			assert_eq!(TestEnv::total_writes(), 0);
+		}
+
+		// Flush the cell and assert reads and writes.
+		cell.flush();
+		assert_eq!(TestEnv::total_reads(), 0);
+		assert_eq!(TestEnv::total_writes(), 1);
+	}
+
+	#[test]
+	fn count_rw_clear() {
+		// Repetitions performed.
+		const N: u32 = 5;
+
+		let mut cell = dummy_cell();
+
+		// Asserts initial reads and writes are zero.
+		assert_eq!(TestEnv::total_reads(), 0);
+		assert_eq!(TestEnv::total_writes(), 0);
+
+		// Repeated writes to the same cell.
+		for _i in 0..N {
+			cell.clear();
+			assert_eq!(TestEnv::total_reads(), 0);
+			assert_eq!(TestEnv::total_writes(), 0);
+		}
+
+		// Flush the cell and assert reads and writes.
+		cell.flush();
+		assert_eq!(TestEnv::total_reads(), 0);
+		assert_eq!(TestEnv::total_writes(), 1);
 	}
 }

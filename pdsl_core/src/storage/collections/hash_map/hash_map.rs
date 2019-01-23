@@ -179,7 +179,7 @@ where
 				// Keys match, values might not.
 				self
 					.entries
-					.replace(
+					.put(
 						probe_index,
 						Entry::Occupied(OccupiedEntry{key, val}),
 					)
@@ -263,9 +263,10 @@ where
 		self
 			.probe_inspecting(key)
 			.and_then(move |probe_index| {
-				self
-					.entries
-					.mutate_with(probe_index, wrapped_f)
+				if let Some(val) = self.entries.get_mut(probe_index) {
+					wrapped_f(val);
+				}
+				self.entries.get(probe_index)
 			})
 			.and_then(|entry| match entry {
 				Entry::Occupied(occupied) => Some(&occupied.val),
@@ -377,7 +378,7 @@ where
 				"[pdsl_core::HashMap::remove] Error: \
 				 failed at finding a valid entry"
 			);
-		match self.entries.remove(probe_index) {
+		match self.entries.take(probe_index) {
 			Some(Entry::Removed) | None => None,
 			Some(Entry::Occupied(OccupiedEntry{val, ..})) => {
 				self.len.set(self.len() - 1);

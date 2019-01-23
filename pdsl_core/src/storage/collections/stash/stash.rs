@@ -321,7 +321,7 @@ where
 			let next_vacant = match
 				self
 					.entries
-					.replace(current_vacant, Entry::Occupied(val))
+					.put(current_vacant, Entry::Occupied(val))
 					.expect(
 						"[pdsl_core::Stash::put] Error: \
 						expected a vacant entry here, but no entry was found"
@@ -345,7 +345,7 @@ where
 			| None
 			| Some(Entry::Vacant(_)) => None,
 			| Some(Entry::Occupied(_)) => {
-				match self.entries.replace(n, Entry::Vacant(self.next_vacant())).expect(
+				match self.entries.put(n, Entry::Vacant(self.next_vacant())).expect(
 					"[pdsl_core::Stash::take] Error: \
 					 we already asserted that the entry at `n` exists"
 				) {

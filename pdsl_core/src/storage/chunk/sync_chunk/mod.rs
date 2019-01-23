@@ -14,18 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-//! Provides low-level primitives to operate on chunks of cells.
+mod cache;
+mod chunk;
 
-mod raw_chunk;
-mod typed_chunk;
-mod sync_chunk;
+#[cfg(all(test, feature = "test-env"))]
+mod tests;
 
 pub(crate) use self::{
-	raw_chunk::RawChunkCell,
+	cache::CacheGuard,
 };
-
 pub use self::{
-	raw_chunk::RawChunk,
-	typed_chunk::TypedChunk,
-	sync_chunk::SyncChunk,
+	chunk::SyncChunk,
 };
