@@ -74,30 +74,6 @@ impl<'a, T> TypedChunkCell<'a, T> {
 
 impl<'a, T> TypedChunkCell<'a, T>
 where
-	T: parity_codec::Decode
-{
-	/// Loads the value stored in the cell if any.
-	///
-	/// # Panics
-	///
-	/// If decoding of the loaded bytes fails.
-	pub fn load(&self) -> Option<T> {
-		self
-			.cell
-			.load()
-			.map(|loaded| {
-				T::decode(&mut &loaded[..])
-					// Maybe we should return an error instead of panicking.
-					.expect(
-						"[pdsl_core::TypedChunkCell::load] Error: \
-						 failed upon decoding"
-					)
-			})
-	}
-}
-
-impl<'a, T> TypedChunkCell<'a, T>
-where
 	T: parity_codec::Encode
 {
 	/// Stores the value into the cell.
@@ -158,7 +134,7 @@ impl<T> TypedChunk<T> {
 
 	/// Removes the value stored in the `n`-th cell.
 	pub fn clear(&mut self, n: u32) {
-		self.chunk.clear(n)
+		self.cell_at(n).clear()
 	}
 }
 
