@@ -64,11 +64,6 @@ impl RawChunkCell<'_> {
 		}
 	}
 
-	/// Load the bytes from the cell if not empty.
-	pub fn load(&self) -> Option<Vec<u8>> {
-		unsafe { ContractEnv::load(self.key) }
-	}
-
 	/// Store the bytes into the cell.
 	pub fn store(&mut self, bytes: &[u8]) {
 		unsafe { ContractEnv::store(self.key, bytes) }
