@@ -13,28 +13,17 @@ fn zero_address() -> Address {
 	Address::from([0x0_u8; 32].as_ref())
 }
 
-/// A pair for allowances.
-///
-/// Has a notion of owner and spender.
-/// The owner allows the spender to spend
-/// the owners tokens.
-///
-/// The amount of allowed tokens is stored separately.
-#[derive(Debug, Hash, PartialEq, Eq, Encode, Decode)]
-pub struct AllowancePair {
-	/// The owner of the tokens.
-	owner: Address,
-	/// The address that is allowed to spend the tokens of the owner.
-	spender: Address,
-}
-
 /// The storage data that is hold by the ERC-20 token.
 #[derive(Debug, Encode, Decode)]
 pub struct Erc20Token {
 	/// All peeps done by all users.
 	balances: storage::HashMap<Address, Balance>,
 	/// Balances that are spendable by non-owners.
-	allowances: storage::HashMap<AllowancePair, Balance>,
+	///
+	/// # Note
+	///
+	/// Mapping: (from, to) -> allowed
+	allowances: storage::HashMap<(Address, Address), Balance>,
 	/// The total supply.
 	total_supply: storage::Value<Balance>,
 	/// The allocator for newly allocated entities.
@@ -54,8 +43,8 @@ impl Erc20Token {
 
 	/// Returns the amount of tokens that an owner allowed to a spender.
 	pub fn allowance(&self, owner: Address, spender: Address) -> Balance {
-		let pair = AllowancePair{owner, spender};
-		*self.allowances.get(&pair).unwrap_or(&0)
+		// let pair = AllowancePair{owner, spender};
+		*self.allowances.get(&(owner, spender)).unwrap_or(&0)
 	}
 
 	/// Transfers token from the sender to the `to` address.
@@ -78,8 +67,8 @@ impl Erc20Token {
 	pub fn approve(&mut self, spender: Address, value: Balance) -> bool {
 		assert_ne!(spender, zero_address());
 		let owner = ContractEnv::caller();
-		let pair = AllowancePair{owner, spender};
-		self.allowances.insert(pair, value);
+		// let pair = AllowancePair{owner, spender};
+		self.allowances.insert((owner, spender), value);
 		// emit event (not ready yet)
 		true
 	}
@@ -90,8 +79,9 @@ impl Erc20Token {
 	/// this is not required as per the specification,
 	/// and other compliant implementations may not emit the event.
 	pub fn transfer_from(&mut self, from: Address, to: Address, value: Balance) -> bool {
-		let pair = AllowancePair{owner: from, spender: to};
-		self.allowances.mutate_with(&pair, |allowed| *allowed -= value);
+		// let pair = AllowancePair{owner: from, spender: to};
+		// self.allowances.mutate_with(&pair, |allowed| *allowed -= value);
+		self.allowances[&(from, to)] -= value;
 		self.transfer_impl(from, to, value);
 		// emit approval(from, to, value) (not yet ready)
 		true
@@ -101,8 +91,8 @@ impl Erc20Token {
 	fn transfer_impl(&mut self, from: Address, to: Address, value: Balance) {
 		assert_ne!(to, zero_address());
 
-		self.balances.mutate_with(&from, |from| *from -= value);
-		self.balances.mutate_with(&to, |to| *to += value);
+		self.balances[&from] -= value;
+		self.balances[&to] += value;
 
 		// emit transfer(from, to, value) (not ready yet)
 	}

@@ -6,13 +6,7 @@ edition = "2018"
 
 [dependencies]
 pdsl_core = { path = "../../pdsl_core" }
-
-[dependencies.parity-codec]
-version = "2.0"
-default-features = false
-features = ["derive"]
-git = "https://github.com/paritytech/parity-codec/"
-branch = "master"
+parity-codec = { version = "2.2", default-features = false, features = ["derive"] }
 
 [lib]
 name = "erc20_token"
