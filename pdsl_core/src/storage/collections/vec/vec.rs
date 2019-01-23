@@ -338,13 +338,27 @@ where
 
 impl<T> core::ops::Index<u32> for Vec<T>
 where
-	T: parity_codec::Codec
+	T: parity_codec::Codec,
 {
 	type Output = T;
 
 	fn index(&self, index: u32) -> &Self::Output {
 		self
 			.get(index)
+			.expect(
+				"[pdsl_core::Vec::index] Error: \
+				 expected `index` to be within bounds"
+			)
+	}
+}
+
+impl<T> core::ops::IndexMut<u32> for Vec<T>
+where
+	T: parity_codec::Codec,
+{
+	fn index_mut(&mut self, index: u32) -> &mut Self::Output {
+		self
+			.get_mut(index)
 			.expect(
 				"[pdsl_core::Vec::index] Error: \
 				 expected `index` to be within bounds"

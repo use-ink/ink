@@ -132,6 +132,24 @@ fn index() {
 }
 
 #[test]
+fn index_mut() {
+	run_test(|| {
+		let mut vec = {
+			let mut vec = new_empty_vec();
+			vec.push(String::from("Hello"));
+			vec.push(String::from(", "));
+			vec.push(String::from("World!"));
+			assert_eq!(vec.len(), 3);
+			vec
+		};
+		vec[2] = String::from("Substrate!");
+		assert_eq!(vec[0], "Hello");
+		assert_eq!(vec[1], ", ");
+		assert_eq!(vec[2], "Substrate!");
+	})
+}
+
+#[test]
 fn index_comp() {
 	run_test(|| {
 		let vec = {
