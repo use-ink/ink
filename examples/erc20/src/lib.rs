@@ -1,10 +1,17 @@
 #![no_std]
 
 use pdsl_core::{
-	storage,
+	storage::{
+		self,
+		Key,
+		alloc::ForwardAlloc,
+	},
 	env::{Env, ContractEnv, srml::Address},
 };
 use parity_codec::{Encode, Decode};
+
+use lazy_static::lazy_static;
+use spin::Mutex;
 
 type Balance = u64;
 
@@ -43,7 +50,6 @@ impl Erc20Token {
 
 	/// Returns the amount of tokens that an owner allowed to a spender.
 	pub fn allowance(&self, owner: Address, spender: Address) -> Balance {
-		// let pair = AllowancePair{owner, spender};
 		*self.allowances.get(&(owner, spender)).unwrap_or(&0)
 	}
 
@@ -67,7 +73,6 @@ impl Erc20Token {
 	pub fn approve(&mut self, spender: Address, value: Balance) -> bool {
 		assert_ne!(spender, zero_address());
 		let owner = ContractEnv::caller();
-		// let pair = AllowancePair{owner, spender};
 		self.allowances.insert((owner, spender), value);
 		// emit event (not ready yet)
 		true
@@ -79,8 +84,6 @@ impl Erc20Token {
 	/// this is not required as per the specification,
 	/// and other compliant implementations may not emit the event.
 	pub fn transfer_from(&mut self, from: Address, to: Address, value: Balance) -> bool {
-		// let pair = AllowancePair{owner: from, spender: to};
-		// self.allowances.mutate_with(&pair, |allowed| *allowed -= value);
 		self.allowances[&(from, to)] -= value;
 		self.transfer_impl(from, to, value);
 		// emit approval(from, to, value) (not yet ready)
@@ -98,29 +101,91 @@ impl Erc20Token {
 	}
 }
 
+impl Erc20Token {
+	/// Creates new ERC-20 token using the given allocator.
+	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	where
+		A: storage::Allocator
+	{
+		Self {
+			balances: storage::HashMap::new_using_alloc(alloc),
+			allowances: storage::HashMap::new_using_alloc(alloc),
+			total_supply: storage::Value::new_using_alloc(alloc, 0),
+			alloc: storage::alloc::CellChunkAlloc::new_using_alloc(alloc),
+		}
+	}
+}
+
+impl Default for Erc20Token {
+	fn default() -> Self {
+		unsafe {
+			Erc20Token::new_using_alloc(
+				&mut* STORAGE_ALLOC.lock()
+			)
+		}
+	}
+}
+
+lazy_static! {
+	pub(crate) static ref STORAGE_ALLOC: Mutex<ForwardAlloc> = {
+		Mutex::new(unsafe {
+			ForwardAlloc::from_raw_parts(
+				Key([0x0; 32])
+			)
+		})
+	};
+}
+
+/// Erc20Token API.
+#[derive(Encode, Decode)]
+enum Action {
+	TotalSupply, // -> Balance
+	BalanceOf{owner: Address}, // -> Balance
+	Allowance{owner: Address, spender: Address}, // -> Balance
+	Transfer{to: Address, value: Balance}, // -> bool
+	Approve{spender: Address, value: Balance}, // -> bool
+	TransferFrom{from: Address, to: Address, value: Balance}, // -> bool
+}
+
+fn ret<T>(val: T) -> !
+where
+	T: parity_codec::Encode,
+{
+	ContractEnv::return_(&val.encode())
+}
+
 #[no_mangle]
 pub extern "C" fn deploy() {}
 
 #[no_mangle]
 pub extern "C" fn call() {
-	// use parity_codec::{Decode};
-	// use pdsl_core::{
-	// 	env::{Env, ContractEnv},
-	// };
+	use parity_codec::{Decode};
+	use pdsl_core::{
+		env::{Env, ContractEnv},
+	};
 
-	// let input = ContractEnv::input();
-	// let action = Action::decode(&mut &input[..]).unwrap();
+	let input = ContractEnv::input();
+	let action = Action::decode(&mut &input[..]).unwrap();
 
-	// let mut subpeep = crate::Subpeep::default();
-	// match action {
-	// 	Action::Register{username} => {
-	// 		subpeep.register(&username);
-	// 	}
-	// 	Action::PeepMessage{username, message} => {
-	// 		subpeep.peep_message(&username, &message)
-	// 	}
-	// 	Action::Follow{following, followed} => {
-	// 		subpeep.follow(&following, &followed)
-	// 	}
-	// }
+	let mut erc20token = crate::Erc20Token::default();
+	match action {
+		Action::TotalSupply => {
+			ret(erc20token.total_supply())
+		}
+		Action::BalanceOf{owner} => {
+			ret(erc20token.balance_of(owner))
+		}
+		Action::Allowance{owner, spender} => {
+			ret(erc20token.allowance(owner, spender))
+		}
+		Action::Transfer{to, value} => {
+			ret(erc20token.transfer(to, value))
+		}
+		Action::Approve{spender, value} => {
+			ret(erc20token.approve(spender, value))
+		}
+		Action::TransferFrom{from, to, value} => {
+			ret(erc20token.transfer_from(from, to, value))
+		}
+	}
 }
