@@ -19,6 +19,7 @@ use crate::storage::{
 	chunk::SyncChunk,
 	Setup,
 	Allocator,
+	Flush,
 };
 use crate::hash;
 
@@ -82,6 +83,17 @@ pub struct OccupiedEntry<K, V> {
 impl<K, V> Setup for HashMap<K, V> {
 	fn setup(&mut self) {
 		self.len.set(0);
+	}
+}
+
+impl<K, V> Flush for HashMap<K, V>
+where
+	K: parity_codec::Encode,
+	V: parity_codec::Encode,
+{
+	fn flush(&mut self) {
+		self.len.flush();
+		self.entries.flush();
 	}
 }
 

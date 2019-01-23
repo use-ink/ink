@@ -19,6 +19,7 @@ use crate::storage::{
 	Key,
 	chunk::SyncChunk,
 	Allocator,
+	Flush,
 };
 
 use parity_codec::{Encode, Decode};
@@ -71,6 +72,18 @@ impl<'a, T> Values<'a, T> {
 	/// Creates a new iterator for the given storage stash.
 	pub(crate) fn new(stash: &'a Stash<T>) -> Self {
 		Self{iter: stash.iter()}
+	}
+}
+
+impl<T> Flush for Stash<T>
+where
+	T: parity_codec::Encode,
+{
+	fn flush(&mut self) {
+		self.next_vacant.flush();
+		self.len.flush();
+		self.max_len.flush();
+		self.entries.flush();
 	}
 }
 

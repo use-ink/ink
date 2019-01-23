@@ -19,6 +19,7 @@ use crate::{
 		self,
 		chunk::SyncChunk,
 		Allocator,
+		Flush,
 	},
 };
 
@@ -68,6 +69,16 @@ impl<'a, T> Iter<'a, T> {
 			begin: 0,
 			end: vec.len(),
 		}
+	}
+}
+
+impl<T> Flush for Vec<T>
+where
+	T: parity_codec::Encode,
+{
+	fn flush(&mut self) {
+		self.len.flush();
+		self.cells.flush();
 	}
 }
 

@@ -138,7 +138,7 @@ where
 
 impl<T> Flush for Value<T>
 where
-	T: parity_codec::Codec + Unpin,
+	T: parity_codec::Encode + Unpin,
 {
 	fn flush(&mut self) {
 		self.cell.flush()

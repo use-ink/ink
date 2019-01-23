@@ -332,7 +332,7 @@ impl<T> parity_codec::Decode for SyncCell<T> {
 
 impl<T> Flush for SyncCell<T>
 where
-	T: parity_codec::Codec,
+	T: parity_codec::Encode,
 {
 	fn flush(&mut self) {
 		if self.cache.is_dirty() {
