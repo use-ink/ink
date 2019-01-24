@@ -6,11 +6,9 @@ use pdsl_core::{
 		Key,
 		alloc::ForwardAlloc,
 	},
-	env::{Env, ContractEnv, srml::Address},
+	env::{Env, ContractEnv, srml::Address, srml::Balance},
 };
 use parity_codec::{Encode, Decode};
-
-type Balance = u64;
 
 /// Returns the zero address.
 fn zero_address() -> Address {
@@ -30,8 +28,6 @@ pub struct Erc20Token {
 	allowances: storage::HashMap<(Address, Address), Balance>,
 	/// The total supply.
 	total_supply: storage::Value<Balance>,
-	/// The allocator for newly allocated entities.
-	alloc: storage::alloc::CellChunkAlloc,
 }
 
 impl Erc20Token {
@@ -108,7 +104,6 @@ impl Erc20Token {
 			balances: storage::HashMap::new_using_alloc(alloc),
 			allowances: storage::HashMap::new_using_alloc(alloc),
 			total_supply: storage::Value::new_using_alloc(alloc, 0),
-			alloc: storage::alloc::CellChunkAlloc::new_using_alloc(alloc),
 		}
 	}
 }
