@@ -10,9 +10,6 @@ use pdsl_core::{
 };
 use parity_codec::{Encode, Decode};
 
-use lazy_static::lazy_static;
-use spin::Mutex;
-
 type Balance = u64;
 
 /// Returns the zero address.
@@ -116,26 +113,6 @@ impl Erc20Token {
 	}
 }
 
-impl Default for Erc20Token {
-	fn default() -> Self {
-		unsafe {
-			Erc20Token::new_using_alloc(
-				&mut* STORAGE_ALLOC.lock()
-			)
-		}
-	}
-}
-
-lazy_static! {
-	pub(crate) static ref STORAGE_ALLOC: Mutex<ForwardAlloc> = {
-		Mutex::new(unsafe {
-			ForwardAlloc::from_raw_parts(
-				Key([0x0; 32])
-			)
-		})
-	};
-}
-
 /// Erc20Token API.
 #[derive(Encode, Decode)]
 enum Action {
@@ -166,8 +143,10 @@ pub extern "C" fn call() {
 
 	let input = ContractEnv::input();
 	let action = Action::decode(&mut &input[..]).unwrap();
-
-	let mut erc20token = crate::Erc20Token::default();
+	let mut alloc = unsafe {
+		ForwardAlloc::from_raw_parts(Key([0x0; 32]))
+	};
+	let mut erc20token = unsafe { Erc20Token::new_using_alloc(&mut alloc) };
 	match action {
 		Action::TotalSupply => {
 			ret(erc20token.total_supply())

@@ -8,9 +8,6 @@ edition = "2018"
 pdsl_core = { path = "../../pdsl_core" }
 parity-codec = { version = "2.2", default-features = false, features = ["derive"] }
 
-lazy_static = { version = "1.2", features = ["spin_no_std"] }
-spin = { version = "0.4", default-features = false }
-
 [lib]
 name = "erc20_token"
 crate-type = ["cdylib"]
