@@ -16,7 +16,10 @@
 
 use super::*;
 
-use crate::test_utils::run_test;
+use crate::{
+	test_utils::run_test,
+	storage::Key,
+};
 
 #[test]
 fn simple() {
