@@ -3,7 +3,6 @@
 members = [
 	"pdsl_core",
 	# "pdsl_derive",
-	"pdsl_tests",
 ]
 exclude = [
 	"examples/",
