@@ -19,6 +19,12 @@ use crate::{
 		self,
 		cell::SyncCell,
 		Flush,
+		alloc::{
+			Allocator,
+			AllocateUsing,
+			Initialize,
+			MaybeUninitialized,
+		}
 	},
 };
 use parity_codec::{Encode, Decode};
@@ -51,6 +57,31 @@ where
 	cell: SyncCell<T>,
 }
 
+impl<T> AllocateUsing for Value<T>
+where
+	T: Unpin,
+{
+	unsafe fn allocate_using<A>(alloc: &mut A) -> MaybeUninitialized<Self>
+	where
+		A: Allocator
+	{
+		Self{
+			cell: SyncCell::new_using_alloc(alloc),
+		}.into()
+	}
+}
+
+impl<T> Initialize for Value<T>
+where
+	T: Unpin + Encode,
+{
+	type Args = T;
+
+	fn initialize(&mut self, args: Self::Args) {
+		self.cell.set(args);
+	}
+}
+
 impl<T> Value<T>
 where
 	T: parity_codec::Codec + Default + Unpin,
@@ -65,7 +96,7 @@ where
 	where
 		A: storage::Allocator,
 	{
-		Self::new_using_alloc(alloc, Default::default())
+		Self::allocate_using(alloc).initialize(Default::default())
 	}
 }
 
@@ -73,7 +104,14 @@ impl<T> Value<T>
 where
 	T: parity_codec::Codec + Unpin,
 {
-	/// Creates a new storage value initialized by the given value.
+	/// Creates a new uninitialized storage value.
+	///
+	/// # Note
+	///
+	/// Accessing a storage value created this way will result in a panic
+	/// unless its value has been set before. Use
+	/// [`default_using_alloc`](struct.Value.html#method.default_using_alloc)
+	/// if you want to create an initialized value.
 	///
 	/// # Safety
 	///
@@ -83,11 +121,7 @@ where
 	where
 		A: storage::Allocator,
 	{
-		let mut ret = Self{
-			cell: SyncCell::new_using_alloc(alloc),
-		};
-		ret.set(val);
-		ret
+		Self::allocate_using(alloc).initialize(val)
 	}
 
 	/// Returns the wrapped value as immutable reference.
