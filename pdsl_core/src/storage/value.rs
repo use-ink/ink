@@ -387,7 +387,7 @@ mod tests {
 	use crate::{
 		test_utils::run_test,
 		storage::{
-			alloc::ForwardAlloc,
+			alloc::BumpAlloc,
 		},
 	};
 
@@ -397,7 +397,7 @@ mod tests {
 			fn $test_name() {
 				run_test(|| {
 					let (val1, val2, val3) = unsafe {
-						let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+						let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
 						let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
 						let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 5);
 						let val3 = Value::new_using_alloc(&mut fw_alloc, &val1 $tok &val2);
@@ -418,7 +418,7 @@ mod tests {
 			fn $test_name_assign() {
 				run_test(|| {
 					let (mut val1, mut copy, val2, val3) = unsafe {
-						let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+						let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
 						let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
 						let copy: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
 						let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 13);
@@ -461,7 +461,7 @@ mod tests {
 			fn $test_name() {
 				run_test(|| {
 					let (val1, val2) = unsafe {
-						let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+						let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
 						let val1: Value<i32>
 							= Value::new_using_alloc(&mut fw_alloc, 42);
 						let val2
@@ -487,7 +487,7 @@ mod tests {
 	fn test_shift() {
 		run_test(|| {
 			let (mut value, result) = unsafe {
-				let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+				let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
 				let value: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 10);
 				let result = Value::new_using_alloc(&mut fw_alloc, 10 << 5);
 				(value, result)
@@ -507,7 +507,7 @@ mod tests {
 	fn test_eq_ord() {
 		run_test(|| {
 			let (val1, val2, val3) = unsafe {
-				let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+				let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
 				let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
 				let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
 				let val3: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 1337);
@@ -531,7 +531,7 @@ mod tests {
 	fn test_index() {
 		run_test(|| {
 			let val1 = unsafe {
-				let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+				let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
 				let val1: Value<Vec<i32>> = Value::new_using_alloc(
 					&mut fw_alloc,
 					vec![2, 3, 5, 7, 11, 13]

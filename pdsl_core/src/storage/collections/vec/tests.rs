@@ -23,9 +23,9 @@ use crate::{
 
 /// Returns an empty storage vector at address `0x42`.
 fn new_empty_vec<T>() -> storage::Vec<T> {
-	use crate::storage::alloc::ForwardAlloc;
+	use crate::storage::alloc::BumpAlloc;
 	unsafe {
-		let mut fw_alloc = ForwardAlloc::from_raw_parts(Key([0x0; 32]));
+		let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
 		Vec::<T>::new_using_alloc(&mut fw_alloc)
 	}
 }

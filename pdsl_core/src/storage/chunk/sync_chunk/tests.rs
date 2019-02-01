@@ -20,7 +20,7 @@ use crate::{
 	storage::{
 		Key,
 		Flush,
-		alloc::ForwardAlloc,
+		alloc::BumpAlloc,
 	},
 	test_utils::run_test,
 	env::TestEnv,
@@ -28,7 +28,7 @@ use crate::{
 
 fn dummy_chunk() -> SyncChunk<u32> {
 	unsafe {
-		let mut alloc = ForwardAlloc::from_raw_parts(
+		let mut alloc = BumpAlloc::from_raw_parts(
 			Key([0x0; 32])
 		);
 		SyncChunk::new_using_alloc(&mut alloc)

@@ -21,7 +21,7 @@ pub mod incrementer {
 	#[no_mangle]
 	pub extern "C" fn deploy() {
 		unsafe {
-			let mut alloc = alloc::ForwardAlloc::from_raw_parts(ALLOC_KEY);
+			let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
 			SyncCell::new_using_alloc(&mut alloc).set(0)
 		}
 	}
@@ -34,7 +34,7 @@ pub mod incrementer {
 		let action = Action::decode(&mut &input[..]).unwrap();
 
 		let mut counter = unsafe {
-			let mut alloc = alloc::ForwardAlloc::from_raw_parts(ALLOC_KEY);
+			let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
 			SyncCell::new_using_alloc(&mut alloc)
 		};
 

@@ -21,7 +21,7 @@ use crate::{
 
 fn new_empty<K, V>() -> storage::HashMap<K, V> {
 	unsafe {
-		let mut alloc = storage::alloc::ForwardAlloc::from_raw_parts(
+		let mut alloc = storage::alloc::BumpAlloc::from_raw_parts(
 			Key([0x0; 32])
 		);
 		storage::HashMap::new_using_alloc(&mut alloc)

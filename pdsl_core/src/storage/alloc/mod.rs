@@ -18,7 +18,7 @@
 
 mod traits;
 mod cc_alloc;
-mod fw_alloc;
+mod bump_alloc;
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
@@ -33,7 +33,7 @@ pub use self::{
 	cc_alloc::{
 		CellChunkAlloc,
 	},
-	fw_alloc::{
-		ForwardAlloc,
+	bump_alloc::{
+		BumpAlloc,
 	},
 };

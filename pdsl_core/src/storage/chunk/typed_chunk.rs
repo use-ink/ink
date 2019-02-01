@@ -187,7 +187,7 @@ mod tests {
 			const TEST_LEN: u32 = 5;
 
 			let mut chunk = unsafe {
-				let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+				let mut alloc = crate::storage::alloc::BumpAlloc::from_raw_parts(
 					Key([0x0; 32])
 				);
 				TypedChunk::new_using_alloc(&mut alloc)
@@ -218,7 +218,7 @@ mod tests {
 			const TEST_LEN: u32 = 5;
 
 			let mut chunk = unsafe {
-				let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+				let mut alloc = crate::storage::alloc::BumpAlloc::from_raw_parts(
 					Key([0x0; 32])
 				);
 				TypedChunk::new_using_alloc(&mut alloc)

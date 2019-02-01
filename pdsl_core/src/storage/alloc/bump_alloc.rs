@@ -20,10 +20,10 @@ use crate::{
 	storage::Key,
 };
 
-const FW_ALLOC_LOG_TARGET: &'static str = "fw_alloc";
+const BUMP_ALLOC_LOG_TARGET: &'static str = "bump_alloc";
 
-/// An allocator that is meant to simply forward allocate contract
-/// storage at compile-time.
+/// An allocator that is meant to allocate contract storage at
+/// compile-time by simply bumping its current allocation key.
 ///
 /// # Note
 ///
@@ -32,12 +32,12 @@ const FW_ALLOC_LOG_TARGET: &'static str = "fw_alloc";
 ///
 /// Users are recommended to use the [`CellChunkAlloc`](struct.CellChunkAlloc.html)
 /// for dynamic storage allocation purposes instead.
-pub struct ForwardAlloc {
+pub struct BumpAlloc {
 	/// The key offset used for all allocations.
 	offset_key: Key,
 }
 
-impl ForwardAlloc {
+impl BumpAlloc {
 	/// Creates a new forward allocator for the given raw parts.
 	///
 	/// # Note
@@ -56,22 +56,22 @@ impl ForwardAlloc {
 	}
 }
 
-impl Allocator for ForwardAlloc {
+impl Allocator for BumpAlloc {
 	fn alloc(&mut self, size: u32) -> Key {
 		if size == 0 {
 			log::warn!(
-				target: FW_ALLOC_LOG_TARGET,
+				target: BUMP_ALLOC_LOG_TARGET,
 				"tried allocating for a zero size",
 			);
 			panic!(
-				"[psdl_core::ForwardAlloc::alloc] Error: \
+				"[psdl_core::BumpAlloc::alloc] Error: \
 				 cannot allocate zero (0) bytes"
 			)
 		}
 		let key = self.offset_key.clone();
 		self.inc_offset_key(size);
 		log::info!(
-			target: FW_ALLOC_LOG_TARGET,
+			target: BUMP_ALLOC_LOG_TARGET,
 			"allocated {:?} of size (= {:?})",
 			key,
 			size,
@@ -85,8 +85,8 @@ impl Allocator for ForwardAlloc {
 	/// for dynamic allocation purposes instead.
 	fn dealloc(&mut self, key: Key) {
 		log::warn!(
-			target: FW_ALLOC_LOG_TARGET,
-			"tried to deallocate a key (= {:?}) with a forward allocator",
+			target: BUMP_ALLOC_LOG_TARGET,
+			"tried to deallocate a key (= {:?}) with a bump allocator",
 			key,
 		);
 		unreachable!(
@@ -105,20 +105,20 @@ mod tests {
 	#[test]
 	fn allocate() {
 		let offset_key = Key([0x00; 32]);
-		let mut fw_alloc = unsafe {
-			ForwardAlloc::from_raw_parts(offset_key)
+		let mut bump_alloc = unsafe {
+			BumpAlloc::from_raw_parts(offset_key)
 		};
-		assert_eq!(fw_alloc.alloc(1), offset_key + 0_u32);
-		assert_eq!(fw_alloc.alloc(10), offset_key + 1_u32);
-		assert_eq!(fw_alloc.alloc(u16::max_value() as u32), offset_key + 11_u32);
-		assert_eq!(fw_alloc.alloc(2), offset_key + 0x1000A_u32);
-		assert_eq!(fw_alloc.alloc(1), offset_key + 0x1000C_u32);
+		assert_eq!(bump_alloc.alloc(1), offset_key + 0_u32);
+		assert_eq!(bump_alloc.alloc(10), offset_key + 1_u32);
+		assert_eq!(bump_alloc.alloc(u16::max_value() as u32), offset_key + 11_u32);
+		assert_eq!(bump_alloc.alloc(2), offset_key + 0x1000A_u32);
+		assert_eq!(bump_alloc.alloc(1), offset_key + 0x1000C_u32);
 		assert_eq!(
-			fw_alloc.alloc(u32::max_value()),
+			bump_alloc.alloc(u32::max_value()),
 			offset_key + 0x1000D_u32,
 		);
 		assert_eq!(
-			fw_alloc.alloc(1),
+			bump_alloc.alloc(1),
 			Key([
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -132,21 +132,21 @@ mod tests {
 	#[should_panic]
 	fn allocate_zero() {
 		let offset_key = Key([0x00; 32]);
-		let mut fw_alloc = unsafe {
-			ForwardAlloc::from_raw_parts(offset_key)
+		let mut bump_alloc = unsafe {
+			BumpAlloc::from_raw_parts(offset_key)
 		};
-		fw_alloc.alloc(0);
+		bump_alloc.alloc(0);
 	}
 
 	#[test]
 	#[should_panic]
 	fn deallocate() {
 		let offset_key = Key([0x00; 32]);
-		let mut fw_alloc = unsafe {
-			ForwardAlloc::from_raw_parts(offset_key)
+		let mut bump_alloc = unsafe {
+			BumpAlloc::from_raw_parts(offset_key)
 		};
-		let allocated_key = fw_alloc.alloc(1);
+		let allocated_key = bump_alloc.alloc(1);
 		assert_eq!(allocated_key, offset_key + 0_u32);
-		fw_alloc.dealloc(allocated_key);
+		bump_alloc.dealloc(allocated_key);
 	}
 }

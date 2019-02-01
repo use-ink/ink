@@ -111,7 +111,7 @@ mod tests {
 
 	fn dummy_cell() -> TypedCell<i32> {
 		unsafe {
-			let mut alloc = crate::storage::alloc::ForwardAlloc::from_raw_parts(
+			let mut alloc = crate::storage::alloc::BumpAlloc::from_raw_parts(
 				Key([0x0; 32])
 			);
 			TypedCell::new_using_alloc(&mut alloc)

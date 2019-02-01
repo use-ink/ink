@@ -27,7 +27,7 @@ fn simple() {
 		use crate::storage;
 
 		let mut alloc = unsafe {
-			let mut fw_alloc = storage::alloc::ForwardAlloc::from_raw_parts(
+			let mut fw_alloc = storage::alloc::BumpAlloc::from_raw_parts(
 				Key([0x0; 32])
 			);
 			storage::alloc::CellChunkAlloc::new_using_alloc(&mut fw_alloc)

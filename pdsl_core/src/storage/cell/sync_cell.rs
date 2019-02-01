@@ -436,7 +436,7 @@ mod tests {
 	use crate::{
 		storage::{
 			Key,
-			alloc::ForwardAlloc,
+			alloc::BumpAlloc,
 		},
 		test_utils::run_test,
 		env::TestEnv,
@@ -444,7 +444,7 @@ mod tests {
 
 	fn dummy_cell() -> SyncCell<i32> {
 		unsafe {
-			let mut alloc = ForwardAlloc::from_raw_parts(
+			let mut alloc = BumpAlloc::from_raw_parts(
 				Key([0x0; 32])
 			);
 			SyncCell::new_using_alloc(&mut alloc)
