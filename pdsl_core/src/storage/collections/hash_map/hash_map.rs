@@ -17,7 +17,6 @@
 use crate::storage::{
 	self,
 	chunk::SyncChunk,
-	Setup,
 	Allocator,
 	Flush,
 };
@@ -78,12 +77,6 @@ pub struct OccupiedEntry<K, V> {
 	key: K,
 	/// The entry's value.
 	val: V,
-}
-
-impl<K, V> Setup for HashMap<K, V> {
-	fn setup(&mut self) {
-		self.len.set(0);
-	}
 }
 
 impl<K, V> Flush for HashMap<K, V>
