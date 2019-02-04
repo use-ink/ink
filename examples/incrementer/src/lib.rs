@@ -80,7 +80,9 @@ where
 pub extern "C" fn deploy() {
 	unsafe {
 		let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
-		Incrementer::allocate_using(&mut alloc).initialize(());
+		Incrementer::allocate_using(&mut alloc)
+			.initialize(())
+			.flush()
 	}
 }
 
