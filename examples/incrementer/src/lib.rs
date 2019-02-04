@@ -97,3 +97,29 @@ pub extern "C" fn call() {
 		}
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_get() {
+		let mut incrementer = unsafe {
+			let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
+			Incrementer::allocate_using(&mut alloc).initialize(())
+		};
+		assert_eq!(incrementer.get(), 0)
+	}
+
+	#[test]
+	fn test_set() {
+		let mut incrementer = unsafe {
+			let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
+			Incrementer::allocate_using(&mut alloc).initialize(())
+		};
+		incrementer.inc(1);
+		assert_eq!(incrementer.get(), 1);
+		incrementer.inc(42);
+		assert_eq!(incrementer.get(), 43);
+	}
+}
