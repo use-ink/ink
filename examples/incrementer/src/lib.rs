@@ -6,6 +6,7 @@ use pdsl_core::{
 		alloc,
 		Key,
 		Value,
+		Flush,
 		alloc::{
 			AllocateUsing,
 			Initialize,
@@ -49,7 +50,13 @@ impl Initialize for Incrementer {
 	type Args = ();
 
 	fn initialize(&mut self, _args: Self::Args) {
-		self.current.set(0);
+		self.current.set(0)
+	}
+}
+
+impl Flush for Incrementer {
+	fn flush(&mut self) {
+		self.current.flush()
 	}
 }
 
