@@ -62,8 +62,8 @@ impl Flush for Incrementer {
 
 #[derive(parity_codec::Encode, parity_codec::Decode)]
 enum Action {
-	Inc(u32),
 	Get,
+	Inc(u32),
 }
 
 /// The allocation key for the bump allocator.
