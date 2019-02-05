@@ -113,7 +113,7 @@ mod tests {
 
 	#[test]
 	fn test_get() {
-		let mut incrementer = unsafe {
+		let incrementer = unsafe {
 			let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
 			Incrementer::allocate_using(&mut alloc).initialize(())
 		};
