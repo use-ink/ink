@@ -25,9 +25,9 @@ where
 	///
 	/// # Safety
 	///
-	/// Instances created this way might have uninitialized storage.
-	/// Accessing those instances will panic the execution or might
-	/// result in other unintended behaviour.
+	/// Unsafe because the storage contents of the resulting instance
+	/// are uninitialized. Operating on uninitialized storage may result
+	/// in panics or even in undefined behaviour.
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: Allocator;

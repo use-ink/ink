@@ -60,19 +60,6 @@ impl<T> AllocateUsing for Value<T>
 where
 	T: Unpin,
 {
-	/// Creates a new uninitialized storage value.
-	///
-	/// # Note
-	///
-	/// Accessing a storage value created this way will result in a panic
-	/// unless its value has been set before.
-	/// Use [`default_using`](struct.Value.html#method.default_using) or
-	/// initialize the value manually before using it.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: Allocator
