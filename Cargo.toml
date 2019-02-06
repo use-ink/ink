@@ -1,8 +1,8 @@
 [workspace]
 
 members = [
-	"pdsl_core",
-	# "pdsl_derive",
+	"core",
+	# "derive",
 ]
 exclude = [
 	"examples/",
