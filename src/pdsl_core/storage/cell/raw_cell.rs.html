@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `pdsl_core/src/storage/cell/raw_cell.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw_cell.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/cell/raw_cell.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw_cell.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../..//index.html'><img src='../../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -133,17 +133,6 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">// This file is part of pDSL.</span>
@@ -167,6 +156,9 @@
 		<span class="ident">Key</span>,
 		<span class="ident">NonCloneMarker</span>,
 		<span class="ident">Allocator</span>,
+		<span class="ident">alloc</span>::{
+			<span class="ident">AllocateUsing</span>,
+		},
 	},
 	<span class="ident">env</span>::{<span class="ident">Env</span>, <span class="ident">ContractEnv</span>},
 };
@@ -190,33 +182,14 @@
 	<span class="ident">non_clone</span>: <span class="ident">NonCloneMarker</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">RawCell</span> {
-	<span class="doccomment">/// Creates a new raw cell for the given key.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Safety</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// This is unsafe since it does not check if the associated</span>
-	<span class="doccomment">/// contract storage does not alias with other accesses.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-		<span class="self">Self</span>{
-			<span class="ident">key</span>: <span class="ident">key</span>,
-			<span class="ident">non_clone</span>: <span class="ident">NonCloneMarker</span>::<span class="ident">default</span>()
-		}
-	}
-
-	<span class="doccomment">/// Allocates a new raw cell using the given storage allocator.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Safety</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
-	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+<span class="kw">impl</span> <span class="ident">AllocateUsing</span> <span class="kw">for</span> <span class="ident">RawCell</span> {
+	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">allocate_using</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
 	<span class="kw">where</span>
-		<span class="ident">A</span>: <span class="ident">Allocator</span>
+		<span class="ident">A</span>: <span class="ident">Allocator</span>,
 	{
-		<span class="self">Self</span>{
+		<span class="self">Self</span> {
 			<span class="ident">key</span>: <span class="ident">alloc</span>.<span class="ident">alloc</span>(<span class="number">1</span>),
-			<span class="ident">non_clone</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+			<span class="ident">non_clone</span>: <span class="ident">NonCloneMarker</span>::<span class="ident">default</span>()
 		}
 	}
 }
@@ -245,14 +218,23 @@
 	<span class="kw">use</span> <span class="kw">crate</span>::{
 		<span class="ident">test_utils</span>::<span class="ident">run_test</span>,
 		<span class="ident">env</span>::<span class="ident">TestEnv</span>,
+		<span class="ident">storage</span>::<span class="ident">alloc</span>::{
+			<span class="ident">BumpAlloc</span>,
+			<span class="ident">AllocateUsing</span>,
+		},
 	};
+
+	<span class="kw">fn</span> <span class="ident">instantiate</span>() <span class="op">-&gt;</span> <span class="ident">RawCell</span> {
+		<span class="kw">unsafe</span> {
+			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
+			<span class="ident">RawCell</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>)
+		}
+	}
 
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">simple</span>() {
 		<span class="ident">run_test</span>(<span class="op">||</span> {
-			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-				<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
-			};
+			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">instantiate</span>();
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cell</span>.<span class="ident">load</span>(), <span class="prelude-val">None</span>);
 			<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;Hello, World!&quot;</span>);
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">cell</span>.<span class="ident">load</span>(), <span class="prelude-val">Some</span>(<span class="string">b&quot;Hello, World!&quot;</span>.<span class="ident">to_vec</span>()));
@@ -264,9 +246,7 @@
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">count_reads</span>() {
 		<span class="ident">run_test</span>(<span class="op">||</span> {
-			<span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-				<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
-			};
+			<span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">instantiate</span>();
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="number">0</span>);
 			<span class="ident">cell</span>.<span class="ident">load</span>();
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_reads</span>(), <span class="number">1</span>);
@@ -279,9 +259,7 @@
 	<span class="attribute">#[<span class="ident">test</span>]</span>
 	<span class="kw">fn</span> <span class="ident">count_writes</span>() {
 		<span class="ident">run_test</span>(<span class="op">||</span> {
-			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-				<span class="ident">RawCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]))
-			};
+			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">instantiate</span>();
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">0</span>);
 			<span class="ident">cell</span>.<span class="ident">store</span>(<span class="string">b&quot;a&quot;</span>);
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">TestEnv</span>::<span class="ident">total_writes</span>(), <span class="number">1</span>);

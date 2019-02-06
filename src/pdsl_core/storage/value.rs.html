@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `pdsl_core/src/storage/value.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>value.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/value.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>value.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../..//index.html'><img src='../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -505,6 +505,29 @@
 <span id="505">505</span>
 <span id="506">506</span>
 <span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">// This file is part of pDSL.</span>
@@ -525,8 +548,13 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
 		<span class="self">self</span>,
-		<span class="ident">Key</span>,
 		<span class="ident">cell</span>::<span class="ident">SyncCell</span>,
+		<span class="ident">Flush</span>,
+		<span class="ident">alloc</span>::{
+			<span class="ident">Allocator</span>,
+			<span class="ident">AllocateUsing</span>,
+			<span class="ident">Initialize</span>,
+		}
 	},
 };
 <span class="kw">use</span> <span class="ident">parity_codec</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
@@ -556,28 +584,29 @@
 	<span class="ident">cell</span>: <span class="ident">SyncCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-	<span class="doccomment">/// Creates a new storage value for the given key.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Safety</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// This is an inherently unsafe operation since it does not check</span>
-	<span class="doccomment">/// for the storage values&#39;s invariances, such as</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// - Is the storage region determined by the given key aliasing?</span>
-	<span class="doccomment">/// - Is the storage region correctly formatted to be used as storage value?</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// Users should not use this routine directly if possible.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw_parts</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-		<span class="self">Self</span>{
-			<span class="ident">cell</span>: <span class="ident">SyncCell</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span>)
-		}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AllocateUsing</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">allocate_using</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">where</span>
+		<span class="ident">A</span>: <span class="ident">Allocator</span>
+	{
+		<span class="self">Self</span>{ <span class="ident">cell</span>: <span class="ident">SyncCell</span>::<span class="ident">allocate_using</span>(<span class="ident">alloc</span>) }
+	}
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Initialize</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">Encode</span>,
+{
+	<span class="kw">type</span> <span class="ident">Args</span> <span class="op">=</span> <span class="ident">T</span>;
+
+	<span class="kw">fn</span> <span class="ident">initialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">args</span>: <span class="self">Self</span>::<span class="ident">Args</span>) {
+		<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">set</span>(<span class="ident">args</span>);
 	}
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="ident">Default</span>
+	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="ident">Default</span>,
 {
 	<span class="doccomment">/// Creates a new storage value initialized as its default value.</span>
 	<span class="doccomment">///</span>
@@ -585,11 +614,11 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
 	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">default_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">default_using</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
 	<span class="kw">where</span>
 		<span class="ident">A</span>: <span class="ident">storage</span>::<span class="ident">Allocator</span>,
 	{
-		<span class="self">Self</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>, <span class="ident">Default</span>::<span class="ident">default</span>())
+		<span class="self">Self</span>::<span class="ident">allocate_using</span>(<span class="ident">alloc</span>).<span class="ident">initialize_into</span>(<span class="ident">Default</span>::<span class="ident">default</span>())
 	}
 }
 
@@ -597,28 +626,21 @@
 <span class="kw">where</span>
 	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Codec</span>,
 {
-	<span class="doccomment">/// Creates a new storage value initialized by the given value.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Safety</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
-	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">val</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
-	<span class="kw">where</span>
-		<span class="ident">A</span>: <span class="ident">storage</span>::<span class="ident">Allocator</span>,
-	{
-		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="self">Self</span>{
-			<span class="ident">cell</span>: <span class="ident">SyncCell</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
-		};
-		<span class="ident">ret</span>.<span class="ident">set</span>(<span class="ident">val</span>);
-		<span class="ident">ret</span>
-	}
-
 	<span class="doccomment">/// Returns the wrapped value as immutable reference.</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
 		<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>()
 	}
 
+	<span class="doccomment">/// Sets the wrapped value to the given value.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) {
+		<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">set</span>(<span class="ident">val</span>);
+	}
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Codec</span>,
+{
 	<span class="doccomment">/// Mutates the wrapped value inplace by the given closure.</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// Returns a reference to the resulting value.</span>
@@ -627,11 +649,6 @@
 		<span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>)
 	{
 		<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">mutate_with</span>(<span class="ident">f</span>).<span class="ident">unwrap</span>()
-	}
-
-	<span class="doccomment">/// Sets the wrapped value to the given value.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) {
-		<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">set</span>(<span class="ident">val</span>)
 	}
 }
 
@@ -655,9 +672,18 @@
 	}
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Flush</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Encode</span>,
+{
+	<span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+		<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">flush</span>()
+	}
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-		<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">clear</span>();
+		<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">clear</span>()
 	}
 }
 
@@ -800,7 +826,10 @@
 	}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">parity_codec</span>::<span class="ident">Codec</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">parity_codec</span>::<span class="ident">Codec</span>
+{}
 
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
 
@@ -822,7 +851,10 @@
 	}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">parity_codec</span>::<span class="ident">Codec</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">parity_codec</span>::<span class="ident">Codec</span>
+{
 	<span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="ident">Ordering</span> {
 		<span class="self">self</span>.<span class="ident">get</span>().<span class="ident">cmp</span>(<span class="ident">other</span>.<span class="ident">get</span>())
 	}
@@ -849,11 +881,15 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;test-env&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
 	<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-
 	<span class="kw">use</span> <span class="kw">crate</span>::{
 		<span class="ident">test_utils</span>::<span class="ident">run_test</span>,
 		<span class="ident">storage</span>::{
-			<span class="ident">alloc</span>::<span class="ident">ForwardAlloc</span>,
+			<span class="ident">Key</span>,
+			<span class="ident">alloc</span>::{
+				<span class="ident">BumpAlloc</span>,
+				<span class="ident">AllocateUsing</span>,
+				<span class="ident">Initialize</span>,
+			},
 		},
 	};
 
@@ -863,10 +899,13 @@
 			<span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">test_name</span>() {
 				<span class="ident">run_test</span>(<span class="op">||</span> {
 					<span class="kw">let</span> (<span class="ident">val1</span>, <span class="ident">val2</span>, <span class="ident">val3</span>) <span class="op">=</span> <span class="kw">unsafe</span> {
-						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fw_alloc</span> <span class="op">=</span> <span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
-						<span class="kw">let</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">42</span>);
-						<span class="kw">let</span> <span class="ident">val2</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">5</span>);
-						<span class="kw">let</span> <span class="ident">val3</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="kw-2">&amp;</span><span class="ident">val1</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tok</span> <span class="kw-2">&amp;</span><span class="ident">val2</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val2</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val3</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="ident">val1</span>.<span class="ident">initialize</span>(<span class="number">42</span>);
+						<span class="ident">val2</span>.<span class="ident">initialize</span>(<span class="number">5</span>);
+						<span class="ident">val3</span>.<span class="ident">initialize</span>(<span class="kw-2">&amp;</span><span class="ident">val1</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tok</span> <span class="kw-2">&amp;</span><span class="ident">val2</span>);
 						(<span class="ident">val1</span>, <span class="ident">val2</span>, <span class="ident">val3</span>)
 					};
 					<span class="comment">// Check init values</span>
@@ -884,11 +923,15 @@
 			<span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">test_name_assign</span>() {
 				<span class="ident">run_test</span>(<span class="op">||</span> {
 					<span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">val1</span>, <span class="kw-2">mut</span> <span class="ident">copy</span>, <span class="ident">val2</span>, <span class="ident">val3</span>) <span class="op">=</span> <span class="kw">unsafe</span> {
-						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fw_alloc</span> <span class="op">=</span> <span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
-						<span class="kw">let</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">42</span>);
-						<span class="kw">let</span> <span class="ident">copy</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">42</span>);
-						<span class="kw">let</span> <span class="ident">val2</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">13</span>);
-						<span class="kw">let</span> <span class="ident">val3</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">42</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tok</span> <span class="number">13</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">copy</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val2</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val3</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="ident">val1</span>.<span class="ident">initialize</span>(<span class="number">42</span>);
+						<span class="ident">copy</span>.<span class="ident">initialize</span>(<span class="number">42</span>);
+						<span class="ident">val2</span>.<span class="ident">initialize</span>(<span class="number">13</span>);
+						<span class="ident">val3</span>.<span class="ident">initialize</span>(<span class="number">42</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tok</span> <span class="number">13</span>);
 						(<span class="ident">val1</span>, <span class="ident">copy</span>, <span class="ident">val2</span>, <span class="ident">val3</span>)
 					};
 					<span class="comment">// Check init values</span>
@@ -927,11 +970,11 @@
 			<span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">test_name</span>() {
 				<span class="ident">run_test</span>(<span class="op">||</span> {
 					<span class="kw">let</span> (<span class="ident">val1</span>, <span class="ident">val2</span>) <span class="op">=</span> <span class="kw">unsafe</span> {
-						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fw_alloc</span> <span class="op">=</span> <span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
-						<span class="kw">let</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>
-							<span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">42</span>);
-						<span class="kw">let</span> <span class="ident">val2</span>
-							<span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tok</span> <span class="number">42</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val2</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+						<span class="ident">val1</span>.<span class="ident">initialize</span>(<span class="number">42</span>);
+						<span class="ident">val2</span>.<span class="ident">initialize</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tok</span> <span class="number">42</span>);
 						(<span class="ident">val1</span>, <span class="ident">val2</span>)
 					};
 					<span class="comment">// Check init values</span>
@@ -953,9 +996,11 @@
 	<span class="kw">fn</span> <span class="ident">test_shift</span>() {
 		<span class="ident">run_test</span>(<span class="op">||</span> {
 			<span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">value</span>, <span class="ident">result</span>) <span class="op">=</span> <span class="kw">unsafe</span> {
-				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fw_alloc</span> <span class="op">=</span> <span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
-				<span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">10</span>);
-				<span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">10</span> <span class="op">&lt;&lt;</span> <span class="number">5</span>);
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> : <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+				<span class="ident">value</span>.<span class="ident">initialize</span>(<span class="number">10</span>);
+				<span class="ident">result</span>.<span class="ident">initialize</span>(<span class="number">10</span> <span class="op">&lt;&lt;</span> <span class="number">5</span>);
 				(<span class="ident">value</span>, <span class="ident">result</span>)
 			};
 			<span class="comment">// Check init values</span>
@@ -973,10 +1018,13 @@
 	<span class="kw">fn</span> <span class="ident">test_eq_ord</span>() {
 		<span class="ident">run_test</span>(<span class="op">||</span> {
 			<span class="kw">let</span> (<span class="ident">val1</span>, <span class="ident">val2</span>, <span class="ident">val3</span>) <span class="op">=</span> <span class="kw">unsafe</span> {
-				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fw_alloc</span> <span class="op">=</span> <span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
-				<span class="kw">let</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">42</span>);
-				<span class="kw">let</span> <span class="ident">val2</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">42</span>);
-				<span class="kw">let</span> <span class="ident">val3</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>, <span class="number">1337</span>);
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val2</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val3</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+				<span class="ident">val1</span>.<span class="ident">initialize</span>(<span class="number">42</span>);
+				<span class="ident">val2</span>.<span class="ident">initialize</span>(<span class="number">42</span>);
+				<span class="ident">val3</span>.<span class="ident">initialize</span>(<span class="number">1337</span>);
 				(<span class="ident">val1</span>, <span class="ident">val2</span>, <span class="ident">val3</span>)
 			};
 			<span class="comment">// Eq &amp; Ne</span>
@@ -997,11 +1045,9 @@
 	<span class="kw">fn</span> <span class="ident">test_index</span>() {
 		<span class="ident">run_test</span>(<span class="op">||</span> {
 			<span class="kw">let</span> <span class="ident">val1</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fw_alloc</span> <span class="op">=</span> <span class="ident">ForwardAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
-				<span class="kw">let</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(
-					<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fw_alloc</span>,
-					<span class="macro">vec</span><span class="macro">!</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">11</span>, <span class="number">13</span>]
-				);
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val1</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>);
+				<span class="ident">val1</span>.<span class="ident">initialize</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">11</span>, <span class="number">13</span>]);
 				<span class="ident">val1</span>
 			};
 			<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">val1</span>[<span class="number">0</span>], <span class="number">2</span>);

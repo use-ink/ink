@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["RefMut","A mutable reference to a value stored in the storage."]],"trait":[["Assign","Types that are assignable to some new value."],["Mutate","Types that are mutable by some closure."]]});

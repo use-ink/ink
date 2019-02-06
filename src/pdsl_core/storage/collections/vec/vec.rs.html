@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `pdsl_core/src/storage/collections/vec/vec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vec.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script src="../../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><style type="text/css">#crate-search{background-image:url("../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../../settings.html"><img src="../../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/collections/vec/vec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vec.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script src="../../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../..//index.html'><img src='../../../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../../settings.html"><img src="../../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -355,6 +355,35 @@
 <span id="355">355</span>
 <span id="356">356</span>
 <span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">// This file is part of pDSL.</span>
@@ -375,9 +404,13 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{
 	<span class="ident">storage</span>::{
 		<span class="self">self</span>,
-		<span class="ident">Key</span>,
 		<span class="ident">chunk</span>::<span class="ident">SyncChunk</span>,
 		<span class="ident">Allocator</span>,
+		<span class="ident">alloc</span>::{
+			<span class="ident">AllocateUsing</span>,
+			<span class="ident">Initialize</span>,
+		},
+		<span class="ident">Flush</span>,
 	},
 };
 
@@ -427,6 +460,16 @@
 			<span class="ident">begin</span>: <span class="number">0</span>,
 			<span class="ident">end</span>: <span class="ident">vec</span>.<span class="ident">len</span>(),
 		}
+	}
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Flush</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Encode</span>,
+{
+	<span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+		<span class="self">self</span>.<span class="ident">len</span>.<span class="ident">flush</span>();
+		<span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">flush</span>();
 	}
 }
 
@@ -487,41 +530,27 @@
 	}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-	<span class="doccomment">/// Creates a new storage vector for the given key.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Safety</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// This is an inherently unsafe operation since it does not check</span>
-	<span class="doccomment">/// for the storage vector&#39;s invariances, such as</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// - Is the storage region determined by the given key aliasing?</span>
-	<span class="doccomment">/// - Is the storage region correctly formatted to be used as storage vec?</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// Users should not use this routine directly if possible.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-		<span class="self">Self</span>{
-			<span class="ident">len</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">from_raw_parts</span>(<span class="ident">key</span>),
-			<span class="ident">cells</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_unchecked</span>(<span class="ident">key</span> <span class="op">+</span> <span class="number">1_u32</span>),
-		}
-	}
-
-	<span class="doccomment">/// Allocates a new storage vector using the given storage allocator.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Safety</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
-	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AllocateUsing</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">allocate_using</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
 	<span class="kw">where</span>
 		<span class="ident">A</span>: <span class="ident">Allocator</span>
 	{
-		<span class="self">Self</span>{
-			<span class="ident">len</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>, <span class="number">0</span>),
-			<span class="ident">cells</span>: <span class="ident">SyncChunk</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+		<span class="self">Self</span> {
+			<span class="ident">len</span>: <span class="ident">storage</span>::<span class="ident">Value</span>::<span class="ident">allocate_using</span>(<span class="ident">alloc</span>),
+			<span class="ident">cells</span>: <span class="ident">SyncChunk</span>::<span class="ident">allocate_using</span>(<span class="ident">alloc</span>),
 		}
 	}
+}
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Initialize</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+	<span class="kw">type</span> <span class="ident">Args</span> <span class="op">=</span> ();
+
+	<span class="kw">fn</span> <span class="ident">initialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_args</span>: <span class="self">Self</span>::<span class="ident">Args</span>) {
+		<span class="self">self</span>.<span class="ident">len</span>.<span class="ident">set</span>(<span class="number">0</span>);
+	}
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// Returns the number of elements in the vector, also referred to as its &#39;length&#39;.</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
 		<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span>.<span class="ident">get</span>()
@@ -565,6 +594,15 @@
 			.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">get</span>(<span class="ident">n</span>))
 	}
 
+	<span class="doccomment">/// Returns a mutable reference to the `n`-th element of the vector.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// Returns `None` if `n` is out of bounds.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
+		<span class="self">self</span>
+			.<span class="ident">within_bounds</span>(<span class="ident">n</span>)
+			.<span class="ident">and_then</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">get_mut</span>(<span class="ident">n</span>))
+	}
+
 	<span class="doccomment">/// Mutates the `n`-th element of the vector.</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// Returns a reference to the mutated element.</span>
@@ -575,7 +613,13 @@
 	{
 		<span class="self">self</span>
 			.<span class="ident">within_bounds</span>(<span class="ident">n</span>)
-			.<span class="ident">and_then</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">mutate_with</span>(<span class="ident">n</span>, <span class="ident">f</span>))
+			.<span class="ident">and_then</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">n</span><span class="op">|</span> {
+				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">get_mut</span>(<span class="ident">n</span>);
+				<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">val</span> {
+					<span class="ident">f</span>(<span class="ident">val</span>);
+				}
+				<span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">v</span>)
+			})
 	}
 
 	<span class="doccomment">/// Appends an element to the back of the vector.</span>
@@ -602,7 +646,7 @@
 		<span class="self">self</span>.<span class="ident">len</span>.<span class="ident">set</span>(<span class="ident">last_index</span>);
 		<span class="self">self</span>
 			.<span class="ident">cells</span>
-			.<span class="ident">remove</span>(<span class="ident">last_index</span>)
+			.<span class="ident">take</span>(<span class="ident">last_index</span>)
 	}
 
 	<span class="doccomment">/// Replaces the `n`-th element of the vector and returns its replaced value.</span>
@@ -617,7 +661,7 @@
 			.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> {
 				<span class="prelude-val">Some</span>(<span class="self">self</span>
 					.<span class="ident">cells</span>
-					.<span class="ident">replace</span>(<span class="ident">n</span>, <span class="ident">f</span>())
+					.<span class="ident">put</span>(<span class="ident">n</span>, <span class="ident">f</span>())
 					.<span class="ident">expect</span>(
 						<span class="string">&quot;[pdsl_core::Vec::replace] Error: \
 						 expected success due to access within bounds&quot;</span>
@@ -646,14 +690,14 @@
 			);
 		<span class="kw">let</span> <span class="ident">item_a</span> <span class="op">=</span> <span class="self">self</span>
 			.<span class="ident">cells</span>
-			.<span class="ident">remove</span>(<span class="ident">a</span>)
+			.<span class="ident">take</span>(<span class="ident">a</span>)
 			.<span class="ident">expect</span>(
 				<span class="string">&quot;[pdsl_core::Vec::swap] Error: \
 				 expected succes due to `a` being within bounds&quot;</span>
 			);
 		<span class="kw">let</span> <span class="ident">item_b</span> <span class="op">=</span> <span class="self">self</span>
 			.<span class="ident">cells</span>
-			.<span class="ident">replace</span>(<span class="ident">b</span>, <span class="ident">item_a</span>)
+			.<span class="ident">put</span>(<span class="ident">b</span>, <span class="ident">item_a</span>)
 			.<span class="ident">expect</span>(
 				<span class="string">&quot;[pdsl_core::Vec::swap] Error: \
 				 expected success due to `b` being within bounds&quot;</span>
@@ -689,7 +733,7 @@
 		<span class="prelude-val">Some</span>(
 			<span class="self">self</span>
 				.<span class="ident">cells</span>
-				.<span class="ident">replace</span>(<span class="ident">n</span>, <span class="ident">popped</span>)
+				.<span class="ident">put</span>(<span class="ident">n</span>, <span class="ident">popped</span>)
 				.<span class="ident">expect</span>(
 					<span class="string">&quot;[pdsl_core::Vec::swap_remove] Error: \
 					expected success since the vector is not empty&quot;</span>
@@ -700,13 +744,27 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Codec</span>
+	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Codec</span>,
 {
 	<span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span>;
 
 	<span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Output</span> {
 		<span class="self">self</span>
 			.<span class="ident">get</span>(<span class="ident">index</span>)
+			.<span class="ident">expect</span>(
+				<span class="string">&quot;[pdsl_core::Vec::index] Error: \
+				 expected `index` to be within bounds&quot;</span>
+			)
+	}
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">IndexMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">parity_codec</span>::<span class="ident">Codec</span>,
+{
+	<span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+		<span class="self">self</span>
+			.<span class="ident">get_mut</span>(<span class="ident">index</span>)
 			.<span class="ident">expect</span>(
 				<span class="string">&quot;[pdsl_core::Vec::index] Error: \
 				 expected `index` to be within bounds&quot;</span>
