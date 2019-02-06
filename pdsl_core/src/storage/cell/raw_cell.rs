@@ -20,6 +20,9 @@ use crate::{
 		Key,
 		NonCloneMarker,
 		Allocator,
+		alloc::{
+			AllocateUsing,
+		},
 	},
 	env::{Env, ContractEnv},
 };
@@ -43,31 +46,15 @@ pub struct RawCell {
 	non_clone: NonCloneMarker<()>,
 }
 
-impl RawCell {
-	/// Creates a new raw cell for the given key.
-	///
-	/// # Safety
-	///
-	/// This is unsafe since it does not check if the associated
-	/// contract storage does not alias with other accesses.
-	unsafe fn new_unchecked(key: Key) -> Self {
-		Self{
-			key: key,
+impl AllocateUsing for RawCell {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator,
+	{
+		Self {
+			key: alloc.alloc(1),
 			non_clone: NonCloneMarker::default()
 		}
-	}
-
-	/// Allocates a new raw cell using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
-	where
-		A: Allocator
-	{
-		Self::new_unchecked(alloc.alloc(1))
 	}
 }
 
@@ -95,14 +82,23 @@ mod tests {
 	use crate::{
 		test_utils::run_test,
 		env::TestEnv,
+		storage::alloc::{
+			BumpAlloc,
+			AllocateUsing,
+		},
 	};
+
+	fn instantiate() -> RawCell {
+		unsafe {
+			let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+			RawCell::allocate_using(&mut alloc)
+		}
+	}
 
 	#[test]
 	fn simple() {
 		run_test(|| {
-			let mut cell = unsafe {
-				RawCell::new_unchecked(Key([0x42; 32]))
-			};
+			let mut cell = instantiate();
 			assert_eq!(cell.load(), None);
 			cell.store(b"Hello, World!");
 			assert_eq!(cell.load(), Some(b"Hello, World!".to_vec()));
@@ -114,9 +110,7 @@ mod tests {
 	#[test]
 	fn count_reads() {
 		run_test(|| {
-			let cell = unsafe {
-				RawCell::new_unchecked(Key([0x42; 32]))
-			};
+			let cell = instantiate();
 			assert_eq!(TestEnv::total_reads(), 0);
 			cell.load();
 			assert_eq!(TestEnv::total_reads(), 1);
@@ -129,9 +123,7 @@ mod tests {
 	#[test]
 	fn count_writes() {
 		run_test(|| {
-			let mut cell = unsafe {
-				RawCell::new_unchecked(Key([0x42; 32]))
-			};
+			let mut cell = instantiate();
 			assert_eq!(TestEnv::total_writes(), 0);
 			cell.store(b"a");
 			assert_eq!(TestEnv::total_writes(), 1);

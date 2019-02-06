@@ -19,6 +19,9 @@ use crate::{
 		NonCloneMarker,
 		cell::RawCell,
 		Allocator,
+		alloc::{
+			AllocateUsing
+		},
 	},
 };
 
@@ -56,23 +59,19 @@ impl<T> parity_codec::Decode for TypedCell<T> {
 	}
 }
 
-impl<T> TypedCell<T> {
-	/// Allocates a new typed cell using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+impl<T> AllocateUsing for TypedCell<T> {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator
+		A: Allocator,
 	{
-		Self{
-			cell: RawCell::new_using_alloc(alloc),
+		Self {
+			cell: RawCell::allocate_using(alloc),
 			non_clone: Default::default(),
 		}
 	}
+}
 
+impl<T> TypedCell<T> {
 	/// Removes the value stored in the cell.
 	pub fn clear(&mut self) {
 		self.cell.clear()
@@ -107,14 +106,16 @@ mod tests {
 	use crate::{
 		test_utils::run_test,
 		env::TestEnv,
+		storage::alloc::{
+			BumpAlloc,
+			AllocateUsing,
+		},
 	};
 
 	fn dummy_cell() -> TypedCell<i32> {
 		unsafe {
-			let mut alloc = crate::storage::alloc::BumpAlloc::from_raw_parts(
-				Key([0x0; 32])
-			);
-			TypedCell::new_using_alloc(&mut alloc)
+			let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+			TypedCell::allocate_using(&mut alloc)
 		}
 	}
 

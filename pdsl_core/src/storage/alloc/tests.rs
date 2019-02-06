@@ -30,7 +30,9 @@ fn simple() {
 			let mut fw_alloc = storage::alloc::BumpAlloc::from_raw_parts(
 				Key([0x0; 32])
 			);
-			storage::alloc::CellChunkAlloc::new_using_alloc(&mut fw_alloc)
+			let mut cc_alloc = storage::alloc::CellChunkAlloc::allocate_using(&mut fw_alloc);
+			cc_alloc.initialize(());
+			cc_alloc
 		};
 
 		let cells_entries = alloc.cells_offset_key();

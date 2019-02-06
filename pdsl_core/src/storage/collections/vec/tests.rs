@@ -18,15 +18,22 @@ use super::*;
 
 use crate::{
 	test_utils::run_test,
-	storage::{self, Key},
+	storage::{
+		self,
+		Key,
+		alloc::{
+			BumpAlloc,
+			AllocateUsing,
+			Initialize,
+		},
+	},
 };
 
 /// Returns an empty storage vector at address `0x42`.
 fn new_empty_vec<T>() -> storage::Vec<T> {
-	use crate::storage::alloc::BumpAlloc;
 	unsafe {
-		let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-		Vec::<T>::new_using_alloc(&mut fw_alloc)
+		let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+		Vec::<T>::allocate_using(&mut alloc).initialize_into(())
 	}
 }
 

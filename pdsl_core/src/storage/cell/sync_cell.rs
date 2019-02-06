@@ -18,6 +18,9 @@ use crate::{
 	storage::{
 		cell::TypedCell,
 		Allocator,
+		alloc::{
+			AllocateUsing,
+		},
 		Flush,
 	},
 	memory::boxed::Box,
@@ -25,7 +28,6 @@ use crate::{
 
 use core::{
 	cell::RefCell,
-	pin::Pin,
 };
 
 /// A synchronized cell.
@@ -57,13 +59,10 @@ pub struct SyncCacheEntry<T> {
 	/// The value of the cell.
 	///
 	/// Being captured in a `Pin` allows to provide robust references to the outside.
-	cell_val: Pin<Box<Option<T>>>,
+	cell_val: Box<Option<T>>,
 }
 
-impl<T> SyncCacheEntry<T>
-where
-	T: Unpin
-{
+impl<T> SyncCacheEntry<T> {
 	/// Updates the cached value.
 	pub fn update(&mut self, new_val: Option<T>) {
 		*self.cell_val = new_val;
@@ -79,7 +78,7 @@ impl<T> SyncCacheEntry<T> {
 	pub fn new(val: Option<T>) -> Self {
 		Self{
 			dirty: false,
-			cell_val: Box::pin(val),
+			cell_val: Box::new(val),
 		}
 	}
 
@@ -104,17 +103,14 @@ impl<T> SyncCacheEntry<T> {
 	}
 }
 
-impl<T> SyncCacheEntry<T>
-where
-	T: Unpin
-{
+impl<T> SyncCacheEntry<T> {
 	/// Returns a mutable reference to the synchronized cached value.
 	///
 	/// This also marks the cache entry as being dirty since
 	/// the callee could potentially mutate the value.
 	pub fn get_mut(&mut self) -> Option<&mut T> {
 		self.mark_dirty();
-		self.cell_val.as_mut().get_mut().into()
+		self.cell_val.as_mut().into()
 	}
 }
 
@@ -133,24 +129,19 @@ impl<T> Default for CacheEntry<T> {
 	}
 }
 
-impl<T> CacheEntry<T>
-where
-	T: Unpin
-{
+impl<T> CacheEntry<T> {
 	/// Updates the cached value.
 	pub fn update(&mut self, new_val: Option<T>) {
 		match self {
 			CacheEntry::Desync => {
-				*self = CacheEntry::Sync(SyncCacheEntry::new(new_val))
+				*self = CacheEntry::Sync(SyncCacheEntry::new(new_val));
 			}
 			CacheEntry::Sync(sync_entry) => {
-				sync_entry.update(new_val)
+				sync_entry.update(new_val);
 			}
 		}
 	}
-}
 
-impl<T> CacheEntry<T> {
 	/// Returns `true` if the cache is in sync.
 	pub fn is_synced(&self) -> bool {
 		match self {
@@ -201,12 +192,7 @@ impl<T> CacheEntry<T> {
 			}
 		}
 	}
-}
 
-impl<T> CacheEntry<T>
-where
-	T: Unpin
-{
 	/// Returns a mutable reference to the internal cached entity if any.
 	///
 	/// # Panics
@@ -240,10 +226,7 @@ impl<T> Default for Cache<T> {
 	}
 }
 
-impl<T> Cache<T>
-where
-	T: Unpin
-{
+impl<T> Cache<T> {
 	/// Updates the synchronized value.
 	///
 	/// # Note
@@ -251,11 +234,9 @@ where
 	/// - The cache will be in sync after this operation.
 	/// - The cache will not be dirty after this operation.
 	pub fn update(&self, new_val: Option<T>) {
-		self.entry.borrow_mut().update(new_val)
+		self.entry.borrow_mut().update(new_val);
 	}
-}
 
-impl<T> Cache<T> {
 	/// Returns `true` if the cache is in sync.
 	pub fn is_synced(&self) -> bool {
 		self.entry.borrow().is_synced()
@@ -298,12 +279,7 @@ impl<T> Cache<T> {
 	pub fn get(&self) -> Option<&T> {
 		self.get_entry().get()
 	}
-}
 
-impl<T> Cache<T>
-where
-	T: Unpin
-{
 	/// Returns an immutable reference to the value if any.
 	///
 	/// # Panics
@@ -345,28 +321,19 @@ where
 	}
 }
 
-impl<T> SyncCell<T> {
-	/// Allocates a new sync cell using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+impl<T> AllocateUsing for SyncCell<T> {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator
+		A: Allocator,
 	{
-		Self{
-			cell: TypedCell::new_using_alloc(alloc),
+		Self {
+			cell: TypedCell::allocate_using(alloc),
 			cache: Default::default(),
 		}
 	}
 }
 
-impl<T> SyncCell<T>
-where
-	T: Unpin
-{
+impl<T> SyncCell<T> {
 	/// Removes the value from the cell.
 	pub fn clear(&mut self) {
 		self.cache.update(None);
@@ -376,7 +343,7 @@ where
 
 impl<T> SyncCell<T>
 where
-	T: parity_codec::Decode + Unpin
+	T: parity_codec::Decode
 {
 	/// Returns an immutable reference to the value of the cell.
 	pub fn get(&self) -> Option<&T> {
@@ -390,7 +357,7 @@ where
 
 impl<T> SyncCell<T>
 where
-	T: parity_codec::Encode + Unpin
+	T: parity_codec::Encode,
 {
 	/// Sets the value of the cell.
 	pub fn set(&mut self, val: T) {
@@ -401,7 +368,7 @@ where
 
 impl<T> SyncCell<T>
 where
-	T: parity_codec::Codec + Unpin,
+	T: parity_codec::Codec,
 {
 	/// Returns a mutable reference to the value of the cell.
 	pub fn get_mut(&mut self) -> Option<&mut T> {
@@ -444,10 +411,8 @@ mod tests {
 
 	fn dummy_cell() -> SyncCell<i32> {
 		unsafe {
-			let mut alloc = BumpAlloc::from_raw_parts(
-				Key([0x0; 32])
-			);
-			SyncCell::new_using_alloc(&mut alloc)
+			let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+			SyncCell::allocate_using(&mut alloc)
 		}
 	}
 

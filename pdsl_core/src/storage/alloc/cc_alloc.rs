@@ -50,38 +50,53 @@ pub struct CellChunkAlloc {
 	chunks_off: storage::Key,
 }
 
-impl CellChunkAlloc {
+impl AllocateUsing for CellChunkAlloc {
 	/// Creates a new cell & chunks allocator using the given allocator.
 	///
-	/// # Note
+	/// The cell & chunks allocator is the default allocator for dynamic
+	/// storage allocations that may be required by some smart contracts
+	/// during smart contract execution.
 	///
-	/// At first it might seem strange to initialize the one allocator
-	/// with another. Normally a `CellChunkAllocator` should be allocated
-	/// using a `ForwardAllocator`. The `ForwardAllocator` cannot be
-	/// stored in the contract storage and is not useful for dynamic
-	/// memory allocations but only for compile time allocations. The
-	/// `CellChunkAllocator`, however, is made especially for the purpose
-	/// of dynamic contract storage allocations and can and should be itself
-	/// stored in the contract storage.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+	/// # Note
+	/// 
+	/// At first it might seem strange to allocate one allocator with another.
+	/// Normally [`CellChunkAlloc`](struct.CellChunkAlloc.html) should be allocated
+	/// using a [`BumpAlloc`](struct.BumpAlloc.html).
+	/// The [`BumpAlloc`](struct.BumpAlloc.html) itself cannot be stored in the
+	/// contract storage and should also not be used for dynamic storage
+	/// allocations since it panics upon deallocation.
+	///
+	/// Store your only instance of the cell & chunks allocator on the storage
+	/// once upon deployment of your contract and reuse that instance for
+	/// all consecutive executions.
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: storage::Allocator
+		A: Allocator
 	{
 		Self {
-			cells: storage::Stash::new_using_alloc(alloc),
-			chunks: storage::Stash::new_using_alloc(alloc),
+			cells: AllocateUsing::allocate_using(alloc),
+			chunks: AllocateUsing::allocate_using(alloc),
 			cells_off: alloc.alloc(u32::max_value()),
 			chunks_off:
-				// We need `u64::max_value()` here.
-				// This depends on work on the Key API
-				// to allow for `core::ops::Add<u64>`.
+				// TODO: We want `u64::max_value()` here.
 				//
 				// As first iteration this should suffice our needs
 				// as long as we allocate the `CellChunkAlloc` at last.
 				alloc.alloc(u32::max_value()),
 		}
 	}
+}
 
+impl Initialize for CellChunkAlloc {
+	type Args = ();
+
+	fn initialize(&mut self, _args: Self::Args) {
+		self.cells.initialize(());
+		self.chunks.initialize(());
+	}
+}
+
+impl CellChunkAlloc {
 	/// Returns the key to the first cell allocation.
 	///
 	/// # Note

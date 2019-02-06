@@ -16,15 +16,21 @@
 
 use crate::{
 	test_utils::run_test,
-	storage::{Key, Stash},
+	storage::{
+		Key,
+		Stash,
+		alloc::{
+			BumpAlloc,
+			AllocateUsing,
+			Initialize,
+		},
+	},
 };
 
 fn empty_stash() -> Stash<i32> {
 	unsafe {
-		let mut alloc = crate::storage::alloc::BumpAlloc::from_raw_parts(
-			Key([0x0; 32])
-		);
-		Stash::new_using_alloc(&mut alloc)
+		let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+		Stash::allocate_using(&mut alloc).initialize_into(())
 	}
 }
 

@@ -16,15 +16,21 @@
 
 use crate::{
 	test_utils::run_test,
-	storage::{self, Key},
+	storage::{
+		self,
+		Key,
+		alloc::{
+			BumpAlloc,
+			AllocateUsing,
+			Initialize,
+		},
+	},
 };
 
 fn new_empty<K, V>() -> storage::HashMap<K, V> {
 	unsafe {
-		let mut alloc = storage::alloc::BumpAlloc::from_raw_parts(
-			Key([0x0; 32])
-		);
-		storage::HashMap::new_using_alloc(&mut alloc)
+		let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+		storage::HashMap::allocate_using(&mut alloc).initialize_into(())
 	}
 }
 

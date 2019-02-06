@@ -22,6 +22,9 @@ use crate::{
 			RawChunk,
 			RawChunkCell,
 		},
+		alloc::{
+			AllocateUsing,
+		},
 		Allocator,
 	},
 };
@@ -51,6 +54,18 @@ pub struct TypedChunkCell<'a, T> {
 	cell: RawChunkCell<'a>,
 	/// Marker that prevents this type from being `Copy` or `Clone` by accident.
 	non_clone: NonCloneMarker<T>,
+}
+
+impl<T> AllocateUsing for TypedChunk<T> {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			chunk: RawChunk::new_using_alloc(alloc),
+			non_clone: Default::default(),
+		}
+	}
 }
 
 impl<'a, T> TypedChunkCell<'a, T> {

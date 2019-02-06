@@ -19,6 +19,9 @@ use crate::{
 	storage::{
 		Key,
 		NonCloneMarker,
+		alloc::{
+			AllocateUsing,
+		},
 		Allocator,
 	},
 	env::{Env, ContractEnv},
@@ -87,6 +90,15 @@ impl parity_codec::Decode for RawChunk {
 			.map(|key| unsafe {
 				Self::new_unchecked(key)
 			})
+	}
+}
+
+impl AllocateUsing for RawChunk {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self::new_unchecked(alloc.alloc(u32::max_value()))
 	}
 }
 

@@ -15,41 +15,6 @@ pub trait Allocator {
 	fn dealloc(&mut self, key: Key);
 }
 
-/// Returned upon storage allocation.
-///
-/// Holds the actual allocated entity and provides a somewhat safer interface to accessing it.
-pub struct MaybeUninitialized<T>(T);
-
-impl<T> MaybeUninitialized<T> {
-	/// Unwraps the inner value avoiding all safety checks.
-	///
-	/// # Note
-	///
-	/// Use this if the allocated entity is known to have already been initialized,
-	/// for example during deployment of a smart contract.
-	pub fn unwrap(self) -> T {
-		self.0
-	}
-}
-
-impl<A, T> MaybeUninitialized<T>
-where
-	T: Initialize<Args = A>,
-{
-	/// Initialize the inner entity with the given arguments and returns the result.
-	pub fn initialize(self, args: A) -> T {
-		let mut inner = self.unwrap();
-		inner.initialize(args);
-		inner
-	}
-}
-
-impl<T> From<T> for MaybeUninitialized<T> {
-	fn from(value: T) -> Self {
-		MaybeUninitialized(value)
-	}
-}
-
 /// Types implementing this trait can be allocated on the storage by storage allocators.
 pub trait AllocateUsing
 where
@@ -63,7 +28,7 @@ where
 	/// Instances created this way might have uninitialized storage.
 	/// Accessing those instances will panic the execution or might
 	/// result in other unintended behaviour.
-	unsafe fn allocate_using<A>(alloc: &mut A) -> MaybeUninitialized<Self>
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: Allocator;
 }
@@ -78,7 +43,10 @@ where
 /// would result in a panic or even undefined behaviour.
 /// To circumvent this it is required to initialize its associated contract storage
 /// via [`initialize`](trait.Initialize.html#method.initialize).
-pub trait Initialize {
+pub trait Initialize
+where
+	Self: Sized
+{
 	/// Arguments used for deployment.
 	///
 	/// # Note
@@ -89,4 +57,11 @@ pub trait Initialize {
 
 	/// Initializes storage of `self` so that it can be safely accessed.
 	fn initialize(&mut self, args: Self::Args);
+
+	/// Initializes storage of `self` so that it can be safely accessed.
+	fn initialize_into(self, args: Self::Args) -> Self {
+		let mut this = self;
+		this.initialize(args);
+		this
+	}
 }

@@ -19,6 +19,10 @@ use crate::{
 		self,
 		chunk::SyncChunk,
 		Allocator,
+		alloc::{
+			AllocateUsing,
+			Initialize,
+		},
 		Flush,
 	},
 };
@@ -139,23 +143,27 @@ impl<T> parity_codec::Decode for Vec<T> {
 	}
 }
 
-impl<T> Vec<T> {
-	/// Allocates a new storage vector using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+impl<T> AllocateUsing for Vec<T> {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: Allocator
 	{
-		Self{
-			len: storage::Value::new_using_alloc(alloc, 0),
-			cells: SyncChunk::new_using_alloc(alloc),
+		Self {
+			len: storage::Value::allocate_using(alloc),
+			cells: SyncChunk::allocate_using(alloc),
 		}
 	}
+}
 
+impl<T> Initialize for Vec<T> {
+	type Args = ();
+
+	fn initialize(&mut self, _args: Self::Args) {
+		self.len.set(0);
+	}
+}
+
+impl<T> Vec<T> {
 	/// Returns the number of elements in the vector, also referred to as its 'length'.
 	pub fn len(&self) -> u32 {
 		*self.len.get()

@@ -20,6 +20,9 @@ use crate::{
 		chunk::{
 			TypedChunk,
 		},
+		alloc::{
+			AllocateUsing,
+		},
 		Allocator,
 		Flush,
 	},
@@ -74,6 +77,18 @@ impl<T> parity_codec::Decode for SyncChunk<T> {
 				chunk: typed_chunk,
 				cache: Default::default(),
 			})
+	}
+}
+
+impl<T> AllocateUsing for SyncChunk<T> {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+	where
+		A: Allocator
+	{
+		Self{
+			chunk: TypedChunk::allocate_using(alloc),
+			cache: CacheGuard::default(),
+		}
 	}
 }
 

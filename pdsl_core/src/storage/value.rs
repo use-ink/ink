@@ -23,7 +23,6 @@ use crate::{
 			Allocator,
 			AllocateUsing,
 			Initialize,
-			MaybeUninitialized,
 		}
 	},
 };
@@ -61,13 +60,24 @@ impl<T> AllocateUsing for Value<T>
 where
 	T: Unpin,
 {
-	unsafe fn allocate_using<A>(alloc: &mut A) -> MaybeUninitialized<Self>
+	/// Creates a new uninitialized storage value.
+	///
+	/// # Note
+	///
+	/// Accessing a storage value created this way will result in a panic
+	/// unless its value has been set before.
+	/// Use [`default_using`](struct.Value.html#method.default_using) or
+	/// initialize the value manually before using it.
+	///
+	/// # Safety
+	///
+	/// The is unsafe because it does not check if the associated storage
+	/// does not alias with storage allocated by other storage allocators.
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: Allocator
 	{
-		Self{
-			cell: SyncCell::new_using_alloc(alloc),
-		}.into()
+		Self{ cell: SyncCell::allocate_using(alloc) }
 	}
 }
 
@@ -92,11 +102,11 @@ where
 	///
 	/// The is unsafe because it does not check if the associated storage
 	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn default_using_alloc<A>(alloc: &mut A) -> Self
+	pub unsafe fn default_using<A>(alloc: &mut A) -> Self
 	where
 		A: storage::Allocator,
 	{
-		Self::allocate_using(alloc).initialize(Default::default())
+		Self::allocate_using(alloc).initialize_into(Default::default())
 	}
 }
 
@@ -104,26 +114,6 @@ impl<T> Value<T>
 where
 	T: parity_codec::Codec + Unpin,
 {
-	/// Creates a new uninitialized storage value.
-	///
-	/// # Note
-	///
-	/// Accessing a storage value created this way will result in a panic
-	/// unless its value has been set before. Use
-	/// [`default_using_alloc`](struct.Value.html#method.default_using_alloc)
-	/// if you want to create an initialized value.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A, val: T) -> Self
-	where
-		A: storage::Allocator,
-	{
-		Self::allocate_using(alloc).initialize(val)
-	}
-
 	/// Returns the wrapped value as immutable reference.
 	pub fn get(&self) -> &T {
 		self.cell.get().unwrap()
@@ -131,7 +121,7 @@ where
 
 	/// Sets the wrapped value to the given value.
 	pub fn set(&mut self, val: T) {
-		self.cell.set(val)
+		self.cell.set(val);
 	}
 }
 
@@ -382,12 +372,15 @@ where
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
 	use super::*;
-	use crate::storage::Key;
-
 	use crate::{
 		test_utils::run_test,
 		storage::{
-			alloc::BumpAlloc,
+			Key,
+			alloc::{
+				BumpAlloc,
+				AllocateUsing,
+				Initialize,
+			},
 		},
 	};
 
@@ -397,10 +390,13 @@ mod tests {
 			fn $test_name() {
 				run_test(|| {
 					let (val1, val2, val3) = unsafe {
-						let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-						let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-						let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 5);
-						let val3 = Value::new_using_alloc(&mut fw_alloc, &val1 $tok &val2);
+						let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+						let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
+						let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
+						let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
+						val1.initialize(42);
+						val2.initialize(5);
+						val3.initialize(&val1 $tok &val2);
 						(val1, val2, val3)
 					};
 					// Check init values
@@ -418,11 +414,15 @@ mod tests {
 			fn $test_name_assign() {
 				run_test(|| {
 					let (mut val1, mut copy, val2, val3) = unsafe {
-						let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-						let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-						let copy: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-						let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 13);
-						let val3 = Value::new_using_alloc(&mut fw_alloc, 42 $tok 13);
+						let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+						let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
+						let mut copy: Value<i32> = Value::allocate_using(&mut alloc);
+						let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
+						let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
+						val1.initialize(42);
+						copy.initialize(42);
+						val2.initialize(13);
+						val3.initialize(42 $tok 13);
 						(val1, copy, val2, val3)
 					};
 					// Check init values
@@ -461,11 +461,11 @@ mod tests {
 			fn $test_name() {
 				run_test(|| {
 					let (val1, val2) = unsafe {
-						let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-						let val1: Value<i32>
-							= Value::new_using_alloc(&mut fw_alloc, 42);
-						let val2
-							= Value::new_using_alloc(&mut fw_alloc, $tok 42);
+						let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+						let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
+						let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
+						val1.initialize(42);
+						val2.initialize($tok 42);
 						(val1, val2)
 					};
 					// Check init values
@@ -487,9 +487,11 @@ mod tests {
 	fn test_shift() {
 		run_test(|| {
 			let (mut value, result) = unsafe {
-				let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-				let value: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 10);
-				let result = Value::new_using_alloc(&mut fw_alloc, 10 << 5);
+				let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+				let mut value : Value<i32> = Value::allocate_using(&mut alloc);
+				let mut result: Value<i32> = Value::allocate_using(&mut alloc);
+				value.initialize(10);
+				result.initialize(10 << 5);
 				(value, result)
 			};
 			// Check init values
@@ -507,10 +509,13 @@ mod tests {
 	fn test_eq_ord() {
 		run_test(|| {
 			let (val1, val2, val3) = unsafe {
-				let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-				let val1: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-				let val2: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 42);
-				let val3: Value<i32> = Value::new_using_alloc(&mut fw_alloc, 1337);
+				let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+				let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
+				let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
+				let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
+				val1.initialize(42);
+				val2.initialize(42);
+				val3.initialize(1337);
 				(val1, val2, val3)
 			};
 			// Eq & Ne
@@ -531,11 +536,9 @@ mod tests {
 	fn test_index() {
 		run_test(|| {
 			let val1 = unsafe {
-				let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-				let val1: Value<Vec<i32>> = Value::new_using_alloc(
-					&mut fw_alloc,
-					vec![2, 3, 5, 7, 11, 13]
-				);
+				let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+				let mut val1: Value<Vec<i32>> = Value::allocate_using(&mut alloc);
+				val1.initialize(vec![2, 3, 5, 7, 11, 13]);
 				val1
 			};
 			assert_eq!(val1[0], 2);

@@ -19,6 +19,10 @@ use crate::storage::{
 	Key,
 	chunk::SyncChunk,
 	Allocator,
+	alloc::{
+		AllocateUsing,
+		Initialize,
+	},
 	Flush,
 };
 
@@ -229,25 +233,31 @@ impl<T> parity_codec::Decode for Stash<T> {
 	}
 }
 
-impl<T> Stash<T> {
-	/// Allocates a new storage stash using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+impl<T> AllocateUsing for Stash<T> {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: Allocator
 	{
-		Self{
-			next_vacant: storage::Value::new_using_alloc(alloc, 0),
-			len: storage::Value::new_using_alloc(alloc, 0),
-			max_len: storage::Value::new_using_alloc(alloc, 0),
-			entries: SyncChunk::new_using_alloc(alloc),
+		Self {
+			next_vacant: storage::Value::allocate_using(alloc),
+			len: storage::Value::allocate_using(alloc),
+			max_len: storage::Value::allocate_using(alloc),
+			entries: SyncChunk::allocate_using(alloc),
 		}
 	}
+}
 
+impl<T> Initialize for Stash<T> {
+	type Args = ();
+
+	fn initialize(&mut self, _args: Self::Args) {
+		self.next_vacant.set(0);
+		self.len.set(0);
+		self.max_len.set(0);
+	}
+}
+
+impl<T> Stash<T> {
 	/// Returns an iterator over the references of all entries of the stash.
 	///
 	/// # Note

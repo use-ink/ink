@@ -18,6 +18,10 @@ use crate::storage::{
 	self,
 	chunk::SyncChunk,
 	Allocator,
+	alloc::{
+		AllocateUsing,
+		Initialize,
+	},
 	Flush,
 };
 use crate::hash;
@@ -105,28 +109,30 @@ impl<K, V> parity_codec::Decode for HashMap<K, V> {
 	}
 }
 
-impl<K, V> HashMap<K, V> {
-	/// Allocates a new storage hash map using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+impl<K, V> AllocateUsing for HashMap<K, V> {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: Allocator
 	{
-		Self{
-			len: storage::Value::new_using_alloc(alloc, 0),
-			entries: SyncChunk::new_using_alloc(alloc),
+		Self {
+			len: storage::Value::allocate_using(alloc),
+			entries: SyncChunk::allocate_using(alloc),
 		}
 	}
+}
 
+impl<K, V> Initialize for HashMap<K, V> {
+	type Args = ();
+
+	fn initialize(&mut self, _args: Self::Args) {
+		self.len.set(0);
+	}
+}
+
+impl<K, V> HashMap<K, V> {
 	/// Returns the number of key-value pairs in the map.
 	pub fn len(&self) -> u32 {
-		*self
-			.len
-			.get()
+		*self.len.get()
 	}
 
 	/// Returns `true` if the map contains no elements.

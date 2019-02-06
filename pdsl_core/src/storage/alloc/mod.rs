@@ -28,7 +28,6 @@ pub use self::{
 		Allocator,
 		AllocateUsing,
 		Initialize,
-		MaybeUninitialized,
 	},
 	cc_alloc::{
 		CellChunkAlloc,
