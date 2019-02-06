@@ -5,7 +5,7 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-pdsl_core = { path = "../../pdsl_core" }
+pdsl_core = { path = "../../core" }
 parity-codec = { version = "2.2", default-features = false, features = ["derive"] }
 
 [lib]
