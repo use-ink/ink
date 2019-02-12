@@ -8,28 +8,17 @@ use pdsl_core::{
 	},
 };
 
+/// Types implementing this type can be used as contract state.
 pub trait ContractState:
-	AllocateUsing + Initialize + Flush {}
-
-#[derive(Copy, Clone)]
-pub struct EmptyContractState;
-
-impl ContractState for EmptyContractState {}
-
-impl AllocateUsing for EmptyContractState {
-	unsafe fn allocate_using<A>(_alloc: &mut A) -> Self {
-		EmptyContractState
-	}
-}
-
-impl Initialize for EmptyContractState {
-	type Args = ();
-
-	fn initialize(&mut self, _args: Self::Args) {}
-}
-
-impl Flush for EmptyContractState {
-	fn flush(&mut self) {}
+	AllocateUsing + Flush
+{
+	/// The name of the contract state.
+	///
+	/// # Note
+	///
+	/// - This should be a valid Rust identifier.
+	/// - Normally you simply want to use the name of the contract here.
+	const NAME: &'static str;
 }
 
 /// Define contract state with less boilerplate code.
@@ -37,7 +26,7 @@ impl Flush for EmptyContractState {
 macro_rules! state {
 	(
 		$( #[$state_meta:meta] )*
-		struct $state_name:ident {
+		$vis:vis struct $state_name:ident {
 			$(
 				$( #[$field_meta:meta] )*
 				$field_name:ident : $field_ty:ty
@@ -45,7 +34,7 @@ macro_rules! state {
 		}
 	) => {
 		$( #[$state_meta] )*
-		struct $state_name {
+		$vis struct $state_name {
 			$(
 				$( #[$field_meta] )*
 				$field_name : $field_ty
@@ -74,6 +63,15 @@ macro_rules! state {
 			}
 		}
 
-		impl pdsl_model::state::ContractState for $state_name {}
+		impl pdsl_model::state::ContractState for $state_name {
+			const NAME: &'static str = stringify!($state_name);
+		}
 	};
+}
+
+use crate as pdsl_model; // TODO: Fix this to being not required!
+
+state! {
+	/// An empty contract state.
+	pub struct EmptyContractState {}
 }
