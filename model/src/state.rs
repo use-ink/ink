@@ -35,7 +35,7 @@ impl Flush for EmptyContractState {
 #[macro_export]
 macro_rules! state {
 	(
-		$state_name:ident {
+		struct $state_name:ident {
 			$(
 				$field_name:ident : $field_ty:ty
 			),*

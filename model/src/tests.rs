@@ -13,7 +13,7 @@ use pdsl_core::{
 };
 
 state! {
-	State {
+	struct State {
 		val: storage::Value<u32>
 	}
 }
