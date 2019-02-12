@@ -4,12 +4,7 @@ use crate::{
 	msg::Message,
 };
 use pdsl_core::{
-	storage::{
-		self,
-		alloc::{
-			Initialize,
-		}
-	},
+	storage::{self, alloc::Initialize},
 };
 
 state! {
@@ -37,7 +32,17 @@ fn instantiate() {
 		.on_msg_mut::<Inc>(|env, by| {
 			env.state.val += by
 		})
-		.on_msg::<Get>(|env, ()| {
+		.on_msg::<Get>(|env, _| {
 			*env.state.val.get()
 		});
+}
+
+#[no_mangle]
+fn deploy() {
+	instantiate().deploy()
+}
+
+#[no_mangle]
+fn call() {
+	instantiate().run()
 }

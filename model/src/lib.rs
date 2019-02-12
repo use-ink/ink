@@ -12,4 +12,3 @@ mod msg;
 mod contract;
 mod exec_env;
 mod msg_handler;
-mod tests;
