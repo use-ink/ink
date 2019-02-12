@@ -1,19 +1,26 @@
 # pDSL - Parity's DSL for Smart Contracts
 
-| Linux              | Codecov              | Coveralls              | LoC              | Docs              |
-|:------------------:|:--------------------:|:----------------------:|:----------------:|:-----------------:|
-| [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] | [![docs][F1]][F2] |
+| Linux              | Codecov              | Coveralls              | LoC              | Docs (Core)       | Docs (Model)      |
+|:------------------:|:--------------------:|:----------------------:|:----------------:|:-----------------:|:-----------------:|
+| [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] | [![docs][F1]][F2] | [![docs][G1]][G2] |
 
 [A1]: https://travis-ci.org/Robbepop/pdsl.svg?branch=master
 [A2]: https://travis-ci.org/Robbepop/pdsl
+
 [C1]: https://codecov.io/gh/Robbepop/pdsl/branch/master/graph/badge.svg
 [C2]: https://codecov.io/gh/Robbepop/pdsl/branch/master
+
 [D1]: https://coveralls.io/repos/github/Robbepop/pdsl/badge.svg?branch=master
 [D2]: https://coveralls.io/github/Robbepop/pdsl?branch=master
+
 [E1]: https://tokei.rs/b1/github/Robbepop/pdsl?category=code
 [E2]: https://github.com/Aaronepower/tokei#badges
+
 [F1]: https://img.shields.io/badge/docs-nightly-black.svg
 [F2]: https://robbepop.github.io/pdsl/pdsl_core/index.html
+
+[G1]: https://img.shields.io/badge/docs-nightly-purple.svg
+[G2]: https://robbepop.github.io/pdsl/pdsl_model/index.html
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
