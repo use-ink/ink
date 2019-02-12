@@ -3,23 +3,15 @@ use crate::{
 	state::ContractState,
 	msg::Message,
 };
-use pdsl_core::{
-	storage::{self, alloc::Initialize},
-};
+use pdsl_core::storage;
+
+use crate as pdsl_model; // TODO: We really don't want this as a hack to make state! work.
 
 state! {
 	/// A simple contract having just one value that can be incremented and returned.
-	struct State {
+	struct Adder {
 		/// The simple value on the contract storage.
 		val: storage::Value<u32>
-	}
-}
-
-impl Initialize for State {
-	type Args = ();
-
-	fn initialize(&mut self, _args: Self::Args) {
-		self.val.set(0)
 	}
 }
 
@@ -30,15 +22,18 @@ messages! {
 	Get() -> u32;
 }
 
-fn instantiate() {
-	ContractDecl::new("Adder")
-		.using_state::<State>()
+fn instantiate() -> impl ContractInstance {
+	ContractDecl::new::<Adder>()
+		.on_deploy(|env, init_val| {
+			env.state.val.set(init_val)
+		})
 		.on_msg_mut::<Inc>(|env, by| {
 			env.state.val += by
 		})
 		.on_msg::<Get>(|env, _| {
 			*env.state.val.get()
-		});
+		})
+		.instantiate()
 }
 
 #[no_mangle]

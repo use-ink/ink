@@ -10,25 +10,16 @@ use pdsl_core::{
 		srml::Address,
 		srml::Balance,
 	},
-	storage::{self, alloc::Initialize},
+	storage,
 };
 
 state! {
 	/// A simple implementation of a rudimentary Erc20 token contract.
-	struct State {
+	struct Erc20Token {
 		/// The balance for an address.
 		balances: storage::HashMap<Address, Balance>,
 		/// The total supply.
 		total: storage::Value<Balance>,
-	}
-}
-
-impl Initialize for State {
-	type Args = Balance;
-
-	fn initialize(&mut self, total_supply: Self::Args) {
-		self.balances[ContractEnv::caller()] = total_supply;
-		self.total.set(total_supply);
 	}
 }
 
@@ -43,9 +34,12 @@ messages! {
 	Transfer(to: Address, amount: Balance) -> bool;
 }
 
-fn instantiate() {
-	Contract::new("Erc20Token")
-		.using_state::<State>()
+fn instantiate() -> impl ContractInstance {
+	Contract::new::<Erc20Token>()
+		.on_deploy(|env, init_supply| {
+			env.state.balances[ContractEnv::caller()] = init_supply;
+			env.state.total.set(init_supply);
+		})
 		.on_msg::<TotalSupply>(|env, _| {
 			*env.state.total.get()
 		})
@@ -68,4 +62,14 @@ fn instantiate() {
 
 			false
 		});
+}
+
+#[no_mangle]
+fn deploy() {
+	instantiate().deploy()
+}
+
+#[no_mangle]
+fn call() {
+	instantiate().run()
 }
