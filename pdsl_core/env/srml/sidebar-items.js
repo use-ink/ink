@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Address","The default SRML address type."],["DefaultSrmlTypes","The SRML fundamental types."],["SrmlEnv","The SRML contracts environment."]],"type":[["Balance","The default SRML balance type."],["DefaultSrmlEnv","The default SRML environment."]]});
+initSidebarItems({"struct":[["Address","The default SRML address type."]],"type":[["Balance","The default SRML balance type."]]});
