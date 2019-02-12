@@ -16,12 +16,42 @@ use crate::{
 };
 use core::marker::PhantomData;
 
+/// A contract declaration.
+///
+/// Uses the builder pattern in order to represent a contract
+/// based on compile-time construction.
+///
+/// Can be used to actually instantiate a contract during run-time
+/// in order to dispatch a contract call or deploy state.
 pub struct ContractDecl<
 	State,
 	HandlerChain,
 > {
+	/// The name of the contract.
 	name: &'static str,
+	/// The type of the contract state.
+	///
+	/// This tricks Rust into thinking that this owns the state type.
+	/// However, it is just a marker which allows the contract declaration
+	/// to be a zero-sized-type (ZST).
 	state: PhantomData<State>,
+	/// The compile-time chain of message handlers.
+	///
+	/// # Note
+	///
+	/// They are represented by a recursive tuple chain and start with
+	/// a simple `UnreachableMessageHandler` node. For every further
+	/// registered message handler this tuple is extended recursively.
+	///
+	/// ## Example
+	///
+	/// ```rust,no_run
+	/// UnreachableMessageHandler               // Upon initialization.
+	/// (Foo, UnreachableMessageHandler)        // After adding message handler Foo.
+	/// (Bar, (Foo, UnreachableMessageHandler)) // After adding message handler Bar.
+	/// ```
+	///
+	/// Note that every pair of message handlers is also a message handler.
 	handlers: HandlerChain,
 }
 
