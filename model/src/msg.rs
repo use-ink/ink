@@ -21,7 +21,9 @@ macro_rules! messages {
 	(
 		$( #[$msg_meta:meta] )* $msg_name:ident (
 			$( $param_name:ident : $param_ty:ty ),*
-		) -> $ret_ty:ty ; $($rest:tt)*
+		) -> $ret_ty:ty ;
+
+		$($rest:tt)*
 	) => {
 		$( #[$msg_meta] )*
 		#[derive(Copy, Clone)]
@@ -36,8 +38,14 @@ macro_rules! messages {
 
 		messages!($($rest)*);
 	};
-	( $msg_name:ident ( $( $param_name:ident : $param_ty:ty ),* ) ; $($rest:tt)* ) => {
-		messages!( $msg_name ( $( $param_name : $param_ty ),* ) -> (); $($rest)* );
+	(
+		$( #[$msg_meta:meta] )* $msg_name:ident (
+			$( $param_name:ident : $param_ty:ty ),*
+		) ;
+
+		$($rest:tt)*
+	) => {
+		messages!( $( #[$msg_meta] )* $msg_name ( $( $param_name : $param_ty ),* ) -> (); $($rest)* );
 	};
 	() => {};
 }
