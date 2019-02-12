@@ -50,9 +50,9 @@ An [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write W
 
 | Module | Description |
 |:-------|:------------|
-| `pdsl_core` | The core utilities used to write smart contracts. |
-| `pdsl_derive` | A future eDSL based on `pdsl_core` to provide a user friendly interface to writing smart contract code. |
-| `pdsl_tests` | Test smart contracts written using pDSL that act as an acceptance test harnish. |
+| `core` | The core utilities used to write smart contracts. |
+| `model` | Medium-level abstractions to write smart contracts heavily inspired by [Fleetwood](https://github.com/paritytech/fleetwood). |
+| `derive` | A future eDSL based on `pdsl_core` to provide a user friendly interface to writing smart contract code. |
 | `examples` | Featuring some smart contracts written for clarity with focus on teaching users how to use pDSL to write their own contracts. |
 
 ## Current State
