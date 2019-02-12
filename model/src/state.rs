@@ -32,6 +32,7 @@ impl Flush for EmptyContractState {
 	fn flush(&mut self) {}
 }
 
+#[macro_export]
 macro_rules! state {
 	(
 		$state_name:ident {

@@ -9,6 +9,7 @@ use crate::{
 		ContractState,
 	},
 };
+use pdsl_core::memory::vec::Vec;
 use core::{
 	marker::PhantomData,
 	result::Result as CoreResult,

@@ -15,8 +15,9 @@ pub trait Message {
 	const NAME: &'static str;
 }
 
+#[macro_export]
 macro_rules! messages {
-	( $msg_name:ident ( $( $param_ty:ty ),* ) -> $ret_ty:ty; $($rest:tt)* ) => {
+	( $msg_name:ident ( $( $param_name:ident : $param_ty:ty ),* ) -> $ret_ty:ty ; $($rest:tt)* ) => {
 		#[derive(Copy, Clone)]
 		struct $msg_name;
 
@@ -29,8 +30,8 @@ macro_rules! messages {
 
 		messages!($($rest)*);
 	};
-	( $msg_name:ident ( $( $param_ty:ty ),* ); $($rest:tt)* ) => {
-		messages!( $msg_name ( $( $param_ty ),* ) -> (); $($rest)* );
+	( $msg_name:ident ( $( $param_name:ident : $param_ty:ty ),* ) ; $($rest:tt)* ) => {
+		messages!( $msg_name ( $( $param_name : $param_ty ),* ) -> (); $($rest)* );
 	};
 	() => {};
 }

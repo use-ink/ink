@@ -27,7 +27,7 @@ impl Initialize for State {
 }
 
 messages! {
-	Inc(u32);
+	Inc(by: u32);
 	Get() -> u32;
 }
 
