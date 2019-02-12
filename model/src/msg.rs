@@ -15,9 +15,15 @@ pub trait Message {
 	const NAME: &'static str;
 }
 
+/// Defines messages for contracts with less boilerplate code.
 #[macro_export]
 macro_rules! messages {
-	( $msg_name:ident ( $( $param_name:ident : $param_ty:ty ),* ) -> $ret_ty:ty ; $($rest:tt)* ) => {
+	(
+		$( #[$msg_meta:meta] )* $msg_name:ident (
+			$( $param_name:ident : $param_ty:ty ),*
+		) -> $ret_ty:ty ; $($rest:tt)*
+	) => {
+		$( #[$msg_meta] )*
 		#[derive(Copy, Clone)]
 		struct $msg_name;
 

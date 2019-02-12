@@ -14,8 +14,11 @@ use pdsl_core::{
 };
 
 state! {
+	/// A simple implementation of a rudimentary Erc20 token contract.
 	struct State {
+		/// The balance for an address.
 		balances: storage::HashMap<Address, Balance>,
+		/// The total supply.
 		total: storage::Value<Balance>,
 	}
 }
@@ -30,8 +33,13 @@ impl Initialize for State {
 }
 
 messages! {
+	/// Returns the total supply.
 	TotalSupply() -> Balance;
+	/// Returns the balance of the given address.
 	BalanceOf(owner: Address) -> Balance;
+	/// Transfers balance from the caller to the given address.
+	///
+	/// Returns `true` if the transfer was successful.
 	Transfer(to: Address, amount: Balance) -> bool;
 }
 

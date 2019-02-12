@@ -8,7 +8,9 @@ use pdsl_core::{
 };
 
 state! {
+	/// A simple contract having just one value that can be incremented and returned.
 	struct State {
+		/// The simple value on the contract storage.
 		val: storage::Value<u32>
 	}
 }
@@ -22,7 +24,9 @@ impl Initialize for State {
 }
 
 messages! {
+	/// Increases the storage value by the given amount.
 	Inc(by: u32);
+	/// Returns the storage value.
 	Get() -> u32;
 }
 

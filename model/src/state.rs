@@ -32,17 +32,22 @@ impl Flush for EmptyContractState {
 	fn flush(&mut self) {}
 }
 
+/// Define contract state with less boilerplate code.
 #[macro_export]
 macro_rules! state {
 	(
+		$( #[$state_meta:meta] )*
 		struct $state_name:ident {
 			$(
+				$( #[$field_meta:meta] )*
 				$field_name:ident : $field_ty:ty
 			),*
 		}
 	) => {
+		$( #[$state_meta] )*
 		struct $state_name {
 			$(
+				$( #[$field_meta] )*
 				$field_name : $field_ty
 			),*
 		}
@@ -69,6 +74,6 @@ macro_rules! state {
 			}
 		}
 
-		impl ContractState for $state_name {}
+		impl pdsl_model::state::ContractState for $state_name {}
 	};
 }
