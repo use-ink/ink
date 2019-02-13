@@ -1,5 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(const_fn)]
+
+#![feature(
+	const_fn,
+	const_str_as_bytes,
+)]
 
 #![allow(unused)]
 

@@ -16,9 +16,10 @@ pub trait ContractState:
 	///
 	/// # Note
 	///
-	/// - This should be a valid Rust identifier.
-	/// - Normally you simply want to use the name of the contract here.
-	const NAME: &'static str;
+	/// - This must be a valid Rust identifier.
+	/// - Normally this reflects the name of the contract.
+	// const NAME: &'static str;
+	const NAME: &'static [u8];
 }
 
 /// Define contract state with less boilerplate code.
@@ -64,7 +65,7 @@ macro_rules! state {
 		}
 
 		impl pdsl_model::state::ContractState for $state_name {
-			const NAME: &'static str = stringify!($state_name);
+			const NAME: &'static [u8] = stringify!($state_name).as_bytes();
 		}
 	};
 }
