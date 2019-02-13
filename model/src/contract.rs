@@ -210,4 +210,64 @@ where
 	{
 		self.append_msg_handler(MessageHandlerMut::from_raw(handler))
 	}
+
+	pub const fn instantiate(self) -> ContractInstance<State, DeployArgs, HandlerChain> {
+		ContractInstance { decl: self }
+	}
+}
+
+pub trait Contract {
+	/// Deploys the contract state.
+	///
+	/// Should be performed exactly once during contract lifetime.
+	/// Consumes the contract since nothing should be done afterwards.
+	fn deploy(self);
+
+	/// Dispatches the call input to a pre defined
+	/// contract message and runs its handler.
+	///
+	/// Consumes self since it should be the default
+	/// action after instantiation.
+	///
+	/// # Panics
+	///
+	/// Panics (Wasm: traps) if the call input was invalid.
+	/// The call input is invalid if there was no matching
+	/// function selector found or if the data for a given
+	/// selected function was not decodable.
+	fn dispatch(self);
+}
+
+pub struct ContractInstance<State, DeployArgs, HandlerChain> {
+	decl: ContractDecl<State, DeployArgs, HandlerChain>,
+}
+
+impl<State, DeployArgs, HandlerChain> Contract for ContractInstance<State, DeployArgs, HandlerChain> {
+	fn deploy(self) {
+		// Deploys the contract state.
+		//
+		// Should be performed exactly once during contract lifetime.
+		// Consumes the contract since nothing should be done afterwards.
+		unimplemented!()
+	}
+
+	fn dispatch(self) {
+		// Dispatches the given input to a pre defined
+		// contract message and runs its handler.
+		//
+		// Consumes self since it should be the default
+		// action after instantiation.
+		//
+		// Internally calls the associated call<Msg>.
+		unimplemented!()
+	}
+}
+
+impl<State, DeployArgs, HandlerChain> ContractInstance<State, DeployArgs, HandlerChain> {
+	fn call<Msg>(self, _args: <Msg as Message>::Input)
+	where
+		Msg: Message,
+	{
+		unimplemented!()
+	}
 }
