@@ -1,12 +1,13 @@
-use crate::{
-	contract::ContractDecl,
-	state::ContractState,
-	msg::Message,
+#![feature(const_str_as_bytes)]
+
+use pdsl_model::{
+	ContractDecl,
+	Contract,
+	state,
+	messages,
 };
 use pdsl_core::{
 	env::{
-		Env,
-		ContractEnv,
 		srml::Address,
 		srml::Balance,
 	},
@@ -19,7 +20,7 @@ state! {
 		/// The balance for an address.
 		balances: storage::HashMap<Address, Balance>,
 		/// The total supply.
-		total: storage::Value<Balance>,
+		total: storage::Value<Balance>
 	}
 }
 
@@ -34,29 +35,30 @@ messages! {
 	Transfer(to: Address, amount: Balance) -> bool;
 }
 
-fn instantiate() -> impl ContractInstance {
-	Contract::new::<Erc20Token>()
+fn instantiate() -> impl Contract {
+	ContractDecl::new::<Erc20Token>()
 		.on_deploy(|env, init_supply| {
-			env.state.balances[ContractEnv::caller()] = init_supply;
+			let caller = env.caller();
+			env.state.balances[&caller] = init_supply;
 			env.state.total.set(init_supply);
 		})
 		.on_msg::<TotalSupply>(|env, _| {
 			*env.state.total.get()
 		})
 		.on_msg::<BalanceOf>(|env, owner| {
-			env.state.balances[owner]
+			env.state.balances[&owner]
 		})
 		.on_msg_mut::<Transfer>(|env, (to, amount)| {
-			if amount == Address::from(0x0) {
-				return false;
-			}
+			// if amount == Address::from(0x0) { // In Substrate we do not have the zero address!
+			//	 return false;
+			// }
 			let from = env.caller();
-			let balance_from = env.state.balances[from];
-			let balance_to = env.state.balances[to];
+			let balance_from = env.state.balances[&from];
+			let balance_to = env.state.balances[&to];
 
 			if balance_from >= amount {
-				env.state.balances[from] = existing_from - amount;
-				env.state.balances[to] = existing_to + amount;
+				env.state.balances[&from] = balance_from - amount;
+				env.state.balances[&to] = balance_to + amount;
 				return true
 			}
 
@@ -72,5 +74,5 @@ fn deploy() {
 
 #[no_mangle]
 fn call() {
-	instantiate().run()
+	instantiate().dispatch()
 }

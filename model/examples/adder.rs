@@ -1,11 +1,12 @@
-use crate::{
-	contract::ContractDecl,
-	state::ContractState,
-	msg::Message,
+#![feature(const_str_as_bytes)]
+
+use pdsl_model::{
+	ContractDecl,
+	Contract,
+	state,
+	messages,
 };
 use pdsl_core::storage;
-
-use crate as pdsl_model; // TODO: We really don't want this as a hack to make state! work.
 
 state! {
 	/// A simple contract having just one value that can be incremented and returned.
@@ -22,7 +23,7 @@ messages! {
 	Get() -> u32;
 }
 
-fn instantiate() -> impl ContractInstance {
+fn instantiate() -> impl Contract {
 	ContractDecl::new::<Adder>()
 		.on_deploy(|env, init_val| {
 			env.state.val.set(init_val)
@@ -43,5 +44,5 @@ fn deploy() {
 
 #[no_mangle]
 fn call() {
-	instantiate().run()
+	instantiate().dispatch()
 }
