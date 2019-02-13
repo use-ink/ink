@@ -61,7 +61,8 @@ fn instantiate() -> impl ContractInstance {
 			}
 
 			false
-		});
+		})
+		.instantiate()
 }
 
 #[no_mangle]
