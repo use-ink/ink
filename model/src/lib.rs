@@ -27,6 +27,7 @@ pub use crate::{
 		NoDeployArgs,
 		DeployHandler,
 		ContractDecl,
+		Contract,
 	},
 	msg::{
 		Message,
