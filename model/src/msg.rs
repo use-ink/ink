@@ -29,7 +29,7 @@ macro_rules! messages {
 		#[derive(Copy, Clone)]
 		struct $msg_name;
 
-		impl crate::msg::Message for $msg_name {
+		impl pdsl_model::Message for $msg_name {
 			type Input = ($($param_ty),*);
 			type Output = $ret_ty;
 

@@ -45,8 +45,8 @@ macro_rules! state {
 		impl pdsl_core::storage::Flush for $state_name {
 			fn flush(&mut self) {
 				$(
-					self.$field_name.flush();
-				),*
+					self.$field_name.flush()
+				);*
 			}
 		}
 
@@ -64,7 +64,7 @@ macro_rules! state {
 			}
 		}
 
-		impl pdsl_model::state::ContractState for $state_name {
+		impl pdsl_model::ContractState for $state_name {
 			const NAME: &'static [u8] = stringify!($state_name).as_bytes();
 		}
 	};
