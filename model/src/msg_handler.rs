@@ -78,6 +78,43 @@ where
 	/// Returns the associated handler selector.
 	pub const fn selector() -> MessageHandlerSelector {
 		MessageHandlerSelector(0x0) // TODO: Specify and implement behaviour.
+
+		// Should produce a hash out of a byte sequence
+		// that contains signatures of the following parts:
+		//
+		// - State::NAME
+		// - Msg::NAME
+		// - Msg::Input
+		// - Msg::Output
+		//
+		// # Structure
+		//
+		// State::NAME
+		// ~ b'0xFF' ~ Msg::NAME
+		// ~ $( b'0xFE' ~ Msg::Input::type_byte_seq() ~ b'0xFD' )*
+		// ~ b'0xFD' ~ Msg::Output::type_byte_seq()
+		//
+		// Where ~ is the byte concat operator.
+		// Note that State::NAME, Msg::NAME and everything returned
+		// from T::type_byte_seq must be valid ascii so the guard
+		// patterns (b'0xFF', b'0xFE', b'0xFD') are unique.
+		//
+		// Afterwards we hash this sequence by a const hasher
+		// to retrieve the resulting MessageHandlerSelector.
+		//
+		// # Example
+		//
+		// With State being
+		//
+		// struct Adder { ... }
+		//
+		// and Msg being
+		//
+		// Inc(by: u32) -> u32;
+		//
+		// We have the following byte sequence:
+		//
+		// Adder 0xFF Inc 0xFE i32::type_byte_seq() 0xFD i32::type_byte_seq()
 	}
 }
 
