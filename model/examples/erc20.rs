@@ -26,13 +26,13 @@ state! {
 
 messages! {
 	/// Returns the total supply.
-	TotalSupply() -> Balance;
+	0 => TotalSupply() -> Balance;
 	/// Returns the balance of the given address.
-	BalanceOf(owner: Address) -> Balance;
+	1 => BalanceOf(owner: Address) -> Balance;
 	/// Transfers balance from the caller to the given address.
 	///
 	/// Returns `true` if the transfer was successful.
-	Transfer(to: Address, amount: Balance) -> bool;
+	2 => Transfer(to: Address, amount: Balance) -> bool;
 }
 
 fn instantiate() -> impl Contract {

@@ -1,3 +1,6 @@
+use crate::{
+	msg_handler::MessageHandlerSelector,
+};
 
 /// A message with an expected input type and output (result) type.
 pub trait Message {
@@ -6,6 +9,11 @@ pub trait Message {
 
 	/// The output of the message, also known as return type.
 	type Output: parity_codec::Encode;
+
+	/// The user provided message selector.
+	///
+	/// This identifier must be unique for every message.
+	const ID: MessageHandlerSelector;
 
 	/// The name of the message.
 	///
@@ -19,7 +27,8 @@ pub trait Message {
 #[macro_export]
 macro_rules! messages {
 	(
-		$( #[$msg_meta:meta] )* $msg_name:ident (
+		$( #[$msg_meta:meta] )*
+		$msg_id:literal => $msg_name:ident (
 			$( $param_name:ident : $param_ty:ty ),*
 		) -> $ret_ty:ty ;
 
@@ -33,19 +42,28 @@ macro_rules! messages {
 			type Input = ($($param_ty),*);
 			type Output = $ret_ty;
 
+			const ID: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
 			const NAME: &'static [u8] = stringify!($msg_name).as_bytes();
 		}
 
 		messages!($($rest)*);
 	};
 	(
-		$( #[$msg_meta:meta] )* $msg_name:ident (
+		$( #[$msg_meta:meta] )*
+		$msg_id:literal => $msg_name:ident (
 			$( $param_name:ident : $param_ty:ty ),*
 		) ;
 
 		$($rest:tt)*
 	) => {
-		messages!( $( #[$msg_meta] )* $msg_name ( $( $param_name : $param_ty ),* ) -> (); $($rest)* );
+		messages!(
+			$( #[$msg_meta] )*
+			$msg_id => $msg_name (
+				$( $param_name : $param_ty ),*
+			) -> ();
+
+			$($rest)*
+		);
 	};
 	() => {};
 }

@@ -70,7 +70,14 @@ impl CallData {
 
 /// A hash to identify a called function.
 #[derive(Copy, Clone, PartialEq, Eq)]
-pub struct MessageHandlerSelector(pub u64);
+pub struct MessageHandlerSelector(u32);
+
+impl MessageHandlerSelector {
+	/// Creates a new message handler selector from the given value.
+	pub const fn new(raw: u32) -> Self {
+		Self(raw)
+	}
+}
 
 /// A read-only message handler.
 ///
