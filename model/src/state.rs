@@ -64,7 +64,7 @@ macro_rules! state {
 			}
 		}
 
-		impl pdsl_model::ContractState for $state_name {
+		impl $crate::ContractState for $state_name {
 			const NAME: &'static [u8] = stringify!($state_name).as_bytes();
 		}
 	};
