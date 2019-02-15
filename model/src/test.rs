@@ -1,12 +1,11 @@
 use crate::{
-	contract::ContractDecl,
+	contract::{ContractDecl, ContractInstance, Contract},
 	state::ContractState,
 	msg::Message,
 };
 use pdsl_core::{
 	storage::{self, alloc::Initialize},
 };
-use crate as pdsl_model; // TODO: We really don't want this as a hack to make state! work.
 
 state! {
 	/// A simple contract having just one value that can be incremented and returned.
@@ -23,25 +22,58 @@ messages! {
 	1 => Get() -> u32;
 }
 
-fn instantiate() {
-	ContractDecl::new::<Adder>()
-		.on_deploy(|env, init_val| {
-			env.state.val.set(init_val)
-		})
-		.on_msg_mut::<Inc>(|env, by| {
-			env.state.val += by
-		})
-		.on_msg::<Get>(|env, _| {
-			*env.state.val.get()
-		});
-}
+use crate::{
+	MessageHandler,
+	MessageHandlerMut,
+	msg_handler::UnreachableMessageHandler
+};
+const INSTANCE:
+	ContractInstance<
+		Adder,
+		u32,
+		(
+			MessageHandler<Get, Adder>,
+			(
+				MessageHandlerMut<Inc, Adder>,
+				UnreachableMessageHandler
+			)
+		)
+	> = {
+		ContractDecl::new::<Adder>()
+			.on_deploy(|env, init_val| {
+				env.state.val.set(init_val)
+			})
+			.on_msg_mut::<Inc>(|env, by| {
+				env.state.val += by
+			})
+			.on_msg::<Get>(|env, _| {
+				*env.state.val.get()
+			})
+			.instantiate()
+	};
+
+// const fn instantiate() -> impl Contract {
+// 	ContractDecl::new::<Adder>()
+// 		.on_deploy(|env, init_val| {
+// 			env.state.val.set(init_val)
+// 		})
+// 		.on_msg_mut::<Inc>(|env, by| {
+// 			env.state.val += by
+// 		})
+// 		.on_msg::<Get>(|env, _| {
+// 			*env.state.val.get()
+// 		})
+// 		.instantiate()
+// }
 
 #[no_mangle]
 fn deploy() {
+	INSTANCE.deploy()
 	// instantiate().deploy()
 }
 
 #[no_mangle]
 fn call() {
-	// instantiate().run()
+	INSTANCE.dispatch()
+	// instantiate().dispatch()
 }
