@@ -39,14 +39,32 @@ pub type RawMessageHandlerMut<Msg, State> =
 pub struct CallData(pub Vec<u8>);
 
 impl CallData {
+	const SELECTOR_BYTES: usize = core::mem::size_of::<MessageHandlerSelector>();
+
+	/// Returns the underlying bytes as slice.
+	fn as_bytes(&self) -> &[u8] {
+		self.0.as_slice()
+	}
+
 	/// Returns the message handler selector part of this call data.
 	pub fn selector(&self) -> MessageHandlerSelector {
-		unimplemented!() // TODO: Specify and implement behaviour.
+		let b = self.as_bytes();
+		MessageHandlerSelector::new(
+			u32::from_le_bytes(
+				[b[0], b[1], b[2], b[3]]
+			)
+		)
 	}
 
 	/// Returns the actual call data in binary format.
 	pub fn params(&self) -> &[u8] {
-		unimplemented!() // TODO: Specify and implement behaviour.
+		let bytes = self.as_bytes();
+		if bytes.len() <= Self::SELECTOR_BYTES {
+			&[]
+		}
+		else {
+			&bytes[Self::SELECTOR_BYTES..]
+		}
 	}
 }
 
