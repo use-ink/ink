@@ -101,7 +101,7 @@ pub struct ContractDecl<
 	///
 	/// ## Example
 	///
-	/// ```rust,no_run
+	/// ```no_compile
 	/// UnreachableMessageHandler               // Upon initialization.
 	/// (Foo, UnreachableMessageHandler)        // After adding message handler Foo.
 	/// (Bar, (Foo, UnreachableMessageHandler)) // After adding message handler Bar.
