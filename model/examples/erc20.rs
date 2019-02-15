@@ -76,3 +76,5 @@ fn deploy() {
 fn call() {
 	instantiate().dispatch()
 }
+
+fn main() {}
