@@ -131,7 +131,7 @@ where
 
 impl ContractDecl<EmptyContractState, NoDeployArgs, UnreachableMessageHandler> {
 	/// Creates a new contract declaration with the given name.
-	pub fn new<State>() -> ContractDecl<State, NoDeployArgs, UnreachableMessageHandler> {
+	pub const fn new<State>() -> ContractDecl<State, NoDeployArgs, UnreachableMessageHandler> {
 		ContractDecl {
 			state: PhantomData,
 			deployer: DeployHandler::init(),
