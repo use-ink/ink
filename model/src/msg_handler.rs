@@ -36,35 +36,36 @@ pub type RawMessageHandlerMut<Msg, State> =
 	fn(&mut ExecutionEnv<State>, <Msg as Message>::Input) -> <Msg as Message>::Output;
 
 /// The raw data with which a contract is being called.
-pub struct CallData(pub Vec<u8>);
+pub struct CallData {
+	/// The decoded message selector.
+	selector: MessageHandlerSelector,
+	/// The raw undecoded parameter bytes.
+	raw_params: Vec<u8>,
+}
+
+impl parity_codec::Decode for CallData {
+	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+		let selector = MessageHandlerSelector::decode(input)?;
+		let mut param_buf = Vec::new();
+		while let Some(byte) = input.read_byte() {
+			param_buf.push(byte)
+		}
+		Some(Self{
+			selector,
+			raw_params: param_buf,
+		})
+	}
+}
 
 impl CallData {
-	const SELECTOR_BYTES: usize = core::mem::size_of::<MessageHandlerSelector>();
-
-	/// Returns the underlying bytes as slice.
-	fn as_bytes(&self) -> &[u8] {
-		self.0.as_slice()
-	}
-
 	/// Returns the message handler selector part of this call data.
 	pub fn selector(&self) -> MessageHandlerSelector {
-		let b = self.as_bytes();
-		MessageHandlerSelector::new(
-			u32::from_le_bytes(
-				[b[0], b[1], b[2], b[3]]
-			)
-		)
+		self.selector
 	}
 
 	/// Returns the actual call data in binary format.
 	pub fn params(&self) -> &[u8] {
-		let bytes = self.as_bytes();
-		if bytes.len() <= Self::SELECTOR_BYTES {
-			&[]
-		}
-		else {
-			&bytes[Self::SELECTOR_BYTES..]
-		}
+		self.raw_params.as_slice()
 	}
 }
 
