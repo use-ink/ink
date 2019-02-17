@@ -69,7 +69,7 @@ impl CallData {
 }
 
 /// A hash to identify a called function.
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, PartialEq, Eq, Decode)]
 pub struct MessageHandlerSelector(u32);
 
 impl MessageHandlerSelector {
@@ -102,7 +102,7 @@ where
 {
 	/// Returns the associated handler selector.
 	pub const fn selector() -> MessageHandlerSelector {
-		MessageHandlerSelector(0x0) // TODO: Specify and implement behaviour.
+		<Msg as Message>::ID
 
 		// Should produce a hash out of a byte sequence
 		// that contains signatures of the following parts:
