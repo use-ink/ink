@@ -210,9 +210,37 @@ where
 	{
 		self.append_msg_handler(MessageHandlerMut::from_raw(handler))
 	}
+}
 
-	pub const fn instantiate(self) -> ContractInstance<State, DeployArgs, HandlerChain> {
-		ContractInstance { decl: self }
+impl<State, DeployArgs, HandlerChain> ContractDecl<State, DeployArgs, HandlerChain>
+where
+	// Self: Copy, // Required in order to make this compile-time computable.
+	State: ContractState,
+{
+	/// Creates an instance of the contract declaration.
+	///
+	/// This assocates the state with the contract storage
+	/// and defines its layout.
+	pub fn instantiate(self) -> ContractInstance<State, DeployArgs, HandlerChain> {
+		use pdsl_core::{
+			storage::{
+				Key,
+				Allocator,
+				alloc::{
+					BumpAlloc,
+					AllocateUsing,
+				},
+			},
+		};
+		let state: State = unsafe {
+			let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+			AllocateUsing::allocate_using(&mut alloc)
+		};
+		ContractInstance {
+			env: ExecutionEnv::new(state),
+			deployer: self.deployer,
+			handlers: self.handlers,
+		}
 	}
 }
 
@@ -239,7 +267,12 @@ pub trait Contract {
 }
 
 pub struct ContractInstance<State, DeployArgs, HandlerChain> {
-	decl: ContractDecl<State, DeployArgs, HandlerChain>,
+	/// The execution environment that is wrapping the actual state.
+	env: ExecutionEnv<State>,
+	/// The deploy functionality.
+	deployer: DeployHandler<State, DeployArgs>,
+	/// The contract's message handlers.
+	handlers: HandlerChain,
 }
 
 impl<State, DeployArgs, HandlerChain> Contract for ContractInstance<State, DeployArgs, HandlerChain> {
