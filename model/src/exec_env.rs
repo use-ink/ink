@@ -15,6 +15,12 @@ pub struct ExecutionEnv<State>{
 }
 
 impl<State> ExecutionEnv<State> {
+	pub const fn new(state: State) -> Self {
+		ExecutionEnv { state }
+	}
+}
+
+impl<State> ExecutionEnv<State> {
 	pub fn caller(&self) -> Address {
 		ContractEnv::caller()
 	}
