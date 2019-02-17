@@ -275,13 +275,23 @@ pub struct ContractInstance<State, DeployArgs, HandlerChain> {
 	handlers: HandlerChain,
 }
 
-impl<State, DeployArgs, HandlerChain> Contract for ContractInstance<State, DeployArgs, HandlerChain> {
+impl<State, DeployArgs, HandlerChain> Contract for ContractInstance<State, DeployArgs, HandlerChain>
+where
+	State: ContractState,
+	DeployArgs: parity_codec::Decode,
+	HandlerChain: crate::HandleCall<State>,
+{
 	fn deploy(self) {
 		// Deploys the contract state.
 		//
 		// Should be performed exactly once during contract lifetime.
 		// Consumes the contract since nothing should be done afterwards.
-		unimplemented!()
+		use pdsl_core::env::Env;
+		let input = pdsl_core::env::ContractEnv::input();
+		let deploy_params = DeployArgs::decode(&mut &input[..]).unwrap();
+		let mut this = self;
+		(this.deployer.deploy_fn)(&mut this.env, deploy_params);
+		this.env.state.flush()
 	}
 
 	fn dispatch(self) {
