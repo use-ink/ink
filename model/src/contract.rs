@@ -302,15 +302,16 @@ where
 		// action after instantiation.
 		//
 		// Internally calls the associated call<Msg>.
-		unimplemented!()
-	}
-}
-
-impl<State, DeployArgs, HandlerChain> ContractInstance<State, DeployArgs, HandlerChain> {
-	fn call<Msg>(self, _args: <Msg as Message>::Input)
-	where
-		Msg: Message,
-	{
-		unimplemented!()
+		use pdsl_core::env::Env;
+		use parity_codec::Decode;
+		let input = pdsl_core::env::ContractEnv::input();
+		let call_data = crate::CallData::decode(&mut &input[..]).unwrap();
+		let mut this = self;
+		this
+			.handlers
+			.handle_call(&mut this.env, call_data)
+			.ok()
+			.expect("trapped during message dispatch");
+		this.env.state.flush()
 	}
 }
