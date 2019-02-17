@@ -22,58 +22,26 @@ messages! {
 	1 => Get() -> u32;
 }
 
-use crate::{
-	MessageHandler,
-	MessageHandlerMut,
-	msg_handler::UnreachableMessageHandler
-};
-const INSTANCE:
-	ContractInstance<
-		Adder,
-		u32,
-		(
-			MessageHandler<Get, Adder>,
-			(
-				MessageHandlerMut<Inc, Adder>,
-				UnreachableMessageHandler
-			)
-		)
-	> = {
-		ContractDecl::new::<Adder>()
-			.on_deploy(|env, init_val| {
-				env.state.val.set(init_val)
-			})
-			.on_msg_mut::<Inc>(|env, by| {
-				env.state.val += by
-			})
-			.on_msg::<Get>(|env, _| {
-				*env.state.val.get()
-			})
-			.instantiate()
-	};
+fn instantiate() -> impl Contract {
+	ContractDecl::new::<Adder>()
+		.on_deploy(|env, init_val| {
+			env.state.val.set(init_val)
+		})
+		.on_msg_mut::<Inc>(|env, by| {
+			env.state.val += by
+		})
+		.on_msg::<Get>(|env, _| {
+			*env.state.val.get()
+		})
+		.instantiate()
+}
 
-// const fn instantiate() -> impl Contract {
-// 	ContractDecl::new::<Adder>()
-// 		.on_deploy(|env, init_val| {
-// 			env.state.val.set(init_val)
-// 		})
-// 		.on_msg_mut::<Inc>(|env, by| {
-// 			env.state.val += by
-// 		})
-// 		.on_msg::<Get>(|env, _| {
-// 			*env.state.val.get()
-// 		})
-// 		.instantiate()
+// #[no_mangle]
+// fn deploy() {
+// 	instantiate().deploy()
 // }
 
-#[no_mangle]
-fn deploy() {
-	INSTANCE.deploy()
-	// instantiate().deploy()
-}
-
-#[no_mangle]
-fn call() {
-	INSTANCE.dispatch()
-	// instantiate().dispatch()
-}
+// #[no_mangle]
+// fn call() {
+// 	instantiate().dispatch()
+// }
