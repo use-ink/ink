@@ -16,7 +16,7 @@ mod contract;
 mod exec_env;
 mod msg_handler;
 
-// mod test;
+mod test;
 
 pub use crate::{
 	state::{
