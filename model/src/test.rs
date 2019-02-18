@@ -1,11 +1,5 @@
-use crate::{
-	contract::{ContractDecl, ContractInstance, Contract},
-	state::ContractState,
-	msg::Message,
-};
-use pdsl_core::{
-	storage::{self, alloc::Initialize},
-};
+use crate::contract::{ContractDecl, Contract};
+use pdsl_core::storage;
 
 state! {
 	/// A simple contract having just one value that can be incremented and returned.
