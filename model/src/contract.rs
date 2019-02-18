@@ -345,5 +345,23 @@ where
 			.ok()
 			.expect("trapped during message dispatch");
 	}
+
+	/// Calls the given message with its expected input arguments.
+	///
+	/// # Note
+	///
+	/// Takes `&mut self` since it could potentially call a message
+	/// that mutates state. There currently is no separation between
+	/// messages that mutate state and those that don't.
+	///
+	/// # Panics
+	///
+	/// If the contract has no message handler setup for the given message.
+	pub fn call<Msg>(&mut self, input: <Msg as Message>::Input)
+	where
+		Msg: Message,
+		<Msg as Message>::Input: parity_codec::Encode,
+	{
+		self.call_with(CallData::from_msg::<Msg>(input))
 	}
 }
