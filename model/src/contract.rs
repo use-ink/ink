@@ -10,6 +10,7 @@ use crate::{
 		Message,
 	},
 	msg_handler::{
+		CallData,
 		UnreachableMessageHandler,
 		MessageHandler,
 		MessageHandlerMut,
@@ -316,13 +317,33 @@ where
 		use pdsl_core::env::Env;
 		use parity_codec::Decode;
 		let input = pdsl_core::env::ContractEnv::input();
-		let call_data = crate::CallData::decode(&mut &input[..]).unwrap();
+		let call_data = CallData::decode(&mut &input[..]).unwrap();
+		let mut this = self;
+		this.call_with(call_data)
+	}
+}
+
+impl<State, DeployArgs, HandlerChain> ContractInstance<State, DeployArgs, HandlerChain>
+where
+	State: ContractState,
+	DeployArgs: parity_codec::Decode,
+	HandlerChain: crate::HandleCall<State>,
+{
+	/// Calls the message encoded by the given call data.
+	///
+	/// # Note
+	///
+	/// - If the contract has no message handler setup for the
+	///   message that is encoded by the given call data.
+	/// - If the encoded input arguments for the message do not
+	///   match the expected format.
+	fn call_with(&mut self, call_data: CallData) {
 		let mut this = self;
 		this
 			.handlers
 			.handle_call(&mut this.env, call_data)
 			.ok()
 			.expect("trapped during message dispatch");
-		this.env.state.flush()
+	}
 	}
 }
