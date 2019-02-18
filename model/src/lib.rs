@@ -2,6 +2,7 @@
 #![feature(
 	const_fn,
 	const_str_as_bytes,
+	core_intrinsics,
 )]
 #![allow(unused)]
 
@@ -25,6 +26,7 @@ pub use crate::{
 		NoDeployArgs,
 		DeployHandler,
 		ContractDecl,
+		ContractInstance,
 		Contract,
 	},
 	msg::{

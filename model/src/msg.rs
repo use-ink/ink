@@ -8,7 +8,7 @@ pub trait Message {
 	type Input: parity_codec::Decode;
 
 	/// The output of the message, also known as return type.
-	type Output: parity_codec::Encode;
+	type Output: parity_codec::Encode + 'static;
 
 	/// The user provided message selector.
 	///
