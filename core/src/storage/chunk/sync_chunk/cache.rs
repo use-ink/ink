@@ -137,7 +137,6 @@ impl<T> Cache<T> {
 		self
 			.entries
 			.get(&n)
-			.into()
 	}
 
 	/// Returns a mutable reference to the cached value at position `n` if any.
@@ -145,7 +144,6 @@ impl<T> Cache<T> {
 		self
 			.entries
 			.get_mut(&n)
-			.into()
 	}
 
 	/// Returns the cache entry at position `n`.
@@ -216,6 +214,13 @@ impl<T> CacheGuard<T> {
 	/// Returns an immutable reference to the internal cache entry.
 	///
 	/// Used to returns references from the inside to the outside.
+	///
+	/// # Devs & Internals
+	///
+	/// Note the very critically looking `allow(clippy::mut_from_ref)`.
+	/// We might change this in the future and we should be very careful
+	/// about its usage!
+	#[allow(clippy::mut_from_ref)]
 	fn elems_mut(&self) -> &mut Cache<T> {
 		unsafe { &mut *self.cache.as_ptr() }
 	}

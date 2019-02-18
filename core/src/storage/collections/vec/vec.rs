@@ -252,7 +252,7 @@ where
 	/// Removes the last element from the vector and returns it,
 	/// or `None` if the vector is empty.
 	pub fn pop(&mut self) -> Option<T> {
-		if self.len() == 0 {
+		if self.is_empty() {
 			return None
 		}
 		let last_index = self.len() - 1;
@@ -328,7 +328,7 @@ where
 	///
 	/// Returns `None` and does not remove if `n` is out of bounds.
 	pub fn swap_remove(&mut self, n: u32) -> Option<T> {
-		if self.len() == 0 {
+		if self.is_empty() {
 			return None
 		}
 		self

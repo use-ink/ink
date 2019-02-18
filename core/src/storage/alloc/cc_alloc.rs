@@ -24,7 +24,7 @@ use crate::{
 
 use parity_codec::{Encode, Decode};
 
-const CC_ALLOC_LOG_TARGET: &'static str = "cc_alloc";
+const CC_ALLOC_LOG_TARGET: &str = "cc_alloc";
 
 /// An allocator for the contract storage.
 ///
@@ -195,7 +195,7 @@ impl CellChunkAlloc {
 	///
 	/// The reverse of `key_to_chunk_index`.
 	fn chunk_index_to_key(&self, index: u32) -> Key {
-		let chunk_offset: u64 = (1 << 32) * (index as u64);
+		let chunk_offset: u64 = (1 << 32) * u64::from(index);
 		self.chunks_offset_key() + chunk_offset
 	}
 

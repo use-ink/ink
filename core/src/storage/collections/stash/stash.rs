@@ -374,7 +374,7 @@ where
 				) {
 					Entry::Occupied(val) => {
 						self.next_vacant.set(n);
-						debug_assert!(self.len() >= 1);
+						debug_assert!(!self.is_empty());
 						self.len.set(self.len() - 1);
 						Some(val)
 					},

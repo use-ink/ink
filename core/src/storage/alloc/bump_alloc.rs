@@ -20,7 +20,7 @@ use crate::{
 	storage::Key,
 };
 
-const BUMP_ALLOC_LOG_TARGET: &'static str = "bump_alloc";
+const BUMP_ALLOC_LOG_TARGET: &str = "bump_alloc";
 
 /// An allocator that is meant to allocate contract storage at
 /// compile-time by simply bumping its current allocation key.
@@ -68,7 +68,7 @@ impl Allocator for BumpAlloc {
 				 cannot allocate zero (0) bytes"
 			)
 		}
-		let key = self.offset_key.clone();
+		let key = self.offset_key;
 		self.inc_offset_key(size);
 		log::info!(
 			target: BUMP_ALLOC_LOG_TARGET,

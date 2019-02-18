@@ -18,7 +18,7 @@
 
 /// Flips all bytes in the byte slice inplace.
 fn invert_bytes(bytes: &mut [u8]) {
-	for byte in bytes.into_iter() {
+	for byte in bytes.iter_mut() {
 		*byte = !*byte;
 	}
 }
@@ -41,7 +41,7 @@ macro_rules! impl_slice_as_array {
 				return None
 			}
 			Some(unsafe {
-				core::mem::transmute::<*const T, &[T; $n]>(slice.as_ptr())
+				&*(slice.as_ptr() as *const [T; $n])
 			})
 		}
 	};
@@ -70,9 +70,9 @@ fn bytes_ops_byte<F>(lhs: &mut [u8], rhs: u8, ops: F) -> bool
 where
 	F: Copy + Fn(u8, u8) -> (u8, bool)
 {
-	assert!(lhs.len() >= 1);
+	assert!(!lhs.is_empty());
 	let mut carry = rhs;
-	for lhs in lhs.into_iter().rev() {
+	for lhs in lhs.iter_mut().rev() {
 		if carry == 0 {
 			return false
 		}
@@ -80,7 +80,7 @@ where
 		*lhs = res;
 		carry = u8::from(ovfl);
 	}
-	if carry == 0 { false } else { true }
+	carry != 0
 }
 
 /// Generic carry-operation implementation for two byte slices
@@ -99,17 +99,17 @@ where
 	F: Copy + Fn(u8, u8) -> (u8, bool)
 {
 	assert_eq!(lhs.len(), rhs.len());
-	assert!(lhs.len() > 0);
-	debug_assert!(rhs.len() > 0);
+	assert!(!lhs.is_empty());
+	debug_assert!(!rhs.is_empty());
 	let mut carry = 0;
-	for (lhs, rhs) in lhs.into_iter().zip(rhs.into_iter()).rev() {
+	for (lhs, rhs) in lhs.iter_mut().zip(rhs.iter()).rev() {
 		let (res1, carry1) = ops(*lhs, carry);
 		let (res2, carry2) = ops(res1, *rhs);
 		debug_assert!(!(carry1 && carry2));
 		*lhs = res2;
 		carry = u8::from(carry1 || carry2);
 	}
-	if carry == 0 { false } else { true }
+	carry != 0
 }
 
 /// Generic carry-operation implementation for two byte slices.

@@ -51,19 +51,17 @@ impl Keccak256Hasher {
 	pub fn finish64(self) -> [u8; 8] {
 		let mut arr = [0; 8];
 		let res = self.finish256();
-		for n in 0..8 {
-			arr[n] = res[n];
-		}
+		arr[..8].clone_from_slice(&res[..8]);
 		arr
 	}
 }
 
 fn bytes8_to_u64(bytes: [u8; 8]) -> u64 {
-	let mut val = 0;
-	for n_byte in 0..7 {
-		val |= (bytes[n_byte] as u64) << (n_byte * 8);
-	}
-	val
+	bytes
+		.iter()
+		.enumerate()
+		.map(|(n, &ext)| u64::from(ext) << (n * 8))
+		.fold(0u64, |acc, ext| acc | ext)
 }
 
 impl Hasher for Keccak256Hasher {

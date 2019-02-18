@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+// We allow having no generalization for hasher of the hashmap implementation.
+// This might change in future versions of the pDSL.
+#![allow(clippy::implicit_hasher)]
+
 use crate::storage::{
 	self,
 	chunk::SyncChunk,
@@ -141,18 +145,6 @@ impl<K, V> HashMap<K, V> {
 	}
 }
 
-/// Converts the given bytes into a `u32` value.
-///
-/// The first byte in the array will be the most significant byte.
-fn bytes4_to_u32(bytes: [u8; 4]) -> u32 {
-	let mut res = 0;
-	res |= (bytes[0] as u32) << 24;
-	res |= (bytes[1] as u32) << 16;
-	res |= (bytes[2] as u32) <<  8;
-	res |= (bytes[3] as u32) <<  0;
-	res
-}
-
 /// Converts the given slice into an array with fixed size of 4.
 ///
 /// Returns `None` if the slice's length is not 4.
@@ -164,9 +156,7 @@ where
 		return None
 	}
 	let mut array = [T::default(); 4];
-	for i in 0..4 {
-		array[i] = bytes[i];
-	}
+	array[..4].clone_from_slice(&bytes[..4]);
 	Some(array)
 }
 
@@ -300,7 +290,7 @@ where
 	{
 		// Convert the first 4 bytes in the keccak256 hash
 		// of the key into a big-endian unsigned integer.
-		let probe_start = bytes4_to_u32(
+		let probe_start = u32::from_be_bytes(
 			slice_as_array4(
 				&(hash::keccak256(key.borrow())[0..4])
 			).expect(
@@ -433,10 +423,7 @@ where
 		K: Borrow<Q>,
 		Q: Hash + Eq + ?Sized,
 	{
-		match self.get(key) {
-			Some(_) => true,
-			None => false,
-		}
+		self.get(key).is_some()
 	}
 
 	/// Returns an immutable reference to the entry corresponding to the key.

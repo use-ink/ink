@@ -18,7 +18,7 @@ use crate::byte_utils;
 
 use parity_codec::{Encode, Decode};
 
-const KEY_LOG_TARGET: &'static str = "key";
+const KEY_LOG_TARGET: &str = "key";
 
 /// Typeless generic key into contract storage.
 ///
@@ -60,11 +60,9 @@ impl core::fmt::Display for Key {
 				bytes[28], bytes[29], bytes[30], bytes[31],
 			)?;
 		} else {
-			let mut counter = 0;
-			for byte in self.as_bytes() {
+			for (n, byte) in self.as_bytes().iter().enumerate() {
 				write!(f, "{:02X}", byte)?;
-				counter += 1;
-				if counter % 4 == 0 && counter != 32 {
+				if n % 4 == 0 && n != 32 {
 					write!(f, "_")?;
 				}
 			}
@@ -103,58 +101,52 @@ impl core::ops::Sub for Key {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct KeyDiff([u8; 32]);
 
+macro_rules! impl_try_to_prim {
+	(
+		$( #[$attr:meta] )*
+		$name:ident, $prim:ty, $conv:ident
+	) => {
+		impl KeyDiff {
+			$( #[$attr] )*
+			pub fn $name(&self) -> Option<$prim> {
+				const KEY_BYTES: usize = 32;
+				const PRIM_BYTES: usize = core::mem::size_of::<$prim>();
+				if self.as_bytes().iter().take(KEY_BYTES - PRIM_BYTES).any(|&byte| byte != 0x0) {
+					return None
+				}
+				let value = <$prim>::from_be_bytes(
+					*byte_utils::$conv(&self.as_bytes()[(KEY_BYTES - PRIM_BYTES)..KEY_BYTES])
+						.unwrap()
+				);
+				Some(value)
+			}
+		}
+	};
+}
+
+impl_try_to_prim!(
+	/// Tries to convert the key difference to a `u32` if possible.
+	///
+	/// Returns `None` if the resulting value is out of bounds.
+	try_to_u32, u32, slice4_as_array4
+);
+impl_try_to_prim!(
+	/// Tries to convert the key difference to a `u64` if possible.
+	///
+	/// Returns `None` if the resulting value is out of bounds.
+	try_to_u64, u64, slice8_as_array8
+);
+impl_try_to_prim!(
+	/// Tries to convert the key difference to a `u128` if possible.
+	///
+	/// Returns `None` if the resulting value is out of bounds.
+	try_to_u128, u128, slice16_as_array16
+);
+
 impl KeyDiff {
 	/// Returns the byte slice of this key difference.
 	fn as_bytes(&self) -> &[u8] {
 		&self.0
-	}
-
-	/// Tries to convert the key difference to a `u32` if possible.
-	///
-	/// Returns `None` if the resulting value is out of bounds.
-	pub fn try_to_u32(&self) -> Option<u32> {
-		const KEY_BYTES: usize = 32;
-		const U32_BYTES: usize = core::mem::size_of::<u32>();
-		if self.as_bytes().into_iter().take(KEY_BYTES - U32_BYTES).any(|&byte| byte != 0x0) {
-			return None
-		}
-		let value = u32::from_be_bytes(
-			*byte_utils::slice4_as_array4(&self.as_bytes()[(KEY_BYTES - U32_BYTES)..KEY_BYTES])
-				.unwrap()
-		);
-		Some(value)
-	}
-
-	/// Tries to convert the key difference to a `u64` if possible.
-	///
-	/// Returns `None` if the resulting value is out of bounds.
-	pub fn try_to_u64(&self) -> Option<u64> {
-		const KEY_BYTES: usize = 32;
-		const U64_BYTES: usize = core::mem::size_of::<u64>();
-		if self.as_bytes().into_iter().take(KEY_BYTES - U64_BYTES).any(|&byte| byte != 0x0) {
-			return None
-		}
-		let value = u64::from_be_bytes(
-			*byte_utils::slice8_as_array8(&self.as_bytes()[(KEY_BYTES - U64_BYTES)..KEY_BYTES])
-				.unwrap()
-		);
-		Some(value)
-	}
-
-	/// Tries to convert the key difference to a `u128` if possible.
-	///
-	/// Returns `None` if the resulting value is out of bounds.
-	pub fn try_to_u128(&self) -> Option<u128> {
-		const KEY_BYTES: usize = 32;
-		const U128_BYTES: usize = core::mem::size_of::<u128>();
-		if self.as_bytes().into_iter().take(KEY_BYTES - U128_BYTES).any(|&byte| byte != 0x0) {
-			return None
-		}
-		let value = u128::from_be_bytes(
-			*byte_utils::slice16_as_array16(&self.as_bytes()[(KEY_BYTES - U128_BYTES)..KEY_BYTES])
-				.unwrap()
-		);
-		Some(value)
 	}
 }
 
