@@ -233,6 +233,17 @@ where
 			},
 		};
 		let state: State = unsafe {
+			// Note that it is totally fine here to start with a key
+			// offset of `0x0` as long as we only consider having one
+			// contract instance per execution. Otherwise their
+			// associated storage could overlap.
+			//
+			// This can later be solved by having an implementation for
+			// `AllocateUsing` for `ContractDecl` to actually instantiate
+			// them using an already existing allocator. Note that then
+			// all contracts always have to be allocated in the same
+			// order which could be achieved by simply putting all contracts
+			// into a contract struct that itself implements `AllocateUsing`.
 			let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
 			AllocateUsing::allocate_using(&mut alloc)
 		};
