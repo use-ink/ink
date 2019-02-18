@@ -67,6 +67,26 @@ impl CallData {
 	pub fn params(&self) -> &[u8] {
 		self.raw_params.as_slice()
 	}
+
+	/// Creates a proper call data from a message and its required input.
+	///
+	/// # Note
+	///
+	/// This should normally only be needed in test code if a user
+	/// wants to test the handling of a specific message.
+	pub fn from_msg<Msg>(args: <Msg as Message>::Input) -> Self
+	where
+		Msg: Message,
+		<Msg as Message>::Input: parity_codec::Encode,
+	{
+		use parity_codec::Encode;
+		Self {
+			selector: <Msg as Message>::ID,
+			// TODO: For performance reasons we maybe don't want to encode this
+			//       and we should maybe allow storing arguments directly somehow.
+			raw_params: args.encode(),
+		}
+	}
 }
 
 /// A hash to identify a called function.
