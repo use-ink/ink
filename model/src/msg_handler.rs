@@ -278,7 +278,7 @@ impl<State> HandleCall<State> for UnreachableMessageHandler {
 }
 
 macro_rules! impl_handle_call_for_chain {
-	( $msg_handler_kind:ident ) => {
+	( $msg_handler_kind:ident, requires_flushing: $requires_flushing:literal ) => {
 		impl<Msg, State> HandleCall<State> for $msg_handler_kind<Msg, State>
 		where
 			Msg: Message,
@@ -290,7 +290,24 @@ macro_rules! impl_handle_call_for_chain {
 			fn handle_call(&self, env: &mut ExecutionEnv<State>, data: CallData) -> Result<Self::Output> {
 				let args = <Msg as Message>::Input::decode(&mut &data.params()[..])
 					.ok_or(Error::InvalidArguments)?;
-				Ok((self.raw_handler)(env, args))
+				use core::intrinsics::type_id;
+				let result = (self.raw_handler)(env, args);
+				if unsafe { type_id::<<Msg as Message>::Output>() != type_id::<()>() } {
+					// Since specialization is not yet implemented in Rust
+					// we have to do a manual static dispatch and only return
+					// if the messages return type if not equal to `()`.
+					if $requires_flushing {
+						env.state.flush();
+					}
+					Ok(result)
+				} else {
+					// If there was an actual result we want to return it now.
+					// Note that `env.return` will end contract execution.
+					if $requires_flushing {
+						env.state.flush();
+					}
+					env.r#return(result)
+				}
 			}
 		}
 
@@ -319,5 +336,5 @@ macro_rules! impl_handle_call_for_chain {
 	}
 }
 
-impl_handle_call_for_chain!(MessageHandler);
-impl_handle_call_for_chain!(MessageHandlerMut);
+impl_handle_call_for_chain!(MessageHandler, requires_flushing: false);
+impl_handle_call_for_chain!(MessageHandlerMut, requires_flushing: true);
