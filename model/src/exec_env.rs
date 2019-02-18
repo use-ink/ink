@@ -24,4 +24,11 @@ impl<State> ExecutionEnv<State> {
 	pub fn caller(&self) -> Address {
 		ContractEnv::caller()
 	}
+
+	pub fn r#return<T>(&self, val: T) -> !
+	where
+		T: parity_codec::Encode,
+	{
+		ContractEnv::return_(&val.encode()[..])
+	}
 }
