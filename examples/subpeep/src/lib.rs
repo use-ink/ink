@@ -2,7 +2,6 @@
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
-mod utils;
 
 use pdsl_core::{
 	env::srml::Address,
@@ -10,7 +9,16 @@ use pdsl_core::{
 	memory::{
 		string::String,
 	},
-	storage,
+	storage::{
+		self,
+		Key,
+		Flush,
+		alloc::{
+			BumpAlloc,
+			AllocateUsing,
+			Initialize,
+		},
+	},
 };
 use parity_codec::{Encode, Decode};
 
@@ -41,23 +49,31 @@ pub struct UserData {
 	following: storage::Vec<String>,
 }
 
-impl UserData {
-	/// Creates new user data using the given allocator.
-	///
-	/// # Note
-	///
-	/// The `CellChunkAlloc` should be preferred here since
-	/// allocations of this type are dynamic. For this reason
-	/// the `Subpeep` type has a built-in `CellChunkAlloc`.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A, owner: Address) -> Self
+impl AllocateUsing for UserData {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: storage::Allocator
 	{
 		Self {
-			owner,
-			peeps: storage::Vec::new_using_alloc(alloc),
-			following: storage::Vec::new_using_alloc(alloc),
+			owner: Address::from(&[0x0; 32][..]),
+			peeps: storage::Vec::allocate_using(alloc),
+			following: storage::Vec::allocate_using(alloc),
 		}
+	}
+}
+
+impl Initialize for UserData {
+	type Args = Address;
+
+	fn initialize(&mut self, address: Self::Args) {
+		self.owner = address;
+	}
+}
+
+impl Flush for UserData {
+	fn flush(&mut self) {
+		self.peeps.flush();
+		self.following.flush();
 	}
 }
 
@@ -71,35 +87,38 @@ pub struct Subpeep {
 	alloc: storage::alloc::CellChunkAlloc,
 }
 
-impl Default for Subpeep {
-	fn default() -> Self {
-		unsafe {
-			Subpeep::new_using_alloc(
-				&mut* utils::STORAGE_ALLOC.lock()
-			)
-		}
-	}
-}
-
-impl Subpeep {
-	/// Creates new subpeep platform using the given allocator.
-	///
-	/// # Note
-	///
-	/// The `ForwardAlloc` should be preferred here since there is
-	/// normally only one instance of this type and it can be registered
-	/// during contract compiĺe-time.
-	unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
+impl AllocateUsing for Subpeep {
+	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
 		A: pdsl_core::storage::Allocator
 	{
 		Self {
-			peeps: storage::Vec::new_using_alloc(alloc),
-			users: storage::HashMap::new_using_alloc(alloc),
-			alloc: storage::alloc::CellChunkAlloc::new_using_alloc(alloc),
+			peeps: storage::Vec::allocate_using(alloc),
+			users: storage::HashMap::allocate_using(alloc),
+			alloc: storage::alloc::CellChunkAlloc::allocate_using(alloc),
 		}
 	}
+}
 
+impl Initialize for Subpeep {
+	type Args = ();
+
+	fn initialize(&mut self, _args: Self::Args) {
+		self.peeps.initialize(());
+		self.users.initialize(());
+		self.alloc.initialize(());
+	}
+}
+
+impl Flush for Subpeep {
+	fn flush(&mut self) {
+		self.peeps.flush();
+		self.users.flush();
+		self.alloc.flush();
+	}
+}
+
+impl Subpeep {
 	/// Posts a message to the global channel.
 	/// 
 	/// Will only ever store the latest 10 messages in the channel at most.
@@ -112,7 +131,10 @@ impl Subpeep {
 	/// Returns `true` if registration was successful.
 	pub fn register(&mut self, username: &str) -> bool {
 		if self.users.get(username).is_none() {
-			let user_data = unsafe { UserData::new_using_alloc(&mut self.alloc, ContractEnv::caller()) };
+			let user_data =
+				unsafe {
+					UserData::allocate_using(&mut self.alloc)
+				}.initialize_into(ContractEnv::caller());
 			self.users.insert(username.into(), user_data);
 			return true
 		}
@@ -154,5 +176,47 @@ impl Subpeep {
 			.mutate_with(following, |following| {
 				following.following.push(followed.into())
 			});
+	}
+}
+
+/// Subpeep API.
+#[derive(Encode, Decode)]
+enum Action {
+	/// Register a new user.
+	Register{username: String},
+	/// Post a message by a user.
+	PeepMessage{username: String, message: String},
+	/// Make a user follow the other.
+	Follow{following: String, followed: String},
+}
+
+fn instantiate() -> Subpeep {
+	unsafe {
+		let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+		AllocateUsing::allocate_using(&mut alloc)
+	}
+}
+
+#[no_mangle]
+pub extern "C" fn deploy() {
+	instantiate().initialize_into(()).flush()
+}
+
+#[no_mangle]
+pub extern "C" fn call() {
+	let input = ContractEnv::input();
+	let action = Action::decode(&mut &input[..]).unwrap();
+	let mut subpeep = instantiate();
+
+	match action {
+		Action::Register{username} => {
+			subpeep.register(&username);
+		}
+		Action::PeepMessage{username, message} => {
+			subpeep.peep_message(&username, &message)
+		}
+		Action::Follow{following, followed} => {
+			subpeep.follow(&following, &followed)
+		}
 	}
 }

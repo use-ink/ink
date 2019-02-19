@@ -5,7 +5,7 @@ authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity
 edition = "2018"
 
 [dependencies]
-pdsl_core = { path = "../../pdsl_core" }
+pdsl_core = { path = "../../core" }
 parity-codec = { version = "3.0", default-features = false, features = ["derive", "full"] }
 lazy_static = { version = "1.2", features = ["spin_no_std"] }
 spin = { version = "0.4", default-features = false }
