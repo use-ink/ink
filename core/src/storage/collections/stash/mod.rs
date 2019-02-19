@@ -34,9 +34,9 @@
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 
-mod stash;
+mod impls;
 
-pub use self::stash::{
+pub use self::impls::{
 	Stash,
 	Iter,
 	Values,

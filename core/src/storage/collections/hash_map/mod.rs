@@ -22,8 +22,8 @@
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 
-mod hash_map;
+mod impls;
 
-pub use self::hash_map::{
+pub use self::impls::{
 	HashMap,
 };

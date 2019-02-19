@@ -22,9 +22,9 @@
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 
-mod vec;
+mod impls;
 
-pub use self::vec::{
+pub use self::impls::{
 	Vec,
 	Iter,
 };
