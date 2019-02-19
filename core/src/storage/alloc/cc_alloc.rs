@@ -19,6 +19,7 @@ use crate::{
 	storage::{
 		self,
 		Key,
+		Flush,
 	},
 };
 
@@ -93,6 +94,13 @@ impl Initialize for CellChunkAlloc {
 	fn initialize(&mut self, _args: Self::Args) {
 		self.cells.initialize(());
 		self.chunks.initialize(());
+	}
+}
+
+impl Flush for CellChunkAlloc {
+	fn flush(&mut self) {
+		self.cells.flush();
+		self.chunks.flush();
 	}
 }
 
