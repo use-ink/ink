@@ -44,8 +44,6 @@ mod contract;
 mod exec_env;
 mod msg_handler;
 
-mod test;
-
 pub use crate::{
 	state::{
 		ContractState,
