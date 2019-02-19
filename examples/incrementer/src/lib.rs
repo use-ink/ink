@@ -71,9 +71,6 @@ enum Action {
 	Inc(u32),
 }
 
-/// The allocation key for the bump allocator.
-const ALLOC_KEY: Key = Key([0x0; 32]);
-
 fn ret<T>(val: T) -> !
 where
 	T: parity_codec::Encode,
@@ -83,7 +80,7 @@ where
 
 fn instantiate() -> Incrementer {
 	unsafe {
-		let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
+		let mut alloc = alloc::BumpAlloc::from_raw_parts(Key([0x0; 32]));
 		Incrementer::allocate_using(&mut alloc)
 	}
 }
@@ -119,19 +116,13 @@ mod tests {
 
 	#[test]
 	fn test_get() {
-		let incrementer = unsafe {
-			let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
-			Incrementer::allocate_using(&mut alloc).initialize(())
-		};
+		let incrementer = instantiate().initialize_into(());
 		assert_eq!(incrementer.get(), 0)
 	}
 
 	#[test]
 	fn test_set() {
-		let mut incrementer = unsafe {
-			let mut alloc = alloc::BumpAlloc::from_raw_parts(ALLOC_KEY);
-			Incrementer::allocate_using(&mut alloc).initialize(())
-		};
+		let mut incrementer = instantiate().initialize_into(());
 		incrementer.inc(1);
 		assert_eq!(incrementer.get(), 1);
 		incrementer.inc(42);
