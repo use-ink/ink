@@ -165,8 +165,7 @@ pub extern "C" fn deploy() {
 
 fn decode_params() -> Action {
 	let input = ContractEnv::input();
-	let action = Action::decode(&mut &input[..]).unwrap();
-	action
+	Action::decode(&mut &input[..]).unwrap()
 }
 
 #[no_mangle]

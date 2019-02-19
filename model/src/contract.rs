@@ -1,7 +1,6 @@
 use crate::{
 	state::{
 		ContractState,
-		EmptyContractState,
 	},
 	exec_env::{
 		ExecutionEnv,
@@ -46,7 +45,7 @@ impl<State> DeployHandler<State, NoDeployArgs> {
 	const fn init() -> Self {
 		Self {
 			args: PhantomData,
-			deploy_fn: move |env, _| {},
+			deploy_fn: move |_env, _| {},
 		}
 	}
 }
@@ -130,9 +129,13 @@ where
 	HandlerChain: Copy,
 {}
 
+/// An empty contract state.
+#[derive(Copy, Clone)]
+pub struct EmptyContractState;
+
 impl ContractDecl<EmptyContractState, NoDeployArgs, UnreachableMessageHandler> {
 	/// Creates a new contract declaration with the given name.
-	pub const fn new<State>() -> ContractDecl<State, NoDeployArgs, UnreachableMessageHandler> {
+	pub const fn using<State>() -> ContractDecl<State, NoDeployArgs, UnreachableMessageHandler> {
 		ContractDecl {
 			state: PhantomData,
 			deployer: DeployHandler::init(),
@@ -226,7 +229,6 @@ where
 		use pdsl_core::{
 			storage::{
 				Key,
-				Allocator,
 				alloc::{
 					BumpAlloc,
 					AllocateUsing,
@@ -331,19 +333,19 @@ where
 {
 	/// Calls the message encoded by the given call data.
 	///
-	/// # Note
+	/// # Panics
 	///
 	/// - If the contract has no message handler setup for the
 	///   message that is encoded by the given call data.
 	/// - If the encoded input arguments for the message do not
 	///   match the expected format.
 	fn call_with(&mut self, call_data: CallData) {
-		let mut this = self;
-		this
+		let call_result = self
 			.handlers
-			.handle_call(&mut this.env, call_data)
-			.ok()
-			.expect("trapped during message dispatch");
+			.handle_call(&mut self.env, call_data);
+		if let Err(err) = call_result {
+			panic!(err.description())
+		}
 	}
 
 	/// Calls the given message with its expected input arguments.

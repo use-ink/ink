@@ -43,7 +43,7 @@ pub struct CallData {
 	raw_params: Vec<u8>,
 }
 
-impl parity_codec::Decode for CallData {
+impl Decode for CallData {
 	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
 		let selector = MessageHandlerSelector::decode(input)?;
 		let mut param_buf = Vec::new();
@@ -230,6 +230,16 @@ pub enum Error {
 	InvalidArguments,
 }
 
+impl Error {
+	/// Returns a short description of the error.
+	pub fn description(&self) -> &'static str {
+		match self {
+			Error::InvalidFunctionSelector => "encountered invalid message selector",
+			Error::InvalidArguments => "encountered invalid arguments for selected message"
+		}
+	}
+}
+
 /// Results of message handling operations.
 pub type Result<T> = CoreResult<T, Error>;
 
@@ -255,7 +265,7 @@ pub struct UnreachableMessageHandler;
 impl<State> HandleCall<State> for UnreachableMessageHandler {
 	type Output = ();
 
-	fn handle_call(&self, _env: &mut ExecutionEnv<State>, data: CallData) -> Result<Self::Output> {
+	fn handle_call(&self, _env: &mut ExecutionEnv<State>, _data: CallData) -> Result<Self::Output> {
 		Err(Error::InvalidFunctionSelector)
 	}
 }

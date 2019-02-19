@@ -1,10 +1,7 @@
 use pdsl_core::{
 	storage::{
 		Flush,
-		alloc::{
-			AllocateUsing,
-			Initialize,
-		},
+		alloc::AllocateUsing,
 	},
 };
 
@@ -68,11 +65,4 @@ macro_rules! state {
 			const NAME: &'static [u8] = stringify!($state_name).as_bytes();
 		}
 	};
-}
-
-use crate as pdsl_model; // TODO: Fix this to being not required!
-
-state! {
-	/// An empty contract state.
-	pub struct EmptyContractState {}
 }

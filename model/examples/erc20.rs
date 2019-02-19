@@ -36,7 +36,7 @@ messages! {
 }
 
 fn instantiate() -> impl Contract {
-	ContractDecl::new::<Erc20Token>()
+	ContractDecl::using::<Erc20Token>()
 		.on_deploy(|env, init_supply| {
 			let caller = env.caller();
 			env.state.balances[&caller] = init_supply;

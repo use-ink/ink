@@ -328,7 +328,7 @@ impl TestEnv {
 	}
 }
 
-const TEST_ENV_LOG_TARGET: &'static str = "test-env";
+const TEST_ENV_LOG_TARGET: &str = "test-env";
 
 impl EnvTypes for TestEnv {
 	type Address = srml::Address;

@@ -23,6 +23,7 @@ pub use crate::{
 		ContractState,
 	},
 	contract::{
+		EmptyContractState,
 		NoDeployArgs,
 		DeployHandler,
 		ContractDecl,
