@@ -53,10 +53,14 @@ install:
   # Print current work directory state as directions.
   - ls -lah
 
+before_script:
+  - rustup component add clippy
+
 script:
 - |
   ls -lah
   cargo check --verbose --all --all-features &&
+  cargo clippy --verbose --all --all-features -- -D warnings &&
   cargo test --verbose --all --all-features &&
   cargo kcov --verbose --coveralls --manifest-path=core/Cargo.toml --features=test-env &&
   bash <(curl -s https://codecov.io/bash)
