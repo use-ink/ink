@@ -103,7 +103,11 @@ pub use self::{
 		stash::{
 			self,
 			Stash,
-		}
+		},
+		bitvec::{
+			self,
+			BitVec,
+		},
 	},
 	flush::{
 		Flush,
