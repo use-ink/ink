@@ -1,4 +1,6 @@
 [target.wasm32-unknown-unknown]
 rustflags = [
-  "-C", "link-args=-z stack-size=65536",
+  "-C", "link-args=-z stack-size=65536 --import-memory",
 ]
+
+# --export-table could also change its default again in the future
