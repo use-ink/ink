@@ -284,6 +284,10 @@ where
 	}
 
 	/// Swaps the `a`-th and the `b`-th elements.
+	///
+	/// # Panics
+	///
+	/// If one or both indices are out of bounds.
 	pub fn swap(&mut self, a: u32, b: u32) {
 		// Bail out if both indices are equal.
 		if a == b {
@@ -323,20 +327,18 @@ where
 	/// Removes the `n`-th element from the vector and returns it.
 	///
 	/// The removed element is replaced by the last element of the vector.
+	/// Returns `None` and does not remove if `n` is out of bounds.
+	///
+	/// # Note
 	///
 	/// This does not preserve ordering, but is O(1).
-	///
-	/// Returns `None` and does not remove if `n` is out of bounds.
 	pub fn swap_remove(&mut self, n: u32) -> Option<T> {
 		if self.is_empty() {
 			return None
 		}
-		self
-			.within_bounds(n)
-			.expect(
-				"[pdsl_core::Vec::swap_remove] Error: \
-				 expected `index` to be within bounds"
-			);
+		if self.within_bounds(n).is_none() {
+			return None
+		}
 		let popped = self
 			.pop()
 			.expect(
