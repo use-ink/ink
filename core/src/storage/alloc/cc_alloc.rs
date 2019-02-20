@@ -236,7 +236,7 @@ impl Allocator for CellChunkAlloc {
 			"allocate for size {:?}",
 			size,
 		);
-		if size <= 1 {
+		if size == 1 {
 			self.alloc_cell()
 		} else {
 			self.alloc_chunk()
