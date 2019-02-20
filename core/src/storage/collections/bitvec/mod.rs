@@ -19,20 +19,35 @@
 //! Stores its elements in the contract's storage
 //! and operates directly on it.
 //!
-//! TODO: Describe
+//! # Structure
 //!
-//! BitVec
-//! BitBlock
-//! BitPack
-
-// #[cfg(all(test, feature = "test-env"))]
-// mod tests;
-
-mod block;
-mod vec;
+//! The storage [`BitVec`](struct.BitVec.html) consists of multiple
+//! `BitBlock`s each containing 32 `BitPack`s that each consists
+//! of `32` bits. So every bit block contains exactly 1024 bits.
+//!
+//! A graphical visualization is about the following:
+//!
+//! ```no-compile
+//! | bit 0 | ... | bit 32 | ... | bit 0 | ... | bit 32 | bit 0 | ... | bit 32 | ... | bit 0 | ... | bit 32 |
+//! |      BitPack 0       | ... |      BitPack 32      |      BitPack 0       | ... |      BitPack 32      |
+//! |                     BitBlock 0                    |                     BitBlock 0                    |
+//! ```
+//!
+//! The above pseudo code represents a [`BitVec`](struct.BitVec.html) with 1024 bits.
+//!
+//! Why the need for `BitBlock`s? They chunk the total set of bits into chunks that
+//! are finally stored in the contract storage. So instead of storing each and every bit
+//! in a separate storage entry `BitBlock`s exist to bundle them reducing the overall
+//! costs and improving efficiency.
+//!
+//! Besides that a [`BitVec`](struct.BitVec.html) more or less works very similar to a
+//! [`Vec`](struct.Vec.html) of `bool`s.
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
+
+mod block;
+mod vec;
 
 pub(in self) use self::block::BitBlock;
 pub use self::vec::{
