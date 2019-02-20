@@ -41,7 +41,7 @@ messages! {
 }
 
 fn instantiate() -> impl Contract {
-	ContractDecl::new::<Adder>()
+	ContractDecl::using::<Adder>()
 		.on_deploy(|env, init_val| {
 			env.state.val.set(init_val)
 		})
