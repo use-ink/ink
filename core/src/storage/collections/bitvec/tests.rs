@@ -187,3 +187,23 @@ fn iter() {
 		assert_eq!(actual, expected)
 	}
 }
+
+fn zero_bitvec_with_len(len: usize) -> storage::BitVec {
+	let mut bv = new_empty_bitvec();
+	for _ in 0..len {
+		bv.push(false);
+	}
+	bv
+}
+
+#[test]
+fn first_set_position() {
+	for &n in &[
+		0_u32, 1, 2, 5, 10, 31, 32, 33,
+		500, 1000, 1023, 1024, 2047, 2048, 2049,
+	] {
+		let mut bv = zero_bitvec_with_len(3000); // Has 3 bit blocks.
+		bv.set(n, true);
+		assert_eq!(bv.first_set_position(), Some(n));
+	}
+}

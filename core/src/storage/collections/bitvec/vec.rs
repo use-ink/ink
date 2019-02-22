@@ -257,6 +257,16 @@ impl BitVec {
 	fn iter_blocks(&self) -> BlockIter {
 		BlockIter::new(self)
 	}
+
+	/// Returns the position of the first set bit in `self` if any.
+	pub fn first_set_position(&self) -> Option<u32> {
+		for (n, block) in self.iter_blocks().enumerate() {
+			if let Some(pos) = block.first_set_position() {
+				return Some((n as u32 * BitBlock::BITS + pos) as u32)
+			}
+		}
+		None
+	}
 }
 
 /// Iterator over the bit blocks of a bit vector.
