@@ -247,6 +247,80 @@ impl BitVec {
 	pub fn iter(&self) -> Iter {
 		Iter::new(self)
 	}
+
+	/// Returns an iterator over all bit blocks of `self`.
+	///
+	/// # Note
+	///
+	/// This is meant to be an internal API that shall not be
+	/// exposed to the outside.
+	fn iter_blocks(&self) -> BlockIter {
+		BlockIter::new(self)
+	}
+}
+
+/// Iterator over the bit blocks of a bit vector.
+///
+/// # Note
+///
+/// This is an internal iterator that should not be exposed
+/// to the outside.
+struct BlockIter<'a> {
+	bitvec: &'a BitVec,
+	begin: u32,
+	end: u32,
+}
+
+impl<'a> BlockIter<'a> {
+	fn new(bitvec: &'a BitVec) -> Self {
+		Self{
+			bitvec,
+			begin: 0,
+			end: BitBlock::required_blocks(bitvec.len()),
+		}
+	}
+}
+
+impl<'a> Iterator for BlockIter<'a> {
+	type Item = &'a BitBlock;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.begin == self.end {
+			return None
+		}
+		let next = self.bitvec.blocks
+			.get(self.begin)
+			.expect(
+				"block are allocated contigeously in storage\
+				; so there has to be a block here; qed"
+			);
+		self.begin += 1;
+		return Some(next)
+	}
+
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		let remaining = (self.end - self.begin) as usize;
+		(remaining, Some(remaining))
+	}
+}
+
+impl<'a> ExactSizeIterator for BlockIter<'a> {}
+
+impl<'a> DoubleEndedIterator for BlockIter<'a> {
+	fn next_back(&mut self) -> Option<Self::Item> {
+		debug_assert!(self.begin <= self.end);
+		if self.begin == self.end {
+			return None
+		}
+		debug_assert_ne!(self.end, 0);
+		self.end -= 1;
+		let block = self.bitvec.blocks.get(self.end)
+			.expect(
+				"block are allocated contigeously in storage\
+				; so there has to be a block here; qed"
+			);
+		Some(block)
+	}
 }
 
 /// Iterator over the bits of a bit vector.
@@ -269,7 +343,7 @@ impl<'a> Iter<'a> {
 impl<'a> Iterator for Iter<'a> {
 	type Item = bool;
 
-	fn next(&mut self) -> Option<bool> {
+	fn next(&mut self) -> Option<Self::Item> {
 		if self.begin == self.end {
 			return None
 		}
