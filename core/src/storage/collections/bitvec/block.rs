@@ -135,6 +135,16 @@ impl BitBlock {
 			})
 			.unwrap()
 	}
+
+	/// Returns the position of the first set bit if any.
+	pub fn first_set_position(&self) -> Option<u32> {
+		for (n, pack) in self.packs.iter().enumerate() {
+			if let Some(pos) = pack.first_set_position() {
+				return Some(n as u32 * BitPack::BITS + pos)
+			}
+		}
+		None
+	}
 }
 
 #[cfg(test)]
@@ -211,5 +221,34 @@ mod tests {
 	fn flip_out_of_bounds() {
 		let mut block = BitBlock::zero();
 		block.flip(BitBlock::BITS);
+	}
+
+	#[test]
+	fn first_set_position_none() {
+		assert_eq!(BitBlock::zero().first_set_position(), None);
+	}
+
+	#[test]
+	fn first_set_position_some() {
+		let block = BitBlock::new(
+			[0x00, 0x00, 0x00, 0x00,
+			 0x00, 0x00, 0x00, 0x00,
+			 0x00, 0x00, 0x00, 0x00,
+			 0x00, 0x00, 0x00, 0x00,
+			 0x1F, 0x00, 0xFF, 0x00, // <- 0x1F is the first with first set bit at pos 27
+			 0x00, 0x0F, 0x01, 0xFF,
+			 0x00, 0x00, 0x00, 0x00,
+			 0x00, 0x00, 0x00, 0x00]
+		);
+		assert_eq!(block.first_set_position(), Some(16 * 32 + 27));
+	}
+
+	#[test]
+	fn first_set_position() {
+		for &n in &[0_u32, 1, 2, 5, 10, 32, 33, 500, 1000, 1023] {
+			let mut block = BitBlock::zero();
+			block.set(n, true);
+			assert_eq!(block.first_set_position(), Some(n));
+		}
 	}
 }
