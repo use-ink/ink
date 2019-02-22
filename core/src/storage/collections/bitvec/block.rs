@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use super::{BitPack};
+use super::{BitPack, BitPackRepr};
 use parity_codec::{Encode, Decode};
 
 /// A block of 1024 bits.
@@ -42,6 +42,22 @@ impl BitBlock {
 	pub const fn zero() -> Self {
 		Self {
 			packs: [BitPack::new(0x0); Self::PACKS as usize]
+		}
+	}
+
+	/// Creates a new bit block from the given underlying data.
+	///
+	/// # Note
+	///
+	/// Use this for testing purposes only.
+	pub(in self) fn new(raw_packs: [BitPackRepr; Self::PACKS as usize]) -> Self {
+		Self {
+			packs: unsafe {
+				core::intrinsics::transmute::<
+					[BitPackRepr; Self::PACKS as usize],
+					[BitPack; Self::PACKS as usize]
+				>(raw_packs)
+			}
 		}
 	}
 

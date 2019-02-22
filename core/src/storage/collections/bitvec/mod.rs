@@ -50,7 +50,7 @@ mod pack;
 mod block;
 mod vec;
 
-pub(in self) use self::pack::BitPack;
+pub(in self) use self::pack::{BitPack, BitPackRepr};
 pub(in self) use self::block::BitBlock;
 pub use self::vec::{
 	BitVec,

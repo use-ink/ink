@@ -21,6 +21,7 @@ pub type BitPackRepr = u32;
 
 /// A pack of 32 bits.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode)]
+#[repr(transparent)]
 pub struct BitPack {
 	/// The actual bits.
 	bits: BitPackRepr,
