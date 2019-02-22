@@ -14,32 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+use super::{BitPack};
 use parity_codec::{Encode, Decode};
-
-/// The representation type for a pack.
-pub type BitPack = u32;
 
 /// A block of 1024 bits.
 #[derive(Debug, Copy, Clone, Encode, Decode)]
 pub struct BitBlock {
-	/// The actual bits.
-	packs: [BitPack; Self::COUNT_PACKS as usize]
+	/// The underlying bit packs.
+	packs: [BitPack; Self::PACKS as usize],
 }
 
-impl BitBlock {
-	/// The bits of a single pack.
-	const BITS_PER_PACK: u32 = (core::mem::size_of::<BitPack>() * 8) as u32;
+/// Error indicating an invalid bit pack index.
+#[derive(Debug, Copy, Clone)]
+struct InvalidBitBlockIndex;
 
-	/// The number of packs of bits.
-	const COUNT_PACKS: u32 = 32;
+/// Result type when working with bit packs.
+type BitBlockResult<T> = core::result::Result<T, InvalidBitBlockIndex>;
+
+impl BitBlock {
+	/// The number of bit packs.
+	const PACKS: u32 = 32;
 
 	/// The number of bits of a bit block.
-	pub const BITS_PER_BLOCK: u32 = Self::BITS_PER_PACK * Self::COUNT_PACKS;
+	pub const BITS: u32 = BitPack::BITS * Self::PACKS;
 
 	/// Creates a new zeroed bit block.
-	pub fn zero() -> Self {
+	pub const fn zero() -> Self {
 		Self {
-			packs: [0x0; Self::COUNT_PACKS as usize]
+			packs: [BitPack::new(0x0); Self::PACKS as usize]
 		}
 	}
 
@@ -48,7 +50,43 @@ impl BitBlock {
 		if n == 0 {
 			return 0
 		}
-		1 + ((n - 1) / Self::BITS_PER_BLOCK)
+		1 + ((n - 1) / Self::BITS)
+	}
+
+	/// Checks if `n` is within bounds of a bit block and returns it if so.
+	fn validate_index(n: u32) -> BitBlockResult<u32> {
+		if n >= Self::BITS {
+			return Err(InvalidBitBlockIndex)
+		}
+		Ok(n)
+	}
+
+	/// Returns an immutable reference to the associated
+	/// bit pack and the bit position within the bit pack
+	/// for the given bit index.
+	///
+	/// # Errors
+	///
+	/// Returns an error if the given bit index is out of bounds.
+	fn pack_and_pos(&self, n: u32) -> BitBlockResult<(&BitPack, u32)> {
+		if n >= Self::BITS {
+			return Err(InvalidBitBlockIndex)
+		}
+		Ok((&self.packs[(n / Self::PACKS) as usize], n % Self::PACKS))
+	}
+
+	/// Returns a mutable reference to the associated
+	/// bit pack and the bit position within the bit pack
+	/// for the given bit index.
+	///
+	/// # Errors
+	///
+	/// Returns an error if the given bit index is out of bounds.
+	fn pack_and_pos_mut(&mut self, n: u32) -> BitBlockResult<(&mut BitPack, u32)> {
+		if n >= Self::BITS {
+			return Err(InvalidBitBlockIndex)
+		}
+		Ok((&mut self.packs[(n / Self::PACKS) as usize], n % Self::PACKS))
 	}
 
 	/// Returns the value of the n-th bit.
@@ -57,12 +95,11 @@ impl BitBlock {
 	///
 	/// If n is out of bounds.
 	pub fn get(&self, n: u32) -> bool {
-		if n >= Self::BITS_PER_BLOCK {
-			panic!("bit access out of bounds")
-		}
-		let pack = self.packs[(n / Self::COUNT_PACKS) as usize];
-		let bit = pack & (0x1 << (n % Self::BITS_PER_PACK));
-		bit != 0
+		self.pack_and_pos(n)
+			.map(|(pack, pos)| {
+				pack.get(pos)
+			})
+			.unwrap()
 	}
 
 	/// Sets the value of the n-th bit.
@@ -71,16 +108,11 @@ impl BitBlock {
 	///
 	/// If n is out of bounds.
 	pub fn set(&mut self, n: u32, value: bool) {
-		if n >= Self::BITS_PER_BLOCK {
-			panic!("bit access out of bounds")
-		}
-		let pack = &mut self.packs[(n / Self::COUNT_PACKS) as usize];
-		let pack_n = n % Self::BITS_PER_PACK;
-		if value {
-			*pack |= 0x1 << pack_n;
-		} else {
-			*pack &= !(0x1 << pack_n);
-		}
+		self.pack_and_pos_mut(n)
+			.map(|(pack, pos)| {
+				pack.set(pos, value)
+			})
+			.unwrap()
 	}
 
 	/// Flips the value of the n-th bit.
@@ -89,11 +121,11 @@ impl BitBlock {
 	///
 	/// If n is out of bounds.
 	pub fn flip(&mut self, n: u32) {
-		if n >= Self::BITS_PER_BLOCK {
-			panic!("bit access out of bounds")
-		}
-		let pack = &mut self.packs[(n / Self::COUNT_PACKS) as usize];
-		*pack ^= 0x1 << (n % Self::BITS_PER_PACK);
+		self.pack_and_pos_mut(n)
+			.map(|(pack, pos)| {
+				pack.flip(pos)
+			})
+			.unwrap()
 	}
 }
 

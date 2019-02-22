@@ -113,7 +113,7 @@ impl BitVec {
 			// However, this better states our intent.
 			return None
 		}
-		self.blocks.get(n / BitBlock::BITS_PER_BLOCK)
+		self.blocks.get(n / BitBlock::BITS)
 	}
 
 	/// Returns a mutable reference to the block that contains
@@ -126,7 +126,7 @@ impl BitVec {
 			// However, this better states our intent.
 			return None
 		}
-		self.blocks.get_mut(n / BitBlock::BITS_PER_BLOCK)
+		self.blocks.get_mut(n / BitBlock::BITS)
 	}
 
 	/// Returns an immutable reference to the last bit block.
@@ -158,7 +158,7 @@ impl BitVec {
 		let pushed_blocks = BitBlock::required_blocks(self.len() + 1);
 		if current_blocks < pushed_blocks {
 			self.blocks.set(
-				(self.len() + 1) / BitBlock::BITS_PER_BLOCK as u32,
+				(self.len() + 1) / BitBlock::BITS as u32,
 				{
 					let mut zeroed = BitBlock::zero();
 					zeroed.set(0, value);
@@ -170,7 +170,7 @@ impl BitVec {
 			self
 				.last_block_mut()
 				.expect("there must be at least one block at this point")
-				.set(new_latest_idx % BitBlock::BITS_PER_BLOCK, value)
+				.set(new_latest_idx % BitBlock::BITS, value)
 		}
 		self.len += 1;
 	}
@@ -186,10 +186,10 @@ impl BitVec {
 		let popped = self
 			.last_block()
 			.expect("there must be at least one block at this point")
-			.get((self.len() - 1) % BitBlock::BITS_PER_BLOCK);
+			.get((self.len() - 1) % BitBlock::BITS);
 		if popped_blocks < current_blocks {
 			self.blocks.clear(
-				(self.len() - 1) / BitBlock::BITS_PER_BLOCK as u32,
+				(self.len() - 1) / BitBlock::BITS as u32,
 			)
 		}
 		// It is safe to not set the last bit back to a default
@@ -204,7 +204,7 @@ impl BitVec {
 	///
 	/// Returns `None` if `n` is out of bounds.
 	pub fn get(&self, n: u32) -> Option<bool> {
-		let bit_within_block = n % BitBlock::BITS_PER_BLOCK;
+		let bit_within_block = n % BitBlock::BITS;
 		self
 			.block(n)
 			.map(|block| block.get(bit_within_block))
@@ -216,7 +216,7 @@ impl BitVec {
 	///
 	/// If n is out of bounds.
 	pub fn set(&mut self, n: u32, value: bool) {
-		let bit_within_block = n % BitBlock::BITS_PER_BLOCK;
+		let bit_within_block = n % BitBlock::BITS;
 		self
 			.block_mut(n)
 			.map(|block| block.set(bit_within_block, value))
@@ -229,7 +229,7 @@ impl BitVec {
 	///
 	/// If n is out of bounds.
 	pub fn flip(&mut self, n: u32) {
-		let bit_within_block = n % BitBlock::BITS_PER_BLOCK;
+		let bit_within_block = n % BitBlock::BITS;
 		self
 			.block_mut(n)
 			.map(|block| block.flip(bit_within_block))
