@@ -69,14 +69,6 @@ impl BitBlock {
 		1 + ((n - 1) / Self::BITS)
 	}
 
-	/// Checks if `n` is within bounds of a bit block and returns it if so.
-	fn validate_index(n: u32) -> BitBlockResult<u32> {
-		if n >= Self::BITS {
-			return Err(InvalidBitBlockIndex)
-		}
-		Ok(n)
-	}
-
 	/// Returns an immutable reference to the associated
 	/// bit pack and the bit position within the bit pack
 	/// for the given bit index.
