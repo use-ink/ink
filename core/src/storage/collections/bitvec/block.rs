@@ -133,8 +133,9 @@ impl BitBlock {
 mod tests {
 	use super::*;
 
+	/// Returns the maximum valid index of a bit block.
 	fn max_valid_index() -> u32 {
-		BitBlock::BITS_PER_BLOCK - 1
+		BitBlock::BITS - 1
 	}
 
 	#[test]
@@ -142,19 +143,19 @@ mod tests {
 		assert_eq!(BitBlock::required_blocks(0), 0);
 		assert_eq!(BitBlock::required_blocks(1), 1);
 		assert_eq!(BitBlock::required_blocks(2), 1);
-		assert_eq!(BitBlock::required_blocks(BitBlock::BITS_PER_BLOCK / 2), 1);
-		assert_eq!(BitBlock::required_blocks(BitBlock::BITS_PER_BLOCK - 1), 1);
-		assert_eq!(BitBlock::required_blocks(BitBlock::BITS_PER_BLOCK), 1);
-		assert_eq!(BitBlock::required_blocks(BitBlock::BITS_PER_BLOCK + 1), 2);
-		assert_eq!(BitBlock::required_blocks((2 * BitBlock::BITS_PER_BLOCK) - 1), 2);
-		assert_eq!(BitBlock::required_blocks(2 * BitBlock::BITS_PER_BLOCK), 2);
-		assert_eq!(BitBlock::required_blocks((2 * BitBlock::BITS_PER_BLOCK) + 1), 3);
+		assert_eq!(BitBlock::required_blocks(BitBlock::BITS / 2), 1);
+		assert_eq!(BitBlock::required_blocks(BitBlock::BITS - 1), 1);
+		assert_eq!(BitBlock::required_blocks(BitBlock::BITS), 1);
+		assert_eq!(BitBlock::required_blocks(BitBlock::BITS + 1), 2);
+		assert_eq!(BitBlock::required_blocks((2 * BitBlock::BITS) - 1), 2);
+		assert_eq!(BitBlock::required_blocks(2 * BitBlock::BITS), 2);
+		assert_eq!(BitBlock::required_blocks((2 * BitBlock::BITS) + 1), 3);
 	}
 
 	#[test]
 	fn zero() {
 		let zero_block = BitBlock::zero();
-		for n in 0..BitBlock::BITS_PER_BLOCK {
+		for n in 0..BitBlock::BITS {
 			assert_eq!(zero_block.get(n), false)
 		}
 	}
@@ -163,7 +164,7 @@ mod tests {
 	#[should_panic]
 	fn get_out_of_bounds() {
 		let block = BitBlock::zero();
-		block.get(BitBlock::BITS_PER_BLOCK);
+		block.get(BitBlock::BITS);
 	}
 
 	#[test]
@@ -183,7 +184,7 @@ mod tests {
 	#[should_panic]
 	fn set_out_of_bounds() {
 		let mut block = BitBlock::zero();
-		block.set(BitBlock::BITS_PER_BLOCK, true);
+		block.set(BitBlock::BITS, true);
 	}
 
 	#[test]
@@ -201,6 +202,6 @@ mod tests {
 	#[should_panic]
 	fn flip_out_of_bounds() {
 		let mut block = BitBlock::zero();
-		block.flip(BitBlock::BITS_PER_BLOCK);
+		block.flip(BitBlock::BITS);
 	}
 }
