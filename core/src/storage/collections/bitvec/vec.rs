@@ -259,6 +259,16 @@ impl BitVec {
 	}
 
 	/// Returns the position of the first set bit in `self` if any.
+	///
+	/// # Note
+	///
+	/// This is a lot more efficient than to naively iterate
+	/// through all bits of the bit vector.
+	///
+	/// # Complexity
+	///
+	/// The worst-case time complexity of this procedure is
+	/// linear with respect to the length of `self`.
 	pub fn first_set_position(&self) -> Option<u32> {
 		for (n, block) in self.iter_blocks().enumerate() {
 			if let Some(pos) = block.first_set_position() {
