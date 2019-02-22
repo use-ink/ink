@@ -81,7 +81,10 @@ impl BitPack {
 
 	/// Returns the position of the first set bit if any.
 	pub fn first_set_position(&self) -> Option<u32> {
-		unimplemented!()
+		if self.bits == 0x0 {
+			return None
+		}
+		Some(self.bits.leading_zeros())
 	}
 }
 
@@ -139,5 +142,12 @@ mod tests {
 	#[should_panic]
 	fn flip_out_of_bounds() {
 		BitPack::new(0x0).flip(32)
+	}
+
+	#[test]
+	fn first_set_position() {
+		assert_eq!(BitPack::new(0x0).first_set_position(), None);
+		assert_eq!(BitPack::new(0x0001_0000).first_set_position(), Some(15));
+		assert_eq!(BitPack::new(0xFFFF_FFFF).first_set_position(), Some(0));
 	}
 }
