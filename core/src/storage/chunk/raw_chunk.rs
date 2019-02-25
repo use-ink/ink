@@ -98,7 +98,7 @@ impl AllocateUsing for RawChunk {
 	where
 		A: Allocate,
 	{
-		Self::new_unchecked(alloc.alloc(u32::max_value()))
+		Self::new_unchecked(alloc.alloc(u32::max_value() as u64))
 	}
 }
 

@@ -1,12 +1,20 @@
 use crate::storage::Key;
 
 /// Types implementing this trait can allocate storage.
+///
+/// # Note
+///
+/// Since the current Wasm implementation is 32-bit we are
+/// fine to only support allocation sizes of max 32-bit in
+/// contract storage. However, for static allocator like
+/// `BumpAllocator` that is meant to allocate also other
+/// allocators we might need relaxed allocation sizes.
 pub trait Allocate {
 	/// Allocates a storage area.
 	///
 	/// The returned key denotes a storage region that fits for at
 	/// least the given number of cells.
-	fn alloc(&mut self, size: u32) -> Key;
+	fn alloc(&mut self, size: u64) -> Key;
 }
 
 /// Types implementing this trait are storage allocators.

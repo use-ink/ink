@@ -48,7 +48,7 @@ fn cc_simple() {
 		}
 
 		// Chunk allocations
-		let alloc_sizes = &[10, u32::max_value(), 1337, 2, 9999_9999];
+		let alloc_sizes = &[10, u32::max_value() as u64, 1337, 2, 9999_9999];
 		for (i, &size) in alloc_sizes.into_iter().enumerate() {
 			chunk_allocs[i] = alloc.alloc(size);
 			assert_eq!(chunk_allocs[i], chunks_entries + ((1 << 32) * (i as u64)));
@@ -68,13 +68,13 @@ fn cc_simple() {
 		// Deallocate first chunk again
 		alloc.dealloc(chunk_allocs[0]);
 		// Now the next chunk allocation will take the first allocation cell again
-		assert_eq!(alloc.alloc(u32::max_value()), chunk_allocs[0]);
+		assert_eq!(alloc.alloc(u32::max_value() as u64), chunk_allocs[0]);
 
 		// Deallocate 2nd and 4th allocations in reverse order
 		alloc.dealloc(chunk_allocs[3]);
 		alloc.dealloc(chunk_allocs[1]);
-		assert_eq!(alloc.alloc(u32::max_value()), chunk_allocs[1]);
-		assert_eq!(alloc.alloc(u32::max_value()), chunk_allocs[3]);
+		assert_eq!(alloc.alloc(u32::max_value() as u64), chunk_allocs[1]);
+		assert_eq!(alloc.alloc(u32::max_value() as u64), chunk_allocs[3]);
 	})
 }
 
@@ -109,7 +109,7 @@ fn dyn_simple() {
 		}
 
 		// Chunk allocations
-		let alloc_sizes = &[10, u32::max_value(), 1337, 2, 9999_9999];
+		let alloc_sizes = &[10, u32::max_value() as u64, 1337, 2, 9999_9999];
 		for (i, &size) in alloc_sizes.into_iter().enumerate() {
 			let allocated_key = alloc.alloc(size);
 			assert_eq!(allocated_key, chunks_entries + ((1 << 32) * (i as u64)));
@@ -130,12 +130,12 @@ fn dyn_simple() {
 		// Deallocate first chunk again
 		alloc.dealloc(chunk_allocs[0]);
 		// Now the next chunk allocation will take the first allocation cell again
-		assert_eq!(alloc.alloc(u32::max_value()), chunk_allocs[0]);
+		assert_eq!(alloc.alloc(u32::max_value() as u64), chunk_allocs[0]);
 
 		// Deallocate 2nd and 4th allocations in reverse order
 		alloc.dealloc(chunk_allocs[3]);
 		alloc.dealloc(chunk_allocs[1]);
-		assert_eq!(alloc.alloc(u32::max_value()), chunk_allocs[1]);
-		assert_eq!(alloc.alloc(u32::max_value()), chunk_allocs[3]);
+		assert_eq!(alloc.alloc(u32::max_value() as u64), chunk_allocs[1]);
+		assert_eq!(alloc.alloc(u32::max_value() as u64), chunk_allocs[3]);
 	})
 }

@@ -51,13 +51,13 @@ impl BumpAlloc {
 	}
 
 	/// Increase the forward alloc offset key by the given amount.
-	fn inc_offset_key(&mut self, by: u32) {
+	fn inc_offset_key(&mut self, by: u64) {
 		self.offset_key += by;
 	}
 }
 
 impl Allocate for BumpAlloc {
-	fn alloc(&mut self, size: u32) -> Key {
+	fn alloc(&mut self, size: u64) -> Key {
 		if size == 0 {
 			log::warn!(
 				target: BUMP_ALLOC_LOG_TARGET,
@@ -92,11 +92,11 @@ mod tests {
 		};
 		assert_eq!(bump_alloc.alloc(1), offset_key + 0_u32);
 		assert_eq!(bump_alloc.alloc(10), offset_key + 1_u32);
-		assert_eq!(bump_alloc.alloc(u16::max_value() as u32), offset_key + 11_u32);
+		assert_eq!(bump_alloc.alloc(u16::max_value() as u64), offset_key + 11_u32);
 		assert_eq!(bump_alloc.alloc(2), offset_key + 0x1000A_u32);
 		assert_eq!(bump_alloc.alloc(1), offset_key + 0x1000C_u32);
 		assert_eq!(
-			bump_alloc.alloc(u32::max_value()),
+			bump_alloc.alloc(u32::max_value() as u64),
 			offset_key + 0x1000D_u32,
 		);
 		assert_eq!(
