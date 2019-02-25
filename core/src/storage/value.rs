@@ -95,9 +95,14 @@ impl<T> Value<T>
 where
 	T: parity_codec::Codec,
 {
-	/// Returns the wrapped value as immutable reference.
+	/// Returns an immutable reference to the wrapped value.
 	pub fn get(&self) -> &T {
 		self.cell.get().unwrap()
+	}
+
+	/// Returns a mutable reference to the wrapped value.
+	pub fn get_mut(&mut self) -> &mut T {
+		self.cell.get_mut().unwrap()
 	}
 
 	/// Sets the wrapped value to the given value.
@@ -138,6 +143,15 @@ where
 
 	fn deref(&self) -> &Self::Target {
 		self.get()
+	}
+}
+
+impl<T> core::ops::DerefMut for Value<T>
+where
+	T: parity_codec::Codec,
+{
+	fn deref_mut(&mut self) -> &mut Self::Target {
+		self.get_mut()
 	}
 }
 
