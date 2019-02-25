@@ -18,6 +18,7 @@
 
 mod traits;
 mod cc_alloc;
+mod dyn_alloc;
 mod bump_alloc;
 
 #[cfg(all(test, feature = "test-env"))]
@@ -32,6 +33,9 @@ pub use self::{
 	},
 	cc_alloc::{
 		CellChunkAlloc,
+	},
+	dyn_alloc::{
+		DynAlloc,
 	},
 	bump_alloc::{
 		BumpAlloc,
