@@ -70,25 +70,42 @@ impl Flush for DynAlloc {
 	}
 }
 
+#[cfg(test)]
+impl DynAlloc {
+	pub(crate) fn cells_origin(&self) -> Key {
+		self.cells_origin
+	}
+
+	pub(crate) fn chunks_origin(&self) -> Key {
+		self.chunks_origin
+	}
+}
+
 impl DynAlloc {
 	/// Allocates another cell and returns its key.
 	fn alloc_cell(&mut self) -> Key {
-		let offset = match self.free_cells.first_set_position() {
-			Some(free_idx) => free_idx,
-			None => self.free_cells.len(),
+		let offset = if let Some(free) = self.free_cells.first_set_position() {
+			self.free_cells.set(free, false);
+			free
+		} else {
+			let len = self.free_cells.len();
+			self.free_cells.push(false);
+			len
 		};
-		self.free_cells.push(false);
 		self.cells_origin + offset
 	}
 
 	/// Allocates another chunk and returns its key.
 	fn alloc_chunk(&mut self) -> Key {
-		let offset = match self.free_chunks.first_set_position() {
-			Some(free_idx) => free_idx,
-			None => self.free_chunks.len(),
+		let offset = if let Some(free) = self.free_chunks.first_set_position() {
+			self.free_chunks.set(free, false);
+			free
+		} else {
+			let len = self.free_chunks.len();
+			self.free_chunks.push(false);
+			len
 		};
-		self.free_chunks.push(false);
-		self.chunks_origin + offset
+		self.chunks_origin + ((1 << 32) * u64::from(offset))
 	}
 
 	/// Deallocates the cell key.
@@ -110,7 +127,7 @@ impl DynAlloc {
 	/// This just frees the associated slot for future allocations.
 	fn dealloc_chunk(&mut self, key: Key) {
 		debug_assert!(key >= self.chunks_origin);
-		debug_assert!(key <  self.chunks_origin + self.free_chunks.len());
+		debug_assert!(key <  self.chunks_origin + ((1 << 32) * self.free_chunks.len() as u64));
 		let position = self.key_to_chunk_position(key);
 		self.free_chunks.set(position, true);
 	}
