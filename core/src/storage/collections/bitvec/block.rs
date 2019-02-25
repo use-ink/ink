@@ -45,22 +45,6 @@ impl BitBlock {
 		}
 	}
 
-	/// Creates a new bit block from the given underlying data.
-	///
-	/// # Note
-	///
-	/// Use this for testing purposes only.
-	pub(in self) fn new(raw_packs: [BitPackRepr; Self::PACKS as usize]) -> Self {
-		Self {
-			packs: unsafe {
-				core::intrinsics::transmute::<
-					[BitPackRepr; Self::PACKS as usize],
-					[BitPack; Self::PACKS as usize]
-				>(raw_packs)
-			}
-		}
-	}
-
 	/// Returns the number of required blocks for the given number of bits.
 	pub fn required_blocks(n: u32) -> u32 {
 		if n == 0 {
