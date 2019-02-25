@@ -28,6 +28,13 @@ use crate::{
 	},
 };
 
+/// Allocator for dynamic contract storage.
+///
+/// Uses storage effective bit vectors for free list representation.
+/// Searches for free cells and chunks via first-fit approach which
+/// can be slow (more than 2 reads) for more than 3000 dynamic allocations
+/// at the same time. This is subject to change in the future if
+/// experiments show that this is a bottle neck.
 #[derive(Debug)]
 pub struct DynAlloc {
 	/// Bitmap indicating free cell slots.
