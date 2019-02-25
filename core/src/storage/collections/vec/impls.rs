@@ -18,8 +18,8 @@ use crate::{
 	storage::{
 		self,
 		chunk::SyncChunk,
-		Allocator,
 		alloc::{
+			Allocate,
 			AllocateUsing,
 			Initialize,
 		},
@@ -146,7 +146,7 @@ impl<T> parity_codec::Decode for Vec<T> {
 impl<T> AllocateUsing for Vec<T> {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator
+		A: Allocate,
 	{
 		Self {
 			len: storage::Value::allocate_using(alloc),

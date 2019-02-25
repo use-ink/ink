@@ -23,9 +23,9 @@ use crate::{
 			RawChunkCell,
 		},
 		alloc::{
+			Allocate,
 			AllocateUsing,
 		},
-		Allocator,
 	},
 };
 
@@ -59,10 +59,10 @@ pub struct TypedChunkCell<'a, T> {
 impl<T> AllocateUsing for TypedChunk<T> {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator
+		A: Allocate,
 	{
 		Self{
-			chunk: RawChunk::new_using_alloc(alloc),
+			chunk: RawChunk::allocate_using(alloc),
 			non_clone: Default::default(),
 		}
 	}
@@ -114,22 +114,6 @@ impl<T> parity_codec::Decode for TypedChunk<T> {
 }
 
 impl<T> TypedChunk<T> {
-	/// Allocates a new typed cell chunk using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
-	where
-		A: Allocator
-	{
-		Self{
-			chunk: RawChunk::new_using_alloc(alloc),
-			non_clone: Default::default(),
-		}
-	}
-
 	/// Returns the unterlying key to the cells.
 	///
 	/// # Note
@@ -205,7 +189,7 @@ mod tests {
 				let mut alloc = crate::storage::alloc::BumpAlloc::from_raw_parts(
 					Key([0x0; 32])
 				);
-				TypedChunk::new_using_alloc(&mut alloc)
+				TypedChunk::allocate_using(&mut alloc)
 			};
 
 			// Invariants after initialization
@@ -236,7 +220,7 @@ mod tests {
 				let mut alloc = crate::storage::alloc::BumpAlloc::from_raw_parts(
 					Key([0x0; 32])
 				);
-				TypedChunk::new_using_alloc(&mut alloc)
+				TypedChunk::allocate_using(&mut alloc)
 			};
 
 			// Reads and writes after init.

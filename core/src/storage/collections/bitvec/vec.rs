@@ -19,8 +19,8 @@ use crate::{
 	storage::{
 		self,
 		chunk::SyncChunk,
-		Allocator,
 		alloc::{
+			Allocate,
 			AllocateUsing,
 			Initialize,
 		},
@@ -55,7 +55,7 @@ impl parity_codec::Decode for BitVec {
 impl AllocateUsing for BitVec {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator,
+		A: Allocate,
 	{
 		Self {
 			len: AllocateUsing::allocate_using(alloc),

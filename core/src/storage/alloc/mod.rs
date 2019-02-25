@@ -25,6 +25,7 @@ mod tests;
 
 pub use self::{
 	traits::{
+		Allocate,
 		Allocator,
 		AllocateUsing,
 		Initialize,

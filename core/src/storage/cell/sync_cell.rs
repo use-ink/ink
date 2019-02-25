@@ -17,8 +17,8 @@
 use crate::{
 	storage::{
 		cell::TypedCell,
-		Allocator,
 		alloc::{
+			Allocate,
 			AllocateUsing,
 		},
 		Flush,
@@ -324,7 +324,7 @@ where
 impl<T> AllocateUsing for SyncCell<T> {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator,
+		A: Allocate,
 	{
 		Self {
 			cell: TypedCell::allocate_using(alloc),

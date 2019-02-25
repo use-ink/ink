@@ -18,8 +18,8 @@ use crate::{
 	storage::{
 		NonCloneMarker,
 		cell::RawCell,
-		Allocator,
 		alloc::{
+			Allocate,
 			AllocateUsing
 		},
 	},
@@ -62,7 +62,7 @@ impl<T> parity_codec::Decode for TypedCell<T> {
 impl<T> AllocateUsing for TypedCell<T> {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator,
+		A: Allocate,
 	{
 		Self {
 			cell: RawCell::allocate_using(alloc),

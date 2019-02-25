@@ -20,7 +20,7 @@ use crate::{
 		cell::SyncCell,
 		Flush,
 		alloc::{
-			Allocator,
+			Allocate,
 			AllocateUsing,
 			Initialize,
 		}
@@ -56,7 +56,7 @@ pub struct Value<T> {
 impl<T> AllocateUsing for Value<T> {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator
+		A: Allocate,
 	{
 		Self{ cell: SyncCell::allocate_using(alloc) }
 	}

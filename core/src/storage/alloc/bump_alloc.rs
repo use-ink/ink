@@ -56,7 +56,7 @@ impl BumpAlloc {
 	}
 }
 
-impl Allocator for BumpAlloc {
+impl Allocate for BumpAlloc {
 	fn alloc(&mut self, size: u32) -> Key {
 		if size == 0 {
 			log::warn!(
@@ -77,24 +77,6 @@ impl Allocator for BumpAlloc {
 			size,
 		);
 		key
-	}
-
-	/// Not supported by this allocator!
-	///
-	/// Use [`CellChunkAlloc`](struct.CellChunkAlloc.html)
-	/// for dynamic allocation purposes instead.
-	fn dealloc(&mut self, key: Key) {
-		log::warn!(
-			target: BUMP_ALLOC_LOG_TARGET,
-			"tried to deallocate a key (= {:?}) with a bump allocator",
-			key,
-		);
-		unreachable!(
-			"The forward allocator is meant to be only used in compile-time
-			 context for entities that shall not be deallocated during the
-			 lifetime of a contract.\n\n Users are recommended to use the
-			 `CellChunkAlloc` for dynamic.storage allocations instead."
-		)
 	}
 }
 
@@ -136,17 +118,5 @@ mod tests {
 			BumpAlloc::from_raw_parts(offset_key)
 		};
 		bump_alloc.alloc(0);
-	}
-
-	#[test]
-	#[should_panic]
-	fn deallocate() {
-		let offset_key = Key([0x00; 32]);
-		let mut bump_alloc = unsafe {
-			BumpAlloc::from_raw_parts(offset_key)
-		};
-		let allocated_key = bump_alloc.alloc(1);
-		assert_eq!(allocated_key, offset_key + 0_u32);
-		bump_alloc.dealloc(allocated_key);
 	}
 }

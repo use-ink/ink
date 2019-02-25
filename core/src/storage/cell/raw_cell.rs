@@ -19,8 +19,8 @@ use crate::{
 	storage::{
 		Key,
 		NonCloneMarker,
-		Allocator,
 		alloc::{
+			Allocate,
 			AllocateUsing,
 		},
 	},
@@ -49,7 +49,7 @@ pub struct RawCell {
 impl AllocateUsing for RawCell {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator,
+		A: Allocate,
 	{
 		Self {
 			key: alloc.alloc(1),

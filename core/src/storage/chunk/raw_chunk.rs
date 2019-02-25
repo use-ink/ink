@@ -20,9 +20,9 @@ use crate::{
 		Key,
 		NonCloneMarker,
 		alloc::{
+			Allocate,
 			AllocateUsing,
 		},
-		Allocator,
 	},
 	env::{Env, ContractEnv},
 };
@@ -96,7 +96,7 @@ impl parity_codec::Decode for RawChunk {
 impl AllocateUsing for RawChunk {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator
+		A: Allocate,
 	{
 		Self::new_unchecked(alloc.alloc(u32::max_value()))
 	}
@@ -116,19 +116,6 @@ impl RawChunk {
 			key,
 			non_clone: Default::default(),
 		}
-	}
-
-	/// Allocates a new raw cell chunk using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// This is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
-	where
-		A: Allocator
-	{
-		Self::new_unchecked(alloc.alloc(u32::max_value()))
 	}
 
 	/// Returns the unterlying key to the cells.

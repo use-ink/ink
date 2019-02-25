@@ -21,9 +21,9 @@ use crate::{
 			TypedChunk,
 		},
 		alloc::{
+			Allocate,
 			AllocateUsing,
 		},
-		Allocator,
 		Flush,
 	},
 };
@@ -83,7 +83,7 @@ impl<T> parity_codec::Decode for SyncChunk<T> {
 impl<T> AllocateUsing for SyncChunk<T> {
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator
+		A: Allocate,
 	{
 		Self{
 			chunk: TypedChunk::allocate_using(alloc),
@@ -93,22 +93,6 @@ impl<T> AllocateUsing for SyncChunk<T> {
 }
 
 impl<T> SyncChunk<T> {
-	/// Allocates a new sync cell chunk using the given storage allocator.
-	///
-	/// # Safety
-	///
-	/// The is unsafe because it does not check if the associated storage
-	/// does not alias with storage allocated by other storage allocators.
-	pub unsafe fn new_using_alloc<A>(alloc: &mut A) -> Self
-	where
-		A: Allocator
-	{
-		Self{
-			chunk: TypedChunk::new_using_alloc(alloc),
-			cache: CacheGuard::default(),
-		}
-	}
-
 	/// Clears the cache value at position `n`.
 	pub fn clear(&mut self, n: u32) {
 		self.cache.update_mut(n, None);

@@ -1,13 +1,16 @@
 use crate::storage::Key;
 
-/// Types implementing this trait are storage allocators.
-pub trait Allocator {
+/// Types implementing this trait can allocate storage.
+pub trait Allocate {
 	/// Allocates a storage area.
 	///
 	/// The returned key denotes a storage region that fits for at
 	/// least the given number of cells.
 	fn alloc(&mut self, size: u32) -> Key;
+}
 
+/// Types implementing this trait are storage allocators.
+pub trait Allocator: Allocate {
 	/// Deallocates a storage area.
 	///
 	/// The given storage region must have been allocated by this
@@ -30,7 +33,7 @@ where
 	/// in panics or even in undefined behaviour.
 	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 	where
-		A: Allocator;
+		A: Allocate;
 }
 
 /// Types implementing this trait require initialization of their storage contents
