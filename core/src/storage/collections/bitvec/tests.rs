@@ -207,3 +207,12 @@ fn first_set_position() {
 		assert_eq!(bv.first_set_position(), Some(n));
 	}
 }
+
+#[test]
+fn first_set_position_push_pop() {
+	let mut bv = zero_bitvec_with_len(2000);
+	bv.push(true);
+	assert_eq!(bv.first_set_position(), Some(2000));
+	bv.pop();
+	assert_eq!(bv.first_set_position(), None);
+}

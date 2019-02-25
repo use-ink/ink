@@ -181,21 +181,24 @@ impl BitVec {
 		if self.len() == 0 {
 			return None
 		}
+		let len = self.len();
 		let current_blocks = self.len_blocks();
-		let popped_blocks = BitBlock::required_blocks(self.len() - 1);
+		let popped_blocks = BitBlock::required_blocks(len - 1);
 		let popped = self
 			.last_block()
-			.expect("there must be at least one block at this point")
-			.get((self.len() - 1) % BitBlock::BITS);
+			.expect("we already checked that len is greater than 1 so there must be at least one block; qed")
+			.get((len - 1) % BitBlock::BITS);
 		if popped_blocks < current_blocks {
+			// Remove last bit block.
 			self.blocks.clear(
-				(self.len() - 1) / BitBlock::BITS as u32,
+				(len - 1) / BitBlock::BITS as u32,
 			)
+		} else {
+			// Set last bit in last bit block to false.
+			self.last_block_mut()
+				.expect("since we have the same amount of blocks we have at least one; qed")
+				.set((len - 1) % BitBlock::BITS, false)
 		}
-		// It is safe to not set the last bit back to a default
-		// value like `0` since we already declared it to be out
-		// of bounds by decreasing the length. By this we can
-		// decrease the amount of writes to the storage.
 		self.len -= 1;
 		Some(popped)
 	}
