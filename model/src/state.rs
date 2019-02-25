@@ -66,7 +66,7 @@ macro_rules! state {
 		impl pdsl_core::storage::alloc::AllocateUsing for $state_name {
 			unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 			where
-				A: pdsl_core::storage::Allocator,
+				A: pdsl_core::storage::alloc::Allocate,
 			{
 				use pdsl_core::storage::alloc::AllocateUsing;
 				Self {
