@@ -50,19 +50,33 @@ use parity_codec::{Encode, Decode};
 ///    assignment or iteration order. They can change at any time.
 #[derive(Debug)]
 pub struct Stash<T> {
+	/// Stores densly packed general stash information.
+	header: storage::Value<StashHeader>,
+	/// The entries of the stash.
+	entries: SyncChunk<Entry<T>>,
+}
+
+/// Densely stored general information required by a stash.
+///
+/// # Note
+///
+/// Separation of these fields into a sub structure has been made
+/// for performance reasons so that they all reside in the same
+/// storage entiry. This allows implementations to perform less reads
+/// and writes to the underlying contract storage.
+#[derive(Debug, parity_codec::Encode, parity_codec::Decode)]
+struct StashHeader {
 	/// The latest vacant index.
-	next_vacant: storage::Value<u32>,
+	next_vacant: u32,
 	/// The number of items stored in the stash.
 	///
 	/// # Note
 	///
 	/// We cannot simply use the underlying length of the vector
 	/// since it would include vacant slots as well.
-	len: storage::Value<u32>,
+	len: u32,
 	/// The maximum length the stash ever had.
-	max_len: storage::Value<u32>,
-	/// The entries of the stash.
-	entries: SyncChunk<Entry<T>>,
+	max_len: u32,
 }
 
 /// Iterator over the values of a stash.
@@ -84,9 +98,7 @@ where
 	T: parity_codec::Encode,
 {
 	fn flush(&mut self) {
-		self.next_vacant.flush();
-		self.len.flush();
-		self.max_len.flush();
+		self.header.flush();
 		self.entries.flush();
 	}
 }
@@ -216,20 +228,16 @@ enum Entry<T> {
 
 impl<T> parity_codec::Encode for Stash<T> {
 	fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
-		self.next_vacant.encode_to(dest);
-		self.len.encode_to(dest);
-		self.max_len.encode_to(dest);
+		self.header.encode_to(dest);
 		self.entries.encode_to(dest);
 	}
 }
 
 impl<T> parity_codec::Decode for Stash<T> {
 	fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
-		let next_vacant = storage::Value::decode(input)?;
-		let len = storage::Value::decode(input)?;
-		let max_len = storage::Value::decode(input)?;
+		let header = storage::Value::decode(input)?;
 		let entries = SyncChunk::decode(input)?;
-		Some(Self{next_vacant, len, max_len, entries})
+		Some(Self{header, entries})
 	}
 }
 
@@ -239,9 +247,7 @@ impl<T> AllocateUsing for Stash<T> {
 		A: Allocate,
 	{
 		Self {
-			next_vacant: storage::Value::allocate_using(alloc),
-			len: storage::Value::allocate_using(alloc),
-			max_len: storage::Value::allocate_using(alloc),
+			header: storage::Value::allocate_using(alloc),
 			entries: SyncChunk::allocate_using(alloc),
 		}
 	}
@@ -251,9 +257,13 @@ impl<T> Initialize for Stash<T> {
 	type Args = ();
 
 	fn initialize(&mut self, _args: Self::Args) {
-		self.next_vacant.set(0);
-		self.len.set(0);
-		self.max_len.set(0);
+		self.header.set(
+			StashHeader {
+				next_vacant: 0,
+				len: 0,
+				max_len: 0,
+			}
+		);
 	}
 }
 
@@ -292,13 +302,13 @@ impl<T> Stash<T> {
 
 	/// Returns the number of elements stored in the stash.
 	pub fn len(&self) -> u32 {
-		*self.len.get()
+		self.header.len
 	}
 
 	/// Returns the maximum number of element stored in the
 	/// stash at the same time.
 	pub fn max_len(&self) -> u32 {
-		*self.max_len.get()
+		self.header.max_len
 	}
 
 	/// Returns `true` if the stash contains no elements.
@@ -308,9 +318,8 @@ impl<T> Stash<T> {
 
 	/// Returns the next vacant index.
 	fn next_vacant(&self) -> u32 {
-		*self.next_vacant.get()
+		self.header.next_vacant
 	}
-
 }
 
 impl<T> Stash<T>
@@ -332,14 +341,12 @@ where
 	///
 	/// Returns the stash index that the element was put into.
 	pub fn put(&mut self, val: T) -> u32 {
-		let current_vacant = *self
-			.next_vacant
-			.get();
+		let current_vacant = self.header.next_vacant;
 		debug_assert!(current_vacant <= self.len());
 		if current_vacant == self.len() {
 			self.entries.set(current_vacant, Entry::Occupied(val));
-			self.next_vacant.set(current_vacant + 1);
-			self.max_len.set(self.max_len() + 1);
+			self.header.next_vacant = current_vacant + 1;
+			self.header.max_len += 1;
 		} else {
 			let next_vacant = match
 				self
@@ -356,9 +363,9 @@ where
 						a next_vacant index can never point to an occupied entry"
 					)
 				};
-			self.next_vacant.set(next_vacant);
+			self.header.next_vacant = next_vacant;
 		}
-		self.len.set(self.len() + 1);
+		self.header.len += 1;
 		current_vacant
 	}
 
@@ -373,9 +380,9 @@ where
 					 we already asserted that the entry at `n` exists"
 				) {
 					Entry::Occupied(val) => {
-						self.next_vacant.set(n);
+						self.header.next_vacant = n;
 						debug_assert!(!self.is_empty());
-						self.len.set(self.len() - 1);
+						self.header.len -= 1;
 						Some(val)
 					},
 					Entry::Vacant(_) => unreachable!(
