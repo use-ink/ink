@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use super::{BitPack, BitPackRepr};
+use super::BitPack;
 use parity_codec::{Encode, Decode};
 
 /// A block of 1024 bits.
@@ -134,6 +134,25 @@ impl BitBlock {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::storage::bitvec::pack::BitPackRepr;
+
+	impl BitBlock {
+		/// Creates a new bit block from the given underlying data.
+		///
+		/// # Note
+		///
+		/// Use this for testing purposes only.
+		pub(in self) fn new(raw_packs: [BitPackRepr; Self::PACKS as usize]) -> Self {
+			Self {
+				packs: unsafe {
+					core::intrinsics::transmute::<
+						[BitPackRepr; Self::PACKS as usize],
+						[BitPack; Self::PACKS as usize]
+					>(raw_packs)
+				}
+			}
+		}
+	}
 
 	/// Returns the maximum valid index of a bit block.
 	fn max_valid_index() -> u32 {
