@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `wee_alloc` crate."><meta name="keywords" content="rust, rustlang, rust-lang, wee_alloc"><title>wee_alloc - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='..//index.html'><img src='../rust-logo.png' alt='logo' width='100'></a><p class='location'>Crate wee_alloc</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all wee_alloc's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#constants">Constants</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'wee_alloc', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/wee_alloc/lib.rs.html#1-1205' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>wee_alloc</a></span></h1><div class='docblock'><p><a href="https://docs.rs/wee_alloc/"><img src="https://docs.rs/wee_alloc/badge.svg" alt="" /></a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `wee_alloc` crate."><meta name="keywords" content="rust, rustlang, rust-lang, wee_alloc"><title>wee_alloc - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../wee_alloc/index.html'><img src='../rust-logo.png' alt='logo' width='100'></a><p class='location'>Crate wee_alloc</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all wee_alloc's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#constants">Constants</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'wee_alloc', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/wee_alloc/lib.rs.html#1-1182' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>wee_alloc</a></span></h1><div class='docblock'><p><a href="https://docs.rs/wee_alloc/"><img src="https://docs.rs/wee_alloc/badge.svg" alt="" /></a>
 <a href="https://crates.io/crates/wee_alloc"><img src="https://img.shields.io/crates/v/wee_alloc.svg" alt="" /></a>
 <a href="https://crates.io/crates/wee_alloc"><img src="https://img.shields.io/crates/d/wee_alloc.svg" alt="" /></a>
 <a href="https://travis-ci.org/rustwasm/wee_alloc"><img src="https://travis-ci.org/rustwasm/wee_alloc.svg?branch=master" alt="Travis CI Build Status" /></a>
@@ -23,78 +23,35 @@ allocator to exist, but we are more than happy to trade allocation performance
 for small code size. In contrast, <code>wee_alloc</code> would be a poor choice for a
 scenario where allocation is a performance bottleneck.</p>
 <p>Although WebAssembly is the primary target, <code>wee_alloc</code> also has an <code>mmap</code> based
-implementation for unix systems and a <code>VirtualAlloc</code> implementation for Windows.
-This enables testing <code>wee_alloc</code>, and code using <code>wee_alloc</code>, without a browser
-or WebAssembly engine.</p>
-<p><strong>⚠ Custom allocators currently require Nightly Rust. ⚠</strong></p>
+implementation for unix systems, a <code>VirtualAlloc</code> implementation for Windows,
+and a static array-based backend for OS-independent environments. This enables
+testing <code>wee_alloc</code>, and code using <code>wee_alloc</code>, without a browser or
+WebAssembly engine.</p>
 <ul>
-<li><a href="#using-wee_alloc-as-the-global-allocator">Using <code>wee_alloc</code> as the Global Allocator</a>
-<ul>
-<li><a href="#with-no_std">With <code>#![no_std]</code></a></li>
-<li><a href="#with-std">With <code>std</code></a></li>
-</ul>
-</li>
+<li><a href="#using-wee_alloc-as-the-global-allocator">Using <code>wee_alloc</code> as the Global Allocator</a></li>
+<li><a href="#does-wee_alloc-require-nightly-rust">Does <code>wee_alloc</code> require nightly Rust?</a></li>
 <li><a href="#cargo-features"><code>cargo</code> Features</a></li>
 <li><a href="#implementation-notes-and-constraints">Implementation Notes and Constraints</a></li>
 <li><a href="#license">License</a></li>
 <li><a href="#contribution">Contribution</a></li>
 </ul>
 <h2 id="using-wee_alloc-as-the-global-allocator" class="section-header"><a href="#using-wee_alloc-as-the-global-allocator">Using <code>wee_alloc</code> as the Global Allocator</a></h2>
-<p>To get the smallest <code>.wasm</code> sizes, you want to use <code>#![no_std]</code> with a custom
-panicking hook that avoids using any of the <code>core::fmt</code>
-infrastructure. Nevertheless, <code>wee_alloc</code> is also usable with <code>std</code>.</p>
-<h3 id="with-no_std" class="section-header"><a href="#with-no_std">With <code>#![no_std]</code></a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="comment">// We aren&#39;t using the standard library.</span>
-<span class="attribute">#![<span class="ident">no_std</span>]</span>
-
-<span class="comment">// Required to use the `alloc` crate and its types, the `abort` intrinsic, and a</span>
-<span class="comment">// custom panic handler.</span>
-<span class="attribute">#![<span class="ident">feature</span>(<span class="ident">alloc</span>, <span class="ident">core_intrinsics</span>, <span class="ident">panic_implementation</span>, <span class="ident">lang_items</span>, <span class="ident">alloc_error_handler</span>)]</span>
-
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">wee_alloc</span>;
-
-<span class="comment">// Use `wee_alloc` as the global allocator.</span>
-<span class="attribute">#[<span class="ident">global_allocator</span>]</span>
-<span class="kw">static</span> <span class="ident">ALLOC</span>: <span class="ident">wee_alloc</span>::<span class="ident">WeeAlloc</span> <span class="op">=</span> <span class="ident">wee_alloc</span>::<span class="ident">WeeAlloc</span>::<span class="ident">INIT</span>;
-
-<span class="comment">// Need to provide a tiny `panic` implementation for `#![no_std]`.</span>
-<span class="comment">// This translates into an `unreachable` instruction that will</span>
-<span class="comment">// raise a `trap` the WebAssembly execution if we panic at runtime.</span>
-<span class="attribute">#[<span class="ident">panic_implementation</span>]</span>
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">panic</span>(<span class="ident">_info</span>: <span class="kw-2">&amp;</span>::<span class="ident">core</span>::<span class="ident">panic</span>::<span class="ident">PanicInfo</span>) <span class="op">-&gt;</span> <span class="op">!</span> {
-    <span class="kw">unsafe</span> {
-        ::<span class="ident">core</span>::<span class="ident">intrinsics</span>::<span class="ident">abort</span>();
-    }
-}
-
-<span class="comment">// Need to provide an allocation error handler which just aborts </span>
-<span class="comment">// the execution with trap.</span>
-<span class="attribute">#[<span class="ident">alloc_error_handler</span>]</span>
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">oom</span>(<span class="kw">_</span>: ::<span class="ident">core</span>::<span class="ident">alloc</span>::<span class="ident">Layout</span>) <span class="op">-&gt;</span> <span class="op">!</span> {
-    <span class="kw">unsafe</span> {
-        ::<span class="ident">core</span>::<span class="ident">intrinsics</span>::<span class="ident">abort</span>();
-    }
-}
-
-<span class="comment">// And now you can use `alloc` types!</span>
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">arc</span>::<span class="ident">Arc</span>;
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">boxed</span>::<span class="ident">Box</span>;
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">vec</span>::<span class="ident">Vec</span>;
-<span class="comment">// etc...</span></pre></div>
-<h3 id="with-std" class="section-header"><a href="#with-std">With <code>std</code></a></h3>
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="comment">// Required to replace the global allocator.</span>
-<span class="attribute">#![<span class="ident">feature</span>(<span class="ident">global_allocator</span>)]</span>
-
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">wee_alloc</span>;
 
 <span class="comment">// Use `wee_alloc` as the global allocator.</span>
 <span class="attribute">#[<span class="ident">global_allocator</span>]</span>
 <span class="kw">static</span> <span class="ident">ALLOC</span>: <span class="ident">wee_alloc</span>::<span class="ident">WeeAlloc</span> <span class="op">=</span> <span class="ident">wee_alloc</span>::<span class="ident">WeeAlloc</span>::<span class="ident">INIT</span>;</pre></div>
+<h2 id="does-wee_alloc-require-nightly-rust" class="section-header"><a href="#does-wee_alloc-require-nightly-rust">Does <code>wee_alloc</code> require nightly Rust?</a></h2>
+<p>Sometimes.</p>
+<p>Notably, using <code>wee_alloc</code> when targeting WebAssembly requires nightly in order
+to get access to the Wasm <code>grow_memory</code> instruction (currently exposed as part
+of the <code>stdsimd</code> nightly feature).</p>
+<p>Targeting Unix and Windows does not require nightly Rust.</p>
+<p>The static array-based backend requires nightly Rust in order to have <code>const</code>
+spin locks.</p>
+<p>Additional nightly-only features can be enabled with the &quot;nightly&quot; cargo
+feature. See below.</p>
 <h2 id="cargo-features" class="section-header"><a href="#cargo-features"><code>cargo</code> Features</a></h2>
 <ul>
 <li>
@@ -110,12 +67,17 @@ itself.</p>
 </li>
 <li>
 <p><strong>static_array_backend</strong>: Force the use of an OS-independent backing
-implementation with a global maximum size fixed at compile time.
-Suitable for deploying to non-WASM/Unix/Windows <code>#![no_std]</code> environments,
-such as on embedded devices with esoteric or effectively absent operating
-systems. The size defaults to 32 MiB (33554432 bytes), and may be controlled
-at build-time by supplying an optional environment variable to cargo,
-<code>WEE_ALLOC_STATIC_ARRAY_BACKEND_BYTES</code></p>
+implementation with a global maximum size fixed at compile time.  Suitable for
+deploying to non-WASM/Unix/Windows <code>#![no_std]</code> environments, such as on
+embedded devices with esoteric or effectively absent operating systems. The
+size defaults to 32 MiB (33554432 bytes), and may be controlled at build-time
+by supplying an optional environment variable to cargo,
+<code>WEE_ALLOC_STATIC_ARRAY_BACKEND_BYTES</code>. Note that this feature requires
+nightly Rust.</p>
+</li>
+<li>
+<p><strong>nightly</strong>: Enable usage of nightly-only Rust features, such as implementing
+the <code>Alloc</code> trait (not to be confused with the stable <code>GlobalAlloc</code> trait!)</p>
 </li>
 </ul>
 <h2 id="implementation-notes-and-constraints" class="section-header"><a href="#implementation-notes-and-constraints">Implementation Notes and Constraints</a></h2>

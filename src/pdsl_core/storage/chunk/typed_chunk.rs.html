@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/chunk/typed_chunk.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>typed_chunk.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../..//index.html'><img src='../../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/chunk/typed_chunk.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>typed_chunk.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../pdsl_core/index.html'><img src='../../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -267,22 +267,6 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">// This file is part of pDSL.</span>
@@ -309,9 +293,9 @@
 			<span class="ident">RawChunkCell</span>,
 		},
 		<span class="ident">alloc</span>::{
+			<span class="ident">Allocate</span>,
 			<span class="ident">AllocateUsing</span>,
 		},
-		<span class="ident">Allocator</span>,
 	},
 };
 
@@ -345,10 +329,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">AllocateUsing</span> <span class="kw">for</span> <span class="ident">TypedChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
 	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">allocate_using</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
 	<span class="kw">where</span>
-		<span class="ident">A</span>: <span class="ident">Allocator</span>
+		<span class="ident">A</span>: <span class="ident">Allocate</span>,
 	{
 		<span class="self">Self</span>{
-			<span class="ident">chunk</span>: <span class="ident">RawChunk</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
+			<span class="ident">chunk</span>: <span class="ident">RawChunk</span>::<span class="ident">allocate_using</span>(<span class="ident">alloc</span>),
 			<span class="ident">non_clone</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
 		}
 	}
@@ -400,22 +384,6 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypedChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-	<span class="doccomment">/// Allocates a new typed cell chunk using the given storage allocator.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Safety</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// The is unsafe because it does not check if the associated storage</span>
-	<span class="doccomment">/// does not alias with storage allocated by other storage allocators.</span>
-	<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_using_alloc</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
-	<span class="kw">where</span>
-		<span class="ident">A</span>: <span class="ident">Allocator</span>
-	{
-		<span class="self">Self</span>{
-			<span class="ident">chunk</span>: <span class="ident">RawChunk</span>::<span class="ident">new_using_alloc</span>(<span class="ident">alloc</span>),
-			<span class="ident">non_clone</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-		}
-	}
-
 	<span class="doccomment">/// Returns the unterlying key to the cells.</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// # Note</span>
@@ -491,7 +459,7 @@
 				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(
 					<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>])
 				);
-				<span class="ident">TypedChunk</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>)
+				<span class="ident">TypedChunk</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>)
 			};
 
 			<span class="comment">// Invariants after initialization</span>
@@ -522,7 +490,7 @@
 				<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(
 					<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>])
 				);
-				<span class="ident">TypedChunk</span>::<span class="ident">new_using_alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>)
+				<span class="ident">TypedChunk</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>)
 			};
 
 			<span class="comment">// Reads and writes after init.</span>

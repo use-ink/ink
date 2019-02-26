@@ -1,1 +1,0 @@
-initSidebarItems({"macro":[["vec","Creates a [`Vec`] containing the arguments."]],"mod":[["boxed","A pointer type for heap allocation."],["vec","A contiguous growable array type with heap-allocated contents, written `Vec<T>`."]]});

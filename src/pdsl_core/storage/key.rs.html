@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>key.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../..//index.html'><img src='../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>key.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../pdsl_core/index.html'><img src='../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -400,14 +400,6 @@
 <span id="400">400</span>
 <span id="401">401</span>
 <span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">// This file is part of pDSL.</span>
@@ -429,7 +421,7 @@
 
 <span class="kw">use</span> <span class="ident">parity_codec</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
 
-<span class="kw">const</span> <span class="ident">KEY_LOG_TARGET</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;key&quot;</span>;
+<span class="kw">const</span> <span class="ident">KEY_LOG_TARGET</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;key&quot;</span>;
 
 <span class="doccomment">/// Typeless generic key into contract storage.</span>
 <span class="doccomment">///</span>
@@ -471,11 +463,9 @@
 				<span class="ident">bytes</span>[<span class="number">28</span>], <span class="ident">bytes</span>[<span class="number">29</span>], <span class="ident">bytes</span>[<span class="number">30</span>], <span class="ident">bytes</span>[<span class="number">31</span>],
 			)<span class="question-mark">?</span>;
 		} <span class="kw">else</span> {
-			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counter</span> <span class="op">=</span> <span class="number">0</span>;
-			<span class="kw">for</span> <span class="ident">byte</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">as_bytes</span>() {
+			<span class="kw">for</span> (<span class="ident">n</span>, <span class="ident">byte</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
 				<span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{:02X}&quot;</span>, <span class="ident">byte</span>)<span class="question-mark">?</span>;
-				<span class="ident">counter</span> <span class="op">+=</span> <span class="number">1</span>;
-				<span class="kw">if</span> <span class="ident">counter</span> <span class="op">%</span> <span class="number">4</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">counter</span> <span class="op">!=</span> <span class="number">32</span> {
+				<span class="kw">if</span> <span class="ident">n</span> <span class="op">%</span> <span class="number">4</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">n</span> <span class="op">!=</span> <span class="number">32</span> {
 					<span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>)<span class="question-mark">?</span>;
 				}
 			}
@@ -514,58 +504,52 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">KeyDiff</span>([<span class="ident">u8</span>; <span class="number">32</span>]);
 
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_try_to_prim</span> {
+	(
+		$( <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span> )<span class="op">*</span>
+		<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">prim</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">conv</span>:<span class="ident">ident</span>
+	) <span class="op">=&gt;</span> {
+		<span class="kw">impl</span> <span class="ident">KeyDiff</span> {
+			$( <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span> )<span class="op">*</span>
+			<span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">prim</span><span class="op">&gt;</span> {
+				<span class="kw">const</span> <span class="ident">KEY_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
+				<span class="kw">const</span> <span class="ident">PRIM_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">prim</span><span class="op">&gt;</span>();
+				<span class="kw">if</span> <span class="self">self</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">KEY_BYTES</span> <span class="op">-</span> <span class="ident">PRIM_BYTES</span>).<span class="ident">any</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">byte</span><span class="op">|</span> <span class="ident">byte</span> <span class="op">!=</span> <span class="number">0x0</span>) {
+					<span class="kw">return</span> <span class="prelude-val">None</span>
+				}
+				<span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">prim</span><span class="op">&gt;</span>::<span class="ident">from_be_bytes</span>(
+					<span class="kw-2">*</span><span class="ident">byte_utils</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">conv</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">as_bytes</span>()[(<span class="ident">KEY_BYTES</span> <span class="op">-</span> <span class="ident">PRIM_BYTES</span>)..<span class="ident">KEY_BYTES</span>])
+						.<span class="ident">unwrap</span>()
+				);
+				<span class="prelude-val">Some</span>(<span class="ident">value</span>)
+			}
+		}
+	};
+}
+
+<span class="macro">impl_try_to_prim</span><span class="macro">!</span>(
+	<span class="doccomment">/// Tries to convert the key difference to a `u32` if possible.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// Returns `None` if the resulting value is out of bounds.</span>
+	<span class="ident">try_to_u32</span>, <span class="ident">u32</span>, <span class="ident">slice4_as_array4</span>
+);
+<span class="macro">impl_try_to_prim</span><span class="macro">!</span>(
+	<span class="doccomment">/// Tries to convert the key difference to a `u64` if possible.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// Returns `None` if the resulting value is out of bounds.</span>
+	<span class="ident">try_to_u64</span>, <span class="ident">u64</span>, <span class="ident">slice8_as_array8</span>
+);
+<span class="macro">impl_try_to_prim</span><span class="macro">!</span>(
+	<span class="doccomment">/// Tries to convert the key difference to a `u128` if possible.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// Returns `None` if the resulting value is out of bounds.</span>
+	<span class="ident">try_to_u128</span>, <span class="ident">u128</span>, <span class="ident">slice16_as_array16</span>
+);
+
 <span class="kw">impl</span> <span class="ident">KeyDiff</span> {
 	<span class="doccomment">/// Returns the byte slice of this key difference.</span>
 	<span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
 		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-	}
-
-	<span class="doccomment">/// Tries to convert the key difference to a `u32` if possible.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// Returns `None` if the resulting value is out of bounds.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_to_u32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-		<span class="kw">const</span> <span class="ident">KEY_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
-		<span class="kw">const</span> <span class="ident">U32_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>();
-		<span class="kw">if</span> <span class="self">self</span>.<span class="ident">as_bytes</span>().<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">KEY_BYTES</span> <span class="op">-</span> <span class="ident">U32_BYTES</span>).<span class="ident">any</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">byte</span><span class="op">|</span> <span class="ident">byte</span> <span class="op">!=</span> <span class="number">0x0</span>) {
-			<span class="kw">return</span> <span class="prelude-val">None</span>
-		}
-		<span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_be_bytes</span>(
-			<span class="kw-2">*</span><span class="ident">byte_utils</span>::<span class="ident">slice4_as_array4</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">as_bytes</span>()[(<span class="ident">KEY_BYTES</span> <span class="op">-</span> <span class="ident">U32_BYTES</span>)..<span class="ident">KEY_BYTES</span>])
-				.<span class="ident">unwrap</span>()
-		);
-		<span class="prelude-val">Some</span>(<span class="ident">value</span>)
-	}
-
-	<span class="doccomment">/// Tries to convert the key difference to a `u64` if possible.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// Returns `None` if the resulting value is out of bounds.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_to_u64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-		<span class="kw">const</span> <span class="ident">KEY_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
-		<span class="kw">const</span> <span class="ident">U64_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>();
-		<span class="kw">if</span> <span class="self">self</span>.<span class="ident">as_bytes</span>().<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">KEY_BYTES</span> <span class="op">-</span> <span class="ident">U64_BYTES</span>).<span class="ident">any</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">byte</span><span class="op">|</span> <span class="ident">byte</span> <span class="op">!=</span> <span class="number">0x0</span>) {
-			<span class="kw">return</span> <span class="prelude-val">None</span>
-		}
-		<span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from_be_bytes</span>(
-			<span class="kw-2">*</span><span class="ident">byte_utils</span>::<span class="ident">slice8_as_array8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">as_bytes</span>()[(<span class="ident">KEY_BYTES</span> <span class="op">-</span> <span class="ident">U64_BYTES</span>)..<span class="ident">KEY_BYTES</span>])
-				.<span class="ident">unwrap</span>()
-		);
-		<span class="prelude-val">Some</span>(<span class="ident">value</span>)
-	}
-
-	<span class="doccomment">/// Tries to convert the key difference to a `u128` if possible.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// Returns `None` if the resulting value is out of bounds.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_to_u128</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span> {
-		<span class="kw">const</span> <span class="ident">KEY_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
-		<span class="kw">const</span> <span class="ident">U128_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span>();
-		<span class="kw">if</span> <span class="self">self</span>.<span class="ident">as_bytes</span>().<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">KEY_BYTES</span> <span class="op">-</span> <span class="ident">U128_BYTES</span>).<span class="ident">any</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">byte</span><span class="op">|</span> <span class="ident">byte</span> <span class="op">!=</span> <span class="number">0x0</span>) {
-			<span class="kw">return</span> <span class="prelude-val">None</span>
-		}
-		<span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">u128</span>::<span class="ident">from_be_bytes</span>(
-			<span class="kw-2">*</span><span class="ident">byte_utils</span>::<span class="ident">slice16_as_array16</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">as_bytes</span>()[(<span class="ident">KEY_BYTES</span> <span class="op">-</span> <span class="ident">U128_BYTES</span>)..<span class="ident">KEY_BYTES</span>])
-				.<span class="ident">unwrap</span>()
-		);
-		<span class="prelude-val">Some</span>(<span class="ident">value</span>)
 	}
 }
 

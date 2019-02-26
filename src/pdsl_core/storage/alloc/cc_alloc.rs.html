@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/alloc/cc_alloc.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cc_alloc.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../..//index.html'><img src='../../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage/alloc/cc_alloc.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cc_alloc.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../pdsl_core/index.html'><img src='../../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -254,6 +254,18 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">// This file is part of pDSL.</span>
@@ -276,12 +288,13 @@
 	<span class="ident">storage</span>::{
 		<span class="self">self</span>,
 		<span class="ident">Key</span>,
+		<span class="ident">Flush</span>,
 	},
 };
 
 <span class="kw">use</span> <span class="ident">parity_codec</span>::{<span class="ident">Encode</span>, <span class="ident">Decode</span>};
 
-<span class="kw">const</span> <span class="ident">CC_ALLOC_LOG_TARGET</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;cc_alloc&quot;</span>;
+<span class="kw">const</span> <span class="ident">CC_ALLOC_LOG_TARGET</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;cc_alloc&quot;</span>;
 
 <span class="doccomment">/// An allocator for the contract storage.</span>
 <span class="doccomment">///</span>
@@ -328,18 +341,18 @@
 	<span class="doccomment">/// all consecutive executions.</span>
 	<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">allocate_using</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
 	<span class="kw">where</span>
-		<span class="ident">A</span>: <span class="ident">Allocator</span>
+		<span class="ident">A</span>: <span class="ident">Allocate</span>,
 	{
 		<span class="self">Self</span> {
 			<span class="ident">cells</span>: <span class="ident">AllocateUsing</span>::<span class="ident">allocate_using</span>(<span class="ident">alloc</span>),
 			<span class="ident">chunks</span>: <span class="ident">AllocateUsing</span>::<span class="ident">allocate_using</span>(<span class="ident">alloc</span>),
-			<span class="ident">cells_off</span>: <span class="ident">alloc</span>.<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>()),
+			<span class="ident">cells_off</span>: <span class="ident">alloc</span>.<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">u64</span>),
 			<span class="ident">chunks_off</span>:
 				<span class="comment">// TODO: We want `u64::max_value()` here.</span>
 				<span class="comment">//</span>
 				<span class="comment">// As first iteration this should suffice our needs</span>
 				<span class="comment">// as long as we allocate the `CellChunkAlloc` at last.</span>
-				<span class="ident">alloc</span>.<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>()),
+				<span class="ident">alloc</span>.<span class="ident">alloc</span>(<span class="ident">u32</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">u64</span>),
 		}
 	}
 }
@@ -350,6 +363,13 @@
 	<span class="kw">fn</span> <span class="ident">initialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_args</span>: <span class="self">Self</span>::<span class="ident">Args</span>) {
 		<span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">initialize</span>(());
 		<span class="self">self</span>.<span class="ident">chunks</span>.<span class="ident">initialize</span>(());
+	}
+}
+
+<span class="kw">impl</span> <span class="ident">Flush</span> <span class="kw">for</span> <span class="ident">CellChunkAlloc</span> {
+	<span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+		<span class="self">self</span>.<span class="ident">cells</span>.<span class="ident">flush</span>();
+		<span class="self">self</span>.<span class="ident">chunks</span>.<span class="ident">flush</span>();
 	}
 }
 
@@ -452,7 +472,7 @@
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// The reverse of `key_to_chunk_index`.</span>
 	<span class="kw">fn</span> <span class="ident">chunk_index_to_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
-		<span class="kw">let</span> <span class="ident">chunk_offset</span>: <span class="ident">u64</span> <span class="op">=</span> (<span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">32</span>) <span class="op">*</span> (<span class="ident">index</span> <span class="kw">as</span> <span class="ident">u64</span>);
+		<span class="kw">let</span> <span class="ident">chunk_offset</span>: <span class="ident">u64</span> <span class="op">=</span> (<span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">32</span>) <span class="op">*</span> <span class="ident">u64</span>::<span class="ident">from</span>(<span class="ident">index</span>);
 		<span class="self">self</span>.<span class="ident">chunks_offset_key</span>() <span class="op">+</span> <span class="ident">chunk_offset</span>
 	}
 
@@ -471,8 +491,10 @@
 	}
 }
 
-<span class="kw">impl</span> <span class="ident">Allocator</span> <span class="kw">for</span> <span class="ident">CellChunkAlloc</span> {
-	<span class="kw">fn</span> <span class="ident">alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
+<span class="kw">impl</span> <span class="ident">Allocate</span> <span class="kw">for</span> <span class="ident">CellChunkAlloc</span> {
+	<span class="doccomment">/// Can only allocate sizes of up to `u32::MAX`.</span>
+	<span class="kw">fn</span> <span class="ident">alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u64</span>) <span class="op">-&gt;</span> <span class="ident">Key</span> {
+		<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">size</span> <span class="op">&lt;=</span> <span class="ident">u32</span>::<span class="ident">max_value</span> <span class="kw">as</span> <span class="ident">u64</span>);
 		<span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> {
 			<span class="ident">log</span>::<span class="macro">warn</span><span class="macro">!</span>(
 				<span class="ident">target</span>: <span class="ident">CC_ALLOC_LOG_TARGET</span>,
@@ -485,13 +507,15 @@
 			<span class="string">&quot;allocate for size {:?}&quot;</span>,
 			<span class="ident">size</span>,
 		);
-		<span class="kw">if</span> <span class="ident">size</span> <span class="op">&lt;=</span> <span class="number">1</span> {
+		<span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">1</span> {
 			<span class="self">self</span>.<span class="ident">alloc_cell</span>()
 		} <span class="kw">else</span> {
 			<span class="self">self</span>.<span class="ident">alloc_chunk</span>()
 		}
 	}
+}
 
+<span class="kw">impl</span> <span class="ident">Allocator</span> <span class="kw">for</span> <span class="ident">CellChunkAlloc</span> {
 	<span class="kw">fn</span> <span class="ident">dealloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) {
 		<span class="comment">// This assumes that the given key was previously</span>
 		<span class="comment">// generated by the associated call to `Allocator::alloc`</span>
