@@ -4,14 +4,14 @@ dist: trusty
 sudo: true
 
 rust:
-  - stable
-  - beta
+  # - stable
+  # - beta
   - nightly
 
-matrix:
-  allow_failures:
-    - rust: stable
-    - rust: beta
+# matrix:
+#   allow_failures:
+#     - rust: stable
+#     - rust: beta
 
 env:
   global:
