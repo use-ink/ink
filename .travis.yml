@@ -55,6 +55,7 @@ install:
 
 before_script:
   - rustup component add clippy
+  - rustup target add wasm32-unknown-unknown
 
 script:
 - |
@@ -63,4 +64,5 @@ script:
   cargo clippy --verbose --all --all-features -- -D warnings &&
   cargo test --verbose --all --all-features &&
   cargo kcov --verbose --coveralls --manifest-path=core/Cargo.toml --features=test-env &&
+  cargo build --verbose --all --release --target=wasm32-unknown-unknown &&
   bash <(curl -s https://codecov.io/bash)
