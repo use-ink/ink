@@ -71,6 +71,7 @@ pub use crate::{
 		ContractDecl,
 		ContractInstance,
 		Contract,
+		TestableContract,
 	},
 	msg::{
 		Message,

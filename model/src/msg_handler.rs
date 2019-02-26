@@ -31,7 +31,6 @@ use core::{
 	result::Result as CoreResult,
 };
 use parity_codec::Decode;
-use either::Either;
 
 /// A raw read-only message handler for the given message and state.
 ///
@@ -261,11 +260,8 @@ pub type Result<T> = CoreResult<T, Error>;
 
 /// Types implementing this trait can handle contract calls.
 pub trait HandleCall<State> {
-	/// The return type of the handled message.
-    type Output: /*Response + */ 'static;
-
-	/// Handles the call and returns the result.
-	fn handle_call(&self, env: &mut ExecutionEnv<State>, data: CallData) -> Result<Self::Output>;
+	/// Handles the call and returns the encoded result.
+	fn handle_call(&self, env: &mut ExecutionEnv<State>, data: CallData) -> Result<Vec<u8>>;
 }
 
 /// A message handler that shall never handle a message.
@@ -279,9 +275,7 @@ pub trait HandleCall<State> {
 pub struct UnreachableMessageHandler;
 
 impl<State> HandleCall<State> for UnreachableMessageHandler {
-	type Output = ();
-
-	fn handle_call(&self, _env: &mut ExecutionEnv<State>, _data: CallData) -> Result<Self::Output> {
+	fn handle_call(&self, _env: &mut ExecutionEnv<State>, _data: CallData) -> Result<Vec<u8>> {
 		Err(Error::InvalidFunctionSelector)
 	}
 }
@@ -291,32 +285,18 @@ macro_rules! impl_handle_call_for_chain {
 		impl<Msg, State> HandleCall<State> for $msg_handler_kind<Msg, State>
 		where
 			Msg: Message,
-			<Msg as Message>::Output: 'static, // TODO: Could be less restricted.
+			<Msg as Message>::Output: parity_codec::Encode,
 			State: ContractState,
 		{
-			type Output = <Msg as Message>::Output;
-
-			fn handle_call(&self, env: &mut ExecutionEnv<State>, data: CallData) -> Result<Self::Output> {
+			fn handle_call(&self, env: &mut ExecutionEnv<State>, data: CallData) -> Result<Vec<u8>> {
 				let args = <Msg as Message>::Input::decode(&mut &data.params()[..])
 					.ok_or(Error::InvalidArguments)?;
-				use core::intrinsics::type_id;
 				let result = (self.raw_handler)(env, args);
-				if unsafe { type_id::<<Msg as Message>::Output>() != type_id::<()>() } {
-					// Since specialization is not yet implemented in Rust
-					// we have to do a manual static dispatch and only return
-					// if the messages return type if not equal to `()`.
-					if $requires_flushing {
-						env.state.flush();
-					}
-					Ok(result)
-				} else {
-					// If there was an actual result we want to return it now.
-					// Note that `env.return` will end contract execution.
-					if $requires_flushing {
-						env.state.flush();
-					}
-					env.r#return(result)
+				if $requires_flushing {
+					env.state.flush()
 				}
+				use parity_codec::Encode;
+				Ok(result.encode())
 			}
 		}
 
@@ -327,18 +307,12 @@ macro_rules! impl_handle_call_for_chain {
 			State: ContractState,
 			Rest: HandleCall<State>,
 		{
-			type Output = 
-				Either<
-					<Msg as Message>::Output,
-					<Rest as HandleCall<State>>::Output
-				>;
-
-			fn handle_call(&self, env: &mut ExecutionEnv<State>, data: CallData) -> Result<Self::Output> {
+			fn handle_call(&self, env: &mut ExecutionEnv<State>, data: CallData) -> Result<Vec<u8>> {
 				let (handler, rest) = self;
 				if $msg_handler_kind::<Msg, State>::selector() == data.selector() {
-					handler.handle_call(env, data).map(Either::Left)
+					handler.handle_call(env, data)
 				} else {
-					rest.handle_call(env, data).map(Either::Right)
+					rest.handle_call(env, data)
 				}
 			}
 		}

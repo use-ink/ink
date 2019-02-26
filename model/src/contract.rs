@@ -274,6 +274,7 @@ where
 	}
 }
 
+/// A simple interface to work with contracts.
 pub trait Contract {
 	/// Deploys the contract state.
 	///
@@ -296,6 +297,21 @@ pub trait Contract {
 	fn dispatch(self);
 }
 
+/// An interface that allows for simple testing of contracts.
+pub trait TestableContract: Contract {
+	/// Calls the contract with the given message and its
+	/// inputs and upon successful execution returns its result.
+	fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
+	where
+		Msg: Message,
+		<Msg as Message>::Input: parity_codec::Encode,
+		<Msg as Message>::Output: parity_codec::Decode;
+}
+
+/// An instance of a contract.
+///
+/// This resembles the concrete contract that is the result of
+/// an instantiation of a contract declaration.
 pub struct ContractInstance<State, DeployArgs, HandlerChain> {
 	/// The execution environment that is wrapping the actual state.
 	env: ExecutionEnv<State>,
@@ -311,6 +327,15 @@ where
 	DeployArgs: parity_codec::Decode,
 	HandlerChain: crate::HandleCall<State>,
 {
+	/// Deploys the contract.
+	///
+	/// This runs exactly once during the lifetime of a contract and
+	/// is used to initialize the contract's state.
+	///
+	/// # Note
+	///
+	/// Accessing uninitialized contract state can end in trapping execution
+	/// or in the worst case in undefined behaviour.
 	fn deploy(self) {
 		// Deploys the contract state.
 		//
@@ -324,6 +349,9 @@ where
 		this.env.state.flush()
 	}
 
+	/// Dispatches the input buffer and calls the associated message.
+	///
+	/// Returns the result to the caller if there is any.
 	fn dispatch(self) {
 		// Dispatches the given input to a pre defined
 		// contract message and runs its handler.
@@ -337,7 +365,7 @@ where
 		let input = pdsl_core::env::ContractEnv::input();
 		let call_data = CallData::decode(&mut &input[..]).unwrap();
 		let mut this = self;
-		this.call_with(call_data)
+		this.call_with_and_return(call_data)
 	}
 }
 
@@ -347,6 +375,15 @@ where
 	DeployArgs: parity_codec::Decode,
 	HandlerChain: crate::HandleCall<State>,
 {
+	/// Calls the message encoded by the given call data
+	/// and returns the resulting value back to the caller.
+	fn call_with_and_return(&mut self, call_data: CallData) {
+		let encoded_result = self.call_with(call_data);
+		if encoded_result.len() > 0 {
+			self.env.r#return(encoded_result)
+		}
+	}
+
 	/// Calls the message encoded by the given call data.
 	///
 	/// # Panics
@@ -355,31 +392,42 @@ where
 	///   message that is encoded by the given call data.
 	/// - If the encoded input arguments for the message do not
 	///   match the expected format.
-	fn call_with(&mut self, call_data: CallData) {
-		let call_result = self
-			.handlers
-			.handle_call(&mut self.env, call_data);
-		if let Err(err) = call_result {
-			panic!(err.description())
+	fn call_with(&mut self, call_data: CallData) -> Vec<u8> {
+		match self.handlers.handle_call(&mut self.env, call_data) {
+			Ok(encoded_result) => encoded_result,
+			Err(err) => {
+				panic!(err.description())
+			}
 		}
 	}
+}
 
+impl<State, DeployArgs, HandlerChain> TestableContract for ContractInstance<State, DeployArgs, HandlerChain>
+where
+	State: ContractState,
+	DeployArgs: parity_codec::Decode,
+	HandlerChain: crate::HandleCall<State>,
+{
 	/// Calls the given message with its expected input arguments.
 	///
 	/// # Note
 	///
 	/// Takes `&mut self` since it could potentially call a message
 	/// that mutates state. There currently is no separation between
-	/// messages that mutate state and those that don't.
+	/// messages that mutate state and those that do not.
 	///
 	/// # Panics
 	///
 	/// If the contract has no message handler setup for the given message.
-	pub fn call<Msg>(&mut self, input: <Msg as Message>::Input)
+	fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
 	where
 		Msg: Message,
 		<Msg as Message>::Input: parity_codec::Encode,
+		<Msg as Message>::Output: parity_codec::Decode,
 	{
-		self.call_with(CallData::from_msg::<Msg>(input))
+		let encoded_result = self.call_with(CallData::from_msg::<Msg>(input));
+		use parity_codec::Decode;
+		<Msg as Message>::Output::decode(&mut &encoded_result[..])
+			.expect("`call_with` only encodes the correct types")
 	}
 }

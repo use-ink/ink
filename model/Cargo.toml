@@ -20,7 +20,6 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 parity-codec = { version = "3.0", default-features = false, features = ["derive", "full"] }
 pdsl_core = { version = "0.1.0", path = "../core" }
-either = { version = "1.5.0", default-features = false }
 
 [features]
 default = []
