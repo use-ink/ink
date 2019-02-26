@@ -41,15 +41,12 @@ messages! {
 fn instantiate() -> impl TestableContract {
 	ContractDecl::using::<Adder>()
 		.on_deploy(|env, init_val| {
-			println!("Incrementer::on_deploy");
 			env.state.val.set(init_val)
 		})
 		.on_msg_mut::<Inc>(|env, by| {
-			println!("Incrementer::inc");
 			env.state.val += by
 		})
 		.on_msg::<Get>(|env, _| {
-			println!("Incrementer::get -> {:?}", *env.state.val.get());
 			*env.state.val.get()
 		})
 		.instantiate()
