@@ -188,6 +188,27 @@ fn iter() {
 	}
 }
 
+#[test]
+fn iter_backwards() {
+	let filled = new_filled_bitvec();
+	for (actual, expected) in filled.iter().rev().zip(filled_bits().rev()) {
+		assert_eq!(actual, expected)
+	}
+}
+
+#[test]
+fn iter_size_hint_empty() {
+	let filled = new_empty_bitvec();
+	assert_eq!(filled.iter().size_hint(), (0, Some(0)));
+}
+
+#[test]
+fn iter_size_hint_filled() {
+	let len = filled_bits().count();
+	let filled = new_filled_bitvec();
+	assert_eq!(filled.iter().size_hint(), (len, Some(len)));
+}
+
 fn zero_bitvec_with_len(len: usize) -> storage::BitVec {
 	let mut bv = new_empty_bitvec();
 	for _ in 0..len {
