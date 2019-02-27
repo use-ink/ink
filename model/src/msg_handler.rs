@@ -91,8 +91,6 @@ impl CallData {
         use parity_codec::Encode;
         Self {
             selector: <Msg as Message>::ID,
-            // TODO: For performance reasons we maybe don't want to encode this
-            //       and we should maybe allow storing arguments directly somehow.
             raw_params: args.encode(),
         }
     }
@@ -232,7 +230,7 @@ where
 {
     /// Returns the associated handler selector.
     pub const fn selector() -> MessageHandlerSelector {
-        MessageHandlerSelector(0x0) // TODO: Specify and implement behaviour.
+        MessageHandlerSelector(0x0)
     }
 }
 

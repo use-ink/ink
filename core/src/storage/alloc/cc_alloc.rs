@@ -76,16 +76,11 @@ impl AllocateUsing for CellChunkAlloc {
         A: Allocate,
     {
         Self {
-			cells: AllocateUsing::allocate_using(alloc),
-			chunks: AllocateUsing::allocate_using(alloc),
-			cells_off: alloc.alloc(u32::max_value() as u64),
-			chunks_off:
-				// TODO: We want `u64::max_value()` here.
-				//
-				// As first iteration this should suffice our needs
-				// as long as we allocate the `CellChunkAlloc` at last.
-				alloc.alloc(u32::max_value() as u64),
-		}
+            cells: AllocateUsing::allocate_using(alloc),
+            chunks: AllocateUsing::allocate_using(alloc),
+            cells_off: alloc.alloc(u32::max_value() as u64),
+            chunks_off: alloc.alloc(u32::max_value() as u64),
+        }
     }
 }
 
