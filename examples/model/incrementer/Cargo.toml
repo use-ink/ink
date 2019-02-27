@@ -1,5 +1,5 @@
 [package]
-name = "fleet-inc"
+name = "incrementer"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -10,7 +10,7 @@ pdsl_model = { path = "../../../model" }
 parity-codec = { version = "3.0", default-features = false, features = ["derive"] }
 
 [lib]
-name = "fleet_inc"
+name = "incrementer"
 crate-type = ["cdylib"]
 
 [features]
