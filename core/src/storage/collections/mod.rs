@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-pub mod vec;
 pub mod bitvec;
 pub mod hash_map;
 pub mod stash;
+pub mod vec;

@@ -24,6 +24,4 @@ mod tests;
 
 mod impls;
 
-pub use self::impls::{
-	HashMap,
-};
+pub use self::impls::HashMap;

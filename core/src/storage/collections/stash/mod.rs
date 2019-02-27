@@ -37,7 +37,7 @@ mod tests;
 mod impls;
 
 pub use self::impls::{
-	Stash,
-	Iter,
-	Values,
+    Iter,
+    Stash,
+    Values,
 };

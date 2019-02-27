@@ -16,9 +16,7 @@
 
 use super::*;
 
-use crate::{
-	storage::Key,
-};
+use crate::storage::Key;
 
 const BUMP_ALLOC_LOG_TARGET: &str = "bump_alloc";
 
@@ -33,90 +31,86 @@ const BUMP_ALLOC_LOG_TARGET: &str = "bump_alloc";
 /// Users are recommended to use the [`CellChunkAlloc`](struct.CellChunkAlloc.html)
 /// for dynamic storage allocation purposes instead.
 pub struct BumpAlloc {
-	/// The key offset used for all allocations.
-	offset_key: Key,
+    /// The key offset used for all allocations.
+    offset_key: Key,
 }
 
 impl BumpAlloc {
-	/// Creates a new forward allocator for the given raw parts.
-	///
-	/// # Note
-	///
-	/// Do not use this directly!
-	/// This is meant to be used by pDSL internals only.
-	pub unsafe fn from_raw_parts(offset_key: Key) -> Self {
-		Self{
-			offset_key,
-		}
-	}
+    /// Creates a new forward allocator for the given raw parts.
+    ///
+    /// # Note
+    ///
+    /// Do not use this directly!
+    /// This is meant to be used by pDSL internals only.
+    pub unsafe fn from_raw_parts(offset_key: Key) -> Self {
+        Self { offset_key }
+    }
 
-	/// Increase the forward alloc offset key by the given amount.
-	fn inc_offset_key(&mut self, by: u64) {
-		self.offset_key += by;
-	}
+    /// Increase the forward alloc offset key by the given amount.
+    fn inc_offset_key(&mut self, by: u64) {
+        self.offset_key += by;
+    }
 }
 
 impl Allocate for BumpAlloc {
-	fn alloc(&mut self, size: u64) -> Key {
-		if size == 0 {
-			log::warn!(
-				target: BUMP_ALLOC_LOG_TARGET,
-				"tried allocating for a zero size",
-			);
-			panic!(
-				"[psdl_core::BumpAlloc::alloc] Error: \
-				 cannot allocate zero (0) bytes"
-			)
-		}
-		let key = self.offset_key;
-		self.inc_offset_key(size);
-		log::info!(
-			target: BUMP_ALLOC_LOG_TARGET,
-			"allocated {:?} of size (= {:?})",
-			key,
-			size,
-		);
-		key
-	}
+    fn alloc(&mut self, size: u64) -> Key {
+        if size == 0 {
+            log::warn!(
+                target: BUMP_ALLOC_LOG_TARGET,
+                "tried allocating for a zero size",
+            );
+            panic!(
+                "[psdl_core::BumpAlloc::alloc] Error: \
+                 cannot allocate zero (0) bytes"
+            )
+        }
+        let key = self.offset_key;
+        self.inc_offset_key(size);
+        log::info!(
+            target: BUMP_ALLOC_LOG_TARGET,
+            "allocated {:?} of size (= {:?})",
+            key,
+            size,
+        );
+        key
+    }
 }
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
-	use super::*;
+    use super::*;
 
-	#[test]
-	fn allocate() {
-		let offset_key = Key([0x00; 32]);
-		let mut bump_alloc = unsafe {
-			BumpAlloc::from_raw_parts(offset_key)
-		};
-		assert_eq!(bump_alloc.alloc(1), offset_key + 0_u32);
-		assert_eq!(bump_alloc.alloc(10), offset_key + 1_u32);
-		assert_eq!(bump_alloc.alloc(u16::max_value() as u64), offset_key + 11_u32);
-		assert_eq!(bump_alloc.alloc(2), offset_key + 0x1000A_u32);
-		assert_eq!(bump_alloc.alloc(1), offset_key + 0x1000C_u32);
-		assert_eq!(
-			bump_alloc.alloc(u32::max_value() as u64),
-			offset_key + 0x1000D_u32,
-		);
-		assert_eq!(
-			bump_alloc.alloc(1),
-			Key([
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0C,
-			])
-		)
-	}
+    #[test]
+    fn allocate() {
+        let offset_key = Key([0x00; 32]);
+        let mut bump_alloc = unsafe { BumpAlloc::from_raw_parts(offset_key) };
+        assert_eq!(bump_alloc.alloc(1), offset_key + 0_u32);
+        assert_eq!(bump_alloc.alloc(10), offset_key + 1_u32);
+        assert_eq!(
+            bump_alloc.alloc(u16::max_value() as u64),
+            offset_key + 11_u32
+        );
+        assert_eq!(bump_alloc.alloc(2), offset_key + 0x1000A_u32);
+        assert_eq!(bump_alloc.alloc(1), offset_key + 0x1000C_u32);
+        assert_eq!(
+            bump_alloc.alloc(u32::max_value() as u64),
+            offset_key + 0x1000D_u32,
+        );
+        assert_eq!(
+            bump_alloc.alloc(1),
+            Key([
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0C,
+            ])
+        )
+    }
 
-	#[test]
-	#[should_panic]
-	fn allocate_zero() {
-		let offset_key = Key([0x00; 32]);
-		let mut bump_alloc = unsafe {
-			BumpAlloc::from_raw_parts(offset_key)
-		};
-		bump_alloc.alloc(0);
-	}
+    #[test]
+    #[should_panic]
+    fn allocate_zero() {
+        let offset_key = Key([0x00; 32]);
+        let mut bump_alloc = unsafe { BumpAlloc::from_raw_parts(offset_key) };
+        bump_alloc.alloc(0);
+    }
 }

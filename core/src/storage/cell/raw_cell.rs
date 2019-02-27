@@ -15,19 +15,25 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-	memory::vec::Vec,
-	storage::{
-		Key,
-		NonCloneMarker,
-		alloc::{
-			Allocate,
-			AllocateUsing,
-		},
-	},
-	env::{Env, ContractEnv},
+    env::{
+        ContractEnv,
+        Env,
+    },
+    memory::vec::Vec,
+    storage::{
+        alloc::{
+            Allocate,
+            AllocateUsing,
+        },
+        Key,
+        NonCloneMarker,
+    },
 };
 
-use parity_codec::{Encode, Decode};
+use parity_codec::{
+    Decode,
+    Encode,
+};
 
 /// A raw cell.
 ///
@@ -40,96 +46,96 @@ use parity_codec::{Encode, Decode};
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct RawCell {
-	/// The key to the associated constract storage slot.
-	key: Key,
-	/// Marker that prevents this type from being `Copy` or `Clone` by accident.
-	non_clone: NonCloneMarker<()>,
+    /// The key to the associated constract storage slot.
+    key: Key,
+    /// Marker that prevents this type from being `Copy` or `Clone` by accident.
+    non_clone: NonCloneMarker<()>,
 }
 
 impl AllocateUsing for RawCell {
-	unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-	where
-		A: Allocate,
-	{
-		Self {
-			key: alloc.alloc(1),
-			non_clone: NonCloneMarker::default()
-		}
-	}
+    unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+    where
+        A: Allocate,
+    {
+        Self {
+            key: alloc.alloc(1),
+            non_clone: NonCloneMarker::default(),
+        }
+    }
 }
 
 impl RawCell {
-	/// Loads the bytes stored in the cell if not empty.
-	pub fn load(&self) -> Option<Vec<u8>> {
-		unsafe { ContractEnv::load(self.key) }
-	}
+    /// Loads the bytes stored in the cell if not empty.
+    pub fn load(&self) -> Option<Vec<u8>> {
+        unsafe { ContractEnv::load(self.key) }
+    }
 
-	/// Stores the given bytes into the cell.
-	pub fn store(&mut self, bytes: &[u8]) {
-		unsafe { ContractEnv::store(self.key, bytes) }
-	}
+    /// Stores the given bytes into the cell.
+    pub fn store(&mut self, bytes: &[u8]) {
+        unsafe { ContractEnv::store(self.key, bytes) }
+    }
 
-	/// Removes the bytes stored in the cell.
-	pub fn clear(&mut self) {
-		unsafe { ContractEnv::clear(self.key) }
-	}
+    /// Removes the bytes stored in the cell.
+    pub fn clear(&mut self) {
+        unsafe { ContractEnv::clear(self.key) }
+    }
 }
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
-	use super::*;
+    use super::*;
 
-	use crate::{
-		test_utils::run_test,
-		env::TestEnv,
-		storage::alloc::{
-			BumpAlloc,
-			AllocateUsing,
-		},
-	};
+    use crate::{
+        env::TestEnv,
+        storage::alloc::{
+            AllocateUsing,
+            BumpAlloc,
+        },
+        test_utils::run_test,
+    };
 
-	fn instantiate() -> RawCell {
-		unsafe {
-			let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-			RawCell::allocate_using(&mut alloc)
-		}
-	}
+    fn instantiate() -> RawCell {
+        unsafe {
+            let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+            RawCell::allocate_using(&mut alloc)
+        }
+    }
 
-	#[test]
-	fn simple() {
-		run_test(|| {
-			let mut cell = instantiate();
-			assert_eq!(cell.load(), None);
-			cell.store(b"Hello, World!");
-			assert_eq!(cell.load(), Some(b"Hello, World!".to_vec()));
-			cell.clear();
-			assert_eq!(cell.load(), None);
-		})
-	}
+    #[test]
+    fn simple() {
+        run_test(|| {
+            let mut cell = instantiate();
+            assert_eq!(cell.load(), None);
+            cell.store(b"Hello, World!");
+            assert_eq!(cell.load(), Some(b"Hello, World!".to_vec()));
+            cell.clear();
+            assert_eq!(cell.load(), None);
+        })
+    }
 
-	#[test]
-	fn count_reads() {
-		run_test(|| {
-			let cell = instantiate();
-			assert_eq!(TestEnv::total_reads(), 0);
-			cell.load();
-			assert_eq!(TestEnv::total_reads(), 1);
-			cell.load();
-			cell.load();
-			assert_eq!(TestEnv::total_reads(), 3);
-		})
-	}
+    #[test]
+    fn count_reads() {
+        run_test(|| {
+            let cell = instantiate();
+            assert_eq!(TestEnv::total_reads(), 0);
+            cell.load();
+            assert_eq!(TestEnv::total_reads(), 1);
+            cell.load();
+            cell.load();
+            assert_eq!(TestEnv::total_reads(), 3);
+        })
+    }
 
-	#[test]
-	fn count_writes() {
-		run_test(|| {
-			let mut cell = instantiate();
-			assert_eq!(TestEnv::total_writes(), 0);
-			cell.store(b"a");
-			assert_eq!(TestEnv::total_writes(), 1);
-			cell.store(b"b");
-			cell.store(b"c");
-			assert_eq!(TestEnv::total_writes(), 3);
-		})
-	}
+    #[test]
+    fn count_writes() {
+        run_test(|| {
+            let mut cell = instantiate();
+            assert_eq!(TestEnv::total_writes(), 0);
+            cell.store(b"a");
+            assert_eq!(TestEnv::total_writes(), 1);
+            cell.store(b"b");
+            cell.store(b"c");
+            assert_eq!(TestEnv::total_writes(), 3);
+        })
+    }
 }

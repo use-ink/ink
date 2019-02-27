@@ -22,14 +22,14 @@ mod env;
 
 mod types;
 
-pub use self::{
-	types::{
-		Address,
-		Balance,
-	},
+pub use self::types::{
+    Address,
+    Balance,
 };
 
 #[cfg(not(feature = "test-env"))]
-pub use self::{
-	env::{SrmlEnv, DefaultSrmlEnv, DefaultSrmlTypes},
+pub use self::env::{
+    DefaultSrmlEnv,
+    DefaultSrmlTypes,
+    SrmlEnv,
 };

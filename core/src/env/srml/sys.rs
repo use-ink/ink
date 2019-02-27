@@ -19,45 +19,45 @@
 //! Refer to substrate SRML contract module for more documentation.
 
 extern "C" {
-	// Currently unused due to rework of SRML contracts internals. (PUT_CODE)
-	#[allow(unused)]
-	pub fn ext_create(
-		init_code_ptr: u32,
-		init_code_len: u32,
-		gas: u64,
-		value_ptr: u32,
-		value_len: u32,
-		input_data_ptr: u32,
-		input_data_len: u32
-	) -> u32;
+    // Currently unused due to rework of SRML contracts internals. (PUT_CODE)
+    #[allow(unused)]
+    pub fn ext_create(
+        init_code_ptr: u32,
+        init_code_len: u32,
+        gas: u64,
+        value_ptr: u32,
+        value_len: u32,
+        input_data_ptr: u32,
+        input_data_len: u32,
+    ) -> u32;
 
-	// Currently unused due to rework of SRML contracts internals. (PUT_CODE)
-	#[allow(unused)]
-	pub fn ext_call(
-		callee_ptr: u32,
-		callee_len: u32,
-		gas: u64,
-		value_ptr: u32,
-		value_len: u32,
-		input_data_ptr: u32,
-		input_data_len: u32
-	) -> u32;
+    // Currently unused due to rework of SRML contracts internals. (PUT_CODE)
+    #[allow(unused)]
+    pub fn ext_call(
+        callee_ptr: u32,
+        callee_len: u32,
+        gas: u64,
+        value_ptr: u32,
+        value_len: u32,
+        input_data_ptr: u32,
+        input_data_len: u32,
+    ) -> u32;
 
-	pub fn ext_caller();
+    pub fn ext_caller();
 
-	pub fn ext_set_storage(
-		key_ptr: u32,
-		value_non_null: u32,
-		value_ptr: u32,
-		value_len: u32
-	);
-	pub fn ext_get_storage(key_ptr: u32) -> u32;
+    pub fn ext_set_storage(
+        key_ptr: u32,
+        value_non_null: u32,
+        value_ptr: u32,
+        value_len: u32,
+    );
+    pub fn ext_get_storage(key_ptr: u32) -> u32;
 
-	pub fn ext_scratch_size() -> u32;
-	pub fn ext_scratch_copy(dest_ptr: u32, offset: u32, len: u32);
+    pub fn ext_scratch_size() -> u32;
+    pub fn ext_scratch_copy(dest_ptr: u32, offset: u32, len: u32);
 
-	pub fn ext_input_size() -> u32;
-	pub fn ext_input_copy(dest_ptr: u32, offset: u32, len: u32);
+    pub fn ext_input_size() -> u32;
+    pub fn ext_input_copy(dest_ptr: u32, offset: u32, len: u32);
 
-	pub fn ext_return(data_ptr: u32, data_len: u32) -> !;
+    pub fn ext_return(data_ptr: u32, data_len: u32) -> !;
 }

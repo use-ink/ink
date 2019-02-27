@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use parity_codec::{Encode, Decode};
-
 use core::marker::PhantomData;
+use parity_codec::{
+    Decode,
+    Encode,
+};
 
 /// Marks types as non-`Copy` and non-`Clone`.
 ///
@@ -33,7 +35,7 @@ use core::marker::PhantomData;
 pub struct NonCloneMarker<T>(PhantomData<T>);
 
 impl<T> Default for NonCloneMarker<T> {
-	fn default() -> Self {
-		Self(PhantomData)
-	}
+    fn default() -> Self {
+        Self(PhantomData)
+    }
 }

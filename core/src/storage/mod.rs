@@ -72,46 +72,43 @@
 //! - `RawChunk`
 //! - `TypedChunk`
 //! - `SyncChunk`
-//!
 
+pub mod alloc;
 mod key;
 mod non_clone;
-pub mod alloc;
 
 pub mod cell;
 pub mod chunk;
 mod collections;
-mod value;
 mod flush;
+mod value;
 
 use self::non_clone::NonCloneMarker;
 
 pub use self::{
-	key::{
-		Key,
-		KeyDiff,
-	},
-	collections::{
-		vec::{
-			self,
-			Vec,
-		},
-		hash_map::{
-			self,
-			HashMap,
-		},
-		stash::{
-			self,
-			Stash,
-		},
-		bitvec::{
-			self,
-			BitVec,
-		},
-	},
-	flush::{
-		Flush,
-	},
+    collections::{
+        bitvec::{
+            self,
+            BitVec,
+        },
+        hash_map::{
+            self,
+            HashMap,
+        },
+        stash::{
+            self,
+            Stash,
+        },
+        vec::{
+            self,
+            Vec,
+        },
+    },
+    flush::Flush,
+    key::{
+        Key,
+        KeyDiff,
+    },
 };
 
 #[doc(inline)]

@@ -20,9 +20,5 @@ mod chunk;
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 
-pub(crate) use self::{
-	cache::CacheGuard,
-};
-pub use self::{
-	chunk::SyncChunk,
-};
+pub(crate) use self::cache::CacheGuard;
+pub use self::chunk::SyncChunk;

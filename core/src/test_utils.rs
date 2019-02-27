@@ -27,12 +27,11 @@ fn teardown() {}
 /// This executes general setup routines before executing
 /// the test and general tear-down procedures after executing.
 pub(crate) fn run_test<F>(test: F) -> ()
-    where F: FnOnce() -> () + std::panic::UnwindSafe
+where
+    F: FnOnce() -> () + std::panic::UnwindSafe,
 {
     setup();
-    let result = std::panic::catch_unwind(|| {
-        test()
-    });
+    let result = std::panic::catch_unwind(|| test());
     teardown();
     assert!(result.is_ok())
 }

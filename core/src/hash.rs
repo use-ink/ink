@@ -19,71 +19,71 @@
 use tiny_keccak;
 
 use core::hash::{
-	Hash,
-	Hasher,
+    Hash,
+    Hasher,
 };
 
 /// Keccak256 hasher.
 #[derive(Clone)]
 pub struct Keccak256Hasher {
-	/// The internal keccak hasher.
-	hasher: tiny_keccak::Keccak,
+    /// The internal keccak hasher.
+    hasher: tiny_keccak::Keccak,
 }
 
 impl Default for Keccak256Hasher {
-	fn default() -> Self {
-		Keccak256Hasher{
-			hasher: tiny_keccak::Keccak::new_keccak256()
-		}
-	}
+    fn default() -> Self {
+        Keccak256Hasher {
+            hasher: tiny_keccak::Keccak::new_keccak256(),
+        }
+    }
 }
 
 impl Keccak256Hasher {
-	/// Returns the hash value for the values written so far.
-	///
-	/// If you need to start a fresh hash value, you will have to create a new hasher.
-	pub fn finish256(self) -> [u8; 32] {
-		let mut res = [0; 32];
-		self.hasher.finalize(&mut res);
-		res
-	}
+    /// Returns the hash value for the values written so far.
+    ///
+    /// If you need to start a fresh hash value, you will have to create a new hasher.
+    pub fn finish256(self) -> [u8; 32] {
+        let mut res = [0; 32];
+        self.hasher.finalize(&mut res);
+        res
+    }
 
-	pub fn finish64(self) -> [u8; 8] {
-		let mut arr = [0; 8];
-		let res = self.finish256();
-		arr[..8].clone_from_slice(&res[..8]);
-		arr
-	}
+    pub fn finish64(self) -> [u8; 8] {
+        let mut arr = [0; 8];
+        let res = self.finish256();
+        arr[..8].clone_from_slice(&res[..8]);
+        arr
+    }
 }
 
 fn bytes8_to_u64(bytes: [u8; 8]) -> u64 {
-	bytes
-		.iter()
-		.enumerate()
-		.map(|(n, &ext)| u64::from(ext) << (n * 8))
-		.fold(0u64, |acc, ext| acc | ext)
+    bytes
+        .iter()
+        .enumerate()
+        .map(|(n, &ext)| u64::from(ext) << (n * 8))
+        .fold(0u64, |acc, ext| acc | ext)
 }
 
 impl Hasher for Keccak256Hasher {
-	/// Returns the hash value for the values written so far.
-	///
-	/// If you need to start a fresh hash value, you will have to create a new hasher.
-	fn finish(&self) -> u64 {
-		bytes8_to_u64(self.clone().finish64())
-	}
+    /// Returns the hash value for the values written so far.
+    ///
+    /// If you need to start a fresh hash value, you will have to create a new hasher.
+    fn finish(&self) -> u64 {
+        bytes8_to_u64(self.clone().finish64())
+    }
 
-	/// Writes some data into the hasher.
-	fn write(&mut self, bytes: &[u8]) {
-		self.hasher.update(bytes)
-	}
+    /// Writes some data into the hasher.
+    fn write(&mut self, bytes: &[u8]) {
+        self.hasher.update(bytes)
+    }
 }
 
 /// Returns the keccak-256 hash for the given byte slice.
 pub fn keccak256<T>(val: &T) -> [u8; 32]
 where
-	T: ?Sized + Hash
+    T: ?Sized + Hash,
 {
-	let mut hasher = Keccak256Hasher::default();
-	val.hash(&mut hasher);
-	hasher.finish256()
+    let mut hasher = Keccak256Hasher::default();
+    val.hash(&mut hasher);
+    hasher.finish256()
 }

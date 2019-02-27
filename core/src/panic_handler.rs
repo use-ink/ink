@@ -14,18 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use core::panic::PanicInfo;
-use core::alloc::Layout;
+use core::{
+    alloc::Layout,
+    panic::PanicInfo,
+};
 
 #[panic_handler]
 #[no_mangle]
 pub fn panic(_info: &PanicInfo) -> ! {
-	unsafe { core::intrinsics::abort() }
+    unsafe { core::intrinsics::abort() }
 }
 
 #[alloc_error_handler]
-pub extern fn oom(_: Layout) -> ! {
-	unsafe { core::intrinsics::abort(); }
+pub extern "C" fn oom(_: Layout) -> ! {
+    unsafe {
+        core::intrinsics::abort();
+    }
 }
 
 /// This is only required in non wasm32-unknown-unknown targets.
@@ -33,4 +37,4 @@ pub extern fn oom(_: Layout) -> ! {
 /// Since pdsl_core is targeted for wasm32-unknown-unknown we should
 /// maybe remove this.
 #[lang = "eh_personality"]
-extern fn eh_personality() {}
+extern "C" fn eh_personality() {}

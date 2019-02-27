@@ -25,6 +25,6 @@ mod tests;
 mod impls;
 
 pub use self::impls::{
-	Vec,
-	Iter,
+    Iter,
+    Vec,
 };

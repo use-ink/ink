@@ -46,13 +46,15 @@
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 
-mod pack;
 mod block;
+mod pack;
 mod vec;
 
-pub(in self) use self::pack::BitPack;
-pub(in self) use self::block::BitBlock;
 pub use self::vec::{
-	BitVec,
-	Iter,
+    BitVec,
+    Iter,
+};
+pub(self) use self::{
+    block::BitBlock,
+    pack::BitPack,
 };

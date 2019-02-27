@@ -20,44 +20,48 @@
 
 #[cfg(not(feature = "std"))]
 mod no_std_defs {
-	pub use alloc::boxed;
-	pub use alloc::vec;
-	pub use alloc::string;
-	pub use alloc::borrow;
+    pub use alloc::{
+        borrow,
+        boxed,
+        string,
+        vec,
+    };
 
-	/// Collection types.
-	pub mod collections {
-		pub use alloc::collections::*;
-		pub use self::{
-			BinaryHeap,
-			BTreeMap,
-			BTreeSet,
-			LinkedList,
-			VecDeque,
-		};
-		pub use core::ops::Bound;
-	}
+    /// Collection types.
+    pub mod collections {
+        pub use self::{
+            BTreeMap,
+            BTreeSet,
+            BinaryHeap,
+            LinkedList,
+            VecDeque,
+        };
+        pub use alloc::collections::*;
+        pub use core::ops::Bound;
+    }
 }
 
 #[cfg(feature = "std")]
 mod std_defs {
-	pub use std::boxed;
-	pub use std::vec;
-	pub use std::string;
-	pub use std::borrow;
+    pub use std::{
+        borrow,
+        boxed,
+        string,
+        vec,
+    };
 
-	/// Collection types.
-	pub mod collections {
-		pub use std::collections::*;
-		pub use self::{
-			binary_heap::BinaryHeap,
-			btree_map::BTreeMap,
-			btree_set::BTreeSet,
-			linked_list::LinkedList,
-			vec_deque::VecDeque,
-			Bound,
-		};
-	}
+    /// Collection types.
+    pub mod collections {
+        pub use self::{
+            binary_heap::BinaryHeap,
+            btree_map::BTreeMap,
+            btree_set::BTreeSet,
+            linked_list::LinkedList,
+            vec_deque::VecDeque,
+            Bound,
+        };
+        pub use std::collections::*;
+    }
 }
 
 #[cfg(not(feature = "std"))]
