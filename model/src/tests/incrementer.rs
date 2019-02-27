@@ -16,7 +16,6 @@
 
 use crate::{
 	ContractDecl,
-	Contract,
 	TestableContract,
 	state,
 	messages,
@@ -38,7 +37,7 @@ messages! {
 	1 => Get() -> u32;
 }
 
-fn instantiate() -> impl TestableContract {
+fn instantiate() -> impl TestableContract<DeployArgs = u32> {
 	ContractDecl::using::<Adder>()
 		.on_deploy(|env, init_val| {
 			env.state.val.set(init_val)
@@ -54,13 +53,25 @@ fn instantiate() -> impl TestableContract {
 
 #[test]
 fn inc_and_read() {
-	use pdsl_core::env::TestEnv;
-	TestEnv::set_input(b"\0\0\0\0"); // 4 zero-bytes to initialize the `u32` with `0x0`
-	instantiate().deploy();
 	let mut contract = instantiate();
+	contract.deploy(0_u32);
 	assert_eq!(contract.call::<Get>(()), 0_u32);
 	contract.call::<Inc>(1);
 	assert_eq!(contract.call::<Get>(()), 1_u32);
 	contract.call::<Inc>(41);
 	assert_eq!(contract.call::<Get>(()), 42_u32);
+}
+
+#[test]
+#[should_panic]
+fn read_without_deploy() {
+	let mut contract = instantiate();
+	let _res = contract.call::<Get>(());
+}
+
+#[test]
+#[should_panic]
+fn write_without_deploy() {
+	let mut contract = instantiate();
+	contract.call::<Inc>(100);
 }

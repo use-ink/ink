@@ -299,9 +299,36 @@ pub trait Contract {
 }
 
 /// An interface that allows for simple testing of contracts.
-pub trait TestableContract: Contract {
+pub trait TestableContract {
+	/// The arguments used for deployment.
+	///
+	/// These must be the same as the ones defined on the deploy handler
+	/// of a contract declaration.
+	type DeployArgs: parity_codec::Encode;
+
+	/// Deploys the contract given the provided arguments for deployment.
+	///
+	/// # Note
+	///
+	/// This shall be performed only once during the lifetime of a contract.
+	///
+	/// # Panics
+	///
+	/// This might panic if the provided arguments do not match the expected.
+	fn deploy(&mut self, deploy_args: Self::DeployArgs);
+
 	/// Calls the contract with the given message and its
 	/// inputs and upon successful execution returns its result.
+	///
+	/// # Note
+	///
+	/// Takes `&mut self` since it could potentially call a message
+	/// that mutates state. There currently is no separation between
+	/// messages that mutate state and those that do not.
+	///
+	/// # Panics
+	///
+	/// If the contract has no message handler setup for the given message.
 	fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
 	where
 		Msg: Message,
@@ -376,6 +403,25 @@ where
 	DeployArgs: parity_codec::Decode,
 	HandlerChain: crate::HandleCall<State>,
 {
+	/// Deploys the contract.
+	///
+	/// This runs exactly once during the lifetime of a contract and
+	/// is used to initialize the contract's state.
+	///
+	/// # Note
+	///
+	/// Accessing uninitialized contract state can end in trapping execution
+	/// or in the worst case in undefined behaviour.
+	fn deploy_with(&mut self, input: &[u8]) {
+		// Deploys the contract state.
+		//
+		// Should be performed exactly once during contract lifetime.
+		// Consumes the contract since nothing should be done afterwards.
+		let deploy_params = DeployArgs::decode(&mut &input[..]).unwrap();
+		(self.deployer.deploy_fn)(&mut self.env, deploy_params);
+		self.env.state.flush()
+	}
+
 	/// Calls the message encoded by the given call data
 	/// and returns the resulting value back to the caller.
 	fn call_with_and_return(&mut self, call_data: CallData) {
@@ -406,20 +452,15 @@ where
 impl<State, DeployArgs, HandlerChain> TestableContract for ContractInstance<State, DeployArgs, HandlerChain>
 where
 	State: ContractState,
-	DeployArgs: parity_codec::Decode,
+	DeployArgs: parity_codec::Codec,
 	HandlerChain: crate::HandleCall<State>,
 {
-	/// Calls the given message with its expected input arguments.
-	///
-	/// # Note
-	///
-	/// Takes `&mut self` since it could potentially call a message
-	/// that mutates state. There currently is no separation between
-	/// messages that mutate state and those that do not.
-	///
-	/// # Panics
-	///
-	/// If the contract has no message handler setup for the given message.
+	type DeployArgs = DeployArgs;
+
+	fn deploy(&mut self, input: Self::DeployArgs) {
+		self.deploy_with(&input.encode()[..])
+	}
+
 	fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
 	where
 		Msg: Message,
