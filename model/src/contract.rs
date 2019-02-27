@@ -33,6 +33,7 @@ use crate::{
 		RawMessageHandlerMut,
 	},
 };
+use pdsl_core::memory::vec::Vec;
 use core::marker::PhantomData;
 
 /// A marker struct to tell that the deploy handler requires no arguments.
