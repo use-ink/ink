@@ -25,10 +25,10 @@ use pdsl_core;
 
 #[no_mangle]
 pub extern "C" fn deploy() {
-	// ContractEnv::println("noop contract: CREATE");
+    // ContractEnv::println("noop contract: CREATE");
 }
 
 #[no_mangle]
 pub extern "C" fn call() {
-	// ContractEnv::println("noop contract: CALL");
+    // ContractEnv::println("noop contract: CALL");
 }

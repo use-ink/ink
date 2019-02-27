@@ -17,41 +17,42 @@
 #![no_std]
 #![feature(const_str_as_bytes)]
 
-use pdsl_model::{
-	ContractDecl,
-	Contract,
-	state,
-	messages,
-};
 use pdsl_core::{
-	env::{
-		srml::Address,
-		srml::Balance,
-	},
-	storage,
+    env::srml::{
+        Address,
+        Balance,
+    },
+    storage,
+};
+use pdsl_model::{
+    messages,
+    state,
+    Contract,
+    ContractDecl,
 };
 
 state! {
-	/// A simple implementation of a rudimentary Erc20 token contract.
-	struct Erc20Token {
-		/// The balance for an address.
-		balances: storage::HashMap<Address, Balance>,
-		/// The total supply.
-		total: storage::Value<Balance>
-	}
+    /// A simple implementation of a rudimentary Erc20 token contract.
+    struct Erc20Token {
+        /// The balance for an address.
+        balances: storage::HashMap<Address, Balance>,
+        /// The total supply.
+        total: storage::Value<Balance>
+    }
 }
 
 messages! {
-	/// Returns the total supply.
-	0 => TotalSupply() -> Balance;
-	/// Returns the balance of the given address.
-	1 => BalanceOf(owner: Address) -> Balance;
-	/// Transfers balance from the caller to the given address.
-	///
-	/// Returns `true` if the transfer was successful.
-	2 => Transfer(to: Address, amount: Balance) -> bool;
+    /// Returns the total supply.
+    0 => TotalSupply() -> Balance;
+    /// Returns the balance of the given address.
+    1 => BalanceOf(owner: Address) -> Balance;
+    /// Transfers balance from the caller to the given address.
+    ///
+    /// Returns `true` if the transfer was successful.
+    2 => Transfer(to: Address, amount: Balance) -> bool;
 }
 
+#[rustfmt::skip]
 fn instantiate() -> impl Contract {
 	ContractDecl::using::<Erc20Token>()
 		.on_deploy(|env, init_supply| {
@@ -86,10 +87,10 @@ fn instantiate() -> impl Contract {
 
 #[no_mangle]
 fn deploy() {
-	instantiate().deploy()
+    instantiate().deploy()
 }
 
 #[no_mangle]
 fn call() {
-	instantiate().dispatch()
+    instantiate().dispatch()
 }

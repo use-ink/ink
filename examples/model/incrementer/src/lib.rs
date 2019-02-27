@@ -17,29 +17,30 @@
 #![no_std]
 #![feature(const_str_as_bytes)]
 
-use pdsl_model::{
-	ContractDecl,
-	Contract,
-	state,
-	messages,
-};
 use pdsl_core::storage;
+use pdsl_model::{
+    messages,
+    state,
+    Contract,
+    ContractDecl,
+};
 
 state! {
-	/// A simple contract having just one value that can be incremented and returned.
-	struct Adder {
-		/// The simple value on the contract storage.
-		val: storage::Value<u32>
-	}
+    /// A simple contract having just one value that can be incremented and returned.
+    struct Adder {
+        /// The simple value on the contract storage.
+        val: storage::Value<u32>
+    }
 }
 
 messages! {
-	/// Increases the storage value by the given amount.
-	0 => Inc(by: u32);
-	/// Returns the storage value.
-	1 => Get() -> u32;
+    /// Increases the storage value by the given amount.
+    0 => Inc(by: u32);
+    /// Returns the storage value.
+    1 => Get() -> u32;
 }
 
+#[rustfmt::skip]
 fn instantiate() -> impl Contract {
 	ContractDecl::using::<Adder>()
 		.on_deploy(|env, init_val| {
@@ -56,10 +57,10 @@ fn instantiate() -> impl Contract {
 
 #[no_mangle]
 fn deploy() {
-	instantiate().deploy()
+    instantiate().deploy()
 }
 
 #[no_mangle]
 fn call() {
-	instantiate().dispatch()
+    instantiate().dispatch()
 }
