@@ -25,6 +25,7 @@ use pdsl_core::{
     storage::{
         alloc::{
             self,
+			Allocate,
             AllocateUsing,
             Initialize,
         },
@@ -70,7 +71,7 @@ impl Initialize for Incrementer {
 impl AllocateUsing for Incrementer {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
-        A: pdsl_core::storage::Allocator,
+        A: Allocate,
     {
         Self {
             current: AllocateUsing::allocate_using(alloc),

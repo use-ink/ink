@@ -72,7 +72,7 @@ pub struct UserData {
 impl AllocateUsing for UserData {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
-        A: storage::Allocator,
+        A: pdsl_core::storage::alloc::Allocate,
     {
         Self {
             owner: Address::from(&[0x0; 32][..]),
@@ -110,7 +110,7 @@ pub struct Subpeep {
 impl AllocateUsing for Subpeep {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
-        A: pdsl_core::storage::Allocator,
+        A: pdsl_core::storage::alloc::Allocate,
     {
         Self {
             peeps: storage::Vec::allocate_using(alloc),

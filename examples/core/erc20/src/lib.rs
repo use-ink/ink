@@ -33,7 +33,7 @@ use pdsl_core::{
         self,
         alloc::{
             AllocateUsing,
-            Allocator,
+			Allocate,
             BumpAlloc,
             Initialize,
         },
@@ -128,7 +128,7 @@ impl Erc20Token {
 impl AllocateUsing for Erc20Token {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
-        A: Allocator,
+        A: Allocate,
     {
         Self {
             balances: storage::HashMap::allocate_using(alloc),
