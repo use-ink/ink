@@ -54,13 +54,13 @@ install:
   - ls -lah
 
 before_script:
-  - rustup component add clippy
+  - rustup component add clippy rustfmt
   - rustup target add wasm32-unknown-unknown
 
 script:
 - |
-  ls -lah
   cargo check --verbose --all --all-features &&
+  cargo fmt --all -- --check
   cargo clippy --verbose --all --all-features -- -D warnings &&
   cargo test --verbose --all --all-features &&
   cargo kcov --verbose --coveralls --manifest-path=core/Cargo.toml --features=test-env &&
