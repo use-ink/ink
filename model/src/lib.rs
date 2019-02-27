@@ -15,11 +15,7 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(
-	const_fn,
-	const_str_as_bytes,
-	core_intrinsics,
-)]
+#![feature(const_fn, const_str_as_bytes, core_intrinsics)]
 #![deny(bad_style,
 	const_err,
 	dead_code,
@@ -65,34 +61,28 @@ mod msg_handler;
 mod tests;
 
 pub use crate::{
-	state::{
-		ContractState,
-	},
-	contract::{
-		EmptyContractState,
-		NoDeployArgs,
-		DeployHandler,
-		ContractDecl,
-		ContractInstance,
-		Contract,
-		TestableContract,
-	},
-	msg::{
-		Message,
-	},
-	exec_env::{
-		ExecutionEnv,
-	},
-	msg_handler::{
-		CallData,
-		Error,
-		MessageHandlerSelector,
-		MessageHandler,
-		MessageHandlerMut,
-		RawMessageHandler,
-		RawMessageHandlerMut,
-		Result,
-		HandleCall,
-		UnreachableMessageHandler,
-	},
+    contract::{
+        Contract,
+        ContractDecl,
+        ContractInstance,
+        DeployHandler,
+        EmptyContractState,
+        NoDeployArgs,
+        TestableContract,
+    },
+    exec_env::ExecutionEnv,
+    msg::Message,
+    msg_handler::{
+        CallData,
+        Error,
+        HandleCall,
+        MessageHandler,
+        MessageHandlerMut,
+        MessageHandlerSelector,
+        RawMessageHandler,
+        RawMessageHandlerMut,
+        Result,
+        UnreachableMessageHandler,
+    },
+    state::ContractState,
 };

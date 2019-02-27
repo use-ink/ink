@@ -14,25 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use pdsl_core::{
-	storage::{
-		Flush,
-		alloc::AllocateUsing,
-	},
+use pdsl_core::storage::{
+    alloc::AllocateUsing,
+    Flush,
 };
 
 /// Types implementing this type can be used as contract state.
-pub trait ContractState:
-	AllocateUsing + Flush
-{
-	/// The name of the contract state.
-	///
-	/// # Note
-	///
-	/// - This must be a valid Rust identifier.
-	/// - Normally this reflects the name of the contract.
-	// const NAME: &'static str;
-	const NAME: &'static [u8];
+pub trait ContractState: AllocateUsing + Flush {
+    /// The name of the contract state.
+    ///
+    /// # Note
+    ///
+    /// - This must be a valid Rust identifier.
+    /// - Normally this reflects the name of the contract.
+    // const NAME: &'static str;
+    const NAME: &'static [u8];
 }
 
 /// Define contract state with less boilerplate code.

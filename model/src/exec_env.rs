@@ -14,37 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use pdsl_core::{
-	env::{
-		Env,
-		ContractEnv,
-		srml::{
-			Address,
-		},
-	},
+use pdsl_core::env::{
+    srml::Address,
+    ContractEnv,
+    Env,
 };
 
 /// Provides a safe interface to an environment given a contract state.
-pub struct ExecutionEnv<State>{
-	/// The contract state.
-	pub state: State,
+pub struct ExecutionEnv<State> {
+    /// The contract state.
+    pub state: State,
 }
 
 impl<State> ExecutionEnv<State> {
-	pub const fn new(state: State) -> Self {
-		ExecutionEnv { state }
-	}
+    pub const fn new(state: State) -> Self {
+        ExecutionEnv { state }
+    }
 }
 
 impl<State> ExecutionEnv<State> {
-	pub fn caller(&self) -> Address {
-		ContractEnv::caller()
-	}
+    pub fn caller(&self) -> Address {
+        ContractEnv::caller()
+    }
 
-	pub fn r#return<T>(&self, val: T) -> !
-	where
-		T: parity_codec::Encode,
-	{
-		ContractEnv::return_(&val.encode()[..])
-	}
+    pub fn r#return<T>(&self, val: T) -> !
+    where
+        T: parity_codec::Encode,
+    {
+        ContractEnv::return_(&val.encode()[..])
+    }
 }
