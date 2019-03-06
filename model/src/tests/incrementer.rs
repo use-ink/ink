@@ -47,7 +47,7 @@ fn instantiate() -> impl TestableContract<DeployArgs = u32> {
 			env.state.val += by
 		})
 		.on_msg::<Get>(|env, _| {
-			*env.state.val.get()
+			*env.state.val
 		})
 		.instantiate()
 }
