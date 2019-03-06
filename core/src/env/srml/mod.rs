@@ -15,21 +15,21 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 #[cfg(not(feature = "test-env"))]
-mod sys;
-
-#[cfg(not(feature = "test-env"))]
-mod env;
+mod srml_only;
 
 mod types;
 
 pub use self::types::{
+	DefaultSrmlTypes,
     Address,
     Balance,
 };
 
 #[cfg(not(feature = "test-env"))]
-pub use self::env::{
-    DefaultSrmlEnv,
-    DefaultSrmlTypes,
-    SrmlEnv,
+pub use self::{
+	srml_only::{
+		sys,
+		DefaultSrmlEnv,
+		SrmlEnv,
+	},
 };

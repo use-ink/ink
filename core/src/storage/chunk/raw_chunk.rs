@@ -15,10 +15,7 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env::{
-        ContractEnv,
-        Env,
-    },
+    env,
     memory::vec::Vec,
     storage::{
         alloc::{
@@ -72,12 +69,12 @@ impl RawChunkCell<'_> {
 
     /// Store the bytes into the cell.
     pub fn store(&mut self, bytes: &[u8]) {
-        unsafe { ContractEnv::store(self.key, bytes) }
+        unsafe { env::store(self.key, bytes) }
     }
 
     /// Remove the bytes stored in the cell.
     pub fn clear(&mut self) {
-        unsafe { ContractEnv::clear(self.key) }
+        unsafe { env::clear(self.key) }
     }
 }
 
@@ -144,7 +141,7 @@ impl RawChunk {
 
     /// Loads the bytes stored in the `n`-th cell.
     pub fn load(&self, n: u32) -> Option<Vec<u8>> {
-        unsafe { ContractEnv::load(self.key + n) }
+        unsafe { env::load(self.key + n) }
     }
 
     /// Stores the given bytes into the `n`-th cell.
@@ -163,7 +160,6 @@ mod tests {
     use super::*;
 
     use crate::{
-        env::TestEnv,
         test_utils::run_test,
     };
 
@@ -203,56 +199,56 @@ mod tests {
             let mut chunk = unsafe { RawChunk::new_unchecked(Key([0x42; 32])) };
 
             // Reads and writes after init.
-            assert_eq!(TestEnv::total_reads(), 0);
-            assert_eq!(TestEnv::total_writes(), 0);
+            assert_eq!(env::test::total_reads(), 0);
+            assert_eq!(env::test::total_writes(), 0);
 
             // Loading from all cells.
             for i in 0..TEST_LEN {
                 chunk.load(i);
-                assert_eq!(TestEnv::total_reads(), i as u64 + 1);
-                assert_eq!(TestEnv::total_writes(), 0);
+                assert_eq!(env::test::total_reads(), i as u64 + 1);
+                assert_eq!(env::test::total_writes(), 0);
             }
-            assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
-            assert_eq!(TestEnv::total_writes(), 0);
+            assert_eq!(env::test::total_reads(), TEST_LEN as u64);
+            assert_eq!(env::test::total_writes(), 0);
 
             // Writing to all cells.
             for i in 0..TEST_LEN {
                 chunk.store(i, &[i as u8; WORD_SIZE]);
-                assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
-                assert_eq!(TestEnv::total_writes(), i as u64 + 1);
+                assert_eq!(env::test::total_reads(), TEST_LEN as u64);
+                assert_eq!(env::test::total_writes(), i as u64 + 1);
             }
-            assert_eq!(TestEnv::total_reads(), TEST_LEN as u64);
-            assert_eq!(TestEnv::total_writes(), TEST_LEN as u64);
+            assert_eq!(env::test::total_reads(), TEST_LEN as u64);
+            assert_eq!(env::test::total_writes(), TEST_LEN as u64);
 
             // Loading multiple times from a single cell.
             const LOAD_REPEATS: usize = 3;
             for n in 0..LOAD_REPEATS {
                 chunk.load(0);
-                assert_eq!(TestEnv::total_reads(), TEST_LEN as u64 + n as u64 + 1);
-                assert_eq!(TestEnv::total_writes(), TEST_LEN as u64);
+                assert_eq!(env::test::total_reads(), TEST_LEN as u64 + n as u64 + 1);
+                assert_eq!(env::test::total_writes(), TEST_LEN as u64);
             }
             assert_eq!(
-                TestEnv::total_reads(),
+                env::test::total_reads(),
                 TEST_LEN as u64 + LOAD_REPEATS as u64
             );
-            assert_eq!(TestEnv::total_writes(), TEST_LEN as u64);
+            assert_eq!(env::test::total_writes(), TEST_LEN as u64);
 
             // Storing multiple times to a single cell.
             const STORE_REPEATS: usize = 3;
             for n in 0..STORE_REPEATS {
                 chunk.store(0, b"test");
                 assert_eq!(
-                    TestEnv::total_reads(),
+                    env::test::total_reads(),
                     TEST_LEN as u64 + LOAD_REPEATS as u64
                 );
-                assert_eq!(TestEnv::total_writes(), TEST_LEN as u64 + n as u64 + 1);
+                assert_eq!(env::test::total_writes(), TEST_LEN as u64 + n as u64 + 1);
             }
             assert_eq!(
-                TestEnv::total_reads(),
+                env::test::total_reads(),
                 TEST_LEN as u64 + LOAD_REPEATS as u64
             );
             assert_eq!(
-                TestEnv::total_writes(),
+                env::test::total_writes(),
                 TEST_LEN as u64 + STORE_REPEATS as u64
             );
         })

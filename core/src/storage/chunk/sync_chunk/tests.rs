@@ -17,7 +17,7 @@
 use super::*;
 
 use crate::{
-    env::TestEnv,
+	env,
     storage::{
         alloc::{
             AllocateUsing,
@@ -123,8 +123,8 @@ fn count_rw_get() {
     let mut chunk = dummy_chunk();
 
     // Assert clean read writes.
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Loading from all cells.
     for i in 0..N {
@@ -132,16 +132,16 @@ fn count_rw_get() {
         {
             chunk.get(i);
         }
-        assert_eq!(TestEnv::total_reads(), i as u64 + 1);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), i as u64 + 1);
+        assert_eq!(env::test::total_writes(), 0);
     }
-    assert_eq!(TestEnv::total_reads(), N as u64);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), N as u64);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Flush and check reads and writes.
     chunk.flush();
-    assert_eq!(TestEnv::total_reads(), N as u64);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), N as u64);
+    assert_eq!(env::test::total_writes(), 0);
 }
 
 #[test]
@@ -152,8 +152,8 @@ fn count_rw_get_repeat() {
     let mut chunk = dummy_chunk();
 
     // Assert clean read writes.
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Loading from all cells.
     for _i in 0..N {
@@ -161,16 +161,16 @@ fn count_rw_get_repeat() {
         {
             chunk.get(0);
         }
-        assert_eq!(TestEnv::total_reads(), 1);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), 1);
+        assert_eq!(env::test::total_writes(), 0);
     }
-    assert_eq!(TestEnv::total_reads(), 1);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 1);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Flush and check reads and writes.
     chunk.flush();
-    assert_eq!(TestEnv::total_reads(), 1);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 1);
+    assert_eq!(env::test::total_writes(), 0);
 }
 
 #[test]
@@ -181,20 +181,20 @@ fn count_rw_set() {
     let mut chunk = dummy_chunk();
 
     // Assert clean read writes.
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Writing to all cells.
     for i in 0..N {
         chunk.set(i, 42);
     }
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Flush and check reads and writes.
     chunk.flush();
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), N as u64);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), N as u64);
 }
 
 #[test]
@@ -205,20 +205,20 @@ fn count_rw_set_repeat() {
     let mut chunk = dummy_chunk();
 
     // Assert clean read writes.
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Writing to all cells.
     for _i in 0..N {
         chunk.set(0, 42);
     }
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Flush and check reads and writes.
     chunk.flush();
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 1);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 1);
 }
 
 #[test]
@@ -229,8 +229,8 @@ fn count_rw_put() {
     let mut chunk = dummy_chunk();
 
     // Assert clean read writes.
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Writing to all cells.
     for i in 0..N {
@@ -238,16 +238,16 @@ fn count_rw_put() {
         {
             chunk.put(i, 42);
         }
-        assert_eq!(TestEnv::total_reads(), i as u64 + 1);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), i as u64 + 1);
+        assert_eq!(env::test::total_writes(), 0);
     }
-    assert_eq!(TestEnv::total_reads(), N as u64);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), N as u64);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Flush and check reads and writes.
     chunk.flush();
-    assert_eq!(TestEnv::total_reads(), N as u64);
-    assert_eq!(TestEnv::total_writes(), N as u64);
+    assert_eq!(env::test::total_reads(), N as u64);
+    assert_eq!(env::test::total_writes(), N as u64);
 }
 
 #[test]
@@ -258,8 +258,8 @@ fn count_rw_put_repeat() {
     let mut chunk = dummy_chunk();
 
     // Assert clean read writes.
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Writing to all cells.
     for _i in 0..N {
@@ -267,16 +267,16 @@ fn count_rw_put_repeat() {
         {
             chunk.put(0, 42);
         }
-        assert_eq!(TestEnv::total_reads(), 1);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), 1);
+        assert_eq!(env::test::total_writes(), 0);
     }
-    assert_eq!(TestEnv::total_reads(), 1);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 1);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Flush and check reads and writes.
     chunk.flush();
-    assert_eq!(TestEnv::total_reads(), 1);
-    assert_eq!(TestEnv::total_writes(), 1);
+    assert_eq!(env::test::total_reads(), 1);
+    assert_eq!(env::test::total_writes(), 1);
 }
 
 #[test]
@@ -287,8 +287,8 @@ fn count_rw_take() {
     let mut chunk = dummy_chunk();
 
     // Assert clean read writes.
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Writing to all cells.
     for i in 0..N {
@@ -296,16 +296,16 @@ fn count_rw_take() {
         {
             chunk.take(i);
         }
-        assert_eq!(TestEnv::total_reads(), i as u64 + 1);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), i as u64 + 1);
+        assert_eq!(env::test::total_writes(), 0);
     }
-    assert_eq!(TestEnv::total_reads(), N as u64);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), N as u64);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Flush and check reads and writes.
     chunk.flush();
-    assert_eq!(TestEnv::total_reads(), N as u64);
-    assert_eq!(TestEnv::total_writes(), N as u64);
+    assert_eq!(env::test::total_reads(), N as u64);
+    assert_eq!(env::test::total_writes(), N as u64);
 }
 
 #[test]
@@ -316,8 +316,8 @@ fn count_rw_take_repeat() {
     let mut chunk = dummy_chunk();
 
     // Assert clean read writes.
-    assert_eq!(TestEnv::total_reads(), 0);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 0);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Writing to all cells.
     for _i in 0..N {
@@ -325,14 +325,14 @@ fn count_rw_take_repeat() {
         {
             chunk.take(0);
         }
-        assert_eq!(TestEnv::total_reads(), 1);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), 1);
+        assert_eq!(env::test::total_writes(), 0);
     }
-    assert_eq!(TestEnv::total_reads(), 1);
-    assert_eq!(TestEnv::total_writes(), 0);
+    assert_eq!(env::test::total_reads(), 1);
+    assert_eq!(env::test::total_writes(), 0);
 
     // Flush and check reads and writes.
     chunk.flush();
-    assert_eq!(TestEnv::total_reads(), 1);
-    assert_eq!(TestEnv::total_writes(), 1);
+    assert_eq!(env::test::total_reads(), 1);
+    assert_eq!(env::test::total_writes(), 1);
 }

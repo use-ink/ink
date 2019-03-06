@@ -27,67 +27,18 @@
 //! To enable the test environment the `test-env` crate feature
 //! has to be enabled.
 
-pub mod srml;
+mod traits;
+mod api;
+mod srml;
+
+#[cfg(feature = "test-env")]
+pub mod test;
 
 #[cfg(feature = "test-env")]
 mod test_env;
 
-use crate::{
-    memory::vec::Vec,
-    storage::Key,
-};
-
-use parity_codec::Codec;
-
-/// The environmental types usable by contracts defined with pDSL.
-pub trait EnvTypes {
-    /// The type of an address.
-    type Address: Codec + PartialEq + Eq;
-    /// The type of balances.
-    type Balance: Codec;
-    // /// The type of gas.
-    // type Gas: Codec;
-}
-
-/// The evironment API usable by contracts defined with pDSL.
-pub trait Env: EnvTypes {
-    /// Returns the chain address of the caller.
-    fn caller() -> <Self as EnvTypes>::Address;
-    /// Stores the given value under the given key.
-    ///
-    /// # Safety
-    ///
-    /// Is unsafe since there is no check for key integrity.
-    /// This operation can be compared to a pointer deref in Rust
-    /// which itself is also considered unsafe.
-    unsafe fn store(key: Key, value: &[u8]);
-    /// Clears the value stored under the given key.
-    ///
-    /// # Safety
-    ///
-    /// Is unsafe since there is no check for key integrity.
-    /// This operation can be compared to a pointer deref in Rust
-    /// which itself is also considered unsafe.
-    unsafe fn clear(key: Key);
-    /// Loads data stored under the given key.
-    ///
-    /// # Safety
-    ///
-    /// Is unsafe since there is no check for key integrity.
-    /// This operation can be compared to a pointer deref in Rust
-    /// which itself is also considered unsafe.
-    unsafe fn load(key: Key) -> Option<Vec<u8>>;
-    /// Loads input data for contract execution.
-    fn input() -> Vec<u8>;
-    /// Returns from the contract execution with the given value.
-    fn return_(value: &[u8]) -> !;
-}
-
-#[cfg(not(feature = "test-env"))]
-pub use self::srml::SrmlEnv;
-
-#[cfg(feature = "test-env")]
-pub use self::test_env::TestEnv;
+pub use traits::*;
+pub use api::*;
 
 /// The environment implementation that is currently being used.
 ///
@@ -98,8 +49,8 @@ pub use self::test_env::TestEnv;
 ///   that can be inspected by the user and used
 ///   for testing contracts off-chain.
 #[cfg(not(feature = "test-env"))]
-pub type ContractEnv = self::srml::DefaultSrmlEnv;
+pub(in self) type ContractEnv = self::srml::DefaultSrmlEnv;
 
 /// The environment implementation that is currently being used.
 #[cfg(feature = "test-env")]
-pub type ContractEnv = self::test_env::TestEnv;
+pub(in self) type ContractEnv = self::test_env::TestEnv;

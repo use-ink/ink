@@ -14,10 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+use crate::env::EnvTypes;
 use parity_codec::{
     Decode,
     Encode,
 };
+
+/// The SRML fundamental types.
+pub struct DefaultSrmlTypes;
+
+impl EnvTypes for DefaultSrmlTypes {
+    type Address = self::Address;
+    type Balance = self::Balance;
+}
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]

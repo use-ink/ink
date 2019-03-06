@@ -102,10 +102,12 @@ where
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
     use super::*;
-    use crate::storage::Key;
+    use crate::{
+		env,
+		storage::Key,
+	};
 
     use crate::{
-        env::TestEnv,
         storage::alloc::{
             AllocateUsing,
             BumpAlloc,
@@ -136,12 +138,12 @@ mod tests {
     fn count_reads() {
         run_test(|| {
             let cell = dummy_cell();
-            assert_eq!(TestEnv::total_reads(), 0);
+            assert_eq!(env::test::total_reads(), 0);
             cell.load();
-            assert_eq!(TestEnv::total_reads(), 1);
+            assert_eq!(env::test::total_reads(), 1);
             cell.load();
             cell.load();
-            assert_eq!(TestEnv::total_reads(), 3);
+            assert_eq!(env::test::total_reads(), 3);
         })
     }
 
@@ -149,12 +151,12 @@ mod tests {
     fn count_writes() {
         run_test(|| {
             let mut cell = dummy_cell();
-            assert_eq!(TestEnv::total_writes(), 0);
+            assert_eq!(env::test::total_writes(), 0);
             cell.store(&1);
-            assert_eq!(TestEnv::total_writes(), 1);
+            assert_eq!(env::test::total_writes(), 1);
             cell.store(&2);
             cell.store(&3);
-            assert_eq!(TestEnv::total_writes(), 3);
+            assert_eq!(env::test::total_writes(), 3);
         })
     }
 }

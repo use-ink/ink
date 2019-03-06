@@ -15,9 +15,9 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::*;
-
 use crate::{
     env::srml,
+	storage::Key,
     memory::collections::hash_map::{
         Entry,
         HashMap,
@@ -249,7 +249,7 @@ impl TestEnvData {
     /// This exits the current process (contract invocation)
     /// with a return code that is successful if the returned
     /// data matches the expected return data.
-    pub fn return_(&self, data: &[u8]) -> ! {
+    pub fn r#return(&self, data: &[u8]) -> ! {
         let expected_bytes = self.expected_return.clone();
         let exit_code = if expected_bytes == data {
             Self::SUCCESS
@@ -323,15 +323,7 @@ impl EnvTypes for TestEnv {
     type Balance = srml::Balance;
 }
 
-impl Env for TestEnv
-where
-    <Self as EnvTypes>::Address: for<'a> From<&'a [u8]>,
-{
-    fn caller() -> <Self as EnvTypes>::Address {
-        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().caller())
-    }
-
+impl EnvStorage for TestEnv {
     unsafe fn store(key: Key, value: &[u8]) {
         log::debug!(
             target: TEST_ENV_LOG_TARGET,
@@ -359,18 +351,28 @@ where
         );
         TEST_ENV_DATA.with(|test_env| test_env.borrow().load(key))
     }
+}
+
+impl Env for TestEnv
+where
+    <Self as EnvTypes>::Address: for<'a> From<&'a [u8]>,
+{
+    fn caller() -> <Self as EnvTypes>::Address {
+        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().caller())
+    }
 
     fn input() -> Vec<u8> {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::input()",);
         TEST_ENV_DATA.with(|test_env| test_env.borrow().input())
     }
 
-    fn return_(data: &[u8]) -> ! {
+    unsafe fn r#return(data: &[u8]) -> ! {
         log::debug!(
             target: TEST_ENV_LOG_TARGET,
             "TestEnv::return_(\n\tdata: {:?}\n)",
             data,
         );
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().return_(data))
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().r#return(data))
     }
 }

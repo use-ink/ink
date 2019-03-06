@@ -15,10 +15,7 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env::{
-        ContractEnv,
-        Env,
-    },
+    env,
     memory::vec::Vec,
     storage::{
         alloc::{
@@ -67,17 +64,17 @@ impl AllocateUsing for RawCell {
 impl RawCell {
     /// Loads the bytes stored in the cell if not empty.
     pub fn load(&self) -> Option<Vec<u8>> {
-        unsafe { ContractEnv::load(self.key) }
+        unsafe { env::load(self.key) }
     }
 
     /// Stores the given bytes into the cell.
     pub fn store(&mut self, bytes: &[u8]) {
-        unsafe { ContractEnv::store(self.key, bytes) }
+        unsafe { env::store(self.key, bytes) }
     }
 
     /// Removes the bytes stored in the cell.
     pub fn clear(&mut self) {
-        unsafe { ContractEnv::clear(self.key) }
+        unsafe { env::clear(self.key) }
     }
 }
 
@@ -86,7 +83,6 @@ mod tests {
     use super::*;
 
     use crate::{
-        env::TestEnv,
         storage::alloc::{
             AllocateUsing,
             BumpAlloc,
@@ -117,12 +113,12 @@ mod tests {
     fn count_reads() {
         run_test(|| {
             let cell = instantiate();
-            assert_eq!(TestEnv::total_reads(), 0);
+            assert_eq!(env::test::total_reads(), 0);
             cell.load();
-            assert_eq!(TestEnv::total_reads(), 1);
+            assert_eq!(env::test::total_reads(), 1);
             cell.load();
             cell.load();
-            assert_eq!(TestEnv::total_reads(), 3);
+            assert_eq!(env::test::total_reads(), 3);
         })
     }
 
@@ -130,12 +126,12 @@ mod tests {
     fn count_writes() {
         run_test(|| {
             let mut cell = instantiate();
-            assert_eq!(TestEnv::total_writes(), 0);
+            assert_eq!(env::test::total_writes(), 0);
             cell.store(b"a");
-            assert_eq!(TestEnv::total_writes(), 1);
+            assert_eq!(env::test::total_writes(), 1);
             cell.store(b"b");
             cell.store(b"c");
-            assert_eq!(TestEnv::total_writes(), 3);
+            assert_eq!(env::test::total_writes(), 3);
         })
     }
 }

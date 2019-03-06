@@ -396,9 +396,9 @@ where
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
     use super::*;
+	use crate::env;
 
     use crate::{
-        env::TestEnv,
         storage::{
             alloc::BumpAlloc,
             Key,
@@ -435,20 +435,20 @@ mod tests {
         let mut cell = dummy_cell();
 
         // Asserts initial reads and writes are zero.
-        assert_eq!(TestEnv::total_reads(), 0);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), 0);
+        assert_eq!(env::test::total_writes(), 0);
 
         // Repeated reads on the same cell.
         for _i in 0..N {
             cell.get();
-            assert_eq!(TestEnv::total_reads(), 1);
-            assert_eq!(TestEnv::total_writes(), 0);
+            assert_eq!(env::test::total_reads(), 1);
+            assert_eq!(env::test::total_writes(), 0);
         }
 
         // Flush the cell and assert reads and writes.
         cell.flush();
-        assert_eq!(TestEnv::total_reads(), 1);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), 1);
+        assert_eq!(env::test::total_writes(), 0);
     }
 
     #[test]
@@ -459,20 +459,20 @@ mod tests {
         let mut cell = dummy_cell();
 
         // Asserts initial reads and writes are zero.
-        assert_eq!(TestEnv::total_reads(), 0);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), 0);
+        assert_eq!(env::test::total_writes(), 0);
 
         // Repeated mutable reads on the same cell.
         for _i in 0..N {
             cell.get_mut();
-            assert_eq!(TestEnv::total_reads(), 1);
-            assert_eq!(TestEnv::total_writes(), 0);
+            assert_eq!(env::test::total_reads(), 1);
+            assert_eq!(env::test::total_writes(), 0);
         }
 
         // Flush the cell and assert reads and writes.
         cell.flush();
-        assert_eq!(TestEnv::total_reads(), 1);
-        assert_eq!(TestEnv::total_writes(), 1);
+        assert_eq!(env::test::total_reads(), 1);
+        assert_eq!(env::test::total_writes(), 1);
     }
 
     #[test]
@@ -483,20 +483,20 @@ mod tests {
         let mut cell = dummy_cell();
 
         // Asserts initial reads and writes are zero.
-        assert_eq!(TestEnv::total_reads(), 0);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), 0);
+        assert_eq!(env::test::total_writes(), 0);
 
         // Repeated writes to the same cell.
         for _i in 0..N {
             cell.set(42);
-            assert_eq!(TestEnv::total_reads(), 0);
-            assert_eq!(TestEnv::total_writes(), 0);
+            assert_eq!(env::test::total_reads(), 0);
+            assert_eq!(env::test::total_writes(), 0);
         }
 
         // Flush the cell and assert reads and writes.
         cell.flush();
-        assert_eq!(TestEnv::total_reads(), 0);
-        assert_eq!(TestEnv::total_writes(), 1);
+        assert_eq!(env::test::total_reads(), 0);
+        assert_eq!(env::test::total_writes(), 1);
     }
 
     #[test]
@@ -507,19 +507,19 @@ mod tests {
         let mut cell = dummy_cell();
 
         // Asserts initial reads and writes are zero.
-        assert_eq!(TestEnv::total_reads(), 0);
-        assert_eq!(TestEnv::total_writes(), 0);
+        assert_eq!(env::test::total_reads(), 0);
+        assert_eq!(env::test::total_writes(), 0);
 
         // Repeated writes to the same cell.
         for _i in 0..N {
             cell.clear();
-            assert_eq!(TestEnv::total_reads(), 0);
-            assert_eq!(TestEnv::total_writes(), 0);
+            assert_eq!(env::test::total_reads(), 0);
+            assert_eq!(env::test::total_writes(), 0);
         }
 
         // Flush the cell and assert reads and writes.
         cell.flush();
-        assert_eq!(TestEnv::total_reads(), 0);
-        assert_eq!(TestEnv::total_writes(), 1);
+        assert_eq!(env::test::total_reads(), 0);
+        assert_eq!(env::test::total_writes(), 1);
     }
 }
