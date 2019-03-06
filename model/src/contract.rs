@@ -418,7 +418,7 @@ where
     fn call_with_and_return(&mut self, call_data: CallData) {
         let encoded_result = self.call_with(call_data);
         if encoded_result.len() > 0 {
-            self.env.r#return(encoded_result)
+            unsafe { self.env.r#return(encoded_result) }
         }
     }
 
