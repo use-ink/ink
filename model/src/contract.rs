@@ -404,6 +404,8 @@ where
         //
         // Should be performed exactly once during contract lifetime.
         // Consumes the contract since nothing should be done afterwards.
+        use pdsl_core::storage::alloc::Initialize as _;
+        self.env.initialize(());
         let deploy_params = DeployArgs::decode(&mut &input[..]).unwrap();
         (self.deployer.deploy_fn)(&mut self.env, deploy_params);
         self.env.state.flush()
