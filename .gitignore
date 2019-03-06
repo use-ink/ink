@@ -1,7 +1,7 @@
 # Ignore build artifacts from the local tests sub-crate.
 /target/
 /core/target/
-/derive/target/
+/model/target/
 /examples/**/target/
 /design/
 
