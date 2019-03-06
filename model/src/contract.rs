@@ -361,12 +361,8 @@ where
         // Should be performed exactly once during contract lifetime.
         // Consumes the contract since nothing should be done afterwards.
         let input = pdsl_core::env::input();
-        use pdsl_core::env::Env;
-        let input = pdsl_core::env::ContractEnv::input();
-        let deploy_params = DeployArgs::decode(&mut &input[..]).unwrap();
         let mut this = self;
-        (this.deployer.deploy_fn)(&mut this.env, deploy_params);
-        this.env.state.flush()
+        this.deploy_with(input.as_slice())
     }
 
     /// Dispatches the input buffer and calls the associated message.
