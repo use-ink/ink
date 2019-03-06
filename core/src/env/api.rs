@@ -16,7 +16,7 @@ pub type Address = <ContractEnv as EnvTypes>::Address;
 pub type Balance = <ContractEnv as EnvTypes>::Balance;
 
 /// Returns the address of the caller of the current smart contract execution.
-pub unsafe fn caller() -> Address {
+pub fn caller() -> Address {
 	ContractEnv::caller()
 }
 
