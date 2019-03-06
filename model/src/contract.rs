@@ -242,7 +242,7 @@ where
             },
             Key,
         };
-        let state: State = unsafe {
+        let env: ExecutionEnv<State> = unsafe {
             // Note that it is totally fine here to start with a key
             // offset of `0x0` as long as we only consider having one
             // contract instance per execution. Otherwise their
@@ -258,7 +258,7 @@ where
             AllocateUsing::allocate_using(&mut alloc)
         };
         ContractInstance {
-            env: ExecutionEnv::new(state),
+            env,
             deployer: self.deployer,
             handlers: self.handlers,
         }
@@ -360,6 +360,7 @@ where
         //
         // Should be performed exactly once during contract lifetime.
         // Consumes the contract since nothing should be done afterwards.
+        let input = pdsl_core::env::input();
         use pdsl_core::env::Env;
         let input = pdsl_core::env::ContractEnv::input();
         let deploy_params = DeployArgs::decode(&mut &input[..]).unwrap();
@@ -380,8 +381,7 @@ where
         //
         // Internally calls the associated call<Msg>.
         use parity_codec::Decode;
-        use pdsl_core::env::Env;
-        let input = pdsl_core::env::ContractEnv::input();
+        let input = pdsl_core::env::input();
         let call_data = CallData::decode(&mut &input[..]).unwrap();
         let mut this = self;
         this.call_with_and_return(call_data)
