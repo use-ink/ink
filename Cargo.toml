@@ -3,7 +3,7 @@
 members = [
 	"core",
 	"model",
-	# "derive",
+	"lang",
 ]
 exclude = [
 	"examples/",
