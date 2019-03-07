@@ -70,7 +70,10 @@ pub use crate::{
         NoDeployArgs,
         TestableContract,
     },
-    exec_env::ExecutionEnv,
+    exec_env::{
+        EnvHandler,
+        ExecutionEnv,
+    },
     msg::Message,
     msg_handler::{
         CallData,
