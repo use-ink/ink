@@ -60,16 +60,14 @@ impl Contract {
 				).into()
 			)
         }
-		if impl_blocks.iter().any(|impl_block| impl_block.self_ty != *contract_ident) {
-			return Err(
-				SynError::new(
-					Span::call_site(),
-					format!(
-						"contract impl blocks must implement for the contract type: {}",
-						contract_ident
-					)
-				).into()
-			)
+		for impl_block in impl_blocks.iter() {
+			if impl_block.self_ty != *contract_ident {
+				bail!(
+					impl_block.self_ty,
+					"contract impl blocks must implement for the contract type: {}",
+					contract_ident
+				)
+			}
 		}
 		use itertools::Itertools as _;
 		let (mut messages, methods): (Vec<_>, Vec<_>) = impl_blocks
