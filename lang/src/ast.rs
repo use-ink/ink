@@ -108,3 +108,13 @@ pub enum FnArg {
     SelfValue(syn::ArgSelf),
     Captured(syn::ArgCaptured),
 }
+
+impl quote::ToTokens for FnArg {
+	fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+		match self {
+			FnArg::SelfRef(arg_self_ref) => arg_self_ref.to_tokens(tokens),
+			FnArg::SelfValue(arg_self_value) => arg_self_value.to_tokens(tokens),
+			FnArg::Captured(arg_captured) => arg_captured.to_tokens(tokens),
+		}
+	}
+}
