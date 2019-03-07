@@ -97,6 +97,21 @@ impl Contract {
 				)
 			}
 		};
+		for msg in messages.iter() {
+			let inputs = &msg.sig.decl.inputs;
+			{
+				let self_ty: &ast::FnArg = inputs.first().unwrap().into_value();
+				match self_ty {
+					ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => {
+						bail!(
+							self_ty,
+							"contract messages must start with `&self` or `&mut self`"
+						)
+					}
+					_ => ()
+				}
+			}
+		}
 		Ok((deploy_handler, messages, methods))
 	}
 
