@@ -22,20 +22,42 @@ messages! {
 	2 => Compare(with: u32) -> bool;
 }
 
+impl Adder {
+	pub fn on_deploy(&mut self, env: &EnvHandler, init_val: u32) {
+		self.val.set(init_val)
+	}
+
+	pub fn inc(&mut self, env: &EnvHandler, by: u32) {
+		self.value += by
+	}
+
+	pub fn get(&self, env: &EnvHandler) -> u32 {
+		*self.value
+	}
+
+	pub fn compare(&self, env: &EnvHandler, x: u32) -> bool {
+		x > *self.value
+	}
+}
+
 #[rustfmt::skip]
 fn instantiate() -> impl Contract {
 	ContractDecl::using::<Adder>()
 		.on_deploy(|env, init_val| {
-			self.val.set(init_val)
+			let (handler, state) = env.split_mut();
+			state.on_deploy(handler, init_val)
 		})
 		.on_msg_mut::<Inc>(|env, by| {
-			self.value += by
+			let (handler, state) = env.split_mut();
+			state.inc(handler, by)
 		})
 		.on_msg::<Get>(|env, _| {
-			*self.value
+			let (handler, state) = env.split();
+			state.get(handler)
 		})
 		.on_msg::<Compare>(|env, x| {
-			x > *self.value
+			let (handler, state) = env.split();
+			state.compare(handler, x)
 		})
 		.instantiate()
 }
