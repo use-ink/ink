@@ -111,6 +111,18 @@ impl Contract {
 					_ => ()
 				}
 			}
+			for fn_arg in inputs.iter().skip(1) {
+				if let ast::FnArg::Captured(arg_captured) = fn_arg {
+					if let syn::Pat::Ident(pat_ident) = &arg_captured.pat {
+						if pat_ident.ident == "env" {
+							bail!(
+								pat_ident.ident,
+								"contract messages must not contain an env argument"
+							)
+						}
+					}
+				}
+			}
 		}
 		Ok((deploy_handler, messages, methods))
 	}
