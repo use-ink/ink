@@ -1,0 +1,51 @@
+use pdsl_core::storage;
+use pdsl_model::{
+    messages,
+    state,
+    Contract,
+    ContractDecl,
+	EnvHandler,
+};
+
+state! {
+	/// A simple contract that has a value that can be
+	/// incremented, returned and compared.
+    struct Incrementer {
+		/// The internal value.
+        value: storage::Value<u32>
+    }
+}
+
+messages! {
+	0 => Inc(by: u32);
+	1 => Get() -> u32;
+	2 => Compare(with: u32) -> bool;
+}
+
+#[rustfmt::skip]
+fn instantiate() -> impl Contract {
+	ContractDecl::using::<Adder>()
+		.on_deploy(|env, init_val| {
+			self.val.set(init_val)
+		})
+		.on_msg_mut::<Inc>(|env, by| {
+			self.value += by
+		})
+		.on_msg::<Get>(|env, _| {
+			*self.value
+		})
+		.on_msg::<Compare>(|env, x| {
+			x > *self.value
+		})
+		.instantiate()
+}
+
+#[no_mangle]
+fn deploy() {
+    instantiate().deploy()
+}
+
+#[no_mangle]
+fn call() {
+    instantiate().dispatch()
+}
