@@ -92,7 +92,7 @@ impl Contract {
 				return Err(
 					SynError::new(
 						Span::call_site(),
-						"could not find deploy handler (`on_deploy` message)"
+						"could not find contract deploy handler: `on_deploy`"
 					).into()
 				)
 			}
