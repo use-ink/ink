@@ -43,6 +43,24 @@ macro_rules! state {
 			),*
 		}
 	) => {
+		$crate::state! {
+			$vis struct $state_name {
+				$(
+					$( #[$field_meta] )*
+					$field_name : $field_ty ,
+				)*
+			}
+		}
+	};
+	(
+		$( #[$state_meta:meta] )*
+		$vis:vis struct $state_name:ident {
+			$(
+				$( #[$field_meta:meta] )*
+				$field_name:ident : $field_ty:ty ,
+			)*
+		}
+	) => {
 		$( #[$state_meta] )*
 		$vis struct $state_name {
 			$(
