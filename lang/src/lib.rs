@@ -2,16 +2,13 @@
 
 extern crate proc_macro;
 
-use quote::{
-	// quote,
-	ToTokens,
-};
+use quote::ToTokens;
 
 #[proc_macro]
 pub fn contract(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     match contract_gen_inner(input) {
         Ok(tokens) => tokens,
-        Err(err) => { err.into_token_stream().into() },
+        Err(err) => err.into_token_stream().into(),
     }
 }
 
@@ -21,8 +18,8 @@ mod errors;
 mod ast;
 mod gen;
 mod hir;
-mod parser;
 mod ident_ext;
+mod parser;
 
 use errors::Result;
 

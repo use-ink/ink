@@ -1,144 +1,143 @@
 use crate::{
     ast,
-    errors::{Result, SynError}
+    errors::{
+        Result,
+        SynError,
+    },
+};
+use proc_macro2::{
+    Ident,
+    Span,
 };
 use syn::token;
-use proc_macro2::{Ident, Span};
 
 /// A smart contract.
 #[derive(Debug)]
 pub struct Contract {
     /// The name of the smart contract.
-    name: Ident,
-	/// The storage state fields.
-	state: State,
+    pub name: Ident,
+    /// The storage state fields.
+    pub state: State,
     /// The deploy handler of the smart contract.
-    on_deploy: OnDeployHandler,
+    pub on_deploy: OnDeployHandler,
     /// The messages of the smart contract.
-    messages: Vec<Message>,
+    pub messages: Vec<Message>,
     /// Methods of the smart contract.
-    methods: Vec<Method>,
+    pub methods: Vec<Method>,
 }
 
 impl Contract {
-	/// Extracts the contract state from the contract items
-	/// and performs some integrity checks on it.
-	fn extract_state(contract: &ast::Contract) -> Result<(&Ident, State)> {
+    /// Extracts the contract state from the contract items
+    /// and performs some integrity checks on it.
+    fn extract_state(contract: &ast::Contract) -> Result<(&Ident, State)> {
         let states = contract.states().collect::<Vec<_>>();
         if states.is_empty() {
-			return Err(
-				SynError::new(
-					Span::call_site(),
-					"requires exactly one contract state `struct`; found none"
-				).into()
-			)
+            return Err(SynError::new(
+                Span::call_site(),
+                "requires exactly one contract state `struct`; found none",
+            )
+            .into())
         }
         if states.len() > 1 {
-			return Err(
-				SynError::new(
-					Span::call_site(),
-					format!(
-						"requires exactly one contract state `struct`; found {:?}",
-						states.len()
-					)
-				).into()
-			)
+            return Err(SynError::new(
+                Span::call_site(),
+                format!(
+                    "requires exactly one contract state `struct`; found {:?}",
+                    states.len()
+                ),
+            )
+            .into())
         }
-		let state = states[0];
-		Ok((&state.ident, State::from(state)))
-	}
+        let state = states[0];
+        Ok((&state.ident, State::from(state)))
+    }
 
-	fn unpack_impl_blocks(contract_ident: &Ident, contract: &ast::Contract)
-		-> Result<(OnDeployHandler, Vec<Message>, Vec<Method>)>
-	{
+    fn unpack_impl_blocks(
+        contract_ident: &Ident,
+        contract: &ast::Contract,
+    ) -> Result<(OnDeployHandler, Vec<Message>, Vec<Method>)> {
         let impl_blocks = contract.impl_blocks().collect::<Vec<_>>();
         if impl_blocks.is_empty() {
-			return Err(
-				SynError::new(
-					Span::call_site(),
-					"requires at least one contract impl block `struct`; found none"
-				).into()
-			)
+            return Err(SynError::new(
+                Span::call_site(),
+                "requires at least one contract impl block `struct`; found none",
+            )
+            .into())
         }
-		for impl_block in impl_blocks.iter() {
-			if impl_block.self_ty != *contract_ident {
-				bail!(
-					impl_block.self_ty,
-					"contract impl blocks must implement for the contract type: {}",
-					contract_ident
-				)
-			}
-		}
-		use itertools::Itertools as _;
-		let (mut messages, methods): (Vec<_>, Vec<_>) = impl_blocks
-			.into_iter()
-			.flat_map(|impl_block| impl_block.items.iter())
-			.partition_map(|msg_or_method| {
-				use either::Either;
-				if msg_or_method.vis.is_external() {
-					Either::Left(Message::from(msg_or_method))
-				} else {
-					Either::Right(Method::from(msg_or_method))
-				}
-			});
-		let deploy_handler_idx = messages
-			.iter()
-			.position(|msg| msg.sig.ident == "on_deploy");
-		let deploy_handler = match deploy_handler_idx {
-			Some(idx) => {
-				messages.swap_remove(idx).into()
-			}
-			None => {
-				return Err(
-					SynError::new(
-						Span::call_site(),
-						"could not find contract deploy handler: `on_deploy`"
-					).into()
-				)
-			}
-		};
-		for msg in messages.iter() {
-			let inputs = &msg.sig.decl.inputs;
-			{
-				let self_ty: &ast::FnArg = inputs.first().unwrap().into_value();
-				match self_ty {
-					ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => {
-						bail!(
-							self_ty,
-							"contract messages must start with `&self` or `&mut self`"
-						)
-					}
-					_ => ()
-				}
-			}
-			for fn_arg in inputs.iter().skip(1) {
-				if let ast::FnArg::Captured(arg_captured) = fn_arg {
-					if let syn::Pat::Ident(pat_ident) = &arg_captured.pat {
-						if pat_ident.ident == "env" {
-							bail!(
-								pat_ident.ident,
-								"contract messages must not contain an env argument"
-							)
-						}
-					}
-				}
-			}
-		}
-		Ok((deploy_handler, messages, methods))
-	}
+        for impl_block in impl_blocks.iter() {
+            if impl_block.self_ty != *contract_ident {
+                bail!(
+                    impl_block.self_ty,
+                    "contract impl blocks must implement for the contract type: {}",
+                    contract_ident
+                )
+            }
+        }
+        use itertools::Itertools as _;
+        let (mut messages, methods): (Vec<_>, Vec<_>) = impl_blocks
+            .into_iter()
+            .flat_map(|impl_block| impl_block.items.iter())
+            .partition_map(|msg_or_method| {
+                use either::Either;
+                if msg_or_method.vis.is_external() {
+                    Either::Left(Message::from(msg_or_method))
+                } else {
+                    Either::Right(Method::from(msg_or_method))
+                }
+            });
+        for msg in messages.iter() {
+            let inputs = &msg.sig.decl.inputs;
+            {
+                let self_ty: &ast::FnArg = inputs.first().unwrap().into_value();
+                match self_ty {
+                    ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => {
+                        bail!(
+                            self_ty,
+                            "contract messages must start with `&self` or `&mut self`"
+                        )
+                    }
+                    _ => (),
+                }
+            }
+            for fn_arg in inputs.iter().skip(1) {
+                if let ast::FnArg::Captured(arg_captured) = fn_arg {
+                    if let syn::Pat::Ident(pat_ident) = &arg_captured.pat {
+                        if pat_ident.ident == "env" {
+                            bail!(
+                                pat_ident.ident,
+                                "contract messages must not contain an env argument"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        let deploy_handler_idx =
+            messages.iter().position(|msg| msg.sig.ident == "on_deploy");
+        let deploy_handler = match deploy_handler_idx {
+            Some(idx) => messages.swap_remove(idx).into(),
+            None => {
+                return Err(SynError::new(
+                    Span::call_site(),
+                    "could not find contract deploy handler: `on_deploy`",
+                )
+                .into())
+            }
+        };
+        Ok((deploy_handler, messages, methods))
+    }
 
     pub fn from_ast(contract: &ast::Contract) -> Result<Self> {
         let (ident, state) = Self::extract_state(contract)?;
-		let (deploy_handler, messages, methods) = Self::unpack_impl_blocks(ident, contract)?;
-		Ok(
-			Self {
-				name: ident.clone(),
-				state,
-				on_deploy: deploy_handler,
-				messages,
-				methods,
-			}
-		)
+        let (deploy_handler, messages, methods) =
+            Self::unpack_impl_blocks(ident, contract)?;
+        Ok(Self {
+            name: ident.clone(),
+            state,
+            on_deploy: deploy_handler,
+            messages,
+            methods,
+        })
     }
 }
 
@@ -149,23 +148,23 @@ pub struct State {
     /// # Note
     ///
     /// Also used for documentation.
-	pub attrs: Vec<syn::Attribute>,
-	/// The state fields.
-	///
-	/// # Note
-	///
-	/// These are the fields that are going to
-	/// be stored in the contract storage.
-	pub fields: syn::FieldsNamed,
+    pub attrs: Vec<syn::Attribute>,
+    /// The state fields.
+    ///
+    /// # Note
+    ///
+    /// These are the fields that are going to
+    /// be stored in the contract storage.
+    pub fields: syn::FieldsNamed,
 }
 
 impl From<&ast::ItemState> for State {
-	fn from(state: &ast::ItemState) -> Self {
-		Self {
-			attrs: state.attrs.clone(),
-			fields: state.fields.clone(),
-		}
-	}
+    fn from(state: &ast::ItemState) -> Self {
+        Self {
+            attrs: state.attrs.clone(),
+            fields: state.fields.clone(),
+        }
+    }
 }
 
 /// The deploy handler of a smart contract.
@@ -189,13 +188,13 @@ pub struct OnDeployHandler {
 }
 
 impl From<Message> for OnDeployHandler {
-	fn from(msg: Message) -> Self {
-		Self {
-			attrs: msg.attrs,
-			decl: msg.sig.decl,
-			block: msg.block,
-		}
-	}
+    fn from(msg: Message) -> Self {
+        Self {
+            attrs: msg.attrs,
+            decl: msg.sig.decl,
+            block: msg.block,
+        }
+    }
 }
 
 /// A message that is handled by the smart contract.
@@ -223,13 +222,13 @@ pub struct Message {
 }
 
 impl From<&ast::ItemImplMethod> for Message {
-	fn from(impl_method: &ast::ItemImplMethod) -> Self {
-		Self {
-			attrs: impl_method.attrs.clone(),
-			sig: impl_method.sig.clone(),
-			block: impl_method.block.clone(),
-		}
-	}
+    fn from(impl_method: &ast::ItemImplMethod) -> Self {
+        Self {
+            attrs: impl_method.attrs.clone(),
+            sig: impl_method.sig.clone(),
+            block: impl_method.block.clone(),
+        }
+    }
 }
 
 /// A method defined on the smart contract.
@@ -259,12 +258,12 @@ pub struct Method {
 }
 
 impl From<&ast::ItemImplMethod> for Method {
-	fn from(impl_method: &ast::ItemImplMethod) -> Self {
-		Self {
-			attrs: impl_method.attrs.clone(),
-			sig: impl_method.sig.clone(),
-			vis: impl_method.vis.clone(),
-			block: impl_method.block.clone(),
-		}
-	}
+    fn from(impl_method: &ast::ItemImplMethod) -> Self {
+        Self {
+            attrs: impl_method.attrs.clone(),
+            sig: impl_method.sig.clone(),
+            vis: impl_method.vis.clone(),
+            block: impl_method.block.clone(),
+        }
+    }
 }
