@@ -83,6 +83,8 @@ fn codegen_for_messages(tokens: &mut TokenStream, contract: &hir::Contract) {
         content
     };
     tokens.extend(quote! {
+		// Apparently this `use` is required even though it should not be.
+		// -> Further investigations needed!
         use pdsl_model::messages;
         pdsl_model::messages! {
             #messages_content
