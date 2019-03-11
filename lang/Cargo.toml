@@ -19,6 +19,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 pdsl_core = { path = "../core/" }
+pdsl_model = { path = "../model/" }
 parity-codec = { version = "3.1", default-features = false, features = ["derive"] }
 
 quote = "0.6"
@@ -40,4 +41,5 @@ std = [
 ]
 test-env = [
 	"pdsl_core/test-env",
+	"pdsl_model/test-env",
 ]
