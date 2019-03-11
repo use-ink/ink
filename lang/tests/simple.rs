@@ -2,7 +2,7 @@
 extern crate pdsl_lang;
 
 use pdsl_core::{
-	// storage, // Not in use since `contract!` currently generates no code.
+	storage,
 };
 
 contract! {
@@ -25,7 +25,7 @@ contract! {
 		}
 
 		/// Returns the internal counter.
-		pub(external) fn get(&self) -> Balance {
+		pub(external) fn get(&self) -> u32 {
 			*self.value
 		}
 
