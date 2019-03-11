@@ -20,7 +20,94 @@ pub fn codegen(contract: &hir::Contract) -> proc_macro2::TokenStream {
     let mut tokens = quote! {};
     codegen_for_state(&mut tokens, contract);
     codegen_for_messages(&mut tokens, contract);
+    codegen_for_methods(&mut tokens, contract);
     tokens
+}
+
+fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
+    let state_name = &contract.name;
+
+    let message_impls = {
+        let mut content = quote! {};
+        for message in contract.messages.iter() {
+            for attr in &message.attrs {
+                attr.to_tokens(&mut content)
+            }
+            <Token![pub]>::default().to_tokens(&mut content);
+            let fn_decl = &message.sig.decl;
+            fn_decl.fn_tok.to_tokens(&mut content);
+            message.sig.ident.to_tokens(&mut content);
+            fn_decl.paren_tok.surround(&mut content, |inner_toks| {
+                let inputs_with_env = {
+                    let mut inputs_with_env: Punctuated<ast::FnArg, Token![,]> =
+                        Punctuated::new();
+                    let mut inputs_iter = fn_decl.inputs.iter();
+                    let self_arg = inputs_iter.next().unwrap();
+                    inputs_with_env.push_value(self_arg.clone()); // &self or &mut self
+                    inputs_with_env.push_punct(<Token![,]>::default()); // just so we can rely more on type inference
+                    let custom_arg_captured: CustomArgCaptured =
+                        if let ast::FnArg::SelfRef(syn::ArgSelfRef {
+                            mutability: Some(_),
+                            ..
+                        }) = self_arg
+                        {
+                            syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
+                        } else {
+                            syn::parse_quote! { env: &pdsl_model::EnvHandler }
+                        };
+                    inputs_with_env.push(ast::FnArg::Captured(
+                        custom_arg_captured.into_arg_captured(),
+                    ));
+                    while let Some(input) = inputs_iter.next() {
+                        inputs_with_env.push(input.clone())
+                    }
+                    inputs_with_env
+                };
+                inputs_with_env.to_tokens(inner_toks);
+            });
+            fn_decl.output.to_tokens(&mut content);
+            message.block.to_tokens(&mut content);
+        }
+        content
+    };
+    // let method_impls = {
+    // 	unimplemented!()
+    // };
+    tokens.extend(quote! {
+        impl #state_name {
+            #message_impls
+            // #method_impls
+        }
+    });
+}
+
+struct CustomArgCaptured {
+    pub pat: syn::Pat,
+    pub colon_token: Token![:],
+    pub ty: syn::Type,
+}
+
+impl syn::parse::Parse for CustomArgCaptured {
+    fn parse(input: syn::parse::ParseStream) -> syn::parse::Result<Self> {
+        let pat = input.parse()?;
+        let colon_token = input.parse()?;
+        let ty = input.parse()?;
+        Ok(Self {
+            pat,
+            colon_token,
+            ty,
+        })
+    }
+}
+
+impl CustomArgCaptured {
+    pub fn into_arg_captured(self) -> syn::ArgCaptured {
+        syn::ArgCaptured {
+            pat: self.pat,
+            colon_token: self.colon_token,
+            ty: self.ty,
+        }
+    }
 }
 
 fn codegen_for_state(tokens: &mut TokenStream, contract: &hir::Contract) {
@@ -83,8 +170,8 @@ fn codegen_for_messages(tokens: &mut TokenStream, contract: &hir::Contract) {
         content
     };
     tokens.extend(quote! {
-		// Apparently this `use` is required even though it should not be.
-		// -> Further investigations needed!
+        // Apparently this `use` is required even though it should not be.
+        // -> Further investigations needed!
         use pdsl_model::messages;
         pdsl_model::messages! {
             #messages_content
