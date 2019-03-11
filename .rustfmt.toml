@@ -61,5 +61,8 @@ error_on_unformatted = false
 report_todo = "Always"
 report_fixme = "Always"
 ignore = []
-emit_mode = "Files"
-make_backup = false
+
+# Below are `rustfmt` internal settings
+#
+# emit_mode = "Files"
+# make_backup = false
