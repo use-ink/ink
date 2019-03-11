@@ -19,6 +19,7 @@ pub fn contract(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 mod errors;
 
 mod ast;
+mod gen;
 mod hir;
 mod parser;
 mod ident_ext;
@@ -27,9 +28,9 @@ use errors::Result;
 
 fn contract_gen_inner(input: proc_macro::TokenStream) -> Result<proc_macro::TokenStream> {
     let ast_contract = parser::parse_contract(input.clone())?;
-    let _hir_contract = hir::Contract::from_ast(&ast_contract)?;
+    let hir_contract = hir::Contract::from_ast(&ast_contract)?;
     // gen::gir::generate(&hir_program)?;
-    // let tokens = gen::codegen(&hir_program);
-    // Ok(tokens.into())
-	Ok(proc_macro::TokenStream::new())
+    let tokens = gen::codegen(&hir_contract);
+    Ok(tokens.into())
+    // Ok(proc_macro::TokenStream::new())
 }
