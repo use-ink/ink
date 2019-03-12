@@ -70,24 +70,24 @@ impl<State> core::ops::DerefMut for ExecutionEnv<State> {
 }
 
 impl<State> ExecutionEnv<State> {
-	/// Splits the execution environment into shared references
-	/// to the environment handler and the state.
-	///
-	/// # Note
-	///
-	/// This can be useful if you want to implement a message as
-	/// a method of the state to make it callable from other messages.
+    /// Splits the execution environment into shared references
+    /// to the environment handler and the state.
+    ///
+    /// # Note
+    ///
+    /// This can be useful if you want to implement a message as
+    /// a method of the state to make it callable from other messages.
     pub fn split(&self) -> (&EnvHandler, &State) {
         (&self.env_handler, &self.state)
     }
 
-	/// Splits the execution environment into mutable references
-	/// to the environment handler and the state.
-	///
-	/// # Note
-	///
-	/// This can be useful if you want to implement a message as
-	/// a method of the state to make it callable from other messages.
+    /// Splits the execution environment into mutable references
+    /// to the environment handler and the state.
+    ///
+    /// # Note
+    ///
+    /// This can be useful if you want to implement a message as
+    /// a method of the state to make it callable from other messages.
     pub fn split_mut(&mut self) -> (&mut EnvHandler, &mut State) {
         (&mut self.env_handler, &mut self.state)
     }
