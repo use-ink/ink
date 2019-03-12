@@ -1,5 +1,5 @@
-use pdsl_lang::contract;
 use pdsl_core::storage;
+use pdsl_lang::contract;
 
 contract! {
     /// A simple contract that has a value that can be

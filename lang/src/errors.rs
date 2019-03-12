@@ -26,25 +26,20 @@ macro_rules! format_err {
 /// This is used to allow for reporting multiple errors at the same time.
 #[derive(Debug)]
 pub struct Errors {
-	errors: Vec<SynError>,
+    errors: Vec<SynError>,
 }
 
 impl From<SynError> for Errors {
     fn from(err: SynError) -> Errors {
-        Errors{
-			errors: vec![err],
-		}
+        Errors { errors: vec![err] }
     }
 }
 
 impl From<Vec<Errors>> for Errors {
     fn from(err: Vec<Errors>) -> Errors {
-        let result = err
-			.into_iter()
-			.flat_map(|v| v.errors)
-			.collect::<Vec<_>>();
+        let result = err.into_iter().flat_map(|v| v.errors).collect::<Vec<_>>();
         assert!(result.len() > 0);
-        Errors{ errors: result }
+        Errors { errors: result }
     }
 }
 

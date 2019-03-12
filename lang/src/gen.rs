@@ -168,12 +168,11 @@ fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
                     let self_arg = inputs_iter.next().unwrap();
                     inputs_with_env.push_value(self_arg.clone());
                     inputs_with_env.push_punct(<Token![,]>::default());
-                    let custom_arg_captured: CustomArgCaptured =
-                        if message.is_pub() {
-                            syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
-                        } else {
-                            syn::parse_quote! { env: &pdsl_model::EnvHandler }
-                        };
+                    let custom_arg_captured: CustomArgCaptured = if message.is_pub() {
+                        syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
+                    } else {
+                        syn::parse_quote! { env: &pdsl_model::EnvHandler }
+                    };
                     inputs_with_env.push(ast::FnArg::Captured(
                         custom_arg_captured.into_arg_captured(),
                     ));
