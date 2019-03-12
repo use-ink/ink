@@ -9,7 +9,6 @@ use proc_macro2::{
     Ident,
     Span,
 };
-use syn::token;
 
 /// A smart contract.
 #[derive(Debug)]

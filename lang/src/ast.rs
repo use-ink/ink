@@ -6,7 +6,6 @@ use syn::{
 	token,
 	punctuated::Punctuated,
 	ReturnType,
-	Type,
 };
 
 #[derive(Debug)]
