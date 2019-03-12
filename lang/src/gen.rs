@@ -15,13 +15,64 @@ use syn::{
     punctuated::Punctuated,
     Token,
 };
+use std::iter;
 
 pub fn codegen(contract: &hir::Contract) -> proc_macro2::TokenStream {
     let mut tokens = quote! {};
     codegen_for_state(&mut tokens, contract);
     codegen_for_messages(&mut tokens, contract);
     codegen_for_methods(&mut tokens, contract);
+	codegen_for_instantiate(&mut tokens, contract);
     tokens
+}
+
+
+fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
+	let state_name = &contract.name;
+
+	let deploy_handler_toks = {
+		let deploy_fn_args = {
+			let mut deploy_fn_args: Punctuated<ast::FnArg, Token![,]> = Punctuated::new();
+			for input in contract.on_deploy.decl.inputs.iter().skip(1) {
+				deploy_fn_args.push(input.clone())
+			}
+			deploy_fn_args
+		};
+		let deploy_call_args = {
+			let mut deploy_call_args: Punctuated<syn::Pat, Token![,]> = Punctuated::new();
+			for captured in deploy_fn_args.iter().filter_map(
+				|fn_arg| {
+					if let ast::FnArg::Captured(captured) = fn_arg {
+						Some(captured)
+					} else {
+						None
+					}
+				}) {
+					deploy_call_args.push(captured.pat.clone())
+				}
+			deploy_call_args
+		};
+		quote!{
+			.on_deploy(|env, #deploy_fn_args| {
+				let (handler, state) = env.split_mut();
+				state.on_deploy(handler, #deploy_call_args)
+			})
+		}
+	};
+
+	let messages_toks = {
+		let mut content = quote!{};
+		content
+	};
+
+	tokens.extend(quote! {
+		fn instantiate() -> impl pdsl_model::Contract {
+			pdsl_model::ContractDecl::using::< #state_name >()
+				#deploy_handler_toks
+				#messages_toks
+				.instantiate()
+		}
+	})
 }
 
 fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
