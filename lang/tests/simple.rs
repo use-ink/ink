@@ -1,6 +1,4 @@
-#[macro_use]
-extern crate pdsl_lang;
-
+use pdsl_lang::contract;
 use pdsl_core::storage;
 
 contract! {
