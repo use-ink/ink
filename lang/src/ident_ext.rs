@@ -1,4 +1,7 @@
-use proc_macro2::{Ident, Span};
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use std::fmt::Display;
 
 /// Utilities for operating on `Ident` instances.

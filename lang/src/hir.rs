@@ -187,18 +187,18 @@ pub struct OnDeployHandler {
 }
 
 impl OnDeployHandler {
-	/// Converts this on-deploy handler into its corresponding message.
-	pub fn into_message(self) -> Message {
-		use crate::ident_ext::IdentExt as _;
-		Message {
-			attrs: self.attrs,
-			sig: ast::MethodSig {
-				ident: Ident::from_str("on_deploy"),
-				decl: self.decl,
-			},
-			block: self.block,
-		}
-	}
+    /// Converts this on-deploy handler into its corresponding message.
+    pub fn into_message(self) -> Message {
+        use crate::ident_ext::IdentExt as _;
+        Message {
+            attrs: self.attrs,
+            sig: ast::MethodSig {
+                ident: Ident::from_str("on_deploy"),
+                decl: self.decl,
+            },
+            block: self.block,
+        }
+    }
 }
 
 impl From<Message> for OnDeployHandler {
