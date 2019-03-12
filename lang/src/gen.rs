@@ -23,9 +23,23 @@ pub fn codegen(contract: &hir::Contract) -> proc_macro2::TokenStream {
     codegen_for_messages(&mut tokens, contract);
     codegen_for_methods(&mut tokens, contract);
 	codegen_for_instantiate(&mut tokens, contract);
+	codegen_for_entry_points(&mut tokens);
     tokens
 }
 
+fn codegen_for_entry_points(tokens: &mut TokenStream) {
+	tokens.extend(quote! {
+		#[no_mangle]
+		fn deploy() {
+			instantiate().deploy()
+		}
+
+		#[no_mangle]
+		fn call() {
+			instantiate().dispatch()
+		}
+	})
+}
 
 fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
 	let state_name = &contract.name;
