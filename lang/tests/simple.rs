@@ -9,12 +9,14 @@ contract! {
         value: storage::Value<u32>,
     }
 
-    impl Incrementer {
+    impl Deploy for Incrementer {
         /// Automatically called when the contract is deployed.
-        pub(external) fn on_deploy(&mut self, init_value: u32) {
+        fn deploy(&mut self, init_value: u32) {
             self.value.set(init_value);
         }
+    }
 
+    impl Incrementer {
         /// Increments the internal counter.
         pub(external) fn inc(&mut self, by: u32) {
             self.value += by

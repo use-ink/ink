@@ -1,11 +1,11 @@
 use crate::parser::keywords;
 
 use proc_macro2::Ident;
-// use quote::ToTokens;
 use syn::{
     punctuated::Punctuated,
     token,
     ReturnType,
+    Token,
 };
 
 #[derive(Debug)]
@@ -18,6 +18,17 @@ impl Contract {
         self.items.iter().filter_map(|item| {
             match *item {
                 Item::State(ref c) => Some(c),
+                _ => None,
+            }
+        })
+    }
+
+    pub fn deploy_impl_blocks<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = &'a ItemDeployImpl> + 'a {
+        self.items.iter().filter_map(|item| {
+            match *item {
+                Item::DeployImpl(ref d) => Some(d),
                 _ => None,
             }
         })
@@ -36,6 +47,7 @@ impl Contract {
 #[derive(Debug)]
 pub enum Item {
     State(ItemState),
+    DeployImpl(ItemDeployImpl),
     Impl(ItemImpl),
 }
 
@@ -45,6 +57,25 @@ pub struct ItemState {
     pub struct_tok: token::Struct,
     pub ident: Ident,
     pub fields: syn::FieldsNamed,
+}
+
+#[derive(Debug)]
+pub struct ItemDeployImpl {
+    pub attrs: Vec<syn::Attribute>,
+    pub impl_tok: Token![impl ],
+    pub deploy_tok: keywords::Deploy,
+    pub for_tok: Token![for],
+    pub self_ty: Ident,
+    pub brace_tok: token::Brace,
+    pub item: DeployItemMethod,
+}
+
+#[derive(Debug)]
+pub struct DeployItemMethod {
+    pub attrs: Vec<syn::Attribute>,
+    pub deploy_tok: keywords::deploy,
+    pub decl: FnDecl,
+    pub block: syn::Block,
 }
 
 #[derive(Debug)]

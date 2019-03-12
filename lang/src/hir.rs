@@ -18,7 +18,7 @@ pub struct Contract {
     /// The storage state fields.
     pub state: State,
     /// The deploy handler of the smart contract.
-    pub on_deploy: OnDeployHandler,
+    pub on_deploy: DeployHandler,
     /// The messages of the smart contract.
     pub messages: Vec<Message>,
     /// Methods of the smart contract.
@@ -28,6 +28,11 @@ pub struct Contract {
 impl Contract {
     /// Extracts the contract state from the contract items
     /// and performs some integrity checks on it.
+    ///
+    /// # Errors
+    ///
+    /// - If no contract state has been found.
+    /// - If more than one contract state has been found.
     fn extract_state(contract: &ast::Contract) -> Result<(&Ident, State)> {
         let states = contract.states().collect::<Vec<_>>();
         if states.is_empty() {
@@ -54,7 +59,7 @@ impl Contract {
     fn unpack_impl_blocks(
         contract_ident: &Ident,
         contract: &ast::Contract,
-    ) -> Result<(OnDeployHandler, Vec<Message>, Vec<Method>)> {
+    ) -> Result<(Vec<Message>, Vec<Method>)> {
         let impl_blocks = contract.impl_blocks().collect::<Vec<_>>();
         if impl_blocks.is_empty() {
             return Err(SynError::new(
@@ -73,7 +78,7 @@ impl Contract {
             }
         }
         use itertools::Itertools as _;
-        let (mut messages, methods): (Vec<_>, Vec<_>) = impl_blocks
+        let (messages, methods): (Vec<_>, Vec<_>) = impl_blocks
             .into_iter()
             .flat_map(|impl_block| impl_block.items.iter())
             .partition_map(|msg_or_method| {
@@ -111,25 +116,61 @@ impl Contract {
                 }
             }
         }
-        let deploy_handler_idx =
-            messages.iter().position(|msg| msg.sig.ident == "on_deploy");
-        let deploy_handler = match deploy_handler_idx {
-            Some(idx) => messages.swap_remove(idx).into(),
-            None => {
-                return Err(SynError::new(
-                    Span::call_site(),
-                    "could not find contract deploy handler: `on_deploy`",
-                )
-                .into())
-            }
-        };
-        Ok((deploy_handler, messages, methods))
+        Ok((messages, methods))
     }
 
+    /// Extracts the deploy handler for the given contract identifier
+    /// out of the given AST based smart contract token tree.
+    ///
+    /// # Errors
+    ///
+    /// - If there is no deploy handler.
+    /// - If there is more than one deploy handler for the same contract.
+    /// - If there is a deploy handler for a contract that does not exist.
+    fn extract_deploy_handler(
+        contract_ident: &Ident,
+        contract: &ast::Contract,
+    ) -> Result<DeployHandler> {
+        let mut deploy_impl_blocks = contract.deploy_impl_blocks().collect::<Vec<_>>();
+        if deploy_impl_blocks.is_empty() {
+            return Err(SynError::new(
+                Span::call_site(),
+                "couldn't find a contract deploy implementation",
+            )
+            .into())
+        }
+        deploy_impl_blocks.retain(|block| block.self_ty == *contract_ident);
+        if deploy_impl_blocks.is_empty() {
+            bail!(
+                contract_ident,
+                "could not find a contract deploy implementation for {}",
+                contract_ident
+            )
+        }
+        if deploy_impl_blocks.len() >= 2 {
+            bail!(
+                contract_ident,
+                "found more than one contract deploy implementation for {}",
+                contract_ident
+            )
+        }
+        let deploy_impl_block = deploy_impl_blocks[0];
+        Ok(DeployHandler {
+            attrs: deploy_impl_block.attrs.clone(),
+            decl: deploy_impl_block.item.decl.clone(),
+            block: deploy_impl_block.item.block.clone(),
+        })
+    }
+
+    /// Creates a high-level representation contract from the given AST-level contract.
+    ///
+    /// # Errors
+    ///
+    /// If any invariant of a contract is invalidated.
     pub fn from_ast(contract: &ast::Contract) -> Result<Self> {
         let (ident, state) = Self::extract_state(contract)?;
-        let (deploy_handler, messages, methods) =
-            Self::unpack_impl_blocks(ident, contract)?;
+        let deploy_handler = Self::extract_deploy_handler(ident, contract)?;
+        let (messages, methods) = Self::unpack_impl_blocks(ident, contract)?;
         Ok(Self {
             name: ident.clone(),
             state,
@@ -173,7 +214,7 @@ impl From<&ast::ItemState> for State {
 /// This is what is getting called upon deploying a smart contract.
 /// Normally this is used to initialize storage values.
 #[derive(Debug, Clone)]
-pub struct OnDeployHandler {
+pub struct DeployHandler {
     /// The attributes.
     ///
     /// # Note
@@ -186,7 +227,7 @@ pub struct OnDeployHandler {
     pub block: syn::Block,
 }
 
-impl OnDeployHandler {
+impl DeployHandler {
     /// Converts this on-deploy handler into its corresponding message.
     pub fn into_message(self) -> Message {
         use crate::ident_ext::IdentExt as _;
@@ -201,7 +242,7 @@ impl OnDeployHandler {
     }
 }
 
-impl From<Message> for OnDeployHandler {
+impl From<Message> for DeployHandler {
     fn from(msg: Message) -> Self {
         Self {
             attrs: msg.attrs,
