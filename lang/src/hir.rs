@@ -283,14 +283,16 @@ pub struct Message {
 }
 
 impl Message {
-	/// Returns `true` if the message potentially mutates its state.
-	pub fn is_pub(&self) -> bool {
-		let self_arg = self.sig.decl.inputs.iter().next().unwrap();
-		match self_arg {
-			ast::FnArg::SelfRef(syn::ArgSelfRef{mutability, ..}) => mutability.is_some(),
-			_ => panic!()
-		}
-	}
+    /// Returns `true` if the message potentially mutates its state.
+    pub fn is_pub(&self) -> bool {
+        let self_arg = self.sig.decl.inputs.iter().next().unwrap();
+        match self_arg {
+            ast::FnArg::SelfRef(syn::ArgSelfRef { mutability, .. }) => {
+                mutability.is_some()
+            }
+            _ => panic!(),
+        }
+    }
 }
 
 impl From<&ast::ItemImplMethod> for Message {

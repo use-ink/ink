@@ -12,7 +12,7 @@ contract! {
     impl Deploy for Incrementer {
         /// Automatically called when the contract is deployed.
         fn deploy(&mut self, init_value: u32) {
-            self.value.set(init_value);
+            self.value.set(init_value)
         }
     }
 
