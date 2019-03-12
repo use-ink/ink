@@ -17,24 +17,31 @@ state! {
 }
 
 messages! {
+	/// Increments the internal counter.
 	0 => Inc(by: u32);
+	/// Returns the internal counter.
 	1 => Get() -> u32;
+	/// Returns `true` if `x` is greater than the internal value.
 	2 => Compare(with: u32) -> bool;
 }
 
 impl Adder {
-	pub fn on_deploy(&mut self, env: &EnvHandler, init_val: u32) {
-		self.val.set(init_val)
+	/// Automatically called when the contract is deployed.
+	pub fn on_deploy(&mut self, env: &mut EnvHandler, init_val: u32) {
+		self.value.set(init_val)
 	}
 
-	pub fn inc(&mut self, env: &EnvHandler, by: u32) {
+	/// Increments the internal counter.
+	pub fn inc(&mut self, env: &mut EnvHandler, by: u32) {
 		self.value += by
 	}
 
+	/// Returns the internal counter.
 	pub fn get(&self, env: &EnvHandler) -> u32 {
 		*self.value
 	}
 
+	/// Returns `true` if `x` is greater than the internal value.
 	pub fn compare(&self, env: &EnvHandler, x: u32) -> bool {
 		x > *self.value
 	}

@@ -16,7 +16,7 @@ contract! {
 	impl Incrementer {
         /// Automatically called when the contract is deployed.
 		pub(external) fn on_deploy(&mut self, init_value: u32) {
-            self.value = init_value;
+            self.value.set(init_value);
         }
 
 		/// Increments the internal counter.
