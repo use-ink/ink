@@ -134,6 +134,7 @@ pub struct FnDecl {
     pub paren_tok: token::Paren,
     pub inputs: Punctuated<FnArg, token::Comma>,
     pub output: ReturnType,
+    pub generics: syn::Generics,
 }
 
 #[derive(Debug, Clone)]

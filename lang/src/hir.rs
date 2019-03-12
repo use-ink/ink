@@ -115,6 +115,12 @@ impl Contract {
                     }
                 }
             }
+            if msg.sig.decl.generics != Default::default() {
+                bail!(
+                    msg.sig.decl.generics,
+                    "contract messages must not be generic"
+                )
+            }
         }
         Ok((messages, methods))
     }

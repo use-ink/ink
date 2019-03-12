@@ -129,6 +129,7 @@ impl Parse for ast::DeployItemMethod {
                 paren_tok,
                 inputs,
                 output,
+                generics: Default::default(),
             },
             block,
         })
@@ -166,6 +167,7 @@ impl Parse for ast::ItemImplMethod {
         let vis = input.parse()?;
         let fn_tok = input.parse()?;
         let ident = input.parse()?;
+        let generics: syn::Generics = input.parse()?;
         let (paren_tok, inputs) = {
             let content;
             let paren_tok = syn::parenthesized!(content in input);
@@ -173,6 +175,7 @@ impl Parse for ast::ItemImplMethod {
             (paren_tok, inputs)
         };
         let output = input.parse()?;
+        let where_clause: Option<syn::WhereClause> = input.parse()?;
         let block = input.parse()?;
 
         Ok(Self {
@@ -185,6 +188,10 @@ impl Parse for ast::ItemImplMethod {
                     paren_tok,
                     inputs,
                     output,
+                    generics: syn::Generics {
+                        where_clause,
+                        ..generics
+                    },
                 },
             },
             block,
