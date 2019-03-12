@@ -172,7 +172,7 @@ impl From<&ast::ItemState> for State {
 ///
 /// This is what is getting called upon deploying a smart contract.
 /// Normally this is used to initialize storage values.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OnDeployHandler {
     /// The attributes.
     ///
