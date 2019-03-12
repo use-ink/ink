@@ -29,7 +29,9 @@ fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
 
     let message_impls = {
         let mut content = quote! {};
-        for message in contract.messages.iter() {
+        for message in iter::once(&contract.on_deploy.clone().into_message())
+            .chain(contract.messages.iter())
+        {
             for attr in &message.attrs {
                 attr.to_tokens(&mut content)
             }
@@ -43,8 +45,8 @@ fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
                         Punctuated::new();
                     let mut inputs_iter = fn_decl.inputs.iter();
                     let self_arg = inputs_iter.next().unwrap();
-                    inputs_with_env.push_value(self_arg.clone()); // &self or &mut self
-                    inputs_with_env.push_punct(<Token![,]>::default()); // just so we can rely more on type inference
+                    inputs_with_env.push_value(self_arg.clone());
+                    inputs_with_env.push_punct(<Token![,]>::default());
                     let custom_arg_captured: CustomArgCaptured =
                         if let ast::FnArg::SelfRef(syn::ArgSelfRef {
                             mutability: Some(_),
@@ -70,13 +72,12 @@ fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
         }
         content
     };
-    // let method_impls = {
-    // 	unimplemented!()
-    // };
+	// We do this at a later point - no need for now!
+	let method_impls = quote!{};
     tokens.extend(quote! {
         impl #state_name {
             #message_impls
-            // #method_impls
+            #method_impls
         }
     });
 }
