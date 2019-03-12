@@ -85,8 +85,36 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
                 message.sig.ident.span(),
             );
 
-            let msg_fn_args = quote! {};
-            let msg_call_args = quote! {};
+            let msg_fn_args = {
+                let mut msg_fn_args: Punctuated<ast::FnArg, Token![,]> =
+                    Punctuated::new();
+                for input in message.sig.decl.inputs.iter().skip(1) {
+                    msg_fn_args.push(input.clone())
+                }
+                msg_fn_args
+            };
+
+            let msg_call_args = {
+                let mut msg_call_args: Punctuated<syn::Pat, Token![,]> =
+                    Punctuated::new();
+                for captured in msg_fn_args.iter().filter_map(|fn_arg| {
+                    if let ast::FnArg::Captured(captured) = fn_arg {
+                        Some(captured)
+                    } else {
+                        None
+                    }
+                }) {
+                    msg_call_args.push(captured.pat.clone())
+                }
+                msg_call_args
+            };
+
+            let msg_fn_args_toks = if msg_fn_args.iter().count() > 0 {
+                msg_fn_args.into_token_stream()
+            } else {
+                quote! {_}
+            };
+
             let mut_msg = {
                 let self_arg = message.sig.decl.inputs.iter().next().unwrap();
                 if let ast::FnArg::SelfRef(syn::ArgSelfRef {
@@ -101,14 +129,14 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
             };
             let msg_toks = if mut_msg {
                 quote! {
-                    .on_msg_mut::< #camelcase_msg_ident >(|env, #msg_fn_args| {
+                    .on_msg_mut::< #camelcase_msg_ident >(|env, #msg_fn_args_toks| {
                         let (handler, state) = env.split_mut();
                         state. #msg_ident (handler, #msg_call_args)
                     })
                 }
             } else {
                 quote! {
-                    .on_msg::< #camelcase_msg_ident >(|env, #msg_fn_args| {
+                    .on_msg::< #camelcase_msg_ident >(|env, #msg_fn_args_toks| {
                         let (handler, state) = env.split();
                         state.  #msg_ident (handler, #msg_call_args)
                     })
