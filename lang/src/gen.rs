@@ -115,19 +115,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
                 quote! {_}
             };
 
-            let mut_msg = {
-                let self_arg = message.sig.decl.inputs.iter().next().unwrap();
-                if let ast::FnArg::SelfRef(syn::ArgSelfRef {
-                    mutability: Some(_),
-                    ..
-                }) = self_arg
-                {
-                    true
-                } else {
-                    false
-                }
-            };
-            let msg_toks = if mut_msg {
+            let msg_toks = if message.is_pub() {
                 quote! {
                     .on_msg_mut::< #camelcase_msg_ident >(|env, #msg_fn_args_toks| {
                         let (handler, state) = env.split_mut();
@@ -181,11 +169,7 @@ fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
                     inputs_with_env.push_value(self_arg.clone());
                     inputs_with_env.push_punct(<Token![,]>::default());
                     let custom_arg_captured: CustomArgCaptured =
-                        if let ast::FnArg::SelfRef(syn::ArgSelfRef {
-                            mutability: Some(_),
-                            ..
-                        }) = self_arg
-                        {
+                        if message.is_pub() {
                             syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
                         } else {
                             syn::parse_quote! { env: &pdsl_model::EnvHandler }
