@@ -161,6 +161,47 @@ impl Contract {
             )
         }
         let deploy_impl_block = deploy_impl_blocks[0];
+
+        let fn_decl = &deploy_impl_block.item.decl;
+        let self_ty: &ast::FnArg = &fn_decl.inputs.first().unwrap().into_value();
+
+        if let ast::FnArg::SelfRef(syn::ArgSelfRef {
+            mutability: None, ..
+        })
+        | ast::FnArg::SelfValue(_)
+        | ast::FnArg::Captured(_) = self_ty
+        {
+            bail!(
+                self_ty,
+                "the deploy implementation must operate on `&mut self`"
+            )
+        }
+
+        for fn_arg in fn_decl.inputs.iter().skip(1) {
+            if let ast::FnArg::Captured(arg_captured) = fn_arg {
+                if let syn::Pat::Ident(pat_ident) = &arg_captured.pat {
+                    if pat_ident.ident == "env" {
+                        bail!(
+                            pat_ident.ident,
+                            "the deploy implementation must not contain an env argument"
+                        )
+                    }
+                }
+            }
+        }
+        if fn_decl.generics != Default::default() {
+            bail!(
+                fn_decl.generics,
+                "the deploy implementation must not be generic"
+            )
+        }
+        if fn_decl.output != syn::ReturnType::Default {
+            bail!(
+                fn_decl.output,
+                "the deploy implementation must not have a return type"
+            )
+        }
+
         Ok(DeployHandler {
             attrs: deploy_impl_block.attrs.clone(),
             decl: deploy_impl_block.item.decl.clone(),
