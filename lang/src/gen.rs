@@ -75,6 +75,47 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
 
     let messages_toks = {
         let mut content = quote! {};
+        for message in &contract.messages {
+            let msg_ident = &message.sig.ident;
+
+            use crate::ident_ext::IdentExt as _;
+            use heck::CamelCase as _;
+            let camelcase_msg_ident = Ident::new(
+                &message.sig.ident.to_owned_string().to_camel_case(),
+                message.sig.ident.span(),
+            );
+
+            let msg_fn_args = quote! {};
+            let msg_call_args = quote! {};
+            let mut_msg = {
+                let self_arg = message.sig.decl.inputs.iter().next().unwrap();
+                if let ast::FnArg::SelfRef(syn::ArgSelfRef {
+                    mutability: Some(_),
+                    ..
+                }) = self_arg
+                {
+                    true
+                } else {
+                    false
+                }
+            };
+            let msg_toks = if mut_msg {
+                quote! {
+                    .on_msg_mut::< #camelcase_msg_ident >(|env, #msg_fn_args| {
+                        let (handler, state) = env.split_mut();
+                        state. #msg_ident (handler, #msg_call_args)
+                    })
+                }
+            } else {
+                quote! {
+                    .on_msg::< #camelcase_msg_ident >(|env, #msg_fn_args| {
+                        let (handler, state) = env.split();
+                        state.  #msg_ident (handler, #msg_call_args)
+                    })
+                }
+            };
+            msg_toks.to_tokens(&mut content)
+        }
         content
     };
 
