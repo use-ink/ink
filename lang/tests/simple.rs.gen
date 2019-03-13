@@ -20,10 +20,12 @@ pdsl_model::messages! {
 
 impl Adder {
     /// Automatically called when the contract is deployed.
-    pub fn on_deploy(&mut self, env: &mut pdsl_model::EnvHandler, init_val: u32) {
+    pub fn deploy(&mut self, env: &mut pdsl_model::EnvHandler, init_val: u32) {
         self.value.set(init_val)
     }
+}
 
+impl Adder {
     /// Increments the internal counter.
     pub fn inc(&mut self, env: &mut pdsl_model::EnvHandler, by: u32) {
         self.value += by
