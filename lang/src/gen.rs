@@ -37,7 +37,8 @@ pub fn codegen(contract: &hir::Contract) -> proc_macro2::TokenStream {
     let mut tokens = quote! {};
     codegen_for_state(&mut tokens, contract);
     codegen_for_messages(&mut tokens, contract);
-    codegen_for_methods(&mut tokens, contract);
+    codegen_for_message_impls(&mut tokens, contract);
+    codegen_for_method_impls(&mut tokens, contract);
     codegen_for_instantiate(&mut tokens, contract);
     codegen_for_entry_points(&mut tokens);
     tokens
@@ -161,9 +162,8 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
     })
 }
 
-fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
+fn codegen_for_message_impls(tokens: &mut TokenStream, contract: &hir::Contract) {
     let state_name = &contract.name;
-
     let message_impls = {
         let mut content = quote! {};
         for message in iter::once(&contract.on_deploy.clone().into_message())
@@ -204,12 +204,19 @@ fn codegen_for_methods(tokens: &mut TokenStream, contract: &hir::Contract) {
         }
         content
     };
-    // We do this at a later point - no need for now!
-    let method_impls = quote! {};
     tokens.extend(quote! {
         impl #state_name {
             #message_impls
-            #method_impls
+        }
+    });
+}
+
+fn codegen_for_method_impls(tokens: &mut TokenStream, contract: &hir::Contract) {
+    let state_name = &contract.name;
+    let methods_impls = quote!{};
+    tokens.extend(quote! {
+        impl #state_name {
+            #methods_impls
         }
     });
 }
