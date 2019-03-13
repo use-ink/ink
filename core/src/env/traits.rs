@@ -1,3 +1,19 @@
+// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// This file is part of pDSL.
+//
+// pDSL is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// pDSL is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+
 use crate::{
     memory::vec::Vec,
     storage::Key,
@@ -15,27 +31,27 @@ pub trait EnvTypes {
 /// Types implementing this can act as contract storage.
 pub trait EnvStorage {
     /// Stores the given value under the given key.
-	///
-	/// # Safety
-	///
-	/// This operation is unsafe becaues it does not check for key integrity.
-	/// Users can compare this operation with a raw pointer dereferencing in Rust.
+    ///
+    /// # Safety
+    ///
+    /// This operation is unsafe becaues it does not check for key integrity.
+    /// Users can compare this operation with a raw pointer dereferencing in Rust.
     unsafe fn store(key: Key, value: &[u8]);
 
     /// Clears the value stored under the given key.
-	///
-	/// # Safety
-	///
-	/// This operation is unsafe becaues it does not check for key integrity.
-	/// Users can compare this operation with a raw pointer dereferencing in Rust.
+    ///
+    /// # Safety
+    ///
+    /// This operation is unsafe becaues it does not check for key integrity.
+    /// Users can compare this operation with a raw pointer dereferencing in Rust.
     unsafe fn clear(key: Key);
 
     /// Loads data stored under the given key.
-	///
-	/// # Safety
-	///
-	/// This operation is unsafe becaues it does not check for key integrity.
-	/// Users can compare this operation with a raw pointer dereferencing in Rust.
+    ///
+    /// # Safety
+    ///
+    /// This operation is unsafe becaues it does not check for key integrity.
+    /// Users can compare this operation with a raw pointer dereferencing in Rust.
     unsafe fn load(key: Key) -> Option<Vec<u8>>;
 }
 
@@ -48,11 +64,11 @@ pub trait Env: EnvTypes + EnvStorage {
     fn input() -> Vec<u8>;
 
     /// Returns from the contract execution with the given value.
-	///
-	/// # Safety
-	///
-	/// The external callers rely on the correct type of the encoded
-	/// returned value. This API is unsafe because it does not provide
-	/// guarantees on its own to always encode the expected type.
+    ///
+    /// # Safety
+    ///
+    /// The external callers rely on the correct type of the encoded
+    /// returned value. This API is unsafe because it does not provide
+    /// guarantees on its own to always encode the expected type.
     unsafe fn r#return(value: &[u8]) -> !;
 }

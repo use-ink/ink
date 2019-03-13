@@ -20,16 +20,14 @@ mod srml_only;
 mod types;
 
 pub use self::types::{
-	DefaultSrmlTypes,
     Address,
     Balance,
+    DefaultSrmlTypes,
 };
 
 #[cfg(not(feature = "test-env"))]
-pub use self::{
-	srml_only::{
-		sys,
-		DefaultSrmlEnv,
-		SrmlEnv,
-	},
+pub use self::srml_only::{
+    sys,
+    DefaultSrmlEnv,
+    SrmlEnv,
 };

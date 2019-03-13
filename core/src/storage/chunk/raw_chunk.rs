@@ -159,9 +159,7 @@ impl RawChunk {
 mod tests {
     use super::*;
 
-    use crate::{
-        test_utils::run_test,
-    };
+    use crate::test_utils::run_test;
 
     #[test]
     fn simple() {

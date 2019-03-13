@@ -27,9 +27,9 @@
 //! To enable the test environment the `test-env` crate feature
 //! has to be enabled.
 
-mod traits;
 mod api;
 mod srml;
+mod traits;
 
 #[cfg(feature = "test-env")]
 pub mod test;
@@ -37,8 +37,8 @@ pub mod test;
 #[cfg(feature = "test-env")]
 mod test_env;
 
-pub use traits::*;
 pub use api::*;
+pub use traits::*;
 
 /// The environment implementation that is currently being used.
 ///
@@ -49,8 +49,8 @@ pub use api::*;
 ///   that can be inspected by the user and used
 ///   for testing contracts off-chain.
 #[cfg(not(feature = "test-env"))]
-pub(in self) type ContractEnv = self::srml::DefaultSrmlEnv;
+pub(self) type ContractEnv = self::srml::DefaultSrmlEnv;
 
 /// The environment implementation that is currently being used.
 #[cfg(feature = "test-env")]
-pub(in self) type ContractEnv = self::test_env::TestEnv;
+pub(self) type ContractEnv = self::test_env::TestEnv;

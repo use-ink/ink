@@ -17,11 +17,11 @@
 use super::*;
 use crate::{
     env::srml,
-	storage::Key,
     memory::collections::hash_map::{
         Entry,
         HashMap,
     },
+    storage::Key,
 };
 use core::cell::{
     Cell,
