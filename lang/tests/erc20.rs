@@ -24,6 +24,7 @@ use pdsl_core::{
 use pdsl_lang::contract;
 
 contract! {
+    /// The storage items for a typical ERC20 token implementation.
     struct Erc20 {
         /// All peeps done by all users.
         balances: storage::HashMap<Address, Balance>,
