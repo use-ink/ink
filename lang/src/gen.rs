@@ -85,7 +85,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
         quote! {
             .on_deploy(|env, #deploy_fn_args| {
                 let (handler, state) = env.split_mut();
-                state.on_deploy(handler, #deploy_call_args)
+                state.deploy(handler, #deploy_call_args)
             })
         }
     };

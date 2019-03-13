@@ -297,7 +297,7 @@ impl DeployHandler {
         Message {
             attrs: self.attrs,
             sig: ast::MethodSig {
-                ident: Ident::from_str("on_deploy"),
+                ident: Ident::from_str("deploy"),
                 decl: self.decl,
             },
             block: self.block,
