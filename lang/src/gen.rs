@@ -153,6 +153,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
     };
 
     tokens.extend(quote! {
+        use pdsl_model::Contract;
         fn instantiate() -> impl pdsl_model::Contract {
             pdsl_model::ContractDecl::using::< #state_name >()
                 #deploy_handler_toks
