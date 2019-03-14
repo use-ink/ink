@@ -68,5 +68,14 @@ impl ToTokens for Errors {
     }
 }
 
+impl std::fmt::Display for Errors {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        for err in &self.errors {
+            err.fmt(f)?;
+        }
+        Ok(())
+    }
+}
+
 /// Result type alias for an error type which allows for accumulating errors.
 pub type Result<T> = StdResult<T, Errors>;
