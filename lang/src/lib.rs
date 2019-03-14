@@ -59,4 +59,9 @@ fn contract_gen_impl2(input: proc_macro2::TokenStream) -> Result<proc_macro2::To
     let tokens = gen::codegen(&hir_contract);
     Ok(tokens.into())
 }
+
+#[test]
+fn empty_contract_input() {
+    use quote::quote;
+    assert!(contract_gen_impl2(quote!{}).is_err());
 }
