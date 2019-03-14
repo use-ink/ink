@@ -219,7 +219,7 @@ impl Contract {
         }
 
         Ok(DeployHandler {
-            attrs: deploy_impl_block.attrs.clone(),
+            attrs: deploy_impl_block.item.attrs.clone(),
             decl: deploy_impl_block.item.decl.clone(),
             block: deploy_impl_block.item.block.clone(),
         })
