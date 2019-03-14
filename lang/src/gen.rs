@@ -231,7 +231,28 @@ fn codegen_for_message_impls(tokens: &mut TokenStream, contract: &hir::Contract)
 
 fn codegen_for_method_impls(tokens: &mut TokenStream, contract: &hir::Contract) {
     let state_name = &contract.name;
-    let methods_impls = quote!{};
+    let methods_impls = {
+        let mut content = quote!{};
+        for method in contract.methods.iter() {
+            for attr in &method.attrs {
+                attr.to_tokens(&mut content)
+            }
+            let fn_decl = &method.sig.decl;
+            fn_decl.fn_tok.to_tokens(&mut content);
+            method.sig.ident.to_tokens(&mut content);
+            let generics = &fn_decl.generics;
+            generics.lt_token.to_tokens(&mut content);
+            generics.params.to_tokens(&mut content);
+            generics.gt_token.to_tokens(&mut content);
+            fn_decl.paren_tok.surround(&mut content, |inner_toks| {
+                fn_decl.inputs.to_tokens(inner_toks);
+            });
+            fn_decl.output.to_tokens(&mut content);
+            generics.where_clause.to_tokens(&mut content);
+            method.block.to_tokens(&mut content);
+        }
+        content
+    };
     tokens.extend(quote! {
         impl #state_name {
             #methods_impls
