@@ -66,10 +66,7 @@ fn instantiate() -> impl Contract {
 		.on_msg::<BalanceOf>(|env, owner| {
 			env.state.balances[&owner]
 		})
-		.on_msg_mut::<Transfer>(|env, (to, amount)| {
-			// if amount == Address::from(0x0) { // In Substrate we do not have the zero address!
-			//	 return false;
-			// }
+		.on_msg_mut::<Transfer>(|env, (to: Address, amount: Address)| {
 			let from = env.caller();
 			let balance_from = env.state.balances[&from];
 			let balance_to = env.state.balances[&to];
