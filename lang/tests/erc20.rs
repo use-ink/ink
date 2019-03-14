@@ -74,7 +74,7 @@ contract! {
         pub(external) fn approve(&mut self, spender: Address, value: Balance) -> bool {
             let owner = env.caller();
             self.allowances.insert((owner, spender), value);
-            self.emit_approval(owner, spender, value);
+            Self::emit_approval(owner, spender, value);
             true
         }
 
@@ -83,8 +83,8 @@ contract! {
             self.allowances[&(from, to)] -= value;
             self.transfer_impl(from, to, value);
             let new_allowance = self.allowances[&(from, to)];
-            self.emit_transfer(from, to, value);
-            self.emit_approval(from, to, new_allowance);
+            Self::emit_transfer(from, to, value);
+            Self::emit_approval(from, to, new_allowance);
             true
         }
     }
@@ -94,7 +94,7 @@ contract! {
         fn transfer_impl(&mut self, from: Address, to: Address, value: Balance) {
             self.balances[&from] -= value;
             self.balances[&to] += value;
-            self.emit_transfer(from, to, value);
+            Self::emit_transfer(from, to, value);
         }
 
         /// Decrease balance from the address.
@@ -102,27 +102,27 @@ contract! {
         /// # Panics
         ///
         /// If `from` does not have enough balance.
+        #[allow(unused)]
         fn burn_for(&mut self, from: Address, value: Balance){
             self.balances[&from] -= value;
             self.total_supply -= value;
-            self.emit_transfer(from, None, value);
+            Self::emit_transfer(from, None, value);
         }
 
         /// Increase balance for the receiver out of nowhere.
         fn mint_for(&mut self, receiver: Address, value: Balance) {
             self.balances[&receiver] += value;
             self.total_supply += value;
-            self.emit_transfer(None, receiver, value);
+            Self::emit_transfer(None, receiver, value);
         }
 
         /// Emits an approval event.
         fn emit_approval(
-            from: Address,
-            to: Address,
+            _from: Address,
+            _to: Address,
             value: Balance,
         ) {
-            assert!(from.is_some() && to.is_some());
-            assert!(value > Balance::from(0));
+            assert!(value > 0);
             // emit event - This is not yet implemented in SRML contracts.
         }
 
@@ -136,8 +136,9 @@ contract! {
             F: Into<Option<Address>>,
             T: Into<Option<Address>>,
         {
+            let (from, to) = (from.into(), to.into());
             assert!(from.is_some() || to.is_some());
-            assert!(value > Balance::from(0));
+            assert!(value > 0);
             // emit event - This is not yet implemented in SRML contracts.
         }
     }

@@ -67,7 +67,7 @@ impl Erc20 {
     pub fn approve(&mut self, env: &mut EnvHandler, spender: Address, value: Balance) -> bool {
         let owner = env.caller();
         self.allowances.insert((owner, spender), value);
-        self.emit_approval(owner, spender, value);
+        Self::emit_approval(owner, spender, value);
         true
     }
 
@@ -76,8 +76,8 @@ impl Erc20 {
         self.allowances[&(from, to)] -= value;
         self.transfer_impl(from, to, value);
         let new_allowance = self.allowances[&(from, to)];
-        self.emit_transfer(from, to, value);
-        self.emit_approval(from, to, new_allowance);
+        Self::emit_transfer(from, to, value);
+        Self::emit_approval(from, to, new_allowance);
         true
     }
 }
@@ -87,7 +87,7 @@ impl Erc20 {
     fn transfer_impl(&mut self, from: Address, to: Address, value: Balance) {
         self.balances[&from] -= value;
         self.balances[&to] += value;
-        self.emit_transfer(from, to, value);
+        Self::emit_transfer(from, to, value);
     }
 
     /// Decrease balance from the address.
@@ -110,12 +110,11 @@ impl Erc20 {
 
     /// Emits an approval event.
     fn emit_approval(
-        from: Address,
-        to: Address,
+        _from: Address,
+        _to: Address,
         value: Balance,
     ) {
-        assert!(from.is_some() && to.is_some());
-        assert!(value > Balance::from(0));
+        assert!(value > 0);
         // emit event - This is not yet implemented in SRML contracts.
     }
 
@@ -129,8 +128,9 @@ impl Erc20 {
         F: Into<Option<Address>>,
         T: Into<Option<Address>>,
     {
+        let (from, to) = (from.into(), to.into());
         assert!(from.is_some() || to.is_some());
-        assert!(value > Balance::from(0));
+        assert!(value > 0);
         // emit event - This is not yet implemented in SRML contracts.
     }
 }
