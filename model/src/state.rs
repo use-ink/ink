@@ -39,24 +39,6 @@ macro_rules! state {
 		$vis:vis struct $state_name:ident {
 			$(
 				$( #[$field_meta:meta] )*
-				$field_name:ident : $field_ty:ty
-			),*
-		}
-	) => {
-		$crate::state! {
-			$vis struct $state_name {
-				$(
-					$( #[$field_meta] )*
-					$field_name : $field_ty ,
-				)*
-			}
-		}
-	};
-	(
-		$( #[$state_meta:meta] )*
-		$vis:vis struct $state_name:ident {
-			$(
-				$( #[$field_meta:meta] )*
 				$field_name:ident : $field_ty:ty ,
 			)*
 		}
@@ -93,6 +75,24 @@ macro_rules! state {
 
 		impl $crate::ContractState for $state_name {
 			const NAME: &'static [u8] = stringify!($state_name).as_bytes();
+		}
+	};
+	(
+		$( #[$state_meta:meta] )*
+		$vis:vis struct $state_name:ident {
+			$(
+				$( #[$field_meta:meta] )*
+				$field_name:ident : $field_ty:ty
+			),*
+		}
+	) => {
+		$crate::state! {
+			$vis struct $state_name {
+				$(
+					$( #[$field_meta] )*
+					$field_name : $field_ty ,
+				)*
+			}
 		}
 	};
 }
