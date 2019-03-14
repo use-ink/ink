@@ -37,6 +37,9 @@ mod hir;
 mod ident_ext;
 mod parser;
 
+#[cfg(test)]
+mod tests;
+
 use errors::Result;
 
 /// Simple wrapper from `proc_macro` to `proc_macro2` and back again.
@@ -52,16 +55,10 @@ fn contract_gen_impl(input: proc_macro::TokenStream) -> Result<proc_macro::Token
 
 /// Parses the given token stream as pDSL contract, performs some checks and returns
 /// the corresponding contract as token stream.
-fn contract_gen_impl2(input: proc_macro2::TokenStream) -> Result<proc_macro2::TokenStream> {
+pub(crate) fn contract_gen_impl2(input: proc_macro2::TokenStream) -> Result<proc_macro2::TokenStream> {
     let ast_contract = parser::parse_contract(input.clone())?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
     // gen::gir::generate(&hir_program)?;
     let tokens = gen::codegen(&hir_contract);
     Ok(tokens.into())
-}
-
-#[test]
-fn empty_contract_input() {
-    use quote::quote;
-    assert!(contract_gen_impl2(quote!{}).is_err());
 }
