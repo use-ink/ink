@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-#![feature(const_str_as_bytes)]
-
 use pdsl_core::storage;
 use pdsl_lang::contract;
 

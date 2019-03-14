@@ -28,7 +28,7 @@ pub trait ContractState: AllocateUsing + Flush {
     /// - This must be a valid Rust identifier.
     /// - Normally this reflects the name of the contract.
     // const NAME: &'static str;
-    const NAME: &'static [u8];
+    const NAME: &'static str;
 }
 
 /// Define contract state with less boilerplate code.
@@ -74,7 +74,7 @@ macro_rules! state {
 		}
 
 		impl $crate::ContractState for $state_name {
-			const NAME: &'static [u8] = stringify!($state_name).as_bytes();
+			const NAME: &'static str = stringify!($state_name);
 		}
 	};
 	(

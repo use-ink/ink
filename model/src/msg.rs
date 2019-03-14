@@ -34,7 +34,7 @@ pub trait Message {
     /// # Note
     ///
     /// This must be a valid Rust identifier.
-    const NAME: &'static [u8];
+    const NAME: &'static str;
 }
 
 /// Defines messages for contracts with less boilerplate code.
@@ -57,7 +57,7 @@ macro_rules! messages {
 			type Output = $ret_ty;
 
 			const ID: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
-			const NAME: &'static [u8] = stringify!($msg_name).as_bytes();
+			const NAME: &'static str = stringify!($msg_name);
 		}
 
 		messages!($($rest)*);
