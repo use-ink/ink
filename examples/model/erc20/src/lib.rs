@@ -15,10 +15,9 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 #![no_std]
-#![feature(const_str_as_bytes)]
 
 use pdsl_core::{
-    env::srml::{
+    env::{
         Address,
         Balance,
     },
@@ -66,7 +65,7 @@ fn instantiate() -> impl Contract {
 		.on_msg::<BalanceOf>(|env, owner| {
 			env.state.balances[&owner]
 		})
-		.on_msg_mut::<Transfer>(|env, (to: Address, amount: Address)| {
+		.on_msg_mut::<Transfer>(|env, (to, amount)| {
 			let from = env.caller();
 			let balance_from = env.state.balances[&from];
 			let balance_to = env.state.balances[&to];
