@@ -82,10 +82,16 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
             }
             deploy_call_args
         };
-        let deploy_fn_args_toks = if deploy_fn_args.iter().count() > 0 {
-            deploy_fn_args.into_token_stream()
-        } else {
-            quote! {()}
+        let deploy_fn_args_toks = match deploy_fn_args.iter().count() {
+            0 => quote!{()},
+            1 => deploy_fn_args.into_token_stream(),
+            _ => {
+                let mut toks = quote!{};
+                syn::token::Paren::default().surround(&mut toks, |surrounded_toks| {
+                    deploy_call_args.to_tokens(surrounded_toks)
+                });
+                toks
+            }
         };
         quote! {
             .on_deploy(|env, #deploy_fn_args_toks| {
@@ -131,10 +137,16 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
                 msg_call_args
             };
 
-            let msg_fn_args_toks = if msg_fn_args.iter().count() > 0 {
-                msg_fn_args.into_token_stream()
-            } else {
-                quote! {_}
+            let msg_fn_args_toks = match msg_fn_args.iter().count() {
+                0 => quote!{_},
+                1 => msg_fn_args.into_token_stream(),
+                _ => {
+                    let mut toks = quote!{};
+                    syn::token::Paren::default().surround(&mut toks, |surrounded_toks| {
+                        msg_call_args.to_tokens(surrounded_toks)
+                    });
+                    toks
+                }
             };
 
             let msg_toks = if message.is_pub() {
