@@ -16,7 +16,6 @@
 
 use crate::{
     ast,
-    proc_macro,
 };
 use syn::{
     self,
@@ -36,8 +35,8 @@ pub mod keywords {
     custom_keyword!(external);
 }
 
-pub fn parse_contract(token_stream: proc_macro::TokenStream) -> Result<ast::Contract> {
-    syn::parse(token_stream).map_err(|e| e.into())
+pub fn parse_contract(token_stream: proc_macro2::TokenStream) -> Result<ast::Contract> {
+    syn::parse2(token_stream).map_err(|e| e.into())
 }
 
 impl Parse for ast::Contract {
