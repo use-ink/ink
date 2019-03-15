@@ -1,0 +1,29 @@
+[package]
+name = "erc20"
+version = "0.1.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+[dependencies]
+pdsl_core = { path = "../../../core" }
+pdsl_model = { path = "../../../model" }
+pdsl_lang = { path = "../../../lang" }
+parity-codec = { version = "3.1", default-features = false, features = ["derive"] }
+
+[lib]
+name = "erc20"
+crate-type = ["cdylib"]
+
+[features]
+default = []
+test-env = [
+	"pdsl_core/test-env",
+	"pdsl_model/test-env",
+    "pdsl_lang/test-env",
+]
+
+[profile.release]
+panic = "abort"
+lto = true
+debug = true
+opt-level = "z"
