@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn incrementer_contract() {
     assert_eq_tokenstreams(
-        quote!{
+        quote! {
             /// A simple contract that has a value that can be
             /// incremented, returned and compared.
             struct Incrementer {
@@ -35,7 +35,7 @@ fn incrementer_contract() {
                 }
             }
         },
-        quote!{
+        quote! {
             pdsl_model::state! {
                 /// A simple contract that has a value that can be
                 /// incremented, returned and compared.
@@ -104,6 +104,6 @@ fn incrementer_contract() {
 
             #[no_mangle] fn deploy() { instantiate().deploy() }
             #[no_mangle] fn call() { instantiate().dispatch() }
-        }
+        },
     )
 }

@@ -12,10 +12,7 @@ pub fn assert_eq_tokenstreams(
     )
 }
 
-pub fn assert_failure(
-    input: proc_macro2::TokenStream,
-    err_str: &'static str,
-) {
+pub fn assert_failure(input: proc_macro2::TokenStream, err_str: &'static str) {
     assert_eq!(
         contract_gen_impl2(input)
             .map(|result| result.to_string())

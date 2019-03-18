@@ -55,7 +55,9 @@ fn contract_gen_impl(input: proc_macro::TokenStream) -> Result<proc_macro::Token
 
 /// Parses the given token stream as pDSL contract, performs some checks and returns
 /// the corresponding contract as token stream.
-pub(crate) fn contract_gen_impl2(input: proc_macro2::TokenStream) -> Result<proc_macro2::TokenStream> {
+pub(crate) fn contract_gen_impl2(
+    input: proc_macro2::TokenStream,
+) -> Result<proc_macro2::TokenStream> {
     let ast_contract = parser::parse_contract(input.clone())?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
     // gen::gir::generate(&hir_program)?;

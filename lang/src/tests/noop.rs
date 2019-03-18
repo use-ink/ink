@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn noop_contract() {
     assert_eq_tokenstreams(
-        quote!{
+        quote! {
             /// The contract that does nothing.
             ///
             /// # Note
@@ -19,7 +19,7 @@ fn noop_contract() {
             /// Provides no way to call it as extrinsic.
             impl Noop {}
         },
-        quote!{
+        quote! {
             pdsl_model::state! {
                 /// The contract that does nothing.
                 ///
@@ -51,6 +51,6 @@ fn noop_contract() {
 
             #[no_mangle] fn deploy() { instantiate().deploy() }
             #[no_mangle] fn call() { instantiate().dispatch() }
-        }
+        },
     )
 }

@@ -129,14 +129,16 @@ impl Contract {
                             "contract messages must operate on `&self` or `&mut self`"
                         )
                     }
-                    Some(self_ty) => match self_ty {
-                        ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => {
-                            bail!(
+                    Some(self_ty) => {
+                        match self_ty {
+                            ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => {
+                                bail!(
                                 self_ty,
                                 "contract messages must operate on `&self` or `&mut self`"
                             )
+                            }
+                            _ => (),
                         }
-                        _ => (),
                     }
                 }
             }
