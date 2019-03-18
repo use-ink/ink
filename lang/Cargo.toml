@@ -34,7 +34,7 @@ name = "pdsl_lang"
 proc-macro = true
 
 [features]
-default = ["std"]
+default = []
 std = [
 	"pdsl_core/std",
 	"parity-codec/std",
