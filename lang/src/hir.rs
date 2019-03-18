@@ -54,7 +54,7 @@ impl Contract {
         if states.is_empty() {
             return Err(SynError::new(
                 Span::call_site(),
-                "requires exactly one contract state `struct`; found none",
+                "couldn't find a contract state `struct`",
             )
             .into())
         }
@@ -139,7 +139,7 @@ impl Contract {
                         if pat_ident.ident == "env" {
                             bail!(
                                 pat_ident.ident,
-                                "contract messages must not contain an env argument"
+                                "contract messages must not contain an argument called `env`"
                             )
                         }
                     }
@@ -169,18 +169,17 @@ impl Contract {
     ) -> Result<DeployHandler> {
         let mut deploy_impl_blocks = contract.deploy_impl_blocks().collect::<Vec<_>>();
         if deploy_impl_blocks.is_empty() {
-            return Err(SynError::new(
-                Span::call_site(),
-                "couldn't find a contract deploy implementation",
+            bail!(
+                contract_ident,
+                "couldn't find a contract deploy implementation; requires exactly one",
             )
-            .into())
         }
         deploy_impl_blocks.retain(|block| block.self_ty == *contract_ident);
         if deploy_impl_blocks.is_empty() {
             bail!(
                 contract_ident,
-                "could not find a contract deploy implementation for {}",
-                contract_ident
+                "couldn't find a contract deploy implementation: `impl Deploy for {} {{ ... }}`",
+                contract_ident,
             )
         }
         if deploy_impl_blocks.len() >= 2 {
@@ -213,7 +212,7 @@ impl Contract {
                     if pat_ident.ident == "env" {
                         bail!(
                             pat_ident.ident,
-                            "the deploy implementation must not contain an env argument"
+                            "the deploy implementation must not contain an argument named `env`"
                         )
                     }
                 }
