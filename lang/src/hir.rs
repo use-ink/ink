@@ -122,15 +122,22 @@ impl Contract {
             }
             let inputs = &msg.sig.decl.inputs;
             {
-                let self_ty: &ast::FnArg = inputs.first().unwrap().into_value();
-                match self_ty {
-                    ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => {
+                match inputs.first().map(|arg| arg.into_value()) {
+                    None => {
                         bail!(
-                            self_ty,
-                            "contract messages must start with `&self` or `&mut self`"
+                            msg.sig.ident,
+                            "contract messages must operate on `&self` or `&mut self`"
                         )
                     }
-                    _ => (),
+                    Some(self_ty) => match self_ty {
+                        ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => {
+                            bail!(
+                                self_ty,
+                                "contract messages must operate on `&self` or `&mut self`"
+                            )
+                        }
+                        _ => (),
+                    }
                 }
             }
             for fn_arg in inputs.iter().skip(1) {
