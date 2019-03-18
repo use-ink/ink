@@ -26,7 +26,39 @@ fn using_self_val_in_message() {
                 pub(external) fn with_self_value(self) {}
             }
         },
-        "contract messages must start with `&self` or `&mut self`"
+        "contract messages must operate on `&self` or `&mut self`"
+    )
+}
+
+#[test]
+fn using_non_self_in_message() {
+    assert_failure(
+        quote!{
+            struct TestContract {}
+            impl Deploy for TestContract {
+                fn deploy(&mut self) {}
+            }
+            impl TestContract {
+                pub(external) fn with_self_value(not_self: u32) {}
+            }
+        },
+        "contract messages must operate on `&self` or `&mut self`"
+    )
+}
+
+#[test]
+fn using_empty_message_args() {
+    assert_failure(
+        quote!{
+            struct TestContract {}
+            impl Deploy for TestContract {
+                fn deploy(&mut self) {}
+            }
+            impl TestContract {
+                pub(external) fn with_self_value() {}
+            }
+        },
+        "contract messages must operate on `&self` or `&mut self`"
     )
 }
 
