@@ -105,7 +105,21 @@ impl Contract {
                     Either::Right(Method::from(msg_or_method))
                 }
             });
+        for method in methods.iter() {
+            if method.sig.ident == "deploy" {
+                bail!(
+                    method.sig.ident,
+                    "contract methods must not be named `deploy`"
+                )
+            }
+        }
         for msg in messages.iter() {
+            if msg.sig.ident == "deploy" {
+                bail!(
+                    msg.sig.ident,
+                    "contract messages must not be named `deploy`"
+                )
+            }
             let inputs = &msg.sig.decl.inputs;
             {
                 let self_ty: &ast::FnArg = inputs.first().unwrap().into_value();
