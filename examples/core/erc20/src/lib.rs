@@ -22,12 +22,9 @@ use parity_codec::{
 };
 use pdsl_core::{
     env::{
-        srml::{
-            Address,
-            Balance,
-        },
-        ContractEnv,
-        Env,
+        self,
+        Address,
+        Balance,
     },
     storage::{
         self,
@@ -75,7 +72,7 @@ impl Erc20Token {
 
     /// Transfers token from the sender to the `to` address.
     pub fn transfer(&mut self, to: Address, value: Balance) -> bool {
-        self.transfer_impl(ContractEnv::caller(), to, value);
+        self.transfer_impl(env::caller(), to, value);
         true
     }
 
@@ -91,7 +88,7 @@ impl Erc20Token {
     /// the spender's allowance to 0 and set the desired value afterwards:
     /// https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
     pub fn approve(&mut self, spender: Address, value: Balance) -> bool {
-        let owner = ContractEnv::caller();
+        let owner = env::caller();
         self.allowances.insert((owner, spender), value);
         // emit event (not ready yet)
         true
@@ -185,7 +182,7 @@ fn ret<T>(val: T) -> !
 where
     T: parity_codec::Encode,
 {
-    ContractEnv::return_(&val.encode())
+    unsafe { env::r#return(&val.encode()) }
 }
 
 fn instantiate() -> Erc20Token {
@@ -201,7 +198,7 @@ pub extern "C" fn deploy() {
 }
 
 fn decode_params() -> Action {
-    let input = ContractEnv::input();
+    let input = env::input();
     Action::decode(&mut &input[..]).unwrap()
 }
 

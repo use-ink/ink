@@ -1,5 +1,5 @@
 [package]
-name = "erc20_token"
+name = "erc20"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -9,7 +9,7 @@ pdsl_core = { path = "../../../core" }
 parity-codec = { version = "3.0", default-features = false, features = ["derive"] }
 
 [lib]
-name = "erc20_token"
+name = "erc20"
 crate-type = ["cdylib"]
 
 [features]
