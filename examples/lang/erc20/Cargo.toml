@@ -25,5 +25,5 @@ test-env = [
 [profile.release]
 panic = "abort"
 lto = true
-debug = true
+# debug = true
 opt-level = "z"
