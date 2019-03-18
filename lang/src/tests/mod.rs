@@ -200,3 +200,36 @@ fn method_called_deploy() {
         "contract methods must not be named `deploy`"
     )
 }
+
+#[test]
+fn multiple_states() {
+    assert_failure(
+        quote! {
+            struct TestContract1 {}
+            struct TestContract2 {}
+            impl Deploy for TestContract1 {
+                fn deploy(&mut self) {}
+            }
+            impl Deploy for TestContract2 {
+                fn deploy(&mut self) {}
+            }
+        },
+        "requires exactly one contract state `struct`; found 2"
+    )
+}
+
+#[test]
+fn multiple_deploy_handlers() {
+    assert_failure(
+        quote! {
+            struct TestContract {}
+            impl Deploy for TestContract {
+                fn deploy(&mut self) {}
+            }
+            impl Deploy for TestContract {
+                fn deploy(&mut self) {}
+            }
+        },
+        "found more than one contract deploy implementation for TestContract"
+    )
+}
