@@ -62,7 +62,6 @@ pub(crate) fn contract_gen_impl2(
     let ast_contract = parser::parse_contract(input.clone())?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
     api::generate_api_description(&hir_contract);
-    // gen::gir::generate(&hir_program)?;
     let tokens = gen::codegen(&hir_contract);
     Ok(tokens.into())
 }

@@ -1,16 +1,27 @@
+// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// This file is part of pDSL.
+//
+// pDSL is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// pDSL is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+
 use crate::{
     ast,
-    errors::Result,
     hir,
     ident_ext::IdentExt,
 };
 use serde::{
     Deserialize,
     Serialize,
-};
-use serde_json::{
-    json,
-    Value as JsonValue,
 };
 
 /// Describes a message parameter or return type.
@@ -220,11 +231,14 @@ impl From<&hir::Contract> for ContractDescription {
     }
 }
 
+/// Writes a JSON API description into the `target/` folder.
 pub fn generate_api_description(contract: &hir::Contract) {
     let description = ContractDescription::from(contract);
-    let contents = serde_json::to_string(&description).unwrap();
+    let contents = serde_json::to_string(&description)
+        .expect("Failed at generating JSON API description as JSON");
     let mut path_buf = String::from("target/");
     path_buf.push_str(description.name());
     path_buf.push_str(".json");
-    std::fs::write(path_buf, contents);
+    std::fs::write(path_buf, contents)
+        .expect("Failed at writing JSON API descrition to file");
 }

@@ -56,10 +56,6 @@ mod contract;
 mod exec_env;
 mod msg_handler;
 
-// #[cfg(all(test, features = "test-env"))]
-#[cfg(test)]
-mod tests;
-
 pub use crate::{
     contract::{
         Contract,

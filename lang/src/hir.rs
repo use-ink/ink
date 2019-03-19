@@ -364,7 +364,12 @@ pub struct Message {
 impl Message {
     /// Returns `true` if the message potentially mutates its state.
     pub fn is_mut(&self) -> bool {
-        let self_arg = self.sig.decl.inputs.iter().next()
+        let self_arg = self
+            .sig
+            .decl
+            .inputs
+            .iter()
+            .next()
             .expect("messages must always have at least `&mut self` as parameter");
         match self_arg {
             ast::FnArg::SelfRef(syn::ArgSelfRef { mutability, .. }) => {

@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
+use pdsl_core::storage;
+use pdsl_model::{
     messages,
     state,
     ContractDecl,
     TestableContract,
 };
-use pdsl_core::storage;
 
 state! {
     /// A simple contract having just one value that can be incremented and returned.
