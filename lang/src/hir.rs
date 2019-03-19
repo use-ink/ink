@@ -373,6 +373,11 @@ impl Message {
             _ => panic!(),
         }
     }
+
+    /// Returns the message selector for this message.
+    pub fn selector(&self) -> u32 {
+        0
+    }
 }
 
 impl From<&ast::ItemImplMethod> for Message {
