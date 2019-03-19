@@ -121,10 +121,7 @@ impl From<&hir::DeployHandler> for DeployDescription {
 
 /// Describes the return type of a contract message.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct ReturnTypeDescription {
-    /// The optional return type.
-    ret_ty: Option<TypeDescription>,
-}
+pub struct ReturnTypeDescription(Option<TypeDescription>);
 
 impl ReturnTypeDescription {
     /// Creates a new return type description from the given optional type.
@@ -132,9 +129,7 @@ impl ReturnTypeDescription {
     where
         T: Into<Option<TypeDescription>>,
     {
-        Self {
-            ret_ty: opt_type.into(),
-        }
+        Self(opt_type.into())
     }
 }
 
