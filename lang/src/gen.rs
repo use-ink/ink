@@ -149,7 +149,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
                 }
             };
 
-            let msg_toks = if message.is_pub() {
+            let msg_toks = if message.is_mut() {
                 quote! {
                     .on_msg_mut::< #camelcase_msg_ident >(|env, #msg_fn_args_toks| {
                         let (handler, state) = env.split_mut();
@@ -202,7 +202,7 @@ fn codegen_for_message_impls(tokens: &mut TokenStream, contract: &hir::Contract)
                     let self_arg = inputs_iter.next().unwrap();
                     inputs_with_env.push_value(self_arg.clone());
                     inputs_with_env.push_punct(<Token![,]>::default());
-                    let custom_arg_captured: CustomArgCaptured = if message.is_pub() {
+                    let custom_arg_captured: CustomArgCaptured = if message.is_mut() {
                         syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
                     } else {
                         syn::parse_quote! { env: &pdsl_model::EnvHandler }
