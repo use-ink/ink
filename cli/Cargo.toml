@@ -1,0 +1,19 @@
+[package]
+name = "cargo-pdsl"
+version = "0.1.0"
+authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "GPL-3.0"
+readme = "README.md"
+
+description = "Setup and deployment tool for developing Wasm based smart contracts via pDSL"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["cli", "tool"]
+
+include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
+
+[dependencies]
+structopt = "0.2.15"
+itertools = "0.8"
+heck = "0.3"
