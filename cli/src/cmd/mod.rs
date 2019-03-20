@@ -19,8 +19,8 @@ mod new;
 
 pub(crate) use self::{
     error::{
-        CommandErrorKind,
         CommandError,
+        CommandErrorKind,
         Result,
     },
     new::execute_new,

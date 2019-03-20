@@ -95,17 +95,18 @@ enum Command {
     Deploy {
         /// Deploy on a local development chain.
         #[structopt(name = "dev", short, long)]
-        on_dev: bool
+        on_dev: bool,
     },
 }
 
 fn main() -> cmd::Result<()> {
     let Opts::Contract(args) = Opts::from_args();
-    use crate::cmd::{CommandError, CommandErrorKind};
+    use crate::cmd::{
+        CommandError,
+        CommandErrorKind,
+    };
     match &args.cmd {
-        Command::New { layer, name } => {
-            cmd::execute_new(layer, name)
-        }
+        Command::New { layer, name } => cmd::execute_new(layer, name),
         Command::Build {} => {
             Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
         }

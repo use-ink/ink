@@ -16,9 +16,7 @@
 
 use std::{
     io::Error as IoError,
-    result::{
-        Result as StdResult
-    },
+    result::Result as StdResult,
 };
 
 /// The kinds of command errors.

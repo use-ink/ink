@@ -17,11 +17,8 @@
 #![no_std]
 
 use pdsl_core::{
-    env::{
-        Address,
-        Balance,
-    },
     storage,
+    env::{Address, Balance},
 };
 use pdsl_lang::contract;
 
