@@ -158,6 +158,10 @@ wasm-opt -Oz target/$PROJNAME.wasm -o target/$PROJNAME-opt.wasm"##,
     )
 }
 
+fn rust_toolchain_contents() -> String {
+    r##"nightly-2019-03-10"##.to_owned()
+}
+
 /// Initializes a project structure for the `lang` abstraction layer.
 fn initialize_for_lang(name: &str) -> Result<()> {
     use std::fs;
@@ -184,7 +188,10 @@ fn initialize_for_lang(name: &str) -> Result<()> {
         filepath_from_segs(&[name, "build.sh"]),
         build_sh_contents(name),
     )?;
-
+    fs::write(
+        filepath_from_segs(&[name, "rust-toolchain"]),
+        rust_toolchain_contents(),
+    )?;
     Ok(())
 }
 
