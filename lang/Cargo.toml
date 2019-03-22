@@ -45,3 +45,4 @@ test-env = [
 	"pdsl_core/test-env",
 	"pdsl_model/test-env",
 ]
+generate-api-description = []

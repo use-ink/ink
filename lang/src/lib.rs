@@ -31,7 +31,9 @@ pub fn contract(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 #[macro_use]
 mod errors;
 
+#[cfg(features = "generate-api-description")]
 mod api;
+
 mod ast;
 mod gen;
 mod hir;
@@ -61,7 +63,15 @@ pub(crate) fn contract_gen_impl2(
 ) -> Result<proc_macro2::TokenStream> {
     let ast_contract = parser::parse_contract(input.clone())?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
-    api::generate_api_description(&hir_contract);
+    generate_api_description(&hir_contract);
     let tokens = gen::codegen(&hir_contract);
     Ok(tokens.into())
 }
+
+#[cfg(features = "generate-api-description")]
+fn generate_api_description(contract: &hir::Contract) {
+    api::generate_api_description(&hir_contract);
+}
+
+#[cfg(not(features = "generate-api-description"))]
+fn generate_api_description(_contract: &hir::Contract) {}
