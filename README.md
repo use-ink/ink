@@ -26,6 +26,44 @@
 
 An [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts in the Rust programming language.
 
+## Example
+
+Below is an example using the eDSL demonstrating a simple Flipper smart contract
+that has a boolean state that can be flipped or returned.
+
+```rust
+contract! {
+    /// Flips its state between `true` and `false`.
+    struct Flipper {
+        /// The current state of our flag.
+        value: storage::Value<bool>,
+    }
+
+    impl Deploy for Flipper {
+        /// Initializes our state to `false` upon deploying our smart contract.
+        fn deploy(&mut self) {
+            self.value.set(false)
+        }
+    }
+
+    impl Flipper {
+        /// Flips the current state of our smart contract.
+        pub(external) fn flip(&mut self) {
+            if *self.value {
+                *self.value = false
+            } else {
+                *self.value = true
+            }
+        }
+
+        /// Returns the current state.
+        pub(external) fn get(&self) -> bool {
+            *self.value
+        }
+    }
+}
+```
+
 ## Goals
 
 ### Core Goals
