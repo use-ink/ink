@@ -42,9 +42,9 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
-pdsl_core = {{ path = "../../../core" }}
-pdsl_model = {{ path = "../../../model" }}
-pdsl_lang = {{ path = "../../../lang" }}
+pdsl_core = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_core" }}
+pdsl_model = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_model" }}
+pdsl_lang = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_lang" }}
 parity-codec = {{ version = "3.1", default-features = false, features = ["derive"] }}
 
 [lib]
