@@ -95,7 +95,7 @@ contract! {
 
 ## Contribution
 
-The project is currently in experimental phase. We will provide contribution guidelines as soon as we feel that the time for external contributions has come. We are eager to work towards that.
+Visit our [contribution guidelines](CONTRIBUTING.md) for more information.
 
 ## License
 
