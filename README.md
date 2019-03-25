@@ -26,6 +26,44 @@
 
 An [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts in the Rust programming language.
 
+## Example
+
+Below is an example using the eDSL demonstrating a simple Flipper smart contract
+that has a boolean state that can be flipped or returned.
+
+```rust
+contract! {
+    /// Flips its state between `true` and `false`.
+    struct Flipper {
+        /// The current state of our flag.
+        value: storage::Value<bool>,
+    }
+
+    impl Deploy for Flipper {
+        /// Initializes our state to `false` upon deploying our smart contract.
+        fn deploy(&mut self) {
+            self.value.set(false)
+        }
+    }
+
+    impl Flipper {
+        /// Flips the current state of our smart contract.
+        pub(external) fn flip(&mut self) {
+            if *self.value {
+                *self.value = false
+            } else {
+                *self.value = true
+            }
+        }
+
+        /// Returns the current state.
+        pub(external) fn get(&self) -> bool {
+            *self.value
+        }
+    }
+}
+```
+
 ## Goals
 
 ### Core Goals
@@ -52,20 +90,12 @@ An [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write W
 |:-------|:------------|
 | `core` | The core utilities used to write smart contracts. |
 | `model` | Medium-level abstractions to write smart contracts heavily inspired by [Fleetwood](https://github.com/paritytech/fleetwood). |
-| `derive` | A future eDSL based on `pdsl_core` to provide a user friendly interface to writing smart contract code. |
-| `examples` | Featuring some smart contracts written for clarity with focus on teaching users how to use pDSL to write their own contracts. |
-
-## Current State
-
-The core abstractions and foundational work has been done in `pdsl_core`.
-Even though it is still missing lots of its planned functionality it can already be used to simplify writing smart contracts compared to the bare bones approach.
-
-Using it is still coupled with writing lots of boilerplate code.
-This problem is going to be solved in the future by the upcoming `pdsl_derive` module.
+| `lang` | The actual eDSL based on `pdsl_core` and `pdsl_model` to provide a user friendly interface to writing smart contract code. |
+| `examples` | Features some smart contracts written for clarity with focus on teaching users how to use pDSL to write their own contracts. |
 
 ## Contribution
 
-The project is currently in experimental phase. We will provide contribution guidelines as soon as we feel that the time for external contributions has come. We are eager to work towards that.
+Visit our [contribution guidelines](CONTRIBUTING.md) for more information.
 
 ## License
 
