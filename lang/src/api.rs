@@ -33,26 +33,37 @@ use std::convert::TryFrom;
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum TypeDescription {
     /// The `bool` primitive type.
+    #[serde(rename = "bool")]
     Bool,
     /// The `u8` primitive unsigned integer.
+    #[serde(rename = "u8")]
     U8,
     /// The `u16` primitive unsigned integer.
+    #[serde(rename = "u16")]
     U16,
     /// The `u32` primitive unsigned integer.
+    #[serde(rename = "u32")]
     U32,
     /// The `u64` primitive unsigned integer.
+    #[serde(rename = "u64")]
     U64,
     /// The `u128` primitive unsigned integer.
+    #[serde(rename = "u128")]
     U128,
     /// The `i8` primitive signed integer.
+    #[serde(rename = "i8")]
     I8,
     /// The `i16` primitive signed integer.
+    #[serde(rename = "i16")]
     I16,
     /// The `i32` primitive signed integer.
+    #[serde(rename = "i32")]
     I32,
     /// The `i64` primitive signed integer.
+    #[serde(rename = "i64")]
     I64,
     /// The `i128` primitive signed integer.
+    #[serde(rename = "i128")]
     I128,
     /// The SRML address type.
     Address,
