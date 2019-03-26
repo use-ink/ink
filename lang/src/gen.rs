@@ -316,8 +316,11 @@ fn codegen_for_messages(tokens: &mut TokenStream, contract: &hir::Contract) {
                 attr.to_tokens(&mut content)
             }
             let msg_selector = message.selector();
-            let msg_id =
-                syn::LitInt::new(msg_selector as u64, syn::IntSuffix::None, Span::call_site());
+            let msg_id = syn::LitInt::new(
+                msg_selector as u64,
+                syn::IntSuffix::None,
+                Span::call_site(),
+            );
             msg_id.to_tokens(&mut content);
             <Token![=>]>::default().to_tokens(&mut content);
             use crate::ident_ext::IdentExt as _;

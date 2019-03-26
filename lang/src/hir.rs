@@ -388,9 +388,7 @@ impl Message {
 
 fn raw_message_selector(name: &str) -> u32 {
     let keccak = pdsl_core::hash::keccak256(name.as_bytes());
-    u32::from_le_bytes(
-        [keccak[0], keccak[1], keccak[2], keccak[3]]
-    )
+    u32::from_le_bytes([keccak[0], keccak[1], keccak[2], keccak[3]])
 }
 
 impl From<&ast::ItemImplMethod> for Message {
