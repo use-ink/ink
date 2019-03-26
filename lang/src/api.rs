@@ -16,6 +16,10 @@
 
 use crate::{
     ast,
+    errors::{
+        Errors,
+        Result,
+    },
     hir,
     ident_ext::IdentExt,
 };
@@ -23,6 +27,7 @@ use serde::{
     Deserialize,
     Serialize,
 };
+use std::convert::TryFrom;
 
 /// Describes a message parameter or return type.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -53,28 +58,34 @@ pub enum TypeDescription {
     Address,
     /// The SRML balance type.
     Balance,
-    /// Custom type.
-    Custom(String),
 }
 
-impl From<&syn::Type> for TypeDescription {
-    fn from(ty: &syn::Type) -> Self {
+impl TryFrom<&syn::Type> for TypeDescription {
+    type Error = Errors;
+
+    fn try_from(ty: &syn::Type) -> Result<Self> {
         use quote::ToTokens;
         match ty.into_token_stream().to_string().as_str() {
-            "bool" => TypeDescription::Bool,
-            "u8" => TypeDescription::U8,
-            "u16" => TypeDescription::U16,
-            "u32" => TypeDescription::U32,
-            "u64" => TypeDescription::U64,
-            "u128" => TypeDescription::U128,
-            "i8" => TypeDescription::I8,
-            "i16" => TypeDescription::I16,
-            "i32" => TypeDescription::I32,
-            "i64" => TypeDescription::I64,
-            "i128" => TypeDescription::I128,
-            "Address" => TypeDescription::Address,
-            "Balance" => TypeDescription::Balance,
-            custom => TypeDescription::Custom(custom.to_owned()),
+            "bool" => Ok(TypeDescription::Bool),
+            "u8" => Ok(TypeDescription::U8),
+            "u16" => Ok(TypeDescription::U16),
+            "u32" => Ok(TypeDescription::U32),
+            "u64" => Ok(TypeDescription::U64),
+            "u128" => Ok(TypeDescription::U128),
+            "i8" => Ok(TypeDescription::I8),
+            "i16" => Ok(TypeDescription::I16),
+            "i32" => Ok(TypeDescription::I32),
+            "i64" => Ok(TypeDescription::I64),
+            "i128" => Ok(TypeDescription::I128),
+            "Address" => Ok(TypeDescription::Address),
+            "Balance" => Ok(TypeDescription::Balance),
+            unsupported => {
+                bail!(
+                    ty,
+                    "{} is unsupported as message interface type",
+                    unsupported
+                )
+            }
         }
     }
 }
@@ -88,16 +99,20 @@ pub struct ParamDescription {
     ty: TypeDescription,
 }
 
-impl From<&syn::ArgCaptured> for ParamDescription {
-    fn from(arg: &syn::ArgCaptured) -> Self {
+impl TryFrom<&syn::ArgCaptured> for ParamDescription {
+    type Error = Errors;
+
+    fn try_from(arg: &syn::ArgCaptured) -> Result<Self> {
         let name = match &arg.pat {
             syn::Pat::Ident(ident) => ident.ident.to_owned_string(),
-            _ => panic!("cannot handle non-ident function arguments"),
+            _ => {
+                bail!(arg.pat, "unsupported type pattern, currently only identifiers like `foo` are supported")
+            }
         };
-        Self {
+        Ok(Self {
             name,
-            ty: TypeDescription::from(&arg.ty),
-        }
+            ty: TypeDescription::try_from(&arg.ty)?,
+        })
     }
 }
 
@@ -108,25 +123,25 @@ pub struct DeployDescription {
     params: Vec<ParamDescription>,
 }
 
-impl From<&hir::DeployHandler> for DeployDescription {
-    fn from(deploy_handler: &hir::DeployHandler) -> Self {
-        Self {
-            params: {
-                deploy_handler
-                    .decl
-                    .inputs
-                    .iter()
-                    .filter_map(|arg| {
-                        match arg {
-                            ast::FnArg::Captured(captured) => {
-                                Some(ParamDescription::from(captured))
-                            }
-                            _ => None,
-                        }
-                    })
-                    .collect::<Vec<_>>()
-            },
-        }
+impl TryFrom<&hir::DeployHandler> for DeployDescription {
+    type Error = Errors;
+
+    fn try_from(deploy_handler: &hir::DeployHandler) -> Result<Self> {
+        let params = deploy_handler
+            .decl
+            .inputs
+            .iter()
+            .filter_map(|arg| {
+                match arg {
+                    ast::FnArg::Captured(captured) => {
+                        let description = ParamDescription::try_from(captured);
+                        Some(description)
+                    }
+                    _ => None,
+                }
+            })
+            .collect::<Result<Vec<_>>>()?;
+        Ok(Self { params })
     }
 }
 
@@ -144,12 +159,16 @@ impl ReturnTypeDescription {
     }
 }
 
-impl From<&syn::ReturnType> for ReturnTypeDescription {
-    fn from(ret_ty: &syn::ReturnType) -> Self {
+impl TryFrom<&syn::ReturnType> for ReturnTypeDescription {
+    type Error = Errors;
+
+    fn try_from(ret_ty: &syn::ReturnType) -> Result<Self> {
         match ret_ty {
-            syn::ReturnType::Default => ReturnTypeDescription::new(None),
+            syn::ReturnType::Default => Ok(ReturnTypeDescription::new(None)),
             syn::ReturnType::Type(_, ty) => {
-                ReturnTypeDescription::new(Some(TypeDescription::from(&**ty)))
+                Ok(ReturnTypeDescription::new(Some(TypeDescription::try_from(
+                    &**ty,
+                )?)))
             }
         }
     }
@@ -170,9 +189,11 @@ pub struct MessageDescription {
     ret_ty: ReturnTypeDescription,
 }
 
-impl From<&hir::Message> for MessageDescription {
-    fn from(message: &hir::Message) -> Self {
-        Self {
+impl TryFrom<&hir::Message> for MessageDescription {
+    type Error = Errors;
+
+    fn try_from(message: &hir::Message) -> Result<Self> {
+        Ok(Self {
             name: message.sig.ident.to_owned_string(),
             selector: message.selector().into(),
             mutates: message.is_mut(),
@@ -185,15 +206,15 @@ impl From<&hir::Message> for MessageDescription {
                     .filter_map(|arg| {
                         match arg {
                             ast::FnArg::Captured(captured) => {
-                                Some(ParamDescription::from(captured))
+                                Some(ParamDescription::try_from(captured))
                             }
                             _ => None,
                         }
                     })
-                    .collect::<Vec<_>>()
+                    .collect::<Result<Vec<_>>>()?
             },
-            ret_ty: ReturnTypeDescription::from(&message.sig.decl.output),
-        }
+            ret_ty: ReturnTypeDescription::try_from(&message.sig.decl.output)?,
+        })
     }
 }
 
@@ -215,25 +236,27 @@ impl ContractDescription {
     }
 }
 
-impl From<&hir::Contract> for ContractDescription {
-    fn from(contract: &hir::Contract) -> Self {
-        ContractDescription {
+impl TryFrom<&hir::Contract> for ContractDescription {
+    type Error = Errors;
+
+    fn try_from(contract: &hir::Contract) -> Result<Self> {
+        Ok(ContractDescription {
             name: contract.name.to_owned_string(),
-            deploy: DeployDescription::from(&contract.on_deploy),
+            deploy: DeployDescription::try_from(&contract.on_deploy)?,
             messages: {
                 contract
                     .messages
                     .iter()
-                    .map(MessageDescription::from)
-                    .collect::<Vec<_>>()
+                    .map(MessageDescription::try_from)
+                    .collect::<Result<Vec<_>>>()?
             },
-        }
+        })
     }
 }
 
 /// Writes a JSON API description into the `target/` folder.
-pub fn generate_api_description(contract: &hir::Contract) {
-    let description = ContractDescription::from(contract);
+pub fn generate_api_description(contract: &hir::Contract) -> Result<()> {
+    let description = ContractDescription::try_from(contract)?;
     let contents = serde_json::to_string(&description)
         .expect("Failed at generating JSON API description as JSON");
     let mut path_buf = String::from("target/");
@@ -241,4 +264,5 @@ pub fn generate_api_description(contract: &hir::Contract) {
     path_buf.push_str(".json");
     std::fs::write(path_buf, contents)
         .expect("Failed at writing JSON API descrition to file");
+    Ok(())
 }
