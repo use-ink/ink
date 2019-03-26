@@ -31,7 +31,7 @@ pub fn contract(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 #[macro_use]
 mod errors;
 
-#[cfg(features = "generate-api-description")]
+#[cfg(feature = "generate-api-description")]
 mod api;
 
 mod ast;
@@ -68,10 +68,10 @@ pub(crate) fn contract_gen_impl2(
     Ok(tokens.into())
 }
 
-#[cfg(features = "generate-api-description")]
+#[cfg(feature = "generate-api-description")]
 fn generate_api_description(contract: &hir::Contract) {
     api::generate_api_description(&hir_contract);
 }
 
-#[cfg(not(features = "generate-api-description"))]
+#[cfg(not(feature = "generate-api-description"))]
 fn generate_api_description(_contract: &hir::Contract) {}
