@@ -311,12 +311,13 @@ fn codegen_for_state(tokens: &mut TokenStream, contract: &hir::Contract) {
 fn codegen_for_messages(tokens: &mut TokenStream, contract: &hir::Contract) {
     let messages_content = {
         let mut content = quote! {};
-        for (n, message) in contract.messages.iter().enumerate() {
+        for message in contract.messages.iter() {
             for attr in &message.attrs {
                 attr.to_tokens(&mut content)
             }
+            let msg_selector = message.selector();
             let msg_id =
-                syn::LitInt::new(n as u64, syn::IntSuffix::None, Span::call_site());
+                syn::LitInt::new(msg_selector as u64, syn::IntSuffix::None, Span::call_site());
             msg_id.to_tokens(&mut content);
             <Token![=>]>::default().to_tokens(&mut content);
             use crate::ident_ext::IdentExt as _;

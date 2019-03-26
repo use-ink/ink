@@ -65,11 +65,11 @@ fn incrementer_contract() {
 
             pdsl_model::messages! {
                 /// Increments the internal counter.
-                0 => Inc(by: u32);
+                257544423 => Inc(by: u32);
                 /// Returns the internal counter.
-                1 => Get() -> u32;
+                4266279973 => Get() -> u32;
                 /// Returns `true` if `x` is greater than the internal value.
-                2 => Compare(x: u32) -> bool;
+                363906316 => Compare(x: u32) -> bool;
             }
 
             impl Incrementer {

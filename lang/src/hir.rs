@@ -381,8 +381,16 @@ impl Message {
 
     /// Returns the message selector for this message.
     pub fn selector(&self) -> u32 {
-        0
+        use crate::ident_ext::IdentExt;
+        raw_message_selector(self.sig.ident.to_owned_string().as_str())
     }
+}
+
+fn raw_message_selector(name: &str) -> u32 {
+    let keccak = pdsl_core::hash::keccak256(name.as_bytes());
+    u32::from_le_bytes(
+        [keccak[0], keccak[1], keccak[2], keccak[3]]
+    )
 }
 
 impl From<&ast::ItemImplMethod> for Message {
@@ -429,5 +437,17 @@ impl From<&ast::ItemImplMethod> for Method {
             vis: impl_method.vis.clone(),
             block: impl_method.block.clone(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn message_selectors() {
+        assert_eq!(raw_message_selector("inc"), 257544423);
+        assert_eq!(raw_message_selector("get"), 4266279973);
+        assert_eq!(raw_message_selector("compare"), 363906316);
     }
 }
