@@ -172,7 +172,7 @@ impl BitVec {
     /// Removes the last bit from the bit vector and returns it,
     /// or `None` if the bit vector is empty.
     pub fn pop(&mut self) -> Option<bool> {
-        if self.len() == 0 {
+        if self.is_empty() {
             return None
         }
         let len = self.len();
@@ -306,7 +306,7 @@ impl<'a> Iterator for BlockIter<'a> {
              ; so there has to be a block here; qed",
         );
         self.begin += 1;
-        return Some(next)
+        Some(next)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -359,7 +359,7 @@ impl<'a> Iterator for Iter<'a> {
         }
         let next = self.bitvec.get(self.begin);
         self.begin += 1;
-        return next
+        next
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {

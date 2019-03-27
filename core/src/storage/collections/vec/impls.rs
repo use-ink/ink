@@ -305,9 +305,7 @@ where
         if self.is_empty() {
             return None
         }
-        if self.within_bounds(n).is_none() {
-            return None
-        }
+        self.within_bounds(n)?;
         let popped = self.pop().expect(
             "[pdsl_core::Vec::swap_remove] Error: \
              expected `Some` value since vector is not empty",

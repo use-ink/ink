@@ -53,8 +53,8 @@ impl AllocateUsing for DynAlloc {
         Self {
             free_cells: AllocateUsing::allocate_using(alloc),
             free_chunks: AllocateUsing::allocate_using(alloc),
-            cells_origin: alloc.alloc(u32::max_value() as u64),
-            chunks_origin: alloc.alloc(u32::max_value() as u64),
+            cells_origin: alloc.alloc(u32::max_value().into()),
+            chunks_origin: alloc.alloc(u32::max_value().into()),
         }
     }
 }
@@ -133,7 +133,7 @@ impl DynAlloc {
     fn dealloc_chunk(&mut self, key: Key) {
         debug_assert!(key >= self.chunks_origin);
         debug_assert!(
-            key < self.chunks_origin + ((1 << 32) * self.free_chunks.len() as u64)
+            key < self.chunks_origin + ((1 << 32) * u64::from(self.free_chunks.len()))
         );
         let position = self.key_to_chunk_position(key);
         self.free_chunks.set(position, true);
@@ -166,7 +166,7 @@ impl DynAlloc {
 impl Allocate for DynAlloc {
     /// Can only allocate sizes of up to `u32::MAX`.
     fn alloc(&mut self, size: u64) -> Key {
-        assert!(size <= u32::max_value as u64);
+        assert!(size <= u32::max_value().into());
         assert!(size != 0);
         if size == 1 {
             self.alloc_cell()

@@ -122,7 +122,7 @@ impl Contract {
             }
             let inputs = &msg.sig.decl.inputs;
             {
-                match inputs.first().map(|arg| arg.into_value()) {
+                match inputs.first().map(syn::punctuated::Pair::into_value) {
                     None => {
                         bail!(
                             msg.sig.ident,

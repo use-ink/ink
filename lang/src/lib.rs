@@ -65,7 +65,7 @@ pub(crate) fn contract_gen_impl2(
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
     generate_api_description(&hir_contract)?;
     let tokens = gen::codegen(&hir_contract);
-    Ok(tokens.into())
+    Ok(tokens)
 }
 
 #[cfg(feature = "generate-api-description")]

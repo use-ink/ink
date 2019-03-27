@@ -53,7 +53,7 @@ pub unsafe fn r#return<T>(value: T) -> !
 where
     T: parity_codec::Encode,
 {
-    ContractEnv::r#return(&mut &value.encode()[..])
+    ContractEnv::r#return(&value.encode()[..])
 }
 
 /// Stores the given value under the specified key in the contract storage.

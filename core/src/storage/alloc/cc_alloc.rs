@@ -78,8 +78,8 @@ impl AllocateUsing for CellChunkAlloc {
         Self {
             cells: AllocateUsing::allocate_using(alloc),
             chunks: AllocateUsing::allocate_using(alloc),
-            cells_off: alloc.alloc(u32::max_value() as u64),
-            chunks_off: alloc.alloc(u32::max_value() as u64),
+            cells_off: alloc.alloc(u32::max_value().into()),
+            chunks_off: alloc.alloc(u32::max_value().into()),
         }
     }
 }
@@ -201,7 +201,7 @@ impl CellChunkAlloc {
 impl Allocate for CellChunkAlloc {
     /// Can only allocate sizes of up to `u32::MAX`.
     fn alloc(&mut self, size: u64) -> Key {
-        assert!(size <= u32::max_value as u64);
+        assert!(size <= u64::from(u32::max_value()));
         if size == 0 {
             log::warn!(
                 target: CC_ALLOC_LOG_TARGET,

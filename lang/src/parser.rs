@@ -34,7 +34,7 @@ pub mod keywords {
 }
 
 pub fn parse_contract(token_stream: proc_macro2::TokenStream) -> Result<ast::Contract> {
-    syn::parse2(token_stream).map_err(|e| e.into())
+    syn::parse2(token_stream).map_err(Into::into)
 }
 
 impl Parse for ast::Contract {
