@@ -158,7 +158,10 @@ impl TryFrom<&hir::DeployHandler> for DeployDescription {
 
 /// Describes the return type of a contract message.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct ReturnTypeDescription(Option<TypeDescription>);
+pub struct ReturnTypeDescription {
+    #[serde(flatten)]
+    opt_type: Option<TypeDescription>
+}
 
 impl ReturnTypeDescription {
     /// Creates a new return type description from the given optional type.
@@ -166,7 +169,7 @@ impl ReturnTypeDescription {
     where
         T: Into<Option<TypeDescription>>,
     {
-        Self(opt_type.into())
+        Self{ opt_type: opt_type.into() }
     }
 }
 
