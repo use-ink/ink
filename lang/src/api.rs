@@ -69,6 +69,10 @@ pub enum TypeDescription {
     Address,
     /// The SRML balance type.
     Balance,
+    /// Tuple type
+    Tuple {
+        elems: Vec<TypeDescription>,
+    },
 }
 
 impl TryFrom<&syn::Type> for TypeDescription {
@@ -76,27 +80,40 @@ impl TryFrom<&syn::Type> for TypeDescription {
 
     fn try_from(ty: &syn::Type) -> Result<Self> {
         use quote::ToTokens;
-        match ty.into_token_stream().to_string().as_str() {
-            "bool" => Ok(TypeDescription::Bool),
-            "u8" => Ok(TypeDescription::U8),
-            "u16" => Ok(TypeDescription::U16),
-            "u32" => Ok(TypeDescription::U32),
-            "u64" => Ok(TypeDescription::U64),
-            "u128" => Ok(TypeDescription::U128),
-            "i8" => Ok(TypeDescription::I8),
-            "i16" => Ok(TypeDescription::I16),
-            "i32" => Ok(TypeDescription::I32),
-            "i64" => Ok(TypeDescription::I64),
-            "i128" => Ok(TypeDescription::I128),
-            "Address" => Ok(TypeDescription::Address),
-            "Balance" => Ok(TypeDescription::Balance),
-            unsupported => {
-                bail!(
-                    ty,
-                    "{} is unsupported as message interface type",
-                    unsupported
-                )
+        let primitive = |ty: &syn::Type| {
+            match ty.into_token_stream().to_string().as_str() {
+                "bool" => Ok(TypeDescription::Bool),
+                "u8" => Ok(TypeDescription::U8),
+                "u16" => Ok(TypeDescription::U16),
+                "u32" => Ok(TypeDescription::U32),
+                "u64" => Ok(TypeDescription::U64),
+                "u128" => Ok(TypeDescription::U128),
+                "i8" => Ok(TypeDescription::I8),
+                "i16" => Ok(TypeDescription::I16),
+                "i32" => Ok(TypeDescription::I32),
+                "i64" => Ok(TypeDescription::I64),
+                "i128" => Ok(TypeDescription::I128),
+                "Address" => Ok(TypeDescription::Address),
+                "Balance" => Ok(TypeDescription::Balance),
+                unsupported => {
+                    bail!(
+                        ty,
+                        "{} is unsupported as message interface type",
+                        unsupported
+                    )
+                }
             }
+        };
+        match ty {
+            syn::Type::Tuple(tuple) => {
+                let elems = tuple
+                    .elems
+                    .iter()
+                    .map(primitive)
+                    .collect::<Result<_>>()?;
+                Ok(TypeDescription::Tuple { elems })
+            },
+            ty=> primitive(ty),
         }
     }
 }
