@@ -15,7 +15,9 @@ name = "erc20"
 crate-type = ["cdylib"]
 
 [features]
-default = []
+default = [
+    "pdsl_lang/generate-api-description"
+]
 test-env = [
 	"pdsl_core/test-env",
 	"pdsl_model/test-env",

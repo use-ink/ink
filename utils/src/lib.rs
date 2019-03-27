@@ -14,21 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use pdsl_lang::contract;
+//! Utilities in use by pDSL.
+//!
+//! These are kept separate from pDSL core to allow for more dynamic inter crate dependencies.
+//! The main problem is that today Cargo manages crate features on a per-crate basis instead of
+//! a per-crate-target basis thus making dependencies from `pdsl_lang` to `pdsl_core` impossible.
+//!
+//! By introducing `pdsl_utils` we have a way to share utility components between `pdsl_core` and
+//! other parts of the framework, like `pdsl_lang`.
 
-contract! {
-    /// The contract that does nothing.
-    ///
-    /// # Note
-    ///
-    /// Can be deployed, cannot be called.
-    struct Noop {}
+#![cfg_attr(not(feature = "std"), no_std)]
 
-    impl Deploy for Noop {
-        /// Does nothing to initialize itself.
-        fn deploy(&mut self) {}
-    }
-
-    /// Provides no way to call it as extrinsic.
-    impl Noop {}
-}
+pub mod hash;

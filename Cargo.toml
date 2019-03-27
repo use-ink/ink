@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "utils",
     "core",
     "model",
     "lang",
