@@ -280,6 +280,7 @@ pub fn generate_api_description(contract: &hir::Contract) -> Result<()> {
     let mut path_buf = String::from("target/");
     path_buf.push_str(description.name());
     path_buf.push_str(".json");
+    std::fs::create_dir("target");
     std::fs::write(path_buf, contents)
         .expect("Failed at writing JSON API descrition to file");
     Ok(())
