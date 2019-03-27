@@ -70,14 +70,9 @@ pub enum TypeDescription {
     /// The SRML balance type.
     Balance,
     /// The tuple type
-    Tuple {
-        elems: Vec<TypeDescription>,
-    },
+    Tuple(TupleTypeDescription),
     /// The fixed size array type
-    Array {
-        inner: Box<TypeDescription>,
-        arity: u32,
-    }
+    Array(ArrayTypeDescription),
 }
 
 impl TryFrom<&syn::Type> for TypeDescription {
@@ -85,8 +80,13 @@ impl TryFrom<&syn::Type> for TypeDescription {
 
     fn try_from(ty: &syn::Type) -> Result<Self> {
         use quote::ToTokens;
-        let primitive = |ty: &syn::Type| {
-            match ty.into_token_stream().to_string().as_str() {
+
+        match ty {
+            syn::Type::Tuple(tuple) =>
+                TupleTypeDescription::try_from(tuple).map(TypeDescription::Tuple),
+            syn::Type::Array(array) =>
+                ArrayTypeDescription::try_from(array).map(TypeDescription::Array),
+            ty => match ty.into_token_stream().to_string().as_str() {
                 "bool" => Ok(TypeDescription::Bool),
                 "u8" => Ok(TypeDescription::U8),
                 "u16" => Ok(TypeDescription::U16),
@@ -107,34 +107,52 @@ impl TryFrom<&syn::Type> for TypeDescription {
                         unsupported
                     )
                 }
-            }
-        };
-        match ty {
-            syn::Type::Tuple(tuple) => {
-                let elems = tuple
-                    .elems
-                    .iter()
-                    .map(primitive)
-                    .collect::<Result<_>>()?;
-                Ok(TypeDescription::Tuple { elems })
             },
-            syn::Type::Array(array) => {
-                let inner = Box::new(primitive(&array.elem)?);
-                if let syn::Expr::Lit(syn::ExprLit {
-                    lit: syn::Lit::Int(ref int_lit), ..
-                }) = array.len {
-                    Ok(TypeDescription::Array {
-                        inner,
-                        arity: int_lit.value() as u32,
-                    })
-                } else {
-                    bail!(
-                        array.len,
-                        "invalid array length expression"
-                    )
-                }
-            }
-            ty => primitive(ty),
+        }
+    }
+}
+
+/// Describes a tuple type
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct TupleTypeDescription {
+    elems: Vec<TypeDescription>,
+}
+
+impl TryFrom<&syn::TypeTuple> for TupleTypeDescription {
+    type Error = Errors;
+
+    fn try_from(arg: &syn::TypeTuple) -> Result<Self> {
+        let elems = arg
+            .elems
+            .iter()
+            .map(TypeDescription::try_from)
+            .collect::<Result<_>>()?;
+        Ok(TupleTypeDescription { elems })
+    }
+}
+
+/// Describes a fixed size array type
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct ArrayTypeDescription {
+    inner: Box<TypeDescription>,
+    arity: u32,
+}
+
+impl TryFrom<&syn::TypeArray> for ArrayTypeDescription {
+    type Error = Errors;
+
+    fn try_from(arg: &syn::TypeArray) -> Result<Self> {
+        let ty = TypeDescription::try_from(&*arg.elem)?;
+        if let syn::Expr::Lit(syn::ExprLit {lit: syn::Lit::Int(ref int_lit), .. }) = arg.len {
+            Ok(ArrayTypeDescription {
+                inner: Box::new(ty),
+                arity: int_lit.value() as u32,
+            })
+        } else {
+            bail!(
+                arg.len,
+                "invalid array length expression"
+            )
         }
     }
 }
