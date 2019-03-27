@@ -107,6 +107,7 @@ pub struct ParamDescription {
     /// The name of the parameter.
     name: String,
     /// The type of the parameter.
+    #[serde(rename = "type")]
     ty: TypeDescription,
 }
 
@@ -131,14 +132,14 @@ impl TryFrom<&syn::ArgCaptured> for ParamDescription {
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct DeployDescription {
     /// The parameters of the deploy handler.
-    params: Vec<ParamDescription>,
+    args: Vec<ParamDescription>,
 }
 
 impl TryFrom<&hir::DeployHandler> for DeployDescription {
     type Error = Errors;
 
     fn try_from(deploy_handler: &hir::DeployHandler) -> Result<Self> {
-        let params = deploy_handler
+        let args = deploy_handler
             .decl
             .inputs
             .iter()
@@ -152,14 +153,15 @@ impl TryFrom<&hir::DeployHandler> for DeployDescription {
                 }
             })
             .collect::<Result<Vec<_>>>()?;
-        Ok(Self { params })
+        Ok(Self { args })
     }
 }
 
 /// Describes the return type of a contract message.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(transparent)]
 pub struct ReturnTypeDescription {
-    #[serde(flatten)]
+    #[serde(rename = "type")]
     opt_type: Option<TypeDescription>
 }
 
@@ -198,9 +200,9 @@ pub struct MessageDescription {
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
     /// The parameters of the message.
-    params: Vec<ParamDescription>,
+    args: Vec<ParamDescription>,
     /// The return type of the message.
-    ret_ty: ReturnTypeDescription,
+    return_type: ReturnTypeDescription,
 }
 
 impl TryFrom<&hir::Message> for MessageDescription {
@@ -211,7 +213,7 @@ impl TryFrom<&hir::Message> for MessageDescription {
             name: message.sig.ident.to_owned_string(),
             selector: message.selector().into(),
             mutates: message.is_mut(),
-            params: {
+            args: {
                 message
                     .sig
                     .decl
@@ -227,7 +229,7 @@ impl TryFrom<&hir::Message> for MessageDescription {
                     })
                     .collect::<Result<Vec<_>>>()?
             },
-            ret_ty: ReturnTypeDescription::try_from(&message.sig.decl.output)?,
+            return_type: ReturnTypeDescription::try_from(&message.sig.decl.output)?,
         })
     }
 }
