@@ -344,19 +344,68 @@ pub fn generate_api_description(contract: &hir::Contract) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{*, TypeDescription::*};
+    use syn::parse_quote;
+
+    fn assert_eq_type_description(ty: syn::Type, expected: TypeDescription) {
+        let actual = TypeDescription::try_from(&ty).unwrap();
+        assert_eq!(expected, actual);
+    }
 
     #[test]
     fn basic_tuple() {
+        assert_eq_type_description(
+            parse_quote!( (bool, i32) ),
+            Tuple(TupleTypeDescription {
+                elems: vec![
+                    Bool,
+                    I32,
+                ]
+            })
+        )
     }
 
     #[test]
     fn nested_tuple() {
-
+        assert_eq_type_description(
+            parse_quote!( (u32, (bool, i32)) ),
+            Tuple(TupleTypeDescription {
+                elems: vec! [
+                    U32,
+                    Tuple(TupleTypeDescription {
+                        elems: vec![
+                            Bool,
+                            I32,
+                        ]
+                    }),
+                ]
+            })
+        )
     }
 
     #[test]
     fn basic_array() {
+        assert_eq_type_description(
+            parse_quote!( [u32; 5] ),
+            Array(ArrayTypeDescription {
+                inner: Box::new(TypeDescription::U32),
+                arity: 5
+            })
+        )
+    }
+
+    #[test]
+    fn nested_array() {
+        assert_eq_type_description(
+            parse_quote!( [[u32; 5]; 3] ),
+            Array(ArrayTypeDescription {
+                inner: Box::new(Array(ArrayTypeDescription {
+                    inner: Box::new(TypeDescription::U32),
+                    arity: 5
+                })),
+                arity: 3
+            })
+        )
     }
 }
 
