@@ -352,7 +352,7 @@ mod tests {
     }
 
     #[test]
-    fn basic_tuple() {
+    fn tuple_basic() {
         assert_eq_type_description(
             parse_quote!( (bool, i32) ),
             Tuple(TupleTypeDescription {
@@ -365,7 +365,7 @@ mod tests {
     }
 
     #[test]
-    fn nested_tuple() {
+    fn tuple_nested() {
         assert_eq_type_description(
             parse_quote!( (u32, (bool, i32)) ),
             Tuple(TupleTypeDescription {
@@ -383,7 +383,7 @@ mod tests {
     }
 
     #[test]
-    fn basic_array() {
+    fn array_basic() {
         assert_eq_type_description(
             parse_quote!( [u32; 5] ),
             Array(ArrayTypeDescription {
@@ -394,7 +394,7 @@ mod tests {
     }
 
     #[test]
-    fn nested_array() {
+    fn array_nested() {
         assert_eq_type_description(
             parse_quote!( [[u32; 5]; 3] ),
             Array(ArrayTypeDescription {
@@ -405,6 +405,23 @@ mod tests {
                 arity: 3
             })
         )
+    }
+
+    // todo: [AJ] make these json tests pass with serde customisation
+    #[test]
+    fn tuple_json() {
+        let ty: syn::Type = parse_quote!( (u64, i32) );
+        let td = TypeDescription::try_from(&ty).unwrap();
+        let json = serde_json::to_string(&td).unwrap();
+        assert_eq!("[\"u64\", \"i32\"]", json);
+    }
+
+    #[test]
+    fn array_json() {
+        let ty: syn::Type = parse_quote!( [u32; 5] );
+        let td = TypeDescription::try_from(&ty).unwrap();
+        let json = serde_json::to_string(&td).unwrap();
+        assert_eq!("{inner: \"u32\", arity: 5}", json);
     }
 }
 
