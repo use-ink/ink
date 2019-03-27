@@ -37,6 +37,5 @@ mod panic_handler;
 
 mod byte_utils;
 pub mod env;
-pub mod hash;
 pub mod memory;
 pub mod storage;

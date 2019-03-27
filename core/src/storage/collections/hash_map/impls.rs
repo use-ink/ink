@@ -19,7 +19,6 @@
 #![allow(clippy::implicit_hasher)]
 
 use crate::{
-    hash,
     storage::{
         self,
         alloc::{
@@ -31,7 +30,7 @@ use crate::{
         Flush,
     },
 };
-
+use pdsl_utils::hash;
 use core::{
     borrow::Borrow,
     hash::Hash,
