@@ -60,7 +60,7 @@ before_script:
 script:
 - |
   cargo check --verbose --all --all-features &&
-  cargo fmt --all -- --check
+  cargo fmt --verbose --all -- --check
   cargo clippy --verbose --all --all-features -- -D warnings &&
   cargo test --verbose --all --all-features &&
   cargo kcov --verbose --coveralls --manifest-path=core/Cargo.toml --features=test-env &&
