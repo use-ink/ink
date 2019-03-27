@@ -18,23 +18,21 @@
 // This might change in future versions of the pDSL.
 #![allow(clippy::implicit_hasher)]
 
-use crate::{
-    storage::{
-        self,
-        alloc::{
-            Allocate,
-            AllocateUsing,
-            Initialize,
-        },
-        chunk::SyncChunk,
-        Flush,
+use crate::storage::{
+    self,
+    alloc::{
+        Allocate,
+        AllocateUsing,
+        Initialize,
     },
+    chunk::SyncChunk,
+    Flush,
 };
-use pdsl_utils::hash;
 use core::{
     borrow::Borrow,
     hash::Hash,
 };
+use pdsl_utils::hash;
 
 /// Mapping stored in the contract storage.
 ///

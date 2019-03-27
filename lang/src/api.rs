@@ -162,7 +162,7 @@ impl TryFrom<&hir::DeployHandler> for DeployDescription {
 #[serde(transparent)]
 pub struct ReturnTypeDescription {
     #[serde(rename = "type")]
-    opt_type: Option<TypeDescription>
+    opt_type: Option<TypeDescription>,
 }
 
 impl ReturnTypeDescription {
@@ -171,7 +171,9 @@ impl ReturnTypeDescription {
     where
         T: Into<Option<TypeDescription>>,
     {
-        Self{ opt_type: opt_type.into() }
+        Self {
+            opt_type: opt_type.into(),
+        }
     }
 }
 

@@ -16,11 +16,11 @@
 
 //! Hashing utilities around the Keccak256 hasher.
 
-use tiny_keccak;
 use core::hash::{
     Hash,
     Hasher,
 };
+use tiny_keccak;
 
 /// Keccak256 hasher.
 #[derive(Clone)]
