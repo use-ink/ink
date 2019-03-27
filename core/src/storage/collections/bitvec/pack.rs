@@ -55,7 +55,7 @@ impl BitPack {
     }
 
     /// Returns the value of the n-th bit.
-    pub fn get(&self, n: u32) -> bool {
+    pub fn get(self, n: u32) -> bool {
         Self::validate_index(n)
             .map(|n| (self.bits & (0x1 << (Self::BITS - n - 1))) != 0)
             .unwrap()
@@ -84,7 +84,7 @@ impl BitPack {
     }
 
     /// Returns the position of the first set bit if any.
-    pub fn first_set_position(&self) -> Option<u32> {
+    pub fn first_set_position(self) -> Option<u32> {
         if self.bits == 0x0 {
             return None
         }

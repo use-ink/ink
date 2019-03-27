@@ -54,7 +54,7 @@ impl From<SynError> for Errors {
 impl From<Vec<Errors>> for Errors {
     fn from(err: Vec<Errors>) -> Errors {
         let result = err.into_iter().flat_map(|v| v.errors).collect::<Vec<_>>();
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         Errors { errors: result }
     }
 }

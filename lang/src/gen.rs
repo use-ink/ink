@@ -210,7 +210,7 @@ fn codegen_for_message_impls(tokens: &mut TokenStream, contract: &hir::Contract)
                     inputs_with_env.push(ast::FnArg::Captured(
                         custom_arg_captured.into_arg_captured(),
                     ));
-                    while let Some(input) = inputs_iter.next() {
+                    for input in inputs_iter {
                         inputs_with_env.push(input.clone())
                     }
                     inputs_with_env
@@ -317,7 +317,7 @@ fn codegen_for_messages(tokens: &mut TokenStream, contract: &hir::Contract) {
             }
             let msg_selector = message.selector();
             let msg_id = syn::LitInt::new(
-                msg_selector as u64,
+                msg_selector.into(),
                 syn::IntSuffix::None,
                 Span::call_site(),
             );
