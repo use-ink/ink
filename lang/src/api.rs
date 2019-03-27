@@ -341,3 +341,22 @@ pub fn generate_api_description(contract: &hir::Contract) -> Result<()> {
         .expect("Failed at writing JSON API descrition to file");
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn basic_tuple() {
+    }
+
+    #[test]
+    fn nested_tuple() {
+
+    }
+
+    #[test]
+    fn basic_array() {
+    }
+}
+
