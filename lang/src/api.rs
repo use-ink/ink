@@ -69,10 +69,15 @@ pub enum TypeDescription {
     Address,
     /// The SRML balance type.
     Balance,
-    /// Tuple type
+    /// The tuple type
     Tuple {
         elems: Vec<TypeDescription>,
     },
+    /// The fixed size array type
+    Array {
+        inner: Box<TypeDescription>,
+        arity: u32,
+    }
 }
 
 impl TryFrom<&syn::Type> for TypeDescription {
@@ -113,7 +118,23 @@ impl TryFrom<&syn::Type> for TypeDescription {
                     .collect::<Result<_>>()?;
                 Ok(TypeDescription::Tuple { elems })
             },
-            ty=> primitive(ty),
+            syn::Type::Array(array) => {
+                let inner = Box::new(primitive(&array.elem)?);
+                if let syn::Expr::Lit(syn::ExprLit {
+                    lit: syn::Lit::Int(ref int_lit), ..
+                }) = array.len {
+                    Ok(TypeDescription::Array {
+                        inner,
+                        arity: int_lit.value() as u32,
+                    })
+                } else {
+                    bail!(
+                        array.len,
+                        "invalid array length expression"
+                    )
+                }
+            }
+            ty => primitive(ty),
         }
     }
 }
