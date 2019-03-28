@@ -15,6 +15,8 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 mod build;
+mod doc;
+mod test;
 
 use crate::hir;
 use proc_macro2::TokenStream as TokenStream2;
@@ -29,5 +31,7 @@ use quote::quote;
 pub fn generate_code(contract: &hir::Contract) -> TokenStream2 {
     let mut tokens = quote! {};
     build::generate_code(&mut tokens, contract);
+    doc::generate_code(&mut tokens, contract);
+    test::generate_code(&mut tokens, contract);
     tokens
 }

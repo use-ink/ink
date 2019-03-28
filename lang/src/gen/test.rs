@@ -17,3 +17,9 @@
 //! Code generation for test generation of Wasm smart contracts.
 //!
 //! Test code is generated under the `#[cfg(test)]` compile flag.
+
+use crate::hir;
+use proc_macro2::TokenStream as TokenStream2;
+
+pub fn generate_code(_tokens: &mut TokenStream2, _contract: &hir::Contract) {
+}

@@ -19,3 +19,9 @@
 //! We use the special `#[cfg(rustdoc)]` that is set when `rustdoc` is
 //! compiling a crate in order to generate special code that is only used
 //! for documentation purposes.
+
+use crate::hir;
+use proc_macro2::TokenStream as TokenStream2;
+
+pub fn generate_code(_tokens: &mut TokenStream2, _contract: &hir::Contract) {
+}
