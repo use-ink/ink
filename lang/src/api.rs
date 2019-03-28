@@ -45,8 +45,6 @@ impl TryFrom<&syn::Type> for TypeDescription {
     type Error = Errors;
 
     fn try_from(ty: &syn::Type) -> Result<Self> {
-        use quote::ToTokens;
-
         match ty {
             syn::Type::Tuple(tuple) =>
                 TupleTypeDescription::try_from(tuple).map(TypeDescription::Tuple),
@@ -104,7 +102,6 @@ impl TryFrom<&syn::Type> for PrimitiveTypeDescription {
 
     fn try_from(ty: &syn::Type) -> Result<Self> {
         use quote::ToTokens;
-        use PrimitiveTypeDescription::*;
 
         match ty.into_token_stream().to_string().as_str() {
             "bool" => Ok(PrimitiveTypeDescription::Bool),
@@ -153,9 +150,14 @@ impl TryFrom<&syn::TypeTuple> for TupleTypeDescription {
 
 /// Describes a fixed size array type
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct ArrayTypeDescription {
-    inner: Box<TypeDescription>,
-    arity: u32,
+pub enum ArrayTypeDescription {
+    #[serde(rename = "[T;n]")]
+    FixedLength {
+        #[serde(rename = "T")]
+        inner: Box<TypeDescription>,
+        #[serde(rename = "n")]
+        arity: u32
+    },
 }
 
 impl TryFrom<&syn::TypeArray> for ArrayTypeDescription {
@@ -164,7 +166,7 @@ impl TryFrom<&syn::TypeArray> for ArrayTypeDescription {
     fn try_from(arg: &syn::TypeArray) -> Result<Self> {
         let ty = TypeDescription::try_from(&*arg.elem)?;
         if let syn::Expr::Lit(syn::ExprLit {lit: syn::Lit::Int(ref int_lit), .. }) = arg.len {
-            Ok(ArrayTypeDescription {
+            Ok(ArrayTypeDescription::FixedLength {
                 inner: Box::new(ty),
                 arity: int_lit.value() as u32,
             })
@@ -407,7 +409,7 @@ mod tests {
     fn array_basic() {
         assert_eq_type_description(
             parse_quote!( [u32; 5] ),
-            Array(ArrayTypeDescription {
+            Array(ArrayTypeDescription::FixedLength {
                 inner: Box::new(Primitive(U32)),
                 arity: 5
             })
@@ -418,8 +420,8 @@ mod tests {
     fn array_nested() {
         assert_eq_type_description(
             parse_quote!( [[u32; 5]; 3] ),
-            Array(ArrayTypeDescription {
-                inner: Box::new(Array(ArrayTypeDescription {
+            Array(ArrayTypeDescription::FixedLength {
+                inner: Box::new(Array(ArrayTypeDescription::FixedLength {
                     inner: Box::new(Primitive(U32)),
                     arity: 5
                 })),
@@ -441,7 +443,7 @@ mod tests {
         let ty: syn::Type = parse_quote!( [u32; 5] );
         let td = TypeDescription::try_from(&ty).unwrap();
         let json = serde_json::to_string(&td).unwrap();
-        assert_eq!(r#"{"inner":"u32","arity":5}"#, json);
+        assert_eq!(r#"{"[T;n]":{"T":"u32","n":5}}"#, json);
     }
 }
 
