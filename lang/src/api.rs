@@ -31,7 +31,35 @@ use std::convert::TryFrom;
 
 /// Describes a message parameter or return type.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(untagged)]
 pub enum TypeDescription {
+    /// The `bool` primitive type.
+    Primitive(PrimitiveTypeDescription),
+    /// The tuple type
+    Tuple(TupleTypeDescription),
+    /// The fixed size array type
+    Array(ArrayTypeDescription),
+}
+
+impl TryFrom<&syn::Type> for TypeDescription {
+    type Error = Errors;
+
+    fn try_from(ty: &syn::Type) -> Result<Self> {
+        use quote::ToTokens;
+
+        match ty {
+            syn::Type::Tuple(tuple) =>
+                TupleTypeDescription::try_from(tuple).map(TypeDescription::Tuple),
+            syn::Type::Array(array) =>
+                ArrayTypeDescription::try_from(array).map(TypeDescription::Array),
+            ty =>
+                PrimitiveTypeDescription::try_from(ty).map(TypeDescription::Primitive),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub enum PrimitiveTypeDescription {
     /// The `bool` primitive type.
     #[serde(rename = "bool")]
     Bool,
@@ -69,51 +97,43 @@ pub enum TypeDescription {
     Address,
     /// The SRML balance type.
     Balance,
-    /// The tuple type
-    Tuple(TupleTypeDescription),
-    /// The fixed size array type
-    Array(ArrayTypeDescription),
 }
 
-impl TryFrom<&syn::Type> for TypeDescription {
+impl TryFrom<&syn::Type> for PrimitiveTypeDescription {
     type Error = Errors;
 
     fn try_from(ty: &syn::Type) -> Result<Self> {
         use quote::ToTokens;
+        use PrimitiveTypeDescription::*;
 
-        match ty {
-            syn::Type::Tuple(tuple) =>
-                TupleTypeDescription::try_from(tuple).map(TypeDescription::Tuple),
-            syn::Type::Array(array) =>
-                ArrayTypeDescription::try_from(array).map(TypeDescription::Array),
-            ty => match ty.into_token_stream().to_string().as_str() {
-                "bool" => Ok(TypeDescription::Bool),
-                "u8" => Ok(TypeDescription::U8),
-                "u16" => Ok(TypeDescription::U16),
-                "u32" => Ok(TypeDescription::U32),
-                "u64" => Ok(TypeDescription::U64),
-                "u128" => Ok(TypeDescription::U128),
-                "i8" => Ok(TypeDescription::I8),
-                "i16" => Ok(TypeDescription::I16),
-                "i32" => Ok(TypeDescription::I32),
-                "i64" => Ok(TypeDescription::I64),
-                "i128" => Ok(TypeDescription::I128),
-                "Address" => Ok(TypeDescription::Address),
-                "Balance" => Ok(TypeDescription::Balance),
-                unsupported => {
-                    bail!(
-                        ty,
-                        "{} is unsupported as message interface type",
-                        unsupported
-                    )
-                }
-            },
+        match ty.into_token_stream().to_string().as_str() {
+            "bool" => Ok(PrimitiveTypeDescription::Bool),
+            "u8" => Ok(PrimitiveTypeDescription::U8),
+            "u16" => Ok(PrimitiveTypeDescription::U16),
+            "u32" => Ok(PrimitiveTypeDescription::U32),
+            "u64" => Ok(PrimitiveTypeDescription::U64),
+            "u128" => Ok(PrimitiveTypeDescription::U128),
+            "i8" => Ok(PrimitiveTypeDescription::I8),
+            "i16" => Ok(PrimitiveTypeDescription::I16),
+            "i32" => Ok(PrimitiveTypeDescription::I32),
+            "i64" => Ok(PrimitiveTypeDescription::I64),
+            "i128" => Ok(PrimitiveTypeDescription::I128),
+            "Address" => Ok(PrimitiveTypeDescription::Address),
+            "Balance" => Ok(PrimitiveTypeDescription::Balance),
+            unsupported => {
+                bail!(
+                    ty,
+                    "{} is unsupported as message interface type",
+                    unsupported
+                )
+            }
         }
     }
 }
 
 /// Describes a tuple type
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(transparent)]
 pub struct TupleTypeDescription {
     elems: Vec<TypeDescription>,
 }
@@ -344,7 +364,7 @@ pub fn generate_api_description(contract: &hir::Contract) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::{*, TypeDescription::*};
+    use super::{*, TypeDescription::*, PrimitiveTypeDescription::*};
     use syn::parse_quote;
 
     fn assert_eq_type_description(ty: syn::Type, expected: TypeDescription) {
@@ -358,8 +378,8 @@ mod tests {
             parse_quote!( (bool, i32) ),
             Tuple(TupleTypeDescription {
                 elems: vec![
-                    Bool,
-                    I32,
+                    Primitive(Bool),
+                    Primitive(I32),
                 ]
             })
         )
@@ -371,11 +391,11 @@ mod tests {
             parse_quote!( (u32, (bool, i32)) ),
             Tuple(TupleTypeDescription {
                 elems: vec! [
-                    U32,
+                    Primitive(U32),
                     Tuple(TupleTypeDescription {
                         elems: vec![
-                            Bool,
-                            I32,
+                            Primitive(Bool),
+                            Primitive(I32),
                         ]
                     }),
                 ]
@@ -388,7 +408,7 @@ mod tests {
         assert_eq_type_description(
             parse_quote!( [u32; 5] ),
             Array(ArrayTypeDescription {
-                inner: Box::new(TypeDescription::U32),
+                inner: Box::new(Primitive(U32)),
                 arity: 5
             })
         )
@@ -400,7 +420,7 @@ mod tests {
             parse_quote!( [[u32; 5]; 3] ),
             Array(ArrayTypeDescription {
                 inner: Box::new(Array(ArrayTypeDescription {
-                    inner: Box::new(TypeDescription::U32),
+                    inner: Box::new(Primitive(U32)),
                     arity: 5
                 })),
                 arity: 3
@@ -408,13 +428,12 @@ mod tests {
         )
     }
 
-    // todo: [AJ] make these json tests pass with serde customisation
     #[test]
     fn tuple_json() {
         let ty: syn::Type = parse_quote!( (u64, i32) );
         let td = TypeDescription::try_from(&ty).unwrap();
         let json = serde_json::to_string(&td).unwrap();
-        assert_eq!("[\"u64\", \"i32\"]", json);
+        assert_eq!(r#"["u64","i32"]"#, json);
     }
 
     #[test]
@@ -422,7 +441,7 @@ mod tests {
         let ty: syn::Type = parse_quote!( [u32; 5] );
         let td = TypeDescription::try_from(&ty).unwrap();
         let json = serde_json::to_string(&td).unwrap();
-        assert_eq!("{inner: \"u32\", arity: 5}", json);
+        assert_eq!(r#"{"inner":"u32","arity":5}"#, json);
     }
 }
 
