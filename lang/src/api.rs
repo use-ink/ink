@@ -406,6 +406,25 @@ mod tests {
     }
 
     #[test]
+    fn tuple_of_arrays() {
+        assert_eq_type_description(
+            parse_quote!( ([i32; 2], [u32; 2]) ),
+            Tuple(TupleTypeDescription {
+                elems: vec! [
+                    Array(ArrayTypeDescription::FixedLength {
+                        inner: Box::new(Primitive(I32)),
+                        arity: 2
+                    }),
+                    Array(ArrayTypeDescription::FixedLength {
+                        inner: Box::new(Primitive(U32)),
+                        arity: 2
+                    })
+                ]
+            })
+        )
+    }
+
+    #[test]
     fn array_basic() {
         assert_eq_type_description(
             parse_quote!( [u32; 5] ),
@@ -426,6 +445,22 @@ mod tests {
                     arity: 5
                 })),
                 arity: 3
+            })
+        )
+    }
+
+    #[test]
+    fn array_of_tuples() {
+        assert_eq_type_description(
+            parse_quote!( [(bool, u32); 5] ),
+            Array(ArrayTypeDescription::FixedLength {
+                inner: Box::new(Tuple(TupleTypeDescription {
+                    elems: vec! [
+                        Primitive(Bool),
+                        Primitive(U32),
+                    ]
+                })),
+                arity: 5
             })
         )
     }
