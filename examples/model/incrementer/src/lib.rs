@@ -15,7 +15,6 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 #![no_std]
-#![feature(const_str_as_bytes)]
 
 use pdsl_core::storage;
 use pdsl_model::{
