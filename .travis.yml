@@ -63,6 +63,6 @@ script:
   cargo fmt --verbose --all -- --check
   cargo clippy --verbose --all --all-features -- -D warnings &&
   cargo test --verbose --all --all-features &&
-  cargo kcov --verbose --all --no-clean-rebuild &&
+  cargo kcov --verbose --coveralls --all --no-clean-rebuild &&
   cargo build --verbose --all --release --target=wasm32-unknown-unknown &&
   bash <(curl -s https://codecov.io/bash)
