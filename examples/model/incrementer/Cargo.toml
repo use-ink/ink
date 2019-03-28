@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 pdsl_core = { path = "../../../core" }
 pdsl_model = { path = "../../../model" }
-parity-codec = { version = "3.0", default-features = false, features = ["derive"] }
+parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
 
 [lib]
 name = "incrementer"
