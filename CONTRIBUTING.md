@@ -51,6 +51,9 @@ Following these will ensure that your pull request is going to be accepted.
 1. If needed also update the [`README`](README.md).
 1. For performance critical parts we also want additional performance tests.
 1. If you implement a fix for a reported bug also include a regression test alongside the fix if possible.
+1. When commenting or documenting code make use of proper punctuation.
+   This might seem pedantic but we believe that in essence this is going to improve overall comment and documentation quality.
+1. If possible try to sign your commits, e.g. using GPG keys. For more information about this go [here](https://help.github.com/en/articles/signing-commits).
 
 ## Continuous Integration
 
