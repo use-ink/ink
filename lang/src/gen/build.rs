@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Code generation for normal Wasm smart contract builds.
+//!
+//! Generated code that conflicts with specialized `test` or `doc`
+//! code needs to be guarded by `#[cfg(..)]`.
+
 use crate::{
     ast,
     hir,
@@ -21,7 +26,7 @@ use crate::{
 use proc_macro2::{
     Ident,
     Span,
-    TokenStream,
+    TokenStream as TokenStream2,
 };
 use quote::{
     quote,
@@ -33,18 +38,16 @@ use syn::{
     Token,
 };
 
-pub fn codegen(contract: &hir::Contract) -> proc_macro2::TokenStream {
-    let mut tokens = quote! {};
-    codegen_for_state(&mut tokens, contract);
-    codegen_for_messages(&mut tokens, contract);
-    codegen_for_message_impls(&mut tokens, contract);
-    codegen_for_method_impls(&mut tokens, contract);
-    codegen_for_instantiate(&mut tokens, contract);
-    codegen_for_entry_points(&mut tokens);
-    tokens
+pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    codegen_for_state(tokens, contract);
+    codegen_for_messages(tokens, contract);
+    codegen_for_message_impls(tokens, contract);
+    codegen_for_method_impls(tokens, contract);
+    codegen_for_instantiate(tokens, contract);
+    codegen_for_entry_points(tokens);
 }
 
-fn codegen_for_entry_points(tokens: &mut TokenStream) {
+fn codegen_for_entry_points(tokens: &mut TokenStream2) {
     tokens.extend(quote! {
         #[no_mangle]
         fn deploy() {
@@ -58,7 +61,7 @@ fn codegen_for_entry_points(tokens: &mut TokenStream) {
     })
 }
 
-fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
+fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_name = &contract.name;
 
     let deploy_handler_toks = {
@@ -180,7 +183,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream, contract: &hir::Contract) {
     })
 }
 
-fn codegen_for_message_impls(tokens: &mut TokenStream, contract: &hir::Contract) {
+fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_name = &contract.name;
     let message_impls = {
         let mut content = quote! {};
@@ -229,7 +232,7 @@ fn codegen_for_message_impls(tokens: &mut TokenStream, contract: &hir::Contract)
     });
 }
 
-fn codegen_for_method_impls(tokens: &mut TokenStream, contract: &hir::Contract) {
+fn codegen_for_method_impls(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_name = &contract.name;
     let methods_impls = {
         let mut content = quote! {};
@@ -289,7 +292,7 @@ impl CustomArgCaptured {
     }
 }
 
-fn codegen_for_state(tokens: &mut TokenStream, contract: &hir::Contract) {
+fn codegen_for_state(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_attrs_toks = {
         let mut content = quote! {};
         for attr in &contract.state.attrs {
@@ -308,7 +311,7 @@ fn codegen_for_state(tokens: &mut TokenStream, contract: &hir::Contract) {
     });
 }
 
-fn codegen_for_messages(tokens: &mut TokenStream, contract: &hir::Contract) {
+fn codegen_for_messages(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let messages_content = {
         let mut content = quote! {};
         for message in contract.messages.iter() {
