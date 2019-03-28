@@ -374,6 +374,14 @@ mod tests {
         assert_eq!(expected, actual);
     }
 
+    fn assert_json_roundtrip(ty: syn::Type, json: &str) {
+        let td = TypeDescription::try_from(&ty).unwrap();
+        let actual_json = serde_json::to_string(&td).unwrap();
+        assert_eq!(json, actual_json);
+        let deserialized: TypeDescription = serde_json::de::from_str(json).unwrap();
+        assert_eq!(td, deserialized);
+    }
+
     #[test]
     fn tuple_basic() {
         assert_eq_type_description(
@@ -467,18 +475,18 @@ mod tests {
 
     #[test]
     fn tuple_json() {
-        let ty: syn::Type = parse_quote!( (u64, i32) );
-        let td = TypeDescription::try_from(&ty).unwrap();
-        let json = serde_json::to_string(&td).unwrap();
-        assert_eq!(r#"["u64","i32"]"#, json);
+        assert_json_roundtrip(
+            parse_quote!( (u64, i32) ),
+            r#"["u64","i32"]"#,
+        )
     }
 
     #[test]
     fn array_json() {
-        let ty: syn::Type = parse_quote!( [u32; 5] );
-        let td = TypeDescription::try_from(&ty).unwrap();
-        let json = serde_json::to_string(&td).unwrap();
-        assert_eq!(r#"{"[T;n]":{"T":"u32","n":5}}"#, json);
+        assert_json_roundtrip(
+            parse_quote!( [u32; 5] ),
+            r#"{"[T;n]":{"T":"u32","n":5}}"#,
+        )
     }
 }
 
