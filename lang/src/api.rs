@@ -46,12 +46,13 @@ impl TryFrom<&syn::Type> for TypeDescription {
 
     fn try_from(ty: &syn::Type) -> Result<Self> {
         match ty {
-            syn::Type::Tuple(tuple) =>
-                TupleTypeDescription::try_from(tuple).map(TypeDescription::Tuple),
-            syn::Type::Array(array) =>
-                ArrayTypeDescription::try_from(array).map(TypeDescription::Array),
-            ty =>
-                PrimitiveTypeDescription::try_from(ty).map(TypeDescription::Primitive),
+            syn::Type::Tuple(tuple) => {
+                TupleTypeDescription::try_from(tuple).map(TypeDescription::Tuple)
+            }
+            syn::Type::Array(array) => {
+                ArrayTypeDescription::try_from(array).map(TypeDescription::Array)
+            }
+            ty => PrimitiveTypeDescription::try_from(ty).map(TypeDescription::Primitive),
         }
     }
 }
@@ -156,7 +157,7 @@ pub enum ArrayTypeDescription {
         #[serde(rename = "T")]
         inner: Box<TypeDescription>,
         #[serde(rename = "n")]
-        arity: u32
+        arity: u32,
     },
 }
 
@@ -165,16 +166,17 @@ impl TryFrom<&syn::TypeArray> for ArrayTypeDescription {
 
     fn try_from(arg: &syn::TypeArray) -> Result<Self> {
         let ty = TypeDescription::try_from(&*arg.elem)?;
-        if let syn::Expr::Lit(syn::ExprLit {lit: syn::Lit::Int(ref int_lit), .. }) = arg.len {
+        if let syn::Expr::Lit(syn::ExprLit {
+            lit: syn::Lit::Int(ref int_lit),
+            ..
+        }) = arg.len
+        {
             Ok(ArrayTypeDescription::FixedLength {
                 inner: Box::new(ty),
                 arity: int_lit.value() as u32,
             })
         } else {
-            bail!(
-                arg.len,
-                "invalid array length expression"
-            )
+            bail!(arg.len, "invalid array length expression")
         }
     }
 }
@@ -366,7 +368,11 @@ pub fn generate_api_description(contract: &hir::Contract) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::{*, TypeDescription::*, PrimitiveTypeDescription::*};
+    use super::{
+        PrimitiveTypeDescription::*,
+        TypeDescription::*,
+        *,
+    };
     use syn::parse_quote;
 
     fn assert_eq_type_description(ty: syn::Type, expected: TypeDescription) {
@@ -385,108 +391,92 @@ mod tests {
     #[test]
     fn tuple_basic() {
         assert_eq_type_description(
-            parse_quote!( (bool, i32) ),
+            parse_quote!((bool, i32)),
             Tuple(TupleTypeDescription {
-                elems: vec![
-                    Primitive(Bool),
-                    Primitive(I32),
-                ]
-            })
+                elems: vec![Primitive(Bool), Primitive(I32)],
+            }),
         )
     }
 
     #[test]
     fn tuple_nested() {
         assert_eq_type_description(
-            parse_quote!( (u32, (bool, i32)) ),
+            parse_quote!((u32, (bool, i32))),
             Tuple(TupleTypeDescription {
-                elems: vec! [
+                elems: vec![
                     Primitive(U32),
                     Tuple(TupleTypeDescription {
-                        elems: vec![
-                            Primitive(Bool),
-                            Primitive(I32),
-                        ]
+                        elems: vec![Primitive(Bool), Primitive(I32)],
                     }),
-                ]
-            })
+                ],
+            }),
         )
     }
 
     #[test]
     fn tuple_of_arrays() {
         assert_eq_type_description(
-            parse_quote!( ([i32; 2], [u32; 2]) ),
+            parse_quote!(([i32; 2], [u32; 2])),
             Tuple(TupleTypeDescription {
-                elems: vec! [
+                elems: vec![
                     Array(ArrayTypeDescription::FixedLength {
                         inner: Box::new(Primitive(I32)),
-                        arity: 2
+                        arity: 2,
                     }),
                     Array(ArrayTypeDescription::FixedLength {
                         inner: Box::new(Primitive(U32)),
-                        arity: 2
-                    })
-                ]
-            })
+                        arity: 2,
+                    }),
+                ],
+            }),
         )
     }
 
     #[test]
     fn array_basic() {
         assert_eq_type_description(
-            parse_quote!( [u32; 5] ),
+            parse_quote!([u32; 5]),
             Array(ArrayTypeDescription::FixedLength {
                 inner: Box::new(Primitive(U32)),
-                arity: 5
-            })
+                arity: 5,
+            }),
         )
     }
 
     #[test]
     fn array_nested() {
         assert_eq_type_description(
-            parse_quote!( [[u32; 5]; 3] ),
+            parse_quote!([[u32; 5]; 3]),
             Array(ArrayTypeDescription::FixedLength {
                 inner: Box::new(Array(ArrayTypeDescription::FixedLength {
                     inner: Box::new(Primitive(U32)),
-                    arity: 5
+                    arity: 5,
                 })),
-                arity: 3
-            })
+                arity: 3,
+            }),
         )
     }
 
     #[test]
     fn array_of_tuples() {
         assert_eq_type_description(
-            parse_quote!( [(bool, u32); 5] ),
+            parse_quote!([(bool, u32); 5]),
             Array(ArrayTypeDescription::FixedLength {
                 inner: Box::new(Tuple(TupleTypeDescription {
-                    elems: vec! [
-                        Primitive(Bool),
-                        Primitive(U32),
-                    ]
+                    elems: vec![Primitive(Bool), Primitive(U32)],
                 })),
-                arity: 5
-            })
+                arity: 5,
+            }),
         )
     }
 
     #[test]
     fn tuple_json() {
-        assert_json_roundtrip(
-            parse_quote!( (u64, i32) ),
-            r#"["u64","i32"]"#,
-        )
+        assert_json_roundtrip(parse_quote!((u64, i32)), r#"["u64","i32"]"#)
     }
 
     #[test]
     fn array_json() {
-        assert_json_roundtrip(
-            parse_quote!( [u32; 5] ),
-            r#"{"[T;n]":{"T":"u32","n":5}}"#,
-        )
+        assert_json_roundtrip(parse_quote!([u32; 5]), r#"{"[T;n]":{"T":"u32","n":5}}"#)
     }
 }
-

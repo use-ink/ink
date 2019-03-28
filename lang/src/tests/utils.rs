@@ -17,10 +17,7 @@
 use crate::contract_gen_impl2;
 use proc_macro2::TokenStream as TokenStream2;
 
-pub fn assert_eq_tokenstreams(
-    input: TokenStream,
-    expected: TokenStream,
-) {
+pub fn assert_eq_tokenstreams(input: TokenStream, expected: TokenStream) {
     assert_eq!(
         contract_gen_impl2(input)
             .map(|result| result.to_string())

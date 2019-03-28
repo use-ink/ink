@@ -60,9 +60,7 @@ fn contract_gen_impl(input: TokenStream) -> Result<TokenStream> {
 
 /// Parses the given token stream as pDSL contract, performs some checks and returns
 /// the corresponding contract as token stream.
-pub(crate) fn contract_gen_impl2(
-    input: TokenStream2,
-) -> Result<TokenStream2> {
+pub(crate) fn contract_gen_impl2(input: TokenStream2) -> Result<TokenStream2> {
     let ast_contract = parser::parse_contract(input.clone())?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
     generate_api_description(&hir_contract)?;

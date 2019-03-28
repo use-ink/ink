@@ -18,9 +18,7 @@ mod build;
 
 use crate::hir;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-};
+use quote::quote;
 
 /// Generates code for the given contract.
 ///
