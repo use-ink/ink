@@ -16,7 +16,10 @@
 
 use crate::parser::keywords;
 
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
 use syn::{
     punctuated::Punctuated,
     token,
@@ -161,7 +164,7 @@ pub enum FnArg {
 }
 
 impl quote::ToTokens for FnArg {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
         match self {
             FnArg::SelfRef(arg_self_ref) => arg_self_ref.to_tokens(tokens),
             FnArg::SelfValue(arg_self_value) => arg_self_value.to_tokens(tokens),

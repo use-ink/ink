@@ -15,6 +15,7 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::ast;
+use proc_macro2::TokenStream as TokenStream2;
 use syn::{
     self,
     parse::{
@@ -33,7 +34,7 @@ pub mod keywords {
     custom_keyword!(external);
 }
 
-pub fn parse_contract(token_stream: proc_macro2::TokenStream) -> Result<ast::Contract> {
+pub fn parse_contract(token_stream: TokenStream2) -> Result<ast::Contract> {
     syn::parse2(token_stream).map_err(Into::into)
 }
 

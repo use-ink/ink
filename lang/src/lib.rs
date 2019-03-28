@@ -18,10 +18,12 @@
 
 extern crate proc_macro;
 
+use proc_macro::TokenStream;
+use proc_macro2::TokenStream as TokenStream2;
 use quote::ToTokens;
 
 #[proc_macro]
-pub fn contract(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn contract(input: TokenStream) -> TokenStream {
     match contract_gen_impl(input) {
         Ok(tokens) => tokens,
         Err(err) => err.into_token_stream().into(),
@@ -52,15 +54,15 @@ use errors::Result;
 /// The actual `proc_macro` interface has to operate on `proc_macro::TokenStream`
 /// but to keep this library testable we want to use only `proc_macro2::*` entities
 /// internally.
-fn contract_gen_impl(input: proc_macro::TokenStream) -> Result<proc_macro::TokenStream> {
+fn contract_gen_impl(input: TokenStream) -> Result<TokenStream> {
     contract_gen_impl2(input.into()).map(Into::into)
 }
 
 /// Parses the given token stream as pDSL contract, performs some checks and returns
 /// the corresponding contract as token stream.
 pub(crate) fn contract_gen_impl2(
-    input: proc_macro2::TokenStream,
-) -> Result<proc_macro2::TokenStream> {
+    input: TokenStream2,
+) -> Result<TokenStream2> {
     let ast_contract = parser::parse_contract(input.clone())?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
     generate_api_description(&hir_contract)?;

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use proc_macro2::TokenStream;
+use proc_macro2::TokenStream as TokenStream2;
 use quote::ToTokens;
 use std::result::Result as StdResult;
 pub use syn::parse::Error as SynError;
@@ -61,7 +61,7 @@ impl From<Vec<Errors>> for Errors {
 
 /// Used to create a TokenStream from a list of errors
 impl ToTokens for Errors {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
         for item in self.errors.iter() {
             item.to_compile_error().to_tokens(tokens);
         }
