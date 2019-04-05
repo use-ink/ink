@@ -16,5 +16,8 @@ Cargo.lock
 # Ignore VS Code artifacts.
 **/.vscode/**
 
+# Ignore Intellij artifacts
+.idea
+
 # Ignore history files.
 **/.history/**
