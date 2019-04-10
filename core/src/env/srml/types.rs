@@ -15,32 +15,31 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::env::EnvTypes;
-use parity_codec::{
-    Decode,
-    Encode,
-};
+use node_runtime::{self};
 
 /// The SRML fundamental types.
 pub struct DefaultSrmlTypes;
 
 impl EnvTypes for DefaultSrmlTypes {
-    type Address = self::Address;
+    type Address = node_runtime::Address;
     type Balance = self::Balance;
 }
 
-/// The default SRML address type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
-pub struct Address([u8; 32]);
-
-impl<'a> From<&'a [u8]> for Address {
-    fn from(bytes: &'a [u8]) -> Self {
-        assert_eq!(bytes.len(), 32);
-        let mut array = [0; 32];
-        let bytes = &bytes[..array.len()]; // panics if not enough data
-        array.copy_from_slice(bytes);
-        Address(array)
-    }
-}
-
+pub type Address = node_runtime::Address;
+//
+///// The default SRML address type.
+//#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+//pub struct Address([u8; 32]);
+//
+//impl<'a> From<&'a [u8]> for Address {
+//    fn from(bytes: &'a [u8]) -> Self {
+//        assert_eq!(bytes.len(), 32);
+//        let mut array = [0; 32];
+//        let bytes = &bytes[..array.len()]; // panics if not enough data
+//        array.copy_from_slice(bytes);
+//        Address(array)
+//    }
+//}
+//
 /// The default SRML balance type.
 pub type Balance = u64;

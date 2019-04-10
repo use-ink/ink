@@ -27,6 +27,7 @@ use core::cell::{
     Cell,
     RefCell,
 };
+use parity_codec::{Decode};
 
 /// An entry in the storage of the test environment.
 ///
@@ -210,7 +211,7 @@ impl TestEnvData {
 
     /// Returns the caller of the contract invocation.
     pub fn caller(&self) -> srml::Address {
-        srml::Address::from(self.caller.as_slice())
+        srml::Address::decode(&mut self.caller.as_slice()).expect("caller should be valid Address")
     }
 
     /// Stores the given value under the given key in the contract storage.
