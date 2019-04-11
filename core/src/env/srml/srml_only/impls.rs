@@ -89,7 +89,6 @@ where
     T: EnvTypes,
     <T as EnvTypes>::Address: for<'a> From<&'a [u8]>,
 {
-    /// Returns the address of the caller account.
     fn caller() -> <Self as EnvTypes>::Address {
         unsafe { sys::ext_caller() };
         let size = unsafe { sys::ext_scratch_size() };
@@ -103,7 +102,6 @@ where
         value.as_slice().into()
     }
 
-    /// Returns the content of the input buffer.
     fn input() -> Vec<u8> {
         let size = unsafe { sys::ext_input_size() };
         if size == 0 {
@@ -118,7 +116,6 @@ where
         }
     }
 
-    /// Ends the current contract execution and returns the given bytes to the calling contract.
     unsafe fn r#return(data: &[u8]) -> ! {
         sys::ext_return(data.as_ptr() as u32, data.len() as u32);
     }
