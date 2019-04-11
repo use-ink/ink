@@ -23,6 +23,9 @@ test-env = [
 	"pdsl_model/test-env",
     "pdsl_lang/test-env",
 ]
+generate-api-description = [
+    "pdsl_lang/generate-api-description"
+]
 
 [profile.release]
 panic = "abort"
