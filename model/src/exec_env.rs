@@ -132,4 +132,13 @@ impl EnvHandler {
     {
         env::r#return(val)
     }
+
+    /// Prints the given content.
+    ///
+    /// # Note
+    ///
+    /// Only usable in development (`--dev`) chains.
+    pub fn println(&self, content: &str) {
+        env::println(content)
+    }
 }
