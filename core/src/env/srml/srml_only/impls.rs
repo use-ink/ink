@@ -119,4 +119,10 @@ where
     unsafe fn r#return(data: &[u8]) -> ! {
         sys::ext_return(data.as_ptr() as u32, data.len() as u32);
     }
+
+    fn println(content: &str) {
+        unsafe {
+            sys::ext_println(content.as_ptr() as u32, content.len() as u32)
+        }
+    }
 }

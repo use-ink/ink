@@ -258,6 +258,11 @@ impl TestEnvData {
         };
         std::process::exit(exit_code)
     }
+
+    /// Prints the given content.
+    pub fn println(&self, content: &str) {
+        println!("{}", content)
+    }
 }
 
 thread_local! {
@@ -374,5 +379,9 @@ where
             data,
         );
         TEST_ENV_DATA.with(|test_env| test_env.borrow().r#return(data))
+    }
+
+    fn println(content: &str) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().println(content))
     }
 }

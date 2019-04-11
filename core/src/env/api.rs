@@ -56,6 +56,15 @@ where
     ContractEnv::r#return(&value.encode()[..])
 }
 
+/// Prints the given content.
+///
+/// # Note
+///
+/// Usable only in development (`--dev`) chains.
+pub fn println(content: &str) {
+    ContractEnv::println(content)
+}
+
 /// Stores the given value under the specified key in the contract storage.
 ///
 /// # Safety
