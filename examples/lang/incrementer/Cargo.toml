@@ -1,0 +1,34 @@
+[package]
+name = "incrementer"
+version = "0.1.0"
+authors = ["[your_name] <[your_email]>"]
+edition = "2018"
+
+[dependencies]
+pdsl_core = { path = "../../../core" }
+pdsl_model = { path = "../../../model" }
+pdsl_lang = { path = "../../../lang" }
+# pdsl_core = { git = "https://github.com/Robbepop/pdsl", package = "pdsl_core" }
+# pdsl_model = { git = "https://github.com/Robbepop/pdsl", package = "pdsl_model" }
+# pdsl_lang = { git = "https://github.com/Robbepop/pdsl", package = "pdsl_lang" }
+parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
+
+[lib]
+name = "incrementer"
+crate-type = ["cdylib"]
+
+[features]
+default = []
+test-env = [
+    "pdsl_core/test-env",
+    "pdsl_model/test-env",
+    "pdsl_lang/test-env",
+]
+generate-api-description = [
+    "pdsl_lang/generate-api-description"
+]
+
+[profile.release]
+panic = "abort"
+lto = true
+opt-level = "z"
