@@ -55,7 +55,7 @@ fn incrementer_contract() {
             pdsl_model::state! {
                 /// A simple contract that has a value that can be
                 /// incremented, returned and compared.
-                struct Incrementer {
+                pub struct Incrementer {
                     /// The internal value.
                     value: storage::Value<u32>,
                 }
