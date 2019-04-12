@@ -230,7 +230,7 @@ where
 {
     /// Returns the associated handler selector.
     pub const fn selector() -> MessageHandlerSelector {
-        MessageHandlerSelector(0x0)
+        <Msg as Message>::ID
     }
 }
 
