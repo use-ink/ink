@@ -25,6 +25,7 @@ mod no_std_defs {
         boxed,
         string,
         vec,
+        format,
     };
 
     /// Collection types.
@@ -48,6 +49,7 @@ mod std_defs {
         boxed,
         string,
         vec,
+        format,
     };
 
     /// Collection types.
