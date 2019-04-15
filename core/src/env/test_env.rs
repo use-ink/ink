@@ -197,7 +197,7 @@ impl TestEnvData {
 
     /// Appends new event data to the end of the bytearray.
     pub fn add_event(&mut self, event_data: &[u8]) {
-        self.events.append(event_data.to_vec());
+        self.events.append(&mut event_data.to_vec());
     }
 }
 
@@ -274,8 +274,8 @@ impl TestEnvData {
     }
 
     /// Deposits an event
-    pub fn deposit_event(&self, data: Vec<u8>) {
-        self.add_event(data);
+    pub fn deposit_event(&mut self, data: &[u8]) {
+        self.add_event(&data);
     }
 }
 
@@ -399,7 +399,7 @@ where
         TEST_ENV_DATA.with(|test_env| test_env.borrow().println(content))
     }
 
-    fn deposit_event(data: Vec<u8>) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().deposit_event(data))
+    fn deposit_event(data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().deposit_event(data))
     }
 }
