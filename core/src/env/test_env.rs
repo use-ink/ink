@@ -110,6 +110,12 @@ pub struct TestEnvData {
     ///
     /// The current input can be adjusted by `TestEnvData::set_input`.
     input: Vec<u8>,
+    /// The random seed for the next contract invocation.
+    ///
+    ///  # Note
+    ///
+    /// The current random seed can be adjusted by `TestEnvData::set_random_seed`.
+    random_seed: Vec<u8>,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -128,6 +134,7 @@ impl Default for TestEnvData {
             storage: HashMap::new(),
             caller: vec![0x0; 32],
             input: Vec::new(),
+            random_seed: Vec::new(),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -141,6 +148,7 @@ impl TestEnvData {
         self.storage.clear();
         self.caller.clear();
         self.input.clear();
+        self.random_seed.clear();
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
@@ -189,6 +197,11 @@ impl TestEnvData {
     /// Sets the input data for the next contract invocation.
     pub fn set_input(&mut self, input_bytes: &[u8]) {
         self.input = input_bytes.to_vec();
+    }
+
+    /// Sets the random seed for the next contract invocation.
+    pub fn set_random_seed(&mut self, random_seed_bytes: &[u8]) {
+        self.random_seed = random_seed_bytes.to_vec();
     }
 }
 
@@ -240,6 +253,11 @@ impl TestEnvData {
     /// Returns the input data for the contract invocation.
     pub fn input(&self) -> Vec<u8> {
         self.input.clone()
+    }
+
+    /// Returns the random seed for the contract invocation.
+    pub fn random_seed() -> Vec<u8> {
+        self.random_seed.clone()
     }
 
     /// Returns the data to the internal caller.
@@ -318,6 +336,12 @@ impl TestEnv {
     /// Sets the input data for the next contract invocation.
     pub fn set_input(input_bytes: &[u8]) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_input(input_bytes))
+    }
+
+    /// Sets the random seed for the next contract invocation.
+    pub fn set_random_seed(random_seed_bytes: &[u8]) {
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().set_random_seed(random_seed_bytes))
     }
 }
 
