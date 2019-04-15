@@ -273,7 +273,7 @@ impl TestEnvData {
         println!("{}", content)
     }
 
-    /// Deposits an event
+    /// Deposits event with the given event data.
     pub fn deposit_event(&mut self, data: &[u8]) {
         self.add_event(&data);
     }
