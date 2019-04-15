@@ -128,7 +128,7 @@ where
                 sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
             }
         }
-        value
+        value.as_slice().into()
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {
