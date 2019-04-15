@@ -121,8 +121,6 @@ where
     }
 
     fn println(content: &str) {
-        unsafe {
-            sys::ext_println(content.as_ptr() as u32, content.len() as u32)
-        }
+        unsafe { sys::ext_println(content.as_ptr() as u32, content.len() as u32) }
     }
 }

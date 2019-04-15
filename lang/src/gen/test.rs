@@ -21,5 +21,4 @@
 use crate::hir;
 use proc_macro2::TokenStream as TokenStream2;
 
-pub fn generate_code(_tokens: &mut TokenStream2, _contract: &hir::Contract) {
-}
+pub fn generate_code(_tokens: &mut TokenStream2, _contract: &hir::Contract) {}
