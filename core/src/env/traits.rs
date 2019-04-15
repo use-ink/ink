@@ -79,6 +79,6 @@ pub trait Env: EnvTypes + EnvStorage {
     /// Usable only in development (`--dev`) chains.
     fn println(content: &str);
 
-    /// Deposits a contract event through Contracts module
-    fn deposit_event(data: Vec<u8>);
+    /// Deposits a contract event through Contracts module.
+    fn deposit_event(data: &[u8]);
 }

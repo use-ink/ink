@@ -54,7 +54,7 @@ extern "C" {
     /// This must only be used in `--dev` chain environments!
     pub fn ext_println(str_ptr: u32, str_len: u32);
 
-    /// Deposits an event
+    /// Deposits an event through the Contracts module.
     pub fn ext_deposit_event(data_ptr: u32, data_len: u32);
 
     /// Writes the contents of the buffer at `value_ptr` into the

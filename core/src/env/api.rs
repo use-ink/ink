@@ -65,8 +65,8 @@ pub fn println(content: &str) {
     ContractEnv::println(content)
 }
 
-/// Deposits an event
-pub fn deposit_event(data: Vec<u8>) {
+/// Deposits an event through the Contracts module.
+pub fn deposit_event(data: &[u8]) {
     ContractEnv::deposit_event(data)
 }
 
