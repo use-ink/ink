@@ -134,7 +134,7 @@ impl Default for TestEnvData {
             storage: HashMap::new(),
             caller: vec![0x0; 32],
             input: Vec::new(),
-            random_seed: Vec::new(),
+            random_seed: vec![0x0, 32],
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -256,8 +256,8 @@ impl TestEnvData {
     }
 
     /// Returns the random seed for the contract invocation.
-    pub fn random_seed(&self) -> Vec<u8> {
-        self.random_seed.clone()
+    pub fn random_seed(&self) -> srml::Hash {
+        srml::Hash::from(self.random_seed.as_slice())
     }
 
     /// Returns the data to the internal caller.
@@ -350,6 +350,7 @@ const TEST_ENV_LOG_TARGET: &str = "test-env";
 impl EnvTypes for TestEnv {
     type Address = srml::Address;
     type Balance = srml::Balance;
+    type Hash = srml::Hash;
 }
 
 impl EnvStorage for TestEnv {
@@ -385,6 +386,8 @@ impl EnvStorage for TestEnv {
 impl Env for TestEnv
 where
     <Self as EnvTypes>::Address: for<'a> From<&'a [u8]>,
+    <Self as EnvTypes>::Hash: for<'a> From<&'a [u8]>,
+
 {
     fn caller() -> <Self as EnvTypes>::Address {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");
@@ -396,7 +399,7 @@ where
         TEST_ENV_DATA.with(|test_env| test_env.borrow().input())
     }
 
-    fn random_seed() -> Vec<u8> {
+    fn random_seed() -> <Self as EnvTypes>::Hash {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::random_seed()",);
         TEST_ENV_DATA.with(|test_env| test_env.borrow().random_seed())
     }

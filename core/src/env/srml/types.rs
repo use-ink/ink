@@ -26,6 +26,7 @@ pub struct DefaultSrmlTypes;
 impl EnvTypes for DefaultSrmlTypes {
     type Address = self::Address;
     type Balance = self::Balance;
+    type Hash = self::Hash;
 }
 
 /// The default SRML address type.
@@ -44,3 +45,17 @@ impl<'a> From<&'a [u8]> for Address {
 
 /// The default SRML balance type.
 pub type Balance = u64;
+
+/// The default SRML hash type.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+pub struct Hash([u8; 32]);
+
+impl<'a> From<&'a [u8]> for Hash {
+    fn from(bytes: &'a [u8]) -> Self {
+        assert_eq!(bytes.len(), 32);
+        let mut array = [0; 32];
+        let bytes = &bytes[..array.len()]; // panics if not enough data
+        array.copy_from_slice(bytes);
+        Hash(array)
+    }
+}

@@ -46,6 +46,7 @@ where
 {
     type Address = <T as EnvTypes>::Address;
     type Balance = <T as EnvTypes>::Balance;
+    type Hash = <T as EnvTypes>::Hash;
 }
 
 impl<T> EnvStorage for SrmlEnv<T>
@@ -88,6 +89,7 @@ impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
     <T as EnvTypes>::Address: for<'a> From<&'a [u8]>,
+    <T as EnvTypes>::Hash: for<'a> From<&'a [u8]>,
 {
     fn caller() -> <Self as EnvTypes>::Address {
         unsafe { sys::ext_caller() };
@@ -116,7 +118,7 @@ where
         }
     }
 
-    fn random_seed() -> Vec<u8> {
+    fn random_seed() -> <Self as EnvTypes>::Hash {
         unsafe { sys::ext_random_seed() };
         let size = unsafe { sys::ext_scratch_size() };
         let mut value = Vec::new();
