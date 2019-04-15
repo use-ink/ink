@@ -42,7 +42,7 @@ fn noop_contract() {
                 /// # Note
                 ///
                 /// Can be deployed, cannot be called.
-                struct Noop {}
+                pub struct Noop {}
             }
 
             use pdsl_model::messages;
