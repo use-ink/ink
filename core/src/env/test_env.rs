@@ -263,6 +263,11 @@ impl TestEnvData {
     pub fn println(&self, content: &str) {
         println!("{}", content)
     }
+
+    /// Deposits an event
+    pub fn deposit_event(&self, data: Vec<u8>) {
+        println!("{}", data)
+    }
 }
 
 thread_local! {
@@ -383,5 +388,9 @@ where
 
     fn println(content: &str) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow().println(content))
+    }
+
+    fn deposit_event(data: Vec<u8>) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().deposit_event(data))
     }
 }

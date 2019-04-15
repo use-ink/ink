@@ -34,7 +34,7 @@ pub trait EnvStorage {
     ///
     /// # Safety
     ///
-    /// This operation is unsafe becaues it does not check for key integrity.
+    /// This operation is unsafe because it does not check for key integrity.
     /// Users can compare this operation with a raw pointer dereferencing in Rust.
     unsafe fn store(key: Key, value: &[u8]);
 
@@ -42,7 +42,7 @@ pub trait EnvStorage {
     ///
     /// # Safety
     ///
-    /// This operation is unsafe becaues it does not check for key integrity.
+    /// This operation is unsafe because it does not check for key integrity.
     /// Users can compare this operation with a raw pointer dereferencing in Rust.
     unsafe fn clear(key: Key);
 
@@ -50,12 +50,12 @@ pub trait EnvStorage {
     ///
     /// # Safety
     ///
-    /// This operation is unsafe becaues it does not check for key integrity.
+    /// This operation is unsafe because it does not check for key integrity.
     /// Users can compare this operation with a raw pointer dereferencing in Rust.
     unsafe fn load(key: Key) -> Option<Vec<u8>>;
 }
 
-/// The evironment API usable by contracts defined with pDSL.
+/// The environment API usable by contracts defined with pDSL.
 pub trait Env: EnvTypes + EnvStorage {
     /// Returns the chain address of the caller.
     fn caller() -> <Self as EnvTypes>::Address;
@@ -78,4 +78,7 @@ pub trait Env: EnvTypes + EnvStorage {
     ///
     /// Usable only in development (`--dev`) chains.
     fn println(content: &str);
+
+    /// Deposits a contract event through Contracts module
+    fn deposit_event(data: Vec<u8>);
 }
