@@ -362,7 +362,7 @@ where
         // Consumes the contract since nothing should be done afterwards.
         let input = pdsl_core::env::input();
         let mut this = self;
-        this.deploy_with(input.as_slice())
+        this.deploy_with(input.as_slice());
         core::mem::forget(this.env);
     }
 
@@ -381,7 +381,7 @@ where
         let input = pdsl_core::env::input();
         let call_data = CallData::decode(&mut &input[..]).unwrap();
         let mut this = self;
-        this.call_with_and_return(call_data)
+        this.call_with_and_return(call_data);
         core::mem::forget(this.env);
     }
 }
