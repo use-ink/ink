@@ -266,7 +266,7 @@ impl TestEnvData {
 
     /// Deposits an event
     pub fn deposit_event(&self, data: Vec<u8>) {
-        println!("{}", data)
+        println!("{:?}", data)
     }
 }
 
