@@ -120,6 +120,8 @@ pub struct TestEnvData {
     total_reads: Cell<u64>,
     /// The total number of writes to the storage.
     total_writes: u64,
+    /// Deposited events of the contract invocation.
+    events: Vec<u8>,
 }
 
 impl Default for TestEnvData {
@@ -131,6 +133,7 @@ impl Default for TestEnvData {
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
+            events: Vec::new(),
         }
     }
 }
@@ -144,6 +147,7 @@ impl TestEnvData {
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
+        self.events.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -189,6 +193,11 @@ impl TestEnvData {
     /// Sets the input data for the next contract invocation.
     pub fn set_input(&mut self, input_bytes: &[u8]) {
         self.input = input_bytes.to_vec();
+    }
+
+    /// Appends new event data to the end of the bytearray.
+    pub fn add_event(&mut self, event_data: &[u8]) {
+        self.events.append(event_data.to_vec());
     }
 }
 
@@ -266,7 +275,7 @@ impl TestEnvData {
 
     /// Deposits an event
     pub fn deposit_event(&self, data: Vec<u8>) {
-        println!("{:?}", data)
+        self.add_event(data);
     }
 }
 
