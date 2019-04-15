@@ -44,7 +44,7 @@ pub fn input() -> Vec<u8> {
     ContractEnv::input()
 }
 
-/// Returns the latest block RNG seed
+/// Returns the random seed from the latest block.
 pub fn random_seed() -> Hash {
     ContractEnv::random_seed()
 }
