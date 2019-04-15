@@ -121,14 +121,10 @@ where
     }
 
     fn println(content: &str) {
-        unsafe {
-            sys::ext_println(content.as_ptr() as u32, content.len() as u32)
-        }
+        unsafe { sys::ext_println(content.as_ptr() as u32, content.len() as u32) }
     }
 
     fn deposit_event(data: Vec<u8>) {
-        unsafe {
-            sys::ext_deposit_event(data.as_ptr() as u32, data.len() as u32)
-        }
+        unsafe { sys::ext_deposit_event(data.as_ptr() as u32, data.len() as u32) }
     }
 }
