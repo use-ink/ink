@@ -372,6 +372,11 @@ where
         TEST_ENV_DATA.with(|test_env| test_env.borrow().input())
     }
 
+    fn random_seed() -> Vec<u8> {
+        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::random_seed()",);
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().random_seed())
+    }
+
     unsafe fn r#return(data: &[u8]) -> ! {
         log::debug!(
             target: TEST_ENV_LOG_TARGET,
