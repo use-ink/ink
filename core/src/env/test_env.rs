@@ -256,7 +256,7 @@ impl TestEnvData {
     }
 
     /// Returns the random seed for the contract invocation.
-    pub fn random_seed() -> Vec<u8> {
+    pub fn random_seed(&self) -> Vec<u8> {
         self.random_seed.clone()
     }
 
