@@ -41,6 +41,11 @@ pub fn input() -> Vec<u8> {
     ContractEnv::input()
 }
 
+/// Returns the latest block RNG seed
+pub fn random_seed() -> Vec<u8> {
+    ContractEnv::random_seed()
+}
+
 /// Returns the current smart contract exection back to the caller
 /// and return the given encoded value.
 ///

@@ -63,6 +63,9 @@ pub trait Env: EnvTypes + EnvStorage {
     /// Loads input data for contract execution.
     fn input() -> Vec<u8>;
 
+    /// Get the latest block RNG seed
+    fn random_seed() -> Vec<u8>;
+
     /// Returns from the contract execution with the given value.
     ///
     /// # Safety

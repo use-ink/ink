@@ -116,6 +116,19 @@ where
         }
     }
 
+    fn random_seed() -> Vec<u8> {
+        unsafe { sys::ext_random_seed() };
+        let size = unsafe { sys::ext_scratch_size() };
+        let mut value = Vec::new();
+        if size > 0 {
+            value.resize(size as usize, 0);
+            unsafe {
+                sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
+            }
+        }
+        value
+    }
+
     unsafe fn r#return(data: &[u8]) -> ! {
         sys::ext_return(data.as_ptr() as u32, data.len() as u32);
     }
