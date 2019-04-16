@@ -133,9 +133,9 @@ impl Default for TestEnvData {
     fn default() -> Self {
         Self {
             storage: HashMap::new(),
-            caller: srml::Address([0; 32]),
+            caller: srml::Address([0x0; 32]),
             input: Vec::new(),
-            random_seed: srml::Hash([0; 32]),
+            random_seed: srml::Hash([0x0; 32]),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
