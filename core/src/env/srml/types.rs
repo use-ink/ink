@@ -31,7 +31,7 @@ impl EnvTypes for DefaultSrmlTypes {
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
-pub struct Address([u8; 32]);
+pub struct Address(pub [u8; 32]);
 
 impl<'a> From<&'a [u8]> for Address {
     fn from(bytes: &'a [u8]) -> Self {
@@ -48,7 +48,7 @@ pub type Balance = u64;
 
 /// The default SRML hash type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
-pub struct Hash([u8; 32]);
+pub struct Hash(pub [u8; 32]);
 
 impl<'a> From<&'a [u8]> for Hash {
     fn from(bytes: &'a [u8]) -> Self {
