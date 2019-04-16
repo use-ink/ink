@@ -44,19 +44,23 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     codegen_for_message_impls(tokens, contract);
     codegen_for_method_impls(tokens, contract);
     codegen_for_instantiate(tokens, contract);
-    codegen_for_entry_points(tokens);
+    codegen_for_entry_points(tokens, contract);
 }
 
-fn codegen_for_entry_points(tokens: &mut TokenStream2) {
+fn codegen_for_entry_points(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    let state_name = &contract.name;
+
     tokens.extend(quote! {
+        #[cfg(not(test))]
         #[no_mangle]
         fn deploy() {
-            instantiate().deploy()
+            #state_name::instantiate().deploy()
         }
 
+        #[cfg(not(test))]
         #[no_mangle]
         fn call() {
-            instantiate().dispatch()
+            #state_name::instantiate().dispatch()
         }
     })
 }
@@ -173,12 +177,16 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
     };
 
     tokens.extend(quote! {
-        use pdsl_model::Contract;
-        fn instantiate() -> impl pdsl_model::Contract {
-            pdsl_model::ContractDecl::using::< #state_name >()
-                #deploy_handler_toks
-                #messages_toks
-                .instantiate()
+        use pdsl_model::Contract as _;
+
+        #[cfg(not(test))]
+        impl #state_name {
+            pub(crate) fn instantiate() -> impl pdsl_model::Contract {
+                pdsl_model::ContractDecl::using::<Self>()
+                    #deploy_handler_toks
+                    #messages_toks
+                    .instantiate()
+            }
         }
     })
 }
