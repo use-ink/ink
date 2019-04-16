@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::convert::TryFrom;
+use core::array::TryFromSliceError;
+
 use crate::env::EnvTypes;
 use parity_codec::{
     Decode,
@@ -33,13 +36,12 @@ impl EnvTypes for DefaultSrmlTypes {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct Address(pub [u8; 32]);
 
-impl<'a> From<&'a [u8]> for Address {
-    fn from(bytes: &'a [u8]) -> Self {
-        assert_eq!(bytes.len(), 32);
-        let mut array = [0; 32];
-        let bytes = &bytes[..array.len()]; // panics if not enough data
-        array.copy_from_slice(bytes);
-        Address(array)
+impl<'a> TryFrom<&'a [u8]> for Address {
+    type Error = TryFromSliceError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<Address, TryFromSliceError> {
+        let address = <[u8; 32]>::try_from(bytes)?;
+        Ok(Address(address))
     }
 }
 
@@ -50,12 +52,11 @@ pub type Balance = u64;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct Hash(pub [u8; 32]);
 
-impl<'a> From<&'a [u8]> for Hash {
-    fn from(bytes: &'a [u8]) -> Self {
-        assert_eq!(bytes.len(), 32);
-        let mut array = [0; 32];
-        let bytes = &bytes[..array.len()]; // panics if not enough data
-        array.copy_from_slice(bytes);
-        Hash(array)
+impl<'a> TryFrom<&'a [u8]> for Hash {
+    type Error = TryFromSliceError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<Hash, TryFromSliceError> {
+        let hash = <[u8; 32]>::try_from(bytes)?;
+        Ok(Hash(hash))
     }
 }
