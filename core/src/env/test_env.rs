@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+use std::convert::TryFrom;
 use super::*;
 use crate::{
     env::srml,
@@ -385,8 +386,8 @@ impl EnvStorage for TestEnv {
 
 impl Env for TestEnv
 where
-    <Self as EnvTypes>::Address: for<'a> From<&'a [u8]>,
-    <Self as EnvTypes>::Hash: for<'a> From<&'a [u8]>,
+    <Self as EnvTypes>::Address: for<'a> TryFrom<&'a [u8]>,
+    <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 
 {
     fn caller() -> <Self as EnvTypes>::Address {
