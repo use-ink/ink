@@ -28,6 +28,9 @@ use core::cell::{
     RefCell,
 };
 
+/// A wrapper for the generic bytearray used for data in contract events.
+struct EventData(Vec<u8>);
+
 /// An entry in the storage of the test environment.
 ///
 /// # Note
@@ -121,7 +124,7 @@ pub struct TestEnvData {
     /// The total number of writes to the storage.
     total_writes: u64,
     /// Deposited events of the contract invocation.
-    events: Vec<u8>,
+    events: Vec<EventData>,
 }
 
 impl Default for TestEnvData {
@@ -197,7 +200,8 @@ impl TestEnvData {
 
     /// Appends new event data to the end of the bytearray.
     pub fn add_event(&mut self, event_data: &[u8]) {
-        self.events.append(&mut event_data.to_vec());
+        let mut new_event = EventData(event_data.to_vec());
+        self.events.push(new_event);
     }
 }
 
