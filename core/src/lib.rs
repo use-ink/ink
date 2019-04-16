@@ -32,9 +32,6 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[macro_use]
 mod test_utils;
 
-#[cfg(not(feature = "std"))]
-mod panic_handler;
-
 mod byte_utils;
 pub mod env;
 pub mod memory;
