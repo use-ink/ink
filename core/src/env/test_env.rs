@@ -29,6 +29,7 @@ use core::cell::{
 };
 
 /// A wrapper for the generic bytearray used for data in contract events.
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct EventData(Vec<u8>);
 
 /// An entry in the storage of the test environment.
