@@ -27,7 +27,7 @@ use core::cell::{
     Cell,
     RefCell,
 };
-use parity_codec::{Decode};
+use parity_codec::Decode;
 
 /// An entry in the storage of the test environment.
 ///

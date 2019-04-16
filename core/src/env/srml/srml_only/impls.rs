@@ -28,6 +28,7 @@ use crate::{
     storage::Key,
 };
 use core::marker::PhantomData;
+use parity_codec::Decode;
 
 /// The default SRML environment.
 pub type DefaultSrmlEnv = SrmlEnv<DefaultSrmlTypes>;
@@ -87,7 +88,7 @@ where
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
-    <T as EnvTypes>::Address: for<'a> From<&'a [u8]>,
+    <T as EnvTypes>::Address: Decode,
 {
     fn caller() -> <Self as EnvTypes>::Address {
         unsafe { sys::ext_caller() };
@@ -99,7 +100,7 @@ where
                 sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
             }
         }
-        value.as_slice().into()
+        <T as EnvTypes>::Address::decode(&mut value.as_slice()).expect("caller should be valid address")
     }
 
     fn input() -> Vec<u8> {
