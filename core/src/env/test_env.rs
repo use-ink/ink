@@ -103,7 +103,7 @@ pub struct TestEnvData {
     /// # Note
     ///
     /// The current caller can be adjusted by `TestEnvData::set_caller`.
-    caller: Vec<u8>,
+    caller: srml::Address,
     /// The input data for the next contract invocation.
     ///
     /// # Note
@@ -115,7 +115,7 @@ pub struct TestEnvData {
     ///  # Note
     ///
     /// The current random seed can be adjusted by `TestEnvData::set_random_seed`.
-    random_seed: Vec<u8>,
+    random_seed: srml::Hash,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -132,9 +132,9 @@ impl Default for TestEnvData {
     fn default() -> Self {
         Self {
             storage: HashMap::new(),
-            caller: vec![0x0; 32],
+            caller: srml::Address([0; 32]),
             input: Vec::new(),
-            random_seed: vec![0x0, 32],
+            random_seed: srml::Hash([0; 32]),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -146,9 +146,9 @@ impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
         self.storage.clear();
-        self.caller.clear();
+        self.caller = srml::Address([0; 32]);
         self.input.clear();
-        self.random_seed.clear();
+        self.random_seed = srml::Hash([0; 32]);
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
@@ -190,8 +190,8 @@ impl TestEnvData {
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(&mut self, new_caller: &[u8]) {
-        self.caller = new_caller.to_vec();
+    pub fn set_caller(&mut self, new_caller: srml::Address) {
+        self.caller = new_caller;
     }
 
     /// Sets the input data for the next contract invocation.
@@ -200,8 +200,8 @@ impl TestEnvData {
     }
 
     /// Sets the random seed for the next contract invocation.
-    pub fn set_random_seed(&mut self, random_seed_bytes: &[u8]) {
-        self.random_seed = random_seed_bytes.to_vec();
+    pub fn set_random_seed(&mut self, random_seed_hash: srml::Hash) {
+        self.random_seed = random_seed_hash;
     }
 }
 
@@ -223,7 +223,7 @@ impl TestEnvData {
 
     /// Returns the caller of the contract invocation.
     pub fn caller(&self) -> srml::Address {
-        srml::Address::from(self.caller.as_slice())
+        self.caller
     }
 
     /// Stores the given value under the given key in the contract storage.
@@ -257,7 +257,7 @@ impl TestEnvData {
 
     /// Returns the random seed for the contract invocation.
     pub fn random_seed(&self) -> srml::Hash {
-        srml::Hash::from(self.random_seed.as_slice())
+        self.random_seed
     }
 
     /// Returns the data to the internal caller.
@@ -329,7 +329,7 @@ impl TestEnv {
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(new_caller: &[u8]) {
+    pub fn set_caller(new_caller: srml::Address) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_caller(new_caller))
     }
 
@@ -339,7 +339,7 @@ impl TestEnv {
     }
 
     /// Sets the random seed for the next contract invocation.
-    pub fn set_random_seed(random_seed_bytes: &[u8]) {
+    pub fn set_random_seed(random_seed_bytes: srml::Hash) {
         TEST_ENV_DATA
             .with(|test_env| test_env.borrow_mut().set_random_seed(random_seed_bytes))
     }
