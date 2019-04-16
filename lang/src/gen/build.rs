@@ -264,11 +264,13 @@ fn codegen_for_method_impls(tokens: &mut TokenStream2, contract: &hir::Contract)
         }
         content
     };
-    tokens.extend(quote! {
-        impl #state_name {
-            #methods_impls
-        }
-    });
+    if contract.methods.iter().count() > 0 {
+        tokens.extend(quote! {
+            impl #state_name {
+                #methods_impls
+            }
+        })
+    }
 }
 
 struct CustomArgCaptured {
