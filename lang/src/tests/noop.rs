@@ -53,20 +53,22 @@ fn noop_contract() {
                 pub fn deploy(&mut self, env: &mut pdsl_model::EnvHandler) { }
             }
 
-            impl Noop {}
+            use pdsl_model::Contract as _;
 
-            use pdsl_model::Contract;
-            fn instantiate() -> impl pdsl_model::Contract {
-                pdsl_model::ContractDecl::using::<Noop>()
-                    .on_deploy(|env, ()| {
-                        let (handler, state) = env.split_mut();
-                        state.deploy(handler,)
-                    })
-                    .instantiate()
+            #[cfg(not(test))]
+            impl Noop {
+                pub(crate) fn instantiate() -> impl pdsl_model::Contract {
+                    pdsl_model::ContractDecl::using::<Self>()
+                        .on_deploy(|env, ()| {
+                            let (handler, state) = env.split_mut();
+                            state.deploy(handler,)
+                        })
+                        .instantiate()
+                }
             }
 
-            #[no_mangle] fn deploy() { instantiate().deploy() }
-            #[no_mangle] fn call() { instantiate().dispatch() }
+            #[cfg(not(test))] #[no_mangle] fn deploy() { Noop::instantiate().deploy() }
+            #[cfg(not(test))] #[no_mangle] fn call() { Noop::instantiate().dispatch() }
         },
     )
 }

@@ -94,32 +94,34 @@ fn incrementer_contract() {
                 }
             }
 
-            impl Incrementer {}
-            use pdsl_model::Contract;
+            use pdsl_model::Contract as _;
 
-            fn instantiate() -> impl pdsl_model::Contract {
-                pdsl_model::ContractDecl::using::<Incrementer>()
-                    .on_deploy(|env, init_value: u32| {
-                        let (handler, state) = env.split_mut();
-                        state.deploy(handler, init_value)
-                    })
-                    .on_msg_mut::<Inc>(|env, by: u32| {
-                        let (handler, state) = env.split_mut();
-                        state.inc(handler, by)
-                    })
-                    .on_msg::<Get>(|env, _| {
-                        let (handler, state) = env.split();
-                        state.get(handler,)
-                    })
-                    .on_msg::<Compare>(|env, x: u32| {
-                        let (handler, state) = env.split();
-                        state.compare(handler, x)
-                    })
-                    .instantiate()
+            #[cfg(not(test))]
+            impl Incrementer {
+                pub(crate) fn instantiate() -> impl pdsl_model::Contract {
+                    pdsl_model::ContractDecl::using::<Self>()
+                        .on_deploy(|env, init_value: u32| {
+                            let (handler, state) = env.split_mut();
+                            state.deploy(handler, init_value)
+                        })
+                        .on_msg_mut::<Inc>(|env, by: u32| {
+                            let (handler, state) = env.split_mut();
+                            state.inc(handler, by)
+                        })
+                        .on_msg::<Get>(|env, _| {
+                            let (handler, state) = env.split();
+                            state.get(handler,)
+                        })
+                        .on_msg::<Compare>(|env, x: u32| {
+                            let (handler, state) = env.split();
+                            state.compare(handler, x)
+                        })
+                        .instantiate()
+                }
             }
 
-            #[no_mangle] fn deploy() { instantiate().deploy() }
-            #[no_mangle] fn call() { instantiate().dispatch() }
+            #[cfg(not(test))] #[no_mangle] fn deploy() { Incrementer::instantiate().deploy() }
+            #[cfg(not(test))] #[no_mangle] fn call() { Incrementer::instantiate().dispatch() }
         },
     )
 }
