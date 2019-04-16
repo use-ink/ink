@@ -71,4 +71,11 @@ pub trait Env: EnvTypes + EnvStorage {
     /// returned value. This API is unsafe because it does not provide
     /// guarantees on its own to always encode the expected type.
     unsafe fn r#return(value: &[u8]) -> !;
+
+    /// Prints the given content to Substrate output.
+    ///
+    /// # Note
+    ///
+    /// Usable only in development (`--dev`) chains.
+    fn println(content: &str);
 }

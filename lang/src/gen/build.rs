@@ -305,7 +305,7 @@ fn codegen_for_state(tokens: &mut TokenStream2, contract: &hir::Contract) {
     tokens.extend(quote! {
         pdsl_model::state! {
             #state_attrs_toks
-            struct #name
+            pub struct #name
                 #struct_fields_toks
         }
     });

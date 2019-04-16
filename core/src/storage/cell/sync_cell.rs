@@ -428,6 +428,23 @@ mod tests {
     }
 
     #[test]
+    fn multi_session_simulation() {
+        let mut cell1 = dummy_cell();
+        cell1.set(42);
+        assert_eq!(cell1.get(), Some(&42));
+        // Using same key as `cell1`
+        // -> overlapping access but different caches
+        // Cache has not yet been synced:
+        assert_eq!(dummy_cell().get(), None);
+        // Sync cache now!
+        cell1.flush();
+        // Using same key as `cell1`
+        // -> overlapping access but different caches
+        // Cache has been flushed before:
+        assert_eq!(dummy_cell().get(), Some(&42));
+    }
+
+    #[test]
     fn count_rw_get() {
         // Repetitions performed.
         const N: u32 = 5;
