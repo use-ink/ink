@@ -36,8 +36,8 @@ impl EnvTypes for DefaultSrmlTypes {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct Address([u8; 32]);
 
-impl Address {
-    pub fn new(address: [u8; 32]) -> Address {
+impl From<[u8;32]> for Address {
+    fn from(address: [u8; 32]) -> Address {
         Address(address)
     }
 }
@@ -58,8 +58,8 @@ pub type Balance = u64;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct Hash([u8; 32]);
 
-impl Hash {
-    pub fn new(hash: [u8; 32]) -> Hash {
+impl From<[u8;32]> for Hash {
+    fn from(hash: [u8; 32]) -> Hash {
         Hash(hash)
     }
 }
