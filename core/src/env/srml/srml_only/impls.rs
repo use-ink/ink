@@ -47,6 +47,7 @@ where
 {
     type Address = <T as EnvTypes>::Address;
     type Balance = <T as EnvTypes>::Balance;
+    type Call = <T as EnvTypes>::Call;
 }
 
 impl<T> EnvStorage for SrmlEnv<T>
@@ -101,6 +102,10 @@ where
             }
         }
         <T as EnvTypes>::Address::decode(&mut value.as_slice()).expect("caller should be valid address")
+    }
+
+    fn dispatch_call(data: &[u8]) {
+        unsafe { sys::ext_dispatch_call(data.as_ptr() as u32, data.len() as u32) }
     }
 
     fn input() -> Vec<u8> {

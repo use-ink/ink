@@ -26,6 +26,8 @@ pub trait EnvTypes {
     type Address: Codec + PartialEq + Eq;
     /// The type of balances.
     type Balance: Codec;
+    /// The type for a call into the runtime
+    type Call: Codec;
 }
 
 /// Types implementing this can act as contract storage.
@@ -59,6 +61,8 @@ pub trait EnvStorage {
 pub trait Env: EnvTypes + EnvStorage {
     /// Returns the chain address of the caller.
     fn caller() -> <Self as EnvTypes>::Address;
+
+    fn dispatch_call(data: &[u8]);
 
     /// Loads input data for contract execution.
     fn input() -> Vec<u8>;

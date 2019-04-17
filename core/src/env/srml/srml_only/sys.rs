@@ -112,4 +112,11 @@ extern "C" {
 
     // Load the latest block timestamp into the scratch buffer.
     pub fn ext_now();
+
+    // Decodes the given buffer as a `T::Call` and adds it to the list
+    // of to-be-dispatched calls.
+    //
+    // All calls made it to the top-level context will be dispatched before
+    // finishing the execution of the calling extrinsic.
+    pub fn ext_dispatch_call(data_ptr: u32, data_len: u32);
 }

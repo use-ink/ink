@@ -24,6 +24,7 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
+use parity_codec::Encode;
 
 /// The environmental address type.
 pub type Address = <ContractEnv as EnvTypes>::Address;
@@ -31,9 +32,16 @@ pub type Address = <ContractEnv as EnvTypes>::Address;
 /// The environmental balance type.
 pub type Balance = <ContractEnv as EnvTypes>::Balance;
 
+/// The environmental type for calls back into the runtime
+pub type Call = <ContractEnv as EnvTypes>::Call;
+
 /// Returns the address of the caller of the current smart contract execution.
 pub fn caller() -> Address {
     ContractEnv::caller()
+}
+
+pub fn dispatch_call(value: Call) {
+    ContractEnv::dispatch_call(&value.encode()[..])
 }
 
 /// Returns the uninterpreted input data of the current smart contract execution.

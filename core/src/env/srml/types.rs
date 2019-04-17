@@ -15,17 +15,22 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::env::EnvTypes;
-use node_runtime::{self};
+use node_runtime;
 
 /// The SRML fundamental types.
 pub struct DefaultSrmlTypes;
 
 impl EnvTypes for DefaultSrmlTypes {
-    type Address = node_runtime::Address;
+    type Address = self::Address;
     type Balance = self::Balance;
+    type Call = self::Call;
 }
 
+/// The default SRML address type
 pub type Address = node_runtime::Address;
 
 /// The default SRML balance type.
 pub type Balance = u64;
+
+/// The default SRML call type
+pub type Call = node_runtime::Call;
