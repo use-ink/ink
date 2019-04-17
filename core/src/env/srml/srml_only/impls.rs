@@ -28,7 +28,10 @@ use crate::{
     storage::Key,
 };
 use core::{
-    convert::{TryFrom, TryInto},
+    convert::{
+        TryFrom,
+        TryInto,
+    },
     marker::PhantomData,
 };
 
