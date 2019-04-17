@@ -26,6 +26,8 @@ pub trait EnvTypes {
     type Address: Codec + PartialEq + Eq;
     /// The type of balances.
     type Balance: Codec;
+    /// The type of hash.
+    type Hash: Codec;
 }
 
 /// Types implementing this can act as contract storage.
@@ -62,6 +64,9 @@ pub trait Env: EnvTypes + EnvStorage {
 
     /// Loads input data for contract execution.
     fn input() -> Vec<u8>;
+
+    /// Get the random seed from the latest block.
+    fn random_seed() -> <Self as EnvTypes>::Hash;
 
     /// Returns from the contract execution with the given value.
     ///

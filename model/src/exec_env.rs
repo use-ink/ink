@@ -146,4 +146,9 @@ impl EnvHandler {
     pub fn deposit_raw_event(&self, event: &[u8]) {
         env::deposit_raw_event(event)
     }
+
+    /// Returns the random seed from the latest block.
+    pub fn random_seed(&self) -> env::Hash {
+        env::random_seed()
+    }
 }

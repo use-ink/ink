@@ -31,6 +31,9 @@ pub type Address = <ContractEnv as EnvTypes>::Address;
 /// The environmental balance type.
 pub type Balance = <ContractEnv as EnvTypes>::Balance;
 
+/// The environmental hash type.
+pub type Hash = <ContractEnv as EnvTypes>::Hash;
+
 /// Returns the address of the caller of the current smart contract execution.
 pub fn caller() -> Address {
     ContractEnv::caller()
@@ -39,6 +42,11 @@ pub fn caller() -> Address {
 /// Returns the uninterpreted input data of the current smart contract execution.
 pub fn input() -> Vec<u8> {
     ContractEnv::input()
+}
+
+/// Returns the random seed from the latest block.
+pub fn random_seed() -> Hash {
+    ContractEnv::random_seed()
 }
 
 /// Returns the current smart contract exection back to the caller
