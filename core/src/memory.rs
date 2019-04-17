@@ -23,9 +23,9 @@ mod no_std_defs {
     pub use alloc::{
         borrow,
         boxed,
+        format,
         string,
         vec,
-        format,
     };
 
     /// Collection types.
@@ -47,9 +47,9 @@ mod std_defs {
     pub use std::{
         borrow,
         boxed,
+        format,
         string,
         vec,
-        format,
     };
 
     /// Collection types.

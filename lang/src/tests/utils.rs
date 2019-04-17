@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+use pretty_assertions::assert_eq;
+
 use crate::contract_gen_impl2;
 use proc_macro2::TokenStream as TokenStream2;
 
