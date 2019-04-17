@@ -27,7 +27,10 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use core::marker::PhantomData;
+use core::{
+    convert::{TryFrom, TryInto},
+    marker::PhantomData,
+};
 
 /// The default SRML environment.
 pub type DefaultSrmlEnv = SrmlEnv<DefaultSrmlTypes>;
@@ -88,8 +91,8 @@ where
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
-    <T as EnvTypes>::Address: for<'a> From<&'a [u8]>,
-    <T as EnvTypes>::Hash: for<'a> From<&'a [u8]>,
+    <T as EnvTypes>::Address: for<'a> TryFrom<&'a [u8]>,
+    <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
     fn caller() -> <Self as EnvTypes>::Address {
         unsafe { sys::ext_caller() };
@@ -101,7 +104,11 @@ where
                 sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
             }
         }
-        value.as_slice().into()
+        value
+            .as_slice()
+            .try_into()
+            .map_err(|_| "caller received an incorrectly sized buffer from SRML")
+            .expect("we can assume to always receive a correctly sized buffer here")
     }
 
     fn input() -> Vec<u8> {
@@ -128,7 +135,11 @@ where
                 sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
             }
         }
-        value.as_slice().into()
+        value
+            .as_slice()
+            .try_into()
+            .map_err(|_| "random_seed received an incorrectly sized buffer from SRML")
+            .expect("we can expect to receive a correctly sized buffer here")
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {
