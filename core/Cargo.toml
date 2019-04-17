@@ -27,4 +27,6 @@ node-runtime = { git = "https://github.com/paritytech/substrate/", branch = "v1.
 [features]
 default = []
 test-env = ["std"]
-std = []
+std = [
+	"node-runtime/std",
+]
