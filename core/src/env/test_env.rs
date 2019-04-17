@@ -133,9 +133,9 @@ impl Default for TestEnvData {
     fn default() -> Self {
         Self {
             storage: HashMap::new(),
-            caller: srml::Address::new([0x0; 32]),
+            caller: srml::Address::from([0x0; 32]),
             input: Vec::new(),
-            random_seed: srml::Hash::new([0x0; 32]),
+            random_seed: srml::Hash::from([0x0; 32]),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -147,9 +147,9 @@ impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
         self.storage.clear();
-        self.caller = srml::Address::new([0; 32]);
+        self.caller = srml::Address::from([0; 32]);
         self.input.clear();
-        self.random_seed = srml::Hash::new([0; 32]);
+        self.random_seed = srml::Hash::from([0; 32]);
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
