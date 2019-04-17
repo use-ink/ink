@@ -141,4 +141,9 @@ impl EnvHandler {
     pub fn println(&self, content: &str) {
         env::println(content)
     }
+
+    /// Returns the random seed from the latest block.
+    pub fn random_seed(&self) -> env::Hash {
+        env::random_seed()
+    }
 }
