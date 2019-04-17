@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use std::convert::TryFrom;
 use super::*;
 use crate::{
     env::srml,
@@ -28,6 +27,7 @@ use core::cell::{
     Cell,
     RefCell,
 };
+use std::convert::TryFrom;
 
 /// A wrapper for the generic bytearray used for data in contract events.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -210,8 +210,9 @@ impl TestEnvData {
 
     /// Appends new event data to the end of the bytearray.
     pub fn add_event(&mut self, event_data: &[u8]) {
-        let mut new_event = EventData(event_data.to_vec());
+        let new_event = EventData(event_data.to_vec());
         self.events.push(new_event);
+    }
 
     /// Sets the random seed for the next contract invocation.
     pub fn set_random_seed(&mut self, random_seed_hash: srml::Hash) {
@@ -406,7 +407,6 @@ impl Env for TestEnv
 where
     <Self as EnvTypes>::Address: for<'a> TryFrom<&'a [u8]>,
     <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
-
 {
     fn caller() -> <Self as EnvTypes>::Address {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");

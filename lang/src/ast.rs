@@ -81,7 +81,7 @@ pub struct ItemState {
 #[derive(Debug)]
 pub struct ItemDeployImpl {
     pub attrs: Vec<syn::Attribute>,
-    pub impl_tok: Token![impl ],
+    pub impl_tok: Token![impl],
     pub deploy_tok: keywords::Deploy,
     pub for_tok: Token![for],
     pub self_ty: Ident,

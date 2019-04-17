@@ -22,8 +22,8 @@ mod types;
 pub use self::types::{
     Address,
     Balance,
-    Hash,
     DefaultSrmlTypes,
+    Hash,
 };
 
 #[cfg(not(feature = "test-env"))]
