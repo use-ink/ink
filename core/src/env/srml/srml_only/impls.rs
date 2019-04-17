@@ -27,7 +27,10 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use core::marker::PhantomData;
+use core::{
+    convert::{TryFrom, TryInto},
+    marker::PhantomData,
+};
 use parity_codec::Decode;
 
 /// The default SRML environment.
@@ -48,6 +51,7 @@ where
     type Address = <T as EnvTypes>::Address;
     type Balance = <T as EnvTypes>::Balance;
     type Call = <T as EnvTypes>::Call;
+    type Hash = <T as EnvTypes>::Hash;
 }
 
 impl<T> EnvStorage for SrmlEnv<T>
@@ -90,6 +94,7 @@ impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
     <T as EnvTypes>::Address: Decode,
+    <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
     fn caller() -> <Self as EnvTypes>::Address {
         unsafe { sys::ext_caller() };
@@ -120,6 +125,23 @@ where
             }
             buffer
         }
+    }
+
+    fn random_seed() -> <Self as EnvTypes>::Hash {
+        unsafe { sys::ext_random_seed() };
+        let size = unsafe { sys::ext_scratch_size() };
+        let mut value = Vec::new();
+        if size > 0 {
+            value.resize(size as usize, 0);
+            unsafe {
+                sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
+            }
+        }
+        value
+            .as_slice()
+            .try_into()
+            .map_err(|_| "random_seed received an incorrectly sized buffer from SRML")
+            .expect("we can expect to receive a correctly sized buffer here")
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {

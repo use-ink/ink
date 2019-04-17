@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
+use std::convert::TryFrom;
 use super::*;
 use crate::{
     env::srml,
@@ -104,13 +105,19 @@ pub struct TestEnvData {
     /// # Note
     ///
     /// The current caller can be adjusted by `TestEnvData::set_caller`.
-    caller: Vec<u8>,
+    caller: srml::Address,
     /// The input data for the next contract invocation.
     ///
     /// # Note
     ///
     /// The current input can be adjusted by `TestEnvData::set_input`.
     input: Vec<u8>,
+    /// The random seed for the next contract invocation.
+    ///
+    ///  # Note
+    ///
+    /// The current random seed can be adjusted by `TestEnvData::set_random_seed`.
+    random_seed: srml::Hash,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -127,8 +134,9 @@ impl Default for TestEnvData {
     fn default() -> Self {
         Self {
             storage: HashMap::new(),
-            caller: vec![0x0; 32],
+            caller: srml::Address::from([0x0; 32]),
             input: Vec::new(),
+            random_seed: srml::Hash::from([0x0; 32]),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -140,8 +148,9 @@ impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
         self.storage.clear();
-        self.caller.clear();
+        self.caller = srml::Address::from([0; 32]);
         self.input.clear();
+        self.random_seed = srml::Hash::from([0; 32]);
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
@@ -183,13 +192,18 @@ impl TestEnvData {
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(&mut self, new_caller: &[u8]) {
-        self.caller = new_caller.to_vec();
+    pub fn set_caller(&mut self, new_caller: srml::Address) {
+        self.caller = new_caller;
     }
 
     /// Sets the input data for the next contract invocation.
     pub fn set_input(&mut self, input_bytes: &[u8]) {
         self.input = input_bytes.to_vec();
+    }
+
+    /// Sets the random seed for the next contract invocation.
+    pub fn set_random_seed(&mut self, random_seed_hash: srml::Hash) {
+        self.random_seed = random_seed_hash;
     }
 }
 
@@ -211,7 +225,7 @@ impl TestEnvData {
 
     /// Returns the caller of the contract invocation.
     pub fn caller(&self) -> srml::Address {
-        srml::Address::decode(&mut self.caller.as_slice()).expect("caller should be valid Address")
+        self.caller
     }
 
     /// Stores the given value under the given key in the contract storage.
@@ -241,6 +255,11 @@ impl TestEnvData {
     /// Returns the input data for the contract invocation.
     pub fn input(&self) -> Vec<u8> {
         self.input.clone()
+    }
+
+    /// Returns the random seed for the contract invocation.
+    pub fn random_seed(&self) -> srml::Hash {
+        self.random_seed
     }
 
     /// Returns the data to the internal caller.
@@ -312,13 +331,19 @@ impl TestEnv {
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(new_caller: &[u8]) {
+    pub fn set_caller(new_caller: srml::Address) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_caller(new_caller))
     }
 
     /// Sets the input data for the next contract invocation.
     pub fn set_input(input_bytes: &[u8]) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_input(input_bytes))
+    }
+
+    /// Sets the random seed for the next contract invocation.
+    pub fn set_random_seed(random_seed_bytes: srml::Hash) {
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().set_random_seed(random_seed_bytes))
     }
 }
 
@@ -327,6 +352,7 @@ const TEST_ENV_LOG_TARGET: &str = "test-env";
 impl EnvTypes for TestEnv {
     type Address = srml::Address;
     type Balance = srml::Balance;
+    type Hash = srml::Hash;
 }
 
 impl EnvStorage for TestEnv {
@@ -361,7 +387,9 @@ impl EnvStorage for TestEnv {
 
 impl Env for TestEnv
 where
-    <Self as EnvTypes>::Address: for<'a> From<&'a [u8]>,
+    <Self as EnvTypes>::Address: for<'a> TryFrom<&'a [u8]>,
+    <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
+
 {
     fn caller() -> <Self as EnvTypes>::Address {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");
@@ -371,6 +399,11 @@ where
     fn input() -> Vec<u8> {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::input()",);
         TEST_ENV_DATA.with(|test_env| test_env.borrow().input())
+    }
+
+    fn random_seed() -> <Self as EnvTypes>::Hash {
+        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::random_seed()",);
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().random_seed())
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {

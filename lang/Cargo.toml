@@ -31,6 +31,9 @@ either = "1.5"
 serde = { version = "1.0.89", features = ["derive"] }
 serde_json = "1.0.39"
 
+[dev-dependencies]
+pretty_assertions = "0.6.1"
+
 [lib]
 name = "pdsl_lang"
 proc-macro = true

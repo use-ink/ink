@@ -22,6 +22,7 @@ mod types;
 pub use self::types::{
     Address,
     Balance,
+    Hash,
     DefaultSrmlTypes,
 };
 
