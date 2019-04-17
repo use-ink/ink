@@ -141,4 +141,9 @@ impl EnvHandler {
     pub fn println(&self, content: &str) {
         env::println(content)
     }
+
+    /// Deposits raw event data through the Contracts module.
+    pub fn deposit_raw_event(&self, event: &[u8]) {
+        env::deposit_raw_event(event)
+    }
 }

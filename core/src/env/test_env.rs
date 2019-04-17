@@ -278,8 +278,8 @@ impl TestEnvData {
         println!("{}", content)
     }
 
-    /// Deposits event with the given event data.
-    pub fn deposit_event(&mut self, data: &[u8]) {
+    /// Deposits raw event data through the Contracts module.
+    pub fn deposit_raw_event(&mut self, data: &[u8]) {
         self.add_event(&data);
     }
 }
@@ -404,7 +404,7 @@ where
         TEST_ENV_DATA.with(|test_env| test_env.borrow().println(content))
     }
 
-    fn deposit_event(data: &[u8]) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().deposit_event(data))
+    fn deposit_raw_event(data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().deposit_raw_event(data))
     }
 }
