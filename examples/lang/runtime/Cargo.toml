@@ -1,11 +1,13 @@
 [package]
 name = "runtime"
 version = "0.1.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["admin@parity.io"]
 edition = "2018"
 
 [dependencies]
 pdsl_core = { path = "../../../core" }
+pdsl_model = { path = "../../../model" }
+pdsl_lang = { path = "../../../lang" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
 
 [lib]
@@ -14,7 +16,14 @@ crate-type = ["cdylib"]
 
 [features]
 default = []
-test-env = ["pdsl_core/test-env"]
+test-env = [
+    "pdsl_core/test-env",
+    "pdsl_model/test-env",
+    "pdsl_lang/test-env",
+]
+generate-api-description = [
+    "pdsl_lang/generate-api-description"
+]
 
 [profile.release]
 panic = "abort"

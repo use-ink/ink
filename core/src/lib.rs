@@ -33,5 +33,6 @@ pub mod env;
 pub mod memory;
 pub mod storage;
 
+pub use node_runtime::Address; // todo: [AJ] required for constructing Address in example - need to unify with EnvTypes::Address
 pub use node_runtime::Call;
 pub use node_runtime::BalancesCall;
