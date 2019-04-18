@@ -29,6 +29,10 @@ use core::cell::{
 };
 use std::convert::TryFrom;
 
+/// A wrapper for the generic bytearray used for data in contract events.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct EventData(Vec<u8>);
+
 /// An entry in the storage of the test environment.
 ///
 /// # Note
@@ -127,6 +131,8 @@ pub struct TestEnvData {
     total_reads: Cell<u64>,
     /// The total number of writes to the storage.
     total_writes: u64,
+    /// Deposited events of the contract invocation.
+    events: Vec<EventData>,
 }
 
 impl Default for TestEnvData {
@@ -139,6 +145,7 @@ impl Default for TestEnvData {
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
+            events: Vec::new(),
         }
     }
 }
@@ -153,6 +160,7 @@ impl TestEnvData {
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
+        self.events.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -198,6 +206,12 @@ impl TestEnvData {
     /// Sets the input data for the next contract invocation.
     pub fn set_input(&mut self, input_bytes: &[u8]) {
         self.input = input_bytes.to_vec();
+    }
+
+    /// Appends new event data to the end of the bytearray.
+    pub fn add_event(&mut self, event_data: &[u8]) {
+        let new_event = EventData(event_data.to_vec());
+        self.events.push(new_event);
     }
 
     /// Sets the random seed for the next contract invocation.
@@ -281,6 +295,11 @@ impl TestEnvData {
     /// Prints the given content.
     pub fn println(&self, content: &str) {
         println!("{}", content)
+    }
+
+    /// Deposits raw event data through the Contracts module.
+    pub fn deposit_raw_event(&mut self, data: &[u8]) {
+        self.add_event(&data);
     }
 }
 
@@ -415,5 +434,9 @@ where
 
     fn println(content: &str) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow().println(content))
+    }
+
+    fn deposit_raw_event(data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().deposit_raw_event(data))
     }
 }

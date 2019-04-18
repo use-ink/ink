@@ -73,11 +73,16 @@ pub fn println(content: &str) {
     ContractEnv::println(content)
 }
 
+/// Deposits raw event data through the Contracts module.
+pub fn deposit_raw_event(data: &[u8]) {
+    ContractEnv::deposit_raw_event(data)
+}
+
 /// Stores the given value under the specified key in the contract storage.
 ///
 /// # Safety
 ///
-/// This operation is unsafe becaues it does not check for key integrity.
+/// This operation is unsafe because it does not check for key integrity.
 /// Users can compare this operation with a raw pointer dereferencing in Rust.
 pub unsafe fn store(key: Key, value: &[u8]) {
     ContractEnv::store(key, value)
@@ -87,7 +92,7 @@ pub unsafe fn store(key: Key, value: &[u8]) {
 ///
 /// # Safety
 ///
-/// This operation is unsafe becaues it does not check for key integrity.
+/// This operation is unsafe because it does not check for key integrity.
 /// Users can compare this operation with a raw pointer dereferencing in Rust.
 pub unsafe fn clear(key: Key) {
     ContractEnv::clear(key)
@@ -97,7 +102,7 @@ pub unsafe fn clear(key: Key) {
 ///
 /// # Safety
 ///
-/// This operation is unsafe becaues it does not check for key integrity.
+/// This operation is unsafe because it does not check for key integrity.
 /// Users can compare this operation with a raw pointer dereferencing in Rust.
 pub unsafe fn load(key: Key) -> Option<Vec<u8>> {
     ContractEnv::load(key)
