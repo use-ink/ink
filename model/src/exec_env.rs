@@ -16,6 +16,7 @@
 
 use crate::ContractState;
 use pdsl_core::{
+    Call,
     env,
     storage::alloc::{
         Allocate,
@@ -123,6 +124,10 @@ impl EnvHandler {
     /// Returns the caller address of the current smart contract execution.
     pub fn caller(&self) -> env::Address {
         env::caller()
+    }
+
+    pub fn dispatch_call(&self, call: Call) {
+        env::dispatch_call(call)
     }
 
     /// Returns from the current smart contract execution with the given value.
