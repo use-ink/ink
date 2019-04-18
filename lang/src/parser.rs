@@ -65,7 +65,7 @@ impl Parse for ast::Item {
                 state.attrs = attrs;
                 ast::Item::State(state)
             })
-        } else if lookahead.peek(Token![impl ]) {
+        } else if lookahead.peek(Token![impl]) {
             if input.peek2(keywords::Deploy) {
                 input.parse().map(|mut deploy_impl: ast::ItemDeployImpl| {
                     deploy_impl.attrs = attrs;

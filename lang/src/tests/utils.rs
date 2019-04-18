@@ -23,12 +23,8 @@ pub fn assert_eq_tokenstreams(input: TokenStream2, expected: TokenStream2) {
     let result = contract_gen_impl2(input)
         .map(|result| result.to_string())
         .map_err(|err| err.to_string());
-    let expected =
-        Ok(expected.to_string());
-    assert_eq!(
-        result,
-        expected,
-    )
+    let expected = Ok(expected.to_string());
+    assert_eq!(result, expected,)
 }
 
 pub fn assert_failure(input: TokenStream2, err_str: &'static str) {

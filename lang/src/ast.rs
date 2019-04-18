@@ -81,7 +81,7 @@ pub struct ItemState {
 #[derive(Debug)]
 pub struct ItemDeployImpl {
     pub attrs: Vec<syn::Attribute>,
-    pub impl_tok: Token![impl ],
+    pub impl_tok: Token![impl],
     pub deploy_tok: keywords::Deploy,
     pub for_tok: Token![for],
     pub self_ty: Ident,
@@ -194,15 +194,15 @@ pub enum FnDeclKind {
 impl FnDecl {
     pub fn kind(&self) -> FnDeclKind {
         match self.inputs.iter().next().unwrap() {
-            | FnArg::SelfRef(self_ref) => {
+            FnArg::SelfRef(self_ref) => {
                 if self_ref.mutability.is_some() {
                     FnDeclKind::SelfRefMut
                 } else {
                     FnDeclKind::SelfRef
                 }
             }
-            | FnArg::SelfValue(_) => FnDeclKind::SelfVal,
-            | _ => FnDeclKind::Static,
+            FnArg::SelfValue(_) => FnDeclKind::SelfVal,
+            _ => FnDeclKind::Static,
         }
     }
 
@@ -238,15 +238,12 @@ impl FnDecl {
         let self_arg = inputs_iter.next().unwrap();
         inputs_with_env.push_value(self_arg.clone());
         inputs_with_env.push_punct(Default::default());
-        let custom_arg_captured: ArgCaptured =
-            if self.kind() == FnDeclKind::SelfRefMut {
-                syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
-            } else {
-                syn::parse_quote! { env: &pdsl_model::EnvHandler }
-            };
-        inputs_with_env.push(FnArg::Captured(
-            custom_arg_captured.into_arg_captured(),
-        ));
+        let custom_arg_captured: ArgCaptured = if self.kind() == FnDeclKind::SelfRefMut {
+            syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
+        } else {
+            syn::parse_quote! { env: &pdsl_model::EnvHandler }
+        };
+        inputs_with_env.push(FnArg::Captured(custom_arg_captured.into_arg_captured()));
         for input in inputs_iter {
             inputs_with_env.push(input.clone())
         }

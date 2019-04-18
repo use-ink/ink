@@ -23,16 +23,16 @@ use crate::{
     hir,
     ident_ext::IdentExt,
 };
-use syn::{
-    self,
-    Token,
-    punctuated::Punctuated,
-};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     ToTokens,
 };
-use proc_macro2::TokenStream as TokenStream2;
+use syn::{
+    self,
+    punctuated::Punctuated,
+    Token,
+};
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let contract_name = &contract.name;
@@ -49,7 +49,7 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
 }
 
 fn generate_test_mod_body(contract: &hir::Contract) -> TokenStream2 {
-    let mut tokens = quote!{};
+    let mut tokens = quote! {};
     generate_test_struct(&mut tokens, contract);
     generate_test_deploy(&mut tokens, contract);
     generate_test_allocate_deploy_block(&mut tokens, contract);
@@ -80,12 +80,16 @@ fn generate_test_deploy(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let contract_name = &contract.name;
     let testable_name = testable_contract_name(contract);
     let deploy_fn_toks = {
-        let mut content = quote!{};
+        let mut content = quote! {};
         <Token![pub]>::default().to_tokens(&mut content);
         <Token![fn]>::default().to_tokens(&mut content);
         syn::Ident::from_str("deploy_mock").to_tokens(&mut content);
         syn::token::Paren::default().surround(&mut content, |inner| {
-            contract.on_deploy.decl.inputs_without_self().to_tokens(inner)
+            contract
+                .on_deploy
+                .decl
+                .inputs_without_self()
+                .to_tokens(inner)
         });
         <Token![->]>::default().to_tokens(&mut content);
         testable_name.to_tokens(&mut content);
@@ -115,9 +119,12 @@ fn generate_test_deploy(tokens: &mut TokenStream2, contract: &hir::Contract) {
     })
 }
 
-fn generate_test_allocate_deploy_block(tokens: &mut TokenStream2, contract: &hir::Contract) {
+fn generate_test_allocate_deploy_block(
+    tokens: &mut TokenStream2,
+    contract: &hir::Contract,
+) {
     let testable_name = testable_contract_name(contract);
-    let mut impl_body = quote!{};
+    let mut impl_body = quote! {};
     generate_test_allocate_fn(&mut impl_body, contract);
     generate_test_deploy_fn(&mut impl_body, contract);
     tokens.extend(quote! {
@@ -181,9 +188,8 @@ fn generate_test_method_fn(tokens: &mut TokenStream2, msg: &hir::Message) {
     <Token![pub]>::default().to_tokens(tokens);
     <Token![fn]>::default().to_tokens(tokens);
     msg.sig.ident.to_tokens(tokens);
-    syn::token::Paren::default().surround(tokens, |inner| {
-        msg.sig.decl.inputs().to_tokens(inner)
-    });
+    syn::token::Paren::default()
+        .surround(tokens, |inner| msg.sig.decl.inputs().to_tokens(inner));
     msg.sig.decl.output.to_tokens(tokens);
     syn::token::Brace::default().surround(tokens, |inner| {
         let params = msg.sig.decl.inputs_without_self().to_actual_params();
