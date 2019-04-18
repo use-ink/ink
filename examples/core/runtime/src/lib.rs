@@ -17,7 +17,8 @@
 #![no_std]
 
 use pdsl_core::{
-    env::{Address, Call, BalancesCall, Env, dispatch_call},
+    Call, BalancesCall,
+    env::{Address, Env, dispatch_call},
 };
 
 #[allow(unused)]
@@ -31,5 +32,5 @@ pub extern "C" fn deploy() {
 #[no_mangle]
 pub extern "C" fn call() {
     // transfer 50 to ALICE
-    dispatch_call(Call::Balances(BalancesCall::transfer(Address::Index(1), 50)));
+    dispatch_call(Call::Balances(BalancesCall::transfer(Address::from(1u64.into()), 50)));
 }

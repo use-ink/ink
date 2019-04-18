@@ -32,3 +32,6 @@ mod byte_utils;
 pub mod env;
 pub mod memory;
 pub mod storage;
+
+pub use node_runtime::Call;
+pub use node_runtime::BalancesCall;

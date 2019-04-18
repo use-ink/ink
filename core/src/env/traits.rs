@@ -26,10 +26,6 @@ pub trait EnvTypes {
     type Address: Codec + PartialEq + Eq;
     /// The type of balances.
     type Balance: Codec;
-    /// The type for a call into the balances module of the runtime
-    type BalancesCall: Codec;
-    /// The type for a call into the runtime
-    type Call: Codec;
     /// The type of hash.
     type Hash: Codec;
 }
