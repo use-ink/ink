@@ -1,26 +1,25 @@
 #![no_std]
 
 use pdsl_core::{
-    Address, BalancesCall, Call,
-    storage,
+    BalancesCall, Call,
     memory::format,
 };
 use pdsl_lang::contract;
 
 contract! {
     /// A simple contract to test calls into the runtime
-    struct Runtime;
+    struct Runtime {}
 
-    impl Deploy for Incrementer {
+    impl Deploy for Runtime {
         fn deploy(&mut self, init_value: u32) {
         }
     }
 
     impl Runtime {
         /// Transfer the specified amount to the indexed address
-        pub(external) fn balance_transfer(&mut self, dest: u64, value: u64) {
+        pub(external) fn balance_transfer(&mut self, dest: u64, value: u128) {
             env.println(&format!("Runtime::balance_transfer"));
-            env.dispatch_call(Call::Balances(BalancesCall::transfer(Address::Index(dest), value)))
+            env.dispatch_call(Call::Balances(BalancesCall::transfer(dest, value)))
         }
     }
 }
