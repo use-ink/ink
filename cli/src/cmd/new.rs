@@ -45,7 +45,7 @@ edition = "2018"
 pdsl_core = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_core" }}
 pdsl_model = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_model" }}
 pdsl_lang = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_lang" }}
-parity-codec = {{ version = "3.1", default-features = false, features = ["derive"] }}
+parity-codec = {{ version = "3.3", default-features = false, features = ["derive"] }}
 
 [lib]
 name = "{}"
@@ -135,7 +135,21 @@ contract! {{
             *self.value
         }}
     }}
-}}"##,
+}}
+
+#[cfg(test)]
+mod tests {{
+    use super::Flipper;
+
+    #[test]
+    fn it_works() {{
+        let mut flipper = Flipper::deploy_mock();
+        assert_eq!(flipper.get(), true);
+        incrementer.flip();
+        assert_eq!(flipper.get(), false);
+    }}
+}}
+"##,
         camel_name, camel_name, camel_name,
     )
 }
@@ -152,7 +166,7 @@ fn build_sh_contents(name: &str) -> String {
 PROJNAME={}
 
 CARGO_INCREMENTAL=0 &&
-cargo build --release --target=wasm32-unknown-unknown --verbose &&
+cargo build --release --features generate-api-description --target=wasm32-unknown-unknown --verbose &&
 wasm2wat -o target/$PROJNAME.wat target/wasm32-unknown-unknown/release/$PROJNAME.wasm &&
 cat target/$PROJNAME.wat | sed "s/(import \"env\" \"memory\" (memory (;0;) 2))/(import \"env\" \"memory\" (memory (;0;) 2 16))/" > target/$PROJNAME-fixed.wat &&
 wat2wasm -o target/$PROJNAME.wasm target/$PROJNAME-fixed.wat &&

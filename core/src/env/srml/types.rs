@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
-use core::convert::TryFrom;
-use core::array::TryFromSliceError;
+use core::{
+    array::TryFromSliceError,
+    convert::TryFrom,
+};
 
 use crate::env::EnvTypes;
 use node_runtime;
@@ -43,7 +45,7 @@ pub type Balance = u64;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct Hash([u8; 32]);
 
-impl From<[u8;32]> for Hash {
+impl From<[u8; 32]> for Hash {
     fn from(hash: [u8; 32]) -> Hash {
         Hash(hash)
     }

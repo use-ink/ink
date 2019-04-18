@@ -122,7 +122,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
 
             let msg_fn_args = {
                 let mut msg_fn_args: Punctuated<ast::FnArg, Token![,]> =
-                    Punctuated::new();
+                    Default::default();
                 for input in message.sig.decl.inputs.iter().skip(1) {
                     msg_fn_args.push(input.clone())
                 }
@@ -131,7 +131,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
 
             let msg_call_args = {
                 let mut msg_call_args: Punctuated<syn::Pat, Token![,]> =
-                    Punctuated::new();
+                    Default::default();
                 for captured in msg_fn_args.iter().filter_map(|fn_arg| {
                     if let ast::FnArg::Captured(captured) = fn_arg {
                         Some(captured)
