@@ -20,11 +20,14 @@ use crate::contract_gen_impl2;
 use proc_macro2::TokenStream as TokenStream2;
 
 pub fn assert_eq_tokenstreams(input: TokenStream2, expected: TokenStream2) {
+    let result = contract_gen_impl2(input)
+        .map(|result| result.to_string())
+        .map_err(|err| err.to_string());
+    let expected =
+        Ok(expected.to_string());
     assert_eq!(
-        contract_gen_impl2(input)
-            .map(|result| result.to_string())
-            .map_err(|err| err.to_string()),
-        Ok(expected.to_string())
+        result,
+        expected,
     )
 }
 
