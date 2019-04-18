@@ -122,6 +122,66 @@ fn incrementer_contract() {
 
             #[cfg(not(test))] #[no_mangle] fn deploy() { Incrementer::instantiate().deploy() }
             #[cfg(not(test))] #[no_mangle] fn call() { Incrementer::instantiate().dispatch() }
+
+            #[cfg(test)]
+            mod test {
+                use super::Incrementer;
+
+                pub struct TestableIncrementer {
+                    env: pdsl_model::ExecutionEnv<Incrementer>,
+                }
+
+                impl Incrementer {
+                    /// Returns a testable version of the contract.
+                    pub fn deploy_mock(init_value: u32) -> TestableIncrementer {
+                        let mut mock = TestableIncrementer::allocate();
+                        mock.deploy(init_value);
+                        mock
+                    }
+                }
+
+                impl TestableIncrementer {
+                    /// Allocates the testable contract storage.
+                    fn allocate() -> Self {
+                        use pdsl_core::storage::{
+                            Key,
+                            alloc::{
+                                AllocateUsing,
+                                BumpAlloc,
+                            },
+                        };
+                        Self {
+                            env: unsafe {
+                                let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+                                AllocateUsing::allocate_using(&mut alloc)
+                            }
+                        }
+                    }
+
+                    /// Deploys the testable contract by initializing it with the given values.
+                    fn deploy(&mut self , init_value: u32) {
+                        let (handler, state) = self.env.split_mut();
+                        state.deploy(handler, init_value)
+                    }
+                }
+
+                impl TestableIncrementer {
+                    pub fn inc(& mut self, by: u32) {
+                        let (handler, state) = self.env.split_mut();
+                        state.inc(handler, by)
+                    }
+
+                    pub fn get(&self) -> u32 {
+                        let (handler, state) = self.env.split();
+                        state.get(handler,)
+                    }
+
+                    pub fn compare(&self, x: u32) -> bool {
+                        let (handler, state) = self.env.split();
+                        state.compare(handler, x)
+                    }
+                }
+            }
         },
     )
 }

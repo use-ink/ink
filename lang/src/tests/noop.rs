@@ -69,6 +69,51 @@ fn noop_contract() {
 
             #[cfg(not(test))] #[no_mangle] fn deploy() { Noop::instantiate().deploy() }
             #[cfg(not(test))] #[no_mangle] fn call() { Noop::instantiate().dispatch() }
+
+            #[cfg(test)]
+            mod test {
+                use super::Noop;
+
+                pub struct TestableNoop {
+                    env: pdsl_model::ExecutionEnv<Noop>,
+                }
+
+                impl Noop {
+                    /// Returns a testable version of the contract.
+                    pub fn deploy_mock() -> TestableNoop {
+                        let mut mock = TestableNoop::allocate();
+                        mock.deploy();
+                        mock
+                    }
+                }
+
+                impl TestableNoop {
+                    /// Allocates the testable contract storage.
+                    fn allocate() -> Self {
+                        use pdsl_core::storage::{
+                            Key,
+                            alloc::{
+                                AllocateUsing,
+                                BumpAlloc,
+                            },
+                        };
+                        Self {
+                            env: unsafe {
+                                let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+                                AllocateUsing::allocate_using(&mut alloc)
+                            }
+                        }
+                    }
+
+                    /// Deploys the testable contract by initializing it with the given values.
+                    fn deploy(&mut self,) {
+                        let (handler, state) = self.env.split_mut();
+                        state.deploy(handler,)
+                    }
+                }
+
+                impl TestableNoop { }
+            }
         },
     )
 }
