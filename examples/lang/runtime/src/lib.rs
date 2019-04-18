@@ -12,7 +12,7 @@ contract! {
     struct Runtime {}
 
     impl Deploy for Runtime {
-        fn deploy(&mut self, init_value: u32) {
+        fn deploy(&mut self) {
         }
     }
 
