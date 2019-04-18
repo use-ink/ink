@@ -135,7 +135,21 @@ contract! {{
             *self.value
         }}
     }}
-}}"##,
+}}
+
+#[cfg(test)]
+mod tests {{
+    use super::Flipper;
+
+    #[test]
+    fn it_works() {{
+        let mut flipper = Flipper::deploy_mock();
+        assert_eq!(flipper.get(), true);
+        incrementer.flip();
+        assert_eq!(flipper.get(), false);
+    }}
+}}
+"##,
         camel_name, camel_name, camel_name,
     )
 }
