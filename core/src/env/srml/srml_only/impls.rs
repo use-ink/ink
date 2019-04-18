@@ -50,6 +50,7 @@ where
 {
     type Address = <T as EnvTypes>::Address;
     type Balance = <T as EnvTypes>::Balance;
+    type BalancesCall = <T as EnvTypes>::BalancesCall;
     type Call = <T as EnvTypes>::Call;
     type Hash = <T as EnvTypes>::Hash;
 }

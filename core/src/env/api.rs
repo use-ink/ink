@@ -32,6 +32,9 @@ pub type Address = <ContractEnv as EnvTypes>::Address;
 /// The environmental balance type.
 pub type Balance = <ContractEnv as EnvTypes>::Balance;
 
+/// The environmental type for calls to the Balances module in the runtime
+pub type BalancesCall = <ContractEnv as EnvTypes>::BalancesCall;
+
 /// The environmental type for calls back into the runtime
 pub type Call = <ContractEnv as EnvTypes>::Call;
 

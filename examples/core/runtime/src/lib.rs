@@ -16,9 +16,9 @@
 
 #![no_std]
 
-// use pdsl_core::{
-// 	env::{Env, ContractEnv},
-// };
+use pdsl_core::{
+    env::{Address, Call, BalancesCall, Env, dispatch_call},
+};
 
 #[allow(unused)]
 use pdsl_core;
@@ -30,5 +30,6 @@ pub extern "C" fn deploy() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    // ContractEnv::println("noop contract: CALL");
+    // transfer 50 to ALICE
+    dispatch_call(Call::Balances(BalancesCall::transfer(Address::Index(1), 50)));
 }

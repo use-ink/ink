@@ -31,6 +31,7 @@ impl EnvTypes for DefaultSrmlTypes {
     type Address = self::Address;
     type Balance = self::Balance;
     type Call = self::Call;
+    type BalancesCall = self::BalancesCall;
     type Hash = self::Hash;
 }
 
@@ -42,6 +43,9 @@ pub type Balance = u64;
 
 /// The default SRML call type
 pub type Call = node_runtime::Call;
+
+/// The default SRML call for balances
+pub type BalancesCall = node_runtime::BalancesCall<node_runtime::Runtime>;
 
 /// The default SRML hash type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
@@ -57,6 +61,7 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
     type Error = TryFromSliceError;
 
     fn try_from(bytes: &'a [u8]) -> Result<Hash, TryFromSliceError> {
+        let _ = Call::Balances(BalancesCall::transfer(Address::Index(1), 50));
         let hash = <[u8; 32]>::try_from(bytes)?;
         Ok(Hash(hash))
     }
