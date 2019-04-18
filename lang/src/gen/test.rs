@@ -85,11 +85,6 @@ fn generate_test_deploy(tokens: &mut TokenStream2, contract: &hir::Contract) {
         <Token![fn]>::default().to_tokens(&mut content);
         syn::Ident::from_str("deploy_mock").to_tokens(&mut content);
         syn::token::Paren::default().surround(&mut content, |inner| {
-            let mut punct: Punctuated<ast::FnArg, Token![,]> = Default::default();
-            // for input in &contract.on_deploy.decl.inputs_without_self() {
-            //     punct.push(input.clone())
-            // }
-            // punct.to_tokens(inner)
             contract.on_deploy.decl.inputs_without_self().to_tokens(inner)
         });
         <Token![->]>::default().to_tokens(&mut content);
