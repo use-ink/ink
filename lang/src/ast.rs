@@ -157,6 +157,106 @@ pub struct FnDecl {
 }
 
 #[derive(Debug, Clone)]
+pub struct FnInputs {
+    punct: Punctuated<FnArg, Token![,]>,
+}
+
+impl FnInputs {
+    pub fn to_actual_params(&self) -> Punctuated<syn::Pat, Token![,]> {
+        let mut params: Punctuated<syn::Pat, Token![,]> = Default::default();
+        for captured in self.punct.iter().filter_map(|fn_arg| {
+            if let FnArg::Captured(captured) = fn_arg {
+                Some(captured)
+            } else {
+                None
+            }
+        }) {
+            params.push(captured.pat.clone())
+        }
+        params
+    }
+}
+
+impl quote::ToTokens for FnInputs {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        self.punct.to_tokens(tokens)
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum FnDeclKind {
+    SelfRef,
+    SelfRefMut,
+    SelfVal,
+    Static,
+}
+
+impl FnDecl {
+    pub fn kind(&self) -> FnDeclKind {
+        match self.inputs.iter().next().unwrap() {
+            | FnArg::SelfRef(self_ref) => {
+                if self_ref.mutability.is_some() {
+                    FnDeclKind::SelfRefMut
+                } else {
+                    FnDeclKind::SelfRef
+                }
+            }
+            | FnArg::SelfValue(_) => FnDeclKind::SelfVal,
+            | _ => FnDeclKind::Static,
+        }
+    }
+
+    pub fn is_self_ref(&self) -> bool {
+        if let FnDeclKind::SelfRef | FnDeclKind::SelfRefMut = self.kind() {
+            return true
+        }
+        false
+    }
+
+    pub fn inputs(&self) -> FnInputs {
+        assert!(self.is_self_ref());
+        FnInputs {
+            punct: self.inputs.clone(),
+        }
+    }
+
+    pub fn inputs_without_self(&self) -> FnInputs {
+        assert!(self.is_self_ref());
+        let mut inputs_without_self: Punctuated<FnArg, Token![,]> = Default::default();
+        for input in self.inputs.iter().skip(1) {
+            inputs_without_self.push(input.clone())
+        }
+        FnInputs {
+            punct: inputs_without_self,
+        }
+    }
+
+    pub fn inputs_with_env(&self) -> FnInputs {
+        assert!(self.is_self_ref());
+        let mut inputs_with_env: Punctuated<FnArg, Token![,]> = Default::default();
+        let mut inputs_iter = self.inputs.iter();
+        let self_arg = inputs_iter.next().unwrap();
+        inputs_with_env.push_value(self_arg.clone());
+        inputs_with_env.push_punct(Default::default());
+        let custom_arg_captured: ArgCaptured =
+            if self.kind() == FnDeclKind::SelfRefMut {
+                syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
+            } else {
+                syn::parse_quote! { env: &pdsl_model::EnvHandler }
+            };
+        inputs_with_env.push(FnArg::Captured(
+            custom_arg_captured.into_arg_captured(),
+        ));
+        for input in inputs_iter {
+            inputs_with_env.push(input.clone())
+        }
+        FnInputs {
+            punct: inputs_with_env,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum FnArg {
     SelfRef(syn::ArgSelfRef),
     SelfValue(syn::ArgSelf),
