@@ -45,7 +45,7 @@ edition = "2018"
 pdsl_core = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_core" }}
 pdsl_model = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_model" }}
 pdsl_lang = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_lang" }}
-parity-codec = {{ version = "3.1", default-features = false, features = ["derive"] }}
+parity-codec = {{ version = "3.3", default-features = false, features = ["derive"] }}
 
 [lib]
 name = "{}"
