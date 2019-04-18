@@ -104,6 +104,61 @@ fn flipper_contract() {
 
             #[cfg(not(test))] #[no_mangle] fn deploy() { Flipper::instantiate().deploy() }
             #[cfg(not(test))] #[no_mangle] fn call() { Flipper::instantiate().dispatch() }
+
+            #[cfg(test)]
+            mod test {
+                use super::Flipper;
+
+                pub struct TestableFlipper {
+                    env: pdsl_model::ExecutionEnv<Flipper>,
+                }
+
+                impl Flipper {
+                    /// Returns a testable version of the contract.
+                    pub fn deploy_mock() -> TestableFlipper {
+                        let mut mock = TestableFlipper::allocate();
+                        mock.deploy();
+                        mock
+                    }
+                }
+
+                impl TestableFlipper {
+                    /// Allocates the testable contract storage.
+                    fn allocate() -> Self {
+                        use pdsl_core::storage::{
+                            Key,
+                            alloc::{
+                                AllocateUsing,
+                                BumpAlloc,
+                            },
+                        };
+                        Self {
+                            env: unsafe {
+                                let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+                                AllocateUsing::allocate_using(&mut alloc)
+                            }
+                        }
+                    }
+
+                    /// Deploys the testable contract by initializing it with the given values.
+                    fn deploy(&mut self,) {
+                        let (handler, state) = self.env.split_mut();
+                        state.deploy(handler,)
+                    }
+                }
+
+                impl TestableFlipper {
+                    pub fn flip(&mut self) {
+                        let (handler, state) = self.env.split_mut();
+                        state.flip(handler,)
+                    }
+
+                    pub fn get(&self) -> bool {
+                        let (handler, state) = self.env.split();
+                        state.get(handler,)
+                    }
+                }
+            }
         },
     )
 }
