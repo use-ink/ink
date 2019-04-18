@@ -172,3 +172,33 @@ impl quote::ToTokens for FnArg {
         }
     }
 }
+
+#[derive(Debug)]
+pub struct ArgCaptured {
+    pub pat: syn::Pat,
+    pub colon_token: Token![:],
+    pub ty: syn::Type,
+}
+
+impl syn::parse::Parse for ArgCaptured {
+    fn parse(input: syn::parse::ParseStream) -> syn::parse::Result<Self> {
+        let pat = input.parse()?;
+        let colon_token = input.parse()?;
+        let ty = input.parse()?;
+        Ok(Self {
+            pat,
+            colon_token,
+            ty,
+        })
+    }
+}
+
+impl ArgCaptured {
+    pub fn into_arg_captured(self) -> syn::ArgCaptured {
+        syn::ArgCaptured {
+            pat: self.pat,
+            colon_token: self.colon_token,
+            ty: self.ty,
+        }
+    }
+}
