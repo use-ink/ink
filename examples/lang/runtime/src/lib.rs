@@ -1,6 +1,7 @@
 #![no_std]
 
 use pdsl_core::{
+    Address,
     BalancesCall, Call,
     memory::format,
 };
@@ -17,7 +18,7 @@ contract! {
 
     impl Runtime {
         /// Transfer the specified amount to the indexed address
-        pub(external) fn balance_transfer(&mut self, dest: u64, value: u128) {
+        pub(external) fn balance_transfer(&mut self, dest: Address, value: u128) {
             env.println(&format!("Runtime::balance_transfer"));
             env.dispatch_call(Call::Balances(BalancesCall::transfer(dest, value)))
         }
