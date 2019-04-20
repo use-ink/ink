@@ -15,12 +15,15 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use pdsl_core::storage::{
-    alloc::AllocateUsing,
+    alloc::{
+        AllocateUsing,
+        Initialize,
+    },
     Flush,
 };
 
 /// Types implementing this type can be used as contract state.
-pub trait ContractState: AllocateUsing + Flush {
+pub trait ContractState: AllocateUsing + Initialize + Flush {
     /// The name of the contract state.
     ///
     /// # Note
@@ -72,6 +75,22 @@ macro_rules! state {
 				}
 			}
 		}
+
+        impl pdsl_core::storage::alloc::Initialize for $state_name {
+            type Args = ();
+
+            #[inline(always)]
+            fn default_value() -> Option<Self::Args> {
+                // With this we can also default initialize storage state structs.
+                Some(())
+            }
+
+            fn initialize(&mut self, args: Self::Args) {
+                $(
+                    self.$field_name.try_default_initialize();
+                )*
+            }
+        }
 
 		impl $crate::ContractState for $state_name {
 			const NAME: &'static str = stringify!($state_name);
