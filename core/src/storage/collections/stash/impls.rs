@@ -252,6 +252,10 @@ impl<T> AllocateUsing for Stash<T> {
 impl<T> Initialize for Stash<T> {
     type Args = ();
 
+    fn default_value() -> Option<Self::Args> {
+        Some(())
+    }
+
     fn initialize(&mut self, _args: Self::Args) {
         self.header.set(StashHeader {
             next_vacant: 0,

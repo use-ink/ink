@@ -127,6 +127,10 @@ impl<K, V> AllocateUsing for HashMap<K, V> {
 impl<K, V> Initialize for HashMap<K, V> {
     type Args = ();
 
+    fn default_value() -> Option<Self::Args> {
+        Some(())
+    }
+
     fn initialize(&mut self, _args: Self::Args) {
         self.len.set(0);
     }
