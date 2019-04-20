@@ -80,12 +80,48 @@ where
     ///
     /// - This will probably most often be `()`.
     /// - For multiple arguments use tuples.
-    type Args;
+    type Args: Sized;
+
+    /// The default value for default initialization purposes.
+    ///
+    /// Returns `None` by default which means that the type does not
+    /// support default initialization.
+    ///
+    /// # Note
+    ///
+    /// Should be manually implemented only by those storage types
+    /// that have a meaningful default initialization.
+    ///
+    /// # Example
+    ///
+    /// The `storage::Vec` is an example for which it makes sense to
+    /// implement this to create empty `storage::Vec` by default that
+    /// have their length field initialized to be `0`.
+    #[inline(always)]
+    fn default_value() -> Option<Self::Args> {
+        None
+    }
+
+    /// Tries to default initialize `self`.
+    ///
+    /// # Note
+    ///
+    /// - Does nothing if `self` does not support default initialization.
+    /// - This should never be manually implemented by any implementer.
+    fn try_default_initialize(&mut self) {
+        if let Some(value) = Self::default_value() {
+            self.initialize(value)
+        }
+    }
 
     /// Initializes storage of `self` so that it can be safely accessed.
     fn initialize(&mut self, args: Self::Args);
 
     /// Initializes storage of `self` so that it can be safely accessed.
+    ///
+    /// # Note
+    ///
+    /// Implementers should implement `initialize` instead of this.
     fn initialize_into(self, args: Self::Args) -> Self {
         let mut this = self;
         this.initialize(args);
