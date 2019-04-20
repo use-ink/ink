@@ -47,11 +47,15 @@ where
     }
 }
 
-impl<State> Initialize for ExecutionEnv<State> {
+impl<State> Initialize for ExecutionEnv<State>
+where
+    State: ContractState
+{
     type Args = ();
 
     fn initialize(&mut self, _: Self::Args) {
-        self.env_handler.initialize(())
+        self.env_handler.initialize(());
+        self.state.try_default_initialize();
     }
 }
 
