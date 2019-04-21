@@ -18,7 +18,8 @@
 
 use pdsl_core::{
     storage,
-    env::{Address, Balance},
+    env::{Address, Balance, deposit_raw_event, println},
+    memory::format
 };
 use pdsl_lang::contract;
 
@@ -41,30 +42,48 @@ contract! {
         fn deploy(&mut self, init_value: Balance) {
             // We have to set total supply to `0` in order to initialize it.
             // Otherwise accesses to total supply will panic.
-            self.total_supply.set(0);
-            self.mint_for(env.caller(), init_value);
+            self.total_supply.set(init_value);
+            self.balances.insert(env.caller(), init_value);
+            Self::emit_transfer(None, env.caller(), init_value);
         }
     }
 
     impl Erc20 {
         /// Returns the total number of tokens in existence.
         pub(external) fn total_supply(&self) -> Balance {
+            println(&format!("Total Supply: {:?}", *self.total_supply));
             *self.total_supply
         }
 
         /// Returns the balance of the given address.
         pub(external) fn balance_of(&self, owner: Address) -> Balance {
-            *self.balances.get(&owner).unwrap_or(&0)
+            let balance = *self.balances.get(&owner).unwrap_or(&0);
+            println(&format!("Balance of {:?}: {:?}", owner, balance));
+            balance
         }
 
         /// Returns the amount of tokens that an owner allowed to a spender.
         pub(external) fn allowance(&self, owner: Address, spender: Address) -> Balance {
-            *self.allowances.get(&(owner, spender)).unwrap_or(&0)
+            let allowance = *self.allowances.get(&(owner, spender)).unwrap_or(&0);
+            println(&format!("Allowance: {:?} is allowed to spend {:?} from {:?}", spender, allowance, owner));
+            allowance
         }
 
         /// Transfers token from the sender to the `to` address.
         pub(external) fn transfer(&mut self, to: Address, value: Balance) -> bool {
-            self.transfer_impl(env.caller(), to, value);
+            let owner = env.caller();
+
+            let balance_owner = *self.balances.get(&owner).unwrap_or(&0);
+            let balance_to = *self.balances.get(&to).unwrap_or(&0);
+
+            let new_balance_owner = balance_owner.checked_sub(value).unwrap();
+            let new_balance_to = balance_to.checked_add(value).unwrap();
+
+            self.balances.insert(owner, new_balance_owner);
+            self.balances.insert(to, new_balance_to);
+            
+            Self::emit_transfer(owner, to, value);
+
             true
         }
 
@@ -72,73 +91,45 @@ contract! {
         /// on the behalf of the message's sender.
         pub(external) fn approve(&mut self, spender: Address, value: Balance) -> bool {
             let owner = env.caller();
+
             self.allowances.insert((owner, spender), value);
+
             Self::emit_approval(owner, spender, value);
+
             true
         }
 
         /// Transfer tokens from one address to another.
         pub(external) fn transfer_from(&mut self, from: Address, to: Address, value: Balance) -> bool {
-            self.allowances[&(from, to)] -= value;
-            self.transfer_impl(from, to, value);
-            let new_allowance = self.allowances[&(from, to)];
+            let spender = env.caller();
+
+            let allowance = *self.allowances.get(&(from, spender)).unwrap_or(&0);
+            let balance_from = *self.balances.get(&from).unwrap_or(&0);
+            let balance_to = *self.balances.get(&to).unwrap_or(&0);
+
+            let new_allowance = allowance.checked_sub(value).unwrap();
+            let new_balance_from = balance_from.checked_sub(value).unwrap();
+            let new_balance_to = balance_to.checked_add(value).unwrap();
+
+            self.allowances.insert((from, spender), new_allowance);
+            self.balances.insert(from, new_balance_from);
+            self.balances.insert(to, new_balance_to);
+
             Self::emit_transfer(from, to, value);
-            Self::emit_approval(from, to, new_allowance);
+            
             true
         }
     }
 
     impl Erc20 {
-        /// Transfers token from a specified address to another address.
-        fn transfer_impl(&mut self, from: Address, to: Address, value: Balance) {
-            self.balances[&from] -= value;
-            self.balances[&to] += value;
-            Self::emit_transfer(from, to, value);
-        }
-
-        /// Decrease balance from the address.
-        ///
-        /// # Panics
-        ///
-        /// If `from` does not have enough balance.
-        #[allow(unused)]
-        fn burn_for(&mut self, from: Address, value: Balance){
-            self.balances[&from] -= value;
-            self.total_supply -= value;
-            Self::emit_transfer(from, None, value);
-        }
-
-        /// Increase balance for the receiver out of nowhere.
-        fn mint_for(&mut self, receiver: Address, value: Balance) {
-            self.balances[&receiver] += value;
-            self.total_supply += value;
-            Self::emit_transfer(None, receiver, value);
-        }
-
-        /// Emits an approval event.
-        fn emit_approval(
-            _from: Address,
-            _to: Address,
-            value: Balance,
-        ) {
-            assert!(value > 0);
-            // emit event - This is not yet implemented in SRML contracts.
-        }
-
-        /// Emits a transfer event.
-        fn emit_transfer<F, T>(
-            from: F,
-            to: T,
-            value: Balance,
-        )
-        where
-            F: Into<Option<Address>>,
-            T: Into<Option<Address>>,
+        fn emit_transfer<F>(from: F, to: Address, value: Balance)
+            where F: Into<Option<Address>>
         {
-            let (from, to) = (from.into(), to.into());
-            assert!(from.is_some() || to.is_some());
-            assert!(value > 0);
-            // emit event - This is not yet implemented in SRML contracts.
+            deposit_raw_event(&[0x0]);
+        }
+
+        fn emit_approval(tokenOwner: Address, spender: Address, value: Balance) {
+            deposit_raw_event(&[0x1]);
         }
     }
 }
