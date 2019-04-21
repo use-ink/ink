@@ -22,8 +22,11 @@ pdsl_utils = { path = "../utils/" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
 log = "0.4"
 wee_alloc = { version = "0.4", default-features = false }
+node-runtime = { git = "https://github.com/paritytech/substrate/", branch = "v1.0", package = "node-runtime", default-features = false }
 
 [features]
 default = []
 test-env = ["std"]
-std = []
+std = [
+	"node-runtime/std",
+]
