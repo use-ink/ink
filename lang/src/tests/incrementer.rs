@@ -125,7 +125,7 @@ fn incrementer_contract() {
 
             #[cfg(test)]
             mod test {
-                use super::Incrementer;
+                use super::*;
 
                 pub struct TestableIncrementer {
                     env: pdsl_model::ExecutionEnv<Incrementer>,

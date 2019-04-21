@@ -107,7 +107,7 @@ fn flipper_contract() {
 
             #[cfg(test)]
             mod test {
-                use super::Flipper;
+                use super::*;
 
                 pub struct TestableFlipper {
                     env: pdsl_model::ExecutionEnv<Flipper>,

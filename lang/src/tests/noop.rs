@@ -72,7 +72,7 @@ fn noop_contract() {
 
             #[cfg(test)]
             mod test {
-                use super::Noop;
+                use super::*;
 
                 pub struct TestableNoop {
                     env: pdsl_model::ExecutionEnv<Noop>,

@@ -35,13 +35,12 @@ use syn::{
 };
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    let contract_name = &contract.name;
     let test_mod_body = generate_test_mod_body(contract);
 
     tokens.extend(quote! {
         #[cfg(test)]
         mod test {
-            use super::#contract_name;
+            use super::*;
 
             #test_mod_body
         }
