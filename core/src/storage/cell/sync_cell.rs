@@ -181,7 +181,7 @@ impl<T> CacheEntry<T> {
         match self {
             CacheEntry::Desync => {
                 panic!(
-                    "[pdsl_core::sync_cell::CacheEntry::get] Error: \
+                    "[ink_core::sync_cell::CacheEntry::get] Error: \
                      tried to get the value from a desync cache"
                 )
             }
@@ -198,7 +198,7 @@ impl<T> CacheEntry<T> {
         match self {
             CacheEntry::Desync => {
                 panic!(
-                    "[pdsl_core::sync_cell::CacheEntry::get_mut] Error: \
+                    "[ink_core::sync_cell::CacheEntry::get_mut] Error: \
                      tried to get the value from a desync cache"
                 )
             }

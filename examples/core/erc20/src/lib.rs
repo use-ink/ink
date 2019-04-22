@@ -20,7 +20,7 @@ use parity_codec::{
     Decode,
     Encode,
 };
-use pdsl_core::{
+use ink_core::{
     env::{
         self,
         Address,

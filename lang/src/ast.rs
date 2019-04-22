@@ -239,9 +239,9 @@ impl FnDecl {
         inputs_with_env.push_value(self_arg.clone());
         inputs_with_env.push_punct(Default::default());
         let custom_arg_captured: ArgCaptured = if self.kind() == FnDeclKind::SelfRefMut {
-            syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
+            syn::parse_quote! { env: &mut ink_model::EnvHandler }
         } else {
-            syn::parse_quote! { env: &pdsl_model::EnvHandler }
+            syn::parse_quote! { env: &ink_model::EnvHandler }
         };
         inputs_with_env.push(FnArg::Captured(custom_arg_captured.into_arg_captured()));
         for input in inputs_iter {

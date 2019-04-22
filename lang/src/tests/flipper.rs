@@ -46,7 +46,7 @@ fn flipper_contract() {
             }
         },
         quote! {
-            pdsl_model::state! {
+            ink_model::state! {
                 /// A simple contract that has a boolean value that can be flipped and be retured.
                 pub struct Flipper {
                     /// The internal value.
@@ -54,9 +54,9 @@ fn flipper_contract() {
                 }
             }
 
-            use pdsl_model::messages;
+            use ink_model::messages;
 
-            pdsl_model::messages! {
+            ink_model::messages! {
                 /// Flips the internal boolean.
                 970692492 => Flip();
                 /// Returns the internal boolean.
@@ -65,27 +65,27 @@ fn flipper_contract() {
 
             impl Flipper {
                 /// The internal boolean is initialized with `true`.
-                pub fn deploy(&mut self, env: &mut pdsl_model::EnvHandler) {
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler) {
                     self.value.set(true)
                 }
 
                 /// Flips the internal boolean.
-                pub fn flip(&mut self, env: &mut pdsl_model::EnvHandler) {
+                pub fn flip(&mut self, env: &mut ink_model::EnvHandler) {
                     self.value = !(*self.value)
                 }
 
                 /// Returns the internal boolean.
-                pub fn get(&self, env: &pdsl_model::EnvHandler) -> bool {
+                pub fn get(&self, env: &ink_model::EnvHandler) -> bool {
                     *self.value
                 }
             }
 
-            use pdsl_model::Contract as _;
+            use ink_model::Contract as _;
 
             #[cfg(not(test))]
             impl Flipper {
-                pub(crate) fn instantiate() -> impl pdsl_model::Contract {
-                    pdsl_model::ContractDecl::using::<Self>()
+                pub(crate) fn instantiate() -> impl ink_model::Contract {
+                    ink_model::ContractDecl::using::<Self>()
                         .on_deploy(|env, ()| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
@@ -110,7 +110,7 @@ fn flipper_contract() {
                 use super::*;
 
                 pub struct TestableFlipper {
-                    env: pdsl_model::ExecutionEnv<Flipper>,
+                    env: ink_model::ExecutionEnv<Flipper>,
                 }
 
                 impl Flipper {
@@ -125,7 +125,7 @@ fn flipper_contract() {
                 impl TestableFlipper {
                     /// Allocates the testable contract storage.
                     fn allocate() -> Self {
-                        use pdsl_core::storage::{
+                        use ink_core::storage::{
                             Key,
                             alloc::{
                                 AllocateUsing as _,
@@ -136,7 +136,7 @@ fn flipper_contract() {
                         Self {
                             env: unsafe {
                                 let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                                pdsl_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
+                                ink_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
                             }
                         }
                     }

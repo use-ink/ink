@@ -16,14 +16,14 @@
 
 #![no_std]
 
-use pdsl_core::{
+use ink_core::{
     env::{
         Address,
         Balance,
     },
     storage,
 };
-use pdsl_model::{
+use ink_model::{
     messages,
     state,
     Contract,

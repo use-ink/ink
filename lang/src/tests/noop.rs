@@ -36,7 +36,7 @@ fn noop_contract() {
             impl Noop {}
         },
         quote! {
-            pdsl_model::state! {
+            ink_model::state! {
                 /// The contract that does nothing.
                 ///
                 /// # Note
@@ -45,20 +45,20 @@ fn noop_contract() {
                 pub struct Noop {}
             }
 
-            use pdsl_model::messages;
-            pdsl_model::messages! {}
+            use ink_model::messages;
+            ink_model::messages! {}
 
             impl Noop {
                 /// Does nothing to initialize itself.
-                pub fn deploy(&mut self, env: &mut pdsl_model::EnvHandler) { }
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler) { }
             }
 
-            use pdsl_model::Contract as _;
+            use ink_model::Contract as _;
 
             #[cfg(not(test))]
             impl Noop {
-                pub(crate) fn instantiate() -> impl pdsl_model::Contract {
-                    pdsl_model::ContractDecl::using::<Self>()
+                pub(crate) fn instantiate() -> impl ink_model::Contract {
+                    ink_model::ContractDecl::using::<Self>()
                         .on_deploy(|env, ()| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
@@ -75,7 +75,7 @@ fn noop_contract() {
                 use super::*;
 
                 pub struct TestableNoop {
-                    env: pdsl_model::ExecutionEnv<Noop>,
+                    env: ink_model::ExecutionEnv<Noop>,
                 }
 
                 impl Noop {
@@ -90,7 +90,7 @@ fn noop_contract() {
                 impl TestableNoop {
                     /// Allocates the testable contract storage.
                     fn allocate() -> Self {
-                        use pdsl_core::storage::{
+                        use ink_core::storage::{
                             Key,
                             alloc::{
                                 AllocateUsing as _,
@@ -101,7 +101,7 @@ fn noop_contract() {
                         Self {
                             env: unsafe {
                                 let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                                pdsl_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
+                                ink_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
                             }
                         }
                     }

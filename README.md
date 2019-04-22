@@ -17,10 +17,10 @@
 [E2]: https://github.com/Aaronepower/tokei#badges
 
 [F1]: https://img.shields.io/badge/docs-nightly-black.svg
-[F2]: https://paritytech.github.io/ink/pdsl_core/index.html
+[F2]: https://paritytech.github.io/ink/ink_core/index.html
 
 [G1]: https://img.shields.io/badge/docs-nightly-purple.svg
-[G2]: https://paritytech.github.io/ink/pdsl_model/index.html
+[G2]: https://paritytech.github.io/ink/ink_model/index.html
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
@@ -101,7 +101,7 @@ contract! {
 | `cli` | A minimalist tool to setup a smart contract project easily. |
 | `core` | The core utilities used to write smart contracts. |
 | `model` | Medium-level abstractions to write smart contracts heavily inspired by [Fleetwood](https://github.com/paritytech/fleetwood). |
-| `lang` | The actual eDSL based on `pdsl_core` and `pdsl_model` to provide a user friendly interface to writing smart contract code. |
+| `lang` | The actual eDSL based on `ink_core` and `ink_model` to provide a user friendly interface to writing smart contract code. |
 | `examples` | Features some smart contracts written for clarity with focus on teaching users how to use pDSL to write their own contracts. |
 
 ## Contribution
@@ -111,3 +111,4 @@ Visit our [contribution guidelines](CONTRIBUTING.md) for more information.
 ## License
 
 The entire code within this repository is licensed under the [GLP-v3](LICENSE). Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.
+ of our products.

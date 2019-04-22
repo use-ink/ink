@@ -28,7 +28,7 @@ use crate::{
     state::ContractState,
 };
 use core::marker::PhantomData;
-use pdsl_core::memory::vec::Vec;
+use ink_core::memory::vec::Vec;
 // Copyright {d+}-{d+} Parity Technologies (UK) Ltd.
 /// A marker struct to tell that the deploy handler requires no arguments.
 #[derive(Copy, Clone)]
@@ -235,7 +235,7 @@ where
     /// This assocates the state with the contract storage
     /// and defines its layout.
     pub fn instantiate(self) -> ContractInstance<State, DeployArgs, HandlerChain> {
-        use pdsl_core::storage::{
+        use ink_core::storage::{
             alloc::{
                 AllocateUsing,
                 BumpAlloc,
@@ -360,7 +360,7 @@ where
         //
         // Should be performed exactly once during contract lifetime.
         // Consumes the contract since nothing should be done afterwards.
-        let input = pdsl_core::env::input();
+        let input = ink_core::env::input();
         let mut this = self;
         this.deploy_with(input.as_slice());
         core::mem::forget(this.env);
@@ -378,7 +378,7 @@ where
         //
         // Internally calls the associated call<Msg>.
         use parity_codec::Decode;
-        let input = pdsl_core::env::input();
+        let input = ink_core::env::input();
         let call_data = CallData::decode(&mut &input[..]).unwrap();
         let mut this = self;
         this.call_with_and_return(call_data);
@@ -406,7 +406,7 @@ where
         //
         // Should be performed exactly once during contract lifetime.
         // Consumes the contract since nothing should be done afterwards.
-        use pdsl_core::storage::alloc::Initialize as _;
+        use ink_core::storage::alloc::Initialize as _;
         self.env.initialize(());
         let deploy_params = DeployArgs::decode(&mut &input[..]).unwrap();
         (self.deployer.deploy_fn)(&mut self.env, deploy_params);

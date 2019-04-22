@@ -70,7 +70,7 @@ fn generate_test_struct(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let testable_name = testable_contract_name(contract);
     tokens.extend(quote! {
         pub struct #testable_name {
-            env: pdsl_model::ExecutionEnv<#contract_name>,
+            env: ink_model::ExecutionEnv<#contract_name>,
         }
     })
 }
@@ -137,7 +137,7 @@ fn generate_test_allocate_fn(tokens: &mut TokenStream2, _contract: &hir::Contrac
     tokens.extend(quote! {
         /// Allocates the testable contract storage.
         fn allocate() -> Self {
-            use pdsl_core::storage::{
+            use ink_core::storage::{
                 Key,
                 alloc::{
                     AllocateUsing as _,
@@ -148,7 +148,7 @@ fn generate_test_allocate_fn(tokens: &mut TokenStream2, _contract: &hir::Contrac
             Self {
                 env: unsafe {
                     let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                    pdsl_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
+                    ink_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
                 }
             }
         }

@@ -17,7 +17,7 @@
 #![cfg_attr(not(all(test, feature = "test-env")), no_std)]
 
 use parity_codec::Decode;
-use pdsl_core::{
+use ink_core::{
     env::{
         ContractEnv,
         Env,
@@ -36,7 +36,7 @@ use pdsl_core::{
 };
 
 // #[cfg(not(test))]
-// use pdsl_core::println;
+// use ink_core::println;
 
 /// An incrementer smart contract.
 ///

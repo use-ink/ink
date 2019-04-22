@@ -20,7 +20,7 @@ use parity_codec::{
     Decode,
     Encode,
 };
-use pdsl_core::{
+use ink_core::{
     env::{
         self,
         Address,
@@ -29,7 +29,7 @@ use pdsl_core::{
     memory::format,
     storage,
 };
-use pdsl_lang::contract;
+use ink_lang::contract;
 
 /// Events deposited by the ERC20 token contract.
 #[derive(Encode, Decode)]

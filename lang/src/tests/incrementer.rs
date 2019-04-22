@@ -52,7 +52,7 @@ fn incrementer_contract() {
             }
         },
         quote! {
-            pdsl_model::state! {
+            ink_model::state! {
                 /// A simple contract that has a value that can be
                 /// incremented, returned and compared.
                 pub struct Incrementer {
@@ -61,9 +61,9 @@ fn incrementer_contract() {
                 }
             }
 
-            use pdsl_model::messages;
+            use ink_model::messages;
 
-            pdsl_model::messages! {
+            ink_model::messages! {
                 /// Increments the internal counter.
                 257544423 => Inc(by: u32);
                 /// Returns the internal counter.
@@ -74,32 +74,32 @@ fn incrementer_contract() {
 
             impl Incrementer {
                 /// Automatically called when the contract is deployed.
-                pub fn deploy(&mut self, env: &mut pdsl_model::EnvHandler, init_value: u32) {
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler, init_value: u32) {
                     self.value.set(init_value)
                 }
 
                 /// Increments the internal counter.
-                pub fn inc(&mut self, env: &mut pdsl_model::EnvHandler, by: u32) {
+                pub fn inc(&mut self, env: &mut ink_model::EnvHandler, by: u32) {
                     self.value += by
                 }
 
                 /// Returns the internal counter.
-                pub fn get(&self, env: &pdsl_model::EnvHandler) -> u32 {
+                pub fn get(&self, env: &ink_model::EnvHandler) -> u32 {
                     *self.value
                 }
 
                 /// Returns `true` if `x` is greater than the internal value.
-                pub fn compare(&self, env: &pdsl_model::EnvHandler, x: u32) -> bool {
+                pub fn compare(&self, env: &ink_model::EnvHandler, x: u32) -> bool {
                     x > *self.value
                 }
             }
 
-            use pdsl_model::Contract as _;
+            use ink_model::Contract as _;
 
             #[cfg(not(test))]
             impl Incrementer {
-                pub(crate) fn instantiate() -> impl pdsl_model::Contract {
-                    pdsl_model::ContractDecl::using::<Self>()
+                pub(crate) fn instantiate() -> impl ink_model::Contract {
+                    ink_model::ContractDecl::using::<Self>()
                         .on_deploy(|env, init_value: u32| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler, init_value)
@@ -128,7 +128,7 @@ fn incrementer_contract() {
                 use super::*;
 
                 pub struct TestableIncrementer {
-                    env: pdsl_model::ExecutionEnv<Incrementer>,
+                    env: ink_model::ExecutionEnv<Incrementer>,
                 }
 
                 impl Incrementer {
@@ -143,7 +143,7 @@ fn incrementer_contract() {
                 impl TestableIncrementer {
                     /// Allocates the testable contract storage.
                     fn allocate() -> Self {
-                        use pdsl_core::storage::{
+                        use ink_core::storage::{
                             Key,
                             alloc::{
                                 AllocateUsing as _,
@@ -154,7 +154,7 @@ fn incrementer_contract() {
                         Self {
                             env: unsafe {
                                 let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                                pdsl_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
+                                ink_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
                             }
                         }
                     }

@@ -42,9 +42,9 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
-pdsl_core = {{ git = "https://github.com/paritytech/ink", package = "pdsl_core" }}
-pdsl_model = {{ git = "https://github.com/paritytech/ink", package = "pdsl_model" }}
-pdsl_lang = {{ git = "https://github.com/paritytech/ink", package = "pdsl_lang" }}
+ink_core = {{ git = "https://github.com/paritytech/ink", package = "ink_core" }}
+ink_model = {{ git = "https://github.com/paritytech/ink", package = "ink_model" }}
+ink_lang = {{ git = "https://github.com/paritytech/ink", package = "ink_lang" }}
 parity-codec = {{ version = "3.3", default-features = false, features = ["derive"] }}
 
 [lib]
@@ -54,12 +54,12 @@ crate-type = ["cdylib"]
 [features]
 default = []
 test-env = [
-    "pdsl_core/test-env",
-    "pdsl_model/test-env",
-    "pdsl_lang/test-env",
+    "ink_core/test-env",
+    "ink_model/test-env",
+    "ink_lang/test-env",
 ]
 generate-api-description = [
-    "pdsl_lang/generate-api-description"
+    "ink_lang/generate-api-description"
 ]
 
 [profile.release]
@@ -101,8 +101,8 @@ fn lib_rs_contents(name: &str) -> String {
     format!(
         r##"#![no_std]
 
-use pdsl_core::storage;
-use pdsl_lang::contract;
+use ink_core::storage;
+use ink_lang::contract;
 
 contract! {{
     /// This simple dummy contract has a `bool` value that can

@@ -15,7 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::ContractState;
-use pdsl_core::{
+use ink_core::{
     env,
     storage::alloc::{
         Allocate,

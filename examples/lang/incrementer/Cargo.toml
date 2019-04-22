@@ -5,12 +5,12 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
-pdsl_core = { path = "../../../core" }
-pdsl_model = { path = "../../../model" }
-pdsl_lang = { path = "../../../lang" }
-# pdsl_core = { git = "https://github.com/Robbepop/pdsl", package = "pdsl_core" }
-# pdsl_model = { git = "https://github.com/Robbepop/pdsl", package = "pdsl_model" }
-# pdsl_lang = { git = "https://github.com/Robbepop/pdsl", package = "pdsl_lang" }
+ink_core = { path = "../../../core" }
+ink_model = { path = "../../../model" }
+ink_lang = { path = "../../../lang" }
+# ink_core = { git = "https://github.com/Robbepop/pdsl", package = "ink_core" }
+# ink_model = { git = "https://github.com/Robbepop/pdsl", package = "ink_model" }
+# ink_lang = { git = "https://github.com/Robbepop/pdsl", package = "ink_lang" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
 
 [lib]
@@ -20,12 +20,12 @@ crate-type = ["cdylib"]
 [features]
 default = []
 test-env = [
-    "pdsl_core/test-env",
-    "pdsl_model/test-env",
-    "pdsl_lang/test-env",
+    "ink_core/test-env",
+    "ink_model/test-env",
+    "ink_lang/test-env",
 ]
 generate-api-description = [
-    "pdsl_lang/generate-api-description"
+    "ink_lang/generate-api-description"
 ]
 
 [profile.release]

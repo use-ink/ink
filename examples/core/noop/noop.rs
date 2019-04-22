@@ -16,12 +16,12 @@
 
 #![no_std]
 
-// use pdsl_core::{
+// use ink_core::{
 // 	env::{Env, ContractEnv},
 // };
 
 #[allow(unused)]
-use pdsl_core;
+use ink_core;
 
 #[no_mangle]
 pub extern "C" fn deploy() {

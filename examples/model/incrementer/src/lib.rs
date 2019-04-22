@@ -16,8 +16,8 @@
 
 #![no_std]
 
-use pdsl_core::storage;
-use pdsl_model::{
+use ink_core::storage;
+use ink_model::{
     messages,
     state,
     Contract,

@@ -16,7 +16,7 @@
 
 #![allow(dead_code)]
 
-use pdsl_model::{
+use ink_model::{
     messages,
     state,
     Contract,

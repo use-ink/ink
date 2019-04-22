@@ -23,7 +23,7 @@ use parity_codec::{
     Decode,
     Encode,
 };
-use pdsl_core::{
+use ink_core::{
     env::{
         srml::Address,
         ContractEnv,
@@ -72,7 +72,7 @@ pub struct UserData {
 impl AllocateUsing for UserData {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
-        A: pdsl_core::storage::alloc::Allocate,
+        A: ink_core::storage::alloc::Allocate,
     {
         Self {
             owner: Address::from(&[0x0; 32][..]),
@@ -110,7 +110,7 @@ pub struct Subpeep {
 impl AllocateUsing for Subpeep {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
-        A: pdsl_core::storage::alloc::Allocate,
+        A: ink_core::storage::alloc::Allocate,
     {
         Self {
             peeps: storage::Vec::allocate_using(alloc),

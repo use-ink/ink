@@ -18,10 +18,10 @@
 //!
 //! These are kept separate from pDSL core to allow for more dynamic inter crate dependencies.
 //! The main problem is that today Cargo manages crate features on a per-crate basis instead of
-//! a per-crate-target basis thus making dependencies from `pdsl_lang` to `pdsl_core` impossible.
+//! a per-crate-target basis thus making dependencies from `ink_lang` to `ink_core` impossible.
 //!
-//! By introducing `pdsl_utils` we have a way to share utility components between `pdsl_core` and
-//! other parts of the framework, like `pdsl_lang`.
+//! By introducing `ink_utils` we have a way to share utility components between `ink_core` and
+//! other parts of the framework, like `ink_lang`.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 

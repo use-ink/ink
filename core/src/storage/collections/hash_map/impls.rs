@@ -32,7 +32,7 @@ use core::{
     borrow::Borrow,
     hash::Hash,
 };
-use pdsl_utils::hash;
+use ink_utils::hash;
 
 /// Mapping stored in the contract storage.
 ///
@@ -198,7 +198,7 @@ where
                 None
             }
             None => {
-                panic!("[pdsl_core::HashMap::insert] Error: failed finding a valid entry")
+                panic!("[ink_core::HashMap::insert] Error: failed finding a valid entry")
             }
         }
     }
@@ -285,7 +285,7 @@ where
         // of the key into a big-endian unsigned integer.
         let probe_start = u32::from_be_bytes(
             slice_as_array4(&(hash::keccak256(key.borrow())[0..4])).expect(
-                "[pdsl_core::HashMap::insert] Error \
+                "[ink_core::HashMap::insert] Error \
                  couldn't convert to probe_start byte array",
             ),
         );
@@ -362,7 +362,7 @@ where
         Q: Hash + Eq + ?Sized,
     {
         let probe_index = self.probe_inspecting(key).expect(
-            "[pdsl_core::HashMap::remove] Error: \
+            "[ink_core::HashMap::remove] Error: \
              failed at finding a valid entry",
         );
         match self.entries.take(probe_index) {
@@ -454,7 +454,7 @@ where
 
     fn index(&self, index: &Q) -> &Self::Output {
         self.get(index).expect(
-            "[pdsl_core::HashMap::index] Error: \
+            "[ink_core::HashMap::index] Error: \
              expected `index` to be within bounds",
         )
     }
@@ -468,7 +468,7 @@ where
 {
     fn index_mut(&mut self, index: &Q) -> &mut Self::Output {
         self.get_mut(index).expect(
-            "[pdsl_core::HashMap::index_mut] Error: \
+            "[ink_core::HashMap::index_mut] Error: \
              expected `index` to be within bounds",
         )
     }

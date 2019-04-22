@@ -148,7 +148,7 @@ where
             T::decode(&mut &loaded[..])
 					// Maybe we should return an error instead of panicking.
 					.expect(
-						"[pdsl_core::TypedChunkCell::load] Error: \
+						"[ink_core::TypedChunkCell::load] Error: \
 						 failed upon decoding"
 					)
         })

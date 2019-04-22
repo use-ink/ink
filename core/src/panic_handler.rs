@@ -34,7 +34,7 @@ pub extern "C" fn oom(_: Layout) -> ! {
 
 /// This is only required in non wasm32-unknown-unknown targets.
 ///
-/// Since pdsl_core is targeted for wasm32-unknown-unknown we should
+/// Since ink_core is targeted for wasm32-unknown-unknown we should
 /// maybe remove this.
 #[lang = "eh_personality"]
 extern "C" fn eh_personality() {}

@@ -16,7 +16,7 @@
 
 use super::*;
 
-use pdsl_core::memory::vec::Vec;
+use ink_core::memory::vec::Vec;
 
 impl Subpeep {
     /// Returns all recent global posts as vector.
@@ -45,7 +45,7 @@ impl Subpeep {
 }
 
 #[macro_use]
-use pdsl_core::memory::vec;
+use ink_core::memory::vec;
 
 #[test]
 fn deploy() {

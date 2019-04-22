@@ -24,7 +24,7 @@ use core::{
     result::Result as CoreResult,
 };
 use parity_codec::Decode;
-use pdsl_core::memory::vec::Vec;
+use ink_core::memory::vec::Vec;
 
 /// A raw read-only message handler for the given message and state.
 ///

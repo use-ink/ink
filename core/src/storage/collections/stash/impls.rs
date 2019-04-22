@@ -349,13 +349,13 @@ where
                 .entries
                 .put(current_vacant, Entry::Occupied(val))
                 .expect(
-                    "[pdsl_core::Stash::put] Error: \
+                    "[ink_core::Stash::put] Error: \
                      expected a vacant entry here, but no entry was found",
                 ) {
                 Entry::Vacant(next_vacant) => next_vacant,
                 Entry::Occupied(_) => {
                     unreachable!(
-                        "[pdsl_core::Stash::put] Error: \
+                        "[ink_core::Stash::put] Error: \
                          a next_vacant index can never point to an occupied entry"
                     )
                 }
@@ -375,7 +375,7 @@ where
                     .entries
                     .put(n, Entry::Vacant(self.next_vacant()))
                     .expect(
-                        "[pdsl_core::Stash::take] Error: \
+                        "[ink_core::Stash::take] Error: \
                          we already asserted that the entry at `n` exists",
                     ) {
                     Entry::Occupied(val) => {
@@ -386,7 +386,7 @@ where
                     }
                     Entry::Vacant(_) => {
                         unreachable!(
-                            "[pdsl_core::Stash::take] Error: \
+                            "[ink_core::Stash::take] Error: \
                              we already asserted that the entry is occupied"
                         )
                     }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use pdsl_core::storage::{
+use ink_core::storage::{
     alloc::{
         AllocateUsing,
         Initialize,
@@ -54,7 +54,7 @@ macro_rules! state {
 			),*
 		}
 
-		impl pdsl_core::storage::Flush for $state_name {
+		impl ink_core::storage::Flush for $state_name {
 			fn flush(&mut self) {
 				$(
 					self.$field_name.flush()
@@ -62,12 +62,12 @@ macro_rules! state {
 			}
 		}
 
-		impl pdsl_core::storage::alloc::AllocateUsing for $state_name {
+		impl ink_core::storage::alloc::AllocateUsing for $state_name {
 			unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 			where
-				A: pdsl_core::storage::alloc::Allocate,
+				A: ink_core::storage::alloc::Allocate,
 			{
-				use pdsl_core::storage::alloc::AllocateUsing;
+				use ink_core::storage::alloc::AllocateUsing;
 				Self {
 					$(
 						$field_name : AllocateUsing::allocate_using(alloc)
@@ -76,7 +76,7 @@ macro_rules! state {
 			}
 		}
 
-        impl pdsl_core::storage::alloc::Initialize for $state_name {
+        impl ink_core::storage::alloc::Initialize for $state_name {
             type Args = ();
 
             #[inline(always)]

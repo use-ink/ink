@@ -142,7 +142,7 @@ impl CellChunkAlloc {
         let index = self.key_to_cell_index(key);
         log::info!(target: CC_ALLOC_LOG_TARGET, "deallocate cell at {:?}", key,);
         self.cells.take(index).expect(
-            "[pdsl_core::CellChunkAlloc::dealloc_cell] Error: \
+            "[ink_core::CellChunkAlloc::dealloc_cell] Error: \
              key was not allocated by the allocator",
         )
     }
@@ -152,7 +152,7 @@ impl CellChunkAlloc {
         let index = self.key_to_chunk_index(key);
         log::info!(target: CC_ALLOC_LOG_TARGET, "deallocate chunk at {:?}", key,);
         self.chunks.take(index).expect(
-            "[pdsl_core::CellChunkAlloc::dealloc_chunk] Error: \
+            "[ink_core::CellChunkAlloc::dealloc_chunk] Error: \
              key was not allocated by the allocator",
         )
     }
