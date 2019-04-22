@@ -125,7 +125,7 @@ impl Initialize for EnvHandler {
 
 impl EnvHandler {
     /// Returns the caller address of the current smart contract execution.
-    pub fn caller(&self) -> env::Address {
+    pub fn caller(&self) -> env::AccountId {
         env::caller()
     }
 

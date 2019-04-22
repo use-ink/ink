@@ -20,7 +20,7 @@ mod srml_only;
 mod types;
 
 pub use self::types::{
-    Address,
+    AccountId,
     Balance,
     DefaultSrmlTypes,
     Hash,

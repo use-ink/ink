@@ -26,7 +26,7 @@ use crate::{
 };
 
 /// The environmental address type.
-pub type Address = <ContractEnv as EnvTypes>::Address;
+pub type AccountId = <ContractEnv as EnvTypes>::AccountId;
 
 /// The environmental balance type.
 pub type Balance = <ContractEnv as EnvTypes>::Balance;
@@ -35,7 +35,7 @@ pub type Balance = <ContractEnv as EnvTypes>::Balance;
 pub type Hash = <ContractEnv as EnvTypes>::Hash;
 
 /// Returns the address of the caller of the current smart contract execution.
-pub fn caller() -> Address {
+pub fn caller() -> AccountId {
     ContractEnv::caller()
 }
 

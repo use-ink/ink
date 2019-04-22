@@ -25,7 +25,7 @@ use parity_codec::{
 };
 use ink_core::{
     env::{
-        srml::Address,
+        srml::AccountId,
         ContractEnv,
         Env,
     },
@@ -62,7 +62,7 @@ impl Peep {
 #[derive(Debug, Encode, Decode)]
 pub struct UserData {
     /// Owner address.
-    owner: Address,
+    owner: AccountId,
     /// The peeps.
     peeps: storage::Vec<String>,
     /// The follows.
@@ -75,7 +75,7 @@ impl AllocateUsing for UserData {
         A: ink_core::storage::alloc::Allocate,
     {
         Self {
-            owner: Address::from(&[0x0; 32][..]),
+            owner: AccountId::from(&[0x0; 32][..]),
             peeps: storage::Vec::allocate_using(alloc),
             following: storage::Vec::allocate_using(alloc),
         }
@@ -83,7 +83,7 @@ impl AllocateUsing for UserData {
 }
 
 impl Initialize for UserData {
-    type Args = Address;
+    type Args = AccountId;
 
     fn initialize(&mut self, address: Self::Args) {
         self.owner = address;

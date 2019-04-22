@@ -50,7 +50,7 @@ impl<T> EnvTypes for SrmlEnv<T>
 where
     T: EnvTypes,
 {
-    type Address = <T as EnvTypes>::Address;
+    type AccountId = <T as EnvTypes>::AccountId;
     type Balance = <T as EnvTypes>::Balance;
     type Hash = <T as EnvTypes>::Hash;
 }
@@ -94,10 +94,10 @@ where
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
-    <T as EnvTypes>::Address: for<'a> TryFrom<&'a [u8]>,
+    <T as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
     <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
-    fn caller() -> <Self as EnvTypes>::Address {
+    fn caller() -> <Self as EnvTypes>::AccountId {
         unsafe { sys::ext_caller() };
         let size = unsafe { sys::ext_scratch_size() };
         let mut value = Vec::new();

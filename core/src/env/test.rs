@@ -17,7 +17,7 @@
 //! Public api to interact with the special testing environment.
 
 use super::ContractEnv;
-use crate::env::Address;
+use crate::env::AccountId;
 
 /// Returns the total number of reads to all storage entries.
 pub fn total_reads() -> u64 {
@@ -30,6 +30,6 @@ pub fn total_writes() -> u64 {
 }
 
 /// Sets the caller for the next calls to the given address.
-pub fn set_caller(address: Address) {
+pub fn set_caller(address: AccountId) {
     ContractEnv::set_caller(address)
 }
