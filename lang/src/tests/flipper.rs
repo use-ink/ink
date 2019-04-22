@@ -128,14 +128,15 @@ fn flipper_contract() {
                         use pdsl_core::storage::{
                             Key,
                             alloc::{
-                                AllocateUsing,
+                                AllocateUsing as _,
+                                Initialize as _,
                                 BumpAlloc,
                             },
                         };
                         Self {
                             env: unsafe {
                                 let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                                AllocateUsing::allocate_using(&mut alloc)
+                                pdsl_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
                             }
                         }
                     }
