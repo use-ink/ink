@@ -42,8 +42,8 @@ mod tests {
     #[test]
     fn it_works() {
         let mut flipper = Flipper::deploy_mock();
-        assert_eq!(flipper.get(), true);
-        incrementer.flip();
         assert_eq!(flipper.get(), false);
+        flipper.flip();
+        assert_eq!(flipper.get(), true);
     }
 }
