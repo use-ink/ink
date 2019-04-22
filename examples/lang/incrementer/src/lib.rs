@@ -1,8 +1,8 @@
 #![no_std]
 
 use pdsl_core::{
-    storage,
     memory::format,
+    storage,
 };
 use pdsl_lang::contract;
 
