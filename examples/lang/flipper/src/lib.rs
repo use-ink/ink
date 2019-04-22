@@ -1,9 +1,11 @@
 #![no_std]
 
-use ink_core::storage;
+use ink_core::{
+    env::println,
+    memory::format,
+    storage,
+};
 use ink_lang::contract;
-use ink_core::env::println;
-use ink_core::memory::format;
 
 contract! {
     /// This simple dummy contract has a `bool` value that can
