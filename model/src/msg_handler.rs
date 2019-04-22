@@ -23,8 +23,8 @@ use core::{
     marker::PhantomData,
     result::Result as CoreResult,
 };
-use parity_codec::Decode;
 use ink_core::memory::vec::Vec;
+use parity_codec::Decode;
 
 /// A raw read-only message handler for the given message and state.
 ///
