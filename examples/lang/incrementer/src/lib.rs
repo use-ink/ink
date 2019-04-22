@@ -1,10 +1,10 @@
 #![no_std]
 
-use pdsl_core::{
+use ink_core::{
     memory::format,
     storage,
 };
-use pdsl_lang::contract;
+use ink_lang::contract;
 
 contract! {
     /// A simple incrementer contract that can only increment,

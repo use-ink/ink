@@ -1,5 +1,5 @@
 [package]
-name = "pdsl_model"
+name = "ink_model"
 version = "0.1.0"
 authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -15,9 +15,9 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
 parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
-pdsl_core = { version = "0.1.0", path = "../core" }
+ink_core = { version = "0.1.0", path = "../core" }
 
 [features]
 default = []
-test-env = ["std", "pdsl_core/test-env"]
-std = ["pdsl_core/std"]
+test-env = ["std", "ink_core/test-env"]
+std = ["ink_core/std"]

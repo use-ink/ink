@@ -17,9 +17,9 @@ Please follow our simple commit style guidelines.
 
 1. Prepend all commits with a topic.
    Available topics are:
-    - `[core]` For changes to `pdsl_core`
-    - `[model]` For changes to `pdsl_model`
-    - `[lang]` For changes to `pdsl_lang`
+    - `[core]` For changes to `ink_core`
+    - `[model]` For changes to `ink_model`
+    - `[lang]` For changes to `ink_lang`
     - `[cli]` For changes to `cargo-pdsl` also known as `pdsl_cli`
     - `[ci]` For changes to the continuous integration.
     - `[chores]` For general non-technical changes.

@@ -5,8 +5,8 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-pdsl_core = { path = "../../../core" }
-pdsl_model = { path = "../../../model" }
+ink_core = { path = "../../../core" }
+ink_model = { path = "../../../model" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
 
 [lib]
@@ -16,8 +16,8 @@ crate-type = ["cdylib"]
 [features]
 default = []
 test-env = [
-	"pdsl_core/test-env",
-	"pdsl_model/test-env",
+	"ink_core/test-env",
+	"ink_model/test-env",
 ]
 
 [profile.release]

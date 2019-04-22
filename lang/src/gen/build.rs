@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 //! Code generation for normal Wasm smart contract builds.
 //!
@@ -177,12 +177,12 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
     };
 
     tokens.extend(quote! {
-        use pdsl_model::Contract as _;
+        use ink_model::Contract as _;
 
         #[cfg(not(test))]
         impl #state_name {
-            pub(crate) fn instantiate() -> impl pdsl_model::Contract {
-                pdsl_model::ContractDecl::using::<Self>()
+            pub(crate) fn instantiate() -> impl ink_model::Contract {
+                ink_model::ContractDecl::using::<Self>()
                     #deploy_handler_toks
                     #messages_toks
                     .instantiate()
@@ -214,9 +214,9 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
                     inputs_with_env.push_value(self_arg.clone());
                     inputs_with_env.push_punct(<Token![,]>::default());
                     let custom_arg_captured: CustomArgCaptured = if message.is_mut() {
-                        syn::parse_quote! { env: &mut pdsl_model::EnvHandler }
+                        syn::parse_quote! { env: &mut ink_model::EnvHandler }
                     } else {
-                        syn::parse_quote! { env: &pdsl_model::EnvHandler }
+                        syn::parse_quote! { env: &ink_model::EnvHandler }
                     };
                     inputs_with_env.push(ast::FnArg::Captured(
                         custom_arg_captured.into_arg_captured(),
@@ -313,7 +313,7 @@ fn codegen_for_state(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let struct_fields_toks = &contract.state.fields;
     let name = &contract.name;
     tokens.extend(quote! {
-        pdsl_model::state! {
+        ink_model::state! {
             #state_attrs_toks
             pub struct #name
                 #struct_fields_toks
@@ -368,8 +368,8 @@ fn codegen_for_messages(tokens: &mut TokenStream2, contract: &hir::Contract) {
     tokens.extend(quote! {
         // Apparently this `use` is required even though it should not be.
         // -> Further investigations needed!
-        use pdsl_model::messages;
-        pdsl_model::messages! {
+        use ink_model::messages;
+        ink_model::messages! {
             #messages_content
         }
     })
