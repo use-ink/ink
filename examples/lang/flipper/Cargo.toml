@@ -1,5 +1,5 @@
 [package]
-name = "incrementer"
+name = "flipper"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -8,10 +8,10 @@ edition = "2018"
 ink_core = { path = "../../../core" }
 ink_model = { path = "../../../model" }
 ink_lang = { path = "../../../lang" }
-parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
+parity-codec = { version = "3.3", default-features = false, features = ["derive"] }
 
 [lib]
-name = "incrementer"
+name = "flipper"
 crate-type = ["cdylib"]
 
 [features]
