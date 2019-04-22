@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::*;
 use crate::storage::{
@@ -142,7 +142,7 @@ impl CellChunkAlloc {
         let index = self.key_to_cell_index(key);
         log::info!(target: CC_ALLOC_LOG_TARGET, "deallocate cell at {:?}", key,);
         self.cells.take(index).expect(
-            "[pdsl_core::CellChunkAlloc::dealloc_cell] Error: \
+            "[ink_core::CellChunkAlloc::dealloc_cell] Error: \
              key was not allocated by the allocator",
         )
     }
@@ -152,7 +152,7 @@ impl CellChunkAlloc {
         let index = self.key_to_chunk_index(key);
         log::info!(target: CC_ALLOC_LOG_TARGET, "deallocate chunk at {:?}", key,);
         self.chunks.take(index).expect(
-            "[pdsl_core::CellChunkAlloc::dealloc_chunk] Error: \
+            "[ink_core::CellChunkAlloc::dealloc_chunk] Error: \
              key was not allocated by the allocator",
         )
     }

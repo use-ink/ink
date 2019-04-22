@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::storage::{
     self,
@@ -233,7 +233,7 @@ where
     pub fn push(&mut self, val: T) {
         if self.len() == u32::max_value() {
             panic!(
-                "[pdsl_core::Vec::push] Error: \
+                "[ink_core::Vec::push] Error: \
                  cannot push more elements than `u32::MAX`"
             )
         }
@@ -262,7 +262,7 @@ where
     {
         self.within_bounds(n).and_then(|n| {
             Some(self.cells.put(n, f()).expect(
-                "[pdsl_core::Vec::replace] Error: \
+                "[ink_core::Vec::replace] Error: \
                  expected success due to access within bounds",
             ))
         })
@@ -279,19 +279,19 @@ where
             return
         }
         self.within_bounds(a).expect(
-            "[pdsl_core::Vec::swap] Error: \
+            "[ink_core::Vec::swap] Error: \
              expected a to be within bounds",
         );
         self.within_bounds(b).expect(
-            "[pdsl_core::Vec::swap] Error: \
+            "[ink_core::Vec::swap] Error: \
              expected b to be within bounds",
         );
         let item_a = self.cells.take(a).expect(
-            "[pdsl_core::Vec::swap] Error: \
+            "[ink_core::Vec::swap] Error: \
              expected succes due to `a` being within bounds",
         );
         let item_b = self.cells.put(b, item_a).expect(
-            "[pdsl_core::Vec::swap] Error: \
+            "[ink_core::Vec::swap] Error: \
              expected success due to `b` being within bounds",
         );
         self.cells.set(a, item_b);
@@ -311,11 +311,11 @@ where
         }
         self.within_bounds(n)?;
         let popped = self.pop().expect(
-            "[pdsl_core::Vec::swap_remove] Error: \
+            "[ink_core::Vec::swap_remove] Error: \
              expected `Some` value since vector is not empty",
         );
         Some(self.cells.put(n, popped).expect(
-            "[pdsl_core::Vec::swap_remove] Error: \
+            "[ink_core::Vec::swap_remove] Error: \
              expected success since the vector is not empty",
         ))
     }
@@ -329,7 +329,7 @@ where
 
     fn index(&self, index: u32) -> &Self::Output {
         self.get(index).expect(
-            "[pdsl_core::Vec::index] Error: \
+            "[ink_core::Vec::index] Error: \
              expected `index` to be within bounds",
         )
     }
@@ -341,7 +341,7 @@ where
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index).expect(
-            "[pdsl_core::Vec::index] Error: \
+            "[ink_core::Vec::index] Error: \
              expected `index` to be within bounds",
         )
     }

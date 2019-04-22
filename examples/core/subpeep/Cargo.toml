@@ -5,7 +5,7 @@ authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity
 edition = "2018"
 
 [dependencies]
-pdsl_core = { path = "../../../core" }
+ink_core = { path = "../../../core" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
 
 [lib]
@@ -14,7 +14,7 @@ crate-type = ["cdylib"]
 
 [features]
 default = []
-test-env = ["pdsl_core/test-env"]
+test-env = ["ink_core/test-env"]
 
 [profile.release]
 panic = "abort"

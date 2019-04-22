@@ -1,5 +1,5 @@
 [package]
-name = "pdsl_lang"
+name = "ink_lang"
 version = "0.1.0"
 authors = ["Herobird <robbepop@web.de>"]
 edition = "2018"
@@ -18,8 +18,8 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-pdsl_utils = { path = "../utils/" }
-pdsl_model = { path = "../model/" }
+ink_utils = { path = "../utils/" }
+ink_model = { path = "../model/" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
 
 quote = "0.6"
@@ -35,16 +35,16 @@ serde_json = "1.0.39"
 pretty_assertions = "0.6.1"
 
 [lib]
-name = "pdsl_lang"
+name = "ink_lang"
 proc-macro = true
 
 [features]
 default = []
 std = [
-    "pdsl_utils/std",
+    "ink_utils/std",
     "parity-codec/std",
 ]
 test-env = [
-    "pdsl_model/test-env",
+    "ink_model/test-env",
 ]
 generate-api-description = []

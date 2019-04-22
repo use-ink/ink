@@ -1,5 +1,5 @@
 [package]
-name = "cargo-pdsl"
+name = "cargo-contract"
 version = "0.1.0"
 authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -7,7 +7,7 @@ edition = "2018"
 license = "GPL-3.0"
 readme = "README.md"
 
-description = "Setup and deployment tool for developing Wasm based smart contracts via pDSL"
+description = "Setup and deployment tool for developing Wasm based smart contracts via ink!"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 categories = ["cli", "tool"]
 

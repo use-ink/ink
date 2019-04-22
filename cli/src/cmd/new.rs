@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
     cmd::{
@@ -42,9 +42,9 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
-pdsl_core = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_core" }}
-pdsl_model = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_model" }}
-pdsl_lang = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_lang" }}
+ink_core = {{ git = "https://github.com/paritytech/ink", package = "ink_core" }}
+ink_model = {{ git = "https://github.com/paritytech/ink", package = "ink_model" }}
+ink_lang = {{ git = "https://github.com/paritytech/ink", package = "ink_lang" }}
 parity-codec = {{ version = "3.3", default-features = false, features = ["derive"] }}
 
 [lib]
@@ -54,12 +54,12 @@ crate-type = ["cdylib"]
 [features]
 default = []
 test-env = [
-    "pdsl_core/test-env",
-    "pdsl_model/test-env",
-    "pdsl_lang/test-env",
+    "ink_core/test-env",
+    "ink_model/test-env",
+    "ink_lang/test-env",
 ]
 generate-api-description = [
-    "pdsl_lang/generate-api-description"
+    "ink_lang/generate-api-description"
 ]
 
 [profile.release]
@@ -101,8 +101,8 @@ fn lib_rs_contents(name: &str) -> String {
     format!(
         r##"#![no_std]
 
-use pdsl_core::storage;
-use pdsl_lang::contract;
+use ink_core::storage;
+use ink_lang::contract;
 
 contract! {{
     /// This simple dummy contract has a `bool` value that can
@@ -123,11 +123,7 @@ contract! {{
     impl {} {{
         /// Flips the current state of our smart contract.
         pub(external) fn flip(&mut self) {{
-            if *self.value {{
-                self.value.set(false)
-            }} else {{
-                self.value.set(true)
-            }}
+            *self.value = !*self.value;
         }}
 
         /// Returns the current state.
@@ -176,7 +172,7 @@ wasm-opt -Oz target/$PROJNAME.wasm -o target/$PROJNAME-opt.wasm"##,
 }
 
 fn rust_toolchain_contents() -> String {
-    r##"nightly-2019-03-10"##.to_owned()
+    r##"nightly-2019-04-20"##.to_owned()
 }
 
 /// Initializes a project structure for the `lang` abstraction layer.

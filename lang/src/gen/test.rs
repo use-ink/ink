@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 //! Code generation for test generation of Wasm smart contracts.
 //!
@@ -70,7 +70,7 @@ fn generate_test_struct(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let testable_name = testable_contract_name(contract);
     tokens.extend(quote! {
         pub struct #testable_name {
-            env: pdsl_model::ExecutionEnv<#contract_name>,
+            env: ink_model::ExecutionEnv<#contract_name>,
         }
     })
 }
@@ -137,7 +137,7 @@ fn generate_test_allocate_fn(tokens: &mut TokenStream2, _contract: &hir::Contrac
     tokens.extend(quote! {
         /// Allocates the testable contract storage.
         fn allocate() -> Self {
-            use pdsl_core::storage::{
+            use ink_core::storage::{
                 Key,
                 alloc::{
                     AllocateUsing as _,
@@ -148,7 +148,7 @@ fn generate_test_allocate_fn(tokens: &mut TokenStream2, _contract: &hir::Contrac
             Self {
                 env: unsafe {
                     let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                    pdsl_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
+                    ink_model::ExecutionEnv::allocate_using(&mut alloc).initialize_into(())
                 }
             }
         }
