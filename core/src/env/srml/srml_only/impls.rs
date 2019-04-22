@@ -16,48 +16,33 @@
 
 use crate::{
     env::{
+        Address,
+        Hash,
         srml::{
             sys,
             DefaultSrmlTypes,
         },
         Env,
         EnvStorage,
-        EnvTypes,
     },
     memory::vec::Vec,
     storage::Key,
 };
 use core::{
-    convert::{
-        TryFrom,
-        TryInto,
-    },
     marker::PhantomData,
 };
+use parity_codec::Decode;
 
 /// The default SRML environment.
 pub type DefaultSrmlEnv = SrmlEnv<DefaultSrmlTypes>;
 
 /// The SRML contracts environment.
 pub struct SrmlEnv<T>
-where
-    T: EnvTypes,
 {
     marker: PhantomData<T>,
 }
 
-impl<T> EnvTypes for SrmlEnv<T>
-where
-    T: EnvTypes,
-{
-    type Address = <T as EnvTypes>::Address;
-    type Balance = <T as EnvTypes>::Balance;
-    type Hash = <T as EnvTypes>::Hash;
-}
-
 impl<T> EnvStorage for SrmlEnv<T>
-where
-    T: EnvTypes,
 {
     /// Stores the given bytes under the given key.
     unsafe fn store(key: Key, value: &[u8]) {
@@ -92,12 +77,8 @@ where
 }
 
 impl<T> Env for SrmlEnv<T>
-where
-    T: EnvTypes,
-    <T as EnvTypes>::Address: for<'a> TryFrom<&'a [u8]>,
-    <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
-    fn caller() -> <Self as EnvTypes>::Address {
+    fn caller() -> Address {
         unsafe { sys::ext_caller() };
         let size = unsafe { sys::ext_scratch_size() };
         let mut value = Vec::new();
@@ -107,11 +88,7 @@ where
                 sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
             }
         }
-        value
-            .as_slice()
-            .try_into()
-            .map_err(|_| "caller received an incorrectly sized buffer from SRML")
-            .expect("we can assume to always receive a correctly sized buffer here")
+        Address::decode(&mut value.as_slice()).expect("caller should be a valid Address")
     }
 
     fn input() -> Vec<u8> {
@@ -128,7 +105,7 @@ where
         }
     }
 
-    fn random_seed() -> <Self as EnvTypes>::Hash {
+    fn random_seed() -> Hash {
         unsafe { sys::ext_random_seed() };
         let size = unsafe { sys::ext_scratch_size() };
         let mut value = Vec::new();
@@ -138,11 +115,7 @@ where
                 sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
             }
         }
-        value
-            .as_slice()
-            .try_into()
-            .map_err(|_| "random_seed received an incorrectly sized buffer from SRML")
-            .expect("we can expect to receive a correctly sized buffer here")
+        Hash::decode(&mut value.as_slice()).expect("random seed should be a valid Hash")
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {

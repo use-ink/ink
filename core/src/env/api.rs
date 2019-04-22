@@ -19,20 +19,23 @@ use crate::{
     env::{
         Env as _,
         EnvStorage as _,
-        EnvTypes,
     },
     memory::vec::Vec,
     storage::Key,
 };
+use node_runtime::{
+    self,
+    Runtime,
+};
 
 /// The environmental address type.
-pub type Address = <ContractEnv as EnvTypes>::Address;
+pub type Address = node_runtime::Address;
 
 /// The environmental balance type.
-pub type Balance = <ContractEnv as EnvTypes>::Balance;
+pub type Balance = <Runtime as srml_balances::Trait>::Balance;
 
 /// The environmental hash type.
-pub type Hash = <ContractEnv as EnvTypes>::Hash;
+pub type Hash = <Runtime as srml_system::Trait>::Hash;
 
 /// Returns the address of the caller of the current smart contract execution.
 pub fn caller() -> Address {

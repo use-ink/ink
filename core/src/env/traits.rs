@@ -15,20 +15,10 @@
 // along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+    env::{Address, Hash},
     memory::vec::Vec,
     storage::Key,
 };
-use parity_codec::Codec;
-
-/// The environmental types usable by contracts defined with pDSL.
-pub trait EnvTypes {
-    /// The type of an address.
-    type Address: Codec + PartialEq + Eq;
-    /// The type of balances.
-    type Balance: Codec;
-    /// The type of hash.
-    type Hash: Codec;
-}
 
 /// Types implementing this can act as contract storage.
 pub trait EnvStorage {
@@ -58,15 +48,15 @@ pub trait EnvStorage {
 }
 
 /// The environment API usable by contracts defined with pDSL.
-pub trait Env: EnvTypes + EnvStorage {
+pub trait Env: EnvStorage {
     /// Returns the chain address of the caller.
-    fn caller() -> <Self as EnvTypes>::Address;
+    fn caller() -> Address;
 
     /// Loads input data for contract execution.
     fn input() -> Vec<u8>;
 
     /// Get the random seed from the latest block.
-    fn random_seed() -> <Self as EnvTypes>::Hash;
+    fn random_seed() -> Hash;
 
     /// Returns from the contract execution with the given value.
     ///

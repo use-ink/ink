@@ -18,8 +18,6 @@ use core::{
     array::TryFromSliceError,
     convert::TryFrom,
 };
-
-use crate::env::EnvTypes;
 use parity_codec::{
     Decode,
     Encode,
@@ -27,12 +25,6 @@ use parity_codec::{
 
 /// The SRML fundamental types.
 pub struct DefaultSrmlTypes;
-
-impl EnvTypes for DefaultSrmlTypes {
-    type Address = self::Address;
-    type Balance = self::Balance;
-    type Hash = self::Hash;
-}
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]

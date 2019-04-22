@@ -367,12 +367,6 @@ impl TestEnv {
 
 const TEST_ENV_LOG_TARGET: &str = "test-env";
 
-impl EnvTypes for TestEnv {
-    type Address = srml::Address;
-    type Balance = srml::Balance;
-    type Hash = srml::Hash;
-}
-
 impl EnvStorage for TestEnv {
     unsafe fn store(key: Key, value: &[u8]) {
         log::debug!(
