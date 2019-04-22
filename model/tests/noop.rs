@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+#![allow(dead_code)]
+
 use pdsl_model::{
     messages,
     state,
@@ -32,8 +34,8 @@ messages! {
 }
 
 impl Noop {
-    pub fn deploy(&mut self, env: &mut EnvHandler) {}
-    pub fn do_nothing(&self, env: &EnvHandler) {}
+    pub fn deploy(&mut self, _env: &mut EnvHandler) {}
+    pub fn do_nothing(&self, _env: &EnvHandler) {}
 }
 
 #[rustfmt::skip]
