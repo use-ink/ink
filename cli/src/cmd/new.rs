@@ -132,7 +132,7 @@ contract! {{
 
         /// Returns the current state.
         pub(external) fn get(&self) -> bool {{
-            println(&format!("Storage Value: {:?}", *self.value));
+            println(&format!("Storage Value: {{:?}}", *self.value));
             *self.value
         }}
     }}
@@ -151,7 +151,7 @@ mod tests {{
     }}
 }}
 "##,
-        camel_name, camel_name, camel_name,
+        camel_name, camel_name, camel_name, camel_name, camel_name,
     )
 }
 
