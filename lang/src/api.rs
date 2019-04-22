@@ -93,7 +93,7 @@ pub enum PrimitiveTypeDescription {
     #[serde(rename = "i128")]
     I128,
     /// The SRML address type.
-    Address,
+    AccountId,
     /// The SRML balance type.
     Balance,
 }
@@ -116,7 +116,7 @@ impl TryFrom<&syn::Type> for PrimitiveTypeDescription {
             "i32" => Ok(PrimitiveTypeDescription::I32),
             "i64" => Ok(PrimitiveTypeDescription::I64),
             "i128" => Ok(PrimitiveTypeDescription::I128),
-            "Address" => Ok(PrimitiveTypeDescription::Address),
+            "AccountId" => Ok(PrimitiveTypeDescription::AccountId),
             "Balance" => Ok(PrimitiveTypeDescription::Balance),
             unsupported => {
                 bail!(

@@ -23,7 +23,7 @@ use parity_codec::Codec;
 /// The environmental types usable by contracts defined with pDSL.
 pub trait EnvTypes {
     /// The type of an address.
-    type Address: Codec + PartialEq + Eq;
+    type AccountId: Codec + PartialEq + Eq;
     /// The type of balances.
     type Balance: Codec;
     /// The type of hash.
@@ -60,7 +60,7 @@ pub trait EnvStorage {
 /// The environment API usable by contracts defined with pDSL.
 pub trait Env: EnvTypes + EnvStorage {
     /// Returns the chain address of the caller.
-    fn caller() -> <Self as EnvTypes>::Address;
+    fn caller() -> <Self as EnvTypes>::AccountId;
 
     /// Loads input data for contract execution.
     fn input() -> Vec<u8>;

@@ -18,7 +18,7 @@ Decentralized message distribution inspired by Twitter.
 GLOBAL_PEEPS = [Peep; 10]
 
 // The address for the registered user
-AUTH = mapping Username -> Address
+AUTH = mapping Username -> AccountId
 // All peeps by a single user
 USER_PEEPS = mapping Username -> Vec<Peep>
 // All users that this user is following

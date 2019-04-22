@@ -18,7 +18,7 @@
 
 use ink_core::{
     env::{
-        Address,
+        AccountId,
         Balance,
     },
     storage,
@@ -34,7 +34,7 @@ state! {
     /// A simple implementation of a rudimentary Erc20 token contract.
     struct Erc20Token {
         /// The balance for an address.
-        balances: storage::HashMap<Address, Balance>,
+        balances: storage::HashMap<AccountId, Balance>,
         /// The total supply.
         total: storage::Value<Balance>
     }
@@ -44,11 +44,11 @@ messages! {
     /// Returns the total supply.
     0 => TotalSupply() -> Balance;
     /// Returns the balance of the given address.
-    1 => BalanceOf(owner: Address) -> Balance;
+    1 => BalanceOf(owner: AccountId) -> Balance;
     /// Transfers balance from the caller to the given address.
     ///
     /// Returns `true` if the transfer was successful.
-    2 => Transfer(to: Address, amount: Balance) -> bool;
+    2 => Transfer(to: AccountId, amount: Balance) -> bool;
 }
 
 #[rustfmt::skip]

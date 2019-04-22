@@ -29,27 +29,27 @@ use parity_codec::{
 pub struct DefaultSrmlTypes;
 
 impl EnvTypes for DefaultSrmlTypes {
-    type Address = self::Address;
+    type AccountId = self::AccountId;
     type Balance = self::Balance;
     type Hash = self::Hash;
 }
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
-pub struct Address([u8; 32]);
+pub struct AccountId([u8; 32]);
 
-impl From<[u8; 32]> for Address {
-    fn from(address: [u8; 32]) -> Address {
-        Address(address)
+impl From<[u8; 32]> for AccountId {
+    fn from(address: [u8; 32]) -> AccountId {
+        AccountId(address)
     }
 }
 
-impl<'a> TryFrom<&'a [u8]> for Address {
+impl<'a> TryFrom<&'a [u8]> for AccountId {
     type Error = TryFromSliceError;
 
-    fn try_from(bytes: &'a [u8]) -> Result<Address, TryFromSliceError> {
+    fn try_from(bytes: &'a [u8]) -> Result<AccountId, TryFromSliceError> {
         let address = <[u8; 32]>::try_from(bytes)?;
-        Ok(Address(address))
+        Ok(AccountId(address))
     }
 }
 

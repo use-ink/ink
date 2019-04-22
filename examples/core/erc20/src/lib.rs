@@ -23,7 +23,7 @@ use parity_codec::{
 use ink_core::{
     env::{
         self,
-        Address,
+        AccountId,
         Balance,
     },
     storage::{
@@ -43,13 +43,13 @@ use ink_core::{
 #[derive(Debug, Encode, Decode)]
 pub struct Erc20Token {
     /// All peeps done by all users.
-    balances: storage::HashMap<Address, Balance>,
+    balances: storage::HashMap<AccountId, Balance>,
     /// Balances that are spendable by non-owners.
     ///
     /// # Note
     ///
     /// Mapping: (from, to) -> allowed
-    allowances: storage::HashMap<(Address, Address), Balance>,
+    allowances: storage::HashMap<(AccountId, AccountId), Balance>,
     /// The total supply.
     total_supply: storage::Value<Balance>,
 }
@@ -61,17 +61,17 @@ impl Erc20Token {
     }
 
     /// Returns the balance of the given address.
-    pub fn balance_of(&self, owner: Address) -> Balance {
+    pub fn balance_of(&self, owner: AccountId) -> Balance {
         *self.balances.get(&owner).unwrap_or(&0)
     }
 
     /// Returns the amount of tokens that an owner allowed to a spender.
-    pub fn allowance(&self, owner: Address, spender: Address) -> Balance {
+    pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
         *self.allowances.get(&(owner, spender)).unwrap_or(&0)
     }
 
     /// Transfers token from the sender to the `to` address.
-    pub fn transfer(&mut self, to: Address, value: Balance) -> bool {
+    pub fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
         self.transfer_impl(env::caller(), to, value);
         true
     }
@@ -87,7 +87,7 @@ impl Erc20Token {
     /// One possible solution to mitigate this race condition is to first reduce
     /// the spender's allowance to 0 and set the desired value afterwards:
     /// https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-    pub fn approve(&mut self, spender: Address, value: Balance) -> bool {
+    pub fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
         let owner = env::caller();
         self.allowances.insert((owner, spender), value);
         // emit event (not ready yet)
@@ -99,7 +99,7 @@ impl Erc20Token {
     /// Note that while this function emits an approval event,
     /// this is not required as per the specification,
     /// and other compliant implementations may not emit the event.
-    pub fn transfer_from(&mut self, from: Address, to: Address, value: Balance) -> bool {
+    pub fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> bool {
         self.allowances[&(from, to)] -= value;
         self.transfer_impl(from, to, value);
         // emit approval(from, to, value) (not yet ready)
@@ -107,13 +107,13 @@ impl Erc20Token {
     }
 
     /// Transfers token from a specified address to another address.
-    fn transfer_impl(&mut self, from: Address, to: Address, value: Balance) {
+    fn transfer_impl(&mut self, from: AccountId, to: AccountId, value: Balance) {
         self.balances[&from] -= value;
         self.balances[&to] += value;
         // emit transfer(from, to, value) (not ready yet)
     }
 
-    // fn mint_for(&mut self, receiver: Address, value: Balance) {
+    // fn mint_for(&mut self, receiver: AccountId, value: Balance) {
     // 	self.balances[&receiver] += value;
     // 	self.total_supply += value;
     // 	// emit transfer(0, receiver, value) (not ready yet)
@@ -157,23 +157,23 @@ impl Flush for Erc20Token {
 enum Action {
     TotalSupply, // -> Balance
     BalanceOf {
-        owner: Address,
+        owner: AccountId,
     }, // -> Balance
     Allowance {
-        owner: Address,
-        spender: Address,
+        owner: AccountId,
+        spender: AccountId,
     }, // -> Balance
     Transfer {
-        to: Address,
+        to: AccountId,
         value: Balance,
     }, // -> bool
     Approve {
-        spender: Address,
+        spender: AccountId,
         value: Balance,
     }, // -> bool
     TransferFrom {
-        from: Address,
-        to: Address,
+        from: AccountId,
+        to: AccountId,
         value: Balance,
     }, // -> bool
 }
