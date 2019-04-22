@@ -42,9 +42,9 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
-pdsl_core = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_core" }}
-pdsl_model = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_model" }}
-pdsl_lang = {{ git = "https://github.com/Robbepop/pdsl", package = "pdsl_lang" }}
+pdsl_core = {{ git = "https://github.com/paritytech/ink", package = "pdsl_core" }}
+pdsl_model = {{ git = "https://github.com/paritytech/ink", package = "pdsl_model" }}
+pdsl_lang = {{ git = "https://github.com/paritytech/ink", package = "pdsl_lang" }}
 parity-codec = {{ version = "3.3", default-features = false, features = ["derive"] }}
 
 [lib]
@@ -123,11 +123,7 @@ contract! {{
     impl {} {{
         /// Flips the current state of our smart contract.
         pub(external) fn flip(&mut self) {{
-            if *self.value {{
-                self.value.set(false)
-            }} else {{
-                self.value.set(true)
-            }}
+            *self.value = !*self.value;
         }}
 
         /// Returns the current state.
@@ -176,7 +172,7 @@ wasm-opt -Oz target/$PROJNAME.wasm -o target/$PROJNAME-opt.wasm"##,
 }
 
 fn rust_toolchain_contents() -> String {
-    r##"nightly-2019-03-10"##.to_owned()
+    r##"nightly-2019-04-20"##.to_owned()
 }
 
 /// Initializes a project structure for the `lang` abstraction layer.
