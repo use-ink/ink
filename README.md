@@ -1,30 +1,30 @@
-# pDSL - Parity's DSL for Smart Contracts
+# ink! - Parity's ink to write smart contracts
 
 | Linux              | Codecov              | Coveralls              | LoC              | Docs (Core)       | Docs (Model)      |
 |:------------------:|:--------------------:|:----------------------:|:----------------:|:-----------------:|:-----------------:|
 | [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] | [![docs][F1]][F2] | [![docs][G1]][G2] |
 
-[A1]: https://travis-ci.org/Robbepop/pdsl.svg?branch=master
-[A2]: https://travis-ci.org/Robbepop/pdsl
+[A1]: https://travis-ci.org/paritytech/ink.svg?branch=master
+[A2]: https://travis-ci.org/paritytech/ink
 
-[C1]: https://codecov.io/gh/Robbepop/pdsl/branch/master/graph/badge.svg
-[C2]: https://codecov.io/gh/Robbepop/pdsl/branch/master
+[C1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
+[C2]: https://codecov.io/gh/paritytech/ink/branch/master
 
-[D1]: https://coveralls.io/repos/github/Robbepop/pdsl/badge.svg?branch=master
-[D2]: https://coveralls.io/github/Robbepop/pdsl?branch=master
+[D1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
+[D2]: https://coveralls.io/github/paritytech/ink?branch=master
 
-[E1]: https://tokei.rs/b1/github/Robbepop/pdsl?category=code
+[E1]: https://tokei.rs/b1/github/paritytech/ink?category=code
 [E2]: https://github.com/Aaronepower/tokei#badges
 
 [F1]: https://img.shields.io/badge/docs-nightly-black.svg
-[F2]: https://robbepop.github.io/pdsl/pdsl_core/index.html
+[F2]: https://paritytech.github.io/ink/pdsl_core/index.html
 
 [G1]: https://img.shields.io/badge/docs-nightly-purple.svg
-[G2]: https://robbepop.github.io/pdsl/pdsl_model/index.html
+[G2]: https://paritytech.github.io/ink/pdsl_model/index.html
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
-An [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts in the Rust programming language.
+ink is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language.
 
 ## Example
 
@@ -49,11 +49,7 @@ contract! {
     impl Flipper {
         /// Flips the current state of our smart contract.
         pub(external) fn flip(&mut self) {
-            if *self.value {
-                *self.value = false
-            } else {
-                *self.value = true
-            }
+            *self.value = !*self.value;
         }
 
         /// Returns the current state.
@@ -64,16 +60,30 @@ contract! {
 }
 ```
 
+## Documentation
+
+- User
+    - Wiki: [link](https://github.com/paritytech/ink/wiki)
+- Developer
+    - [`core`][F2]: Developer documentation for the core abstractions
+        - Storage allocators, SRML environment definitions
+        - Offchain test environment
+        - Utilities for smart contracts like collections
+    - [`model`][G2]: Developer documentation for the model abstractions
+        - Virtual model of a smart contract
+        - Contains smart contract ABI dispatch
+        - Used to build an actual smart contract eDSL on
+
 ## Goals
 
 ### Core Goals
 
 | | |
 |:-:|:-|
-| **Ecosystem** | Allow for easy integration with the current Rust library ecosystem. |
-| **Tooling** | Make the great Rust tooling work out-of-the-box for smart contract code. This includes auto-completion, syntax highlighting, code coverage for tests, go-to definitions and other IDE goodies. These should all work without any custom configuration. |
-| **Testing** | Make smart contract code as easy to test as using `cargo test`, and make most testing be possible without a blockchain environment at all. |
-| **Building** | Make building of smart contract code as easy as using `cargo build`. This does not necessarily mean that you will be able to just type `cargo build`. It might need a separate subcommand. |
+| **Ecosystem** | Easy integration with the Rust ecosystem. |
+| **Tooling** | Rust tooling works out-of-the-box for smart contract code. This includes auto-completion, syntax highlighting, code coverage for tests, go-to definitions and other IDE goodies. |
+| **Testing** | Easy to build, test, deploy and run. |
+| **Development** | Development can be done entirely off-chain to speed up the process. |
 
 ### Key Attributes
 
@@ -88,6 +98,7 @@ contract! {
 
 | Module | Description |
 |:-------|:------------|
+| `cli` | A minimalist tool to setup a smart contract project easily. |
 | `core` | The core utilities used to write smart contracts. |
 | `model` | Medium-level abstractions to write smart contracts heavily inspired by [Fleetwood](https://github.com/paritytech/fleetwood). |
 | `lang` | The actual eDSL based on `pdsl_core` and `pdsl_model` to provide a user friendly interface to writing smart contract code. |
