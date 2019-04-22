@@ -24,11 +24,7 @@ contract! {
     impl Flipper {
         /// Flips the current state of our smart contract.
         pub(external) fn flip(&mut self) {
-            if *self.value {
-                self.value.set(false)
-            } else {
-                self.value.set(true)
-            }
+            *self.value = !*self.value;
         }
 
         /// Returns the current state.
