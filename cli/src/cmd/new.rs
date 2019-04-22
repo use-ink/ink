@@ -101,7 +101,11 @@ fn lib_rs_contents(name: &str) -> String {
     format!(
         r##"#![no_std]
 
-use ink_core::storage;
+use ink_core::{{
+    env::println,
+    memory::format,
+    storage,
+}};
 use ink_lang::contract;
 
 contract! {{
@@ -128,6 +132,7 @@ contract! {{
 
         /// Returns the current state.
         pub(external) fn get(&self) -> bool {{
+            println(&format!("Storage Value: {:?}", *self.value));
             *self.value
         }}
     }}
@@ -135,14 +140,14 @@ contract! {{
 
 #[cfg(test)]
 mod tests {{
-    use super::Flipper;
+    use super::{};
 
     #[test]
     fn it_works() {{
-        let mut flipper = Flipper::deploy_mock();
-        assert_eq!(flipper.get(), true);
-        incrementer.flip();
-        assert_eq!(flipper.get(), false);
+        let mut contract = {}::deploy_mock();
+        assert_eq!(contract.get(), false);
+        contract.flip();
+        assert_eq!(contract.get(), true);
     }}
 }}
 "##,
