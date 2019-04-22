@@ -16,20 +16,20 @@
 
 #![cfg_attr(not(any(test, feature = "test-env")), no_std)]
 
+use parity_codec::{
+    Decode,
+    Encode,
+};
 use pdsl_core::{
-    storage,
     env::{
         self,
         Address,
         Balance,
     },
     memory::format,
+    storage,
 };
 use pdsl_lang::contract;
-use parity_codec::{
-    Encode,
-    Decode,
-};
 
 /// Events deposited by the ERC20 token contract.
 #[derive(Encode, Decode)]
@@ -45,7 +45,7 @@ enum Event {
         from: Option<Address>,
         to: Option<Address>,
         value: Balance,
-    }
+    },
 }
 
 /// Deposits an ERC20 token event.

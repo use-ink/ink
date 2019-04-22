@@ -49,7 +49,7 @@ where
 
 impl<State> Initialize for ExecutionEnv<State>
 where
-    State: ContractState
+    State: ContractState,
 {
     type Args = ();
 
