@@ -128,9 +128,18 @@ contract! {
     }
 
     impl Erc20 {
-        /// Returns the balance of the AccountId or 0 if there is no balance.
-        fn balance_of_or_zero(&self, of: &AccountId) -> Balance {
-            *self.balances.get(of).unwrap_or(&0)
+        /// Decreases the allowance and returns if it was successful.
+        fn try_decrease_allowance(&mut self, from: &AccountId, by: Balance) -> bool {
+            // The owner of the coins doesn't need an allowance.
+            if &env::caller() == from {
+                return true
+            }
+            let allowance = self.allowance_or_zero(from, &env::caller());
+            if allowance < by {
+                return false
+            }
+            self.allowances.insert((*from, env::caller()), allowance - by);
+            true
         }
 
         /// Returns the allowance or 0 of there is no allowance.
@@ -143,6 +152,9 @@ contract! {
             let balance_from = self.balance_of_or_zero(&from);
             let balance_to = self.balance_of_or_zero(&to);
             if balance_from < value {
+                return false
+            }
+            if !self.try_decrease_allowance(&from, value) {
                 return false
             }
             self.balances.insert(from, balance_from - value);
@@ -163,26 +175,15 @@ mod tests {
     use std::convert::TryFrom;
 
     #[test]
-    fn deployment_works() {
-        let alice = AccountId::try_from([0x0; 32]).unwrap();
-        env::test::set_caller(alice);
-
-        // Deploy the contract with some `init_value`
-        let erc20 = Erc20::deploy_mock(1234);
-        // Check that the `total_supply` is `init_value`
-        assert_eq!(erc20.total_supply(), 1234);
-        // Check that `balance_of` Alice is `init_value`
-        assert_eq!(erc20.balance_of(alice), 1234);
-    }
-
-    #[test]
     fn transfer_works() {
+        let mut erc20 = Erc20::deploy_mock(1234);
         let alice = AccountId::try_from([0x0; 32]).unwrap();
         let bob = AccountId::try_from([0x1; 32]).unwrap();
 
         env::test::set_caller(alice);
-        // Deploy the contract with some `init_value`
-        let mut erc20 = Erc20::deploy_mock(1234);
+        assert_eq!(erc20.total_supply(), 1234);
+        // Check that `balance_of` Alice is `init_value`
+        assert_eq!(erc20.balance_of(alice), 1234);
         // Alice does not have enough funds for this
         assert_eq!(erc20.transfer(bob, 4321), false);
         // Alice can do this though
@@ -194,35 +195,24 @@ mod tests {
 
     #[test]
     fn allowance_works() {
+        let mut erc20 = Erc20::deploy_mock(1234);
         let alice = AccountId::try_from([0x0; 32]).unwrap();
         let bob = AccountId::try_from([0x1; 32]).unwrap();
         let charlie = AccountId::try_from([0x2; 32]).unwrap();
 
         env::test::set_caller(alice);
-        // Deploy the contract with some `init_value`
-        let mut erc20 = Erc20::deploy_mock(1234);
-        // Bob does not have an allowance from Alice's balance
+        // Not allowed, since alice is the caller
+        // and she has no approval from bob.
+        assert_eq!(erc20.transfer_from(bob, alice, 1), false);
         assert_eq!(erc20.allowance(alice, bob), 0);
-        // Thus, Bob cannot transfer out of Alice's account
-        env::test::set_caller(bob);
-        assert_eq!(erc20.transfer_from(alice, bob, 1), false);
-        // Alice can approve bob for some of her funds
-        env::test::set_caller(alice);
-        assert_eq!(erc20.approve(bob, 20), true);
-        // And the allowance reflects that correctly
-        assert_eq!(erc20.allowance(alice, bob), 20);
-
-        // Charlie cannot send on behalf of Bob
+        assert_eq!(erc20.approve(bob, 10), true);
+        // Charlie cannot send on behalf of Bob or Alice
         env::test::set_caller(charlie);
         assert_eq!(erc20.transfer_from(alice, bob, 10), false);
         // Bob cannot transfer more than he is allowed
         env::test::set_caller(bob);
-        assert_eq!(erc20.transfer_from(alice, charlie, 25), false);
-        // A smaller amount should work though
-        assert_eq!(erc20.transfer_from(alice, charlie, 10), true);
-        // Check that the allowance is updated
-        assert_eq!(erc20.allowance(alice, bob), 10);
-        // and the balance transferred to the right person
-        assert_eq!(erc20.balance_of(charlie), 10);
+        assert_eq!(erc20.transfer_from(alice, bob, 15), false);
+        // This should work though
+        assert_eq!(erc20.transfer_from(alice, bob, 10), true);
     }
 }
