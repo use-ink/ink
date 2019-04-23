@@ -29,7 +29,7 @@ use node_runtime::{
 };
 
 /// The environmental address type.
-pub type AccountId = <ContractEnv as EnvTypes>::AccountId;
+pub type AccountId = <Runtime as srml_system::Trait>::AccountId;
 
 /// The environmental balance type.
 pub type Balance = <Runtime as srml_balances::Trait>::Balance;
