@@ -80,7 +80,7 @@ pub enum Item {
     Event(ItemEvent),
 }
 
-/// An event declartion.
+/// An event declaration.
 ///
 /// # Example
 ///
