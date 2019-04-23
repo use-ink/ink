@@ -26,6 +26,8 @@ node-runtime = { git = "https://github.com/paritytech/substrate/", branch = "v1.
 # FIXME: remove these direct dependencies if possible to access the trait associated types
 srml-system = { git = "https://github.com/paritytech/substrate/", branch = "v1.0", package = "srml-system", default-features = false }
 srml-balances = { git = "https://github.com/paritytech/substrate/", branch = "v1.0", package = "srml-balances", default-features = false }
+# FIXME: remove this restriction once https://github.com/paritytech/substrate/pull/2327 backported to v1.0
+syn = { version = ">= 0.15.30, < 0.15.32", features = ["full"] } # newest version 0.15.32 breaks srml-support
 
 [features]
 default = []
