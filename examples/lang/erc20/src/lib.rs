@@ -193,7 +193,6 @@ mod tests {
         assert_eq!(erc20.balance_of(bob), 234);
     }
 
-    #[test]
     fn allowance_works() {
         let mut erc20 = Erc20::deploy_mock(1234);
         let alice = AccountId::try_from([0x0; 32]).unwrap();
@@ -205,14 +204,20 @@ mod tests {
         // and she has no approval from bob.
         assert_eq!(erc20.transfer_from(bob, alice, 1), false);
         assert_eq!(erc20.allowance(alice, bob), 0);
-        assert_eq!(erc20.approve(bob, 10), true);
+        assert_eq!(erc20.approve(bob, 20), true);
+        assert_eq!(erc20.allowance(alice, bob), 20);
+
         // Charlie cannot send on behalf of Bob or Alice
         env::test::set_caller(charlie);
         assert_eq!(erc20.transfer_from(alice, bob, 10), false);
         // Bob cannot transfer more than he is allowed
         env::test::set_caller(bob);
-        assert_eq!(erc20.transfer_from(alice, bob, 15), false);
+        assert_eq!(erc20.transfer_from(alice, charlie, 25), false);
         // This should work though
-        assert_eq!(erc20.transfer_from(alice, bob, 10), true);
+        assert_eq!(erc20.transfer_from(alice, charlie, 10), true);
+        // Allowance is updated
+        assert_eq!(erc20.allowance(alice, bob), 10);
+        // Balance transferred to the right person
+        assert_eq!(erc20.balance_of(charlie), 10);
     }
 }
