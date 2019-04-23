@@ -140,7 +140,7 @@ contract! {{
 
 #[cfg(test)]
 mod tests {{
-    use super::{};
+    use super::*;
 
     #[test]
     fn it_works() {{
@@ -151,7 +151,7 @@ mod tests {{
     }}
 }}
 "##,
-        camel_name, camel_name, camel_name, camel_name, camel_name,
+        camel_name, camel_name, camel_name, camel_name,
     )
 }
 
