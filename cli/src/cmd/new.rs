@@ -99,7 +99,7 @@ fn lib_rs_contents(name: &str) -> String {
     use heck::CamelCase as _;
     let camel_name = name.to_camel_case();
     format!(
-        r##"#![no_std]
+        r##"#![cfg_attr(not(any(test, feature = "std")), no_std)]
 
 use ink_core::{{
     env::println,
