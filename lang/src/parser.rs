@@ -32,6 +32,7 @@ pub mod keywords {
     custom_keyword!(Deploy);
     custom_keyword!(deploy);
     custom_keyword!(external);
+    custom_keyword!(event);
 }
 
 pub fn parse_contract(token_stream: TokenStream2) -> Result<ast::Contract> {
@@ -77,6 +78,11 @@ impl Parse for ast::Item {
                     ast::Item::Impl(impl_block)
                 })
             }
+        } else if lookahead.peek(keywords::event) {
+            input.parse().map(|mut event: ast::ItemEvent| {
+                event.attrs = attrs;
+                ast::Item::Event(event)
+            })
         } else {
             Err(lookahead.error())
         }
@@ -291,6 +297,39 @@ impl ast::FnArg {
             pat: input.parse()?,
             colon_token: input.parse()?,
             ty: input.parse()?,
+        })
+    }
+}
+
+impl Parse for ast::ItemEvent {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let event_tok = input.parse()?;
+        let ident = input.parse()?;
+        let (brace_tok, args) = {
+            let content;
+            let brace_tok = syn::braced!(content in input);
+            let inputs = content.parse_terminated(ast::EventArg::parse)?;
+            (brace_tok, inputs)
+        };
+        Ok(Self {
+            attrs: vec![],
+            event_tok,
+            ident,
+            brace_tok,
+            args,
+        })
+    }
+}
+
+impl Parse for ast::EventArg {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let ident = input.parse()?;
+        let colon_tok = input.parse()?;
+        let ty = input.parse()?;
+        Ok(Self {
+            ident,
+            colon_tok,
+            ty,
         })
     }
 }
