@@ -138,7 +138,7 @@ contract! {{
     }}
 }}
 
-#[cfg(test)]
+#[cfg(all(test, feature = "test-env"))]
 mod tests {{
     use super::*;
 
