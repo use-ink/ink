@@ -193,6 +193,7 @@ mod tests {
         assert_eq!(erc20.balance_of(bob), 234);
     }
 
+    #[test]
     fn allowance_works() {
         let mut erc20 = Erc20::deploy_mock(1234);
         let alice = AccountId::try_from([0x0; 32]).unwrap();
