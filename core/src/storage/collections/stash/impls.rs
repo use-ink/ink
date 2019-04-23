@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::storage::{
     self,
@@ -349,13 +349,13 @@ where
                 .entries
                 .put(current_vacant, Entry::Occupied(val))
                 .expect(
-                    "[pdsl_core::Stash::put] Error: \
+                    "[ink_core::Stash::put] Error: \
                      expected a vacant entry here, but no entry was found",
                 ) {
                 Entry::Vacant(next_vacant) => next_vacant,
                 Entry::Occupied(_) => {
                     unreachable!(
-                        "[pdsl_core::Stash::put] Error: \
+                        "[ink_core::Stash::put] Error: \
                          a next_vacant index can never point to an occupied entry"
                     )
                 }
@@ -375,7 +375,7 @@ where
                     .entries
                     .put(n, Entry::Vacant(self.next_vacant()))
                     .expect(
-                        "[pdsl_core::Stash::take] Error: \
+                        "[ink_core::Stash::take] Error: \
                          we already asserted that the entry at `n` exists",
                     ) {
                     Entry::Occupied(val) => {
@@ -386,7 +386,7 @@ where
                     }
                     Entry::Vacant(_) => {
                         unreachable!(
-                            "[pdsl_core::Stash::take] Error: \
+                            "[ink_core::Stash::take] Error: \
                              we already asserted that the entry is occupied"
                         )
                     }

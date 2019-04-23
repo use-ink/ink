@@ -1,22 +1,22 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
     env::{
-        Address,
+        AccountId,
         Hash,
         srml::{
             sys,
@@ -78,7 +78,7 @@ impl<T> EnvStorage for SrmlEnv<T>
 
 impl<T> Env for SrmlEnv<T>
 {
-    fn caller() -> Address {
+    fn caller() -> AccountId {
         unsafe { sys::ext_caller() };
         let size = unsafe { sys::ext_scratch_size() };
         let mut value = Vec::new();
@@ -88,7 +88,7 @@ impl<T> Env for SrmlEnv<T>
                 sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
             }
         }
-        Address::decode(&mut value.as_slice()).expect("caller should be a valid Address")
+        AccountId::decode(&mut value.as_slice()).expect("caller should be a valid Address")
     }
 
     fn input() -> Vec<u8> {

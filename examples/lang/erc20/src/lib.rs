@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 #![cfg_attr(not(any(test, feature = "test-env")), no_std)]
 
@@ -20,30 +20,30 @@ use parity_codec::{
     Decode,
     Encode,
 };
-use pdsl_core::{
+use ink_core::{
     env::{
         self,
-        Address,
+        AccountId,
         Balance,
     },
     memory::format,
     storage,
 };
-use pdsl_lang::contract;
+use ink_lang::contract;
 
 /// Events deposited by the ERC20 token contract.
 #[derive(Encode, Decode)]
 enum Event {
     /// An approval for allowance was made.
     Approval {
-        from: Address,
-        to: Address,
+        from: AccountId,
+        to: AccountId,
         value: Balance,
     },
     /// A transfer has been done.
     Transfer {
-        from: Option<Address>,
-        to: Option<Address>,
+        from: Option<AccountId>,
+        to: Option<AccountId>,
         value: Balance,
     },
 }
@@ -57,13 +57,13 @@ contract! {
     /// The storage items for a typical ERC20 token implementation.
     struct Erc20 {
         /// All peeps done by all users.
-        balances: storage::HashMap<Address, Balance>,
+        balances: storage::HashMap<AccountId, Balance>,
         /// Balances that are spendable by non-owners.
         ///
         /// # Note
         ///
         /// Mapping: (from, to) -> allowed
-        allowances: storage::HashMap<(Address, Address), Balance>,
+        allowances: storage::HashMap<(AccountId, AccountId), Balance>,
         /// The total supply.
         total_supply: storage::Value<Balance>,
     }
@@ -87,19 +87,19 @@ contract! {
         }
 
         /// Returns the balance of the given address.
-        pub(external) fn balance_of(&self, owner: Address) -> Balance {
+        pub(external) fn balance_of(&self, owner: AccountId) -> Balance {
             let balance = *self.balances.get(&owner).unwrap_or(&0);
             env.println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner, balance));
             balance
         }
 
         /// Returns the amount of tokens that an owner allowed to a spender.
-        pub(external) fn allowance(&self, owner: Address, spender: Address) -> Balance {
+        pub(external) fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
             self.allowance_or_zero(&owner, &spender)
         }
 
         /// Transfers token from the sender to the `to` address.
-        pub(external) fn transfer(&mut self, to: Address, value: Balance) -> bool {
+        pub(external) fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
             env.println(&format!(
                 "Erc20::transfer(to = {:?}, value = {:?})",
                 to, value
@@ -109,7 +109,7 @@ contract! {
 
         /// Approve the passed address to spend the specified amount of tokens
         /// on the behalf of the message's sender.
-        pub(external) fn approve(&mut self, spender: Address, value: Balance) -> bool {
+        pub(external) fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
             env.println(&format!(
                 "Erc20::approve(spender = {:?}, value = {:?})",
                 spender, value
@@ -124,7 +124,7 @@ contract! {
         }
 
         /// Transfer tokens from one address to another.
-        pub(external) fn transfer_from(&mut self, from: Address, to: Address, value: Balance) -> bool {
+        pub(external) fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> bool {
             env.println(&format!(
                 "Erc20::transfer_from(from: {:?}, to = {:?}, value = {:?})",
                 from, to, value
@@ -135,7 +135,7 @@ contract! {
 
     impl Erc20 {
         /// Decreases the allowance and returns if it was successful.
-        fn try_decrease_allowance(&mut self, from: &Address, to: &Address, by: Balance) -> bool {
+        fn try_decrease_allowance(&mut self, from: &AccountId, to: &AccountId, by: Balance) -> bool {
             // The owner of the coins doesn't need an allowance.
             if &env::caller() == from {
                 return true
@@ -149,7 +149,7 @@ contract! {
         }
 
         /// Returns the allowance or 0 of there is no allowance.
-        fn allowance_or_zero(&self, from: &Address, to: &Address) -> Balance {
+        fn allowance_or_zero(&self, from: &AccountId, to: &AccountId) -> Balance {
             let allowance = self.allowances.get(&(*from, *to)).unwrap_or(&0);
             env::println(&format!(
                 "Erc20::allowance_or_zero(from = {:?}, to = {:?}) = {:?}",
@@ -159,7 +159,7 @@ contract! {
         }
 
         /// Returns the balance of the address or 0 if there is no balance.
-        fn balance_of_or_zero(&self, of: &Address) -> Balance {
+        fn balance_of_or_zero(&self, of: &AccountId) -> Balance {
             let balance = self.balances.get(of).unwrap_or(&0);
             env::println(&format!(
                 "Erc20::balance_of_or_zero(of = {:?}) = {:?}",
@@ -169,7 +169,7 @@ contract! {
         }
 
         /// Transfers token from a specified address to another address.
-        fn transfer_impl(&mut self, from: Address, to: Address, value: Balance) -> bool {
+        fn transfer_impl(&mut self, from: AccountId, to: AccountId, value: Balance) -> bool {
             env::println(&format!(
                 "Erc20::transfer_impl(from = {:?}, to = {:?}, value = {:?})",
                 from, to, value
@@ -193,7 +193,7 @@ contract! {
         ///
         /// If `from` does not have enough balance.
         #[allow(unused)]
-        fn burn_for(&mut self, from: Address, value: Balance) {
+        fn burn_for(&mut self, from: AccountId, value: Balance) {
             let new_balance = self.balance_of_or_zero(&from) - value;
             self.balances.insert(from, new_balance);
             self.total_supply -= value;
@@ -201,7 +201,7 @@ contract! {
         }
 
         /// Increase balance for the receiver out of nowhere.
-        fn mint_for(&mut self, receiver: Address, value: Balance) {
+        fn mint_for(&mut self, receiver: AccountId, value: Balance) {
             env::println(&format!(
                 "Erc20::mint_for(receiver = {:?}, value = {:?})",
                 receiver, value
@@ -216,8 +216,8 @@ contract! {
     impl Erc20 {
         /// Emits an approval event.
         fn emit_approval(
-            from: Address,
-            to: Address,
+            from: AccountId,
+            to: AccountId,
             value: Balance,
         ) {
             assert_ne!(from, to);
@@ -232,8 +232,8 @@ contract! {
             value: Balance,
         )
         where
-            F: Into<Option<Address>>,
-            T: Into<Option<Address>>,
+            F: Into<Option<AccountId>>,
+            T: Into<Option<AccountId>>,
         {
             let (from, to) = (from.into(), to.into());
             assert!(from.is_some() || to.is_some());
@@ -253,8 +253,8 @@ mod tests {
     fn it_works() {
         // `alice` is always the caller in this example!
         let mut erc20 = Erc20::deploy_mock(1234);
-        let alice = Address::try_from([0x0; 32]).unwrap();
-        let bob = Address::try_from([0x1; 32]).unwrap();
+        let alice = AccountId::try_from([0x0; 32]).unwrap();
+        let bob = AccountId::try_from([0x1; 32]).unwrap();
         assert_eq!(erc20.total_supply(), 1234);
         assert_eq!(erc20.balance_of(alice), 1234);
         assert_eq!(erc20.transfer_from(alice, bob, 234), true);

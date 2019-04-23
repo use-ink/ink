@@ -1,29 +1,29 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 #![no_std]
 
-use pdsl_core::{
+use ink_core::{
     env::{
-        Address,
+        AccountId,
         Balance,
     },
     storage,
 };
-use pdsl_model::{
+use ink_model::{
     messages,
     state,
     Contract,
@@ -34,7 +34,7 @@ state! {
     /// A simple implementation of a rudimentary Erc20 token contract.
     struct Erc20Token {
         /// The balance for an address.
-        balances: storage::HashMap<Address, Balance>,
+        balances: storage::HashMap<AccountId, Balance>,
         /// The total supply.
         total: storage::Value<Balance>
     }
@@ -44,11 +44,11 @@ messages! {
     /// Returns the total supply.
     0 => TotalSupply() -> Balance;
     /// Returns the balance of the given address.
-    1 => BalanceOf(owner: Address) -> Balance;
+    1 => BalanceOf(owner: AccountId) -> Balance;
     /// Transfers balance from the caller to the given address.
     ///
     /// Returns `true` if the transfer was successful.
-    2 => Transfer(to: Address, amount: Balance) -> bool;
+    2 => Transfer(to: AccountId, amount: Balance) -> bool;
 }
 
 #[rustfmt::skip]

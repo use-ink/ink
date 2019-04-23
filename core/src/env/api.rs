@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::ContractEnv;
 use crate::{
@@ -29,7 +29,7 @@ use node_runtime::{
 };
 
 /// The environmental address type.
-pub type Address = node_runtime::Address;
+pub type AccountId = <ContractEnv as EnvTypes>::AccountId;
 
 /// The environmental balance type.
 pub type Balance = <Runtime as srml_balances::Trait>::Balance;
@@ -38,7 +38,7 @@ pub type Balance = <Runtime as srml_balances::Trait>::Balance;
 pub type Hash = <Runtime as srml_system::Trait>::Hash;
 
 /// Returns the address of the caller of the current smart contract execution.
-pub fn caller() -> Address {
+pub fn caller() -> AccountId {
     ContractEnv::caller()
 }
 

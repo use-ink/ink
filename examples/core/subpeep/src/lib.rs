@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 #![no_std]
 
@@ -23,9 +23,9 @@ use parity_codec::{
     Decode,
     Encode,
 };
-use pdsl_core::{
+use ink_core::{
     env::{
-        srml::Address,
+        srml::AccountId,
         ContractEnv,
         Env,
     },
@@ -62,7 +62,7 @@ impl Peep {
 #[derive(Debug, Encode, Decode)]
 pub struct UserData {
     /// Owner address.
-    owner: Address,
+    owner: AccountId,
     /// The peeps.
     peeps: storage::Vec<String>,
     /// The follows.
@@ -72,10 +72,10 @@ pub struct UserData {
 impl AllocateUsing for UserData {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
-        A: pdsl_core::storage::alloc::Allocate,
+        A: ink_core::storage::alloc::Allocate,
     {
         Self {
-            owner: Address::from(&[0x0; 32][..]),
+            owner: AccountId::from(&[0x0; 32][..]),
             peeps: storage::Vec::allocate_using(alloc),
             following: storage::Vec::allocate_using(alloc),
         }
@@ -83,7 +83,7 @@ impl AllocateUsing for UserData {
 }
 
 impl Initialize for UserData {
-    type Args = Address;
+    type Args = AccountId;
 
     fn initialize(&mut self, address: Self::Args) {
         self.owner = address;
@@ -110,7 +110,7 @@ pub struct Subpeep {
 impl AllocateUsing for Subpeep {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
-        A: pdsl_core::storage::alloc::Allocate,
+        A: ink_core::storage::alloc::Allocate,
     {
         Self {
             peeps: storage::Vec::allocate_using(alloc),

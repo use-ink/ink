@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 // We allow having no generalization for hasher of the hashmap implementation.
 // This might change in future versions of the pDSL.
@@ -32,7 +32,7 @@ use core::{
     borrow::Borrow,
     hash::Hash,
 };
-use pdsl_utils::hash;
+use ink_utils::hash;
 
 /// Mapping stored in the contract storage.
 ///
@@ -198,7 +198,7 @@ where
                 None
             }
             None => {
-                panic!("[pdsl_core::HashMap::insert] Error: failed finding a valid entry")
+                panic!("[ink_core::HashMap::insert] Error: failed finding a valid entry")
             }
         }
     }
@@ -285,7 +285,7 @@ where
         // of the key into a big-endian unsigned integer.
         let probe_start = u32::from_be_bytes(
             slice_as_array4(&(hash::keccak256(key.borrow())[0..4])).expect(
-                "[pdsl_core::HashMap::insert] Error \
+                "[ink_core::HashMap::insert] Error \
                  couldn't convert to probe_start byte array",
             ),
         );
@@ -362,7 +362,7 @@ where
         Q: Hash + Eq + ?Sized,
     {
         let probe_index = self.probe_inspecting(key).expect(
-            "[pdsl_core::HashMap::remove] Error: \
+            "[ink_core::HashMap::remove] Error: \
              failed at finding a valid entry",
         );
         match self.entries.take(probe_index) {
@@ -454,7 +454,7 @@ where
 
     fn index(&self, index: &Q) -> &Self::Output {
         self.get(index).expect(
-            "[pdsl_core::HashMap::index] Error: \
+            "[ink_core::HashMap::index] Error: \
              expected `index` to be within bounds",
         )
     }
@@ -468,7 +468,7 @@ where
 {
     fn index_mut(&mut self, index: &Q) -> &mut Self::Output {
         self.get_mut(index).expect(
-            "[pdsl_core::HashMap::index_mut] Error: \
+            "[ink_core::HashMap::index_mut] Error: \
              expected `index` to be within bounds",
         )
     }

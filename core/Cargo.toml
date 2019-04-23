@@ -1,5 +1,5 @@
 [package]
-name = "pdsl_core"
+name = "ink_core"
 version = "0.1.0"
 authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -18,7 +18,7 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-pdsl_utils = { path = "../utils/" }
+ink_utils = { path = "../utils/" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
 log = "0.4"
 wee_alloc = { version = "0.4", default-features = false }

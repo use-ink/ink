@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use core::{
     array::TryFromSliceError,
@@ -28,20 +28,20 @@ pub struct DefaultSrmlTypes;
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
-pub struct Address([u8; 32]);
+pub struct AccountId([u8; 32]);
 
-impl From<[u8; 32]> for Address {
-    fn from(address: [u8; 32]) -> Address {
-        Address(address)
+impl From<[u8; 32]> for AccountId {
+    fn from(address: [u8; 32]) -> AccountId {
+        AccountId(address)
     }
 }
 
-impl<'a> TryFrom<&'a [u8]> for Address {
+impl<'a> TryFrom<&'a [u8]> for AccountId {
     type Error = TryFromSliceError;
 
-    fn try_from(bytes: &'a [u8]) -> Result<Address, TryFromSliceError> {
+    fn try_from(bytes: &'a [u8]) -> Result<AccountId, TryFromSliceError> {
         let address = <[u8; 32]>::try_from(bytes)?;
-        Ok(Address(address))
+        Ok(AccountId(address))
     }
 }
 

@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of pDSL.
+// This file is part of ink!.
 //
-// pDSL is free software: you can redistribute it and/or modify
+// ink! is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// pDSL is distributed in the hope that it will be useful,
+// ink! is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with pDSL.  If not, see <http://www.gnu.org/licenses/>.
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::*;
 use crate::{
@@ -108,7 +108,7 @@ pub struct TestEnvData {
     /// # Note
     ///
     /// The current caller can be adjusted by `TestEnvData::set_caller`.
-    caller: srml::Address,
+    caller: srml::AccountId,
     /// The input data for the next contract invocation.
     ///
     /// # Note
@@ -139,7 +139,7 @@ impl Default for TestEnvData {
     fn default() -> Self {
         Self {
             storage: HashMap::new(),
-            caller: srml::Address::from([0x0; 32]),
+            caller: srml::AccountId::from([0x0; 32]),
             input: Vec::new(),
             random_seed: srml::Hash::from([0x0; 32]),
             expected_return: Vec::new(),
@@ -154,7 +154,7 @@ impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
         self.storage.clear();
-        self.caller = srml::Address::from([0; 32]);
+        self.caller = srml::AccountId::from([0; 32]);
         self.input.clear();
         self.random_seed = srml::Hash::from([0; 32]);
         self.expected_return.clear();
@@ -199,7 +199,7 @@ impl TestEnvData {
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(&mut self, new_caller: srml::Address) {
+    pub fn set_caller(&mut self, new_caller: srml::AccountId) {
         self.caller = new_caller;
     }
 
@@ -237,7 +237,7 @@ impl TestEnvData {
     const FAILURE: i32 = -1;
 
     /// Returns the caller of the contract invocation.
-    pub fn caller(&self) -> srml::Address {
+    pub fn caller(&self) -> srml::AccountId {
         self.caller
     }
 
@@ -349,7 +349,7 @@ impl TestEnv {
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(new_caller: srml::Address) {
+    pub fn set_caller(new_caller: srml::AccountId) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_caller(new_caller))
     }
 
@@ -399,10 +399,10 @@ impl EnvStorage for TestEnv {
 
 impl Env for TestEnv
 where
-    <Self as EnvTypes>::Address: for<'a> TryFrom<&'a [u8]>,
+    <Self as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
     <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
-    fn caller() -> <Self as EnvTypes>::Address {
+    fn caller() -> <Self as EnvTypes>::AccountId {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");
         TEST_ENV_DATA.with(|test_env| test_env.borrow().caller())
     }
