@@ -184,6 +184,7 @@ contract! {
             }
             self.balances.insert(from, balance_from - value);
             self.balances.insert(to, balance_to + value);
+            Self::emit_transfer(from, to, value);
             true
         }
 
@@ -257,7 +258,10 @@ mod tests {
         let bob = AccountId::try_from([0x1; 32]).unwrap();
         assert_eq!(erc20.total_supply(), 1234);
         assert_eq!(erc20.balance_of(alice), 1234);
-        assert_eq!(erc20.transfer_from(alice, bob, 234), true);
+        // Alice cannot send more funds than she has
+        assert_eq!(erc20.transfer(bob, 4321), false);
+        // She should be able to send this though
+        assert_eq!(erc20.transfer(bob, 234), true);
         assert_eq!(erc20.balance_of(alice), 1000);
         assert_eq!(erc20.balance_of(bob), 234);
         // Not allowed, since alice is the caller
