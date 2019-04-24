@@ -1,0 +1,5 @@
+[target.wasm32-unknown-unknown]
+rustflags = [
+	"-C", "overflow-checks=on",
+	"-C", "link-args=-z stack-size=65536 --import-memory"
+]

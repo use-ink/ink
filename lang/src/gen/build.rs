@@ -45,6 +45,130 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     codegen_for_method_impls(tokens, contract);
     codegen_for_instantiate(tokens, contract);
     codegen_for_entry_points(tokens, contract);
+    codegen_for_event_mod(tokens, contract);
+}
+
+fn codegen_for_event_mod(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    if contract.events.is_empty() {
+        // Do nothing if the user specified no events
+        return
+    }
+    let use_event_body = {
+        let mut content = quote! {};
+        for event in contract.events.iter() {
+            let ident = &event.ident;
+            content.extend(quote! {
+                #ident,
+            })
+        }
+        content
+    };
+    let mod_event_body = {
+        let mut content = quote! {};
+        codegen_for_event_private_mod(&mut content, contract);
+        codegen_for_events(&mut content, contract);
+        codegen_for_event_emit_trait(&mut content, contract);
+        content
+    };
+    tokens.extend(quote! {
+        mod events {
+            use super::*;
+
+            #mod_event_body
+        }
+
+        use events::{
+            EmitEventExt as _,
+            #use_event_body
+        };
+    })
+}
+
+fn codegen_for_event_private_mod(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    let event_enum_mod_body = {
+        let mut content = quote! {};
+        for event in contract.events.iter() {
+            let name = &event.ident;
+            content.extend(quote! {
+                #name(#name),
+            })
+        }
+        content
+    };
+    tokens.extend(quote! {
+        mod private {
+            use super::*;
+
+            #[doc(hidden)]
+            #[derive(parity_codec::Encode, parity_codec::Decode)]
+            pub enum Event {
+                #event_enum_mod_body
+            }
+
+            /// Used to seal the emit trait.
+            pub trait Sealed {}
+        }
+    })
+}
+
+impl quote::ToTokens for hir::Event {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        <Token![pub]>::default().to_tokens(tokens);
+        <Token![struct]>::default().to_tokens(tokens);
+        self.ident.to_tokens(tokens);
+        syn::token::Brace::default().surround(tokens, |inner| {
+            for arg in self.args.iter() {
+                <Token![pub]>::default().to_tokens(inner);
+                arg.to_tokens(inner);
+            }
+        });
+    }
+}
+
+impl quote::ToTokens for ast::EventArg {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        self.ident.to_tokens(tokens);
+        self.colon_tok.to_tokens(tokens);
+        self.ty.to_tokens(tokens);
+    }
+}
+
+fn codegen_for_events(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    for event in contract.events.iter() {
+        let ident = &event.ident;
+
+        tokens.extend(quote! {
+            /// The documentation for `BalanceChanged`.
+            #[derive(parity_codec::Encode, parity_codec::Decode)]
+            #event
+
+            impl From<#ident> for private::Event {
+                fn from(event: #ident) -> Self {
+                    private::Event::#ident(event)
+                }
+            }
+        })
+    }
+}
+
+fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Contract) {
+    tokens.extend(quote! {
+        pub trait EmitEventExt: private::Sealed {
+            /// Emits the given event.
+            fn emit<E>(&self, event: E)
+            where
+                E: Into<private::Event>,
+            {
+                use parity_codec::Encode as _;
+                ink_core::env::deposit_raw_event(
+                    event.into().encode().as_slice()
+                )
+            }
+        }
+
+        impl EmitEventExt for ink_model::EnvHandler {}
+        impl private::Sealed for ink_model::EnvHandler {}
+    })
 }
 
 fn codegen_for_entry_points(tokens: &mut TokenStream2, contract: &hir::Contract) {

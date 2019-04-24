@@ -61,6 +61,15 @@ impl Contract {
             }
         })
     }
+
+    pub fn events<'a>(&'a self) -> impl Iterator<Item = &'a ItemEvent> + 'a {
+        self.items.iter().filter_map(|item| {
+            match *item {
+                Item::Event(ref event) => Some(event),
+                _ => None,
+            }
+        })
+    }
 }
 
 #[derive(Debug)]
@@ -68,6 +77,28 @@ pub enum Item {
     State(ItemState),
     DeployImpl(ItemDeployImpl),
     Impl(ItemImpl),
+    Event(ItemEvent),
+}
+
+/// An event declaration.
+///
+/// # Example
+///
+/// This mirrors the syntax for: `event Foo { bar: Bar };`
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub struct ItemEvent {
+    pub attrs: Vec<syn::Attribute>,
+    pub event_tok: crate::parser::keywords::event,
+    pub ident: Ident,
+    pub brace_tok: token::Brace,
+    pub args: Punctuated<EventArg, token::Comma>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct EventArg {
+    pub ident: Ident,
+    pub colon_tok: Token![:],
+    pub ty: syn::Type,
 }
 
 #[derive(Debug)]

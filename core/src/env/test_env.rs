@@ -31,7 +31,14 @@ use std::convert::TryFrom;
 
 /// A wrapper for the generic bytearray used for data in contract events.
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct EventData(Vec<u8>);
+pub struct EventData(Vec<u8>);
+
+impl EventData {
+    /// Returns the uninterpreted bytes of the emitted event.
+    fn as_bytes(&self) -> &[u8] {
+        self.0.as_slice()
+    }
+}
 
 /// An entry in the storage of the test environment.
 ///
@@ -218,6 +225,13 @@ impl TestEnvData {
     pub fn set_random_seed(&mut self, random_seed_hash: srml::Hash) {
         self.random_seed = random_seed_hash;
     }
+
+    /// Returns an iterator over all emitted events.
+    pub fn emitted_events(&self) -> impl Iterator<Item = &[u8]> {
+        self.events
+            .iter()
+            .map(|event_data| event_data.as_bytes())
+    }
 }
 
 impl TestEnvData {
@@ -362,6 +376,18 @@ impl TestEnv {
     pub fn set_random_seed(random_seed_bytes: srml::Hash) {
         TEST_ENV_DATA
             .with(|test_env| test_env.borrow_mut().set_random_seed(random_seed_bytes))
+    }
+
+    /// Returns an iterator over all emitted events.
+    pub fn emitted_events() -> impl IntoIterator<Item = Vec<u8>> {
+        TEST_ENV_DATA
+            .with(|test_env| {
+                test_env
+                    .borrow()
+                    .emitted_events()
+                    .map(|event_bytes| event_bytes.to_vec())
+                    .collect::<Vec<_>>()
+            })
     }
 }
 
