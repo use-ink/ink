@@ -63,7 +63,7 @@ impl Contract {
     /// # Errors
     ///
     /// - If there are multiple events with the same names.
-    /// - If an event has
+    /// - If an event has the same name as the contract
     fn extract_events(
         contract_ident: &Ident,
         contract: &ast::Contract,
