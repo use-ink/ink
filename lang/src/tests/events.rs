@@ -151,7 +151,7 @@ fn incrementer_contract() {
                 /// The documentation for `BalanceChanged`.
                 #[derive(parity_codec::Encode, parity_codec::Decode)]
                 pub struct DecCalled {
-                    pub current : u32
+                    pub current: u32,
                 }
 
                 impl From<DecCalled> for private::Event {
@@ -163,7 +163,7 @@ fn incrementer_contract() {
                 /// The documentation for `BalanceChanged`.
                 #[derive(parity_codec::Encode, parity_codec::Decode)]
                 pub struct IncCalled {
-                    pub current : u32
+                    pub current: u32,
                 }
 
                 impl From<IncCalled> for private::Event {

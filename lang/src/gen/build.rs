@@ -120,6 +120,7 @@ impl quote::ToTokens for hir::Event {
             for arg in self.args.iter() {
                 <Token![pub]>::default().to_tokens(inner);
                 arg.to_tokens(inner);
+                <Token![,]>::default().to_tokens(inner);
             }
         });
     }
