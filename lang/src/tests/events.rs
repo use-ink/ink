@@ -41,7 +41,8 @@ fn incrementer_contract() {
                 ///
                 /// Also emits an event.
                 pub(external) fn inc(&mut self) {
-                    self.value += 1
+                    self.value += 1;
+                    env.emit(IncCalled { current: *self.value });
                 }
 
                 /// Decrements the internal counter.
@@ -50,7 +51,8 @@ fn incrementer_contract() {
                 ///
                 /// Also emits an event.
                 pub(external) fn dec(&mut self) {
-                    self.value -= 1
+                    self.value -= 1;
+                    env.emit(DecCalled { current: *self.value });
                 }
             }
         },
@@ -89,7 +91,8 @@ fn incrementer_contract() {
                 ///
                 /// Also emits an event.
                 pub fn inc(&mut self, env: &mut ink_model::EnvHandler) {
-                    self.value += 1
+                    self.value += 1;
+                    env.emit(IncCalled { current: *self.value });
                 }
 
                 /// Decrements the internal counter.
@@ -98,7 +101,8 @@ fn incrementer_contract() {
                 ///
                 /// Also emits an event.
                 pub fn dec(&mut self, env: &mut ink_model::EnvHandler) {
-                    self.value -= 1
+                    self.value -= 1;
+                    env.emit(DecCalled { current: *self.value });
                 }
             }
 
@@ -132,7 +136,9 @@ fn incrementer_contract() {
 
                 mod private {
                     use super::*;
+
                     #[doc(hidden)]
+                    #[derive(parity_codec::Encode, parity_codec::Decode)]
                     pub enum Event {
                         DecCalled(DecCalled),
                         IncCalled(IncCalled),
@@ -143,8 +149,9 @@ fn incrementer_contract() {
                 }
 
                 /// The documentation for `BalanceChanged`.
+                #[derive(parity_codec::Encode, parity_codec::Decode)]
                 pub struct DecCalled {
-                    current : u32
+                    pub current : u32
                 }
 
                 impl From<DecCalled> for private::Event {
@@ -154,8 +161,9 @@ fn incrementer_contract() {
                 }
 
                 /// The documentation for `BalanceChanged`.
+                #[derive(parity_codec::Encode, parity_codec::Decode)]
                 pub struct IncCalled {
-                    current : u32
+                    pub current : u32
                 }
 
                 impl From<IncCalled> for private::Event {
@@ -170,14 +178,15 @@ fn incrementer_contract() {
                     where
                         E: Into<private::Event>,
                     {
-                        env::deposit_raw_event(
+                        use parity_codec::Encode as _;
+                        ink_core::env::deposit_raw_event(
                             event.into().encode().as_slice()
                         )
                     }
                 }
 
-                impl EmitEventExt for pdsl_model::EnvHandler { }
-                impl private::Sealed for pdsl_model::EnvHandler { }
+                impl EmitEventExt for ink_model::EnvHandler { }
+                impl private::Sealed for ink_model::EnvHandler { }
             }
 
             use events::{

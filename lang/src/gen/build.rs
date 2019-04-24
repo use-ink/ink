@@ -100,6 +100,7 @@ fn codegen_for_event_private_mod(tokens: &mut TokenStream2, contract: &hir::Cont
             use super::*;
 
             #[doc(hidden)]
+            #[derive(parity_codec::Encode, parity_codec::Decode)]
             pub enum Event {
                 #event_enum_mod_body
             }
@@ -117,7 +118,8 @@ impl quote::ToTokens for hir::Event {
         self.ident.to_tokens(tokens);
         syn::token::Brace::default().surround(tokens, |inner| {
             for arg in self.args.iter() {
-                arg.to_tokens(inner)
+                <Token![pub]>::default().to_tokens(inner);
+                arg.to_tokens(inner);
             }
         });
     }
@@ -137,6 +139,7 @@ fn codegen_for_events(tokens: &mut TokenStream2, contract: &hir::Contract) {
 
         tokens.extend(quote! {
             /// The documentation for `BalanceChanged`.
+            #[derive(parity_codec::Encode, parity_codec::Decode)]
             #event
 
             impl From<#ident> for private::Event {
@@ -156,14 +159,15 @@ fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Cont
             where
                 E: Into<private::Event>,
             {
-                env::deposit_raw_event(
+                use parity_codec::Encode as _;
+                ink_core::env::deposit_raw_event(
                     event.into().encode().as_slice()
                 )
             }
         }
 
-        impl EmitEventExt for pdsl_model::EnvHandler {}
-        impl private::Sealed for pdsl_model::EnvHandler {}
+        impl EmitEventExt for ink_model::EnvHandler {}
+        impl private::Sealed for ink_model::EnvHandler {}
     })
 }
 
