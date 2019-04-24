@@ -84,7 +84,7 @@ pub enum Item {
 ///
 /// # Example
 ///
-/// This mirrors the syntax for: `event Foo(bar: Bar);`
+/// This mirrors the syntax for: `event Foo { bar: Bar };`
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct ItemEvent {
     pub attrs: Vec<syn::Attribute>,
