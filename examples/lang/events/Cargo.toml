@@ -1,0 +1,31 @@
+[package]
+name = "events"
+version = "0.1.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+[dependencies]
+ink_core = { path = "../../../core" }
+ink_model = { path = "../../../model" }
+ink_lang = { path = "../../../lang" }
+parity-codec = { version = "3.3", default-features = false, features = ["derive"] }
+
+[lib]
+name = "events"
+crate-type = ["cdylib"]
+
+[features]
+default = []
+test-env = [
+    "ink_core/test-env",
+    "ink_model/test-env",
+    "ink_lang/test-env",
+]
+generate-api-description = [
+    "ink_lang/generate-api-description"
+]
+
+[profile.release]
+panic = "abort"
+lto = true
+opt-level = "z"
