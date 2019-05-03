@@ -27,19 +27,35 @@ use ink_core::{
 };
 use ink_lang::contract;
 
+/// Events deposited by the ERC20 token contract.
+#[derive(Encode, Decode)]
+enum Event {
+    Transfer {
+        from: Option<AccountId>,
+        to: Option<AccountId>,
+        value: Balance,
+    },
+    Approval {
+        owner: AccountId,
+        spender: AccountId,
+        value: Balance,
+    },
+}
+
+/// Deposits an ERC20 token event.
+fn deposit_event(event: Event) {
+    env::deposit_raw_event(&event.encode()[..])
+}
+
 contract! {
     /// The storage items for a typical ERC20 token implementation.
     struct Erc20 {
-        /// All peeps done by all users.
-        balances: storage::HashMap<AccountId, Balance>,
-        /// Balances that are spendable by non-owners.
-        ///
-        /// # Note
-        ///
-        /// Mapping: (from, to) -> allowed
-        allowances: storage::HashMap<(AccountId, AccountId), Balance>,
         /// The total supply.
         total_supply: storage::Value<Balance>,
+        /// The balance of each user.
+        balances: storage::HashMap<AccountId, Balance>,
+        /// Balances that are spendable by non-owners: (owner, spender) -> allowed
+        allowances: storage::HashMap<(AccountId, AccountId), Balance>,
     }
 
     event Approval { owner: AccountId, spender: AccountId, value: Balance }
@@ -47,12 +63,13 @@ contract! {
 
     impl Deploy for Erc20 {
         fn deploy(&mut self, init_value: Balance) {
-            // We have to set total supply to `0` in order to initialize it.
-            // Otherwise accesses to total supply will panic.
-            env.println(&format!("Erc20::deploy(caller = {:?}, init_value = {:?})", env.caller(), init_value));
             self.total_supply.set(init_value);
             self.balances.insert(env.caller(), init_value);
-            env.emit(Transfer{ from: None, to: Some(env.caller()), value: init_value });
+            deposit_event(Event::Transfer { 
+                from: None,
+                to: Some(env.caller()),
+                value: init_value
+            });
         }
     }
 
@@ -64,7 +81,7 @@ contract! {
             total_supply
         }
 
-        /// Returns the balance of the given address.
+        /// Returns the balance of the given AccountId.
         pub(external) fn balance_of(&self, owner: AccountId) -> Balance {
             let balance = self.balance_of_or_zero(&owner);
             env.println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner, balance));
@@ -73,99 +90,70 @@ contract! {
 
         /// Returns the amount of tokens that an owner allowed to a spender.
         pub(external) fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self.allowance_or_zero(&owner, &spender)
-        }
-
-        /// Transfers token from the sender to the `to` address.
-        pub(external) fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
-            env.println(&format!(
-                "Erc20::transfer(to = {:?}, value = {:?})",
-                to, value
+            let allowance = self.allowance_or_zero(&owner, &spender);
+            env::println(&format!(
+                "Erc20::allowance(owner = {:?}, spender = {:?}) = {:?}",
+                owner, spender, allowance
             ));
-            self.transfer_impl(env, env.caller(), to, value)
+            allowance
         }
 
-        /// Approve the passed address to spend the specified amount of tokens
+        /// Transfers token from the sender to the `to` AccountId.
+        pub(external) fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
+            self.transfer_impl(env.caller(), to, value)
+        }
+
+        /// Approve the passed AccountId to spend the specified amount of tokens
         /// on the behalf of the message's sender.
         pub(external) fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
-            env.println(&format!(
-                "Erc20::approve(spender = {:?}, value = {:?})",
-                spender, value
-            ));
             let owner = env.caller();
             self.allowances.insert((owner, spender), value);
-            env.emit(Approval{ owner, spender, value });
+            deposit_event(Event::Approval {
+                owner: owner,
+                spender: spender,
+                value: value
+            });
             true
         }
 
-        /// Transfer tokens from one address to another.
+        /// Transfer tokens from one AccountId to another.
         pub(external) fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> bool {
-            env.println(&format!(
-                "Erc20::transfer_from(from: {:?}, to = {:?}, value = {:?})",
-                from, to, value
-            ));
-            self.transfer_impl(env, from, to, value)
+            let allowance = self.allowance_or_zero(&from, &env.caller());
+            if allowance < value {
+                return false
+            }
+            self.allowances.insert((from, env.caller()), allowance - value);
+            self.transfer_impl(from, to, value)
         }
     }
 
     impl Erc20 {
-        /// Decreases the allowance and returns if it was successful.
-        fn try_decrease_allowance(&mut self, from: &AccountId, by: Balance) -> bool {
-            // The owner of the coins doesn't need an allowance.
-            if &env::caller() == from {
-                return true
-            }
-            let allowance = self.allowance_or_zero(from, &env::caller());
-            if allowance < by {
-                return false
-            }
-            self.allowances.insert((*from, env::caller()), allowance - by);
-            true
-        }
-
-        /// Returns the allowance or 0 of there is no allowance.
-        fn allowance_or_zero(&self, from: &AccountId, to: &AccountId) -> Balance {
-            let allowance = self.allowances.get(&(*from, *to)).unwrap_or(&0);
-            env::println(&format!(
-                "Erc20::allowance_or_zero(from = {:?}, to = {:?}) = {:?}",
-                from, to, allowance
-            ));
-            *allowance
-        }
-
-        /// Returns the balance of the address or 0 if there is no balance.
+        /// Returns the balance of the AccountId or 0 if there is no balance.
         fn balance_of_or_zero(&self, of: &AccountId) -> Balance {
             let balance = self.balances.get(of).unwrap_or(&0);
-            env::println(&format!(
-                "Erc20::balance_of_or_zero(of = {:?}) = {:?}",
-                of, balance
-            ));
             *balance
         }
 
-        /// Transfers token from a specified address to another address.
-        fn transfer_impl(
-            &mut self,
-            env: &ink_model::EnvHandler,
-            from: AccountId,
-            to: AccountId,
-            value: Balance
-        ) -> bool {
-            env::println(&format!(
-                "Erc20::transfer_impl(from = {:?}, to = {:?}, value = {:?})",
-                from, to, value
-            ));
+        /// Returns the allowance or 0 of there is no allowance.
+        fn allowance_or_zero(&self, owner: &AccountId, spender: &AccountId) -> Balance {
+            let allowance = self.allowances.get(&(*owner, *spender)).unwrap_or(&0);
+            *allowance
+        }
+
+        /// Transfers token from a specified AccountId to another AccountId.
+        fn transfer_impl(&mut self, from: AccountId, to: AccountId, value: Balance) -> bool {
             let balance_from = self.balance_of_or_zero(&from);
             let balance_to = self.balance_of_or_zero(&to);
             if balance_from < value {
                 return false
             }
-            if !self.try_decrease_allowance(&from, value) {
-                return false
-            }
             self.balances.insert(from, balance_from - value);
             self.balances.insert(to, balance_to + value);
-            env.emit(Transfer{ from: Some(from), to: Some(to), value });
+            deposit_event(Event::Transfer { 
+                from: Some(from),
+                to: Some(to),
+                value: value
+            });
             true
         }
     }
@@ -177,48 +165,66 @@ mod tests {
     use std::convert::TryFrom;
 
     #[test]
+    fn deployment_works() {
+        let alice = AccountId::try_from([0x0; 32]).unwrap();
+        env::test::set_caller(alice);
+
+        // Deploy the contract with some `init_value`
+        let erc20 = Erc20::deploy_mock(1234);
+        // Check that the `total_supply` is `init_value`
+        assert_eq!(erc20.total_supply(), 1234);
+        // Check that `balance_of` Alice is `init_value`
+        assert_eq!(erc20.balance_of(alice), 1234);
+    }
+
+    #[test]
     fn transfer_works() {
-        let mut erc20 = Erc20::deploy_mock(1234);
         let alice = AccountId::try_from([0x0; 32]).unwrap();
         let bob = AccountId::try_from([0x1; 32]).unwrap();
 
         env::test::set_caller(alice);
-        assert_eq!(erc20.total_supply(), 1234);
-        assert_eq!(erc20.balance_of(alice), 1234);
+        // Deploy the contract with some `init_value`
+        let mut erc20 = Erc20::deploy_mock(1234);
         // Alice does not have enough funds for this
         assert_eq!(erc20.transfer(bob, 4321), false);
         // Alice can do this though
         assert_eq!(erc20.transfer(bob, 234), true);
+        // Check Alice and Bob have the expected balance
         assert_eq!(erc20.balance_of(alice), 1000);
         assert_eq!(erc20.balance_of(bob), 234);
     }
 
     #[test]
     fn allowance_works() {
-        let mut erc20 = Erc20::deploy_mock(1234);
         let alice = AccountId::try_from([0x0; 32]).unwrap();
         let bob = AccountId::try_from([0x1; 32]).unwrap();
         let charlie = AccountId::try_from([0x2; 32]).unwrap();
 
         env::test::set_caller(alice);
-        // Not allowed, since alice is the caller
-        // and she has no approval from bob.
-        assert_eq!(erc20.transfer_from(bob, alice, 1), false);
+        // Deploy the contract with some `init_value`
+        let mut erc20 = Erc20::deploy_mock(1234);
+        // Bob does not have an allowance from Alice's balance
         assert_eq!(erc20.allowance(alice, bob), 0);
+        // Thus, Bob cannot transfer out of Alice's account
+        env::test::set_caller(bob);
+        assert_eq!(erc20.transfer_from(alice, bob, 1), false);
+        // Alice can approve bob for some of her funds
+        env::test::set_caller(alice);
         assert_eq!(erc20.approve(bob, 20), true);
+        // And the allowance reflects that correctly
         assert_eq!(erc20.allowance(alice, bob), 20);
 
-        // Charlie cannot send on behalf of Bob or Alice
+        // Charlie cannot send on behalf of Bob
         env::test::set_caller(charlie);
         assert_eq!(erc20.transfer_from(alice, bob, 10), false);
         // Bob cannot transfer more than he is allowed
         env::test::set_caller(bob);
         assert_eq!(erc20.transfer_from(alice, charlie, 25), false);
-        // This should work though
+        // A smaller amount should work though
         assert_eq!(erc20.transfer_from(alice, charlie, 10), true);
-        // Allowance is updated
+        // Check that the allowance is updated
         assert_eq!(erc20.allowance(alice, bob), 10);
-        // Balance transferred to the right person
+        // and the balance transferred to the right person
         assert_eq!(erc20.balance_of(charlie), 10);
     }
 }
