@@ -17,7 +17,7 @@
 use super::*;
 
 #[test]
-fn noop_contract() {
+fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
             /// The contract that does nothing.
@@ -45,8 +45,12 @@ fn noop_contract() {
                 pub struct Noop {}
             }
 
-            use ink_model::messages;
-            ink_model::messages! {}
+            mod msg {
+                use super::*;
+                use ink_model::messages;
+
+                ink_model::messages! {}
+            }
 
             impl Noop {
                 /// Does nothing to initialize itself.
