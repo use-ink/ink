@@ -16,10 +16,6 @@
 
 #![cfg_attr(not(any(test, feature = "test-env")), no_std)]
 
-use parity_codec::{
-    Decode,
-    Encode,
-};
 use ink_core::{
     env::{
         self,
@@ -30,28 +26,6 @@ use ink_core::{
     storage,
 };
 use ink_lang::contract;
-
-/// Events deposited by the ERC20 token contract.
-#[derive(Encode, Decode)]
-enum Event {
-    /// An approval for allowance was made.
-    Approval {
-        from: AccountId,
-        to: AccountId,
-        value: Balance,
-    },
-    /// A transfer has been done.
-    Transfer {
-        from: Option<AccountId>,
-        to: Option<AccountId>,
-        value: Balance,
-    },
-}
-
-/// Deposits an ERC20 token event.
-fn deposit_event(event: Event) {
-    env::deposit_raw_event(&event.encode()[..])
-}
 
 contract! {
     /// The storage items for a typical ERC20 token implementation.
@@ -68,13 +42,17 @@ contract! {
         total_supply: storage::Value<Balance>,
     }
 
+    event Approval { owner: AccountId, spender: AccountId, value: Balance }
+    event Transfer { from: Option<AccountId>, to: Option<AccountId>, value: Balance }
+
     impl Deploy for Erc20 {
         fn deploy(&mut self, init_value: Balance) {
             // We have to set total supply to `0` in order to initialize it.
             // Otherwise accesses to total supply will panic.
             env.println(&format!("Erc20::deploy(caller = {:?}, init_value = {:?})", env.caller(), init_value));
-            self.total_supply.set(0);
-            self.mint_for(env.caller(), init_value);
+            self.total_supply.set(init_value);
+            self.balances.insert(env.caller(), init_value);
+            env.emit(Transfer{ from: None, to: Some(env.caller()), value: init_value });
         }
     }
 
@@ -104,7 +82,7 @@ contract! {
                 "Erc20::transfer(to = {:?}, value = {:?})",
                 to, value
             ));
-            self.transfer_impl(env.caller(), to, value)
+            self.transfer_impl(env, env.caller(), to, value)
         }
 
         /// Approve the passed address to spend the specified amount of tokens
@@ -115,11 +93,8 @@ contract! {
                 spender, value
             ));
             let owner = env.caller();
-            if owner == spender || value == 0 {
-                return false
-            }
             self.allowances.insert((owner, spender), value);
-            Self::emit_approval(owner, spender, value);
+            env.emit(Approval{ owner, spender, value });
             true
         }
 
@@ -129,7 +104,7 @@ contract! {
                 "Erc20::transfer_from(from: {:?}, to = {:?}, value = {:?})",
                 from, to, value
             ));
-            self.transfer_impl(from, to, value)
+            self.transfer_impl(env, from, to, value)
         }
     }
 
@@ -169,7 +144,13 @@ contract! {
         }
 
         /// Transfers token from a specified address to another address.
-        fn transfer_impl(&mut self, from: AccountId, to: AccountId, value: Balance) -> bool {
+        fn transfer_impl(
+            &mut self,
+            env: &ink_model::EnvHandler,
+            from: AccountId,
+            to: AccountId,
+            value: Balance
+        ) -> bool {
             env::println(&format!(
                 "Erc20::transfer_impl(from = {:?}, to = {:?}, value = {:?})",
                 from, to, value
@@ -184,63 +165,8 @@ contract! {
             }
             self.balances.insert(from, balance_from - value);
             self.balances.insert(to, balance_to + value);
-            Self::emit_transfer(from, to, value);
+            env.emit(Transfer{ from: Some(from), to: Some(to), value });
             true
-        }
-
-        /// Decrease balance from the address.
-        ///
-        /// # Panics
-        ///
-        /// If `from` does not have enough balance.
-        #[allow(unused)]
-        fn burn_for(&mut self, from: AccountId, value: Balance) {
-            let new_balance = self.balance_of_or_zero(&from) - value;
-            self.balances.insert(from, new_balance);
-            self.total_supply -= value;
-            Self::emit_transfer(from, None, value);
-        }
-
-        /// Increase balance for the receiver out of nowhere.
-        fn mint_for(&mut self, receiver: AccountId, value: Balance) {
-            env::println(&format!(
-                "Erc20::mint_for(receiver = {:?}, value = {:?})",
-                receiver, value
-            ));
-            let new_balance = self.balance_of_or_zero(&receiver) + value;
-            self.balances.insert(receiver, new_balance);
-            self.total_supply += new_balance;
-            Self::emit_transfer(None, receiver, new_balance);
-        }
-    }
-
-    impl Erc20 {
-        /// Emits an approval event.
-        fn emit_approval(
-            from: AccountId,
-            to: AccountId,
-            value: Balance,
-        ) {
-            assert_ne!(from, to);
-            assert!(value > 0);
-            deposit_event(Event::Approval { from, to, value });
-        }
-
-        /// Emits a transfer event.
-        fn emit_transfer<F, T>(
-            from: F,
-            to: T,
-            value: Balance,
-        )
-        where
-            F: Into<Option<AccountId>>,
-            T: Into<Option<AccountId>>,
-        {
-            let (from, to) = (from.into(), to.into());
-            assert!(from.is_some() || to.is_some());
-            assert_ne!(from, to);
-            assert!(value > 0);
-            deposit_event(Event::Transfer { from, to, value });
         }
     }
 }
