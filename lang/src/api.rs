@@ -39,6 +39,53 @@ pub enum TypeDescription {
     Tuple(TupleTypeDescription),
     /// The fixed size array type
     Array(ArrayTypeDescription),
+    /// A concrete `Option` type.
+    Option(OptionTypeDescription),
+
+/// Describes an option param or return type.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub enum OptionTypeDescription {
+    #[serde(rename = "Option<T>")]
+    Single {
+        /// The generic type param.
+        #[serde(rename = "T")]
+        inner: Box<TypeDescription>,
+    },
+}
+
+impl TryFrom<&syn::TypePath> for OptionTypeDescription {
+    type Error = Errors;
+
+    fn try_from(type_path: &syn::TypePath) -> Result<Self> {
+        if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
+            bail!(type_path, "`Option` cannot be qualified or start with `::`")
+        }
+        if type_path.path.segments.len() != 1 {
+            bail!(type_path, "too many path segments for an `Option` type")
+        }
+        let seg = &type_path.path.segments[0];
+        if seg.ident != "Option" {
+            bail!(type_path, "invalid ident for `Option` type")
+        }
+        match &seg.arguments {
+            syn::PathArguments::AngleBracketed(generic_args) => {
+                if generic_args.args.len() != 1 {
+                    bail!(generic_args, "too many generic args for `Option` type")
+                }
+                match &generic_args.args[0] {
+                    syn::GenericArgument::Type(ty) => {
+                        Ok(OptionTypeDescription::Single {
+                            inner: Box::new(TypeDescription::try_from(ty)?),
+                        })
+                    }
+                    invalid => bail!(invalid, "invalid generic type args for `Option`"),
+                }
+            }
+            invalid => bail!(invalid, "invalid type arguments for `Option`"),
+        }
+    }
+}
+
 }
 
 impl TryFrom<&syn::Type> for TypeDescription {
@@ -52,7 +99,23 @@ impl TryFrom<&syn::Type> for TypeDescription {
             syn::Type::Array(array) => {
                 ArrayTypeDescription::try_from(array).map(TypeDescription::Array)
             }
-            ty => PrimitiveTypeDescription::try_from(ty).map(TypeDescription::Primitive),
+            syn::Type::Path(path) => {
+                if path.path.segments.len() != 1 || path.path.leading_colon.is_some() {
+                    bail!(
+                        path,
+                        "invalid self qualifier or leading `::` for type"
+                    )
+                }
+                let ident = &path.path.segments[0].ident;
+                match ident.to_owned_string().as_str() {
+                    "Option" => OptionTypeDescription::try_from(path).map(TypeDescription::Option),
+                    _ => PrimitiveTypeDescription::try_from(path).map(TypeDescription::Primitive),
+                }
+            }
+            invalid => bail!(
+                invalid,
+                "invalid or unsupported type",
+            )
         }
     }
 }
@@ -98,10 +161,10 @@ pub enum PrimitiveTypeDescription {
     Balance,
 }
 
-impl TryFrom<&syn::Type> for PrimitiveTypeDescription {
+impl TryFrom<&syn::TypePath> for PrimitiveTypeDescription {
     type Error = Errors;
 
-    fn try_from(ty: &syn::Type) -> Result<Self> {
+    fn try_from(ty: &syn::TypePath) -> Result<Self> {
         use quote::ToTokens;
 
         match ty.into_token_stream().to_string().as_str() {
@@ -478,5 +541,45 @@ mod tests {
     #[test]
     fn array_json() {
         assert_json_roundtrip(parse_quote!([u32; 5]), r#"{"[T;n]":{"T":"u32","n":5}}"#)
+    }
+
+    fn expect_failure(input: syn::Type, expected_err: &str) {
+        let res = TypeDescription::try_from(&input).map_err(|err| format!("{}", err));
+        assert_eq!(res, Err(String::from(expected_err)));
+    }
+
+    #[test]
+    fn option_json_err_qualified() {
+        expect_failure(
+            parse_quote!(<Self as Foo>::Option<i32>),
+            "invalid self qualifier or leading `::` for type",
+        );
+        expect_failure(
+            parse_quote!(::Option<i32>),
+            "invalid self qualifier or leading `::` for type",
+        );
+    }
+
+    #[test]
+    fn option_json_err_too_many_segs() {
+        expect_failure(
+            parse_quote!(Option<bool, i32>),
+            "too many generic args for `Option` type",
+        );
+    }
+
+    #[test]
+    fn option_json_err_invalid_params() {
+        expect_failure(
+            parse_quote!(Option<'a>),
+            "invalid generic type args for `Option`",
+        );
+    }
+
+    #[test]
+    fn option_json() {
+        assert_json_roundtrip(parse_quote!(Option<i32>), r#"{"Option<T>":{"T":"i32"}}"#);
+        assert_json_roundtrip(parse_quote!(Option<(bool, i32)>), r#"{"Option<T>":{"T":["bool","i32"]}}"#);
+        assert_json_roundtrip(parse_quote!(Option<Option<i32>>), r#"{"Option<T>":{"T":{"Option<T>":{"T":"i32"}}}}"#);
     }
 }
