@@ -41,6 +41,7 @@ pub enum TypeDescription {
     Array(ArrayTypeDescription),
     /// A concrete `Option` type.
     Option(OptionTypeDescription),
+}
 
 /// Describes an option param or return type.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
