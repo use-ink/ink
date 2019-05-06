@@ -56,7 +56,7 @@ contract! {
         fn deploy(&mut self, init_value: Balance) {
             self.total_supply.set(init_value);
             self.balances.insert(env.caller(), init_value);
-            env.emit(Transfer { 
+            env.emit(Transfer {
                 from: None,
                 to: Some(env.caller()),
                 value: init_value
@@ -138,7 +138,7 @@ contract! {
             }
             self.balances.insert(from, balance_from - value);
             self.balances.insert(to, balance_to + value);
-            env.emit(Transfer { 
+            env.emit(Transfer {
                 from: Some(from),
                 to: Some(to),
                 value: value
