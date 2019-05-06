@@ -130,14 +130,12 @@ contract! {
     impl Erc20 {
         /// Returns the balance of the AccountId or 0 if there is no balance.
         fn balance_of_or_zero(&self, of: &AccountId) -> Balance {
-            let balance = self.balances.get(of).unwrap_or(&0);
-            *balance
+            *self.balances.get(of).unwrap_or(&0)
         }
 
         /// Returns the allowance or 0 of there is no allowance.
         fn allowance_or_zero(&self, owner: &AccountId, spender: &AccountId) -> Balance {
-            let allowance = self.allowances.get(&(*owner, *spender)).unwrap_or(&0);
-            *allowance
+            *self.allowances.get(&(*owner, *spender)).unwrap_or(&0)
         }
 
         /// Transfers token from a specified AccountId to another AccountId.
