@@ -50,7 +50,7 @@ macro_rules! messages {
 	) => {
 		$( #[$msg_meta] )*
 		#[derive(Copy, Clone)]
-		struct $msg_name;
+		pub(crate) struct $msg_name;
 
 		impl $crate::Message for $msg_name {
 			type Input = ($($param_ty),*);

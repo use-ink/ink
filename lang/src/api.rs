@@ -87,8 +87,6 @@ impl TryFrom<&syn::TypePath> for OptionTypeDescription {
     }
 }
 
-}
-
 impl TryFrom<&syn::Type> for TypeDescription {
     type Error = Errors;
 
