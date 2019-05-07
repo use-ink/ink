@@ -26,13 +26,13 @@ use crate::{
 /// Initializes a project structure for the `lang` abstraction layer.
 fn initialize_for_lang(name: &str) -> Result<()> {
     use std::{fs, io};
-    use std::io::{Cursor, Read, Seek, SeekFrom, Write};
+    use std::io::{Cursor, Seek, SeekFrom, Write};
     use std::path;
 
     fs::create_dir(name)?;
     let out_dir = path::Path::new(name);
 
-    let mut template = include_bytes!(concat!(env!("OUT_DIR"), "/template.zip"));
+    let template = include_bytes!(concat!(env!("OUT_DIR"), "/template.zip"));
     let mut cursor = Cursor::new(Vec::new());
     cursor.write_all(template).unwrap();
     cursor.seek(SeekFrom::Start(0)).unwrap();
