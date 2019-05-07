@@ -34,6 +34,7 @@ use core::{
     },
     marker::PhantomData,
 };
+use parity_codec::Decode;
 
 /// The default SRML environment.
 pub type DefaultSrmlEnv = SrmlEnv<DefaultSrmlTypes>;
@@ -91,14 +92,9 @@ where
     }
 }
 
-impl<T> Env for SrmlEnv<T>
-where
-    T: EnvTypes,
-    <T as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
-    <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
-{
-    fn caller() -> <Self as EnvTypes>::AccountId {
-        unsafe { sys::ext_caller() };
+impl<T: EnvTypes> SrmlEnv<T> {
+    /// Load the contents of the scratch buffer
+    fn read_scratch_buffer() -> Vec<u8> {
         let size = unsafe { sys::ext_scratch_size() };
         let mut value = Vec::new();
         if size > 0 {
@@ -108,10 +104,38 @@ where
             }
         }
         value
+    }
+}
+
+impl<T> Env for SrmlEnv<T>
+where
+    T: EnvTypes,
+    <T as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
+    <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
+{
+    fn address() -> <Self as EnvTypes>::AccountId {
+        unsafe { sys::ext_address() };
+        Self::read_scratch_buffer()
+            .as_slice()
+            .try_into()
+            .map_err(|_| "address received an incorrectly sized buffer from SRML")
+            .expect("we expect to always receive a correctly sized buffer here")
+    }
+
+    fn balance() -> <Self as EnvTypes>::Balance {
+        unsafe { sys::ext_balance() };
+        Decode::decode(&mut &Self::read_scratch_buffer()[..])
+            .ok_or("balance received an incorrectly sized buffer from SRML")
+            .expect("we expect to always receive a correctly sized buffer here")
+    }
+
+    fn caller() -> <Self as EnvTypes>::AccountId {
+        unsafe { sys::ext_caller() };
+        Self::read_scratch_buffer()
             .as_slice()
             .try_into()
             .map_err(|_| "caller received an incorrectly sized buffer from SRML")
-            .expect("we can assume to always receive a correctly sized buffer here")
+            .expect("we expect to always receive a correctly sized buffer here")
     }
 
     fn input() -> Vec<u8> {
@@ -130,19 +154,11 @@ where
 
     fn random_seed() -> <Self as EnvTypes>::Hash {
         unsafe { sys::ext_random_seed() };
-        let size = unsafe { sys::ext_scratch_size() };
-        let mut value = Vec::new();
-        if size > 0 {
-            value.resize(size as usize, 0);
-            unsafe {
-                sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
-            }
-        }
-        value
+        Self::read_scratch_buffer()
             .as_slice()
             .try_into()
             .map_err(|_| "random_seed received an incorrectly sized buffer from SRML")
-            .expect("we can expect to receive a correctly sized buffer here")
+            .expect("we expect to always receive a correctly sized buffer here")
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {
