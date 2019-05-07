@@ -52,6 +52,12 @@ contract! {
         ///
         /// Also emits an event.
         pub(external) fn dec(&mut self) {
+            self.dec_internal(env);
+        }
+    }
+
+    impl CallCounter {
+        fn dec_internal(&mut self, env: &mut ink_model::EnvHandler) {
             self.count -= 1;
             env.emit(DecCalled { current: *self.count });
         }
