@@ -283,14 +283,14 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
 
             let msg_toks = if message.is_mut() {
                 quote! {
-                    .on_msg_mut::< #camelcase_msg_ident >(|env, #msg_fn_args_toks| {
+                    .on_msg_mut::< msg::#camelcase_msg_ident >(|env, #msg_fn_args_toks| {
                         let (handler, state) = env.split_mut();
                         state. #msg_ident (handler, #msg_call_args)
                     })
                 }
             } else {
                 quote! {
-                    .on_msg::< #camelcase_msg_ident >(|env, #msg_fn_args_toks| {
+                    .on_msg::< msg::#camelcase_msg_ident >(|env, #msg_fn_args_toks| {
                         let (handler, state) = env.split();
                         state.  #msg_ident (handler, #msg_call_args)
                     })
@@ -491,11 +491,14 @@ fn codegen_for_messages(tokens: &mut TokenStream2, contract: &hir::Contract) {
         content
     };
     tokens.extend(quote! {
-        // Apparently this `use` is required even though it should not be.
-        // -> Further investigations needed!
-        use ink_model::messages;
-        ink_model::messages! {
-            #messages_content
+        mod msg {
+            use super::*;
+            // Apparently this `use` is required even though it should not be.
+            // -> Further investigations needed!
+            use ink_model::messages;
+            ink_model::messages! {
+                #messages_content
+            }
         }
     })
 }

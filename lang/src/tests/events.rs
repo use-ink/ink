@@ -17,7 +17,7 @@
 use super::*;
 
 #[test]
-fn incrementer_contract() {
+fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
             /// Tests emitting of custom defined events.
@@ -65,21 +65,25 @@ fn incrementer_contract() {
                 }
             }
 
-            use ink_model::messages;
 
-            ink_model::messages! {
-                /// Increments the internal counter.
-                ///
-                /// # Note
-                ///
-                /// Also emits an event.
-                257544423 => Inc();
-                /// Decrements the internal counter.
-                ///
-                /// # Note
-                ///
-                /// Also emits an event.
-                1772705147 => Dec();
+            mod msg {
+                use super::*;
+                use ink_model::messages;
+
+                ink_model::messages! {
+                    /// Increments the internal counter.
+                    ///
+                    /// # Note
+                    ///
+                    /// Also emits an event.
+                    257544423 => Inc();
+                    /// Decrements the internal counter.
+                    ///
+                    /// # Note
+                    ///
+                    /// Also emits an event.
+                    1772705147 => Dec();
+                }
             }
 
             impl CallCounter {
@@ -116,11 +120,11 @@ fn incrementer_contract() {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
                         })
-                        .on_msg_mut::<Inc>(|env, _| {
+                        .on_msg_mut::<msg::Inc>(|env, _| {
                             let (handler, state) = env.split_mut();
                             state.inc(handler,)
                         })
-                        .on_msg_mut::<Dec>(|env, _| {
+                        .on_msg_mut::<msg::Dec>(|env, _| {
                             let (handler, state) = env.split_mut();
                             state.dec(handler,)
                         })
