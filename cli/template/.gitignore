@@ -1,10 +1,5 @@
 # Ignore build artifacts from the local tests sub-crate.
 /target/
-/core/target/
-/model/target/
-/lang/target/
-/examples/**/target/
-/design/
 
 # Ignore backup files creates by cargo fmt.
 **/*.rs.bk
@@ -12,12 +7,3 @@
 # Remove Cargo.lock when creating an executable, leave it for libraries
 # More information here http://doc.crates.io/guide.html#cargotoml-vs-cargolock
 Cargo.lock
-
-# Ignore VS Code artifacts.
-**/.vscode/**
-
-# Ignore idea artifacts.
-**/.idea/**
-
-# Ignore history files.
-**/.history/**
