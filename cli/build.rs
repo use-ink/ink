@@ -13,9 +13,10 @@ use std::fs::File;
 
 fn main() {
     let src_dir = "./template";
-    let dst_file = "./template.zip";
+    let out_dir = std::env::var("OUT_DIR").unwrap();
+    let dst_file = format!("{}/template.zip", out_dir); // todo: [AJ] proper path concat
 
-    match doit(src_dir, dst_file, zip::CompressionMethod::Stored) {
+    match doit(src_dir, &dst_file, zip::CompressionMethod::Stored) {
         Ok(_) => println!("done: {} written to {}", src_dir, dst_file),
         Err(e) => eprintln!("Error: {:?}", e),
     };
