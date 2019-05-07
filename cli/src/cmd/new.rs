@@ -27,7 +27,10 @@ use crate::{
 fn initialize_for_lang(name: &str) -> Result<()> {
     use std::{fs, io};
     use std::io::{Cursor, Read, Seek, SeekFrom, Write};
+    use std::path;
+
     fs::create_dir(name)?;
+    let out_dir = path::Path::new(name);
 
     let mut template = include_bytes!(concat!(env!("OUT_DIR"), "/template.zip"));
     let mut cursor = Cursor::new(Vec::new());
@@ -38,7 +41,7 @@ fn initialize_for_lang(name: &str) -> Result<()> {
 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).unwrap();
-        let outpath = file.sanitized_name();
+        let outpath = out_dir.join(file.sanitized_name());
 
         {
             let comment = file.comment();
