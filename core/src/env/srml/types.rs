@@ -32,6 +32,7 @@ impl EnvTypes for DefaultSrmlTypes {
     type AccountId = self::AccountId;
     type Balance = self::Balance;
     type Hash = self::Hash;
+    type Moment = self::Moment;
 }
 
 /// The default SRML address type.
@@ -74,3 +75,6 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
         Ok(Hash(hash))
     }
 }
+
+/// The default SRML moment type.
+pub type Moment = u64;

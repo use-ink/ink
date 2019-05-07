@@ -128,6 +128,12 @@ pub struct TestEnvData {
     ///
     /// The current random seed can be adjusted by `TestEnvData::set_random_seed`.
     random_seed: srml::Hash,
+    /// The timestamp for the next contract invocation.
+    ///
+    /// # Note
+    ///
+    /// The current timestamp can be adjusted by `TestEnvData::set_now`.
+    now: srml::Moment,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -149,6 +155,7 @@ impl Default for TestEnvData {
             caller: srml::AccountId::from([0x0; 32]),
             input: Vec::new(),
             random_seed: srml::Hash::from([0x0; 32]),
+            now: srml::Moment::from(0),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -164,6 +171,7 @@ impl TestEnvData {
         self.caller = srml::AccountId::from([0; 32]);
         self.input.clear();
         self.random_seed = srml::Hash::from([0; 32]);
+        self.now = srml::Moment::from(0),
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
@@ -224,6 +232,11 @@ impl TestEnvData {
     /// Sets the random seed for the next contract invocation.
     pub fn set_random_seed(&mut self, random_seed_hash: srml::Hash) {
         self.random_seed = random_seed_hash;
+    }
+
+    /// Sets the timestamp for the next contract invocation.
+    pub fn set_now(&mut self, timestamp: srml::Moment) {
+        self.now = timestamp;
     }
 
     /// Returns an iterator over all emitted events.
@@ -287,6 +300,11 @@ impl TestEnvData {
     /// Returns the random seed for the contract invocation.
     pub fn random_seed(&self) -> srml::Hash {
         self.random_seed
+    }
+
+    /// Returns the timestamp for the contract invocation.
+    pub fn now(&self) -> srml::Moment {
+        self.now
     }
 
     /// Returns the data to the internal caller.
@@ -378,6 +396,12 @@ impl TestEnv {
             .with(|test_env| test_env.borrow_mut().set_random_seed(random_seed_bytes))
     }
 
+    /// Sets the timestamp for the next contract invocation.
+    pub fn set_now(timestamp: srml::Moment) {
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().set_now(timestamp))
+    }
+
     /// Returns an iterator over all emitted events.
     pub fn emitted_events() -> impl IntoIterator<Item = Vec<u8>> {
         TEST_ENV_DATA
@@ -447,6 +471,11 @@ where
     fn random_seed() -> <Self as EnvTypes>::Hash {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::random_seed()",);
         TEST_ENV_DATA.with(|test_env| test_env.borrow().random_seed())
+    }
+
+    fn now() -> <Self as EnvTypes>::Moment {
+        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::now()",);
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().now())
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {

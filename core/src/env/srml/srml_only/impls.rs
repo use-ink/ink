@@ -34,6 +34,7 @@ use core::{
     },
     marker::PhantomData,
 };
+use parity_codec::Decode;
 
 /// The default SRML environment.
 pub type DefaultSrmlEnv = SrmlEnv<DefaultSrmlTypes>;
@@ -53,6 +54,7 @@ where
     type AccountId = <T as EnvTypes>::AccountId;
     type Balance = <T as EnvTypes>::Balance;
     type Hash = <T as EnvTypes>::Hash;
+    type Moment = <T as EnvTypes>::Moment;
 }
 
 impl<T> EnvStorage for SrmlEnv<T>
@@ -143,6 +145,21 @@ where
             .try_into()
             .map_err(|_| "random_seed received an incorrectly sized buffer from SRML")
             .expect("we can expect to receive a correctly sized buffer here")
+    }
+
+    fn now() -> <Self as EnvTypes>::Moment {
+        unsafe { sys::ext_now() };
+        let size = unsafe { sys::ext_scratch_size() };
+        let mut value = Vec::new();
+        if size > 0 {
+            value.resize(size as usize, 0);
+            unsafe {
+                sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
+            }
+        }
+        Decode::decode(&mut &value[..])
+            .ok_or("now received an incorrectly sized buffer from SRML")
+            .expect("we expect to receive a correctly sized buffer here")
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {
