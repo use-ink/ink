@@ -155,7 +155,7 @@ impl Default for TestEnvData {
             caller: srml::AccountId::from([0x0; 32]),
             input: Vec::new(),
             random_seed: srml::Hash::from([0x0; 32]),
-            now: srml::Moment::from(0),
+            now: 0,
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -171,7 +171,7 @@ impl TestEnvData {
         self.caller = srml::AccountId::from([0; 32]);
         self.input.clear();
         self.random_seed = srml::Hash::from([0; 32]);
-        self.now = srml::Moment::from(0),
+        self.now = 0;
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
@@ -421,6 +421,7 @@ impl EnvTypes for TestEnv {
     type AccountId = srml::AccountId;
     type Balance = srml::Balance;
     type Hash = srml::Hash;
+    type Moment = srml::Moment;
 }
 
 impl EnvStorage for TestEnv {
