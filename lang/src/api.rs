@@ -600,7 +600,7 @@ mod tests {
     }
 
     #[test]
-    fn option_json_err_qualified() {
+    fn option_json_failure() {
         expect_failure(
             parse_quote!(<Self as Foo>::Option<i32>),
             "invalid self qualifier or leading `::` for type",
@@ -609,18 +609,10 @@ mod tests {
             parse_quote!(::Option<i32>),
             "invalid self qualifier or leading `::` for type",
         );
-    }
-
-    #[test]
-    fn option_json_err_too_many_segs() {
         expect_failure(
             parse_quote!(Option<bool, i32>),
             "too many generic args for `Option` type",
         );
-    }
-
-    #[test]
-    fn option_json_err_invalid_params() {
         expect_failure(
             parse_quote!(Option<'a>),
             "invalid generic type args for `Option`",
@@ -628,9 +620,16 @@ mod tests {
     }
 
     #[test]
-    fn option_json() {
+    fn option_json_success() {
         assert_json_roundtrip(parse_quote!(Option<i32>), r#"{"Option<T>":{"T":"i32"}}"#);
-        assert_json_roundtrip(parse_quote!(Option<(bool, i32)>), r#"{"Option<T>":{"T":["bool","i32"]}}"#);
-        assert_json_roundtrip(parse_quote!(Option<Option<i32>>), r#"{"Option<T>":{"T":{"Option<T>":{"T":"i32"}}}}"#);
+        assert_json_roundtrip(
+            parse_quote!(Option<(bool, i32)>),
+            r#"{"Option<T>":{"T":["bool","i32"]}}"#,
+        );
+        assert_json_roundtrip(
+            parse_quote!(Option<Option<i32>>),
+            r#"{"Option<T>":{"T":{"Option<T>":{"T":"i32"}}}}"#,
+        );
+    }
     }
 }
