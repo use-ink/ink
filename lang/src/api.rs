@@ -631,5 +631,34 @@ mod tests {
             r#"{"Option<T>":{"T":{"Option<T>":{"T":"i32"}}}}"#,
         );
     }
+
+    #[test]
+    fn vec_json_failure() {
+        expect_failure(
+            parse_quote!(<Self as Foo>::Vec<i32>),
+            "invalid self qualifier or leading `::` for type",
+        );
+        expect_failure(
+            parse_quote!(::Vec<i32>),
+            "invalid self qualifier or leading `::` for type",
+        );
+        expect_failure(
+            parse_quote!(Vec<bool, i32>),
+            "too many generic args for `Vec` type",
+        );
+        expect_failure(parse_quote!(Vec<'a>), "invalid generic type args for `Vec`");
+    }
+
+    #[test]
+    fn vec_json_success() {
+        assert_json_roundtrip(parse_quote!(Vec<i32>), r#"{"Vec<T>":{"T":"i32"}}"#);
+        assert_json_roundtrip(
+            parse_quote!(Vec<(bool, i32)>),
+            r#"{"Vec<T>":{"T":["bool","i32"]}}"#,
+        );
+        assert_json_roundtrip(
+            parse_quote!(Vec<Vec<i32>>),
+            r#"{"Vec<T>":{"T":{"Vec<T>":{"T":"i32"}}}}"#,
+        );
     }
 }
