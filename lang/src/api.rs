@@ -151,21 +151,22 @@ impl TryFrom<&syn::Type> for TypeDescription {
             }
             syn::Type::Path(path) => {
                 if path.path.segments.len() != 1 || path.path.leading_colon.is_some() {
-                    bail!(
-                        path,
-                        "invalid self qualifier or leading `::` for type"
-                    )
+                    bail!(path, "invalid self qualifier or leading `::` for type")
                 }
                 let ident = &path.path.segments[0].ident;
                 match ident.to_owned_string().as_str() {
-                    "Option" => OptionTypeDescription::try_from(path).map(TypeDescription::Option),
-                    _ => PrimitiveTypeDescription::try_from(path).map(TypeDescription::Primitive),
+                    "Option" => {
+                        OptionTypeDescription::try_from(path).map(TypeDescription::Option)
+                    }
+                    // "Result" => ResultTypeDescription::try_from(path).map(TypeDescription::Result),
+                    "Vec" => VecTypeDescription::try_from(path).map(TypeDescription::Vec),
+                    _ => {
+                        PrimitiveTypeDescription::try_from(path)
+                            .map(TypeDescription::Primitive)
+                    }
                 }
             }
-            invalid => bail!(
-                invalid,
-                "invalid or unsupported type",
-            )
+            invalid => bail!(invalid, "invalid or unsupported type",),
         }
     }
 }
