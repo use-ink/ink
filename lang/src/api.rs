@@ -41,6 +41,8 @@ pub enum TypeDescription {
     Array(ArrayTypeDescription),
     /// A concrete `Option` type.
     Option(OptionTypeDescription),
+    /// A concrete `Vec` type.
+    Vec(VecTypeDescription),
 }
 
 /// Describes an option param or return type.
@@ -83,6 +85,55 @@ impl TryFrom<&syn::TypePath> for OptionTypeDescription {
                 }
             }
             invalid => bail!(invalid, "invalid type arguments for `Option`"),
+        }
+    }
+}
+
+
+/// Describes a `Vec` param or return type.
+///
+/// # Note
+///
+/// With `Vec` we refer to `memory::Vec` here.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub enum VecTypeDescription {
+    #[serde(rename = "Vec<T>")]
+    Single {
+        /// The generic type param.
+        #[serde(rename = "T")]
+        elem_type: Box<TypeDescription>,
+    },
+}
+
+impl TryFrom<&syn::TypePath> for VecTypeDescription {
+    type Error = Errors;
+
+    fn try_from(type_path: &syn::TypePath) -> Result<Self> {
+        if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
+            bail!(type_path, "`Vec` cannot be qualified or start with `::`")
+        }
+        if type_path.path.segments.len() != 1 {
+            bail!(type_path, "too many path segments for an `Vec` type")
+        }
+        let seg = &type_path.path.segments[0];
+        if seg.ident != "Vec" {
+            bail!(type_path, "invalid ident for `Vec` type")
+        }
+        match &seg.arguments {
+            syn::PathArguments::AngleBracketed(generic_args) => {
+                if generic_args.args.len() != 1 {
+                    bail!(generic_args, "too many generic args for `Vec` type")
+                }
+                match &generic_args.args[0] {
+                    syn::GenericArgument::Type(ty) => {
+                        Ok(VecTypeDescription::Single {
+                            elem_type: Box::new(TypeDescription::try_from(ty)?),
+                        })
+                    }
+                    invalid => bail!(invalid, "invalid generic type args for `Vec`"),
+                }
+            }
+            invalid => bail!(invalid, "invalid type arguments for `Vec`"),
         }
     }
 }
