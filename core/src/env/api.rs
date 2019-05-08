@@ -32,7 +32,7 @@ use node_runtime::{
 pub type AccountId = <Runtime as srml_system::Trait>::AccountId;
 
 /// The environmental balance type.
-pub type Balance = <Runtime as srml_balances::Trait>::Balance;
+pub type Balance = srml_contract::BalanceOf<Runtime>;
 
 /// The environmental hash type.
 pub type Hash = <Runtime as srml_system::Trait>::Hash;
