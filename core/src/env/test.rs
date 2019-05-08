@@ -33,3 +33,8 @@ pub fn total_writes() -> u64 {
 pub fn set_caller(address: AccountId) {
     ContractEnv::set_caller(address)
 }
+
+/// Returns an iterator over the uninterpreted bytes of all past emitted events.
+pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
+    ContractEnv::emitted_events().into_iter()
+}

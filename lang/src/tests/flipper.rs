@@ -17,7 +17,7 @@
 use super::*;
 
 #[test]
-fn flipper_contract() {
+fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
             /// A simple contract that has a boolean value that can be flipped and be retured.
@@ -54,13 +54,16 @@ fn flipper_contract() {
                 }
             }
 
-            use ink_model::messages;
+            mod msg {
+                use super::*;
+                use ink_model::messages;
 
-            ink_model::messages! {
-                /// Flips the internal boolean.
-                970692492 => Flip();
-                /// Returns the internal boolean.
-                4266279973 => Get() -> bool;
+                ink_model::messages! {
+                    /// Flips the internal boolean.
+                    970692492 => Flip();
+                    /// Returns the internal boolean.
+                    4266279973 => Get() -> bool;
+                }
             }
 
             impl Flipper {
@@ -90,11 +93,11 @@ fn flipper_contract() {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
                         })
-                        .on_msg_mut::<Flip>(|env, _| {
+                        .on_msg_mut::<msg::Flip>(|env, _| {
                             let (handler, state) = env.split_mut();
                             state.flip(handler,)
                         })
-                        .on_msg::<Get>(|env, _| {
+                        .on_msg::<msg::Get>(|env, _| {
                             let (handler, state) = env.split();
                             state.get(handler,)
                         })

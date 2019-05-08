@@ -21,11 +21,15 @@ use crate::{
         SynError,
     },
 };
+
 use proc_macro2::{
     Ident,
     Span,
 };
-
+use syn::{
+    punctuated::Punctuated,
+    Token,
+};
 /// A smart contract.
 #[derive(Debug)]
 pub struct Contract {
@@ -39,9 +43,63 @@ pub struct Contract {
     pub messages: Vec<Message>,
     /// Methods of the smart contract.
     pub methods: Vec<Method>,
+    /// Events of the smart contract.
+    pub events: Vec<Event>,
+}
+
+/// An event definition.
+#[derive(Debug)]
+pub struct Event {
+    pub attrs: Vec<syn::Attribute>,
+    pub ident: Ident,
+    pub args: Punctuated<ast::EventArg, Token![,]>,
 }
 
 impl Contract {
+    /// Extracts all events from the contract.
+    ///
+    /// Performs some semantic checks on them as a whole.
+    ///
+    /// # Errors
+    ///
+    /// - If there are multiple events with the same names.
+    /// - If an event has the same name as the contract
+    fn extract_events(
+        contract_ident: &Ident,
+        contract: &ast::Contract,
+    ) -> Result<Vec<Event>> {
+        let events = contract.events().collect::<Vec<_>>();
+        let mut unique_events = std::collections::HashSet::new();
+        for event in &events {
+            if &event.ident == contract_ident {
+                bail!(
+                    event.ident,
+                    "cannot declare an event with the same name as the contract",
+                )
+            }
+            if !unique_events.contains(event) {
+                unique_events.insert(event.clone());
+            } else {
+                bail!(
+                    event.ident,
+                    "cannot declare multiple events with the same name",
+                )
+            }
+        }
+        let mut ret = unique_events
+            .iter()
+            .map(|event| {
+                Event {
+                    attrs: event.attrs.clone(),
+                    ident: event.ident.clone(),
+                    args: event.args.clone(),
+                }
+            })
+            .collect::<Vec<_>>();
+        ret.sort_by(|e1, e2| e1.ident.partial_cmp(&e2.ident).unwrap());
+        Ok(ret)
+    }
+
     /// Extracts the contract state from the contract items
     /// and performs some integrity checks on it.
     ///
@@ -256,12 +314,14 @@ impl Contract {
         let (ident, state) = Self::extract_state(contract)?;
         let deploy_handler = Self::extract_deploy_handler(ident, contract)?;
         let (messages, methods) = Self::unpack_impl_blocks(ident, contract)?;
+        let events = Self::extract_events(ident, contract)?;
         Ok(Self {
             name: ident.clone(),
             state,
             on_deploy: deploy_handler,
             messages,
             methods,
+            events,
         })
     }
 }

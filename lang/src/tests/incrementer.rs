@@ -17,7 +17,7 @@
 use super::*;
 
 #[test]
-fn incrementer_contract() {
+fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
             /// A simple contract that has a value that can be
@@ -61,15 +61,18 @@ fn incrementer_contract() {
                 }
             }
 
-            use ink_model::messages;
+            mod msg {
+                use super::*;
+                use ink_model::messages;
 
-            ink_model::messages! {
-                /// Increments the internal counter.
-                257544423 => Inc(by: u32);
-                /// Returns the internal counter.
-                4266279973 => Get() -> u32;
-                /// Returns `true` if `x` is greater than the internal value.
-                363906316 => Compare(x: u32) -> bool;
+                ink_model::messages! {
+                    /// Increments the internal counter.
+                    257544423 => Inc(by: u32);
+                    /// Returns the internal counter.
+                    4266279973 => Get() -> u32;
+                    /// Returns `true` if `x` is greater than the internal value.
+                    363906316 => Compare(x: u32) -> bool;
+                }
             }
 
             impl Incrementer {
@@ -104,15 +107,15 @@ fn incrementer_contract() {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler, init_value)
                         })
-                        .on_msg_mut::<Inc>(|env, by: u32| {
+                        .on_msg_mut::<msg::Inc>(|env, by: u32| {
                             let (handler, state) = env.split_mut();
                             state.inc(handler, by)
                         })
-                        .on_msg::<Get>(|env, _| {
+                        .on_msg::<msg::Get>(|env, _| {
                             let (handler, state) = env.split();
                             state.get(handler,)
                         })
-                        .on_msg::<Compare>(|env, x: u32| {
+                        .on_msg::<msg::Compare>(|env, x: u32| {
                             let (handler, state) = env.split();
                             state.compare(handler, x)
                         })

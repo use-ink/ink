@@ -99,9 +99,13 @@ fn lib_rs_contents(name: &str) -> String {
     use heck::CamelCase as _;
     let camel_name = name.to_camel_case();
     format!(
-        r##"#![no_std]
+        r##"#![cfg_attr(not(any(test, feature = "std")), no_std)]
 
-use ink_core::storage;
+use ink_core::{{
+    env::println,
+    memory::format,
+    storage,
+}};
 use ink_lang::contract;
 
 contract! {{
@@ -128,25 +132,26 @@ contract! {{
 
         /// Returns the current state.
         pub(external) fn get(&self) -> bool {{
+            println(&format!("Storage Value: {{:?}}", *self.value));
             *self.value
         }}
     }}
 }}
 
-#[cfg(test)]
+#[cfg(all(test, feature = "test-env"))]
 mod tests {{
-    use super::Flipper;
+    use super::*;
 
     #[test]
     fn it_works() {{
-        let mut flipper = Flipper::deploy_mock();
-        assert_eq!(flipper.get(), true);
-        incrementer.flip();
-        assert_eq!(flipper.get(), false);
+        let mut contract = {}::deploy_mock();
+        assert_eq!(contract.get(), false);
+        contract.flip();
+        assert_eq!(contract.get(), true);
     }}
 }}
 "##,
-        camel_name, camel_name, camel_name,
+        camel_name, camel_name, camel_name, camel_name,
     )
 }
 
@@ -158,15 +163,20 @@ mod tests {{
 /// support the same functionality within `pdsl_cli`.
 fn build_sh_contents(name: &str) -> String {
     format!(r##"#!/bin/bash
+set -e
 
 PROJNAME={}
 
+# cargo clean
+# rm Cargo.lock
+
 CARGO_INCREMENTAL=0 &&
-cargo build --release --features generate-api-description --target=wasm32-unknown-unknown --verbose &&
-wasm2wat -o target/$PROJNAME.wat target/wasm32-unknown-unknown/release/$PROJNAME.wasm &&
-cat target/$PROJNAME.wat | sed "s/(import \"env\" \"memory\" (memory (;0;) 2))/(import \"env\" \"memory\" (memory (;0;) 2 16))/" > target/$PROJNAME-fixed.wat &&
-wat2wasm -o target/$PROJNAME.wasm target/$PROJNAME-fixed.wat &&
-wasm-opt -Oz target/$PROJNAME.wasm -o target/$PROJNAME-opt.wasm"##,
+cargo build --release --features generate-api-description --target=wasm32-unknown-unknown --verbose
+wasm2wat -o target/$PROJNAME.wat target/wasm32-unknown-unknown/release/$PROJNAME.wasm
+cat target/$PROJNAME.wat | sed "s/(import \"env\" \"memory\" (memory (;0;) 2))/(import \"env\" \"memory\" (memory (;0;) 2 16))/" > target/$PROJNAME-fixed.wat
+wat2wasm -o target/$PROJNAME.wasm target/$PROJNAME-fixed.wat
+wasm-opt -Oz target/$PROJNAME.wasm -o target/$PROJNAME-opt.wasm
+wasm-prune --exports call,deploy target/$PROJNAME-opt.wasm target/$PROJNAME-pruned.wasm"##,
         name
     )
 }
