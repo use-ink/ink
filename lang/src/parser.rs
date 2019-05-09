@@ -323,10 +323,12 @@ impl Parse for ast::ItemEvent {
 
 impl Parse for ast::EventArg {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let attrs = syn::Attribute::parse_outer(input)?;
         let ident = input.parse()?;
         let colon_tok = input.parse()?;
         let ty = input.parse()?;
         Ok(Self {
+            attrs,
             ident,
             colon_tok,
             ty,
