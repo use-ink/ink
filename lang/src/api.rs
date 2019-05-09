@@ -41,6 +41,10 @@ pub enum TypeDescription {
     Array(ArrayTypeDescription),
     /// A concrete `Option` type.
     Option(OptionTypeDescription),
+    /// A concrete `Result` type.
+    Result(ResultTypeDescription),
+    /// A concrete `Vec` type.
+    Vec(VecTypeDescription),
 }
 
 /// Describes an option param or return type.
@@ -87,6 +91,108 @@ impl TryFrom<&syn::TypePath> for OptionTypeDescription {
     }
 }
 
+/// Describes a `Vec` param or return type.
+///
+/// # Note
+///
+/// With `Vec` we refer to `memory::Vec` here.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub enum VecTypeDescription {
+    #[serde(rename = "Vec<T>")]
+    Single {
+        /// The generic type param.
+        #[serde(rename = "T")]
+        elem_type: Box<TypeDescription>,
+    },
+}
+
+impl TryFrom<&syn::TypePath> for VecTypeDescription {
+    type Error = Errors;
+
+    fn try_from(type_path: &syn::TypePath) -> Result<Self> {
+        if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
+            bail!(type_path, "`Vec` cannot be qualified or start with `::`")
+        }
+        if type_path.path.segments.len() != 1 {
+            bail!(type_path, "too many path segments for an `Vec` type")
+        }
+        let seg = &type_path.path.segments[0];
+        if seg.ident != "Vec" {
+            bail!(type_path, "invalid ident for `Vec` type")
+        }
+        match &seg.arguments {
+            syn::PathArguments::AngleBracketed(generic_args) => {
+                if generic_args.args.len() != 1 {
+                    bail!(generic_args, "too many generic args for `Vec` type")
+                }
+                match &generic_args.args[0] {
+                    syn::GenericArgument::Type(ty) => {
+                        Ok(VecTypeDescription::Single {
+                            elem_type: Box::new(TypeDescription::try_from(ty)?),
+                        })
+                    }
+                    invalid => bail!(invalid, "invalid generic type args for `Vec`"),
+                }
+            }
+            invalid => bail!(invalid, "invalid type arguments for `Vec`"),
+        }
+    }
+}
+
+/// Describes a result param or return type.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub enum ResultTypeDescription {
+    #[serde(rename = "Result<T,E>")]
+    Single {
+        /// The `Ok`-type.
+        #[serde(rename = "T")]
+        ok_type: Box<TypeDescription>,
+        /// The `Err`-type.
+        #[serde(rename = "E")]
+        err_type: Box<TypeDescription>,
+    },
+}
+
+impl TryFrom<&syn::TypePath> for ResultTypeDescription {
+    type Error = Errors;
+
+    fn try_from(type_path: &syn::TypePath) -> Result<Self> {
+        if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
+            bail!(type_path, "`Result` cannot be qualified or start with `::`")
+        }
+        if type_path.path.segments.len() != 1 {
+            bail!(type_path, "too many path segments for an `Result` type")
+        }
+        let seg = &type_path.path.segments[0];
+        if seg.ident != "Result" {
+            bail!(type_path, "invalid ident for `Result` type")
+        }
+        match &seg.arguments {
+            syn::PathArguments::AngleBracketed(generic_args) => {
+                if generic_args.args.len() != 2 {
+                    bail!(
+                        generic_args,
+                        "`Result` type requires 2 generic type arguments"
+                    )
+                }
+                let ok_type = match &generic_args.args[0] {
+                    syn::GenericArgument::Type(ty) => TypeDescription::try_from(ty),
+                    invalid => bail!(invalid, "invalid generic type args for `Result`"),
+                }?;
+                let err_type = match &generic_args.args[1] {
+                    syn::GenericArgument::Type(ty) => TypeDescription::try_from(ty),
+                    invalid => bail!(invalid, "invalid generic type args for `Result`"),
+                }?;
+                Ok(ResultTypeDescription::Single {
+                    ok_type: Box::new(ok_type),
+                    err_type: Box::new(err_type),
+                })
+            }
+            invalid => bail!(invalid, "invalid type arguments for `Result`"),
+        }
+    }
+}
+
 impl TryFrom<&syn::Type> for TypeDescription {
     type Error = Errors;
 
@@ -107,6 +213,10 @@ impl TryFrom<&syn::Type> for TypeDescription {
                     "Option" => {
                         OptionTypeDescription::try_from(path).map(TypeDescription::Option)
                     }
+                    "Result" => {
+                        ResultTypeDescription::try_from(path).map(TypeDescription::Result)
+                    }
+                    "Vec" => VecTypeDescription::try_from(path).map(TypeDescription::Vec),
                     _ => {
                         PrimitiveTypeDescription::try_from(path)
                             .map(TypeDescription::Primitive)
@@ -547,7 +657,7 @@ mod tests {
     }
 
     #[test]
-    fn option_json_err_qualified() {
+    fn option_json_failure() {
         expect_failure(
             parse_quote!(<Self as Foo>::Option<i32>),
             "invalid self qualifier or leading `::` for type",
@@ -556,18 +666,10 @@ mod tests {
             parse_quote!(::Option<i32>),
             "invalid self qualifier or leading `::` for type",
         );
-    }
-
-    #[test]
-    fn option_json_err_too_many_segs() {
         expect_failure(
             parse_quote!(Option<bool, i32>),
             "too many generic args for `Option` type",
         );
-    }
-
-    #[test]
-    fn option_json_err_invalid_params() {
         expect_failure(
             parse_quote!(Option<'a>),
             "invalid generic type args for `Option`",
@@ -575,7 +677,7 @@ mod tests {
     }
 
     #[test]
-    fn option_json() {
+    fn option_json_success() {
         assert_json_roundtrip(parse_quote!(Option<i32>), r#"{"Option<T>":{"T":"i32"}}"#);
         assert_json_roundtrip(
             parse_quote!(Option<(bool, i32)>),
@@ -584,6 +686,73 @@ mod tests {
         assert_json_roundtrip(
             parse_quote!(Option<Option<i32>>),
             r#"{"Option<T>":{"T":{"Option<T>":{"T":"i32"}}}}"#,
+        );
+    }
+
+    #[test]
+    fn vec_json_failure() {
+        expect_failure(
+            parse_quote!(<Self as Foo>::Vec<i32>),
+            "invalid self qualifier or leading `::` for type",
+        );
+        expect_failure(
+            parse_quote!(::Vec<i32>),
+            "invalid self qualifier or leading `::` for type",
+        );
+        expect_failure(
+            parse_quote!(Vec<bool, i32>),
+            "too many generic args for `Vec` type",
+        );
+        expect_failure(parse_quote!(Vec<'a>), "invalid generic type args for `Vec`");
+    }
+
+    #[test]
+    fn vec_json_success() {
+        assert_json_roundtrip(parse_quote!(Vec<i32>), r#"{"Vec<T>":{"T":"i32"}}"#);
+        assert_json_roundtrip(
+            parse_quote!(Vec<(bool, i32)>),
+            r#"{"Vec<T>":{"T":["bool","i32"]}}"#,
+        );
+        assert_json_roundtrip(
+            parse_quote!(Vec<Vec<i32>>),
+            r#"{"Vec<T>":{"T":{"Vec<T>":{"T":"i32"}}}}"#,
+        );
+    }
+
+    #[test]
+    fn result_json_failure() {
+        expect_failure(
+            parse_quote!(<Self as Foo>::Result<bool, i32>),
+            "invalid self qualifier or leading `::` for type",
+        );
+        expect_failure(
+            parse_quote!(::Result<bool, i32>),
+            "invalid self qualifier or leading `::` for type",
+        );
+        expect_failure(
+            parse_quote!(Result<u32>),
+            "`Result` type requires 2 generic type arguments",
+        );
+        expect_failure(
+            parse_quote!(Result<u16, u32, u64>),
+            "`Result` type requires 2 generic type arguments",
+        );
+        expect_failure(
+            parse_quote!(Result<'a, bool>),
+            "invalid generic type args for `Result`",
+        );
+    }
+
+    #[test]
+    fn result_json_success() {
+        assert_json_roundtrip(parse_quote!(Result<bool, i32>), r#"{"Result<T,E>":{"T":"bool","E":"i32"}}"#);
+        assert_json_roundtrip(
+            parse_quote!(Result<(bool, i32), [u8; 8]>),
+            r#"{"Result<T,E>":{"T":["bool","i32"],"E":{"[T;n]":{"T":"u8","n":8}}}}"#,
+        );
+        assert_json_roundtrip(
+            parse_quote!(Result<Result<u8,i8>,Result<u16,i16>>),
+            r#"{"Result<T,E>":{"T":{"Result<T,E>":{"T":"u8","E":"i8"}},"E":{"Result<T,E>":{"T":"u16","E":"i16"}}}}"#,
         );
     }
 }
