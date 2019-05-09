@@ -59,6 +59,12 @@ pub trait EnvStorage {
 
 /// The environment API usable by contracts defined with pDSL.
 pub trait Env: EnvTypes + EnvStorage {
+    /// Returns the chain address of the contract.
+    fn address() -> <Self as EnvTypes>::AccountId;
+
+    /// Returns the chain balance of the contract.
+    fn balance() -> <Self as EnvTypes>::Balance;
+
     /// Returns the chain address of the caller.
     fn caller() -> <Self as EnvTypes>::AccountId;
 

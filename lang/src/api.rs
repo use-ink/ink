@@ -100,21 +100,20 @@ impl TryFrom<&syn::Type> for TypeDescription {
             }
             syn::Type::Path(path) => {
                 if path.path.segments.len() != 1 || path.path.leading_colon.is_some() {
-                    bail!(
-                        path,
-                        "invalid self qualifier or leading `::` for type"
-                    )
+                    bail!(path, "invalid self qualifier or leading `::` for type")
                 }
                 let ident = &path.path.segments[0].ident;
                 match ident.to_owned_string().as_str() {
-                    "Option" => OptionTypeDescription::try_from(path).map(TypeDescription::Option),
-                    _ => PrimitiveTypeDescription::try_from(path).map(TypeDescription::Primitive),
+                    "Option" => {
+                        OptionTypeDescription::try_from(path).map(TypeDescription::Option)
+                    }
+                    _ => {
+                        PrimitiveTypeDescription::try_from(path)
+                            .map(TypeDescription::Primitive)
+                    }
                 }
             }
-            invalid => bail!(
-                invalid,
-                "invalid or unsupported type",
-            )
+            invalid => bail!(invalid, "invalid or unsupported type",),
         }
     }
 }
@@ -578,7 +577,13 @@ mod tests {
     #[test]
     fn option_json() {
         assert_json_roundtrip(parse_quote!(Option<i32>), r#"{"Option<T>":{"T":"i32"}}"#);
-        assert_json_roundtrip(parse_quote!(Option<(bool, i32)>), r#"{"Option<T>":{"T":["bool","i32"]}}"#);
-        assert_json_roundtrip(parse_quote!(Option<Option<i32>>), r#"{"Option<T>":{"T":{"Option<T>":{"T":"i32"}}}}"#);
+        assert_json_roundtrip(
+            parse_quote!(Option<(bool, i32)>),
+            r#"{"Option<T>":{"T":["bool","i32"]}}"#,
+        );
+        assert_json_roundtrip(
+            parse_quote!(Option<Option<i32>>),
+            r#"{"Option<T>":{"T":{"Option<T>":{"T":"i32"}}}}"#,
+        );
     }
 }
