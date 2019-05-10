@@ -22,10 +22,8 @@ ink_utils = { path = "../utils/" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
 log = "0.4"
 wee_alloc = { version = "0.4", default-features = false }
-node-runtime = { git = "https://github.com/paritytech/substrate/", branch = "v1.0", package = "node-runtime", default-features = false }
-# FIXME: remove these direct dependencies if possible to access the trait associated types
-srml-contract = { git = "https://github.com/paritytech/substrate/", branch = "v1.0", package = "srml-contract", default-features = false }
-srml-system = { git = "https://github.com/paritytech/substrate/", branch = "v1.0", package = "srml-system", default-features = false }
+node-runtime = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "node-runtime", default-features = false }
+srml-contract = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "srml-contract", default-features = false }
 
 [features]
 default = []
@@ -33,5 +31,4 @@ test-env = ["std"]
 std = [
 	"node-runtime/std",
 	"srml-contract/std",
-	"srml-system/std",
 ]
