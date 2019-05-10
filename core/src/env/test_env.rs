@@ -16,7 +16,10 @@
 
 use super::*;
 use crate::{
-    env::srml,
+    env::{
+        AccountId,
+        Seed,
+    },
     memory::collections::hash_map::{
         Entry,
         HashMap,
@@ -27,7 +30,6 @@ use core::cell::{
     Cell,
     RefCell,
 };
-use std::convert::TryFrom;
 
 /// A wrapper for the generic bytearray used for data in contract events.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -115,7 +117,7 @@ pub struct TestEnvData {
     /// # Note
     ///
     /// The current caller can be adjusted by `TestEnvData::set_caller`.
-    caller: srml::AccountId,
+    caller: AccountId,
     /// The input data for the next contract invocation.
     ///
     /// # Note
@@ -127,7 +129,7 @@ pub struct TestEnvData {
     ///  # Note
     ///
     /// The current random seed can be adjusted by `TestEnvData::set_random_seed`.
-    random_seed: srml::Hash,
+    random_seed: Seed,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -146,9 +148,9 @@ impl Default for TestEnvData {
     fn default() -> Self {
         Self {
             storage: HashMap::new(),
-            caller: srml::AccountId::from([0x0; 32]),
+            caller: AccountId::default(),
             input: Vec::new(),
-            random_seed: srml::Hash::from([0x0; 32]),
+            random_seed: Seed::default(),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -161,9 +163,9 @@ impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
         self.storage.clear();
-        self.caller = srml::AccountId::from([0; 32]);
+        self.caller = AccountId::default();
         self.input.clear();
-        self.random_seed = srml::Hash::from([0; 32]);
+        self.random_seed = Seed::default();
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
@@ -206,7 +208,7 @@ impl TestEnvData {
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(&mut self, new_caller: srml::AccountId) {
+    pub fn set_caller(&mut self, new_caller: AccountId) {
         self.caller = new_caller;
     }
 
@@ -222,7 +224,7 @@ impl TestEnvData {
     }
 
     /// Sets the random seed for the next contract invocation.
-    pub fn set_random_seed(&mut self, random_seed_hash: srml::Hash) {
+    pub fn set_random_seed(&mut self, random_seed_hash: Seed) {
         self.random_seed = random_seed_hash;
     }
 
@@ -251,8 +253,8 @@ impl TestEnvData {
     const FAILURE: i32 = -1;
 
     /// Returns the caller of the contract invocation.
-    pub fn caller(&self) -> srml::AccountId {
-        self.caller
+    pub fn caller(&self) -> AccountId {
+        self.caller.clone()
     }
 
     /// Stores the given value under the given key in the contract storage.
@@ -285,7 +287,7 @@ impl TestEnvData {
     }
 
     /// Returns the random seed for the contract invocation.
-    pub fn random_seed(&self) -> srml::Hash {
+    pub fn random_seed(&self) -> Seed {
         self.random_seed
     }
 
@@ -363,7 +365,7 @@ impl TestEnv {
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(new_caller: srml::AccountId) {
+    pub fn set_caller(new_caller: AccountId) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_caller(new_caller))
     }
 
@@ -373,7 +375,7 @@ impl TestEnv {
     }
 
     /// Sets the random seed for the next contract invocation.
-    pub fn set_random_seed(random_seed_bytes: srml::Hash) {
+    pub fn set_random_seed(random_seed_bytes: Seed) {
         TEST_ENV_DATA
             .with(|test_env| test_env.borrow_mut().set_random_seed(random_seed_bytes))
     }
@@ -423,12 +425,8 @@ impl EnvStorage for TestEnv {
     }
 }
 
-impl Env for TestEnv
-where
-    <Self as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
-    <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
-{
-    fn caller() -> <Self as EnvTypes>::AccountId {
+impl Env for TestEnv {
+    fn caller() -> AccountId {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");
         TEST_ENV_DATA.with(|test_env| test_env.borrow().caller())
     }
@@ -438,7 +436,7 @@ where
         TEST_ENV_DATA.with(|test_env| test_env.borrow().input())
     }
 
-    fn random_seed() -> <Self as EnvTypes>::Hash {
+    fn random_seed() -> Seed {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::random_seed()",);
         TEST_ENV_DATA.with(|test_env| test_env.borrow().random_seed())
     }

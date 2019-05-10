@@ -15,7 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env::{AccountId, Hash},
+    env::{AccountId, Seed},
     memory::vec::Vec,
     storage::Key,
 };
@@ -56,7 +56,7 @@ pub trait Env: EnvStorage {
     fn input() -> Vec<u8>;
 
     /// Get the random seed from the latest block.
-    fn random_seed() -> Hash;
+    fn random_seed() -> Seed;
 
     /// Returns from the contract execution with the given value.
     ///

@@ -29,13 +29,13 @@ use node_runtime::{
 };
 
 /// The environmental address type.
-pub type AccountId = <Runtime as srml_system::Trait>::AccountId;
+pub type AccountId = srml_contract::AccountIdOf<Runtime>;
 
 /// The environmental balance type.
 pub type Balance = srml_contract::BalanceOf<Runtime>;
 
 /// The environmental hash type.
-pub type Hash = <Runtime as srml_system::Trait>::Hash;
+pub type Seed = srml_contract::SeedOf<Runtime>;
 
 /// Returns the address of the caller of the current smart contract execution.
 pub fn caller() -> AccountId {
@@ -48,7 +48,7 @@ pub fn input() -> Vec<u8> {
 }
 
 /// Returns the random seed from the latest block.
-pub fn random_seed() -> Hash {
+pub fn random_seed() -> Seed {
     ContractEnv::random_seed()
 }
 

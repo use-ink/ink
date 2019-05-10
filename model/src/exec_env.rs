@@ -16,7 +16,10 @@
 
 use crate::ContractState;
 use ink_core::{
-    env,
+    env::{
+        self,
+        Seed,
+    },
     storage::alloc::{
         Allocate,
         AllocateUsing,
@@ -152,7 +155,7 @@ impl EnvHandler {
     }
 
     /// Returns the random seed from the latest block.
-    pub fn random_seed(&self) -> env::Hash {
+    pub fn random_seed(&self) -> Seed {
         env::random_seed()
     }
 }
