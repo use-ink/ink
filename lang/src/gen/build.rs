@@ -113,11 +113,17 @@ fn codegen_for_event_private_mod(tokens: &mut TokenStream2, contract: &hir::Cont
 
 impl quote::ToTokens for hir::Event {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
+        for attr in &self.attrs {
+            attr.to_tokens(tokens)
+        }
         <Token![pub]>::default().to_tokens(tokens);
         <Token![struct]>::default().to_tokens(tokens);
         self.ident.to_tokens(tokens);
         syn::token::Brace::default().surround(tokens, |inner| {
             for arg in self.args.iter() {
+                for attr in &arg.attrs {
+                    attr.to_tokens(inner)
+                }
                 <Token![pub]>::default().to_tokens(inner);
                 arg.to_tokens(inner);
                 <Token![,]>::default().to_tokens(inner);
@@ -139,7 +145,6 @@ fn codegen_for_events(tokens: &mut TokenStream2, contract: &hir::Contract) {
         let ident = &event.ident;
 
         tokens.extend(quote! {
-            /// The documentation for `BalanceChanged`.
             #[derive(parity_codec::Encode, parity_codec::Decode)]
             #event
 

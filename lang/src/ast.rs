@@ -96,6 +96,7 @@ pub struct ItemEvent {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct EventArg {
+    pub attrs: Vec<syn::Attribute>,
     pub ident: Ident,
     pub colon_tok: Token![:],
     pub ty: syn::Type,
