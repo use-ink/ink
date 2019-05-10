@@ -95,15 +95,17 @@ contract! {
 
     /// Fires whenever a mutator pushes the vector successfully.
     event Push {
-        // / The pushed value.
+        /// The mutator.
+        mutator: AccountId,
+        /// The pushed value.
         value: i32,
     }
 
     /// Fires whenever a mutator changes the vector.
     event Mutate {
-        // / The index where the change happened.
+        /// The index where the change happened.
         at: u32,
-        // / The new value.
+        /// The new value.
         value: i32,
     }
 
