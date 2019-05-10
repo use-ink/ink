@@ -85,11 +85,11 @@ contract! {
     /// Fires whenever a new mutator is registered
     /// or when a mutators access rights are changed.
     event Register {
-        // / The mutator.
+        /// The mutator.
         mutator: AccountId,
-        // / The begin access index.
+        /// The begin access index.
         begin: Option<u32>,
-        // / The end access index.
+        /// The end access index.
         end: Option<u32>,
     }
 
