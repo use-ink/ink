@@ -122,7 +122,7 @@ contract! {
             if let Some(access) = self.mutators.get(&mutator) {
                 Ok(access)
             } else {
-                return Err(NOT_REGISTERED)
+                Err(NOT_REGISTERED)
             }
         }
 
