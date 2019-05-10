@@ -137,7 +137,7 @@ contract! {
                 return Err(ACCESS_NOT_ALLOWED)
             }
             self.vec.push(value);
-            env.emit(Push { value });
+            env.emit(Push { mutator: env.caller(), value });
             Ok(())
         }
 
