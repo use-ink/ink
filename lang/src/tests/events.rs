@@ -31,8 +31,17 @@ fn contract_compiles() {
                 }
             }
 
-            event IncCalled { current: u32 }
-            event DecCalled { current: u32 }
+            /// Fires when the value is incremented.
+            event IncCalled {
+                /// The current value.
+                current: u32
+            }
+
+            /// Fires when the value is decremented.
+            event DecCalled {
+                /// The current value.
+                current: u32
+            }
 
             impl CallCounter {
                 /// Increments the internal counter.
@@ -152,9 +161,10 @@ fn contract_compiles() {
                     pub trait Sealed { }
                 }
 
-                /// The documentation for `BalanceChanged`.
                 #[derive(parity_codec::Encode, parity_codec::Decode)]
+                /// Fires when the value is decremented.
                 pub struct DecCalled {
+                    /// The current value.
                     pub current: u32,
                 }
 
@@ -164,9 +174,10 @@ fn contract_compiles() {
                     }
                 }
 
-                /// The documentation for `BalanceChanged`.
                 #[derive(parity_codec::Encode, parity_codec::Decode)]
+                /// Fires when the value is incremented.
                 pub struct IncCalled {
+                    /// The current value.
                     pub current: u32,
                 }
 
