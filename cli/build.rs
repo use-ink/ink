@@ -57,7 +57,6 @@ fn zip_dir(
         let name = path.strip_prefix(Path::new(src_dir))?;
 
         if path.is_file() {
-            println!("adding file {:?} as {:?} ...", path, name);
             zip.start_file_from_path(name, options)?;
             let mut f = File::open(path)?;
 
@@ -65,7 +64,6 @@ fn zip_dir(
             zip.write_all(&*buffer)?;
             buffer.clear();
         } else if name.as_os_str().len() != 0 {
-            println!("adding dir {:?} as {:?} ...", path, name);
             zip.add_directory_from_path(name, options)?;
         }
     }
