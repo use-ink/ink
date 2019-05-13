@@ -1,14 +1,22 @@
-use std::io::prelude::*;
-use std::io::Write;
-use std::iter::Iterator;
-use std::error::Error;
-use std::result::Result;
-use zip::write::FileOptions;
-use zip::result::ZipError;
+use std::{
+    error::Error,
+    io::{
+        prelude::*,
+        Write,
+    },
+    iter::Iterator,
+    result::Result,
+};
+use zip::{
+    result::ZipError,
+    write::FileOptions,
+};
 
+use std::{
+    fs::File,
+    path::Path,
+};
 use walkdir::WalkDir;
-use std::path::Path;
-use std::fs::File;
 
 const DEFAULT_UNIX_PERMISSIONS: u32 = 0o755;
 
@@ -23,18 +31,20 @@ fn main() {
     };
 }
 
-fn zip_dir(src_dir: &str, dst_file: &str, method: zip::CompressionMethod) -> Result<(), Box<Error>> {
+fn zip_dir(
+    src_dir: &str,
+    dst_file: &str,
+    method: zip::CompressionMethod,
+) -> Result<(), Box<Error>> {
     if !Path::new(src_dir).is_dir() {
-        return Err(ZipError::FileNotFound.into());
+        return Err(ZipError::FileNotFound.into())
     }
 
     let path = Path::new(dst_file);
     let file = File::create(&path)?;
 
     let walkdir = WalkDir::new(src_dir.to_string());
-    let it = walkdir
-        .into_iter()
-        .filter_map(|e| e.ok());
+    let it = walkdir.into_iter().filter_map(|e| e.ok());
 
     let mut zip = zip::ZipWriter::new(file);
     let options = FileOptions::default()
