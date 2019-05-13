@@ -18,6 +18,7 @@ use std::{
     io::Error as IoError,
     result::Result as StdResult,
 };
+use zip::result::ZipError;
 
 /// The kinds of command errors.
 #[derive(Debug)]
@@ -25,6 +26,7 @@ pub enum CommandErrorKind {
     Io(IoError),
     UnimplementedCommand,
     UnimplementedAbstractionLayer,
+    ZipError(ZipError),
 }
 
 /// An error that can be encountered while executing commands.
@@ -37,6 +39,14 @@ impl From<IoError> for CommandError {
     fn from(error: IoError) -> Self {
         Self {
             kind: CommandErrorKind::Io(error),
+        }
+    }
+}
+
+impl From<ZipError> for CommandError {
+    fn from(error: ZipError) -> Self {
+        Self {
+            kind: CommandErrorKind::ZipError(error),
         }
     }
 }

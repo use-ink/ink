@@ -34,13 +34,13 @@ fn initialize_for_lang(name: &str) -> Result<()> {
 
     let template = include_bytes!(concat!(env!("OUT_DIR"), "/template.zip"));
     let mut cursor = Cursor::new(Vec::new());
-    cursor.write_all(template).unwrap();
-    cursor.seek(SeekFrom::Start(0)).unwrap();
+    cursor.write_all(template)?;
+    cursor.seek(SeekFrom::Start(0))?;
 
-    let mut archive = zip::ZipArchive::new(cursor).unwrap();
+    let mut archive = zip::ZipArchive::new(cursor)?;
 
     for i in 0..archive.len() {
-        let mut file = archive.by_index(i).unwrap();
+        let mut file = archive.by_index(i)?;
         let outpath = out_dir.join(file.sanitized_name());
 
         {
@@ -52,16 +52,16 @@ fn initialize_for_lang(name: &str) -> Result<()> {
 
         if (&*file.name()).ends_with('/') {
             println!("File {} extracted to \"{}\"", i, outpath.as_path().display());
-            fs::create_dir_all(&outpath).unwrap();
+            fs::create_dir_all(&outpath)?;
         } else {
             println!("File {} extracted to \"{}\" ({} bytes)", i, outpath.as_path().display(), file.size());
             if let Some(p) = outpath.parent() {
                 if !p.exists() {
-                    fs::create_dir_all(&p).unwrap();
+                    fs::create_dir_all(&p)?;
                 }
             }
-            let mut outfile = fs::File::create(&outpath).unwrap();
-            io::copy(&mut file, &mut outfile).unwrap();
+            let mut outfile = fs::File::create(&outpath)?;
+            io::copy(&mut file, &mut outfile)?;
         }
 
         // Get and Set permissions
@@ -70,7 +70,7 @@ fn initialize_for_lang(name: &str) -> Result<()> {
             use std::os::unix::fs::PermissionsExt;
 
             if let Some(mode) = file.unix_mode() {
-                fs::set_permissions(&outpath, fs::Permissions::from_mode(mode)).unwrap();
+                fs::set_permissions(&outpath, fs::Permissions::from_mode(mode))?;
             }
         }
     }
