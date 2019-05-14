@@ -110,6 +110,18 @@ impl StorageEntry {
 pub struct TestEnvData {
     /// The storage entries.
     storage: HashMap<Key, StorageEntry>,
+    /// The address of the contract.
+    ///
+    /// # Note
+    ///
+    /// The current address can be adjusted by `TestEnvData::set_address`.
+    address: srml::AccountId,
+    /// The balance of the contract.
+    ///
+    /// # Note
+    ///
+    /// The current balance can be adjusted by `TestEnvData::set_balance`.
+    balance: srml::Balance,
     /// The caller address for the next contract invocation.
     ///
     /// # Note
@@ -151,7 +163,9 @@ pub struct TestEnvData {
 impl Default for TestEnvData {
     fn default() -> Self {
         Self {
+            address: srml::AccountId::from([0x0; 32]),
             storage: HashMap::new(),
+            balance: 0,
             caller: srml::AccountId::from([0x0; 32]),
             input: Vec::new(),
             random_seed: srml::Hash::from([0x0; 32]),
@@ -167,6 +181,8 @@ impl Default for TestEnvData {
 impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
+        self.address = srml::AccountId::from([0; 32]);
+        self.balance = 0;
         self.storage.clear();
         self.caller = srml::AccountId::from([0; 32]);
         self.input.clear();
@@ -213,6 +229,16 @@ impl TestEnvData {
         self.expected_return = expected_bytes.to_vec();
     }
 
+    /// Sets the contract address for the next contract invocation.
+    pub fn set_address(&mut self, new_address: srml::AccountId) {
+        self.address = new_address;
+    }
+
+    /// Sets the contract balance for the next contract invocation.
+    pub fn set_balance(&mut self, new_balance: srml::Balance) {
+        self.balance = new_balance;
+    }
+
     /// Sets the caller address for the next contract invocation.
     pub fn set_caller(&mut self, new_caller: srml::AccountId) {
         self.caller = new_caller;
@@ -241,9 +267,7 @@ impl TestEnvData {
 
     /// Returns an iterator over all emitted events.
     pub fn emitted_events(&self) -> impl Iterator<Item = &[u8]> {
-        self.events
-            .iter()
-            .map(|event_data| event_data.as_bytes())
+        self.events.iter().map(|event_data| event_data.as_bytes())
     }
 }
 
@@ -262,6 +286,16 @@ impl TestEnvData {
     /// A contract invocation is unsuccessful if it did not return the
     /// same data as was expected upon invocation.
     const FAILURE: i32 = -1;
+
+    /// Returns the address of the contract.
+    pub fn address(&self) -> srml::AccountId {
+        self.address
+    }
+
+    /// Returns the balance of the contract.
+    pub fn balance(&self) -> srml::Balance {
+        self.balance
+    }
 
     /// Returns the caller of the contract invocation.
     pub fn caller(&self) -> srml::AccountId {
@@ -380,6 +414,16 @@ impl TestEnv {
             .with(|test_env| test_env.borrow_mut().set_expected_return(expected_bytes))
     }
 
+    /// Sets the contract address for the next contract invocation.
+    pub fn set_address(new_address: srml::AccountId) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_address(new_address))
+    }
+
+    /// Sets the contract balance for the next contract invocation.
+    pub fn set_balance(new_balance: srml::Balance) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_balance(new_balance))
+    }
+
     /// Sets the caller address for the next contract invocation.
     pub fn set_caller(new_caller: srml::AccountId) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_caller(new_caller))
@@ -404,14 +448,13 @@ impl TestEnv {
 
     /// Returns an iterator over all emitted events.
     pub fn emitted_events() -> impl IntoIterator<Item = Vec<u8>> {
-        TEST_ENV_DATA
-            .with(|test_env| {
-                test_env
-                    .borrow()
-                    .emitted_events()
-                    .map(|event_bytes| event_bytes.to_vec())
-                    .collect::<Vec<_>>()
-            })
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow()
+                .emitted_events()
+                .map(|event_bytes| event_bytes.to_vec())
+                .collect::<Vec<_>>()
+        })
     }
 }
 
@@ -459,6 +502,16 @@ where
     <Self as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
     <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
+    fn address() -> <Self as EnvTypes>::AccountId {
+        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::address()");
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().address())
+    }
+
+    fn balance() -> <Self as EnvTypes>::Balance {
+        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::balance()");
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().balance())
+    }
+
     fn caller() -> <Self as EnvTypes>::AccountId {
         log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");
         TEST_ENV_DATA.with(|test_env| test_env.borrow().caller())

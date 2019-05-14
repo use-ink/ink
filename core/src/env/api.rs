@@ -37,6 +37,16 @@ pub type Hash = <ContractEnv as EnvTypes>::Hash;
 /// The environmental moment type.
 pub type Moment = <ContractEnv as EnvTypes>::Moment;
 
+/// Returns the address of the current smart contract.
+pub fn address() -> AccountId {
+    ContractEnv::address()
+}
+
+/// Returns the balance of the current smart contract.
+pub fn balance() -> Balance {
+    ContractEnv::balance()
+}
+
 /// Returns the address of the caller of the current smart contract execution.
 pub fn caller() -> AccountId {
     ContractEnv::caller()

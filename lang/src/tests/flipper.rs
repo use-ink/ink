@@ -20,7 +20,7 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
-            /// A simple contract that has a boolean value that can be flipped and be retured.
+            /// A simple contract that has a boolean value that can be flipped and be returned.
             struct Flipper {
                 /// The internal value.
                 value: storage::Value<bool>,
@@ -47,7 +47,7 @@ fn contract_compiles() {
         },
         quote! {
             ink_model::state! {
-                /// A simple contract that has a boolean value that can be flipped and be retured.
+                /// A simple contract that has a boolean value that can be flipped and be returned.
                 pub struct Flipper {
                     /// The internal value.
                     value: storage::Value<bool>,
