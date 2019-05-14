@@ -11,19 +11,19 @@ contract! {
     /// This simple dummy contract has a `bool` value that can
     /// alter between `true` and `false` using the `flip` message.
     /// Users can retrieve its current state using the `get` message.
-    struct Template {
+    struct {{camel_name}} {
         /// The current state of our flag.
         value: storage::Value<bool>,
     }
 
-    impl Deploy for Template {
+    impl Deploy for {{camel_name}} {
         /// Initializes our state to `false` upon deploying our smart contract.
         fn deploy(&mut self) {
             self.value.set(false)
         }
     }
 
-    impl Template {
+    impl {{camel_name}} {
         /// Flips the current state of our smart contract.
         pub(external) fn flip(&mut self) {
             *self.value = !*self.value;
@@ -43,7 +43,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let mut contract = Template::deploy_mock();
+        let mut contract = {{camel_name}}::deploy_mock();
         assert_eq!(contract.get(), false);
         contract.flip();
         assert_eq!(contract.get(), true);

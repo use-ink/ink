@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-PROJNAME=template
+PROJNAME={{name}}
 
 # cargo clean
 # rm Cargo.lock

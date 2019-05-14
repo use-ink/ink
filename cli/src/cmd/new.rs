@@ -22,10 +22,10 @@ use crate::{
     },
     AbstractionLayer,
 };
+use heck::CamelCase as _;
 use std::{
     fs,
     io::{
-        self,
         Cursor,
         Seek,
         SeekFrom,
@@ -33,6 +33,7 @@ use std::{
     },
     path,
 };
+use std::io::Read;
 
 /// Initializes a project structure for the `lang` abstraction layer.
 fn initialize_for_lang(name: &str) -> Result<()> {
@@ -48,6 +49,13 @@ fn initialize_for_lang(name: &str) -> Result<()> {
 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+
+        // replace template placeholders
+        let contents = contents.replace("{{name}}", name);
+        let contents = contents.replace("{{camel_name}}", &name.to_camel_case());
+
         let outpath = out_dir.join(file.sanitized_name());
 
         if (&*file.name()).ends_with('/') {
@@ -59,10 +67,10 @@ fn initialize_for_lang(name: &str) -> Result<()> {
                 }
             }
             let mut outfile = fs::File::create(&outpath)?;
-            io::copy(&mut file, &mut outfile)?;
+            outfile.write(contents.as_bytes())?;
         }
 
-        // Get and Set permissions
+        // Get and set permissions
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
