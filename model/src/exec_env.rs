@@ -165,4 +165,9 @@ impl EnvHandler {
     pub fn random_seed(&self) -> env::Hash {
         env::random_seed()
     }
+
+    /// Returns the timestamp of the latest block.
+    pub fn now(&self) -> env::Moment {
+        env::now()
+    }
 }

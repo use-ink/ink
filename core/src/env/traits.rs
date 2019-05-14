@@ -28,6 +28,8 @@ pub trait EnvTypes {
     type Balance: Codec;
     /// The type of hash.
     type Hash: Codec;
+    /// The type of timestamps.
+    type Moment: Codec;
 }
 
 /// Types implementing this can act as contract storage.
@@ -73,6 +75,9 @@ pub trait Env: EnvTypes + EnvStorage {
 
     /// Get the random seed from the latest block.
     fn random_seed() -> <Self as EnvTypes>::Hash;
+
+    /// Get the timestamp of the latest block.
+    fn now() -> <Self as EnvTypes>::Moment;
 
     /// Returns from the contract execution with the given value.
     ///

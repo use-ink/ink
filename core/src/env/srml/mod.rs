@@ -24,6 +24,7 @@ pub use self::types::{
     Balance,
     DefaultSrmlTypes,
     Hash,
+    Moment,
 };
 
 #[cfg(not(feature = "test-env"))]

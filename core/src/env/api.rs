@@ -34,6 +34,9 @@ pub type Balance = <ContractEnv as EnvTypes>::Balance;
 /// The environmental hash type.
 pub type Hash = <ContractEnv as EnvTypes>::Hash;
 
+/// The environmental moment type.
+pub type Moment = <ContractEnv as EnvTypes>::Moment;
+
 /// Returns the address of the current smart contract.
 pub fn address() -> AccountId {
     ContractEnv::address()
@@ -57,6 +60,11 @@ pub fn input() -> Vec<u8> {
 /// Returns the random seed from the latest block.
 pub fn random_seed() -> Hash {
     ContractEnv::random_seed()
+}
+
+/// Returns the timestamp of the latest block.
+pub fn now() -> Moment {
+    ContractEnv::now()
 }
 
 /// Returns the current smart contract exection back to the caller
