@@ -54,6 +54,7 @@ where
     type AccountId = <T as EnvTypes>::AccountId;
     type Balance = <T as EnvTypes>::Balance;
     type Hash = <T as EnvTypes>::Hash;
+    type Moment = <T as EnvTypes>::Moment;
 }
 
 impl<T> EnvStorage for SrmlEnv<T>
@@ -159,6 +160,13 @@ where
             .try_into()
             .map_err(|_| "random_seed received an incorrectly sized buffer from SRML")
             .expect("we expect to always receive a correctly sized buffer here")
+    }
+
+    fn now() -> <Self as EnvTypes>::Moment {
+        unsafe { sys::ext_now() };
+        Decode::decode(&mut &Self::read_scratch_buffer()[..])
+            .ok_or("now received an incorrectly sized buffer from SRML")
+            .expect("we expect to receive a correctly sized buffer here")
     }
 
     unsafe fn r#return(data: &[u8]) -> ! {
