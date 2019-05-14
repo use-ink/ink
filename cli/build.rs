@@ -31,7 +31,13 @@ fn main() {
     let dst_file = Path::new(&out_dir).join("template.zip");
 
     match zip_dir(&src_dir, &dst_file, CompressionMethod::Stored) {
-        Ok(_) => println!("done: {} written to {}", src_dir.display(), dst_file.display()),
+        Ok(_) => {
+            println!(
+                "done: {} written to {}",
+                src_dir.display(),
+                dst_file.display()
+            )
+        }
         Err(e) => eprintln!("Error: {:?}", e),
     };
 }
