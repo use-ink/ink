@@ -18,8 +18,8 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 structopt = "0.2.15"
 itertools = "0.8"
 heck = "0.3"
-zip = "0.5"
+zip = { version = "0.5", default-features = false }
 
 [build-dependencies]
-zip = "0.5"
+zip = { version = "0.5", default-features = false }
 walkdir = "1.0"
