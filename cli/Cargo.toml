@@ -2,6 +2,7 @@
 name = "cargo-contract"
 version = "0.1.1"
 authors = ["Parity Technologies <admin@parity.io>"]
+build = "build.rs"
 edition = "2018"
 
 license = "GPL-3.0"
@@ -17,3 +18,8 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 structopt = "0.2.15"
 itertools = "0.8"
 heck = "0.3"
+zip = { version = "0.5", default-features = false }
+
+[build-dependencies]
+zip = { version = "0.5", default-features = false }
+walkdir = "1.0"
