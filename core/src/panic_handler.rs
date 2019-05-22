@@ -20,7 +20,6 @@ use core::{
 };
 
 #[panic_handler]
-#[no_mangle]
 pub fn panic(_info: &PanicInfo) -> ! {
     unsafe { core::intrinsics::abort() }
 }

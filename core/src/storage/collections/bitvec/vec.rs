@@ -155,7 +155,7 @@ impl BitVec {
         let current_blocks = self.len_blocks();
         let pushed_blocks = BitBlock::required_blocks(self.len() + 1);
         if current_blocks < pushed_blocks {
-            self.blocks.set((self.len() + 1) / BitBlock::BITS as u32, {
+            self.blocks.set((self.len() + 1) / BitBlock::BITS, {
                 let mut zeroed = BitBlock::zero();
                 zeroed.set(0, value);
                 zeroed
@@ -184,7 +184,7 @@ impl BitVec {
 			.get((len - 1) % BitBlock::BITS);
         if popped_blocks < current_blocks {
             // Remove last bit block.
-            self.blocks.clear((len - 1) / BitBlock::BITS as u32)
+            self.blocks.clear((len - 1) / BitBlock::BITS)
         } else {
             // Set last bit in last bit block to false.
             self.last_block_mut()
@@ -265,7 +265,7 @@ impl BitVec {
     pub fn first_set_position(&self) -> Option<u32> {
         for (n, block) in self.iter_blocks().enumerate() {
             if let Some(pos) = block.first_set_position() {
-                return Some((n as u32 * BitBlock::BITS + pos) as u32)
+                return Some(n as u32 * BitBlock::BITS + pos)
             }
         }
         None

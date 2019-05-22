@@ -35,7 +35,7 @@ pub struct BitPack {
 struct InvalidBitPackIndex;
 
 /// Result type when working with bit packs.
-type BitPackResult<T> = core::result::Result<T, InvalidBitPackIndex>;
+type BitPackResult<T> = Result<T, InvalidBitPackIndex>;
 
 impl BitPack {
     /// The number of bits of a bit pack.
@@ -113,8 +113,8 @@ mod tests {
     #[test]
     fn get() {
         let bp = BitPack::new(0x0001_0000); // 15th bit set
-        for n in 0..BitPack::BITS {
-            assert_eq!(bp.get(n as u32), n == 15)
+        for n in 0_u32..BitPack::BITS {
+            assert_eq!(bp.get(n), n == 15)
         }
     }
 

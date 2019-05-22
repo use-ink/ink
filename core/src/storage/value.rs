@@ -129,9 +129,9 @@ where
     }
 }
 
-impl<T, R> core::convert::AsRef<R> for Value<T>
+impl<T, R> AsRef<R> for Value<T>
 where
-    T: core::convert::AsRef<R> + parity_codec::Codec,
+    T: AsRef<R> + parity_codec::Codec,
 {
     fn as_ref(&self) -> &R {
         self.get().as_ref()
@@ -160,7 +160,7 @@ where
 
 impl<T> Flush for Value<T>
 where
-    T: parity_codec::Encode,
+    T: Encode,
 {
     fn flush(&mut self) {
         self.cell.flush()
