@@ -31,12 +31,15 @@ use std::convert::TryFrom;
 
 /// A wrapper for the generic bytearray used for data in contract events.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EventData(Vec<u8>);
+pub struct EventData {
+    topics: Vec<env::Hash>,
+    data: Vec<u8>,
+}
 
 impl EventData {
     /// Returns the uninterpreted bytes of the emitted event.
-    fn as_bytes(&self) -> &[u8] {
-        self.0.as_slice()
+    fn data_as_bytes(&self) -> &[u8] {
+        self.data.as_slice()
     }
 }
 
@@ -250,8 +253,11 @@ impl TestEnvData {
     }
 
     /// Appends new event data to the end of the bytearray.
-    pub fn add_event(&mut self, event_data: &[u8]) {
-        let new_event = EventData(event_data.to_vec());
+    pub fn add_event(&mut self, topics: &[env::Hash], event_data: &[u8]) {
+        let new_event = EventData {
+            topics: topics.to_vec(),
+            data: event_data.to_vec(),
+        };
         self.events.push(new_event);
     }
 
@@ -267,7 +273,9 @@ impl TestEnvData {
 
     /// Returns an iterator over all emitted events.
     pub fn emitted_events(&self) -> impl Iterator<Item = &[u8]> {
-        self.events.iter().map(|event_data| event_data.as_bytes())
+        self.events
+            .iter()
+            .map(|event_data| event_data.data_as_bytes())
     }
 }
 
@@ -364,8 +372,8 @@ impl TestEnvData {
     }
 
     /// Deposits raw event data through the Contracts module.
-    pub fn deposit_raw_event(&mut self, data: &[u8]) {
-        self.add_event(&data);
+    pub fn deposit_raw_event(&mut self, topics: &[env::Hash], data: &[u8]) {
+        self.add_event(topics, data);
     }
 }
 
@@ -545,7 +553,8 @@ where
         TEST_ENV_DATA.with(|test_env| test_env.borrow().println(content))
     }
 
-    fn deposit_raw_event(data: &[u8]) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().deposit_raw_event(data))
+    fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]) {
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().deposit_raw_event(topics, data))
     }
 }

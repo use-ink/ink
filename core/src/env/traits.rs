@@ -96,5 +96,5 @@ pub trait Env: EnvTypes + EnvStorage {
     fn println(content: &str);
 
     /// Deposits raw event data through Contracts module.
-    fn deposit_raw_event(data: &[u8]);
+    fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]);
 }

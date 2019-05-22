@@ -195,7 +195,7 @@ fn contract_compiles() {
                     {
                         use parity_codec::Encode as _;
                         ink_core::env::deposit_raw_event(
-                            event.into().encode().as_slice()
+                            &[], event.into().encode().as_slice()
                         )
                     }
                 }

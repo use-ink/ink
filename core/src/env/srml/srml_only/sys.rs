@@ -55,7 +55,12 @@ extern "C" {
     pub fn ext_println(str_ptr: u32, str_len: u32);
 
     /// Deposits raw event data through the Contracts module.
-    pub fn ext_deposit_event(data_ptr: u32, data_len: u32);
+    pub fn ext_deposit_event(
+        topics_ptr: u32,
+        topics_len: u32,
+        data_ptr: u32,
+        data_len: u32,
+    );
 
     /// Writes the contents of the buffer at `value_ptr` into the
     /// storage slot associated with the given key or clears the

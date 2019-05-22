@@ -177,7 +177,14 @@ where
         unsafe { sys::ext_println(content.as_ptr() as u32, content.len() as u32) }
     }
 
-    fn deposit_raw_event(data: &[u8]) {
-        unsafe { sys::ext_deposit_event(data.as_ptr() as u32, data.len() as u32) }
+    fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]) {
+        unsafe {
+            sys::ext_deposit_event(
+                topics.as_ptr() as u32,
+                topics.len() as u32,
+                data.as_ptr() as u32,
+                data.len() as u32,
+            )
+        }
     }
 }

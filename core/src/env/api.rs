@@ -92,8 +92,8 @@ pub fn println(content: &str) {
 }
 
 /// Deposits raw event data through the Contracts module.
-pub fn deposit_raw_event(data: &[u8]) {
-    ContractEnv::deposit_raw_event(data)
+pub fn deposit_raw_event(topics: &[Hash], data: &[u8]) {
+    ContractEnv::deposit_raw_event(topics, data)
 }
 
 /// Stores the given value under the specified key in the contract storage.
