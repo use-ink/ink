@@ -161,6 +161,12 @@ pub struct TestEnvData {
     total_writes: u64,
     /// Deposited events of the contract invocation.
     events: Vec<EventData>,
+    /// The current gas price.
+    gas_price: srml::Balance,
+    /// The remaining gas.
+    gas_left: srml::Balance,
+    /// The total transferred value.
+    value_transferred: srml::Balance,
 }
 
 impl Default for TestEnvData {
@@ -177,6 +183,9 @@ impl Default for TestEnvData {
             total_reads: Cell::new(0),
             total_writes: 0,
             events: Vec::new(),
+            gas_price: 0,
+            gas_left: 0,
+            value_transferred: 0,
         }
     }
 }
@@ -349,6 +358,18 @@ impl TestEnvData {
         self.now
     }
 
+    pub fn gas_price(&self) -> srml::Balance {
+        self.gas_price
+    }
+
+    pub fn gas_left(&self) -> srml::Balance {
+        self.gas_left
+    }
+
+    pub fn value_transferred(&self) -> srml::Balance {
+        self.value_transferred
+    }
+
     /// Returns the data to the internal caller.
     ///
     /// # Note
@@ -505,40 +526,32 @@ impl EnvStorage for TestEnv {
     }
 }
 
+macro_rules! impl_env_getters_for_test_env {
+    ( $( ($fn_name:ident, $ret_name:ty) ),* ) => {
+        $(
+            fn $fn_name() -> $ret_name {
+                TEST_ENV_DATA.with(|test_env| test_env.borrow().$fn_name())
+            }
+        )*
+    }
+}
+
 impl Env for TestEnv
 where
     <Self as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
     <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
-    fn address() -> <Self as EnvTypes>::AccountId {
-        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::address()");
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().address())
-    }
-
-    fn balance() -> <Self as EnvTypes>::Balance {
-        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::balance()");
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().balance())
-    }
-
-    fn caller() -> <Self as EnvTypes>::AccountId {
-        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::caller()");
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().caller())
-    }
-
-    fn input() -> Vec<u8> {
-        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::input()",);
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().input())
-    }
-
-    fn random_seed() -> <Self as EnvTypes>::Hash {
-        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::random_seed()",);
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().random_seed())
-    }
-
-    fn now() -> <Self as EnvTypes>::Moment {
-        log::debug!(target: TEST_ENV_LOG_TARGET, "TestEnv::now()",);
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().now())
-    }
+    impl_env_getters_for_test_env!(
+        (address, <Self as EnvTypes>::AccountId),
+        (balance, <Self as EnvTypes>::Balance),
+        (caller, <Self as EnvTypes>::AccountId),
+        (input, Vec<u8>),
+        (random_seed, <Self as EnvTypes>::Hash),
+        (now, <Self as EnvTypes>::Moment),
+        (gas_price, <Self as EnvTypes>::Balance),
+        (gas_left, <Self as EnvTypes>::Balance),
+        (value_transferred, <Self as EnvTypes>::Balance)
+    );
 
     unsafe fn r#return(data: &[u8]) -> ! {
         log::debug!(

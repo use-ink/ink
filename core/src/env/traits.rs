@@ -79,6 +79,15 @@ pub trait Env: EnvTypes + EnvStorage {
     /// Get the timestamp of the latest block.
     fn now() -> <Self as EnvTypes>::Moment;
 
+    /// Returns the current gas price.
+    fn gas_price() -> <Self as EnvTypes>::Balance;
+
+    /// Returns the gas left for this contract execution.
+    fn gas_left() -> <Self as EnvTypes>::Balance;
+
+    /// Returns the amount of value that has been transferred.
+    fn value_transferred() -> <Self as EnvTypes>::Balance;
+
     /// Returns from the contract execution with the given value.
     ///
     /// # Safety
