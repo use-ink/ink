@@ -95,29 +95,29 @@ extern "C" {
     /// Stores the address of the current contract into the scratch buffer.
     pub fn ext_address();
 
-    // Stores the gas price for the current transaction into the scratch buffer.
-    //
-    // The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
-    pub fn ext_gas_price();
-
-    // Stores the amount of gas left into the scratch buffer.
-    //
-    // The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
-    pub fn ext_gas_left();
-
-    // Stores the balance of the current account into the scratch buffer.
-    //
-    // The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
+    /// Stores the balance of the current account into the scratch buffer.
+    ///
+    /// The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
     pub fn ext_balance();
 
-    // Stores the value transferred along with this call or as endowment into the scratch buffer.
-    //
-    // The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
+    /// Stores the gas price for the current transaction into the scratch buffer.
+    ///
+    /// The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
+    pub fn ext_gas_price();
+
+    /// Stores the amount of gas left into the scratch buffer.
+    ///
+    /// The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
+    pub fn ext_gas_left();
+
+    /// Stores the value transferred along with this call or as endowment into the scratch buffer.
+    ///
+    /// The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
     pub fn ext_value_transferred();
 
-    // Load the latest block RNG seed into the scratch buffer.
+    /// Load the latest block RNG seed into the scratch buffer.
     pub fn ext_random_seed();
 
-    // Load the latest block timestamp into the scratch buffer.
+    /// Load the latest block timestamp into the scratch buffer.
     pub fn ext_now();
 }

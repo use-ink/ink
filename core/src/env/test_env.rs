@@ -16,7 +16,10 @@
 
 use super::*;
 use crate::{
-    env::srml,
+    env::{
+        self,
+        srml,
+    },
     memory::collections::hash_map::{
         Entry,
         HashMap,
@@ -304,22 +307,18 @@ impl TestEnvData {
     /// same data as was expected upon invocation.
     const FAILURE: i32 = -1;
 
-    /// Returns the address of the contract.
     pub fn address(&self) -> srml::AccountId {
         self.address
     }
 
-    /// Returns the balance of the contract.
     pub fn balance(&self) -> srml::Balance {
         self.balance
     }
 
-    /// Returns the caller of the contract invocation.
     pub fn caller(&self) -> srml::AccountId {
         self.caller
     }
 
-    /// Stores the given value under the given key in the contract storage.
     pub fn store(&mut self, key: Key, value: &[u8]) {
         self.inc_total_writes();
         match self.storage.entry(key) {
@@ -330,30 +329,25 @@ impl TestEnvData {
         }
     }
 
-    /// Clears the value under the given key in the contract storage.
     pub fn clear(&mut self, key: Key) {
         // Storage clears count as storage write.
         self.inc_total_writes();
         self.storage.remove(&key);
     }
 
-    /// Returns the value under the given key in the contract storage if any.
     pub fn load(&self, key: Key) -> Option<Vec<u8>> {
         self.inc_total_reads();
         self.storage.get(&key).map(|loaded| loaded.read())
     }
 
-    /// Returns the input data for the contract invocation.
     pub fn input(&self) -> Vec<u8> {
         self.input.clone()
     }
 
-    /// Returns the random seed for the contract invocation.
     pub fn random_seed(&self) -> srml::Hash {
         self.random_seed
     }
 
-    /// Returns the timestamp for the contract invocation.
     pub fn now(&self) -> srml::Moment {
         self.now
     }
@@ -370,13 +364,6 @@ impl TestEnvData {
         self.value_transferred
     }
 
-    /// Returns the data to the internal caller.
-    ///
-    /// # Note
-    ///
-    /// This exits the current process (contract invocation)
-    /// with a return code that is successful if the returned
-    /// data matches the expected return data.
     pub fn r#return(&self, data: &[u8]) -> ! {
         let expected_bytes = self.expected_return.clone();
         let exit_code = if expected_bytes == data {
@@ -387,12 +374,10 @@ impl TestEnvData {
         std::process::exit(exit_code)
     }
 
-    /// Prints the given content.
     pub fn println(&self, content: &str) {
         println!("{}", content)
     }
 
-    /// Deposits raw event data through the Contracts module.
     pub fn deposit_raw_event(&mut self, topics: &[env::Hash], data: &[u8]) {
         self.add_event(topics, data);
     }
@@ -471,8 +456,7 @@ impl TestEnv {
 
     /// Sets the timestamp for the next contract invocation.
     pub fn set_now(timestamp: srml::Moment) {
-        TEST_ENV_DATA
-            .with(|test_env| test_env.borrow_mut().set_now(timestamp))
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_now(timestamp))
     }
 
     /// Returns an iterator over all emitted events.
@@ -487,8 +471,6 @@ impl TestEnv {
     }
 }
 
-const TEST_ENV_LOG_TARGET: &str = "test-env";
-
 impl EnvTypes for TestEnv {
     type AccountId = srml::AccountId;
     type Balance = srml::Balance;
@@ -498,30 +480,14 @@ impl EnvTypes for TestEnv {
 
 impl EnvStorage for TestEnv {
     unsafe fn store(key: Key, value: &[u8]) {
-        log::debug!(
-            target: TEST_ENV_LOG_TARGET,
-            "TestEnv::store(\n\tkey: {:?},\n\tval: {:?}\n)",
-            key,
-            value,
-        );
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().store(key, value))
     }
 
     unsafe fn clear(key: Key) {
-        log::debug!(
-            target: TEST_ENV_LOG_TARGET,
-            "TestEnv::clear(\n\tkey: {:?}\n)",
-            key,
-        );
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().clear(key))
     }
 
     unsafe fn load(key: Key) -> Option<Vec<u8>> {
-        log::debug!(
-            target: TEST_ENV_LOG_TARGET,
-            "TestEnv::load(\n\tkey: {:?}\n)",
-            key,
-        );
         TEST_ENV_DATA.with(|test_env| test_env.borrow().load(key))
     }
 }
@@ -554,11 +520,6 @@ where
     );
 
     unsafe fn r#return(data: &[u8]) -> ! {
-        log::debug!(
-            target: TEST_ENV_LOG_TARGET,
-            "TestEnv::return_(\n\tdata: {:?}\n)",
-            data,
-        );
         TEST_ENV_DATA.with(|test_env| test_env.borrow().r#return(data))
     }
 
