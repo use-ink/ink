@@ -179,7 +179,7 @@ macro_rules! impl_add_sub_for_key {
 				byte_utils::bytes_add_bytes(
 					self.as_bytes_mut(),
 					&(rhs.to_be_bytes())
-				)
+				);
 			}
 		}
 
@@ -198,7 +198,7 @@ macro_rules! impl_add_sub_for_key {
 				byte_utils::bytes_sub_bytes(
 					self.as_bytes_mut(),
 					&rhs.to_be_bytes()
-				)
+				);
 			}
 		}
 	};
