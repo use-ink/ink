@@ -76,17 +76,10 @@ where
     /// Loads the value stored at the given key if any.
     unsafe fn load(key: Key) -> Option<Vec<u8>> {
         const SUCCESS: u32 = 0;
-        let result = sys::ext_get_storage(key.as_bytes().as_ptr() as u32);
-        if result != SUCCESS {
-            return None
+        if sys::ext_get_storage(key.as_bytes().as_ptr() as u32) == SUCCESS {
+            return Some(Self::read_scratch_buffer())
         }
-        let size = sys::ext_scratch_size();
-        let mut value = Vec::new();
-        if size > 0 {
-            value.resize(size as usize, 0);
-            sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
-        }
-        Some(value)
+        None
     }
 }
 
