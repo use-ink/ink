@@ -745,7 +745,10 @@ mod tests {
 
     #[test]
     fn result_json_success() {
-        assert_json_roundtrip(parse_quote!(Result<bool, i32>), r#"{"Result<T,E>":{"T":"bool","E":"i32"}}"#);
+        assert_json_roundtrip(
+            parse_quote!(Result<bool, i32>),
+            r#"{"Result<T,E>":{"T":"bool","E":"i32"}}"#,
+        );
         assert_json_roundtrip(
             parse_quote!(Result<(bool, i32), [u8; 8]>),
             r#"{"Result<T,E>":{"T":["bool","i32"],"E":{"[T;n]":{"T":"u8","n":8}}}}"#,
