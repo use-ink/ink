@@ -60,7 +60,7 @@ pub trait EnvStorage {
 }
 
 /// The environment API usable by contracts defined with pDSL.
-pub trait Env: EnvTypes + EnvStorage {
+pub trait Env: EnvTypes {
     /// Returns the chain address of the contract.
     fn address() -> <Self as EnvTypes>::AccountId;
 

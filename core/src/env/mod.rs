@@ -40,6 +40,8 @@ mod test_env;
 pub use api::*;
 pub use traits::*;
 
+// TODO: [AJ] update doc comments
+
 /// The environment implementation that is currently being used.
 ///
 /// This may be either
@@ -49,7 +51,7 @@ pub use traits::*;
 ///   that can be inspected by the user and used
 ///   for testing contracts off-chain.
 #[cfg(not(feature = "test-env"))]
-pub(self) type ContractEnv = self::srml::DefaultSrmlEnv;
+pub(self) type ContractEnvStorage = self::srml::SrmlEnvStorage;
 
 /// The environment implementation that is currently being used.
 #[cfg(feature = "test-env")]
