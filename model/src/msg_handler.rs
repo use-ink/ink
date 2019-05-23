@@ -24,6 +24,7 @@ use core::{
     result::Result as CoreResult,
 };
 use ink_core::memory::vec::Vec;
+use ink_core::env;
 use parity_codec::Decode;
 
 /// A raw read-only message handler for the given message and state.
@@ -32,8 +33,8 @@ use parity_codec::Decode;
 ///
 /// - Read-only message handlers cannot mutate contract state.
 /// - Requires `Msg` to impl `Message` and `State` to impl `ContractState`.
-pub type RawMessageHandler<Msg, State> =
-    fn(&ExecutionEnv<State>, <Msg as Message>::Input) -> <Msg as Message>::Output;
+pub type RawMessageHandler<Msg, State, Env> =
+    fn(&ExecutionEnv<State, Env>, <Msg as Message>::Input) -> <Msg as Message>::Output;
 
 /// A raw mutable message handler for the given message and state.
 ///
@@ -41,8 +42,8 @@ pub type RawMessageHandler<Msg, State> =
 ///
 /// - Mutable message handlers may mutate contract state.
 /// - Requires `Msg` to impl `Message` and `State` to impl `ContractState`.
-pub type RawMessageHandlerMut<Msg, State> =
-    fn(&mut ExecutionEnv<State>, <Msg as Message>::Input) -> <Msg as Message>::Output;
+pub type RawMessageHandlerMut<Msg, State, Env> =
+    fn(&mut ExecutionEnv<State, Env>, <Msg as Message>::Input) -> <Msg as Message>::Output;
 
 /// The raw data with which a contract is being called.
 pub struct CallData {
@@ -110,23 +111,25 @@ impl MessageHandlerSelector {
 /// A read-only message handler.
 ///
 /// Read-only message handlers cannot mutate contract state.
-pub struct MessageHandler<Msg, State>
+pub struct MessageHandler<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
     /// Required in order to trick Rust into thinking that it actually owns a message.
     ///
     /// However, in general message types are zero-sized-types (ZST).
     msg_marker: PhantomData<Msg>,
     /// The actual mutable handler for the message and state.
-    raw_handler: RawMessageHandler<Msg, State>,
+    raw_handler: RawMessageHandler<Msg, State, Env>,
 }
 
-impl<Msg, State> MessageHandler<Msg, State>
+impl<Msg, State, Env> MessageHandler<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
     /// Returns the associated handler selector.
     pub const fn selector() -> MessageHandlerSelector {
@@ -134,17 +137,19 @@ where
     }
 }
 
-impl<Msg, State> Copy for MessageHandler<Msg, State>
+impl<Msg, State, Env> Copy for MessageHandler<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
 }
 
-impl<Msg, State> Clone for MessageHandler<Msg, State>
+impl<Msg, State, Env> Clone for MessageHandler<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
     fn clone(&self) -> Self {
         Self {
@@ -154,13 +159,14 @@ where
     }
 }
 
-impl<Msg, State> MessageHandler<Msg, State>
+impl<Msg, State, Env> MessageHandler<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
     /// Constructs a message handler from its raw counterpart.
-    pub const fn from_raw(raw_handler: RawMessageHandler<Msg, State>) -> Self {
+    pub const fn from_raw(raw_handler: RawMessageHandler<Msg, State, Env>) -> Self {
         Self {
             msg_marker: PhantomData,
             raw_handler,
@@ -176,30 +182,33 @@ where
 ///
 /// This is a thin wrapper around a raw message handler in order
 /// to provide more type safety and better interfaces.
-pub struct MessageHandlerMut<Msg, State>
+pub struct MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
     /// Required in order to trick Rust into thinking that it actually owns a message.
     ///
     /// However, in general message types are zero-sized-types (ZST).
     msg_marker: PhantomData<Msg>,
     /// The actual read-only handler for the message and state.
-    raw_handler: RawMessageHandlerMut<Msg, State>,
+    raw_handler: RawMessageHandlerMut<Msg, State, Env>,
 }
 
-impl<Msg, State> Copy for MessageHandlerMut<Msg, State>
+impl<Msg, State, Env> Copy for MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
 }
 
-impl<Msg, State> Clone for MessageHandlerMut<Msg, State>
+impl<Msg, State, Env> Clone for MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
     fn clone(&self) -> Self {
         Self {
@@ -209,13 +218,14 @@ where
     }
 }
 
-impl<Msg, State> MessageHandlerMut<Msg, State>
+impl<Msg, State, Env> MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
     /// Constructs a message handler from its raw counterpart.
-    pub const fn from_raw(raw_handler: RawMessageHandlerMut<Msg, State>) -> Self {
+    pub const fn from_raw(raw_handler: RawMessageHandlerMut<Msg, State, Env>) -> Self {
         Self {
             msg_marker: PhantomData,
             raw_handler,
@@ -223,10 +233,11 @@ where
     }
 }
 
-impl<Msg, State> MessageHandlerMut<Msg, State>
+impl<Msg, State, Env> MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
     State: ContractState,
+    Env: env::Env,
 {
     /// Returns the associated handler selector.
     pub const fn selector() -> MessageHandlerSelector {
@@ -261,11 +272,11 @@ impl Error {
 pub type Result<T> = CoreResult<T, Error>;
 
 /// Types implementing this trait can handle contract calls.
-pub trait HandleCall<State> {
+pub trait HandleCall<State, Env> {
     /// Handles the call and returns the encoded result.
     fn handle_call(
         &self,
-        env: &mut ExecutionEnv<State>,
+        env: &mut ExecutionEnv<State, Env>,
         data: CallData,
     ) -> Result<Vec<u8>>;
 }
@@ -280,10 +291,10 @@ pub trait HandleCall<State> {
 #[derive(Copy, Clone)]
 pub struct UnreachableMessageHandler;
 
-impl<State> HandleCall<State> for UnreachableMessageHandler {
+impl<State, Env> HandleCall<State, Env> for UnreachableMessageHandler {
     fn handle_call(
         &self,
-        _env: &mut ExecutionEnv<State>,
+        _env: &mut ExecutionEnv<State, Env>,
         _data: CallData,
     ) -> Result<Vec<u8>> {
         Err(Error::InvalidFunctionSelector)
@@ -292,15 +303,16 @@ impl<State> HandleCall<State> for UnreachableMessageHandler {
 
 macro_rules! impl_handle_call_for_chain {
     ( $msg_handler_kind:ident, requires_flushing: $requires_flushing:literal ) => {
-        impl<Msg, State> HandleCall<State> for $msg_handler_kind<Msg, State>
+        impl<Msg, State, Env> HandleCall<State, Env> for $msg_handler_kind<Msg, State, Env>
         where
             Msg: Message,
             <Msg as Message>::Output: parity_codec::Encode,
             State: ContractState,
+            Env: env::Env,
         {
             fn handle_call(
                 &self,
-                env: &mut ExecutionEnv<State>,
+                env: &mut ExecutionEnv<State, Env>,
                 data: CallData,
             ) -> Result<Vec<u8>> {
                 let args = <Msg as Message>::Input::decode(&mut &data.params()[..])
@@ -314,20 +326,21 @@ macro_rules! impl_handle_call_for_chain {
             }
         }
 
-        impl<Msg, State, Rest> HandleCall<State> for ($msg_handler_kind<Msg, State>, Rest)
+        impl<Msg, State, Env, Rest> HandleCall<State, Env> for ($msg_handler_kind<Msg, State, Env>, Rest)
         where
             Msg: Message,
             <Msg as Message>::Output: 'static,
             State: ContractState,
-            Rest: HandleCall<State>,
+            Env: env::Env,
+            Rest: HandleCall<State, Env>,
         {
             fn handle_call(
                 &self,
-                env: &mut ExecutionEnv<State>,
+                env: &mut ExecutionEnv<State, Env>,
                 data: CallData,
             ) -> Result<Vec<u8>> {
                 let (handler, rest) = self;
-                if $msg_handler_kind::<Msg, State>::selector() == data.selector() {
+                if $msg_handler_kind::<Msg, State, Env>::selector() == data.selector() {
                     handler.handle_call(env, data)
                 } else {
                     rest.handle_call(env, data)
