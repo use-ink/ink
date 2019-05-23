@@ -19,8 +19,9 @@
 use parity_codec::Decode;
 use ink_core::{
     env::{
-        ContractEnv,
+        ContractEnvStorage,
         Env,
+        EnvTypes,
     },
     storage::{
         alloc::{
@@ -34,9 +35,6 @@ use ink_core::{
         Value,
     },
 };
-
-// #[cfg(not(test))]
-// use ink_core::println;
 
 /// An incrementer smart contract.
 ///
@@ -91,11 +89,28 @@ enum Action {
     Inc(u32),
 }
 
+// Define our env for NodeRuntime
+use srml_contract;
+use node_runtime;
+use ink_core::env::SrmlEnv;
+
+struct NodeRuntimeTypes;
+
+impl EnvTypes for NodeRuntimeTypes {
+    type AccountId = srml_contract::AccountIdOf<node_runtime::Runtime>;
+    type Balance = srml_contract::BalanceOf<node_runtime::Runtime>;
+    type Hash = srml_contract::SeedOf<node_runtime::Runtime>;
+    type Moment = u64; // todo [AJ] // srml_contract::MomentOf<node_runtime::Runtime>;
+}
+
+// type ContractEnv = SrmlEnv<NodeRuntimeTypes>;
+
 fn ret<T>(val: T) -> !
 where
     T: parity_codec::Encode,
 {
-    ContractEnv::return_(&val.encode())
+    // ContractEnv::return_(&val.encode())
+    unsafe { <SrmlEnv<NodeRuntimeTypes> as Env>::r#return(&val.encode()) }
 }
 
 fn instantiate() -> Incrementer {
@@ -112,7 +127,8 @@ pub extern "C" fn deploy() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    let input = ContractEnv::input();
+    // let input = ContractEnv::input();
+    let input = <SrmlEnv<NodeRuntimeTypes> as Env>::input();
     let action = Action::decode(&mut &input[..]).unwrap();
     let mut incrementer = instantiate();
 

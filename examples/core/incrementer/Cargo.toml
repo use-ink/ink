@@ -7,14 +7,22 @@ edition = "2018"
 [dependencies]
 ink_core = { path = "../../../core" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
+node-runtime = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "node-runtime", default-features = false }
+srml-contract = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "srml-contract", default-features = false }
 
 [lib]
 name = "incrementer"
 crate-type = ["cdylib"]
 
 [features]
-default = []
-test-env = ["ink_core/test-env"]
+default = [
+    "srml-contract/core",
+]
+test-env = [
+    "node-runtime/std",
+    "srml-contract/std",
+    "ink_core/test-env",
+]
 
 [profile.release]
 panic = "abort"
