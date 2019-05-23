@@ -20,8 +20,6 @@ use parity_codec::{
     Encode,
 };
 
-const KEY_LOG_TARGET: &str = "key";
-
 /// Typeless generic key into contract storage.
 ///
 /// Can be compared to a raw pointer featuring pointer arithmetic.
@@ -178,18 +176,10 @@ macro_rules! impl_add_sub_for_key {
 
 		impl core::ops::AddAssign<$prim> for Key {
 			fn add_assign(&mut self, rhs: $prim) {
-				let ovfl = byte_utils::bytes_add_bytes(
+				byte_utils::bytes_add_bytes(
 					self.as_bytes_mut(),
 					&(rhs.to_be_bytes())
 				);
-				if ovfl {
-					log::warn!(
-						target: KEY_LOG_TARGET,
-						"`lhs += rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
-						self,
-						rhs,
-					);
-				}
 			}
 		}
 
@@ -205,18 +195,10 @@ macro_rules! impl_add_sub_for_key {
 
 		impl core::ops::SubAssign<$prim> for Key {
 			fn sub_assign(&mut self, rhs: $prim) {
-				let ovfl = byte_utils::bytes_sub_bytes(
+				byte_utils::bytes_sub_bytes(
 					self.as_bytes_mut(),
 					&rhs.to_be_bytes()
 				);
-				if ovfl {
-					log::warn!(
-						target: KEY_LOG_TARGET,
-						"`lhs -= rhs` encountered overflow with (lhs = {:?}) and (rhs = {:?})",
-						self,
-						rhs,
-					);
-				}
 			}
 		}
 	};

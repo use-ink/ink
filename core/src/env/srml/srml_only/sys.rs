@@ -55,7 +55,12 @@ extern "C" {
     pub fn ext_println(str_ptr: u32, str_len: u32);
 
     /// Deposits raw event data through the Contracts module.
-    pub fn ext_deposit_event(data_ptr: u32, data_len: u32);
+    pub fn ext_deposit_event(
+        topics_ptr: u32,
+        topics_len: u32,
+        data_ptr: u32,
+        data_len: u32,
+    );
 
     /// Writes the contents of the buffer at `value_ptr` into the
     /// storage slot associated with the given key or clears the
@@ -90,29 +95,29 @@ extern "C" {
     /// Stores the address of the current contract into the scratch buffer.
     pub fn ext_address();
 
-    // Stores the gas price for the current transaction into the scratch buffer.
-    //
-    // The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
-    pub fn ext_gas_price();
-
-    // Stores the amount of gas left into the scratch buffer.
-    //
-    // The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
-    pub fn ext_gas_left();
-
-    // Stores the balance of the current account into the scratch buffer.
-    //
-    // The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
+    /// Stores the balance of the current account into the scratch buffer.
+    ///
+    /// The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
     pub fn ext_balance();
 
-    // Stores the value transferred along with this call or as endowment into the scratch buffer.
-    //
-    // The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
+    /// Stores the gas price for the current transaction into the scratch buffer.
+    ///
+    /// The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
+    pub fn ext_gas_price();
+
+    /// Stores the amount of gas left into the scratch buffer.
+    ///
+    /// The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
+    pub fn ext_gas_left();
+
+    /// Stores the value transferred along with this call or as endowment into the scratch buffer.
+    ///
+    /// The data is encoded as T::Balance. The current contents of the scratch buffer are overwritten.
     pub fn ext_value_transferred();
 
-    // Load the latest block RNG seed into the scratch buffer.
+    /// Load the latest block RNG seed into the scratch buffer.
     pub fn ext_random_seed();
 
-    // Load the latest block timestamp into the scratch buffer.
+    /// Load the latest block timestamp into the scratch buffer.
     pub fn ext_now();
 }

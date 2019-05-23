@@ -26,13 +26,14 @@ use parity_codec::{
 };
 
 /// The SRML fundamental types.
-pub struct DefaultSrmlTypes;
+#[allow(unused)]
+pub enum DefaultSrmlTypes {}
 
 impl EnvTypes for DefaultSrmlTypes {
-    type AccountId = self::AccountId;
-    type Balance = self::Balance;
-    type Hash = self::Hash;
-    type Moment = self::Moment;
+    type AccountId = AccountId;
+    type Balance = Balance;
+    type Hash = Hash;
+    type Moment = Moment;
 }
 
 /// The default SRML address type.

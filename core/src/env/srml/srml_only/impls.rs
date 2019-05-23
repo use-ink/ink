@@ -28,10 +28,7 @@ use crate::{
     storage::Key,
 };
 use core::{
-    convert::{
-        TryFrom,
-        TryInto,
-    },
+    convert::TryFrom,
     marker::PhantomData,
 };
 use parity_codec::Decode;
@@ -79,17 +76,10 @@ where
     /// Loads the value stored at the given key if any.
     unsafe fn load(key: Key) -> Option<Vec<u8>> {
         const SUCCESS: u32 = 0;
-        let result = sys::ext_get_storage(key.as_bytes().as_ptr() as u32);
-        if result != SUCCESS {
-            return None
+        if sys::ext_get_storage(key.as_bytes().as_ptr() as u32) == SUCCESS {
+            return Some(Self::read_scratch_buffer())
         }
-        let size = sys::ext_scratch_size();
-        let mut value = Vec::new();
-        if size > 0 {
-            value.resize(size as usize, 0);
-            sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
-        }
-        Some(value)
+        None
     }
 }
 
@@ -108,37 +98,29 @@ impl<T: EnvTypes> SrmlEnv<T> {
     }
 }
 
+macro_rules! impl_getters_for_srml_env {
+    ( $( ($name:ident, $ext_name:ident, $ret_type:ty) ),* ) => {
+        $(
+            fn $name() -> $ret_type {
+                unsafe { sys::$ext_name() };
+                Decode::decode(&mut &Self::read_scratch_buffer()[..])
+                    .ok_or(concat!(
+                        stringify!($name), " received an incorrectly sized buffer from SRML"
+                    ))
+                    .expect(concat!(
+                        stringify!($name), " expects to receive a correctly sized buffer"
+                    ))
+            }
+        )*
+    }
+}
+
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
     <T as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
     <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
-    fn address() -> <Self as EnvTypes>::AccountId {
-        unsafe { sys::ext_address() };
-        Self::read_scratch_buffer()
-            .as_slice()
-            .try_into()
-            .map_err(|_| "address received an incorrectly sized buffer from SRML")
-            .expect("we expect to always receive a correctly sized buffer here")
-    }
-
-    fn balance() -> <Self as EnvTypes>::Balance {
-        unsafe { sys::ext_balance() };
-        Decode::decode(&mut &Self::read_scratch_buffer()[..])
-            .ok_or("balance received an incorrectly sized buffer from SRML")
-            .expect("we expect to always receive a correctly sized buffer here")
-    }
-
-    fn caller() -> <Self as EnvTypes>::AccountId {
-        unsafe { sys::ext_caller() };
-        Self::read_scratch_buffer()
-            .as_slice()
-            .try_into()
-            .map_err(|_| "caller received an incorrectly sized buffer from SRML")
-            .expect("we expect to always receive a correctly sized buffer here")
-    }
-
     fn input() -> Vec<u8> {
         let size = unsafe { sys::ext_input_size() };
         if size == 0 {
@@ -153,21 +135,16 @@ where
         }
     }
 
-    fn random_seed() -> <Self as EnvTypes>::Hash {
-        unsafe { sys::ext_random_seed() };
-        Self::read_scratch_buffer()
-            .as_slice()
-            .try_into()
-            .map_err(|_| "random_seed received an incorrectly sized buffer from SRML")
-            .expect("we expect to always receive a correctly sized buffer here")
-    }
-
-    fn now() -> <Self as EnvTypes>::Moment {
-        unsafe { sys::ext_now() };
-        Decode::decode(&mut &Self::read_scratch_buffer()[..])
-            .ok_or("now received an incorrectly sized buffer from SRML")
-            .expect("we expect to receive a correctly sized buffer here")
-    }
+    impl_getters_for_srml_env!(
+        (address, ext_address, <Self as EnvTypes>::AccountId),
+        (balance, ext_balance, <Self as EnvTypes>::Balance),
+        (caller, ext_caller, <Self as EnvTypes>::AccountId),
+        (random_seed, ext_random_seed, <Self as EnvTypes>::Hash),
+        (now, ext_now, <Self as EnvTypes>::Moment),
+        (gas_price, ext_gas_price, <Self as EnvTypes>::Balance),
+        (gas_left, ext_gas_left, <Self as EnvTypes>::Balance),
+        (value_transferred, ext_value_transferred, <Self as EnvTypes>::Balance)
+    );
 
     unsafe fn r#return(data: &[u8]) -> ! {
         sys::ext_return(data.as_ptr() as u32, data.len() as u32);
@@ -177,7 +154,14 @@ where
         unsafe { sys::ext_println(content.as_ptr() as u32, content.len() as u32) }
     }
 
-    fn deposit_raw_event(data: &[u8]) {
-        unsafe { sys::ext_deposit_event(data.as_ptr() as u32, data.len() as u32) }
+    fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]) {
+        unsafe {
+            sys::ext_deposit_event(
+                topics.as_ptr() as u32,
+                topics.len() as u32,
+                data.as_ptr() as u32,
+                data.len() as u32,
+            )
+        }
     }
 }

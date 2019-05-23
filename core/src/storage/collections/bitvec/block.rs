@@ -32,7 +32,7 @@ pub struct BitBlock {
 struct InvalidBitBlockIndex;
 
 /// Result type when working with bit packs.
-type BitBlockResult<T> = core::result::Result<T, InvalidBitBlockIndex>;
+type BitBlockResult<T> = Result<T, InvalidBitBlockIndex>;
 
 impl BitBlock {
     /// The number of bit packs.

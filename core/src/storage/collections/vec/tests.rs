@@ -176,7 +176,7 @@ fn index_comp() {
 fn index_fail_0() {
     run_test(|| {
         let vec = new_filled_vec();
-        vec[4];
+        let _ = vec[4];
     })
 }
 
@@ -185,7 +185,7 @@ fn index_fail_0() {
 fn index_fail_1() {
     run_test(|| {
         let vec = new_filled_vec();
-        vec[u32::max_value()];
+        let _ = vec[u32::max_value()];
     })
 }
 
@@ -194,7 +194,7 @@ fn index_fail_1() {
 fn index_fail_2() {
     run_test(|| {
         let vec = new_empty_vec::<i32>();
-        vec[0];
+        let _ = vec[0];
     })
 }
 
@@ -282,7 +282,7 @@ fn iter_size_hint() {
         let vec = new_filled_vec();
         let mut iter = vec.iter();
         assert_eq!(iter.size_hint(), (4, Some(4)));
-        iter.next();
+        let _ = iter.next();
         assert_eq!(iter.size_hint(), (3, Some(3)));
     })
 }

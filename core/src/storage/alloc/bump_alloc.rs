@@ -18,8 +18,6 @@ use super::*;
 
 use crate::storage::Key;
 
-const BUMP_ALLOC_LOG_TARGET: &str = "bump_alloc";
-
 /// An allocator that is meant to allocate contract storage at
 /// compile-time by simply bumping its current allocation key.
 ///
@@ -55,10 +53,6 @@ impl BumpAlloc {
 impl Allocate for BumpAlloc {
     fn alloc(&mut self, size: u64) -> Key {
         if size == 0 {
-            log::warn!(
-                target: BUMP_ALLOC_LOG_TARGET,
-                "tried allocating for a zero size",
-            );
             panic!(
                 "[psdl_core::BumpAlloc::alloc] Error: \
                  cannot allocate zero (0) bytes"
@@ -66,12 +60,6 @@ impl Allocate for BumpAlloc {
         }
         let key = self.offset_key;
         self.inc_offset_key(size);
-        log::info!(
-            target: BUMP_ALLOC_LOG_TARGET,
-            "allocated {:?} of size (= {:?})",
-            key,
-            size,
-        );
         key
     }
 }

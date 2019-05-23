@@ -79,6 +79,15 @@ pub trait Env: EnvTypes + EnvStorage {
     /// Get the timestamp of the latest block.
     fn now() -> <Self as EnvTypes>::Moment;
 
+    /// Returns the current gas price.
+    fn gas_price() -> <Self as EnvTypes>::Balance;
+
+    /// Returns the gas left for this contract execution.
+    fn gas_left() -> <Self as EnvTypes>::Balance;
+
+    /// Returns the amount of value that has been transferred.
+    fn value_transferred() -> <Self as EnvTypes>::Balance;
+
     /// Returns from the contract execution with the given value.
     ///
     /// # Safety
@@ -96,5 +105,5 @@ pub trait Env: EnvTypes + EnvStorage {
     fn println(content: &str);
 
     /// Deposits raw event data through Contracts module.
-    fn deposit_raw_event(data: &[u8]);
+    fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]);
 }

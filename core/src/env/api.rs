@@ -67,6 +67,21 @@ pub fn now() -> Moment {
     ContractEnv::now()
 }
 
+/// Returns the current gas price.
+pub fn gas_price() -> Balance {
+    ContractEnv::gas_price()
+}
+
+/// Returns the amount of gas left for the contract execution.
+pub fn gas_left() -> Balance {
+    ContractEnv::gas_left()
+}
+
+/// Returns the transferred value.
+pub fn value_transferred() -> Balance {
+    ContractEnv::value_transferred()
+}
+
 /// Returns the current smart contract exection back to the caller
 /// and return the given encoded value.
 ///
@@ -92,8 +107,8 @@ pub fn println(content: &str) {
 }
 
 /// Deposits raw event data through the Contracts module.
-pub fn deposit_raw_event(data: &[u8]) {
-    ContractEnv::deposit_raw_event(data)
+pub fn deposit_raw_event(topics: &[Hash], data: &[u8]) {
+    ContractEnv::deposit_raw_event(topics, data)
 }
 
 /// Stores the given value under the specified key in the contract storage.

@@ -26,8 +26,6 @@ use parity_codec::{
     Encode,
 };
 
-const CC_ALLOC_LOG_TARGET: &str = "cc_alloc";
-
 /// An allocator for the contract storage.
 ///
 /// Specialized to efficiently allocate and deallocate cells and chunks.
@@ -47,9 +45,9 @@ pub struct CellChunkAlloc {
     /// Allocator stash for cell chunks.
     chunks: storage::Stash<()>,
     /// Cells key offset.
-    cells_off: storage::Key,
+    cells_off: Key,
     /// Chunks key offset.
-    chunks_off: storage::Key,
+    chunks_off: Key,
 }
 
 impl AllocateUsing for CellChunkAlloc {
@@ -125,7 +123,6 @@ impl CellChunkAlloc {
     fn alloc_cell(&mut self) -> Key {
         let index = self.cells.put(());
         let key = self.cell_index_to_key(index);
-        log::info!(target: CC_ALLOC_LOG_TARGET, "allocated cell at {:?}", key,);
         key
     }
 
@@ -133,14 +130,12 @@ impl CellChunkAlloc {
     fn alloc_chunk(&mut self) -> Key {
         let index = self.chunks.put(());
         let key = self.chunk_index_to_key(index);
-        log::info!(target: CC_ALLOC_LOG_TARGET, "allocated chunk at {:?}", key,);
         key
     }
 
     /// Deallocates a storage region fit for a single cell.
     fn dealloc_cell(&mut self, key: Key) {
         let index = self.key_to_cell_index(key);
-        log::info!(target: CC_ALLOC_LOG_TARGET, "deallocate cell at {:?}", key,);
         self.cells.take(index).expect(
             "[ink_core::CellChunkAlloc::dealloc_cell] Error: \
              key was not allocated by the allocator",
@@ -150,7 +145,6 @@ impl CellChunkAlloc {
     /// Deallocates a storage region fit for a whole chunk.
     fn dealloc_chunk(&mut self, key: Key) {
         let index = self.key_to_chunk_index(key);
-        log::info!(target: CC_ALLOC_LOG_TARGET, "deallocate chunk at {:?}", key,);
         self.chunks.take(index).expect(
             "[ink_core::CellChunkAlloc::dealloc_chunk] Error: \
              key was not allocated by the allocator",
@@ -202,14 +196,7 @@ impl Allocate for CellChunkAlloc {
     /// Can only allocate sizes of up to `u32::MAX`.
     fn alloc(&mut self, size: u64) -> Key {
         assert!(size <= u64::from(u32::max_value()));
-        if size == 0 {
-            log::warn!(
-                target: CC_ALLOC_LOG_TARGET,
-                "tried to allocate size zero (0)",
-            );
-        }
         debug_assert!(size != 0);
-        log::debug!(target: CC_ALLOC_LOG_TARGET, "allocate for size {:?}", size,);
         if size == 1 {
             self.alloc_cell()
         } else {

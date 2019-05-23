@@ -167,7 +167,7 @@ fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Cont
             {
                 use parity_codec::Encode as _;
                 ink_core::env::deposit_raw_event(
-                    event.into().encode().as_slice()
+                    &[], event.into().encode().as_slice()
                 )
             }
         }

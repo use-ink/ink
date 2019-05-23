@@ -157,8 +157,8 @@ impl EnvHandler {
     }
 
     /// Deposits raw event data through the Contracts module.
-    pub fn deposit_raw_event(&self, event: &[u8]) {
-        env::deposit_raw_event(event)
+    pub fn deposit_raw_event(&self, topics: &[env::Hash], event: &[u8]) {
+        env::deposit_raw_event(topics, event)
     }
 
     /// Returns the random seed from the latest block.

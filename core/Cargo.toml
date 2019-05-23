@@ -1,17 +1,17 @@
 [package]
 name = "ink_core"
 version = "0.1.0"
-authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
+authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 license = "GPL-3.0"
 readme = "README.md"
 
-# repository = "https://github.com/robbepop/substrate-contract"
-# homepage = "https://github.com/robbepop/substrate-contract"
-# documentation = "https://robbepop.github.io/pwasm-abi/substrate-contract/"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://github.com/paritytech/ink/wiki"
+homepage = "https://www.parity.io/"
 
-description = "[pDSL: Parity eDSL] Rust based eDSL for writing smart contracts for Substrate"
+description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 categories = ["no-std", "embedded"]
 
@@ -20,7 +20,6 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 ink_utils = { path = "../utils/" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
-log = "0.4"
 wee_alloc = { version = "0.4", default-features = false }
 
 [features]

@@ -1,14 +1,14 @@
 [package]
 name = "ink_model"
 version = "0.1.0"
-authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
+authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 license = "GPL-3.0"
 readme = "README.md"
-repository = "https://github.com/Robbepop/pdsl"
-documentation = "https://github.com/robbepop/pdsl/wiki"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://github.com/paritytech/ink/wiki"
 homepage = "https://www.parity.io/"
-description = "[pDSL: Parity eDSL] Rust based eDSL for writing smart contracts for Substrate"
+description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]

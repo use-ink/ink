@@ -98,7 +98,7 @@ impl<'a, T> Values<'a, T> {
 
 impl<T> Flush for Stash<T>
 where
-    T: parity_codec::Encode,
+    T: Encode,
 {
     fn flush(&mut self) {
         self.header.flush();
@@ -222,14 +222,14 @@ enum Entry<T> {
     Occupied(T),
 }
 
-impl<T> parity_codec::Encode for Stash<T> {
+impl<T> Encode for Stash<T> {
     fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
         self.header.encode_to(dest);
         self.entries.encode_to(dest);
     }
 }
 
-impl<T> parity_codec::Decode for Stash<T> {
+impl<T> Decode for Stash<T> {
     fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
         let header = storage::Value::decode(input)?;
         let entries = SyncChunk::decode(input)?;
