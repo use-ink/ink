@@ -27,7 +27,6 @@ use crate::{
     storage::Key,
 };
 use core::{
-    convert::TryFrom,
     marker::PhantomData,
 };
 use parity_codec::Decode;
@@ -113,8 +112,6 @@ macro_rules! impl_getters_for_srml_env {
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
-    <T as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
-    <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
     fn input() -> Vec<u8> {
         let size = unsafe { sys::ext_input_size() };
