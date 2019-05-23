@@ -17,7 +17,6 @@
 use super::ContractEnv;
 use crate::{
     env::{
-        Env as _,
         EnvStorage as _,
         EnvTypes,
     },
@@ -36,80 +35,6 @@ pub type Hash = <ContractEnv as EnvTypes>::Hash;
 
 /// The environmental moment type.
 pub type Moment = <ContractEnv as EnvTypes>::Moment;
-
-/// Returns the address of the current smart contract.
-pub fn address() -> AccountId {
-    ContractEnv::address()
-}
-
-/// Returns the balance of the current smart contract.
-pub fn balance() -> Balance {
-    ContractEnv::balance()
-}
-
-/// Returns the address of the caller of the current smart contract execution.
-pub fn caller() -> AccountId {
-    ContractEnv::caller()
-}
-
-/// Returns the uninterpreted input data of the current smart contract execution.
-pub fn input() -> Vec<u8> {
-    ContractEnv::input()
-}
-
-/// Returns the random seed from the latest block.
-pub fn random_seed() -> Hash {
-    ContractEnv::random_seed()
-}
-
-/// Returns the timestamp of the latest block.
-pub fn now() -> Moment {
-    ContractEnv::now()
-}
-
-/// Returns the current gas price.
-pub fn gas_price() -> Balance {
-    ContractEnv::gas_price()
-}
-
-/// Returns the amount of gas left for the contract execution.
-pub fn gas_left() -> Balance {
-    ContractEnv::gas_left()
-}
-
-/// Returns the transferred value.
-pub fn value_transferred() -> Balance {
-    ContractEnv::value_transferred()
-}
-
-/// Returns the current smart contract exection back to the caller
-/// and return the given encoded value.
-///
-/// # Safety
-///
-/// External callers rely on the correct type of the encoded returned value.
-/// This operation is unsafe because it does not provide guarantees on its
-/// own to always encode the expected type.
-pub unsafe fn r#return<T>(value: T) -> !
-where
-    T: parity_codec::Encode,
-{
-    ContractEnv::r#return(&value.encode()[..])
-}
-
-/// Prints the given content.
-///
-/// # Note
-///
-/// Usable only in development (`--dev`) chains.
-pub fn println(content: &str) {
-    ContractEnv::println(content)
-}
-
-/// Deposits raw event data through the Contracts module.
-pub fn deposit_raw_event(topics: &[Hash], data: &[u8]) {
-    ContractEnv::deposit_raw_event(topics, data)
-}
 
 /// Stores the given value under the specified key in the contract storage.
 ///
