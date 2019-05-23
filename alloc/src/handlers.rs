@@ -14,24 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! The minimal test framework for the ink! core libraries.
+use core::{
+    alloc::Layout,
+    panic::PanicInfo,
+};
 
-/// The set-up procedure of the entire crate under test.
-fn setup() {}
-
-/// The tear-down procedure of the entire crate under test.
-fn teardown() {}
-
-/// Runs the given test.
-///
-/// This executes general setup routines before executing
-/// the test and general tear-down procedures after executing.
-pub(crate) fn run_test<F>(test: F) -> ()
-where
-    F: FnOnce() -> () + std::panic::UnwindSafe,
-{
-    setup();
-    let result = std::panic::catch_unwind(|| test());
-    teardown();
-    assert!(result.is_ok())
+#[panic_handler]
+pub fn panic(_info: &PanicInfo) -> ! {
+    unsafe { core::intrinsics::abort() }
 }
+
+#[alloc_error_handler]
+pub extern "C" fn oom(_: Layout) -> ! {
+    unsafe {
+        core::intrinsics::abort();
+    }
+}
+
+/// This is only required in non `wasm32-unknown-unknown` targets.
+///
+/// Since ink! is targeted for the `wasm32-unknown-unknown` target we
+/// should maybe remove this.
+#[lang = "eh_personality"]
+extern "C" fn eh_personality() {}

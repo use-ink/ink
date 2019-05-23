@@ -15,10 +15,6 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(
-    not(feature = "std"),
-    feature(core_intrinsics, lang_items, alloc_error_handler,)
-)]
 #![deny(
     bad_style,
 	const_err,
@@ -40,6 +36,7 @@
 	unused_comparisons,
 	unused_parens,
 	while_true,
+	// missing-copy-implementations,
 	// missing_docs,
 	trivial_casts,
 	trivial_numeric_casts,
@@ -47,22 +44,13 @@
 	// unused_import_braces,
 	// unused_qualifications,
 	// unused_results,
-	// missing-copy-implementations
 )]
 
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
-// Use `wee_alloc` as the global allocator.
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 #[cfg(all(test, feature = "std"))]
-#[macro_use]
 mod test_utils;
-
-#[cfg(not(feature = "std"))]
-mod panic_handler;
 
 mod byte_utils;
 pub mod env;

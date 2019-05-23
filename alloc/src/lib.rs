@@ -14,26 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use core::{
-    alloc::Layout,
-    panic::PanicInfo,
-};
+#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(
+    not(feature = "std"),
+    feature(core_intrinsics, lang_items, alloc_error_handler,)
+)]
 
-#[panic_handler]
-pub fn panic(_info: &PanicInfo) -> ! {
-    unsafe { core::intrinsics::abort() }
-}
+#[cfg(not(feature = "std"))]
+extern crate alloc;
 
-#[alloc_error_handler]
-pub extern "C" fn oom(_: Layout) -> ! {
-    unsafe {
-        core::intrinsics::abort();
-    }
-}
+#[cfg(not(feature = "std"))]
+mod handlers;
 
-/// This is only required in non wasm32-unknown-unknown targets.
-///
-/// Since ink_core is targeted for wasm32-unknown-unknown we should
-/// maybe remove this.
-#[lang = "eh_personality"]
-extern "C" fn eh_personality() {}
+// Use `wee_alloc` as the global allocator.
+#[cfg(not(feature = "std"))]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
