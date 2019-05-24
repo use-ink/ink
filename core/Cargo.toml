@@ -25,4 +25,7 @@ parity-codec = { version = "3.2", default-features = false, features = ["derive"
 [features]
 default = []
 test-env = ["std"]
-std = []
+std = [
+    "ink_alloc/std",
+    "ink_utils/std",
+]
