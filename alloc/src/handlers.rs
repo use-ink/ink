@@ -14,26 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use core::{
-    alloc::Layout,
-    panic::PanicInfo,
-};
-
 #[panic_handler]
-pub fn panic(_info: &PanicInfo) -> ! {
+pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     unsafe { core::intrinsics::abort() }
 }
 
 #[alloc_error_handler]
-pub extern "C" fn oom(_: Layout) -> ! {
-    unsafe {
-        core::intrinsics::abort();
-    }
+pub extern "C" fn oom(_: core::alloc::Layout) -> ! {
+    unsafe { core::intrinsics::abort() }
 }
-
-/// This is only required in non wasm32-unknown-unknown targets.
-///
-/// Since ink_core is targeted for wasm32-unknown-unknown we should
-/// maybe remove this.
-#[lang = "eh_personality"]
-extern "C" fn eh_personality() {}

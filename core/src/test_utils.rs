@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! The minimal test framework for the pdsl core libraries.
+//! The minimal test framework for the ink! core libraries.
 
 /// The set-up procedure of the entire crate under test.
 fn setup() {}

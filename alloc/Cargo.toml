@@ -1,5 +1,5 @@
 [package]
-name = "ink_core"
+name = "ink_alloc"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -18,14 +18,8 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_alloc = { path = "../alloc/" }
-ink_utils = { path = "../utils/" }
-parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
+wee_alloc = { version = "0.4", default-features = false }
 
 [features]
 default = []
-test-env = ["std"]
-std = [
-    "ink_alloc/std",
-    "ink_utils/std",
-]
+std = []
