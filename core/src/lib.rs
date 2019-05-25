@@ -46,6 +46,11 @@
 	// unused_results,
 )]
 
+// This extern crate definition is required since otherwise rustc
+// is not recognizing its allocator and panic handler definitions.
+#[cfg(not(feature = "std"))]
+extern crate ink_alloc;
+
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 

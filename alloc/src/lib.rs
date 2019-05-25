@@ -20,13 +20,10 @@
     feature(core_intrinsics, alloc_error_handler,)
 )]
 
-#[cfg(not(feature = "std"))]
-extern crate alloc;
-
-#[cfg(not(feature = "std"))]
-mod handlers;
-
 // Use `wee_alloc` as the global allocator.
 #[cfg(not(feature = "std"))]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[cfg(not(feature = "std"))]
+mod handlers;
