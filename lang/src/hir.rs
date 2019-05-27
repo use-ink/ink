@@ -69,7 +69,7 @@ impl Contract {
         contract: &ast::Contract,
     ) -> Result<Vec<Event>> {
         let events = contract.events().collect::<Vec<_>>();
-        let mut unique_events = std::collections::HashSet::new();
+        let mut unique_events = std::collections::HashSet::<&ast::ItemEvent>::new();
         for event in &events {
             if &event.ident == contract_ident {
                 bail!(
@@ -78,7 +78,7 @@ impl Contract {
                 )
             }
             if !unique_events.contains(event) {
-                unique_events.insert(event.clone());
+                unique_events.insert(event);
             } else {
                 bail!(
                     event.ident,
