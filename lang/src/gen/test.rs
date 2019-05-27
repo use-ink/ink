@@ -62,7 +62,7 @@ fn generate_test_mod_body(contract: &hir::Contract) -> TokenStream2 {
 ///
 /// For a contract called `Flipper` this returns `TestableFlipper`.
 fn testable_contract_name(contract: &hir::Contract) -> proc_macro2::Ident {
-    proc_macro2::Ident::from_str(["Testable", &contract.name.to_owned_string()].concat())
+    proc_macro2::Ident::from_str(["Testable", &contract.name.to_string()].concat())
 }
 
 fn generate_test_struct(tokens: &mut TokenStream2, contract: &hir::Contract) {

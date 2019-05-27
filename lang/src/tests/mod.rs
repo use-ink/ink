@@ -20,7 +20,7 @@ mod incrementer;
 mod noop;
 mod utils;
 
-pub(crate) use crate::contract_gen_impl2;
+pub(crate) use crate::generate_or_err;
 pub(crate) use quote::quote;
 pub(crate) use utils::{
     assert_eq_tokenstreams,
@@ -29,7 +29,7 @@ pub(crate) use utils::{
 
 #[test]
 fn empty_contract_input() {
-    assert!(contract_gen_impl2(quote! {}).is_err());
+    assert!(generate_or_err(quote! {}).is_err());
 }
 
 #[test]

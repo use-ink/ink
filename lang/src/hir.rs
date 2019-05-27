@@ -14,19 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    ast,
-    errors::{
-        Result,
-        SynError,
-    },
-};
-
+use crate::ast;
 use proc_macro2::{
     Ident,
     Span,
 };
 use syn::{
+    self,
+    Result,
     punctuated::Punctuated,
     Token,
 };
@@ -110,21 +105,19 @@ impl Contract {
     fn extract_state(contract: &ast::Contract) -> Result<(&Ident, State)> {
         let states = contract.states().collect::<Vec<_>>();
         if states.is_empty() {
-            return Err(SynError::new(
+            return Err(syn::Error::new(
                 Span::call_site(),
                 "couldn't find a contract state `struct`",
-            )
-            .into())
+            ))
         }
         if states.len() > 1 {
-            return Err(SynError::new(
+            return Err(syn::Error::new(
                 Span::call_site(),
                 format!(
                     "requires exactly one contract state `struct`; found {:?}",
                     states.len()
                 ),
-            )
-            .into())
+            ))
         }
         let state = states[0];
         Ok((&state.ident, State::from(state)))
@@ -136,11 +129,10 @@ impl Contract {
     ) -> Result<(Vec<Message>, Vec<Method>)> {
         let impl_blocks = contract.impl_blocks().collect::<Vec<_>>();
         if impl_blocks.is_empty() {
-            return Err(SynError::new(
+            return Err(syn::Error::new(
                 Span::call_site(),
                 "requires at least one contract impl block `struct`; found none",
-            )
-            .into())
+            ))
         }
         for impl_block in impl_blocks.iter() {
             if impl_block.self_ty != *contract_ident {
@@ -441,8 +433,7 @@ impl Message {
 
     /// Returns the message selector for this message.
     pub fn selector(&self) -> u32 {
-        use crate::ident_ext::IdentExt;
-        raw_message_selector(self.sig.ident.to_owned_string().as_str())
+        raw_message_selector(self.sig.ident.to_string().as_str())
     }
 }
 

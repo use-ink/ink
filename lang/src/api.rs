@@ -16,17 +16,13 @@
 
 use crate::{
     ast,
-    errors::{
-        Errors,
-        Result,
-    },
     hir,
-    ident_ext::IdentExt,
 };
 use serde::{
     Deserialize,
     Serialize,
 };
+use syn::{self, Result};
 use std::convert::TryFrom;
 
 /// Describes a message parameter or return type.
@@ -59,7 +55,7 @@ pub enum OptionTypeDescription {
 }
 
 impl TryFrom<&syn::TypePath> for OptionTypeDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(type_path: &syn::TypePath) -> Result<Self> {
         if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
@@ -107,7 +103,7 @@ pub enum VecTypeDescription {
 }
 
 impl TryFrom<&syn::TypePath> for VecTypeDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(type_path: &syn::TypePath) -> Result<Self> {
         if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
@@ -154,7 +150,7 @@ pub enum ResultTypeDescription {
 }
 
 impl TryFrom<&syn::TypePath> for ResultTypeDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(type_path: &syn::TypePath) -> Result<Self> {
         if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
@@ -194,7 +190,7 @@ impl TryFrom<&syn::TypePath> for ResultTypeDescription {
 }
 
 impl TryFrom<&syn::Type> for TypeDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(ty: &syn::Type) -> Result<Self> {
         match ty {
@@ -209,7 +205,7 @@ impl TryFrom<&syn::Type> for TypeDescription {
                     bail!(path, "invalid self qualifier or leading `::` for type")
                 }
                 let ident = &path.path.segments[0].ident;
-                match ident.to_owned_string().as_str() {
+                match ident.to_string().as_str() {
                     "Option" => {
                         OptionTypeDescription::try_from(path).map(TypeDescription::Option)
                     }
@@ -270,7 +266,7 @@ pub enum PrimitiveTypeDescription {
 }
 
 impl TryFrom<&syn::TypePath> for PrimitiveTypeDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(ty: &syn::TypePath) -> Result<Self> {
         use quote::ToTokens;
@@ -308,7 +304,7 @@ pub struct TupleTypeDescription {
 }
 
 impl TryFrom<&syn::TypeTuple> for TupleTypeDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(arg: &syn::TypeTuple) -> Result<Self> {
         let elems = arg
@@ -333,7 +329,7 @@ pub enum ArrayTypeDescription {
 }
 
 impl TryFrom<&syn::TypeArray> for ArrayTypeDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(arg: &syn::TypeArray) -> Result<Self> {
         let ty = TypeDescription::try_from(&*arg.elem)?;
@@ -363,11 +359,11 @@ pub struct ParamDescription {
 }
 
 impl TryFrom<&syn::ArgCaptured> for ParamDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(arg: &syn::ArgCaptured) -> Result<Self> {
         let name = match &arg.pat {
-            syn::Pat::Ident(ident) => ident.ident.to_owned_string(),
+            syn::Pat::Ident(ident) => ident.ident.to_string(),
             _ => {
                 bail!(arg.pat, "unsupported type pattern, currently only identifiers like `foo` are supported")
             }
@@ -387,7 +383,7 @@ pub struct DeployDescription {
 }
 
 impl TryFrom<&hir::DeployHandler> for DeployDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(deploy_handler: &hir::DeployHandler) -> Result<Self> {
         let args = deploy_handler
@@ -429,7 +425,7 @@ impl ReturnTypeDescription {
 }
 
 impl TryFrom<&syn::ReturnType> for ReturnTypeDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(ret_ty: &syn::ReturnType) -> Result<Self> {
         match ret_ty {
@@ -459,11 +455,11 @@ pub struct MessageDescription {
 }
 
 impl TryFrom<&hir::Message> for MessageDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(message: &hir::Message) -> Result<Self> {
         Ok(Self {
-            name: message.sig.ident.to_owned_string(),
+            name: message.sig.ident.to_string(),
             selector: message.selector().into(),
             mutates: message.is_mut(),
             args: {
@@ -506,11 +502,11 @@ impl ContractDescription {
 }
 
 impl TryFrom<&hir::Contract> for ContractDescription {
-    type Error = Errors;
+    type Error = syn::Error;
 
     fn try_from(contract: &hir::Contract) -> Result<Self> {
         Ok(ContractDescription {
-            name: contract.name.to_owned_string(),
+            name: contract.name.to_string(),
             deploy: DeployDescription::try_from(&contract.on_deploy)?,
             messages: {
                 contract
