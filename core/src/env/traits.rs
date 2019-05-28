@@ -18,12 +18,13 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
+use core::hash::Hash;
 use parity_codec::Codec;
 
 /// The environmental types usable by contracts defined with pDSL.
 pub trait EnvTypes {
     /// The type of an address.
-    type AccountId: Codec + PartialEq + Eq;
+    type AccountId: Codec + PartialEq + Eq + Hash;
     /// The type of balances.
     type Balance: Codec;
     /// The type of hash.
