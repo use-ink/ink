@@ -8,13 +8,21 @@ edition = "2018"
 ink_core = { path = "../../../core" }
 ink_model = { path = "../../../model" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
+# use substrate srml types
+node-runtime = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "node-runtime", default-features = false }
+srml-contract = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "srml-contract", default-features = false }
+# ignore duplicate wasm lang items
+sr-std = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "sr-std", default-features = false, features = ["no_global_allocator"] }
+sr-io = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "sr-io", default-features = false, features = ["no_oom", "no_panic_handler"] }
 
 [lib]
 name = "erc20"
 crate-type = ["cdylib"]
 
 [features]
-default = []
+default = [
+    "srml-contract/core",
+]
 test-env = [
 	"ink_core/test-env",
 	"ink_model/test-env",
