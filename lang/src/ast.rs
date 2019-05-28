@@ -33,6 +33,15 @@ pub struct Contract {
 }
 
 impl Contract {
+    pub fn env_types<'a>(&'a self) -> impl Iterator<Item = &'a ItemEnvTypesType> + 'a {
+        self.items.iter().filter_map(|item| {
+            match *item {
+                Item::EnvTypesType(ref t) => Some(t),
+                _ => None,
+            }
+        })
+    }
+
     pub fn states<'a>(&'a self) -> impl Iterator<Item = &'a ItemState> + 'a {
         self.items.iter().filter_map(|item| {
             match *item {
@@ -74,10 +83,21 @@ impl Contract {
 
 #[derive(Debug)]
 pub enum Item {
+    EnvTypesType(ItemEnvTypesType),
     State(ItemState),
     DeployImpl(ItemDeployImpl),
     Impl(ItemImpl),
     Event(ItemEvent),
+}
+
+#[derive(Debug, Clone)]
+pub struct ItemEnvTypesType {
+    pub attrs: Vec<syn::Attribute>,
+    pub type_tok: Token![type],
+    pub ident: Ident,
+    pub eq_tok: Token![=],
+    pub ty: syn::Type,
+    pub semi_tok: Token![;],
 }
 
 /// An event declaration.
@@ -188,7 +208,6 @@ pub struct FnDecl {
     pub generics: syn::Generics,
 }
 
-#[derive(Debug, Clone)]
 pub struct FnInputs {
     punct: Punctuated<FnArg, Token![,]>,
 }

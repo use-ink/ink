@@ -39,6 +39,7 @@ use syn::{
 };
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    codegen_for_env_types(tokens, contract);
     codegen_for_state(tokens, contract);
     codegen_for_messages(tokens, contract);
     codegen_for_message_impls(tokens, contract);
@@ -46,6 +47,21 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     codegen_for_instantiate(tokens, contract);
     codegen_for_entry_points(tokens, contract);
     codegen_for_event_mod(tokens, contract);
+}
+
+fn codegen_for_env_types(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    let env_types = &contract.env_types_type;
+    tokens.extend(quote! {
+        use ink_core::env::{self, EnvTypes, SrmlEnv};
+
+        type Env = SrmlEnv<#env_types>;
+        type EnvHandler = ink_model::EnvHandler<Env>;
+
+        type AccountId = <Env as EnvTypes>::AccountId;
+        type Balance = <Env as EnvTypes>::Balance;
+        type Hash = <Env as EnvTypes>::Hash;
+        type Moment = <Env as EnvTypes>::Moment;
+    })
 }
 
 fn codegen_for_event_mod(tokens: &mut TokenStream2, contract: &hir::Contract) {
@@ -166,14 +182,14 @@ fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Cont
                 E: Into<private::Event>,
             {
                 use parity_codec::Encode as _;
-                ink_core::env::deposit_raw_event(
+                <Env as env::Env>::deposit_raw_event(
                     &[], event.into().encode().as_slice()
                 )
             }
         }
 
-        impl EmitEventExt for ink_model::EnvHandler {}
-        impl private::Sealed for ink_model::EnvHandler {}
+        impl EmitEventExt for EnvHandler {}
+        impl private::Sealed for EnvHandler {}
     })
 }
 
@@ -312,7 +328,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
         #[cfg(not(test))]
         impl #state_name {
             pub(crate) fn instantiate() -> impl ink_model::Contract {
-                ink_model::ContractDecl::using::<Self>()
+                ink_model::ContractDecl::using::<Self, Env>()
                     #deploy_handler_toks
                     #messages_toks
                     .instantiate()
@@ -344,9 +360,9 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
                     inputs_with_env.push_value(self_arg.clone());
                     inputs_with_env.push_punct(<Token![,]>::default());
                     let custom_arg_captured: CustomArgCaptured = if message.is_mut() {
-                        syn::parse_quote! { env: &mut ink_model::EnvHandler }
+                        syn::parse_quote! { env: &mut EnvHandler }
                     } else {
-                        syn::parse_quote! { env: &ink_model::EnvHandler }
+                        syn::parse_quote! { env: &EnvHandler }
                     };
                     inputs_with_env.push(ast::FnArg::Captured(
                         custom_arg_captured.into_arg_captured(),

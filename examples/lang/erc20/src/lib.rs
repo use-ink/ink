@@ -17,17 +17,27 @@
 #![cfg_attr(not(any(test, feature = "test-env")), no_std)]
 
 use ink_core::{
-    env::{
-        self,
-        AccountId,
-        Balance,
-    },
     memory::format,
     storage,
 };
 use ink_lang::contract;
 
+// Define our EnvTypes for NodeRuntime
+use srml_contract;
+use node_runtime;
+
+pub struct NodeRuntimeTypes;
+
+impl ink_core::env::EnvTypes for NodeRuntimeTypes {
+    type AccountId = srml_contract::AccountIdOf<node_runtime::Runtime>;
+    type Balance = srml_contract::BalanceOf<node_runtime::Runtime>;
+    type Hash = srml_contract::SeedOf<node_runtime::Runtime>;
+    type Moment = srml_contract::MomentOf<node_runtime::Runtime>;
+}
+
 contract! {
+    type EnvTypes = NodeRuntimeTypes;
+
     // Event deposited when a token transfer occurs
     event Transfer {
         from: Option<AccountId>,
@@ -75,16 +85,16 @@ contract! {
         /// Returns the balance of the given AccountId.
         pub(external) fn balance_of(&self, owner: AccountId) -> Balance {
             let balance = self.balance_of_or_zero(&owner);
-            env.println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner, balance));
+            env.println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner.0, balance));
             balance
         }
 
         /// Returns the amount of tokens that an owner allowed to a spender.
         pub(external) fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
             let allowance = self.allowance_or_zero(&owner, &spender);
-            env::println(&format!(
+            env.println(&format!(
                 "Erc20::allowance(owner = {:?}, spender = {:?}) = {:?}",
-                owner, spender, allowance
+                owner.0, spender.0, allowance
             ));
             allowance
         }
@@ -130,7 +140,7 @@ contract! {
         }
 
         /// Transfers token from a specified AccountId to another AccountId.
-        fn transfer_impl(&mut self, env: &mut ink_model::EnvHandler, from: AccountId, to: AccountId, value: Balance) -> bool {
+        fn transfer_impl(&mut self, env: &mut EnvHandler, from: AccountId, to: AccountId, value: Balance) -> bool {
             let balance_from = self.balance_of_or_zero(&from);
             let balance_to = self.balance_of_or_zero(&to);
             if balance_from < value {

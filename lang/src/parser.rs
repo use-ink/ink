@@ -61,7 +61,12 @@ impl Parse for ast::Item {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let attrs = syn::Attribute::parse_outer(input)?;
         let lookahead = input.lookahead1();
-        if lookahead.peek(Token![struct]) {
+        if lookahead.peek(Token![type]) {
+            input.parse().map(|mut env_types: ast::ItemEnvTypesType| {
+                env_types.attrs = attrs;
+                ast::Item::EnvTypesType(env_types)
+            })
+        } else if lookahead.peek(Token![struct]) {
             input.parse().map(|mut state: ast::ItemState| {
                 state.attrs = attrs;
                 ast::Item::State(state)
@@ -86,6 +91,24 @@ impl Parse for ast::Item {
         } else {
             Err(lookahead.error())
         }
+    }
+}
+
+impl Parse for ast::ItemEnvTypesType {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let type_tok = input.parse()?;
+        let ident = input.parse()?;
+        let eq_tok = input.parse()?;
+        let ty = input.parse()?;
+        let semi_tok = input.parse()?;
+        Ok(Self {
+            attrs: vec![],
+            type_tok,
+            ident,
+            eq_tok,
+            ty,
+            semi_tok,
+        })
     }
 }
 

@@ -24,7 +24,7 @@ use parity_codec::Codec;
 /// The environmental types usable by contracts defined with pDSL.
 pub trait EnvTypes {
     /// The type of an address.
-    type AccountId: Codec + PartialEq + Eq + Hash;
+    type AccountId: Codec + PartialEq + Eq + Hash + Copy;
     /// The type of balances.
     type Balance: Codec;
     /// The type of hash.
