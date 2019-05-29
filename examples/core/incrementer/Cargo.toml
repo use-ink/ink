@@ -6,26 +6,18 @@ edition = "2018"
 
 [dependencies]
 ink_core = { path = "../../../core" }
+ink_node_runtime_types = { path = "../../../types/node-runtime" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
-# use substrate srml types
-node-runtime = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "node-runtime", default-features = false }
-srml-contract = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "srml-contract", default-features = false }
-# ignore duplicate wasm lang items
-sr-std = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "sr-std", default-features = false, features = ["no_global_allocator"] }
-sr-io = { git = "https://github.com/paritytech/substrate/", branch = "aj-ink-types", package = "sr-io", default-features = false, features = ["no_oom", "no_panic_handler"] }
 
 [lib]
 name = "incrementer"
 crate-type = ["cdylib"]
 
 [features]
-default = [
-    "srml-contract/core",
-]
+default = []
 test-env = [
-    "node-runtime/std",
-    "srml-contract/std",
     "ink_core/test-env",
+    "ink_node_runtime_types/test-env",
 ]
 
 [profile.release]
