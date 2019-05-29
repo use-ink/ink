@@ -1,0 +1,27 @@
+[package]
+name = "ink_abi"
+version = "0.1.0"
+authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "GPL-3.0"
+readme = "README.md"
+
+# repository = "https://github.com/robbepop/substrate-contract"
+# homepage = "https://github.com/robbepop/substrate-contract"
+# documentation = "https://robbepop.github.io/pwasm-abi/substrate-contract/"
+
+description = "[pDSL: Parity eDSL] Rust based eDSL for writing smart contracts for Substrate"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["no-std", "embedded"]
+
+include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
+
+[dependencies]
+parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+json = { package = "serde_json", version = "1.0" }
+
+[features]
+default = []
+std = []

@@ -6,6 +6,7 @@ members = [
     "model",
     "lang",
     "cli",
+    "abi",
 ]
 exclude = [
     "examples/",
