@@ -243,10 +243,9 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
         for message in &contract.messages {
             let msg_ident = &message.sig.ident;
 
-            use crate::ident_ext::IdentExt as _;
             use heck::CamelCase as _;
             let camelcase_msg_ident = Ident::new(
-                &message.sig.ident.to_owned_string().to_camel_case(),
+                &message.sig.ident.to_string().to_camel_case(),
                 message.sig.ident.span(),
             );
 
@@ -466,10 +465,9 @@ fn codegen_for_messages(tokens: &mut TokenStream2, contract: &hir::Contract) {
             );
             msg_id.to_tokens(&mut content);
             <Token![=>]>::default().to_tokens(&mut content);
-            use crate::ident_ext::IdentExt as _;
             use heck::CamelCase as _;
             let camel_case_ident = Ident::new(
-                &message.sig.ident.to_owned_string().to_camel_case(),
+                &message.sig.ident.to_string().to_camel_case(),
                 message.sig.ident.span(),
             );
             camel_case_ident.to_tokens(&mut content);

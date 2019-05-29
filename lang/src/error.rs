@@ -14,17 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use proc_macro2::{
-    Ident,
-    Span,
-};
-
-/// Utilities for operating on `Ident` instances.
-pub trait IdentExt {
-    /// Creates a new Ident from the given `str`.
-    fn from_str<T: AsRef<str>>(s: T) -> Ident {
-        Ident::new(s.as_ref(), Span::call_site())
+macro_rules! bail {
+    ($($args:tt)*) => {
+        return Err(format_err!($($args)*).into())
     }
 }
 
-impl IdentExt for Ident {}
+macro_rules! format_err {
+    ($tokens:expr, $($msg:tt)*) => {
+        match &$tokens {
+            t => {
+                syn::parse::Error::new_spanned(t, format_args!($($msg)*))
+            }
+        }
+    }
+}

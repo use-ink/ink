@@ -122,15 +122,13 @@ impl CellChunkAlloc {
     /// Allocates a new storage region that fits for a single cell.
     fn alloc_cell(&mut self) -> Key {
         let index = self.cells.put(());
-        let key = self.cell_index_to_key(index);
-        key
+        self.cell_index_to_key(index)
     }
 
     /// Allocates a new storage region that fits for a whole chunk.
     fn alloc_chunk(&mut self) -> Key {
         let index = self.chunks.put(());
-        let key = self.chunk_index_to_key(index);
-        key
+        self.chunk_index_to_key(index)
     }
 
     /// Deallocates a storage region fit for a single cell.

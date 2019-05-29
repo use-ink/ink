@@ -106,7 +106,7 @@ fn main() -> cmd::Result<()> {
         CommandErrorKind,
     };
     match &args.cmd {
-        Command::New { layer, name } => cmd::execute_new(layer, name),
+        Command::New { layer, name } => cmd::execute_new(*layer, name),
         Command::Build {} => {
             Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
         }

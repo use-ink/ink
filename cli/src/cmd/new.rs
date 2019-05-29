@@ -67,7 +67,7 @@ fn initialize_for_lang(name: &str) -> Result<()> {
                 }
             }
             let mut outfile = fs::File::create(&outpath)?;
-            outfile.write(contents.as_bytes())?;
+            outfile.write_all(contents.as_bytes())?;
         }
 
         // Get and set permissions
@@ -84,7 +84,7 @@ fn initialize_for_lang(name: &str) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn execute_new(layer: &AbstractionLayer, name: &str) -> Result<()> {
+pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<()> {
     match layer {
         AbstractionLayer::Core => {
             Err(CommandError::new(
