@@ -21,19 +21,7 @@ use ink_core::{
     storage,
 };
 use ink_lang::contract;
-
-// Define our EnvTypes for NodeRuntime
-use srml_contract;
-use node_runtime;
-
-pub struct NodeRuntimeTypes;
-
-impl ink_core::env::EnvTypes for NodeRuntimeTypes {
-    type AccountId = srml_contract::AccountIdOf<node_runtime::Runtime>;
-    type Balance = srml_contract::BalanceOf<node_runtime::Runtime>;
-    type Hash = srml_contract::SeedOf<node_runtime::Runtime>;
-    type Moment = srml_contract::MomentOf<node_runtime::Runtime>;
-}
+use ink_node_runtime_types::NodeRuntimeTypes;
 
 contract! {
     type EnvTypes = NodeRuntimeTypes;
