@@ -263,6 +263,10 @@ pub enum PrimitiveTypeDescription {
     AccountId,
     /// The SRML balance type.
     Balance,
+    /// The SRML hash type.
+    Hash,
+    /// The SRML moment type.
+    Moment,
 }
 
 impl TryFrom<&syn::TypePath> for PrimitiveTypeDescription {
@@ -285,6 +289,8 @@ impl TryFrom<&syn::TypePath> for PrimitiveTypeDescription {
             "i128" => Ok(PrimitiveTypeDescription::I128),
             "AccountId" => Ok(PrimitiveTypeDescription::AccountId),
             "Balance" => Ok(PrimitiveTypeDescription::Balance),
+            "Hash" => Ok(PrimitiveTypeDescription::Hash),
+            "Moment" => Ok(PrimitiveTypeDescription::Moment),
             unsupported => {
                 bail!(
                     ty,
@@ -553,6 +559,30 @@ mod tests {
         assert_eq!(json, actual_json);
         let deserialized: TypeDescription = serde_json::de::from_str(json).unwrap();
         assert_eq!(td, deserialized);
+    }
+
+    #[test]
+    fn primitives() {
+        assert_eq_type_description(
+            parse_quote!(u16),
+            Primitive(PrimitiveTypeDescription::U16),
+        );
+        assert_eq_type_description(
+            parse_quote!(bool),
+            Primitive(PrimitiveTypeDescription::Bool),
+        );
+        assert_eq_type_description(
+            parse_quote!(i64),
+            Primitive(PrimitiveTypeDescription::I64),
+        );
+        assert_eq_type_description(
+            parse_quote!(AccountId),
+            Primitive(PrimitiveTypeDescription::AccountId),
+        );
+        assert_eq_type_description(
+            parse_quote!(Moment),
+            Primitive(PrimitiveTypeDescription::Moment),
+        );
     }
 
     #[test]
