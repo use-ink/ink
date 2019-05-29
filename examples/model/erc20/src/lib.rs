@@ -29,19 +29,7 @@ use ink_model::{
     Contract,
     ContractDecl,
 };
-
-// Define our env for NodeRuntime
-use srml_contract;
-use node_runtime;
-
-struct NodeRuntimeTypes;
-
-impl EnvTypes for NodeRuntimeTypes {
-    type AccountId = srml_contract::AccountIdOf<node_runtime::Runtime>;
-    type Balance = srml_contract::BalanceOf<node_runtime::Runtime>;
-    type Hash = srml_contract::SeedOf<node_runtime::Runtime>;
-    type Moment = srml_contract::MomentOf<node_runtime::Runtime>;
-}
+use ink_node_runtime_types::NodeRuntimeTypes;
 
 type AccountId = <SrmlEnv<NodeRuntimeTypes> as EnvTypes>::AccountId;
 type Balance = <SrmlEnv<NodeRuntimeTypes> as EnvTypes>::Balance;
