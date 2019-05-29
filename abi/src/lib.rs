@@ -27,16 +27,18 @@
 
 mod specs;
 mod tuple_vec;
+mod abi_type;
 
-pub use tuple_vec::{
-    TupleVec,
-    TupleVecNode,
+pub use self::{
+    specs::{
+        TypeSpec,
+    },
+    abi_type::AbiType,
+    tuple_vec::{
+        TupleVec,
+        TupleVecNode,
+    },
 };
-
-// use parity_codec::{Encode, Decode};
-// use json;
-
-pub trait AbiType {}
 
 macro_rules! impl_abi_type_for_primitive {
     ( $( $ty:ty ),* ) => {
@@ -47,7 +49,7 @@ macro_rules! impl_abi_type_for_primitive {
 }
 
 impl_abi_type_for_primitive!(
-    bool,
+    (), bool,
     i8, i16, i32, i64, i128,
         u16, u32, u64, u128
 );

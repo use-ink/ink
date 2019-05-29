@@ -6,6 +6,7 @@ use serde::{
     Serialize,
     Deserialize,
 };
+use core::marker::PhantomData;
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -77,16 +78,38 @@ where
 }
 
 /// Describes a pair of parameter name and type.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
+#[serde(bound(serialize = "TypeSpec<T>: Serialize,"))]
 pub struct ParamSpec<T>
 where
     T: AbiType,
+    // TypeSpec<T>: Serialize,
 {
     /// The name of the parameter.
     name: &'static str,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: T,
+    ty: TypeSpec<T>,
+}
+
+/// Describes a type.
+#[derive(Debug, PartialEq, Eq)]
+pub struct TypeSpec<T>
+where
+    T: AbiType,
+{
+    /// Marker used so that we do not need an instance of the specified type.
+    marker: PhantomData<fn() -> T>,
+}
+
+impl<T> TypeSpec<T>
+where
+    T: AbiType,
+{
+    /// Creates a new type spec for the given type.
+    pub fn new() -> Self {
+        Self { marker: PhantomData }
+    }
 }
 
 /// Describes a custom type definition and all of its fields and subfields.
@@ -115,6 +138,7 @@ where
 }
 
 /// Describes the layout of the storage.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct StorageLayout<StorageFields>
 where
     StorageFields: TupleVec, // <Item = StorageField<T>>
@@ -124,6 +148,7 @@ where
 }
 
 /// Describes a field or sub-field of the layout of the storage.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct StorageField<T>
 where
     T: AbiType,
@@ -137,11 +162,13 @@ where
 }
 
 /// A key.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Key(pub [u8; 32]);
 
 /// The key bounds of a storage field.
 ///
 /// This defines in which bounds a storage field might have stored values.
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct KeyBounds {
     /// The key offset.
     key: Key,
