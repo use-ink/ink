@@ -58,12 +58,28 @@ where
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct EventSpec<Params>
 where
-    Params: TupleVec, // <Item = ParamSpec<T>>
+    Params: TupleVec, // <Item = EventParamSpec<T>>
 {
     /// The name of the event.
     name: &'static str,
     /// The event arguments.
     args: Params,
+}
+
+/// Describes a pair of parameter name and type.
+#[derive(Debug, PartialEq, Eq, Serialize)]
+#[serde(bound(serialize = "TypeSpec<T>: Serialize,"))]
+pub struct EventParamSpec<T>
+where
+    T: AbiType,
+{
+    /// The name of the parameter.
+    name: &'static str,
+    /// If the event parameter is indexed.
+    indexed: bool,
+    /// The type of the parameter.
+    #[serde(rename = "type")]
+    ty: TypeSpec<T>,
 }
 
 /// Describes the return type of a contract message.
