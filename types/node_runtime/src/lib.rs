@@ -22,6 +22,8 @@
 use srml_contract;
 use node_runtime;
 
+/// Contract environment types defined in substrate node-runtime
+#[allow(unused)]
 pub struct NodeRuntimeTypes;
 
 impl ink_core::env::EnvTypes for NodeRuntimeTypes {
