@@ -29,7 +29,7 @@ use ink_model::{
     Contract,
     ContractDecl,
 };
-use ink_node_runtime_types::NodeRuntimeTypes;
+use ink_types_node_runtime::NodeRuntimeTypes;
 
 type AccountId = <SrmlEnv<NodeRuntimeTypes> as EnvTypes>::AccountId;
 type Balance = <SrmlEnv<NodeRuntimeTypes> as EnvTypes>::Balance;

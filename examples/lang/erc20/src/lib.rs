@@ -21,7 +21,7 @@ use ink_core::{
     storage,
 };
 use ink_lang::contract;
-use ink_node_runtime_types::NodeRuntimeTypes;
+use ink_types_node_runtime::NodeRuntimeTypes;
 
 contract! {
     type EnvTypes = NodeRuntimeTypes;

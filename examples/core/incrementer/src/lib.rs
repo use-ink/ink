@@ -34,7 +34,7 @@ use ink_core::{
         Value,
     },
 };
-use ink_node_runtime_types::NodeRuntimeTypes;
+use ink_types_node_runtime::NodeRuntimeTypes;
 
 /// An incrementer smart contract.
 ///
