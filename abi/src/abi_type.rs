@@ -201,6 +201,58 @@ impl_serialize_for_tuple!(A,B,C,D,E,F,);
 impl_serialize_for_tuple!(A,B,C,D,E,F,G,);
 impl_serialize_for_tuple!(A,B,C,D,E,F,G,H,);
 
+/// Describes a fixed size array type.
+#[derive(Debug, PartialEq, Eq, Serialize)]
+pub enum ArrayTypeSpec<T>
+where
+    T: AbiType,
+    TypeSpec<T>: Serialize,
+{
+    #[serde(rename = "[T;n]")]
+    Single {
+        #[serde(rename = "T")]
+        inner: TypeSpec<T>,
+        #[serde(rename = "n")]
+        arity: u32,
+    },
+}
+
+macro_rules! impl_serialize_for_array {
+    ( $($n:literal),* ) => {
+        $(
+            impl<T> AbiType for [T; $n] {}
+
+            impl<T> Serialize for TypeSpec<[T; $n]>
+            where
+                T: AbiType,
+                TypeSpec<T>: Serialize,
+                ArrayTypeSpec<T>: Serialize,
+            {
+                fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                where
+                    S: Serializer,
+                {
+                    Serialize::serialize(
+                        &ArrayTypeSpec::<T>::Single {
+                            inner: TypeSpec::<T>::new(),
+                            arity: $n,
+                        },
+                        serializer,
+                    )
+                }
+            }
+        )*
+    }
+}
+
+impl_serialize_for_array!(
+         1,  2,  3,  4,  5,  6,  7,  8,  9,
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+    30, 31, 32,
+    48, 64, 128, 256
+);
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -326,6 +378,33 @@ mod tests {
                     }
                 }
             ])
+        );
+    }
+
+    #[test]
+    fn array() {
+        assert_eq!(
+            json::to_value(&TypeSpec::<[i8;1]>::new()).unwrap(),
+            json!({
+                "[T;n]": {
+                    "T": "i8",
+                    "n": 1
+                }
+            })
+        );
+        assert_eq!(
+            json::to_value(&TypeSpec::<[[i32;5];5]>::new()).unwrap(),
+            json!({
+                "[T;n]": {
+                    "T": {
+                        "[T;n]": {
+                            "T": "i32",
+                            "n": 5
+                        }
+                    },
+                    "n": 5
+                }
+            })
         );
     }
 }
