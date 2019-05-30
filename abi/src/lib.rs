@@ -27,14 +27,12 @@
 
 #[macro_use]
 mod tuple_vec;
-mod specs;
 mod abi_type;
+mod specs;
 
 pub use self::{
-    specs::{
-        TypeSpec,
-    },
     abi_type::AbiType,
+    specs::TypeSpec,
     tuple_vec::{
         TupleVec,
         TupleVecNode,
@@ -49,6 +47,7 @@ macro_rules! impl_abi_type_for_primitive {
     };
 }
 
+#[rustfmt::skip]
 impl_abi_type_for_primitive!(
     (), bool,
     i8, i16, i32, i64, i128,

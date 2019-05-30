@@ -18,18 +18,18 @@ use crate::{
     AbiType,
     TupleVec,
 };
-use serde::{
-    Serialize,
-    Deserialize,
-};
 use core::marker::PhantomData;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct ContractSpec<DeployParams, Messages, Events>
 where
     DeployParams: TupleVec, // <Item = ParamSpec<T>>
-    Messages: TupleVec, // <Item = MessageSpec<T>>
+    Messages: TupleVec,     // <Item = MessageSpec<T>>
 {
     /// The name of the contract.
     name: &'static str,
@@ -150,7 +150,9 @@ where
 {
     /// Creates a new type spec for the given type.
     pub fn new() -> Self {
-        Self { marker: PhantomData }
+        Self {
+            marker: PhantomData,
+        }
     }
 }
 

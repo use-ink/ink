@@ -24,7 +24,7 @@ pub struct TupleVecEnd;
 
 /// Type node containing the actual type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct TupleVecLeaf<T>{
+pub struct TupleVecLeaf<T> {
     item: T,
 }
 
@@ -36,7 +36,9 @@ impl<T> From<T> for TupleVecLeaf<T> {
 
 impl Default for TupleVecLeaf<TupleVecSentinel> {
     fn default() -> Self {
-        Self { item: TupleVecSentinel }
+        Self {
+            item: TupleVecSentinel,
+        }
     }
 }
 
@@ -60,7 +62,10 @@ pub struct TupleVecNode<T, Rest> {
 impl TupleVecNode<TupleVecSentinel, TupleVecSentinel> {
     /// Creates a new empty tuple vector.
     pub fn new() -> Self {
-        Self { head: Default::default(), rest: TupleVecSentinel }
+        Self {
+            head: Default::default(),
+            rest: TupleVecSentinel,
+        }
     }
 }
 
@@ -82,7 +87,10 @@ impl TupleVec for TupleVecEnd {
 impl TupleVecNode<TupleVecSentinel, TupleVecSentinel> {
     /// Pushes an element to the empty tuple vector.
     pub fn push<T>(self, item: T) -> TupleVecNode<T, TupleVecEnd> {
-        TupleVecNode { head: TupleVecLeaf::from(item), rest: TupleVecEnd }
+        TupleVecNode {
+            head: TupleVecLeaf::from(item),
+            rest: TupleVecEnd,
+        }
     }
 }
 
@@ -92,7 +100,10 @@ where
 {
     /// Pushes another element to the tuple vector.
     pub fn push<T>(self, item: T) -> TupleVecNode<T, Self> {
-        TupleVecNode { head: TupleVecLeaf::from(item), rest: self, }
+        TupleVecNode {
+            head: TupleVecLeaf::from(item),
+            rest: self,
+        }
     }
 
     /// Pops the head element from the tuple vector.
@@ -188,13 +199,7 @@ mod tests {
 
     #[test]
     fn vec_macro() {
-        let v = tuple_vec!(
-            1,
-            true,
-            "Hello, World!",
-            1.337,
-            'a'
-        );
+        let v = tuple_vec!(1, true, "Hello, World!", 1.337, 'a');
         println!("{:#?}", v);
 
         assert_eq!(v.len(), 5);
@@ -210,6 +215,9 @@ mod tests {
         let (&head, _rest) = rest.next();
         assert_eq!(head, 'a');
 
-        assert_eq!(json::to_string(&v).unwrap(), "[1,true,\"Hello, World!\",1.337,\"a\"]");
+        assert_eq!(
+            json::to_string(&v).unwrap(),
+            "[1,true,\"Hello, World!\",1.337,\"a\"]"
+        );
     }
 }

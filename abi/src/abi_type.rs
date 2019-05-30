@@ -16,9 +16,7 @@
 
 pub trait AbiType {}
 
-use crate::{
-    TypeSpec,
-};
+use crate::TypeSpec;
 use serde::{
     Serialize,
     Serializer,
@@ -40,9 +38,17 @@ macro_rules! impl_serialize_for_primitive_abi_type {
 }
 
 impl_serialize_for_primitive_abi_type!(
-    (), bool,
-    i8, i16, i32, i64, i128,
-        u16, u32, u64, u128
+    (),
+    bool,
+    i8,
+    i16,
+    i32,
+    i64,
+    i128,
+    u16,
+    u32,
+    u64,
+    u128
 );
 
 /// Describes how a standard vector shall be serialized.
@@ -71,16 +77,15 @@ where
         S: Serializer,
     {
         Serialize::serialize(
-            &VecTypeSpec::<T>::Single { elem_type: TypeSpec::<T>::new() },
+            &VecTypeSpec::<T>::Single {
+                elem_type: TypeSpec::<T>::new(),
+            },
             serializer,
         )
     }
 }
 
-impl<T> AbiType for Vec<T>
-where
-    T: AbiType,
-{}
+impl<T> AbiType for Vec<T> where T: AbiType {}
 
 /// Describes the option type.
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -97,10 +102,7 @@ where
     },
 }
 
-impl<T> AbiType for Option<T>
-where
-    T: AbiType,
-{}
+impl<T> AbiType for Option<T> where T: AbiType {}
 
 impl<T> Serialize for TypeSpec<Option<T>>
 where
@@ -113,7 +115,9 @@ where
         S: Serializer,
     {
         Serialize::serialize(
-            &OptionTypeSpec::<T>::Single { inner: TypeSpec::<T>::new() },
+            &OptionTypeSpec::<T>::Single {
+                inner: TypeSpec::<T>::new(),
+            },
             serializer,
         )
     }
@@ -143,7 +147,8 @@ impl<Ok, Err> AbiType for Result<Ok, Err>
 where
     Ok: AbiType,
     Err: AbiType,
-{}
+{
+}
 
 impl<Ok, Err> Serialize for TypeSpec<Result<Ok, Err>>
 where
@@ -192,13 +197,13 @@ macro_rules! impl_serialize_for_tuple {
 }
 
 impl_serialize_for_tuple!(A,);
-impl_serialize_for_tuple!(A,B,);
-impl_serialize_for_tuple!(A,B,C,);
-impl_serialize_for_tuple!(A,B,C,D,);
-impl_serialize_for_tuple!(A,B,C,D,E,);
-impl_serialize_for_tuple!(A,B,C,D,E,F,);
-impl_serialize_for_tuple!(A,B,C,D,E,F,G,);
-impl_serialize_for_tuple!(A,B,C,D,E,F,G,H,);
+impl_serialize_for_tuple!(A, B,);
+impl_serialize_for_tuple!(A, B, C,);
+impl_serialize_for_tuple!(A, B, C, D,);
+impl_serialize_for_tuple!(A, B, C, D, E,);
+impl_serialize_for_tuple!(A, B, C, D, E, F,);
+impl_serialize_for_tuple!(A, B, C, D, E, F, G,);
+impl_serialize_for_tuple!(A, B, C, D, E, F, G, H,);
 
 /// Describes a fixed size array type.
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -244,6 +249,7 @@ macro_rules! impl_serialize_for_array {
     }
 }
 
+#[rustfmt::skip]
 impl_serialize_for_array!(
          1,  2,  3,  4,  5,  6,  7,  8,  9,
     10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -261,17 +267,24 @@ mod tests {
     #[test]
     fn simple() {
         assert_eq!(json::to_value(&TypeSpec::<()>::new()).unwrap(), json!("()"));
-        assert_eq!(json::to_value(&TypeSpec::<bool>::new()).unwrap(), json!("bool"));
-        assert_eq!(json::to_value(&TypeSpec::<i32>::new()).unwrap(), json!("i32"));
-        assert_eq!(json::to_value(&TypeSpec::<u128>::new()).unwrap(), json!("u128"));
+        assert_eq!(
+            json::to_value(&TypeSpec::<bool>::new()).unwrap(),
+            json!("bool")
+        );
+        assert_eq!(
+            json::to_value(&TypeSpec::<i32>::new()).unwrap(),
+            json!("i32")
+        );
+        assert_eq!(
+            json::to_value(&TypeSpec::<u128>::new()).unwrap(),
+            json!("u128")
+        );
     }
 
     #[test]
     fn option() {
         assert_eq!(
-            json::to_value(
-                &TypeSpec::<Option<i32>>::new()
-            ).unwrap(),
+            json::to_value(&TypeSpec::<Option<i32>>::new()).unwrap(),
             json!({
                 "Option<T>": {
                     "T": "i32"
@@ -279,9 +292,7 @@ mod tests {
             })
         );
         assert_eq!(
-            json::to_value(
-                &TypeSpec::<Option<Option<i32>>>::new()
-            ).unwrap(),
+            json::to_value(&TypeSpec::<Option<Option<i32>>>::new()).unwrap(),
             json!({
                 "Option<T>": {
                     "T": {
@@ -297,9 +308,7 @@ mod tests {
     #[test]
     fn result() {
         assert_eq!(
-            json::to_value(
-                &TypeSpec::<Result<i32, bool>>::new()
-            ).unwrap(),
+            json::to_value(&TypeSpec::<Result<i32, bool>>::new()).unwrap(),
             json!({
                 "Result<T,E>": {
                     "T": "i32",
@@ -308,9 +317,7 @@ mod tests {
             })
         );
         assert_eq!(
-            json::to_value(
-                &TypeSpec::<Result<Result<i32, i8>, bool>>::new()
-            ).unwrap(),
+            json::to_value(&TypeSpec::<Result<Result<i32, i8>, bool>>::new()).unwrap(),
             json!({
                 "Result<T,E>": {
                     "T": {
@@ -353,14 +360,15 @@ mod tests {
     fn tuple() {
         assert_eq!(
             json::to_value(&TypeSpec::<(i32,)>::new()).unwrap(),
-            json!([ "i32" ])
+            json!(["i32"])
         );
         assert_eq!(
-            json::to_value(&TypeSpec::<(i32,bool)>::new()).unwrap(),
-            json!([ "i32", "bool" ])
+            json::to_value(&TypeSpec::<(i32, bool)>::new()).unwrap(),
+            json!(["i32", "bool"])
         );
         assert_eq!(
-            json::to_value(&TypeSpec::<((Option<i32>, u16), Result<u32, bool>)>::new()).unwrap(),
+            json::to_value(&TypeSpec::<((Option<i32>, u16), Result<u32, bool>)>::new())
+                .unwrap(),
             json!([
                 [
                     {
@@ -383,7 +391,7 @@ mod tests {
     #[test]
     fn array() {
         assert_eq!(
-            json::to_value(&TypeSpec::<[i8;1]>::new()).unwrap(),
+            json::to_value(&TypeSpec::<[i8; 1]>::new()).unwrap(),
             json!({
                 "[T;n]": {
                     "T": "i8",
@@ -392,7 +400,7 @@ mod tests {
             })
         );
         assert_eq!(
-            json::to_value(&TypeSpec::<[[i32;5];5]>::new()).unwrap(),
+            json::to_value(&TypeSpec::<[[i32; 5]; 5]>::new()).unwrap(),
             json!({
                 "[T;n]": {
                     "T": {
