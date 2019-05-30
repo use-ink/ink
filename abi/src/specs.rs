@@ -61,6 +61,7 @@ pub struct MessageSpec<Params, RetType>
 where
     Params: TupleVec, // <Item = ParamSpec<T>>
     RetType: AbiType,
+    TypeSpec<RetType>: Serialize,
 {
     /// The name of the message.
     name: &'static str,
@@ -107,14 +108,15 @@ where
 }
 
 /// Describes the return type of a contract message.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(transparent)]
 pub struct ReturnTypeSpec<T>
 where
     T: AbiType,
+    TypeSpec<T>: Serialize,
 {
     #[serde(rename = "type")]
-    opt_type: Option<T>,
+    opt_type: Option<TypeSpec<T>>,
 }
 
 /// Describes a pair of parameter name and type.
