@@ -25,8 +25,9 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-mod specs;
+#[macro_use]
 mod tuple_vec;
+mod specs;
 mod abi_type;
 
 pub use self::{
