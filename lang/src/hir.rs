@@ -64,14 +64,14 @@ impl Contract {
     fn extract_env_types(contract: &ast::Contract) -> Result<Type> {
         let types = contract.env_types().collect::<Vec<_>>();
         if types.is_empty() {
-            return Err(SynError::new(
+            return Err(syn::Error::new(
                 Span::call_site(),
                 "couldn't find an EnvTypes `type`",
             )
             .into())
         }
         if types.len() > 1 {
-            return Err(SynError::new(
+            return Err(syn::Error::new(
                 Span::call_site(),
                 format!(
                     "requires exactly one EnvTypes `type`; found {:?}",
