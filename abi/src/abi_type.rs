@@ -16,7 +16,10 @@
 
 pub trait AbiType {}
 
-use crate::TypeSpec;
+use crate::{
+    TypeSpec,
+    TupleVec,
+};
 use serde::{
     Serialize,
     Serializer,
@@ -165,6 +168,39 @@ where
     }
 }
 
+macro_rules! impl_serialize_for_tuple {
+    ( $($ident:ident,)* ) => {
+        impl<$($ident),*> AbiType for ($($ident ,)*) {}
+
+        impl<$($ident),*> Serialize for TypeSpec<($($ident ,)*)>
+        where
+            $(
+                $ident: AbiType,
+                TypeSpec<$ident>: Serialize,
+            )*
+        {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: Serializer,
+            {
+                Serialize::serialize(
+                    &type_spec_of_tuple! ($($ident ,)*),
+                    serializer
+                )
+            }
+        }
+    }
+}
+
+impl_serialize_for_tuple!(A,);
+impl_serialize_for_tuple!(A,B,);
+impl_serialize_for_tuple!(A,B,C,);
+impl_serialize_for_tuple!(A,B,C,D,);
+impl_serialize_for_tuple!(A,B,C,D,E,);
+impl_serialize_for_tuple!(A,B,C,D,E,F,);
+impl_serialize_for_tuple!(A,B,C,D,E,F,G,);
+impl_serialize_for_tuple!(A,B,C,D,E,F,G,H,);
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -259,6 +295,37 @@ mod tests {
                     }
                 }
             })
+        );
+    }
+
+    #[test]
+    fn tuple() {
+        assert_eq!(
+            json::to_value(&TypeSpec::<(i32,)>::new()).unwrap(),
+            json!([ "i32" ])
+        );
+        assert_eq!(
+            json::to_value(&TypeSpec::<(i32,bool)>::new()).unwrap(),
+            json!([ "i32", "bool" ])
+        );
+        assert_eq!(
+            json::to_value(&TypeSpec::<((Option<i32>, u16), Result<u32, bool>)>::new()).unwrap(),
+            json!([
+                [
+                    {
+                        "Option<T>": {
+                            "T": "i32"
+                        }
+                    },
+                    "u16"
+                ],
+                {
+                    "Result<T,E>": {
+                        "T": "u32",
+                        "E": "bool"
+                    }
+                }
+            ])
         );
     }
 }
