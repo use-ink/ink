@@ -174,6 +174,14 @@ macro_rules! tuple_vec {
     };
 }
 
+macro_rules! type_spec_of_tuple {
+    ( $($ty:ident,)* ) => {
+        tuple_vec![
+            $( crate::TypeSpec::<$ty>::new() ),*
+        ]
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
