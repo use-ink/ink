@@ -20,6 +20,15 @@ use ink_core::{
     env::println,
     memory::format,
     storage,
+    storage::Key,
+    storage::Vec,
+    storage::alloc::{
+        AllocateUsing,
+        BumpAlloc,
+        DynAlloc,
+        CellChunkAlloc,
+        Initialize,
+    },
 };
 use ink_lang::contract;
 
@@ -30,6 +39,7 @@ contract! {
     struct Flipper {
         /// The current state of our flag.
         value: storage::Value<bool>,
+        outer_vec: storage::Vec<storage::Vec<i32>>,
     }
 
     impl Deploy for Flipper {
@@ -42,6 +52,32 @@ contract! {
     impl Flipper {
         /// Flips the current state of our smart contract.
         pub(external) fn flip(&mut self) {
+            println(&format!("flip"));
+            let mut alloc = unsafe {
+                let mut fw_alloc = storage::alloc::BumpAlloc::from_raw_parts(Key([0x0; 32]));
+                let mut dyn_alloc = storage::alloc::DynAlloc::allocate_using(&mut fw_alloc);
+                dyn_alloc.initialize(());
+                dyn_alloc
+            };
+            let mut alloc = unsafe { BumpAlloc::from_raw_parts(Key([0x0; 32])) };
+
+            for _ in 0..100 {
+                let mut inner_vec = unsafe {
+                    Vec::<i32>::allocate_using(&mut alloc).initialize_into(())
+                };
+
+                for _ in 0..201 {
+                    inner_vec.push(1);
+                }
+                self.outer_vec.push(inner_vec);
+            }
+            println(&format!("Outer Vec len after pushing: {:?}", self.outer_vec.len()));
+
+            for _ in 0..self.outer_vec.len() {
+                self.outer_vec.pop();
+            }
+            println(&format!("Outer Vec len after popping: {:?}", self.outer_vec.len()));
+
             *self.value = !*self.value;
         }
 
