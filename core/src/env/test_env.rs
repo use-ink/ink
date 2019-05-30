@@ -65,7 +65,6 @@ pub struct StorageEntry {
     writes: u64,
 }
 
-#[warn(unused)]
 impl StorageEntry {
     /// Creates a new storage entry for the given data.
     pub fn new(data: Vec<u8>) -> Self {
@@ -198,7 +197,6 @@ impl Default for TestEnvData {
     }
 }
 
-#[allow(unused)]
 impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
@@ -402,8 +400,6 @@ thread_local! {
 /// Test environment for testing SRML contract off-chain.
 pub struct TestEnv;
 
-// TODO: [AJ] figure out why we get unused errors, doesn't happen on master
-#[warn(unused)]
 impl TestEnv {
     /// Resets the test environment as if no contract execution happened so far.
     pub fn reset() {
