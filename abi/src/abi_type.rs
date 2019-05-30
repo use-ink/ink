@@ -18,7 +18,6 @@ pub trait AbiType {}
 
 use crate::{
     TypeSpec,
-    TupleVec,
 };
 use serde::{
     Serialize,
@@ -53,7 +52,7 @@ where
     T: AbiType,
     TypeSpec<T>: Serialize,
 {
-    #[serde(rename = "alloc::vec::Vec<T>")]
+    #[serde(rename = "Vec<T>")]
     Single {
         /// The generic type param.
         #[serde(rename = "T")]
@@ -331,7 +330,7 @@ mod tests {
         assert_eq!(
             json::to_value(&TypeSpec::<Vec<i32>>::new()).unwrap(),
             json!({
-                "alloc::vec::Vec<T>": {
+                "Vec<T>": {
                     "T": "i32"
                 }
             })
@@ -339,9 +338,9 @@ mod tests {
         assert_eq!(
             json::to_value(&TypeSpec::<Vec<Vec<bool>>>::new()).unwrap(),
             json!({
-                "alloc::vec::Vec<T>": {
+                "Vec<T>": {
                     "T": {
-                        "alloc::vec::Vec<T>": {
+                        "Vec<T>": {
                             "T": "bool"
                         }
                     }
