@@ -9,7 +9,7 @@ use serde::{
 use core::marker::PhantomData;
 
 /// Describes a contract.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct ContractSpec<DeployParams, Messages, Events>
 where
     DeployParams: TupleVec, // <Item = ParamSpec<T>>
@@ -23,20 +23,24 @@ where
     messages: Messages,
     /// The events of the contract.
     events: Events,
+    /// The contract documentation.
+    documentation: Vec<&'static str>,
 }
 
 /// Describes the deploy handler of a contract.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct DeploySpec<Params>
 where
     Params: TupleVec, // <Item = ParamSpec<T>>
 {
     /// The parameters of the deploy handler.
     args: Params,
+    /// The deploy handler documentation.
+    documentation: Vec<&'static str>,
 }
 
 /// Describes a contract message.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct MessageSpec<Params, RetType>
 where
     Params: TupleVec, // <Item = ParamSpec<T>>
@@ -52,6 +56,8 @@ where
     args: Params,
     /// The return type of the message.
     return_type: ReturnTypeSpec<RetType>,
+    /// The message documentation.
+    documentation: Vec<&'static str>,
 }
 
 /// Describes an event definition.
@@ -64,6 +70,8 @@ where
     name: &'static str,
     /// The event arguments.
     args: Params,
+    /// The event documentation.
+    documentation: Vec<&'static str>,
 }
 
 /// Describes a pair of parameter name and type.
