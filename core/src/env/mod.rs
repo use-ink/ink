@@ -40,7 +40,10 @@ mod test_env;
 pub use api::*;
 pub use traits::*;
 
-pub use self::srml::SrmlEnv;
+pub use self::srml::{
+    DefaultSrmlTypes,
+    SrmlEnv,
+};
 
 // TODO: [AJ] update doc comments
 

@@ -14,43 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! Default definitions for contract environment types without a
-//! dependency on a substrate runtime.
-//!
-//! # Note
-//!
-//! These types can only be used safely when they are compatible with
-//! the corresponding type defined in the target contract runtime
-
-#![cfg_attr(not(any(test, feature = "test-env")), no_std)]
-
-use ink_core::env::EnvTypes;
+use crate::env::EnvTypes;
 use parity_codec::{
     Decode,
     Encode,
 };
 
-/// The default contract environment types.
+/// The SRML fundamental types.
 #[allow(unused)]
-pub enum DefaultEnvTypes {}
+pub enum DefaultSrmlTypes {}
 
-impl EnvTypes for DefaultEnvTypes {
+impl EnvTypes for DefaultSrmlTypes {
     type AccountId = AccountId;
     type Balance = Balance;
     type Hash = Hash;
     type Moment = Moment;
 }
 
-/// The default address type.
+/// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct AccountId([u8; 32]);
 
-/// The default balance type.
+/// The default SRML balance type.
 pub type Balance = u64;
 
-/// The default hash type.
+/// The default SRML hash type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct Hash([u8; 32]);
 
-/// The default moment type.
+/// The default SRML moment type.
 pub type Moment = u64;
