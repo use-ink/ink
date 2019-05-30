@@ -16,6 +16,7 @@
 
 #![allow(dead_code)]
 
+use ink_core::env::TestEnv;
 use ink_model::{
     messages,
     state,
@@ -34,13 +35,13 @@ messages! {
 }
 
 impl Noop {
-    pub fn deploy(&mut self, _env: &mut EnvHandler) {}
-    pub fn do_nothing(&self, _env: &EnvHandler) {}
+    pub fn deploy(&mut self, _env: &mut EnvHandler<TestEnv>) {}
+    pub fn do_nothing(&self, _env: &EnvHandler<TestEnv>) {}
 }
 
 #[rustfmt::skip]
 fn instantiate() -> impl Contract {
-	ContractDecl::using::<Noop>()
+	ContractDecl::using::<Noop, TestEnv>()
 		.on_deploy(|env, ()| {
             let (handler, state) = env.split_mut();
             state.deploy(handler)
