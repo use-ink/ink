@@ -17,7 +17,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(
     not(feature = "std"),
-    feature(core_intrinsics, alloc_error_handler,)
+    feature(
+        alloc_error_handler,
+        core_intrinsics,
+    )
 )]
 
 // Use `wee_alloc` as the global allocator.

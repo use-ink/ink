@@ -16,11 +16,11 @@
 
 use pretty_assertions::assert_eq;
 
-use crate::contract_gen_impl2;
+use crate::generate_or_err;
 use proc_macro2::TokenStream as TokenStream2;
 
 pub fn assert_eq_tokenstreams(input: TokenStream2, expected: TokenStream2) {
-    let result = contract_gen_impl2(input)
+    let result = generate_or_err(input)
         .map(|result| result.to_string())
         .map_err(|err| err.to_string());
     let expected = Ok(expected.to_string());
@@ -29,7 +29,7 @@ pub fn assert_eq_tokenstreams(input: TokenStream2, expected: TokenStream2) {
 
 pub fn assert_failure(input: TokenStream2, err_str: &'static str) {
     assert_eq!(
-        contract_gen_impl2(input)
+        generate_or_err(input)
             .map(|result| result.to_string())
             .map_err(|err| err.to_string()),
         Err(err_str.to_string())
