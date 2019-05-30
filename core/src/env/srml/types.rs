@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::{
+    array::TryFromSliceError,
+    convert::TryFrom,
+};
+
 use crate::env::EnvTypes;
 use parity_codec::{
     Decode,
@@ -35,12 +40,42 @@ impl EnvTypes for DefaultSrmlTypes {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct AccountId([u8; 32]);
 
+impl From<[u8; 32]> for AccountId {
+    fn from(address: [u8; 32]) -> AccountId {
+        AccountId(address)
+    }
+}
+
+impl<'a> TryFrom<&'a [u8]> for AccountId {
+    type Error = TryFromSliceError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<AccountId, TryFromSliceError> {
+        let address = <[u8; 32]>::try_from(bytes)?;
+        Ok(AccountId(address))
+    }
+}
+
 /// The default SRML balance type.
 pub type Balance = u64;
 
 /// The default SRML hash type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct Hash([u8; 32]);
+
+impl From<[u8; 32]> for Hash {
+    fn from(hash: [u8; 32]) -> Hash {
+        Hash(hash)
+    }
+}
+
+impl<'a> TryFrom<&'a [u8]> for Hash {
+    type Error = TryFromSliceError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<Hash, TryFromSliceError> {
+        let hash = <[u8; 32]>::try_from(bytes)?;
+        Ok(Hash(hash))
+    }
+}
 
 /// The default SRML moment type.
 pub type Moment = u64;

@@ -17,8 +17,8 @@
 use super::*;
 use crate::{
     env::{
-        self,
-        srml,
+        EnvTypes,
+        DefaultSrmlTypes,
     },
     memory::collections::hash_map::{
         Entry,
@@ -30,12 +30,16 @@ use core::cell::{
     Cell,
     RefCell,
 };
-use std::convert::TryFrom;
+
+pub type AccountId = <DefaultSrmlTypes as EnvTypes>::AccountId;
+pub type Balance = <DefaultSrmlTypes as EnvTypes>::Balance;
+pub type Hash = <DefaultSrmlTypes as EnvTypes>::Hash;
+pub type Moment = <DefaultSrmlTypes as EnvTypes>::Moment;
 
 /// A wrapper for the generic bytearray used for data in contract events.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EventData {
-    topics: Vec<env::Hash>,
+    topics: Vec<Hash>,
     data: Vec<u8>,
 }
 
@@ -121,19 +125,19 @@ pub struct TestEnvData {
     /// # Note
     ///
     /// The current address can be adjusted by `TestEnvData::set_address`.
-    address: srml::AccountId,
+    address: AccountId,
     /// The balance of the contract.
     ///
     /// # Note
     ///
     /// The current balance can be adjusted by `TestEnvData::set_balance`.
-    balance: srml::Balance,
+    balance: Balance,
     /// The caller address for the next contract invocation.
     ///
     /// # Note
     ///
     /// The current caller can be adjusted by `TestEnvData::set_caller`.
-    caller: srml::AccountId,
+    caller: AccountId,
     /// The input data for the next contract invocation.
     ///
     /// # Note
@@ -145,13 +149,13 @@ pub struct TestEnvData {
     ///  # Note
     ///
     /// The current random seed can be adjusted by `TestEnvData::set_random_seed`.
-    random_seed: srml::Hash,
+    random_seed: Hash,
     /// The timestamp for the next contract invocation.
     ///
     /// # Note
     ///
     /// The current timestamp can be adjusted by `TestEnvData::set_now`.
-    now: srml::Moment,
+    now: Moment,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -165,22 +169,22 @@ pub struct TestEnvData {
     /// Deposited events of the contract invocation.
     events: Vec<EventData>,
     /// The current gas price.
-    gas_price: srml::Balance,
+    gas_price: Balance,
     /// The remaining gas.
-    gas_left: srml::Balance,
+    gas_left: Balance,
     /// The total transferred value.
-    value_transferred: srml::Balance,
+    value_transferred: Balance,
 }
 
 impl Default for TestEnvData {
     fn default() -> Self {
         Self {
-            address: srml::AccountId::from([0x0; 32]),
+            address: AccountId::from([0x0; 32]),
             storage: HashMap::new(),
             balance: 0,
-            caller: srml::AccountId::from([0x0; 32]),
+            caller: AccountId::from([0x0; 32]),
             input: Vec::new(),
-            random_seed: srml::Hash::from([0x0; 32]),
+            random_seed: Hash::from([0x0; 32]),
             now: 0,
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
@@ -196,12 +200,12 @@ impl Default for TestEnvData {
 impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
-        self.address = srml::AccountId::from([0; 32]);
+        self.address = AccountId::from([0; 32]);
         self.balance = 0;
         self.storage.clear();
-        self.caller = srml::AccountId::from([0; 32]);
+        self.caller = AccountId::from([0; 32]);
         self.input.clear();
-        self.random_seed = srml::Hash::from([0; 32]);
+        self.random_seed = Hash::from([0; 32]);
         self.now = 0;
         self.expected_return.clear();
         self.total_reads.set(0);
@@ -245,17 +249,17 @@ impl TestEnvData {
     }
 
     /// Sets the contract address for the next contract invocation.
-    pub fn set_address(&mut self, new_address: srml::AccountId) {
+    pub fn set_address(&mut self, new_address: AccountId) {
         self.address = new_address;
     }
 
     /// Sets the contract balance for the next contract invocation.
-    pub fn set_balance(&mut self, new_balance: srml::Balance) {
+    pub fn set_balance(&mut self, new_balance: Balance) {
         self.balance = new_balance;
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(&mut self, new_caller: srml::AccountId) {
+    pub fn set_caller(&mut self, new_caller: AccountId) {
         self.caller = new_caller;
     }
 
@@ -265,7 +269,7 @@ impl TestEnvData {
     }
 
     /// Appends new event data to the end of the bytearray.
-    pub fn add_event(&mut self, topics: &[env::Hash], event_data: &[u8]) {
+    pub fn add_event(&mut self, topics: &[Hash], event_data: &[u8]) {
         let new_event = EventData {
             topics: topics.to_vec(),
             data: event_data.to_vec(),
@@ -274,12 +278,12 @@ impl TestEnvData {
     }
 
     /// Sets the random seed for the next contract invocation.
-    pub fn set_random_seed(&mut self, random_seed_hash: srml::Hash) {
+    pub fn set_random_seed(&mut self, random_seed_hash: Hash) {
         self.random_seed = random_seed_hash;
     }
 
     /// Sets the timestamp for the next contract invocation.
-    pub fn set_now(&mut self, timestamp: srml::Moment) {
+    pub fn set_now(&mut self, timestamp: Moment) {
         self.now = timestamp;
     }
 
@@ -307,15 +311,15 @@ impl TestEnvData {
     /// same data as was expected upon invocation.
     const FAILURE: i32 = -1;
 
-    pub fn address(&self) -> srml::AccountId {
+    pub fn address(&self) -> AccountId {
         self.address
     }
 
-    pub fn balance(&self) -> srml::Balance {
+    pub fn balance(&self) -> Balance {
         self.balance
     }
 
-    pub fn caller(&self) -> srml::AccountId {
+    pub fn caller(&self) -> AccountId {
         self.caller
     }
 
@@ -344,23 +348,23 @@ impl TestEnvData {
         self.input.clone()
     }
 
-    pub fn random_seed(&self) -> srml::Hash {
+    pub fn random_seed(&self) -> Hash {
         self.random_seed
     }
 
-    pub fn now(&self) -> srml::Moment {
+    pub fn now(&self) -> Moment {
         self.now
     }
 
-    pub fn gas_price(&self) -> srml::Balance {
+    pub fn gas_price(&self) -> Balance {
         self.gas_price
     }
 
-    pub fn gas_left(&self) -> srml::Balance {
+    pub fn gas_left(&self) -> Balance {
         self.gas_left
     }
 
-    pub fn value_transferred(&self) -> srml::Balance {
+    pub fn value_transferred(&self) -> Balance {
         self.value_transferred
     }
 
@@ -378,7 +382,7 @@ impl TestEnvData {
         println!("{}", content)
     }
 
-    pub fn deposit_raw_event(&mut self, topics: &[env::Hash], data: &[u8]) {
+    pub fn deposit_raw_event(&mut self, topics: &[Hash], data: &[u8]) {
         self.add_event(topics, data);
     }
 }
@@ -429,17 +433,17 @@ impl TestEnv {
     }
 
     /// Sets the contract address for the next contract invocation.
-    pub fn set_address(new_address: srml::AccountId) {
+    pub fn set_address(new_address: AccountId) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_address(new_address))
     }
 
     /// Sets the contract balance for the next contract invocation.
-    pub fn set_balance(new_balance: srml::Balance) {
+    pub fn set_balance(new_balance: Balance) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_balance(new_balance))
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(new_caller: srml::AccountId) {
+    pub fn set_caller(new_caller: AccountId) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_caller(new_caller))
     }
 
@@ -449,13 +453,13 @@ impl TestEnv {
     }
 
     /// Sets the random seed for the next contract invocation.
-    pub fn set_random_seed(random_seed_bytes: srml::Hash) {
+    pub fn set_random_seed(random_seed_bytes: Hash) {
         TEST_ENV_DATA
             .with(|test_env| test_env.borrow_mut().set_random_seed(random_seed_bytes))
     }
 
     /// Sets the timestamp for the next contract invocation.
-    pub fn set_now(timestamp: srml::Moment) {
+    pub fn set_now(timestamp: Moment) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_now(timestamp))
     }
 
@@ -472,10 +476,10 @@ impl TestEnv {
 }
 
 impl EnvTypes for TestEnv {
-    type AccountId = srml::AccountId;
-    type Balance = srml::Balance;
-    type Hash = srml::Hash;
-    type Moment = srml::Moment;
+    type AccountId = AccountId;
+    type Balance = Balance;
+    type Hash = Hash;
+    type Moment = Moment;
 }
 
 impl EnvStorage for TestEnv {
@@ -503,9 +507,6 @@ macro_rules! impl_env_getters_for_test_env {
 }
 
 impl Env for TestEnv
-where
-    <Self as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
-    <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
     impl_env_getters_for_test_env!(
         (address, <Self as EnvTypes>::AccountId),

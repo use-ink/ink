@@ -16,25 +16,25 @@
 
 //! Public api to interact with the special testing environment.
 
-use super::ContractEnv;
-use crate::env::AccountId;
+use crate::env::test_env::AccountId;
+use super::ContractEnvStorage;
 
 /// Returns the total number of reads to all storage entries.
 pub fn total_reads() -> u64 {
-    ContractEnv::total_reads()
+    ContractEnvStorage::total_reads()
 }
 
 /// Returns the total number of writes to all storage entries.
 pub fn total_writes() -> u64 {
-    ContractEnv::total_writes()
+    ContractEnvStorage::total_writes()
 }
 
 /// Sets the caller for the next calls to the given address.
 pub fn set_caller(address: AccountId) {
-    ContractEnv::set_caller(address)
+    ContractEnvStorage::set_caller(address)
 }
 
 /// Returns an iterator over the uninterpreted bytes of all past emitted events.
 pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
-    ContractEnv::emitted_events().into_iter()
+    ContractEnvStorage::emitted_events().into_iter()
 }
