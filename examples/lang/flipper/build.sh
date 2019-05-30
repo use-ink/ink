@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 PROJNAME=flipper
 
 # cargo clean
