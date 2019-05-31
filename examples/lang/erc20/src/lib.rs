@@ -73,7 +73,7 @@ contract! {
         /// Returns the balance of the given AccountId.
         pub(external) fn balance_of(&self, owner: AccountId) -> Balance {
             let balance = self.balance_of_or_zero(&owner);
-            env.println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner.0, balance));
+            env.println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner, balance));
             balance
         }
 
@@ -82,7 +82,7 @@ contract! {
             let allowance = self.allowance_or_zero(&owner, &spender);
             env.println(&format!(
                 "Erc20::allowance(owner = {:?}, spender = {:?}) = {:?}",
-                owner.0, spender.0, allowance
+                owner, spender, allowance
             ));
             allowance
         }
