@@ -59,7 +59,6 @@ contract! {
                 dyn_alloc.initialize(());
                 dyn_alloc
             };
-            let mut alloc = unsafe { BumpAlloc::from_raw_parts(Key([0x0; 32])) };
 
             for _ in 0..100 {
                 let mut inner_vec = unsafe {
