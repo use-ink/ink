@@ -37,7 +37,7 @@ where
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: Serializer
+        S: Serializer,
     {
         <T as SerializeAsType>::serialize_as_type(serializer)
     }
