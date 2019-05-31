@@ -37,18 +37,12 @@ macro_rules! impl_serialize_for_primitive_abi_type {
     };
 }
 
+#[rustfmt::skip]
 impl_serialize_for_primitive_abi_type!(
     (),
     bool,
-    i8,
-    i16,
-    i32,
-    i64,
-    i128,
-    u16,
-    u32,
-    u64,
-    u128
+    i8, i16, i32, i64, i128,
+        u16, u32, u64, u128
 );
 
 /// Describes how a standard vector shall be serialized.
