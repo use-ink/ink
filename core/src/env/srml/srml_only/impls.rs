@@ -45,7 +45,7 @@ fn read_scratch_buffer() -> Vec<u8> {
 }
 
 /// The SRML contract environment storage
-pub enum SrmlEnvStorage;
+pub enum SrmlEnvStorage {}
 
 impl EnvStorage for SrmlEnvStorage {
     /// Stores the given bytes under the given key.
