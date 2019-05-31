@@ -60,12 +60,12 @@ contract! {
                 dyn_alloc
             };
 
-            for _ in 0..100 {
+            for _ in 0..3010 {
                 let mut inner_vec = unsafe {
                     Vec::<i32>::allocate_using(&mut alloc).initialize_into(())
                 };
 
-                for _ in 0..201 {
+                for _ in 0..3 {
                     inner_vec.push(1);
                 }
                 self.outer_vec.push(inner_vec);
