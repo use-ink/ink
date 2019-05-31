@@ -30,7 +30,7 @@ use crate::{
 use core::marker::PhantomData;
 use ink_core::memory::vec::Vec;
 use ink_core::env;
-// Copyright {d+}-{d+} Parity Technologies (UK) Ltd.
+
 /// A marker struct to tell that the deploy handler requires no arguments.
 #[derive(Copy, Clone)]
 pub struct NoDeployArgs;
