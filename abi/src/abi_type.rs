@@ -22,6 +22,9 @@ use serde::{
     Serializer,
 };
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 /// Implemented by types of external crates to allow them to
 /// overload the trait implementation of `TypeSpec` for them.
 pub trait SerializeAsType {

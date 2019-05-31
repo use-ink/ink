@@ -24,6 +24,9 @@ use serde::{
     Serialize,
 };
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub struct ContractSpec<DeployParams, Messages, Events>
@@ -125,7 +128,6 @@ where
 pub struct ParamSpec<T>
 where
     T: AbiType,
-    // TypeSpec<T>: Serialize,
 {
     /// The name of the parameter.
     name: &'static str,
