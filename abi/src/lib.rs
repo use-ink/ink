@@ -31,7 +31,10 @@ mod abi_type;
 mod specs;
 
 pub use self::{
-    abi_type::AbiType,
+    abi_type::{
+        AbiType,
+        SerializeAsType,
+    },
     specs::TypeSpec,
     tuple_vec::{
         TupleVec,

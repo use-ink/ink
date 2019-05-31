@@ -22,6 +22,27 @@ use serde::{
     Serializer,
 };
 
+/// Implemented by types of external crates to allow them to
+/// overload the trait implementation of `TypeSpec` for them.
+pub trait SerializeAsType {
+    /// Serializes the given type as meta information.
+    fn serialize_as_type<S>(serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer;
+}
+
+impl<T> Serialize for TypeSpec<T>
+where
+    T: AbiType + SerializeAsType,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer
+    {
+        <T as SerializeAsType>::serialize_as_type(serializer)
+    }
+}
+
 macro_rules! impl_serialize_for_primitive_abi_type {
     ( $( $primitive:ty ),* ) => {
         $(
