@@ -34,8 +34,10 @@ use quote::{
 };
 use std::iter;
 use syn::{
+    parse_quote,
     punctuated::Punctuated,
     Token,
+    Type,
 };
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
@@ -49,18 +51,20 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     codegen_for_event_mod(tokens, contract);
 }
 
-fn codegen_for_env_types(tokens: &mut TokenStream2, contract: &hir::Contract) {
+fn env_type(contract: &hir::Contract) -> Type {
     let env_types = &contract.env_types_type;
+    parse_quote! { ink_core::env::SrmlEnv<#env_types> }
+}
+
+fn codegen_for_env_types(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    let env_type = env_type(contract);
     tokens.extend(quote! {
-        use ink_core::env::{self, EnvTypes, SrmlEnv};
+        use ink_core::env::EnvTypes;
 
-        type Env = SrmlEnv<#env_types>;
-        type EnvHandler = ink_model::EnvHandler<Env>;
-
-        type AccountId = <Env as EnvTypes>::AccountId;
-        type Balance = <Env as EnvTypes>::Balance;
-        type Hash = <Env as EnvTypes>::Hash;
-        type Moment = <Env as EnvTypes>::Moment;
+        type AccountId = <#env_type as EnvTypes>::AccountId;
+        type Balance = <#env_type as EnvTypes>::Balance;
+        type Hash = <#env_type as EnvTypes>::Hash;
+        type Moment = <#env_type as EnvTypes>::Moment;
     })
 }
 
@@ -173,7 +177,8 @@ fn codegen_for_events(tokens: &mut TokenStream2, contract: &hir::Contract) {
     }
 }
 
-fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Contract) {
+fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    let env_type = env_type(contract);
     tokens.extend(quote! {
         pub trait EmitEventExt: private::Sealed {
             /// Emits the given event.
@@ -182,14 +187,14 @@ fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Cont
                 E: Into<private::Event>,
             {
                 use parity_codec::Encode as _;
-                <Env as env::Env>::deposit_raw_event(
+                <#env_type as ink_core::env::Env>::deposit_raw_event(
                     &[], event.into().encode().as_slice()
                 )
             }
         }
 
-        impl EmitEventExt for EnvHandler {}
-        impl private::Sealed for EnvHandler {}
+        impl EmitEventExt for ink_model::EnvHandler<#env_type> {}
+        impl private::Sealed for ink_model::EnvHandler<#env_type> {}
     })
 }
 
@@ -213,6 +218,7 @@ fn codegen_for_entry_points(tokens: &mut TokenStream2, contract: &hir::Contract)
 
 fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_name = &contract.name;
+    let env_type = env_type(contract);
 
     let deploy_handler_toks = {
         let deploy_fn_args = {
@@ -327,7 +333,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
         #[cfg(not(test))]
         impl #state_name {
             pub(crate) fn instantiate() -> impl ink_model::Contract {
-                ink_model::ContractDecl::using::<Self, Env>()
+                ink_model::ContractDecl::using::<Self, #env_type>()
                     #deploy_handler_toks
                     #messages_toks
                     .instantiate()
@@ -338,6 +344,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
 
 fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_name = &contract.name;
+    let env_type = env_type(contract);
     let message_impls = {
         let mut content = quote! {};
         for message in iter::once(&contract.on_deploy.clone().into_message())
@@ -359,9 +366,9 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
                     inputs_with_env.push_value(self_arg.clone());
                     inputs_with_env.push_punct(<Token![,]>::default());
                     let custom_arg_captured: CustomArgCaptured = if message.is_mut() {
-                        syn::parse_quote! { env: &mut EnvHandler }
+                        syn::parse_quote! { env: &mut ink_model::EnvHandler<#env_type> }
                     } else {
-                        syn::parse_quote! { env: &EnvHandler }
+                        syn::parse_quote! { env: &ink_model::EnvHandler<#env_type> }
                     };
                     inputs_with_env.push(ast::FnArg::Captured(
                         custom_arg_captured.into_arg_captured(),
