@@ -37,6 +37,9 @@ contract! {
     /// alter between `true` and `false` using the `flip` message.
     /// Users can retrieve its current state using the `get` message.
     struct Flipper {
+        alloc: storage::alloc::DynAlloc,
+        // alloc: storage::alloc::BumpAlloc,
+
         /// The current state of our flag.
         value: storage::Value<bool>,
         outer_vec: storage::Vec<storage::Vec<i32>>,
@@ -45,6 +48,7 @@ contract! {
     impl Deploy for Flipper {
         /// Initializes our state to `false` upon deploying our smart contract.
         fn deploy(&mut self) {
+            self.alloc.initialize(());
             self.value.set(false)
         }
     }
@@ -57,19 +61,9 @@ contract! {
 
         /// Push some dynamically allocated entries.
         pub(external) fn push_some(&mut self) {
-            let mut alloc = unsafe {
-                let mut fw_alloc = storage::alloc::BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                let mut dyn_alloc = storage::alloc::DynAlloc::allocate_using(&mut fw_alloc);
-                dyn_alloc.initialize(());
-                dyn_alloc
-            };
-
-            // Uncomment to test with BumpAlloc instead
-            // let mut alloc = unsafe { BumpAlloc::from_raw_parts(Key([0x0; 32])) };
-
-            for i in 0..1000 {
+            for i in 0..2000 {
                 let mut inner_vec = unsafe {
-                    Vec::<i32>::allocate_using(&mut alloc).initialize_into(())
+                    Vec::<i32>::allocate_using(&mut self.alloc).initialize_into(())
                 };
 
                 println(&format!("Inner Vec about to push 3 elts: {:?}", i));
@@ -84,7 +78,7 @@ contract! {
 
         /// Pop some dynamically allocated entries.
         pub(external) fn pop_some(&mut self) {
-            for a in 0..200 {
+            for a in 0..500 {
                 println(&format!("Outer Vec about to pop: {:?}", a));
                 self.outer_vec.pop();
             }
