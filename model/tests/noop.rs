@@ -16,7 +16,10 @@
 
 #![allow(dead_code)]
 
-use ink_core::env::TestEnv;
+use ink_core::env::{
+    DefaultSrmlTypes,
+    TestEnv,
+};
 use ink_model::{
     messages,
     state,
@@ -35,13 +38,13 @@ messages! {
 }
 
 impl Noop {
-    pub fn deploy(&mut self, _env: &mut EnvHandler<TestEnv>) {}
-    pub fn do_nothing(&self, _env: &EnvHandler<TestEnv>) {}
+    pub fn deploy(&mut self, _env: &mut EnvHandler<TestEnv<DefaultSrmlTypes>>) {}
+    pub fn do_nothing(&self, _env: &EnvHandler<TestEnv<DefaultSrmlTypes>>) {}
 }
 
 #[rustfmt::skip]
 fn instantiate() -> impl Contract {
-	ContractDecl::using::<Noop, TestEnv>()
+	ContractDecl::using::<Noop, TestEnv<DefaultSrmlTypes>>()
 		.on_deploy(|env, ()| {
             let (handler, state) = env.split_mut();
             state.deploy(handler)

@@ -45,7 +45,7 @@ messages! {
 
 #[rustfmt::skip]
 fn instantiate() -> impl TestableContract<DeployArgs = u32> {
-	ContractDecl::using::<Adder, TestEnv>()
+	ContractDecl::using::<Adder, TestEnv<DefaultSrmlTypes>>()
 		.on_deploy(|env, init_val| {
 			env.state.val.set(init_val)
 		})
