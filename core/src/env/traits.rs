@@ -18,7 +18,6 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use core::hash::Hash;
 use parity_codec::Codec;
 
 /// The environmental types usable by contracts defined with pDSL.
