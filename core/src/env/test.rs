@@ -16,8 +16,8 @@
 
 //! Public api to interact with the special testing environment.
 
-use crate::env::test_env::AccountId;
-use super::ContractEnvStorage;
+use crate::env::{ContractEnv, ContractEnvStorage};
+use crate::env::traits::EnvTypes;
 
 /// Returns the total number of reads to all storage entries.
 pub fn total_reads() -> u64 {
@@ -30,11 +30,11 @@ pub fn total_writes() -> u64 {
 }
 
 /// Sets the caller for the next calls to the given address.
-pub fn set_caller(address: AccountId) {
-    ContractEnvStorage::set_caller(address)
+pub fn set_caller<T: EnvTypes>(address: T::AccountId) {
+    ContractEnv::<T>::set_caller(address)
 }
 
 /// Returns an iterator over the uninterpreted bytes of all past emitted events.
-pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
-    ContractEnvStorage::emitted_events().into_iter()
+pub fn emitted_events<T: EnvTypes>() -> impl Iterator<Item = Vec<u8>> {
+    ContractEnv::<T>::emitted_events().into_iter()
 }

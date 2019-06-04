@@ -45,9 +45,6 @@ pub use traits::*;
 
 pub use self::srml::DefaultSrmlTypes;
 
-#[cfg(not(feature = "test-env"))]
-pub use self::srml::SrmlEnv;
-
 // TODO: [AJ] update doc comments
 
 /// The environment implementation that is currently being used.
@@ -63,4 +60,10 @@ pub type ContractEnvStorage = self::srml::SrmlEnvStorage;
 
 /// The environment implementation that is currently being used.
 #[cfg(feature = "test-env")]
-pub(self) type ContractEnvStorage = self::test_env::TestEnv;
+pub(self) type ContractEnvStorage = self::test_env::TestEnvStorage;
+
+#[cfg(not(feature = "test-env"))]
+pub type ContractEnv<T> = self::srml::SrmlEnv<T>;
+
+#[cfg(feature = "test-env")]
+pub type ContractEnv<T> = self::test_env::TestEnv<T>;

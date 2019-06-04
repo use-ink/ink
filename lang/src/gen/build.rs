@@ -53,7 +53,7 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
 
 fn env_type(contract: &hir::Contract) -> Type {
     let env_types = &contract.env_types_type;
-    parse_quote! { ink_core::env::SrmlEnv<#env_types> }
+    parse_quote! { ink_core::env::ContractEnv<#env_types> }
 }
 
 fn codegen_for_env_types(tokens: &mut TokenStream2, contract: &hir::Contract) {
