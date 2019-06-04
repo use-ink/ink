@@ -151,6 +151,7 @@ contract! {
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
     use super::*;
+    use ink_core::env;
     use std::convert::TryFrom;
 
     #[test]
