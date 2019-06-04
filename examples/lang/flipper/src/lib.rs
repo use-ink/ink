@@ -52,7 +52,11 @@ contract! {
     impl Flipper {
         /// Flips the current state of our smart contract.
         pub(external) fn flip(&mut self) {
-            println(&format!("flip"));
+            *self.value = !*self.value;
+        }
+
+        /// Push some dynamically allocated entries.
+        pub(external) fn push_some(&mut self) {
             let mut alloc = unsafe {
                 let mut fw_alloc = storage::alloc::BumpAlloc::from_raw_parts(Key([0x0; 32]));
                 let mut dyn_alloc = storage::alloc::DynAlloc::allocate_using(&mut fw_alloc);
@@ -60,24 +64,40 @@ contract! {
                 dyn_alloc
             };
 
-            for _ in 0..3010 {
+            // Uncomment to test with BumpAlloc instead
+            // let mut alloc = unsafe { BumpAlloc::from_raw_parts(Key([0x0; 32])) };
+
+            for i in 0..1000 {
                 let mut inner_vec = unsafe {
                     Vec::<i32>::allocate_using(&mut alloc).initialize_into(())
                 };
 
+                println(&format!("Inner Vec about to push 3 elts: {:?}", i));
                 for _ in 0..3 {
                     inner_vec.push(1);
                 }
                 self.outer_vec.push(inner_vec);
+                println(&format!("Outer Vec len after pushing inner vec: {:?}", self.outer_vec.len()));
             }
             println(&format!("Outer Vec len after pushing: {:?}", self.outer_vec.len()));
+        }
 
-            for _ in 0..self.outer_vec.len() {
+        /// Pop some dynamically allocated entries.
+        pub(external) fn pop_some(&mut self) {
+            for a in 0..200 {
+                println(&format!("Outer Vec about to pop: {:?}", a));
                 self.outer_vec.pop();
             }
             println(&format!("Outer Vec len after popping: {:?}", self.outer_vec.len()));
+        }
 
-            *self.value = !*self.value;
+        /// Pop all dynamically allocated entries.
+        pub(external) fn pop_all(&mut self) {
+            for a in 0..self.outer_vec.len() {
+                println(&format!("Outer Vec about to pop: {:?}", a));
+                self.outer_vec.pop();
+            }
+            println(&format!("Outer Vec len after popping: {:?}", self.outer_vec.len()));
         }
 
         /// Returns the current state.
