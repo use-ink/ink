@@ -154,20 +154,13 @@ mod tests {
     use ink_core::env;
     use parity_codec::Decode;
 
-    /// Create a new AccountId with the given bytes
-    ///
-    /// Required because AccountId is a type alias and cannot be used as a constructor
-    fn new_account_id(data: [u8; 32]) -> AccountId {
-        Decode::decode(&mut data.as_ref()).expect("Valid AccountId bytes")
-    }
-
     fn set_caller(caller: AccountId) {
         env::test::set_caller::<NodeRuntimeTypes>(caller)
     }
 
     #[test]
     fn deployment_works() {
-        let alice = new_account_id([0x0; 32]);
+        let alice: AccountId = From::from([0x0; 32]);
         set_caller(alice);
 
         // Deploy the contract with some `init_value`
@@ -180,8 +173,8 @@ mod tests {
 
     #[test]
     fn transfer_works() {
-        let alice = new_account_id([0x0; 32]);
-        let bob = new_account_id([0x1; 32]);
+        let alice: AccountId = From::from([0x0; 32]);
+        let bob: AccountId = From::from([0x1; 32]);
 
         set_caller(alice);
         // Deploy the contract with some `init_value`
@@ -197,9 +190,9 @@ mod tests {
 
     #[test]
     fn allowance_works() {
-        let alice = new_account_id([0x0; 32]);
-        let bob = new_account_id([0x1; 32]);
-        let charlie = new_account_id([0x2; 32]);
+        let alice: AccountId = From::from([0x0; 32]);
+        let bob: AccountId = From::from([0x1; 32]);
+        let charlie: AccountId = From::from([0x2; 32]);
 
         set_caller(alice);
         // Deploy the contract with some `init_value`
@@ -230,8 +223,8 @@ mod tests {
 
     #[test]
     fn events_work() {
-        let alice = new_account_id([0x0; 32]);
-        let bob = new_account_id([0x1; 32]);
+        let alice: AccountId = From::from([0x0; 32]);
+        let bob: AccountId = From::from([0x1; 32]);
 
         // No events to start
         set_caller(alice);
