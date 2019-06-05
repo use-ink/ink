@@ -16,7 +16,11 @@
 
 //! Public api to interact with the special testing environment.
 
-use crate::env::{ContractEnv, ContractEnvStorage};
+use crate::env::{
+    ContractEnv,
+    ContractEnvStorage,
+    test_env::TestEnvEvents,
+};
 use crate::env::traits::EnvTypes;
 
 /// Returns the total number of reads to all storage entries.
@@ -35,6 +39,6 @@ pub fn set_caller<T: EnvTypes>(address: T::AccountId) {
 }
 
 /// Returns an iterator over the uninterpreted bytes of all past emitted events.
-pub fn emitted_events<T: EnvTypes>() -> impl Iterator<Item = Vec<u8>> {
-    ContractEnv::<T>::emitted_events().into_iter()
+pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
+    TestEnvEvents::emitted_events().into_iter()
 }

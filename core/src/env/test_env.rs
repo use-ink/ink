@@ -442,17 +442,6 @@ impl<T> TestEnv<T> where T: EnvTypes {
         (set_random_seed, random_seed, T::Hash),
         (set_now, now, T::Moment)
     );
-
-    /// Returns an iterator over all emitted events.
-    pub fn emitted_events() -> impl IntoIterator<Item = Vec<u8>> {
-        TEST_ENV_DATA.with(|test_env| {
-            test_env
-                .borrow()
-                .emitted_events()
-                .map(|event_bytes| event_bytes.to_vec())
-                .collect::<Vec<_>>()
-        })
-    }
 }
 
 macro_rules! impl_env_getters_for_test_env {
@@ -506,7 +495,7 @@ impl<T> Env for TestEnv<T> where T: EnvTypes
     }
 }
 
-pub struct TestEnvStorage;
+pub enum TestEnvStorage {}
 
 impl EnvStorage for TestEnvStorage {
     unsafe fn store(key: Key, value: &[u8]) {
@@ -531,5 +520,20 @@ impl TestEnvStorage {
     /// Returns the total number of writes to the storage.
     pub fn total_writes() -> u64 {
         TEST_ENV_DATA.with(|test_env| test_env.borrow().total_writes())
+    }
+}
+
+pub enum TestEnvEvents {}
+
+impl TestEnvEvents {
+    /// Returns an iterator over all emitted events.
+    pub fn emitted_events() -> impl IntoIterator<Item = Vec<u8>> {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow()
+                .emitted_events()
+                .map(|event_bytes| event_bytes.to_vec())
+                .collect::<Vec<_>>()
+        })
     }
 }
