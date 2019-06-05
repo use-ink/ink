@@ -17,7 +17,10 @@
 use core::marker::PhantomData;
 use crate::ContractState;
 use ink_core::{
-    env::Env,
+    env::{
+        self,
+        Env
+    },
     storage::alloc::{
         Allocate,
         AllocateUsing,
@@ -145,9 +148,9 @@ impl<T: Env> EnvHandler<T> {
     /// Returns from the current smart contract execution with the given value.
     pub unsafe fn r#return<V>(&self, val: V) -> !
     where
-        V: parity_codec::Encode,
+        V: parity_codec::Encode
     {
-        T::r#return(&val.encode()[..])
+        env::r#return::<V, T>(val)
     }
 
     /// Prints the given content.

@@ -19,8 +19,9 @@
 use parity_codec::Decode;
 use ink_core::{
     env::{
+        self,
+        ContractEnv,
         Env,
-        SrmlEnv,
     },
     storage::{
         alloc::{
@@ -93,7 +94,7 @@ fn ret<T>(val: T) -> !
 where
     T: parity_codec::Encode,
 {
-    unsafe { <SrmlEnv<NodeRuntimeTypes> as Env>::r#return(&val.encode()) }
+    unsafe { env::r#return::<T, ContractEnv<NodeRuntimeTypes>>(val) }
 }
 
 fn instantiate() -> Incrementer {
@@ -110,7 +111,7 @@ pub extern "C" fn deploy() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    let input = <SrmlEnv<NodeRuntimeTypes> as Env>::input();
+    let input = <ContractEnv<NodeRuntimeTypes> as Env>::input();
     let action = Action::decode(&mut &input[..]).unwrap();
     let mut incrementer = instantiate();
 

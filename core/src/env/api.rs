@@ -18,6 +18,7 @@ use super::ContractEnvStorage;
 use crate::{
     env::{
         EnvStorage as _,
+        traits::Env,
     },
     memory::vec::Vec,
     storage::Key,
@@ -51,4 +52,20 @@ pub unsafe fn clear(key: Key) {
 /// Users can compare this operation with a raw pointer dereferencing in Rust.
 pub unsafe fn load(key: Key) -> Option<Vec<u8>> {
     ContractEnvStorage::load(key)
+}
+
+/// Returns the current smart contract exection back to the caller
+/// and return the given encoded value.
+///
+/// # Safety
+///
+/// External callers rely on the correct type of the encoded returned value.
+/// This operation is unsafe because it does not provide guarantees on its
+/// own to always encode the expected type.
+pub unsafe fn r#return<T, E>(value: T) -> !
+where
+    T: parity_codec::Encode,
+    E: Env,
+{
+    E::r#return(&value.encode()[..])
 }
