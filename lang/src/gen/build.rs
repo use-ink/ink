@@ -41,7 +41,7 @@ use syn::{
 };
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    codegen_for_env_types(tokens, contract);
+    codegen_for_contract_env(tokens, contract);
     codegen_for_state(tokens, contract);
     codegen_for_messages(tokens, contract);
     codegen_for_message_impls(tokens, contract);
@@ -56,7 +56,7 @@ fn env_type(contract: &hir::Contract) -> Type {
     parse_quote! { ink_core::env::ContractEnv<#env_types> }
 }
 
-fn codegen_for_env_types(tokens: &mut TokenStream2, contract: &hir::Contract) {
+fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let env_type = env_type(contract);
     tokens.extend(quote! {
         use ink_core::env::EnvTypes;
@@ -65,6 +65,8 @@ fn codegen_for_env_types(tokens: &mut TokenStream2, contract: &hir::Contract) {
         type Balance = <#env_type as EnvTypes>::Balance;
         type Hash = <#env_type as EnvTypes>::Hash;
         type Moment = <#env_type as EnvTypes>::Moment;
+
+        #[allow(snake_case)] type env = #env_type;
     })
 }
 

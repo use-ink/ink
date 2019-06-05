@@ -19,7 +19,6 @@
 use crate::env::{
     ContractEnv,
     ContractEnvStorage,
-    test_env::TestEnvEvents,
 };
 use crate::env::traits::EnvTypes;
 
@@ -36,9 +35,4 @@ pub fn total_writes() -> u64 {
 /// Sets the caller for the next calls to the given address.
 pub fn set_caller<T: EnvTypes>(address: T::AccountId) {
     ContractEnv::<T>::set_caller(address)
-}
-
-/// Returns an iterator over the uninterpreted bytes of all past emitted events.
-pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
-    TestEnvEvents::emitted_events().into_iter()
 }
