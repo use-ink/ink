@@ -55,12 +55,12 @@ fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract)
         mod types {
             use ink_core::env::{ContractEnv, EnvTypes};
 
-            type AccountId = <ContractEnv<#env_types> as EnvTypes>::AccountId;
-            type Balance = <ContractEnv<#env_types> as EnvTypes>::Balance;
-            type Hash = <ContractEnv<#env_types> as EnvTypes>::Hash;
-            type Moment = <ContractEnv<#env_types> as EnvTypes>::Moment;
+            pub type AccountId = <ContractEnv<#env_types> as EnvTypes>::AccountId;
+            pub type Balance = <ContractEnv<#env_types> as EnvTypes>::Balance;
+            pub type Hash = <ContractEnv<#env_types> as EnvTypes>::Hash;
+            pub type Moment = <ContractEnv<#env_types> as EnvTypes>::Moment;
 
-            type ContractEnv = ContractEnv<#env_types>;
+            pub type _ContractEnv = ContractEnv<#env_types>;
         }
 
         use types::{
@@ -70,7 +70,7 @@ fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract)
             Moment,
         };
 
-        #[allow(snake_case)] type env = types::ContractEnv;
+        #[allow(snake_case)] type env = types::_ContractEnv;
     })
 }
 
@@ -192,14 +192,14 @@ fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Cont
                 E: Into<private::Event>,
             {
                 use parity_codec::Encode as _;
-                <types::ContractEnv as ink_core::env::Env>::deposit_raw_event(
+                <types::_ContractEnv as ink_core::env::Env>::deposit_raw_event(
                     &[], event.into().encode().as_slice()
                 )
             }
         }
 
-        impl EmitEventExt for ink_model::EnvHandler<types::ContractEnv> {}
-        impl private::Sealed for ink_model::EnvHandler<types::ContractEnv> {}
+        impl EmitEventExt for ink_model::EnvHandler<types::_ContractEnv> {}
+        impl private::Sealed for ink_model::EnvHandler<types::_ContractEnv> {}
     })
 }
 
@@ -337,7 +337,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
         #[cfg(not(test))]
         impl #state_name {
             pub(crate) fn instantiate() -> impl ink_model::Contract {
-                ink_model::ContractDecl::using::<Self, types::ContractEnv>()
+                ink_model::ContractDecl::using::<Self, types::_ContractEnv>()
                     #deploy_handler_toks
                     #messages_toks
                     .instantiate()
@@ -369,9 +369,9 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
                     inputs_with_env.push_value(self_arg.clone());
                     inputs_with_env.push_punct(<Token![,]>::default());
                     let custom_arg_captured: CustomArgCaptured = if message.is_mut() {
-                        syn::parse_quote! { env: &mut ink_model::EnvHandler<types::ContractEnv> }
+                        syn::parse_quote! { env: &mut ink_model::EnvHandler<types::_ContractEnv> }
                     } else {
-                        syn::parse_quote! { env: &ink_model::EnvHandler<types::ContractEnv> }
+                        syn::parse_quote! { env: &ink_model::EnvHandler<types::_ContractEnv> }
                     };
                     inputs_with_env.push(ast::FnArg::Captured(
                         custom_arg_captured.into_arg_captured(),
