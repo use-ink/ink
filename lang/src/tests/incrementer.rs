@@ -20,7 +20,7 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            type EnvTypes = DefaultSrmlTypes;
 
             /// A simple contract that has a value that can be
             /// incremented, returned and compared.
@@ -57,12 +57,10 @@ fn contract_compiles() {
             mod types {
                 use ink_core::env::{ContractEnv, EnvTypes};
 
-                type AccountId = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::AccountId;
-                type Balance = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Balance;
-                type Hash = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Hash;
-                type Moment = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Moment;
-
-                type ContractEnv = ContractEnv<ink_core::env::DefaultSrmlTypes>;
+                pub type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
+                pub type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
+                pub type Hash = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Hash;
+                pub type Moment = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Moment;
             }
 
             use types::{
@@ -72,7 +70,7 @@ fn contract_compiles() {
                 Moment,
             };
 
-            #[allow(snake_case)] type env = types::ContractEnv;
+            #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
 
             ink_model::state! {
                 /// A simple contract that has a value that can be
@@ -99,22 +97,22 @@ fn contract_compiles() {
 
             impl Incrementer {
                 /// Automatically called when the contract is deployed.
-                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<types::ContractEnv>, init_value: u32) {
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, init_value: u32) {
                     self.value.set(init_value)
                 }
 
                 /// Increments the internal counter.
-                pub fn inc(&mut self, env: &mut ink_model::EnvHandler<types::ContractEnv>, by: u32) {
+                pub fn inc(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, by: u32) {
                     self.value += by
                 }
 
                 /// Returns the internal counter.
-                pub fn get(&self, env: &ink_model::EnvHandler<types::ContractEnv>) -> u32 {
+                pub fn get(&self, env: &ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) -> u32 {
                     *self.value
                 }
 
                 /// Returns `true` if `x` is greater than the internal value.
-                pub fn compare(&self, env: &ink_model::EnvHandler<types::ContractEnv>, x: u32) -> bool {
+                pub fn compare(&self, env: &ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, x: u32) -> bool {
                     x > *self.value
                 }
             }
@@ -124,7 +122,7 @@ fn contract_compiles() {
             #[cfg(not(test))]
             impl Incrementer {
                 pub(crate) fn instantiate() -> impl ink_model::Contract {
-                    ink_model::ContractDecl::using::<Self, types::ContractEnv>()
+                    ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<DefaultSrmlTypes>>()
                         .on_deploy(|env, init_value: u32| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler, init_value)
@@ -153,7 +151,7 @@ fn contract_compiles() {
                 use super::*;
 
                 pub struct TestableIncrementer {
-                    env: ink_model::ExecutionEnv<Incrementer, types::ContractEnv>,
+                    env: ink_model::ExecutionEnv<Incrementer, ink_core::env::ContractEnv<DefaultSrmlTypes>>,
                 }
 
                 impl Incrementer {
