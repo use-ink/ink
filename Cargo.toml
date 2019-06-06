@@ -6,7 +6,6 @@ members = [
     "model",
     "lang",
     "cli",
-    "types/node_runtime",
 ]
 exclude = [
     "examples/",
