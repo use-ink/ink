@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-#![recursion_limit = "256"]
+#![recursion_limit = "512"]
 
 extern crate proc_macro;
 
