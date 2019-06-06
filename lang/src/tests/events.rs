@@ -68,14 +68,25 @@ fn contract_compiles() {
             }
         },
         quote! {
-            use ink_core::env::EnvTypes;
+            mod types {
+                use ink_core::env::{ContractEnv, EnvTypes};
 
-            type AccountId = <ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::AccountId;
-            type Balance = <ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Balance;
-            type Hash = <ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Hash;
-            type Moment = <ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Moment;
+                type AccountId = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::AccountId;
+                type Balance = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Balance;
+                type Hash = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Hash;
+                type Moment = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Moment;
 
-            #[allow(snake_case)] type env = ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes>;
+                type ContractEnv = ContractEnv<ink_core::env::DefaultSrmlTypes>;
+            }
+
+            use types::{
+                AccountId,
+                Balance,
+                Hash,
+                Moment,
+            };
+
+            #[allow(snake_case)] type env = types::ContractEnv;
 
             ink_model::state! {
                 /// Tests emitting of custom defined events.
@@ -107,14 +118,14 @@ fn contract_compiles() {
             }
 
             impl CallCounter {
-                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> >) {}
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<types::ContractEnv>) {}
 
                 /// Increments the internal counter.
                 ///
                 /// # Note
                 ///
                 /// Also emits an event.
-                pub fn inc(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> >) {
+                pub fn inc(&mut self, env: &mut ink_model::EnvHandler<types::ContractEnv>) {
                     self.value += 1;
                     env.emit(IncCalled { current: *self.value });
                 }
@@ -124,7 +135,7 @@ fn contract_compiles() {
                 /// # Note
                 ///
                 /// Also emits an event.
-                pub fn dec(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> >) {
+                pub fn dec(&mut self, env: &mut ink_model::EnvHandler<types::ContractEnv>) {
                     self.value -= 1;
                     env.emit(DecCalled { current: *self.value });
                 }
@@ -135,7 +146,7 @@ fn contract_compiles() {
             #[cfg(not(test))]
             impl CallCounter {
                 pub(crate) fn instantiate() -> impl ink_model::Contract {
-                    ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> >()
+                    ink_model::ContractDecl::using::<Self, types::ContractEnv>()
                         .on_deploy(|env, ()| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
@@ -205,14 +216,14 @@ fn contract_compiles() {
                         E: Into<private::Event>,
                     {
                         use parity_codec::Encode as _;
-                        <ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> as ink_core::env::Env>::deposit_raw_event(
+                        <types::ContractEnv as ink_core::env::Env>::deposit_raw_event(
                             &[], event.into().encode().as_slice()
                         )
                     }
                 }
 
-                impl EmitEventExt for ink_model::EnvHandler<ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> > { }
-                impl private::Sealed for ink_model::EnvHandler<ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes> > { }
+                impl EmitEventExt for ink_model::EnvHandler<types::ContractEnv> { }
+                impl private::Sealed for ink_model::EnvHandler<types::ContractEnv> { }
             }
 
             use events::{
@@ -226,7 +237,7 @@ fn contract_compiles() {
                 use super::*;
 
                 pub struct TestableCallCounter {
-                    env: ink_model::ExecutionEnv<CallCounter, ink_core::env::ContractEnv<ink_core::env::DefaultSrmlTypes>>,
+                    env: ink_model::ExecutionEnv<CallCounter, types::ContractEnv>,
                 }
 
                 impl CallCounter {
