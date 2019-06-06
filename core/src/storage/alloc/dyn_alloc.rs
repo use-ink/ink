@@ -32,7 +32,7 @@ use crate::storage::{
 /// Searches for free cells and chunks via first-fit approach which
 /// can be slow (more than 2 reads) for more than 3000 dynamic allocations
 /// at the same time. This is subject to change in the future if
-/// experiments show that this is a bottle neck.
+/// experiments show that this is a bottleneck.
 #[derive(Debug)]
 pub struct DynAlloc {
     /// Bitmap indicating free cell slots.

@@ -232,7 +232,7 @@ where
 {
     /// Creates an instance of the contract declaration.
     ///
-    /// This assocates the state with the contract storage
+    /// This associates the state with the contract storage
     /// and defines its layout.
     pub fn instantiate(self) -> ContractInstance<State, DeployArgs, HandlerChain> {
         use ink_core::storage::{

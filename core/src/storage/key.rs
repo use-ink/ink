@@ -103,7 +103,7 @@ impl core::ops::Sub for Key {
 
 /// The difference between two keys.
 ///
-/// This is the result of substracting one key from another.
+/// This is the result of subtracting one key from another.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct KeyDiff([u8; 32]);
 
