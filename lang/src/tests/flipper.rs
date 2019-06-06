@@ -20,6 +20,8 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
+            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+
             /// A simple contract that has a boolean value that can be flipped and be returned.
             struct Flipper {
                 /// The internal value.
@@ -46,6 +48,26 @@ fn contract_compiles() {
             }
         },
         quote! {
+        mod types {
+                use ink_core::env::{ContractEnv, EnvTypes};
+
+                type AccountId = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::AccountId;
+                type Balance = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Balance;
+                type Hash = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Hash;
+                type Moment = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Moment;
+
+                type ContractEnv = ContractEnv<ink_core::env::DefaultSrmlTypes>;
+            }
+
+            use types::{
+                AccountId,
+                Balance,
+                Hash,
+                Moment,
+            };
+
+            #[allow(snake_case)] type env = types::ContractEnv;
+
             ink_model::state! {
                 /// A simple contract that has a boolean value that can be flipped and be returned.
                 pub struct Flipper {
@@ -68,17 +90,17 @@ fn contract_compiles() {
 
             impl Flipper {
                 /// The internal boolean is initialized with `true`.
-                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler) {
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<types::ContractEnv>) {
                     self.value.set(true)
                 }
 
                 /// Flips the internal boolean.
-                pub fn flip(&mut self, env: &mut ink_model::EnvHandler) {
+                pub fn flip(&mut self, env: &mut ink_model::EnvHandler<types::ContractEnv>) {
                     self.value = !(*self.value)
                 }
 
                 /// Returns the internal boolean.
-                pub fn get(&self, env: &ink_model::EnvHandler) -> bool {
+                pub fn get(&self, env: &ink_model::EnvHandler<types::ContractEnv>) -> bool {
                     *self.value
                 }
             }
@@ -88,7 +110,7 @@ fn contract_compiles() {
             #[cfg(not(test))]
             impl Flipper {
                 pub(crate) fn instantiate() -> impl ink_model::Contract {
-                    ink_model::ContractDecl::using::<Self>()
+                    ink_model::ContractDecl::using::<Self, types::ContractEnv>()
                         .on_deploy(|env, ()| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
@@ -113,7 +135,7 @@ fn contract_compiles() {
                 use super::*;
 
                 pub struct TestableFlipper {
-                    env: ink_model::ExecutionEnv<Flipper>,
+                    env: ink_model::ExecutionEnv<Flipper, types::ContractEnv>,
                 }
 
                 impl Flipper {

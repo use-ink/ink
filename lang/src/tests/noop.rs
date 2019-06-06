@@ -20,6 +20,8 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
+            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+
             /// The contract that does nothing.
             ///
             /// # Note
@@ -36,6 +38,26 @@ fn contract_compiles() {
             impl Noop {}
         },
         quote! {
+            mod types {
+                use ink_core::env::{ContractEnv, EnvTypes};
+
+                type AccountId = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::AccountId;
+                type Balance = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Balance;
+                type Hash = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Hash;
+                type Moment = <ContractEnv<ink_core::env::DefaultSrmlTypes> as EnvTypes>::Moment;
+
+                type ContractEnv = ContractEnv<ink_core::env::DefaultSrmlTypes>;
+            }
+
+            use types::{
+                AccountId,
+                Balance,
+                Hash,
+                Moment,
+            };
+
+            #[allow(snake_case)] type env = types::ContractEnv;
+
             ink_model::state! {
                 /// The contract that does nothing.
                 ///
@@ -54,7 +76,7 @@ fn contract_compiles() {
 
             impl Noop {
                 /// Does nothing to initialize itself.
-                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler) { }
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<types::ContractEnv>) { }
             }
 
             use ink_model::Contract as _;
@@ -62,7 +84,7 @@ fn contract_compiles() {
             #[cfg(not(test))]
             impl Noop {
                 pub(crate) fn instantiate() -> impl ink_model::Contract {
-                    ink_model::ContractDecl::using::<Self>()
+                    ink_model::ContractDecl::using::<Self, types::ContractEnv>()
                         .on_deploy(|env, ()| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
@@ -79,7 +101,7 @@ fn contract_compiles() {
                 use super::*;
 
                 pub struct TestableNoop {
-                    env: ink_model::ExecutionEnv<Noop>,
+                    env: ink_model::ExecutionEnv<Noop, types::ContractEnv>,
                 }
 
                 impl Noop {
