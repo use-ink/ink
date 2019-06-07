@@ -18,6 +18,7 @@
 // This might change in future versions of the pDSL.
 #![allow(clippy::implicit_hasher)]
 
+use parity_codec::Encode;
 use crate::storage::{
     self,
     alloc::{
@@ -26,6 +27,7 @@ use crate::storage::{
         Initialize,
     },
     chunk::SyncChunk,
+    Key,
     Flush,
 };
 use core::{
@@ -75,6 +77,14 @@ pub enum Entry<K, V> {
     Occupied(OccupiedEntry<K, V>),
     /// A removed slot that was occupied before.
     Removed,
+}
+
+impl<K, V> Flush for Entry<K, V> where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
 }
 
 /// An occupied entry of a storage map.

@@ -22,14 +22,31 @@ use crate::{
         alloc::{
             AllocateUsing,
             BumpAlloc,
+            DynAlloc,
+            Initialize,
         },
         Flush,
         Key,
     },
     test_utils::run_test,
 };
+use crate::storage;
 
 fn dummy_chunk() -> SyncChunk<u32> {
+    unsafe {
+        let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+        SyncChunk::allocate_using(&mut alloc)
+    }
+}
+
+fn dummy_vec_chunk() -> SyncChunk<storage::Vec<u32>> {
+    unsafe {
+        let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+        SyncChunk::allocate_using(&mut alloc)
+    }
+}
+
+fn dummy_recursive_vec_chunk() -> SyncChunk<storage::Vec<storage::Vec<u32>>> {
     unsafe {
         let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
         SyncChunk::allocate_using(&mut alloc)
@@ -335,4 +352,68 @@ fn count_rw_take_repeat() {
     chunk.flush();
     assert_eq!(env::test::total_reads(), 1);
     assert_eq!(env::test::total_writes(), 1);
+}
+
+#[test]
+fn count_vec_writes() {
+    let mut alloc = unsafe { BumpAlloc::from_raw_parts(Key([0x0; 32])) };
+
+    let mut outer_vec = unsafe {
+        storage::Vec::<u32>::allocate_using(&mut alloc).initialize_into(())
+    };
+    outer_vec.push(1337);
+
+    let mut chunk = dummy_vec_chunk();
+    chunk.set(0, outer_vec);
+    chunk.flush();
+
+    assert_eq!(env::test::total_writes(), 3);
+}
+
+#[test]
+fn count_vec_writes_with_dyn_alloc() {
+    let mut alloc = unsafe {
+        let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+        let mut dyn_alloc = DynAlloc::allocate_using(&mut fw_alloc);
+        dyn_alloc.initialize(());
+        dyn_alloc
+    };
+
+    let mut outer_vec = unsafe {
+        storage::Vec::<u32>::allocate_using(&mut alloc).initialize_into(())
+    };
+    outer_vec.push(1337);
+
+    let mut chunk = dummy_vec_chunk();
+    chunk.set(0, outer_vec);
+    chunk.flush();
+
+    assert_eq!(env::test::total_writes(), 3);
+}
+
+#[test]
+fn count_recursive_vec_writes() {
+    let mut alloc = unsafe {
+        let mut fw_alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+        let mut dyn_alloc = DynAlloc::allocate_using(&mut fw_alloc);
+        dyn_alloc.initialize(());
+        dyn_alloc
+    };
+
+    let mut inner_vec = unsafe {
+        storage::Vec::<u32>::allocate_using(&mut alloc).initialize_into(())
+    };
+    inner_vec.push(1337);
+    inner_vec.push(1338);
+
+    let mut outer_vec = unsafe {
+        storage::Vec::<storage::Vec<u32>>::allocate_using(&mut alloc).initialize_into(())
+    };
+    outer_vec.push(inner_vec);
+
+    let mut chunk = dummy_recursive_vec_chunk();
+    chunk.set(0, outer_vec);
+    chunk.flush();
+
+    assert_eq!(env::test::total_writes(), 6);
 }

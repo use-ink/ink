@@ -31,7 +31,83 @@
 /// All abstractions built upon them that do not have their own caching mechanism
 /// shall simply forward flushing to their interiors. Examples for this are
 /// `storage::Vec` or `storage::Value`.
+
+use parity_codec::Encode;
+use crate::storage::key::Key;
+
 pub trait Flush {
     /// Flushes the cached state back to the contract storage, if any.
-    fn flush(&mut self);
+    fn flush(&mut self) {
+        unreachable!();
+    }
+
+    /// Default implementation which forwards to flush.
+    /// This realizes recursive behavior for e.g. nested vectors.
+    fn flush_at(&mut self, _at: Key) {
+        self.flush();
+    }
+}
+
+impl Flush for i8 where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
+}
+
+impl Flush for i16 where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
+}
+
+impl Flush for i32 where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
+}
+
+impl Flush for i64 where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
+}
+
+impl Flush for u16 where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
+}
+
+impl Flush for u32 where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
+}
+
+impl Flush for u64 where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
+}
+
+impl Flush for bool where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
 }

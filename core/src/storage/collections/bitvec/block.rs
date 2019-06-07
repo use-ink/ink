@@ -19,6 +19,10 @@ use parity_codec::{
     Decode,
     Encode,
 };
+use crate::storage::{
+    Flush,
+    Key
+};
 
 /// A block of 1024 bits.
 #[derive(Debug, Copy, Clone, Encode, Decode)]
@@ -125,6 +129,14 @@ impl BitBlock {
             }
         }
         None
+    }
+}
+
+impl Flush for BitBlock where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
     }
 }
 

@@ -82,6 +82,14 @@ struct StashHeader {
     max_len: u32,
 }
 
+impl Flush for StashHeader where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
+}
+
 /// Iterator over the values of a stash.
 #[derive(Debug)]
 pub struct Values<'a, T> {
@@ -220,6 +228,14 @@ enum Entry<T> {
     Vacant(u32),
     /// An occupied entry containing the value.
     Occupied(T),
+}
+
+impl<T> Flush for Entry<T> where Self: Encode {
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+    }
 }
 
 impl<T> Encode for Stash<T> {

@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use parity_codec::Encode;
 use crate::storage::{
     self,
     alloc::{
@@ -23,6 +24,7 @@ use crate::storage::{
     },
     chunk::SyncChunk,
     Flush,
+    Key,
 };
 
 use core::iter::{
@@ -76,11 +78,22 @@ impl<'a, T> Iter<'a, T> {
 
 impl<T> Flush for Vec<T>
 where
-    T: parity_codec::Encode,
+	Self: Encode,
+	T: parity_codec::Encode,
+	T: Flush,
 {
     fn flush(&mut self) {
         self.len.flush();
         self.cells.flush();
+    }
+
+    fn flush_at(&mut self, at: Key) {
+        unsafe {
+            crate::env::store(at, &self.encode()[..]);
+        }
+
+        self.len.flush_at(at);
+        self.cells.flush_at(at);
     }
 }
 
