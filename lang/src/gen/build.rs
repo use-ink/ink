@@ -53,6 +53,7 @@ fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract)
     let env_types = &contract.env_types_type;
     tokens.extend(quote! {
         mod types {
+            use super::*;
             use ink_core::env::{ContractEnv, EnvTypes};
 
             pub type AccountId = <ContractEnv<#env_types> as EnvTypes>::AccountId;
