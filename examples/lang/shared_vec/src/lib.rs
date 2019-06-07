@@ -69,6 +69,8 @@ const NOT_REGISTERED: ErrNo = 2;
 const OUT_OF_BOUNDS: ErrNo = 3;
 
 contract! {
+    type EnvTypes = ink_core::env::DefaultSrmlTypes;
+
     /// A shared vector that is accessiable to a subset of allowed mutators.
     struct SharedVec {
         /// The allowed mutators.
