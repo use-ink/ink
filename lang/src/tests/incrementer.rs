@@ -70,6 +70,8 @@ fn contract_compiles() {
                 Moment,
             };
 
+            #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
+
             ink_model::state! {
                 /// A simple contract that has a value that can be
                 /// incremented, returned and compared.
@@ -147,8 +149,6 @@ fn contract_compiles() {
             #[cfg(test)]
             mod test {
                 use super::*;
-
-                #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
 
                 pub struct TestableIncrementer {
                     env: ink_model::ExecutionEnv<Incrementer, ink_core::env::ContractEnv<DefaultSrmlTypes>>,

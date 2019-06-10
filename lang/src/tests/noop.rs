@@ -54,6 +54,8 @@ fn contract_compiles() {
                 Moment,
             };
 
+            #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
+
             ink_model::state! {
                 /// The contract that does nothing.
                 ///
@@ -95,8 +97,6 @@ fn contract_compiles() {
             #[cfg(test)]
             mod test {
                 use super::*;
-
-                #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
 
                 pub struct TestableNoop {
                     env: ink_model::ExecutionEnv<Noop, ink_core::env::ContractEnv<DefaultSrmlTypes>>,

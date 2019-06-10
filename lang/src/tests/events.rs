@@ -84,6 +84,8 @@ fn contract_compiles() {
                 Moment,
             };
 
+            #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
+
             ink_model::state! {
                 /// Tests emitting of custom defined events.
                 pub struct CallCounter {
@@ -231,8 +233,6 @@ fn contract_compiles() {
             #[cfg(test)]
             mod test {
                 use super::*;
-
-                #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
 
                 pub struct TestableCallCounter {
                     env: ink_model::ExecutionEnv<CallCounter, ink_core::env::ContractEnv<DefaultSrmlTypes>>,
