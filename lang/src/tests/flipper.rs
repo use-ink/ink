@@ -49,6 +49,7 @@ fn contract_compiles() {
         },
         quote! {
             mod types {
+                use super::*;
                 use ink_core::env::{ContractEnv, EnvTypes};
 
                 pub type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
@@ -64,8 +65,8 @@ fn contract_compiles() {
                 Moment,
             };
 
+            use ink_core::env::Env as _;
             #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
-
 
             ink_model::state! {
                 /// A simple contract that has a boolean value that can be flipped and be returned.
