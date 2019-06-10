@@ -37,9 +37,6 @@ pub mod test;
 #[cfg(feature = "test-env")]
 mod test_env;
 
-#[cfg(feature = "test-env")]
-pub use test_env::TestEnv;
-
 pub use api::*;
 pub use traits::*;
 
