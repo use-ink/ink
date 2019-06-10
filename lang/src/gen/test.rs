@@ -49,6 +49,7 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
 
 fn generate_test_mod_body(contract: &hir::Contract) -> TokenStream2 {
     let mut tokens = quote! {};
+    generate_test_env_type_alias(&mut tokens, contract);
     generate_test_struct(&mut tokens, contract);
     generate_test_deploy(&mut tokens, contract);
     generate_test_allocate_deploy_block(&mut tokens, contract);
@@ -63,6 +64,13 @@ fn generate_test_mod_body(contract: &hir::Contract) -> TokenStream2 {
 /// For a contract called `Flipper` this returns `TestableFlipper`.
 fn testable_contract_name(contract: &hir::Contract) -> proc_macro2::Ident {
     proc_macro2::Ident::from_str(["Testable", &contract.name.to_string()].concat())
+}
+
+fn generate_test_env_type_alias(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    let env_types = &contract.env_types_type;
+    tokens.extend(quote! {
+        #[allow(snake_case)] type env = ink_core::env::ContractEnv<#env_types>;
+    })
 }
 
 fn generate_test_struct(tokens: &mut TokenStream2, contract: &hir::Contract) {

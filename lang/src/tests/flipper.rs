@@ -64,9 +64,6 @@ fn contract_compiles() {
                 Moment,
             };
 
-            #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
-
-
             ink_model::state! {
                 /// A simple contract that has a boolean value that can be flipped and be returned.
                 pub struct Flipper {
@@ -132,6 +129,8 @@ fn contract_compiles() {
             #[cfg(test)]
             mod test {
                 use super::*;
+
+                #[allow(snake_case)] type env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
 
                 pub struct TestableFlipper {
                     env: ink_model::ExecutionEnv<Flipper, ink_core::env::ContractEnv<DefaultSrmlTypes>>,

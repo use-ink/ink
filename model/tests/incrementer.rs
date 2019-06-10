@@ -17,7 +17,7 @@
 use ink_core::{
     env::{
         DefaultSrmlTypes,
-        TestEnv,
+        ContractEnv,
     },
     storage
 };
@@ -45,7 +45,7 @@ messages! {
 
 #[rustfmt::skip]
 fn instantiate() -> impl TestableContract<DeployArgs = u32> {
-	ContractDecl::using::<Adder, TestEnv<DefaultSrmlTypes>>()
+	ContractDecl::using::<Adder, ContractEnv<DefaultSrmlTypes>>()
 		.on_deploy(|env, init_val| {
 			env.state.val.set(init_val)
 		})
