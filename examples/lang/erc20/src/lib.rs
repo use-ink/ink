@@ -22,10 +22,10 @@ use ink_core::{
 };
 use ink_model::EnvHandler;
 use ink_lang::contract;
-use ink_core::env::DefaultSrmlTypes;
+use ink_types_node_runtime::NodeRuntimeTypes;
 
 contract! {
-    type EnvTypes = DefaultSrmlTypes;
+    type EnvTypes = NodeRuntimeTypes;
 
     // Event deposited when a token transfer occurs
     event Transfer {
@@ -129,7 +129,7 @@ contract! {
         }
 
         /// Transfers token from a specified AccountId to another AccountId.
-        fn transfer_impl(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, from: AccountId, to: AccountId, value: Balance) -> bool {
+        fn transfer_impl(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<NodeRuntimeTypes>>, from: AccountId, to: AccountId, value: Balance) -> bool {
             let balance_from = self.balance_of_or_zero(&from);
             let balance_to = self.balance_of_or_zero(&to);
             if balance_from < value {
