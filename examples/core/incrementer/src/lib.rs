@@ -21,6 +21,7 @@ use ink_core::{
     env::{
         self,
         ContractEnv,
+        DefaultSrmlTypes,
         Env,
     },
     storage::{
@@ -35,7 +36,6 @@ use ink_core::{
         Value,
     },
 };
-use ink_types_node_runtime::NodeRuntimeTypes;
 
 /// An incrementer smart contract.
 ///
@@ -94,7 +94,7 @@ fn ret<T>(val: T) -> !
 where
     T: parity_codec::Encode,
 {
-    unsafe { env::r#return::<T, ContractEnv<NodeRuntimeTypes>>(val) }
+    unsafe { env::r#return::<T, ContractEnv<DefaultSrmlTypes>>(val) }
 }
 
 fn instantiate() -> Incrementer {
@@ -111,7 +111,7 @@ pub extern "C" fn deploy() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    let input = <ContractEnv<NodeRuntimeTypes> as Env>::input();
+    let input = <ContractEnv<DefaultSrmlTypes> as Env>::input();
     let action = Action::decode(&mut &input[..]).unwrap();
     let mut incrementer = instantiate();
 
