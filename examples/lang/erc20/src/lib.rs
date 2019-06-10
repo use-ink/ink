@@ -67,21 +67,21 @@ contract! {
         /// Returns the total number of tokens in existence.
         pub(external) fn total_supply(&self) -> Balance {
             let total_supply = *self.total_supply;
-            env.println(&format!("Erc20::total_supply = {:?}", total_supply));
+            env::println(&format!("Erc20::total_supply = {:?}", total_supply));
             total_supply
         }
 
         /// Returns the balance of the given AccountId.
         pub(external) fn balance_of(&self, owner: AccountId) -> Balance {
             let balance = self.balance_of_or_zero(&owner);
-            env.println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner, balance));
+            env::println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner, balance));
             balance
         }
 
         /// Returns the amount of tokens that an owner allowed to a spender.
         pub(external) fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
             let allowance = self.allowance_or_zero(&owner, &spender);
-            env.println(&format!(
+            env::println(&format!(
                 "Erc20::allowance(owner = {:?}, spender = {:?}) = {:?}",
                 owner, spender, allowance
             ));
