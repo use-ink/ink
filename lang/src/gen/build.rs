@@ -335,26 +335,7 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
             fn_decl.fn_tok.to_tokens(&mut content);
             message.sig.ident.to_tokens(&mut content);
             fn_decl.paren_tok.surround(&mut content, |inner_toks| {
-                let inputs_with_env = {
-                    let mut inputs_with_env: Punctuated<ast::FnArg, Token![,]> =
-                        Punctuated::new();
-                    let mut inputs_iter = fn_decl.inputs.iter();
-                    let self_arg = inputs_iter.next().unwrap();
-                    inputs_with_env.push_value(self_arg.clone());
-                    inputs_with_env.push_punct(<Token![,]>::default());
-                    let custom_arg_captured: CustomArgCaptured = if message.is_mut() {
-                        syn::parse_quote! { env: &mut ink_model::EnvHandler }
-                    } else {
-                        syn::parse_quote! { env: &ink_model::EnvHandler }
-                    };
-                    inputs_with_env.push(ast::FnArg::Captured(
-                        custom_arg_captured.into_arg_captured(),
-                    ));
-                    for input in inputs_iter {
-                        inputs_with_env.push(input.clone())
-                    }
-                    inputs_with_env
-                };
+                let inputs_with_env = fn_decl.inputs_with_env();
                 inputs_with_env.to_tokens(inner_toks);
             });
             fn_decl.output.to_tokens(&mut content);
@@ -399,35 +380,6 @@ fn codegen_for_method_impls(tokens: &mut TokenStream2, contract: &hir::Contract)
                 #methods_impls
             }
         })
-    }
-}
-
-struct CustomArgCaptured {
-    pub pat: syn::Pat,
-    pub colon_token: Token![:],
-    pub ty: syn::Type,
-}
-
-impl syn::parse::Parse for CustomArgCaptured {
-    fn parse(input: syn::parse::ParseStream) -> syn::parse::Result<Self> {
-        let pat = input.parse()?;
-        let colon_token = input.parse()?;
-        let ty = input.parse()?;
-        Ok(Self {
-            pat,
-            colon_token,
-            ty,
-        })
-    }
-}
-
-impl CustomArgCaptured {
-    pub fn into_arg_captured(self) -> syn::ArgCaptured {
-        syn::ArgCaptured {
-            pat: self.pat,
-            colon_token: self.colon_token,
-            ty: self.ty,
-        }
     }
 }
 
