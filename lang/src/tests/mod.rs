@@ -33,6 +33,51 @@ fn empty_contract_input() {
 }
 
 #[test]
+fn missing_env_types_meta() {
+    assert_failure(
+        quote! {
+            struct TestContract {}
+            impl Deploy for TestContract {
+                fn deploy(&mut self) {}
+            }
+            impl TestContract {}
+        },
+        "couldn\'t find an `#![env = <EnvTypesImpl>]` attribute",
+    )
+}
+
+#[test]
+fn multiple_env_types_meta() {
+    assert_failure(
+        quote! {
+            #![env = ink_core::env::DefaultSrmlTypes]
+            #![env = ink_core::env::DefaultSrmlTypes]
+            struct TestContract {}
+            impl Deploy for TestContract {
+                fn deploy(&mut self) {}
+            }
+            impl TestContract {}
+        },
+        "requires exactly one `#![env = <EnvTypesImpl>]` attribute; found 2",
+    )
+}
+
+#[test]
+fn env_types_meta_wrong_attr_name() {
+    assert_failure(
+        quote! {
+            #![not_env = ink_core::env::DefaultSrmlTypes]
+            struct TestContract {}
+            impl Deploy for TestContract {
+                fn deploy(&mut self) {}
+            }
+            impl TestContract {}
+        },
+        "unknown env attribute \'not_env\'",
+    )
+}
+
+#[test]
 fn using_self_val_in_message() {
     assert_failure(
         quote! {
