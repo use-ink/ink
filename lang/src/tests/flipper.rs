@@ -20,7 +20,7 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
-            type EnvTypes = DefaultSrmlTypes;
+            #![env = DefaultSrmlTypes]
 
             /// A simple contract that has a boolean value that can be flipped and be returned.
             struct Flipper {

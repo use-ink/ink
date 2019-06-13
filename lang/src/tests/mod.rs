@@ -36,7 +36,7 @@ fn empty_contract_input() {
 fn using_self_val_in_message() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self) {}
@@ -53,7 +53,7 @@ fn using_self_val_in_message() {
 fn using_non_self_in_message() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self) {}
@@ -70,7 +70,7 @@ fn using_non_self_in_message() {
 fn using_empty_message_args() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self) {}
@@ -87,7 +87,7 @@ fn using_empty_message_args() {
 fn using_self_val_in_deploy() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(self) {}
@@ -102,7 +102,7 @@ fn using_self_val_in_deploy() {
 fn using_self_ref_in_deploy() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&self) {}
@@ -117,7 +117,7 @@ fn using_self_ref_in_deploy() {
 fn missing_state_in_contract() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             impl Deploy for TestContract {
                 fn deploy(self) {}
             }
@@ -131,7 +131,7 @@ fn missing_state_in_contract() {
 fn missing_deploy_impl_block() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl TestContract {}
         },
@@ -143,7 +143,7 @@ fn missing_deploy_impl_block() {
 fn env_as_deploy_handler_arg() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self, env: u32) {}
@@ -157,7 +157,7 @@ fn env_as_deploy_handler_arg() {
 fn generic_deploy_handler() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy<T>(&mut self, generic_param: T) {}
@@ -171,7 +171,7 @@ fn generic_deploy_handler() {
 fn deploy_handler_with_return_type() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self) -> u32 {}
@@ -185,7 +185,7 @@ fn deploy_handler_with_return_type() {
 fn env_as_message_arg() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self) {}
@@ -202,7 +202,7 @@ fn env_as_message_arg() {
 fn message_called_deploy() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self) {}
@@ -219,7 +219,7 @@ fn message_called_deploy() {
 fn method_called_deploy() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self) {}
@@ -236,7 +236,7 @@ fn method_called_deploy() {
 fn multiple_states() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract1 {}
             struct TestContract2 {}
             impl Deploy for TestContract1 {
@@ -254,7 +254,7 @@ fn multiple_states() {
 fn multiple_deploy_handlers() {
     assert_failure(
         quote! {
-            type EnvTypes = ink_core::env::DefaultSrmlTypes;
+            #![env = ink_core::env::DefaultSrmlTypes]
             struct TestContract {}
             impl Deploy for TestContract {
                 fn deploy(&mut self) {}

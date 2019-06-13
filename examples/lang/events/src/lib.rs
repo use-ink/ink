@@ -24,7 +24,7 @@ use ink_core::env::{
 use ink_lang::contract;
 
 contract! {
-    type EnvTypes = DefaultSrmlTypes;
+    #![env = DefaultSrmlTypes]
 
     /// Tests emitting of custom defined events.
     struct CallCounter {

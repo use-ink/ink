@@ -33,10 +33,10 @@ pub struct Contract {
 }
 
 impl Contract {
-    pub fn env_types<'a>(&'a self) -> impl Iterator<Item = &'a ItemEnvTypesType> + 'a {
+    pub fn env_metas<'a>(&'a self) -> impl Iterator<Item = &'a ItemEnvMeta> + 'a {
         self.items.iter().filter_map(|item| {
             match *item {
-                Item::EnvTypesType(ref t) => Some(t),
+                Item::EnvMeta(ref t) => Some(t),
                 _ => None,
             }
         })
@@ -83,7 +83,7 @@ impl Contract {
 
 #[derive(Debug)]
 pub enum Item {
-    EnvTypesType(ItemEnvTypesType),
+    EnvMeta(ItemEnvMeta),
     State(ItemState),
     DeployImpl(ItemDeployImpl),
     Impl(ItemImpl),
@@ -91,13 +91,15 @@ pub enum Item {
 }
 
 #[derive(Debug, Clone)]
-pub struct ItemEnvTypesType {
-    pub attrs: Vec<syn::Attribute>,
-    pub type_tok: Token![type],
+pub struct ItemEnvMeta {
+    pub env_types_metas: Vec<ItemEnvTypesMeta>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ItemEnvTypesMeta {
     pub ident: Ident,
-    pub eq_tok: Token![=],
+    pub eq_token: Token![=],
     pub ty: syn::Type,
-    pub semi_tok: Token![;],
 }
 
 /// An event declaration.

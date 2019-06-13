@@ -25,7 +25,7 @@ use ink_lang::contract;
 use ink_types_node_runtime::NodeRuntimeTypes;
 
 contract! {
-    type EnvTypes = NodeRuntimeTypes;
+    #![env = NodeRuntimeTypes]
 
     // Event deposited when a token transfer occurs
     event Transfer {

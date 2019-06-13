@@ -21,11 +21,12 @@ use proc_macro2::{
 };
 use syn::{
     self,
-    Result,
     punctuated::Punctuated,
+    Result,
     Token,
     Type,
 };
+
 /// A smart contract.
 #[derive(Debug)]
 pub struct Contract {
@@ -62,25 +63,39 @@ impl Contract {
     /// - If no type for environment types has been found.
     /// - If more than one type for environment types has been found.
     fn extract_env_types(contract: &ast::Contract) -> Result<Type> {
-        let types = contract.env_types().collect::<Vec<_>>();
-        if types.is_empty() {
+        let env_types = contract
+            .env_metas()
+            .flat_map(|meta| meta.env_types_metas.clone())
+            .map(|meta| {
+                if meta.ident == "env" {
+                    Ok(meta.ty)
+                } else {
+                    Err(syn::Error::new(
+                        Span::call_site(),
+                        format!("unknown env attribute '{}'", meta.ident),
+                    ))
+                    .into()
+                }
+            })
+            .collect::<Result<Vec<_>>>()?;
+        if env_types.is_empty() {
             return Err(syn::Error::new(
                 Span::call_site(),
-                "couldn't find an EnvTypes `type`",
+                "couldn't find an `#![env = <EnvTypesImpl>]` attribute",
             )
             .into())
         }
-        if types.len() > 1 {
+        if env_types.len() > 1 {
             return Err(syn::Error::new(
                 Span::call_site(),
                 format!(
-                    "requires exactly one EnvTypes `type`; found {:?}",
-                    types.len()
+                    "requires exactly one `#![env = <EnvTypesImpl>]` attribute; found {:?}",
+                    env_types.len()
                 ),
             )
             .into())
         }
-        Ok(types[0].ty.clone())
+        Ok(env_types[0].clone())
     }
 
     /// Extracts all events from the contract.

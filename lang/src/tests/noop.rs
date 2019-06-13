@@ -20,7 +20,7 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
-            type EnvTypes = DefaultSrmlTypes;
+            #![env = DefaultSrmlTypes]
 
             /// The contract that does nothing.
             ///

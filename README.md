@@ -34,7 +34,7 @@ that has a boolean state that can be flipped or returned.
 ```rust
 contract! {
     /// Specify concrete implementation of contract environment types
-    type EnvTypes = ink_core::env::DefaultSrmlTypes;
+    #![env = ink_core::env::DefaultSrmlTypes]
  
     /// Flips its state between `true` and `false`.
     struct Flipper {

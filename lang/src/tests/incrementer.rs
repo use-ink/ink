@@ -20,7 +20,7 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
-            type EnvTypes = DefaultSrmlTypes;
+            #![env = DefaultSrmlTypes]
 
             /// A simple contract that has a value that can be
             /// incremented, returned and compared.
