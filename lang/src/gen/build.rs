@@ -351,6 +351,9 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
 fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_name = &contract.name;
     let env_types = &contract.env_types_type;
+    let env_handler: syn::Type = syn::parse_quote! {
+        ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>>
+    };
     let message_impls = {
         let mut content = quote! {};
         for message in iter::once(&contract.on_deploy.clone().into_message())
@@ -364,7 +367,7 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
             fn_decl.fn_tok.to_tokens(&mut content);
             message.sig.ident.to_tokens(&mut content);
             fn_decl.paren_tok.surround(&mut content, |inner_toks| {
-                let inputs_with_env = fn_decl.inputs_with_env();
+                let inputs_with_env = fn_decl.inputs_with_env(&env_handler);
                 inputs_with_env.to_tokens(inner_toks);
             });
             fn_decl.output.to_tokens(&mut content);
