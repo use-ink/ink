@@ -1,6 +1,6 @@
-# Contributing to pDSL
+# Contributing to ink
 
-First of all, thank you for taking your time to contribute to pDSL!
+First of all, thank you for taking your time to contribute to ink!
 
 > [I don't want to contribute, I just have some questions! :S](#I-dont-want-to-contrubute-I-just-have-some-questions)
 
@@ -46,7 +46,7 @@ Following these will ensure that your pull request is going to be accepted.
 1. We won't accept a pull request with `FIXME` or `TODO` comments in it.
    Please try to fix them by yourself and resolve all remaining to-do items.
    If that is not possible then write an issue for each of them and link to the source line and commit with a proper description. For more information go [here](#Issues-&-pull-requests).
-1. Document everything properly that you have written, refactored or touched. Especially keeping documentation up-to-date is very important. For larger portions please try to also update the pDSL wiki or write a new entry there.
+1. Document everything properly that you have written, refactored or touched. Especially keeping documentation up-to-date is very important. For larger portions please try to also update the ink wiki or write a new entry there.
 1. Write tests for your code. If your code is hard to test, try to find a design that allows for testability.
 1. If needed also update the [`README`](README.md).
 1. For performance critical parts we also want additional performance tests.
@@ -81,7 +81,7 @@ You want to write an issue if you have a
 - bug report
 - technical question
 
-about the pDSL.
+about the ink.
 
 > Please use GitHub's search functionality to see if the question has already been asked,
 the feature has already been proposed or the bug has already been reported.
@@ -100,7 +100,7 @@ For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
 
 ## I don't want to contrubute I just have some questions
 
-For questions about the pDSL project, about Parity Technologies or general technical related questions you are welcome to contact us via [Riot][Riot-Substrate-Technical]. For technical questions specifically about the pDSL and its sub-projects you may also file an issue. For more information about filing issues go [here](#Issues-&-pull-requests).
+For questions about the ink project, about Parity Technologies or general technical related questions you are welcome to contact us via [Riot][Riot-Substrate-Technical]. For technical questions specifically about the ink and its sub-projects you may also file an issue. For more information about filing issues go [here](#Issues-&-pull-requests).
 
 [Riot-Substrate-Technical]: https://riot.im/app/#/room/#substrate-technical:matrix.org
 
