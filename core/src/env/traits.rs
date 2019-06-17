@@ -20,7 +20,7 @@ use crate::{
 };
 use parity_codec::Codec;
 
-#[cfg(not(feature = "std"))]
+#[cfg(not(feature = "test-env"))]
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.
@@ -33,17 +33,17 @@ pub trait EnvTypes {
     type Moment: Codec + Clone + PartialEq + Eq;
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "test-env")]
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.
-    type AccountId: Codec + Clone + PartialEq + Eq + std::fmt::Debug;
+    type AccountId: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of balances.
-    type Balance: Codec + Clone + PartialEq + Eq + std::fmt::Debug;
+    type Balance: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of hash.
-    type Hash: Codec + Clone + PartialEq + Eq + std::fmt::Debug;
+    type Hash: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of timestamps.
-    type Moment: Codec + Clone + PartialEq + Eq + std::fmt::Debug;
+    type Moment: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
 }
 
 /// Types implementing this can act as contract storage.
