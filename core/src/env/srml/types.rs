@@ -27,6 +27,7 @@ use parity_codec::{
 
 /// The SRML fundamental types.
 #[allow(unused)]
+#[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
 pub enum DefaultSrmlTypes {}
 
 impl EnvTypes for DefaultSrmlTypes {
@@ -35,6 +36,7 @@ impl EnvTypes for DefaultSrmlTypes {
     type Balance = Balance;
     type Hash = Hash;
     type Moment = Moment;
+    type Call = Call;
 }
 
 /// The default SRML address index type.
@@ -84,3 +86,12 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
 
 /// The default SRML moment type.
 pub type Moment = u64;
+
+/// The default SRML call type.
+#[derive(Encode, Decode)]
+#[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
+pub enum Call {
+    #[codec(index = "3")]
+    Balances(super::calls::Balances<DefaultSrmlTypes>),
+}
+

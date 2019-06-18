@@ -18,7 +18,7 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use parity_codec::Codec;
+use parity_codec::{Encode, Codec};
 
 #[cfg(not(feature = "test-env"))]
 /// The environmental types usable by contracts defined with ink!.
@@ -33,6 +33,8 @@ pub trait EnvTypes {
     type Hash: Codec + Clone + PartialEq + Eq;
     /// The type of timestamps.
     type Moment: Codec + Clone + PartialEq + Eq;
+    /// The type of a call into the runtime
+    type Call: Encode;
 }
 
 #[cfg(feature = "test-env")]
@@ -48,7 +50,12 @@ pub trait EnvTypes {
     type Hash: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of timestamps.
     type Moment: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of a call into the runtime
+    type Call: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
 }
+
+/// Substrate runtime dispatchable call
+pub trait Call<T: EnvTypes>: Encode {}
 
 /// Types implementing this can act as contract storage.
 pub trait EnvStorage {
@@ -124,4 +131,7 @@ pub trait Env: EnvTypes {
 
     /// Deposits raw event data through Contracts module.
     fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]);
+
+    /// Dispatches a call into the Runtime
+    fn dispatch_call(call: <Self as EnvTypes>::Call);
 }

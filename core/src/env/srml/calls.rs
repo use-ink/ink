@@ -145,7 +145,7 @@ mod tests {
     }
 
     /// ink! env types
-    #[derive(Debug, Eq, PartialEq)]
+    #[derive(Debug, Clone, Eq, PartialEq)]
     enum TestEnvTypes {}
     impl EnvTypes for TestEnvTypes {
         type AccountId = AccountId;
@@ -153,6 +153,12 @@ mod tests {
         type Balance = Balance;
         type Hash = Hash;
         type Moment = u64;
+        type Call = EnvCall;
+    }
+
+    #[derive(Encode, Decode, Debug, Clone, Eq, PartialEq)]
+    enum EnvCall {
+        Balances(super::Balances<TestEnvTypes>),
     }
 
     #[test]
