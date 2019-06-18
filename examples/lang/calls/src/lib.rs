@@ -17,6 +17,7 @@
 #![cfg_attr(not(any(test, feature = "test-env")), no_std)]
 
 use ink_core::{
+    env::{self, DefaultSrmlTypes},
     memory::format,
     storage,
 };
@@ -25,32 +26,19 @@ use ink_lang::contract;
 contract! {
     #![env = ink_core::env::DefaultSrmlTypes]
 
-    /// This simple dummy contract has a `bool` value that can
-    /// alter between `true` and `false` using the `flip` message.
-    /// Users can retrieve its current state using the `get` message.
-    struct Flipper {
-        /// The current state of our flag.
-        value: storage::Value<bool>,
-    }
+    /// This simple dummy contract dispatches substrate runtime calls
+    struct Calls {}
 
-    impl Deploy for Flipper {
-        /// Initializes our state to `false` upon deploying our smart contract.
+    impl Deploy for Calls {
         fn deploy(&mut self) {
-            self.value.set(false)
         }
     }
 
-    impl Flipper {
-        /// Flips the current state of our smart contract.
-        pub(external) fn flip(&mut self) {
-            *self.value = !*self.value;
-        }
-
-        /// Returns the current state.
-        pub(external) fn get(&self) -> bool {
-            env::println(&format!("Flipper Value: {:?}", *self.value));
-            *self.value
-        }
+    impl Calls {
+        /// Dispatches a `transfer` call to the Balances srml module
+//        pub(external) fn dispatch_transfer(&mut self) {
+//            env::dispatch_call() // TODO: [AJ] Dispatch Balance::transfer Call
+//        }
     }
 }
 
