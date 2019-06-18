@@ -22,6 +22,16 @@ ink_alloc = { path = "../alloc/" }
 ink_utils = { path = "../utils/" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
 
+[dev-dependencies]
+balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances", features = ["std"] }
+contract = { git = "https://github.com/paritytech/substrate/", package = "srml-contract", features = ["std"] }
+timestamp = { git = "https://github.com/paritytech/substrate/", package = "srml-timestamp", features = ["std"] }
+srml-support = { git = "https://github.com/paritytech/substrate/", package = "srml-support", features = ["std"] }
+system = { git = "https://github.com/paritytech/substrate/", package = "srml-system", features = ["std"] }
+runtime-primitives = { git = "https://github.com/paritytech/substrate/", package = "sr-primitives", features = ["std"] }
+substrate-primitives = { git = "https://github.com/paritytech/substrate/", package = "substrate-primitives", features = ["std"] }
+runtime-io = { git = "https://github.com/paritytech/substrate/", package = "sr-io", features = ["std"] }
+
 [features]
 default = []
 test-env = ["std"]

@@ -18,8 +18,10 @@
 mod srml_only;
 
 mod types;
+mod calls;
 
 pub use self::types::DefaultSrmlTypes;
+pub use self::calls::Balances;
 
 #[cfg(not(feature = "test-env"))]
 pub use self::srml_only::{
