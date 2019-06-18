@@ -21,19 +21,7 @@ use parity_codec::{
 };
 
 #[derive(Encode, Decode)]
-#[cfg_attr(feature = "std", derive(Debug, Clone, PartialEq, Eq))]
-pub enum Timestamp {}
-
-#[derive(Encode, Decode)]
-#[cfg_attr(feature = "std", derive(Debug, Clone, PartialEq, Eq))]
-pub enum Consensus {}
-
-#[derive(Encode, Decode)]
-#[cfg_attr(feature = "std", derive(Debug, Clone, PartialEq, Eq))]
-pub enum Indices {}
-
-#[derive(Encode, Decode)]
-#[cfg_attr(feature = "std", derive(Debug, Clone, PartialEq, Eq))]
+#[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
 pub enum Balances<T: EnvTypes> {
     #[allow(non_camel_case_types)]
     transfer(T::AccountIndex, #[codec(compact)] T::Balance),
@@ -48,7 +36,6 @@ pub enum Balances<T: EnvTypes> {
 #[cfg(test)]
 mod tests {
     use super::*;
-//    use contract::account_db::{AccountDb, DirectAccountDb, OverlayAccountDb};
     use contract::{
         ComputeDispatchFee, ContractAddressFor,
         TrieId, TrieIdGenerator,
@@ -58,12 +45,13 @@ mod tests {
     use srml_support::{
         impl_outer_dispatch, impl_outer_event, impl_outer_origin, StorageValue
     };
+//    use parity_codec::{Encode, Decode};
     use {balances, contract, system};
 
-    type AccountId = [u8; 32];
-    type AccountIndex = u32;
+    type AccountId = u64;
+    type AccountIndex = AccountId;
     type Balance = u128;
-    type Hash = [u8; 32];
+    type Hash = u64;
     type Moment = u64;
 
     impl_outer_event! {
@@ -85,12 +73,12 @@ mod tests {
     pub struct Test;
     impl system::Trait for Test {
         type Origin = Origin;
-        type Index = u64;
+        type Index = AccountIndex;
         type BlockNumber = u64;
         type Hash = H256;
         type Hashing = BlakeTwo256;
-        type AccountId = u64;
-        type Lookup = IdentityLookup<Self::AccountId>;
+        type AccountId = AccountId;
+        type Lookup = IdentityLookup<Self::Index>;
         type Header = Header;
         type Event = MetaEvent;
     }
@@ -98,10 +86,10 @@ mod tests {
         type Balance = Balance;
         type OnFreeBalanceZero = Contract;
         type OnNewAccount = ();
-        type Event = MetaEvent;
         type TransactionPayment = ();
-        type DustRemoval = ();
         type TransferPayment = ();
+        type DustRemoval = ();
+        type Event = MetaEvent;
     }
     impl timestamp::Trait for Test {
         type Moment = Moment;
@@ -110,9 +98,9 @@ mod tests {
     impl contract::Trait for Test {
         type Currency = Balances;
         type Call = Call;
+        type Event = MetaEvent;
         type Gas = u64;
         type DetermineContractAddress = DummyContractAddressFor;
-        type Event = MetaEvent;
         type ComputeDispatchFee = DummyComputeDispatchFee;
         type TrieIdGenerator = DummyTrieIdGenerator;
         type GasPayment = ();
@@ -120,7 +108,7 @@ mod tests {
 
     type Balances = balances::Module<Test>;
     type Contract = contract::Module<Test>;
-    type System = system::Module<Test>;
+//    type System = system::Module<Test>;
 
     pub struct DummyContractAddressFor;
     impl ContractAddressFor<H256, u64> for DummyContractAddressFor {
@@ -157,6 +145,7 @@ mod tests {
     }
 
     /// ink! env types
+    #[derive(Debug, Eq, PartialEq)]
     enum TestEnvTypes {}
     impl EnvTypes for TestEnvTypes {
         type AccountId = AccountId;
@@ -168,10 +157,19 @@ mod tests {
 
     #[test]
     fn call_balance_transfer() {
-//        let account = 0u32;
-//        let call = Call::<TestEnvTypes>::Balances(
-//            Balances::<TestEnvTypes>::transfer(account, balance),
-//        );
+        let account = 0;
+        let balance = 10_000;
+        let contract_call = super::Balances::<TestEnvTypes>::transfer(account, balance);
+        let srml_call = balances::Call::<Test>::transfer(account, balance);
+        let contract_call_encoded = contract_call.encode();
+        let srml_call_encoded = srml_call.encode();
+        assert_eq!(srml_call_encoded, contract_call_encoded);
 
+        let srml_call_decoded: balances::Call<Test> = Decode::decode(&mut contract_call_encoded.as_slice())
+            .expect("Balances transfer call decodes to srml type");
+        let srml_call_encoded = srml_call_decoded.encode();
+        let contract_call_decoded: super::Balances<TestEnvTypes> = Decode::decode(&mut srml_call_encoded.as_slice())
+            .expect("Balances transfer call decodes back to contract type");
+        assert_eq!(contract_call, contract_call_decoded);
     }
 }
