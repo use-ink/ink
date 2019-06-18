@@ -25,6 +25,8 @@ use parity_codec::Codec;
 pub trait EnvTypes {
     /// The type of an address.
     type AccountId: Codec + Clone + PartialEq + Eq;
+    /// The type of the index to an address.
+    type AccountIndex: Codec + Clone + PartialEq + Eq;
     /// The type of balances.
     type Balance: Codec + Clone + PartialEq + Eq;
     /// The type of hash.
@@ -38,6 +40,8 @@ pub trait EnvTypes {
 pub trait EnvTypes {
     /// The type of an address.
     type AccountId: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of the index to an address.
+    type AccountIndex: Codec + Clone + PartialEq + Eq;
     /// The type of balances.
     type Balance: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of hash.

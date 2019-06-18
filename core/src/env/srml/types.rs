@@ -31,10 +31,15 @@ pub enum DefaultSrmlTypes {}
 
 impl EnvTypes for DefaultSrmlTypes {
     type AccountId = AccountId;
+    type AccountIndex = AccountIndex;
     type Balance = Balance;
     type Hash = Hash;
     type Moment = Moment;
 }
+
+/// The default SRML address index type.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+pub struct AccountIndex(u32);
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
