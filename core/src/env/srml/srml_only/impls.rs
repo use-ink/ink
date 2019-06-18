@@ -86,9 +86,11 @@ where
     T: EnvTypes,
 {
     type AccountId = <T as EnvTypes>::AccountId;
+    type AccountIndex = <T as EnvTypes>::AccountIndex;
     type Balance = <T as EnvTypes>::Balance;
     type Hash = <T as EnvTypes>::Hash;
     type Moment = <T as EnvTypes>::Moment;
+    type Call = <T as EnvTypes>::Call;
 }
 
 macro_rules! impl_getters_for_srml_env {
@@ -144,5 +146,9 @@ where
                 data.len() as u32,
             )
         }
+    }
+
+    fn dispatch_call(data: &[u8]) {
+        unsafe { sys::ext_dispatch_call(data.as_ptr() as u32, data.len() as u32) }
     }
 }

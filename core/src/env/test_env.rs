@@ -276,8 +276,8 @@ impl TestEnvData {
     }
 
     /// Appends a dispatched call to the runtime
-    pub fn add_dispatched_call(&mut self, call: Vec<u8>) {
-        self.dispatched_calls.push(call);
+    pub fn add_dispatched_call(&mut self, call: &[u8]) {
+        self.dispatched_calls.push(call.to_vec());
     }
 
     /// Sets the random seed for the next contract invocation.
@@ -393,7 +393,7 @@ impl TestEnvData {
         self.add_event(topics, data);
     }
 
-    pub fn dispatch_call(&mut self, call: Vec<u8>) {
+    pub fn dispatch_call(&mut self, call: &[u8]) {
         self.add_dispatched_call(call);
     }
 }
@@ -533,8 +533,8 @@ impl<T> Env for TestEnv<T> where T: EnvTypes
         })
     }
 
-    fn dispatch_call(call: T::Call) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().dispatch_call(call.encode()))
+    fn dispatch_call(data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().dispatch_call(data))
     }
 }
 

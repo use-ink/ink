@@ -18,11 +18,15 @@ use super::ContractEnvStorage;
 use crate::{
     env::{
         EnvStorage as _,
-        traits::Env,
+        traits::{
+            Env,
+            EnvTypes,
+        },
     },
     memory::vec::Vec,
     storage::Key,
 };
+use parity_codec::Encode;
 
 /// Stores the given value under the specified key in the contract storage.
 ///
@@ -64,8 +68,17 @@ pub unsafe fn load(key: Key) -> Option<Vec<u8>> {
 /// own to always encode the expected type.
 pub unsafe fn r#return<T, E>(value: T) -> !
 where
-    T: parity_codec::Encode,
+    T: Encode,
     E: Env,
 {
     E::r#return(&value.encode()[..])
+}
+
+/// TODO: [AJ] docs
+pub unsafe fn dispatch_call<T, E>(call: <E as EnvTypes>::Call)
+    where
+        T: parity_codec::Encode,
+        E: Env,
+{
+    E::dispatch_call(&call.encode()[..])
 }

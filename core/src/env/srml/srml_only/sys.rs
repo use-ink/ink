@@ -72,6 +72,12 @@ extern "C" {
         value_len: u32,
     );
 
+    /// TODO [AJ]: ext_dispatch_call docs
+    pub fn ext_dispatch_call(
+        call_ptr: u32,
+        call_len: u32,
+    );
+
     /// Tells the execution environment to load the contents
     /// stored at the given key into the scratch buffer.
     pub fn ext_get_storage(key_ptr: u32) -> u32;
