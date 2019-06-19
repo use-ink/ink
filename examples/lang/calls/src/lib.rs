@@ -17,9 +17,7 @@
 #![cfg_attr(not(any(test, feature = "test-env")), no_std)]
 
 use ink_core::{
-    env::{self, DefaultSrmlTypes},
-    memory::format,
-    storage,
+    env::DefaultSrmlTypes,
 };
 use ink_lang::contract;
 
@@ -36,21 +34,22 @@ contract! {
 
     impl Calls {
         /// Dispatches a `transfer` call to the Balances srml module
-//        pub(external) fn dispatch_transfer(&mut self) {
-//            env::dispatch_call() // TODO: [AJ] Dispatch Balance::transfer Call
-//        }
+        pub(external) fn balance_transfer(&mut self, dest: u32, value: Balance) {
+            let transfer_call = ink_core::env::calls::Balances::<DefaultSrmlTypes>::transfer(dest, value);
+            unsafe { ink_core::env::dispatch_call::<ink_core::env::ContractEnv<DefaultSrmlTypes>>(transfer_call.into()) };
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Flipper;
+    use super::*;
 
     #[test]
-    fn it_works() {
-        let mut flipper = Flipper::deploy_mock();
-        assert_eq!(flipper.get(), false);
-        flipper.flip();
-        assert_eq!(flipper.get(), true);
+    fn dispatches_balances_call() {
+        let mut calls = Calls::deploy_mock();
+        assert_eq!(env::dispatched_calls().into_iter().count(), 0);
+        calls.balance_transfer(1, 10000);
+        assert_eq!(env::dispatched_calls().into_iter().count(), 1);
     }
 }

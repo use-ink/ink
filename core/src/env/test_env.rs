@@ -488,12 +488,13 @@ impl<T> TestEnv<T> where T: EnvTypes {
         })
     }
 
-    pub fn dispatched_calls() -> impl IntoIterator<Item = Vec<u8>> {
+    pub fn dispatched_calls() -> impl IntoIterator<Item = T::Call> {
         TEST_ENV_DATA.with(|test_env| {
             test_env
                 .borrow()
                 .dispatched_calls()
-                .map(|call| call.to_vec())
+                .map(|call| Decode::decode(&mut &call[..])
+                    .expect("Valid encoded Call"))
                 .collect::<Vec<_>>()
         })
     }

@@ -41,8 +41,7 @@ impl EnvTypes for DefaultSrmlTypes {
 }
 
 /// The default SRML address index type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
-pub struct AccountIndex(u32);
+pub type AccountIndex = u32;
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
@@ -97,5 +96,11 @@ pub type BlockNumber = u64;
 pub enum Call {
     #[codec(index = "3")]
     Balances(super::calls::Balances<DefaultSrmlTypes>),
+}
+
+impl From<super::calls::Balances<DefaultSrmlTypes>> for Call {
+    fn from(balances_call: super::calls::Balances<DefaultSrmlTypes>) -> Call {
+        Call::Balances(balances_call)
+    }
 }
 

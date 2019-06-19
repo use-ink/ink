@@ -75,10 +75,9 @@ where
 }
 
 /// TODO: [AJ] docs
-pub unsafe fn dispatch_call<T, E>(call: <E as EnvTypes>::Call)
-    where
-        T: parity_codec::Encode,
-        E: Env,
+pub unsafe fn dispatch_call<T>(call: <T as EnvTypes>::Call)
+where
+    T: Env,
 {
-    E::dispatch_call(&call.encode()[..])
+    T::dispatch_call(&call.encode()[..])
 }
