@@ -45,13 +45,13 @@ pub use self::srml::DefaultSrmlTypes;
 /// The storage environment implementation that is currently being used.
 ///
 /// This may be either
-/// - `SrmlEnv` for real contract storage
+/// - `SrmlEnvStorage` for real contract storage
 ///   manipulation that may happen on-chain.
-/// - `TestEnv` for emulating a contract environment
+/// - `TestEnvStorage` for emulating a contract environment
 ///   that can be inspected by the user and used
 ///   for testing contracts off-chain.
 #[cfg(not(feature = "test-env"))]
-pub type ContractEnvStorage = self::srml::SrmlEnvStorage;
+pub(self) type ContractEnvStorage = self::srml::SrmlEnvStorage;
 
 /// The storage environment implementation for the test environment.
 #[cfg(feature = "test-env")]
@@ -61,7 +61,7 @@ pub(self) type ContractEnvStorage = self::test_env::TestEnvStorage;
 ///
 /// Generic over user supplied EnvTypes for different runtimes
 #[cfg(not(feature = "test-env"))]
-pub type ContractEnv<T> = self::srml::SrmlEnv<T>;
+pub(self) type ContractEnv<T> = self::srml::SrmlEnv<T>;
 
 /// The contract environment implementation for the test environment
 #[cfg(feature = "test-env")]
