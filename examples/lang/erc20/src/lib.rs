@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn deployment_works() {
-        let alice: AccountId = From::from([0x0; 32]);
+        let alice = AccountId::from([0x0; 32]);
         env::set_caller(alice);
 
         // Deploy the contract with some `init_value`
@@ -166,8 +166,8 @@ mod tests {
 
     #[test]
     fn transfer_works() {
-        let alice: AccountId = From::from([0x0; 32]);
-        let bob: AccountId = From::from([0x1; 32]);
+        let alice = AccountId::from([0x0; 32]);
+        let bob = AccountId::from([0x1; 32]);
 
         env::set_caller(alice);
         // Deploy the contract with some `init_value`
@@ -183,9 +183,9 @@ mod tests {
 
     #[test]
     fn allowance_works() {
-        let alice: AccountId = From::from([0x0; 32]);
-        let bob: AccountId = From::from([0x1; 32]);
-        let charlie: AccountId = From::from([0x2; 32]);
+        let alice = AccountId::from([0x0; 32]);
+        let bob = AccountId::from([0x1; 32]);
+        let charlie = AccountId::from([0x2; 32]);
 
         env::set_caller(alice);
         // Deploy the contract with some `init_value`
@@ -216,8 +216,8 @@ mod tests {
 
     #[test]
     fn events_work() {
-        let alice: AccountId = From::from([0x0; 32]);
-        let bob: AccountId = From::from([0x1; 32]);
+        let alice = AccountId::from([0x0; 32]);
+        let bob = AccountId::from([0x1; 32]);
 
         // No events to start
         env::set_caller(alice);
