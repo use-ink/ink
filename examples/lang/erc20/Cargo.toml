@@ -5,10 +5,9 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-# TODO [AJ]: remove specific branches before merging
-ink_core = { git = "https://github.com/paritytech/ink/", branch = "aj-runtime-types", package = "ink_core" }
-ink_model = { git = "https://github.com/paritytech/ink/", branch = "aj-runtime-types", package = "ink_model" }
-ink_lang = { git = "https://github.com/paritytech/ink/", branch = "aj-runtime-types", package = "ink_lang" }
+ink_core = { git = "https://github.com/paritytech/ink/", package = "ink_core" }
+ink_model = { git = "https://github.com/paritytech/ink/", package = "ink_model" }
+ink_lang = { git = "https://github.com/paritytech/ink/", package = "ink_lang" }
 # NOTE: because of this dependency (which depends on ink_core) the above ink dependencies need to be the same
 # version, hence pointing at git rather than locally
 ink_types_node_runtime = { git = "https://github.com/paritytech/ink-types-node-runtime", branch = "aj-mirror-types" }
