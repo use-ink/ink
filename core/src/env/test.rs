@@ -38,6 +38,6 @@ pub fn set_caller<T: EnvTypes>(address: T::AccountId) {
 }
 
 /// Returns an iterator over the uninterpreted bytes of all past emitted events.
-pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
+pub fn emitted_events<T: EnvTypes>() -> impl Iterator<Item = Vec<u8>> {
     ContractEnv::<T>::emitted_events().into_iter()
 }
