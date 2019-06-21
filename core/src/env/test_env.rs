@@ -457,7 +457,7 @@ macro_rules! impl_env_getters_for_test_env {
         $(
             fn $fn_name() -> $ret_name {
                 TEST_ENV_DATA.with(|test_env| Decode::decode(&mut &test_env.borrow().$fn_name()[..])
-                    .expect("Encoded environment types are valid"))
+                    .expect("environment instances are assumed to be correctly encoded"))
             }
         )*
     }
