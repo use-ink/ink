@@ -49,14 +49,15 @@ use ink_core::memory::vec;
 
 #[test]
 fn deploy() {
-    let subpeep = Subpeep::default();
+    let subpeep = instantiate().initialize_into(());
+
     assert_eq!(subpeep.recent_peeps(10), Vec::new());
     assert_eq!(subpeep.recent_user_peeps(10, "alice"), None);
 }
 
 #[test]
 fn peep_message() {
-    let mut subpeep = Subpeep::default();
+    let mut subpeep = instantiate().initialize_into(());
     let test_user = "Alice";
     let test_message = "Hello, World!";
     subpeep.register(test_user.into());
