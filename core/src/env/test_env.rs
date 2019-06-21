@@ -16,9 +16,7 @@
 
 use super::*;
 use crate::{
-    env::{
-        EnvTypes,
-    },
+    env::EnvTypes,
     memory::collections::hash_map::{
         Entry,
         HashMap,
