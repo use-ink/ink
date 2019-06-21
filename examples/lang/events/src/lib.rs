@@ -78,10 +78,10 @@ mod tests {
     #[test]
     fn it_works() {
         let mut contract = CallCounter::deploy_mock();
-        assert_eq!(env::test::emitted_events().count(), 0);
+        assert_eq!(env::test::emitted_events::<DefaultSrmlTypes>().count(), 0);
         contract.inc();
-        assert_eq!(env::test::emitted_events().count(), 1);
+        assert_eq!(env::test::emitted_events::<DefaultSrmlTypes>().count(), 1);
         contract.dec();
-        assert_eq!(env::test::emitted_events().count(), 2);
+        assert_eq!(env::test::emitted_events::<DefaultSrmlTypes>().count(), 2);
     }
 }

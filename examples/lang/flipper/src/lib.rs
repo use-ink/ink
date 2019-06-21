@@ -49,7 +49,7 @@ contract! {
 
         /// Returns the current state.
         pub(external) fn get(&self) -> bool {
-            env::println(&format!("Flipper Value: {:?}", *self.value));
+            env.println(&format!("Flipper Value: {:?}", *self.value));
             *self.value
         }
     }

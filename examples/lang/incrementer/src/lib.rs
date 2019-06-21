@@ -42,19 +42,19 @@ contract! {
     impl Incrementer {
         /// Flips the current state of our smart contract.
         pub(external) fn inc(&mut self, by: u32) {
-            env::println(&format!("Incrementer::inc by = {:?}", by));
+            env.println(&format!("Incrementer::inc by = {:?}", by));
             self.value += by;
         }
 
         /// Returns the current state.
         pub(external) fn get(&self) -> u32 {
-            env::println(&format!("Incrementer::get = {:?}", *self.value));
+            env.println(&format!("Incrementer::get = {:?}", *self.value));
             *self.value
         }
 
         /// Returns `true` if the internal value is greater than or equal to the provided value.
         pub(external) fn compare(&self, with: u32) -> bool {
-            env::println(&format!("Incrementer::compare self.value >= with = {:?}", *self.value >= with));
+            env.println(&format!("Incrementer::compare self.value >= with = {:?}", *self.value >= with));
             *self.value >= with
         }
     }
