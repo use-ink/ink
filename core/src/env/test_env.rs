@@ -393,7 +393,7 @@ thread_local! {
 
 /// Test environment for testing SRML contract off-chain.
 pub struct TestEnv<T> {
-    marker: PhantomData<T>,
+    marker: PhantomData<fn () -> T>
 }
 
 macro_rules! impl_env_setters_for_test_env {
