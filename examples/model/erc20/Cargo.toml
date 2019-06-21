@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 ink_core = { path = "../../../core" }
 ink_model = { path = "../../../model" }
-ink_types_node_runtime = { git = "https://github.com/paritytech/ink-types-node-runtime" }
 parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
 
 [lib]
@@ -19,7 +18,6 @@ default = []
 test-env = [
 	"ink_core/test-env",
 	"ink_model/test-env",
-	"ink_types_node_runtime/test-env",
 ]
 
 [profile.release]

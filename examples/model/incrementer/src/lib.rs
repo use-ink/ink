@@ -16,7 +16,13 @@
 
 #![no_std]
 
-use ink_core::storage;
+use ink_core::{
+    env::{
+        ContractEnv,
+        DefaultSrmlTypes,
+    },
+    storage
+};
 use ink_model::{
     messages,
     state,
@@ -41,7 +47,7 @@ messages! {
 
 #[rustfmt::skip]
 fn instantiate() -> impl Contract {
-	ContractDecl::using::<Adder>()
+	ContractDecl::using::<Adder, ContractEnv<DefaultSrmlTypes>>()
 		.on_deploy(|env, init_val| {
 			env.state.val.set(init_val)
 		})
