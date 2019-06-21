@@ -61,7 +61,7 @@ pub(self) type ContractEnvStorage = self::test_env::TestEnvStorage;
 ///
 /// Generic over user supplied EnvTypes for different runtimes
 #[cfg(not(feature = "test-env"))]
-pub(self) type ContractEnv<T> = self::srml::SrmlEnv<T>;
+pub type ContractEnv<T> = self::srml::SrmlEnv<T>;
 
 /// The contract environment implementation for the test environment
 #[cfg(feature = "test-env")]
