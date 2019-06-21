@@ -67,21 +67,21 @@ contract! {
         /// Returns the total number of tokens in existence.
         pub(external) fn total_supply(&self) -> Balance {
             let total_supply = *self.total_supply;
-            env::println(&format!("Erc20::total_supply = {:?}", total_supply));
+            env.println(&format!("Erc20::total_supply = {:?}", total_supply));
             total_supply
         }
 
         /// Returns the balance of the given AccountId.
         pub(external) fn balance_of(&self, owner: AccountId) -> Balance {
             let balance = self.balance_of_or_zero(&owner);
-            env::println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner, balance));
+            env.println(&format!("Erc20::balance_of(owner = {:?}) = {:?}", owner, balance));
             balance
         }
 
         /// Returns the amount of tokens that an owner allowed to a spender.
         pub(external) fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
             let allowance = self.allowance_or_zero(&owner, &spender);
-            env::println(&format!(
+            env.println(&format!(
                 "Erc20::allowance(owner = {:?}, spender = {:?}) = {:?}",
                 owner, spender, allowance
             ));
@@ -150,11 +150,13 @@ contract! {
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
     use super::*;
+    use ink_core::env;
+    type Types = ink_types_node_runtime::NodeRuntimeTypes;
 
     #[test]
     fn deployment_works() {
         let alice = AccountId::from([0x0; 32]);
-        env::set_caller(alice);
+        env::test::set_caller::<Types>(alice);
 
         // Deploy the contract with some `init_value`
         let erc20 = Erc20::deploy_mock(1234);
@@ -169,7 +171,7 @@ mod tests {
         let alice = AccountId::from([0x0; 32]);
         let bob = AccountId::from([0x1; 32]);
 
-        env::set_caller(alice);
+        env::test::set_caller::<Types>(alice);
         // Deploy the contract with some `init_value`
         let mut erc20 = Erc20::deploy_mock(1234);
         // Alice does not have enough funds for this
@@ -187,24 +189,24 @@ mod tests {
         let bob = AccountId::from([0x1; 32]);
         let charlie = AccountId::from([0x2; 32]);
 
-        env::set_caller(alice);
+        env::test::set_caller::<Types>(alice);
         // Deploy the contract with some `init_value`
         let mut erc20 = Erc20::deploy_mock(1234);
         // Bob does not have an allowance from Alice's balance
         assert_eq!(erc20.allowance(alice, bob), 0);
         // Thus, Bob cannot transfer out of Alice's account
-        env::set_caller(bob);
+        env::test::set_caller::<Types>(bob);
         assert_eq!(erc20.transfer_from(alice, bob, 1), false);
         // Alice can approve bob for some of her funds
-        env::set_caller(alice);
+        env::test::set_caller::<Types>(alice);
         assert_eq!(erc20.approve(bob, 20), true);
         // And the allowance reflects that correctly
         assert_eq!(erc20.allowance(alice, bob), 20);
         // Charlie cannot send on behalf of Bob
-        env::set_caller(charlie);
+        env::test::set_caller::<Types>(charlie);
         assert_eq!(erc20.transfer_from(alice, bob, 10), false);
         // Bob cannot transfer more than he is allowed
-        env::set_caller(bob);
+        env::test::set_caller::<Types>(bob);
         assert_eq!(erc20.transfer_from(alice, charlie, 25), false);
         // A smaller amount should work though
         assert_eq!(erc20.transfer_from(alice, charlie, 10), true);
@@ -220,16 +222,16 @@ mod tests {
         let bob = AccountId::from([0x1; 32]);
 
         // No events to start
-        env::set_caller(alice);
-        assert_eq!(env::emitted_events().into_iter().count(), 0);
+        env::test::set_caller::<Types>(alice);
+        assert_eq!(env::test::emitted_events::<Types>().count(), 0);
         // Event should be emitted for initial minting
         let mut erc20 = Erc20::deploy_mock(1234);
-        assert_eq!(env::emitted_events().into_iter().count(), 1);
+        assert_eq!(env::test::emitted_events::<Types>().count(), 1);
         // Event should be emitted for approvals
         assert_eq!(erc20.approve(bob, 20), true);
-        assert_eq!(env::emitted_events().into_iter().count(), 2);
+        assert_eq!(env::test::emitted_events::<Types>().count(), 2);
         // Event should be emitted for transfers
         assert_eq!(erc20.transfer(bob, 10), true);
-        assert_eq!(env::emitted_events().into_iter().count(), 3);
+        assert_eq!(env::test::emitted_events::<Types>().count(), 3);
     }
 }
