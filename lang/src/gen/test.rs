@@ -67,10 +67,11 @@ fn testable_contract_name(contract: &hir::Contract) -> proc_macro2::Ident {
 
 fn generate_test_struct(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let contract_name = &contract.name;
+    let env_types = &contract.env_types_type;
     let testable_name = testable_contract_name(contract);
     tokens.extend(quote! {
         pub struct #testable_name {
-            env: ink_model::ExecutionEnv<#contract_name>,
+            env: ink_model::ExecutionEnv<#contract_name, ink_core::env::ContractEnv<#env_types>>,
         }
     })
 }

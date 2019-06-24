@@ -19,17 +19,11 @@ mod srml_only;
 
 mod types;
 
-pub use self::types::{
-    AccountId,
-    Balance,
-    DefaultSrmlTypes,
-    Hash,
-    Moment,
-};
+pub use self::types::DefaultSrmlTypes;
 
 #[cfg(not(feature = "test-env"))]
 pub use self::srml_only::{
     sys,
-    DefaultSrmlEnv,
+    SrmlEnvStorage,
     SrmlEnv,
 };

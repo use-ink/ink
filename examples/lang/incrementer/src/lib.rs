@@ -23,6 +23,8 @@ use ink_core::{
 use ink_lang::contract;
 
 contract! {
+    #![env = ink_core::env::DefaultSrmlTypes]
+
     /// A simple incrementer contract that can only increment,
     /// compare and return its internal value.
     struct Incrementer {

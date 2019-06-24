@@ -16,10 +16,7 @@
 
 use super::*;
 use crate::{
-    env::{
-        self,
-        srml,
-    },
+    env::EnvTypes,
     memory::collections::hash_map::{
         Entry,
         HashMap,
@@ -30,12 +27,13 @@ use core::cell::{
     Cell,
     RefCell,
 };
-use std::convert::TryFrom;
+use parity_codec::{Decode, Encode};
+use std::marker::PhantomData;
 
 /// A wrapper for the generic bytearray used for data in contract events.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EventData {
-    topics: Vec<env::Hash>,
+    topics: Vec<Vec<u8>>,
     data: Vec<u8>,
 }
 
@@ -121,19 +119,19 @@ pub struct TestEnvData {
     /// # Note
     ///
     /// The current address can be adjusted by `TestEnvData::set_address`.
-    address: srml::AccountId,
+    address: Vec<u8>,
     /// The balance of the contract.
     ///
     /// # Note
     ///
     /// The current balance can be adjusted by `TestEnvData::set_balance`.
-    balance: srml::Balance,
+    balance: Vec<u8>,
     /// The caller address for the next contract invocation.
     ///
     /// # Note
     ///
     /// The current caller can be adjusted by `TestEnvData::set_caller`.
-    caller: srml::AccountId,
+    caller: Vec<u8>,
     /// The input data for the next contract invocation.
     ///
     /// # Note
@@ -145,13 +143,13 @@ pub struct TestEnvData {
     ///  # Note
     ///
     /// The current random seed can be adjusted by `TestEnvData::set_random_seed`.
-    random_seed: srml::Hash,
+    random_seed: Vec<u8>,
     /// The timestamp for the next contract invocation.
     ///
     /// # Note
     ///
     /// The current timestamp can be adjusted by `TestEnvData::set_now`.
-    now: srml::Moment,
+    now: Vec<u8>,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -165,30 +163,30 @@ pub struct TestEnvData {
     /// Deposited events of the contract invocation.
     events: Vec<EventData>,
     /// The current gas price.
-    gas_price: srml::Balance,
+    gas_price: Vec<u8>,
     /// The remaining gas.
-    gas_left: srml::Balance,
+    gas_left: Vec<u8>,
     /// The total transferred value.
-    value_transferred: srml::Balance,
+    value_transferred: Vec<u8>,
 }
 
 impl Default for TestEnvData {
     fn default() -> Self {
         Self {
-            address: srml::AccountId::from([0x0; 32]),
+            address: Vec::new(),
             storage: HashMap::new(),
-            balance: 0,
-            caller: srml::AccountId::from([0x0; 32]),
+            balance: Vec::new(),
+            caller: Vec::new(),
             input: Vec::new(),
-            random_seed: srml::Hash::from([0x0; 32]),
-            now: 0,
+            random_seed: Vec::new(),
+            now: Vec::new(),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
             events: Vec::new(),
-            gas_price: 0,
-            gas_left: 0,
-            value_transferred: 0,
+            gas_price: Vec::new(),
+            gas_left: Vec::new(),
+            value_transferred: Vec::new(),
         }
     }
 }
@@ -196,13 +194,13 @@ impl Default for TestEnvData {
 impl TestEnvData {
     /// Resets `self` as if no contract execution happened so far.
     pub fn reset(&mut self) {
-        self.address = srml::AccountId::from([0; 32]);
-        self.balance = 0;
+        self.address.clear();
+        self.balance.clear();
         self.storage.clear();
-        self.caller = srml::AccountId::from([0; 32]);
+        self.caller.clear();
         self.input.clear();
-        self.random_seed = srml::Hash::from([0; 32]);
-        self.now = 0;
+        self.random_seed.clear();
+        self.now.clear();
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
@@ -245,27 +243,27 @@ impl TestEnvData {
     }
 
     /// Sets the contract address for the next contract invocation.
-    pub fn set_address(&mut self, new_address: srml::AccountId) {
+    pub fn set_address(&mut self, new_address: Vec<u8>) {
         self.address = new_address;
     }
 
     /// Sets the contract balance for the next contract invocation.
-    pub fn set_balance(&mut self, new_balance: srml::Balance) {
+    pub fn set_balance(&mut self, new_balance: Vec<u8>) {
         self.balance = new_balance;
     }
 
     /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(&mut self, new_caller: srml::AccountId) {
+    pub fn set_caller(&mut self, new_caller: Vec<u8>) {
         self.caller = new_caller;
     }
 
     /// Sets the input data for the next contract invocation.
-    pub fn set_input(&mut self, input_bytes: &[u8]) {
-        self.input = input_bytes.to_vec();
+    pub fn set_input(&mut self, input_bytes: Vec<u8>) {
+        self.input = input_bytes;
     }
 
     /// Appends new event data to the end of the bytearray.
-    pub fn add_event(&mut self, topics: &[env::Hash], event_data: &[u8]) {
+    pub fn add_event(&mut self, topics: &[Vec<u8>], event_data: &[u8]) {
         let new_event = EventData {
             topics: topics.to_vec(),
             data: event_data.to_vec(),
@@ -274,12 +272,12 @@ impl TestEnvData {
     }
 
     /// Sets the random seed for the next contract invocation.
-    pub fn set_random_seed(&mut self, random_seed_hash: srml::Hash) {
-        self.random_seed = random_seed_hash;
+    pub fn set_random_seed(&mut self, random_seed_hash: Vec<u8>) {
+        self.random_seed = random_seed_hash.to_vec();
     }
 
     /// Sets the timestamp for the next contract invocation.
-    pub fn set_now(&mut self, timestamp: srml::Moment) {
+    pub fn set_now(&mut self, timestamp: Vec<u8>) {
         self.now = timestamp;
     }
 
@@ -307,16 +305,16 @@ impl TestEnvData {
     /// same data as was expected upon invocation.
     const FAILURE: i32 = -1;
 
-    pub fn address(&self) -> srml::AccountId {
-        self.address
+    pub fn address(&self) -> Vec<u8> {
+        self.address.clone()
     }
 
-    pub fn balance(&self) -> srml::Balance {
-        self.balance
+    pub fn balance(&self) -> Vec<u8> {
+        self.balance.clone()
     }
 
-    pub fn caller(&self) -> srml::AccountId {
-        self.caller
+    pub fn caller(&self) -> Vec<u8> {
+        self.caller.clone()
     }
 
     pub fn store(&mut self, key: Key, value: &[u8]) {
@@ -344,24 +342,24 @@ impl TestEnvData {
         self.input.clone()
     }
 
-    pub fn random_seed(&self) -> srml::Hash {
-        self.random_seed
+    pub fn random_seed(&self) -> Vec<u8> {
+        self.random_seed.clone()
     }
 
-    pub fn now(&self) -> srml::Moment {
-        self.now
+    pub fn now(&self) -> Vec<u8> {
+        self.now.clone()
     }
 
-    pub fn gas_price(&self) -> srml::Balance {
-        self.gas_price
+    pub fn gas_price(&self) -> Vec<u8> {
+        self.gas_price.clone()
     }
 
-    pub fn gas_left(&self) -> srml::Balance {
-        self.gas_left
+    pub fn gas_left(&self) -> Vec<u8> {
+        self.gas_left.clone()
     }
 
-    pub fn value_transferred(&self) -> srml::Balance {
-        self.value_transferred
+    pub fn value_transferred(&self) -> Vec<u8> {
+        self.value_transferred.clone()
     }
 
     pub fn r#return(&self, data: &[u8]) -> ! {
@@ -378,7 +376,7 @@ impl TestEnvData {
         println!("{}", content)
     }
 
-    pub fn deposit_raw_event(&mut self, topics: &[env::Hash], data: &[u8]) {
+    pub fn deposit_raw_event(&mut self, topics: &[Vec<u8>], data: &[u8]) {
         self.add_event(topics, data);
     }
 }
@@ -394,22 +392,24 @@ thread_local! {
 }
 
 /// Test environment for testing SRML contract off-chain.
-pub struct TestEnv;
+pub struct TestEnv<T> {
+    marker: PhantomData<fn () -> T>
+}
 
-impl TestEnv {
+macro_rules! impl_env_setters_for_test_env {
+    ( $( ($fn_name:ident, $name:ident, $ty:ty) ),* ) => {
+        $(
+            pub fn $fn_name($name: $ty) {
+                TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().$fn_name($name.encode()))
+            }
+        )*
+    }
+}
+
+impl<T> TestEnv<T> where T: EnvTypes {
     /// Resets the test environment as if no contract execution happened so far.
     pub fn reset() {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().reset())
-    }
-
-    /// Returns the total number of reads from the storage.
-    pub fn total_reads() -> u64 {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().total_reads())
-    }
-
-    /// Returns the total number of writes to the storage.
-    pub fn total_writes() -> u64 {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().total_writes())
     }
 
     /// Returns the number of reads from the entry associated by the given key if any.
@@ -428,57 +428,86 @@ impl TestEnv {
             .with(|test_env| test_env.borrow_mut().set_expected_return(expected_bytes))
     }
 
-    /// Sets the contract address for the next contract invocation.
-    pub fn set_address(new_address: srml::AccountId) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_address(new_address))
-    }
-
-    /// Sets the contract balance for the next contract invocation.
-    pub fn set_balance(new_balance: srml::Balance) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_balance(new_balance))
-    }
-
-    /// Sets the caller address for the next contract invocation.
-    pub fn set_caller(new_caller: srml::AccountId) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_caller(new_caller))
-    }
-
     /// Sets the input data for the next contract invocation.
     pub fn set_input(input_bytes: &[u8]) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_input(input_bytes))
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_input(input_bytes.to_vec()))
     }
 
-    /// Sets the random seed for the next contract invocation.
-    pub fn set_random_seed(random_seed_bytes: srml::Hash) {
-        TEST_ENV_DATA
-            .with(|test_env| test_env.borrow_mut().set_random_seed(random_seed_bytes))
-    }
-
-    /// Sets the timestamp for the next contract invocation.
-    pub fn set_now(timestamp: srml::Moment) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_now(timestamp))
-    }
+    impl_env_setters_for_test_env!(
+        (set_address, address, T::AccountId),
+        (set_balance, balance, T::Balance),
+        (set_caller, caller, T::AccountId),
+        (set_random_seed, random_seed, T::Hash),
+        (set_now, now, T::Moment)
+    );
 
     /// Returns an iterator over all emitted events.
-    pub fn emitted_events() -> impl IntoIterator<Item = Vec<u8>> {
+    pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
         TEST_ENV_DATA.with(|test_env| {
             test_env
                 .borrow()
                 .emitted_events()
                 .map(|event_bytes| event_bytes.to_vec())
                 .collect::<Vec<_>>()
+                .into_iter()
         })
     }
 }
 
-impl EnvTypes for TestEnv {
-    type AccountId = srml::AccountId;
-    type Balance = srml::Balance;
-    type Hash = srml::Hash;
-    type Moment = srml::Moment;
+macro_rules! impl_env_getters_for_test_env {
+    ( $( ($fn_name:ident, $ret_name:ty) ),* ) => {
+        $(
+            fn $fn_name() -> $ret_name {
+                TEST_ENV_DATA.with(|test_env| Decode::decode(&mut &test_env.borrow().$fn_name()[..])
+                    .expect("environment instances are assumed to be correctly encoded"))
+            }
+        )*
+    }
 }
 
-impl EnvStorage for TestEnv {
+impl<T> EnvTypes for TestEnv<T>
+where
+    T: EnvTypes,
+{
+    type AccountId = <T as EnvTypes>::AccountId;
+    type Balance = <T as EnvTypes>::Balance;
+    type Hash = <T as EnvTypes>::Hash;
+    type Moment = <T as EnvTypes>::Moment;
+}
+
+impl<T> Env for TestEnv<T> where T: EnvTypes
+{
+    impl_env_getters_for_test_env!(
+        (address, T::AccountId),
+        (balance, T::Balance),
+        (caller, T::AccountId),
+        (input, Vec<u8>),
+        (random_seed, T::Hash),
+        (now, T::Moment),
+        (gas_price, T::Balance),
+        (gas_left, T::Balance),
+        (value_transferred, T::Balance)
+    );
+
+    unsafe fn r#return(data: &[u8]) -> ! {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().r#return(data))
+    }
+
+    fn println(content: &str) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().println(content))
+    }
+
+    fn deposit_raw_event(topics: &[T::Hash], data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| {
+            let topics = topics.iter().map(Encode::encode).collect::<Vec<_>>();
+            test_env.borrow_mut().deposit_raw_event(&topics, data)
+        })
+    }
+}
+
+pub enum TestEnvStorage {}
+
+impl EnvStorage for TestEnvStorage {
     unsafe fn store(key: Key, value: &[u8]) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().store(key, value))
     }
@@ -492,43 +521,14 @@ impl EnvStorage for TestEnv {
     }
 }
 
-macro_rules! impl_env_getters_for_test_env {
-    ( $( ($fn_name:ident, $ret_name:ty) ),* ) => {
-        $(
-            fn $fn_name() -> $ret_name {
-                TEST_ENV_DATA.with(|test_env| test_env.borrow().$fn_name())
-            }
-        )*
-    }
-}
-
-impl Env for TestEnv
-where
-    <Self as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
-    <Self as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
-{
-    impl_env_getters_for_test_env!(
-        (address, <Self as EnvTypes>::AccountId),
-        (balance, <Self as EnvTypes>::Balance),
-        (caller, <Self as EnvTypes>::AccountId),
-        (input, Vec<u8>),
-        (random_seed, <Self as EnvTypes>::Hash),
-        (now, <Self as EnvTypes>::Moment),
-        (gas_price, <Self as EnvTypes>::Balance),
-        (gas_left, <Self as EnvTypes>::Balance),
-        (value_transferred, <Self as EnvTypes>::Balance)
-    );
-
-    unsafe fn r#return(data: &[u8]) -> ! {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().r#return(data))
+impl TestEnvStorage {
+    /// Returns the total number of reads from the storage.
+    pub fn total_reads() -> u64 {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().total_reads())
     }
 
-    fn println(content: &str) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().println(content))
-    }
-
-    fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]) {
-        TEST_ENV_DATA
-            .with(|test_env| test_env.borrow_mut().deposit_raw_event(topics, data))
+    /// Returns the total number of writes to the storage.
+    pub fn total_writes() -> u64 {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().total_writes())
     }
 }

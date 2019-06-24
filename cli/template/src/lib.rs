@@ -8,6 +8,8 @@ use ink_core::{
 use ink_lang::contract;
 
 contract! {
+    #![env = ink_core::env::DefaultSrmlTypes]
+
     /// This simple dummy contract has a `bool` value that can
     /// alter between `true` and `false` using the `flip` message.
     /// Users can retrieve its current state using the `get` message.

@@ -40,17 +40,29 @@ mod test_env;
 pub use api::*;
 pub use traits::*;
 
-/// The environment implementation that is currently being used.
+pub use self::srml::DefaultSrmlTypes;
+
+/// The storage environment implementation that is currently being used.
 ///
 /// This may be either
-/// - `DefaultEnv` for real contract storage
+/// - `SrmlEnvStorage` for real contract storage
 ///   manipulation that may happen on-chain.
-/// - `TestEnv` for emulating a contract environment
+/// - `TestEnvStorage` for emulating a contract environment
 ///   that can be inspected by the user and used
 ///   for testing contracts off-chain.
 #[cfg(not(feature = "test-env"))]
-pub(self) type ContractEnv = self::srml::DefaultSrmlEnv;
+pub(self) type ContractEnvStorage = self::srml::SrmlEnvStorage;
 
-/// The environment implementation that is currently being used.
+/// The storage environment implementation for the test environment.
 #[cfg(feature = "test-env")]
-pub(self) type ContractEnv = self::test_env::TestEnv;
+pub(self) type ContractEnvStorage = self::test_env::TestEnvStorage;
+
+/// The contract environment implementation that is currently being used
+///
+/// Generic over user supplied EnvTypes for different runtimes
+#[cfg(not(feature = "test-env"))]
+pub type ContractEnv<T> = self::srml::SrmlEnv<T>;
+
+/// The contract environment implementation for the test environment
+#[cfg(feature = "test-env")]
+pub type ContractEnv<T> = self::test_env::TestEnv<T>;

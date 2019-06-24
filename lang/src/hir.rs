@@ -21,15 +21,19 @@ use proc_macro2::{
 };
 use syn::{
     self,
-    Result,
     punctuated::Punctuated,
+    Result,
     Token,
+    Type,
 };
+
 /// A smart contract.
 #[derive(Debug)]
 pub struct Contract {
     /// The name of the smart contract.
     pub name: Ident,
+    /// The type of the environment types
+    pub env_types_type: Type,
     /// The storage state fields.
     pub state: State,
     /// The deploy handler of the smart contract.
@@ -51,6 +55,49 @@ pub struct Event {
 }
 
 impl Contract {
+    /// Extracts the type for environment types from the contract items
+    /// and performs some integrity checks on it.
+    ///
+    /// # Errors
+    ///
+    /// - If no type for environment types has been found.
+    /// - If more than one type for environment types has been found.
+    fn extract_env_types(contract: &ast::Contract) -> Result<Type> {
+        let env_types = contract
+            .env_metas()
+            .flat_map(|meta| meta.env_types_metas.clone())
+            .map(|meta| {
+                if meta.ident == "env" {
+                    Ok(meta.ty)
+                } else {
+                    Err(syn::Error::new(
+                        Span::call_site(),
+                        format!("unknown env attribute '{}'", meta.ident),
+                    ))
+                    .into()
+                }
+            })
+            .collect::<Result<Vec<_>>>()?;
+        if env_types.is_empty() {
+            return Err(syn::Error::new(
+                Span::call_site(),
+                "couldn't find an `#![env = <EnvTypesImpl>]` attribute",
+            )
+            .into())
+        }
+        if env_types.len() > 1 {
+            return Err(syn::Error::new(
+                Span::call_site(),
+                format!(
+                    "requires exactly one `#![env = <EnvTypesImpl>]` attribute; found {:?}",
+                    env_types.len()
+                ),
+            )
+            .into())
+        }
+        Ok(env_types[0].clone())
+    }
+
     /// Extracts all events from the contract.
     ///
     /// Performs some semantic checks on them as a whole.
@@ -303,12 +350,14 @@ impl Contract {
     ///
     /// If any invariant of a contract is invalidated.
     pub fn from_ast(contract: &ast::Contract) -> Result<Self> {
+        let env_types_type = Self::extract_env_types(contract)?;
         let (ident, state) = Self::extract_state(contract)?;
         let deploy_handler = Self::extract_deploy_handler(ident, contract)?;
         let (messages, methods) = Self::unpack_impl_blocks(ident, contract)?;
         let events = Self::extract_events(ident, contract)?;
         Ok(Self {
             name: ident.clone(),
+            env_types_type,
             state,
             on_deploy: deploy_handler,
             messages,

@@ -59,33 +59,72 @@ impl ast::Item {
 
 impl Parse for ast::Item {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
-        let attrs = syn::Attribute::parse_outer(input)?;
+        let inner_attrs: ast::ItemEnvMeta = input.parse()?;
+        if inner_attrs.env_types_metas.len() > 0 {
+            return Ok(ast::Item::EnvMeta(inner_attrs))
+        }
+        let attrs_outer = syn::Attribute::parse_outer(input)?;
         let lookahead = input.lookahead1();
         if lookahead.peek(Token![struct]) {
             input.parse().map(|mut state: ast::ItemState| {
-                state.attrs = attrs;
+                state.attrs = attrs_outer;
                 ast::Item::State(state)
             })
         } else if lookahead.peek(Token![impl]) {
             if input.peek2(keywords::Deploy) {
                 input.parse().map(|mut deploy_impl: ast::ItemDeployImpl| {
-                    deploy_impl.attrs = attrs;
+                    deploy_impl.attrs = attrs_outer;
                     ast::Item::DeployImpl(deploy_impl)
                 })
             } else {
                 input.parse().map(|mut impl_block: ast::ItemImpl| {
-                    impl_block.attrs = attrs;
+                    impl_block.attrs = attrs_outer;
                     ast::Item::Impl(impl_block)
                 })
             }
         } else if lookahead.peek(keywords::event) {
             input.parse().map(|mut event: ast::ItemEvent| {
-                event.attrs = attrs;
+                event.attrs = attrs_outer;
                 ast::Item::Event(event)
             })
         } else {
             Err(lookahead.error())
         }
+    }
+}
+
+impl Parse for ast::ItemEnvMeta {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let attrs = input.call(syn::Attribute::parse_inner)?;
+        let env_types = attrs
+            .iter()
+            .map(ast::ItemEnvTypesMeta::parse_from_attr)
+            .collect::<Result<Vec<_>>>()?;
+        Ok(Self { env_types_metas: env_types })
+    }
+}
+
+impl ast::ItemEnvTypesMeta {
+    fn parse_from_attr(attr: &syn::Attribute) -> Result<Self> {
+        let first_segment = attr
+            .path
+            .segments
+            .first()
+            .expect("paths have at least one segment");
+        if let Some(colon) = first_segment.punct() {
+            return Err(syn::Error::new(colon.spans[0], "expected meta value"))
+        }
+        let ident = first_segment.value().ident.clone();
+        let parser = |input: ParseStream<'_>| {
+            let eq_token = input.parse()?;
+            let ty = input.parse()?;
+            Ok(Self {
+                ident,
+                eq_token,
+                ty,
+            })
+        };
+        syn::parse::Parser::parse2(parser, attr.tts.clone())
     }
 }
 

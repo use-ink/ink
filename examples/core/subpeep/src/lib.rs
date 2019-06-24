@@ -25,9 +25,10 @@ use parity_codec::{
 };
 use ink_core::{
     env::{
-        srml::AccountId,
         ContractEnv,
+        DefaultSrmlTypes,
         Env,
+        EnvTypes,
     },
     memory::string::String,
     storage::{
@@ -41,6 +42,9 @@ use ink_core::{
         Key,
     },
 };
+
+type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
+type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
 
 /// A peep done by a registered user.
 #[derive(Debug, Clone, PartialEq, Eq, Encode, Decode)]
@@ -75,7 +79,7 @@ impl AllocateUsing for UserData {
         A: ink_core::storage::alloc::Allocate,
     {
         Self {
-            owner: AccountId::from(&[0x0; 32][..]),
+            owner: AccountId::from([0x0; 32]),
             peeps: storage::Vec::allocate_using(alloc),
             following: storage::Vec::allocate_using(alloc),
         }
@@ -152,7 +156,7 @@ impl Subpeep {
     pub fn register(&mut self, username: &str) -> bool {
         if self.users.get(username).is_none() {
             let user_data = unsafe { UserData::allocate_using(&mut self.alloc) }
-                .initialize_into(ContractEnv::caller());
+                .initialize_into(ContractEnv::<DefaultSrmlTypes>::caller());
             self.users.insert(username.into(), user_data);
             return true
         }
@@ -164,7 +168,7 @@ impl Subpeep {
         // Check if the caller is registered as the peeping user.
         assert_eq!(
             self.users.get(username).map(|data| data.owner).unwrap(),
-            ContractEnv::caller()
+            ContractEnv::<DefaultSrmlTypes>::caller()
         );
         self.peep_global(username, message);
         self.users
@@ -176,7 +180,7 @@ impl Subpeep {
         // Check if the caller is registered as the following user.
         assert_eq!(
             self.users.get(following).map(|data| data.owner).unwrap(),
-            ContractEnv::caller()
+            ContractEnv::<DefaultSrmlTypes>::caller()
         );
         self.users.mutate_with(following, |following| {
             following.following.push(followed.into())
@@ -209,7 +213,7 @@ pub extern "C" fn deploy() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    let input = ContractEnv::input();
+    let input = ContractEnv::<DefaultSrmlTypes>::input();
     let action = Action::decode(&mut &input[..]).unwrap();
     let mut subpeep = instantiate();
 

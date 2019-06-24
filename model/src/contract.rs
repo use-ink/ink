@@ -29,7 +29,8 @@ use crate::{
 };
 use core::marker::PhantomData;
 use ink_core::memory::vec::Vec;
-// Copyright {d+}-{d+} Parity Technologies (UK) Ltd.
+use ink_core::env;
+
 /// A marker struct to tell that the deploy handler requires no arguments.
 #[derive(Copy, Clone)]
 pub struct NoDeployArgs;
@@ -40,7 +41,7 @@ pub struct NoDeployArgs;
 ///
 /// This is normally mainly used to correctly initialize
 /// a smart contracts state.
-pub struct DeployHandler<State, Args> {
+pub struct DeployHandler<State, Env, Args> {
     /// The arguments that deploy expects.
     ///
     /// This tricks Rust into thinking that this owns the state type.
@@ -48,10 +49,10 @@ pub struct DeployHandler<State, Args> {
     /// to be a zero-sized-type (ZST).
     args: PhantomData<Args>,
     /// The actual deployment function.
-    deploy_fn: fn(&mut ExecutionEnv<State>, Args),
+    deploy_fn: fn(&mut ExecutionEnv<State, Env>, Args),
 }
 
-impl<State> DeployHandler<State, NoDeployArgs> {
+impl<State, Env> DeployHandler<State, Env, NoDeployArgs> {
     /// Returns a deploy handler that does nothing.
     const fn init() -> Self {
         Self {
@@ -61,9 +62,9 @@ impl<State> DeployHandler<State, NoDeployArgs> {
     }
 }
 
-impl<State, Args> DeployHandler<State, Args> {
+impl<State, Env, Args> DeployHandler<State, Env, Args> {
     /// Returns a new deploy handler for the given closure.
-    const fn new(raw_handler: fn(&mut ExecutionEnv<State>, Args)) -> Self {
+    const fn new(raw_handler: fn(&mut ExecutionEnv<State, Env>, Args)) -> Self {
         Self {
             args: PhantomData,
             deploy_fn: raw_handler,
@@ -71,9 +72,9 @@ impl<State, Args> DeployHandler<State, Args> {
     }
 }
 
-impl<State, Args> Copy for DeployHandler<State, Args> {}
+impl<State, Env, Args> Copy for DeployHandler<State, Env, Args> {}
 
-impl<State, Args> Clone for DeployHandler<State, Args> {
+impl<State, Env, Args> Clone for DeployHandler<State, Env, Args> {
     fn clone(&self) -> Self {
         Self {
             args: self.args,
@@ -89,7 +90,7 @@ impl<State, Args> Clone for DeployHandler<State, Args> {
 ///
 /// Can be used to actually instantiate a contract during run-time
 /// in order to dispatch a contract call or deploy state.
-pub struct ContractDecl<State, DeployArgs, HandlerChain> {
+pub struct ContractDecl<State, Env, DeployArgs, HandlerChain> {
     /// The type of the contract state.
     ///
     /// This tricks Rust into thinking that this owns the state type.
@@ -97,7 +98,7 @@ pub struct ContractDecl<State, DeployArgs, HandlerChain> {
     /// to be a zero-sized-type (ZST).
     state: PhantomData<State>,
 
-    deployer: DeployHandler<State, DeployArgs>,
+    deployer: DeployHandler<State, Env, DeployArgs>,
     /// The compile-time chain of message handlers.
     ///
     /// # Note
@@ -118,8 +119,8 @@ pub struct ContractDecl<State, DeployArgs, HandlerChain> {
     handlers: HandlerChain,
 }
 
-impl<State, DeployArgs, HandlerChain> Clone
-    for ContractDecl<State, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain> Clone
+    for ContractDecl<State, Env, DeployArgs, HandlerChain>
 where
     HandlerChain: Clone,
 {
@@ -132,8 +133,8 @@ where
     }
 }
 
-impl<State, DeployArgs, HandlerChain> Copy
-    for ContractDecl<State, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain> Copy
+    for ContractDecl<State, Env, DeployArgs, HandlerChain>
 where
     HandlerChain: Copy,
 {
@@ -143,10 +144,14 @@ where
 #[derive(Copy, Clone)]
 pub struct EmptyContractState;
 
-impl ContractDecl<EmptyContractState, NoDeployArgs, UnreachableMessageHandler> {
+/// An empty env.
+#[derive(Copy, Clone)]
+pub struct EmptyEnv;
+
+impl ContractDecl<EmptyContractState, EmptyEnv, NoDeployArgs, UnreachableMessageHandler> {
     /// Creates a new contract declaration with the given name.
-    pub const fn using<State>(
-    ) -> ContractDecl<State, NoDeployArgs, UnreachableMessageHandler> {
+    pub const fn using<State, Env>(
+    ) -> ContractDecl<State, Env, NoDeployArgs, UnreachableMessageHandler> {
         ContractDecl {
             state: PhantomData,
             deployer: DeployHandler::init(),
@@ -155,7 +160,7 @@ impl ContractDecl<EmptyContractState, NoDeployArgs, UnreachableMessageHandler> {
     }
 }
 
-impl<State> ContractDecl<State, NoDeployArgs, UnreachableMessageHandler> {
+impl<State, Env> ContractDecl<State, Env, NoDeployArgs, UnreachableMessageHandler> {
     /// Registers the given deployment procedure for the contract.
     ///
     /// # Note
@@ -163,8 +168,8 @@ impl<State> ContractDecl<State, NoDeployArgs, UnreachableMessageHandler> {
     /// This is used to initialize the contract state upon deployment.
     pub const fn on_deploy<Args>(
         self,
-        handler: fn(&mut ExecutionEnv<State>, Args),
-    ) -> ContractDecl<State, Args, UnreachableMessageHandler>
+        handler: fn(&mut ExecutionEnv<State, Env>, Args),
+    ) -> ContractDecl<State, Env, Args, UnreachableMessageHandler>
     where
         Args: parity_codec::Decode,
     {
@@ -176,7 +181,7 @@ impl<State> ContractDecl<State, NoDeployArgs, UnreachableMessageHandler> {
     }
 }
 
-impl<State, DeployArgs, HandlerChain> ContractDecl<State, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain> ContractDecl<State, Env, DeployArgs, HandlerChain>
 where
     Self: Copy, // Required in order to make this compile-time computable.
 {
@@ -184,7 +189,7 @@ where
     const fn append_msg_handler<MsgHandler>(
         self,
         handler: MsgHandler,
-    ) -> ContractDecl<State, DeployArgs, (MsgHandler, HandlerChain)> {
+    ) -> ContractDecl<State, Env, DeployArgs, (MsgHandler, HandlerChain)> {
         ContractDecl {
             state: PhantomData,
             deployer: self.deployer,
@@ -199,11 +204,12 @@ where
     /// Read-only message handlers do not mutate contract state.
     pub const fn on_msg<Msg>(
         self,
-        handler: RawMessageHandler<Msg, State>,
-    ) -> ContractDecl<State, DeployArgs, (MessageHandler<Msg, State>, HandlerChain)>
+        handler: RawMessageHandler<Msg, State, Env>,
+    ) -> ContractDecl<State, Env, DeployArgs, (MessageHandler<Msg, State, Env>, HandlerChain)>
     where
         Msg: Message,
         State: ContractState,
+        Env: env::Env,
     {
         self.append_msg_handler(MessageHandler::from_raw(handler))
     }
@@ -215,17 +221,18 @@ where
     /// Mutable message handlers may mutate contract state.
     pub const fn on_msg_mut<Msg>(
         self,
-        handler: RawMessageHandlerMut<Msg, State>,
-    ) -> ContractDecl<State, DeployArgs, (MessageHandlerMut<Msg, State>, HandlerChain)>
+        handler: RawMessageHandlerMut<Msg, State, Env>,
+    ) -> ContractDecl<State, Env, DeployArgs, (MessageHandlerMut<Msg, State, Env>, HandlerChain)>
     where
         Msg: Message,
         State: ContractState,
+        Env: env::Env,
     {
         self.append_msg_handler(MessageHandlerMut::from_raw(handler))
     }
 }
 
-impl<State, DeployArgs, HandlerChain> ContractDecl<State, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain> ContractDecl<State, Env, DeployArgs, HandlerChain>
 where
     // Self: Copy, // Required in order to make this compile-time computable.
     State: ContractState,
@@ -234,7 +241,7 @@ where
     ///
     /// This assocates the state with the contract storage
     /// and defines its layout.
-    pub fn instantiate(self) -> ContractInstance<State, DeployArgs, HandlerChain> {
+    pub fn instantiate(self) -> ContractInstance<State, Env, DeployArgs, HandlerChain> {
         use ink_core::storage::{
             alloc::{
                 AllocateUsing,
@@ -242,7 +249,7 @@ where
             },
             Key,
         };
-        let env: ExecutionEnv<State> = unsafe {
+        let env: ExecutionEnv<State, Env> = unsafe {
             // Note that it is totally fine here to start with a key
             // offset of `0x0` as long as we only consider having one
             // contract instance per execution. Otherwise their
@@ -330,21 +337,22 @@ pub trait TestableContract {
 ///
 /// This resembles the concrete contract that is the result of
 /// an instantiation of a contract declaration.
-pub struct ContractInstance<State, DeployArgs, HandlerChain> {
+pub struct ContractInstance<State, Env, DeployArgs, HandlerChain> {
     /// The execution environment that is wrapping the actual state.
-    env: ExecutionEnv<State>,
+    env: ExecutionEnv<State, Env>,
     /// The deploy functionality.
-    deployer: DeployHandler<State, DeployArgs>,
+    deployer: DeployHandler<State, Env, DeployArgs>,
     /// The contract's message handlers.
     handlers: HandlerChain,
 }
 
-impl<State, DeployArgs, HandlerChain> Contract
-    for ContractInstance<State, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain> Contract
+    for ContractInstance<State, Env, DeployArgs, HandlerChain>
 where
     State: ContractState,
+    Env: env::Env,
     DeployArgs: parity_codec::Decode,
-    HandlerChain: crate::HandleCall<State>,
+    HandlerChain: crate::HandleCall<State, Env>,
 {
     /// Deploys the contract.
     ///
@@ -360,7 +368,7 @@ where
         //
         // Should be performed exactly once during contract lifetime.
         // Consumes the contract since nothing should be done afterwards.
-        let input = ink_core::env::input();
+        let input = Env::input();
         let mut this = self;
         this.deploy_with(input.as_slice());
         core::mem::forget(this.env);
@@ -378,7 +386,7 @@ where
         //
         // Internally calls the associated call<Msg>.
         use parity_codec::Decode;
-        let input = ink_core::env::input();
+        let input = Env::input();
         let call_data = CallData::decode(&mut &input[..]).unwrap();
         let mut this = self;
         this.call_with_and_return(call_data);
@@ -386,11 +394,12 @@ where
     }
 }
 
-impl<State, DeployArgs, HandlerChain> ContractInstance<State, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain> ContractInstance<State, Env, DeployArgs, HandlerChain>
 where
     State: ContractState,
+    Env: env::Env,
     DeployArgs: parity_codec::Decode,
-    HandlerChain: crate::HandleCall<State>,
+    HandlerChain: crate::HandleCall<State, Env>,
 {
     /// Deploys the contract.
     ///
@@ -438,12 +447,13 @@ where
     }
 }
 
-impl<State, DeployArgs, HandlerChain> TestableContract
-    for ContractInstance<State, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain> TestableContract
+    for ContractInstance<State, Env, DeployArgs, HandlerChain>
 where
     State: ContractState,
+    Env: env::Env,
     DeployArgs: parity_codec::Codec,
-    HandlerChain: crate::HandleCall<State>,
+    HandlerChain: crate::HandleCall<State, Env>,
 {
     type DeployArgs = DeployArgs;
 

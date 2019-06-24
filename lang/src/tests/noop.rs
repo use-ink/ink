@@ -20,6 +20,8 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
+            #![env = DefaultSrmlTypes]
+
             /// The contract that does nothing.
             ///
             /// # Note
@@ -36,6 +38,23 @@ fn contract_compiles() {
             impl Noop {}
         },
         quote! {
+            mod types {
+                use super::*;
+                use ink_core::env::{ContractEnv, EnvTypes};
+
+                pub type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
+                pub type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
+                pub type Hash = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Hash;
+                pub type Moment = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Moment;
+            }
+
+            use types::{
+                AccountId,
+                Balance,
+                Hash,
+                Moment,
+            };
+
             ink_model::state! {
                 /// The contract that does nothing.
                 ///
@@ -54,7 +73,7 @@ fn contract_compiles() {
 
             impl Noop {
                 /// Does nothing to initialize itself.
-                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler) { }
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) { }
             }
 
             use ink_model::Contract as _;
@@ -62,7 +81,7 @@ fn contract_compiles() {
             #[cfg(not(test))]
             impl Noop {
                 pub(crate) fn instantiate() -> impl ink_model::Contract {
-                    ink_model::ContractDecl::using::<Self>()
+                    ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<DefaultSrmlTypes>>()
                         .on_deploy(|env, ()| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
@@ -79,7 +98,7 @@ fn contract_compiles() {
                 use super::*;
 
                 pub struct TestableNoop {
-                    env: ink_model::ExecutionEnv<Noop>,
+                    env: ink_model::ExecutionEnv<Noop, ink_core::env::ContractEnv<DefaultSrmlTypes>>,
                 }
 
                 impl Noop {

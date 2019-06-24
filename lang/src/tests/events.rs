@@ -20,6 +20,8 @@ use super::*;
 fn contract_compiles() {
     assert_eq_tokenstreams(
         quote! {
+            #![env = DefaultSrmlTypes]
+
             /// Tests emitting of custom defined events.
             struct CallCounter {
                 /// A simple counter for the calls.
@@ -66,6 +68,23 @@ fn contract_compiles() {
             }
         },
         quote! {
+            mod types {
+                use super::*;
+                use ink_core::env::{ContractEnv, EnvTypes};
+
+                pub type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
+                pub type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
+                pub type Hash = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Hash;
+                pub type Moment = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Moment;
+            }
+
+            use types::{
+                AccountId,
+                Balance,
+                Hash,
+                Moment,
+            };
+
             ink_model::state! {
                 /// Tests emitting of custom defined events.
                 pub struct CallCounter {
@@ -96,14 +115,14 @@ fn contract_compiles() {
             }
 
             impl CallCounter {
-                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler) {}
+                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {}
 
                 /// Increments the internal counter.
                 ///
                 /// # Note
                 ///
                 /// Also emits an event.
-                pub fn inc(&mut self, env: &mut ink_model::EnvHandler) {
+                pub fn inc(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {
                     self.value += 1;
                     env.emit(IncCalled { current: *self.value });
                 }
@@ -113,7 +132,7 @@ fn contract_compiles() {
                 /// # Note
                 ///
                 /// Also emits an event.
-                pub fn dec(&mut self, env: &mut ink_model::EnvHandler) {
+                pub fn dec(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {
                     self.value -= 1;
                     env.emit(DecCalled { current: *self.value });
                 }
@@ -124,7 +143,7 @@ fn contract_compiles() {
             #[cfg(not(test))]
             impl CallCounter {
                 pub(crate) fn instantiate() -> impl ink_model::Contract {
-                    ink_model::ContractDecl::using::<Self>()
+                    ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<DefaultSrmlTypes>>()
                         .on_deploy(|env, ()| {
                             let (handler, state) = env.split_mut();
                             state.deploy(handler,)
@@ -194,14 +213,14 @@ fn contract_compiles() {
                         E: Into<private::Event>,
                     {
                         use parity_codec::Encode as _;
-                        ink_core::env::deposit_raw_event(
+                        <ink_core::env::ContractEnv<DefaultSrmlTypes> as ink_core::env::Env>::deposit_raw_event(
                             &[], event.into().encode().as_slice()
                         )
                     }
                 }
 
-                impl EmitEventExt for ink_model::EnvHandler { }
-                impl private::Sealed for ink_model::EnvHandler { }
+                impl EmitEventExt for ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>> { }
+                impl private::Sealed for ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>> { }
             }
 
             use events::{
@@ -215,7 +234,7 @@ fn contract_compiles() {
                 use super::*;
 
                 pub struct TestableCallCounter {
-                    env: ink_model::ExecutionEnv<CallCounter>,
+                    env: ink_model::ExecutionEnv<CallCounter, ink_core::env::ContractEnv<DefaultSrmlTypes>>,
                 }
 
                 impl CallCounter {

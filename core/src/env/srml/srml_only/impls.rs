@@ -18,7 +18,6 @@ use crate::{
     env::{
         srml::{
             sys,
-            DefaultSrmlTypes,
         },
         Env,
         EnvStorage,
@@ -28,36 +27,27 @@ use crate::{
     storage::Key,
 };
 use core::{
-    convert::TryFrom,
     marker::PhantomData,
 };
 use parity_codec::Decode;
 
-/// The default SRML environment.
-pub type DefaultSrmlEnv = SrmlEnv<DefaultSrmlTypes>;
-
-/// The SRML contracts environment.
-pub struct SrmlEnv<T>
-where
-    T: EnvTypes,
-{
-    marker: PhantomData<T>,
+/// Load the contents of the scratch buffer
+fn read_scratch_buffer() -> Vec<u8> {
+    let size = unsafe { sys::ext_scratch_size() };
+    let mut value = Vec::new();
+    if size > 0 {
+        value.resize(size as usize, 0);
+        unsafe {
+            sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
+        }
+    }
+    value
 }
 
-impl<T> EnvTypes for SrmlEnv<T>
-where
-    T: EnvTypes,
-{
-    type AccountId = <T as EnvTypes>::AccountId;
-    type Balance = <T as EnvTypes>::Balance;
-    type Hash = <T as EnvTypes>::Hash;
-    type Moment = <T as EnvTypes>::Moment;
-}
+/// The SRML contract environment storage
+pub enum SrmlEnvStorage {}
 
-impl<T> EnvStorage for SrmlEnv<T>
-where
-    T: EnvTypes,
-{
+impl EnvStorage for SrmlEnvStorage {
     /// Stores the given bytes under the given key.
     unsafe fn store(key: Key, value: &[u8]) {
         sys::ext_set_storage(
@@ -77,25 +67,28 @@ where
     unsafe fn load(key: Key) -> Option<Vec<u8>> {
         const SUCCESS: u32 = 0;
         if sys::ext_get_storage(key.as_bytes().as_ptr() as u32) == SUCCESS {
-            return Some(Self::read_scratch_buffer())
+            return Some(read_scratch_buffer())
         }
         None
     }
 }
 
-impl<T: EnvTypes> SrmlEnv<T> {
-    /// Load the contents of the scratch buffer
-    fn read_scratch_buffer() -> Vec<u8> {
-        let size = unsafe { sys::ext_scratch_size() };
-        let mut value = Vec::new();
-        if size > 0 {
-            value.resize(size as usize, 0);
-            unsafe {
-                sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
-            }
-        }
-        value
-    }
+/// The SRML contracts environment.
+pub struct SrmlEnv<T>
+where
+    T: EnvTypes,
+{
+    marker: PhantomData<fn () -> T>,
+}
+
+impl<T> EnvTypes for SrmlEnv<T>
+where
+    T: EnvTypes,
+{
+    type AccountId = <T as EnvTypes>::AccountId;
+    type Balance = <T as EnvTypes>::Balance;
+    type Hash = <T as EnvTypes>::Hash;
+    type Moment = <T as EnvTypes>::Moment;
 }
 
 macro_rules! impl_getters_for_srml_env {
@@ -103,7 +96,7 @@ macro_rules! impl_getters_for_srml_env {
         $(
             fn $name() -> $ret_type {
                 unsafe { sys::$ext_name() };
-                Decode::decode(&mut &Self::read_scratch_buffer()[..])
+                Decode::decode(&mut &read_scratch_buffer()[..])
                     .ok_or(concat!(
                         stringify!($name), " received an incorrectly sized buffer from SRML"
                     ))
@@ -118,8 +111,6 @@ macro_rules! impl_getters_for_srml_env {
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
-    <T as EnvTypes>::AccountId: for<'a> TryFrom<&'a [u8]>,
-    <T as EnvTypes>::Hash: for<'a> TryFrom<&'a [u8]>,
 {
     fn input() -> Vec<u8> {
         let size = unsafe { sys::ext_input_size() };

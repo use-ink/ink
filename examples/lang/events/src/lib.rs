@@ -17,9 +17,15 @@
 #![cfg_attr(not(any(test, feature = "test-env")), no_std)]
 
 use ink_core::storage;
+use ink_core::env::{
+    ContractEnv,
+    DefaultSrmlTypes,
+};
 use ink_lang::contract;
 
 contract! {
+    #![env = DefaultSrmlTypes]
+
     /// Tests emitting of custom defined events.
     struct CallCounter {
         /// A simple counter for the calls.
@@ -57,7 +63,7 @@ contract! {
     }
 
     impl CallCounter {
-        fn dec_internal(&mut self, env: &mut ink_model::EnvHandler) {
+        fn dec_internal(&mut self, env: &mut ink_model::EnvHandler<ContractEnv<DefaultSrmlTypes>>) {
             self.count -= 1;
             env.emit(DecCalled { current: *self.count });
         }
@@ -72,10 +78,10 @@ mod tests {
     #[test]
     fn it_works() {
         let mut contract = CallCounter::deploy_mock();
-        assert_eq!(env::test::emitted_events().count(), 0);
+        assert_eq!(env::test::emitted_events::<DefaultSrmlTypes>().count(), 0);
         contract.inc();
-        assert_eq!(env::test::emitted_events().count(), 1);
+        assert_eq!(env::test::emitted_events::<DefaultSrmlTypes>().count(), 1);
         contract.dec();
-        assert_eq!(env::test::emitted_events().count(), 2);
+        assert_eq!(env::test::emitted_events::<DefaultSrmlTypes>().count(), 2);
     }
 }

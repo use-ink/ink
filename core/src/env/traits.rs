@@ -20,16 +20,30 @@ use crate::{
 };
 use parity_codec::Codec;
 
-/// The environmental types usable by contracts defined with pDSL.
+#[cfg(not(feature = "test-env"))]
+/// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.
-    type AccountId: Codec + PartialEq + Eq;
+    type AccountId: Codec + Clone + PartialEq + Eq;
     /// The type of balances.
-    type Balance: Codec;
+    type Balance: Codec + Clone + PartialEq + Eq;
     /// The type of hash.
-    type Hash: Codec;
+    type Hash: Codec + Clone + PartialEq + Eq;
     /// The type of timestamps.
-    type Moment: Codec;
+    type Moment: Codec + Clone + PartialEq + Eq;
+}
+
+#[cfg(feature = "test-env")]
+/// The environmental types usable by contracts defined with ink!.
+pub trait EnvTypes {
+    /// The type of an address.
+    type AccountId: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of balances.
+    type Balance: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of hash.
+    type Hash: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of timestamps.
+    type Moment: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
 }
 
 /// Types implementing this can act as contract storage.
@@ -60,7 +74,7 @@ pub trait EnvStorage {
 }
 
 /// The environment API usable by contracts defined with pDSL.
-pub trait Env: EnvTypes + EnvStorage {
+pub trait Env: EnvTypes {
     /// Returns the chain address of the contract.
     fn address() -> <Self as EnvTypes>::AccountId;
 

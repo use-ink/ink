@@ -39,6 +39,7 @@ use syn::{
 };
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    codegen_for_contract_env(tokens, contract);
     codegen_for_state(tokens, contract);
     codegen_for_messages(tokens, contract);
     codegen_for_message_impls(tokens, contract);
@@ -46,6 +47,28 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     codegen_for_instantiate(tokens, contract);
     codegen_for_entry_points(tokens, contract);
     codegen_for_event_mod(tokens, contract);
+}
+
+fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    let env_types = &contract.env_types_type;
+    tokens.extend(quote! {
+        mod types {
+            use super::*;
+            use ink_core::env::{ContractEnv, EnvTypes};
+
+            pub type AccountId = <ContractEnv<#env_types> as EnvTypes>::AccountId;
+            pub type Balance = <ContractEnv<#env_types> as EnvTypes>::Balance;
+            pub type Hash = <ContractEnv<#env_types> as EnvTypes>::Hash;
+            pub type Moment = <ContractEnv<#env_types> as EnvTypes>::Moment;
+        }
+
+        use types::{
+            AccountId,
+            Balance,
+            Hash,
+            Moment,
+        };
+    })
 }
 
 fn codegen_for_event_mod(tokens: &mut TokenStream2, contract: &hir::Contract) {
@@ -157,7 +180,8 @@ fn codegen_for_events(tokens: &mut TokenStream2, contract: &hir::Contract) {
     }
 }
 
-fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Contract) {
+fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, contract: &hir::Contract) {
+    let env_types = &contract.env_types_type;
     tokens.extend(quote! {
         pub trait EmitEventExt: private::Sealed {
             /// Emits the given event.
@@ -166,14 +190,14 @@ fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, _contract: &hir::Cont
                 E: Into<private::Event>,
             {
                 use parity_codec::Encode as _;
-                ink_core::env::deposit_raw_event(
+                <ink_core::env::ContractEnv<#env_types> as ink_core::env::Env>::deposit_raw_event(
                     &[], event.into().encode().as_slice()
                 )
             }
         }
 
-        impl EmitEventExt for ink_model::EnvHandler {}
-        impl private::Sealed for ink_model::EnvHandler {}
+        impl EmitEventExt for ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>> {}
+        impl private::Sealed for ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>> {}
     })
 }
 
@@ -197,6 +221,7 @@ fn codegen_for_entry_points(tokens: &mut TokenStream2, contract: &hir::Contract)
 
 fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_name = &contract.name;
+    let env_types = &contract.env_types_type;
 
     let deploy_handler_toks = {
         let deploy_fn_args = {
@@ -311,7 +336,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
         #[cfg(not(test))]
         impl #state_name {
             pub(crate) fn instantiate() -> impl ink_model::Contract {
-                ink_model::ContractDecl::using::<Self>()
+                ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<#env_types>>()
                     #deploy_handler_toks
                     #messages_toks
                     .instantiate()
@@ -322,6 +347,10 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
 
 fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let state_name = &contract.name;
+    let env_types = &contract.env_types_type;
+    let env_handler: syn::Type = syn::parse_quote! {
+        ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>>
+    };
     let message_impls = {
         let mut content = quote! {};
         for message in iter::once(&contract.on_deploy.clone().into_message())
@@ -335,7 +364,7 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
             fn_decl.fn_tok.to_tokens(&mut content);
             message.sig.ident.to_tokens(&mut content);
             fn_decl.paren_tok.surround(&mut content, |inner_toks| {
-                let inputs_with_env = fn_decl.inputs_with_env();
+                let inputs_with_env = fn_decl.inputs_with_env(&env_handler);
                 inputs_with_env.to_tokens(inner_toks);
             });
             fn_decl.output.to_tokens(&mut content);

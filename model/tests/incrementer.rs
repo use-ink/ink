@@ -14,7 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use ink_core::storage;
+use ink_core::{
+    env::{
+        DefaultSrmlTypes,
+        ContractEnv,
+    },
+    storage
+};
 use ink_model::{
     messages,
     state,
@@ -39,7 +45,7 @@ messages! {
 
 #[rustfmt::skip]
 fn instantiate() -> impl TestableContract<DeployArgs = u32> {
-	ContractDecl::using::<Adder>()
+	ContractDecl::using::<Adder, ContractEnv<DefaultSrmlTypes>>()
 		.on_deploy(|env, init_val| {
 			env.state.val.set(init_val)
 		})

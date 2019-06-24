@@ -23,8 +23,10 @@ use parity_codec::{
 use ink_core::{
     env::{
         self,
-        AccountId,
-        Balance,
+        ContractEnv,
+        DefaultSrmlTypes,
+        EnvTypes,
+        Env as _,
     },
     storage::{
         self,
@@ -38,6 +40,9 @@ use ink_core::{
         Key,
     },
 };
+
+type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
+type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
 
 /// The storage data that is hold by the ERC-20 token.
 #[derive(Debug, Encode, Decode)]
@@ -72,7 +77,7 @@ impl Erc20Token {
 
     /// Transfers token from the sender to the `to` address.
     pub fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
-        self.transfer_impl(env::caller(), to, value);
+        self.transfer_impl(ContractEnv::<DefaultSrmlTypes>::caller(), to, value);
         true
     }
 
@@ -88,7 +93,7 @@ impl Erc20Token {
     /// the spender's allowance to 0 and set the desired value afterwards:
     /// https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
     pub fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
-        let owner = env::caller();
+        let owner = ContractEnv::<DefaultSrmlTypes>::caller();
         self.allowances.insert((owner, spender), value);
         // emit event (not ready yet)
         true
@@ -182,7 +187,7 @@ fn ret<T>(val: T) -> !
 where
     T: parity_codec::Encode,
 {
-    unsafe { env::r#return(&val.encode()) }
+    unsafe { env::r#return::<T, ContractEnv<DefaultSrmlTypes>>(val) }
 }
 
 fn instantiate() -> Erc20Token {
@@ -198,7 +203,7 @@ pub extern "C" fn deploy() {
 }
 
 fn decode_params() -> Action {
-    let input = env::input();
+    let input = ContractEnv::<DefaultSrmlTypes>::input();
     Action::decode(&mut &input[..]).unwrap()
 }
 

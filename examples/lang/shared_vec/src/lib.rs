@@ -16,10 +16,7 @@
 
 #![cfg_attr(not(any(test, feature = "test-env")), no_std)]
 
-use ink_core::{
-    env::AccountId,
-    storage,
-};
+use ink_core::storage;
 use ink_lang::contract;
 use parity_codec::{Encode, Decode};
 
@@ -69,6 +66,8 @@ const NOT_REGISTERED: ErrNo = 2;
 const OUT_OF_BOUNDS: ErrNo = 3;
 
 contract! {
+    #![env = ink_core::env::DefaultSrmlTypes]
+
     /// A shared vector that is accessiable to a subset of allowed mutators.
     struct SharedVec {
         /// The allowed mutators.
@@ -199,11 +198,9 @@ contract! {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ink_core::env::{
-        self,
-        AccountId,
-    };
+    use ink_core::env;
     use std::convert::TryFrom;
+    use ink_core::env::DefaultSrmlTypes;
 
     #[test]
     fn it_works() {
@@ -211,7 +208,7 @@ mod tests {
         let bob = AccountId::try_from([0x1; 32]).unwrap();
         let charly = AccountId::try_from([0x2; 32]).unwrap();
 
-        env::test::set_caller(alice);
+        env::test::set_caller::<DefaultSrmlTypes>(alice);
 
         let mut shared_vec = SharedVec::deploy_mock();
         assert_eq!(shared_vec.len(), 0);
@@ -230,7 +227,7 @@ mod tests {
         assert_eq!(shared_vec.get(2), Some(2000));
         assert_eq!(shared_vec.get(3), Some(77));
 
-        env::test::set_caller(bob);
+        env::test::set_caller::<DefaultSrmlTypes>(bob);
 
         assert_eq!(shared_vec.set(1, 999), Ok(1000));
         assert_eq!(shared_vec.set(2, 1999), Err(ACCESS_NOT_ALLOWED));
@@ -241,7 +238,7 @@ mod tests {
         assert_eq!(shared_vec.get(2), Some(2000));
         assert_eq!(shared_vec.get(3), Some(77));
 
-        env::test::set_caller(charly);
+        env::test::set_caller::<DefaultSrmlTypes>(charly);
 
         assert_eq!(shared_vec.set(1, 888), Err(NOT_REGISTERED));
         assert_eq!(shared_vec.set(5, 3000), Err(NOT_REGISTERED));

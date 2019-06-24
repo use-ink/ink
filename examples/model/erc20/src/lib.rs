@@ -18,8 +18,9 @@
 
 use ink_core::{
     env::{
-        AccountId,
-        Balance,
+        ContractEnv,
+        EnvTypes,
+        DefaultSrmlTypes,
     },
     storage,
 };
@@ -29,6 +30,9 @@ use ink_model::{
     Contract,
     ContractDecl,
 };
+
+type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
+type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
 
 state! {
     /// A simple implementation of a rudimentary Erc20 token contract.
@@ -53,7 +57,7 @@ messages! {
 
 #[rustfmt::skip]
 fn instantiate() -> impl Contract {
-	ContractDecl::using::<Erc20Token>()
+	ContractDecl::using::<Erc20Token, ContractEnv<DefaultSrmlTypes>>()
 		.on_deploy(|env, init_supply| {
 			let caller = env.caller();
 			env.state.balances[&caller] = init_supply;

@@ -14,7 +14,9 @@ crate-type = ["cdylib"]
 
 [features]
 default = []
-test-env = ["ink_core/test-env"]
+test-env = [
+    "ink_core/test-env",
+]
 
 [profile.release]
 panic = "abort"
