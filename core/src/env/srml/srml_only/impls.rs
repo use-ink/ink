@@ -113,17 +113,7 @@ where
     T: EnvTypes,
 {
     fn input() -> Vec<u8> {
-        let size = unsafe { sys::ext_input_size() };
-        if size == 0 {
-            Vec::new()
-        } else {
-            let mut buffer = Vec::new();
-            buffer.resize(size as usize, 0);
-            unsafe {
-                sys::ext_input_copy(buffer.as_mut_ptr() as u32, 0, size);
-            }
-            buffer
-        }
+        read_scratch_buffer()
     }
 
     impl_getters_for_srml_env!(
