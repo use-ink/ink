@@ -74,12 +74,11 @@ impl EnvStorage for SrmlEnvStorage {
 }
 
 /// The SRML contracts environment.
-#[allow(unused)]
 pub struct SrmlEnv<T>
 where
     T: EnvTypes,
 {
-    marker: PhantomData<T>,
+    marker: PhantomData<fn () -> T>,
 }
 
 impl<T> EnvTypes for SrmlEnv<T>
