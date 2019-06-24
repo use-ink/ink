@@ -68,9 +68,6 @@ fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract)
             Hash,
             Moment,
         };
-
-//        use ink_core::env::Env as _;
-//        #[allow(snake_case)] type env = ink_core::env::ContractEnv<#env_types>;
     })
 }
 
