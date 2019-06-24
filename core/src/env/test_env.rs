@@ -441,13 +441,15 @@ impl<T> TestEnv<T> where T: EnvTypes {
         (set_now, now, T::Moment)
     );
 
-    pub fn emitted_events() -> impl IntoIterator<Item = Vec<u8>> {
+    /// Returns an iterator over all emitted events.
+    pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
         TEST_ENV_DATA.with(|test_env| {
             test_env
                 .borrow()
                 .emitted_events()
                 .map(|event_bytes| event_bytes.to_vec())
                 .collect::<Vec<_>>()
+                .into_iter()
         })
     }
 }
