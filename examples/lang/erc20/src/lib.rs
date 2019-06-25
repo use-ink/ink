@@ -151,7 +151,7 @@ contract! {
 mod tests {
     use super::*;
     use ink_core::env;
-    type Types = ink_types_node_runtime::NodeRuntimeTypes;
+    type Types = ink_core::env::DefaultSrmlTypes;
 
     #[test]
     fn deployment_works() {

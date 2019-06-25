@@ -82,12 +82,6 @@ extern "C" {
     /// Copies the contents of the scratch buffer to `dest_ptr`.
     pub fn ext_scratch_copy(dest_ptr: u32, offset: u32, len: u32);
 
-    /// Returns the length of the input buffer.
-    pub fn ext_input_size() -> u32;
-
-    /// Copies the contents of the input buffer to `dest_ptr`.
-    pub fn ext_input_copy(dest_ptr: u32, offset: u32, len: u32);
-
     /// Immediately returns contract execution to the caller
     /// with the provided data at `data_ptr`.
     pub fn ext_return(data_ptr: u32, data_len: u32) -> !;
