@@ -1,7 +1,6 @@
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 
 use ink_core::{
-    env::println,
     memory::format,
     storage,
 };
@@ -33,7 +32,7 @@ contract! {
 
         /// Returns the current state.
         pub(external) fn get(&self) -> bool {
-            println(&format!("Storage Value: {:?}", *self.value));
+            env.println(&format!("Storage Value: {:?}", *self.value));
             *self.value
         }
     }
