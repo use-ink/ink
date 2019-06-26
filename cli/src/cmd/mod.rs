@@ -16,6 +16,7 @@
 
 mod error;
 mod new;
+mod deploy;
 
 pub(crate) use self::{
     error::{
@@ -24,4 +25,5 @@ pub(crate) use self::{
         Result,
     },
     new::execute_new,
+    deploy::execute_deploy,
 };

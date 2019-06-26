@@ -27,6 +27,7 @@ pub enum CommandErrorKind {
     UnimplementedCommand,
     UnimplementedAbstractionLayer,
     ZipError(ZipError),
+    Other(String),
 }
 
 /// An error that can be encountered while executing commands.
@@ -47,6 +48,22 @@ impl From<ZipError> for CommandError {
     fn from(error: ZipError) -> Self {
         Self {
             kind: CommandErrorKind::ZipError(error),
+        }
+    }
+}
+
+impl From<&str> for CommandError {
+    fn from(error: &str) -> Self {
+        Self {
+            kind: CommandErrorKind::Other(error.into()),
+        }
+    }
+}
+
+impl From<String> for CommandError {
+    fn from(error: String) -> Self {
+        Self {
+            kind: CommandErrorKind::Other(error),
         }
     }
 }

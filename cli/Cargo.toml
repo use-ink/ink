@@ -18,7 +18,12 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 structopt = "0.2.15"
 itertools = "0.8"
 heck = "0.3"
+jsonrpc-core-client = "12.0.0"
+toml = "0.5"
 zip = { version = "0.5", default-features = false }
+node-runtime = { git = "https://github.com/paritytech/substrate/", package = "node-runtime", features = ["std"] }
+srml-contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts", features = ["core"] }
+substrate-rpc = { git = "https://github.com/paritytech/substrate/", package = "substrate-rpc" }
 
 [build-dependencies]
 zip = { version = "0.5", default-features = false }

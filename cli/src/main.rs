@@ -96,6 +96,11 @@ enum Command {
         /// Deploy on a local development chain.
         #[structopt(name = "dev", short, long)]
         on_dev: bool,
+        #[structopt(default_value = "500000")]
+        gas: u64,
+        /// Path to wasm contract code, defaults to ./target/<name>-pruned.wasm
+        #[structopt(parse(from_os_str))]
+        wasm_path: Option<std::path::PathBuf>,
     },
 }
 
@@ -113,8 +118,7 @@ fn main() -> cmd::Result<()> {
         Command::Test {} => {
             Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
         }
-        Command::Deploy { .. } => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
-        }
+        Command::Deploy { on_dev, gas, wasm_path } =>
+            cmd::execute_deploy(*on_dev, *gas, wasm_path.clone()),
     }
 }
