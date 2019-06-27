@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2019 Parity Technologies (UK) Ltd.
 // This file is part of ink!.
 //
 // ink! is free software: you can redistribute it and/or modify
@@ -20,10 +20,16 @@ use node_runtime::{
     Runtime,
     UncheckedExtrinsic,
 };
+use futures::Future;
+use parity_codec::{Encode, Decode};
+use jsonrpc_core_client::{transports::http};
 use srml_contracts::{
     Call as ContractsCall,
     Trait,
 };
+use runtime_support::{StorageMap};
+use substrate_primitives::{blake2_256, sr25519::Pair, Pair as _, storage::StorageKey};
+use substrate_rpc::state::StateClient;
 use std::{
     collections::HashMap,
     fs,
@@ -34,6 +40,8 @@ use std::{
 type CargoToml = HashMap<String, toml::Value>;
 
 type Gas = <Runtime as Trait>::Gas;
+type Index = <Runtime as srml_system::Trait>::Index;
+type Hash = <Runtime as srml_system::Trait>::Hash;
 
 fn get_contract_wasm_path() -> Result<PathBuf> {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -66,14 +74,25 @@ fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
     return Ok(data)
 }
 
-fn create_put_code_extrinsic(gas: Gas, code: Vec<u8>) -> UncheckedExtrinsic {
-    let call = Call::Contracts(ContractsCall::put_code(gas, code));
-    UncheckedExtrinsic::new_unsigned(call)
-}
+fn submit(url: &str, signer: &Pair, extrinsic: &mut UncheckedExtrinsic) -> Result<()> {
+    let account_nonce_key = <srml_system::AccountNonce<Runtime>>::key_for(signer.public());
+    let account_nonce_key = blake2_256(&account_nonce_key).to_vec();
 
-fn sign_and_submit(_extrinsic: &mut UncheckedExtrinsic) {
-    //    extrinsic.signature =
-    unimplemented!()
+    let submit = http::connect(url)
+        .and_then(|cli: StateClient<Hash>| cli.storage(StorageKey(account_nonce_key), None))
+        .map(|data| {
+            data.map(|d| {
+                let res: Index = Decode::decode(&mut &d.0[..])
+                    .expect("Account nonce is valid Index");
+                res
+            })
+        })
+        .and_then(|index: Option<Index>| {
+            futures::future::ok(())
+        });
+
+    let mut rt = tokio::runtime::Runtime::new()?;
+    rt.block_on(submit).map_err(Into::into)
 }
 
 pub(crate) fn execute_deploy(
@@ -81,8 +100,17 @@ pub(crate) fn execute_deploy(
     gas: u64,
     contract_wasm_path: Option<PathBuf>,
 ) -> Result<()> {
+    // todo: [AJ] supply signer pair opt
+    let signer = substrate_keyring::AccountKeyring::Alice.pair();
+
     let code = load_contract_code(contract_wasm_path)?;
-    let _extrinsic = create_put_code_extrinsic(gas, code);
+    let call = Call::Contracts(ContractsCall::put_code(gas, code)).encode();
+
+    // todo [AJ] construct extrinsic and sign, then submit
+//    let extrinsic = UncheckedExtrinsic::new_unsigned(
+//        signer.public().into(),
+//
+//    );
 
     // 3. sign extrinsic
     // 4. Submit extrinsic via RPC

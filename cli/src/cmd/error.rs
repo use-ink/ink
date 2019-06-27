@@ -18,6 +18,7 @@ use std::{
     io::Error as IoError,
     result::Result as StdResult,
 };
+use jsonrpc_core_client::RpcError;
 use zip::result::ZipError;
 
 /// The kinds of command errors.
@@ -26,6 +27,7 @@ pub enum CommandErrorKind {
     Io(IoError),
     UnimplementedCommand,
     UnimplementedAbstractionLayer,
+    Rpc(RpcError),
     ZipError(ZipError),
     Other(String),
 }
@@ -40,6 +42,14 @@ impl From<IoError> for CommandError {
     fn from(error: IoError) -> Self {
         Self {
             kind: CommandErrorKind::Io(error),
+        }
+    }
+}
+
+impl From<RpcError> for CommandError {
+    fn from(error: RpcError) -> Self {
+        Self {
+            kind: CommandErrorKind::Rpc(error),
         }
     }
 }
