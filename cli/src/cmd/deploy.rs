@@ -23,7 +23,6 @@ use node_runtime::{
 use futures::future::{
     self,
     Future,
-    Either,
 };
 use parity_codec::{Encode, Decode, Compact};
 use jsonrpc_core_client::{
@@ -133,35 +132,30 @@ fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pai
         signature.into(),
         era,
     )
-
 //    println!("0x{}", hex::encode(&extrinsic.encode()));
 }
 
 fn submit(url: &'static str, signer: Pair, call: Call) -> Result<Hash> {
-    let genesis_hash = fetch_genesis_hash(url).map_err(Into::into);
     let account_nonce = fetch_nonce(url, &signer.public()).map_err(Into::into);
+    let genesis_hash = fetch_genesis_hash(url)
+        .map_err(Into::into)
+        .and_then(|genesis_hash| {
+            future::result(genesis_hash.ok_or("Genesis hash not found".into()))
+        });
 
     let sign_and_submit = account_nonce
         .join(genesis_hash)
         .and_then(move |(index, genesis_hash)| {
-            if let Some(block_hash) = genesis_hash {
-                let extrinsic = create_extrinsic(index, call, block_hash, &signer);
-                let submit = http::connect(url)
-                    .and_then(move |cli: AuthorClient<Hash, Hash>| {
-                        cli.submit_extrinsic(extrinsic.encode().into())
-                    })
-                    .map_err(Into::into);
-                Either::A(submit)
-
-            } else {
-                Either::B(future::err("Genesis hash not found".into()))
-            }
+            let extrinsic = create_extrinsic(index, call, genesis_hash, &signer);
+            http::connect(url)
+                .and_then(move |cli: AuthorClient<Hash, Hash>| {
+                    cli.submit_extrinsic(extrinsic.encode().into())
+                })
+                .map_err(Into::into)
         });
 
     let mut rt = tokio::runtime::Runtime::new()?;
-    let res = rt.block_on(sign_and_submit);
-    println!("{:?}", res);
-    res
+    rt.block_on(sign_and_submit)
 }
 
 pub(crate) fn execute_deploy(
@@ -169,15 +163,15 @@ pub(crate) fn execute_deploy(
     gas: u64,
     contract_wasm_path: Option<PathBuf>,
 ) -> Result<()> {
+    // todo: [AJ] pass in these arguments
     let url = "http://localhost:9933";
-    // todo: [AJ] supply signer pair opt
     let signer = substrate_keyring::AccountKeyring::Alice.pair();
 
     let code = load_contract_code(contract_wasm_path)?;
     let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
-    submit(url, signer, call)?;
+    let tx_hash = submit(url, signer, call)?;
+    println!("{:?}", tx_hash);
 
-    // 5. Display code hash as result
     Ok(())
 }
