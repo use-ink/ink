@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::cmd::{CommandError, Result};
+use crate::cmd::Result;
 use node_runtime::{
     Call,
     Runtime,
@@ -32,7 +32,6 @@ use jsonrpc_core_client::{
 };
 use srml_contracts::{
     Call as ContractsCall,
-    Trait,
 };
 use runtime_support::{StorageMap};
 use runtime_primitives::generic::Era;
@@ -56,10 +55,8 @@ type CargoToml = HashMap<String, toml::Value>;
 
 type AccountId = <Runtime as srml_system::Trait>::AccountId;
 type BlockNumber = <Runtime as srml_system::Trait>::BlockNumber;
-type Gas = <Runtime as Trait>::Gas;
 type Index = <Runtime as srml_system::Trait>::Index;
 type Hash = <Runtime as srml_system::Trait>::Hash;
-type Header = <Runtime as srml_system::Trait>::Header;
 
 fn get_contract_wasm_path() -> Result<PathBuf> {
     let manifest_dir = PathBuf::from(".");
@@ -96,7 +93,7 @@ fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
     return Ok(data)
 }
 
-fn fetch_nonce(url: &str, account: &AccountId) -> impl Future<Item=u64, Error=CommandError> {
+fn fetch_nonce(url: &str, account: &AccountId) -> impl Future<Item=u64, Error=RpcError> {
     let account_nonce_key = <srml_system::AccountNonce<Runtime>>::key_for(account);
     let storage_key = blake2_256(&account_nonce_key).to_vec();
 
@@ -112,10 +109,9 @@ fn fetch_nonce(url: &str, account: &AccountId) -> impl Future<Item=u64, Error=Co
         .map_err(Into::into)
 }
 
-fn fetch_genesis_hash(url: &str) -> impl Future<Item=Option<H256>, Error=CommandError> {
+fn fetch_genesis_hash(url: &str) -> impl Future<Item=Option<H256>, Error=RpcError> {
     http::connect(url)
         .and_then(|cli: ChainClient<BlockNumber, Hash, Vec<u8>, Vec<u8>>| cli.block_hash(Some(NumberOrHex::Number(0))))
-        .map_err(Into::into)
 }
 
 fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pair) -> UncheckedExtrinsic {
@@ -142,12 +138,11 @@ fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pai
 }
 
 fn submit(url: &'static str, signer: Pair, call: Call) -> Result<Hash> {
-    let account = &signer.public();
-//    let sign_and_submit = fetch_nonce(url, account)
-//        .join(fetch_genesis_hash(url));
-    let sign_and_submit = future::ok((1, Some(Hash::default())));
+    let genesis_hash = fetch_genesis_hash(url).map_err(Into::into);
+    let account_nonce = fetch_nonce(url, &signer.public()).map_err(Into::into);
 
-    let sign_and_submit = sign_and_submit
+    let sign_and_submit = account_nonce
+        .join(genesis_hash)
         .and_then(move |(index, genesis_hash)| {
             if let Some(block_hash) = genesis_hash {
                 let extrinsic = create_extrinsic(index, call, block_hash, &signer);
@@ -164,7 +159,9 @@ fn submit(url: &'static str, signer: Pair, call: Call) -> Result<Hash> {
         });
 
     let mut rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(sign_and_submit)
+    let res = rt.block_on(sign_and_submit);
+    println!("{:?}", res);
+    res
 }
 
 pub(crate) fn execute_deploy(
