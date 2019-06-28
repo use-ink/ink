@@ -14,22 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::cmd::Result;
+use crate::cmd::{CommandError, Result};
 use node_runtime::{
     Call,
     Runtime,
     UncheckedExtrinsic,
 };
-use futures::Future;
-use parity_codec::{Encode, Decode};
-use jsonrpc_core_client::{transports::http};
+use futures::future::{
+    self,
+    Future,
+    Either,
+};
+use parity_codec::{Encode, Decode, Compact};
+use jsonrpc_core_client::{
+    transports::http,
+    RpcError,
+};
 use srml_contracts::{
     Call as ContractsCall,
     Trait,
 };
 use runtime_support::{StorageMap};
-use substrate_primitives::{blake2_256, sr25519::Pair, Pair as _, storage::StorageKey};
-use substrate_rpc::state::StateClient;
+use runtime_primitives::generic::Era;
+use substrate_primitives::{blake2_256, sr25519::Pair, Pair as _, storage::StorageKey, H256};
+use substrate_rpc::{
+    author::AuthorClient,
+    chain::{
+        number::NumberOrHex,
+        ChainClient,
+    },
+    state::StateClient
+};
 use std::{
     collections::HashMap,
     fs,
@@ -39,24 +54,30 @@ use std::{
 
 type CargoToml = HashMap<String, toml::Value>;
 
+type AccountId = <Runtime as srml_system::Trait>::AccountId;
+type BlockNumber = <Runtime as srml_system::Trait>::BlockNumber;
 type Gas = <Runtime as Trait>::Gas;
 type Index = <Runtime as srml_system::Trait>::Index;
 type Hash = <Runtime as srml_system::Trait>::Hash;
+type Header = <Runtime as srml_system::Trait>::Header;
 
 fn get_contract_wasm_path() -> Result<PathBuf> {
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let manifest_dir = PathBuf::from(".");
     let cargo_toml_path = manifest_dir.join("Cargo.toml");
 
     let mut content = String::new();
-    let mut file = fs::File::open(cargo_toml_path)?;
+    let mut file = fs::File::open(&cargo_toml_path)
+        .map_err(|e|format!("Failed to open {}: {}", cargo_toml_path.display(), e))?;
     file.read_to_string(&mut content)?;
 
     let cargo_toml: CargoToml = toml::from_str(&content)
         .map_err(|e| format!("Failed to parse Cargo.toml: {}", e))?;
 
     let contract_name = cargo_toml
-        .get("name")
-        .and_then(|value| value.as_str())
+        .get("package")
+        .and_then(|value| value.as_table())
+        .and_then(|t| t.get("name"))
+        .and_then(|v| v.as_str())
         .ok_or("Failed to find valid name property in Cargo.toml")?;
 
     Ok(manifest_dir
@@ -68,31 +89,82 @@ fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
     let contract_wasm_path = path.map(Ok).unwrap_or_else(get_contract_wasm_path)?;
 
     let mut data = Vec::new();
-    let mut file = fs::File::open(contract_wasm_path)?;
+    let mut file = fs::File::open(&contract_wasm_path)
+        .map_err(|e|format!("Failed to open {}: {}", contract_wasm_path.display(), e))?;
     file.read_to_end(&mut data)?;
 
     return Ok(data)
 }
 
-fn submit(url: &str, signer: &Pair, extrinsic: &mut UncheckedExtrinsic) -> Result<()> {
-    let account_nonce_key = <srml_system::AccountNonce<Runtime>>::key_for(signer.public());
-    let account_nonce_key = blake2_256(&account_nonce_key).to_vec();
+fn fetch_nonce(url: &str, account: &AccountId) -> impl Future<Item=u64, Error=CommandError> {
+    let account_nonce_key = <srml_system::AccountNonce<Runtime>>::key_for(account);
+    let storage_key = blake2_256(&account_nonce_key).to_vec();
 
-    let submit = http::connect(url)
-        .and_then(|cli: StateClient<Hash>| cli.storage(StorageKey(account_nonce_key), None))
+    http::connect(url)
+        .and_then(|cli: StateClient<Hash>| {
+            cli.storage(StorageKey(storage_key), None)
+        })
         .map(|data| {
-            data.map(|d| {
-                let res: Index = Decode::decode(&mut &d.0[..])
-                    .expect("Account nonce is valid Index");
-                res
+            data.map_or(0, |d| {
+                Decode::decode(&mut &d.0[..]).expect("Account nonce is valid Index")
             })
         })
-        .and_then(|index: Option<Index>| {
-            futures::future::ok(())
+        .map_err(Into::into)
+}
+
+fn fetch_genesis_hash(url: &str) -> impl Future<Item=Option<H256>, Error=CommandError> {
+    http::connect(url)
+        .and_then(|cli: ChainClient<BlockNumber, Hash, Vec<u8>, Vec<u8>>| cli.block_hash(Some(NumberOrHex::Number(0))))
+        .map_err(Into::into)
+}
+
+fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pair) -> UncheckedExtrinsic {
+    let era = Era::immortal();
+
+    let raw_payload = (Compact(index), function, era, block_hash);
+    let signature = raw_payload.using_encoded(|payload|
+        if payload.len() > 256 {
+            signer.sign(&blake2_256(payload)[..])
+        } else {
+            signer.sign(payload)
+        }
+    );
+
+    UncheckedExtrinsic::new_signed(
+        index,
+        raw_payload.1,
+        signer.public().into(),
+        signature.into(),
+        era,
+    )
+
+//    println!("0x{}", hex::encode(&extrinsic.encode()));
+}
+
+fn submit(url: &'static str, signer: Pair, call: Call) -> Result<Hash> {
+    let account = &signer.public();
+//    let sign_and_submit = fetch_nonce(url, account)
+//        .join(fetch_genesis_hash(url));
+    let sign_and_submit = future::ok((1, Some(Hash::default())));
+
+    let sign_and_submit = sign_and_submit
+        .and_then(move |(index, genesis_hash)| {
+            if let Some(block_hash) = genesis_hash {
+                let extrinsic = create_extrinsic(index, call, block_hash, &signer);
+                let submit = http::connect(url)
+                    .and_then(move |cli: AuthorClient<Hash, Hash>| {
+                        cli.submit_extrinsic(extrinsic.encode().into())
+                    })
+                    .map_err(Into::into);
+                Either::A(submit)
+
+            } else {
+                Either::B(future::err("Genesis hash not found".into()))
+            }
         });
 
     let mut rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(submit).map_err(Into::into)
+    rt.block_on(sign_and_submit)
 }
 
 pub(crate) fn execute_deploy(
@@ -100,20 +172,15 @@ pub(crate) fn execute_deploy(
     gas: u64,
     contract_wasm_path: Option<PathBuf>,
 ) -> Result<()> {
+    let url = "http://localhost:9933";
     // todo: [AJ] supply signer pair opt
     let signer = substrate_keyring::AccountKeyring::Alice.pair();
 
     let code = load_contract_code(contract_wasm_path)?;
-    let call = Call::Contracts(ContractsCall::put_code(gas, code)).encode();
+    let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
-    // todo [AJ] construct extrinsic and sign, then submit
-//    let extrinsic = UncheckedExtrinsic::new_unsigned(
-//        signer.public().into(),
-//
-//    );
+    submit(url, signer, call)?;
 
-    // 3. sign extrinsic
-    // 4. Submit extrinsic via RPC
     // 5. Display code hash as result
     Ok(())
 }
