@@ -17,6 +17,7 @@
 mod error;
 mod new;
 mod deploy;
+mod rpc;
 
 pub(crate) use self::{
     error::{
