@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::cmd::Result;
+use crate::cmd::{Result, CommandError};
 use node_runtime::{
     Call,
     Runtime,
@@ -42,74 +42,80 @@ use substrate_rpc::{
     state::StateClient
 };
 
-
 type AccountId = <Runtime as srml_system::Trait>::AccountId;
 type BlockNumber = <Runtime as srml_system::Trait>::BlockNumber;
 type Index = <Runtime as srml_system::Trait>::Index;
 type Hash = <Runtime as srml_system::Trait>::Hash;
 
-fn fetch_nonce(url: &str, account: &AccountId) -> impl Future<Item=u64, Error=RpcError> {
-    let account_nonce_key = <srml_system::AccountNonce<Runtime>>::key_for(account);
-    let storage_key = blake2_256(&account_nonce_key).to_vec();
+struct Rpc {
+    state: StateClient<Hash>,
+    chain: ChainClient<BlockNumber, Hash, Vec<u8>, Vec<u8>>,
+    author: AuthorClient<Hash, Hash>,
+}
 
-    http::connect(url)
-        .and_then(|cli: StateClient<Hash>| {
-            cli.storage(StorageKey(storage_key), None)
-        })
-        .map(|data| {
-            data.map_or(0, |d| {
-                Decode::decode(&mut &d.0[..]).expect("Account nonce is valid Index")
+impl Rpc {
+    fn connect<Hash>(url: &str) -> impl Future<Item=Rpc, Error=RpcError> {
+        http::connect(url)
+            .join3(http::connect(url), http::connect(url))
+            .map(|(state, chain, author)| Rpc { state, chain, author })
+    }
+
+    fn submit(self, signer: Pair, call: Call) -> impl Future<Item=H256, Error=CommandError> {
+        let account_nonce = self.fetch_nonce(&signer.public()).map_err(Into::into);
+        let genesis_hash = self.chain.block_hash(Some(NumberOrHex::Number(0)))
+            .map_err(Into::into)
+            .and_then(|genesis_hash| {
+                future::result(genesis_hash.ok_or("Genesis hash not found".into()))
+            });
+
+        account_nonce
+            .join(genesis_hash)
+            .and_then(move |(index, genesis_hash)| {
+                let extrinsic = Self::create_extrinsic(index, call, genesis_hash, &signer);
+                self.author.submit_extrinsic(extrinsic.encode().into()).map_err(Into::into)
             })
-        })
-        .map_err(Into::into)
-}
+    }
 
-fn fetch_genesis_hash(url: &str) -> impl Future<Item=Option<H256>, Error=RpcError> {
-    http::connect(url)
-        .and_then(|cli: ChainClient<BlockNumber, Hash, Vec<u8>, Vec<u8>>| cli.block_hash(Some(NumberOrHex::Number(0))))
-}
+    fn fetch_nonce(&self, account: &AccountId) -> impl Future<Item=u64, Error=RpcError> {
+        let account_nonce_key = <srml_system::AccountNonce<Runtime>>::key_for(account);
+        let storage_key = blake2_256(&account_nonce_key).to_vec();
 
-fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pair) -> UncheckedExtrinsic {
-    let era = Era::immortal();
-
-    let raw_payload = (Compact(index), function, era, block_hash);
-    let signature = raw_payload.using_encoded(|payload|
-        if payload.len() > 256 {
-            signer.sign(&blake2_256(payload)[..])
-        } else {
-            signer.sign(payload)
-        }
-    );
-
-    UncheckedExtrinsic::new_signed(
-        index,
-        raw_payload.1,
-        signer.public().into(),
-        signature.into(),
-        era,
-    )
-//    println!("0x{}", hex::encode(&extrinsic.encode()));
-}
-
-pub fn submit(url: &'static str, signer: Pair, call: Call) -> Result<Hash> {
-    let account_nonce = fetch_nonce(url, &signer.public()).map_err(Into::into);
-    let genesis_hash = fetch_genesis_hash(url)
-        .map_err(Into::into)
-        .and_then(|genesis_hash| {
-            future::result(genesis_hash.ok_or("Genesis hash not found".into()))
-        });
-
-    let sign_and_submit = account_nonce
-        .join(genesis_hash)
-        .and_then(move |(index, genesis_hash)| {
-            let extrinsic = create_extrinsic(index, call, genesis_hash, &signer);
-            http::connect(url)
-                .and_then(move |cli: AuthorClient<Hash, Hash>| {
-                    cli.submit_extrinsic(extrinsic.encode().into())
+        self.state.storage(StorageKey(storage_key), None)
+            .map(|data| {
+                data.map_or(0, |d| {
+                    Decode::decode(&mut &d.0[..]).expect("Account nonce is valid Index")
                 })
-                .map_err(Into::into)
-        });
+            })
+            .map_err(Into::into)
+    }
+
+    fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pair) -> UncheckedExtrinsic {
+        let era = Era::immortal();
+
+        let raw_payload = (Compact(index), function, era, block_hash);
+        let signature = raw_payload.using_encoded(|payload|
+            if payload.len() > 256 {
+                signer.sign(&blake2_256(payload)[..])
+            } else {
+                signer.sign(payload)
+            }
+        );
+
+        UncheckedExtrinsic::new_signed(
+            index,
+            raw_payload.1,
+            signer.public().into(),
+            signature.into(),
+            era,
+        )
+    }
+}
+
+pub fn submit(url: &str, signer: Pair, call: Call) -> Result<H256> {
+    let submit = Rpc::connect::<H256>(url)
+        .map_err(Into::into)
+        .and_then(|rpc| rpc.submit(signer, call));
 
     let mut rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(sign_and_submit)
+    rt.block_on(submit)
 }
