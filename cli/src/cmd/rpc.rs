@@ -60,22 +60,6 @@ impl Rpc {
             .map(|(state, chain, author)| Rpc { state, chain, author })
     }
 
-    fn submit(self, signer: Pair, call: Call) -> impl Future<Item=H256, Error=CommandError> {
-        let account_nonce = self.fetch_nonce(&signer.public()).map_err(Into::into);
-        let genesis_hash = self.chain.block_hash(Some(NumberOrHex::Number(0)))
-            .map_err(Into::into)
-            .and_then(|genesis_hash| {
-                future::result(genesis_hash.ok_or("Genesis hash not found".into()))
-            });
-
-        account_nonce
-            .join(genesis_hash)
-            .and_then(move |(index, genesis_hash)| {
-                let extrinsic = Self::create_extrinsic(index, call, genesis_hash, &signer);
-                self.author.submit_extrinsic(extrinsic.encode().into()).map_err(Into::into)
-            })
-    }
-
     fn fetch_nonce(&self, account: &AccountId) -> impl Future<Item=u64, Error=RpcError> {
         let account_nonce_key = <srml_system::AccountNonce<Runtime>>::key_for(account);
         let storage_key = blake2_256(&account_nonce_key).to_vec();
@@ -87,6 +71,30 @@ impl Rpc {
                 })
             })
             .map_err(Into::into)
+    }
+
+    fn fetch_genesis_hash(&self) -> impl Future<Item=Option<H256>, Error=RpcError> {
+        self.chain.block_hash(Some(NumberOrHex::Number(0)))
+    }
+
+    fn submit_extrinsic(&self, extrinsic: UncheckedExtrinsic) -> impl Future<Item=H256, Error=RpcError> {
+        self.author.submit_extrinsic(extrinsic.encode().into())
+    }
+
+    fn submit(self, signer: Pair, call: Call) -> impl Future<Item=H256, Error=CommandError> {
+        let account_nonce = self.fetch_nonce(&signer.public()).map_err(Into::into);
+        let genesis_hash = self.fetch_genesis_hash()
+            .map_err(Into::into)
+            .and_then(|genesis_hash| {
+                future::result(genesis_hash.ok_or("Genesis hash not found".into()))
+            });
+
+        account_nonce
+            .join(genesis_hash)
+            .and_then(move |(index, genesis_hash)| {
+                let extrinsic = Self::create_extrinsic(index, call, genesis_hash, &signer);
+                self.submit_extrinsic(extrinsic).map_err(Into::into)
+            })
     }
 
     fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pair) -> UncheckedExtrinsic {
