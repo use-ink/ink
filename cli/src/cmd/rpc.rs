@@ -54,7 +54,7 @@ struct Rpc {
 }
 
 impl Rpc {
-    fn connect<Hash>(url: &str) -> impl Future<Item=Rpc, Error=RpcError> {
+    fn connect(url: &str) -> impl Future<Item=Rpc, Error=RpcError> {
         http::connect(url)
             .join3(http::connect(url), http::connect(url))
             .map(|(state, chain, author)| Rpc { state, chain, author })
@@ -73,15 +73,15 @@ impl Rpc {
             .map_err(Into::into)
     }
 
-    fn fetch_genesis_hash(&self) -> impl Future<Item=Option<H256>, Error=RpcError> {
+    fn fetch_genesis_hash(&self) -> impl Future<Item=Option<Hash>, Error=RpcError> {
         self.chain.block_hash(Some(NumberOrHex::Number(0)))
     }
 
-    fn submit_extrinsic(&self, extrinsic: UncheckedExtrinsic) -> impl Future<Item=H256, Error=RpcError> {
+    fn submit_extrinsic(&self, extrinsic: UncheckedExtrinsic) -> impl Future<Item=Hash, Error=RpcError> {
         self.author.submit_extrinsic(extrinsic.encode().into())
     }
 
-    fn submit(self, signer: Pair, call: Call) -> impl Future<Item=H256, Error=CommandError> {
+    fn submit(self, signer: Pair, call: Call) -> impl Future<Item=Hash, Error=CommandError> {
         let account_nonce = self.fetch_nonce(&signer.public()).map_err(Into::into);
         let genesis_hash = self.fetch_genesis_hash()
             .map_err(Into::into)
@@ -119,8 +119,8 @@ impl Rpc {
     }
 }
 
-pub fn submit(url: &str, signer: Pair, call: Call) -> Result<H256> {
-    let submit = Rpc::connect::<H256>(url)
+pub fn submit(url: &str, signer: Pair, call: Call) -> Result<Hash> {
+    let submit = Rpc::connect(url)
         .map_err(Into::into)
         .and_then(|rpc| rpc.submit(signer, call));
 
