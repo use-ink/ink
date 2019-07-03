@@ -73,15 +73,15 @@ impl Rpc {
             .map_err(Into::into)
     }
 
-    fn fetch_genesis_hash(&self) -> impl Future<Item=Option<Hash>, Error=RpcError> {
+    fn fetch_genesis_hash(&self) -> impl Future<Item=Option<H256>, Error=RpcError> {
         self.chain.block_hash(Some(NumberOrHex::Number(0)))
     }
 
-    fn submit_extrinsic(&self, extrinsic: UncheckedExtrinsic) -> impl Future<Item=Hash, Error=RpcError> {
+    fn submit_extrinsic(&self, extrinsic: UncheckedExtrinsic) -> impl Future<Item=H256, Error=RpcError> {
         self.author.submit_extrinsic(extrinsic.encode().into())
     }
 
-    fn submit(self, signer: Pair, call: Call) -> impl Future<Item=Hash, Error=CommandError> {
+    fn submit(self, signer: Pair, call: Call) -> impl Future<Item=H256, Error=CommandError> {
         let account_nonce = self.fetch_nonce(&signer.public()).map_err(Into::into);
         let genesis_hash = self.fetch_genesis_hash()
             .map_err(Into::into)
