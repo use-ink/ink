@@ -16,7 +16,7 @@ panic = "abort"
 lto = true
 
 [patch.crates-io]
-jsonrpc-derive = { git = "https://github.com/dvc94ch/jsonrpc", branch = "dvc-client-pubsub", package = "jsonrpc-derive" }
-jsonrpc-core-client = { git = "https://github.com/dvc94ch/jsonrpc", branch = "dvc-client-pubsub", package = "jsonrpc-core-client", features = ["http", "ws"] }
-jsonrpc-core = { git = "https://github.com/dvc94ch/jsonrpc", branch = "dvc-client-pubsub", package = "jsonrpc-core" }
-jsonrpc-pubsub = { git = "https://github.com/dvc94ch/jsonrpc", branch = "dvc-client-pubsub", package = "jsonrpc-pubsub" }
+jsonrpc-derive = { git = "https://github.com/paritytech/jsonrpc", package = "jsonrpc-derive" }
+jsonrpc-core-client = { git = "https://github.com/paritytech/jsonrpc", package = "jsonrpc-core-client" }
+jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", package = "jsonrpc-core" }
+jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", package = "jsonrpc-pubsub" }
