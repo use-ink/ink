@@ -30,7 +30,7 @@ use futures::{
 };
 use parity_codec::{Encode, Decode, Compact};
 use jsonrpc_core_client::{
-    transports::{http, ws},
+    transports::ws,
     RpcError,
     TypedSubscriptionStream,
 };
@@ -70,13 +70,6 @@ struct Query {
 }
 
 impl Query {
-    #[allow(unused)]
-    fn connect_http(url: &str) -> impl Future<Item=Query, Error=RpcError> {
-        http::connect(url)
-            .join(http::connect(url))
-            .map(|(state, chain)| Query { state, chain })
-    }
-
     fn connect_ws(url: &str) -> impl Future<Item=Query, Error=RpcError> {
         ws::connect(url).unwrap() // todo: [AJ] remove unwraps
             .join(ws::connect(url).unwrap())

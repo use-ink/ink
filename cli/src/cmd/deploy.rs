@@ -73,7 +73,7 @@ pub(crate) fn execute_deploy(
     contract_wasm_path: Option<PathBuf>,
 ) -> Result<()> {
     // todo: [AJ] pass in these arguments
-    let url = "http://localhost:9933";
+    let url = "http://localhost:9944";
     let signer = substrate_keyring::AccountKeyring::Alice.pair();
 
     let code = load_contract_code(contract_wasm_path)?;
