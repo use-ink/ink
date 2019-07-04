@@ -20,19 +20,33 @@ use node_runtime::{
     Runtime,
     UncheckedExtrinsic,
 };
-use futures::future::{
-    self,
-    Future,
+use futures::{
+    future::{
+        self,
+        Future,
+        IntoFuture,
+    },
+    stream::Stream,
 };
 use parity_codec::{Encode, Decode, Compact};
 use jsonrpc_core_client::{
-    transports::http,
+    transports::{http, ws},
     RpcError,
+    TypedSubscriptionStream,
 };
 
 use runtime_support::{StorageMap};
 use runtime_primitives::generic::Era;
-use substrate_primitives::{blake2_256, sr25519::Pair, Pair as _, storage::StorageKey, H256};
+use substrate_primitives::{
+    blake2_256,
+    sr25519::Pair,
+    Pair as _,
+    storage::{
+        StorageChangeSet,
+        StorageKey,
+    },
+    H256
+};
 use substrate_rpc::{
     author::AuthorClient,
     chain::{
@@ -41,23 +55,32 @@ use substrate_rpc::{
     },
     state::StateClient
 };
+use transaction_pool::txpool::watcher::Status;
 
 type AccountId = <Runtime as srml_system::Trait>::AccountId;
 type BlockNumber = <Runtime as srml_system::Trait>::BlockNumber;
 type Index = <Runtime as srml_system::Trait>::Index;
 type Hash = <Runtime as srml_system::Trait>::Hash;
+type Event = <Runtime as srml_system::Trait>::Event;
+type EventRecord = srml_system::EventRecord<Event, Hash>;
 
-struct Rpc {
+struct Query {
     state: StateClient<Hash>,
     chain: ChainClient<BlockNumber, Hash, Vec<u8>, Vec<u8>>,
-    author: AuthorClient<Hash, Hash>,
 }
 
-impl Rpc {
-    fn connect(url: &str) -> impl Future<Item=Rpc, Error=RpcError> {
+impl Query {
+    #[allow(unused)]
+    fn connect_http(url: &str) -> impl Future<Item=Query, Error=RpcError> {
         http::connect(url)
-            .join3(http::connect(url), http::connect(url))
-            .map(|(state, chain, author)| Rpc { state, chain, author })
+            .join(http::connect(url))
+            .map(|(state, chain)| Query { state, chain })
+    }
+
+    fn connect_ws(url: &str) -> impl Future<Item=Query, Error=RpcError> {
+        ws::connect(url).unwrap() // todo: [AJ] remove unwraps
+            .join(ws::connect(url).unwrap())
+            .map(|(state, chain)| Query { state, chain })
     }
 
     fn fetch_nonce(&self, account: &AccountId) -> impl Future<Item=u64, Error=RpcError> {
@@ -73,17 +96,31 @@ impl Rpc {
             .map_err(Into::into)
     }
 
+    fn subscribe_events(&self) -> impl Future<Item=TypedSubscriptionStream<StorageChangeSet<H256>>, Error=RpcError> {
+        let events_key = b"Events";
+        let storage_key = blake2_256(&events_key[..]).to_vec();
+
+        self.state.subscribe_storage(Some(vec![StorageKey(storage_key)]))
+    }
+
     fn fetch_genesis_hash(&self) -> impl Future<Item=Option<H256>, Error=RpcError> {
         self.chain.block_hash(Some(NumberOrHex::Number(0)))
     }
+}
 
-    fn submit_extrinsic(&self, extrinsic: UncheckedExtrinsic) -> impl Future<Item=H256, Error=RpcError> {
-        self.author.submit_extrinsic(extrinsic.encode().into())
+struct Author {
+    cli: AuthorClient<Hash, Hash>,
+}
+
+impl Author {
+    fn connect_ws(url: &str) -> impl Future<Item=Author, Error=RpcError> {
+        ws::connect(url).unwrap() // todo: [AJ] remove unwrap
+            .map(|cli| Author { cli })
     }
 
-    fn submit(self, signer: Pair, call: Call) -> impl Future<Item=H256, Error=CommandError> {
-        let account_nonce = self.fetch_nonce(&signer.public()).map_err(Into::into);
-        let genesis_hash = self.fetch_genesis_hash()
+    fn submit(self, query: &Query, signer: Pair, call: Call) -> impl Future<Item=H256, Error=CommandError> {
+        let account_nonce = query.fetch_nonce(&signer.public()).map_err(Into::into);
+        let genesis_hash = query.fetch_genesis_hash()
             .map_err(Into::into)
             .and_then(|genesis_hash| {
                 future::result(genesis_hash.ok_or("Genesis hash not found".into()))
@@ -93,7 +130,34 @@ impl Rpc {
             .join(genesis_hash)
             .and_then(move |(index, genesis_hash)| {
                 let extrinsic = Self::create_extrinsic(index, call, genesis_hash, &signer);
-                self.submit_extrinsic(extrinsic).map_err(Into::into)
+                self.submit_and_watch(extrinsic)
+            })
+    }
+
+    /// Submit an extrinsic, waiting for it to be finalized.
+    /// If successful, returns the block hash
+    fn submit_and_watch(self, extrinsic: UncheckedExtrinsic) -> impl Future<Item=H256, Error=CommandError> {
+        self.cli.watch_extrinsic(extrinsic.encode().into())
+            .map_err(Into::into)
+            .and_then(|stream| {
+                stream
+                    .filter_map(|status| {
+                        match status {
+                            Status::Future | Status::Ready | Status::Broadcast(_) => None, // ignore in progress extrinsic for now
+                            Status::Finalized(block_hash) => Some(Ok(block_hash)),
+                            Status::Usurped(_) => Some(Err("Extrinsic Usurped".into())),
+                            Status::Dropped => Some(Err("Extrinsic Dropped".into())),
+                            Status::Invalid => Some(Err("Extrinsic Invalid".into())),
+                        }
+                    })
+                    .into_future()
+                    .map_err(|(e,_)| e.into())
+                    .and_then(|(result, _)| {
+                        result
+                            .ok_or(CommandError::from("Stream terminated"))
+                            .and_then(|r| r)
+                            .into_future()
+                    })
             })
     }
 
@@ -120,9 +184,11 @@ impl Rpc {
 }
 
 pub fn submit(url: &str, signer: Pair, call: Call) -> Result<Hash> {
-    let submit = Rpc::connect(url)
+    let submit = Query::connect_ws(url)
+        .join(Author::connect_ws(url))
         .map_err(Into::into)
-        .and_then(|rpc| rpc.submit(signer, call));
+        .and_then(|(query, author)| author.submit(&query, signer, call));
+//        .and_then(|rpc| rpc.submit(signer, call));
 
     let mut rt = tokio::runtime::Runtime::new()?;
     rt.block_on(submit)
