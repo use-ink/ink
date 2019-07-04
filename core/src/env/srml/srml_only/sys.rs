@@ -32,7 +32,6 @@ extern "C" {
     ) -> u32;
 
     /// Calls a remote smart contract.
-    #[allow(unused)]
     pub fn ext_call(
         callee_ptr: u32,
         callee_len: u32,

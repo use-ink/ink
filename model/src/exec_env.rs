@@ -28,7 +28,10 @@ use ink_core::{
         Initialize,
     },
 };
-use scale::Encode as _;
+use scale::{
+    Encode as _,
+    Decode,
+};
 
 /// Provides a safe interface to an environment given a contract state.
 pub struct ExecutionEnv<State, Env> {
@@ -189,5 +192,28 @@ impl<T: Env> EnvHandler<T> {
         C: Into<T::Call>,
     {
         T::dispatch_raw_call(call.into().encode().as_slice())
+    }
+
+    /// Calls a remote smart contract without returning data.
+    pub fn call_invoke(
+        &mut self,
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<(), <T as Env>::CallError> {
+        T::call_invoke(callee, gas, value, input_data)
+    }
+
+    /// Calls a remote smart contract with returning encoded data.
+    #[must_use]
+    pub fn call_evaluate<U:Decode>(
+        &mut self,
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<U, <T as Env>::CallError>  {
+        T::call_evaluate(callee, gas, value, input_data)
     }
 }

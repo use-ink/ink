@@ -18,7 +18,10 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use scale::Codec;
+use scale::{
+    Codec,
+    Decode,
+};
 
 #[cfg(not(feature = "test-env"))]
 /// The environmental types usable by contracts defined with ink!.
@@ -85,6 +88,10 @@ pub trait EnvStorage {
 
 /// The environment API usable by contracts defined with pDSL.
 pub trait Env: EnvTypes {
+
+    /// Error type of remote call;
+    type CallError;
+
     /// Returns the chain address of the contract.
     fn address() -> <Self as EnvTypes>::AccountId;
 
@@ -136,4 +143,21 @@ pub trait Env: EnvTypes {
 
     /// Dispatches a call into the Runtime.
     fn dispatch_raw_call(data: &[u8]);
+
+    /// Calls a remote smart contract without returning data
+    fn call_invoke(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8]
+    ) -> Result<(), Self::CallError>;
+
+    /// Calls a remote smart contract and return encoded data
+    #[must_use]
+    fn call_evaluate<T: Decode>(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> Result<T, Self::CallError>;
 }

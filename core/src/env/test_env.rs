@@ -47,6 +47,13 @@ impl EventData {
     }
 }
 
+struct CallData {
+    calee: Vec<u8>,
+    gas: u64,
+    value: Vec<u8>,
+    input_data: Vec<u8>,
+}
+
 /// An entry in the storage of the test environment.
 ///
 /// # Note
@@ -179,6 +186,8 @@ pub struct TestEnvData {
     gas_left: Vec<u8>,
     /// The total transferred value.
     value_transferred: Vec<u8>,
+    /// The calls.
+    calls: Vec<CallData>,
 }
 
 impl Default for TestEnvData {
@@ -200,6 +209,7 @@ impl Default for TestEnvData {
             gas_left: Vec::new(),
             value_transferred: Vec::new(),
             dispatched_calls: Vec::new(),
+            calls: Vec::new(),
         }
     }
 }
@@ -220,6 +230,7 @@ impl TestEnvData {
         self.total_writes = 0;
         self.events.clear();
         self.dispatched_calls.clear();
+        self.calls.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -316,6 +327,23 @@ impl TestEnvData {
     /// Returns an iterator over all dispatched calls
     pub fn dispatched_calls(&self) -> impl DoubleEndedIterator<Item = &[u8]> {
         self.dispatched_calls.iter().map(Vec::as_slice)
+    }
+
+    /// Appends new call to the end of the bytearray.
+    pub fn add_call(
+        &mut self,
+        callee: &[u8],
+        gas: u64,
+        value: &[u8],
+        input_data: &[u8],
+    ) {
+        let new_call = CallData {
+            callee: callee.to_vec(),
+            gas: u64,
+            value: value.to_vec(),
+            input_data: input_data.to_vec(),
+        };
+        self.calls.push(new_call);
     }
 }
 
@@ -417,6 +445,18 @@ impl TestEnvData {
     pub fn dispatch_call(&mut self, call: &[u8]) {
         self.add_dispatched_call(call);
     }
+
+    pub fn call<T: Decode>(
+        &mut self,
+        callee: &[u8],
+        gas: u64,
+        value: &[u8],
+        input_data: &[u8],
+    ) -> Result<T,CallError> {
+        add_call(callee, gas, value, input_data);
+        unimplemented!();
+    }
+
 }
 
 thread_local! {
@@ -566,6 +606,31 @@ where
 
     fn dispatch_raw_call(data: &[u8]) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().dispatch_call(data))
+    }
+
+    fn call_invoke(
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) {
+        let callee = &(callee.encode())[..];
+        let value = &(value.encode())[..];
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data));
+        return Result<(),CallError{}>;
+    }
+
+    fn call_evaluate<U : Decode>(
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Option<U> {
+        let callee = &(callee.encode())[..];
+        let value = &(value.encode())[..];
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data))
     }
 }
 
