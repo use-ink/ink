@@ -36,7 +36,8 @@ use jsonrpc_core_client::{
 };
 
 use runtime_support::{StorageMap};
-use runtime_primitives::generic::Era;
+use runtime_primitives::{generic::Era};
+use serde::{self, Deserialize, de::Error as DeError};
 use substrate_primitives::{
     blake2_256,
     sr25519::Pair,
@@ -45,7 +46,7 @@ use substrate_primitives::{
         StorageChangeSet,
         StorageKey,
     },
-    H256
+    H256,
 };
 use substrate_rpc::{
     author::AuthorClient,
@@ -64,9 +65,45 @@ type Hash = <Runtime as srml_system::Trait>::Hash;
 type Event = <Runtime as srml_system::Trait>::Event;
 type EventRecord = srml_system::EventRecord<Event, Hash>;
 
+/// Simple blob to hold an extrinsic without committing to its format and ensure it is serialized
+/// correctly.
+#[derive(PartialEq, Eq, Clone, Default, Encode, Decode)]
+pub struct OpaqueExtrinsic(pub Vec<u8>);
+
+impl std::fmt::Debug for OpaqueExtrinsic {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(fmt, "{}", substrate_primitives::hexdisplay::HexDisplay::from(&self.0))
+    }
+}
+
+impl<'a> serde::Deserialize<'a> for OpaqueExtrinsic {
+    fn deserialize<D>(de: D) -> std::result::Result<Self, D::Error> where D: serde::Deserializer<'a> {
+        let r = <Vec<u8>>::deserialize(de)?;
+        Decode::decode(&mut &r[..]).ok_or(DeError::custom("Invalid value passed into decode"))
+    }
+}
+
+/// Copy of runtime_primitives::generic::Block with Deserialize implemented
+#[derive(PartialEq, Eq, Clone, Encode, Decode, Debug, Deserialize)]
+//#[cfg_attr(feature = "std", serde(rename_all = "camelCase"))]
+//#[cfg_attr(feature = "std", serde(deny_unknown_fields))]
+pub struct Block {
+    /// The block header.
+//    pub header: Header,
+    /// The accompanying extrinsics.
+    pub extrinsics: Vec<OpaqueExtrinsic>,
+}
+
+/// Copy of runtime_primitives::generic::SignedBlock with Deserialize implemented
+#[derive(PartialEq, Eq, Clone, Encode, Decode, Debug, Deserialize)]
+pub struct SignedBlock {
+    /// Full block.
+    pub block: Block,
+}
+
 struct Query {
     state: StateClient<Hash>,
-    chain: ChainClient<BlockNumber, Hash, Vec<u8>, Vec<u8>>,
+    chain: ChainClient<BlockNumber, Hash, (), SignedBlock>,
 }
 
 impl Query {
@@ -89,16 +126,27 @@ impl Query {
             .map_err(Into::into)
     }
 
-    fn subscribe_events(&self) -> impl Future<Item=TypedSubscriptionStream<StorageChangeSet<H256>>, Error=RpcError> {
-        let events_key = b"Events";
-        let storage_key = blake2_256(&events_key[..]).to_vec();
-
-        self.state.subscribe_storage(Some(vec![StorageKey(storage_key)]))
-    }
-
     fn fetch_genesis_hash(&self) -> impl Future<Item=Option<H256>, Error=RpcError> {
         self.chain.block_hash(Some(NumberOrHex::Number(0)))
     }
+
+    fn fetch_block(&self, block_hash: H256) -> impl Future<Item=Option<SignedBlock>, Error=RpcError> {
+        self.chain.block(Some(block_hash))
+    }
+
+    fn subscribe_events(&self) -> impl Future<Item=TypedSubscriptionStream<StorageChangeSet<H256>>, Error=RpcError> {
+        let events_key = b"Events";
+        let storage_key = StorageKey(blake2_256(&events_key[..]).to_vec());
+
+        self.state.subscribe_storage(Some(vec![storage_key]))
+    }
+}
+
+struct ExtrinsicSuccess {
+    block: Hash,
+    extrinsic: Hash,
+//    extrinsic_event: EventRecord,
+//    events: Vec<EventRecord>
 }
 
 struct Author {
@@ -111,24 +159,90 @@ impl Author {
             .map(|cli| Author { cli })
     }
 
-    fn submit(self, query: &Query, signer: Pair, call: Call) -> impl Future<Item=H256, Error=CommandError> {
+    //        let extract_code_hash = |event: EventRecord, block_hash: H256, ext_hash: H256, ext_index| {
+//            if event.block == block_hash {
+//                let record: EventRecord = Decode::decode(&mut event[..]);
+//                if let srml_system::Phase::ApplyExtrinsic(i) = record.phase {
+//                    let e = record.event;
+//                    if i == ext_index && e.section == "contract" && e.method == "CodeStored" {
+//                        Some(e.data)
+//                    } else {
+//                        None
+//                    }
+//                } else {
+//                    None
+//                }
+//            } else {
+//                None
+//            }
+//        };
+
+    /// Submit extrinsic and return corresponding Event if successful
+    fn submit(self, query: &Query, signer: Pair, call: Call) -> impl Future<Item=ExtrinsicSuccess, Error=CommandError> + '_ {
         let account_nonce = query.fetch_nonce(&signer.public()).map_err(Into::into);
         let genesis_hash = query.fetch_genesis_hash()
             .map_err(Into::into)
             .and_then(|genesis_hash| {
                 future::result(genesis_hash.ok_or("Genesis hash not found".into()))
             });
+        let events = query.subscribe_events().map_err(Into::into);
 
         account_nonce
-            .join(genesis_hash)
-            .and_then(move |(index, genesis_hash)| {
+            .join3(genesis_hash, events)
+            .and_then(move |(index, genesis_hash, _events)| {
                 let extrinsic = Self::create_extrinsic(index, call, genesis_hash, &signer);
                 self.submit_and_watch(extrinsic)
+                    .and_then(|bh| query.fetch_block(bh).map(move |b| (bh, b)).map_err(Into::into))
+                    .and_then(|(h, b)| b.ok_or(format!("Failed to find block '{:#x}'", h).into()).map(|b| (h, b)).into_future())
+                    .and_then(|(bh, _sb)| {
+                        let ext_hash = blake2_256(&extrinsic.encode()[..]);
+                        future::ok(ExtrinsicSuccess { block: bh, extrinsic: ext_hash.into() })
+//                        let ext_index = sb.block.extrinsics
+//                            .iter()
+//                            .position(|ext| blake2_256(&ext.0) == ext_hash)
+//                            .ok_or(format!("Failed to find Extrinsic with hash {:?}", ext_hash).into())
+//                            .into_future();
+//
+//                        let block_events = events
+//                            .filter_map(|event| event.block == bh)
+//                            .concat2();
+//
+//                        block_events
+//                            .join(ext_index)
+//                            .map(|(events, ext_index| {
+//                                let events =
+//                            });
+
+//                        ext_index.and_then(|ext_index| {
+//                            events.filter_map(|event| {
+//                                if event.block == bh {
+//                                    event.changes.iter().filter_map(|(key, data)| {
+//                                        if let Some(data) = data {
+//                                            let record: EventRecord = Decode::decode(&mut &data.0[..]).unwrap(); // todo: [AJ] remove unwrap
+//                                            if let srml_system::Phase::ApplyExtrinsic(i) = record.phase {
+//                                                if i as usize == ext_index {
+//                                                    Some(record.event)
+//                                                } else {
+//                                                    None
+//                                                }
+//                                            } else {
+//                                                None
+//                                            }
+//                                        } else {
+//                                            None
+//                                        }
+//                                    })
+//                                } else {
+//                                    None
+//                                }
+//                            })
+//                        })
+                    })
             })
     }
 
     /// Submit an extrinsic, waiting for it to be finalized.
-    /// If successful, returns the block hash
+    /// If successful, returns the block hash.
     fn submit_and_watch(self, extrinsic: UncheckedExtrinsic) -> impl Future<Item=H256, Error=CommandError> {
         self.cli.watch_extrinsic(extrinsic.encode().into())
             .map_err(Into::into)
@@ -181,8 +295,10 @@ pub fn submit(url: &str, signer: Pair, call: Call) -> Result<Hash> {
         .join(Author::connect_ws(url))
         .map_err(Into::into)
         .and_then(|(query, author)| author.submit(&query, signer, call));
-//        .and_then(|rpc| rpc.submit(signer, call));
 
     let mut rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(submit)
+    let result = rt.block_on(submit);
+
+    // todo: [AJ] extract code hash, just return block has for now
+    result.map(|r| r.block)
 }
