@@ -89,6 +89,7 @@ where
     type Balance = <T as EnvTypes>::Balance;
     type Hash = <T as EnvTypes>::Hash;
     type Moment = <T as EnvTypes>::Moment;
+    type BlockNumber = <T as EnvTypes>::BlockNumber;
 }
 
 macro_rules! impl_getters_for_srml_env {
@@ -122,6 +123,7 @@ where
         (caller, ext_caller, <Self as EnvTypes>::AccountId),
         (random_seed, ext_random_seed, <Self as EnvTypes>::Hash),
         (now, ext_now, <Self as EnvTypes>::Moment),
+        (current_block, ext_current_block, <Self as EnvTypes>::BlockNumber),
         (gas_price, ext_gas_price, <Self as EnvTypes>::Balance),
         (gas_left, ext_gas_left, <Self as EnvTypes>::Balance),
         (value_transferred, ext_value_transferred, <Self as EnvTypes>::Balance)

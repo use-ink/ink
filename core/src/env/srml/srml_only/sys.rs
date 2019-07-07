@@ -114,4 +114,7 @@ extern "C" {
 
     /// Load the latest block timestamp into the scratch buffer.
     pub fn ext_now();
+
+    /// Load the latest block number into the scratch buffer.
+    pub fn ext_current_block();
 }

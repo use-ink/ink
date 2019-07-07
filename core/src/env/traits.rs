@@ -31,6 +31,8 @@ pub trait EnvTypes {
     type Hash: Codec + Clone + PartialEq + Eq;
     /// The type of timestamps.
     type Moment: Codec + Clone + PartialEq + Eq;
+    /// The type of block number.
+    type BlockNumber: Codec + Clone + PartialEq + Eq;
 }
 
 #[cfg(feature = "test-env")]
@@ -44,6 +46,8 @@ pub trait EnvTypes {
     type Hash: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of timestamps.
     type Moment: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of block number.
+    type BlockNumber: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
 }
 
 /// Types implementing this can act as contract storage.
@@ -92,6 +96,9 @@ pub trait Env: EnvTypes {
 
     /// Get the timestamp of the latest block.
     fn now() -> <Self as EnvTypes>::Moment;
+
+    /// Get the block number of the latest block.
+    fn current_block() -> <Self as EnvTypes>::BlockNumber;
 
     /// Returns the current gas price.
     fn gas_price() -> <Self as EnvTypes>::Balance;
