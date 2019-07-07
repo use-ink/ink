@@ -267,6 +267,8 @@ pub enum PrimitiveTypeDescription {
     Hash,
     /// The SRML moment type.
     Moment,
+    /// The SRML block number type.
+    BlockNumber,
 }
 
 impl TryFrom<&syn::TypePath> for PrimitiveTypeDescription {
@@ -291,6 +293,7 @@ impl TryFrom<&syn::TypePath> for PrimitiveTypeDescription {
             "Balance" => Ok(PrimitiveTypeDescription::Balance),
             "Hash" => Ok(PrimitiveTypeDescription::Hash),
             "Moment" => Ok(PrimitiveTypeDescription::Moment),
+            "BlockNumber" => Ok(PrimitiveTypeDescription::BlockNumber),
             unsupported => {
                 bail!(
                     ty,
@@ -582,6 +585,10 @@ mod tests {
         assert_eq_type_description(
             parse_quote!(Moment),
             Primitive(PrimitiveTypeDescription::Moment),
+        );
+        assert_eq_type_description(
+            parse_quote!(BlockNumber),
+            Primitive(PrimitiveTypeDescription::BlockNumber),
         );
     }
 
