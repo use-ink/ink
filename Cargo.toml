@@ -14,9 +14,3 @@ exclude = [
 [profile.release]
 panic = "abort"
 lto = true
-
-[patch.crates-io]
-jsonrpc-derive = { git = "https://github.com/paritytech/jsonrpc", package = "jsonrpc-derive" }
-jsonrpc-core-client = { git = "https://github.com/paritytech/jsonrpc", package = "jsonrpc-core-client" }
-jsonrpc-core = { git = "https://github.com/paritytech/jsonrpc", package = "jsonrpc-core" }
-jsonrpc-pubsub = { git = "https://github.com/paritytech/jsonrpc", package = "jsonrpc-pubsub" }
