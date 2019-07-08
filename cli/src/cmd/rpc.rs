@@ -145,8 +145,7 @@ impl Query {
 struct ExtrinsicSuccess {
     block: Hash,
     extrinsic: Hash,
-//    extrinsic_event: EventRecord,
-//    events: Vec<EventRecord>
+    events: Vec<Event>
 }
 
 struct Author {
@@ -178,7 +177,7 @@ impl Author {
 //        };
 
     /// Submit extrinsic and return corresponding Event if successful
-    fn submit(self, query: &Query, signer: Pair, call: Call) -> impl Future<Item=ExtrinsicSuccess, Error=CommandError> + '_ {
+    fn submit(self, query: Query, signer: Pair, call: Call) -> impl Future<Item=ExtrinsicSuccess, Error=CommandError> {
         let account_nonce = query.fetch_nonce(&signer.public()).map_err(Into::into);
         let genesis_hash = query.fetch_genesis_hash()
             .map_err(Into::into)
@@ -189,54 +188,60 @@ impl Author {
 
         account_nonce
             .join3(genesis_hash, events)
-            .and_then(move |(index, genesis_hash, _events)| {
+            .and_then(move |(index, genesis_hash, events)| {
                 let extrinsic = Self::create_extrinsic(index, call, genesis_hash, &signer);
-                self.submit_and_watch(extrinsic)
-                    .and_then(|bh| query.fetch_block(bh).map(move |b| (bh, b)).map_err(Into::into))
-                    .and_then(|(h, b)| b.ok_or(format!("Failed to find block '{:#x}'", h).into()).map(|b| (h, b)).into_future())
-                    .and_then(|(bh, _sb)| {
-                        let ext_hash = blake2_256(&extrinsic.encode()[..]);
-                        future::ok(ExtrinsicSuccess { block: bh, extrinsic: ext_hash.into() })
-//                        let ext_index = sb.block.extrinsics
-//                            .iter()
-//                            .position(|ext| blake2_256(&ext.0) == ext_hash)
-//                            .ok_or(format!("Failed to find Extrinsic with hash {:?}", ext_hash).into())
-//                            .into_future();
-//
-//                        let block_events = events
-//                            .filter_map(|event| event.block == bh)
-//                            .concat2();
-//
-//                        block_events
-//                            .join(ext_index)
-//                            .map(|(events, ext_index| {
-//                                let events =
-//                            });
+                let ext_hash = blake2_256(&extrinsic.encode()[..]);
 
-//                        ext_index.and_then(|ext_index| {
-//                            events.filter_map(|event| {
-//                                if event.block == bh {
-//                                    event.changes.iter().filter_map(|(key, data)| {
-//                                        if let Some(data) = data {
-//                                            let record: EventRecord = Decode::decode(&mut &data.0[..]).unwrap(); // todo: [AJ] remove unwrap
-//                                            if let srml_system::Phase::ApplyExtrinsic(i) = record.phase {
-//                                                if i as usize == ext_index {
-//                                                    Some(record.event)
-//                                                } else {
-//                                                    None
-//                                                }
-//                                            } else {
-//                                                None
-//                                            }
-//                                        } else {
-//                                            None
-//                                        }
-//                                    })
-//                                } else {
-//                                    None
-//                                }
-//                            })
-//                        })
+                self.submit_and_watch(extrinsic)
+                    .and_then(move |bh| query.fetch_block(bh).map(move |b| (bh, b)).map_err(Into::into))
+                    .and_then(|(h, b)| b.ok_or(format!("Failed to find block '{:#x}'", h).into()).map(|b| (h, b)).into_future())
+                    .and_then(move |(bh, sb)| {
+                        let ext_index = sb.block.extrinsics
+                            .iter()
+                            .position(|ext| blake2_256(&ext.0) == ext_hash)
+                            .ok_or(format!("Failed to find Extrinsic with hash {:?}", ext_hash).into())
+                            .into_future();
+
+                        let block_hash = bh.clone();
+                        let block_events = events
+                            .filter(move |event| event.block == block_hash)
+                            .map(|event| {
+                                event.changes
+                                    .iter()
+                                    .filter_map(|(_key, data)| {
+                                        if let Some(data) = data {
+                                            let record: EventRecord = Decode::decode(&mut &data.0[..]).unwrap(); // todo: [AJ] remove unwrap
+                                            Some(record)
+                                        } else {
+                                            None
+                                        }
+                                    })
+                                    .collect::<Vec<_>>()
+                            })
+                            .into_future()
+                            .map_err(|(e,_)| e.into())
+                            .map(|(events, _)| events);
+
+                        block_events
+                            .join(ext_index)
+                            .map(move |(events, ext_index)| {
+                                let events = events
+                                    .iter()
+                                    .flat_map(|events| events)
+                                    .filter_map(|e| {
+                                        if let srml_system::Phase::ApplyExtrinsic(i) = e.phase {
+                                            if i as usize == ext_index {
+                                                Some(e.event.clone())
+                                            } else {
+                                                None
+                                            }
+                                        } else {
+                                            None
+                                        }
+                                    })
+                                    .collect::<Vec<_>>();
+                                ExtrinsicSuccess { block: bh, extrinsic: ext_hash.into(), events }
+                            })
                     })
             })
     }
@@ -294,11 +299,16 @@ pub fn submit(url: &str, signer: Pair, call: Call) -> Result<Hash> {
     let submit = Query::connect_ws(url)
         .join(Author::connect_ws(url))
         .map_err(Into::into)
-        .and_then(|(query, author)| author.submit(&query, signer, call));
+        .and_then(|(query, author)| author.submit(query, signer, call));
 
     let mut rt = tokio::runtime::Runtime::new()?;
     let result = rt.block_on(submit);
 
     // todo: [AJ] extract code hash, just return block has for now
-    result.map(|r| r.block)
+    result.map(|r| {
+        for event in r.events {
+            println!("{:?}", event);
+        }
+        r.block
+    })
 }
