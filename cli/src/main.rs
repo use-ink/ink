@@ -105,6 +105,8 @@ enum Command {
 }
 
 fn main() -> cmd::Result<()> {
+    env_logger::init();
+
     let Opts::Contract(args) = Opts::from_args();
     use crate::cmd::{
         CommandError,
