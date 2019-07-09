@@ -28,6 +28,7 @@ use futures::{
     },
     stream::Stream,
 };
+use log;
 use parity_codec::{Encode, Decode, Compact};
 use jsonrpc_core_client::{
     transports::ws,
@@ -78,7 +79,7 @@ impl std::fmt::Debug for OpaqueExtrinsic {
 
 impl<'a> serde::Deserialize<'a> for OpaqueExtrinsic {
     fn deserialize<D>(de: D) -> std::result::Result<Self, D::Error> where D: serde::Deserializer<'a> {
-        let r = <Vec<u8>>::deserialize(de)?;
+        let r = substrate_primitives::bytes::deserialize(de)?;
         Decode::decode(&mut &r[..]).ok_or(DeError::custom("Invalid value passed into decode"))
     }
 }
@@ -190,16 +191,26 @@ impl Author {
             .join3(genesis_hash, events)
             .and_then(move |(index, genesis_hash, events)| {
                 let extrinsic = Self::create_extrinsic(index, call, genesis_hash, &signer);
-                let ext_hash = blake2_256(&extrinsic.encode()[..]);
+                let ext_hash = &extrinsic.using_encoded(|encoded| blake2_256(encoded));
+                log::info!("Submitted Extrinsic {:?}", H256(ext_hash));
 
                 self.submit_and_watch(extrinsic)
-                    .and_then(move |bh| query.fetch_block(bh).map(move |b| (bh, b)).map_err(Into::into))
+                    .and_then(move |bh| {
+                        log::info!("Fetching block {:?}", bh);
+                        query.fetch_block(bh).map(move |b| (bh, b)).map_err(Into::into)
+                    })
                     .and_then(|(h, b)| b.ok_or(format!("Failed to find block '{:#x}'", h).into()).map(|b| (h, b)).into_future())
                     .and_then(move |(bh, sb)| {
+                        log::info!("Found block {:?}, with {} extrinsics", bh, sb.block.extrinsics.len());
+
                         let ext_index = sb.block.extrinsics
                             .iter()
-                            .position(|ext| blake2_256(&ext.0) == ext_hash)
-                            .ok_or(format!("Failed to find Extrinsic with hash {:?}", ext_hash).into())
+                            .position(|ext| {
+                                let hash = &ext.using_encoded(|encoded| blake2_256(encoded)); //blake2_256(&ext.0);
+                                log::info!("Block Extrinsic {:?}", H256(hash));
+                                blake2_256(&ext.0) == ext_hash
+                            })
+                            .ok_or(format!("Failed to find Extrinsic with hash {:?}", H256(ext_hash)).into())
                             .into_future();
 
                         let block_hash = bh.clone();
@@ -273,7 +284,7 @@ impl Author {
             })
     }
 
-    fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pair) -> UncheckedExtrinsic {
+    fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pair) -> (UncheckedExtrinsic, Vec<u8>) {
         let era = Era::immortal();
 
         let raw_payload = (Compact(index), function, era, block_hash);
@@ -284,6 +295,8 @@ impl Author {
                 signer.sign(payload)
             }
         );
+
+        let hash = blake2_256(raw_payload.encode())
 
         UncheckedExtrinsic::new_signed(
             index,
