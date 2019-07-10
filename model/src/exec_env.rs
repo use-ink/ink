@@ -177,7 +177,7 @@ impl<T: Env> EnvHandler<T> {
         T::now()
     }
 
-    pub fn current_block(&self) -> T::BlockNumber {
-        T::current_block()
+    pub fn block_number(&self) -> T::BlockNumber {
+        T::block_number()
     }
 }
