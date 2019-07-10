@@ -19,12 +19,17 @@ use parity_codec::{
     Decode,
     Encode,
 };
+use crate::storage::Flush;
 
 /// A block of 1024 bits.
 #[derive(Debug, Copy, Clone, Encode, Decode)]
 pub struct BitBlock {
     /// The underlying bit packs.
     packs: [BitPack; Self::PACKS as usize],
+}
+
+impl Flush for BitBlock {
+	fn flush(&mut self) {}
 }
 
 /// Error indicating an invalid bit pack index.

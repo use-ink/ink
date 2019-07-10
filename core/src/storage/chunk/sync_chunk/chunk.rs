@@ -47,12 +47,15 @@ pub struct SyncChunk<T> {
 
 impl<T> Flush for SyncChunk<T>
 where
-    T: parity_codec::Encode,
+    T: parity_codec::Encode + Flush,
 {
     fn flush(&mut self) {
         for (n, dirty_val) in self.cache.iter_dirty() {
-            match dirty_val.get() {
-                Some(val) => self.chunk.store(n, val),
+            match dirty_val.get_mut() {
+                Some(val) => {
+					self.chunk.store(n, val);
+					val.flush();
+				}
                 None => self.chunk.clear(n),
             }
             dirty_val.mark_clean();
