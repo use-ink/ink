@@ -208,6 +208,7 @@ impl TestEnvData {
         self.input.clear();
         self.random_seed.clear();
         self.now.clear();
+        self.current_block.clear();
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
