@@ -154,8 +154,8 @@ pub struct TestEnvData {
     ///
     /// # Note
     ///
-    /// The current current block number can be adjusted by `TestEnvData::set_current_block`.
-    current_block: Vec<u8>,
+    /// The current current block number can be adjusted by `TestEnvData::set_block_number`.
+    block_number: Vec<u8>,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -186,7 +186,7 @@ impl Default for TestEnvData {
             input: Vec::new(),
             random_seed: Vec::new(),
             now: Vec::new(),
-            current_block: Vec::new(),
+            block_number: Vec::new(),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -208,7 +208,7 @@ impl TestEnvData {
         self.input.clear();
         self.random_seed.clear();
         self.now.clear();
-        self.current_block.clear();
+        self.block_number.clear();
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
@@ -290,8 +290,8 @@ impl TestEnvData {
     }
 
     /// Sets the current block number for the next contract invocation.
-    pub fn set_current_block(&mut self, current_block: Vec<u8>) {
-        self.current_block = current_block;
+    pub fn set_block_number(&mut self, block_number: Vec<u8>) {
+        self.block_number = block_number;
     }
 
     /// Returns an iterator over all emitted events.
@@ -363,8 +363,8 @@ impl TestEnvData {
         self.now.clone()
     }
 
-    pub fn current_block(&self) -> Vec<u8> {
-        self.current_block.clone()
+    pub fn block_number(&self) -> Vec<u8> {
+        self.block_number.clone()
     }
 
     pub fn gas_price(&self) -> Vec<u8> {
@@ -456,7 +456,7 @@ impl<T> TestEnv<T> where T: EnvTypes {
         (set_caller, caller, T::AccountId),
         (set_random_seed, random_seed, T::Hash),
         (set_now, now, T::Moment),
-        (set_current_block, current_block, T::BlockNumber)
+        (set_block_number, block_number, T::BlockNumber)
     );
 
     /// Returns an iterator over all emitted events.
@@ -503,7 +503,7 @@ impl<T> Env for TestEnv<T> where T: EnvTypes
         (input, Vec<u8>),
         (random_seed, T::Hash),
         (now, T::Moment),
-        (current_block, T::BlockNumber),
+        (block_number, T::BlockNumber),
         (gas_price, T::Balance),
         (gas_left, T::Balance),
         (value_transferred, T::Balance)

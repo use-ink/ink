@@ -116,5 +116,5 @@ extern "C" {
     pub fn ext_now();
 
     /// Load the latest block number into the scratch buffer.
-    pub fn ext_current_block();
+    pub fn ext_block_number();
 }
