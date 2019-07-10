@@ -98,7 +98,7 @@ pub trait Env: EnvTypes {
     fn now() -> <Self as EnvTypes>::Moment;
 
     /// Get the block number of the latest block.
-    fn current_block() -> <Self as EnvTypes>::BlockNumber;
+    fn block_number() -> <Self as EnvTypes>::BlockNumber;
 
     /// Returns the current gas price.
     fn gas_price() -> <Self as EnvTypes>::Balance;

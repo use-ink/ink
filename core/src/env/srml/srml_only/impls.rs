@@ -123,7 +123,7 @@ where
         (caller, ext_caller, <Self as EnvTypes>::AccountId),
         (random_seed, ext_random_seed, <Self as EnvTypes>::Hash),
         (now, ext_now, <Self as EnvTypes>::Moment),
-        (current_block, ext_current_block, <Self as EnvTypes>::BlockNumber),
+        (block_number, ext_block_number, <Self as EnvTypes>::BlockNumber),
         (gas_price, ext_gas_price, <Self as EnvTypes>::Balance),
         (gas_left, ext_gas_left, <Self as EnvTypes>::Balance),
         (value_transferred, ext_value_transferred, <Self as EnvTypes>::Balance)
