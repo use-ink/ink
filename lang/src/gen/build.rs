@@ -60,7 +60,7 @@ fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract)
             pub type Balance = <ContractEnv<#env_types> as EnvTypes>::Balance;
             pub type Hash = <ContractEnv<#env_types> as EnvTypes>::Hash;
             pub type Moment = <ContractEnv<#env_types> as EnvTypes>::Moment;
-            pub type BlockNumber = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::BlockNumber;
+            pub type BlockNumber = <ContractEnv<#env_types> as EnvTypes>::BlockNumber;
         }
 
         use types::{
