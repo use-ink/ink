@@ -138,6 +138,7 @@ impl Query {
     fn subscribe_events(&self) -> impl Future<Item=TypedSubscriptionStream<StorageChangeSet<H256>>, Error=RpcError> {
         let events_key = b"System Events";
         let storage_key = blake2_256(events_key);
+        log::info!("Events storage key {:?}", storage_key);
 
         self.state.subscribe_storage(Some(vec![StorageKey(storage_key.to_vec())]))
     }
