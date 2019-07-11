@@ -33,6 +33,8 @@ pub trait EnvTypes {
     type Hash: Codec + Clone + PartialEq + Eq;
     /// The type of timestamps.
     type Moment: Codec + Clone + PartialEq + Eq;
+    /// The type of block number.
+    type BlockNumber: Codec + Clone + PartialEq + Eq;
     /// The type of a call into the runtime
     type Call: Encode;
 }
@@ -50,6 +52,8 @@ pub trait EnvTypes {
     type Hash: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of timestamps.
     type Moment: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of block number.
+    type BlockNumber: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of a call into the runtime
     type Call: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
 }
@@ -103,6 +107,9 @@ pub trait Env: EnvTypes {
 
     /// Get the timestamp of the latest block.
     fn now() -> <Self as EnvTypes>::Moment;
+
+    /// Get the block number of the latest block.
+    fn block_number() -> <Self as EnvTypes>::BlockNumber;
 
     /// Returns the current gas price.
     fn gas_price() -> <Self as EnvTypes>::Balance;

@@ -176,4 +176,8 @@ impl<T: Env> EnvHandler<T> {
     pub fn now(&self) -> T::Moment {
         T::now()
     }
+
+    pub fn block_number(&self) -> T::BlockNumber {
+        T::block_number()
+    }
 }

@@ -36,6 +36,7 @@ impl EnvTypes for DefaultSrmlTypes {
     type Balance = Balance;
     type Hash = Hash;
     type Moment = Moment;
+    type BlockNumber = BlockNumber;
     type Call = Call;
 }
 
@@ -86,6 +87,9 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
 
 /// The default SRML moment type.
 pub type Moment = u64;
+
+/// The default SRML blocknumber type.
+pub type BlockNumber = u64;
 
 /// The default SRML call type.
 #[derive(Encode, Decode)]
