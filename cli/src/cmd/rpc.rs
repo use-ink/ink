@@ -144,10 +144,10 @@ impl Query {
     }
 }
 
-struct ExtrinsicSuccess {
-    block: Hash,
-    extrinsic: Hash,
-    events: Vec<Event>
+pub struct ExtrinsicSuccess {
+    pub block: Hash,
+    pub extrinsic: Hash,
+    pub events: Vec<Event>
 }
 
 struct Author {
@@ -159,24 +159,6 @@ impl Author {
         ws::connect(url).unwrap() // todo: [AJ] remove unwrap
             .map(|cli| Author { cli })
     }
-
-    //        let extract_code_hash = |event: EventRecord, block_hash: H256, ext_hash: H256, ext_index| {
-//            if event.block == block_hash {
-//                let record: EventRecord = Decode::decode(&mut event[..]);
-//                if let srml_system::Phase::ApplyExtrinsic(i) = record.phase {
-//                    let e = record.event;
-//                    if i == ext_index && e.section == "contract" && e.method == "CodeStored" {
-//                        Some(e.data)
-//                    } else {
-//                        None
-//                    }
-//                } else {
-//                    None
-//                }
-//            } else {
-//                None
-//            }
-//        };
 
     /// Submit extrinsic and return corresponding Event if successful
     fn submit(self, query: Query, signer: Pair, call: Call) -> impl Future<Item=ExtrinsicSuccess, Error=CommandError> {
@@ -318,20 +300,12 @@ impl Author {
     }
 }
 
-pub fn submit(url: &str, signer: Pair, call: Call) -> Result<Hash> {
+pub fn submit(url: &str, signer: Pair, call: Call) -> Result<ExtrinsicSuccess> {
     let submit = Query::connect_ws(url)
         .join(Author::connect_ws(url))
         .map_err(Into::into)
         .and_then(|(query, author)| author.submit(query, signer, call));
 
     let mut rt = tokio::runtime::Runtime::new()?;
-    let result = rt.block_on(submit);
-
-    // todo: [AJ] extract code hash, just return block has for now
-    result.map(|r| {
-        for event in r.events {
-            println!("{:?}", event);
-        }
-        r.block
-    })
+    rt.block_on(submit)
 }

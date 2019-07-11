@@ -29,6 +29,8 @@ use std::{
     io::Read,
     path::PathBuf,
 };
+use substrate_primitives::H256;
+use super::rpc;
 
 type CargoToml = HashMap<String, toml::Value>;
 
@@ -67,6 +69,21 @@ fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
     return Ok(data)
 }
 
+fn extract_code_hash(extrinsic_result: rpc::ExtrinsicSuccess) -> Result<H256> {
+    extrinsic_result.events
+        .iter()
+        .find_map(|_event| {
+            // todo [AJ] find CodeStored event
+//            if let Event::CodeStored(hash) = event {
+//                Some(event.data)
+//            } else {
+//                None
+//            }
+            None
+        })
+        .ok_or("Failed to find contract.CodeStored event".into())
+}
+
 pub(crate) fn execute_deploy(
     _on_dev: bool,
     gas: u64,
@@ -79,8 +96,8 @@ pub(crate) fn execute_deploy(
     let code = load_contract_code(contract_wasm_path)?;
     let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
-    let tx_hash = super::rpc::submit(url, signer, call)?;
-    println!("{:?}", tx_hash);
+    let extrinsic_success = rpc::submit(url, signer, call)?;
+    println!("{:?}", extrinsic_success.block);
 
     Ok(())
 }
