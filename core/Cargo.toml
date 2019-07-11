@@ -24,7 +24,7 @@ parity-codec = { version = "3.2", default-features = false, features = ["derive"
 
 [dev-dependencies]
 balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances", features = ["std"] }
-contract = { git = "https://github.com/paritytech/substrate/", package = "srml-contract", features = ["std"] }
+contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts", features = ["std"] }
 timestamp = { git = "https://github.com/paritytech/substrate/", package = "srml-timestamp", features = ["std"] }
 srml-support = { git = "https://github.com/paritytech/substrate/", package = "srml-support", features = ["std"] }
 system = { git = "https://github.com/paritytech/substrate/", package = "srml-system", features = ["std"] }
