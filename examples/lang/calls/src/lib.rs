@@ -20,6 +20,7 @@ use ink_core::{
     env::DefaultSrmlTypes,
 };
 use ink_lang::contract;
+use ink_core::env::calls;
 
 contract! {
     #![env = ink_core::env::DefaultSrmlTypes]
@@ -35,8 +36,8 @@ contract! {
     impl Calls {
         /// Dispatches a `transfer` call to the Balances srml module
         pub(external) fn balance_transfer(&mut self, dest: u32, value: Balance) {
-            let transfer_call = ink_core::env::calls::Balances::<DefaultSrmlTypes>::transfer(dest, value);
-            ink_core::env::dispatch_call::<ink_core::env::ContractEnv<DefaultSrmlTypes>>(transfer_call.into());
+            let transfer_call = calls::Balances::<DefaultSrmlTypes>::transfer(dest, value);
+            env.dispatch_call(transfer_call.into());
         }
     }
 }

@@ -28,6 +28,7 @@ use ink_core::{
         Initialize,
     },
 };
+use parity_codec::Encode as _;
 
 /// Provides a safe interface to an environment given a contract state.
 pub struct ExecutionEnv<State, Env> {
@@ -179,5 +180,9 @@ impl<T: Env> EnvHandler<T> {
 
     pub fn block_number(&self) -> T::BlockNumber {
         T::block_number()
+    }
+
+    pub fn dispatch_call(&self, call: T::Call) {
+        T::dispatch_raw_call(call.encode().as_slice())
     }
 }
