@@ -74,7 +74,10 @@ where
     E::r#return(&value.encode()[..])
 }
 
-/// TODO: [AJ] docs
+/// Dispatches a Call into the runtime, for invoking other substrate
+/// modules. Dispatched only after successful contract execution.
+///
+/// The encoded Call MUST be decodable by the target substrate runtime.
 pub fn dispatch_call<T>(call: <T as EnvTypes>::Call)
 where
     T: Env,
