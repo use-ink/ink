@@ -45,7 +45,7 @@ pub trait EnvTypes {
     /// The type of an address.
     type AccountId: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of the index to an address.
-    type AccountIndex: Codec + Clone + PartialEq + Eq;
+    type AccountIndex: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of balances.
     type Balance: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of hash.
