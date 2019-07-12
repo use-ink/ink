@@ -127,7 +127,6 @@ mod tests {
                 *v
             });
 
-            // TODO: see https://github.com/paritytech/substrate/issues/2325
             let mut res = vec![];
             res.extend_from_slice(well_known_keys::CHILD_STORAGE_KEY_PREFIX);
             res.extend_from_slice(b"default:");

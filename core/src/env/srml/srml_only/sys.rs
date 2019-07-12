@@ -72,7 +72,9 @@ extern "C" {
         value_len: u32,
     );
 
-    /// TODO [AJ]: ext_dispatch_call docs
+    /// Dispatches a Call into the runtime, for invocation of substrate modules
+    ///
+    /// The data is encoded as T::Call
     pub fn ext_dispatch_call(
         call_ptr: u32,
         call_len: u32,
