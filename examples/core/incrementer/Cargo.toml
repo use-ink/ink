@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 ink_core = { path = "../../../core" }
-parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
+parity-codec = { version = "4.1.1", default-features = false, features = ["derive"] }
 
 [lib]
 name = "incrementer"

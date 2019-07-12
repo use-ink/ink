@@ -20,7 +20,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 ink_alloc = { path = "../alloc/" }
 ink_utils = { path = "../utils/" }
-parity-codec = { version = "3.2", default-features = false, features = ["derive", "full"] }
+parity-codec = { version = "4.1.1", default-features = false, features = ["derive", "full"] }
 
 [dev-dependencies]
 balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances", features = ["std"] }
