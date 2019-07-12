@@ -75,7 +75,7 @@ where
 }
 
 /// TODO: [AJ] docs
-pub unsafe fn dispatch_call<T>(call: <T as EnvTypes>::Call)
+pub fn dispatch_call<T>(call: <T as EnvTypes>::Call)
 where
     T: Env,
 {

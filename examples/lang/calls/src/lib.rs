@@ -36,7 +36,7 @@ contract! {
         /// Dispatches a `transfer` call to the Balances srml module
         pub(external) fn balance_transfer(&mut self, dest: u32, value: Balance) {
             let transfer_call = ink_core::env::calls::Balances::<DefaultSrmlTypes>::transfer(dest, value);
-            unsafe { ink_core::env::dispatch_call::<ink_core::env::ContractEnv<DefaultSrmlTypes>>(transfer_call.into()) };
+            ink_core::env::dispatch_call::<ink_core::env::ContractEnv<DefaultSrmlTypes>>(transfer_call.into());
         }
     }
 }
