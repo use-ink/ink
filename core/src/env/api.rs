@@ -82,5 +82,5 @@ pub fn dispatch_call<T>(call: <T as EnvTypes>::Call)
 where
     T: Env,
 {
-    T::dispatch_call(&call.encode()[..])
+    T::dispatch_raw_call(&call.encode()[..])
 }

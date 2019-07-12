@@ -140,5 +140,5 @@ pub trait Env: EnvTypes {
     fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]);
 
     /// Dispatches a call into the Runtime
-    fn dispatch_call(data: &[u8]);
+    fn dispatch_raw_call(data: &[u8]);
 }

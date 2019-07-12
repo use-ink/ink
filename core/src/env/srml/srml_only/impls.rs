@@ -150,7 +150,7 @@ where
         }
     }
 
-    fn dispatch_call(data: &[u8]) {
+    fn dispatch_raw_call(data: &[u8]) {
         unsafe { sys::ext_dispatch_call(data.as_ptr() as u32, data.len() as u32) }
     }
 }

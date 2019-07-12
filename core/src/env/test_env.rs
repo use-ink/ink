@@ -554,7 +554,7 @@ impl<T> Env for TestEnv<T> where T: EnvTypes
         })
     }
 
-    fn dispatch_call(data: &[u8]) {
+    fn dispatch_raw_call(data: &[u8]) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().dispatch_call(data))
     }
 }
