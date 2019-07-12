@@ -43,6 +43,7 @@ fn contract_compiles() {
                 use ink_core::env::{ContractEnv, EnvTypes};
 
                 pub type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
+                pub type AccountIndex = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountIndex;
                 pub type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
                 pub type Hash = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Hash;
                 pub type Moment = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Moment;
@@ -51,6 +52,7 @@ fn contract_compiles() {
 
             use types::{
                 AccountId,
+                AccountIndex,
                 Balance,
                 Hash,
                 Moment,
