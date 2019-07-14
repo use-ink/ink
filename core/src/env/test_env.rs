@@ -402,7 +402,7 @@ thread_local! {
     /// The test environment data.
     ///
     /// This needs to be thread local since tests are run
-    /// in paralell by default which may lead to data races otherwise.
+    /// in parallel by default which may lead to data races otherwise.
     pub static TEST_ENV_DATA: RefCell<TestEnvData> = {
         RefCell::new(TestEnvData::default())
     };

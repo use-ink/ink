@@ -24,7 +24,7 @@
 //! |:-------------|:------------|
 //! | `Owned`      | Disallows aliasing between different kinds of these primitives. |
 //! | `Typed`      | Automatically encodes and decodes the stored entity. |
-//! | `Opt. Reads` | Tries to avoid unnecesary reads to the storage. |
+//! | `Opt. Reads` | Tries to avoid unnecessary reads to the storage. |
 //! | `Mutable`    | Allows inplace mutation of the stored entity. |
 //! | `Safe Load`  | Guarantees to always have a valid element stored in the associated contract storage slot. |
 //!
@@ -45,7 +45,7 @@
 //!
 //! ### Entities
 //!
-//! The highest-level abstraction concerning constract storage primitive.
+//! The highest-level abstraction concerning contract storage primitive.
 //!
 //! They provide the most guarantees and should be preferred over the other
 //! primitive types if possible.

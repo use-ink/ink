@@ -31,7 +31,7 @@ use core::cell::RefCell;
 /// A synchronized cell.
 ///
 /// Provides interpreted, read-optimized and inplace-mutable
-/// access to the associated constract storage slot.
+/// access to the associated contract storage slot.
 ///
 /// # Guarantees
 ///

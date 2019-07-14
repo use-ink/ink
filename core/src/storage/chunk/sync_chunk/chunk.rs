@@ -27,7 +27,7 @@ use crate::storage::{
 
 /// A chunk of synchronized cells.
 ///
-/// Provides mutable and read-optimized access to the associated constract storage slot.
+/// Provides mutable and read-optimized access to the associated contract storage slot.
 ///
 /// # Guarantees
 ///
