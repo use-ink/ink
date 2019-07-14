@@ -43,7 +43,7 @@ use parity_codec::{
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug, PartialEq, Eq, Hash, Encode, Decode)]
 pub struct RawCell {
-    /// The key to the associated constract storage slot.
+    /// The key to the associated contract storage slot.
     key: Key,
     /// Marker that prevents this type from being `Copy` or `Clone` by accident.
     non_clone: NonCloneMarker<()>,

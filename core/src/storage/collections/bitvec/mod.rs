@@ -30,7 +30,7 @@
 //! ```no-compile
 //! | bit 0 | ... | bit 32 | ... | bit 0 | ... | bit 32 | bit 0 | ... | bit 32 | ... | bit 0 | ... | bit 32 |
 //! |      BitPack 0       | ... |      BitPack 32      |      BitPack 0       | ... |      BitPack 32      |
-//! |                     BitBlock 0                    |                     BitBlock 0                    |
+//! |                     BitBlock 0                    |                     BitBlock 1                    |
 //! ```
 //!
 //! The above pseudo code represents a [`BitVec`](struct.BitVec.html) with 1024 bits.
