@@ -1,0 +1,26 @@
+[package]
+name = "ink_memory"
+version = "0.1.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "GPL-3.0"
+readme = "README.md"
+
+repository = "https://github.com/paritytech/ink"
+documentation = "https://github.com/paritytech/ink/wiki"
+homepage = "https://www.parity.io/"
+
+description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["no-std", "embedded"]
+
+include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
+
+[dependencies]
+
+[features]
+default = []
+test-env = ["std"]
+std = [
+]

@@ -3,6 +3,7 @@
 members = [
     "utils",
     "core",
+    "memory",
     "model",
     "lang",
     "cli",
