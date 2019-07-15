@@ -51,12 +51,13 @@
 #[cfg(not(feature = "std"))]
 extern crate ink_alloc;
 
-#[cfg(not(feature = "std"))]
-extern crate alloc;
-
 #[cfg(all(test, feature = "std"))]
 mod test_utils;
 
 mod byte_utils;
 pub mod env;
 pub mod storage;
+
+pub mod memory {
+    pub use ink_memory::*;
+}
