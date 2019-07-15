@@ -2,7 +2,7 @@
 
 # {{crate}}
 
-This crate is part of the [`ink!`](../README.md) smart contract programming language for [Substrate](https://github.com/paritytech/substrate).
+This crate is part of [`ink!`](../README.md), the smart contract programming language for [Substrate](https://github.com/paritytech/substrate).
 
 {{readme}}
 
