@@ -16,7 +16,8 @@
 
 //! Data structures to operate on main memory.
 //!
-//! These definitions are useful since we are operating in a `no_std` environment.
+//! Acts as a "shim" to provide a consistent interface between `no_std` for compiling contracts to
+//! WebAssembly, and `std` for the test environment.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 

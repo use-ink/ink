@@ -1,15 +1,12 @@
-[![Build Status](https://travis-ci.org/paritytech/ink.svg?branch=master)](https://travis-ci.org/paritytech/ink)
+{{badges}}
 
-# ink_memory
+# {{crate}}
 
 This crate is part of the [`ink!`](../README.md) smart contract programming language for [Substrate](https://github.com/paritytech/substrate).
 
-Data structures to operate on main memory.
+{{readme}}
 
-Acts as a "shim" to provide a consistent interface between `no_std` for compiling contracts to
-WebAssembly, and `std` for the test environment.
-
-Current version: 0.1.0
+Current version: {{version}}
 
 ## Contribution
 
@@ -19,5 +16,6 @@ Visit our [contribution guidelines](../CONTRIBUTING.md) for more information.
 
 The entire code within this repository is licensed under the [GPLv3](LICENSE). Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.
  of our products.
- 
 
+---
+*README generated with [`cargo readme`](https://github.com/livioribeiro/cargo-readme)*. To regenerate run `cargo readme --template README_TEMPLATE.md > README.md`
