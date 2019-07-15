@@ -1,223 +1,253 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of ink!.
-//
-// ink! is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// ink! is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
-
-use crate::{
-    AbiType,
-    TupleVec,
+use type_metadata::{
+	Registry,
+	IntoCompact,
+	Metadata,
+	form::{
+		Form,
+		MetaForm,
+		CompactForm,
+	},
 };
-use core::marker::PhantomData;
-use serde::{
-    Deserialize,
-    Serialize,
-};
-
-#[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
+use serde::Serialize;
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize)]
-pub struct ContractSpec<DeployParams, Messages, Events>
-where
-    DeployParams: TupleVec, // <Item = ParamSpec<T>>
-    Messages: TupleVec,     // <Item = MessageSpec<T>>
-{
+#[serde(bound =	"F::TypeId: Serialize")]
+pub struct ContractSpec<F: Form = MetaForm> {
     /// The name of the contract.
-    name: &'static str,
+    name: F::String,
     /// The deploy handler of the contract.
-    deploy: DeploySpec<DeployParams>,
+    deploy: DeploySpec<F>,
     /// The external messages of the contract.
-    messages: Messages,
+    messages: Vec<MessageSpec<F>>,
     /// The events of the contract.
-    events: Events,
+    events: Vec<EventSpec<F>>,
     /// The contract documentation.
-    documentation: Vec<&'static str>,
+    docs: Vec<&'static str>,
+}
+
+impl ContractSpec {
+	/// Creates a new contract specification.
+	pub fn new(name: &'static str, deploy: DeploySpec) -> Self {
+		ContractSpec {
+			name,
+			deploy,
+			messages: vec![],
+			events: vec![],
+			docs: vec![],
+		}
+	}
+
+	/// Pushes a message to the contract specification.
+	pub fn push_message(&mut self, msg: MessageSpec) {
+		self.messages.push(msg);
+	}
+
+	/// Pushes a set of messages to the contract specification.
+	pub fn push_messages<M>(&mut self, msgs: M)
+	where
+		M: IntoIterator<Item = MessageSpec>,
+	{
+		self.messages.extend(msgs.into_iter());
+	}
+
+	/// Pushes an event to the contract specification.
+	pub fn push_event(&mut self, event: EventSpec) {
+		self.events.push(event);
+	}
+
+	/// Pushes a set of events to the contract specification.
+	pub fn push_events<E>(&mut self, events: E)
+	where
+		E: IntoIterator<Item = EventSpec>,
+	{
+		self.events.extend(events.into_iter());
+	}
+
+	/// Pushes a line of documentation.
+	pub fn push_doc(&mut self, line: &'static str) {
+		self.docs.push(line)
+	}
+
+	/// Pushes a set of events to the contract specification.
+	pub fn push_docs<L>(&mut self, lines: L)
+	where
+		L: IntoIterator<Item = &'static str>,
+	{
+		self.docs.extend(lines.into_iter());
+	}
 }
 
 /// Describes the deploy handler of a contract.
 #[derive(Debug, PartialEq, Eq, Serialize)]
-pub struct DeploySpec<Params>
-where
-    Params: TupleVec, // <Item = ParamSpec<T>>
-{
+#[serde(bound =	"F::TypeId: Serialize")]
+pub struct DeploySpec<F: Form = MetaForm> {
     /// The parameters of the deploy handler.
-    args: Params,
+    args: Vec<MessageParamSpec<F>>,
     /// The deploy handler documentation.
-    documentation: Vec<&'static str>,
+    docs: Vec<&'static str>,
+}
+
+impl IntoCompact for DeploySpec {
+	type Output = DeploySpec<CompactForm>;
+
+	fn into_compact(self, registry: &mut Registry) -> Self::Output {
+		DeploySpec {
+			args: self.args
+				.into_iter()
+				.map(|arg| arg.into_compact(registry))
+				.collect::<Vec<_>>(),
+			docs: self.docs,
+		}
+	}
+}
+
+impl DeploySpec {
+	/// Creates a new deploy specification.
+	pub fn new<A, D>(args: A, docs: D) -> Self
+	where
+		A: IntoIterator<Item = MessageParamSpec>,
+		D: IntoIterator<Item = &'static str>,
+	{
+		Self {
+			args: args.into_iter().collect::<Vec<_>>(),
+			docs: docs.into_iter().collect::<Vec<_>>(),
+		}
+	}
 }
 
 /// Describes a contract message.
 #[derive(Debug, PartialEq, Eq, Serialize)]
-pub struct MessageSpec<Params, RetType>
-where
-    Params: TupleVec, // <Item = ParamSpec<T>>
-    RetType: AbiType,
-    TypeSpec<RetType>: Serialize,
-{
+#[serde(bound =	"F::TypeId: Serialize")]
+pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
-    name: &'static str,
+    name: F::String,
     /// The selector hash of the message.
     selector: u64,
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
     /// The parameters of the message.
-    args: Params,
+    args: Vec<MessageParamSpec<F>>,
     /// The return type of the message.
-    return_type: ReturnTypeSpec<RetType>,
+    return_type: ReturnTypeSpec<F>,
     /// The message documentation.
-    documentation: Vec<&'static str>,
+    docs: Vec<&'static str>,
 }
 
 /// Describes an event definition.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct EventSpec<Params>
-where
-    Params: TupleVec, // <Item = EventParamSpec<T>>
-{
+#[derive(Debug, PartialEq, Eq, Serialize)]
+#[serde(bound =	"F::TypeId: Serialize")]
+pub struct EventSpec<F: Form = MetaForm> {
     /// The name of the event.
-    name: &'static str,
+    name: F::String,
     /// The event arguments.
-    args: Params,
+    args: Vec<EventParamSpec<F>>,
     /// The event documentation.
-    documentation: Vec<&'static str>,
+	#[serde(rename = "documentation")]
+    docs: Vec<&'static str>,
+}
+
+impl EventSpec {
+	/// Creates a new event specification.
+	pub fn new<A, D>(name: &'static str, args: A, docs: D) -> Self
+	where
+		A: IntoIterator<Item = EventParamSpec>,
+		D: IntoIterator<Item = &'static str>,
+	{
+		Self {
+			name,
+			args: args.into_iter().collect::<Vec<_>>(),
+			docs: docs.into_iter().collect::<Vec<_>>(),
+		}
+	}
 }
 
 /// Describes a pair of parameter name and type.
 #[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound(serialize = "TypeSpec<T>: Serialize,"))]
-pub struct EventParamSpec<T>
-where
-    T: AbiType,
-{
+#[serde(bound =	"F::TypeId: Serialize")]
+pub struct EventParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
-    name: &'static str,
+    name: F::String,
     /// If the event parameter is indexed.
     indexed: bool,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: TypeSpec<T>,
+    ty: F::TypeId,
+}
+
+impl EventParamSpec {
+	/// Creates a new event parameter specification.
+	pub fn new<T>(name: &'static str, indexed: bool) -> Self
+	where
+		T: Metadata,
+	{
+		Self {
+			name,
+			indexed,
+			ty: T::meta_type(),
+		}
+	}
 }
 
 /// Describes the return type of a contract message.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(transparent)]
-pub struct ReturnTypeSpec<T>
-where
-    T: AbiType,
-    TypeSpec<T>: Serialize,
-{
+#[serde(bound =	"F::TypeId: Serialize")]
+pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
-    opt_type: Option<TypeSpec<T>>,
+    opt_type: Option<F::TypeId>,
+}
+
+impl ReturnTypeSpec {
+	/// Creates a new return type specification indicating no return type.
+	pub fn none() -> Self {
+		Self {
+			opt_type: None,
+		}
+	}
+
+	/// Creates a new return type specification for the given type.
+	pub fn new<T>() -> Self
+	where
+		T: Metadata,
+	{
+		Self {
+			opt_type: Some(T::meta_type()),
+		}
+	}
 }
 
 /// Describes a pair of parameter name and type.
 #[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound(serialize = "TypeSpec<T>: Serialize,"))]
-pub struct ParamSpec<T>
-where
-    T: AbiType,
-{
+#[serde(bound =	"F::TypeId: Serialize")]
+pub struct MessageParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
-    name: &'static str,
+    name: F::String,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: TypeSpec<T>,
+    ty: F::TypeId,
 }
 
-/// Describes a type.
-#[derive(Debug, PartialEq, Eq)]
-pub struct TypeSpec<T>
-where
-    T: AbiType,
-{
-    /// Marker used so that we do not need an instance of the specified type.
-    marker: PhantomData<fn() -> T>,
+impl IntoCompact for MessageParamSpec {
+	type Output = MessageParamSpec<CompactForm>;
+
+	fn into_compact(self, registry: &mut Registry) -> Self::Output {
+		MessageParamSpec {
+			name: registry.register_string(self.name),
+			ty: registry.register_type2(&self.ty),
+		}
+	}
 }
 
-impl<T> TypeSpec<T>
-where
-    T: AbiType,
-{
-    /// Creates a new type spec for the given type.
-    pub fn new() -> Self {
-        Self {
-            marker: PhantomData,
-        }
-    }
-}
-
-/// Describes a custom type definition and all of its fields and subfields.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct CustomTypeSpec<Fields>
-where
-    Fields: TupleVec, // <Item = CustomTypeFieldSpec<T>>
-{
-    /// The name of the custom type.
-    name: &'static str,
-    /// The fields of the custom type.
-    fields: Fields,
-}
-
-/// Describes a field of a custom type definition.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct CustomTypeFieldSpec<T>
-where
-    T: AbiType,
-{
-    /// The name of the field.
-    name: &'static str,
-    /// The type of the field.
-    #[serde(rename = "type")]
-    ty: T,
-}
-
-/// Describes the layout of the storage.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct StorageLayout<StorageFields>
-where
-    StorageFields: TupleVec, // <Item = StorageField<T>>
-{
-    /// The fields of the storage layout.
-    fields: StorageFields,
-}
-
-/// Describes a field or sub-field of the layout of the storage.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct StorageField<T>
-where
-    T: AbiType,
-{
-    /// The name of the storage field or sub-field.
-    name: &'static str,
-    /// The type of the storage field or sub-field.
-    ty: T,
-    /// The key bounds for the storage field or sub-field.
-    key: KeyBounds,
-}
-
-/// A key.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct Key(pub [u8; 32]);
-
-/// The key bounds of a storage field.
-///
-/// This defines in which bounds a storage field might have stored values.
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct KeyBounds {
-    /// The key offset.
-    key: Key,
-    /// The length of all contiguous keys starting at the key offset.
-    len: usize,
+impl MessageParamSpec {
+	/// Creates a new parameter specification for the given name and type.
+	pub fn new<T>(name: &'static str) -> Self
+	where
+		T: Metadata,
+	{
+		Self {
+			name,
+			ty: T::meta_type(),
+		}
+	}
 }

@@ -28,34 +28,23 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
-#[macro_use]
-mod tuple_vec;
-mod abi_type;
+mod layout;
 mod specs;
 
 pub use self::{
-    abi_type::{
-        AbiType,
-        SerializeAsType,
-    },
-    specs::TypeSpec,
-    tuple_vec::{
-        TupleVec,
-        TupleVecNode,
+	layout::{
+		KeyRange,
+		HasLayout,
+		LayoutStruct,
+		LayoutField,
+	},
+    specs::{
+        ContractSpec,
+        DeploySpec,
+        MessageSpec,
+        EventSpec,
+        EventParamSpec,
+        ReturnTypeSpec,
+        MessageParamSpec,
     },
 };
-
-macro_rules! impl_abi_type_for_primitive {
-    ( $( $ty:ty ),* ) => {
-        $(
-            impl AbiType for $ty {}
-        )*
-    };
-}
-
-#[rustfmt::skip]
-impl_abi_type_for_primitive!(
-    (), bool,
-    i8, i16, i32, i64, i128,
-        u16, u32, u64, u128
-);
