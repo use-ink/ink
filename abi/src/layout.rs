@@ -15,11 +15,13 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use type_metadata::{
-	// Metadata,
 	form::{
 		Form,
 		MetaForm,
+		CompactForm,
 	},
+	IntoCompact,
+	Registry,
 };
 use derive_more::From;
 use serde::{Serialize, Serializer};
@@ -117,6 +119,19 @@ pub struct LayoutStruct<F: Form = MetaForm> {
     fields: Vec<LayoutField<F>>,
 }
 
+impl IntoCompact for LayoutStruct {
+	type Output = LayoutStruct<CompactForm>;
+
+	fn into_compact(self, registry: &mut Registry) -> Self::Output {
+		LayoutStruct {
+			fields: self.fields
+				.into_iter()
+				.map(|field| field.into_compact(registry))
+				.collect::<Vec<_>>(),
+		}
+	}
+}
+
 /// The layout for a particular field of a struct layout.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound =	"F::TypeId: Serialize")]
@@ -133,6 +148,18 @@ pub struct LayoutField<F: Form = MetaForm> {
     kind: LayoutKind<F>,
 }
 
+impl IntoCompact for LayoutField {
+	type Output = LayoutField<CompactForm>;
+
+	fn into_compact(self, registry: &mut Registry) -> Self::Output {
+		LayoutField {
+			name: registry.register_string(self.name),
+			ty: registry.register_type(&self.ty),
+			kind: self.kind.into_compact(registry),
+		}
+	}
+}
+
 /// Either a concrete layout bound or another layout sub-struct.
 #[derive(Debug, PartialEq, Eq, Serialize, From)]
 #[serde(bound =	"F::TypeId: Serialize")]
@@ -141,4 +168,15 @@ pub enum LayoutKind<F: Form = MetaForm> {
     Range(KeyRange),
     /// A nested sub-struct with layout bounds.
     Fields(LayoutStruct<F>),
+}
+
+impl IntoCompact for LayoutKind {
+	type Output = LayoutKind<CompactForm>;
+
+	fn into_compact(self, registry: &mut Registry) -> Self::Output {
+		match self {
+			LayoutKind::Range(key_range) => LayoutKind::Range(key_range),
+			LayoutKind::Fields(layout_struct) => LayoutKind::Fields(layout_struct.into_compact(registry)),
+		}
+	}
 }
