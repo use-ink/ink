@@ -250,7 +250,7 @@ impl IntoCompact for MessageParamSpec {
 	fn into_compact(self, registry: &mut Registry) -> Self::Output {
 		MessageParamSpec {
 			name: registry.register_string(self.name),
-			ty: registry.register_type2(&self.ty),
+			ty: registry.register_type(&self.ty),
 		}
 	}
 }
