@@ -23,14 +23,14 @@ ink_utils = { path = "../utils/" }
 parity-codec = { version = "4.1.1", default-features = false, features = ["derive", "full"] }
 
 [dev-dependencies]
-balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances", features = ["std"] }
-contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts", features = ["std"] }
-timestamp = { git = "https://github.com/paritytech/substrate/", package = "srml-timestamp", features = ["std"] }
-srml-support = { git = "https://github.com/paritytech/substrate/", package = "srml-support", features = ["std"] }
-system = { git = "https://github.com/paritytech/substrate/", package = "srml-system", features = ["std"] }
-runtime-primitives = { git = "https://github.com/paritytech/substrate/", package = "sr-primitives", features = ["std"] }
-substrate-primitives = { git = "https://github.com/paritytech/substrate/", package = "substrate-primitives", features = ["std"] }
-runtime-io = { git = "https://github.com/paritytech/substrate/", package = "sr-io", features = ["std"] }
+balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances", default_features = false }
+contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts", default_features = false, features = ["core"] }
+timestamp = { git = "https://github.com/paritytech/substrate/", package = "srml-timestamp", default_features = false }
+srml-support = { git = "https://github.com/paritytech/substrate/", package = "srml-support", default_features = false }
+system = { git = "https://github.com/paritytech/substrate/", package = "srml-system", default_features = false }
+runtime-primitives = { git = "https://github.com/paritytech/substrate/", package = "sr-primitives", default_features = false }
+substrate-primitives = { git = "https://github.com/paritytech/substrate/", package = "substrate-primitives", default_features = false }
+runtime-io = { git = "https://github.com/paritytech/substrate/", package = "sr-io", default_features = false, features = ["no_oom", "no_panic_handler"] }
 
 [features]
 default = []
