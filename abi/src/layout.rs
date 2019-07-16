@@ -24,7 +24,7 @@ use type_metadata::{
 	Registry,
 };
 use derive_more::From;
-use serde::{Serialize, Serializer};
+use serde::Serialize;
 
 // impl<T> HasLayout for ink_core::storage::Value<T>
 // where
@@ -75,21 +75,15 @@ use serde::{Serialize, Serializer};
 // }
 
 /// A concrete range of keys.
-#[derive(Debug, PartialEq, Eq, From)]
-pub struct Key(ink_core::storage::Key);
+#[derive(Debug, PartialEq, Eq, From, Serialize)]
+pub struct Key(
+	/// Internals must be compatible with `ink_core::storage::Key`.
+	[u8; 32]
+);
 
-impl Serialize for Key {
-	fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
-	where
-		S: Serializer,
-	{
-		unimplemented!()
-	}
-}
-
-impl From<[u8; 32]> for Key {
-	fn from(array: [u8; 32]) -> Self {
-		Key(ink_core::storage::Key(array))
+impl From<ink_core::storage::Key> for Key {
+	fn from(key: ink_core::storage::Key) -> Self {
+		Key(key.0)
 	}
 }
 
