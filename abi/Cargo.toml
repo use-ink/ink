@@ -30,5 +30,7 @@ type-metadata = { git = "https://github.com/robbepop/type-metadata.git", branch 
 [features]
 default = ["std"]
 std = [
-	"ink_core/std"
+	"ink_core/std",
+	"serde/std",
+	"parity-codec/std"
 ]
