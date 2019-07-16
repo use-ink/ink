@@ -38,4 +38,12 @@ test-env = ["std"]
 std = [
     "ink_alloc/std",
     "ink_utils/std",
+    "balances/std",
+    "contracts/std",
+    "timestamp/std",
+    "srml-support/std",
+    "system/std",
+    "runtime-primitives/std",
+    "substrate-primitives/std",
+    "runtime-io/std",
 ]
