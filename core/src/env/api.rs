@@ -17,8 +17,8 @@
 use super::ContractEnvStorage;
 use crate::{
     env::{
-        EnvStorage as _,
         traits::Env,
+        EnvStorage as _,
     },
     memory::vec::Vec,
     storage::Key,

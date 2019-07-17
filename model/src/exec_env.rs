@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use core::marker::PhantomData;
 use crate::ContractState;
+use core::marker::PhantomData;
 use ink_core::{
     env::{
         self,
-        Env
+        Env,
     },
     storage::alloc::{
         Allocate,
@@ -148,7 +148,7 @@ impl<T: Env> EnvHandler<T> {
     /// Returns from the current smart contract execution with the given value.
     pub unsafe fn r#return<V>(&self, val: V) -> !
     where
-        V: parity_codec::Encode
+        V: parity_codec::Encode,
     {
         env::r#return::<V, T>(val)
     }

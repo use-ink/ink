@@ -163,45 +163,39 @@ impl KeyDiff {
 }
 
 macro_rules! impl_add_sub_for_key {
-	( $prim:ty ) => {
-		impl core::ops::Add<$prim> for Key {
-			type Output = Self;
+    ( $prim:ty ) => {
+        impl core::ops::Add<$prim> for Key {
+            type Output = Self;
 
-			fn add(self, rhs: $prim) -> Self::Output {
-				let mut result = self;
-				result += rhs;
-				result
-			}
-		}
+            fn add(self, rhs: $prim) -> Self::Output {
+                let mut result = self;
+                result += rhs;
+                result
+            }
+        }
 
-		impl core::ops::AddAssign<$prim> for Key {
-			fn add_assign(&mut self, rhs: $prim) {
-				byte_utils::bytes_add_bytes(
-					self.as_bytes_mut(),
-					&(rhs.to_be_bytes())
-				);
-			}
-		}
+        impl core::ops::AddAssign<$prim> for Key {
+            fn add_assign(&mut self, rhs: $prim) {
+                byte_utils::bytes_add_bytes(self.as_bytes_mut(), &(rhs.to_be_bytes()));
+            }
+        }
 
-		impl core::ops::Sub<$prim> for Key {
-			type Output = Self;
+        impl core::ops::Sub<$prim> for Key {
+            type Output = Self;
 
-			fn sub(self, rhs: $prim) -> Self::Output {
-				let mut result = self;
-				result -= rhs;
-				result
-			}
-		}
+            fn sub(self, rhs: $prim) -> Self::Output {
+                let mut result = self;
+                result -= rhs;
+                result
+            }
+        }
 
-		impl core::ops::SubAssign<$prim> for Key {
-			fn sub_assign(&mut self, rhs: $prim) {
-				byte_utils::bytes_sub_bytes(
-					self.as_bytes_mut(),
-					&rhs.to_be_bytes()
-				);
-			}
-		}
-	};
+        impl core::ops::SubAssign<$prim> for Key {
+            fn sub_assign(&mut self, rhs: $prim) {
+                byte_utils::bytes_sub_bytes(self.as_bytes_mut(), &rhs.to_be_bytes());
+            }
+        }
+    };
 }
 
 impl_add_sub_for_key!(u32);

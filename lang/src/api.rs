@@ -22,8 +22,11 @@ use serde::{
     Deserialize,
     Serialize,
 };
-use syn::{self, Result};
 use std::convert::TryFrom;
+use syn::{
+    self,
+    Result,
+};
 
 /// Describes a message parameter or return type.
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
