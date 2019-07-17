@@ -77,10 +77,10 @@ impl RawCell {
         unsafe { env::clear(self.key) }
     }
 
-	/// Returns the associated, internal raw key.
-	pub fn raw_key(&self) -> Key {
-		self.key
-	}
+    /// Returns the associated, internal raw key.
+    pub fn raw_key(&self) -> Key {
+        self.key
+    }
 }
 
 #[cfg(all(test, feature = "test-env"))]

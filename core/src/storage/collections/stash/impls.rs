@@ -28,18 +28,17 @@ use crate::{
 		Key,
 	},
 };
-
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
 use scale::{
     Decode,
     Encode,
 };
 use type_metadata::Metadata;
-use ink_abi::{
-	HasLayout,
-	StorageLayout,
-	LayoutStruct,
-	LayoutField,
-};
 
 /// A stash collection.
 ///
@@ -126,17 +125,18 @@ where
 
 impl<T> HasLayout for Stash<T>
 where
-	T: Metadata + 'static,
+    T: Metadata + 'static,
 {
-	fn layout(&self) -> StorageLayout {
-		LayoutStruct::new(
-			Self::meta_type(),
-			vec![
-				LayoutField::of("cells", &self.header),
-				LayoutField::of("chunks", &self.entries),
-			]
-		).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("cells", &self.header),
+                LayoutField::of("chunks", &self.entries),
+            ],
+        )
+        .into()
+    }
 }
 
 impl<'a, T> Iterator for Values<'a, T>

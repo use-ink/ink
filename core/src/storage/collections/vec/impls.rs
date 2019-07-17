@@ -38,6 +38,13 @@ use core::iter::{
     DoubleEndedIterator,
     ExactSizeIterator,
 };
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+use type_metadata::Metadata;
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.
 ///
@@ -95,17 +102,18 @@ where
 
 impl<T> HasLayout for Vec<T>
 where
-	T: Metadata + 'static,
+    T: Metadata + 'static,
 {
-	fn layout(&self) -> StorageLayout {
-		LayoutStruct::new(
-			Self::meta_type(),
-			vec![
-				LayoutField::of("len", &self.len),
-				LayoutField::of("cells", &self.cells),
-			]
-		).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("len", &self.len),
+                LayoutField::of("cells", &self.cells),
+            ],
+        )
+        .into()
+    }
 }
 
 impl<'a, T> Iterator for Iter<'a, T>

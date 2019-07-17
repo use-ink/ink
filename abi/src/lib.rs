@@ -34,11 +34,11 @@ mod specs;
 pub use self::{
     layout::{
         HasLayout,
-		StorageLayout,
-		LayoutKey,
-        LayoutRange,
         LayoutField,
+        LayoutKey,
+        LayoutRange,
         LayoutStruct,
+        StorageLayout,
     },
     specs::{
         ContractSpec,

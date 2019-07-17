@@ -20,6 +20,7 @@ use crate::storage::{
         AllocateUsing,
     },
     cell::RawCell,
+    Key,
     NonCloneMarker,
 	Key,
 };
@@ -77,10 +78,10 @@ impl<T> TypedCell<T> {
         self.cell.clear()
     }
 
-	/// Returns the associated, internal raw key.
-	pub fn raw_key(&self) -> Key {
-		self.cell.raw_key()
-	}
+    /// Returns the associated, internal raw key.
+    pub fn raw_key(&self) -> Key {
+        self.cell.raw_key()
+    }
 }
 
 impl<T> TypedCell<T>

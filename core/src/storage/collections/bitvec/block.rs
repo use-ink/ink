@@ -21,7 +21,6 @@ use scale::{
     Encode,
 };
 use type_metadata::Metadata;
-use crate::storage::Flush;
 
 /// A block of 1024 bits.
 #[derive(Debug, Copy, Clone, Encode, Decode, Metadata)]

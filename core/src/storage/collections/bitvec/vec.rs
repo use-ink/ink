@@ -35,6 +35,13 @@ use ink_abi::{
 	LayoutStruct,
 	LayoutField,
 };
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+use type_metadata::Metadata;
 
 /// A space-efficient contiguous growable bit array type.
 #[derive(Debug, Metadata)]
@@ -46,15 +53,16 @@ pub struct BitVec {
 }
 
 impl HasLayout for BitVec {
-	fn layout(&self) -> StorageLayout {
-		LayoutStruct::new(
-			Self::meta_type(),
-			vec![
-				LayoutField::of("len", &self.len),
-				LayoutField::of("blocks", &self.blocks),
-			]
-		).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("len", &self.len),
+                LayoutField::of("blocks", &self.blocks),
+            ],
+        )
+        .into()
+    }
 }
 
 impl scale::Encode for BitVec {

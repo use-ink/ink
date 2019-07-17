@@ -27,17 +27,17 @@ use crate::{
 		Flush,
 	},
 };
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
 use scale::{
     Decode,
     Encode,
 };
 use type_metadata::Metadata;
-use ink_abi::{
-	HasLayout,
-	StorageLayout,
-	LayoutStruct,
-	LayoutField,
-};
 
 // Missing traits:
 //
@@ -66,16 +66,12 @@ pub struct Value<T> {
 
 impl<T> HasLayout for Value<T>
 where
-	T: Metadata + 'static,
+    T: Metadata + 'static,
 {
-	fn layout(&self) -> StorageLayout {
-		LayoutStruct::new(
-			Self::meta_type(),
-			vec![
-				LayoutField::of("cell", &self.cell),
-			]
-		).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(Self::meta_type(), vec![LayoutField::of("cell", &self.cell)])
+            .into()
+    }
 }
 
 impl<T> AllocateUsing for Value<T> {

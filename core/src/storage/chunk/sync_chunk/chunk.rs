@@ -40,6 +40,19 @@ use ink_abi::{
 	StorageLayout,
 	LayoutRange,
 };
+use ink_abi::{
+    HasLayout,
+    LayoutRange,
+    StorageLayout,
+};
+use type_metadata::{
+    HasTypeDef,
+    Metadata,
+    NamedField,
+    TypeDef,
+    TypeDefStruct,
+    TypeId,
+};
 
 /// A chunk of synchronized cells.
 ///
@@ -62,11 +75,9 @@ pub struct SyncChunk<T> {
 }
 
 impl<T> HasTypeDef for SyncChunk<T> {
-	fn type_def() -> TypeDef {
-		TypeDefStruct::new(vec![
-			NamedField::of::<Key>("cells_key"),
-		]).into()
-	}
+    fn type_def() -> TypeDef {
+        TypeDefStruct::new(vec![NamedField::of::<Key>("cells_key")]).into()
+    }
 }
 
 impl<T> Flush for SyncChunk<T>
@@ -106,11 +117,11 @@ impl<T> scale::Decode for SyncChunk<T> {
 
 impl<T> HasLayout for SyncChunk<T>
 where
-	T: Metadata,
+    T: Metadata,
 {
-	fn layout(&self) -> StorageLayout {
-		LayoutRange::chunk(self.cells_key(), T::meta_type()).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutRange::chunk(self.cells_key(), T::meta_type()).into()
+    }
 }
 
 impl<T> AllocateUsing for SyncChunk<T> {

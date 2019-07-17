@@ -15,17 +15,17 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::byte_utils;
+use ink_abi::{
+    HasLayout,
+    LayoutKey,
+    LayoutRange,
+    StorageLayout,
+};
 use scale::{
     Decode,
     Encode,
 };
 use type_metadata::Metadata;
-use ink_abi::{
-	HasLayout,
-	StorageLayout,
-	LayoutKey,
-	LayoutRange,
-};
 
 /// Typeless generic key into contract storage.
 ///
@@ -47,9 +47,9 @@ use ink_abi::{
 pub struct Key(pub [u8; 32]);
 
 impl HasLayout for Key {
-	fn layout(&self) -> StorageLayout {
-		LayoutRange::cell(*self, <[u8]>::meta_type()).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutRange::cell(*self, <[u8]>::meta_type()).into()
+    }
 }
 
 impl core::fmt::Debug for Key {
@@ -91,9 +91,9 @@ impl core::fmt::Display for Key {
 }
 
 impl From<Key> for LayoutKey {
-	fn from(key: Key) -> Self {
-		LayoutKey(key.0)
-	}
+    fn from(key: Key) -> Self {
+        LayoutKey(key.0)
+    }
 }
 
 impl Key {

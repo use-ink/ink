@@ -35,6 +35,13 @@ use ink_abi::{
 	LayoutStruct,
 	LayoutField,
 };
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+use type_metadata::Metadata;
 
 /// Allocator for dynamic contract storage.
 ///
@@ -56,17 +63,18 @@ pub struct DynAlloc {
 }
 
 impl HasLayout for DynAlloc {
-	fn layout(&self) -> StorageLayout {
-		LayoutStruct::new(
-			Self::meta_type(),
-			vec![
-				LayoutField::of("free_cells", &self.free_cells),
-				LayoutField::of("free_chunks", &self.free_cells),
-				LayoutField::of("cells_origin", &self.cells_origin),
-				LayoutField::of("chunks_origin", &self.chunks_origin),
-			]
-		).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("free_cells", &self.free_cells),
+                LayoutField::of("free_chunks", &self.free_cells),
+                LayoutField::of("cells_origin", &self.cells_origin),
+                LayoutField::of("chunks_origin", &self.chunks_origin),
+            ],
+        )
+        .into()
+    }
 }
 
 impl AllocateUsing for DynAlloc {

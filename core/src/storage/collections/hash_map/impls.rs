@@ -35,14 +35,14 @@ use core::{
     borrow::Borrow,
     hash::Hash,
 };
-use type_metadata::Metadata;
-use ink_utils::hash;
 use ink_abi::{
-	HasLayout,
-	StorageLayout,
-	LayoutStruct,
-	LayoutField,
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
 };
+use ink_utils::hash;
+use type_metadata::Metadata;
 
 /// Mapping stored in the contract storage.
 ///
@@ -76,18 +76,19 @@ pub struct HashMap<K, V> {
 
 impl<K, V> HasLayout for HashMap<K, V>
 where
-	K: Metadata + 'static,
-	V: Metadata + 'static,
+    K: Metadata + 'static,
+    V: Metadata + 'static,
 {
-	fn layout(&self) -> StorageLayout {
-		LayoutStruct::new(
-			Self::meta_type(),
-			vec![
-				LayoutField::of("len", &self.len),
-				LayoutField::of("entries", &self.entries),
-			]
-		).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("len", &self.len),
+                LayoutField::of("entries", &self.entries),
+            ],
+        )
+        .into()
+    }
 }
 
 /// An entry of a storage map.

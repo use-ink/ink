@@ -49,8 +49,8 @@ impl IntoCompact for StorageLayout {
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         match self {
             StorageLayout::Range(layout_range) => {
-				StorageLayout::Range(layout_range.into_compact(registry))
-			}
+                StorageLayout::Range(layout_range.into_compact(registry))
+            }
             StorageLayout::Struct(layout_struct) => {
                 StorageLayout::Struct(layout_struct.into_compact(registry))
             }
@@ -71,8 +71,8 @@ pub struct LayoutKey(
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct LayoutStruct<F: Form = MetaForm> {
-	#[serde(rename = "self_type")]
-	self_ty: F::TypeId,
+    #[serde(rename = "self_type")]
+    self_ty: F::TypeId,
     /// The sub-fields of the struct.
     fields: Vec<LayoutField<F>>,
 }
@@ -84,7 +84,7 @@ impl LayoutStruct {
         F: IntoIterator<Item = LayoutField>,
     {
         Self {
-			self_ty,
+            self_ty,
             fields: fields.into_iter().collect::<Vec<_>>(),
         }
     }
@@ -95,7 +95,7 @@ impl IntoCompact for LayoutStruct {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         LayoutStruct {
-			self_ty: registry.register_type(&self.self_ty),
+            self_ty: registry.register_type(&self.self_ty),
             fields: self
                 .fields
                 .into_iter()
@@ -119,21 +119,18 @@ pub struct LayoutField<F: Form = MetaForm> {
 }
 
 impl LayoutField {
-	/// Creates a new layout field from the given name and sub-structural layout.
+    /// Creates a new layout field from the given name and sub-structural layout.
     pub fn new(name: <MetaForm as Form>::String, sub_layout: StorageLayout) -> Self {
-        Self {
-            name,
-            sub_layout: sub_layout,
-        }
+        Self { name, sub_layout }
     }
 
-	/// Creates a new layout field for the given field instance.
-	pub fn of<T>(name: <MetaForm as Form>::String, field: &T) -> Self
-	where
-		T: HasLayout,
-	{
-		Self::new(name, field.layout())
-	}
+    /// Creates a new layout field for the given field instance.
+    pub fn of<T>(name: <MetaForm as Form>::String, field: &T) -> Self
+    where
+        T: HasLayout,
+    {
+        Self::new(name, field.layout())
+    }
 }
 
 impl IntoCompact for LayoutField {
@@ -153,49 +150,49 @@ impl IntoCompact for LayoutField {
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct LayoutRange<F: Form = MetaForm> {
-	/// The single key for cells or the starting key address for chunks.
-	offset: LayoutKey,
-	/// The amount of associated key addresses starting from the offset key.
-	len: u32,
-	/// The element type stored under the associated keys.
+    /// The single key for cells or the starting key address for chunks.
+    offset: LayoutKey,
+    /// The amount of associated key addresses starting from the offset key.
+    len: u32,
+    /// The element type stored under the associated keys.
     #[serde(rename = "element_type")]
-	elem_ty: F::TypeId,
+    elem_ty: F::TypeId,
 }
 
 impl IntoCompact for LayoutRange {
-	type Output = LayoutRange<CompactForm>;
+    type Output = LayoutRange<CompactForm>;
 
-	fn into_compact(self, registry: &mut Registry) -> Self::Output {
-		LayoutRange {
-			offset: self.offset,
-			len: self.len,
-			elem_ty: registry.register_type(&self.elem_ty),
-		}
-	}
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        LayoutRange {
+            offset: self.offset,
+            len: self.len,
+            elem_ty: registry.register_type(&self.elem_ty),
+        }
+    }
 }
 
 impl LayoutRange {
-	/// Creates a layout range representing a single cell.
-	pub fn cell<K>(at: K, elem_ty: <MetaForm as Form>::TypeId) -> Self
-	where
-		K: Into<LayoutKey>,
-	{
-		Self {
-			offset: at.into(),
-			len: 1,
-			elem_ty,
-		}
-	}
+    /// Creates a layout range representing a single cell.
+    pub fn cell<K>(at: K, elem_ty: <MetaForm as Form>::TypeId) -> Self
+    where
+        K: Into<LayoutKey>,
+    {
+        Self {
+            offset: at.into(),
+            len: 1,
+            elem_ty,
+        }
+    }
 
-	/// Creates a layout range for a whole chunk starting at the offset key.
-	pub fn chunk<K>(offset: K, elem_ty: <MetaForm as Form>::TypeId) -> Self
-	where
-		K: Into<LayoutKey>,
-	{
-		Self {
-			offset: offset.into(),
-			len: 0xFFFF_FFFF,
-			elem_ty,
-		}
-	}
+    /// Creates a layout range for a whole chunk starting at the offset key.
+    pub fn chunk<K>(offset: K, elem_ty: <MetaForm as Form>::TypeId) -> Self
+    where
+        K: Into<LayoutKey>,
+    {
+        Self {
+            offset: offset.into(),
+            len: 0xFFFF_FFFF,
+            elem_ty,
+        }
+    }
 }

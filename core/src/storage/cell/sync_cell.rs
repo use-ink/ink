@@ -26,23 +26,23 @@ use crate::{
         },
         cell::TypedCell,
         Flush,
-		Key,
+        Key,
     },
 };
-use type_metadata::{
-	Metadata,
-	TypeId,
-	TypeDef,
-	HasTypeDef,
-	TypeDefStruct,
-	NamedField,
-};
-use ink_abi::{
-	HasLayout,
-	StorageLayout,
-	LayoutRange,
-};
 use core::cell::RefCell;
+use ink_abi::{
+    HasLayout,
+    LayoutRange,
+    StorageLayout,
+};
+use type_metadata::{
+    HasTypeDef,
+    Metadata,
+    NamedField,
+    TypeDef,
+    TypeDefStruct,
+    TypeId,
+};
 
 /// A synchronized cell.
 ///
@@ -63,11 +63,9 @@ pub struct SyncCell<T> {
 }
 
 impl<T> HasTypeDef for SyncCell<T> {
-	fn type_def() -> TypeDef {
-		TypeDefStruct::new(vec![
-			NamedField::of::<Key>("cell"),
-		]).into()
-	}
+    fn type_def() -> TypeDef {
+        TypeDefStruct::new(vec![NamedField::of::<Key>("cell")]).into()
+    }
 }
 
 /// A synchronized cache entry.
@@ -312,11 +310,11 @@ impl<T> Cache<T> {
 
 impl<T> HasLayout for SyncCell<T>
 where
-	T: Metadata,
+    T: Metadata,
 {
-	fn layout(&self) -> StorageLayout {
-		LayoutRange::cell(self.raw_key(), T::meta_type()).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutRange::cell(self.raw_key(), T::meta_type()).into()
+    }
 }
 
 impl<T> scale::Encode for SyncCell<T> {
@@ -373,10 +371,10 @@ impl<T> SyncCell<T> {
         self.cache.mark_dirty();
     }
 
-	/// Returns the associated, internal raw key.
-	pub fn raw_key(&self) -> Key {
-		self.cell.raw_key()
-	}
+    /// Returns the associated, internal raw key.
+    pub fn raw_key(&self) -> Key {
+        self.cell.raw_key()
+    }
 }
 
 impl<T> SyncCell<T>

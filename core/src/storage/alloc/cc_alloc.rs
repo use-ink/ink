@@ -23,18 +23,17 @@ use crate::{
 		Key,
 	},
 };
-
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
 use scale::{
     Decode,
     Encode,
 };
 use type_metadata::Metadata;
-use ink_abi::{
-	HasLayout,
-	StorageLayout,
-	LayoutStruct,
-	LayoutField,
-};
 
 /// An allocator for the contract storage.
 ///
@@ -109,15 +108,16 @@ impl Flush for CellChunkAlloc {
 }
 
 impl HasLayout for CellChunkAlloc {
-	fn layout(&self) -> StorageLayout {
-		LayoutStruct::new(
-			Self::meta_type(),
-			vec![
-				LayoutField::of("cells", &self.cells),
-				LayoutField::of("chunks", &self.chunks),
-			]
-		).into()
-	}
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("cells", &self.cells),
+                LayoutField::of("chunks", &self.chunks),
+            ],
+        )
+        .into()
+    }
 }
 
 impl CellChunkAlloc {
