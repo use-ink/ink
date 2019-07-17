@@ -20,9 +20,10 @@ use scale::{
     Decode,
     Encode,
 };
+use type_metadata::Metadata;
 
 /// A block of 1024 bits.
-#[derive(Debug, Copy, Clone, Encode, Decode)]
+#[derive(Debug, Copy, Clone, Encode, Decode, Metadata)]
 pub struct BitBlock {
     /// The underlying bit packs.
     packs: [BitPack; Self::PACKS as usize],

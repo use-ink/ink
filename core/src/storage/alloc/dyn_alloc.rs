@@ -25,6 +25,13 @@ use crate::storage::{
     Flush,
     Key,
 };
+use type_metadata::Metadata;
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutStruct,
+	LayoutField,
+};
 
 /// Allocator for dynamic contract storage.
 ///
@@ -33,7 +40,7 @@ use crate::storage::{
 /// can be slow (more than 2 reads) for more than 3000 dynamic allocations
 /// at the same time. This is subject to change in the future if
 /// experiments show that this is a bottle neck.
-#[derive(Debug)]
+#[derive(Debug, Metadata)]
 pub struct DynAlloc {
     /// Bitmap indicating free cell slots.
     free_cells: storage::BitVec,
@@ -43,6 +50,20 @@ pub struct DynAlloc {
     cells_origin: Key,
     /// Offset origin key for all chunks.
     chunks_origin: Key,
+}
+
+impl HasLayout for DynAlloc {
+	fn layout(&self) -> StorageLayout {
+		LayoutStruct::new(
+			Self::meta_type(),
+			vec![
+				LayoutField::of("free_cells", &self.free_cells),
+				LayoutField::of("free_chunks", &self.free_cells),
+				LayoutField::of("cells_origin", &self.cells_origin),
+				LayoutField::of("chunks_origin", &self.chunks_origin),
+			]
+		).into()
+	}
 }
 
 impl AllocateUsing for DynAlloc {

@@ -32,7 +32,14 @@ use core::{
     borrow::Borrow,
     hash::Hash,
 };
+use type_metadata::Metadata;
 use ink_utils::hash;
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutStruct,
+	LayoutField,
+};
 
 /// Mapping stored in the contract storage.
 ///
@@ -51,7 +58,7 @@ use ink_utils::hash;
 /// 3. Empty slot when there never was an insertion for this storage slot.
 ///
 /// This distinction is important for the quadratic map probing.
-#[derive(Debug)]
+#[derive(Debug, Metadata)]
 pub struct HashMap<K, V> {
     /// The storage key to the length of this storage map.
     len: storage::Value<u32>,
@@ -62,6 +69,22 @@ pub struct HashMap<K, V> {
     /// Afterwards this value is hashed again and used as key
     /// into the contract storage.
     entries: SyncChunk<Entry<K, V>>,
+}
+
+impl<K, V> HasLayout for HashMap<K, V>
+where
+	K: Metadata + 'static,
+	V: Metadata + 'static,
+{
+	fn layout(&self) -> StorageLayout {
+		LayoutStruct::new(
+			Self::meta_type(),
+			vec![
+				LayoutField::of("len", &self.len),
+				LayoutField::of("entries", &self.entries),
+			]
+		).into()
+	}
 }
 
 /// An entry of a storage map.

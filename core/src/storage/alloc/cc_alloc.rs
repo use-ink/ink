@@ -25,6 +25,13 @@ use scale::{
     Decode,
     Encode,
 };
+use type_metadata::Metadata;
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutStruct,
+	LayoutField,
+};
 
 /// An allocator for the contract storage.
 ///
@@ -38,7 +45,7 @@ use scale::{
 /// 2. Cell chunk allocation (2^32 cells)
 ///
 /// Allocating and deallocating are always O(1) operations.
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode, Metadata)]
 pub struct CellChunkAlloc {
     /// Allocator stash for single cells.
     cells: storage::Stash<()>,
@@ -96,6 +103,18 @@ impl Flush for CellChunkAlloc {
         self.cells.flush();
         self.chunks.flush();
     }
+}
+
+impl HasLayout for CellChunkAlloc {
+	fn layout(&self) -> StorageLayout {
+		LayoutStruct::new(
+			Self::meta_type(),
+			vec![
+				LayoutField::of("cells", &self.cells),
+				LayoutField::of("chunks", &self.chunks),
+			]
+		).into()
+	}
 }
 
 impl CellChunkAlloc {

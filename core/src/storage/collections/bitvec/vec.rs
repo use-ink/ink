@@ -25,14 +25,33 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
+use type_metadata::Metadata;
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutStruct,
+	LayoutField,
+};
 
 /// A space-efficient contiguous growable bit array type.
-#[derive(Debug)]
+#[derive(Debug, Metadata)]
 pub struct BitVec {
     /// The number of bits.
     len: storage::Value<u32>,
     /// The bit blocks.
     blocks: SyncChunk<BitBlock>,
+}
+
+impl HasLayout for BitVec {
+	fn layout(&self) -> StorageLayout {
+		LayoutStruct::new(
+			Self::meta_type(),
+			vec![
+				LayoutField::of("len", &self.len),
+				LayoutField::of("blocks", &self.blocks),
+			]
+		).into()
+	}
 }
 
 impl scale::Encode for BitVec {

@@ -28,6 +28,13 @@ use scale::{
     Decode,
     Encode,
 };
+use type_metadata::Metadata;
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutStruct,
+	LayoutField,
+};
 
 // Missing traits:
 //
@@ -48,10 +55,24 @@ use scale::{
 /// For assigning new values or mutating the value inside of it either use
 /// [`set`](struct.Value.html#method.set) or
 /// [`mutate_with`](struct.Value.html#method.mutate_with).
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode, Metadata)]
 pub struct Value<T> {
     /// The cell of the storage value.
     cell: SyncCell<T>,
+}
+
+impl<T> HasLayout for Value<T>
+where
+	T: Metadata + 'static,
+{
+	fn layout(&self) -> StorageLayout {
+		LayoutStruct::new(
+			Self::meta_type(),
+			vec![
+				LayoutField::of("cell", &self.cell),
+			]
+		).into()
+	}
 }
 
 impl<T> AllocateUsing for Value<T> {

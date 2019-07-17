@@ -30,6 +30,13 @@ use scale::{
     Decode,
     Encode,
 };
+use type_metadata::Metadata;
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutStruct,
+	LayoutField,
+};
 
 /// A stash collection.
 ///
@@ -51,7 +58,7 @@ use scale::{
 ///    truncate the key from a `usize` to some smaller type.
 /// 3. Except the guarantees noted above, you can assume nothing about key
 ///    assignment or iteration order. They can change at any time.
-#[derive(Debug)]
+#[derive(Debug, Metadata)]
 pub struct Stash<T> {
     /// Stores densly packed general stash information.
     header: storage::Value<StashHeader>,
@@ -67,7 +74,7 @@ pub struct Stash<T> {
 /// for performance reasons so that they all reside in the same
 /// storage entiry. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
-#[derive(Debug, scale::Encode, scale::Decode)]
+#[derive(Debug, Encode, Decode)]
 struct StashHeader {
     /// The latest vacant index.
     next_vacant: u32,
@@ -112,6 +119,21 @@ where
         self.header.flush();
         self.entries.flush();
     }
+}
+
+impl<T> HasLayout for Stash<T>
+where
+	T: Metadata + 'static,
+{
+	fn layout(&self) -> StorageLayout {
+		LayoutStruct::new(
+			Self::meta_type(),
+			vec![
+				LayoutField::of("cells", &self.header),
+				LayoutField::of("chunks", &self.entries),
+			]
+		).into()
+	}
 }
 
 impl<'a, T> Iterator for Values<'a, T>
@@ -222,7 +244,7 @@ where
 ///
 /// This represents either an occupied entry with its associated value
 /// or a vacant entry pointing to the next vacant entry.
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode, Metadata)]
 enum Entry<T> {
     /// A vacant entry pointing to the next vacant index.
     Vacant(u32),

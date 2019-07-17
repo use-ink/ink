@@ -19,6 +19,13 @@ use scale::{
     Decode,
     Encode,
 };
+use type_metadata::Metadata;
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutKey,
+	LayoutRange,
+};
 
 /// Typeless generic key into contract storage.
 ///
@@ -36,8 +43,14 @@ use scale::{
 /// - Violates Rust's mutability and immutability guarantees.
 ///
 /// Prefer using types found in `collections` or `Synced` type.
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode, Metadata)]
 pub struct Key(pub [u8; 32]);
+
+impl HasLayout for Key {
+	fn layout(&self) -> StorageLayout {
+		LayoutRange::cell(*self, <[u8]>::meta_type()).into()
+	}
+}
 
 impl core::fmt::Debug for Key {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -75,6 +88,12 @@ impl core::fmt::Display for Key {
         }
         Ok(())
     }
+}
+
+impl From<Key> for LayoutKey {
+	fn from(key: Key) -> Self {
+		LayoutKey(key.0)
+	}
 }
 
 impl Key {

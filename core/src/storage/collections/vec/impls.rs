@@ -24,7 +24,13 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
-
+use type_metadata::Metadata;
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutStruct,
+	LayoutField,
+};
 use core::iter::{
     DoubleEndedIterator,
     ExactSizeIterator,
@@ -44,7 +50,7 @@ use core::iter::{
 ///
 /// Allows to store up to `2^32` elements and is guaranteed to not reallocate
 /// upon pushing new elements to it.
-#[derive(Debug)]
+#[derive(Debug, Metadata)]
 pub struct Vec<T> {
     /// The length of the vector.
     len: storage::Value<u32>,
@@ -82,6 +88,21 @@ where
         self.len.flush();
         self.cells.flush();
     }
+}
+
+impl<T> HasLayout for Vec<T>
+where
+	T: Metadata + 'static,
+{
+	fn layout(&self) -> StorageLayout {
+		LayoutStruct::new(
+			Self::meta_type(),
+			vec![
+				LayoutField::of("len", &self.len),
+				LayoutField::of("cells", &self.cells),
+			]
+		).into()
+	}
 }
 
 impl<'a, T> Iterator for Iter<'a, T>

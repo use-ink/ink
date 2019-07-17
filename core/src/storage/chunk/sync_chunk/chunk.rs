@@ -24,6 +24,19 @@ use crate::storage::{
     Flush,
     Key,
 };
+use type_metadata::{
+	Metadata,
+	TypeId,
+	HasTypeDef,
+	TypeDef,
+	TypeDefStruct,
+	NamedField,
+};
+use ink_abi::{
+	HasLayout,
+	StorageLayout,
+	LayoutRange,
+};
 
 /// A chunk of synchronized cells.
 ///
@@ -37,12 +50,20 @@ use crate::storage::{
 /// - `Mutable`
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
-#[derive(Debug)]
+#[derive(Debug, TypeId)]
 pub struct SyncChunk<T> {
     /// The underlying chunk of cells.
     chunk: TypedChunk<T>,
     /// The cached element.
     cache: CacheGuard<T>,
+}
+
+impl<T> HasTypeDef for SyncChunk<T> {
+	fn type_def() -> TypeDef {
+		TypeDefStruct::new(vec![
+			NamedField::of::<Key>("cells_key"),
+		]).into()
+	}
 }
 
 impl<T> Flush for SyncChunk<T>
@@ -78,6 +99,15 @@ impl<T> scale::Decode for SyncChunk<T> {
             }
         })
     }
+}
+
+impl<T> HasLayout for SyncChunk<T>
+where
+	T: Metadata,
+{
+	fn layout(&self) -> StorageLayout {
+		LayoutRange::chunk(self.cells_key(), T::meta_type()).into()
+	}
 }
 
 impl<T> AllocateUsing for SyncChunk<T> {

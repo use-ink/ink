@@ -21,6 +21,7 @@ use crate::storage::{
     },
     cell::RawCell,
     NonCloneMarker,
+	Key,
 };
 
 /// A typed cell.
@@ -75,6 +76,11 @@ impl<T> TypedCell<T> {
     pub fn clear(&mut self) {
         self.cell.clear()
     }
+
+	/// Returns the associated, internal raw key.
+	pub fn raw_key(&self) -> Key {
+		self.cell.raw_key()
+	}
 }
 
 impl<T> TypedCell<T>

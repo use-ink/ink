@@ -18,12 +18,13 @@ use scale::{
     Decode,
     Encode,
 };
+use type_metadata::Metadata;
 
 /// The underlying representation type for a pack.
 pub type BitPackRepr = u32;
 
 /// A pack of 32 bits.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, Metadata)]
 #[repr(transparent)]
 pub struct BitPack {
     /// The actual bits.

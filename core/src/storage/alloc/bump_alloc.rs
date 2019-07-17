@@ -17,6 +17,7 @@
 use super::*;
 
 use crate::storage::Key;
+use type_metadata::Metadata;
 
 /// An allocator that is meant to allocate contract storage at
 /// compile-time by simply bumping its current allocation key.
@@ -28,6 +29,7 @@ use crate::storage::Key;
 ///
 /// Users are recommended to use the [`CellChunkAlloc`](struct.CellChunkAlloc.html)
 /// for dynamic storage allocation purposes instead.
+#[derive(Metadata)]
 pub struct BumpAlloc {
     /// The key offset used for all allocations.
     offset_key: Key,
