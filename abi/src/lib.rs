@@ -32,19 +32,21 @@ mod layout;
 mod specs;
 
 pub use self::{
-	layout::{
-		KeyRange,
-		HasLayout,
-		LayoutStruct,
-		LayoutField,
-	},
+    layout::{
+        HasLayout,
+		StorageLayout,
+		LayoutKey,
+        LayoutRange,
+        LayoutField,
+        LayoutStruct,
+    },
     specs::{
         ContractSpec,
         DeploySpec,
-        MessageSpec,
-        EventSpec,
         EventParamSpec,
-        ReturnTypeSpec,
+        EventSpec,
         MessageParamSpec,
+        MessageSpec,
+        ReturnTypeSpec,
     },
 };
