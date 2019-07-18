@@ -63,7 +63,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
 }
 
 /// The default SRML balance type.
-pub type Balance = u64;
+pub type Balance = u128;
 
 /// The default SRML hash type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
