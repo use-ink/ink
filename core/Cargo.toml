@@ -24,7 +24,6 @@ parity-codec = { version = "4.1.1", default-features = false, features = ["deriv
 
 [dev-dependencies]
 node-runtime = { git = "https://github.com/paritytech/substrate/", package = "node-runtime", default_features = false }
-runtime-io = { git = "https://github.com/paritytech/substrate/", package = "sr-io", default_features = false, features = ["no_oom", "no_panic_handler"] }
 
 [features]
 default = []
@@ -33,5 +32,4 @@ std = [
     "ink_alloc/std",
     "ink_utils/std",
     "node-runtime/std",
-    "runtime-io/std",
 ]
