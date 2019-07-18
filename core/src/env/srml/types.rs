@@ -124,7 +124,7 @@ mod tests {
     use system;
 
     type AccountId = u64;
-    type AccountIndex = AccountId;
+    type AccountIndex = u32;
     type Balance = u64;
     type Hash = u64;
 
@@ -177,7 +177,7 @@ mod tests {
     }
     impl system::Trait for Test {
         type Origin = Origin;
-        type Index = u64;
+        type Index = AccountIndex;
         type BlockNumber = u64;
         type Hash = H256;
         type Hashing = BlakeTwo256;
@@ -273,7 +273,6 @@ mod tests {
                 *v
             });
 
-            // TODO: see https://github.com/paritytech/substrate/issues/2325
             let mut res = vec![];
             res.extend_from_slice(well_known_keys::CHILD_STORAGE_KEY_PREFIX);
             res.extend_from_slice(b"default:");
@@ -290,38 +289,21 @@ mod tests {
         }
     }
 
-    /// ink! env types
-    #[derive(Debug, Clone, Eq, PartialEq)]
-    enum TestEnvTypes {}
-    impl EnvTypes for TestEnvTypes {
-        type AccountId = AccountId;
-        type AccountIndex = AccountIndex;
-        type Balance = Balance;
-        type Hash = Hash;
-        type Moment = u64;
-        type Call = EnvCall;
-        type BlockNumber = u64;
-    }
-
-    #[derive(Encode, Decode, Debug, Clone, Eq, PartialEq)]
-    enum EnvCall {
-        Balances(calls::Balances<TestEnvTypes>),
-    }
-
     #[test]
     fn call_balance_transfer() {
         let account = 0;
         let balance = 10_000;
-        let contract_call = calls::Balances::<TestEnvTypes>::transfer(account, balance);
+        let transfer = calls::Balances::<DefaultSrmlTypes>::transfer(account, balance);
+        let contract_call = super::Call::Balances(transfer);
         let srml_call = balances::Call::<Test>::transfer(account, balance);
         let contract_call_encoded = contract_call.encode();
         let srml_call_encoded = srml_call.encode();
         assert_eq!(srml_call_encoded, contract_call_encoded);
 
-        let srml_call_decoded: balances::Call<Test> = Decode::decode(&mut contract_call_encoded.as_slice())
+        let srml_call_decoded: Call = Decode::decode(&mut contract_call_encoded.as_slice())
             .expect("Balances transfer call decodes to srml type");
         let srml_call_encoded = srml_call_decoded.encode();
-        let contract_call_decoded: calls::Balances<TestEnvTypes> = Decode::decode(&mut srml_call_encoded.as_slice())
+        let contract_call_decoded: super::Call = Decode::decode(&mut srml_call_encoded.as_slice())
             .expect("Balances transfer call decodes back to contract type");
         assert_eq!(contract_call, contract_call_decoded);
     }
