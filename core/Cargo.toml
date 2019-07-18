@@ -24,13 +24,6 @@ parity-codec = { version = "4.1.1", default-features = false, features = ["deriv
 
 [dev-dependencies]
 node-runtime = { git = "https://github.com/paritytech/substrate/", package = "node-runtime", default_features = false }
-balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances", default_features = false }
-contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts", default_features = false, features = ["core"] }
-timestamp = { git = "https://github.com/paritytech/substrate/", package = "srml-timestamp", default_features = false }
-srml-support = { git = "https://github.com/paritytech/substrate/", package = "srml-support", default_features = false }
-system = { git = "https://github.com/paritytech/substrate/", package = "srml-system", default_features = false }
-runtime-primitives = { git = "https://github.com/paritytech/substrate/", package = "sr-primitives", default_features = false }
-substrate-primitives = { git = "https://github.com/paritytech/substrate/", package = "substrate-primitives", default_features = false }
 runtime-io = { git = "https://github.com/paritytech/substrate/", package = "sr-io", default_features = false, features = ["no_oom", "no_panic_handler"] }
 
 [features]
@@ -39,13 +32,6 @@ test-env = ["std"]
 std = [
     "ink_alloc/std",
     "ink_utils/std",
-    "balances/std",
-    "contracts/std",
     "node-runtime/std",
-    "timestamp/std",
-    "srml-support/std",
-    "system/std",
-    "runtime-primitives/std",
-    "substrate-primitives/std",
     "runtime-io/std",
 ]
