@@ -23,6 +23,7 @@ ink_utils = { path = "../utils/" }
 parity-codec = { version = "4.1.1", default-features = false, features = ["derive", "full"] }
 
 [dev-dependencies]
+node-runtime = { git = "https://github.com/paritytech/substrate/", package = "node-runtime", default_features = false }
 balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances", default_features = false }
 contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts", default_features = false, features = ["core"] }
 timestamp = { git = "https://github.com/paritytech/substrate/", package = "srml-timestamp", default_features = false }
@@ -40,6 +41,7 @@ std = [
     "ink_utils/std",
     "balances/std",
     "contracts/std",
+    "node-runtime/std",
     "timestamp/std",
     "srml-support/std",
     "system/std",
