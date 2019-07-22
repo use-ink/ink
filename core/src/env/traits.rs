@@ -18,6 +18,7 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
+use core::convert::TryInto;
 use parity_codec::{Encode, Codec};
 
 #[cfg(not(feature = "test-env"))]
@@ -26,7 +27,7 @@ pub trait EnvTypes {
     /// The type of an address.
     type AccountId: Codec + Clone + PartialEq + Eq;
     /// The type of the index to an address.
-    type AccountIndex: Codec + Clone + PartialEq + Eq;
+    type AccountIndex: Codec + Clone + Copy + PartialEq + Eq + PartialOrd<Self::AccountIndex> + From<u32> + TryInto<u32>;
     /// The type of balances.
     type Balance: Codec + Clone + PartialEq + Eq;
     /// The type of hash.
@@ -45,7 +46,7 @@ pub trait EnvTypes {
     /// The type of an address.
     type AccountId: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of the index to an address.
-    type AccountIndex: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    type AccountIndex: Codec + Clone + Copy + PartialEq + Eq + PartialOrd<Self::AccountIndex> + From<u32> + TryInto<u32> + core::fmt::Debug;
     /// The type of balances.
     type Balance: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of hash.

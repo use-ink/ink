@@ -91,8 +91,8 @@ pub type Moment = u64;
 pub type BlockNumber = u64;
 
 /// The default SRML call type.
-#[derive(Encode, Decode)]
-#[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
+#[derive(Encode)]
+#[cfg_attr(feature = "test-env", derive(Decode, Debug, Clone, PartialEq, Eq))]
 pub enum Call {
     #[codec(index = "3")]
     Balances(super::calls::Balances<DefaultSrmlTypes>),
@@ -111,19 +111,16 @@ mod tests {
 
     use node_runtime::{self, Runtime};
     use parity_codec::{Decode, Encode};
-
-    type AccountId = u64;
-    type AccountIndex = u32;
-    type Balance = u64;
-    type Hash = u64;
+    use srml_indices::address;
 
     #[test]
     fn call_balance_transfer() {
-        let account = 0;
+        let contract_address = calls::Address::Index(0);
         let balance = 10_000;
-        let transfer = calls::Balances::<DefaultSrmlTypes>::transfer(account, balance);
+        let transfer = calls::Balances::<DefaultSrmlTypes>::transfer(contract_address, balance);
+        let srml_address = address::Address::Index(0);
         let contract_call = super::Call::Balances(transfer);
-        let srml_call = node_runtime::BalancesCall::<Runtime>::transfer(account, balance);
+        let srml_call = node_runtime::BalancesCall::<Runtime>::transfer(srml_address, balance);
         let contract_call_encoded = contract_call.encode();
         let srml_call_encoded = srml_call.encode();
         assert_eq!(srml_call_encoded, contract_call_encoded);
