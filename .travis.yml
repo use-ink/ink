@@ -33,6 +33,7 @@ install:
   # Print rustc and cargo versions
   - rustc -vV
   - cargo -vV
+  - rustup run nightly cargo -vV
   # Install cargo-kcov Cargo plugin
   - cargo install --force cargo-kcov
   - cargo kcov -vV
