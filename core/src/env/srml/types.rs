@@ -94,7 +94,7 @@ pub type BlockNumber = u64;
 #[derive(Encode)]
 #[cfg_attr(feature = "test-env", derive(Decode, Debug, Clone, PartialEq, Eq))]
 pub enum Call {
-    #[codec(index = "3")]
+    #[codec(index = "5")]
     Balances(super::calls::Balances<DefaultSrmlTypes>),
 }
 
@@ -115,14 +115,20 @@ mod tests {
 
     #[test]
     fn call_balance_transfer() {
-        let contract_address = calls::Address::Index(0);
         let balance = 10_000;
-        let transfer = calls::Balances::<DefaultSrmlTypes>::transfer(contract_address, balance);
-        let srml_address = address::Address::Index(0);
-        let contract_call = super::Call::Balances(transfer);
-        let srml_call = node_runtime::BalancesCall::<Runtime>::transfer(srml_address, balance);
+        let account_index = 0;
+
+        let contract_address = calls::Address::Index(account_index);
+        let contract_transfer = calls::Balances::<DefaultSrmlTypes>::transfer(contract_address, balance);
+        let contract_call = super::Call::Balances(contract_transfer);
+
+        let srml_address = address::Address::Index(account_index);
+        let srml_transfer = node_runtime::BalancesCall::<Runtime>::transfer(srml_address, balance);
+        let srml_call = node_runtime::Call::Balances(srml_transfer);
+
         let contract_call_encoded = contract_call.encode();
         let srml_call_encoded = srml_call.encode();
+
         assert_eq!(srml_call_encoded, contract_call_encoded);
 
         let srml_call_decoded: Call = Decode::decode(&mut contract_call_encoded.as_slice())
