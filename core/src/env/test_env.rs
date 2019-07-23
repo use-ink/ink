@@ -295,7 +295,7 @@ impl TestEnvData {
     }
 
     /// Returns an iterator over all emitted events.
-    pub fn emitted_events(&self) -> impl Iterator<Item = &[u8]> {
+    pub fn emitted_events(&self) -> impl DoubleEndedIterator<Item = &[u8]> {
         self.events
             .iter()
             .map(|event_data| event_data.data_as_bytes())
@@ -460,7 +460,7 @@ impl<T> TestEnv<T> where T: EnvTypes {
     );
 
     /// Returns an iterator over all emitted events.
-    pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
+    pub fn emitted_events() -> impl DoubleEndedIterator<Item = Vec<u8>> {
         TEST_ENV_DATA.with(|test_env| {
             test_env
                 .borrow()
