@@ -37,6 +37,21 @@ pub fn set_caller<T: EnvTypes>(address: T::AccountId) {
     ContractEnv::<T>::set_caller(address)
 }
 
+/// Sets the timestamp for the next contract invocation.
+pub fn set_now<T: EnvTypes>(timestamp: T::Moment) {
+    ContractEnv::<T>::set_now(timestamp)
+}
+
+/// Sets the current block number for the next contract invocation.
+pub fn set_block_number<T: EnvTypes>(block_number: T::BlockNumber) {
+    ContractEnv::<T>::set_block_number(block_number)
+}
+
+/// Sets the contract balance for the next contract invocation.
+pub fn set_balance<T: EnvTypes>(balance: T::Balance) {
+    ContractEnv::<T>::set_balance(balance)
+}
+
 /// Returns an iterator over the uninterpreted bytes of all past emitted events.
 pub fn emitted_events<T: EnvTypes>() -> impl Iterator<Item = Vec<u8>> {
     ContractEnv::<T>::emitted_events().into_iter()
