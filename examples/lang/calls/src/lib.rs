@@ -35,8 +35,9 @@ contract! {
 
     impl Calls {
         /// Dispatches a `transfer` call to the Balances srml module
-        pub(external) fn balance_transfer(&mut self, dest: u32, value: Balance) {
-            let transfer_call = calls::Balances::<DefaultSrmlTypes>::transfer(dest, value);
+        pub(external) fn balance_transfer(&mut self, dest: AccountId, value: Balance) {
+            let dest_addr = calls::Address::Id(dest);
+            let transfer_call = calls::Balances::<DefaultSrmlTypes>::transfer(dest_addr, value);
             env.dispatch_call(transfer_call.into());
         }
     }
