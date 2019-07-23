@@ -103,3 +103,54 @@ pub enum Balances<T: EnvTypes> {
         #[codec(compact)] T::Balance,
     ),
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::env::{calls, DefaultSrmlTypes};
+
+    use parity_codec::{Decode, Encode};
+    use srml_indices::address;
+
+    #[test]
+    fn account_index_serialization() {
+        let account_index = 0u32;
+
+        let ink_address = calls::Address::Index(account_index.into());
+        let srml_address: address::Address<[u8; 32], u32> = address::Address::Index(account_index);
+
+        let ink_encoded = ink_address.encode();
+        let srml_encoded = srml_address.encode();
+
+        assert_eq!(srml_encoded, ink_encoded);
+
+        let srml_decoded: address::Address<[u8; 32], u32> = Decode::decode(&mut ink_encoded.as_slice())
+            .expect("Account Index decodes to srml Address");
+        let srml_encoded = srml_decoded.encode();
+        let ink_decoded: calls::Address<DefaultSrmlTypes> = Decode::decode(&mut srml_encoded.as_slice())
+            .expect("Account Index decodes back to ink type");
+
+        assert_eq!(ink_address, ink_decoded);
+    }
+
+    #[test]
+    fn account_id_serialization() {
+        let account_id = [0u8; 32];
+
+        let ink_address = calls::Address::Id(account_id.into());
+        let srml_address: address::Address<[u8; 32], u32> = address::Address::Id(account_id);
+
+        let ink_encoded = ink_address.encode();
+        let srml_encoded = srml_address.encode();
+
+        assert_eq!(srml_encoded, ink_encoded);
+
+        let srml_decoded: address::Address<[u8; 32], u32> = Decode::decode(&mut ink_encoded.as_slice())
+            .expect("Account Id decodes to srml Address");
+        let srml_encoded = srml_decoded.encode();
+        let ink_decoded: calls::Address<DefaultSrmlTypes> = Decode::decode(&mut srml_encoded.as_slice())
+            .expect("Account Id decodes decodes back to ink type");
+
+        assert_eq!(ink_address, ink_decoded);
+    }
+}
+
