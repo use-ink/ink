@@ -33,6 +33,8 @@ install:
   # Print rustc and cargo versions
   - rustc -vV
   - cargo -vV
+  # Install wasm-gc for building substrate libs
+  - cargo +nightly install --git https://github.com/alexcrichton/wasm-gc --force
   # Install cargo-kcov Cargo plugin
   - cargo install --force cargo-kcov
   - cargo kcov -vV
