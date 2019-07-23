@@ -23,8 +23,8 @@ ink_utils = { path = "../utils/" }
 parity-codec = { version = "4.1.1", default-features = false, features = ["derive", "full"] }
 
 [dev-dependencies]
-node-runtime = { git = "https://github.com/paritytech/substrate/", package = "node-runtime", features = ["std"] }
-srml-indices = { git = "https://github.com/paritytech/substrate/", package = "srml-indices", features = ["std"] }
+node-runtime = { git = "https://github.com/paritytech/substrate/", branch="aj-wasm-builder", package = "node-runtime", features = ["std"] }
+srml-indices = { git = "https://github.com/paritytech/substrate/", branch="aj-wasm-builder", package = "srml-indices", features = ["std"] }
 
 [features]
 default = []
