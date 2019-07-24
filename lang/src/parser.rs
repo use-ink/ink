@@ -100,7 +100,9 @@ impl Parse for ast::ItemEnvMeta {
             .iter()
             .map(ast::ItemEnvTypesMeta::parse_from_attr)
             .collect::<Result<Vec<_>>>()?;
-        Ok(Self { env_types_metas: env_types })
+        Ok(Self {
+            env_types_metas: env_types,
+        })
     }
 }
 

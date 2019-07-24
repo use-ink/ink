@@ -76,7 +76,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<T> Flush for Vec<T>
 where
-    T: parity_codec::Encode,
+    T: parity_codec::Encode + Flush,
 {
     fn flush(&mut self) {
         self.len.flush();

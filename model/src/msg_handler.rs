@@ -23,8 +23,10 @@ use core::{
     marker::PhantomData,
     result::Result as CoreResult,
 };
-use ink_core::memory::vec::Vec;
-use ink_core::env;
+use ink_core::{
+    env,
+    memory::vec::Vec,
+};
 use parity_codec::Decode;
 
 /// A raw read-only message handler for the given message and state.
@@ -42,8 +44,10 @@ pub type RawMessageHandler<Msg, State, Env> =
 ///
 /// - Mutable message handlers may mutate contract state.
 /// - Requires `Msg` to impl `Message` and `State` to impl `ContractState`.
-pub type RawMessageHandlerMut<Msg, State, Env> =
-    fn(&mut ExecutionEnv<State, Env>, <Msg as Message>::Input) -> <Msg as Message>::Output;
+pub type RawMessageHandlerMut<Msg, State, Env> = fn(
+    &mut ExecutionEnv<State, Env>,
+    <Msg as Message>::Input,
+) -> <Msg as Message>::Output;
 
 /// The raw data with which a contract is being called.
 pub struct CallData {
@@ -303,7 +307,8 @@ impl<State, Env> HandleCall<State, Env> for UnreachableMessageHandler {
 
 macro_rules! impl_handle_call_for_chain {
     ( $msg_handler_kind:ident, requires_flushing: $requires_flushing:literal ) => {
-        impl<Msg, State, Env> HandleCall<State, Env> for $msg_handler_kind<Msg, State, Env>
+        impl<Msg, State, Env> HandleCall<State, Env>
+            for $msg_handler_kind<Msg, State, Env>
         where
             Msg: Message,
             <Msg as Message>::Output: parity_codec::Encode,
@@ -326,7 +331,8 @@ macro_rules! impl_handle_call_for_chain {
             }
         }
 
-        impl<Msg, State, Env, Rest> HandleCall<State, Env> for ($msg_handler_kind<Msg, State, Env>, Rest)
+        impl<Msg, State, Env, Rest> HandleCall<State, Env>
+            for ($msg_handler_kind<Msg, State, Env>, Rest)
         where
             Msg: Message,
             <Msg as Message>::Output: 'static,
