@@ -22,11 +22,6 @@ ink_alloc = { path = "../alloc/", default-features = false }
 ink_utils = { path = "../utils/", default-features = false }
 parity-codec = { version = "4.1", default-features = false, features = ["derive", "full"] }
 
-[dependencies.type-metadata]
-git = "https://github.com/type-metadata/type-metadata.git"
-default-features = false
-features = ["derive"]
-
 [features]
 default = ["std"]
 test-env = ["std"]
@@ -34,5 +29,4 @@ std = [
     "ink_alloc/std",
     "ink_utils/std",
     "parity-codec/std",
-    "type-metadata/std",
 ]
