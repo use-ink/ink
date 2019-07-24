@@ -46,7 +46,7 @@ fn zip_dir(
     src_dir: &PathBuf,
     dst_file: &PathBuf,
     method: CompressionMethod,
-) -> Result<(), Box<Error>> {
+) -> Result<(), Box<dyn Error>> {
     if !src_dir.is_dir() {
         return Err(ZipError::FileNotFound.into())
     }
