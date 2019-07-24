@@ -42,11 +42,11 @@ proc-macro = true
 default = ["std"]
 std = [
     "ink_utils/std",
-	"ink_model/std",
+    "ink_model/std",
     "parity-codec/std",
-	"itertools/use_std",
-	"either/use_std",
-	"serde/std",
+    "itertools/use_std",
+    "either/use_std",
+    "serde/std",
 ]
 test-env = [
     "ink_model/test-env",
