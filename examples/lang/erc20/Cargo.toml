@@ -5,10 +5,10 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_core = { path = "../../../core" }
-ink_model = { path = "../../../model" }
-ink_lang = { path = "../../../lang" }
-parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
+ink_core = { path = "../../../core", default-features = false }
+ink_model = { path = "../../../model", default-features = false }
+ink_lang = { path = "../../../lang", default-features = false }
+parity-codec = { version = "4.1", default-features = false, features = ["derive"] }
 
 [lib]
 name = "erc20"
@@ -16,11 +16,19 @@ crate-type = ["cdylib"]
 
 [features]
 default = [
+    "std",
     "ink_lang/generate-api-description"
 ]
+std = [
+    "ink_core/std",
+    "ink_model/std",
+    "ink_lang/std",
+    "parity-codec/std",
+]
 test-env = [
-	"ink_core/test-env",
-	"ink_model/test-env",
+    "std",
+    "ink_core/test-env",
+    "ink_model/test-env",
     "ink_lang/test-env",
 ]
 generate-api-description = [
@@ -30,5 +38,5 @@ generate-api-description = [
 [profile.release]
 panic = "abort"
 lto = true
-# debug = true
 opt-level = "z"
+# debug = true

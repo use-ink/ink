@@ -60,9 +60,11 @@ before_script:
 script:
 - |
   cargo check --verbose --all --all-features &&
-  cargo fmt --verbose --all -- --check
+  cargo check --verbose --all --no-default-features &&
+  cargo fmt --verbose --all -- --check &&
   cargo clippy --verbose --all --all-features -- -D warnings &&
+  cargo clippy --verbose --all --no-default-features -- -D warnings &&
   cargo test --verbose --all --all-features &&
   cargo kcov --verbose --coveralls --all --no-clean-rebuild &&
-  cargo build --verbose --all --release --target=wasm32-unknown-unknown &&
+  cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown &&
   bash <(curl -s https://codecov.io/bash)

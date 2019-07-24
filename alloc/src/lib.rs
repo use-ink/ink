@@ -15,13 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(
-    not(feature = "std"),
-    feature(
-        alloc_error_handler,
-        core_intrinsics,
-    )
-)]
+#![cfg_attr(not(feature = "std"), feature(alloc_error_handler, core_intrinsics,))]
 
 // Use `wee_alloc` as the global allocator.
 #[cfg(not(feature = "std"))]

@@ -18,18 +18,18 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_utils = { path = "../utils/" }
-ink_model = { path = "../model/" }
-parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
+ink_utils = { path = "../utils/", default-features = false }
+ink_model = { path = "../model/", default-features = false }
+parity-codec = { version = "4.1", default-features = false, features = ["derive"] }
 
 quote = "0.6"
 syn = { version = "0.15", features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = "0.4"
 heck = "0.3"
-itertools = "0.7"
-either = "1.5"
-serde = { version = "1.0.89", features = ["derive"] }
-serde_json = "1.0.39"
+itertools = { version = "0.8", default-features = false }
+either = { version = "1.5", default-features = false }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde_json = "1.0"
 
 [dev-dependencies]
 pretty_assertions = "0.6.1"
@@ -39,10 +39,14 @@ name = "ink_lang"
 proc-macro = true
 
 [features]
-default = []
+default = ["std"]
 std = [
     "ink_utils/std",
+    "ink_model/std",
     "parity-codec/std",
+    "itertools/use_std",
+    "either/use_std",
+    "serde/std",
 ]
 test-env = [
     "ink_model/test-env",
