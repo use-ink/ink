@@ -28,13 +28,6 @@ use crate::{
 		Flush,
 	},
 };
-use type_metadata::Metadata;
-use ink_abi::{
-	HasLayout,
-	StorageLayout,
-	LayoutStruct,
-	LayoutField,
-};
 use ink_abi::{
     HasLayout,
     LayoutField,

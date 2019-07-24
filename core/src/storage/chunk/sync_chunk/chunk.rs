@@ -27,19 +27,6 @@ use crate::{
 		Key,
 	},
 };
-use type_metadata::{
-	Metadata,
-	TypeId,
-	HasTypeDef,
-	TypeDef,
-	TypeDefStruct,
-	NamedField,
-};
-use ink_abi::{
-	HasLayout,
-	StorageLayout,
-	LayoutRange,
-};
 use ink_abi::{
     HasLayout,
     LayoutRange,
