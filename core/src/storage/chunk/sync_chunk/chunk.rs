@@ -15,14 +15,17 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::CacheGuard;
-use crate::storage::{
-    alloc::{
-        Allocate,
-        AllocateUsing,
-    },
-    chunk::TypedChunk,
-    Flush,
-    Key,
+use crate::{
+	memory::vec,
+	storage::{
+		alloc::{
+			Allocate,
+			AllocateUsing,
+		},
+		chunk::TypedChunk,
+		Flush,
+		Key,
+	},
 };
 use type_metadata::{
 	Metadata,

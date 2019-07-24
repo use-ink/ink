@@ -15,15 +15,18 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::BitBlock;
-use crate::storage::{
-    self,
-    alloc::{
-        Allocate,
-        AllocateUsing,
-        Initialize,
-    },
-    chunk::SyncChunk,
-    Flush,
+use crate::{
+	memory::vec,
+	storage::{
+		self,
+		alloc::{
+			Allocate,
+			AllocateUsing,
+			Initialize,
+		},
+		chunk::SyncChunk,
+		Flush,
+	},
 };
 use type_metadata::Metadata;
 use ink_abi::{

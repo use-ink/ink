@@ -15,7 +15,10 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    memory::boxed::Box,
+    memory::{
+		vec,
+		boxed::Box,
+	},
     storage::{
         alloc::{
             Allocate,

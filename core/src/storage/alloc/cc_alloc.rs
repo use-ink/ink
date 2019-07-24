@@ -15,10 +15,13 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::storage::{
-    self,
-    Flush,
-    Key,
+use crate::{
+	memory::vec,
+	storage::{
+		self,
+		Flush,
+		Key,
+	},
 };
 
 use scale::{

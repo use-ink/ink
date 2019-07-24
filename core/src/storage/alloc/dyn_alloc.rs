@@ -15,15 +15,18 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::storage::{
-    self,
-    alloc::{
-        AllocateUsing,
-        Initialize,
-    },
-    Allocator,
-    Flush,
-    Key,
+use crate::{
+	memory::vec,
+	storage::{
+		self,
+		alloc::{
+			AllocateUsing,
+			Initialize,
+		},
+		Allocator,
+		Flush,
+		Key,
+	},
 };
 use type_metadata::Metadata;
 use ink_abi::{
