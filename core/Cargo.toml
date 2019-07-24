@@ -33,6 +33,6 @@ test-env = ["std"]
 std = [
     "ink_alloc/std",
     "ink_utils/std",
-	"parity-codec/std",
-	"type-metadata/std",
+    "parity-codec/std",
+    "type-metadata/std",
 ]
