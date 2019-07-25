@@ -82,6 +82,14 @@ struct StashHeader {
     max_len: u32,
 }
 
+impl Flush for StashHeader {
+    fn flush(&mut self) {
+        self.next_vacant.flush();
+        self.len.flush();
+		self.max_len.flush();
+    }
+}
+
 /// Iterator over the values of a stash.
 #[derive(Debug)]
 pub struct Values<'a, T> {
@@ -98,7 +106,7 @@ impl<'a, T> Values<'a, T> {
 
 impl<T> Flush for Stash<T>
 where
-    T: Encode,
+    T: Encode + Flush,
 {
     fn flush(&mut self) {
         self.header.flush();
@@ -220,6 +228,18 @@ enum Entry<T> {
     Vacant(u32),
     /// An occupied entry containing the value.
     Occupied(T),
+}
+
+impl<T> Flush for Entry<T>
+where
+	T: Flush,
+{
+	fn flush(&mut self) {
+		match self {
+			Entry::Vacant(_) => (),
+			Entry::Occupied(occupied) => occupied.flush(),
+		}
+	}
 }
 
 impl<T> Encode for Stash<T> {

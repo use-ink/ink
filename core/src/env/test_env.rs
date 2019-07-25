@@ -27,7 +27,10 @@ use core::cell::{
     Cell,
     RefCell,
 };
-use parity_codec::{Decode, Encode};
+use parity_codec::{
+    Decode,
+    Encode,
+};
 use std::marker::PhantomData;
 
 /// A wrapper for the generic bytearray used for data in contract events.
@@ -427,7 +430,7 @@ thread_local! {
 
 /// Test environment for testing SRML contract off-chain.
 pub struct TestEnv<T> {
-    marker: PhantomData<fn () -> T>
+    marker: PhantomData<fn() -> T>,
 }
 
 macro_rules! impl_env_setters_for_test_env {
@@ -440,7 +443,10 @@ macro_rules! impl_env_setters_for_test_env {
     }
 }
 
-impl<T> TestEnv<T> where T: EnvTypes {
+impl<T> TestEnv<T>
+where
+    T: EnvTypes,
+{
     /// Resets the test environment as if no contract execution happened so far.
     pub fn reset() {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().reset())
@@ -464,7 +470,8 @@ impl<T> TestEnv<T> where T: EnvTypes {
 
     /// Sets the input data for the next contract invocation.
     pub fn set_input(input_bytes: &[u8]) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_input(input_bytes.to_vec()))
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().set_input(input_bytes.to_vec()))
     }
 
     impl_env_setters_for_test_env!(
@@ -524,7 +531,9 @@ where
     type Call = <T as EnvTypes>::Call;
 }
 
-impl<T> Env for TestEnv<T> where T: EnvTypes
+impl<T> Env for TestEnv<T>
+where
+    T: EnvTypes,
 {
     impl_env_getters_for_test_env!(
         (address, T::AccountId),

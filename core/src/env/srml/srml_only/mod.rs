@@ -18,6 +18,6 @@ mod impls;
 pub mod sys;
 
 pub use self::impls::{
-    SrmlEnvStorage,
     SrmlEnv,
+    SrmlEnvStorage,
 };

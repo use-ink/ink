@@ -27,13 +27,13 @@ use std::{
     fs,
     io::{
         Cursor,
+        Read,
         Seek,
         SeekFrom,
         Write,
     },
     path,
 };
-use std::io::Read;
 
 /// Initializes a project structure for the `lang` abstraction layer.
 fn initialize_for_lang(name: &str) -> Result<()> {

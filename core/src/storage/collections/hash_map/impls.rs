@@ -77,6 +77,19 @@ pub enum Entry<K, V> {
     Removed,
 }
 
+impl<K, V> Flush for Entry<K, V>
+where
+    K: parity_codec::Encode + Flush,
+    V: parity_codec::Encode + Flush,
+{
+	fn flush(&mut self) {
+		match self {
+			Entry::Occupied(occupied) => occupied.flush(),
+			Entry::Removed => (),
+		}
+	}
+}
+
 /// An occupied entry of a storage map.
 #[derive(Debug, Clone, PartialEq, Eq, parity_codec::Encode, parity_codec::Decode)]
 pub struct OccupiedEntry<K, V> {
@@ -86,10 +99,21 @@ pub struct OccupiedEntry<K, V> {
     val: V,
 }
 
+impl<K, V> Flush for OccupiedEntry<K, V>
+where
+    K: parity_codec::Encode + Flush,
+    V: parity_codec::Encode + Flush,
+{
+	fn flush(&mut self) {
+		self.key.flush();
+		self.val.flush();
+	}
+}
+
 impl<K, V> Flush for HashMap<K, V>
 where
-    K: parity_codec::Encode,
-    V: parity_codec::Encode,
+    K: parity_codec::Encode + Flush,
+    V: parity_codec::Encode + Flush,
 {
     fn flush(&mut self) {
         self.len.flush();

@@ -17,10 +17,10 @@
 //! Public api to interact with the special testing environment.
 
 use crate::env::{
+    traits::EnvTypes,
     ContractEnv,
     ContractEnvStorage,
 };
-use crate::env::traits::EnvTypes;
 
 /// Returns the total number of reads to all storage entries.
 pub fn total_reads() -> u64 {
