@@ -52,16 +52,12 @@ mod private {
 
 impl EnvTypes for DefaultSrmlTypes {
     type AccountId = AccountId;
-    type AccountIndex = AccountIndex;
     type Balance = Balance;
     type Hash = Hash;
     type Moment = Moment;
     type BlockNumber = BlockNumber;
     type Call = private::Call;
 }
-
-/// The default SRML address index type.
-pub type AccountIndex = u32;
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
