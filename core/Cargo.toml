@@ -22,10 +22,6 @@ ink_alloc = { path = "../alloc/", default-features = false }
 ink_utils = { path = "../utils/", default-features = false }
 parity-codec = { version = "4.1", default-features = false, features = ["derive", "full"] }
 
-[dev-dependencies]
-node-runtime = { git = "https://github.com/paritytech/substrate/", package = "node-runtime", features = ["std"] }
-srml-indices = { git = "https://github.com/paritytech/substrate/", package = "srml-indices", features = ["std"] }
-
 [features]
 default = ["std"]
 test-env = ["std"]

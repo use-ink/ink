@@ -30,6 +30,26 @@ use parity_codec::{
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
 pub enum DefaultSrmlTypes {}
 
+/// Private module for default Call type, so it cannot be constructed
+/// For calling into the runtime, a user defined Call type required.
+/// See https://github.com/paritytech/ink-types-node-runtime.
+mod private {
+    use parity_codec::{Encode, Decode, Input};
+
+    #[cfg_attr(feature = "std", derive(Debug, Clone, PartialEq, Eq))]
+    pub struct Call {
+        _unconstructable: ()
+    }
+    impl Encode for Call {}
+
+    #[cfg(feature = "std")]
+    impl Decode for Call {
+        fn decode<I: Input>(_value: &mut I) -> Option<Self> {
+            unimplemented!()
+        }
+    }
+}
+
 impl EnvTypes for DefaultSrmlTypes {
     type AccountId = AccountId;
     type AccountIndex = AccountIndex;
@@ -37,7 +57,7 @@ impl EnvTypes for DefaultSrmlTypes {
     type Hash = Hash;
     type Moment = Moment;
     type BlockNumber = BlockNumber;
-    type Call = Call;
+    type Call = private::Call;
 }
 
 /// The default SRML address index type.
@@ -89,55 +109,5 @@ pub type Moment = u64;
 
 /// The default SRML blocknumber type.
 pub type BlockNumber = u64;
-
-/// The default SRML call type.
-#[derive(Encode)]
-#[cfg_attr(feature = "test-env", derive(Decode, Debug, Clone, PartialEq, Eq))]
-pub enum Call {
-    #[codec(index = "5")]
-    Balances(super::calls::Balances<DefaultSrmlTypes>),
-}
-
-impl From<super::calls::Balances<DefaultSrmlTypes>> for Call {
-    fn from(balances_call: super::calls::Balances<DefaultSrmlTypes>) -> Call {
-        Call::Balances(balances_call)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::env::calls;
-
-    use node_runtime::{self, Runtime};
-    use parity_codec::{Decode, Encode};
-    use srml_indices::address;
-
-    #[test]
-    fn call_balance_transfer() {
-        let balance = 10_000;
-        let account_index = 0;
-
-        let contract_address = calls::Address::Index(account_index);
-        let contract_transfer = calls::Balances::<DefaultSrmlTypes>::transfer(contract_address, balance);
-        let contract_call = super::Call::Balances(contract_transfer);
-
-        let srml_address = address::Address::Index(account_index);
-        let srml_transfer = node_runtime::BalancesCall::<Runtime>::transfer(srml_address, balance);
-        let srml_call = node_runtime::Call::Balances(srml_transfer);
-
-        let contract_call_encoded = contract_call.encode();
-        let srml_call_encoded = srml_call.encode();
-
-        assert_eq!(srml_call_encoded, contract_call_encoded);
-
-        let srml_call_decoded: Call = Decode::decode(&mut contract_call_encoded.as_slice())
-            .expect("Balances transfer call decodes to srml type");
-        let srml_call_encoded = srml_call_decoded.encode();
-        let contract_call_decoded: super::Call = Decode::decode(&mut srml_call_encoded.as_slice())
-            .expect("Balances transfer call decodes back to contract type");
-        assert_eq!(contract_call, contract_call_decoded);
-    }
-}
 
 

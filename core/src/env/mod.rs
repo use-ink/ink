@@ -41,7 +41,6 @@ pub use api::*;
 pub use traits::*;
 
 pub use self::srml::DefaultSrmlTypes;
-pub use self::srml::calls;
 
 /// The storage environment implementation that is currently being used.
 ///

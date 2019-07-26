@@ -18,7 +18,6 @@
 mod srml_only;
 
 mod types;
-pub mod calls;
 
 pub use self::types::DefaultSrmlTypes;
 
