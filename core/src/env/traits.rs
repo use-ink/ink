@@ -21,7 +21,7 @@ use crate::{
 use core::convert::TryInto;
 use parity_codec::{Encode, Codec};
 
-#[cfg(not(feature = "test-env"))]
+#[cfg(not(feature = "std"))]
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.
@@ -40,7 +40,7 @@ pub trait EnvTypes {
     type Call: Encode;
 }
 
-#[cfg(feature = "test-env")]
+#[cfg(feature = "std")]
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.
