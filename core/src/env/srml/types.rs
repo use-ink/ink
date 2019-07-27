@@ -19,7 +19,12 @@ use core::{
     convert::TryFrom,
 };
 
-use crate::env::EnvTypes;
+use crate::{
+    env::EnvTypes,
+    impl_empty_flush_for,
+    storage::Flush,
+};
+
 use parity_codec::{
     Decode,
     Encode,
@@ -83,3 +88,5 @@ pub type Moment = u64;
 
 /// The default SRML blocknumber type.
 pub type BlockNumber = u64;
+
+impl_empty_flush_for!(AccountId, Hash);

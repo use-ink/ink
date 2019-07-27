@@ -8,7 +8,7 @@ edition = "2018"
 ink_core = { path = "../../../core", default-features = false }
 ink_model = { path = "../../../model", default-features = false }
 ink_lang = { path = "../../../lang", default-features = false }
-parity-codec = { version = "4.1", default-features = false, features = ["derive"] }
+parity-codec = { version = "3.2", default-features = false, features = ["derive"] }
 
 [lib]
 name = "erc20"
