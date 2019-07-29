@@ -76,10 +76,7 @@ extern "C" {
     ///
     /// Call data is written to the scratch buffer, and it MUST be decodable into the host chain
     /// runtime `Call` type.
-    pub fn ext_dispatch_call(
-        call_ptr: u32,
-        call_len: u32,
-    );
+    pub fn ext_dispatch_call(call_ptr: u32, call_len: u32);
 
     /// Tells the execution environment to load the contents
     /// stored at the given key into the scratch buffer.
