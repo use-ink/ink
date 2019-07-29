@@ -182,7 +182,10 @@ impl<T: Env> EnvHandler<T> {
         T::block_number()
     }
 
-    pub fn dispatch_call(&self, call: T::Call) {
-        T::dispatch_raw_call(call.encode().as_slice())
+    pub fn dispatch_call<C>(&self, call: C)
+    where
+        C: Into<T::Call>,
+    {
+        T::dispatch_raw_call(call.into().encode().as_slice())
     }
 }
