@@ -65,7 +65,6 @@ fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract)
 
         use types::{
             AccountId,
-            AccountIndex,
             Balance,
             Hash,
             Moment,

@@ -51,7 +51,6 @@ fn contract_compiles() {
 
             use types::{
                 AccountId,
-                AccountIndex,
                 Balance,
                 Hash,
                 Moment,
