@@ -178,10 +178,12 @@ impl<T: Env> EnvHandler<T> {
         T::now()
     }
 
+    /// Returns the latest block number.
     pub fn block_number(&self) -> T::BlockNumber {
         T::block_number()
     }
 
+    /// Dispatches a call into the runtime.
     pub fn dispatch_call<C>(&self, call: C)
     where
         C: Into<T::Call>,
