@@ -23,7 +23,7 @@ use parity_codec::{
     Encode,
 };
 
-#[cfg(not(feature = "std"))]
+#[cfg(not(feature = "test-env"))]
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.
@@ -40,7 +40,7 @@ pub trait EnvTypes {
     type Call: Encode;
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "test-env")]
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.

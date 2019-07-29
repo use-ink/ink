@@ -34,21 +34,17 @@ use parity_codec::{
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
 pub enum DefaultSrmlTypes {}
 
-/// Private module for default Call type, so it cannot be constructed
+/// Empty enum for default Call type, so it cannot be constructed.
 /// For calling into the runtime, a user defined Call type required.
 /// See https://github.com/paritytech/ink-types-node-runtime.
-mod private {
-    #[cfg_attr(feature = "std", derive(Debug, Clone, PartialEq, Eq))]
-    pub struct Call {
-        _unconstructable: (),
-    }
-    impl parity_codec::Encode for Call {}
+#[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
+pub enum Call {}
+impl parity_codec::Encode for Call {}
 
-    #[cfg(feature = "std")]
-    impl parity_codec::Decode for Call {
-        fn decode<I: parity_codec::Input>(_value: &mut I) -> Option<Self> {
-            unimplemented!()
-        }
+#[cfg(feature = "test-env")]
+impl parity_codec::Decode for Call {
+    fn decode<I: parity_codec::Input>(_value: &mut I) -> Option<Self> {
+        unimplemented!()
     }
 }
 
@@ -58,7 +54,7 @@ impl EnvTypes for DefaultSrmlTypes {
     type Hash = Hash;
     type Moment = Moment;
     type BlockNumber = BlockNumber;
-    type Call = private::Call;
+    type Call = Call;
 }
 
 /// The default SRML address type.
