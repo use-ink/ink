@@ -273,7 +273,7 @@ impl Parse for ast::MethodVisibility {
 impl Parse for ast::ExternalVisibility {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let pub_tok = input.parse::<Token![pub]>()?;
-        let mut content;
+        let content;
         let paren_tok = syn::parenthesized!(content in input);
         let external_tok = content.parse()?;
         Ok(ast::ExternalVisibility {

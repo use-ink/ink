@@ -15,11 +15,11 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::BitPack;
+use crate::storage::Flush;
 use parity_codec::{
     Decode,
     Encode,
 };
-use crate::storage::Flush;
 
 /// A block of 1024 bits.
 #[derive(Debug, Copy, Clone, Encode, Decode)]
@@ -29,7 +29,7 @@ pub struct BitBlock {
 }
 
 impl Flush for BitBlock {
-	fn flush(&mut self) {}
+    fn flush(&mut self) {}
 }
 
 /// Error indicating an invalid bit pack index.

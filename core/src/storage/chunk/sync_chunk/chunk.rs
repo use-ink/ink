@@ -53,9 +53,9 @@ where
         for (n, dirty_val) in self.cache.iter_dirty() {
             match dirty_val.get_mut() {
                 Some(val) => {
-					self.chunk.store(n, val);
-					val.flush();
-				}
+                    self.chunk.store(n, val);
+                    val.flush();
+                }
                 None => self.chunk.clear(n),
             }
             dirty_val.mark_clean();
