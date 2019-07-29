@@ -7,11 +7,13 @@ rust:
   # - stable
   # - beta
   - nightly
+  - nightly-2019-07-19
 
-# matrix:
-#   allow_failures:
-#     - rust: stable
-#     - rust: beta
+matrix:
+  allow_failures:
+    - rust: nightly
+    # - rust: stable
+    # - rust: beta
 
 env:
   global:
