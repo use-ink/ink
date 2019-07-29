@@ -14,16 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use core::{
-    array::TryFromSliceError,
-    convert::TryFrom,
-};
+use core::{array::TryFromSliceError, convert::TryFrom};
 
-use crate::env::EnvTypes;
-use parity_codec::{
-    Decode,
-    Encode,
-};
+use crate::{env::EnvTypes, impl_empty_flush_for, storage::Flush};
+use parity_codec::{Decode, Encode};
 
 /// The SRML fundamental types.
 #[allow(unused)]
@@ -83,3 +77,5 @@ pub type Moment = u64;
 
 /// The default SRML blocknumber type.
 pub type BlockNumber = u64;
+
+impl_empty_flush_for!(AccountId, Hash);
