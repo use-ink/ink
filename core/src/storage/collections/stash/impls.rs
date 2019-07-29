@@ -86,7 +86,7 @@ impl Flush for StashHeader {
     fn flush(&mut self) {
         self.next_vacant.flush();
         self.len.flush();
-		self.max_len.flush();
+        self.max_len.flush();
     }
 }
 
@@ -232,14 +232,14 @@ enum Entry<T> {
 
 impl<T> Flush for Entry<T>
 where
-	T: Flush,
+    T: Flush,
 {
-	fn flush(&mut self) {
-		match self {
-			Entry::Vacant(_) => (),
-			Entry::Occupied(occupied) => occupied.flush(),
-		}
-	}
+    fn flush(&mut self) {
+        match self {
+            Entry::Vacant(_) => (),
+            Entry::Occupied(occupied) => occupied.flush(),
+        }
+    }
 }
 
 impl<T> Encode for Stash<T> {
