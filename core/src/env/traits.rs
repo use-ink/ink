@@ -133,6 +133,6 @@ pub trait Env: EnvTypes {
     /// Deposits raw event data through Contracts module.
     fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]);
 
-    /// Dispatches a call into the Runtime
+    /// Dispatches a call into the Runtime.
     fn dispatch_raw_call(data: &[u8]);
 }
