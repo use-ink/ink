@@ -74,7 +74,8 @@ extern "C" {
 
     /// Dispatches a Call into the runtime, for invocation of substrate modules
     ///
-    /// The data is encoded as T::Call
+    /// Call data is written to the scratch buffer, and it MUST be decodable into the host chain
+    /// runtime `Call` type.
     pub fn ext_dispatch_call(
         call_ptr: u32,
         call_len: u32,
