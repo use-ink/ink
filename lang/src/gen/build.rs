@@ -57,7 +57,6 @@ fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract)
             use ink_core::env::{ContractEnv, EnvTypes};
 
             pub type AccountId = <ContractEnv<#env_types> as EnvTypes>::AccountId;
-            pub type AccountIndex = <ContractEnv<#env_types> as EnvTypes>::AccountIndex;
             pub type Balance = <ContractEnv<#env_types> as EnvTypes>::Balance;
             pub type Hash = <ContractEnv<#env_types> as EnvTypes>::Hash;
             pub type Moment = <ContractEnv<#env_types> as EnvTypes>::Moment;

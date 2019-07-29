@@ -82,7 +82,6 @@ where
     T: EnvTypes,
 {
     type AccountId = <T as EnvTypes>::AccountId;
-    type AccountIndex = <T as EnvTypes>::AccountIndex;
     type Balance = <T as EnvTypes>::Balance;
     type Hash = <T as EnvTypes>::Hash;
     type Moment = <T as EnvTypes>::Moment;
