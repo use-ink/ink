@@ -78,6 +78,7 @@ where
 /// modules. Dispatched only after successful contract execution.
 ///
 /// The encoded Call MUST be decodable by the target substrate runtime.
+/// If decoding fails, then the smart contract execution will fail.
 pub fn dispatch_call<T>(call: <T as EnvTypes>::Call)
 where
     T: Env,
