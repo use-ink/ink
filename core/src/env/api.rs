@@ -79,9 +79,10 @@ where
 ///
 /// The encoded Call MUST be decodable by the target substrate runtime.
 /// If decoding fails, then the smart contract execution will fail.
-pub fn dispatch_call<T>(call: <T as EnvTypes>::Call)
+pub fn dispatch_call<T, C>(call: C)
 where
     T: Env,
+    C: Into<<T as EnvTypes>::Call>,
 {
-    T::dispatch_raw_call(&call.encode()[..])
+    T::dispatch_raw_call(&call.into().encode()[..])
 }
