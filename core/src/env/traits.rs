@@ -18,7 +18,10 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use parity_codec::{Encode, Codec};
+use parity_codec::{
+    Encode,
+    Codec
+};
 
 #[cfg(not(feature = "std"))]
 /// The environmental types usable by contracts defined with ink!.

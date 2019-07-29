@@ -500,8 +500,7 @@ where
             test_env
                 .borrow()
                 .dispatched_calls()
-                .map(|call| Decode::decode(&mut &call[..])
-                    .expect("Valid encoded Call"))
+                .map(|call| Decode::decode(&mut &call[..]).expect("Valid encoded Call"))
                 .collect::<Vec<_>>()
         })
     }

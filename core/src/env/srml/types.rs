@@ -40,7 +40,7 @@ pub enum DefaultSrmlTypes {}
 mod private {
     #[cfg_attr(feature = "std", derive(Debug, Clone, PartialEq, Eq))]
     pub struct Call {
-        _unconstructable: ()
+        _unconstructable: (),
     }
     impl parity_codec::Encode for Call {}
 
