@@ -19,8 +19,8 @@ use crate::{
     storage::Key,
 };
 use parity_codec::{
+    Codec,
     Encode,
-    Codec
 };
 
 #[cfg(not(feature = "std"))]
