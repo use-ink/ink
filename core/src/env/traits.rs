@@ -39,6 +39,7 @@ pub trait EnvTypes {
 
 #[cfg(feature = "test-env")]
 /// The environmental types usable by contracts defined with ink!.
+/// For the test environment extra trait bounds are required for using the types in unit tests.
 pub trait EnvTypes {
     /// The type of an address.
     type AccountId: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
