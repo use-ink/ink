@@ -34,17 +34,15 @@ pub enum DefaultSrmlTypes {}
 /// For calling into the runtime, a user defined Call type required.
 /// See https://github.com/paritytech/ink-types-node-runtime.
 mod private {
-    use parity_codec::{Encode, Decode, Input};
-
     #[cfg_attr(feature = "std", derive(Debug, Clone, PartialEq, Eq))]
     pub struct Call {
         _unconstructable: ()
     }
-    impl Encode for Call {}
+    impl parity_codec::Encode for Call {}
 
     #[cfg(feature = "std")]
-    impl Decode for Call {
-        fn decode<I: Input>(_value: &mut I) -> Option<Self> {
+    impl parity_codec::Decode for Call {
+        fn decode<I: parity_codec::Input>(_value: &mut I) -> Option<Self> {
             unimplemented!()
         }
     }
