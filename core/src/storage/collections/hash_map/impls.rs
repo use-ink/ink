@@ -82,12 +82,12 @@ where
     K: parity_codec::Encode + Flush,
     V: parity_codec::Encode + Flush,
 {
-	fn flush(&mut self) {
-		match self {
-			Entry::Occupied(occupied) => occupied.flush(),
-			Entry::Removed => (),
-		}
-	}
+    fn flush(&mut self) {
+        match self {
+            Entry::Occupied(occupied) => occupied.flush(),
+            Entry::Removed => (),
+        }
+    }
 }
 
 /// An occupied entry of a storage map.
@@ -104,10 +104,10 @@ where
     K: parity_codec::Encode + Flush,
     V: parity_codec::Encode + Flush,
 {
-	fn flush(&mut self) {
-		self.key.flush();
-		self.val.flush();
-	}
+    fn flush(&mut self) {
+        self.key.flush();
+        self.val.flush();
+    }
 }
 
 impl<K, V> Flush for HashMap<K, V>

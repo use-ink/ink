@@ -311,9 +311,9 @@ where
         if self.cache.is_dirty() {
             match self.cache.get_mut() {
                 Some(val) => {
-					self.cell.store(val);
-					val.flush();
-				},
+                    self.cell.store(val);
+                    val.flush();
+                }
                 None => self.cell.clear(),
             }
             self.cache.mark_clean();
