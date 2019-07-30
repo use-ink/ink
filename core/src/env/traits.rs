@@ -31,10 +31,15 @@ pub trait EnvTypes {
     type Hash: Codec + Clone + PartialEq + Eq;
     /// The type of timestamps.
     type Moment: Codec + Clone + PartialEq + Eq;
+    /// The type of block number.
+    type BlockNumber: Codec + Clone + PartialEq + Eq;
+    /// The type of a call into the runtime
+    type Call: parity_codec::Encode;
 }
 
 #[cfg(feature = "test-env")]
 /// The environmental types usable by contracts defined with ink!.
+/// For the test environment extra trait bounds are required for using the types in unit tests.
 pub trait EnvTypes {
     /// The type of an address.
     type AccountId: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
@@ -44,6 +49,11 @@ pub trait EnvTypes {
     type Hash: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of timestamps.
     type Moment: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of block number.
+    type BlockNumber: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
+    /// The type of a call into the runtime.
+    /// Requires Decode for inspecting raw dispatched calls in the test environment.
+    type Call: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
 }
 
 /// Types implementing this can act as contract storage.
@@ -93,6 +103,9 @@ pub trait Env: EnvTypes {
     /// Get the timestamp of the latest block.
     fn now() -> <Self as EnvTypes>::Moment;
 
+    /// Get the block number of the latest block.
+    fn block_number() -> <Self as EnvTypes>::BlockNumber;
+
     /// Returns the current gas price.
     fn gas_price() -> <Self as EnvTypes>::Balance;
 
@@ -120,4 +133,7 @@ pub trait Env: EnvTypes {
 
     /// Deposits raw event data through Contracts module.
     fn deposit_raw_event(topics: &[<Self as EnvTypes>::Hash], data: &[u8]);
+
+    /// Dispatches a call into the Runtime.
+    fn dispatch_raw_call(data: &[u8]);
 }

@@ -56,6 +56,7 @@ fn contract_compiles() {
                 pub type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
                 pub type Hash = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Hash;
                 pub type Moment = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Moment;
+                pub type BlockNumber = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::BlockNumber;
             }
 
             use types::{
@@ -63,6 +64,7 @@ fn contract_compiles() {
                 Balance,
                 Hash,
                 Moment,
+                BlockNumber,
             };
 
             ink_model::state! {

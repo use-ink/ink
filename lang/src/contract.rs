@@ -18,9 +18,9 @@ use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
 use crate::{
-    parser,
-    hir,
     gen,
+    hir,
+    parser,
 };
 
 pub fn generate(input: TokenStream2) -> TokenStream2 {

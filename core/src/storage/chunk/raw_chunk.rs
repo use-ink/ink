@@ -39,7 +39,7 @@ use crate::{
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug, PartialEq, Eq)]
 pub struct RawChunk {
-    /// The key to the associated constract storage slot.
+    /// The key to the associated contract storage slot.
     key: Key,
     /// Marker that prevents this type from being `Copy` or `Clone` by accident.
     non_clone: NonCloneMarker<()>,
@@ -115,7 +115,7 @@ impl RawChunk {
         }
     }
 
-    /// Returns the unterlying key to the cells.
+    /// Returns the underlying key to the cells.
     ///
     /// # Note
     ///

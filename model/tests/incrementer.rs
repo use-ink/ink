@@ -16,10 +16,10 @@
 
 use ink_core::{
     env::{
-        DefaultSrmlTypes,
         ContractEnv,
+        DefaultSrmlTypes,
     },
-    storage
+    storage,
 };
 use ink_model::{
     messages,

@@ -31,7 +31,7 @@ use core::cell::RefCell;
 /// A synchronized cell.
 ///
 /// Provides interpreted, read-optimized and inplace-mutable
-/// access to the associated constract storage slot.
+/// access to the associated contract storage slot.
 ///
 /// # Guarantees
 ///
@@ -305,12 +305,15 @@ impl<T> parity_codec::Decode for SyncCell<T> {
 
 impl<T> Flush for SyncCell<T>
 where
-    T: parity_codec::Encode,
+    T: parity_codec::Encode + Flush,
 {
     fn flush(&mut self) {
         if self.cache.is_dirty() {
-            match self.cache.get() {
-                Some(val) => self.cell.store(val),
+            match self.cache.get_mut() {
+                Some(val) => {
+                    self.cell.store(val);
+                    val.flush();
+                }
                 None => self.cell.clear(),
             }
             self.cache.mark_clean();

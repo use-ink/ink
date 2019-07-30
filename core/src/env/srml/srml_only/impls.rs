@@ -16,9 +16,7 @@
 
 use crate::{
     env::{
-        srml::{
-            sys,
-        },
+        srml::sys,
         Env,
         EnvStorage,
         EnvTypes,
@@ -26,9 +24,7 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use core::{
-    marker::PhantomData,
-};
+use core::marker::PhantomData;
 use parity_codec::Decode;
 
 /// Load the contents of the scratch buffer
@@ -78,7 +74,7 @@ pub struct SrmlEnv<T>
 where
     T: EnvTypes,
 {
-    marker: PhantomData<fn () -> T>,
+    marker: PhantomData<fn() -> T>,
 }
 
 impl<T> EnvTypes for SrmlEnv<T>
@@ -89,6 +85,8 @@ where
     type Balance = <T as EnvTypes>::Balance;
     type Hash = <T as EnvTypes>::Hash;
     type Moment = <T as EnvTypes>::Moment;
+    type BlockNumber = <T as EnvTypes>::BlockNumber;
+    type Call = <T as EnvTypes>::Call;
 }
 
 macro_rules! impl_getters_for_srml_env {
@@ -122,9 +120,18 @@ where
         (caller, ext_caller, <Self as EnvTypes>::AccountId),
         (random_seed, ext_random_seed, <Self as EnvTypes>::Hash),
         (now, ext_now, <Self as EnvTypes>::Moment),
+        (
+            block_number,
+            ext_block_number,
+            <Self as EnvTypes>::BlockNumber
+        ),
         (gas_price, ext_gas_price, <Self as EnvTypes>::Balance),
         (gas_left, ext_gas_left, <Self as EnvTypes>::Balance),
-        (value_transferred, ext_value_transferred, <Self as EnvTypes>::Balance)
+        (
+            value_transferred,
+            ext_value_transferred,
+            <Self as EnvTypes>::Balance
+        )
     );
 
     unsafe fn r#return(data: &[u8]) -> ! {
@@ -144,5 +151,9 @@ where
                 data.len() as u32,
             )
         }
+    }
+
+    fn dispatch_raw_call(data: &[u8]) {
+        unsafe { sys::ext_dispatch_call(data.as_ptr() as u32, data.len() as u32) }
     }
 }

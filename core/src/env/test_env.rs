@@ -27,7 +27,10 @@ use core::cell::{
     Cell,
     RefCell,
 };
-use parity_codec::{Decode, Encode};
+use parity_codec::{
+    Decode,
+    Encode,
+};
 use std::marker::PhantomData;
 
 /// A wrapper for the generic bytearray used for data in contract events.
@@ -150,6 +153,12 @@ pub struct TestEnvData {
     ///
     /// The current timestamp can be adjusted by `TestEnvData::set_now`.
     now: Vec<u8>,
+    /// The current block number for the next contract invocation.
+    ///
+    /// # Note
+    ///
+    /// The current current block number can be adjusted by `TestEnvData::set_block_number`.
+    block_number: Vec<u8>,
     /// The expected return data of the next contract invocation.
     ///
     /// # Note
@@ -162,6 +171,8 @@ pub struct TestEnvData {
     total_writes: u64,
     /// Deposited events of the contract invocation.
     events: Vec<EventData>,
+    /// Calls dispatched to the runtime
+    dispatched_calls: Vec<Vec<u8>>,
     /// The current gas price.
     gas_price: Vec<u8>,
     /// The remaining gas.
@@ -180,6 +191,7 @@ impl Default for TestEnvData {
             input: Vec::new(),
             random_seed: Vec::new(),
             now: Vec::new(),
+            block_number: Vec::new(),
             expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
@@ -187,6 +199,7 @@ impl Default for TestEnvData {
             gas_price: Vec::new(),
             gas_left: Vec::new(),
             value_transferred: Vec::new(),
+            dispatched_calls: Vec::new(),
         }
     }
 }
@@ -201,10 +214,12 @@ impl TestEnvData {
         self.input.clear();
         self.random_seed.clear();
         self.now.clear();
+        self.block_number.clear();
         self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
         self.events.clear();
+        self.dispatched_calls.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -271,6 +286,11 @@ impl TestEnvData {
         self.events.push(new_event);
     }
 
+    /// Appends a dispatched call to the runtime
+    pub fn add_dispatched_call(&mut self, call: &[u8]) {
+        self.dispatched_calls.push(call.to_vec());
+    }
+
     /// Sets the random seed for the next contract invocation.
     pub fn set_random_seed(&mut self, random_seed_hash: Vec<u8>) {
         self.random_seed = random_seed_hash.to_vec();
@@ -281,11 +301,21 @@ impl TestEnvData {
         self.now = timestamp;
     }
 
+    /// Sets the current block number for the next contract invocation.
+    pub fn set_block_number(&mut self, block_number: Vec<u8>) {
+        self.block_number = block_number;
+    }
+
     /// Returns an iterator over all emitted events.
-    pub fn emitted_events(&self) -> impl Iterator<Item = &[u8]> {
+    pub fn emitted_events(&self) -> impl DoubleEndedIterator<Item = &[u8]> {
         self.events
             .iter()
             .map(|event_data| event_data.data_as_bytes())
+    }
+
+    /// Returns an iterator over all dispatched calls
+    pub fn dispatched_calls(&self) -> impl DoubleEndedIterator<Item = &[u8]> {
+        self.dispatched_calls.iter().map(Vec::as_slice)
     }
 }
 
@@ -350,6 +380,10 @@ impl TestEnvData {
         self.now.clone()
     }
 
+    pub fn block_number(&self) -> Vec<u8> {
+        self.block_number.clone()
+    }
+
     pub fn gas_price(&self) -> Vec<u8> {
         self.gas_price.clone()
     }
@@ -379,13 +413,17 @@ impl TestEnvData {
     pub fn deposit_raw_event(&mut self, topics: &[Vec<u8>], data: &[u8]) {
         self.add_event(topics, data);
     }
+
+    pub fn dispatch_call(&mut self, call: &[u8]) {
+        self.add_dispatched_call(call);
+    }
 }
 
 thread_local! {
     /// The test environment data.
     ///
     /// This needs to be thread local since tests are run
-    /// in paralell by default which may lead to data races otherwise.
+    /// in parallel by default which may lead to data races otherwise.
     pub static TEST_ENV_DATA: RefCell<TestEnvData> = {
         RefCell::new(TestEnvData::default())
     };
@@ -393,7 +431,7 @@ thread_local! {
 
 /// Test environment for testing SRML contract off-chain.
 pub struct TestEnv<T> {
-    marker: PhantomData<fn () -> T>
+    marker: PhantomData<fn() -> T>,
 }
 
 macro_rules! impl_env_setters_for_test_env {
@@ -406,7 +444,10 @@ macro_rules! impl_env_setters_for_test_env {
     }
 }
 
-impl<T> TestEnv<T> where T: EnvTypes {
+impl<T> TestEnv<T>
+where
+    T: EnvTypes,
+{
     /// Resets the test environment as if no contract execution happened so far.
     pub fn reset() {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().reset())
@@ -430,7 +471,8 @@ impl<T> TestEnv<T> where T: EnvTypes {
 
     /// Sets the input data for the next contract invocation.
     pub fn set_input(input_bytes: &[u8]) {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().set_input(input_bytes.to_vec()))
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().set_input(input_bytes.to_vec()))
     }
 
     impl_env_setters_for_test_env!(
@@ -438,16 +480,29 @@ impl<T> TestEnv<T> where T: EnvTypes {
         (set_balance, balance, T::Balance),
         (set_caller, caller, T::AccountId),
         (set_random_seed, random_seed, T::Hash),
-        (set_now, now, T::Moment)
+        (set_now, now, T::Moment),
+        (set_block_number, block_number, T::BlockNumber)
     );
 
     /// Returns an iterator over all emitted events.
-    pub fn emitted_events() -> impl Iterator<Item = Vec<u8>> {
+    pub fn emitted_events() -> impl DoubleEndedIterator<Item = Vec<u8>> {
         TEST_ENV_DATA.with(|test_env| {
             test_env
                 .borrow()
                 .emitted_events()
                 .map(|event_bytes| event_bytes.to_vec())
+                .collect::<Vec<_>>()
+                .into_iter()
+        })
+    }
+
+    /// Returns an iterator over all dispatched calls.
+    pub fn dispatched_calls() -> impl DoubleEndedIterator<Item = T::Call> {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow()
+                .dispatched_calls()
+                .map(|call| Decode::decode(&mut &call[..]).expect("Valid encoded Call"))
                 .collect::<Vec<_>>()
                 .into_iter()
         })
@@ -473,9 +528,13 @@ where
     type Balance = <T as EnvTypes>::Balance;
     type Hash = <T as EnvTypes>::Hash;
     type Moment = <T as EnvTypes>::Moment;
+    type BlockNumber = <T as EnvTypes>::BlockNumber;
+    type Call = <T as EnvTypes>::Call;
 }
 
-impl<T> Env for TestEnv<T> where T: EnvTypes
+impl<T> Env for TestEnv<T>
+where
+    T: EnvTypes,
 {
     impl_env_getters_for_test_env!(
         (address, T::AccountId),
@@ -484,6 +543,7 @@ impl<T> Env for TestEnv<T> where T: EnvTypes
         (input, Vec<u8>),
         (random_seed, T::Hash),
         (now, T::Moment),
+        (block_number, T::BlockNumber),
         (gas_price, T::Balance),
         (gas_left, T::Balance),
         (value_transferred, T::Balance)
@@ -502,6 +562,10 @@ impl<T> Env for TestEnv<T> where T: EnvTypes
             let topics = topics.iter().map(Encode::encode).collect::<Vec<_>>();
             test_env.borrow_mut().deposit_raw_event(&topics, data)
         })
+    }
+
+    fn dispatch_raw_call(data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().dispatch_call(data))
     }
 }
 

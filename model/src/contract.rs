@@ -28,8 +28,10 @@ use crate::{
     state::ContractState,
 };
 use core::marker::PhantomData;
-use ink_core::memory::vec::Vec;
-use ink_core::env;
+use ink_core::{
+    env,
+    memory::vec::Vec,
+};
 
 /// A marker struct to tell that the deploy handler requires no arguments.
 #[derive(Copy, Clone)]
@@ -181,7 +183,8 @@ impl<State, Env> ContractDecl<State, Env, NoDeployArgs, UnreachableMessageHandle
     }
 }
 
-impl<State, Env, DeployArgs, HandlerChain> ContractDecl<State, Env, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain>
+    ContractDecl<State, Env, DeployArgs, HandlerChain>
 where
     Self: Copy, // Required in order to make this compile-time computable.
 {
@@ -205,7 +208,12 @@ where
     pub const fn on_msg<Msg>(
         self,
         handler: RawMessageHandler<Msg, State, Env>,
-    ) -> ContractDecl<State, Env, DeployArgs, (MessageHandler<Msg, State, Env>, HandlerChain)>
+    ) -> ContractDecl<
+        State,
+        Env,
+        DeployArgs,
+        (MessageHandler<Msg, State, Env>, HandlerChain),
+    >
     where
         Msg: Message,
         State: ContractState,
@@ -222,7 +230,12 @@ where
     pub const fn on_msg_mut<Msg>(
         self,
         handler: RawMessageHandlerMut<Msg, State, Env>,
-    ) -> ContractDecl<State, Env, DeployArgs, (MessageHandlerMut<Msg, State, Env>, HandlerChain)>
+    ) -> ContractDecl<
+        State,
+        Env,
+        DeployArgs,
+        (MessageHandlerMut<Msg, State, Env>, HandlerChain),
+    >
     where
         Msg: Message,
         State: ContractState,
@@ -232,7 +245,8 @@ where
     }
 }
 
-impl<State, Env, DeployArgs, HandlerChain> ContractDecl<State, Env, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain>
+    ContractDecl<State, Env, DeployArgs, HandlerChain>
 where
     // Self: Copy, // Required in order to make this compile-time computable.
     State: ContractState,
@@ -394,7 +408,8 @@ where
     }
 }
 
-impl<State, Env, DeployArgs, HandlerChain> ContractInstance<State, Env, DeployArgs, HandlerChain>
+impl<State, Env, DeployArgs, HandlerChain>
+    ContractInstance<State, Env, DeployArgs, HandlerChain>
 where
     State: ContractState,
     Env: env::Env,

@@ -100,7 +100,9 @@ impl Parse for ast::ItemEnvMeta {
             .iter()
             .map(ast::ItemEnvTypesMeta::parse_from_attr)
             .collect::<Result<Vec<_>>>()?;
-        Ok(Self { env_types_metas: env_types })
+        Ok(Self {
+            env_types_metas: env_types,
+        })
     }
 }
 
@@ -271,7 +273,7 @@ impl Parse for ast::MethodVisibility {
 impl Parse for ast::ExternalVisibility {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let pub_tok = input.parse::<Token![pub]>()?;
-        let mut content;
+        let content;
         let paren_tok = syn::parenthesized!(content in input);
         let external_tok = content.parse()?;
         Ok(ast::ExternalVisibility {

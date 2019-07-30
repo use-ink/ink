@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use core::marker::PhantomData;
 use crate::ContractState;
+use core::marker::PhantomData;
 use ink_core::{
     env::{
         self,
-        Env
+        Env,
     },
     storage::alloc::{
         Allocate,
@@ -28,6 +28,7 @@ use ink_core::{
         Initialize,
     },
 };
+use parity_codec::Encode as _;
 
 /// Provides a safe interface to an environment given a contract state.
 pub struct ExecutionEnv<State, Env> {
@@ -148,7 +149,7 @@ impl<T: Env> EnvHandler<T> {
     /// Returns from the current smart contract execution with the given value.
     pub unsafe fn r#return<V>(&self, val: V) -> !
     where
-        V: parity_codec::Encode
+        V: parity_codec::Encode,
     {
         env::r#return::<V, T>(val)
     }
@@ -175,5 +176,18 @@ impl<T: Env> EnvHandler<T> {
     /// Returns the timestamp of the latest block.
     pub fn now(&self) -> T::Moment {
         T::now()
+    }
+
+    /// Returns the latest block number.
+    pub fn block_number(&self) -> T::BlockNumber {
+        T::block_number()
+    }
+
+    /// Dispatches a call into the runtime.
+    pub fn dispatch_call<C>(&self, call: C)
+    where
+        C: Into<T::Call>,
+    {
+        T::dispatch_raw_call(call.into().encode().as_slice())
     }
 }

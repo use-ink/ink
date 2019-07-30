@@ -15,6 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::BitPack;
+use crate::storage::Flush;
 use parity_codec::{
     Decode,
     Encode,
@@ -25,6 +26,10 @@ use parity_codec::{
 pub struct BitBlock {
     /// The underlying bit packs.
     packs: [BitPack; Self::PACKS as usize],
+}
+
+impl Flush for BitBlock {
+    fn flush(&mut self) {}
 }
 
 /// Error indicating an invalid bit pack index.

@@ -160,7 +160,7 @@ where
 
 impl<T> Flush for Value<T>
 where
-    T: Encode,
+    T: Encode + Flush,
 {
     fn flush(&mut self) {
         self.cell.flush()
