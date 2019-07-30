@@ -39,6 +39,7 @@ pub enum DefaultSrmlTypes {}
 /// See https://github.com/paritytech/ink-types-node-runtime.
 ///
 /// # Note
+///
 /// Some traits are only implemented to satisfy the constraints of the test environment, in order to
 /// keep the code size small.
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
