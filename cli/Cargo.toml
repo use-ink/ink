@@ -30,6 +30,7 @@ runtime_support = { git = "https://github.com/paritytech/substrate/", package = 
 runtime_primitives = { git = "https://github.com/paritytech/substrate/", package = "sr-primitives" }
 serde = { version = "1.0", features = ["derive"] }
 srml-contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts", features = ["core"] }
+srml-balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances", default-features = false }
 srml-system = { git = "https://github.com/paritytech/substrate/", package = "srml-system", default-features = false }
 substrate-rpc = { git = "https://github.com/paritytech/substrate/", package = "substrate-rpc" }
 substrate-keyring = { git = "https://github.com/paritytech/substrate/", package = "substrate-keyring" }

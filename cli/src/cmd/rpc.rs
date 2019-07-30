@@ -230,12 +230,17 @@ impl Author {
             }
         );
 
+        let check_era = srml_system::CheckEra::from(Era::Immortal);
+        let check_nonce = srml_system::CheckNonce::from(index);
+        let check_weight = srml_system::CheckWeight::from();
+        let take_fees = srml_balances::TakeFees::from(0);
+        let extra = (check_era, check_nonce, check_weight, take_fees);
+
         UncheckedExtrinsic::new_signed(
-            index,
             raw_payload.1,
             signer.public().into(),
             signature.into(),
-            era,
+            extra,
         )
     }
 
