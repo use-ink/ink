@@ -51,7 +51,8 @@ pub trait EnvTypes {
     type Moment: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
     /// The type of block number.
     type BlockNumber: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
-    /// The type of a call into the runtime
+    /// The type of a call into the runtime.
+    /// Requires Decode for inspecting raw dispatched calls in the test environment.
     type Call: Codec + Clone + PartialEq + Eq + core::fmt::Debug;
 }
 
