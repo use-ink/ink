@@ -313,7 +313,7 @@ impl TestEnvData {
             .map(|event_data| event_data.data_as_bytes())
     }
 
-    pub fn dispatched_calls(&self) -> impl Iterator<Item = &[u8]> {
+    pub fn dispatched_calls(&self) -> impl DoubleEndedIterator<Item = &[u8]> {
         self.dispatched_calls.iter().map(Vec::as_slice)
     }
 }
