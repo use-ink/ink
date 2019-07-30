@@ -21,3 +21,6 @@ Cargo.lock
 
 # Ignore history files.
 **/.history/**
+
+# Ignore rust-toolchain file
+rust-toolchain
