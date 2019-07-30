@@ -8,7 +8,7 @@ edition = "2018"
 ink_core = { path = "../../../core" }
 ink_model = { path = "../../../model" }
 ink_lang = { path = "../../../lang" }
-parity-codec = { version = "3.3", default-features = false, features = ["derive"] }
+parity-codec = { version = "4.1", default-features = false, features = ["derive"] }
 
 [lib]
 name = "flipper"
