@@ -31,7 +31,30 @@ use parity_codec::{
 
 /// The SRML fundamental types.
 #[allow(unused)]
+#[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
 pub enum DefaultSrmlTypes {}
+
+/// Empty enum for default Call type, so it cannot be constructed.
+/// For calling into the runtime, a user defined Call type required.
+/// See https://github.com/paritytech/ink-types-node-runtime.
+///
+/// # Note
+///
+/// Some traits are only implemented to satisfy the constraints of the test
+/// environment, in order to keep the code size small.
+#[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
+pub enum Call {}
+impl parity_codec::Encode for Call {}
+
+/// This implementation is only to satisfy the Decode constraint in the
+/// test environment. Since Call cannot be constructed then just return
+/// None, but this should never be called.
+#[cfg(feature = "test-env")]
+impl parity_codec::Decode for Call {
+    fn decode<I: parity_codec::Input>(_value: &mut I) -> Option<Self> {
+        None
+    }
+}
 
 impl EnvTypes for DefaultSrmlTypes {
     type AccountId = AccountId;
@@ -39,6 +62,7 @@ impl EnvTypes for DefaultSrmlTypes {
     type Hash = Hash;
     type Moment = Moment;
     type BlockNumber = BlockNumber;
+    type Call = Call;
 }
 
 /// The default SRML address type.
@@ -61,7 +85,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
 }
 
 /// The default SRML balance type.
-pub type Balance = u64;
+pub type Balance = u128;
 
 /// The default SRML hash type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]

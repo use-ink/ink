@@ -86,6 +86,7 @@ where
     type Hash = <T as EnvTypes>::Hash;
     type Moment = <T as EnvTypes>::Moment;
     type BlockNumber = <T as EnvTypes>::BlockNumber;
+    type Call = <T as EnvTypes>::Call;
 }
 
 macro_rules! impl_getters_for_srml_env {
@@ -150,5 +151,9 @@ where
                 data.len() as u32,
             )
         }
+    }
+
+    fn dispatch_raw_call(data: &[u8]) {
+        unsafe { sys::ext_dispatch_call(data.as_ptr() as u32, data.len() as u32) }
     }
 }

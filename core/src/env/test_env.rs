@@ -171,6 +171,8 @@ pub struct TestEnvData {
     total_writes: u64,
     /// Deposited events of the contract invocation.
     events: Vec<EventData>,
+    /// Calls dispatched to the runtime
+    dispatched_calls: Vec<Vec<u8>>,
     /// The current gas price.
     gas_price: Vec<u8>,
     /// The remaining gas.
@@ -197,6 +199,7 @@ impl Default for TestEnvData {
             gas_price: Vec::new(),
             gas_left: Vec::new(),
             value_transferred: Vec::new(),
+            dispatched_calls: Vec::new(),
         }
     }
 }
@@ -216,6 +219,7 @@ impl TestEnvData {
         self.total_reads.set(0);
         self.total_writes = 0;
         self.events.clear();
+        self.dispatched_calls.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -282,6 +286,11 @@ impl TestEnvData {
         self.events.push(new_event);
     }
 
+    /// Appends a dispatched call to the runtime
+    pub fn add_dispatched_call(&mut self, call: &[u8]) {
+        self.dispatched_calls.push(call.to_vec());
+    }
+
     /// Sets the random seed for the next contract invocation.
     pub fn set_random_seed(&mut self, random_seed_hash: Vec<u8>) {
         self.random_seed = random_seed_hash.to_vec();
@@ -302,6 +311,11 @@ impl TestEnvData {
         self.events
             .iter()
             .map(|event_data| event_data.data_as_bytes())
+    }
+
+    /// Returns an iterator over all dispatched calls
+    pub fn dispatched_calls(&self) -> impl DoubleEndedIterator<Item = &[u8]> {
+        self.dispatched_calls.iter().map(Vec::as_slice)
     }
 }
 
@@ -399,6 +413,10 @@ impl TestEnvData {
     pub fn deposit_raw_event(&mut self, topics: &[Vec<u8>], data: &[u8]) {
         self.add_event(topics, data);
     }
+
+    pub fn dispatch_call(&mut self, call: &[u8]) {
+        self.add_dispatched_call(call);
+    }
 }
 
 thread_local! {
@@ -477,6 +495,18 @@ where
                 .into_iter()
         })
     }
+
+    /// Returns an iterator over all dispatched calls.
+    pub fn dispatched_calls() -> impl DoubleEndedIterator<Item = T::Call> {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow()
+                .dispatched_calls()
+                .map(|call| Decode::decode(&mut &call[..]).expect("Valid encoded Call"))
+                .collect::<Vec<_>>()
+                .into_iter()
+        })
+    }
 }
 
 macro_rules! impl_env_getters_for_test_env {
@@ -499,6 +529,7 @@ where
     type Hash = <T as EnvTypes>::Hash;
     type Moment = <T as EnvTypes>::Moment;
     type BlockNumber = <T as EnvTypes>::BlockNumber;
+    type Call = <T as EnvTypes>::Call;
 }
 
 impl<T> Env for TestEnv<T>
@@ -531,6 +562,10 @@ where
             let topics = topics.iter().map(Encode::encode).collect::<Vec<_>>();
             test_env.borrow_mut().deposit_raw_event(&topics, data)
         })
+    }
+
+    fn dispatch_raw_call(data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().dispatch_call(data))
     }
 }
 

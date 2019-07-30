@@ -72,6 +72,12 @@ extern "C" {
         value_len: u32,
     );
 
+    /// Dispatches a Call into the runtime, for invocation of substrate modules
+    ///
+    /// Call data is written to the scratch buffer, and it MUST be decodable into the host chain
+    /// runtime `Call` type.
+    pub fn ext_dispatch_call(call_ptr: u32, call_len: u32);
+
     /// Tells the execution environment to load the contents
     /// stored at the given key into the scratch buffer.
     pub fn ext_get_storage(key_ptr: u32) -> u32;

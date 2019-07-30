@@ -17,12 +17,16 @@
 use super::ContractEnvStorage;
 use crate::{
     env::{
-        traits::Env,
+        traits::{
+            Env,
+            EnvTypes,
+        },
         EnvStorage as _,
     },
     memory::vec::Vec,
     storage::Key,
 };
+use parity_codec::Encode;
 
 /// Stores the given value under the specified key in the contract storage.
 ///
@@ -64,8 +68,21 @@ pub unsafe fn load(key: Key) -> Option<Vec<u8>> {
 /// own to always encode the expected type.
 pub unsafe fn r#return<T, E>(value: T) -> !
 where
-    T: parity_codec::Encode,
+    T: Encode,
     E: Env,
 {
     E::r#return(&value.encode()[..])
+}
+
+/// Dispatches a Call into the runtime, for invoking other substrate
+/// modules. Dispatched only after successful contract execution.
+///
+/// The encoded Call MUST be decodable by the target substrate runtime.
+/// If decoding fails, then the smart contract execution will fail.
+pub fn dispatch_call<T, C>(call: C)
+where
+    T: Env,
+    C: Into<<T as EnvTypes>::Call>,
+{
+    T::dispatch_raw_call(&call.into().encode()[..])
 }
