@@ -496,13 +496,15 @@ where
         })
     }
 
-    pub fn dispatched_calls() -> impl IntoIterator<Item = T::Call> {
+    /// Returns an iterator over all dispatched calls.
+    pub fn dispatched_calls() -> impl DoubleEndedIterator<Item = T::Call> {
         TEST_ENV_DATA.with(|test_env| {
             test_env
                 .borrow()
                 .dispatched_calls()
                 .map(|call| Decode::decode(&mut &call[..]).expect("Valid encoded Call"))
                 .collect::<Vec<_>>()
+                .into_iter()
         })
     }
 }
