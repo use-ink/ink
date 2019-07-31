@@ -37,6 +37,9 @@ use std::{
 
 /// Initializes a project structure for the `lang` abstraction layer.
 fn initialize_for_lang(name: &str) -> Result<()> {
+    if name.contains("-") {
+        return Err("Contract names cannot contain hyphens".into())
+    }
     fs::create_dir(name)?;
     let out_dir = path::Path::new(name);
 
@@ -97,5 +100,17 @@ pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<()> {
             ))
         }
         AbstractionLayer::Lang => initialize_for_lang(name),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn rejects_hyphenated_name() {
+        let result = super::initialize_for_lang("should-fail");
+        assert_eq!(
+            format!("{:?}", result),
+            r#"Err(CommandError { kind: Other("Contract names cannot contain hyphens") })"#
+        )
     }
 }
