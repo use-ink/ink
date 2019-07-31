@@ -102,3 +102,15 @@ pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<()> {
         AbstractionLayer::Lang => initialize_for_lang(name),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn rejects_hyphenated_name() {
+        let result = super::initialize_for_lang("should-fail");
+        assert_eq!(
+            format!("{:?}", result),
+            r#"Err(CommandError { kind: Other("Contract names cannot contain hyphens") })"#
+        )
+    }
+}
