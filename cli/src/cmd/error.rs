@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use jsonrpc_core_client::RpcError;
 use std::{
     io::Error as IoError,
     result::Result as StdResult,
 };
-use jsonrpc_core_client::RpcError;
 use zip::result::ZipError;
 
 /// The kinds of command errors.

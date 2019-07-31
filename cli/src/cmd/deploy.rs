@@ -25,6 +25,7 @@ use srml_contracts::{
     RawEvent as ContractsEvent,
 };
 
+use super::rpc;
 use std::{
     collections::HashMap,
     fs,
@@ -32,7 +33,6 @@ use std::{
     path::PathBuf,
 };
 use substrate_primitives::H256;
-use super::rpc;
 
 type CargoToml = HashMap<String, toml::Value>;
 
@@ -72,7 +72,8 @@ fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
 }
 
 fn extract_code_hash(extrinsic_result: rpc::ExtrinsicSuccess) -> Result<H256> {
-    extrinsic_result.events
+    extrinsic_result
+        .events
         .iter()
         .find_map(|event| {
             if let Event::contracts(ContractsEvent::CodeStored(hash)) = event {

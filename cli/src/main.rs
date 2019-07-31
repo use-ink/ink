@@ -120,7 +120,10 @@ fn main() -> cmd::Result<()> {
         Command::Test {} => {
             Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
         }
-        Command::Deploy { on_dev, gas, wasm_path } =>
-            cmd::execute_deploy(*on_dev, *gas, wasm_path.clone()),
+        Command::Deploy {
+            on_dev,
+            gas,
+            wasm_path,
+        } => cmd::execute_deploy(*on_dev, *gas, wasm_path.clone()),
     }
 }
