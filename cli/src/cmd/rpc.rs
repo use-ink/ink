@@ -268,15 +268,9 @@ impl Author {
                     event.changes
                         .iter()
                         .filter_map(|(_key, data)| {
-                            if let Some(data) = data {
-                                log::debug!("Received changes data: `{:?}`", data);
-                                let record: Option<Vec<EventRecord>> = Decode::decode(&mut &data.0[..]);
-                                record
-                            } else {
-                                None
-                            }
+                            data.as_ref().and_then(|data| Decode::decode(&mut &data.0[..]))
                         })
-                        .flat_map(|events| events)
+                        .flat_map(|events: Vec<EventRecord>| events)
                         .collect::<Vec<_>>();
                 log::debug!("Block {:?}, Events {:?}", event.block, records);
                 (event.block, records)
