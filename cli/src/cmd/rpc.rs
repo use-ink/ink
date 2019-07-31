@@ -41,6 +41,7 @@ use runtime_primitives::{generic::Era};
 use serde::{self, Deserialize, de::Error as DeError};
 use substrate_primitives::{
     blake2_256,
+    twox_128,
     sr25519::Pair,
     Pair as _,
     storage::{
@@ -137,8 +138,8 @@ impl Query {
 
     fn subscribe_events(&self) -> impl Future<Item=TypedSubscriptionStream<StorageChangeSet<H256>>, Error=RpcError> {
         let events_key = b"System Events";
-        let storage_key = blake2_256(events_key);
-        log::info!("Events storage key {:?}", storage_key);
+        let storage_key = twox_128(events_key);
+        log::debug!("Events storage key {:?}", storage_key);
 
         self.state.subscribe_storage(Some(vec![StorageKey(storage_key.to_vec())]))
     }
@@ -176,7 +177,7 @@ impl Author {
                 log::info!("Creating Extrinsic with genesis hash '{:?}' and account nonce '{:?}'", genesis_hash, index);
                 let extrinsic = Self::create_extrinsic(index, call, genesis_hash, &signer);
                 let ext_hash = H256(extrinsic.using_encoded(|encoded| blake2_256(encoded)));
-                log::info!("Submitted Extrinsic {:?}", ext_hash);
+                log::info!("Submitting Extrinsic `{:?}`", ext_hash);
 
                 self.submit_and_watch(extrinsic)
                     .and_then(move |bh| {
@@ -268,14 +269,16 @@ impl Author {
                         .iter()
                         .filter_map(|(_key, data)| {
                             if let Some(data) = data {
-                                let record: EventRecord = Decode::decode(&mut &data.0[..]).unwrap(); // todo: [AJ] remove unwrap
-                                Some(record)
+                                log::debug!("Received changes data: `{:?}`", data);
+                                let record: Option<Vec<EventRecord>> = Decode::decode(&mut &data.0[..]);
+                                record
                             } else {
                                 None
                             }
                         })
+                        .flat_map(|events| events)
                         .collect::<Vec<_>>();
-                log::info!("Block {:?}, Events {:?}", event.block, records);
+                log::debug!("Block {:?}, Events {:?}", event.block, records);
                 (event.block, records)
             })
             .filter(move |(event_block, _)| *event_block == block_hash)
