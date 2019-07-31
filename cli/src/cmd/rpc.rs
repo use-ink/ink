@@ -29,7 +29,7 @@ use futures::{
     stream::Stream,
 };
 use log;
-use parity_codec::{Encode, Decode, Compact};
+use parity_codec::{Encode, Decode};
 use jsonrpc_core_client::{
     transports::ws,
     RpcError,
@@ -219,9 +219,16 @@ impl Author {
     }
 
     fn create_extrinsic(index: Index, function: Call, block_hash: Hash, signer: &Pair) -> UncheckedExtrinsic {
-        let era = Era::immortal();
+        let extra = |i, b| {
+            (
+                srml_system::CheckEra::<Runtime>::from(Era::Immortal),
+                srml_system::CheckNonce::<Runtime>::from(i),
+                srml_system::CheckWeight::<Runtime>::from(),
+                srml_balances::TakeFees::<Runtime>::from(b),
+            )
+        };
 
-        let raw_payload = (Compact(index), function, era, block_hash);
+        let raw_payload = (function, extra(index, 0), block_hash);
         let signature = raw_payload.using_encoded(|payload|
             if payload.len() > 256 {
                 signer.sign(&blake2_256(payload)[..])
@@ -230,17 +237,11 @@ impl Author {
             }
         );
 
-        let check_era = srml_system::CheckEra::from(Era::Immortal);
-        let check_nonce = srml_system::CheckNonce::from(index);
-        let check_weight = srml_system::CheckWeight::from();
-        let take_fees = srml_balances::TakeFees::from(0);
-        let extra = (check_era, check_nonce, check_weight, take_fees);
-
         UncheckedExtrinsic::new_signed(
-            raw_payload.1,
+            raw_payload.0,
             signer.public().into(),
             signature.into(),
-            extra,
+            extra(index, 0),
         )
     }
 
