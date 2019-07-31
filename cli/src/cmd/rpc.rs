@@ -145,6 +145,7 @@ impl Query {
     }
 }
 
+#[derive(Debug)]
 pub struct ExtrinsicSuccess {
     pub block: Hash,
     pub extrinsic: Hash,
@@ -272,7 +273,7 @@ impl Author {
                         })
                         .flat_map(|events: Vec<EventRecord>| events)
                         .collect::<Vec<_>>();
-                log::debug!("Block {:?}, Events {:?}", event.block, records);
+                log::debug!("Block {:?}, Events {:?}", event.block, records.len());
                 (event.block, records)
             })
             .filter(move |(event_block, _)| *event_block == block_hash)

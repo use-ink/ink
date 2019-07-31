@@ -17,10 +17,12 @@
 use crate::cmd::Result;
 use node_runtime::{
     Call,
+    Event,
 };
 
 use srml_contracts::{
     Call as ContractsCall,
+    RawEvent as ContractsEvent,
 };
 
 use std::{
@@ -72,14 +74,12 @@ fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
 fn extract_code_hash(extrinsic_result: rpc::ExtrinsicSuccess) -> Result<H256> {
     extrinsic_result.events
         .iter()
-        .find_map(|_event| {
-            // todo [AJ] find CodeStored event
-//            if let Event::CodeStored(hash) = event {
-//                Some(event.data)
-//            } else {
-//                None
-//            }
-            None
+        .find_map(|event| {
+            if let Event::contracts(ContractsEvent::CodeStored(hash)) = event {
+                Some(*hash)
+            } else {
+                None
+            }
         })
         .ok_or("Failed to find contract.CodeStored event".into())
 }
@@ -97,7 +97,10 @@ pub(crate) fn execute_deploy(
     let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
     let extrinsic_success = rpc::submit(url, signer, call)?;
-    println!("{:?}", extrinsic_success.block);
+    log::debug!("Deploy success: `{:?}`", extrinsic_success);
+
+    let code_hash = extract_code_hash(extrinsic_success)?;
+    println!("Code hash: {:?}", code_hash);
 
     Ok(())
 }
