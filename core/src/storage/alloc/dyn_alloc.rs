@@ -16,17 +16,17 @@
 
 use super::*;
 use crate::{
-	memory::vec,
-	storage::{
-		self,
-		alloc::{
-			AllocateUsing,
-			Initialize,
-		},
-		Allocator,
-		Flush,
-		Key,
-	},
+    memory::vec,
+    storage::{
+        self,
+        alloc::{
+            AllocateUsing,
+            Initialize,
+        },
+        Allocator,
+        Flush,
+        Key,
+    },
 };
 use ink_abi::{
     HasLayout,

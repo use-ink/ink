@@ -22,7 +22,6 @@ use crate::storage::{
     cell::RawCell,
     Key,
     NonCloneMarker,
-	Key,
 };
 
 /// A typed cell.

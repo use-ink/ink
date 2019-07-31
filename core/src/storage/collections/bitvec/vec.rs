@@ -16,17 +16,17 @@
 
 use super::BitBlock;
 use crate::{
-	memory::vec,
-	storage::{
-		self,
-		alloc::{
-			Allocate,
-			AllocateUsing,
-			Initialize,
-		},
-		chunk::SyncChunk,
-		Flush,
-	},
+    memory::vec,
+    storage::{
+        self,
+        alloc::{
+            Allocate,
+            AllocateUsing,
+            Initialize,
+        },
+        chunk::SyncChunk,
+        Flush,
+    },
 };
 use ink_abi::{
     HasLayout,

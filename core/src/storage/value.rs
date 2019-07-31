@@ -15,17 +15,17 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-	memory::vec,
-	storage::{
-		self,
-		alloc::{
-			Allocate,
-			AllocateUsing,
-			Initialize,
-		},
-		cell::SyncCell,
-		Flush,
-	},
+    memory::vec,
+    storage::{
+        self,
+        alloc::{
+            Allocate,
+            AllocateUsing,
+            Initialize,
+        },
+        cell::SyncCell,
+        Flush,
+    },
 };
 use ink_abi::{
     HasLayout,

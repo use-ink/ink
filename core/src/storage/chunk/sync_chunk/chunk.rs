@@ -16,16 +16,16 @@
 
 use super::CacheGuard;
 use crate::{
-	memory::vec,
-	storage::{
-		alloc::{
-			Allocate,
-			AllocateUsing,
-		},
-		chunk::TypedChunk,
-		Flush,
-		Key,
-	},
+    memory::vec,
+    storage::{
+        alloc::{
+            Allocate,
+            AllocateUsing,
+        },
+        chunk::TypedChunk,
+        Flush,
+        Key,
+    },
 };
 use ink_abi::{
     HasLayout,

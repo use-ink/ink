@@ -19,17 +19,17 @@
 #![allow(clippy::implicit_hasher)]
 
 use crate::{
-	memory::vec,
-	storage::{
-		self,
-		alloc::{
-			Allocate,
-			AllocateUsing,
-			Initialize,
-		},
-		chunk::SyncChunk,
-		Flush,
-	},
+    memory::vec,
+    storage::{
+        self,
+        alloc::{
+            Allocate,
+            AllocateUsing,
+            Initialize,
+        },
+        chunk::SyncChunk,
+        Flush,
+    },
 };
 use core::{
     borrow::Borrow,

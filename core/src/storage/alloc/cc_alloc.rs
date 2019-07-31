@@ -16,12 +16,12 @@
 
 use super::*;
 use crate::{
-	memory::vec,
-	storage::{
-		self,
-		Flush,
-		Key,
-	},
+    memory::vec,
+    storage::{
+        self,
+        Flush,
+        Key,
+    },
 };
 use ink_abi::{
     HasLayout,
