@@ -5,6 +5,7 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
+ink_abi = { git = "https://github.com/paritytech/ink", package = "ink_abi", default-features = false, optional = true }
 ink_core = { git = "https://github.com/paritytech/ink", package = "ink_core", default-features = false }
 ink_model = { git = "https://github.com/paritytech/ink", package = "ink_model", default-features = false }
 ink_lang = { git = "https://github.com/paritytech/ink", package = "ink_lang", default-features = false }
@@ -12,7 +13,12 @@ scale = { package = "parity-scale-codec", version = "1.0", default-features = fa
 
 [lib]
 name = "{{name}}"
-crate-type = ["cdylib"]
+crate-type = [
+	# Used for normal contract Wasm blobs.
+	"cdylib",
+	# Used for ABI generation.
+	"rlib",
+]
 
 [features]
 default = ["std"]
@@ -28,8 +34,13 @@ test-env = [
     "ink_model/test-env",
     "ink_lang/test-env",
 ]
-generate-api-description = [
+generate-api-description = [ # Outdated: TODO removed as soon as ink_abi lands
     "ink_lang/generate-api-description"
+]
+generate-abi = [
+	"std",
+	"ink_abi",
+	"ink_lang/generate-abi",
 ]
 
 [profile.release]
@@ -37,3 +48,8 @@ panic = "abort"
 lto = true
 opt-level = "z"
 overflow-checks = true
+
+[workspace]
+members = [
+	".tools/"
+]
