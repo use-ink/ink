@@ -20,6 +20,7 @@ use structopt::{
     clap::AppSettings,
     StructOpt,
 };
+use url::Url;
 
 #[derive(Debug, StructOpt)]
 #[structopt(bin_name = "cargo")]
@@ -93,10 +94,11 @@ enum Command {
     /// Deploy the smart contract on-chain. (Also for testing purposes.)
     #[structopt(name = "deploy")]
     Deploy {
-        /// Deploy on a local development chain.
-        #[structopt(name = "dev", short, long)]
-        on_dev: bool,
-        #[structopt(default_value = "500000")]
+        /// Websockets url of a substrate node
+        #[structopt(name = "url", long, parse(try_from_str), default_value = "http://localhost:9944")]
+        url: Url,
+        #[structopt(name = "gas", long, default_value = "500000")]
+        /// Maximum amount of gas to be used in this deployment
         gas: u64,
         /// Path to wasm contract code, defaults to ./target/<name>-pruned.wasm
         #[structopt(parse(from_os_str))]
@@ -121,9 +123,9 @@ fn main() -> cmd::Result<()> {
             Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
         }
         Command::Deploy {
-            on_dev,
+            url,
             gas,
             wasm_path,
-        } => cmd::execute_deploy(*on_dev, *gas, wasm_path.clone()),
+        } => cmd::execute_deploy(url, *gas, wasm_path.clone()),
     }
 }

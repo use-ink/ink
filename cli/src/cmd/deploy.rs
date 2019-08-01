@@ -86,12 +86,11 @@ fn extract_code_hash(extrinsic_result: rpc::ExtrinsicSuccess) -> Result<H256> {
 }
 
 pub(crate) fn execute_deploy(
-    _on_dev: bool,
+    url: &url::Url,
     gas: u64,
     contract_wasm_path: Option<PathBuf>,
 ) -> Result<()> {
     // todo: [AJ] pass in these arguments
-    let url = "http://localhost:9944";
     let signer = substrate_keyring::AccountKeyring::Alice.pair();
 
     let code = load_contract_code(contract_wasm_path)?;

@@ -70,6 +70,7 @@ use substrate_rpc::{
     state::StateClient,
 };
 use transaction_pool::txpool::watcher::Status;
+use url::Url;
 
 type AccountId = <Runtime as srml_system::Trait>::AccountId;
 type BlockNumber = <Runtime as srml_system::Trait>::BlockNumber;
@@ -132,7 +133,7 @@ struct Query {
 }
 
 impl Query {
-    fn connect_ws(url: &str) -> impl Future<Item = Query, Error = RpcError> {
+    fn connect_ws(url: &Url) -> impl Future<Item = Query, Error = RpcError> {
         ws_connect(url)
             .join(ws_connect(url))
             .map(|(state, chain)| Query { state, chain })
@@ -184,7 +185,7 @@ struct Author {
 }
 
 impl Author {
-    fn connect_ws(url: &str) -> impl Future<Item = Author, Error = RpcError> {
+    fn connect_ws(url: &Url) -> impl Future<Item = Author, Error = RpcError> {
         ws_connect(url).map(|cli| Author { cli })
     }
 
@@ -220,14 +221,12 @@ impl Author {
     }
 }
 
-/// Wraps websockets connect, lifting the Result of url parsing into a Future
-fn ws_connect<T>(url: &str) -> impl Future<Item = T, Error = RpcError>
+/// Wraps websockets connect, ensuring a valid url
+fn ws_connect<T>(url: &Url) -> impl Future<Item = T, Error = RpcError>
     where
         T: From<RpcChannel>,
 {
-    future::result(ws::connect(url))
-        .map_err(|e| RpcError::Other(e.into()))
-        .and_then(|f| f)
+    ws::connect(url.as_str()).expect("Url is a valid url; qed")
 }
 
 fn create_extrinsic(
@@ -380,7 +379,7 @@ fn create_and_submit_extrinsic(
     )
 }
 
-pub fn submit(url: &str, signer: Pair, call: Call) -> Result<ExtrinsicSuccess> {
+pub fn submit(url: &Url, signer: Pair, call: Call) -> Result<ExtrinsicSuccess> {
     let submit = Query::connect_ws(url)
         .join(Author::connect_ws(url))
         .map_err(Into::into)
