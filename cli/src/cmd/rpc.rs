@@ -28,8 +28,8 @@ use futures::{
 };
 use jsonrpc_core_client::{
     transports::ws,
-    RpcError,
     RpcChannel,
+    RpcError,
     TypedSubscriptionStream,
 };
 use log;
@@ -216,8 +216,7 @@ impl Rpc {
     ) -> impl Future<Item = ExtrinsicSuccess, Error = CommandError> {
         let account_nonce = self.fetch_nonce(&signer.public()).map_err(Into::into);
         let genesis_hash =
-            self
-                .fetch_genesis_hash()
+            self.fetch_genesis_hash()
                 .map_err(Into::into)
                 .and_then(|genesis_hash| {
                     future::result(genesis_hash.ok_or("Genesis hash not found".into()))
@@ -363,9 +362,7 @@ pub fn submit(url: &Url, signer: Pair, call: Call) -> Result<ExtrinsicSuccess> {
     let submit = ws::connect(url.as_str())
         .expect("Url is a valid url; qed")
         .map_err(Into::into)
-        .and_then(|rpc: Rpc| {
-            rpc.create_and_submit_extrinsic(signer, call)
-        });
+        .and_then(|rpc: Rpc| rpc.create_and_submit_extrinsic(signer, call));
 
     let mut rt = tokio::runtime::Runtime::new()?;
     rt.block_on(submit)
