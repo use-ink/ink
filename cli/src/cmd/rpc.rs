@@ -79,8 +79,7 @@ type Hash = <Runtime as srml_system::Trait>::Hash;
 type Event = <Runtime as srml_system::Trait>::Event;
 type EventRecord = srml_system::EventRecord<Event, Hash>;
 
-/// Simple blob to hold an extrinsic without committing to its format and ensure it is serialized
-/// correctly.
+/// Copy of runtime_primitives::OpaqueExtrinsic to allow a local Deserialize impl
 #[derive(PartialEq, Eq, Clone, Default, Encode, Decode)]
 pub struct OpaqueExtrinsic(pub Vec<u8>);
 
@@ -109,6 +108,7 @@ impl<'a> serde::Deserialize<'a> for OpaqueExtrinsic {
 #[derive(PartialEq, Eq, Clone, Encode, Decode, Debug, Deserialize)]
 pub struct Block {
     // not included: pub header: Header,
+
     /// The accompanying extrinsics.
     pub extrinsics: Vec<OpaqueExtrinsic>,
 }
@@ -120,6 +120,7 @@ pub struct SignedBlock {
     pub block: Block,
 }
 
+/// Captures data for when an extrinsic is successfully included in a block
 #[derive(Debug)]
 pub struct ExtrinsicSuccess {
     pub block: Hash,
@@ -127,12 +128,14 @@ pub struct ExtrinsicSuccess {
     pub events: Vec<Event>,
 }
 
+/// Client for substrate rpc interfaces
 struct Rpc {
     state: StateClient<Hash>,
     chain: ChainClient<BlockNumber, Hash, (), SignedBlock>,
     author: AuthorClient<Hash, Hash>,
 }
 
+/// Allows connecting to all inner interfaces on the same RpcChannel
 impl From<RpcChannel> for Rpc {
     fn from(channel: RpcChannel) -> Rpc {
         Rpc {
@@ -144,6 +147,7 @@ impl From<RpcChannel> for Rpc {
 }
 
 impl Rpc {
+    /// Fetch the latest nonce for the given `AccountId`
     fn fetch_nonce(
         &self,
         account: &AccountId,
@@ -161,10 +165,12 @@ impl Rpc {
             .map_err(Into::into)
     }
 
+    /// Fetch the genesis hash
     fn fetch_genesis_hash(&self) -> impl Future<Item = Option<H256>, Error = RpcError> {
         self.chain.block_hash(Some(NumberOrHex::Number(0)))
     }
 
+    /// Subscribe to substrate System Events
     fn subscribe_events(
         &self,
     ) -> impl Future<Item = TypedSubscriptionStream<StorageChangeSet<H256>>, Error = RpcError>
@@ -173,8 +179,7 @@ impl Rpc {
         let storage_key = twox_128(events_key);
         log::debug!("Events storage key {:?}", storage_key);
 
-        self.state
-            .subscribe_storage(Some(vec![StorageKey(storage_key.to_vec())]))
+        self.state.subscribe_storage(Some(vec![StorageKey(storage_key.to_vec())]))
     }
 
     /// Submit an extrinsic, waiting for it to be finalized.
@@ -225,9 +230,8 @@ impl Rpc {
 
         account_nonce.join3(genesis_hash, events).and_then(
             move |(index, genesis_hash, events)| {
-                let extrinsic = create_extrinsic(index, call, genesis_hash, &signer);
-                let ext_hash =
-                    H256(extrinsic.using_encoded(|encoded| blake2_256(encoded)));
+                let extrinsic = create_and_sign_extrinsic(index, call, genesis_hash, &signer);
+                let ext_hash = H256(extrinsic.using_encoded(|encoded| blake2_256(encoded)));
                 log::info!("Submitting Extrinsic `{:?}`", ext_hash);
 
                 let chain = self.chain.clone();
@@ -250,14 +254,15 @@ impl Rpc {
                             bh,
                             sb.block.extrinsics.len()
                         );
-                        extract_events(ext_hash, &sb, bh, events)
+                        wait_for_block_events(ext_hash, &sb, bh, events)
                     })
             },
         )
     }
 }
 
-fn create_extrinsic(
+/// Creates and signs an Extrinsic for the supplied `Call`
+fn create_and_sign_extrinsic(
     index: Index,
     function: Call,
     genesis_hash: Hash,
@@ -295,7 +300,8 @@ fn create_extrinsic(
     )
 }
 
-fn extract_events(
+/// Waits for events for the block triggered by the extrinsic
+fn wait_for_block_events(
     ext_hash: H256,
     signed_block: &SignedBlock,
     block_hash: H256,
@@ -319,8 +325,7 @@ fn extract_events(
                 .changes
                 .iter()
                 .filter_map(|(_key, data)| {
-                    data.as_ref()
-                        .and_then(|data| Decode::decode(&mut &data.0[..]))
+                    data.as_ref().and_then(|data| Decode::decode(&mut &data.0[..]))
                 })
                 .flat_map(|events: Vec<EventRecord>| events)
                 .collect::<Vec<_>>();
@@ -335,29 +340,31 @@ fn extract_events(
     block_events
         .join(ext_index)
         .map(move |(events, ext_index)| {
-            let events = events
-                .iter()
-                .flat_map(|(_, events)| events)
-                .filter_map(|e| {
-                    if let srml_system::Phase::ApplyExtrinsic(i) = e.phase {
-                        if i as usize == ext_index {
-                            Some(e.event.clone())
+            let events: Vec<Event> =
+                events
+                    .iter()
+                    .flat_map(|(_, events)| events)
+                    .filter_map(|e| {
+                        if let srml_system::Phase::ApplyExtrinsic(i) = e.phase {
+                            if i as usize == ext_index {
+                                Some(e.event.clone())
+                            } else {
+                                None
+                            }
                         } else {
                             None
                         }
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<_>>();
+                    })
+                    .collect::<Vec<Event>>();
             ExtrinsicSuccess {
                 block: block_hash,
-                extrinsic: ext_hash.into(),
+                extrinsic: ext_hash,
                 events,
             }
         })
 }
 
+/// Creates, signs and submits an Extrinsic with the given `Call` to a substrate node.
 pub fn submit(url: &Url, signer: Pair, call: Call) -> Result<ExtrinsicSuccess> {
     let submit = ws::connect(url.as_str())
         .expect("Url is a valid url; qed")
