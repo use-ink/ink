@@ -97,7 +97,7 @@ pub(crate) fn execute_deploy(
     let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
     let extrinsic_success = rpc::submit(url, signer, call)?;
-    log::debug!("Deploy success: `{:?}`", extrinsic_success);
+    log::debug!("Deploy success: {:?}", extrinsic_success);
 
     let code_hash = extract_code_hash(extrinsic_success)?;
     println!("Code hash: {:?}", code_hash);

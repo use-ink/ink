@@ -241,7 +241,7 @@ impl Rpc {
                             .map_err(Into::into)
                     })
                     .and_then(|(h, b)| {
-                        b.ok_or(format!("Failed to find block '{:#x}'", h).into())
+                        b.ok_or(format!("Failed to find block {:#x}", h).into())
                             .map(|b| (h, b))
                             .into_future()
                     })
@@ -265,7 +265,7 @@ fn create_extrinsic(
     signer: &Pair,
 ) -> UncheckedExtrinsic {
     log::info!(
-        "Creating Extrinsic with genesis hash '{:?}' and account nonce '{:?}'",
+        "Creating Extrinsic with genesis hash {:?} and account nonce {:?}",
         genesis_hash,
         index
     );
