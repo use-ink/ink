@@ -108,7 +108,6 @@ impl<'a> serde::Deserialize<'a> for OpaqueExtrinsic {
 #[derive(PartialEq, Eq, Clone, Encode, Decode, Debug, Deserialize)]
 pub struct Block {
     // not included: pub header: Header,
-
     /// The accompanying extrinsics.
     pub extrinsics: Vec<OpaqueExtrinsic>,
 }
@@ -179,7 +178,8 @@ impl Rpc {
         let storage_key = twox_128(events_key);
         log::debug!("Events storage key {:?}", storage_key);
 
-        self.state.subscribe_storage(Some(vec![StorageKey(storage_key.to_vec())]))
+        self.state
+            .subscribe_storage(Some(vec![StorageKey(storage_key.to_vec())]))
     }
 
     /// Submit an extrinsic, waiting for it to be finalized.
@@ -230,8 +230,10 @@ impl Rpc {
 
         account_nonce.join3(genesis_hash, events).and_then(
             move |(index, genesis_hash, events)| {
-                let extrinsic = create_and_sign_extrinsic(index, call, genesis_hash, &signer);
-                let ext_hash = H256(extrinsic.using_encoded(|encoded| blake2_256(encoded)));
+                let extrinsic =
+                    create_and_sign_extrinsic(index, call, genesis_hash, &signer);
+                let ext_hash =
+                    H256(extrinsic.using_encoded(|encoded| blake2_256(encoded)));
                 log::info!("Submitting Extrinsic `{:?}`", ext_hash);
 
                 let chain = self.chain.clone();
@@ -325,7 +327,8 @@ fn wait_for_block_events(
                 .changes
                 .iter()
                 .filter_map(|(_key, data)| {
-                    data.as_ref().and_then(|data| Decode::decode(&mut &data.0[..]))
+                    data.as_ref()
+                        .and_then(|data| Decode::decode(&mut &data.0[..]))
                 })
                 .flat_map(|events: Vec<EventRecord>| events)
                 .collect::<Vec<_>>();
@@ -340,22 +343,21 @@ fn wait_for_block_events(
     block_events
         .join(ext_index)
         .map(move |(events, ext_index)| {
-            let events: Vec<Event> =
-                events
-                    .iter()
-                    .flat_map(|(_, events)| events)
-                    .filter_map(|e| {
-                        if let srml_system::Phase::ApplyExtrinsic(i) = e.phase {
-                            if i as usize == ext_index {
-                                Some(e.event.clone())
-                            } else {
-                                None
-                            }
+            let events: Vec<Event> = events
+                .iter()
+                .flat_map(|(_, events)| events)
+                .filter_map(|e| {
+                    if let srml_system::Phase::ApplyExtrinsic(i) = e.phase {
+                        if i as usize == ext_index {
+                            Some(e.event.clone())
                         } else {
                             None
                         }
-                    })
-                    .collect::<Vec<Event>>();
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<Event>>();
             ExtrinsicSuccess {
                 block: block_hash,
                 extrinsic: ext_hash,
