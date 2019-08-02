@@ -105,3 +105,30 @@ pub(crate) fn execute_deploy(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use std::{
+        fs,
+        io::Write,
+        path,
+    };
+
+    #[test] #[ignore] // depends on a local substrate node running
+    fn deploy_contract() {
+        let contract_wasm = b""; // todo [AJ]: valid wasm
+        let out_dir = path::Path::new(env!("OUT_DIR"));
+
+        let target_dir = path::Path::new("./target");
+        let _ = fs::create_dir(target_dir);
+
+        let wasm_path = out_dir.join("flipper-pruned.wasm");
+        let mut file = fs::File::create(&wasm_path).unwrap();
+        let _ = file.write_all(contract_wasm);
+
+        let url = url::Url::parse("ws://localhost:9944").unwrap();
+        let result = super::execute_deploy(&url, "//Alice", None, 500_000, Some(wasm_path));
+
+        assert!(result.is_ok());
+    }
+}
