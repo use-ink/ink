@@ -99,7 +99,7 @@ enum Command {
             name = "url",
             long,
             parse(try_from_str),
-            default_value = "http://localhost:9944"
+            default_value = "ws://localhost:9944"
         )]
         url: Url,
         /// Secret key URI for the account deploying the contract.
