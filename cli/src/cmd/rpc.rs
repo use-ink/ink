@@ -298,11 +298,11 @@ fn create_extrinsic(
 
 fn extract_events(
     ext_hash: H256,
-    sb: &SignedBlock,
-    bh: H256,
+    signed_block: &SignedBlock,
+    block_hash: H256,
     events: TypedSubscriptionStream<StorageChangeSet<H256>>,
 ) -> impl Future<Item = ExtrinsicSuccess, Error = CommandError> {
-    let ext_index = sb
+    let ext_index = signed_block
         .block
         .extrinsics
         .iter()
@@ -313,7 +313,7 @@ fn extract_events(
         .ok_or(format!("Failed to find Extrinsic with hash {:?}", ext_hash).into())
         .into_future();
 
-    let block_hash = bh.clone();
+    let block_hash = block_hash.clone();
     let block_events = events
         .map(|event| {
             let records = event
@@ -352,7 +352,7 @@ fn extract_events(
                 })
                 .collect::<Vec<_>>();
             ExtrinsicSuccess {
-                block: bh,
+                block: block_hash,
                 extrinsic: ext_hash.into(),
                 events,
             }
