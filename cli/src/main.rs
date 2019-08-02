@@ -95,8 +95,19 @@ enum Command {
     #[structopt(name = "deploy")]
     Deploy {
         /// Websockets url of a substrate node
-        #[structopt(name = "url", long, parse(try_from_str), default_value = "http://localhost:9944")]
+        #[structopt(
+            name = "url",
+            long,
+            parse(try_from_str),
+            default_value = "http://localhost:9944"
+        )]
         url: Url,
+        /// Secret key URI for the account deploying the contract.
+        #[structopt(name = "suri", long, short)]
+        suri: String,
+        /// Password for the secret key
+        #[structopt(name = "password", long, short)]
+        password: Option<String>,
         #[structopt(name = "gas", long, default_value = "500000")]
         /// Maximum amount of gas to be used in this deployment
         gas: u64,
@@ -124,8 +135,18 @@ fn main() -> cmd::Result<()> {
         }
         Command::Deploy {
             url,
+            suri,
+            password,
             gas,
             wasm_path,
-        } => cmd::execute_deploy(url, *gas, wasm_path.clone()),
+        } => {
+            cmd::execute_deploy(
+                url,
+                suri,
+                password.as_ref().map(String::as_ref),
+                *gas,
+                wasm_path.clone(),
+            )
+        }
     }
 }

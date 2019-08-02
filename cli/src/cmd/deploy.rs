@@ -32,7 +32,7 @@ use std::{
     io::Read,
     path::PathBuf,
 };
-use substrate_primitives::H256;
+use substrate_primitives::{H256, crypto::Pair, sr25519};
 
 type CargoToml = HashMap<String, toml::Value>;
 
@@ -87,11 +87,12 @@ fn extract_code_hash(extrinsic_result: rpc::ExtrinsicSuccess) -> Result<H256> {
 
 pub(crate) fn execute_deploy(
     url: &url::Url,
+    surl: &str,
+    password: Option<&str>,
     gas: u64,
     contract_wasm_path: Option<PathBuf>,
 ) -> Result<()> {
-    // todo: [AJ] pass in these arguments
-    let signer = substrate_keyring::AccountKeyring::Alice.pair();
+    let signer = sr25519::Pair::from_string(surl, password)?;
 
     let code = load_contract_code(contract_wasm_path)?;
     let call = Call::Contracts(ContractsCall::put_code(gas, code));
