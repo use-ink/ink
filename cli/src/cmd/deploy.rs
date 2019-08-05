@@ -25,7 +25,6 @@ use srml_contracts::{
     RawEvent as ContractsEvent,
 };
 
-use super::rpc;
 use std::{
     collections::HashMap,
     fs,
@@ -97,7 +96,7 @@ pub(crate) fn execute_deploy(
     let code = load_contract_code(contract_wasm_path)?;
     let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
-    let extrinsic_success = rpc::submit(url, signer, call)?;
+    let extrinsic_success = subxt::submit(url, signer, call)?;
     log::debug!("Deploy success: {:?}", extrinsic_success);
 
     let code_hash = extract_code_hash(extrinsic_success)?;

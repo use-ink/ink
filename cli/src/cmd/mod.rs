@@ -17,7 +17,6 @@
 mod deploy;
 mod error;
 mod new;
-mod rpc;
 
 pub(crate) use self::{
     deploy::execute_deploy,
