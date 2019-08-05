@@ -19,7 +19,7 @@ serde = { version = "1.0", default-features = false, features = ["derive", "allo
 json = { package = "serde_json", version = "1.0" }
 derive_more = { version = "0.14" }
 
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", features = ["derive"] }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", branch = "improve-json-output", features = ["derive"] }
 
 [features]
 default = ["std"]
