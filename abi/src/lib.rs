@@ -41,3 +41,35 @@ pub use self::{
         ReturnTypeSpec,
     },
 };
+
+use serde::Serialize;
+use type_metadata::{
+    form::CompactForm,
+    IntoCompact as _,
+    Registry,
+};
+
+#[derive(Debug, Serialize)]
+// #[serde(bound = "F::TypeId: Serialize")]
+pub struct InkProject {
+    registry: Registry,
+    #[serde(rename = "storage")]
+    layout: StorageLayout<CompactForm>,
+    #[serde(rename = "contract")]
+    spec: ContractSpec<CompactForm>,
+}
+
+impl InkProject {
+    pub fn new<L, S>(layout: L, spec: S) -> Self
+    where
+        L: Into<StorageLayout>,
+        S: Into<ContractSpec>,
+    {
+        let mut registry = Registry::new();
+        Self {
+            layout: layout.into().into_compact(&mut registry),
+            spec: spec.into().into_compact(&mut registry),
+            registry,
+        }
+    }
+}
