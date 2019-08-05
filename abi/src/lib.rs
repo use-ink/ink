@@ -50,7 +50,6 @@ use type_metadata::{
 };
 
 #[derive(Debug, Serialize)]
-// #[serde(bound = "F::TypeId: Serialize")]
 pub struct InkProject {
     registry: Registry,
     #[serde(rename = "storage")]
