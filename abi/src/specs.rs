@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::marker::PhantomData;
 use serde::Serialize;
 use type_metadata::{
     form::{
@@ -42,55 +43,124 @@ pub struct ContractSpec<F: Form = MetaForm> {
     docs: Vec<&'static str>,
 }
 
-impl ContractSpec {
-    /// Creates a new contract specification.
-    pub fn new(name: &'static str, deploy: DeploySpec) -> Self {
+impl IntoCompact for ContractSpec {
+    type Output = ContractSpec<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ContractSpec {
-            name,
-            deploy,
-            messages: vec![],
-            events: vec![],
-            docs: vec![],
+            name: registry.register_string(&self.name),
+            deploy: self.deploy.into_compact(registry),
+            messages: self
+                .messages
+                .into_iter()
+                .map(|msg| msg.into_compact(registry))
+                .collect::<Vec<_>>(),
+            events: self
+                .events
+                .into_iter()
+                .map(|event| event.into_compact(registry))
+                .collect::<Vec<_>>(),
+            docs: self.docs,
         }
     }
+}
 
-    /// Pushes a message to the contract specification.
-    pub fn push_message(&mut self, msg: MessageSpec) {
-        self.messages.push(msg);
+pub enum Valid {}
+pub enum Invalid {}
+
+pub struct ContractSpecBuilder<S = Invalid> {
+    /// The name of the to-be-constructed contract specification.
+    name: <MetaForm as Form>::String,
+    /// The deploy handler of the to-be-constructed contract specification.
+    deploy: Option<DeploySpec>,
+    /// The messages of the to-be-constructed contract specification.
+    messages: Vec<MessageSpec>,
+    /// The events of the to-be-constructed contract specification.
+    events: Vec<EventSpec>,
+    /// The documentation of the to-be-constructed contract specification.
+    docs: Vec<<MetaForm as Form>::String>,
+    /// Marker for compile-time checking of valid contract specifications.
+    marker: PhantomData<fn() -> S>,
+}
+
+impl ContractSpecBuilder<Invalid> {
+    /// Sets the deploy handler of the contract specification.
+    pub fn on_deploy(self, deploy_handler: DeploySpec) -> ContractSpecBuilder<Valid> {
+        ContractSpecBuilder {
+            name: self.name,
+            deploy: Some(deploy_handler),
+            messages: self.messages,
+            events: self.events,
+            docs: self.docs,
+            marker: PhantomData,
+        }
     }
+}
 
-    /// Pushes a set of messages to the contract specification.
-    pub fn push_messages<M>(&mut self, msgs: M)
+impl<S> ContractSpecBuilder<S> {
+    /// Sets the messages of the contract specification.
+    pub fn messages<M>(self, messages: M) -> Self
     where
         M: IntoIterator<Item = MessageSpec>,
     {
-        self.messages.extend(msgs.into_iter());
+        debug_assert!(self.messages.is_empty());
+        Self {
+            messages: messages.into_iter().collect::<Vec<_>>(),
+            ..self
+        }
     }
 
-    /// Pushes an event to the contract specification.
-    pub fn push_event(&mut self, event: EventSpec) {
-        self.events.push(event);
-    }
-
-    /// Pushes a set of events to the contract specification.
-    pub fn push_events<E>(&mut self, events: E)
+    /// Sets the events of the contract specification.
+    pub fn events<E>(self, events: E) -> Self
     where
         E: IntoIterator<Item = EventSpec>,
     {
-        self.events.extend(events.into_iter());
+        debug_assert!(self.events.is_empty());
+        Self {
+            events: events.into_iter().collect::<Vec<_>>(),
+            ..self
+        }
     }
 
-    /// Pushes a line of documentation.
-    pub fn push_doc(&mut self, line: &'static str) {
-        self.docs.push(line)
-    }
-
-    /// Pushes a set of events to the contract specification.
-    pub fn push_docs<L>(&mut self, lines: L)
+    /// Sets the documentation of the contract specification.
+    pub fn docs<D>(self, docs: D) -> Self
     where
-        L: IntoIterator<Item = &'static str>,
+        D: IntoIterator<Item = &'static str>,
     {
-        self.docs.extend(lines.into_iter());
+        debug_assert!(self.docs.is_empty());
+        Self {
+            docs: docs.into_iter().collect::<Vec<_>>(),
+            ..self
+        }
+    }
+}
+
+impl ContractSpecBuilder<Valid> {
+    /// Finalizes construction of the contract specification.
+    pub fn done(self) -> ContractSpec {
+        ContractSpec {
+            name: self.name,
+            deploy: self
+                .deploy
+                .expect("a valid contract spec build must have a deploy handler; qed"),
+            messages: self.messages,
+            events: self.events,
+            docs: self.docs,
+        }
+    }
+}
+
+impl ContractSpec {
+    /// Creates a new contract specification.
+    pub fn new(name: <MetaForm as Form>::String) -> ContractSpecBuilder {
+        ContractSpecBuilder {
+            name,
+            deploy: None,
+            messages: vec![],
+            events: vec![],
+            docs: vec![],
+            marker: PhantomData,
+        }
     }
 }
 
@@ -120,16 +190,60 @@ impl IntoCompact for DeploySpec {
 }
 
 impl DeploySpec {
-    /// Creates a new deploy specification.
-    pub fn new<A, D>(args: A, docs: D) -> Self
+    // /// Creates a new deploy specification.
+    // pub fn new<A, D>(args: A, docs: D) -> Self
+    // where
+    //     A: IntoIterator<Item = MessageParamSpec>,
+    //     D: IntoIterator<Item = &'static str>,
+    // {
+    //     Self {
+    //         args: args.into_iter().collect::<Vec<_>>(),
+    //         docs: docs.into_iter().collect::<Vec<_>>(),
+    //     }
+    // }
+
+    /// Creates a new deploy specification builder.
+    pub fn new() -> DeploySpecBuilder {
+        DeploySpecBuilder {
+            spec: Self {
+                args: vec![],
+                docs: vec![],
+            },
+        }
+    }
+}
+
+/// A builder to construct a deploy specification.
+pub struct DeploySpecBuilder {
+    spec: DeploySpec,
+}
+
+impl DeploySpecBuilder {
+    /// Sets the input arguments of the deploy spec.
+    pub fn args<A>(self, args: A) -> DeploySpecBuilder
     where
         A: IntoIterator<Item = MessageParamSpec>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.args.is_empty());
+        this.spec.args = args.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Sets the documentation of the deploy spec.
+    pub fn docs<D>(self, docs: D) -> DeploySpecBuilder
+    where
         D: IntoIterator<Item = &'static str>,
     {
-        Self {
-            args: args.into_iter().collect::<Vec<_>>(),
-            docs: docs.into_iter().collect::<Vec<_>>(),
-        }
+        let mut this = self;
+        debug_assert!(this.spec.docs.is_empty());
+        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Finishes building the deploy spec.
+    pub fn done(self) -> DeploySpec {
+        self.spec
     }
 }
 
@@ -151,6 +265,104 @@ pub struct MessageSpec<F: Form = MetaForm> {
     docs: Vec<&'static str>,
 }
 
+mod state {
+    pub struct Selector;
+    pub struct Mutates;
+    pub struct Returns;
+}
+pub struct Missing<S>(PhantomData<fn() -> S>);
+
+impl MessageSpec {
+    pub fn new(
+        name: <MetaForm as Form>::String,
+    ) -> MessageSpecBuilder<
+        Missing<state::Selector>,
+        Missing<state::Mutates>,
+        Missing<state::Returns>,
+    > {
+        MessageSpecBuilder {
+            spec: Self {
+                name,
+                selector: 0,
+                mutates: false,
+                args: vec![],
+                return_type: ReturnTypeSpec::none(),
+                docs: vec![],
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
+    spec: MessageSpec,
+    marker: PhantomData<fn() -> (Selector, Mutates, Returns)>,
+}
+
+impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
+    pub fn selector(self, selector: u64) -> MessageSpecBuilder<state::Selector, M, R> {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                selector,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<S, R> MessageSpecBuilder<S, Missing<state::Mutates>, R> {
+    pub fn mutates(self, mutates: bool) -> MessageSpecBuilder<S, state::Mutates, R> {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                mutates,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<M, S> MessageSpecBuilder<S, M, Missing<state::Returns>> {
+    pub fn returns(
+        self,
+        return_type: ReturnTypeSpec,
+    ) -> MessageSpecBuilder<S, M, state::Returns> {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                return_type,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl MessageSpecBuilder<state::Selector, state::Mutates, state::Returns> {
+    pub fn done(self) -> MessageSpec {
+        self.spec
+    }
+}
+
+impl IntoCompact for MessageSpec {
+    type Output = MessageSpec<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        MessageSpec {
+            name: registry.register_string(&self.name),
+            selector: self.selector,
+            mutates: self.mutates,
+            args: self
+                .args
+                .into_iter()
+                .map(|arg| arg.into_compact(registry))
+                .collect::<Vec<_>>(),
+            return_type: self.return_type.into_compact(registry),
+            docs: self.docs,
+        }
+    }
+}
+
 /// Describes an event definition.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
@@ -164,17 +376,65 @@ pub struct EventSpec<F: Form = MetaForm> {
     docs: Vec<&'static str>,
 }
 
-impl EventSpec {
-    /// Creates a new event specification.
-    pub fn new<A, D>(name: &'static str, args: A, docs: D) -> Self
+/// An event specification builder.
+pub struct EventSpecBuilder {
+    spec: EventSpec,
+}
+
+impl EventSpecBuilder {
+    /// Sets the input arguments of the event specification.
+    pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = EventParamSpec>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.args.is_empty());
+        this.spec.args = args.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Sets the input arguments of the event specification.
+    pub fn docs<D>(self, docs: D) -> Self
+    where
         D: IntoIterator<Item = &'static str>,
     {
-        Self {
-            name,
-            args: args.into_iter().collect::<Vec<_>>(),
-            docs: docs.into_iter().collect::<Vec<_>>(),
+        let mut this = self;
+        debug_assert!(this.spec.docs.is_empty());
+        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Finalizes building the event specification.
+    pub fn done(self) -> EventSpec {
+        self.spec
+    }
+}
+
+impl IntoCompact for EventSpec {
+    type Output = EventSpec<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        EventSpec {
+            name: registry.register_string(&self.name),
+            args: self
+                .args
+                .into_iter()
+                .map(|arg| arg.into_compact(registry))
+                .collect::<Vec<_>>(),
+            docs: self.docs,
+        }
+    }
+}
+
+impl EventSpec {
+    /// Creates a new event specification builder.
+    pub fn new(name: &'static str) -> EventSpecBuilder {
+        EventSpecBuilder {
+            spec: Self {
+                name,
+                args: vec![],
+                docs: vec![],
+            },
         }
     }
 }
@@ -192,6 +452,18 @@ pub struct EventParamSpec<F: Form = MetaForm> {
     ty: F::TypeId,
 }
 
+impl IntoCompact for EventParamSpec {
+    type Output = EventParamSpec<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        EventParamSpec {
+            name: registry.register_string(self.name),
+            indexed: self.indexed,
+            ty: registry.register_type(&self.ty),
+        }
+    }
+}
+
 impl EventParamSpec {
     /// Creates a new event parameter specification.
     pub fn new<T>(name: &'static str, indexed: bool) -> Self
@@ -204,6 +476,14 @@ impl EventParamSpec {
             ty: T::meta_type(),
         }
     }
+
+    /// Creates a new event parameter specification.
+    pub fn of<T>(name: &'static str, _ty: &T, indexed: bool) -> Self
+    where
+        T: Metadata,
+    {
+        Self::new::<T>(name, indexed)
+    }
 }
 
 /// Describes the return type of a contract message.
@@ -213,6 +493,16 @@ impl EventParamSpec {
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
     opt_type: Option<F::TypeId>,
+}
+
+impl IntoCompact for ReturnTypeSpec {
+    type Output = ReturnTypeSpec<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        ReturnTypeSpec {
+            opt_type: self.opt_type.map(|opt_ty| registry.register_type(&opt_ty)),
+        }
+    }
 }
 
 impl ReturnTypeSpec {
@@ -229,6 +519,14 @@ impl ReturnTypeSpec {
         Self {
             opt_type: Some(T::meta_type()),
         }
+    }
+
+    /// Creates a new return type specification for the given type.
+    pub fn of<T>(_ty: &T) -> Self
+    where
+        T: Metadata,
+    {
+        Self::new::<T>()
     }
 }
 
@@ -264,5 +562,13 @@ impl MessageParamSpec {
             name,
             ty: T::meta_type(),
         }
+    }
+
+    /// Creates a new parameter specification for the given name and type.
+    pub fn of<T>(name: &'static str, _ty: &T) -> Self
+    where
+        T: Metadata,
+    {
+        Self::new::<T>(name)
     }
 }
