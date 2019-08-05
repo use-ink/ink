@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! Utilities in use by pDSL.
+//! Utilities in use by ink!.
 //!
-//! These are kept separate from pDSL core to allow for more dynamic inter crate dependencies.
+//! These are kept separate from ink core utilities to allow for more dynamic inter-crate dependencies.
 //! The main problem is that today Cargo manages crate features on a per-crate basis instead of
-//! a per-crate-target basis thus making dependencies from `ink_lang` to `ink_core` impossible.
+//! a per-crate-target basis thus making dependencies from `ink_lang` (or others) to `ink_core` impossible.
 //!
 //! By introducing `ink_utils` we have a way to share utility components between `ink_core` and
 //! other parts of the framework, like `ink_lang`.
