@@ -338,6 +338,30 @@ impl<M, S> MessageSpecBuilder<S, M, Missing<state::Returns>> {
     }
 }
 
+impl<S, M, R> MessageSpecBuilder<S, M, R> {
+    /// Sets the input arguments of the event specification.
+    pub fn args<A>(self, args: A) -> Self
+    where
+        A: IntoIterator<Item = MessageParamSpec>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.args.is_empty());
+        this.spec.args = args.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Sets the input arguments of the event specification.
+    pub fn docs<D>(self, docs: D) -> Self
+    where
+        D: IntoIterator<Item = &'static str>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.docs.is_empty());
+        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this
+    }
+}
+
 impl MessageSpecBuilder<state::Selector, state::Mutates, state::Returns> {
     pub fn done(self) -> MessageSpec {
         self.spec
@@ -372,7 +396,6 @@ pub struct EventSpec<F: Form = MetaForm> {
     /// The event arguments.
     args: Vec<EventParamSpec<F>>,
     /// The event documentation.
-    #[serde(rename = "documentation")]
     docs: Vec<&'static str>,
 }
 
