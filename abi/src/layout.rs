@@ -36,6 +36,7 @@ pub trait HasLayout {
 /// Either a concrete layout bound or another layout sub-struct.
 #[derive(Debug, PartialEq, Eq, Serialize, From)]
 #[serde(bound = "F::TypeId: Serialize")]
+#[serde(untagged)]
 pub enum StorageLayout<F: Form = MetaForm> {
     /// A concrete layout bound.
     Range(LayoutRange<F>),
@@ -62,6 +63,7 @@ impl IntoCompact for StorageLayout {
 ///
 /// Basically a thin-wrapper around keys from `ink_core` library for serialization purposes.
 #[derive(Debug, PartialEq, Eq, From, Serialize)]
+#[serde(transparent)]
 pub struct LayoutKey(
     /// Internals must be compatible with `ink_core::storage::Key`.
     pub [u8; 32],
@@ -71,9 +73,10 @@ pub struct LayoutKey(
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct LayoutStruct<F: Form = MetaForm> {
-    #[serde(rename = "self_type")]
+    #[serde(rename = "struct.type")]
     self_ty: F::TypeId,
     /// The sub-fields of the struct.
+    #[serde(rename = "struct.fields")]
     fields: Vec<LayoutField<F>>,
 }
 
@@ -115,6 +118,7 @@ pub struct LayoutField<F: Form = MetaForm> {
     ///
     /// This is either a direct layout bound
     /// or another recursive layout sub-struct.
+    #[serde(rename = "layout")]
     sub_layout: StorageLayout<F>,
 }
 
@@ -151,11 +155,13 @@ impl IntoCompact for LayoutField {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct LayoutRange<F: Form = MetaForm> {
     /// The single key for cells or the starting key address for chunks.
+    #[serde(rename = "range.offset")]
     offset: LayoutKey,
     /// The amount of associated key addresses starting from the offset key.
+    #[serde(rename = "range.len")]
     len: u32,
     /// The element type stored under the associated keys.
-    #[serde(rename = "element_type")]
+    #[serde(rename = "range.elem_type")]
     elem_ty: F::TypeId,
 }
 
