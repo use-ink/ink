@@ -34,13 +34,9 @@ test-env = [
     "ink_model/test-env",
     "ink_lang/test-env",
 ]
-generate-api-description = [ # Outdated: TODO removed as soon as ink_abi lands
-    "ink_lang/generate-api-description"
-]
-generate-abi = [
+ink-generate-abi = [
 	"std",
 	"ink_abi",
-	"ink_lang/generate-abi",
 ]
 
 [profile.release]
@@ -51,5 +47,8 @@ overflow-checks = true
 
 [workspace]
 members = [
-	".tools/"
+	".tools/abi_gen"
+]
+exclude = [
+	".tools"
 ]

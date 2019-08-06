@@ -1,16 +1,15 @@
 [package]
-name = "tools"
+name = "abi-gen"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 publish = false
 
 [[bin]]
-name = "abi_gen"
-path = "abi-gen/main.rs"
-doc = false
+name = "abi-gen"
+path = "main.rs"
 
 [dependencies]
-contract = { path = "..", feature = ["generate-abi"] }
+contract = { path = "../..", package = "{{name}}", features = ["ink-generate-abi", "test-env"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
