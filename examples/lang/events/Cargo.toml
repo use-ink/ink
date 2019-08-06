@@ -21,9 +21,6 @@ test-env = [
     "ink_model/test-env",
     "ink_lang/test-env",
 ]
-generate-api-description = [
-    "ink_lang/generate-api-description"
-]
 
 [profile.release]
 panic = "abort"

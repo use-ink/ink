@@ -17,7 +17,6 @@ crate-type = ["cdylib"]
 [features]
 default = [
     "std",
-    "ink_lang/generate-api-description"
 ]
 std = [
     "ink_core/std",
@@ -30,9 +29,6 @@ test-env = [
     "ink_core/test-env",
     "ink_model/test-env",
     "ink_lang/test-env",
-]
-generate-api-description = [
-    "ink_lang/generate-api-description"
 ]
 
 [profile.release]
