@@ -254,7 +254,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
     /// The selector hash of the message.
-    selector: u64,
+    selector: u32,
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
     /// The parameters of the message.
@@ -300,7 +300,7 @@ pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
 }
 
 impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
-    pub fn selector(self, selector: u64) -> MessageSpecBuilder<state::Selector, M, R> {
+    pub fn selector(self, selector: u32) -> MessageSpecBuilder<state::Selector, M, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 selector,
