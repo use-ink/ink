@@ -24,28 +24,225 @@
 //! This two-steps process is required because Rust macros (and thus `ink_lang`)
 //! are not able to access type information or anything that is related to that.
 
+use crate::{
+    ast,
+    hir,
+};
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
+use syn::{
+    self,
+    punctuated::Punctuated,
+    Token,
+};
+
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let abi_mod_body = generate_abi_mod_body(contract);
+    tokens.extend(abi_mod_body);
+}
 
-    tokens.extend(quote! {
-        #[cfg(feature = "abi")]
-        mod abi {
-            use super::*;
+fn generate_abi_mod_body(contract: &hir::Contract) -> TokenStream2 {
+    let ink_generate_abi_contract = generate_abi_contract(contract);
+    let ink_generate_abi_layout = generate_abi_layout(contract);
 
-            #test_mod_body
+    quote! {
+        #[cfg(feature = "generate-abi")]
+        fn ink_generate_abi() -> ink_abi::InkProject {
+            let contract = {
+                #ink_generate_abi_contract
+            };
+            let layout = {
+                #ink_generate_abi_layout
+            };
+            ink_abi::InkProject::new(layout, contract)
+        }
+    }
+}
+
+fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
+    let deploy_handler = &contract.on_deploy;
+
+    let args = deploy_handler
+        .decl
+        .inputs
+        .iter()
+        .filter_map(ast::FnArg::is_captured)
+        .map(|capt| {
+            let name = match &capt.pat {
+                syn::Pat::Path(pat_path) => {
+                    if pat_path.qself.is_none()
+                        && pat_path.path.leading_colon.is_none()
+                        && pat_path.path.segments.len() == 1
+                        && pat_path.path.segments[0].arguments.is_empty()
+                    {
+                        pat_path.path.segments[0].ident.to_string()
+                    } else {
+                        unreachable!("invalid arg name encountered")
+                    }
+                }
+                _ => unreachable!("can only have simple identifiers in arguments"),
+            };
+            let ty = &capt.ty;
+            quote! {
+                ink_abi::MessageParamSpec::new::<#ty>(#name)
+            }
+        })
+        .collect::<Punctuated<_, Token![,]>>();
+    let docs = deploy_handler.docs().map(|doc| doc.tts.to_string());
+
+    quote! {
+        ink_abi::DeploySpec::new()
+            .args(vec![
+                #(#args)*
+            ])
+            .docs(vec![
+                #(#docs)*
+            ])
+            .done()
+    }
+}
+
+fn generate_abi_messages<'a>(
+    contract: &'a hir::Contract,
+) -> impl Iterator<Item = TokenStream2> + 'a {
+    contract.messages.iter().map(|message| {
+        let selector = message.selector();
+        let is_mut = message.is_mut();
+        let docs = message.docs().map(|doc| doc.tts.to_string());
+        let name = message.sig.ident.to_string();
+        let inputs = message
+            .sig
+            .decl
+            .inputs
+            .iter()
+            .filter_map(ast::FnArg::is_captured)
+            .map(|capt| {
+                let name: String = match &capt.pat {
+                    syn::Pat::Path(pat_path) => {
+                        if pat_path.qself.is_none()
+                            && pat_path.path.leading_colon.is_none()
+                            && pat_path.path.segments.len() == 1
+                            && pat_path.path.segments[0].arguments.is_empty()
+                        {
+                            pat_path.path.segments[0].ident.to_string()
+                        } else {
+                            unreachable!("invalid arg name encountered")
+                        }
+                    }
+                    _ => unreachable!("can only have simple identifiers in arguments"),
+                };
+                let ty = &capt.ty;
+                quote! {
+                    ink_abi::MessageParamSpec::new::<#ty>(#name)
+                }
+            })
+            .collect::<Punctuated<_, Token![,]>>();
+        let ret_type = match &message.sig.decl.output {
+            syn::ReturnType::Default => {
+                quote! {
+                    ink_abi::ReturnTypeSpec::none()
+                }
+            }
+            syn::ReturnType::Type(_, ty) => {
+                quote! {
+                    ink_abi::ReturnTypeSpec::new::<#ty>()
+                }
+            }
+        };
+        quote! {
+            ink_abi::MessageSpec::new(#name)
+                .selector(#selector)
+                .mutates(#is_mut)
+                .args(vec![
+                    #(#inputs)*
+                ])
+                .docs(vec![
+                    #(#docs)*
+                ])
+                .returns(
+                    #ret_type
+                )
+                .done()
         }
     })
 }
 
-fn generate_abi_mod_body(contract: &hir::Contract) -> TokenStream2 {
-    let mut tokens = quote! {};
-    // generate_test_struct(&mut tokens, contract);
-    // generate_test_deploy(&mut tokens, contract);
-    // generate_test_allocate_deploy_block(&mut tokens, contract);
-    // generate_test_methods(&mut tokens, contract);
-
-	
-
-    tokens
+fn generate_abi_events<'a>(
+    contract: &'a hir::Contract,
+) -> impl Iterator<Item = TokenStream2> + 'a {
+    contract.events.iter().map(|event| {
+        let name = &event.ident;
+        let args = event
+            .args
+            .iter()
+            .map(|event_arg| {
+                let name = &event_arg.ident;
+                let indexed = event_arg.is_indexed();
+                let ty = &event_arg.ty;
+                quote! {
+                    ink_abi::EventParamSpec::new::<#ty>(#name, #indexed)
+                }
+            })
+            .collect::<Punctuated<_, Token![,]>>();
+        let docs = event.docs().map(|doc| doc.tts.to_string());
+        quote! {
+            ink_abi::EventSpec::new(#name)
+                .args(vec![
+                    #(#args)*
+                ])
+                .docs(vec![
+                    #(#docs)*
+                ])
+                .done()
+        }
+    })
 }
 
+fn generate_abi_contract(contract: &hir::Contract) -> TokenStream2 {
+    let contract_name = &contract.name;
+    let contract_name_lit = contract_name.to_string();
+
+    // We currently do not have a way to specify docs for whole contracts.
+    // For this we could either take the docs of the contract state struct
+    // or allow for inner-attribute doc style within the `contract!` macro call.
+    let docs = quote! {};
+
+    let deploy_handler = generate_abi_deploy_handler(contract);
+    let messages = generate_abi_messages(contract);
+    let events = generate_abi_events(contract);
+
+    quote! {
+        ink_abi::ContractSpec::new(#contract_name_lit)
+            .on_deploy(
+                #deploy_handler
+            )
+            .messages(vec![
+                #(#messages ,)*
+            ])
+            .events(vec![
+                #(#events)*
+            ])
+            .docs(vec![
+                #docs
+            ])
+            .done()
+    }
+}
+
+fn generate_abi_layout(contract: &hir::Contract) -> TokenStream2 {
+    let contract_name = &contract.name;
+    quote! {
+        impl ink_abi::HasLayout for #contract_name {
+            fn layout(&self) -> ink_abi::StorageLayout {
+                unimplemented!()
+            }
+        }
+        unsafe {
+            use ink_core::storage::alloc::AllocateUsing as _;
+            use ink_abi::HasLayout as _;
+            #contract_name::allocate_using(
+                &mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(ink_core::storage::Key([0x0; 32]))
+            ).layout()
+        }
+    }
+}
