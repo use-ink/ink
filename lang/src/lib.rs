@@ -21,9 +21,6 @@ extern crate proc_macro;
 #[macro_use]
 mod error;
 
-#[cfg(feature = "generate-api-description")]
-mod api;
-
 mod ast;
 mod gen;
 mod hir;

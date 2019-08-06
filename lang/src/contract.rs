@@ -33,17 +33,6 @@ pub fn generate(input: TokenStream2) -> TokenStream2 {
 pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
     let ast_contract = parser::parse_contract(input.clone())?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
-    generate_api_description(&hir_contract)?;
     let tokens = gen::generate_code(&hir_contract);
     Ok(tokens)
-}
-
-#[cfg(feature = "generate-api-description")]
-fn generate_api_description(contract: &hir::Contract) -> Result<()> {
-    crate::api::generate_api_description(&contract)
-}
-
-#[cfg(not(feature = "generate-api-description"))]
-fn generate_api_description(_contract: &hir::Contract) -> Result<()> {
-    Ok(())
 }
