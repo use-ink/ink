@@ -18,6 +18,7 @@ use crate::cmd::Result;
 use node_runtime::{
     Call,
     Event,
+    Runtime,
 };
 
 use srml_contracts::{
@@ -31,7 +32,9 @@ use std::{
     io::Read,
     path::PathBuf,
 };
+use runtime_primitives::generic::Era;
 use substrate_primitives::{H256, crypto::Pair, sr25519};
+use subxt::Error;
 
 type CargoToml = HashMap<String, toml::Value>;
 
@@ -70,13 +73,13 @@ fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
     return Ok(data)
 }
 
-fn extract_code_hash(extrinsic_result: rpc::ExtrinsicSuccess) -> Result<H256> {
+fn extract_code_hash(extrinsic_result: subxt::ExtrinsicSuccess<Runtime>) -> Result<H256> {
     extrinsic_result
         .events
         .iter()
         .find_map(|event| {
             if let Event::contracts(ContractsEvent::CodeStored(hash)) = event {
-                Some(*hash)
+                Some(hash.clone())
             } else {
                 None
             }
@@ -96,7 +99,20 @@ pub(crate) fn execute_deploy(
     let code = load_contract_code(contract_wasm_path)?;
     let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
-    let extrinsic_success = subxt::submit(url, signer, call)?;
+    let extra = |nonce| {
+        (
+            srml_system::CheckGenesis::<Runtime>::new(),
+            srml_system::CheckEra::<Runtime>::from(Era::Immortal),
+            srml_system::CheckNonce::<Runtime>::from(nonce),
+            srml_system::CheckWeight::<Runtime>::new(),
+            srml_balances::TakeFees::<Runtime>::from(0),
+        )
+    };
+
+    let fut = subxt::submit(url, signer, call, extra);
+    let mut rt = tokio::runtime::Runtime::new()?;
+    let extrinsic_success = rt.block_on(fut)?;
+
     log::debug!("Deploy success: {:?}", extrinsic_success);
 
     let code_hash = extract_code_hash(extrinsic_success)?;
