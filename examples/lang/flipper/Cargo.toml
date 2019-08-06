@@ -5,24 +5,46 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_core = { path = "../../../core" }
-ink_model = { path = "../../../model" }
-ink_lang = { path = "../../../lang" }
+ink_abi = { path = "../../../abi", default-features = false }
+ink_core = { path = "../../../core", default-features = false }
+ink_model = { path = "../../../model", default-features = false }
+ink_lang = { path = "../../../lang", default-features = false }
+
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
+serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+serde_json = { version = "1.0", default-features = false, optional = true }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", features = ["derive"], optional = true }
 
 [lib]
 name = "flipper"
-crate-type = ["cdylib"]
+crate-type = [
+	# Used for normal contract Wasm blobs.
+	"cdylib",
+	# Used for ABI generation.
+	"rlib",
+]
 
 [features]
-default = []
+default = ["std"]
+std = [
+    "ink_abi/std",
+    "ink_core/std",
+    "ink_model/std",
+    "ink_lang/std",
+    "parity-codec/std",
+    "serde/std",
+]
 test-env = [
+    "std",
     "ink_core/test-env",
     "ink_model/test-env",
     "ink_lang/test-env",
 ]
-generate-api-description = [
-    "ink_lang/generate-api-description"
+ink-generate-abi = [
+    "std",
+    "serde",
+    "serde_json",
+    "type-metadata",
 ]
 
 [profile.release]
@@ -30,3 +52,11 @@ panic = "abort"
 lto = true
 opt-level = "z"
 overflow-checks = true
+
+[workspace]
+members = [
+	".tools/abi_gen"
+]
+exclude = [
+	".tools"
+]
