@@ -231,32 +231,7 @@ fn generate_abi_contract(contract: &hir::Contract) -> TokenStream2 {
 
 fn generate_abi_layout(contract: &hir::Contract) -> TokenStream2 {
     let contract_name = &contract.name;
-	let contract_name_string = contract_name.to_string();
-
     quote! {
-        impl ink_abi::HasLayout for #contract_name {
-            fn layout(&self) -> ink_abi::StorageLayout {
-				use type_metadata::Metadata as _;
-				ink_abi::LayoutStruct::new(Self::meta_type(), vec![
-					// ink_abi::LayoutField::new("value", self.value.layout()),
-				]).into()
-            }
-        }
-
-		impl type_metadata::HasTypeId for #contract_name {
-			fn type_id() -> type_metadata::TypeId {
-				type_metadata::TypeIdCustom::new(
-					#contract_name_string, type_metadata::Namespace::from_str("contract").unwrap(), vec![]
-				).into()
-			}
-		}
-
-		impl type_metadata::HasTypeDef for #contract_name {
-			fn type_def() -> type_metadata::TypeDef {
-				type_metadata::TypeDef::builtin()
-			}
-		}
-
         unsafe {
             use ink_core::storage::alloc::AllocateUsing as _;
             use ink_abi::HasLayout as _;

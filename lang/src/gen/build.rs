@@ -427,6 +427,13 @@ fn codegen_for_state(tokens: &mut TokenStream2, contract: &hir::Contract) {
     tokens.extend(quote! {
         ink_model::state! {
             #state_attrs_toks
+            #[cfg_attr(
+                feature = "ink-generate-abi",
+                derive(
+                    type_metadata::Metadata,
+                    ink_abi::HasLayout,
+                )
+            )]
             pub struct #name
                 #struct_fields_toks
         }
