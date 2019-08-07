@@ -42,12 +42,7 @@ pub fn generate_impl(input: TokenStream2) -> Result<TokenStream2> {
 
     ast.generics.type_params_mut().for_each(|p| {
         p.bounds.push(parse_quote!(_ink_abi::HasLayout));
-        // p.bounds.push(parse_quote!('static));
     });
-	// ast.generics.params.push_value(syn::GenericParam::Type(syn::parse_quote! {
-	// 	Self: _type_metadata::Metadata + 'static
-	// }));
-
 
     let ident = &ast.ident;
     let (impl_generics, ty_generics, where_clause) = ast.generics.split_for_impl();
@@ -66,8 +61,6 @@ pub fn generate_impl(input: TokenStream2) -> Result<TokenStream2> {
             }
         }
     };
-
-	// Ok(quote! {})
 
     Ok(wrap(ident, "HAS_LAYOUT", has_layout_impl).into())
 }
