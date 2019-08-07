@@ -26,7 +26,7 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use parity_codec::Encode;
+use parity_scale_codec::Encode;
 
 /// Stores the given value under the specified key in the contract storage.
 ///

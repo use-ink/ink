@@ -173,7 +173,7 @@ impl<State, Env> ContractDecl<State, Env, NoDeployArgs, UnreachableMessageHandle
         handler: fn(&mut ExecutionEnv<State, Env>, Args),
     ) -> ContractDecl<State, Env, Args, UnreachableMessageHandler>
     where
-        Args: parity_codec::Decode,
+        Args: parity_scale_codec::Decode,
     {
         ContractDecl {
             state: self.state,
@@ -315,7 +315,7 @@ pub trait TestableContract {
     ///
     /// These must be the same as the ones defined on the deploy handler
     /// of a contract declaration.
-    type DeployArgs: parity_codec::Encode;
+    type DeployArgs: parity_scale_codec::Encode;
 
     /// Deploys the contract given the provided arguments for deployment.
     ///
@@ -343,8 +343,8 @@ pub trait TestableContract {
     fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
     where
         Msg: Message,
-        <Msg as Message>::Input: parity_codec::Encode,
-        <Msg as Message>::Output: parity_codec::Decode;
+        <Msg as Message>::Input: parity_scale_codec::Encode,
+        <Msg as Message>::Output: parity_scale_codec::Decode;
 }
 
 /// An instance of a contract.
@@ -365,7 +365,7 @@ impl<State, Env, DeployArgs, HandlerChain> Contract
 where
     State: ContractState,
     Env: env::Env,
-    DeployArgs: parity_codec::Decode,
+    DeployArgs: parity_scale_codec::Decode,
     HandlerChain: crate::HandleCall<State, Env>,
 {
     /// Deploys the contract.
@@ -399,7 +399,7 @@ where
         // action after instantiation.
         //
         // Internally calls the associated call<Msg>.
-        use parity_codec::Decode;
+        use parity_scale_codec::Decode;
         let input = Env::input();
         let call_data = CallData::decode(&mut &input[..]).unwrap();
         let mut this = self;
@@ -413,7 +413,7 @@ impl<State, Env, DeployArgs, HandlerChain>
 where
     State: ContractState,
     Env: env::Env,
-    DeployArgs: parity_codec::Decode,
+    DeployArgs: parity_scale_codec::Decode,
     HandlerChain: crate::HandleCall<State, Env>,
 {
     /// Deploys the contract.
@@ -467,7 +467,7 @@ impl<State, Env, DeployArgs, HandlerChain> TestableContract
 where
     State: ContractState,
     Env: env::Env,
-    DeployArgs: parity_codec::Codec,
+    DeployArgs: parity_scale_codec::Codec,
     HandlerChain: crate::HandleCall<State, Env>,
 {
     type DeployArgs = DeployArgs;
@@ -479,11 +479,11 @@ where
     fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
     where
         Msg: Message,
-        <Msg as Message>::Input: parity_codec::Encode,
-        <Msg as Message>::Output: parity_codec::Decode,
+        <Msg as Message>::Input: parity_scale_codec::Encode,
+        <Msg as Message>::Output: parity_scale_codec::Decode,
     {
         let encoded_result = self.call_with(CallData::from_msg::<Msg>(input));
-        use parity_codec::Decode;
+        use parity_scale_codec::Decode;
         <Msg as Message>::Output::decode(&mut &encoded_result[..])
             .expect("`call_with` only encodes the correct types")
     }

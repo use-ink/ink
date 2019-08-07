@@ -41,14 +41,14 @@ pub struct TypedCell<T> {
     non_clone: NonCloneMarker<T>,
 }
 
-impl<T> parity_codec::Encode for TypedCell<T> {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl<T> parity_scale_codec::Encode for TypedCell<T> {
+    fn encode_to<W: parity_scale_codec::Output>(&self, dest: &mut W) {
         self.cell.encode_to(dest)
     }
 }
 
-impl<T> parity_codec::Decode for TypedCell<T> {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl<T> parity_scale_codec::Decode for TypedCell<T> {
+    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
         RawCell::decode(input).map(|raw_cell| {
             Self {
                 cell: raw_cell,
@@ -79,7 +79,7 @@ impl<T> TypedCell<T> {
 
 impl<T> TypedCell<T>
 where
-    T: parity_codec::Decode,
+    T: parity_scale_codec::Decode,
 {
     /// Loads the value stored in the cell if any.
     pub fn load(&self) -> Option<T> {
@@ -91,7 +91,7 @@ where
 
 impl<T> TypedCell<T>
 where
-    T: parity_codec::Encode,
+    T: parity_scale_codec::Encode,
 {
     /// Stores the value into the cell.
     pub fn store(&mut self, val: &T) {

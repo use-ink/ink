@@ -27,7 +27,7 @@ use ink_core::{
     env,
     memory::vec::Vec,
 };
-use parity_codec::Decode;
+use parity_scale_codec::Decode;
 
 /// A raw read-only message handler for the given message and state.
 ///
@@ -58,7 +58,7 @@ pub struct CallData {
 }
 
 impl Decode for CallData {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
         let selector = MessageHandlerSelector::decode(input)?;
         let mut param_buf = Vec::new();
         while let Some(byte) = input.read_byte() {
@@ -91,9 +91,9 @@ impl CallData {
     pub fn from_msg<Msg>(args: <Msg as Message>::Input) -> Self
     where
         Msg: Message,
-        <Msg as Message>::Input: parity_codec::Encode,
+        <Msg as Message>::Input: parity_scale_codec::Encode,
     {
-        use parity_codec::Encode;
+        use parity_scale_codec::Encode;
         Self {
             selector: <Msg as Message>::ID,
             raw_params: args.encode(),
@@ -311,7 +311,7 @@ macro_rules! impl_handle_call_for_chain {
             for $msg_handler_kind<Msg, State, Env>
         where
             Msg: Message,
-            <Msg as Message>::Output: parity_codec::Encode,
+            <Msg as Message>::Output: parity_scale_codec::Encode,
             State: ContractState,
             Env: env::Env,
         {
@@ -326,7 +326,7 @@ macro_rules! impl_handle_call_for_chain {
                 if $requires_flushing {
                     env.state.flush()
                 }
-                use parity_codec::Encode;
+                use parity_scale_codec::Encode;
                 Ok(result.encode())
             }
         }

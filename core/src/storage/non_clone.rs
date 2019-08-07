@@ -15,7 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use core::marker::PhantomData;
-use parity_codec::{
+use parity_scale_codec::{
     Decode,
     Encode,
 };

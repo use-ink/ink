@@ -47,7 +47,7 @@ pub struct SyncChunk<T> {
 
 impl<T> Flush for SyncChunk<T>
 where
-    T: parity_codec::Encode + Flush,
+    T: parity_scale_codec::Encode + Flush,
 {
     fn flush(&mut self) {
         for (n, dirty_val) in self.cache.iter_dirty() {
@@ -63,14 +63,14 @@ where
     }
 }
 
-impl<T> parity_codec::Encode for SyncChunk<T> {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl<T> parity_scale_codec::Encode for SyncChunk<T> {
+    fn encode_to<W: parity_scale_codec::Output>(&self, dest: &mut W) {
         self.chunk.encode_to(dest)
     }
 }
 
-impl<T> parity_codec::Decode for SyncChunk<T> {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl<T> parity_scale_codec::Decode for SyncChunk<T> {
+    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
         TypedChunk::decode(input).map(|typed_chunk| {
             Self {
                 chunk: typed_chunk,
@@ -111,7 +111,7 @@ impl<T> SyncChunk<T> {
 
 impl<T> SyncChunk<T>
 where
-    T: parity_codec::Decode,
+    T: parity_scale_codec::Decode,
 {
     /// Returns the value of the `n`-th cell if any.
     #[must_use]
@@ -152,7 +152,7 @@ where
 
 impl<T> SyncChunk<T>
 where
-    T: parity_codec::Encode,
+    T: parity_scale_codec::Encode,
 {
     /// Sets the value of the `n`-th cell.
     pub fn set(&mut self, n: u32, val: T) {
@@ -162,7 +162,7 @@ where
 
 impl<T> SyncChunk<T>
 where
-    T: parity_codec::Codec,
+    T: parity_scale_codec::Codec,
 {
     /// Replaces the value of the `n`-th cell and returns its old value if any.
     ///
