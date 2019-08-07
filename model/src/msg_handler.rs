@@ -60,13 +60,13 @@ pub struct CallData {
 impl Decode for CallData {
     fn decode<I: parity_scale_codec::Input>(
         input: &mut I,
-    ) -> Result<Self, parity_scale_codec::Error> {
+    ) -> CoreResult<Self, parity_scale_codec::Error> {
         let selector = MessageHandlerSelector::decode(input)?;
         let mut param_buf = Vec::new();
-        while let Some(byte) = input.read_byte() {
+        while let Ok(byte) = input.read_byte() {
             param_buf.push(byte)
         }
-        Some(Self {
+        Ok(Self {
             selector,
             raw_params: param_buf,
         })
@@ -323,7 +323,7 @@ macro_rules! impl_handle_call_for_chain {
                 data: CallData,
             ) -> Result<Vec<u8>> {
                 let args = <Msg as Message>::Input::decode(&mut &data.params()[..])
-                    .ok_or(Error::InvalidArguments)?;
+                    .map_err(|_| Error::InvalidArguments)?;
                 let result = (self.raw_handler)(env, args);
                 if $requires_flushing {
                     env.state.flush()
