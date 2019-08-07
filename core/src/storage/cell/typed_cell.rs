@@ -85,9 +85,12 @@ where
 {
     /// Loads the value stored in the cell if any.
     pub fn load(&self) -> Option<T> {
-        self.cell
-            .load()
-            .and_then(|bytes| T::decode(&mut &bytes[..]))
+        self.cell.load().map(|bytes| {
+            T::decode(&mut &bytes[..]).expect(
+                "[ink_core::TypedCell::load] Error: \
+                 failed upon decoding",
+            )
+        })
     }
 }
 
