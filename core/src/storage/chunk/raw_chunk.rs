@@ -85,7 +85,9 @@ impl parity_scale_codec::Encode for RawChunk {
 }
 
 impl parity_scale_codec::Decode for RawChunk {
-    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(
+        input: &mut I,
+    ) -> Result<Self, parity_scale_codec::Error> {
         Key::decode(input).map(|key| unsafe { Self::new_unchecked(key) })
     }
 }

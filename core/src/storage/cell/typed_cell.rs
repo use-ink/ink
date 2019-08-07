@@ -48,7 +48,9 @@ impl<T> parity_scale_codec::Encode for TypedCell<T> {
 }
 
 impl<T> parity_scale_codec::Decode for TypedCell<T> {
-    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(
+        input: &mut I,
+    ) -> Result<Self, parity_scale_codec::Error> {
         RawCell::decode(input).map(|raw_cell| {
             Self {
                 cell: raw_cell,

@@ -69,7 +69,9 @@ pub struct HashMap<K, V> {
 /// This can either store the entries key and value
 /// or represent an entry that was removed after it
 /// has been occupied with key and value.
-#[derive(Debug, Clone, PartialEq, Eq, parity_scale_codec::Encode, parity_scale_codec::Decode)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, parity_scale_codec::Encode, parity_scale_codec::Decode,
+)]
 pub enum Entry<K, V> {
     /// An occupied slot with a key and a value.
     Occupied(OccupiedEntry<K, V>),
@@ -91,7 +93,9 @@ where
 }
 
 /// An occupied entry of a storage map.
-#[derive(Debug, Clone, PartialEq, Eq, parity_scale_codec::Encode, parity_scale_codec::Decode)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, parity_scale_codec::Encode, parity_scale_codec::Decode,
+)]
 pub struct OccupiedEntry<K, V> {
     /// The entry's key.
     key: K,
@@ -129,10 +133,12 @@ impl<K, V> parity_scale_codec::Encode for HashMap<K, V> {
 }
 
 impl<K, V> parity_scale_codec::Decode for HashMap<K, V> {
-    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(
+        input: &mut I,
+    ) -> Result<Self, parity_scale_codec::Error> {
         let len = storage::Value::decode(input)?;
         let entries = SyncChunk::decode(input)?;
-        Some(Self { len, entries })
+        Ok(Self { len, entries })
     }
 }
 

@@ -58,7 +58,9 @@ pub struct CallData {
 }
 
 impl Decode for CallData {
-    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(
+        input: &mut I,
+    ) -> Result<Self, parity_scale_codec::Error> {
         let selector = MessageHandlerSelector::decode(input)?;
         let mut param_buf = Vec::new();
         while let Some(byte) = input.read_byte() {

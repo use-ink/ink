@@ -70,7 +70,9 @@ impl<T> parity_scale_codec::Encode for SyncChunk<T> {
 }
 
 impl<T> parity_scale_codec::Decode for SyncChunk<T> {
-    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(
+        input: &mut I,
+    ) -> Result<Self, parity_scale_codec::Error> {
         TypedChunk::decode(input).map(|typed_chunk| {
             Self {
                 chunk: typed_chunk,

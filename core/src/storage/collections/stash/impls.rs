@@ -250,10 +250,12 @@ impl<T> Encode for Stash<T> {
 }
 
 impl<T> Decode for Stash<T> {
-    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(
+        input: &mut I,
+    ) -> Result<Self, parity_scale_codec::Error> {
         let header = storage::Value::decode(input)?;
         let entries = SyncChunk::decode(input)?;
-        Some(Self { header, entries })
+        Ok(Self { header, entries })
     }
 }
 

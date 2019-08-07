@@ -131,10 +131,12 @@ impl<T> parity_scale_codec::Encode for Vec<T> {
 }
 
 impl<T> parity_scale_codec::Decode for Vec<T> {
-    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(
+        input: &mut I,
+    ) -> Result<Self, parity_scale_codec::Error> {
         let len = storage::Value::decode(input)?;
         let cells = SyncChunk::decode(input)?;
-        Some(Self { len, cells })
+        Ok(Self { len, cells })
     }
 }
 

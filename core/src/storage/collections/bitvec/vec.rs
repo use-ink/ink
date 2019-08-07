@@ -43,10 +43,12 @@ impl parity_scale_codec::Encode for BitVec {
 }
 
 impl parity_scale_codec::Decode for BitVec {
-    fn decode<I: parity_scale_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: parity_scale_codec::Input>(
+        input: &mut I,
+    ) -> Result<Self, parity_scale_codec::Error> {
         let len = storage::Value::decode(input)?;
         let blocks = SyncChunk::decode(input)?;
-        Some(Self { len, blocks })
+        Ok(Self { len, blocks })
     }
 }
 
