@@ -18,13 +18,16 @@ parity-codec = { version = "4.1", default-features = false, features = ["derive"
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 json = { package = "serde_json", version = "1.0" }
 derive_more = { version = "0.14" }
+ink_abi_derive = { version = "0.1.0", path = "derive", default-features = false, optional = true }
 
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", features = ["derive"] }
 
 [features]
-default = ["std"]
+default = ["std", "derive"]
+derive = ["ink_abi_derive"]
 std = [
-	"serde/std",
-	"type-metadata/std",
-	"parity-codec/std"
+    "ink_abi_derive/std",
+    "serde/std",
+    "type-metadata/std",
+    "parity-codec/std"
 ]

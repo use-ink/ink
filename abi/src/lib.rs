@@ -22,6 +22,9 @@ extern crate alloc;
 mod layout;
 mod specs;
 
+#[cfg(feature = "derive")]
+pub use ink_abi_derive::{HasLayout};
+
 pub use self::{
     layout::{
         HasLayout,
