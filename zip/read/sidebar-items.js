@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["read_zipfile_from_stream","Read ZipFile structures from a non-seekable reader."]],"struct":[["ZipArchive","Wrapper for reading the contents of a ZIP file."],["ZipFile","A struct for reading a zip file"]]});

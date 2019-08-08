@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FileOptions","Metadata for a file to be written"],["ZipWriter","Generator for ZIP files."]]});

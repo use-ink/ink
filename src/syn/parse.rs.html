@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/syn-0.15.26/src/parse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parse.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../syn/index.html'><img src='../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/syn-0.15.42/src/parse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parse.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../syn/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1108,6 +1108,43 @@
 <span id="1108">1108</span>
 <span id="1109">1109</span>
 <span id="1110">1110</span>
+<span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Parsing interface for parsing a token stream into a syntax tree node.</span>
 <span class="doccomment">//!</span>
@@ -1299,6 +1336,9 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! *This module is available if Syn is built with the `&quot;parsing&quot;` feature.*</span>
 
+<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;discouraged.rs&quot;</span>]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">discouraged</span>;
+
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Display</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
@@ -1335,7 +1375,7 @@
 <span class="doccomment">/// See the methods of this type under the documentation of [`ParseBuffer`]. For</span>
 <span class="doccomment">/// an overview of parsing in Syn, refer to the [module documentation].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [module documentation]: index.html</span>
+<span class="doccomment">/// [module documentation]: self</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ParseStream</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ParseBuffer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Cursor position within a buffered token stream.</span>
@@ -1356,7 +1396,6 @@
 <span class="doccomment">/// - One of [the `syn::parse*` functions][syn-parse]; or</span>
 <span class="doccomment">/// - A method of the [`Parser`] trait.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [`parse_macro_input!`]: ../macro.parse_macro_input.html</span>
 <span class="doccomment">/// [syn-parse]: index.html#the-synparse-functions</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParseBuffer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">scope</span>: <span class="ident">Span</span>,
@@ -1400,7 +1439,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This type is the input of the closure provided to [`ParseStream::step`].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [`ParseStream::step`]: struct.ParseBuffer.html#method.step</span>
+<span class="doccomment">/// [`ParseStream::step`]: ParseBuffer::step</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
@@ -1416,8 +1455,8 @@
 <span class="doccomment">///     input.step(|cursor| {</span>
 <span class="doccomment">///         let mut rest = *cursor;</span>
 <span class="doccomment">///         while let Some((tt, next)) = rest.token_tree() {</span>
-<span class="doccomment">///             match tt {</span>
-<span class="doccomment">///                 TokenTree::Punct(ref punct) if punct.as_char() == &#39;@&#39; =&gt; {</span>
+<span class="doccomment">///             match &amp;tt {</span>
+<span class="doccomment">///                 TokenTree::Punct(punct) if punct.as_char() == &#39;@&#39; =&gt; {</span>
 <span class="doccomment">///                     return Ok(((), next));</span>
 <span class="doccomment">///                 }</span>
 <span class="doccomment">///                 _ =&gt; rest = next,</span>
@@ -1536,7 +1575,7 @@
     <span class="doccomment">/// The parser below invokes [`Attribute::parse_outer`] to parse a vector of</span>
     <span class="doccomment">/// zero or more outer attributes.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Attribute::parse_outer`]: ../struct.Attribute.html#method.parse_outer</span>
+    <span class="doccomment">/// [`Attribute::parse_outer`]: crate::Attribute::parse_outer</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```edition2018</span>
     <span class="doccomment">/// use syn::{Attribute, Ident, Result, Token};</span>
@@ -1580,7 +1619,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// - `input.peek(Token![struct])`</span>
     <span class="doccomment">/// - `input.peek(Token![==])`</span>
-    <span class="doccomment">/// - `input.peek(Ident)`</span>
+    <span class="doccomment">/// - `input.peek(Ident)`&amp;emsp;*(does not accept keywords)*</span>
+    <span class="doccomment">/// - `input.peek(Ident::peek_any)`</span>
     <span class="doccomment">/// - `input.peek(Lifetime)`</span>
     <span class="doccomment">/// - `input.peek(token::Brace)`</span>
     <span class="doccomment">///</span>
@@ -1855,10 +1895,16 @@
     <span class="doccomment">/// parse stream. Only use a fork when the amount of work performed against</span>
     <span class="doccomment">/// the fork is small and bounded.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// For a lower level but occasionally more performant way to perform</span>
-    <span class="doccomment">/// speculative parsing, consider using [`ParseStream::step`] instead.</span>
+    <span class="doccomment">/// When complex speculative parsing against the forked stream is</span>
+    <span class="doccomment">/// unavoidable, use [`parse::discouraged::Speculative`] to advance the</span>
+    <span class="doccomment">/// original stream once the fork&#39;s parse is determined to have been</span>
+    <span class="doccomment">/// successful.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [`ParseStream::step`]: #method.step</span>
+    <span class="doccomment">/// For a lower level way to perform speculative parsing at the token level,</span>
+    <span class="doccomment">/// consider using [`ParseStream::step`] instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`parse::discouraged::Speculative`]: discouraged::Speculative</span>
+    <span class="doccomment">/// [`ParseStream::step`]: ParseBuffer::step</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
@@ -2012,8 +2058,8 @@
     <span class="doccomment">///     input.step(|cursor| {</span>
     <span class="doccomment">///         let mut rest = *cursor;</span>
     <span class="doccomment">///         while let Some((tt, next)) = rest.token_tree() {</span>
-    <span class="doccomment">///             match tt {</span>
-    <span class="doccomment">///                 TokenTree::Punct(ref punct) if punct.as_char() == &#39;@&#39; =&gt; {</span>
+    <span class="doccomment">///             match &amp;tt {</span>
+    <span class="doccomment">///                 TokenTree::Punct(punct) if punct.as_char() == &#39;@&#39; =&gt; {</span>
     <span class="doccomment">///                     return Ok(((), next));</span>
     <span class="doccomment">///                 }</span>
     <span class="doccomment">///                 _ =&gt; rest = next,</span>
@@ -2153,7 +2199,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Refer to the [module documentation] for details about parsing in Syn.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [module documentation]: index.html</span>
+<span class="doccomment">/// [module documentation]: self</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// *This trait is available if Syn is built with the `&quot;parsing&quot;` feature.*</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Parser</span>: <span class="ident">Sized</span> {
@@ -2192,6 +2238,13 @@
     <span class="kw">fn</span> <span class="ident">parse_str</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">parse2</span>(<span class="ident">proc_macro2</span>::<span class="ident">TokenStream</span>::<span class="ident">from_str</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)
     }
+
+    <span class="comment">// Not public API.</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">__parse_scoped</span>(<span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Span</span>, <span class="ident">tokens</span>: <span class="ident">TokenStream</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">scope</span>;
+        <span class="self">self</span>.<span class="ident">parse2</span>(<span class="ident">tokens</span>)
+    }
 }
 
 <span class="kw">fn</span> <span class="ident">tokens_to_parse_buffer</span>(<span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="ident">TokenBuffer</span>) <span class="op">-&gt;</span> <span class="ident">ParseBuffer</span> {
@@ -2217,6 +2270,27 @@
         } <span class="kw">else</span> {
             <span class="prelude-val">Err</span>(<span class="ident">state</span>.<span class="ident">error</span>(<span class="string">&quot;unexpected token&quot;</span>))
         }
+    }
+
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">__parse_scoped</span>(<span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">Span</span>, <span class="ident">tokens</span>: <span class="ident">TokenStream</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">TokenBuffer</span>::<span class="ident">new2</span>(<span class="ident">tokens</span>);
+        <span class="kw">let</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">begin</span>();
+        <span class="kw">let</span> <span class="ident">unexpected</span> <span class="op">=</span> <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">Cell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>));
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">private</span>::<span class="ident">new_parse_buffer</span>(<span class="ident">scope</span>, <span class="ident">cursor</span>, <span class="ident">unexpected</span>);
+        <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="self">self</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)<span class="question-mark">?</span>;
+        <span class="ident">state</span>.<span class="ident">check_unexpected</span>()<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">is_empty</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">node</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">state</span>.<span class="ident">error</span>(<span class="string">&quot;unexpected token&quot;</span>))
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">private</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_scoped</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">scope</span>: <span class="ident">Span</span>, <span class="ident">tokens</span>: <span class="ident">TokenStream</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">F</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+        <span class="ident">f</span>.<span class="ident">__parse_scoped</span>(<span class="ident">scope</span>, <span class="ident">tokens</span>)
     }
 }
 </pre></div>

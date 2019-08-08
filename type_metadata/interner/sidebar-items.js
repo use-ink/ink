@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Interner",""],["Symbol","A symbol from an interner."],["UntrackedSymbol","A symbol that is not lifetime tracked."]]});

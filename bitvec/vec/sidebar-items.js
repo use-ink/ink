@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BitVec","A compact [`Vec`] of bits, whose cursor and storage type can be customized."],["Drain","State keeper for draining iteration."],["IntoIter","A consuming iterator for `BitVec`."],["Splice","A splicing iterator for `BitVec`."]]});

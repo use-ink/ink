@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["srml",""]],"struct":[["TestEnv","Test environment for testing SRML contract off-chain."]],"trait":[["Env","The evironment API usable by contracts defined with pDSL."],["EnvTypes","The environmental types usable by contracts defined with pDSL."]],"type":[["ContractEnv","The environment implementation that is currently being used."]]});

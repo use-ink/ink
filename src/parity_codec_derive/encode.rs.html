@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-codec-derive-3.0.0/src/encode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encode.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../parity_codec_derive/index.html'><img src='../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-codec-derive-3.3.0/src/encode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encode.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../parity_codec_derive/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -179,6 +179,26 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2017, 2018 Parity Technologies</span>
 <span class="comment">//</span>
@@ -202,8 +222,9 @@
 	<span class="ident">punctuated</span>::<span class="ident">Punctuated</span>,
 	<span class="ident">spanned</span>::<span class="ident">Spanned</span>,
 	<span class="ident">token</span>::<span class="ident">Comma</span>,
+	<span class="ident">Error</span>,
 };
-<span class="kw">use</span> <span class="ident">utils</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>;
 
 <span class="kw">type</span> <span class="ident">FieldsList</span> <span class="op">=</span> <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Field</span>, <span class="ident">Comma</span><span class="op">&gt;</span>;
 
@@ -218,9 +239,13 @@
 		<span class="kw">let</span> <span class="ident">field</span> <span class="op">=</span> <span class="ident">field_name</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">f</span>.<span class="ident">ident</span>);
 		<span class="kw">let</span> <span class="ident">encoded_as</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">get_encoded_as_type</span>(<span class="ident">f</span>);
 		<span class="kw">let</span> <span class="ident">compact</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">get_enable_compact</span>(<span class="ident">f</span>);
+		<span class="kw">let</span> <span class="ident">skip</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">get_skip</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>.<span class="ident">attrs</span>).<span class="ident">is_some</span>();
 
-		<span class="kw">if</span> <span class="ident">encoded_as</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">compact</span> {
-			<span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;`encoded_as` and `compact` can not be used at the same time!&quot;</span>);
+		<span class="kw">if</span> <span class="ident">encoded_as</span>.<span class="ident">is_some</span>() <span class="kw">as</span> <span class="ident">u8</span> <span class="op">+</span> <span class="ident">compact</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">+</span> <span class="ident">skip</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&gt;</span> <span class="number">1</span> {
+			<span class="kw">return</span> <span class="ident">Error</span>::<span class="ident">new</span>(
+				<span class="ident">Span</span>::<span class="ident">call_site</span>(),
+				<span class="string">&quot;`encoded_as`, `compact` and `skip` can only be used one at a time!&quot;</span>
+			).<span class="ident">to_compile_error</span>();
 		}
 
 		<span class="comment">// Based on the seen attribute, we generate the code that encodes the field.</span>
@@ -231,7 +256,7 @@
 				<span class="ident">f</span>.<span class="ident">span</span>() <span class="op">=&gt;</span> {
 					#<span class="ident">dest</span>.<span class="ident">push</span>(
 						<span class="kw-2">&amp;</span><span class="op">&lt;&lt;</span>#<span class="ident">field_type</span> <span class="kw">as</span> <span class="ident">_parity_codec</span>::<span class="ident">HasCompact</span><span class="op">&gt;</span>::<span class="ident">Type</span> <span class="kw">as</span>
-							<span class="ident">_parity_codec</span>::<span class="ident">EncodeAsRef</span><span class="op">&lt;</span>#<span class="ident">field_type</span><span class="op">&gt;&gt;</span>::<span class="ident">RefType</span>::<span class="ident">from</span>(#<span class="ident">field</span>)
+							<span class="ident">_parity_codec</span>::<span class="ident">EncodeAsRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, #<span class="ident">field_type</span><span class="op">&gt;&gt;</span>::<span class="ident">RefType</span>::<span class="ident">from</span>(#<span class="ident">field</span>)
 					);
 				}
 			}
@@ -241,10 +266,12 @@
 				<span class="ident">f</span>.<span class="ident">span</span>() <span class="op">=&gt;</span> {
 					#<span class="ident">dest</span>.<span class="ident">push</span>(
 						<span class="kw-2">&amp;</span><span class="op">&lt;</span>#<span class="ident">encoded_as</span> <span class="kw">as</span>
-							<span class="ident">_parity_codec</span>::<span class="ident">EncodeAsRef</span><span class="op">&lt;</span>#<span class="ident">field_type</span><span class="op">&gt;&gt;</span>::<span class="ident">RefType</span>::<span class="ident">from</span>(#<span class="ident">field</span>)
+							<span class="ident">_parity_codec</span>::<span class="ident">EncodeAsRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, #<span class="ident">field_type</span><span class="op">&gt;&gt;</span>::<span class="ident">RefType</span>::<span class="ident">from</span>(#<span class="ident">field</span>)
 					);
 				}
 			}
+		} <span class="kw">else</span> <span class="kw">if</span> <span class="ident">skip</span> {
+			<span class="macro">quote</span><span class="macro">!</span> {}
 		} <span class="kw">else</span> {
 			<span class="macro">quote_spanned</span><span class="macro">!</span> { <span class="ident">f</span>.<span class="ident">span</span>() <span class="op">=&gt;</span>
 					#<span class="ident">dest</span>.<span class="ident">push</span>(#<span class="ident">field</span>);
@@ -281,9 +308,21 @@
 			}
 		},
 		<span class="ident">Data</span>::<span class="ident">Enum</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=&gt;</span> {
-			<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">data</span>.<span class="ident">variants</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">256</span>, <span class="string">&quot;Currently only enums with at most 256 variants are encodable.&quot;</span>);
+			<span class="kw">let</span> <span class="ident">data_variants</span> <span class="op">=</span> <span class="op">||</span> <span class="ident">data</span>.<span class="ident">variants</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">variant</span><span class="op">|</span> <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">get_skip</span>(<span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">attrs</span>).<span class="ident">is_none</span>());
 
-			<span class="kw">let</span> <span class="ident">recurse</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">variants</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">f</span>)<span class="op">|</span> {
+			<span class="kw">if</span> <span class="ident">data_variants</span>().<span class="ident">count</span>() <span class="op">&gt;</span> <span class="number">256</span> {
+				<span class="kw">return</span> <span class="ident">Error</span>::<span class="ident">new</span>(
+					<span class="ident">Span</span>::<span class="ident">call_site</span>(),
+					<span class="string">&quot;Currently only enums with at most 256 variants are encodable.&quot;</span>
+				).<span class="ident">to_compile_error</span>();
+			}
+
+			<span class="comment">// If the enum has no variants, we don&#39;t need to encode anything.</span>
+			<span class="kw">if</span> <span class="ident">data_variants</span>().<span class="ident">count</span>() <span class="op">==</span> <span class="number">0</span> {
+				<span class="kw">return</span> <span class="macro">quote</span><span class="macro">!</span>();
+			}
+
+			<span class="kw">let</span> <span class="ident">recurse</span> <span class="op">=</span> <span class="ident">data_variants</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">f</span>)<span class="op">|</span> {
 				<span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">f</span>.<span class="ident">ident</span>;
 				<span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">index</span>(<span class="ident">f</span>, <span class="ident">i</span>);
 
@@ -346,10 +385,11 @@
 			<span class="macro">quote</span><span class="macro">!</span> {
 				<span class="kw">match</span> <span class="kw-2">*</span>#<span class="ident">self_</span> {
 					#( #<span class="ident">recurse</span> )<span class="kw-2">*</span>,
+					<span class="kw">_</span> <span class="op">=&gt;</span> (),
 				}
 			}
 		},
-		<span class="ident">Data</span>::<span class="ident">Union</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Union types are not supported.&quot;</span>),
+		<span class="ident">Data</span>::<span class="ident">Union</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">Span</span>::<span class="ident">call_site</span>(), <span class="string">&quot;Union types are not supported.&quot;</span>).<span class="ident">to_compile_error</span>(),
 	}
 }
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stringify</span>(<span class="ident">id</span>: <span class="ident">u8</span>) <span class="op">-&gt;</span> [<span class="ident">u8</span>; <span class="number">2</span>] {

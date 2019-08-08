@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BigEndian","Traverses an element from `MSbit` to `LSbit`."],["LittleEndian","Traverses an element from `LSbit` to `MSbit`."]],"trait":[["Cursor","A cursor over an element."]]});

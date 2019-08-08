@@ -1,0 +1,282 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `Bits` trait in crate `bitvec`."><meta name="keywords" content="rust, rustlang, rust-lang, Bits"><title>bitvec::bits::Bits - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc trait"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../bitvec/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a><p class='location'>Trait Bits</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#associated-const">Associated Constants</a><div class="sidebar-links"><a href="#associatedconstant.BITS">BITS</a><a href="#associatedconstant.INDX">INDX</a><a href="#associatedconstant.MASK">MASK</a><a href="#associatedconstant.TYPENAME">TYPENAME</a></div><a class="sidebar-title" href="#provided-methods">Provided Methods</a><div class="sidebar-links"><a href="#method.bits">bits</a><a href="#method.count_ones">count_ones</a><a href="#method.count_zeros">count_zeros</a><a href="#method.get">get</a><a href="#method.get_at">get_at</a><a href="#method.load">load</a><a href="#method.mask_at">mask_at</a><a href="#method.set">set</a><a href="#method.set_at">set_at</a></div><a class="sidebar-title" href="#foreign-impls">Implementations on Foreign Types</a><div class="sidebar-links"><a href="#impl-Bits-for-u16">u16</a><a href="#impl-Bits-for-u32">u32</a><a href="#impl-Bits-for-u64">u64</a><a href="#impl-Bits-for-u8">u8</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../index.html'>bitvec</a>::<wbr><a href='index.html'>bits</a></p><script>window.sidebarCurrent = {name: 'Bits', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/bitvec/bits.rs.html#59-513' title='goto source code'>[src]</a></span><span class='in-band'>Trait <a href='../index.html'>bitvec</a>::<wbr><a href='index.html'>bits</a>::<wbr><a class="trait" href=''>Bits</a></span></h1><div class="docblock type-decl hidden-by-usual-hider"><pre class='rust trait'>pub trait Bits: Sealed + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Binary.html" title="trait core::fmt::Binary">Binary</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.BitAnd.html" title="trait core::ops::bit::BitAnd">BitAnd</a>&lt;Self, Output = Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.BitAndAssign.html" title="trait core::ops::bit::BitAndAssign">BitAndAssign</a>&lt;Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.BitOrAssign.html" title="trait core::ops::bit::BitOrAssign">BitOrAssign</a>&lt;Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.LowerHex.html" title="trait core::fmt::LowerHex">LowerHex</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.Not.html" title="trait core::ops::bit::Not">Not</a>&lt;Output = Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.Shl.html" title="trait core::ops::bit::Shl">Shl</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, Output = Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.ShlAssign.html" title="trait core::ops::bit::ShlAssign">ShlAssign</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.Shr.html" title="trait core::ops::bit::Shr">Shr</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, Output = Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/bit/trait.ShrAssign.html" title="trait core::ops::bit::ShrAssign">ShrAssign</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.UpperHex.html" title="trait core::fmt::UpperHex">UpperHex</a> {
+    const <a href='#associatedconstant.BITS' class="constant"><b>BITS</b></a>: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+    const <a href='#associatedconstant.INDX' class="constant"><b>INDX</b></a>: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+    const <a href='#associatedconstant.MASK' class="constant"><b>MASK</b></a>: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;
+    const <a href='#associatedconstant.TYPENAME' class="constant"><b>TYPENAME</b></a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>;
+    fn <a href='#method.load' class='fnname'>load</a>(&amp;self) -&gt; Self { ... }
+<div class='item-spacer'></div>    fn <a href='#method.set' class='fnname'>set</a>&lt;C&gt;(&amp;mut self, place: BitIdx, value: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>)<br>&nbsp;&nbsp;&nbsp; <span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C: <a class="trait" href="../../bitvec/cursor/trait.Cursor.html" title="trait bitvec::cursor::Cursor">Cursor</a></span>,
+    { ... }
+<div class='item-spacer'></div>    fn <a href='#method.set_at' class='fnname'>set_at</a>(&amp;mut self, place: BitPos, value: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) { ... }
+<div class='item-spacer'></div>    fn <a href='#method.get' class='fnname'>get</a>&lt;C&gt;(&amp;self, place: BitIdx) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a><br>&nbsp;&nbsp;&nbsp; <span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C: <a class="trait" href="../../bitvec/cursor/trait.Cursor.html" title="trait bitvec::cursor::Cursor">Cursor</a></span>,
+    { ... }
+<div class='item-spacer'></div>    fn <a href='#method.get_at' class='fnname'>get_at</a>(&amp;self, place: BitPos) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<div class='item-spacer'></div>    fn <a href='#method.mask_at' class='fnname'>mask_at</a>(place: BitPos) -&gt; Self { ... }
+<div class='item-spacer'></div>    fn <a href='#method.count_ones' class='fnname'>count_ones</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { ... }
+<div class='item-spacer'></div>    fn <a href='#method.count_zeros' class='fnname'>count_zeros</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a> { ... }
+<div class='item-spacer'></div>    fn <a href='#method.bits' class='fnname'>bits</a>(bit: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) -&gt; Self { ... }
+}</pre></div><div class='docblock'><p>Generalizes over the fundamental types for use in <code>bitvec</code> data structures.</p>
+<p>This trait must only be implemented on unsigned integer primitives with full
+alignment. It cannot be implemented on <code>u128</code> on any architecture, or on <code>u64</code>
+on 32-bit systems.</p>
+<p>The <code>Sealed</code> supertrait ensures that this can only be implemented locally, and
+will never be implemented by downstream crates on new types.</p>
+</div>
+            <h2 id='associated-const' class='small-section-header'>Associated Constants<a href='#associated-const' class='anchor'></a></h2><div class='methods'><h3 id='associatedconstant.BITS' class='method'><code id='BITS.v'>const <a href='#associatedconstant.BITS' class="constant"><b>BITS</b></a>: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></code></h3><div class='docblock'><p>The width, in bits, of this type.</p>
+</div><h3 id='associatedconstant.INDX' class='method'><code id='INDX.v'>const <a href='#associatedconstant.INDX' class="constant"><b>INDX</b></a>: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></code></h3><div class='docblock'><p>The number of bits required to index a bit inside the type. This is
+always log<sub>2</sub> of the type’s bit width.</p>
+</div><h3 id='associatedconstant.MASK' class='method'><code id='MASK.v'>const <a href='#associatedconstant.MASK' class="constant"><b>MASK</b></a>: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></code></h3><div class='docblock'><p>The bitmask to turn an arbitrary number into a bit index. Bit indices
+are always stored in the lowest bits of an index value.</p>
+</div><h3 id='associatedconstant.TYPENAME' class='method'><code id='TYPENAME.v'>const <a href='#associatedconstant.TYPENAME' class="constant"><b>TYPENAME</b></a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></h3><div class='docblock'><p>Name of the implementing type. This is only necessary until the compiler
+stabilizes <code>type_name()</code>.</p>
+</div></div><span class='loading-content'>Loading content...</span>
+            <h2 id='provided-methods' class='small-section-header'>Provided methods<a href='#provided-methods' class='anchor'></a></h2><div class='methods'><h3 id='method.load' class='method'><code id='load.v'>fn <a href='#method.load' class='fnname'>load</a>(&amp;self) -&gt; Self</code></h3><div class='docblock'><p>Performs an unsynchronized load on the underlying element.</p>
+<p>As atomic operations are unavailable, this is a standard dereference.</p>
+<h1 id="parameters" class="section-header"><a href="#parameters">Parameters</a></h1>
+<ul>
+<li><code>&amp;self</code></li>
+</ul>
+<h1 id="returns" class="section-header"><a href="#returns">Returns</a></h1>
+<p>The referent element.</p>
+</div><h3 id='method.set' class='method'><code id='set.v'>fn <a href='#method.set' class='fnname'>set</a>&lt;C&gt;(&amp;mut self, place: BitIdx, value: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;C: <a class="trait" href="../../bitvec/cursor/trait.Cursor.html" title="trait bitvec::cursor::Cursor">Cursor</a>,&nbsp;</span></code></h3><div class='docblock'><p>Sets a specific bit in an element to a given value.</p>
+<h1 id="parameters-1" class="section-header"><a href="#parameters-1">Parameters</a></h1>
+<ul>
+<li><code>place</code>: A bit index in the element, from <code>0</code> to <code>Self::MASK</code>. The bit
+under this index will be set according to <code>value</code>.</li>
+<li><code>value</code>: A Boolean value, which sets the bit on <code>true</code> and unsets it
+on <code>false</code>.</li>
+</ul>
+<h1 id="type-parameters" class="section-header"><a href="#type-parameters">Type Parameters</a></h1>
+<ul>
+<li><code>C: Cursor</code>: A <code>Cursor</code> implementation to translate the index into a
+position.</li>
+</ul>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>This function panics if <code>place</code> is not less than <code>T::BITS</code>, in order to
+avoid index out of range errors.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>This example sets and unsets bits in a byte.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::{
+  <span class="ident">Bits</span>,
+  <span class="ident">BigEndian</span>,
+  <span class="ident">LittleEndian</span>,
+};
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">elt</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">0</span>;
+
+<span class="ident">elt</span>.<span class="ident">set</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>(<span class="number">1</span>.<span class="ident">into</span>(), <span class="bool-val">true</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">elt</span>, <span class="number">0b0100_0000__0000_0000</span>);
+<span class="ident">elt</span>.<span class="ident">set</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>(<span class="number">1</span>.<span class="ident">into</span>(), <span class="bool-val">true</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">elt</span>, <span class="number">0b0100_0000__0000_0010</span>);
+
+<span class="ident">elt</span>.<span class="ident">set</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>(<span class="number">1</span>.<span class="ident">into</span>(), <span class="bool-val">false</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">elt</span>, <span class="number">0b0000_0000__0000_0010</span>);
+<span class="ident">elt</span>.<span class="ident">set</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>(<span class="number">1</span>.<span class="ident">into</span>(), <span class="bool-val">false</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">elt</span>, <span class="number">0</span>);</pre></div>
+<p>This example overruns the index, and panics.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::{<span class="ident">Bits</span>, <span class="ident">BigEndian</span>};
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">elt</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="ident">elt</span>.<span class="ident">set</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>(<span class="number">8</span>.<span class="ident">into</span>(), <span class="bool-val">true</span>);</pre></div>
+</div><h3 id='method.set_at' class='method'><code id='set_at.v'>fn <a href='#method.set_at' class='fnname'>set_at</a>(&amp;mut self, place: BitPos, value: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>)</code></h3><div class='docblock'><p>Sets a specific bit in an element to a given value.</p>
+<h1 id="parameters-2" class="section-header"><a href="#parameters-2">Parameters</a></h1>
+<ul>
+<li><code>place</code>: A bit <em>position</em> in the element, where <code>0</code> is the LSbit and
+<code>Self::MASK</code> is the MSbit.</li>
+<li><code>value</code>: A Boolean value, which sets the bit high on <code>true</code> and unsets
+it low on <code>false</code>.</li>
+</ul>
+<h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
+<p>This function panics if <code>place</code> is not less than <code>T::BITS</code>, in order to
+avoid index out of range errors.</p>
+<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
+<p>This example sets and unsets bits in a byte.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">elt</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="ident">elt</span>.<span class="ident">set_at</span>(<span class="number">0</span>.<span class="ident">into</span>(), <span class="bool-val">true</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">elt</span>, <span class="number">0b0000_0001</span>);
+<span class="ident">elt</span>.<span class="ident">set_at</span>(<span class="number">7</span>.<span class="ident">into</span>(), <span class="bool-val">true</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">elt</span>, <span class="number">0b1000_0001</span>);</pre></div>
+<p>This example overshoots the width, and panics.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">elt</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="ident">elt</span>.<span class="ident">set_at</span>(<span class="number">8</span>.<span class="ident">into</span>(), <span class="bool-val">true</span>);</pre></div>
+</div><h3 id='method.get' class='method'><code id='get.v'>fn <a href='#method.get' class='fnname'>get</a>&lt;C&gt;(&amp;self, place: BitIdx) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;C: <a class="trait" href="../../bitvec/cursor/trait.Cursor.html" title="trait bitvec::cursor::Cursor">Cursor</a>,&nbsp;</span></code></h3><div class='docblock'><p>Gets a specific bit in an element.</p>
+<h1 id="parameters-3" class="section-header"><a href="#parameters-3">Parameters</a></h1>
+<ul>
+<li><code>place</code>: A bit index in the element, from <code>0</code> to <code>Self::MASK</code>. The bit
+under this index will be retrieved as a <code>bool</code>.</li>
+</ul>
+<h1 id="returns-1" class="section-header"><a href="#returns-1">Returns</a></h1>
+<p>The value of the bit under <code>place</code>, as a <code>bool</code>.</p>
+<h1 id="type-parameters-1" class="section-header"><a href="#type-parameters-1">Type Parameters</a></h1>
+<ul>
+<li><code>C: Cursor</code>: A <code>Cursor</code> implementation to translate the index into a
+position.</li>
+</ul>
+<h1 id="panics-2" class="section-header"><a href="#panics-2">Panics</a></h1>
+<p>This function panics if <code>place</code> is not less than <code>T::BITS</code>, in order to
+avoid index out of range errors.</p>
+<h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
+<p>This example gets two bits from a byte.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::{<span class="ident">Bits</span>, <span class="ident">BigEndian</span>};
+<span class="kw">let</span> <span class="ident">elt</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0b0010_0000</span>;
+<span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">elt</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>(<span class="number">1</span>.<span class="ident">into</span>()));
+<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">elt</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>(<span class="number">2</span>.<span class="ident">into</span>()));
+<span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">elt</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>(<span class="number">3</span>.<span class="ident">into</span>()));</pre></div>
+<p>This example overruns the index, and panics.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::{<span class="ident">Bits</span>, <span class="ident">BigEndian</span>};
+<span class="number">0u8</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>(<span class="number">8</span>.<span class="ident">into</span>());</pre></div>
+</div><h3 id='method.get_at' class='method'><code id='get_at.v'>fn <a href='#method.get_at' class='fnname'>get_at</a>(&amp;self, place: BitPos) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></h3><div class='docblock'><p>Gets a specific bit in an element.</p>
+<h1 id="parameters-4" class="section-header"><a href="#parameters-4">Parameters</a></h1>
+<ul>
+<li><code>place</code>: A bit <em>position</em> in the element, from <code>0</code> at LSbit to
+<code>Self::MASK</code> at MSbit. The bit under this position will be retrieved
+as a <code>bool</code>.</li>
+</ul>
+<h1 id="returns-2" class="section-header"><a href="#returns-2">Returns</a></h1>
+<p>The value of the bit under <code>place</code>, as a <code>bool</code>.</p>
+<h1 id="panics-3" class="section-header"><a href="#panics-3">Panics</a></h1>
+<p>This function panics if <code>place</code> is not less than <code>T::BITS</code>, in order to
+avoid index out of range errors.</p>
+<h1 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h1>
+<p>This example gets two bits from a byte.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="kw">let</span> <span class="ident">elt</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0b0010_0000</span>;
+<span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">elt</span>.<span class="ident">get_at</span>(<span class="number">4</span>.<span class="ident">into</span>()));
+<span class="macro">assert</span><span class="macro">!</span>(<span class="ident">elt</span>.<span class="ident">get_at</span>(<span class="number">5</span>.<span class="ident">into</span>()));
+<span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">elt</span>.<span class="ident">get_at</span>(<span class="number">6</span>.<span class="ident">into</span>()));</pre></div>
+<p>This example overruns the index, and panics.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="number">0u8</span>.<span class="ident">get_at</span>(<span class="number">8</span>.<span class="ident">into</span>());</pre></div>
+</div><h3 id='method.mask_at' class='method'><code id='mask_at.v'>fn <a href='#method.mask_at' class='fnname'>mask_at</a>(place: BitPos) -&gt; Self</code></h3><div class='docblock'><p>Produces the bit mask which selects only the bit at the requested
+position.</p>
+<p>This mask must be inverted in order to clear the bit.</p>
+<h1 id="parameters-5" class="section-header"><a href="#parameters-5">Parameters</a></h1>
+<ul>
+<li><code>place</code>: The bit position for which to create a bitmask.</li>
+</ul>
+<h1 id="returns-3" class="section-header"><a href="#returns-3">Returns</a></h1>
+<p>The one-hot encoding of the bit position index.</p>
+<h1 id="panics-4" class="section-header"><a href="#panics-4">Panics</a></h1>
+<p>This function panics if <code>place</code> is not less than <code>T::BITS</code>, in order to
+avoid index out of range errors.</p>
+<h1 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h1>
+<p>This example produces the one-hot encodings for indices.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">0</span>.<span class="ident">into</span>()), <span class="number">0b0000_0001</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">1</span>.<span class="ident">into</span>()), <span class="number">0b0000_0010</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">2</span>.<span class="ident">into</span>()), <span class="number">0b0000_0100</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">3</span>.<span class="ident">into</span>()), <span class="number">0b0000_1000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">4</span>.<span class="ident">into</span>()), <span class="number">0b0001_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">5</span>.<span class="ident">into</span>()), <span class="number">0b0010_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">6</span>.<span class="ident">into</span>()), <span class="number">0b0100_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">7</span>.<span class="ident">into</span>()), <span class="number">0b1000_0000</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">8</span>.<span class="ident">into</span>()),  <span class="number">0b0000_0001__0000_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">9</span>.<span class="ident">into</span>()),  <span class="number">0b0000_0010__0000_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">10</span>.<span class="ident">into</span>()), <span class="number">0b0000_0100__0000_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">11</span>.<span class="ident">into</span>()), <span class="number">0b0000_1000__0000_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">12</span>.<span class="ident">into</span>()), <span class="number">0b0001_0000__0000_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">13</span>.<span class="ident">into</span>()), <span class="number">0b0010_0000__0000_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">14</span>.<span class="ident">into</span>()), <span class="number">0b0100_0000__0000_0000</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">15</span>.<span class="ident">into</span>()), <span class="number">0b1000_0000__0000_0000</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u32</span>::<span class="ident">mask_at</span>(<span class="number">16</span>.<span class="ident">into</span>()), <span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">16</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u32</span>::<span class="ident">mask_at</span>(<span class="number">24</span>.<span class="ident">into</span>()), <span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">24</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u32</span>::<span class="ident">mask_at</span>(<span class="number">31</span>.<span class="ident">into</span>()), <span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">31</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u64</span>::<span class="ident">mask_at</span>(<span class="number">32</span>.<span class="ident">into</span>()), <span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">32</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u64</span>::<span class="ident">mask_at</span>(<span class="number">48</span>.<span class="ident">into</span>()), <span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">48</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">u64</span>::<span class="ident">mask_at</span>(<span class="number">63</span>.<span class="ident">into</span>()), <span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">63</span>);</pre></div>
+<p>These examples ensure that indices panic when out of bounds.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="ident">u8</span>::<span class="ident">mask_at</span>(<span class="number">8</span>.<span class="ident">into</span>());</pre></div>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="ident">u16</span>::<span class="ident">mask_at</span>(<span class="number">16</span>.<span class="ident">into</span>());</pre></div>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="ident">u32</span>::<span class="ident">mask_at</span>(<span class="number">32</span>.<span class="ident">into</span>());</pre></div>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="ident">u64</span>::<span class="ident">mask_at</span>(<span class="number">64</span>.<span class="ident">into</span>());</pre></div>
+</div><h3 id='method.count_ones' class='method'><code id='count_ones.v'>fn <a href='#method.count_ones' class='fnname'>count_ones</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></h3><div class='docblock'><p>Counts how many bits in <code>self</code> are set to <code>1</code>.</p>
+<p>This zero-extends <code>self</code> to <code>u64</code>, and uses the <a href="https://doc.rust-lang.org/stable/std/primitive.u64.html#method.count_ones"><code>u64::count_ones</code></a>
+inherent method.</p>
+<h1 id="parameters-6" class="section-header"><a href="#parameters-6">Parameters</a></h1>
+<ul>
+<li><code>&amp;self</code></li>
+</ul>
+<h1 id="returns-4" class="section-header"><a href="#returns-4">Returns</a></h1>
+<p>The number of bits in <code>self</code> set to <code>1</code>. This is a <code>usize</code> instead of a
+<code>u32</code> in order to ease arithmetic throughout the crate.</p>
+<h1 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">0u8</span>), <span class="number">0</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">128u8</span>), <span class="number">1</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">192u8</span>), <span class="number">2</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">224u8</span>), <span class="number">3</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">240u8</span>), <span class="number">4</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">248u8</span>), <span class="number">5</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">252u8</span>), <span class="number">6</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">254u8</span>), <span class="number">7</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_ones</span>(<span class="kw-2">&amp;</span><span class="number">255u8</span>), <span class="number">8</span>);</pre></div>
+</div><h3 id='method.count_zeros' class='method'><code id='count_zeros.v'>fn <a href='#method.count_zeros' class='fnname'>count_zeros</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></h3><div class='docblock'><p>Counts how many bits in <code>self</code> are set to <code>0</code>.</p>
+<p>This inverts <code>self</code>, so all <code>0</code> bits are <code>1</code> and all <code>1</code> bits are <code>0</code>,
+then zero-extends <code>self</code> to <code>u64</code> and uses the <a href="https://doc.rust-lang.org/stable/std/primitive.u64.html#method.count_ones"><code>u64::count_ones</code></a>
+inherent method.</p>
+<h1 id="parameters-7" class="section-header"><a href="#parameters-7">Parameters</a></h1>
+<ul>
+<li><code>&amp;self</code></li>
+</ul>
+<h1 id="returns-5" class="section-header"><a href="#returns-5">Returns</a></h1>
+<p>The number of bits in <code>self</code> set to <code>0</code>. This is a <code>usize</code> instead of a
+<code>u32</code> in order to ease arithmetic throughout the crate.</p>
+<h1 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">bitvec</span>::<span class="ident">prelude</span>::<span class="ident">Bits</span>;
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">0u8</span>), <span class="number">8</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">1u8</span>), <span class="number">7</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">3u8</span>), <span class="number">6</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">7u8</span>), <span class="number">5</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">15u8</span>), <span class="number">4</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">31u8</span>), <span class="number">3</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">63u8</span>), <span class="number">2</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">127u8</span>), <span class="number">1</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Bits</span>::<span class="ident">count_zeros</span>(<span class="kw-2">&amp;</span><span class="number">255u8</span>), <span class="number">0</span>);</pre></div>
+</div><h3 id='method.bits' class='method'><code id='bits.v'>fn <a href='#method.bits' class='fnname'>bits</a>(bit: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) -&gt; Self</code></h3><div class='docblock'><p>Extends a single bit to fill the entire element.</p>
+<h1 id="parameters-8" class="section-header"><a href="#parameters-8">Parameters</a></h1>
+<ul>
+<li><code>bit</code>: The bit to extend.</li>
+</ul>
+<h1 id="returns-6" class="section-header"><a href="#returns-6">Returns</a></h1>
+<p>An element with all bits set to the input.</p>
+</div></div><span class='loading-content'>Loading content...</span>
+            <h2 id='foreign-impls' class='small-section-header'>Implementations on Foreign Types<a href='#foreign-impls' class='anchor'></a></h2><h3 id='impl-Bits-for-u8' class='impl'><code class='in-band'>impl <a class="trait" href="../../bitvec/bits/trait.Bits.html" title="trait bitvec::bits::Bits">Bits</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></code><a href='#impl-Bits-for-u8' class='anchor'></a><a class='srclink' href='../../src/bitvec/bits.rs.html#1112-1117' title='goto source code'>[src]</a></h3><div class='impl-items'><h4 id='associatedconstant.TYPENAME-1' class="associatedconstant hidden"><code id='TYPENAME.v-1'>const <a href='#associatedconstant.TYPENAME' class="constant"><b>TYPENAME</b></a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code><a class='srclink' href='../../src/bitvec/bits.rs.html#1113' title='goto source code'>[src]</a></h4></div><h3 id='impl-Bits-for-u16' class='impl'><code class='in-band'>impl <a class="trait" href="../../bitvec/bits/trait.Bits.html" title="trait bitvec::bits::Bits">Bits</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a></code><a href='#impl-Bits-for-u16' class='anchor'></a><a class='srclink' href='../../src/bitvec/bits.rs.html#1119-1124' title='goto source code'>[src]</a></h3><div class='impl-items'><h4 id='associatedconstant.TYPENAME-2' class="associatedconstant hidden"><code id='TYPENAME.v-2'>const <a href='#associatedconstant.TYPENAME' class="constant"><b>TYPENAME</b></a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code><a class='srclink' href='../../src/bitvec/bits.rs.html#1120' title='goto source code'>[src]</a></h4></div><h3 id='impl-Bits-for-u32' class='impl'><code class='in-band'>impl <a class="trait" href="../../bitvec/bits/trait.Bits.html" title="trait bitvec::bits::Bits">Bits</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code><a href='#impl-Bits-for-u32' class='anchor'></a><a class='srclink' href='../../src/bitvec/bits.rs.html#1126-1131' title='goto source code'>[src]</a></h3><div class='impl-items'><h4 id='associatedconstant.TYPENAME-3' class="associatedconstant hidden"><code id='TYPENAME.v-3'>const <a href='#associatedconstant.TYPENAME' class="constant"><b>TYPENAME</b></a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code><a class='srclink' href='../../src/bitvec/bits.rs.html#1127' title='goto source code'>[src]</a></h4></div><h3 id='impl-Bits-for-u64' class='impl'><code class='in-band'>impl <a class="trait" href="../../bitvec/bits/trait.Bits.html" title="trait bitvec::bits::Bits">Bits</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a></code><a href='#impl-Bits-for-u64' class='anchor'></a><a class='srclink' href='../../src/bitvec/bits.rs.html#1134-1139' title='goto source code'>[src]</a></h3><div class='impl-items'><h4 id='associatedconstant.TYPENAME-4' class="associatedconstant hidden"><code id='TYPENAME.v-4'>const <a href='#associatedconstant.TYPENAME' class="constant"><b>TYPENAME</b></a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code><a class='srclink' href='../../src/bitvec/bits.rs.html#1135' title='goto source code'>[src]</a></h4></div><span class='loading-content'>Loading content...</span>
+            <h2 id='implementors' class='small-section-header'>Implementors<a href='#implementors' class='anchor'></a></h2><div class='item-list' id='implementors-list'></div><span class='loading-content'>Loading content...</span><script type="text/javascript">window.inlined_types=new Set([]);</script><script type="text/javascript" async
+                         src="../../implementors/bitvec/bits/trait.Bits.js">
+                 </script></section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "bitvec";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>

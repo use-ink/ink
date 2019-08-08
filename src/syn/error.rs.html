@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/syn-0.15.26/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../syn/index.html'><img src='../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/robrob/.cargo/registry/src/github.com-1ecc6299db9ec823/syn-0.15.42/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../syn/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -214,9 +214,16 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Display</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">FromIterator</span>;
 
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
@@ -241,7 +248,9 @@
 <span class="doccomment">/// [module documentation]: index.html</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// *This type is available if Syn is built with the `&quot;parsing&quot;` feature.*</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="comment">//</span>
+<span class="comment">// TODO: change the parse module link to an intra rustdoc link, currently</span>
+<span class="comment">// blocked on https://github.com/rust-lang/rust/issues/62830</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Error</span> {
     <span class="comment">// Span is implemented as an index into a thread-local interner to keep the</span>
     <span class="comment">// size small. It is not safe to access from a different thread. We want</span>
@@ -266,7 +275,7 @@
     <span class="doccomment">/// Use `Error::new` when the error needs to be triggered on some span other</span>
     <span class="doccomment">/// than where the parse stream is currently positioned.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [`ParseStream::error`]: struct.ParseBuffer.html#method.error</span>
+    <span class="doccomment">/// [`ParseStream::error`]: crate::parse::ParseBuffer::error</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
@@ -353,7 +362,6 @@
     <span class="doccomment">/// this method correctly in a procedural macro.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`compile_error!`]: https://doc.rust-lang.org/std/macro.compile_error.html</span>
-    <span class="doccomment">/// [`parse_macro_input!`]: ../macro.parse_macro_input.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_compile_error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TokenStream</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">start_span</span>
@@ -395,6 +403,12 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">procmacro2_semver_exempt</span>))]</span>
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">cursor</span>.<span class="ident">span</span>();
         <span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">span</span>, <span class="ident">message</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="ident">formatter</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;Error&quot;</span>).<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">message</span>).<span class="ident">finish</span>()
     }
 }
 
