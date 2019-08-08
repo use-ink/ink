@@ -27,7 +27,7 @@ use core::cell::{
     Cell,
     RefCell,
 };
-use parity_scale_codec::{
+use scale::{
     Decode,
     Encode,
 };

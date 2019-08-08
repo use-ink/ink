@@ -27,7 +27,7 @@ use crate::{
     },
 };
 
-use parity_scale_codec::{
+use scale::{
     Decode,
     Encode,
 };

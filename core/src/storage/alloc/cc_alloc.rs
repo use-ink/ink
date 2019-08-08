@@ -21,7 +21,7 @@ use crate::storage::{
     Key,
 };
 
-use parity_scale_codec::{
+use scale::{
     Decode,
     Encode,
 };

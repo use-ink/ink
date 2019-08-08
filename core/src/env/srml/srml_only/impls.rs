@@ -25,7 +25,7 @@ use crate::{
     storage::Key,
 };
 use core::marker::PhantomData;
-use parity_scale_codec::Decode;
+use scale::Decode;
 
 /// Load the contents of the scratch buffer
 fn read_scratch_buffer() -> Vec<u8> {
