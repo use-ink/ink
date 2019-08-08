@@ -55,12 +55,12 @@ pub struct Event {
 }
 
 impl Event {
-	/// Returns all doc attributes of the message.
-	pub fn docs(&self) -> impl Iterator<Item = &syn::Attribute> {
-		self.attrs.iter().filter(|attr| {
-			attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc")
-		})
-	}
+    /// Returns all doc attributes of the message.
+    pub fn docs(&self) -> impl Iterator<Item = &syn::Attribute> {
+        self.attrs.iter().filter(|attr| {
+            attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc")
+        })
+    }
 }
 
 impl Contract {
@@ -421,12 +421,12 @@ pub struct DeployHandler {
 }
 
 impl DeployHandler {
-	/// Returns all doc attributes of the message.
-	pub fn docs(&self) -> impl Iterator<Item = &syn::Attribute> {
-		self.attrs.iter().filter(|attr| {
-			attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc")
-		})
-	}
+    /// Returns all doc attributes of the message.
+    pub fn docs(&self) -> impl Iterator<Item = &syn::Attribute> {
+        self.attrs.iter().filter(|attr| {
+            attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc")
+        })
+    }
 
     /// Converts this on-deploy handler into its corresponding message.
     pub fn into_message(self) -> Message {
@@ -477,12 +477,12 @@ pub struct Message {
 }
 
 impl Message {
-	/// Returns all doc attributes of the message.
-	pub fn docs(&self) -> impl Iterator<Item = &syn::Attribute> {
-		self.attrs.iter().filter(|attr| {
-			attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc")
-		})
-	}
+    /// Returns all doc attributes of the message.
+    pub fn docs(&self) -> impl Iterator<Item = &syn::Attribute> {
+        self.attrs.iter().filter(|attr| {
+            attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc")
+        })
+    }
 
     /// Returns `true` if the message potentially mutates its state.
     pub fn is_mut(&self) -> bool {

@@ -125,15 +125,17 @@ pub struct EventArg {
 }
 
 impl EventArg {
-	/// Returns `true` if the event argument is indexed.
-	pub fn is_indexed(&self) -> bool {
-		self.attrs
-			.iter()
-			.find(|attr| {
-				attr.style == syn::AttrStyle::Outer && attr.path.is_ident("indexed") && attr.tts.is_empty()
-			})
-			.is_some()
-	}
+    /// Returns `true` if the event argument is indexed.
+    pub fn is_indexed(&self) -> bool {
+        self.attrs
+            .iter()
+            .find(|attr| {
+                attr.style == syn::AttrStyle::Outer
+                    && attr.path.is_ident("indexed")
+                    && attr.tts.is_empty()
+            })
+            .is_some()
+    }
 }
 
 #[derive(Debug)]
@@ -326,13 +328,13 @@ pub enum FnArg {
 }
 
 impl FnArg {
-	/// Returns `true` if the fn argument is captured.
-	pub fn is_captured(&self) -> Option<&syn::ArgCaptured> {
-		match self {
-			FnArg::Captured(capt) => Some(capt),
-			_ => None,
-		}
-	}
+    /// Returns `true` if the fn argument is captured.
+    pub fn is_captured(&self) -> Option<&syn::ArgCaptured> {
+        match self {
+            FnArg::Captured(capt) => Some(capt),
+            _ => None,
+        }
+    }
 }
 
 impl quote::ToTokens for FnArg {
