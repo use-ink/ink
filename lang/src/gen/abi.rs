@@ -84,6 +84,16 @@ fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
         .filter_map(ast::FnArg::is_captured)
         .map(|capt| {
             let name = match &capt.pat {
+                syn::Pat::Ident(pat_ident) => {
+                    if pat_ident.by_ref.is_none()
+                        && pat_ident.mutability.is_none()
+                        && pat_ident.subpat.is_none()
+                    {
+                        pat_ident.ident.to_string()
+                    } else {
+                        unreachable!("encountered invalid deploy argument")
+                    }
+                }
                 syn::Pat::Path(pat_path) => {
                     if pat_path.qself.is_none()
                         && pat_path.path.leading_colon.is_none()
@@ -95,7 +105,12 @@ fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
                         unreachable!("invalid arg name encountered")
                     }
                 }
-                _ => unreachable!("can only have simple identifiers in arguments"),
+                _ => {
+                    unreachable!(
+                        "encountered invalid argument syntax: the only allowed is `ident : type`",
+                        capt
+                    )
+                }
             };
             let ty = &capt.ty;
             quote! {
@@ -133,6 +148,16 @@ fn generate_abi_messages<'a>(
             .filter_map(ast::FnArg::is_captured)
             .map(|capt| {
                 let name: String = match &capt.pat {
+                    syn::Pat::Ident(pat_ident) => {
+                        if pat_ident.by_ref.is_none()
+                            && pat_ident.mutability.is_none()
+                            && pat_ident.subpat.is_none()
+                        {
+                            pat_ident.ident.to_string()
+                        } else {
+                            unreachable!("encountered invalid deploy argument")
+                        }
+                    }
                     syn::Pat::Path(pat_path) => {
                         if pat_path.qself.is_none()
                             && pat_path.path.leading_colon.is_none()
@@ -144,7 +169,7 @@ fn generate_abi_messages<'a>(
                             unreachable!("invalid arg name encountered")
                         }
                     }
-                    _ => unreachable!("can only have simple identifiers in arguments"),
+                    _ => unreachable!("encountered invalid argument syntax: the only allowed is `ident : type`"),
                 };
                 let ty = &capt.ty;
                 quote! {
