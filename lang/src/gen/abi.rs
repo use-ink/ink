@@ -43,7 +43,9 @@ use syn::{
 fn trim_doc_string(attr: &syn::Attribute) -> String {
     attr.tts
         .to_string()
-        .trim_start_matches("= \"")
+        .trim_start_matches('=')
+        .trim_start()
+        .trim_start_matches("\"")
         .trim_end_matches("\"")
         .trim()
         .into()
