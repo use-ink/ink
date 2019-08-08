@@ -36,6 +36,19 @@ use syn::{
     Token,
 };
 
+/// Trims a doc string obtained from an attribute token stream into the actual doc string.
+///
+/// Practically speaking this method removes the trailing start `" = \""` and end `\"`
+/// of documentation strings coming from Syn attribute token streams.
+fn trim_doc_string(attr: &syn::Attribute) -> String {
+    attr.tts
+        .to_string()
+        .trim_start_matches("= \"")
+        .trim_end_matches("\"")
+        .trim()
+        .into()
+}
+
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let abi_mod_body = generate_abi_mod_body(contract);
     tokens.extend(abi_mod_body);
@@ -88,7 +101,7 @@ fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
             }
         })
         .collect::<Punctuated<_, Token![,]>>();
-    let docs = deploy_handler.docs().map(|doc| doc.tts.to_string());
+    let docs = deploy_handler.docs().map(trim_doc_string);
 
     quote! {
         ink_abi::DeploySpec::new()
@@ -108,7 +121,7 @@ fn generate_abi_messages<'a>(
     contract.messages.iter().map(|message| {
         let selector = message.selector();
         let is_mut = message.is_mut();
-        let docs = message.docs().map(|doc| doc.tts.to_string());
+        let docs = message.docs().map(trim_doc_string);
         let name = message.sig.ident.to_string();
         let inputs = message
             .sig
@@ -184,7 +197,7 @@ fn generate_abi_events<'a>(
                 }
             })
             .collect::<Punctuated<_, Token![,]>>();
-        let docs = event.docs().map(|doc| doc.tts.to_string());
+        let docs = event.docs().map(trim_doc_string);
         quote! {
             ink_abi::EventSpec::new(#name)
                 .args(vec![
