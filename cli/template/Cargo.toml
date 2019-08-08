@@ -11,13 +11,17 @@ ink_model = { git = "https://github.com/paritytech/ink", package = "ink_model", 
 ink_lang = { git = "https://github.com/paritytech/ink", package = "ink_lang", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 
+serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+serde_json = { version = "1.0", default-features = false, optional = true }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", features = ["derive"], optional = true }
+
 [lib]
 name = "{{name}}"
 crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
-	# Used for ABI generation.
-	"rlib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
 ]
 
 [features]
@@ -35,8 +39,11 @@ test-env = [
     "ink_lang/test-env",
 ]
 ink-generate-abi = [
-	"std",
-	"ink_abi",
+    "std",
+    "ink_abi",
+    "serde",
+    "serde_json",
+    "type-metadata",
 ]
 
 [profile.release]
@@ -47,8 +54,8 @@ overflow-checks = true
 
 [workspace]
 members = [
-	".tools/abi_gen"
+	".ink/abi_gen"
 ]
 exclude = [
-	".tools"
+	".ink"
 ]
