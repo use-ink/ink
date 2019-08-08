@@ -55,8 +55,8 @@ overflow-checks = true
 
 [workspace]
 members = [
-	".tools/abi_gen"
+	".ink/abi_gen"
 ]
 exclude = [
-	".tools"
+	".ink"
 ]
