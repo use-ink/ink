@@ -24,11 +24,11 @@ use crate::{
     impl_empty_flush_for,
     storage::Flush,
 };
-use type_metadata::Metadata;
 use scale::{
     Decode,
     Encode,
 };
+use type_metadata::Metadata;
 
 /// The SRML fundamental types.
 #[allow(unused)]
