@@ -1,8 +1,8 @@
 # ink! - Parity's ink to write smart contracts
 
-| Linux              | Codecov              | Coveralls              | LoC              | Docs (Core)       | Docs (Model)      |
-|:------------------:|:--------------------:|:----------------------:|:----------------:|:-----------------:|:-----------------:|
-| [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] | [![docs][F1]][F2] | [![docs][G1]][G2] |
+| Linux              | Codecov              | Coveralls              | LoC              |
+|:------------------:|:--------------------:|:----------------------:|:----------------:|
+| [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] |
 
 [A1]: https://travis-ci.org/paritytech/ink.svg?branch=master
 [A2]: https://travis-ci.org/paritytech/ink
@@ -16,19 +16,28 @@
 [E1]: https://tokei.rs/b1/github/paritytech/ink?category=code
 [E2]: https://github.com/Aaronepower/tokei#badges
 
-[F1]: https://img.shields.io/badge/docs-nightly-black.svg
-[F2]: https://paritytech.github.io/ink/ink_core/index.html
+[F1]: https://img.shields.io/badge/docs-core-blue.svg
+[F2]: https://paritytech.github.io/ink/ink_core
 
-[G1]: https://img.shields.io/badge/docs-nightly-purple.svg
-[G2]: https://paritytech.github.io/ink/ink_model/index.html
+[G1]: https://img.shields.io/badge/docs-model-blue.svg
+[G2]: https://paritytech.github.io/ink/ink_model
+
+[H1]: https://img.shields.io/badge/docs-abi-blue.svg
+[H2]: https://paritytech.github.io/ink/ink_abi
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
-ink is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language.
+ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language targeting Substrate blockchains.
+
+## Developer Documentation
+
+| `ink_abi` | `ink_core` | `ink_model` |
+|-----------|------------|-------------|
+| [![][H1]][H2] | [![][F1]][F2] | [![][G1]][G2] |
 
 ## Example
 
-Below is an example using the eDSL demonstrating a simple Flipper smart contract
+Below is an example using ink! demonstrating a simple Flipper smart contract
 that has a boolean state that can be flipped or returned.
 
 ```rust
