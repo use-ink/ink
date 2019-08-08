@@ -45,8 +45,8 @@ pub fn wrap(
             #[allow(unknown_lints)]
             #[cfg_attr(feature = "cargo-clippy", allow(useless_attribute))]
             #[allow(rust_2018_idioms)]
-			use type_metadata as _type_metadata;
-			use ink_abi as _ink_abi;
+            use type_metadata as _type_metadata;
+            use ink_abi as _ink_abi;
 
             #[cfg(not(feature = "std"))]
             extern crate alloc;

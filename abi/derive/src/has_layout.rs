@@ -19,7 +19,6 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
     self,
-	Token,
     parse::Result,
     parse_quote,
     punctuated::Punctuated,
@@ -28,6 +27,7 @@ use syn::{
     DeriveInput,
     Field,
     Fields,
+    Token,
 };
 
 pub fn generate(input: TokenStream2) -> TokenStream2 {
@@ -53,7 +53,6 @@ pub fn generate_impl(input: TokenStream2) -> Result<TokenStream2> {
         Data::Union(ref _u) => bail!(&ast, "unions are not supported"),
     };
 
-
     let has_layout_impl = quote! {
         impl #impl_generics _ink_abi::HasLayout for #ident #ty_generics #where_clause {
             fn layout(&self) -> _ink_abi::StorageLayout {
@@ -65,46 +64,41 @@ pub fn generate_impl(input: TokenStream2) -> Result<TokenStream2> {
     Ok(wrap(ident, "HAS_LAYOUT", has_layout_impl).into())
 }
 
-fn generate_fields_layout<'a>(fields: &'a Punctuated<Field, Token![,]>) -> impl Iterator<Item = TokenStream2> + 'a {
-    fields
-		.iter()
-		.enumerate()
-		.map(|(n, field)| {
-			let ident = &field.ident;
-			if let Some(ident) = ident {
-				quote! {
-					_ink_abi::LayoutField::new(stringify!(#ident), self.#ident.layout())
-				}
-			} else {
-				quote! {
-					_ink_abi::LayoutField::new(stringify!(#n), self.#n.layout())
-				}
-			}
-    	})
+fn generate_fields_layout<'a>(
+    fields: &'a Punctuated<Field, Token![,]>,
+) -> impl Iterator<Item = TokenStream2> + 'a {
+    fields.iter().enumerate().map(|(n, field)| {
+        let ident = &field.ident;
+        if let Some(ident) = ident {
+            quote! {
+                _ink_abi::LayoutField::new(stringify!(#ident), self.#ident.layout())
+            }
+        } else {
+            quote! {
+                _ink_abi::LayoutField::new(stringify!(#n), self.#n.layout())
+            }
+        }
+    })
 }
 
 fn generate_struct_fields_layout(fields: &Punctuated<Field, Token![,]>) -> TokenStream2 {
-	let fields_layout = generate_fields_layout(fields);
-	quote! {
-		use type_metadata::Metadata as _;
-		_ink_abi::LayoutStruct::new(Self::meta_type(), __core::vec![
-			#( #fields_layout, )*
-		])
-	}
+    let fields_layout = generate_fields_layout(fields);
+    quote! {
+        use type_metadata::Metadata as _;
+        _ink_abi::LayoutStruct::new(Self::meta_type(), __core::vec![
+            #( #fields_layout, )*
+        ])
+    }
 }
 
 fn generate_struct_layout(data_struct: &DataStruct) -> TokenStream2 {
     match data_struct.fields {
-        Fields::Named(ref fs) => {
-			generate_struct_fields_layout(&fs.named)
-        }
-		Fields::Unnamed(ref fs) => {
-			generate_struct_fields_layout(&fs.unnamed)
-		}
+        Fields::Named(ref fs) => generate_struct_fields_layout(&fs.named),
+        Fields::Unnamed(ref fs) => generate_struct_fields_layout(&fs.unnamed),
         Fields::Unit => {
             quote! {
-				use type_metadata::Metadata as _;
-				_ink_abi::LayoutStruct::new(Self::meta_type(), __core::vec![])
+                use type_metadata::Metadata as _;
+                _ink_abi::LayoutStruct::new(Self::meta_type(), __core::vec![])
             }
         }
     }
