@@ -108,7 +108,6 @@ fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
                 _ => {
                     unreachable!(
                         "encountered invalid argument syntax: the only allowed is `ident : type`",
-                        capt
                     )
                 }
             };
