@@ -148,8 +148,7 @@ fn generate_abi_messages<'a>(
                 quote! {
                     ink_abi::MessageParamSpec::new::<#ty>(#name)
                 }
-            })
-            .collect::<Punctuated<_, Token![,]>>();
+            });
         let ret_type = match &message.sig.decl.output {
             syn::ReturnType::Default => {
                 quote! {
@@ -167,10 +166,10 @@ fn generate_abi_messages<'a>(
                 .selector(#selector)
                 .mutates(#is_mut)
                 .args(vec![
-                    #(#inputs)*
+                    #(#inputs ,)*
                 ])
                 .docs(vec![
-                    #(#docs)*
+                    #(#docs ,)*
                 ])
                 .returns(
                     #ret_type
@@ -185,26 +184,22 @@ fn generate_abi_events<'a>(
 ) -> impl Iterator<Item = TokenStream2> + 'a {
     contract.events.iter().map(|event| {
         let name = &event.ident;
-        let args = event
-            .args
-            .iter()
-            .map(|event_arg| {
-                let name = &event_arg.ident;
-                let indexed = event_arg.is_indexed();
-                let ty = &event_arg.ty;
-                quote! {
-                    ink_abi::EventParamSpec::new::<#ty>(#name, #indexed)
-                }
-            })
-            .collect::<Punctuated<_, Token![,]>>();
+        let args = event.args.iter().map(|event_arg| {
+            let name = &event_arg.ident;
+            let indexed = event_arg.is_indexed();
+            let ty = &event_arg.ty;
+            quote! {
+                ink_abi::EventParamSpec::new::<#ty>(stringify!(#name), #indexed)
+            }
+        });
         let docs = event.docs().map(trim_doc_string);
         quote! {
-            ink_abi::EventSpec::new(#name)
+            ink_abi::EventSpec::new(stringify!(#name))
                 .args(vec![
-                    #(#args)*
+                    #(#args ,)*
                 ])
                 .docs(vec![
-                    #(#docs)*
+                    #(#docs ,)*
                 ])
                 .done()
         }
@@ -233,7 +228,7 @@ fn generate_abi_contract(contract: &hir::Contract) -> TokenStream2 {
                 #(#messages ,)*
             ])
             .events(vec![
-                #(#events)*
+                #(#events ,)*
             ])
             .docs(vec![
                 #docs
