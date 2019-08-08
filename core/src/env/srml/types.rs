@@ -51,8 +51,8 @@ impl scale::Encode for Call {}
 /// None, but this should never be called.
 #[cfg(feature = "test-env")]
 impl scale::Decode for Call {
-    fn decode<I: scale::Input>(_value: &mut I) -> Option<Self> {
-        None
+    fn decode<I: scale::Input>(_value: &mut I) -> Result<Self, scale::Error> {
+        Err("Call cannot be instantiated".into())
     }
 }
 
