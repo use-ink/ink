@@ -13,7 +13,7 @@ scale = { package = "parity-scale-codec", version = "1.0", default-features = fa
 
 serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
 serde_json = { version = "1.0", default-features = false, optional = true }
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", branch = "fix-serde-flatten", features = ["derive"], optional = true }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", features = ["derive"], optional = true }
 
 [lib]
 name = "erc20"

@@ -20,7 +20,7 @@ json = { package = "serde_json", version = "1.0" }
 derive_more = { version = "0.14" }
 ink_abi_derive = { version = "0.1.0", path = "derive", default-features = false, optional = true }
 
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", branch = "fix-serde-flatten", features = ["derive"] }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", features = ["derive"] }
 
 [features]
 default = ["std", "derive"]
