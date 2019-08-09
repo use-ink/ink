@@ -349,7 +349,7 @@ impl<M, S> MessageSpecBuilder<S, M, Missing<state::Returns>> {
 }
 
 impl<S, M, R> MessageSpecBuilder<S, M, R> {
-    /// Sets the input arguments of the event specification.
+    /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = MessageParamSpec>,
