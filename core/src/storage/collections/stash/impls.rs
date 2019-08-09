@@ -132,7 +132,7 @@ where
             Self::meta_type(),
             vec![
                 LayoutField::of("header", &self.header),
-                LayoutField::of("chunks", &self.entries),
+                LayoutField::of("entries", &self.entries),
             ],
         )
         .into()
