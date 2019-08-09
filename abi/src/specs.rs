@@ -190,18 +190,6 @@ impl IntoCompact for DeploySpec {
 }
 
 impl DeploySpec {
-    // /// Creates a new deploy specification.
-    // pub fn new<A, D>(args: A, docs: D) -> Self
-    // where
-    //     A: IntoIterator<Item = MessageParamSpec>,
-    //     D: IntoIterator<Item = &'static str>,
-    // {
-    //     Self {
-    //         args: args.into_iter().collect::<Vec<_>>(),
-    //         docs: docs.into_iter().collect::<Vec<_>>(),
-    //     }
-    // }
-
     /// Creates a new deploy specification builder.
     pub fn new() -> DeploySpecBuilder {
         DeploySpecBuilder {
