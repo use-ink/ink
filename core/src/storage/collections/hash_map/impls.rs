@@ -96,7 +96,7 @@ where
 /// This can either store the entries key and value
 /// or represent an entry that was removed after it
 /// has been occupied with key and value.
-#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode, Metadata)]
 pub enum Entry<K, V> {
     /// An occupied slot with a key and a value.
     Occupied(OccupiedEntry<K, V>),
@@ -118,7 +118,7 @@ where
 }
 
 /// An occupied entry of a storage map.
-#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode, Metadata)]
 pub struct OccupiedEntry<K, V> {
     /// The entry's key.
     key: K,

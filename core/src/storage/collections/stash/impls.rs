@@ -76,7 +76,7 @@ pub struct Stash<T> {
 /// for performance reasons so that they all reside in the same
 /// storage entiry. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode, Metadata)]
 struct StashHeader {
     /// The latest vacant index.
     next_vacant: u32,
