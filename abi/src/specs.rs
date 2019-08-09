@@ -65,7 +65,9 @@ impl IntoCompact for ContractSpec {
     }
 }
 
+/// The message builder is ready to finalize construction.
 pub enum Valid {}
+/// The message builder is not ready to finalize construction.
 pub enum Invalid {}
 
 pub struct ContractSpecBuilder<S = Invalid> {
@@ -254,13 +256,23 @@ pub struct MessageSpec<F: Form = MetaForm> {
 }
 
 mod state {
+    //! Type states that tell what state of a message has not
+    //! yet been set properly for a valid construction.
+
+    /// Type state for the message selector of a message.
     pub struct Selector;
+    /// Type state for the mutability of a message.
     pub struct Mutates;
+    /// Type state for the return type of a message.
     pub struct Returns;
 }
+
+/// Type state for the message builder to tell that some mandatory state has not yet been set
+/// yet or to fail upon setting the same state multiple times.
 pub struct Missing<S>(PhantomData<fn() -> S>);
 
 impl MessageSpec {
+    /// Creates a new message spec builder.
     pub fn new(
         name: <MetaForm as Form>::String,
     ) -> MessageSpecBuilder<
@@ -282,12 +294,20 @@ impl MessageSpec {
     }
 }
 
+/// A builder for messages.
+///
+/// # Dev
+///
+/// Some of the fields are guarded by a type-state pattern to
+/// fail at compile-time instead of at run-time. This is useful
+/// to better debug code-gen macros.
 pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
     spec: MessageSpec,
     marker: PhantomData<fn() -> (Selector, Mutates, Returns)>,
 }
 
 impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
+    /// Sets the function selector of the message.
     pub fn selector(self, selector: u32) -> MessageSpecBuilder<state::Selector, M, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
@@ -300,6 +320,7 @@ impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
 }
 
 impl<S, R> MessageSpecBuilder<S, Missing<state::Mutates>, R> {
+    /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
     pub fn mutates(self, mutates: bool) -> MessageSpecBuilder<S, state::Mutates, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
@@ -312,6 +333,7 @@ impl<S, R> MessageSpecBuilder<S, Missing<state::Mutates>, R> {
 }
 
 impl<M, S> MessageSpecBuilder<S, M, Missing<state::Returns>> {
+    /// Sets the return type of the message.
     pub fn returns(
         self,
         return_type: ReturnTypeSpec,
@@ -351,6 +373,7 @@ impl<S, M, R> MessageSpecBuilder<S, M, R> {
 }
 
 impl MessageSpecBuilder<state::Selector, state::Mutates, state::Returns> {
+    /// Finishes construction of the message.
     pub fn done(self) -> MessageSpec {
         self.spec
     }
