@@ -131,7 +131,7 @@ where
         LayoutStruct::new(
             Self::meta_type(),
             vec![
-                LayoutField::of("cells", &self.header),
+                LayoutField::of("header", &self.header),
                 LayoutField::of("chunks", &self.entries),
             ],
         )
