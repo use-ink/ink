@@ -360,7 +360,7 @@ impl<S, M, R> MessageSpecBuilder<S, M, R> {
         this
     }
 
-    /// Sets the input arguments of the event specification.
+    /// Sets the documentation of the message specification.
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
