@@ -16,11 +16,6 @@
 
 //! Code generation for smart contract ABI and metadata generation.
 //!
-//! The generated code here conflicts with all other generation purposes
-//! and should always be generated in isolation.
-//! It outputs code that needs to be run in order to generate the actual
-//! metadata and ABI files.
-//!
 //! This two-steps process is required because Rust macros (and thus `ink_lang`)
 //! are not able to access type information or anything that is related to that.
 
