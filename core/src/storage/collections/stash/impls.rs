@@ -26,7 +26,7 @@ use crate::storage::{
     Key,
 };
 
-use parity_codec::{
+use scale::{
     Decode,
     Encode,
 };
@@ -67,7 +67,7 @@ pub struct Stash<T> {
 /// for performance reasons so that they all reside in the same
 /// storage entiry. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
-#[derive(Debug, parity_codec::Encode, parity_codec::Decode)]
+#[derive(Debug, scale::Encode, scale::Decode)]
 struct StashHeader {
     /// The latest vacant index.
     next_vacant: u32,
@@ -116,7 +116,7 @@ where
 
 impl<'a, T> Iterator for Values<'a, T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     type Item = &'a T;
 
@@ -129,11 +129,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Values<'a, T> where T: parity_codec::Codec {}
+impl<'a, T> ExactSizeIterator for Values<'a, T> where T: scale::Codec {}
 
 impl<'a, T> DoubleEndedIterator for Values<'a, T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back().map(|(_index, value)| value)
@@ -170,7 +170,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     type Item = (u32, &'a T);
 
@@ -196,11 +196,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: parity_codec::Codec {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Codec {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
@@ -243,17 +243,17 @@ where
 }
 
 impl<T> Encode for Stash<T> {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.header.encode_to(dest);
         self.entries.encode_to(dest);
     }
 }
 
 impl<T> Decode for Stash<T> {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let header = storage::Value::decode(input)?;
         let entries = SyncChunk::decode(input)?;
-        Some(Self { header, entries })
+        Ok(Self { header, entries })
     }
 }
 
@@ -342,7 +342,7 @@ impl<T> Stash<T> {
 
 impl<T> Stash<T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     /// Returns the element stored at index `n` if any.
     pub fn get(&self, n: u32) -> Option<&T> {

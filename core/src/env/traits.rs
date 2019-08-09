@@ -18,7 +18,7 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use parity_codec::Codec;
+use scale::Codec;
 
 #[cfg(not(feature = "test-env"))]
 /// The environmental types usable by contracts defined with ink!.
@@ -34,7 +34,7 @@ pub trait EnvTypes {
     /// The type of block number.
     type BlockNumber: Codec + Clone + PartialEq + Eq;
     /// The type of a call into the runtime
-    type Call: parity_codec::Encode;
+    type Call: scale::Encode;
 }
 
 #[cfg(feature = "test-env")]

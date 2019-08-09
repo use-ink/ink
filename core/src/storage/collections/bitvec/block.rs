@@ -16,7 +16,7 @@
 
 use super::BitPack;
 use crate::storage::Flush;
-use parity_codec::{
+use scale::{
     Decode,
     Encode,
 };

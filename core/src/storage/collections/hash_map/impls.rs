@@ -69,7 +69,7 @@ pub struct HashMap<K, V> {
 /// This can either store the entries key and value
 /// or represent an entry that was removed after it
 /// has been occupied with key and value.
-#[derive(Debug, Clone, PartialEq, Eq, parity_codec::Encode, parity_codec::Decode)]
+#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
 pub enum Entry<K, V> {
     /// An occupied slot with a key and a value.
     Occupied(OccupiedEntry<K, V>),
@@ -79,8 +79,8 @@ pub enum Entry<K, V> {
 
 impl<K, V> Flush for Entry<K, V>
 where
-    K: parity_codec::Encode + Flush,
-    V: parity_codec::Encode + Flush,
+    K: scale::Encode + Flush,
+    V: scale::Encode + Flush,
 {
     fn flush(&mut self) {
         match self {
@@ -91,7 +91,7 @@ where
 }
 
 /// An occupied entry of a storage map.
-#[derive(Debug, Clone, PartialEq, Eq, parity_codec::Encode, parity_codec::Decode)]
+#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
 pub struct OccupiedEntry<K, V> {
     /// The entry's key.
     key: K,
@@ -101,8 +101,8 @@ pub struct OccupiedEntry<K, V> {
 
 impl<K, V> Flush for OccupiedEntry<K, V>
 where
-    K: parity_codec::Encode + Flush,
-    V: parity_codec::Encode + Flush,
+    K: scale::Encode + Flush,
+    V: scale::Encode + Flush,
 {
     fn flush(&mut self) {
         self.key.flush();
@@ -112,8 +112,8 @@ where
 
 impl<K, V> Flush for HashMap<K, V>
 where
-    K: parity_codec::Encode + Flush,
-    V: parity_codec::Encode + Flush,
+    K: scale::Encode + Flush,
+    V: scale::Encode + Flush,
 {
     fn flush(&mut self) {
         self.len.flush();
@@ -121,18 +121,18 @@ where
     }
 }
 
-impl<K, V> parity_codec::Encode for HashMap<K, V> {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl<K, V> scale::Encode for HashMap<K, V> {
+    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.len.encode_to(dest);
         self.entries.encode_to(dest);
     }
 }
 
-impl<K, V> parity_codec::Decode for HashMap<K, V> {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl<K, V> scale::Decode for HashMap<K, V> {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let len = storage::Value::decode(input)?;
         let entries = SyncChunk::decode(input)?;
-        Some(Self { len, entries })
+        Ok(Self { len, entries })
     }
 }
 
@@ -189,8 +189,8 @@ where
 
 impl<K, V> HashMap<K, V>
 where
-    K: parity_codec::Codec + Hash + Eq,
-    V: parity_codec::Codec,
+    K: scale::Codec + Hash + Eq,
+    V: scale::Codec,
 {
     /// Inserts a key-value pair into the map.
     ///
@@ -247,8 +247,8 @@ impl ProbeSlot {
 
 impl<K, V> HashMap<K, V>
 where
-    K: parity_codec::Codec,
-    V: parity_codec::Codec,
+    K: scale::Codec,
+    V: scale::Codec,
 {
     /// The maximum amount of probing hops through the hash map.
     ///
@@ -470,8 +470,8 @@ where
 
 impl<'a, K, Q: ?Sized, V> core::ops::Index<&'a Q> for HashMap<K, V>
 where
-    K: Eq + Hash + Borrow<Q> + parity_codec::Codec,
-    V: parity_codec::Codec,
+    K: Eq + Hash + Borrow<Q> + scale::Codec,
+    V: scale::Codec,
     Q: Eq + Hash,
 {
     type Output = V;
@@ -486,8 +486,8 @@ where
 
 impl<'a, K, Q: ?Sized, V> core::ops::IndexMut<&'a Q> for HashMap<K, V>
 where
-    K: Eq + Hash + Borrow<Q> + parity_codec::Codec,
-    V: parity_codec::Codec,
+    K: Eq + Hash + Borrow<Q> + scale::Codec,
+    V: scale::Codec,
     Q: Eq + Hash,
 {
     fn index_mut(&mut self, index: &Q) -> &mut Self::Output {

@@ -76,7 +76,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<T> Flush for Vec<T>
 where
-    T: parity_codec::Encode + Flush,
+    T: scale::Encode + Flush,
 {
     fn flush(&mut self) {
         self.len.flush();
@@ -86,7 +86,7 @@ where
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     type Item = &'a T;
 
@@ -106,11 +106,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: parity_codec::Codec {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Codec {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
@@ -123,18 +123,18 @@ where
     }
 }
 
-impl<T> parity_codec::Encode for Vec<T> {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl<T> scale::Encode for Vec<T> {
+    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.len.encode_to(dest);
         self.cells.encode_to(dest);
     }
 }
 
-impl<T> parity_codec::Decode for Vec<T> {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl<T> scale::Decode for Vec<T> {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let len = storage::Value::decode(input)?;
         let cells = SyncChunk::decode(input)?;
-        Some(Self { len, cells })
+        Ok(Self { len, cells })
     }
 }
 
@@ -176,7 +176,7 @@ impl<T> Vec<T> {
 
 impl<T> Vec<T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     /// Returns the given `n` if it is witihn bounds, otherwise `None`.
     fn within_bounds(&self, n: u32) -> Option<u32> {
@@ -323,7 +323,7 @@ where
 
 impl<T> core::ops::Index<u32> for Vec<T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     type Output = T;
 
@@ -337,7 +337,7 @@ where
 
 impl<T> core::ops::IndexMut<u32> for Vec<T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index).expect(

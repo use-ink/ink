@@ -15,7 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::byte_utils;
-use parity_codec::{
+use scale::{
     Decode,
     Encode,
 };

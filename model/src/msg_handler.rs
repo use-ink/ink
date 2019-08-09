@@ -27,7 +27,7 @@ use ink_core::{
     env,
     memory::vec::Vec,
 };
-use parity_codec::Decode;
+use scale::Decode;
 
 /// A raw read-only message handler for the given message and state.
 ///
@@ -58,13 +58,13 @@ pub struct CallData {
 }
 
 impl Decode for CallData {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+    fn decode<I: scale::Input>(input: &mut I) -> CoreResult<Self, scale::Error> {
         let selector = MessageHandlerSelector::decode(input)?;
         let mut param_buf = Vec::new();
-        while let Some(byte) = input.read_byte() {
+        while let Ok(byte) = input.read_byte() {
             param_buf.push(byte)
         }
-        Some(Self {
+        Ok(Self {
             selector,
             raw_params: param_buf,
         })
@@ -91,9 +91,9 @@ impl CallData {
     pub fn from_msg<Msg>(args: <Msg as Message>::Input) -> Self
     where
         Msg: Message,
-        <Msg as Message>::Input: parity_codec::Encode,
+        <Msg as Message>::Input: scale::Encode,
     {
-        use parity_codec::Encode;
+        use scale::Encode;
         Self {
             selector: <Msg as Message>::ID,
             raw_params: args.encode(),
@@ -311,7 +311,7 @@ macro_rules! impl_handle_call_for_chain {
             for $msg_handler_kind<Msg, State, Env>
         where
             Msg: Message,
-            <Msg as Message>::Output: parity_codec::Encode,
+            <Msg as Message>::Output: scale::Encode,
             State: ContractState,
             Env: env::Env,
         {
@@ -321,12 +321,12 @@ macro_rules! impl_handle_call_for_chain {
                 data: CallData,
             ) -> Result<Vec<u8>> {
                 let args = <Msg as Message>::Input::decode(&mut &data.params()[..])
-                    .ok_or(Error::InvalidArguments)?;
+                    .map_err(|_| Error::InvalidArguments)?;
                 let result = (self.raw_handler)(env, args);
                 if $requires_flushing {
                     env.state.flush()
                 }
-                use parity_codec::Encode;
+                use scale::Encode;
                 Ok(result.encode())
             }
         }

@@ -16,7 +16,7 @@
 
 #![cfg_attr(not(all(test, feature = "test-env")), no_std)]
 
-use parity_codec::{
+use scale::{
     Decode,
     Encode,
 };
@@ -185,7 +185,7 @@ enum Action {
 
 fn ret<T>(val: T) -> !
 where
-    T: parity_codec::Encode,
+    T: scale::Encode,
 {
     unsafe { env::r#return::<T, ContractEnv<DefaultSrmlTypes>>(val) }
 }

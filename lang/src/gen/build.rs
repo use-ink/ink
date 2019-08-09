@@ -125,7 +125,7 @@ fn codegen_for_event_private_mod(tokens: &mut TokenStream2, contract: &hir::Cont
             use super::*;
 
             #[doc(hidden)]
-            #[derive(parity_codec::Encode, parity_codec::Decode)]
+            #[derive(scale::Encode, scale::Decode)]
             pub enum Event {
                 #event_enum_mod_body
             }
@@ -170,7 +170,7 @@ fn codegen_for_events(tokens: &mut TokenStream2, contract: &hir::Contract) {
         let ident = &event.ident;
 
         tokens.extend(quote! {
-            #[derive(parity_codec::Encode, parity_codec::Decode)]
+            #[derive(scale::Encode, scale::Decode)]
             #event
 
             impl From<#ident> for private::Event {
@@ -191,7 +191,7 @@ fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, contract: &hir::Contr
             where
                 E: Into<private::Event>,
             {
-                use parity_codec::Encode as _;
+                use scale::Encode as _;
                 <ink_core::env::ContractEnv<#env_types> as ink_core::env::Env>::deposit_raw_event(
                     &[], event.into().encode().as_slice()
                 )

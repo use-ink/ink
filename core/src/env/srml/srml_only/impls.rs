@@ -25,7 +25,7 @@ use crate::{
     storage::Key,
 };
 use core::marker::PhantomData;
-use parity_codec::Decode;
+use scale::Decode;
 
 /// Load the contents of the scratch buffer
 fn read_scratch_buffer() -> Vec<u8> {
@@ -95,9 +95,6 @@ macro_rules! impl_getters_for_srml_env {
             fn $name() -> $ret_type {
                 unsafe { sys::$ext_name() };
                 Decode::decode(&mut &read_scratch_buffer()[..])
-                    .ok_or(concat!(
-                        stringify!($name), " received an incorrectly sized buffer from SRML"
-                    ))
                     .expect(concat!(
                         stringify!($name), " expects to receive a correctly sized buffer"
                     ))

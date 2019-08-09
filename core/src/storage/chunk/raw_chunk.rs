@@ -78,14 +78,14 @@ impl RawChunkCell<'_> {
     }
 }
 
-impl parity_codec::Encode for RawChunk {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl scale::Encode for RawChunk {
+    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.key.encode_to(dest)
     }
 }
 
-impl parity_codec::Decode for RawChunk {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl scale::Decode for RawChunk {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         Key::decode(input).map(|key| unsafe { Self::new_unchecked(key) })
     }
 }

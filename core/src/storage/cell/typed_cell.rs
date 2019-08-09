@@ -41,14 +41,14 @@ pub struct TypedCell<T> {
     non_clone: NonCloneMarker<T>,
 }
 
-impl<T> parity_codec::Encode for TypedCell<T> {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl<T> scale::Encode for TypedCell<T> {
+    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.cell.encode_to(dest)
     }
 }
 
-impl<T> parity_codec::Decode for TypedCell<T> {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl<T> scale::Decode for TypedCell<T> {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         RawCell::decode(input).map(|raw_cell| {
             Self {
                 cell: raw_cell,
@@ -79,19 +79,22 @@ impl<T> TypedCell<T> {
 
 impl<T> TypedCell<T>
 where
-    T: parity_codec::Decode,
+    T: scale::Decode,
 {
     /// Loads the value stored in the cell if any.
     pub fn load(&self) -> Option<T> {
-        self.cell
-            .load()
-            .and_then(|bytes| T::decode(&mut &bytes[..]))
+        self.cell.load().map(|bytes| {
+            T::decode(&mut &bytes[..]).expect(
+                "[ink_core::TypedCell::load] Error: \
+                 failed upon decoding",
+            )
+        })
     }
 }
 
 impl<T> TypedCell<T>
 where
-    T: parity_codec::Encode,
+    T: scale::Encode,
 {
     /// Stores the value into the cell.
     pub fn store(&mut self, val: &T) {
