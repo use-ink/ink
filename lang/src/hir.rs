@@ -58,7 +58,7 @@ pub struct Event {
 pub fn filter_doc_attributes(
     attrs: &[syn::Attribute],
 ) -> impl Iterator<Item = &syn::Attribute> {
-    self.attrs
+    attrs
         .iter()
         .filter(|attr| attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc"))
 }
