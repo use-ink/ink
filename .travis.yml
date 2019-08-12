@@ -148,7 +148,7 @@ script:
 
   declare -A results
   for example in $(ls examples/lang); do
-      cargo +nightly build --release --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml
+      cargo build --release --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml
       result=$?
       if [ $result -eq 0 ]
       then
