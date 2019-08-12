@@ -89,6 +89,10 @@ fn contract_compiles() {
 
             ink_model::state! {
                 /// Tests emitting of custom defined events.
+                #[cfg_attr(
+                    feature = "ink-generate-abi",
+                    derive(type_metadata::Metadata, ink_abi::HasLayout,)
+                )]
                 pub struct CallCounter {
                     /// A simple counter for the calls.
                     count: storage::Value<u32>,
@@ -285,6 +289,77 @@ fn contract_compiles() {
                         state.dec(handler,)
                     }
                 }
+            }
+
+            #[cfg(feature = "ink-generate-abi")]
+            pub fn ink_generate_abi() -> ink_abi::InkProject {
+                let contract = {
+                    ink_abi::ContractSpec::new("CallCounter")
+                        .on_deploy(ink_abi::DeploySpec::new()
+                        .args(vec![])
+                        .docs(vec![])
+                        .done())
+                        .messages(vec![
+                            ink_abi::MessageSpec::new("inc")
+                                .selector(257544423u32)
+                                .mutates(true)
+                                .args(vec![])
+                                .docs(vec![
+                                    "Increments the internal counter.",
+                                    "",
+                                    "# Note",
+                                    "",
+                                    "Also emits an event.",
+                                ])
+                                .returns(
+                                    ink_abi::ReturnTypeSpec::none()
+                                )
+                                .done(),
+                            ink_abi::MessageSpec::new("dec")
+                                .selector(1772705147u32)
+                                .mutates(true)
+                                .args(vec![])
+                                .docs(vec![
+                                    "Decrements the internal counter.",
+                                    "",
+                                    "# Note",
+                                    "",
+                                    "Also emits an event.",
+                                ])
+                                .returns(ink_abi::ReturnTypeSpec::none())
+                                .done(),
+                        ])
+                        .events(vec![
+                            ink_abi::EventSpec::new(stringify!(DecCalled))
+                                .args(vec![
+                                    ink_abi::EventParamSpec::new::<u32>(stringify!(current), false),
+                                ])
+                                .docs(vec![
+                                    "Fires when the value is decremented.",
+                                ])
+                                .done(),
+                            ink_abi::EventSpec::new(stringify!(IncCalled))
+                                .args(vec![ink_abi::EventParamSpec::new::<u32>(stringify!(current), false),
+                            ])
+                            .docs(vec![
+                                "Fires when the value is incremented.",
+                            ])
+                            .done(),
+                        ])
+                        .docs(vec![])
+                        .done()
+                };
+                let layout = {
+                    unsafe {
+                        use ink_core::storage::alloc::AllocateUsing as _;
+                        use ink_abi::HasLayout as _;
+                        CallCounter::allocate_using(
+                            &mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                                ink_core::storage::Key([0x0; 32])))
+                                .layout()
+                    }
+                };
+                ink_abi::InkProject::new(layout, contract)
             }
         },
     )
