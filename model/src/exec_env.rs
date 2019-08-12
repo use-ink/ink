@@ -28,7 +28,7 @@ use ink_core::{
         Initialize,
     },
 };
-use parity_codec::Encode as _;
+use scale::Encode as _;
 
 /// Provides a safe interface to an environment given a contract state.
 pub struct ExecutionEnv<State, Env> {
@@ -149,7 +149,7 @@ impl<T: Env> EnvHandler<T> {
     /// Returns from the current smart contract execution with the given value.
     pub unsafe fn r#return<V>(&self, val: V) -> !
     where
-        V: parity_codec::Encode,
+        V: scale::Encode,
     {
         env::r#return::<V, T>(val)
     }

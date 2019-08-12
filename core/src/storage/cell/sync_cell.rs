@@ -286,14 +286,14 @@ impl<T> Cache<T> {
     }
 }
 
-impl<T> parity_codec::Encode for SyncCell<T> {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl<T> scale::Encode for SyncCell<T> {
+    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.cell.encode_to(dest)
     }
 }
 
-impl<T> parity_codec::Decode for SyncCell<T> {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl<T> scale::Decode for SyncCell<T> {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         TypedCell::decode(input).map(|typed_cell| {
             Self {
                 cell: typed_cell,
@@ -305,7 +305,7 @@ impl<T> parity_codec::Decode for SyncCell<T> {
 
 impl<T> Flush for SyncCell<T>
 where
-    T: parity_codec::Encode + Flush,
+    T: scale::Encode + Flush,
 {
     fn flush(&mut self) {
         if self.cache.is_dirty() {
@@ -343,7 +343,7 @@ impl<T> SyncCell<T> {
 
 impl<T> SyncCell<T>
 where
-    T: parity_codec::Decode,
+    T: scale::Decode,
 {
     /// Returns an immutable reference to the value of the cell.
     pub fn get(&self) -> Option<&T> {
@@ -357,7 +357,7 @@ where
 
 impl<T> SyncCell<T>
 where
-    T: parity_codec::Encode,
+    T: scale::Encode,
 {
     /// Sets the value of the cell.
     pub fn set(&mut self, val: T) {
@@ -368,7 +368,7 @@ where
 
 impl<T> SyncCell<T>
 where
-    T: parity_codec::Codec,
+    T: scale::Codec,
 {
     /// Returns a mutable reference to the value of the cell.
     pub fn get_mut(&mut self) -> Option<&mut T> {

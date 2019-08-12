@@ -8,7 +8,7 @@ edition = "2018"
 ink_core = { path = "../../../core" }
 ink_model = { path = "../../../model" }
 ink_lang = { path = "../../../lang" }
-parity-codec = { version = "4.1", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 
 [lib]
 name = "events"

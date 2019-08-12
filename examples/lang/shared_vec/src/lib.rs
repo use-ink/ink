@@ -18,7 +18,7 @@
 
 use ink_core::storage;
 use ink_lang::contract;
-use parity_codec::{Encode, Decode};
+use scale::{Encode, Decode};
 
 /// Access rights to the shared vector.
 #[derive(Encode, Decode)]

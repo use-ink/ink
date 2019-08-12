@@ -19,10 +19,10 @@ use crate::msg_handler::MessageHandlerSelector;
 /// A message with an expected input type and output (result) type.
 pub trait Message {
     /// The expected input type, also known as parameter types.
-    type Input: parity_codec::Decode;
+    type Input: scale::Decode;
 
     /// The output of the message, also known as return type.
-    type Output: parity_codec::Encode + 'static;
+    type Output: scale::Encode + 'static;
 
     /// The user provided message selector.
     ///

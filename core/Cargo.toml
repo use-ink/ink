@@ -20,7 +20,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 ink_alloc = { path = "../alloc/", default-features = false }
 ink_utils = { path = "../utils/", default-features = false }
-parity-codec = { version = "4.1", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
 
 [features]
 default = ["std"]
@@ -28,5 +28,5 @@ test-env = ["std"]
 std = [
     "ink_alloc/std",
     "ink_utils/std",
-    "parity-codec/std",
+    "scale/std",
 ]

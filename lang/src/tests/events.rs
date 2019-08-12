@@ -172,7 +172,7 @@ fn contract_compiles() {
                     use super::*;
 
                     #[doc(hidden)]
-                    #[derive(parity_codec::Encode, parity_codec::Decode)]
+                    #[derive(scale::Encode, scale::Decode)]
                     pub enum Event {
                         DecCalled(DecCalled),
                         IncCalled(IncCalled),
@@ -182,7 +182,7 @@ fn contract_compiles() {
                     pub trait Sealed { }
                 }
 
-                #[derive(parity_codec::Encode, parity_codec::Decode)]
+                #[derive(scale::Encode, scale::Decode)]
                 /// Fires when the value is decremented.
                 pub struct DecCalled {
                     /// The current value.
@@ -195,7 +195,7 @@ fn contract_compiles() {
                     }
                 }
 
-                #[derive(parity_codec::Encode, parity_codec::Decode)]
+                #[derive(scale::Encode, scale::Decode)]
                 /// Fires when the value is incremented.
                 pub struct IncCalled {
                     /// The current value.
@@ -214,7 +214,7 @@ fn contract_compiles() {
                     where
                         E: Into<private::Event>,
                     {
-                        use parity_codec::Encode as _;
+                        use scale::Encode as _;
                         <ink_core::env::ContractEnv<DefaultSrmlTypes> as ink_core::env::Env>::deposit_raw_event(
                             &[], event.into().encode().as_slice()
                         )

@@ -35,18 +35,18 @@ pub struct BitVec {
     blocks: SyncChunk<BitBlock>,
 }
 
-impl parity_codec::Encode for BitVec {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl scale::Encode for BitVec {
+    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.len.encode_to(dest);
         self.blocks.encode_to(dest);
     }
 }
 
-impl parity_codec::Decode for BitVec {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl scale::Decode for BitVec {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let len = storage::Value::decode(input)?;
         let blocks = SyncChunk::decode(input)?;
-        Some(Self { len, blocks })
+        Ok(Self { len, blocks })
     }
 }
 

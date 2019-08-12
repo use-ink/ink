@@ -87,7 +87,7 @@ impl<'a, T> TypedChunkCell<'a, T> {
 
 impl<'a, T> TypedChunkCell<'a, T>
 where
-    T: parity_codec::Encode,
+    T: scale::Encode,
 {
     /// Stores the value into the cell.
     pub fn store(&mut self, val: &T) {
@@ -95,14 +95,14 @@ where
     }
 }
 
-impl<T> parity_codec::Encode for TypedChunk<T> {
-    fn encode_to<W: parity_codec::Output>(&self, dest: &mut W) {
+impl<T> scale::Encode for TypedChunk<T> {
+    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.chunk.encode_to(dest)
     }
 }
 
-impl<T> parity_codec::Decode for TypedChunk<T> {
-    fn decode<I: parity_codec::Input>(input: &mut I) -> Option<Self> {
+impl<T> scale::Decode for TypedChunk<T> {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         RawChunk::decode(input).map(|raw_chunk| {
             Self {
                 chunk: raw_chunk,
@@ -136,7 +136,7 @@ impl<T> TypedChunk<T> {
 
 impl<T> TypedChunk<T>
 where
-    T: parity_codec::Decode,
+    T: scale::Decode,
 {
     /// Loads the value stored in the `n`-th cell if any.
     ///
@@ -157,7 +157,7 @@ where
 
 impl<T> TypedChunk<T>
 where
-    T: parity_codec::Encode,
+    T: scale::Encode,
 {
     /// Stores the value into the `n`-th cell.
     pub fn store(&mut self, n: u32, val: &T) {

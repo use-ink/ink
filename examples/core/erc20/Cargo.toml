@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 ink_core = { path = "../../../core", default-features = false }
-parity-codec = { version = "4.1", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 
 [lib]
 name = "erc20"
@@ -16,7 +16,7 @@ crate-type = ["cdylib"]
 default = ["std"]
 std = [
 	"ink_core/std",
-	"parity-codec/std",
+	"scale/std",
 ]
 test-env = [
 	"std",
