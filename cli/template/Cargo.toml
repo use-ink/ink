@@ -9,11 +9,10 @@ ink_abi = { git = "https://github.com/paritytech/ink", package = "ink_abi", defa
 ink_core = { git = "https://github.com/paritytech/ink", package = "ink_core", default-features = false }
 ink_model = { git = "https://github.com/paritytech/ink", package = "ink_model", default-features = false }
 ink_lang = { git = "https://github.com/paritytech/ink", package = "ink_lang", default-features = false }
-scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 
+scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
-serde_json = { version = "1.0", default-features = false, optional = true }
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", features = ["derive"], optional = true }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "{{name}}"
@@ -27,10 +26,12 @@ crate-type = [
 [features]
 default = ["std"]
 std = [
+    "ink_abi/std",
     "ink_core/std",
     "ink_model/std",
     "ink_lang/std",
     "scale/std",
+    "type-metadata/std",
 ]
 test-env = [
     "std",
@@ -44,6 +45,7 @@ ink-generate-abi = [
     "serde",
     "serde_json",
     "type-metadata",
+    "ink_core/ink-generate-abi",
 ]
 
 [profile.release]
