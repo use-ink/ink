@@ -146,27 +146,11 @@ script:
     echo "coverage analysis:             ERROR"
   fi
 
-  declare -A results
-  for example in $(ls examples/lang); do
-      cargo build --release --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml
-      result=$?
-      if [ $result -eq 0 ]
-      then
-          results[$example]="ok"
-      else
-          results[$example]="ERROR"
-      fi
-  done
-
-  echo "Example Results"
-  echo "---------------"
-  for entry in ${!results[@]}; do
-      # echo $result
-      echo "- $entry: ${results[$entry]}"
-  done
+  ./scripts/check-examples.sh
+  check_all_examples=$?
 
   echo ""
-  if [ $check_all_features -eq 0 ] && [ $check_no_default -eq 0 ] && [ $fmt -eq 0 ] && [ $clippy_all_features -eq 0 ] && [ $clippy_no_default -eq 0 ] && [ $test -eq 0 ] && [ $build_wasm -eq 0 ]
+  if [ $check_all_features -eq 0 ] && [ $check_no_default -eq 0 ] && [ $fmt -eq 0 ] && [ $clippy_all_features -eq 0 ] && [ $clippy_no_default -eq 0 ] && [ $test -eq 0 ] && [ $build_wasm -eq 0 ] && [ $check_all_examples -eq 0 ]
   then
     echo "All (non-example) checks have passed!"
     exit 0
