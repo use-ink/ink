@@ -15,16 +15,14 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::CacheGuard;
-use crate::{
-    storage::{
-        alloc::{
-            Allocate,
-            AllocateUsing,
-        },
-        chunk::TypedChunk,
-        Flush,
-        Key,
+use crate::storage::{
+    alloc::{
+        Allocate,
+        AllocateUsing,
     },
+    chunk::TypedChunk,
+    Flush,
+    Key,
 };
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{

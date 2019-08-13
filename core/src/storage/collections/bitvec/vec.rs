@@ -15,17 +15,15 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::BitBlock;
-use crate::{
-    storage::{
-        self,
-        alloc::{
-            Allocate,
-            AllocateUsing,
-            Initialize,
-        },
-        chunk::SyncChunk,
-        Flush,
+use crate::storage::{
+    self,
+    alloc::{
+        Allocate,
+        AllocateUsing,
+        Initialize,
     },
+    chunk::SyncChunk,
+    Flush,
 };
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{

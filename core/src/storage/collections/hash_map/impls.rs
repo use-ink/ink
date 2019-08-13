@@ -18,17 +18,15 @@
 // This might change in future versions of the pDSL.
 #![allow(clippy::implicit_hasher)]
 
-use crate::{
-    storage::{
-        self,
-        alloc::{
-            Allocate,
-            AllocateUsing,
-            Initialize,
-        },
-        chunk::SyncChunk,
-        Flush,
+use crate::storage::{
+    self,
+    alloc::{
+        Allocate,
+        AllocateUsing,
+        Initialize,
     },
+    chunk::SyncChunk,
+    Flush,
 };
 use core::{
     borrow::Borrow,

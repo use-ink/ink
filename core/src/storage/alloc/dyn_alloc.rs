@@ -15,17 +15,15 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{
-    storage::{
-        self,
-        alloc::{
-            AllocateUsing,
-            Initialize,
-        },
-        Allocator,
-        Flush,
-        Key,
+use crate::storage::{
+    self,
+    alloc::{
+        AllocateUsing,
+        Initialize,
     },
+    Allocator,
+    Flush,
+    Key,
 };
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{

@@ -14,17 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    storage::{
-        self,
-        alloc::{
-            Allocate,
-            AllocateUsing,
-            Initialize,
-        },
-        cell::SyncCell,
-        Flush,
+use crate::storage::{
+    self,
+    alloc::{
+        Allocate,
+        AllocateUsing,
+        Initialize,
     },
+    cell::SyncCell,
+    Flush,
 };
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{

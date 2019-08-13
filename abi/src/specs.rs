@@ -28,7 +28,10 @@ use type_metadata::{
 };
 
 #[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec};
+use alloc::{
+    vec,
+    vec::Vec,
+};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize)]
