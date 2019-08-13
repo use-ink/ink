@@ -19,7 +19,6 @@
 #![allow(clippy::implicit_hasher)]
 
 use crate::{
-    memory::vec,
     storage::{
         self,
         alloc::{
@@ -35,6 +34,7 @@ use core::{
     borrow::Borrow,
     hash::Hash,
 };
+#[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -42,6 +42,7 @@ use ink_abi::{
     StorageLayout,
 };
 use ink_utils::hash;
+#[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
 /// Mapping stored in the contract storage.
@@ -61,7 +62,8 @@ use type_metadata::Metadata;
 /// 3. Empty slot when there never was an insertion for this storage slot.
 ///
 /// This distinction is important for the quadratic map probing.
-#[derive(Debug, Metadata)]
+#[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct HashMap<K, V> {
     /// The storage key to the length of this storage map.
     len: storage::Value<u32>,
@@ -74,6 +76,7 @@ pub struct HashMap<K, V> {
     entries: SyncChunk<Entry<K, V>>,
 }
 
+#[cfg(feature = "ink-generate-abi")]
 impl<K, V> HasLayout for HashMap<K, V>
 where
     K: Metadata + 'static,
@@ -96,7 +99,8 @@ where
 /// This can either store the entries key and value
 /// or represent an entry that was removed after it
 /// has been occupied with key and value.
-#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode, Metadata)]
+#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub enum Entry<K, V> {
     /// An occupied slot with a key and a value.
     Occupied(OccupiedEntry<K, V>),
@@ -118,7 +122,8 @@ where
 }
 
 /// An occupied entry of a storage map.
-#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode, Metadata)]
+#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct OccupiedEntry<K, V> {
     /// The entry's key.
     key: K,

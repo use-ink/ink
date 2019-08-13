@@ -16,13 +16,13 @@
 
 use super::*;
 use crate::{
-    memory::vec,
     storage::{
         self,
         Flush,
         Key,
     },
 };
+#[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -33,6 +33,7 @@ use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
 /// An allocator for the contract storage.
@@ -47,7 +48,8 @@ use type_metadata::Metadata;
 /// 2. Cell chunk allocation (2^32 cells)
 ///
 /// Allocating and deallocating are always O(1) operations.
-#[derive(Debug, Encode, Decode, Metadata)]
+#[derive(Debug, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct CellChunkAlloc {
     /// Allocator stash for single cells.
     cells: storage::Stash<()>,
@@ -107,6 +109,7 @@ impl Flush for CellChunkAlloc {
     }
 }
 
+#[cfg(feature = "ink-generate-abi")]
 impl HasLayout for CellChunkAlloc {
     fn layout(&self) -> StorageLayout {
         LayoutStruct::new(

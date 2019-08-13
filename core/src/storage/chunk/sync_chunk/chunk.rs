@@ -16,7 +16,6 @@
 
 use super::CacheGuard;
 use crate::{
-    memory::vec,
     storage::{
         alloc::{
             Allocate,
@@ -27,11 +26,13 @@ use crate::{
         Key,
     },
 };
+#[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
     LayoutRange,
     StorageLayout,
 };
+#[cfg(feature = "ink-generate-abi")]
 use type_metadata::{
     HasTypeDef,
     Metadata,
@@ -53,7 +54,8 @@ use type_metadata::{
 /// - `Mutable`
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
-#[derive(Debug, TypeId)]
+#[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(TypeId))]
 pub struct SyncChunk<T> {
     /// The underlying chunk of cells.
     chunk: TypedChunk<T>,
@@ -61,6 +63,7 @@ pub struct SyncChunk<T> {
     cache: CacheGuard<T>,
 }
 
+#[cfg(feature = "ink-generate-abi")]
 impl<T> HasTypeDef for SyncChunk<T> {
     fn type_def() -> TypeDef {
         TypeDefStruct::new(vec![NamedField::of::<Key>("cells_key")]).into()
@@ -102,6 +105,7 @@ impl<T> scale::Decode for SyncChunk<T> {
     }
 }
 
+#[cfg(feature = "ink-generate-abi")]
 impl<T> HasLayout for SyncChunk<T>
 where
     T: Metadata,

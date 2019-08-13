@@ -28,6 +28,7 @@ use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
 /// The SRML fundamental types.
@@ -67,7 +68,8 @@ impl EnvTypes for DefaultSrmlTypes {
 }
 
 /// The default SRML address type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, Metadata)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct AccountId([u8; 32]);
 
 impl From<[u8; 32]> for AccountId {
@@ -89,7 +91,8 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
 pub type Balance = u128;
 
 /// The default SRML hash type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, Metadata)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Hash([u8; 32]);
 
 impl From<[u8; 32]> for Hash {

@@ -17,6 +17,7 @@
 use super::*;
 
 use crate::storage::Key;
+#[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
 /// An allocator that is meant to allocate contract storage at
@@ -29,7 +30,7 @@ use type_metadata::Metadata;
 ///
 /// Users are recommended to use the [`CellChunkAlloc`](struct.CellChunkAlloc.html)
 /// for dynamic storage allocation purposes instead.
-#[derive(Metadata)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct BumpAlloc {
     /// The key offset used for all allocations.
     offset_key: Key,

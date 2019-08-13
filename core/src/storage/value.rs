@@ -15,7 +15,6 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    memory::vec,
     storage::{
         self,
         alloc::{
@@ -27,6 +26,7 @@ use crate::{
         Flush,
     },
 };
+#[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -37,6 +37,7 @@ use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
 // Missing traits:
@@ -58,12 +59,14 @@ use type_metadata::Metadata;
 /// For assigning new values or mutating the value inside of it either use
 /// [`set`](struct.Value.html#method.set) or
 /// [`mutate_with`](struct.Value.html#method.mutate_with).
-#[derive(Debug, Encode, Decode, Metadata)]
+#[derive(Debug, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Value<T> {
     /// The cell of the storage value.
     cell: SyncCell<T>,
 }
 
+#[cfg(feature = "ink-generate-abi")]
 impl<T> HasLayout for Value<T>
 where
     T: Metadata + 'static,

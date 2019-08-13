@@ -15,6 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::byte_utils;
+#[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
     LayoutKey,
@@ -25,6 +26,7 @@ use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
 /// Typeless generic key into contract storage.
@@ -43,9 +45,11 @@ use type_metadata::Metadata;
 /// - Violates Rust's mutability and immutability guarantees.
 ///
 /// Prefer using types found in `collections` or `Synced` type.
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode, Metadata)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Key(pub [u8; 32]);
 
+#[cfg(feature = "ink-generate-abi")]
 impl HasLayout for Key {
     fn layout(&self) -> StorageLayout {
         LayoutRange::cell(*self, <[u8]>::meta_type()).into()
@@ -90,6 +94,7 @@ impl core::fmt::Display for Key {
     }
 }
 
+#[cfg(feature = "ink-generate-abi")]
 impl From<Key> for LayoutKey {
     fn from(key: Key) -> Self {
         LayoutKey(key.0)

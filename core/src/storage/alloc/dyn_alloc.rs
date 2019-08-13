@@ -16,7 +16,6 @@
 
 use super::*;
 use crate::{
-    memory::vec,
     storage::{
         self,
         alloc::{
@@ -28,12 +27,14 @@ use crate::{
         Key,
     },
 };
+#[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
     LayoutField,
     LayoutStruct,
     StorageLayout,
 };
+#[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
 /// Allocator for dynamic contract storage.
@@ -43,7 +44,8 @@ use type_metadata::Metadata;
 /// can be slow (more than 2 reads) for more than 3000 dynamic allocations
 /// at the same time. This is subject to change in the future if
 /// experiments show that this is a bottle neck.
-#[derive(Debug, Metadata)]
+#[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct DynAlloc {
     /// Bitmap indicating free cell slots.
     free_cells: storage::BitVec,
@@ -55,6 +57,7 @@ pub struct DynAlloc {
     chunks_origin: Key,
 }
 
+#[cfg(feature = "ink-generate-abi")]
 impl HasLayout for DynAlloc {
     fn layout(&self) -> StorageLayout {
         LayoutStruct::new(
