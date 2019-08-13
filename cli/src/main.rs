@@ -141,7 +141,7 @@ fn main() -> cmd::Result<()> {
             wasm_path,
         } => {
             cmd::execute_deploy(
-                url,
+                url.clone(),
                 suri,
                 password.as_ref().map(String::as_ref),
                 *gas,

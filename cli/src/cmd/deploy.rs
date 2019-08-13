@@ -18,7 +18,6 @@ use crate::cmd::Result;
 use node_runtime::{
     Call,
     Event,
-    Runtime,
 };
 
 use srml_contracts::{
@@ -34,7 +33,8 @@ use std::{
 };
 use runtime_primitives::generic::Era;
 use substrate_primitives::{H256, crypto::Pair, sr25519};
-use subxt::Error;
+use subxt::{srml::{balances::Balances, system::System}};
+use futures::future::Future;
 
 type CargoToml = HashMap<String, toml::Value>;
 
@@ -87,8 +87,43 @@ fn extract_code_hash(extrinsic_result: subxt::ExtrinsicSuccess<Runtime>) -> Resu
         .ok_or("Failed to find contract.CodeStored event".into())
 }
 
+#[derive(Debug)]
+struct Runtime;
+
+impl System for Runtime {
+    type Index = <node_runtime::Runtime as srml_system::Trait>::Index;
+    type BlockNumber = <node_runtime::Runtime as srml_system::Trait>::BlockNumber;
+    type Hash = <node_runtime::Runtime as srml_system::Trait>::Hash;
+    type Hashing = <node_runtime::Runtime as srml_system::Trait>::Hashing;
+    type AccountId = <node_runtime::Runtime as srml_system::Trait>::AccountId;
+    type Lookup = <node_runtime::Runtime as srml_system::Trait>::Lookup;
+    type Header = <node_runtime::Runtime as srml_system::Trait>::Header;
+    type Event = <node_runtime::Runtime as srml_system::Trait>::Event;
+
+    type SignedExtra = (
+        srml_system::CheckGenesis<node_runtime::Runtime>,
+        srml_system::CheckEra<node_runtime::Runtime>,
+        srml_system::CheckNonce<node_runtime::Runtime>,
+        srml_system::CheckWeight<node_runtime::Runtime>,
+        srml_balances::TakeFees<node_runtime::Runtime>,
+    );
+    fn extra(nonce: Self::Index) -> Self::SignedExtra {
+        (
+            srml_system::CheckGenesis::<node_runtime::Runtime>::new(),
+            srml_system::CheckEra::<node_runtime::Runtime>::from(Era::Immortal),
+            srml_system::CheckNonce::<node_runtime::Runtime>::from(nonce),
+            srml_system::CheckWeight::<node_runtime::Runtime>::new(),
+            srml_balances::TakeFees::<node_runtime::Runtime>::from(0),
+        )
+    }
+}
+
+impl Balances for Runtime {
+    type Balance = <node_runtime::Runtime as srml_balances::Trait>::Balance;
+}
+
 pub(crate) fn execute_deploy(
-    url: &url::Url,
+    url: url::Url,
     surl: &str,
     password: Option<&str>,
     gas: u64,
@@ -99,17 +134,12 @@ pub(crate) fn execute_deploy(
     let code = load_contract_code(contract_wasm_path)?;
     let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
-    let extra = |nonce| {
-        (
-            srml_system::CheckGenesis::<Runtime>::new(),
-            srml_system::CheckEra::<Runtime>::from(Era::Immortal),
-            srml_system::CheckNonce::<Runtime>::from(nonce),
-            srml_system::CheckWeight::<Runtime>::new(),
-            srml_balances::TakeFees::<Runtime>::from(0),
-        )
-    };
+    let fut = subxt::ClientBuilder::<Runtime>::new()
+        .set_url(url)
+        .build()
+        .and_then(|cli| cli.xt(signer, None))
+        .and_then(|mut xt| xt.submit_and_watch(call));
 
-    let fut = subxt::submit(url, signer, call, extra);
     let mut rt = tokio::runtime::Runtime::new()?;
     let extrinsic_success = rt.block_on(fut)?;
 
@@ -142,7 +172,7 @@ mod tests {
         let _ = file.write_all(contract_wasm);
 
         let url = url::Url::parse("ws://localhost:9944").unwrap();
-        let result = super::execute_deploy(&url, "//Alice", None, 500_000, Some(wasm_path));
+        let result = super::execute_deploy(url, "//Alice", None, 500_000, Some(wasm_path));
 
         assert!(result.is_ok());
     }

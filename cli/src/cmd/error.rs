@@ -20,7 +20,7 @@ use std::{
     result::Result as StdResult,
 };
 use substrate_primitives::crypto::SecretStringError;
-//use subxt::Error as SubXtError;
+use subxt::Error as SubXtError;
 use zip::result::ZipError;
 
 /// The kinds of command errors.
@@ -31,7 +31,7 @@ pub enum CommandErrorKind {
     UnimplementedAbstractionLayer,
     Rpc(RpcError),
     SecretString(SecretStringError),
-//    SubXt(SubXtError),
+    SubXt(SubXtError),
     ZipError(ZipError),
     Other(String),
 }
@@ -66,13 +66,13 @@ impl From<SecretStringError> for CommandError {
     }
 }
 
-//impl From<SubXtError> for CommandError {
-//    fn from(error: SubXtError) -> Self {
-//        Self {
-//            kind: CommandErrorKind::SubXt(error),
-//        }
-//    }
-//}
+impl From<SubXtError> for CommandError {
+    fn from(error: SubXtError) -> Self {
+        Self {
+            kind: CommandErrorKind::SubXt(error),
+        }
+    }
+}
 
 impl From<ZipError> for CommandError {
     fn from(error: ZipError) -> Self {
