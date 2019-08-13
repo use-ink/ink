@@ -26,6 +26,9 @@ use type_metadata::{
     Registry,
 };
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 /// Implemented by types that have a storage layout.
 ///
 /// Has to be used on previously allocated instances of the types.

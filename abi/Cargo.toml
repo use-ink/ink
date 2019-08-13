@@ -14,20 +14,21 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-parity-codec = { version = "4.1", default-features = false, features = ["derive", "full"] }
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
-json = { package = "serde_json", version = "1.0" }
-derive_more = { version = "0.14" }
+derive_more = { version = "0.14", features = ["no_std"] }
 ink_abi_derive = { version = "0.1.0", path = "derive", default-features = false, optional = true }
-
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", features = ["derive"] }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"] }
 
 [features]
-default = ["std", "derive"]
-derive = ["ink_abi_derive"]
+default = [
+    "std",
+    "derive",
+]
+derive = [
+    "ink_abi_derive"
+]
 std = [
     "ink_abi_derive/std",
     "serde/std",
     "type-metadata/std",
-    "parity-codec/std"
 ]
