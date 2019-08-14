@@ -37,7 +37,7 @@ ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to
 
 ### Scripts
 
-Use the scripts provided under `scripts` directory in order to run checks on either the workspace or all examples. Please do this before checking in work in a PR.
+Use the scripts provided under `scripts` directory in order to run checks on either the workspace or all examples. Please do this before pushing work in a PR.
 
 ### Testing
 
