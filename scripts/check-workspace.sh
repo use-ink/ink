@@ -39,9 +39,10 @@ cargo build --verbose --all --no-default-features --release --target=wasm32-unkn
 results["build_wasm"]=$?
 
 all_checks_passed=0
+banner="-----------------"
 
 echo "Workspace Results"
-echo "-----------------"
+echo "$banner"
 for entry in ${!results[@]}; do
     result_str=""
     if [ ${results[$entry]} -eq 0 ]
@@ -57,9 +58,10 @@ echo ""
 if [ $all_checks_passed -eq 0 ]
 then
     echo "workspace: All checks passed"
+    echo "$banner"
     exit 0
 else
     echo "workspace: Some checks failed"
+    echo "$banner"
     exit 1
 fi
-echo "-----------------"

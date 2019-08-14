@@ -48,8 +48,9 @@ for example in $(ls examples/lang); do
     fi
 done
 
+banner="---------------"
 echo "Example Results"
-echo "---------------"
+echo "$banner"
 for entry in ${!results_wasm[@]}; do
     echo "- $entry (wasm): ${results_wasm[$entry]}"
     echo "- $entry (test): ${results_test[$entry]}"
@@ -59,9 +60,10 @@ echo ""
 if [ $all_checks_passed -eq 0 ]
 then
     echo "examples: All checks passed"
+    echo "$banner"
     exit 0
 else
     echo "examples: Some checks failed"
+    echo "$banner"
     exit 1
 fi
-echo "---------------"
