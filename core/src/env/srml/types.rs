@@ -21,7 +21,6 @@ use core::{
 
 use crate::{
     env::EnvTypes,
-    impl_empty_flush_for,
     storage::Flush,
 };
 use scale::{
@@ -116,4 +115,10 @@ pub type Moment = u64;
 /// The default SRML blocknumber type.
 pub type BlockNumber = u64;
 
-impl_empty_flush_for!(AccountId, Hash);
+impl Flush for AccountId {
+    fn flush(&mut self) {}
+}
+
+impl Flush for Hash {
+    fn flush(&mut self) {}
+}
