@@ -35,6 +35,15 @@ ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to
 |-----------|------------|-------------|
 | [![][H1]][H2] | [![][F1]][F2] | [![][G1]][G2] |
 
+### Scripts
+
+Use the scripts provided under `scripts` directory in order to run checks on either the workspace or all examples. Please do this before pushing work in a PR.
+
+### Testing
+
+Off-chain testing is done by `cargo test`.
+If you want to test all workspace crates, do `cargo test --all`.
+
 ## Example
 
 Below is an example using ink! demonstrating a simple Flipper smart contract
@@ -44,7 +53,7 @@ that has a boolean state that can be flipped or returned.
 contract! {
     /// Specify concrete implementation of contract environment types
     #![env = ink_core::env::DefaultSrmlTypes]
- 
+
     /// Flips its state between `true` and `false`.
     struct Flipper {
         /// The current state of our flag.

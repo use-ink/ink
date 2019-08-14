@@ -21,12 +21,12 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 ink_abi = { path = "../abi/", default-features = false, features = ["derive"], optional = true }
 ink_alloc = { path = "../alloc/", default-features = false }
 ink_utils = { path = "../utils/", default-features = false }
-scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
 
+scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
 [features]
-default = ["std"]
+default = ["test-env"]
 test-env = ["std"]
 std = [
     "ink_abi/std",

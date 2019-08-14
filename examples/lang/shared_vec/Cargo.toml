@@ -11,8 +11,6 @@ ink_model = { path = "../../../model", default-features = false }
 ink_lang = { path = "../../../lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
-serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
-serde_json = { version = "1.0", default-features = false, optional = true }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
 [lib]
@@ -32,7 +30,6 @@ std = [
     "ink_model/std",
     "ink_lang/std",
     "scale/std",
-    "serde/std",
     "type-metadata/std",
 ]
 test-env = [
@@ -44,8 +41,6 @@ test-env = [
 ink-generate-abi = [
     "std",
     "ink_abi",
-    "serde",
-    "serde_json",
     "type-metadata",
     "ink_core/ink-generate-abi",
 ]

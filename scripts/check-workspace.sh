@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# Run this script from the workspace root!
+#
+# This script iterates through all crates in the workspace and runs
+# the most important actions to verify integrity and control quality.
+#
+# - compile under different setups
+# - check formatting according to our house rules
+# - run a linter (clippy) under different setups
+# - run all tests
+# - build Wasm blobs
+#
+# Afterwards the script prints out a summary report.
+#
+# Exits with `0` if all tests completed successfully or `1` otherwise.
+
 declare -A results
 
 cargo check --verbose --all --all-features
@@ -24,9 +39,10 @@ cargo build --verbose --all --no-default-features --release --target=wasm32-unkn
 results["build_wasm"]=$?
 
 all_checks_passed=0
+banner="-----------------"
 
 echo "Workspace Results"
-echo "-----------------"
+echo "$banner"
 for entry in ${!results[@]}; do
     result_str=""
     if [ ${results[$entry]} -eq 0 ]
@@ -42,9 +58,10 @@ echo ""
 if [ $all_checks_passed -eq 0 ]
 then
     echo "workspace: All checks passed"
+    echo "$banner"
     exit 0
 else
     echo "workspace: Some checks failed"
+    echo "$banner"
     exit 1
 fi
-echo "-----------------"

@@ -7,7 +7,7 @@ rust:
   # - stable
   # - beta
   - nightly
-  - nightly-2019-08-09
+  - nightly-2019-08-13
 
 matrix:
   allow_failures:
@@ -65,16 +65,19 @@ script:
   ./scripts/check-workspace.sh
   check_workspace=$?
 
-  ./scripts/check-examples.sh
-  check_examples=$?
-
-  if [ $check_examples -eq 0 ] && [ $check_workspace -eq 0 ]
+  if [ $check_workspace -eq 0 ]
   then
     # Execute and upload kcov results
     cargo kcov --verbose --coveralls --all --no-clean-rebuild
     kcov=$?
     bash <(curl -s https://codecov.io/bash)
+  fi
 
+  ./scripts/check-examples.sh
+  check_examples=$?
+
+  if [ $check_examples -eq 0 ] && [ $check_workspace -eq 0 ]
+  then
     echo "All checks have passed!"
     exit 0
   else
