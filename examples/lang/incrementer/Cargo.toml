@@ -23,7 +23,7 @@ crate-type = [
 ]
 
 [features]
-default = ["std"]
+default = ["test-env"]
 std = [
     "ink_abi/std",
     "ink_core/std",
