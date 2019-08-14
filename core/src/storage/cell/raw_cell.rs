@@ -76,6 +76,11 @@ impl RawCell {
     pub fn clear(&mut self) {
         unsafe { env::clear(self.key) }
     }
+
+    /// Returns the associated, internal raw key.
+    pub fn raw_key(&self) -> Key {
+        self.key
+    }
 }
 
 #[cfg(all(test, feature = "test-env"))]

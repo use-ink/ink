@@ -24,10 +24,19 @@ use crate::storage::{
     cell::SyncCell,
     Flush,
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
 use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 // Missing traits:
 //
@@ -49,9 +58,21 @@ use scale::{
 /// [`set`](struct.Value.html#method.set) or
 /// [`mutate_with`](struct.Value.html#method.mutate_with).
 #[derive(Debug, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Value<T> {
     /// The cell of the storage value.
     cell: SyncCell<T>,
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<T> HasLayout for Value<T>
+where
+    T: Metadata + 'static,
+{
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(Self::meta_type(), vec![LayoutField::of("cell", &self.cell)])
+            .into()
+    }
 }
 
 impl<T> AllocateUsing for Value<T> {

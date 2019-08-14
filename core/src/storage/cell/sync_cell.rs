@@ -23,10 +23,25 @@ use crate::{
         },
         cell::TypedCell,
         Flush,
+        Key,
     },
 };
-
 use core::cell::RefCell;
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutRange,
+    StorageLayout,
+};
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::{
+    HasTypeDef,
+    Metadata,
+    NamedField,
+    TypeDef,
+    TypeDefStruct,
+    TypeId,
+};
 
 /// A synchronized cell.
 ///
@@ -39,11 +54,19 @@ use core::cell::RefCell;
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(TypeId))]
 pub struct SyncCell<T> {
     /// The underlying typed cell.
     cell: TypedCell<T>,
     /// The cache for the synchronized value.
     cache: Cache<T>,
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<T> HasTypeDef for SyncCell<T> {
+    fn type_def() -> TypeDef {
+        TypeDefStruct::new(vec![NamedField::of::<Key>("cell")]).into()
+    }
 }
 
 /// A synchronized cache entry.
@@ -286,6 +309,16 @@ impl<T> Cache<T> {
     }
 }
 
+#[cfg(feature = "ink-generate-abi")]
+impl<T> HasLayout for SyncCell<T>
+where
+    T: Metadata,
+{
+    fn layout(&self) -> StorageLayout {
+        LayoutRange::cell(self.raw_key(), T::meta_type()).into()
+    }
+}
+
 impl<T> scale::Encode for SyncCell<T> {
     fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.cell.encode_to(dest)
@@ -338,6 +371,11 @@ impl<T> SyncCell<T> {
     pub fn clear(&mut self) {
         self.cache.update(None);
         self.cache.mark_dirty();
+    }
+
+    /// Returns the associated, internal raw key.
+    pub fn raw_key(&self) -> Key {
+        self.cell.raw_key()
     }
 }
 

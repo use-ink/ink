@@ -63,6 +63,10 @@ fn contract_compiles() {
                 /// # Note
                 ///
                 /// Can be deployed, cannot be called.
+                #[cfg_attr(
+                    feature = "ink-generate-abi",
+                    derive(type_metadata::Metadata, ink_abi::HasLayout,)
+                )]
                 pub struct Noop {}
             }
 
@@ -140,6 +144,35 @@ fn contract_compiles() {
 
                 impl TestableNoop { }
             }
+
+            #[cfg(feature = "ink-generate-abi")]
+            pub fn ink_generate_abi() -> ink_abi::InkProject {
+                let contract = {
+                    ink_abi::ContractSpec::new("Noop")
+                        .on_deploy(ink_abi::DeploySpec::new()
+                        .args(vec![])
+                        .docs(vec![
+                            "Does nothing to initialize itself."
+                        ])
+                        .done()
+                    )
+                    .messages(vec![])
+                    .events(vec![])
+                    .docs(vec![])
+                    .done()
+                };
+                let layout = {
+                    unsafe {
+                        use ink_core::storage::alloc::AllocateUsing as _;
+                        use ink_abi::HasLayout as _;
+                        Noop::allocate_using(
+                            &mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(ink_core::storage::Key(
+                                [0x0; 32]
+                            ))).layout()
+                        }
+                    };
+                    ink_abi::InkProject::new(layout, contract)
+                }
         },
     )
 }

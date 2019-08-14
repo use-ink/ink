@@ -69,6 +69,10 @@ fn contract_compiles() {
 
             ink_model::state! {
                 /// A simple contract that has a boolean value that can be flipped and be returned.
+                #[cfg_attr(
+                    feature = "ink-generate-abi",
+                    derive(type_metadata::Metadata, ink_abi::HasLayout,)
+                )]
                 pub struct Flipper {
                     /// The internal value.
                     value: storage::Value<bool>,
@@ -183,6 +187,51 @@ fn contract_compiles() {
                         state.get(handler,)
                     }
                 }
+            }
+
+            #[cfg(feature = "ink-generate-abi")]
+            pub fn ink_generate_abi() -> ink_abi::InkProject{
+                let contract = {
+                    ink_abi::ContractSpec::new("Flipper")
+                        .on_deploy(ink_abi::DeploySpec::new()
+                        .args(vec![])
+                        .docs(vec!["The internal boolean is initialized with `true`."])
+                        .done()
+                    )
+                    .messages(vec![
+                        ink_abi::MessageSpec::new("flip")
+                            .selector(970692492u32)
+                            .mutates(true)
+                            .args(vec![])
+                            .docs(vec!["Flips the internal boolean.",])
+                            .returns(ink_abi::ReturnTypeSpec::none())
+                            .done(),
+                        ink_abi::MessageSpec::new("get")
+                            .selector(4266279973u32)
+                            .mutates(false)
+                            .args(vec![])
+                            .docs(vec!["Returns the internal boolean.",])
+                            .returns(
+                                ink_abi::ReturnTypeSpec::new::<bool>()
+                            )
+                            .done(),
+                        ])
+                        .events(vec![])
+                        .docs(vec![])
+                        .done()
+                };
+                let layout = {
+                    unsafe {
+                        use ink_core::storage::alloc::AllocateUsing as _;
+                        use ink_abi::HasLayout as _;
+                        Flipper::allocate_using(
+                            &mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                                ink_core::storage::Key([0x0; 32])
+                            )
+                        ).layout()
+                    }
+                };
+                ink_abi::InkProject::new(layout, contract)
             }
         },
     )

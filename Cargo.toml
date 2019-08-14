@@ -6,9 +6,11 @@ members = [
     "model",
     "lang",
     "cli",
+    "abi",
 ]
 exclude = [
     "examples/",
+    "cli/template/",
 ]
 
 [profile.release]

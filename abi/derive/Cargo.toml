@@ -1,0 +1,20 @@
+[package]
+name = "ink_abi_derive"
+version = "0.1.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "Apache-2.0"
+readme = "../README.md"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "0.6"
+syn = { version = "0.15", features = ["full"] }
+proc-macro2 = "0.4"
+
+[features]
+default = ["std"]
+std = []

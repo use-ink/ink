@@ -5,34 +5,47 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
+ink_abi = { path = "../../../abi", default-features = false, features = ["derive"], optional = true }
 ink_core = { path = "../../../core", default-features = false }
 ink_model = { path = "../../../model", default-features = false }
 ink_lang = { path = "../../../lang", default-features = false }
+
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
+serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "erc20"
-crate-type = ["cdylib"]
+crate-type = [
+	# Used for normal contract Wasm blobs.
+	"cdylib",
+	# Used for ABI generation.
+	"rlib",
+]
 
 [features]
-default = [
-    "std",
-    "ink_lang/generate-api-description"
-]
+default = ["test-env"]
 std = [
+    "ink_abi/std",
     "ink_core/std",
     "ink_model/std",
     "ink_lang/std",
+    "type-metadata/std",
     "scale/std",
+    "serde/std",
 ]
 test-env = [
-    "std",
+	"std",
     "ink_core/test-env",
     "ink_model/test-env",
     "ink_lang/test-env",
 ]
-generate-api-description = [
-    "ink_lang/generate-api-description"
+ink-generate-abi = [
+    "std",
+    "ink_abi",
+    "serde",
+    "type-metadata",
+    "ink_core/ink-generate-abi",
 ]
 
 [profile.release]
@@ -40,4 +53,11 @@ panic = "abort"
 lto = true
 opt-level = "z"
 overflow-checks = true
-# debug = true
+
+[workspace]
+members = [
+	".ink/abi_gen"
+]
+exclude = [
+	".ink"
+]

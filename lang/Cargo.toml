@@ -51,4 +51,3 @@ std = [
 test-env = [
     "ink_model/test-env",
 ]
-generate-api-description = []

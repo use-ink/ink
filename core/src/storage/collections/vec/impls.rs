@@ -24,11 +24,19 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
-
 use core::iter::{
     DoubleEndedIterator,
     ExactSizeIterator,
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.
 ///
@@ -45,6 +53,7 @@ use core::iter::{
 /// Allows to store up to `2^32` elements and is guaranteed to not reallocate
 /// upon pushing new elements to it.
 #[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Vec<T> {
     /// The length of the vector.
     len: storage::Value<u32>,
@@ -81,6 +90,23 @@ where
     fn flush(&mut self) {
         self.len.flush();
         self.cells.flush();
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<T> HasLayout for Vec<T>
+where
+    T: Metadata + 'static,
+{
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("len", &self.len),
+                LayoutField::of("cells", &self.cells),
+            ],
+        )
+        .into()
     }
 }
 

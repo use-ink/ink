@@ -7,7 +7,7 @@ rust:
   # - stable
   # - beta
   - nightly
-  - nightly-2019-07-19
+  - nightly-2019-08-09
 
 matrix:
   allow_failures:
@@ -35,6 +35,7 @@ install:
   # Print rustc and cargo versions
   - rustc -vV
   - cargo -vV
+  - bash --version
   # Install cargo-kcov Cargo plugin
   - cargo install --force cargo-kcov
   - cargo kcov -vV
@@ -61,92 +62,19 @@ before_script:
 
 script:
 - |
-  cargo check --verbose --all --all-features
-  check_all_features=$?
+  ./scripts/check-workspace.sh
+  check_workspace=$?
 
-  cargo check --verbose --all --no-default-features
-  check_no_default=$?
+  ./scripts/check-examples.sh
+  check_examples=$?
 
-  cargo fmt --verbose --all -- --check
-  fmt=$?
-
-  cargo clippy --verbose --all --all-features -- -D warnings
-  clippy_all_features=$?
-
-  cargo clippy --verbose --all --no-default-features -- -D warnings
-  clippy_no_default=$?
-
-  cargo test --verbose --all --all-features
-  test=$?
-
-  cargo kcov --verbose --coveralls --all --no-clean-rebuild
-  kcov=$?
-  bash <(curl -s https://codecov.io/bash)
-
-  cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
-  build_wasm=$?
-
-  echo "CI Summary"
-  echo "=========="
-  echo ""
-  if [ $check_all_features -eq 0 ]
+  if [ $check_examples -eq 0 ] && [ $check_workspace -eq 0 ]
   then
-    echo "compile (all-features):        ok"
-  else
-    echo "compile (all-features):        ERROR"
-  fi
+    # Execute and upload kcov results
+    cargo kcov --verbose --coveralls --all --no-clean-rebuild
+    kcov=$?
+    bash <(curl -s https://codecov.io/bash)
 
-  if [ $check_no_default -eq 0 ]
-  then
-    echo "compile (no-default-features): ok"
-  else
-    echo "compile (no-default-features): ERROR"
-  fi
-
-  if [ $fmt -eq 0 ]
-  then
-    echo "formatting:                    ok"
-  else
-    echo "formatting:                    ERROR"
-  fi
-
-  if [ $clippy_all_features -eq 0 ]
-  then
-    echo "clippy (all-features):         ok"
-  else
-    echo "clippy (all-features):         ERROR"
-  fi
-
-  if [ $clippy_no_default -eq 0 ]
-  then
-    echo "clippy (no-default-features):  ok"
-  else
-    echo "clippy (no-default-features):  ERROR"
-  fi
-
-  if [ $test -eq 0 ]
-  then
-    echo "test (all-features):           ok"
-  else
-    echo "test (all-features):           ERROR"
-  fi
-
-  if [ $build_wasm -eq 0 ]
-  then
-    echo "build Wasm:                    ok"
-  else
-    echo "build Wasm:                    ERROR"
-  fi
-
-  if [ $kcov -eq 0 ]
-  then
-    echo "coverage analysis:             ok"
-  else
-    echo "coverage analysis:             ERROR"
-  fi
-
-  if [ $check_all_features -eq 0 ] && [ $check_no_default -eq 0 ] && [ $fmt -eq 0 ] && [ $clippy_all_features -eq 0 ] && [ $clippy_no_default -eq 0 ] && [ $test -eq 0 ] && [ $build_wasm -eq 0 ]
-  then
     echo "All checks have passed!"
     exit 0
   else

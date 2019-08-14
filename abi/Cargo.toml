@@ -1,0 +1,34 @@
+[package]
+name = "ink_abi"
+version = "0.1.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "GPL-3.0"
+readme = "README.md"
+
+description = "Rust based eDSL for writing smart contracts for Substrate"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["no-std", "embedded"]
+
+include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
+
+[dependencies]
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+derive_more = { version = "0.14", features = ["no_std"] }
+ink_abi_derive = { version = "0.1.0", path = "derive", default-features = false, optional = true }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"] }
+
+[features]
+default = [
+    "std",
+    "derive",
+]
+derive = [
+    "ink_abi_derive"
+]
+std = [
+    "ink_abi_derive/std",
+    "serde/std",
+    "type-metadata/std",
+]

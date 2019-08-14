@@ -32,7 +32,16 @@ use core::{
     borrow::Borrow,
     hash::Hash,
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
 use ink_utils::hash;
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// Mapping stored in the contract storage.
 ///
@@ -52,6 +61,7 @@ use ink_utils::hash;
 ///
 /// This distinction is important for the quadratic map probing.
 #[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct HashMap<K, V> {
     /// The storage key to the length of this storage map.
     len: storage::Value<u32>,
@@ -64,12 +74,31 @@ pub struct HashMap<K, V> {
     entries: SyncChunk<Entry<K, V>>,
 }
 
+#[cfg(feature = "ink-generate-abi")]
+impl<K, V> HasLayout for HashMap<K, V>
+where
+    K: Metadata + 'static,
+    V: Metadata + 'static,
+{
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("len", &self.len),
+                LayoutField::of("entries", &self.entries),
+            ],
+        )
+        .into()
+    }
+}
+
 /// An entry of a storage map.
 ///
 /// This can either store the entries key and value
 /// or represent an entry that was removed after it
 /// has been occupied with key and value.
 #[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub enum Entry<K, V> {
     /// An occupied slot with a key and a value.
     Occupied(OccupiedEntry<K, V>),
@@ -92,6 +121,7 @@ where
 
 /// An occupied entry of a storage map.
 #[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct OccupiedEntry<K, V> {
     /// The entry's key.
     key: K,
