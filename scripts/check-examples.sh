@@ -28,7 +28,7 @@ for example in $(ls examples/lang); do
     else
         results_wasm[$example]="ERROR"
     fi
-    cargo test --features test-env --verbose --manifest-path examples/lang/$example/Cargo.toml
+    cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml
     result_test=$?
     let "all_checks_passed |= $result_test"
     if [ $result_test -eq 0 ]
@@ -55,12 +55,13 @@ for entry in ${!results_wasm[@]}; do
     echo "- $entry (test): ${results_test[$entry]}"
     echo "- $entry (abi) : ${results_abi[$entry]}"
 done
-
+echo ""
 if [ $all_checks_passed -eq 0 ]
 then
-    echo "All example checks passed!"
+    echo "examples: All checks passed"
     exit 0
 else
-    echo "Some example checks failed!"
+    echo "examples: Some checks failed"
     exit 1
 fi
+echo "---------------"
