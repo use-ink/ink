@@ -17,7 +17,7 @@
 //! The `ink_core` utilities used by all ink! smart contracts.
 //!
 //! Mainly provides entities to work on a contract's storage
-//! as well as high-level collcetions on top of those.
+//! as well as high-level collections on top of those.
 //! Also provides environmental utilities, such as storage allocators,
 //! FFI to interface with SRML contracts and a primitive blockchain
 //! emulator for simple off-chain testing.
