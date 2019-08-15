@@ -477,8 +477,8 @@ where
         // Consumes the contract since nothing should be done afterwards.
         use ink_core::storage::alloc::Initialize as _;
         self.env.initialize(());
-        let deploy_params = DeployArgs::decode(&mut &input[..])
-            .map_err(|_err| RetCode::failure())?;
+        let deploy_params =
+            DeployArgs::decode(&mut &input[..]).map_err(|_err| RetCode::failure())?;
         (self.deployer.deploy_fn)(&mut self.env, deploy_params);
         self.env.state.flush();
         Ok(())
@@ -531,7 +531,8 @@ where
         <Msg as Message>::Input: scale::Encode,
         <Msg as Message>::Output: scale::Decode,
     {
-        let encoded_result = self.call_with(CallData::from_msg::<Msg>(input))
+        let encoded_result = self
+            .call_with(CallData::from_msg::<Msg>(input))
             .expect("`call` failed to execute properly");
         use scale::Decode;
         <Msg as Message>::Output::decode(&mut &encoded_result[..])

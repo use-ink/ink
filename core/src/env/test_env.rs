@@ -440,8 +440,7 @@ where
 
     /// Returns the latest returned data.
     pub fn returned_data() -> Vec<u8> {
-        TEST_ENV_DATA
-            .with(|test_env| test_env.borrow().returned_data().to_vec())
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().returned_data().to_vec())
     }
 
     /// Sets the input data for the next contract invocation.
@@ -525,11 +524,7 @@ where
     );
 
     fn return_data(data: &[u8]) {
-        TEST_ENV_DATA.with(|test_env| {
-            test_env
-                .borrow_mut()
-                .return_data(data)
-        })
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().return_data(data))
     }
 
     fn println(content: &str) {
