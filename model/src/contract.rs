@@ -288,7 +288,7 @@ where
 
 /// A return status code for `deploy` and `dispatch` calls back to the SRML contracts module.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct RetCode(u32);
+pub struct RetCode(u8);
 
 impl RetCode {
     /// Indicates a successful execution.
@@ -303,7 +303,7 @@ impl RetCode {
 
     /// Returns the internal `u32` value.
     pub fn to_u32(self) -> u32 {
-        self.0
+        self.0 as u32
     }
 }
 
