@@ -96,8 +96,8 @@ fn contract_compiles() {
                 }
             }
 
-            #[cfg(not(test))] #[no_mangle] fn deploy() { Noop::instantiate().deploy() }
-            #[cfg(not(test))] #[no_mangle] fn call() { Noop::instantiate().dispatch() }
+            #[cfg(not(test))] #[no_mangle] fn deploy() -> u32 { Noop::instantiate().deploy().to_u32() }
+            #[cfg(not(test))] #[no_mangle] fn call() -> u32 { Noop::instantiate().dispatch().to_u32() }
 
             #[cfg(test)]
             mod test {

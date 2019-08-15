@@ -166,8 +166,8 @@ fn contract_compiles() {
                 }
             }
 
-            #[cfg(not(test))] #[no_mangle] fn deploy() { CallCounter::instantiate().deploy() }
-            #[cfg(not(test))] #[no_mangle] fn call() { CallCounter::instantiate().dispatch() }
+            #[cfg(not(test))] #[no_mangle] fn deploy() -> u32 { CallCounter::instantiate().deploy().to_u32() }
+            #[cfg(not(test))] #[no_mangle] fn call() -> u32 { CallCounter::instantiate().dispatch().to_u32() }
 
             mod events {
                 use super::*;
