@@ -635,7 +635,7 @@ where
             .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data));
         match U::decode(&mut &return_data[..]) {
             Ok(x) => Ok(x),
-            Err(_) => Err(CallError {}),
+            Err(_) => Err(CallError),
         }
     }
 }

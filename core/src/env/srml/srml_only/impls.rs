@@ -179,7 +179,7 @@ where
             if success == 0 {
                 Ok(())
             } else {
-                Err(CallError {})
+                Err(CallError)
             }
         }
     }
@@ -205,7 +205,7 @@ where
             if success == 0 {
                 Ok(U::decode(&mut &read_scratch_buffer()[..]).unwrap())
             } else {
-                Err(CallError {})
+                Err(CallError)
             }
         }
     }
