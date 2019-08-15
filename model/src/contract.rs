@@ -487,9 +487,7 @@ where
     /// Calls the message encoded by the given call data
     /// and returns the resulting value back to the caller.
     fn call_with_and_return(&mut self, call_data: CallData) -> Result<(), RetCode> {
-        // let encoded_result = self.call_with(call_data);
-        let result = self.handlers.handle_call(&mut self.env, call_data)
-            .map_err(|_err| RetCode::failure())?;
+        let result = self.call_with(call_data)?;
         if !result.is_empty() {
             self.env.return_data(result)
         }
@@ -504,10 +502,10 @@ where
     ///   message that is encoded by the given call data.
     /// - If the encoded input arguments for the message do not
     ///   match the expected format.
-    fn call_with(&mut self, call_data: CallData) -> Vec<u8> {
+    fn call_with(&mut self, call_data: CallData) -> Result<Vec<u8>, RetCode> {
         match self.handlers.handle_call(&mut self.env, call_data) {
-            Ok(encoded_result) => encoded_result,
-            Err(err) => panic!(err.description()),
+            Ok(encoded_result) => Ok(encoded_result),
+            Err(_err) => Err(RetCode::failure()),
         }
     }
 }
@@ -533,7 +531,8 @@ where
         <Msg as Message>::Input: scale::Encode,
         <Msg as Message>::Output: scale::Decode,
     {
-        let encoded_result = self.call_with(CallData::from_msg::<Msg>(input));
+        let encoded_result = self.call_with(CallData::from_msg::<Msg>(input))
+            .expect("`call` failed to execute properly");
         use scale::Decode;
         <Msg as Message>::Output::decode(&mut &encoded_result[..])
             .expect("`call_with` only encodes the correct types")
