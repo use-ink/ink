@@ -34,7 +34,7 @@ fn read_scratch_buffer() -> Vec<u8> {
     if size > 0 {
         value.resize(size as usize, 0);
         unsafe {
-            sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
+            sys::ext_scratch_read(value.as_mut_ptr() as u32, 0, size);
         }
     }
     value

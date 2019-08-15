@@ -85,8 +85,9 @@ extern "C" {
     /// Returns the length in bytes of the scratch buffer.
     pub fn ext_scratch_size() -> u32;
 
-    /// Copies the contents of the scratch buffer to `dest_ptr`.
-    pub fn ext_scratch_copy(dest_ptr: u32, offset: u32, len: u32);
+    /// Reads the contents of the scratch buffer at the host site starting at `offset` and writes them to the
+    /// buffer starting at `dst_ptr` with length `len` on the smart contract site.
+    pub fn ext_scratch_read(dst_ptr: u32, offset: u32, len: u32);
 
     /// Immediately returns contract execution to the caller
     /// with the provided data at `data_ptr`.
