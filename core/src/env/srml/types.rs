@@ -30,6 +30,13 @@ use scale::{
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
+/// Errors encountered by calling a remote contract.
+///
+/// # Note
+///
+/// This is currently just a placeholder for potential future error codes.
+pub struct CallError;
+
 /// The SRML fundamental types.
 #[allow(unused)]
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]

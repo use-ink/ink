@@ -19,7 +19,10 @@ mod srml_only;
 
 mod types;
 
-pub use self::types::DefaultSrmlTypes;
+pub use self::types::{
+    CallError,
+    DefaultSrmlTypes,
+};
 
 #[cfg(not(feature = "test-env"))]
 pub use self::srml_only::{

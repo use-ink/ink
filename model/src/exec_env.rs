@@ -19,6 +19,7 @@ use core::marker::PhantomData;
 use ink_core::{
     env::{
         self,
+        CallError,
         Env,
     },
     storage::alloc::{
@@ -201,7 +202,7 @@ impl<T: Env> EnvHandler<T> {
         gas: u64,
         value: T::Balance,
         input_data: &[u8],
-    ) -> Result<(), <T as Env>::CallError> {
+    ) -> Result<(), CallError> {
         T::call_invoke(callee, gas, value, input_data)
     }
 
@@ -212,7 +213,7 @@ impl<T: Env> EnvHandler<T> {
         gas: u64,
         value: T::Balance,
         input_data: &[u8],
-    ) -> Result<U, <T as Env>::CallError> {
+    ) -> Result<U, CallError> {
         T::call_evaluate(callee, gas, value, input_data)
     }
 }

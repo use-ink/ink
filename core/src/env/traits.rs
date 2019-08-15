@@ -15,6 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+    env::CallError,
     memory::vec::Vec,
     storage::Key,
 };
@@ -88,9 +89,6 @@ pub trait EnvStorage {
 
 /// The environment API usable by contracts defined with pDSL.
 pub trait Env: EnvTypes {
-    /// Error type of remote call;
-    type CallError;
-
     /// Returns the chain address of the contract.
     fn address() -> <Self as EnvTypes>::AccountId;
 
@@ -149,7 +147,7 @@ pub trait Env: EnvTypes {
         gas: u64,
         value: <Self as EnvTypes>::Balance,
         input_data: &[u8],
-    ) -> Result<(), Self::CallError>;
+    ) -> Result<(), CallError>;
 
     /// Calls a remote smart contract and return encoded data
     fn call_evaluate<T: Decode>(
@@ -157,5 +155,5 @@ pub trait Env: EnvTypes {
         gas: u64,
         value: <Self as EnvTypes>::Balance,
         input_data: &[u8],
-    ) -> Result<T, Self::CallError>;
+    ) -> Result<T, CallError>;
 }

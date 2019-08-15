@@ -16,7 +16,10 @@
 
 use super::*;
 use crate::{
-    env::EnvTypes,
+    env::{
+        CallError,
+        EnvTypes,
+    },
     memory::collections::hash_map::{
         Entry,
         HashMap,
@@ -48,7 +51,8 @@ impl EventData {
 }
 
 /// Emulates the data given to remote smart contract call instructions.
-struct CallData {
+#[allow(unused)]
+pub struct CallData {
     callee: Vec<u8>,
     gas: u64,
     value: Vec<u8>,
@@ -189,6 +193,8 @@ pub struct TestEnvData {
     value_transferred: Vec<u8>,
     /// The calls.
     calls: Vec<CallData>,
+    /// The return data of the external call.
+    call_return: Vec<u8>,
 }
 
 impl Default for TestEnvData {
@@ -211,6 +217,7 @@ impl Default for TestEnvData {
             value_transferred: Vec::new(),
             dispatched_calls: Vec::new(),
             calls: Vec::new(),
+            call_return: Vec::new(),
         }
     }
 }
@@ -232,6 +239,7 @@ impl TestEnvData {
         self.events.clear();
         self.dispatched_calls.clear();
         self.calls.clear();
+        self.call_return.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -441,15 +449,15 @@ impl TestEnvData {
         self.add_dispatched_call(call);
     }
 
-    pub fn call<T: Decode>(
+    pub fn call(
         &mut self,
         callee: &[u8],
         gas: u64,
         value: &[u8],
         input_data: &[u8],
-    ) -> Result<T, CallError> {
+    ) -> Vec<u8> {
         self.add_call(callee, gas, value, input_data);
-        unimplemented!();
+        self.call_return.clone()
     }
 }
 
@@ -610,12 +618,9 @@ where
     ) -> Result<(), CallError> {
         let callee = &(callee.encode())[..];
         let value = &(value.encode())[..];
-        let res = TEST_ENV_DATA
+        let _return_data = TEST_ENV_DATA
             .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data));
-        match res {
-            Ok(_) => Ok(()),
-            Err(x) => Err(x),
-        }
+        Ok(())
     }
 
     fn call_evaluate<U: Decode>(
@@ -626,8 +631,12 @@ where
     ) -> Result<U, CallError> {
         let callee = &(callee.encode())[..];
         let value = &(value.encode())[..];
-        TEST_ENV_DATA
-            .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data))
+        let return_data = TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data));
+        match U::decode(&mut &return_data[..]) {
+            Ok(x) => Ok(x),
+            Err(_) => Err(CallError {}),
+        }
     }
 }
 

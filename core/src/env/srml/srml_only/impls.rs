@@ -17,6 +17,7 @@
 use crate::{
     env::{
         srml::sys,
+        CallError,
         Env,
         EnvStorage,
         EnvTypes,
@@ -72,13 +73,6 @@ impl EnvStorage for SrmlEnvStorage {
     }
 }
 
-/// Errors encountered by calling a remote contract.
-///
-/// # Note
-///
-/// This is currently just a placeholder for potential future error codes.
-pub struct CallError;
-
 /// The SRML contracts environment.
 pub struct SrmlEnv<T>
 where
@@ -117,8 +111,6 @@ impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
 {
-    type CallError = CallError;
-
     fn input() -> Vec<u8> {
         read_scratch_buffer()
     }
