@@ -631,12 +631,12 @@ where
     ) -> Result<U, CallError> {
         let callee = &(callee.encode())[..];
         let value = &(value.encode())[..];
-        let return_data = TEST_ENV_DATA
-            .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data));
-        match U::decode(&mut &return_data[..]) {
-            Ok(x) => Ok(x),
-            Err(_) => Err(CallError),
-        }
+        TEST_ENV_DATA.with(|test_env| {
+            U::decode(
+                &mut &(test_env.borrow_mut().call(callee, gas, value, input_data))[..],
+            )
+            .map_err(|_| CallError)
+        })
     }
 }
 

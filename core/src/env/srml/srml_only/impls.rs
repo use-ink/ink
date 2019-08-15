@@ -203,7 +203,7 @@ where
                 input_data.len() as u32,
             );
             if success == 0 {
-                Ok(U::decode(&mut &read_scratch_buffer()[..]).unwrap())
+                U::decode(&mut &read_scratch_buffer()[..]).map_err(|_| CallError)
             } else {
                 Err(CallError)
             }
