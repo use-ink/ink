@@ -159,12 +159,6 @@ pub struct TestEnvData {
     ///
     /// The current current block number can be adjusted by `TestEnvData::set_block_number`.
     block_number: Vec<u8>,
-    /// The expected return data of the next contract invocation.
-    ///
-    /// # Note
-    ///
-    /// This can be set by `TestEnvData::set_expected_return`.
-    expected_return: Vec<u8>,
     /// The total number of reads from the storage.
     total_reads: Cell<u64>,
     /// The total number of writes to the storage.
@@ -179,6 +173,8 @@ pub struct TestEnvData {
     gas_left: Vec<u8>,
     /// The total transferred value.
     value_transferred: Vec<u8>,
+    /// Returned data.
+    return_data: Vec<u8>,
 }
 
 impl Default for TestEnvData {
@@ -192,7 +188,6 @@ impl Default for TestEnvData {
             random_seed: Vec::new(),
             now: Vec::new(),
             block_number: Vec::new(),
-            expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
             events: Vec::new(),
@@ -200,6 +195,7 @@ impl Default for TestEnvData {
             gas_left: Vec::new(),
             value_transferred: Vec::new(),
             dispatched_calls: Vec::new(),
+            return_data: Vec::new(),
         }
     }
 }
@@ -215,11 +211,11 @@ impl TestEnvData {
         self.random_seed.clear();
         self.now.clear();
         self.block_number.clear();
-        self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
         self.events.clear();
         self.dispatched_calls.clear();
+        self.return_data.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -250,11 +246,6 @@ impl TestEnvData {
     /// Returns the number of writes to the entry associated by the given key if any.
     pub fn writes_for(&self, key: Key) -> Option<u64> {
         self.storage.get(&key).map(|loaded| loaded.writes())
-    }
-
-    /// Sets the expected return data for the next contract invocation.
-    pub fn set_expected_return(&mut self, expected_bytes: &[u8]) {
-        self.expected_return = expected_bytes.to_vec();
     }
 
     /// Sets the contract address for the next contract invocation.
@@ -317,24 +308,14 @@ impl TestEnvData {
     pub fn dispatched_calls(&self) -> impl DoubleEndedIterator<Item = &[u8]> {
         self.dispatched_calls.iter().map(Vec::as_slice)
     }
+
+    /// Returns the latest returned data.
+    pub fn returned_data(&self) -> &[u8] {
+        &self.return_data
+    }
 }
 
 impl TestEnvData {
-    /// The return code for successful contract invocations.
-    ///
-    /// # Note
-    ///
-    /// A contract invocation is successful if it returned the same data
-    /// as was expected upon invocation.
-    const SUCCESS: i32 = 0;
-    /// The return code for unsuccessful contract invocations.
-    ///
-    /// # Note
-    ///
-    /// A contract invocation is unsuccessful if it did not return the
-    /// same data as was expected upon invocation.
-    const FAILURE: i32 = -1;
-
     pub fn address(&self) -> Vec<u8> {
         self.address.clone()
     }
@@ -396,14 +377,8 @@ impl TestEnvData {
         self.value_transferred.clone()
     }
 
-    pub fn r#return(&self, data: &[u8]) -> ! {
-        let expected_bytes = self.expected_return.clone();
-        let exit_code = if expected_bytes == data {
-            Self::SUCCESS
-        } else {
-            Self::FAILURE
-        };
-        std::process::exit(exit_code)
+    pub fn return_data(&mut self, data: &[u8]) {
+        self.return_data = data.to_vec();
     }
 
     pub fn println(&self, content: &str) {
@@ -463,10 +438,9 @@ where
         TEST_ENV_DATA.with(|test_env| test_env.borrow().writes_for(key))
     }
 
-    /// Sets the expected return data for the next contract invocation.
-    pub fn set_expected_return(expected_bytes: &[u8]) {
-        TEST_ENV_DATA
-            .with(|test_env| test_env.borrow_mut().set_expected_return(expected_bytes))
+    /// Returns the latest returned data.
+    pub fn returned_data() -> Vec<u8> {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().returned_data().to_vec())
     }
 
     /// Sets the input data for the next contract invocation.
@@ -549,8 +523,8 @@ where
         (value_transferred, T::Balance)
     );
 
-    unsafe fn r#return(data: &[u8]) -> ! {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().r#return(data))
+    fn return_data(data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().return_data(data))
     }
 
     fn println(content: &str) {

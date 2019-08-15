@@ -146,12 +146,16 @@ impl<T: Env> EnvHandler<T> {
         T::caller()
     }
 
-    /// Returns from the current smart contract execution with the given value.
-    pub unsafe fn r#return<V>(&self, val: V) -> !
+    /// Returns the given data back to the caller.
+    ///
+    /// # Note
+    ///
+    /// This must be the last operation executed before returning execution back to the caller.
+    pub fn return_data<V>(&self, data: V)
     where
         V: scale::Encode,
     {
-        env::r#return::<V, T>(val)
+        env::return_data::<V, T>(data)
     }
 
     /// Prints the given content.

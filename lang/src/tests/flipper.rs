@@ -130,8 +130,8 @@ fn contract_compiles() {
                 }
             }
 
-            #[cfg(not(test))] #[no_mangle] fn deploy() { Flipper::instantiate().deploy() }
-            #[cfg(not(test))] #[no_mangle] fn call() { Flipper::instantiate().dispatch() }
+            #[cfg(not(test))] #[no_mangle] fn deploy() -> u32 { Flipper::instantiate().deploy().to_u32() }
+            #[cfg(not(test))] #[no_mangle] fn call() -> u32 { Flipper::instantiate().dispatch().to_u32() }
 
             #[cfg(test)]
             mod test {

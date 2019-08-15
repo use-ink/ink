@@ -89,9 +89,8 @@ extern "C" {
     /// buffer starting at `dst_ptr` with length `len` on the smart contract site.
     pub fn ext_scratch_read(dst_ptr: u32, offset: u32, len: u32);
 
-    /// Immediately returns contract execution to the caller
-    /// with the provided data at `data_ptr`.
-    pub fn ext_return(data_ptr: u32, data_len: u32) -> !;
+    /// Writes the contents of the given data buffer into the scratch buffer on the host side.
+    pub fn ext_scratch_write(src_ptr: u32, len: u32);
 
     /// Stores the address of the current contract into the scratch buffer.
     pub fn ext_address();
