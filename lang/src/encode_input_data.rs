@@ -2,7 +2,7 @@ use ink_core::memory::vec::Vec;
 use ink_utils;
 use parity_codec::Encode;
 
-pub trait EncodeSafe{
+pub trait EncodeSafe {
     fn encode_safe(&self) -> Vec<u8>;
 }
 
@@ -16,7 +16,7 @@ macro_rules! impl_encode_safe {
     )* }
 }
 
-impl_encode_safe!(bool,u16,u32,u64,u128,i8,i16,i32,i64,i128,Vec<u8>);
+impl_encode_safe!(bool, u16, u32, u64, u128, i8, i16, i32, i64, i128, Vec<u8>);
 
 /// make selector from method name
 #[allow(unused)]
@@ -51,28 +51,32 @@ mod tests {
     }
 
     #[test]
-    fn encode(){
-        let var:bool = false;
+    fn encode() {
+        let var: bool = false;
         assert_eq!(var.encode(), vec![0]);
 
-        let var:bool = true;
+        let var: bool = true;
         assert_eq!(var.encode(), vec![1]);
 
-        let var :u32 = 22;
-        assert_eq!(var.encode(), vec![22,0,0,0]);
+        let var: u32 = 22;
+        assert_eq!(var.encode(), vec![22, 0, 0, 0]);
 
-        let var :u32 = 257544423;
+        let var: u32 = 257544423;
         assert_eq!(var.encode(), vec![231, 208, 89, 15]);
 
-        let mut vec1 : Vec<u8> = Vec::new(); vec1.push(11);
-        assert_eq!(vec1.encode(), vec![4,11]);
+        let mut vec1: Vec<u8> = Vec::new();
+        vec1.push(11);
+        assert_eq!(vec1.encode(), vec![4, 11]);
     }
 
     #[test]
-    fn input_data_works(){
-        let mut params : Vec<Box<EncodeSafe>> = Vec::new();
+    fn input_data_works() {
+        let mut params: Vec<Box<EncodeSafe>> = Vec::new();
         params.push(Box::new(true));
         params.push(Box::new(12u64));
-        assert_eq!(gen_input_data("inc",&params),vec![52, 231, 208, 89, 15, 1, 12, 0, 0, 0, 0, 0, 0, 0]);
+        assert_eq!(
+            gen_input_data("inc", &params),
+            vec![52, 231, 208, 89, 15, 1, 12, 0, 0, 0, 0, 0, 0, 0]
+        );
     }
 }

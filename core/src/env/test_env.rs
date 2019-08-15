@@ -47,8 +47,9 @@ impl EventData {
     }
 }
 
+/// Emulates the data given to remote smart contract call instructions.
 struct CallData {
-    calee: Vec<u8>,
+    callee: Vec<u8>,
     gas: u64,
     value: Vec<u8>,
     input_data: Vec<u8>,
@@ -329,17 +330,11 @@ impl TestEnvData {
         self.dispatched_calls.iter().map(Vec::as_slice)
     }
 
-    /// Appends new call to the end of the bytearray.
-    pub fn add_call(
-        &mut self,
-        callee: &[u8],
-        gas: u64,
-        value: &[u8],
-        input_data: &[u8],
-    ) {
+    /// Records a new call.
+    pub fn add_call(&mut self, callee: &[u8], gas: u64, value: &[u8], input_data: &[u8]) {
         let new_call = CallData {
             callee: callee.to_vec(),
-            gas: u64,
+            gas,
             value: value.to_vec(),
             input_data: input_data.to_vec(),
         };
@@ -452,11 +447,10 @@ impl TestEnvData {
         gas: u64,
         value: &[u8],
         input_data: &[u8],
-    ) -> Result<T,CallError> {
-        add_call(callee, gas, value, input_data);
+    ) -> Result<T, CallError> {
+        self.add_call(callee, gas, value, input_data);
         unimplemented!();
     }
-
 }
 
 thread_local! {
@@ -613,20 +607,23 @@ where
         gas: u64,
         value: T::Balance,
         input_data: &[u8],
-    ) {
+    ) -> Result<(), CallError> {
         let callee = &(callee.encode())[..];
         let value = &(value.encode())[..];
-        TEST_ENV_DATA
+        let res = TEST_ENV_DATA
             .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data));
-        return Result<(),CallError{}>;
+        match res {
+            Ok(_) => Ok(()),
+            Err(x) => Err(x),
+        }
     }
 
-    fn call_evaluate<U : Decode>(
+    fn call_evaluate<U: Decode>(
         callee: T::AccountId,
         gas: u64,
         value: T::Balance,
         input_data: &[u8],
-    ) -> Option<U> {
+    ) -> Result<U, CallError> {
         let callee = &(callee.encode())[..];
         let value = &(value.encode())[..];
         TEST_ENV_DATA

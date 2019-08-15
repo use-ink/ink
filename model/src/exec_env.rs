@@ -29,8 +29,8 @@ use ink_core::{
     },
 };
 use scale::{
-    Encode as _,
     Decode,
+    Encode as _,
 };
 
 /// Provides a safe interface to an environment given a contract state.
@@ -206,14 +206,13 @@ impl<T: Env> EnvHandler<T> {
     }
 
     /// Calls a remote smart contract with returning encoded data.
-    #[must_use]
-    pub fn call_evaluate<U:Decode>(
+    pub fn call_evaluate<U: Decode>(
         &mut self,
         callee: T::AccountId,
         gas: u64,
         value: T::Balance,
         input_data: &[u8],
-    ) -> Result<U, <T as Env>::CallError>  {
+    ) -> Result<U, <T as Env>::CallError> {
         T::call_evaluate(callee, gas, value, input_data)
     }
 }

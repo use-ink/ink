@@ -72,6 +72,11 @@ impl EnvStorage for SrmlEnvStorage {
     }
 }
 
+/// Errors encountered by calling a remote contract.
+///
+/// # Note
+///
+/// This is currently just a placeholder for potential future error codes.
 pub struct CallError;
 
 /// The SRML contracts environment.
@@ -177,12 +182,12 @@ where
                 value.as_ptr() as u32,
                 value.len() as u32,
                 input_data.as_ptr() as u32,
-                input_data.len() as u32
+                input_data.len() as u32,
             );
             if success == 0 {
                 Ok(())
             } else {
-                Err(CallError{})
+                Err(CallError {})
             }
         }
     }
@@ -203,12 +208,12 @@ where
                 value.as_ptr() as u32,
                 value.len() as u32,
                 input_data.as_ptr() as u32,
-                input_data.len() as u32
+                input_data.len() as u32,
             );
             if success == 0 {
                 Ok(U::decode(&mut &read_scratch_buffer()[..]).unwrap())
             } else {
-                Err(CallError{})
+                Err(CallError {})
             }
         }
     }

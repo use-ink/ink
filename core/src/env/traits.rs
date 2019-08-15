@@ -88,7 +88,6 @@ pub trait EnvStorage {
 
 /// The environment API usable by contracts defined with pDSL.
 pub trait Env: EnvTypes {
-
     /// Error type of remote call;
     type CallError;
 
@@ -149,11 +148,10 @@ pub trait Env: EnvTypes {
         callee: <Self as EnvTypes>::AccountId,
         gas: u64,
         value: <Self as EnvTypes>::Balance,
-        input_data: &[u8]
+        input_data: &[u8],
     ) -> Result<(), Self::CallError>;
 
     /// Calls a remote smart contract and return encoded data
-    #[must_use]
     fn call_evaluate<T: Decode>(
         callee: <Self as EnvTypes>::AccountId,
         gas: u64,
