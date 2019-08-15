@@ -287,6 +287,19 @@ where
 }
 
 /// A return status code for `deploy` and `dispatch` calls back to the SRML contracts module.
+///
+/// # Note
+///
+/// The `call` and `create` SRML contracts interfacing
+/// instructions both return a `u32`, however, only the least-significant
+/// 8 bits can be non-zero.
+/// For a start we only allow `0` and `255` as return codes.
+///
+/// Zero (`0`) represents a successful execution, (`255`) means invalid
+/// execution (e.g. trap) and any value in between represents a non-
+/// specified invalid execution.
+///
+/// Other error codes are subject to future proposals.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct RetCode(u8);
 
@@ -313,15 +326,6 @@ pub trait Contract {
     ///
     /// Should be performed exactly once during contract lifetime.
     /// Consumes the contract since nothing should be done afterwards.
-    ///
-    /// # Note
-    ///
-    /// Only the least-significant 8 bits of the `u32` return value may
-    /// be used to indicate success or an error state.
-    /// Zero (`0`) represents a successful execution, (`255`) means invalid
-    /// execution (e.g. trap) and any value in between represents a non-
-    /// specified invalid execution.
-    /// All other bits in the `u32` must be 0.
     fn deploy(self) -> RetCode;
 
     /// Dispatches the call input to a pre defined
@@ -336,15 +340,6 @@ pub trait Contract {
     /// The call input is invalid if there was no matching
     /// function selector found or if the data for a given
     /// selected function was not decodable.
-    ///
-    /// # Note
-    ///
-    /// Only the least-significant 8 bits of the `u32` return value may
-    /// be used to indicate success or an error state.
-    /// Zero (`0`) represents a successful execution, (`255`) means invalid
-    /// execution (e.g. trap) and any value in between represents a non-
-    /// specified invalid execution.
-    /// All other bits in the `u32` must be 0.
     fn dispatch(self) -> RetCode;
 }
 
