@@ -40,6 +40,13 @@ fn read_scratch_buffer() -> Vec<u8> {
     value
 }
 
+/// Writes the contents of `data` into the scratch buffer.
+fn write_scratch_buffer(data: &[u8]) {
+    unsafe {
+        sys::ext_scratch_write(data.as_ptr() as u32, data.len() as u32);
+    }
+}
+
 /// The SRML contract environment storage
 pub enum SrmlEnvStorage {}
 
@@ -131,8 +138,8 @@ where
         )
     );
 
-    unsafe fn r#return(data: &[u8]) -> ! {
-        sys::ext_return(data.as_ptr() as u32, data.len() as u32);
+    fn return_data(data: &[u8]) {
+        write_scratch_buffer(data)
     }
 
     fn println(content: &str) {

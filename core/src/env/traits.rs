@@ -122,7 +122,7 @@ pub trait Env: EnvTypes {
     /// The external callers rely on the correct type of the encoded
     /// returned value. This API is unsafe because it does not provide
     /// guarantees on its own to always encode the expected type.
-    unsafe fn r#return(value: &[u8]) -> !;
+    fn return_data(data: &[u8]);
 
     /// Prints the given content to Substrate output.
     ///

@@ -286,13 +286,43 @@ where
     }
 }
 
+/// A return status code for `deploy` and `dispatch` calls back to the SRML contracts module.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct RetCode(u32);
+
+impl RetCode {
+    /// Indicates a successful execution.
+    pub fn success() -> Self {
+        Self(0)
+    }
+
+    /// Indicates a failure upon execution.
+    pub fn failure() -> Self {
+        Self(255)
+    }
+
+    /// Returns the internal `u32` value.
+    pub fn to_u32(self) -> u32 {
+        self.0
+    }
+}
+
 /// A simple interface to work with contracts.
 pub trait Contract {
     /// Deploys the contract state.
     ///
     /// Should be performed exactly once during contract lifetime.
     /// Consumes the contract since nothing should be done afterwards.
-    fn deploy(self);
+    ///
+    /// # Note
+    ///
+    /// Only the least-significant 8 bits of the `u32` return value may
+    /// be used to indicate success or an error state.
+    /// Zero (`0`) represents a successful execution, (`255`) means invalid
+    /// execution (e.g. trap) and any value in between represents a non-
+    /// specified invalid execution.
+    /// All other bits in the `u32` must be 0.
+    fn deploy(self) -> RetCode;
 
     /// Dispatches the call input to a pre defined
     /// contract message and runs its handler.
@@ -306,7 +336,16 @@ pub trait Contract {
     /// The call input is invalid if there was no matching
     /// function selector found or if the data for a given
     /// selected function was not decodable.
-    fn dispatch(self);
+    ///
+    /// # Note
+    ///
+    /// Only the least-significant 8 bits of the `u32` return value may
+    /// be used to indicate success or an error state.
+    /// Zero (`0`) represents a successful execution, (`255`) means invalid
+    /// execution (e.g. trap) and any value in between represents a non-
+    /// specified invalid execution.
+    /// All other bits in the `u32` must be 0.
+    fn dispatch(self) -> RetCode;
 }
 
 /// An interface that allows for simple testing of contracts.
@@ -377,21 +416,24 @@ where
     ///
     /// Accessing uninitialized contract state can end in trapping execution
     /// or in the worst case in undefined behaviour.
-    fn deploy(self) {
+    fn deploy(self) -> RetCode {
         // Deploys the contract state.
         //
         // Should be performed exactly once during contract lifetime.
         // Consumes the contract since nothing should be done afterwards.
         let input = Env::input();
         let mut this = self;
-        this.deploy_with(input.as_slice());
+        if let Err(err) = this.deploy_with(input.as_slice()) {
+            return err
+        }
         core::mem::forget(this.env);
+        RetCode::success()
     }
 
     /// Dispatches the input buffer and calls the associated message.
     ///
     /// Returns the result to the caller if there is any.
-    fn dispatch(self) {
+    fn dispatch(self) -> RetCode {
         // Dispatches the given input to a pre defined
         // contract message and runs its handler.
         //
@@ -403,8 +445,11 @@ where
         let input = Env::input();
         let call_data = CallData::decode(&mut &input[..]).unwrap();
         let mut this = self;
-        this.call_with_and_return(call_data);
+        if let Err(err) = this.call_with_and_return(call_data) {
+            return err
+        }
         core::mem::forget(this.env);
+        RetCode::success()
     }
 }
 
@@ -425,25 +470,30 @@ where
     ///
     /// Accessing uninitialized contract state can end in trapping execution
     /// or in the worst case in undefined behaviour.
-    fn deploy_with(&mut self, input: &[u8]) {
+    fn deploy_with(&mut self, input: &[u8]) -> Result<(), RetCode> {
         // Deploys the contract state.
         //
         // Should be performed exactly once during contract lifetime.
         // Consumes the contract since nothing should be done afterwards.
         use ink_core::storage::alloc::Initialize as _;
         self.env.initialize(());
-        let deploy_params = DeployArgs::decode(&mut &input[..]).unwrap();
+        let deploy_params = DeployArgs::decode(&mut &input[..])
+            .map_err(|_err| RetCode::failure())?;
         (self.deployer.deploy_fn)(&mut self.env, deploy_params);
-        self.env.state.flush()
+        self.env.state.flush();
+        Ok(())
     }
 
     /// Calls the message encoded by the given call data
     /// and returns the resulting value back to the caller.
-    fn call_with_and_return(&mut self, call_data: CallData) {
-        let encoded_result = self.call_with(call_data);
-        if !encoded_result.is_empty() {
-            unsafe { self.env.r#return(encoded_result) }
+    fn call_with_and_return(&mut self, call_data: CallData) -> Result<(), RetCode> {
+        // let encoded_result = self.call_with(call_data);
+        let result = self.handlers.handle_call(&mut self.env, call_data)
+            .map_err(|_err| RetCode::failure())?;
+        if !result.is_empty() {
+            self.env.return_data(result)
         }
+        Ok(())
     }
 
     /// Calls the message encoded by the given call data.
@@ -474,6 +524,7 @@ where
 
     fn deploy(&mut self, input: Self::DeployArgs) {
         self.deploy_with(&input.encode()[..])
+            .expect("`deploy` failed to execute properly")
     }
 
     fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
