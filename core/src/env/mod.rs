@@ -45,6 +45,12 @@ pub use self::srml::{
     DefaultSrmlTypes,
 };
 
+#[cfg(not(feature = "test-env"))]
+pub use self::srml::{
+    CallAbi,
+    CallBuilder,
+};
+
 /// The storage environment implementation that is currently being used.
 ///
 /// This may be either
