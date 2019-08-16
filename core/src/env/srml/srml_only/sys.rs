@@ -32,6 +32,8 @@ extern "C" {
     ) -> u32;
 
     /// Calls a remote smart contract.
+    ///
+    /// Eventually returned data is put into the scratch buffer.
     pub fn ext_call(
         callee_ptr: u32,
         callee_len: u32,

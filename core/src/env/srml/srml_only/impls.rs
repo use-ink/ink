@@ -173,8 +173,8 @@ where
     ) -> Result<(), CallError> {
         let callee = callee.encode();
         let value = value.encode();
-        unsafe {
-            let success = sys::ext_call(
+        let result = unsafe {
+            sys::ext_call(
                 callee.as_ptr() as u32,
                 callee.len() as u32,
                 gas,
@@ -182,13 +182,12 @@ where
                 value.len() as u32,
                 input_data.as_ptr() as u32,
                 input_data.len() as u32,
-            );
-            if success == 0 {
-                Ok(())
-            } else {
-                Err(CallError)
-            }
+            )
+        };
+        if result != 0 {
+            return Err(CallError)
         }
+        Ok(())
     }
 
     fn call_evaluate<U: Decode>(
@@ -199,8 +198,8 @@ where
     ) -> Result<U, CallError> {
         let callee = callee.encode();
         let value = value.encode();
-        unsafe {
-            let success = sys::ext_call(
+        let result = unsafe {
+            sys::ext_call(
                 callee.as_ptr() as u32,
                 callee.len() as u32,
                 gas,
@@ -208,12 +207,11 @@ where
                 value.len() as u32,
                 input_data.as_ptr() as u32,
                 input_data.len() as u32,
-            );
-            if success == 0 {
-                U::decode(&mut &read_scratch_buffer()[..]).map_err(|_| CallError)
-            } else {
-                Err(CallError)
-            }
+            )
+        };
+        if result != 0 {
+            return Err(CallError)
         }
+        U::decode(&mut &read_scratch_buffer()[..]).map_err(|_| CallError)
     }
 }
