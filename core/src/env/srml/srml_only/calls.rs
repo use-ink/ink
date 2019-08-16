@@ -14,11 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::env::{
-    self,
-    CallError,
-    Env,
-    EnvTypes,
+use crate::{
+    env::{
+        self,
+        CallError,
+        Env,
+        EnvTypes,
+    },
+    memory::vec::{
+        self,
+        Vec,
+    },
 };
 use core::marker::PhantomData;
 use scale::Decode;
@@ -92,6 +98,35 @@ where
             return_type: PhantomData,
             raw_input: CallAbi::new(selector),
         }
+    }
+}
+
+impl<E, R> CallBuilder<E, R>
+where
+    E: EnvTypes,
+{
+    /// Sets the maximumly allowed gas costs for the call.
+    pub fn gas_cost(self, gas_cost: u64) -> Self {
+        let mut this = self;
+        this.gas_cost = gas_cost;
+        this
+    }
+
+    /// Sets the value transferred upon the execution of the call.
+    pub fn value(self, value: E::Balance) -> Self {
+        let mut this = self;
+        this.value = value;
+        this
+    }
+
+    /// Pushes an argument to the inputs of the call.
+    pub fn push_arg<A>(self, arg: &A) -> Self
+    where
+        A: scale::Encode,
+    {
+        let mut this = self;
+        this.raw_input = this.raw_input.push_arg(arg);
+        this
     }
 }
 
