@@ -17,6 +17,7 @@
 use super::ContractEnvStorage;
 use crate::{
     env::{
+        CallError,
         traits::{
             Env,
             EnvTypes,
@@ -26,7 +27,7 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use scale::Encode;
+use scale::{Encode, Decode};
 
 /// Stores the given value under the specified key in the contract storage.
 ///
@@ -83,4 +84,37 @@ where
     C: Into<<T as EnvTypes>::Call>,
 {
     T::dispatch_raw_call(&call.into().encode()[..])
+}
+
+/// Invokes a remote smart contract.
+///
+/// Does not expect to receive return data back.
+/// Use this whenever you call a remote smart contract that returns nothing back.
+pub fn call_invoke<T>(
+    callee: T::AccountId,
+    gas: u64,
+    value: T::Balance,
+    input_data: &[u8],
+) -> Result<(), CallError>
+where
+    T: Env,
+{
+    T::call_invoke(callee, gas, value, input_data)
+}
+
+/// Evaluates a remote smart contract.
+///
+/// Expects to receive return data back.
+/// Use this whenever calling a remote smart contract that returns a value.
+pub fn call_evaluate<T, R>(
+    callee: T::AccountId,
+    gas: u64,
+    value: T::Balance,
+    input_data: &[u8],
+) -> Result<R, CallError>
+where
+    T: Env,
+    R: Decode,
+{
+    T::call_evaluate(callee, gas, value, input_data)
 }

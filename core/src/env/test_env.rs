@@ -61,7 +61,7 @@ pub struct RawCallData {
 /// Decoded call data of recorded external calls.
 pub struct CallData<E>
 where
-    E: crate::env::EnvTypes,
+    E: EnvTypes,
 {
     pub callee: E::AccountId,
     pub gas: u64,
@@ -196,7 +196,7 @@ pub struct TestEnvData {
     /// The total transferred value.
     value_transferred: Vec<u8>,
     /// The recorded external calls.
-    calls: Vec<CallData>,
+    calls: Vec<RawCallData>,
     /// The expected return data of the next external call.
     call_return: Vec<u8>,
     /// Returned data.
@@ -341,13 +341,23 @@ impl TestEnvData {
 
     /// Records a new external call.
     pub fn add_call(&mut self, callee: &[u8], gas: u64, value: &[u8], input_data: &[u8]) {
-        let new_call = CallData {
+        let new_call = RawCallData {
             callee: callee.to_vec(),
             gas,
             value: value.to_vec(),
             input_data: input_data.to_vec(),
         };
         self.calls.push(new_call);
+    }
+
+    /// Returns an iterator over all recorded external calls.
+    pub fn external_calls(&self) -> impl DoubleEndedIterator<Item = &RawCallData> {
+        self.calls.iter()
+    }
+
+    /// Set the expected return data of the next external call.
+    pub fn set_return_data(&mut self, return_data: &[u8]) {
+        self.return_data = return_data.to_vec();
     }
 
     /// Returns the latest returned data.
@@ -501,6 +511,12 @@ where
             .with(|test_env| test_env.borrow_mut().set_input(input_bytes.to_vec()))
     }
 
+    /// Sets the expected return data for the next external call.
+    pub fn set_return_data(expected_return_data: &[u8]) {
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().set_return_data(expected_return_data))
+    }
+
     impl_env_setters_for_test_env!(
         (set_address, address, T::AccountId),
         (set_balance, balance, T::Balance),
@@ -517,6 +533,27 @@ where
                 .borrow()
                 .emitted_events()
                 .map(|event_bytes| event_bytes.to_vec())
+                .collect::<Vec<_>>()
+                .into_iter()
+        })
+    }
+
+    /// Returns an iterator over all emitted events.
+    pub fn external_calls() -> impl DoubleEndedIterator<Item = CallData<T>> {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow()
+                .external_calls()
+                .map(|raw_call_data| {
+                    CallData {
+                        callee: Decode::decode(&mut &raw_call_data.callee[..])
+                            .expect("invalid encoded callee"),
+                        gas: raw_call_data.gas,
+                        value: Decode::decode(&mut &raw_call_data.value[..])
+                            .expect("invalid encoded value"),
+                        input_data: raw_call_data.input_data.clone(),
+                    }
+                })
                 .collect::<Vec<_>>()
                 .into_iter()
         })

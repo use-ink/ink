@@ -114,6 +114,32 @@ macro_rules! impl_getters_for_srml_env {
     }
 }
 
+impl<T> SrmlEnv<T>
+where
+    T: EnvTypes,
+{
+    fn call(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> u32 {
+        let callee = callee.encode();
+        let value = value.encode();
+        unsafe {
+            sys::ext_call(
+                callee.as_ptr() as u32,
+                callee.len() as u32,
+                gas,
+                value.as_ptr() as u32,
+                value.len() as u32,
+                input_data.as_ptr() as u32,
+                input_data.len() as u32,
+            )
+        }
+    }
+}
+
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
@@ -171,24 +197,11 @@ where
         value: <Self as EnvTypes>::Balance,
         input_data: &[u8],
     ) -> Result<(), CallError> {
-        let callee = callee.encode();
-        let value = value.encode();
-        unsafe {
-            let success = sys::ext_call(
-                callee.as_ptr() as u32,
-                callee.len() as u32,
-                gas,
-                value.as_ptr() as u32,
-                value.len() as u32,
-                input_data.as_ptr() as u32,
-                input_data.len() as u32,
-            );
-            if success == 0 {
-                Ok(())
-            } else {
-                Err(CallError)
-            }
+        let result = Self::call(callee, gas, value, input_data);
+        if result != 0 {
+            return Err(CallError)
         }
+        Ok(())
     }
 
     fn call_evaluate<U: Decode>(
@@ -197,23 +210,10 @@ where
         value: <Self as EnvTypes>::Balance,
         input_data: &[u8],
     ) -> Result<U, CallError> {
-        let callee = callee.encode();
-        let value = value.encode();
-        unsafe {
-            let success = sys::ext_call(
-                callee.as_ptr() as u32,
-                callee.len() as u32,
-                gas,
-                value.as_ptr() as u32,
-                value.len() as u32,
-                input_data.as_ptr() as u32,
-                input_data.len() as u32,
-            );
-            if success == 0 {
-                U::decode(&mut &read_scratch_buffer()[..]).map_err(|_| CallError)
-            } else {
-                Err(CallError)
-            }
+        let result = Self::call(callee, gas, value, input_data);
+        if result != 0 {
+            return Err(CallError)
         }
+        U::decode(&mut &read_scratch_buffer()[..]).map_err(|_| CallError)
     }
 }
