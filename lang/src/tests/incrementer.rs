@@ -148,8 +148,8 @@ fn contract_compiles() {
                 }
             }
 
-            #[cfg(not(test))] #[no_mangle] fn deploy() { Incrementer::instantiate().deploy() }
-            #[cfg(not(test))] #[no_mangle] fn call() { Incrementer::instantiate().dispatch() }
+            #[cfg(not(test))] #[no_mangle] fn deploy() -> u32 { Incrementer::instantiate().deploy().to_u32() }
+            #[cfg(not(test))] #[no_mangle] fn call() -> u32 { Incrementer::instantiate().dispatch().to_u32() }
 
             #[cfg(test)]
             mod test {

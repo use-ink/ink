@@ -209,14 +209,14 @@ fn codegen_for_entry_points(tokens: &mut TokenStream2, contract: &hir::Contract)
     tokens.extend(quote! {
         #[cfg(not(test))]
         #[no_mangle]
-        fn deploy() {
-            #state_name::instantiate().deploy()
+        fn deploy() -> u32 {
+            #state_name::instantiate().deploy().to_u32()
         }
 
         #[cfg(not(test))]
         #[no_mangle]
-        fn call() {
-            #state_name::instantiate().dispatch()
+        fn call() -> u32 {
+            #state_name::instantiate().dispatch().to_u32()
         }
     })
 }
