@@ -16,7 +16,10 @@
 
 use super::*;
 use crate::{
-    env::EnvTypes,
+    env::{
+        CallError,
+        EnvTypes,
+    },
     memory::collections::hash_map::{
         Entry,
         HashMap,
@@ -45,6 +48,25 @@ impl EventData {
     fn data_as_bytes(&self) -> &[u8] {
         self.data.as_slice()
     }
+}
+
+/// Emulates the data given to remote smart contract call instructions.
+pub struct RawCallData {
+    pub callee: Vec<u8>,
+    pub gas: u64,
+    pub value: Vec<u8>,
+    pub input_data: Vec<u8>,
+}
+
+/// Decoded call data of recorded external calls.
+pub struct CallData<E>
+where
+    E: crate::env::EnvTypes,
+{
+    pub callee: E::AccountId,
+    pub gas: u64,
+    pub value: E::Balance,
+    pub input_data: Vec<u8>,
 }
 
 /// An entry in the storage of the test environment.
@@ -173,6 +195,10 @@ pub struct TestEnvData {
     gas_left: Vec<u8>,
     /// The total transferred value.
     value_transferred: Vec<u8>,
+    /// The recorded external calls.
+    calls: Vec<CallData>,
+    /// The expected return data of the next external call.
+    call_return: Vec<u8>,
     /// Returned data.
     return_data: Vec<u8>,
 }
@@ -195,6 +221,8 @@ impl Default for TestEnvData {
             gas_left: Vec::new(),
             value_transferred: Vec::new(),
             dispatched_calls: Vec::new(),
+            calls: Vec::new(),
+            call_return: Vec::new(),
             return_data: Vec::new(),
         }
     }
@@ -215,6 +243,8 @@ impl TestEnvData {
         self.total_writes = 0;
         self.events.clear();
         self.dispatched_calls.clear();
+        self.calls.clear();
+        self.call_return.clear();
         self.return_data.clear();
     }
 
@@ -309,6 +339,17 @@ impl TestEnvData {
         self.dispatched_calls.iter().map(Vec::as_slice)
     }
 
+    /// Records a new external call.
+    pub fn add_call(&mut self, callee: &[u8], gas: u64, value: &[u8], input_data: &[u8]) {
+        let new_call = CallData {
+            callee: callee.to_vec(),
+            gas,
+            value: value.to_vec(),
+            input_data: input_data.to_vec(),
+        };
+        self.calls.push(new_call);
+    }
+
     /// Returns the latest returned data.
     pub fn returned_data(&self) -> &[u8] {
         &self.return_data
@@ -391,6 +432,17 @@ impl TestEnvData {
 
     pub fn dispatch_call(&mut self, call: &[u8]) {
         self.add_dispatched_call(call);
+    }
+
+    pub fn call(
+        &mut self,
+        callee: &[u8],
+        gas: u64,
+        value: &[u8],
+        input_data: &[u8],
+    ) -> Vec<u8> {
+        self.add_call(callee, gas, value, input_data);
+        self.call_return.clone()
     }
 }
 
@@ -540,6 +592,35 @@ where
 
     fn dispatch_raw_call(data: &[u8]) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().dispatch_call(data))
+    }
+
+    fn call_invoke(
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<(), CallError> {
+        let callee = &(callee.encode())[..];
+        let value = &(value.encode())[..];
+        let _return_data = TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data));
+        Ok(())
+    }
+
+    fn call_evaluate<U: Decode>(
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<U, CallError> {
+        let callee = &(callee.encode())[..];
+        let value = &(value.encode())[..];
+        TEST_ENV_DATA.with(|test_env| {
+            U::decode(
+                &mut &(test_env.borrow_mut().call(callee, gas, value, input_data))[..],
+            )
+            .map_err(|_| CallError)
+        })
     }
 }
 

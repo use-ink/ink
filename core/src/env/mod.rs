@@ -40,7 +40,10 @@ mod test_env;
 pub use api::*;
 pub use traits::*;
 
-pub use self::srml::DefaultSrmlTypes;
+pub use self::srml::{
+    CallError,
+    DefaultSrmlTypes,
+};
 
 /// The storage environment implementation that is currently being used.
 ///

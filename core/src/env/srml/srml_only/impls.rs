@@ -17,6 +17,7 @@
 use crate::{
     env::{
         srml::sys,
+        CallError,
         Env,
         EnvStorage,
         EnvTypes,
@@ -25,7 +26,10 @@ use crate::{
     storage::Key,
 };
 use core::marker::PhantomData;
-use scale::Decode;
+use scale::{
+    Decode,
+    Encode,
+};
 
 /// Load the contents of the scratch buffer
 fn read_scratch_buffer() -> Vec<u8> {
@@ -159,5 +163,57 @@ where
 
     fn dispatch_raw_call(data: &[u8]) {
         unsafe { sys::ext_dispatch_call(data.as_ptr() as u32, data.len() as u32) }
+    }
+
+    fn call_invoke(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> Result<(), CallError> {
+        let callee = callee.encode();
+        let value = value.encode();
+        unsafe {
+            let success = sys::ext_call(
+                callee.as_ptr() as u32,
+                callee.len() as u32,
+                gas,
+                value.as_ptr() as u32,
+                value.len() as u32,
+                input_data.as_ptr() as u32,
+                input_data.len() as u32,
+            );
+            if success == 0 {
+                Ok(())
+            } else {
+                Err(CallError)
+            }
+        }
+    }
+
+    fn call_evaluate<U: Decode>(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> Result<U, CallError> {
+        let callee = callee.encode();
+        let value = value.encode();
+        unsafe {
+            let success = sys::ext_call(
+                callee.as_ptr() as u32,
+                callee.len() as u32,
+                gas,
+                value.as_ptr() as u32,
+                value.len() as u32,
+                input_data.as_ptr() as u32,
+                input_data.len() as u32,
+            );
+            if success == 0 {
+                U::decode(&mut &read_scratch_buffer()[..]).map_err(|_| CallError)
+            } else {
+                Err(CallError)
+            }
+        }
     }
 }
