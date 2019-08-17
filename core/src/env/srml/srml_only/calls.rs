@@ -21,10 +21,10 @@ use crate::{
         Env,
         EnvTypes,
     },
-    memory::vec::{
-        self,
-        Vec,
-    },
+    memory::{
+        vec,
+        vec::Vec,
+    }
 };
 use core::marker::PhantomData;
 use scale::Decode;
