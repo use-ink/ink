@@ -44,6 +44,7 @@ ink-generate-abi = [
     "type-metadata",
     "ink_core/ink-generate-abi",
 ]
+ink-as-dependency = []
 
 [profile.release]
 panic = "abort"
