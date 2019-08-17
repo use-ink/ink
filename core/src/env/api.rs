@@ -122,3 +122,18 @@ where
 {
     T::call_evaluate(callee, gas, value, input_data)
 }
+
+/// Instantiates a new smart contract.
+///
+/// Upon success returns the account ID of the newly created smart contract.
+pub fn create<T>(
+    code_hash: T::Hash,
+    gas_cost: u64,
+    value: T::Balance,
+    input_data: &[u8],
+) -> Result<T::AccountId, CreateError>
+where
+    T: Env,
+{
+    T::create(code_hash, gas_cost, value, input_data)
+}
