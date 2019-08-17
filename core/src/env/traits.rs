@@ -15,7 +15,6 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env::CallError,
     memory::vec::Vec,
     storage::Key,
 };
@@ -23,6 +22,22 @@ use scale::{
     Codec,
     Decode,
 };
+
+/// Error encountered by calling a remote contract.
+///
+/// # Note
+///
+/// This is currently just a placeholder for potential future error codes.
+#[derive(Debug, Copy, Clone)]
+pub struct CallError;
+
+/// Error encountered upon creating and instantiation a new smart contract.
+///
+/// # Note
+///
+/// This is currently just a placeholder for potential future error codes.
+#[derive(Debug, Copy, Clone)]
+pub struct CreateError;
 
 #[cfg(not(feature = "test-env"))]
 /// The environmental types usable by contracts defined with ink!.

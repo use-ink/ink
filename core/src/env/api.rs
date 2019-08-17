@@ -22,6 +22,7 @@ use crate::{
             EnvTypes,
         },
         CallError,
+        CreateError,
         EnvStorage as _,
     },
     memory::vec::Vec,

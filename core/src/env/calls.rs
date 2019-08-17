@@ -18,20 +18,21 @@ use crate::{
     env::{
         self,
         CallError,
+        CreateError,
         Env,
         EnvTypes,
     },
-    memory::{
-        vec,
-        vec::Vec,
-    }
+    memory::vec::{
+        self,
+        Vec,
+    },
 };
 use core::marker::PhantomData;
 use scale::Decode;
 
 /// Consists of the input data to a call.
 /// The first four bytes are the function selector and the rest are SCALE encoded inputs.
-pub struct CallAbi {
+struct CallAbi {
     /// Already encoded function selector and inputs.
     raw: Vec<u8>,
 }
@@ -67,6 +68,37 @@ impl CallAbi {
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct ReturnType<T>(PhantomData<T>);
 
+/// Builds up contract instantiations.
+pub struct CreateBuilder<E>
+where
+    E: EnvTypes,
+{
+    /// The code hash of the created contract.
+    code_hash: E::Hash,
+    /// The maximum gas costs allowed for the instantiation.
+    gas_cost: u64,
+    /// The transferred value for the newly created contract.
+    value: E::Balance,
+    /// The input data for the instantation.
+    raw_input: Vec<u8>,
+}
+
+impl<E> CreateBuilder<E>
+where
+    E: EnvTypes,
+    E::Balance: Default,
+{
+    /// Creates a new create builder to guide instantiation of a smart contract.
+    pub fn new(code_hash: E::Hash) -> Self {
+        Self {
+            code_hash,
+            gas_cost: 0,
+            value: Default::default(),
+            raw_input: Vec::new(),
+        }
+    }
+}
+
 /// Builds up a call.
 pub struct CallBuilder<E, R>
 where
@@ -84,6 +116,46 @@ where
     raw_input: CallAbi,
 }
 
+impl<E> CreateBuilder<E>
+where
+    E: EnvTypes,
+{
+    /// Sets the maximumly allowed gas costs for the call.
+    pub fn gas_cost(self, gas_cost: u64) -> Self {
+        let mut this = self;
+        this.gas_cost = gas_cost;
+        this
+    }
+
+    /// Sets the value transferred upon the execution of the call.
+    pub fn value(self, value: E::Balance) -> Self {
+        let mut this = self;
+        this.value = value;
+        this
+    }
+
+    /// Pushes an argument to the inputs of the call.
+    pub fn push_arg<A>(self, arg: &A) -> Self
+    where
+        A: scale::Encode,
+    {
+        let mut this = self;
+        this.raw_input.extend(&arg.encode());
+        this
+    }
+}
+
+impl<E> CreateBuilder<E>
+where
+    E: Env,
+{
+    /// Runs the process to create and instantiate a new smart contract.
+    /// Returns the account ID of the newly created smart contract.
+    pub fn fire(self) -> Result<E::AccountId, CreateError> {
+        env::create::<E>(self.code_hash, self.gas_cost, self.value, &self.raw_input)
+    }
+}
+
 impl<E, R> CallBuilder<E, ReturnType<R>>
 where
     E: EnvTypes,
@@ -91,6 +163,23 @@ where
 {
     /// Instantiates an evaluatable (returns data) remote smart contract call.
     pub fn eval(account_id: E::AccountId, selector: u32) -> Self {
+        Self {
+            account_id,
+            gas_cost: 0,
+            value: E::Balance::default(),
+            return_type: PhantomData,
+            raw_input: CallAbi::new(selector),
+        }
+    }
+}
+
+impl<E> CallBuilder<E, ()>
+where
+    E: EnvTypes,
+    E::Balance: Default,
+{
+    /// Instantiates a non-evaluatable (returns no data) remote smart contract call.
+    pub fn invoke(account_id: E::AccountId, selector: u32) -> Self {
         Self {
             account_id,
             gas_cost: 0,
@@ -127,23 +216,6 @@ where
         let mut this = self;
         this.raw_input = this.raw_input.push_arg(arg);
         this
-    }
-}
-
-impl<E> CallBuilder<E, ()>
-where
-    E: EnvTypes,
-    E::Balance: Default,
-{
-    /// Instantiates a non-evaluatable (returns no data) remote smart contract call.
-    pub fn invoke(account_id: E::AccountId, selector: u32) -> Self {
-        Self {
-            account_id,
-            gas_cost: 0,
-            value: E::Balance::default(),
-            return_type: PhantomData,
-            raw_input: CallAbi::new(selector),
-        }
     }
 }
 

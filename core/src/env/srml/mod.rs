@@ -19,16 +19,11 @@ mod srml_only;
 
 mod types;
 
-pub use self::types::{
-    CallError,
-    DefaultSrmlTypes,
-};
+pub use self::types::DefaultSrmlTypes;
 
 #[cfg(not(feature = "test-env"))]
 pub use self::srml_only::{
     sys,
-    CallAbi,
-    CallBuilder,
     SrmlEnv,
     SrmlEnvStorage,
 };
