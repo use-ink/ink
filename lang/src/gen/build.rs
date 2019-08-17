@@ -39,14 +39,36 @@ use syn::{
 };
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    codegen_for_contract_env(tokens, contract);
-    codegen_for_state(tokens, contract);
-    codegen_for_messages(tokens, contract);
-    codegen_for_message_impls(tokens, contract);
-    codegen_for_method_impls(tokens, contract);
-    codegen_for_instantiate(tokens, contract);
-    codegen_for_entry_points(tokens, contract);
-    codegen_for_event_mod(tokens, contract);
+    let env_items = {
+        let mut result = quote! {};
+        let tokens = &mut result;
+        codegen_for_contract_env(tokens, contract);
+        result
+    };
+    let mod_body = {
+        let mut result = quote! {};
+        let tokens = &mut result;
+        // codegen_for_contract_env(tokens, contract);
+        codegen_for_state(tokens, contract);
+        codegen_for_messages(tokens, contract);
+        codegen_for_message_impls(tokens, contract);
+        codegen_for_method_impls(tokens, contract);
+        codegen_for_instantiate(tokens, contract);
+        codegen_for_entry_points(tokens, contract);
+        codegen_for_event_mod(tokens, contract);
+        result
+    };
+    tokens.extend(quote! {
+        #env_items
+
+        #[cfg(not(feature = "ink-as-dependency"))]
+        mod normal {
+            use super::*;
+            #mod_body
+        }
+        #[cfg(not(feature = "ink-as-dependency"))]
+        use normal::*;
+    });
 }
 
 fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract) {

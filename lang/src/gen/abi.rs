@@ -57,6 +57,7 @@ fn generate_abi_mod_body(contract: &hir::Contract) -> TokenStream2 {
     let ink_generate_abi_layout = generate_abi_layout(contract);
 
     quote! {
+        #[cfg(not(feature = "ink-as-dependency"))]
         #[cfg(feature = "ink-generate-abi")]
         pub fn ink_generate_abi() -> ink_abi::InkProject {
             let contract = {
