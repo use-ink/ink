@@ -332,9 +332,11 @@ impl FnArg {
     pub fn ident(&self) -> Option<proc_macro2::Ident> {
         match self {
             FnArg::SelfRef(_) | FnArg::SelfValue(_) => None,
-            FnArg::Captured(captured) => match &captured.pat {
-                syn::Pat::Ident(pat_ident) => Some(pat_ident.ident.clone()),
-                _ => None,
+            FnArg::Captured(captured) => {
+                match &captured.pat {
+                    syn::Pat::Ident(pat_ident) => Some(pat_ident.ident.clone()),
+                    _ => None,
+                }
             }
         }
     }

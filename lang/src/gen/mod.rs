@@ -15,10 +15,10 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 mod abi;
+mod as_dependency;
 mod build;
 mod doc;
 mod test;
-mod as_dependency;
 
 use crate::hir;
 use proc_macro2::TokenStream as TokenStream2;
