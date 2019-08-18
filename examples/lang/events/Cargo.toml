@@ -43,6 +43,7 @@ ink-generate-abi = [
     "ink_abi",
     "type-metadata",
     "ink_core/ink-generate-abi",
+    "ink_lang/ink-generate-abi",
 ]
 
 [profile.release]
