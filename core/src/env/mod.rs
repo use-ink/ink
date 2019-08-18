@@ -45,6 +45,7 @@ pub use self::{
     calls::{
         CallBuilder,
         CreateBuilder,
+        ReturnType,
     },
     srml::DefaultSrmlTypes,
     traits::{
