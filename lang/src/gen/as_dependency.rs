@@ -41,9 +41,16 @@ use syn::{
     Token,
 };
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum Mutability {
+    Immutable,
+    Mutable,
+}
+
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let messages = generate_messages_as_dependency(contract);
-    let ext_call_messages = generate_ext_call_as_dependency(contract);
+    let call_enhancer_messages = generate_call_enhancer_messages(contract, Mutability::Immutable);
+    let call_enhancer_mut_messages = generate_call_enhancer_messages(contract, Mutability::Mutable);
     let state = generate_state_as_dependency(contract);
     let contract_ident = &contract.name;
 
@@ -64,13 +71,22 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
                     #(#messages)*
                 }
 
-                impl<'a, E> ExtCallWrapper<'a, E>
+                impl<'a, E> CallEnhancer<'a, E>
                 where
                     E: ink_core::env::Env,
                     E::Balance: Default,
                     E::AccountId: Clone,
                 {
-                    #(#ext_call_messages)*
+                    #(#call_enhancer_messages)*
+                }
+
+                impl<'a, E> CallEnhancerMut<'a, E>
+                where
+                    E: ink_core::env::Env,
+                    E::Balance: Default,
+                    E::AccountId: Clone,
+                {
+                    #(#call_enhancer_mut_messages)*
                 }
             };
         }
@@ -87,8 +103,13 @@ fn generate_state_as_dependency(contract: &hir::Contract) -> TokenStream2 {
         }
 
         #( #attrs )*
-        pub struct ExtCallWrapper<'a, E: ink_core::env::Env> {
-            contract: &'a #name,
+        pub struct CallEnhancer<'a, E: ink_core::env::Env> {
+            contract: &'a #name<E>,
+        }
+
+        #( #attrs )*
+        pub struct CallEnhancerMut<'a, E: ink_core::env::Env> {
+            contract: &'a mut #name<E>,
         }
 
         impl<E> #name<E>
@@ -99,8 +120,12 @@ fn generate_state_as_dependency(contract: &hir::Contract) -> TokenStream2 {
                 Self { account_id }
             }
 
-            pub fn ext(&self) -> ExtCallWrapper {
-                ExtCallWrapper { contract: self }
+            pub fn call(&self) -> CallEnhancer<E> {
+                CallEnhancer { contract: self }
+            }
+
+            pub fn call_mut(&mut self) -> CallEnhancerMut<E> {
+                CallEnhancerMut { contract: self }
             }
         }
     }
@@ -149,15 +174,23 @@ fn generate_messages_as_dependency<'a>(
         })
 }
 
-fn generate_ext_call_as_dependency<'a>(
+fn generate_call_enhancer_messages<'a>(
     contract: &'a hir::Contract,
+    mutability: Mutability,
 ) -> impl Iterator<Item = TokenStream2> + 'a {
     contract.messages
         .iter()
+        .filter(move |message| {
+            if mutability == Mutability::Mutable {
+                message.is_mut()
+            } else {
+                !message.is_mut()
+            }
+        })
         .map(|message| {
             let ident = &message.sig.ident;
             let attrs = &message.attrs;
-            let args = message.sig.decl.inputs.iter();
+            let args = message.sig.decl.inputs.iter().skip(1);
             let inputs = message.sig.decl.inputs
                 .iter()
                 .filter_map(ast::FnArg::ident)
@@ -168,8 +201,11 @@ fn generate_ext_call_as_dependency<'a>(
             match output {
                 syn::ReturnType::Default => quote! {
                     #(#attrs)*
-                    pub fn #ident #type_generics ( #(#args ,)* ) -> ink_core::env::CallBuilder #where_clause {
-                        ink_core::env::CallBuilder::<E>::invoke(self.account_id.clone(), #selector)
+                    pub fn #ident #type_generics (
+                        self,
+                        #(#args ,)*
+                    ) -> ink_core::env::CallBuilder<E, ()> #where_clause {
+                        ink_core::env::CallBuilder::<E>::invoke(self.contract.account_id.clone(), #selector)
                             #(
                                 .push_arg(#inputs)
                             )*
@@ -177,8 +213,11 @@ fn generate_ext_call_as_dependency<'a>(
                 },
                 syn::ReturnType::Type(_, ty) => quote! {
                     #(#attrs)*
-                    pub fn #ident #type_generics ( #(#args ,)* ) -> ink_core::env::CallBuilder #where_clause {
-                        ink_core::env::CallBuilder::<E, ink_core::env::ReturnType<#ty>>::eval(self.account_id.clone(), #selector)
+                    pub fn #ident #type_generics (
+                        self,
+                        #(#args ,)*
+                    ) -> ink_core::env::CallBuilder<E, ink_core::env::ReturnType<#ty>> #where_clause {
+                        ink_core::env::CallBuilder::eval(self.contract.account_id.clone(), #selector)
                             #(
                                 .push_arg(&#inputs)
                             )*
