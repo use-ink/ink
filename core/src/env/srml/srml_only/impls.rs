@@ -217,4 +217,32 @@ where
         }
         U::decode(&mut &read_scratch_buffer()[..]).map_err(|_| CallError)
     }
+
+    fn create(
+        code_hash: <Self as EnvTypes>::Hash,
+        gas_cost: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> Result<<Self as EnvTypes>::AccountId, CreateError> {
+        let result = {
+            let code_hash = code_hash.encode();
+            let value = value.encode();
+            unsafe {
+                sys::ext_create(
+                    code_hash.as_ptr() as u32,
+                    code_hash.len() as u32,
+                    gas_cost,
+                    value.as_ptr() as u32,
+                    value.len() as u32,
+                    input_data.as_ptr() as u32,
+                    input_data.len() as u32,
+                )
+            }
+        };
+        if result != 0 {
+            return Err(CreateError)
+        }
+        <Self as EnvTypes>::AccountId::decode(&mut &read_scratch_buffer()[..])
+            .map_err(|_| CreateError)
+    }
 }

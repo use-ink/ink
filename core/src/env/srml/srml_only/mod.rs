@@ -17,13 +17,7 @@
 mod impls;
 pub mod sys;
 
-pub use self::{
-    calls::{
-        CallAbi,
-        CallBuilder,
-    },
-    impls::{
-        SrmlEnv,
-        SrmlEnvStorage,
-    },
+pub use self::impls::{
+    SrmlEnv,
+    SrmlEnvStorage,
 };
