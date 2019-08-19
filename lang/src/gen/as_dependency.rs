@@ -26,20 +26,8 @@ use crate::{
     ast,
     hir,
 };
-use proc_macro2::{
-    Ident,
-    Span,
-    TokenStream as TokenStream2,
-};
-use quote::{
-    quote,
-    ToTokens,
-};
-use std::iter;
-use syn::{
-    punctuated::Punctuated,
-    Token,
-};
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Mutability {
@@ -49,8 +37,10 @@ enum Mutability {
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let messages = generate_messages_as_dependency(contract);
-    let call_enhancer_messages = generate_call_enhancer_messages(contract, Mutability::Immutable);
-    let call_enhancer_mut_messages = generate_call_enhancer_messages(contract, Mutability::Mutable);
+    let call_enhancer_messages =
+        generate_call_enhancer_messages(contract, Mutability::Immutable);
+    let call_enhancer_mut_messages =
+        generate_call_enhancer_messages(contract, Mutability::Mutable);
     let state = generate_state_as_dependency(contract);
     let contract_ident = &contract.name;
 
@@ -134,44 +124,61 @@ fn generate_state_as_dependency(contract: &hir::Contract) -> TokenStream2 {
 fn generate_messages_as_dependency<'a>(
     contract: &'a hir::Contract,
 ) -> impl Iterator<Item = TokenStream2> + 'a {
-    contract.messages
-        .iter()
-        .map(|message| {
-            let ident = &message.sig.ident;
-            let attrs = &message.attrs;
-            let args = message.sig.decl.inputs.iter();
-            let inputs = message.sig.decl.inputs
-                .iter()
-                .filter_map(ast::FnArg::ident)
-                .map(|ident| quote! { #ident });
-            let output = &message.sig.decl.output;
-            let (impl_generics, type_generics, where_clause) = message.sig.decl.generics.split_for_impl();
-            let selector = message.selector();
-            match output {
-                syn::ReturnType::Default => quote! {
+    let contract_ident = &contract.name;
+    contract.messages.iter().map(move |message| {
+        let ident = &message.sig.ident;
+        let attrs = &message.attrs;
+        let args = message.sig.decl.inputs.iter().skip(1);
+        let (self_arg, call_fn) = if message.is_mut() {
+            (quote! { &mut self }, quote! { call_mut() })
+        } else {
+            (quote! { &self }, quote! { call() })
+        };
+        let inputs = message
+            .sig
+            .decl
+            .inputs
+            .iter()
+            .filter_map(ast::FnArg::ident)
+            .map(|ident| quote! { #ident });
+        let output = &message.sig.decl.output;
+        let (_impl_generics, type_generics, where_clause) =
+            message.sig.decl.generics.split_for_impl();
+        match output {
+            syn::ReturnType::Default => {
+                quote! {
                     #(#attrs)*
-                    pub fn #ident #type_generics ( #(#args ,)* ) #where_clause {
-                        ink_core::env::CallBuilder::<E>::invoke(self.account_id.clone(), #selector)
-                            #(
-                                .push_arg(#inputs)
-                            )*
+                    pub fn #ident #type_generics (
+                        #self_arg ,
+                        #(#args ,)*
+                    ) #where_clause {
+                        self.#call_fn.#ident( #(#inputs ,)* )
                             .fire()
-                            .expect("invocation of remote smart contract was invalid")
-                    }
-                },
-                syn::ReturnType::Type(_, ty) => quote! {
-                    #(#attrs)*
-                    pub fn #ident #type_generics ( #(#args ,)* ) -> #ty #where_clause {
-                        ink_core::env::CallBuilder::<E, _>::eval(self.account_id.clone(), #selector)
-                            #(
-                                .push_arg(&#inputs)
-                            )*
-                            .fire()
-                            .expect("evaluation of remote smart contract was invalid")
+                            .expect(concat!(
+                                "invocation of ",
+                                stringify!(#contract_ident), "::", stringify!(#ident),
+                                " message was invalid"))
                     }
                 }
             }
-        })
+            syn::ReturnType::Type(_, ty) => {
+                quote! {
+                    #(#attrs)*
+                    pub fn #ident #type_generics (
+                        #self_arg ,
+                        #(#args ,)*
+                    ) -> #ty #where_clause {
+                        self.#call_fn.#ident( #(#inputs ,)* )
+                            .fire()
+                            .expect(concat!(
+                                "evaluation of ",
+                                stringify!(#contract_ident), "::", stringify!(#ident),
+                                " message was invalid"))
+                    }
+                }
+            }
+        }
+    })
 }
 
 fn generate_call_enhancer_messages<'a>(
@@ -196,7 +203,7 @@ fn generate_call_enhancer_messages<'a>(
                 .filter_map(ast::FnArg::ident)
                 .map(|ident| quote! { #ident });
             let output = &message.sig.decl.output;
-            let (impl_generics, type_generics, where_clause) = message.sig.decl.generics.split_for_impl();
+            let (_impl_generics, type_generics, where_clause) = message.sig.decl.generics.split_for_impl();
             let selector = message.selector();
             match output {
                 syn::ReturnType::Default => quote! {
