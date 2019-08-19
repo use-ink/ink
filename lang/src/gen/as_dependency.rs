@@ -27,7 +27,9 @@ use crate::{
     hir,
 };
 use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
+use quote::{
+    quote,
+};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Mutability {
@@ -52,30 +54,15 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
             #state
 
             const _: () = {
-                impl<E> #contract_ident<E>
-                where
-                    E: ink_core::env::Env,
-                    E::Balance: Default,
-                    E::AccountId: Clone,
-                {
+                impl #contract_ident {
                     #(#messages)*
                 }
 
-                impl<'a, E> CallEnhancer<'a, E>
-                where
-                    E: ink_core::env::Env,
-                    E::Balance: Default,
-                    E::AccountId: Clone,
-                {
+                impl<'a> CallEnhancer<'a> {
                     #(#call_enhancer_messages)*
                 }
 
-                impl<'a, E> CallEnhancerMut<'a, E>
-                where
-                    E: ink_core::env::Env,
-                    E::Balance: Default,
-                    E::AccountId: Clone,
-                {
+                impl<'a> CallEnhancerMut<'a> {
                     #(#call_enhancer_mut_messages)*
                 }
             };
@@ -86,37 +73,65 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
 fn generate_state_as_dependency(contract: &hir::Contract) -> TokenStream2 {
     let name = &contract.name;
     let attrs = &contract.state.attrs;
+    let create = generate_create(contract);
     quote! {
         #( #attrs )*
-        pub struct #name<E: ink_core::env::Env> {
-            account_id: E::AccountId,
+        pub struct #name {
+            account_id: AccountId,
         }
 
-        #( #attrs )*
-        pub struct CallEnhancer<'a, E: ink_core::env::Env> {
-            contract: &'a #name<E>,
+        /// Allows to enhance calls to `&self` contract messages.
+        pub struct CallEnhancer<'a> {
+            contract: &'a #name,
         }
 
-        #( #attrs )*
-        pub struct CallEnhancerMut<'a, E: ink_core::env::Env> {
-            contract: &'a mut #name<E>,
+        /// Allows to enhance calls to `&mut self` contract messages.
+        pub struct CallEnhancerMut<'a> {
+            contract: &'a mut #name,
         }
 
-        impl<E> #name<E>
-        where
-            E: ink_core::env::Env,
-        {
-            pub fn from_address(account_id: E::AccountId) -> Self {
+        impl ink_core::env::FromAccountId<Env> for #name {
+            fn from_account_id(account_id: AccountId) -> Self {
                 Self { account_id }
             }
+        }
 
-            pub fn call(&self) -> CallEnhancer<E> {
+        impl #name {
+            #create
+
+            /// Allows to enhance calls to `&self` contract messages.
+            pub fn call(&self) -> CallEnhancer {
                 CallEnhancer { contract: self }
             }
 
-            pub fn call_mut(&mut self) -> CallEnhancerMut<E> {
+            /// Allows to enhance calls to `&mut self` contract messages.
+            pub fn call_mut(&mut self) -> CallEnhancerMut {
                 CallEnhancerMut { contract: self }
             }
+        }
+    }
+}
+
+fn generate_create(contract: &hir::Contract) -> TokenStream2 {
+    let deploy_handler = &contract.on_deploy;
+    let attrs = &deploy_handler.attrs;
+    let args = deploy_handler.decl.inputs.iter().skip(1);
+    let inputs = deploy_handler
+        .decl
+        .inputs
+        .iter()
+        .filter_map(ast::FnArg::ident)
+        .map(|ident| quote! { #ident });
+    quote_spanned! { deploy_handler.decl.fn_tok.span =>
+        #(#attrs)*
+        pub fn new(
+            code_hash: Hash,
+            #(#args ,)*
+        ) -> ink_core::env::CreateBuilder<Env, Self> {
+            ink_core::env::CreateBuilder::<Env, Self>::new(code_hash)
+            #(
+                .push_arg(&#inputs)
+            )*
         }
     }
 }
@@ -211,8 +226,8 @@ fn generate_call_enhancer_messages<'a>(
                     pub fn #ident #type_generics (
                         self,
                         #(#args ,)*
-                    ) -> ink_core::env::CallBuilder<E, ()> #where_clause {
-                        ink_core::env::CallBuilder::<E>::invoke(self.contract.account_id.clone(), #selector)
+                    ) -> ink_core::env::CallBuilder<Env, ()> #where_clause {
+                        ink_core::env::CallBuilder::<Env, ()>::invoke(self.contract.account_id.clone(), #selector)
                             #(
                                 .push_arg(#inputs)
                             )*
@@ -223,7 +238,7 @@ fn generate_call_enhancer_messages<'a>(
                     pub fn #ident #type_generics (
                         self,
                         #(#args ,)*
-                    ) -> ink_core::env::CallBuilder<E, ink_core::env::ReturnType<#ty>> #where_clause {
+                    ) -> ink_core::env::CallBuilder<Env, ink_core::env::ReturnType<#ty>> #where_clause {
                         ink_core::env::CallBuilder::eval(self.contract.account_id.clone(), #selector)
                             #(
                                 .push_arg(&#inputs)
