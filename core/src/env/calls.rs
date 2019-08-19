@@ -69,7 +69,7 @@ impl CallAbi {
 pub struct ReturnType<T>(PhantomData<T>);
 
 /// Builds up contract instantiations.
-pub struct CreateBuilder<E>
+pub struct CreateBuilder<E, C>
 where
     E: EnvTypes,
 {
@@ -81,9 +81,11 @@ where
     value: E::Balance,
     /// The input data for the instantation.
     raw_input: Vec<u8>,
+    /// The type of the instantiated contract.
+    contract_marker: PhantomData<fn() -> C>,
 }
 
-impl<E> CreateBuilder<E>
+impl<E, C> CreateBuilder<E, C>
 where
     E: EnvTypes,
     E::Balance: Default,
@@ -95,6 +97,7 @@ where
             gas_cost: 0,
             value: Default::default(),
             raw_input: Vec::new(),
+            contract_marker: Default::default(),
         }
     }
 }
@@ -116,7 +119,7 @@ where
     raw_input: CallAbi,
 }
 
-impl<E> CreateBuilder<E>
+impl<E, C> CreateBuilder<E, C>
 where
     E: EnvTypes,
 {
@@ -145,14 +148,25 @@ where
     }
 }
 
-impl<E> CreateBuilder<E>
+/// Needed because of conflicting implementations of From<T> for T
+/// resulting of generated `ink_lang` code.
+pub trait FromAccountId<E>
 where
     E: Env,
 {
+    fn from_account_id(account_id: <E as EnvTypes>::AccountId) -> Self;
+}
+
+impl<E, C> CreateBuilder<E, C>
+where
+    E: Env,
+    C: FromAccountId<E>,
+{
     /// Runs the process to create and instantiate a new smart contract.
     /// Returns the account ID of the newly created smart contract.
-    pub fn fire(self) -> Result<E::AccountId, CreateError> {
+    pub fn create(self) -> Result<C, CreateError> {
         env::create::<E>(self.code_hash, self.gas_cost, self.value, &self.raw_input)
+            .map(FromAccountId::from_account_id)
     }
 }
 
