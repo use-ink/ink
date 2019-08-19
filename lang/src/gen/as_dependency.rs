@@ -29,6 +29,7 @@ use crate::{
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
+    quote_spanned,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -161,7 +162,7 @@ fn generate_messages_as_dependency<'a>(
             message.sig.decl.generics.split_for_impl();
         match output {
             syn::ReturnType::Default => {
-                quote! {
+                quote_spanned! { ident.span() =>
                     #(#attrs)*
                     pub fn #ident #type_generics (
                         #self_arg ,
@@ -177,7 +178,7 @@ fn generate_messages_as_dependency<'a>(
                 }
             }
             syn::ReturnType::Type(_, ty) => {
-                quote! {
+                quote_spanned! { ident.span() =>
                     #(#attrs)*
                     pub fn #ident #type_generics (
                         #self_arg ,
@@ -221,7 +222,7 @@ fn generate_call_enhancer_messages<'a>(
             let (_impl_generics, type_generics, where_clause) = message.sig.decl.generics.split_for_impl();
             let selector = message.selector();
             match output {
-                syn::ReturnType::Default => quote! {
+                syn::ReturnType::Default => quote_spanned! { ident.span() =>
                     #(#attrs)*
                     pub fn #ident #type_generics (
                         self,
@@ -233,7 +234,7 @@ fn generate_call_enhancer_messages<'a>(
                             )*
                     }
                 },
-                syn::ReturnType::Type(_, ty) => quote! {
+                syn::ReturnType::Type(_, ty) => quote_spanned! { ident.span() =>
                     #(#attrs)*
                     pub fn #ident #type_generics (
                         self,
