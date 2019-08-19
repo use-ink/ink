@@ -17,17 +17,20 @@
 use super::ContractEnvStorage;
 use crate::{
     env::{
-        CallError,
         traits::{
             Env,
             EnvTypes,
         },
+        CallError,
         EnvStorage as _,
     },
     memory::vec::Vec,
     storage::Key,
 };
-use scale::{Encode, Decode};
+use scale::{
+    Decode,
+    Encode,
+};
 
 /// Stores the given value under the specified key in the contract storage.
 ///

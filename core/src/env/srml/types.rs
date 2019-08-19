@@ -35,6 +35,7 @@ use type_metadata::Metadata;
 /// # Note
 ///
 /// This is currently just a placeholder for potential future error codes.
+#[derive(Debug, Copy, Clone)]
 pub struct CallError;
 
 /// The SRML fundamental types.
