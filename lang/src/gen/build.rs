@@ -78,13 +78,14 @@ fn codegen_for_contract_env(tokens: &mut TokenStream2, contract: &hir::Contract)
             use super::*;
             use ink_core::env::{ContractEnv, EnvTypes};
 
-            pub type AccountId = <ContractEnv<#env_types> as EnvTypes>::AccountId;
-            pub type Balance = <ContractEnv<#env_types> as EnvTypes>::Balance;
-            pub type Hash = <ContractEnv<#env_types> as EnvTypes>::Hash;
-            pub type Moment = <ContractEnv<#env_types> as EnvTypes>::Moment;
-            pub type BlockNumber = <ContractEnv<#env_types> as EnvTypes>::BlockNumber;
+            pub type AccountId = <#env_types as EnvTypes>::AccountId;
+            pub type Balance = <#env_types as EnvTypes>::Balance;
+            pub type Hash = <#env_types as EnvTypes>::Hash;
+            pub type Moment = <#env_types as EnvTypes>::Moment;
+            pub type BlockNumber = <#env_types as EnvTypes>::BlockNumber;
         }
 
+        type Env = ink_core::env::ContractEnv<#env_types>;
         use types::{
             AccountId,
             Balance,
