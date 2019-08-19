@@ -17,6 +17,8 @@
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
+#[cfg(feature = "ink-generate-abi")]
+use crate::old_abi;
 use crate::{
     gen,
     hir,
@@ -33,6 +35,8 @@ pub fn generate(input: TokenStream2) -> TokenStream2 {
 pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
     let ast_contract = parser::parse_contract(input.clone())?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
+    #[cfg(feature = "ink-generate-abi")]
+    old_abi::generate_old_abi(&hir_contract)?;
     let tokens = gen::generate_code(&hir_contract);
     Ok(tokens)
 }
