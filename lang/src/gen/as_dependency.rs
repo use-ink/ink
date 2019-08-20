@@ -230,7 +230,7 @@ fn generate_call_enhancer_messages<'a>(
                     ) -> ink_core::env::CallBuilder<Env, ()> #where_clause {
                         ink_core::env::CallBuilder::<Env, ()>::invoke(self.contract.account_id.clone(), #selector)
                             #(
-                                .push_arg(#inputs)
+                                .push_arg(&#inputs)
                             )*
                     }
                 },
