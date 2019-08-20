@@ -54,20 +54,25 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
 
             #state
 
-            const _: () = {
-                impl #contract_ident {
-                    #(#messages)*
-                }
+            impl #contract_ident {
+                #(#messages)*
+            }
 
-                impl<'a> CallEnhancer<'a> {
-                    #(#call_enhancer_messages)*
-                }
+            impl<'a> CallEnhancer<'a> {
+                #(#call_enhancer_messages)*
+            }
 
-                impl<'a> CallEnhancerMut<'a> {
-                    #(#call_enhancer_mut_messages)*
-                }
-            };
+            impl<'a> CallEnhancerMut<'a> {
+                #(#call_enhancer_mut_messages)*
+            }
         }
+
+        #[cfg(feature = "ink-as-dependency")]
+        pub use as_dependency::{
+            #contract_ident,
+            CallEnhancer,
+            CallEnhancerMut,
+        };
     });
 }
 
