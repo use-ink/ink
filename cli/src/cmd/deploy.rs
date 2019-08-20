@@ -16,12 +16,10 @@
 
 use crate::cmd::Result;
 use node_runtime::{
-    Call,
     Event,
 };
 
 use srml_contracts::{
-    Call as ContractsCall,
     RawEvent as ContractsEvent,
 };
 
@@ -33,7 +31,7 @@ use std::{
 };
 use runtime_primitives::generic::Era;
 use substrate_primitives::{H256, crypto::Pair, sr25519};
-use subxt::{srml::{balances::Balances, system::System}};
+use subxt::{srml::{balances::Balances, contracts::{Contracts, ContractsXt}, system::System}};
 use futures::future::Future;
 
 type CargoToml = HashMap<String, toml::Value>;
@@ -122,6 +120,8 @@ impl Balances for Runtime {
     type Balance = <node_runtime::Runtime as srml_balances::Trait>::Balance;
 }
 
+impl Contracts for Runtime {}
+
 pub(crate) fn execute_deploy(
     url: url::Url,
     surl: &str,
@@ -132,13 +132,15 @@ pub(crate) fn execute_deploy(
     let signer = sr25519::Pair::from_string(surl, password)?;
 
     let code = load_contract_code(contract_wasm_path)?;
-    let call = Call::Contracts(ContractsCall::put_code(gas, code));
 
     let fut = subxt::ClientBuilder::<Runtime>::new()
         .set_url(url)
         .build()
         .and_then(|cli| cli.xt(signer, None))
-        .and_then(|mut xt| xt.submit_and_watch(call));
+        .and_then(move |xt| {
+            xt.contracts(|call| call.put_code(gas, code))
+                .submit_and_watch()
+        });
 
     let mut rt = tokio::runtime::Runtime::new()?;
     let extrinsic_success = rt.block_on(fut)?;
@@ -161,7 +163,14 @@ mod tests {
 
     #[test] #[ignore] // depends on a local substrate node running
     fn deploy_contract() {
-        let contract_wasm = b""; // todo [AJ]: valid wasm
+        const CONTRACT: &str = r#"
+(module
+    (func (export "call"))
+    (func (export "deploy"))
+)
+"#;
+        let wasm = wabt::wat2wasm(CONTRACT).expect("invalid wabt");
+
         let out_dir = path::Path::new(env!("OUT_DIR"));
 
         let target_dir = path::Path::new("./target");
@@ -169,7 +178,7 @@ mod tests {
 
         let wasm_path = out_dir.join("flipper-pruned.wasm");
         let mut file = fs::File::create(&wasm_path).unwrap();
-        let _ = file.write_all(contract_wasm);
+        let _ = file.write_all(&wasm);
 
         let url = url::Url::parse("ws://localhost:9944").unwrap();
         let result = super::execute_deploy(url, "//Alice", None, 500_000, Some(wasm_path));
