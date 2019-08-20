@@ -105,18 +105,3 @@ contract! {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::Incrementer;
-
-    #[test]
-    fn it_works() {
-        let mut incrementer = Incrementer::deploy_mock(5);
-        assert_eq!(incrementer.get(), 5);
-        incrementer.inc(42);
-        assert_eq!(incrementer.get(), 47);
-        incrementer.inc(0);
-        assert_eq!(incrementer.get(), 47);
-    }
-}
