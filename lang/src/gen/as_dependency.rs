@@ -82,8 +82,13 @@ fn generate_state_as_dependency(contract: &hir::Contract) -> TokenStream2 {
     let create = generate_create(contract);
     quote! {
         #( #attrs )*
+        #[derive(Clone, scale::Encode, scale::Decode)]
         pub struct #name {
             account_id: AccountId,
+        }
+
+        impl ink_core::storage::Flush for #name {
+            fn flush(&mut self) {}
         }
 
         /// Allows to enhance calls to `&self` contract messages.
