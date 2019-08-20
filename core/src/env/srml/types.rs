@@ -94,6 +94,12 @@ pub type Balance = u128;
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Hash([u8; 32]);
 
+impl Default for Hash {
+    fn default() -> Self {
+        Hash(Default::default())
+    }
+}
+
 impl From<[u8; 32]> for Hash {
     fn from(hash: [u8; 32]) -> Hash {
         Hash(hash)
