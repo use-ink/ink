@@ -25,22 +25,28 @@ use ink_lang::contract;
 contract! {
     #![env = ink_core::env::DefaultSrmlTypes]
 
-    /// Decrements the accumulator's value.
-    struct Adder {
-        /// The accumulator to store values.
-        accumulator: storage::Value<accumulator::Accumulator>,
+    /// Holds a simple i32 value that can be incremented and decremented.
+    struct Accumulator {
+        /// The current value.
+        value: storage::Value<i32>,
     }
 
-    impl Deploy for Adder {
-        fn deploy(&mut self, accumulator: accumulator::Accumulator) {
-            self.accumulator.set(accumulator);
+    impl Deploy for Accumulator {
+        /// Initializes the value to the initial value.
+        fn deploy(&mut self, init_value: i32) {
+            self.value.set(init_value)
         }
     }
 
-    impl Adder {
-        /// Flips the current state of our smart contract.
+    impl Accumulator {
+        /// Mutates the internal value.
         pub(external) fn inc(&mut self, by: i32) {
-            self.accumulator.mutate(by);
+            self.value += by;
+        }
+
+        /// Returns the current state.
+        pub(external) fn get(&self) -> i32 {
+            *self.value
         }
     }
 }

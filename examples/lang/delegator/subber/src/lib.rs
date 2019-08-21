@@ -39,7 +39,7 @@ contract! {
 
     impl Subber {
         pub(external) fn dec(&mut self, by: i32) {
-            self.accumulator.mutate(-by);
+            self.accumulator.inc(-by);
         }
     }
 }
