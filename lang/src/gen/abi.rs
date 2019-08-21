@@ -119,10 +119,10 @@ fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
     quote! {
         ink_abi::DeploySpec::new()
             .args(vec![
-                #(#args)*
+                #(#args ,)*
             ])
             .docs(vec![
-                #(#docs)*
+                #(#docs ,)*
             ])
             .done()
     }
