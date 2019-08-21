@@ -111,6 +111,11 @@ fn generate_state_as_dependency(contract: &hir::Contract) -> TokenStream2 {
         impl #name {
             #create
 
+            /// Returns the internal account ID of the contract.
+            pub fn account_id(&self) -> AccountId {
+                self.account_id
+            }
+
             /// Allows to enhance calls to `&self` contract messages.
             pub fn call(&self) -> CallEnhancer {
                 CallEnhancer { contract: self }
