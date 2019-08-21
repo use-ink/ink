@@ -33,18 +33,6 @@ impl ink_core::storage::Flush for Which {
     fn flush(&mut self) {}
 }
 
-fn adder_code_hash() -> Hash {
-    Default::default()
-}
-
-fn subber_code_hash() -> Hash {
-    Default::default()
-}
-
-fn accumulator_code_hash() -> Hash {
-    Default::default()
-}
-
 contract! {
     #![env = ink_core::env::DefaultSrmlTypes]
 
@@ -69,17 +57,28 @@ contract! {
 
     impl Deploy for Delegator {
         /// Initializes the value to the initial value.
-        fn deploy(&mut self, init_value: u32) {
+        fn deploy(
+            &mut self,
+            init_value: i32,
+            accumulator_code_hash: Hash,
+            adder_code_hash: Hash,
+            subber_code_hash: Hash,
+        ) {
             self.which.set(Which::Adder);
-            self.accumulator.set(accumulator::Accumulator::new(accumulator_code_hash(), 100)
+            let accumulator = accumulator::Accumulator::new(accumulator_code_hash, init_value)
                 .create()
-                .expect("failed at instantiating the accumulator contract"));
-            self.adder.set(adder::Adder::new(adder_code_hash(), (*self.accumulator).clone())
-                .create()
-                .expect("failed at instantiating the adder contract"));
-            self.subber.set(subber::Subber::new(subber_code_hash(), (*self.accumulator).clone())
-                .create()
-                .expect("failed at instantiating the subber contract"));
+                .expect("failed at instantiating the accumulator contract");
+            self.accumulator.set(accumulator.clone());
+            self.adder.set(
+                adder::Adder::new(adder_code_hash, accumulator.clone())
+                    .create()
+                    .expect("failed at instantiating the adder contract")
+            );
+            self.subber.set(
+                subber::Subber::new(subber_code_hash, accumulator.clone())
+                    .create()
+                    .expect("failed at instantiating the subber contract")
+            );
         }
     }
 
