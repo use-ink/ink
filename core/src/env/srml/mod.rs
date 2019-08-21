@@ -24,6 +24,8 @@ pub use self::types::DefaultSrmlTypes;
 #[cfg(not(feature = "test-env"))]
 pub use self::srml_only::{
     sys,
+    CallAbi,
+    CallBuilder,
     SrmlEnv,
     SrmlEnvStorage,
 };

@@ -31,7 +31,6 @@ use scale::{
 use type_metadata::Metadata;
 
 /// The SRML fundamental types.
-#[allow(unused)]
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
 pub enum DefaultSrmlTypes {}
 

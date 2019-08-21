@@ -27,6 +27,9 @@ mod hir;
 mod ident_ext;
 mod parser;
 
+#[cfg(feature = "ink-generate-abi")]
+mod old_abi;
+
 #[cfg(test)]
 mod tests;
 

@@ -52,3 +52,6 @@ test-env = [
     "std",
     "ink_model/test-env",
 ]
+ink-generate-abi = [
+    "std",
+]
