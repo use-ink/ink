@@ -83,6 +83,7 @@ fn generate_state_as_dependency(contract: &hir::Contract) -> TokenStream2 {
     quote! {
         #( #attrs )*
         #[derive(Clone, scale::Encode, scale::Decode)]
+        #[cfg_attr(feature = "ink-as-dependency", derive(type_metadata::Metadata))]
         pub struct #name {
             account_id: AccountId,
         }
