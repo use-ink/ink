@@ -23,7 +23,7 @@ use ink_core::{
 use ink_lang::contract;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
 pub enum Which {
     Adder,
     Subber,
