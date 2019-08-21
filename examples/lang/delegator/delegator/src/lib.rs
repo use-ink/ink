@@ -70,12 +70,12 @@ contract! {
                 .expect("failed at instantiating the accumulator contract");
             self.accumulator.set(accumulator.clone());
             self.adder.set(
-                adder::Adder::new(adder_code_hash, accumulator.clone())
+                adder::Adder::new(adder_code_hash, accumulator.account_id())
                     .create()
                     .expect("failed at instantiating the adder contract")
             );
             self.subber.set(
-                subber::Subber::new(subber_code_hash, accumulator.clone())
+                subber::Subber::new(subber_code_hash, accumulator.account_id())
                     .create()
                     .expect("failed at instantiating the subber contract")
             );

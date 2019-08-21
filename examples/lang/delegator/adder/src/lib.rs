@@ -32,8 +32,8 @@ contract! {
     }
 
     impl Deploy for Adder {
-        fn deploy(&mut self, accumulator: accumulator::Accumulator) {
-            self.accumulator.set(accumulator);
+        fn deploy(&mut self, accumulator: AccountId) {
+            self.accumulator.set(accumulator::Accumulator::from_account_id(accumulator));
         }
     }
 
