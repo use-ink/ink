@@ -68,6 +68,9 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
         }
         #[cfg(not(feature = "ink-as-dependency"))]
         use normal::*;
+
+        #[cfg(not(feature = "ink-as-dependency"))]
+        use ink_core::env::FromAccountId as _;
     });
 }
 
