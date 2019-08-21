@@ -175,7 +175,7 @@ pub trait Env: EnvTypes {
     /// Creates and instantiates a new smart contract.
     fn create(
         code_hash: <Self as EnvTypes>::Hash,
-        gas_cost: u64,
+        gas_limit: u64,
         value: <Self as EnvTypes>::Balance,
         input_data: &[u8],
     ) -> Result<<Self as EnvTypes>::AccountId, CreateError>;

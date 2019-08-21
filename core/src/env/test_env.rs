@@ -47,7 +47,7 @@ pub struct EventData {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RawCreateData {
     code_hash: Vec<u8>,
-    gas_cost: u64,
+    gas_limit: u64,
     value: Vec<u8>,
     input_data: Vec<u8>,
 }
@@ -58,7 +58,7 @@ where
     E: EnvTypes,
 {
     pub code_hash: E::Hash,
-    pub gas_cost: u64,
+    pub gas_limit: u64,
     pub value: E::Balance,
     pub input_data: Vec<u8>,
 }
@@ -71,7 +71,7 @@ where
         Self {
             code_hash: Decode::decode(&mut &raw.code_hash[..])
                 .expect("encountered invalid encoded code hash"),
-            gas_cost: raw.gas_cost,
+            gas_limit: raw.gas_limit,
             value: Decode::decode(&mut &raw.value[..])
                 .expect("encountered invalid encoded value"),
             input_data: raw.input_data,
@@ -413,13 +413,13 @@ impl TestEnvData {
     pub fn add_create(
         &mut self,
         code_hash: &[u8],
-        gas_cost: u64,
+        gas_limit: u64,
         value: &[u8],
         input_data: &[u8],
     ) {
         let new_create = RawCreateData {
             code_hash: code_hash.to_vec(),
-            gas_cost,
+            gas_limit,
             value: value.to_vec(),
             input_data: input_data.to_vec(),
         };
@@ -529,11 +529,11 @@ impl TestEnvData {
     pub fn create(
         &mut self,
         code_hash: &[u8],
-        gas_cost: u64,
+        gas_limit: u64,
         value: &[u8],
         input_data: &[u8],
     ) -> Vec<u8> {
-        self.add_create(code_hash, gas_cost, value, input_data);
+        self.add_create(code_hash, gas_limit, value, input_data);
         self.next_create_address.clone()
     }
 }
@@ -766,7 +766,7 @@ where
 
     fn create(
         code_hash: T::Hash,
-        gas_cost: u64,
+        gas_limit: u64,
         value: T::Balance,
         input_data: &[u8],
     ) -> Result<T::AccountId, CreateError> {
@@ -776,7 +776,7 @@ where
             Decode::decode(
                 &mut &(test_env
                     .borrow_mut()
-                    .create(code_hash, gas_cost, value, input_data))[..],
+                    .create(code_hash, gas_limit, value, input_data))[..],
             )
             .map_err(|_| CreateError)
         })

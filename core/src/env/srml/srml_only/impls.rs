@@ -220,7 +220,7 @@ where
 
     fn create(
         code_hash: <Self as EnvTypes>::Hash,
-        gas_cost: u64,
+        gas_limit: u64,
         value: <Self as EnvTypes>::Balance,
         input_data: &[u8],
     ) -> Result<<Self as EnvTypes>::AccountId, CreateError> {
@@ -231,7 +231,7 @@ where
                 sys::ext_create(
                     code_hash.as_ptr() as u32,
                     code_hash.len() as u32,
-                    gas_cost,
+                    gas_limit,
                     value.as_ptr() as u32,
                     value.len() as u32,
                     input_data.as_ptr() as u32,
