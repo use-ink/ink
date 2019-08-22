@@ -126,4 +126,17 @@ mod tests {
             r#"Err(CommandError { kind: Other("Contract names cannot contain hyphens") })"#
         )
     }
+
+    #[test]
+    fn contract_cargo_project_already_exists() {
+        let name = "test_contract_cargo_project_already_exists";
+        let _ = super::initialize_for_lang(name);
+        let result = super::initialize_for_lang(name);
+        // clean up created files
+        std::fs::remove_dir_all(name).unwrap();
+        assert_eq!(
+            format!("{:?}", result),
+            r#"Err(CommandError { kind: Other("A Cargo package already exists in test_contract_cargo_project_already_exists") })"#
+        )
+    }
 }
