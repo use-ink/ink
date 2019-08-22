@@ -35,8 +35,12 @@ impl std::fmt::Display for CommandErrorKind {
         match self {
             CommandErrorKind::Io(err) => write!(f, "Io: {:?}", err),
             CommandErrorKind::UnimplementedCommand => write!(f, "Command unimplemented"),
-            CommandErrorKind::UnimplementedAbstractionLayer => write!(f, "Abstraction layer unimplemented"),
-            CommandErrorKind::ZipError(err) => write!(f, "Error unzipping template: {:?}", err),
+            CommandErrorKind::UnimplementedAbstractionLayer => {
+                write!(f, "Abstraction layer unimplemented")
+            }
+            CommandErrorKind::ZipError(err) => {
+                write!(f, "Error unzipping template: {:?}", err)
+            }
             CommandErrorKind::Other(err) => write!(f, "{}", err),
         }
     }
