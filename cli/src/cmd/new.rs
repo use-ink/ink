@@ -36,12 +36,18 @@ use std::{
 };
 
 /// Initializes a project structure for the `lang` abstraction layer.
-fn initialize_for_lang(name: &str) -> Result<()> {
+fn initialize_for_lang(name: &str) -> Result<String> {
     if name.contains("-") {
         return Err("Contract names cannot contain hyphens".into())
     }
-    fs::create_dir(name)?;
+
     let out_dir = path::Path::new(name);
+    if out_dir.join("Cargo.toml").exists() {
+        return Err(format!("A Cargo package already exists in {}", name).into())
+    }
+    if !out_dir.exists() {
+        fs::create_dir(out_dir)?;
+    }
 
     let template = include_bytes!(concat!(env!("OUT_DIR"), "/template.zip"));
     let mut cursor = Cursor::new(Vec::new());
@@ -84,10 +90,10 @@ fn initialize_for_lang(name: &str) -> Result<()> {
         }
     }
 
-    Ok(())
+    Ok(format!("Created contract {}", name))
 }
 
-pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<()> {
+pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<String> {
     match layer {
         AbstractionLayer::Core => {
             Err(CommandError::new(

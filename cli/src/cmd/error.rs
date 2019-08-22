@@ -30,10 +30,28 @@ pub enum CommandErrorKind {
     Other(String),
 }
 
+impl std::fmt::Display for CommandErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            CommandErrorKind::Io(err) => write!(f, "Io: {:?}", err),
+            CommandErrorKind::UnimplementedCommand => write!(f, "Command unimplemented"),
+            CommandErrorKind::UnimplementedAbstractionLayer => write!(f, "Abstraction layer unimplemented"),
+            CommandErrorKind::ZipError(err) => write!(f, "Error unzipping template: {:?}", err),
+            CommandErrorKind::Other(err) => write!(f, "{}", err),
+        }
+    }
+}
+
 /// An error that can be encountered while executing commands.
 #[derive(Debug)]
 pub struct CommandError {
     kind: CommandErrorKind,
+}
+
+impl std::fmt::Display for CommandError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.kind)
+    }
 }
 
 impl From<IoError> for CommandError {
@@ -56,6 +74,14 @@ impl From<&str> for CommandError {
     fn from(error: &str) -> Self {
         Self {
             kind: CommandErrorKind::Other(error.to_string()),
+        }
+    }
+}
+
+impl From<String> for CommandError {
+    fn from(error: String) -> Self {
+        Self {
+            kind: CommandErrorKind::Other(error),
         }
     }
 }
