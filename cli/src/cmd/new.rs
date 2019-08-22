@@ -75,6 +75,13 @@ fn initialize_for_lang(name: &str) -> Result<String> {
                     fs::create_dir_all(&p)?;
                 }
             }
+            if outpath.exists() {
+                return Err(format!(
+                    "New contract file {} already exists",
+                    outpath.display()
+                )
+                .into())
+            }
             let mut outfile = fs::File::create(&outpath)?;
             outfile.write_all(contents.as_bytes())?;
         }
