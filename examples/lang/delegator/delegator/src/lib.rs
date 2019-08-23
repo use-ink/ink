@@ -64,18 +64,23 @@ contract! {
             adder_code_hash: Hash,
             subber_code_hash: Hash,
         ) {
+
             self.which.set(Which::Adder);
+            let total_balance = env.balance();
             let accumulator = accumulator::Accumulator::new(accumulator_code_hash, init_value)
+                .value(total_balance / 4)
                 .create()
                 .expect("failed at instantiating the accumulator contract");
             self.accumulator.set(accumulator.clone());
             self.adder.set(
                 adder::Adder::new(adder_code_hash, accumulator.account_id())
+                    .value(total_balance / 4)
                     .create()
                     .expect("failed at instantiating the adder contract")
             );
             self.subber.set(
                 subber::Subber::new(subber_code_hash, accumulator.account_id())
+                    .value(total_balance / 4)
                     .create()
                     .expect("failed at instantiating the subber contract")
             );
