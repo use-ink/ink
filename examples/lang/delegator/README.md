@@ -27,3 +27,5 @@ In order to test this bundle of smart contracts you need to do the following:
    the value stored in the Accumulator smart contract respectively and `switch` to switch the currently
    delegated-to smart contract.
    The initial delegated-to smart contract is the Adder.
+
+For ease of use you can also use the provided `build.sh` script in the root of the directory.
