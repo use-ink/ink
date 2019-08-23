@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! The `ink_core` utilities used by all ink! smart contracts.
+//!
+//! Mainly provides entities to work on a contract's storage
+//! as well as high-level collections on top of those.
+//! Also provides environmental utilities, such as storage allocators,
+//! FFI to interface with SRML contracts and a primitive blockchain
+//! emulator for simple off-chain testing.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
     bad_style,

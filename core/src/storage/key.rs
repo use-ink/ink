@@ -15,10 +15,19 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::byte_utils;
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutKey,
+    LayoutRange,
+    StorageLayout,
+};
 use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// Typeless generic key into contract storage.
 ///
@@ -37,7 +46,15 @@ use scale::{
 ///
 /// Prefer using types found in `collections` or `Synced` type.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Key(pub [u8; 32]);
+
+#[cfg(feature = "ink-generate-abi")]
+impl HasLayout for Key {
+    fn layout(&self) -> StorageLayout {
+        LayoutRange::cell(*self, <[u8]>::meta_type()).into()
+    }
+}
 
 impl core::fmt::Debug for Key {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -74,6 +91,13 @@ impl core::fmt::Display for Key {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl From<Key> for LayoutKey {
+    fn from(key: Key) -> Self {
+        LayoutKey(key.0)
     }
 }
 

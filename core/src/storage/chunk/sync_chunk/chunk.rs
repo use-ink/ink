@@ -24,6 +24,21 @@ use crate::storage::{
     Flush,
     Key,
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutRange,
+    StorageLayout,
+};
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::{
+    HasTypeDef,
+    Metadata,
+    NamedField,
+    TypeDef,
+    TypeDefStruct,
+    TypeId,
+};
 
 /// A chunk of synchronized cells.
 ///
@@ -38,11 +53,19 @@ use crate::storage::{
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(TypeId))]
 pub struct SyncChunk<T> {
     /// The underlying chunk of cells.
     chunk: TypedChunk<T>,
     /// The cached element.
     cache: CacheGuard<T>,
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<T> HasTypeDef for SyncChunk<T> {
+    fn type_def() -> TypeDef {
+        TypeDefStruct::new(vec![NamedField::of::<Key>("cells_key")]).into()
+    }
 }
 
 impl<T> Flush for SyncChunk<T>
@@ -77,6 +100,16 @@ impl<T> scale::Decode for SyncChunk<T> {
                 cache: Default::default(),
             }
         })
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<T> HasLayout for SyncChunk<T>
+where
+    T: Metadata,
+{
+    fn layout(&self) -> StorageLayout {
+        LayoutRange::chunk(self.cells_key(), T::meta_type()).into()
     }
 }
 

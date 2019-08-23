@@ -42,7 +42,6 @@ pub trait Flush {
     fn flush(&mut self);
 }
 
-#[macro_export]
 macro_rules! impl_empty_flush_for {
 	( $($ty:ty),* ) => {
 		$(

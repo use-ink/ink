@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+mod abi;
 mod build;
 mod doc;
 mod test;
@@ -33,5 +34,6 @@ pub fn generate_code(contract: &hir::Contract) -> TokenStream2 {
     build::generate_code(&mut tokens, contract);
     doc::generate_code(&mut tokens, contract);
     test::generate_code(&mut tokens, contract);
+    abi::generate_code(&mut tokens, contract);
     tokens
 }

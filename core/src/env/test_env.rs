@@ -16,7 +16,10 @@
 
 use super::*;
 use crate::{
-    env::EnvTypes,
+    env::{
+        CallError,
+        EnvTypes,
+    },
     memory::collections::hash_map::{
         Entry,
         HashMap,
@@ -45,6 +48,25 @@ impl EventData {
     fn data_as_bytes(&self) -> &[u8] {
         self.data.as_slice()
     }
+}
+
+/// Emulates the data given to remote smart contract call instructions.
+pub struct RawCallData {
+    pub callee: Vec<u8>,
+    pub gas: u64,
+    pub value: Vec<u8>,
+    pub input_data: Vec<u8>,
+}
+
+/// Decoded call data of recorded external calls.
+pub struct CallData<E>
+where
+    E: EnvTypes,
+{
+    pub callee: E::AccountId,
+    pub gas: u64,
+    pub value: E::Balance,
+    pub input_data: Vec<u8>,
 }
 
 /// An entry in the storage of the test environment.
@@ -159,12 +181,6 @@ pub struct TestEnvData {
     ///
     /// The current current block number can be adjusted by `TestEnvData::set_block_number`.
     block_number: Vec<u8>,
-    /// The expected return data of the next contract invocation.
-    ///
-    /// # Note
-    ///
-    /// This can be set by `TestEnvData::set_expected_return`.
-    expected_return: Vec<u8>,
     /// The total number of reads from the storage.
     total_reads: Cell<u64>,
     /// The total number of writes to the storage.
@@ -179,6 +195,12 @@ pub struct TestEnvData {
     gas_left: Vec<u8>,
     /// The total transferred value.
     value_transferred: Vec<u8>,
+    /// The recorded external calls.
+    calls: Vec<RawCallData>,
+    /// The expected return data of the next external call.
+    call_return: Vec<u8>,
+    /// Returned data.
+    return_data: Vec<u8>,
 }
 
 impl Default for TestEnvData {
@@ -192,7 +214,6 @@ impl Default for TestEnvData {
             random_seed: Vec::new(),
             now: Vec::new(),
             block_number: Vec::new(),
-            expected_return: Vec::new(),
             total_reads: Cell::new(0),
             total_writes: 0,
             events: Vec::new(),
@@ -200,6 +221,9 @@ impl Default for TestEnvData {
             gas_left: Vec::new(),
             value_transferred: Vec::new(),
             dispatched_calls: Vec::new(),
+            calls: Vec::new(),
+            call_return: Vec::new(),
+            return_data: Vec::new(),
         }
     }
 }
@@ -215,11 +239,13 @@ impl TestEnvData {
         self.random_seed.clear();
         self.now.clear();
         self.block_number.clear();
-        self.expected_return.clear();
         self.total_reads.set(0);
         self.total_writes = 0;
         self.events.clear();
         self.dispatched_calls.clear();
+        self.calls.clear();
+        self.call_return.clear();
+        self.return_data.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -250,11 +276,6 @@ impl TestEnvData {
     /// Returns the number of writes to the entry associated by the given key if any.
     pub fn writes_for(&self, key: Key) -> Option<u64> {
         self.storage.get(&key).map(|loaded| loaded.writes())
-    }
-
-    /// Sets the expected return data for the next contract invocation.
-    pub fn set_expected_return(&mut self, expected_bytes: &[u8]) {
-        self.expected_return = expected_bytes.to_vec();
     }
 
     /// Sets the contract address for the next contract invocation.
@@ -317,24 +338,35 @@ impl TestEnvData {
     pub fn dispatched_calls(&self) -> impl DoubleEndedIterator<Item = &[u8]> {
         self.dispatched_calls.iter().map(Vec::as_slice)
     }
+
+    /// Records a new external call.
+    pub fn add_call(&mut self, callee: &[u8], gas: u64, value: &[u8], input_data: &[u8]) {
+        let new_call = RawCallData {
+            callee: callee.to_vec(),
+            gas,
+            value: value.to_vec(),
+            input_data: input_data.to_vec(),
+        };
+        self.calls.push(new_call);
+    }
+
+    /// Returns an iterator over all recorded external calls.
+    pub fn external_calls(&self) -> impl DoubleEndedIterator<Item = &RawCallData> {
+        self.calls.iter()
+    }
+
+    /// Set the expected return data of the next external call.
+    pub fn set_return_data(&mut self, return_data: &[u8]) {
+        self.return_data = return_data.to_vec();
+    }
+
+    /// Returns the latest returned data.
+    pub fn returned_data(&self) -> &[u8] {
+        &self.return_data
+    }
 }
 
 impl TestEnvData {
-    /// The return code for successful contract invocations.
-    ///
-    /// # Note
-    ///
-    /// A contract invocation is successful if it returned the same data
-    /// as was expected upon invocation.
-    const SUCCESS: i32 = 0;
-    /// The return code for unsuccessful contract invocations.
-    ///
-    /// # Note
-    ///
-    /// A contract invocation is unsuccessful if it did not return the
-    /// same data as was expected upon invocation.
-    const FAILURE: i32 = -1;
-
     pub fn address(&self) -> Vec<u8> {
         self.address.clone()
     }
@@ -396,14 +428,8 @@ impl TestEnvData {
         self.value_transferred.clone()
     }
 
-    pub fn r#return(&self, data: &[u8]) -> ! {
-        let expected_bytes = self.expected_return.clone();
-        let exit_code = if expected_bytes == data {
-            Self::SUCCESS
-        } else {
-            Self::FAILURE
-        };
-        std::process::exit(exit_code)
+    pub fn return_data(&mut self, data: &[u8]) {
+        self.return_data = data.to_vec();
     }
 
     pub fn println(&self, content: &str) {
@@ -416,6 +442,17 @@ impl TestEnvData {
 
     pub fn dispatch_call(&mut self, call: &[u8]) {
         self.add_dispatched_call(call);
+    }
+
+    pub fn call(
+        &mut self,
+        callee: &[u8],
+        gas: u64,
+        value: &[u8],
+        input_data: &[u8],
+    ) -> Vec<u8> {
+        self.add_call(callee, gas, value, input_data);
+        self.call_return.clone()
     }
 }
 
@@ -463,16 +500,21 @@ where
         TEST_ENV_DATA.with(|test_env| test_env.borrow().writes_for(key))
     }
 
-    /// Sets the expected return data for the next contract invocation.
-    pub fn set_expected_return(expected_bytes: &[u8]) {
-        TEST_ENV_DATA
-            .with(|test_env| test_env.borrow_mut().set_expected_return(expected_bytes))
+    /// Returns the latest returned data.
+    pub fn returned_data() -> Vec<u8> {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow().returned_data().to_vec())
     }
 
     /// Sets the input data for the next contract invocation.
     pub fn set_input(input_bytes: &[u8]) {
         TEST_ENV_DATA
             .with(|test_env| test_env.borrow_mut().set_input(input_bytes.to_vec()))
+    }
+
+    /// Sets the expected return data for the next external call.
+    pub fn set_return_data(expected_return_data: &[u8]) {
+        TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().set_return_data(expected_return_data))
     }
 
     impl_env_setters_for_test_env!(
@@ -491,6 +533,27 @@ where
                 .borrow()
                 .emitted_events()
                 .map(|event_bytes| event_bytes.to_vec())
+                .collect::<Vec<_>>()
+                .into_iter()
+        })
+    }
+
+    /// Returns an iterator over all emitted events.
+    pub fn external_calls() -> impl DoubleEndedIterator<Item = CallData<T>> {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow()
+                .external_calls()
+                .map(|raw_call_data| {
+                    CallData {
+                        callee: Decode::decode(&mut &raw_call_data.callee[..])
+                            .expect("invalid encoded callee"),
+                        gas: raw_call_data.gas,
+                        value: Decode::decode(&mut &raw_call_data.value[..])
+                            .expect("invalid encoded value"),
+                        input_data: raw_call_data.input_data.clone(),
+                    }
+                })
                 .collect::<Vec<_>>()
                 .into_iter()
         })
@@ -549,8 +612,8 @@ where
         (value_transferred, T::Balance)
     );
 
-    unsafe fn r#return(data: &[u8]) -> ! {
-        TEST_ENV_DATA.with(|test_env| test_env.borrow().r#return(data))
+    fn return_data(data: &[u8]) {
+        TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().return_data(data))
     }
 
     fn println(content: &str) {
@@ -566,6 +629,35 @@ where
 
     fn dispatch_raw_call(data: &[u8]) {
         TEST_ENV_DATA.with(|test_env| test_env.borrow_mut().dispatch_call(data))
+    }
+
+    fn call_invoke(
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<(), CallError> {
+        let callee = &(callee.encode())[..];
+        let value = &(value.encode())[..];
+        let _return_data = TEST_ENV_DATA
+            .with(|test_env| test_env.borrow_mut().call(callee, gas, value, input_data));
+        Ok(())
+    }
+
+    fn call_evaluate<U: Decode>(
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<U, CallError> {
+        let callee = &(callee.encode())[..];
+        let value = &(value.encode())[..];
+        TEST_ENV_DATA.with(|test_env| {
+            U::decode(
+                &mut &(test_env.borrow_mut().call(callee, gas, value, input_data))[..],
+            )
+            .map_err(|_| CallError)
+        })
     }
 }
 

@@ -18,7 +18,7 @@ ink_core = { path = "../core", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
 
 [features]
-default = ["std"]
+default = ["test-env"]
 test-env = [
 	"std",
 	"ink_core/test-env",

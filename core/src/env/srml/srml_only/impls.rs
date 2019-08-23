@@ -17,6 +17,7 @@
 use crate::{
     env::{
         srml::sys,
+        CallError,
         Env,
         EnvStorage,
         EnvTypes,
@@ -25,7 +26,10 @@ use crate::{
     storage::Key,
 };
 use core::marker::PhantomData;
-use scale::Decode;
+use scale::{
+    Decode,
+    Encode,
+};
 
 /// Load the contents of the scratch buffer
 fn read_scratch_buffer() -> Vec<u8> {
@@ -34,10 +38,17 @@ fn read_scratch_buffer() -> Vec<u8> {
     if size > 0 {
         value.resize(size as usize, 0);
         unsafe {
-            sys::ext_scratch_copy(value.as_mut_ptr() as u32, 0, size);
+            sys::ext_scratch_read(value.as_mut_ptr() as u32, 0, size);
         }
     }
     value
+}
+
+/// Writes the contents of `data` into the scratch buffer.
+fn write_scratch_buffer(data: &[u8]) {
+    unsafe {
+        sys::ext_scratch_write(data.as_ptr() as u32, data.len() as u32);
+    }
 }
 
 /// The SRML contract environment storage
@@ -103,6 +114,32 @@ macro_rules! impl_getters_for_srml_env {
     }
 }
 
+impl<T> SrmlEnv<T>
+where
+    T: EnvTypes,
+{
+    fn call(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> u32 {
+        let callee = callee.encode();
+        let value = value.encode();
+        unsafe {
+            sys::ext_call(
+                callee.as_ptr() as u32,
+                callee.len() as u32,
+                gas,
+                value.as_ptr() as u32,
+                value.len() as u32,
+                input_data.as_ptr() as u32,
+                input_data.len() as u32,
+            )
+        }
+    }
+}
+
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
@@ -131,8 +168,8 @@ where
         )
     );
 
-    unsafe fn r#return(data: &[u8]) -> ! {
-        sys::ext_return(data.as_ptr() as u32, data.len() as u32);
+    fn return_data(data: &[u8]) {
+        write_scratch_buffer(data)
     }
 
     fn println(content: &str) {
@@ -152,5 +189,31 @@ where
 
     fn dispatch_raw_call(data: &[u8]) {
         unsafe { sys::ext_dispatch_call(data.as_ptr() as u32, data.len() as u32) }
+    }
+
+    fn call_invoke(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> Result<(), CallError> {
+        let result = Self::call(callee, gas, value, input_data);
+        if result != 0 {
+            return Err(CallError)
+        }
+        Ok(())
+    }
+
+    fn call_evaluate<U: Decode>(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> Result<U, CallError> {
+        let result = Self::call(callee, gas, value, input_data);
+        if result != 0 {
+            return Err(CallError)
+        }
+        U::decode(&mut &read_scratch_buffer()[..]).map_err(|_| CallError)
     }
 }

@@ -40,7 +40,16 @@ mod test_env;
 pub use api::*;
 pub use traits::*;
 
-pub use self::srml::DefaultSrmlTypes;
+pub use self::srml::{
+    CallError,
+    DefaultSrmlTypes,
+};
+
+#[cfg(not(feature = "test-env"))]
+pub use self::srml::{
+    CallAbi,
+    CallBuilder,
+};
 
 /// The storage environment implementation that is currently being used.
 ///

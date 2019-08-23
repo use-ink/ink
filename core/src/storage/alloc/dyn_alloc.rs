@@ -25,6 +25,15 @@ use crate::storage::{
     Flush,
     Key,
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// Allocator for dynamic contract storage.
 ///
@@ -34,6 +43,7 @@ use crate::storage::{
 /// at the same time. This is subject to change in the future if
 /// experiments show that this is a bottle neck.
 #[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct DynAlloc {
     /// Bitmap indicating free cell slots.
     free_cells: storage::BitVec,
@@ -43,6 +53,22 @@ pub struct DynAlloc {
     cells_origin: Key,
     /// Offset origin key for all chunks.
     chunks_origin: Key,
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl HasLayout for DynAlloc {
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("free_cells", &self.free_cells),
+                LayoutField::of("free_chunks", &self.free_cells),
+                LayoutField::of("cells_origin", &self.cells_origin),
+                LayoutField::of("chunks_origin", &self.chunks_origin),
+            ],
+        )
+        .into()
+    }
 }
 
 impl AllocateUsing for DynAlloc {
@@ -75,7 +101,7 @@ impl Flush for DynAlloc {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "test-env"))]
 impl DynAlloc {
     pub(crate) fn cells_origin(&self) -> Key {
         self.cells_origin

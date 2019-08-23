@@ -25,11 +25,19 @@ use crate::storage::{
     Flush,
     Key,
 };
-
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
 use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// A stash collection.
 ///
@@ -52,6 +60,7 @@ use scale::{
 /// 3. Except the guarantees noted above, you can assume nothing about key
 ///    assignment or iteration order. They can change at any time.
 #[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Stash<T> {
     /// Stores densly packed general stash information.
     header: storage::Value<StashHeader>,
@@ -67,7 +76,8 @@ pub struct Stash<T> {
 /// for performance reasons so that they all reside in the same
 /// storage entiry. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
-#[derive(Debug, scale::Encode, scale::Decode)]
+#[derive(Debug, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 struct StashHeader {
     /// The latest vacant index.
     next_vacant: u32,
@@ -111,6 +121,23 @@ where
     fn flush(&mut self) {
         self.header.flush();
         self.entries.flush();
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<T> HasLayout for Stash<T>
+where
+    T: Metadata + 'static,
+{
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("header", &self.header),
+                LayoutField::of("entries", &self.entries),
+            ],
+        )
+        .into()
     }
 }
 
@@ -223,6 +250,7 @@ where
 /// This represents either an occupied entry with its associated value
 /// or a vacant entry pointing to the next vacant entry.
 #[derive(Debug, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 enum Entry<T> {
     /// A vacant entry pointing to the next vacant index.
     Vacant(u32),

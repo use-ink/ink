@@ -21,13 +21,22 @@ use core::{
 
 use crate::{
     env::EnvTypes,
-    impl_empty_flush_for,
     storage::Flush,
 };
 use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
+
+/// Errors encountered by calling a remote contract.
+///
+/// # Note
+///
+/// This is currently just a placeholder for potential future error codes.
+#[derive(Debug, Copy, Clone)]
+pub struct CallError;
 
 /// The SRML fundamental types.
 #[allow(unused)]
@@ -67,6 +76,7 @@ impl EnvTypes for DefaultSrmlTypes {
 
 /// The default SRML address type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct AccountId([u8; 32]);
 
 impl From<[u8; 32]> for AccountId {
@@ -89,6 +99,7 @@ pub type Balance = u128;
 
 /// The default SRML hash type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Hash([u8; 32]);
 
 impl From<[u8; 32]> for Hash {
@@ -112,4 +123,10 @@ pub type Moment = u64;
 /// The default SRML blocknumber type.
 pub type BlockNumber = u64;
 
-impl_empty_flush_for!(AccountId, Hash);
+impl Flush for AccountId {
+    fn flush(&mut self) {}
+}
+
+impl Flush for Hash {
+    fn flush(&mut self) {}
+}

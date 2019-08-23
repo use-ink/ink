@@ -21,12 +21,16 @@ use crate::{
             Env,
             EnvTypes,
         },
+        CallError,
         EnvStorage as _,
     },
     memory::vec::Vec,
     storage::Key,
 };
-use scale::Encode;
+use scale::{
+    Decode,
+    Encode,
+};
 
 /// Stores the given value under the specified key in the contract storage.
 ///
@@ -58,20 +62,18 @@ pub unsafe fn load(key: Key) -> Option<Vec<u8>> {
     ContractEnvStorage::load(key)
 }
 
-/// Returns the current smart contract exection back to the caller
-/// and return the given encoded value.
+/// Returns the given data back to the caller.
 ///
-/// # Safety
+/// # Note
 ///
-/// External callers rely on the correct type of the encoded returned value.
-/// This operation is unsafe because it does not provide guarantees on its
-/// own to always encode the expected type.
-pub unsafe fn r#return<T, E>(value: T) -> !
+/// This operation must be the last operation performed by a called
+/// smart contract before it returns the execution back to its caller.
+pub fn return_data<T, E>(data: T)
 where
     T: Encode,
     E: Env,
 {
-    E::r#return(&value.encode()[..])
+    E::return_data(&data.encode()[..])
 }
 
 /// Dispatches a Call into the runtime, for invoking other substrate
@@ -85,4 +87,37 @@ where
     C: Into<<T as EnvTypes>::Call>,
 {
     T::dispatch_raw_call(&call.into().encode()[..])
+}
+
+/// Invokes a remote smart contract.
+///
+/// Does not expect to receive return data back.
+/// Use this whenever you call a remote smart contract that returns nothing back.
+pub fn call_invoke<T>(
+    callee: T::AccountId,
+    gas: u64,
+    value: T::Balance,
+    input_data: &[u8],
+) -> Result<(), CallError>
+where
+    T: Env,
+{
+    T::call_invoke(callee, gas, value, input_data)
+}
+
+/// Evaluates a remote smart contract.
+///
+/// Expects to receive return data back.
+/// Use this whenever calling a remote smart contract that returns a value.
+pub fn call_evaluate<T, R>(
+    callee: T::AccountId,
+    gas: u64,
+    value: T::Balance,
+    input_data: &[u8],
+) -> Result<R, CallError>
+where
+    T: Env,
+    R: Decode,
+{
+    T::call_evaluate(callee, gas, value, input_data)
 }

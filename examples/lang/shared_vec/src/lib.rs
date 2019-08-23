@@ -14,17 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-#![cfg_attr(not(any(test, feature = "test-env")), no_std)]
+#![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_core::storage;
+use ink_core::{storage, storage::Flush};
 use ink_lang::contract;
 use scale::{Encode, Decode};
 
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
+
 /// Access rights to the shared vector.
 #[derive(Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Access {
     pub begin: Option<u32>,
     pub end: Option<u32>,
+}
+
+impl Flush for Access {
+	fn flush(&mut self) {}
 }
 
 impl Access {

@@ -25,14 +25,38 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// A space-efficient contiguous growable bit array type.
 #[derive(Debug)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct BitVec {
     /// The number of bits.
     len: storage::Value<u32>,
     /// The bit blocks.
     blocks: SyncChunk<BitBlock>,
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl HasLayout for BitVec {
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("len", &self.len),
+                LayoutField::of("blocks", &self.blocks),
+            ],
+        )
+        .into()
+    }
 }
 
 impl scale::Encode for BitVec {

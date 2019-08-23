@@ -19,6 +19,7 @@ use core::marker::PhantomData;
 use ink_core::{
     env::{
         self,
+        CallError,
         Env,
     },
     storage::alloc::{
@@ -28,7 +29,10 @@ use ink_core::{
         Initialize,
     },
 };
-use scale::Encode as _;
+use scale::{
+    Decode,
+    Encode as _,
+};
 
 /// Provides a safe interface to an environment given a contract state.
 pub struct ExecutionEnv<State, Env> {
@@ -146,12 +150,16 @@ impl<T: Env> EnvHandler<T> {
         T::caller()
     }
 
-    /// Returns from the current smart contract execution with the given value.
-    pub unsafe fn r#return<V>(&self, val: V) -> !
+    /// Returns the given data back to the caller.
+    ///
+    /// # Note
+    ///
+    /// This must be the last operation executed before returning execution back to the caller.
+    pub fn return_data<V>(&self, data: V)
     where
         V: scale::Encode,
     {
-        env::r#return::<V, T>(val)
+        env::return_data::<V, T>(data)
     }
 
     /// Prints the given content.
@@ -189,5 +197,27 @@ impl<T: Env> EnvHandler<T> {
         C: Into<T::Call>,
     {
         T::dispatch_raw_call(call.into().encode().as_slice())
+    }
+
+    /// Calls a remote smart contract without returning data.
+    pub fn call_invoke(
+        &mut self,
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<(), CallError> {
+        T::call_invoke(callee, gas, value, input_data)
+    }
+
+    /// Calls a remote smart contract with returning encoded data.
+    pub fn call_evaluate<U: Decode>(
+        &mut self,
+        callee: T::AccountId,
+        gas: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<U, CallError> {
+        T::call_evaluate(callee, gas, value, input_data)
     }
 }

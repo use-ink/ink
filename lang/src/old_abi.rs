@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! The old ink! ABI format generation routine.
+//!
+//! This is in place as long as the new ABI format is not well supported
+//! in all important areas of use.
+//! Remove this as soon as the new ABI format is stable enough.
+//! Instead of using the old crate feature the old ABI generation is using
+//! the newly introduced `ink-generate-abi` crate feature.
+
 use crate::{
     ast,
     hir,
@@ -506,13 +514,6 @@ pub struct ContractDescription {
     messages: Vec<MessageDescription>,
 }
 
-impl ContractDescription {
-    /// Returns the name of the contract.
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-}
-
 impl TryFrom<&hir::Contract> for ContractDescription {
     type Error = syn::Error;
 
@@ -532,13 +533,11 @@ impl TryFrom<&hir::Contract> for ContractDescription {
 }
 
 /// Writes a JSON API description into the `target/` folder.
-pub fn generate_api_description(contract: &hir::Contract) -> Result<()> {
+pub fn generate_old_abi(contract: &hir::Contract) -> Result<()> {
     let description = ContractDescription::try_from(contract)?;
-    let contents = serde_json::to_string(&description)
+    let contents = serde_json::to_string_pretty(&description)
         .expect("Failed at generating JSON API description as JSON");
-    let mut path_buf = String::from("target/");
-    path_buf.push_str(description.name());
-    path_buf.push_str(".json");
+    let path_buf = String::from("target/old_abi.json");
     std::fs::create_dir("target").unwrap_or(());
     std::fs::write(path_buf, contents)
         .expect("Failed at writing JSON API descrition to file");

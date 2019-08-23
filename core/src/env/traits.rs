@@ -15,10 +15,14 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+    env::CallError,
     memory::vec::Vec,
     storage::Key,
 };
-use scale::Codec;
+use scale::{
+    Codec,
+    Decode,
+};
 
 #[cfg(not(feature = "test-env"))]
 /// The environmental types usable by contracts defined with ink!.
@@ -122,7 +126,7 @@ pub trait Env: EnvTypes {
     /// The external callers rely on the correct type of the encoded
     /// returned value. This API is unsafe because it does not provide
     /// guarantees on its own to always encode the expected type.
-    unsafe fn r#return(value: &[u8]) -> !;
+    fn return_data(data: &[u8]);
 
     /// Prints the given content to Substrate output.
     ///
@@ -136,4 +140,20 @@ pub trait Env: EnvTypes {
 
     /// Dispatches a call into the Runtime.
     fn dispatch_raw_call(data: &[u8]);
+
+    /// Calls a remote smart contract without returning data
+    fn call_invoke(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> Result<(), CallError>;
+
+    /// Calls a remote smart contract and return encoded data
+    fn call_evaluate<T: Decode>(
+        callee: <Self as EnvTypes>::AccountId,
+        gas: u64,
+        value: <Self as EnvTypes>::Balance,
+        input_data: &[u8],
+    ) -> Result<T, CallError>;
 }

@@ -39,7 +39,7 @@ name = "ink_lang"
 proc-macro = true
 
 [features]
-default = ["std"]
+default = ["test-env"]
 std = [
     "ink_utils/std",
     "ink_model/std",
@@ -49,6 +49,9 @@ std = [
     "serde/std",
 ]
 test-env = [
+    "std",
     "ink_model/test-env",
 ]
-generate-api-description = []
+ink-generate-abi = [
+    "std",
+]
