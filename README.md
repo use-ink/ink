@@ -88,6 +88,20 @@ contract! {
         }
     }
 }
+
+/// Run off-chain tests with `cargo test`.
+#[cfg(tests)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        let mut flipper = Flipper::deploy_mock();
+        assert_eq!(flipper.get(), false);
+        flipper.flip();
+        assert_eq!(flipper.get(), true);
+    }
+}
 ```
 
 ## Documentation
