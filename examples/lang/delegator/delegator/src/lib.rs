@@ -64,7 +64,6 @@ contract! {
             adder_code_hash: Hash,
             subber_code_hash: Hash,
         ) {
-
             self.which.set(Which::Adder);
             let total_balance = env.balance();
             let accumulator = accumulator::Accumulator::new(accumulator_code_hash, init_value)
