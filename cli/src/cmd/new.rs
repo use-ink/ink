@@ -75,14 +75,21 @@ fn initialize_for_lang(name: &str) -> Result<String> {
                     fs::create_dir_all(&p)?;
                 }
             }
-            if outpath.exists() {
-                return Err(format!(
-                    "New contract file {} already exists",
-                    outpath.display()
-                )
-                .into())
-            }
-            let mut outfile = fs::File::create(&outpath)?;
+            let mut outfile = fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(outpath.clone())
+                .map_err(|e| {
+                    if e.kind() == std::io::ErrorKind::AlreadyExists {
+                        CommandError::from(format!(
+                            "New contract file {} already exists",
+                            outpath.display()
+                        ))
+                    } else {
+                        CommandError::from(e)
+                    }
+                })?;
+
             outfile.write_all(contents.as_bytes())?;
         }
 
@@ -118,6 +125,8 @@ pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<String>
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn rejects_hyphenated_name() {
         let result = super::initialize_for_lang("should-fail");
@@ -137,6 +146,21 @@ mod tests {
         assert_eq!(
             format!("{:?}", result),
             r#"Err(CommandError { kind: Other("A Cargo package already exists in test_contract_cargo_project_already_exists") })"#
+        )
+    }
+
+    #[test]
+    fn dont_overwrite_existing_files_not_in_cargo_project() {
+        let name = "dont_overwrite_existing_files";
+        let dir = path::Path::new(name);
+        fs::create_dir_all(dir).unwrap();
+        fs::File::create(dir.join("build.sh")).unwrap();
+        let result = super::initialize_for_lang(name);
+        // clean up created files
+        std::fs::remove_dir_all(dir).unwrap();
+        assert_eq!(
+            format!("{:?}", result),
+            r#"Err(CommandError { kind: Other("New contract file dont_overwrite_existing_files/build.sh already exists") })"#
         )
     }
 }
