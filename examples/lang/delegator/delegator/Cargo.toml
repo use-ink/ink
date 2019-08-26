@@ -11,7 +11,7 @@ ink_model = { path = "../../../../model", default-features = false }
 ink_lang = { path = "../../../../lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", branch = "fix-serialization", default-features = false, features = ["derive"], optional = true }
+type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
 adder = { path = "../adder", default-features = false, features = ["ink-as-dependency"] }
 subber = { path = "../subber", default-features = false, features = ["ink-as-dependency"] }
