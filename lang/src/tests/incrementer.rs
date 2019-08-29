@@ -58,13 +58,14 @@ fn contract_compiles() {
                 use super::*;
                 use ink_core::env::{ContractEnv, EnvTypes};
 
-                pub type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
-                pub type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
-                pub type Hash = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Hash;
-                pub type Moment = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Moment;
-                pub type BlockNumber = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::BlockNumber;
+                pub type AccountId = <DefaultSrmlTypes as EnvTypes>::AccountId;
+                pub type Balance = <DefaultSrmlTypes as EnvTypes>::Balance;
+                pub type Hash = <DefaultSrmlTypes as EnvTypes>::Hash;
+                pub type Moment = <DefaultSrmlTypes as EnvTypes>::Moment;
+                pub type BlockNumber = <DefaultSrmlTypes as EnvTypes>::BlockNumber;
             }
 
+            type Env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
             use types::{
                 AccountId,
                 Balance,
@@ -73,83 +74,94 @@ fn contract_compiles() {
                 BlockNumber,
             };
 
-            ink_model::state! {
-                /// A simple contract that has a value that can be
-                /// incremented, returned and compared.
-                #[cfg_attr(
-                    feature = "ink-generate-abi",
-                    derive(type_metadata::Metadata, ink_abi::HasLayout,)
-                )]
-                pub struct Incrementer {
-                    /// The internal value.
-                    value: storage::Value<u32>,
-                }
-            }
-
-            mod msg {
+            #[cfg(not(feature = "ink-as-dependency"))]
+            mod normal {
                 use super::*;
-                use ink_model::messages;
 
-                ink_model::messages! {
+                ink_model::state! {
+                    /// A simple contract that has a value that can be
+                    /// incremented, returned and compared.
+                    #[cfg_attr(
+                        feature = "ink-generate-abi",
+                        derive(type_metadata::Metadata, ink_abi::HasLayout,)
+                    )]
+                    pub struct Incrementer {
+                        /// The internal value.
+                        value: storage::Value<u32>,
+                    }
+                }
+
+                mod msg {
+                    use super::*;
+                    use ink_model::messages;
+
+                    ink_model::messages! {
+                        /// Increments the internal counter.
+                        257544423 => Inc(by: u32);
+                        /// Returns the internal counter.
+                        4266279973 => Get() -> u32;
+                        /// Returns `true` if `x` is greater than the internal value.
+                        363906316 => Compare(x: u32) -> bool;
+                    }
+                }
+
+                impl Incrementer {
+                    /// Automatically called when the contract is deployed.
+                    pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, init_value: u32) {
+                        self.value.set(init_value)
+                    }
+
                     /// Increments the internal counter.
-                    257544423 => Inc(by: u32);
+                    pub fn inc(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, by: u32) {
+                        self.value += by
+                    }
+
                     /// Returns the internal counter.
-                    4266279973 => Get() -> u32;
+                    pub fn get(&self, env: &ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) -> u32 {
+                        *self.value
+                    }
+
                     /// Returns `true` if `x` is greater than the internal value.
-                    363906316 => Compare(x: u32) -> bool;
+                    pub fn compare(&self, env: &ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, x: u32) -> bool {
+                        x > *self.value
+                    }
                 }
+
+                use ink_model::Contract as _;
+
+                #[cfg(not(test))]
+                impl Incrementer {
+                    pub(crate) fn instantiate() -> impl ink_model::Contract {
+                        ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<DefaultSrmlTypes>>()
+                            .on_deploy(|env, init_value: u32| {
+                                let (handler, state) = env.split_mut();
+                                state.deploy(handler, init_value)
+                            })
+                            .on_msg_mut::<msg::Inc>(|env, by: u32| {
+                                let (handler, state) = env.split_mut();
+                                state.inc(handler, by)
+                            })
+                            .on_msg::<msg::Get>(|env, _| {
+                                let (handler, state) = env.split();
+                                state.get(handler,)
+                            })
+                            .on_msg::<msg::Compare>(|env, x: u32| {
+                                let (handler, state) = env.split();
+                                state.compare(handler, x)
+                            })
+                            .instantiate()
+                    }
+                }
+
+                #[cfg(not(test))] #[no_mangle] fn deploy() -> u32 { Incrementer::instantiate().deploy().to_u32() }
+                #[cfg(not(test))] #[no_mangle] fn call() -> u32 { Incrementer::instantiate().dispatch().to_u32() }
             }
 
-            impl Incrementer {
-                /// Automatically called when the contract is deployed.
-                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, init_value: u32) {
-                    self.value.set(init_value)
-                }
+            #[cfg(not(feature = "ink-as-dependency"))]
+            use normal::*;
 
-                /// Increments the internal counter.
-                pub fn inc(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, by: u32) {
-                    self.value += by
-                }
-
-                /// Returns the internal counter.
-                pub fn get(&self, env: &ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) -> u32 {
-                    *self.value
-                }
-
-                /// Returns `true` if `x` is greater than the internal value.
-                pub fn compare(&self, env: &ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >, x: u32) -> bool {
-                    x > *self.value
-                }
-            }
-
-            use ink_model::Contract as _;
-
-            #[cfg(not(test))]
-            impl Incrementer {
-                pub(crate) fn instantiate() -> impl ink_model::Contract {
-                    ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<DefaultSrmlTypes>>()
-                        .on_deploy(|env, init_value: u32| {
-                            let (handler, state) = env.split_mut();
-                            state.deploy(handler, init_value)
-                        })
-                        .on_msg_mut::<msg::Inc>(|env, by: u32| {
-                            let (handler, state) = env.split_mut();
-                            state.inc(handler, by)
-                        })
-                        .on_msg::<msg::Get>(|env, _| {
-                            let (handler, state) = env.split();
-                            state.get(handler,)
-                        })
-                        .on_msg::<msg::Compare>(|env, x: u32| {
-                            let (handler, state) = env.split();
-                            state.compare(handler, x)
-                        })
-                        .instantiate()
-                }
-            }
-
-            #[cfg(not(test))] #[no_mangle] fn deploy() -> u32 { Incrementer::instantiate().deploy().to_u32() }
-            #[cfg(not(test))] #[no_mangle] fn call() -> u32 { Incrementer::instantiate().dispatch().to_u32() }
+            #[cfg(not(feature = "ink-as-dependency"))]
+            use ink_core::env::FromAccountId as _;
 
             #[cfg(test)]
             mod test {
@@ -212,16 +224,17 @@ fn contract_compiles() {
                 }
             }
 
+            #[cfg(not(feature = "ink-as-dependency"))]
             #[cfg(feature = "ink-generate-abi")]
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
                     ink_abi::ContractSpec::new("Incrementer")
                         .on_deploy(ink_abi::DeploySpec::new()
                             .args(vec![
-                                ink_abi::MessageParamSpec::new::<u32>("init_value")
+                                ink_abi::MessageParamSpec::new::<u32>("init_value"),
                             ])
                             .docs(vec![
-                                "Automatically called when the contract is deployed."
+                                "Automatically called when the contract is deployed.",
                             ])
                             .done()
                         )
@@ -280,6 +293,144 @@ fn contract_compiles() {
                 };
                 ink_abi::InkProject::new(layout, contract)
             }
+
+            #[cfg(feature = "ink-as-dependency")]
+            mod as_dependency {
+                use super::*;
+
+                /// A simple contract that has a value that can be
+                /// incremented, returned and compared.
+                #[derive(Clone, scale::Encode, scale::Decode)]
+                #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+                pub struct Incrementer {
+                    account_id: AccountId,
+                }
+
+                impl ink_core::storage::Flush for Incrementer {
+                    fn flush(&mut self) {}
+                }
+
+                /// Allows to enhance calls to `&self` contract messages.
+                pub struct CallEnhancer<'a> {
+                    contract: &'a Incrementer,
+                }
+
+                /// Allows to enhance calls to `&mut self` contract messages.
+                pub struct CallEnhancerMut<'a> {
+                    contract: &'a mut Incrementer,
+                }
+
+                impl ink_core::env::FromAccountId<Env> for Incrementer {
+                    fn from_account_id(account_id: AccountId) -> Self {
+                        Self { account_id }
+                    }
+                }
+
+                impl Incrementer {
+                    /// Automatically called when the contract is deployed.
+                    pub fn new(code_hash: Hash, init_value: u32,) -> ink_core::env::CreateBuilder<Env, Self> {
+                        ink_core::env::CreateBuilder::<Env, Self>::new(code_hash)
+                            .push_arg(&init_value)
+                    }
+                    /// Returns the internal account ID of the contract.
+                    pub fn account_id(&self) -> AccountId {
+                        self.account_id
+                    }
+                    /// Allows to enhance calls to `&self` contract messages.
+                    pub fn call(&self) -> CallEnhancer {
+                        CallEnhancer { contract : self }
+                    }
+                    /// Allows to enhance calls to `&mut self` contract messages.
+                    pub fn call_mut(&mut self) -> CallEnhancerMut {
+                        CallEnhancerMut { contract : self }
+                    }
+                }
+
+                impl Incrementer {
+                    /// Increments the internal counter.
+                    pub fn inc(&mut self, by: u32,) {
+                        self
+                            .call_mut()
+                            .inc(by,)
+                            .fire()
+                            .expect(
+                                concat!(
+                                    "invocation of ",
+                                    stringify!(Incrementer),
+                                    "::",
+                                    stringify!(inc),
+                                    " message was invalid"
+                                )
+                            )
+                    }
+
+                    /// Returns the internal counter.
+                    pub fn get(&self,) -> u32 {
+                        self
+                            .call()
+                            .get()
+                            .fire()
+                            .expect(
+                                concat!(
+                                    "evaluation of ",
+                                    stringify!(Incrementer),
+                                    "::",
+                                    stringify!(get),
+                                    " message was invalid"
+                                )
+                            )
+                    }
+
+                    /// Returns `true` if `x` is greater than the internal value.
+                    pub fn compare(&self, x: u32,) -> bool {
+                        self
+                            .call()
+                            .compare(x,)
+                            .fire()
+                            .expect(
+                                concat!(
+                                    "evaluation of ",
+                                    stringify!(Incrementer),
+                                    "::",
+                                    stringify!(compare),
+                                    " message was invalid"
+                                )
+                            )
+                    }
+                }
+
+                impl<'a> CallEnhancer<'a> {
+                    /// Returns the internal counter.
+                    pub fn get(self,) -> ink_core::env::CallBuilder<Env, ink_core::env::ReturnType<u32>> {
+                        ink_core::env::CallBuilder::eval(
+                            self.contract.account_id.clone(), 4266279973u32
+                        )
+                    }
+
+                    /// Returns `true` if `x` is greater than the internal value.
+                    pub fn compare(self, x: u32,) -> ink_core::env::CallBuilder<Env, ink_core::env::ReturnType<bool>> {
+                        ink_core::env::CallBuilder::eval(
+                            self
+                                .contract
+                                .account_id
+                                .clone(),
+                            363906316u32
+                        ).push_arg(&x)
+                    }
+                }
+
+                impl<'a> CallEnhancerMut<'a> {
+                    /// Increments the internal counter.
+                    pub fn inc(self, by: u32,) -> ink_core::env::CallBuilder<Env, ()> {
+                        ink_core::env::CallBuilder::<Env, ()>::invoke(
+                            self.contract.account_id.clone(), 257544423u32
+                        ).push_arg(&by)
+                    }
+                }
+            }
+
+            #[cfg(feature = "ink-as-dependency")]
+            pub use as_dependency::{Incrementer, CallEnhancer, CallEnhancerMut,};
         },
     )
 }
