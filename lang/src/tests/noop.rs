@@ -194,11 +194,11 @@ fn contract_compiles() {
             mod as_dependency {
                 use super::*;
 
-                #[doc = r" The contract that does nothing."]
-                #[doc = r""]
-                #[doc = r" # Note"]
-                #[doc = r""]
-                #[doc = r" Can be deployed, cannot be called."]
+                /// The contract that does nothing.
+                ///
+                /// # Note
+                ///
+                /// Can be deployed, cannot be called.
                 #[derive(Clone, scale::Encode, scale::Decode)]
                 #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
                 pub struct Noop {
@@ -209,12 +209,12 @@ fn contract_compiles() {
                     fn flush(&mut self) {}
                 }
 
-                #[doc = r" Allows to enhance calls to `&self` contract messages."]
+                /// Allows to enhance calls to `&self` contract messages.
                 pub struct CallEnhancer<'a> {
                     contract: &'a Noop,
                 }
 
-                #[doc = r" Allows to enhance calls to `&mut self` contract messages."]
+                /// Allows to enhance calls to `&mut self` contract messages.
                 pub struct CallEnhancerMut<'a> {
                     contract: &'a mut Noop,
                 }
@@ -226,19 +226,19 @@ fn contract_compiles() {
                 }
 
                 impl Noop {
-                    #[doc = r" Does nothing to initialize itself."]
+                    /// Does nothing to initialize itself.
                     pub fn new(code_hash: Hash,) -> ink_core::env::CreateBuilder<Env, Self> {
                         ink_core::env::CreateBuilder::<Env, Self>::new(code_hash)
                     }
-                    #[doc = r" Returns the internal account ID of the contract."]
+                    /// Returns the internal account ID of the contract.
                     pub fn account_id(&self) -> AccountId {
                         self.account_id
                     }
-                    #[doc = r" Allows to enhance calls to `&self` contract messages."]
+                    /// Allows to enhance calls to `&self` contract messages.
                     pub fn call(&self) -> CallEnhancer {
                         CallEnhancer { contract : self }
                     }
-                    #[doc = r" Allows to enhance calls to `&mut self` contract messages."]
+                    /// Allows to enhance calls to `&mut self` contract messages.
                     pub fn call_mut(&mut self) -> CallEnhancerMut {
                         CallEnhancerMut { contract : self }
                     }
