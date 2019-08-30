@@ -328,6 +328,19 @@ pub enum FnArg {
 }
 
 impl FnArg {
+    /// Returns the ident if available.
+    pub fn ident(&self) -> Option<proc_macro2::Ident> {
+        match self {
+            FnArg::SelfRef(_) | FnArg::SelfValue(_) => None,
+            FnArg::Captured(captured) => {
+                match &captured.pat {
+                    syn::Pat::Ident(pat_ident) => Some(pat_ident.ident.clone()),
+                    _ => None,
+                }
+            }
+        }
+    }
+
     /// Returns `true` if the fn argument is captured.
     pub fn is_captured(&self) -> Option<&syn::ArgCaptured> {
         match self {

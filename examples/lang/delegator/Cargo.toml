@@ -1,5 +1,5 @@
 [package]
-name = "erc20"
+name = "delegator"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -13,8 +13,12 @@ ink_lang = { path = "../../../lang", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
+adder = { path = "adder", default-features = false, features = ["ink-as-dependency"] }
+subber = { path = "subber", default-features = false, features = ["ink-as-dependency"] }
+accumulator = { path = "accumulator", default-features = false, features = ["ink-as-dependency"] }
+
 [lib]
-name = "erc20"
+name = "delegator"
 crate-type = [
 	# Used for normal contract Wasm blobs.
 	"cdylib",
@@ -29,21 +33,33 @@ std = [
     "ink_core/std",
     "ink_model/std",
     "ink_lang/std",
-    "type-metadata/std",
     "scale/std",
+    "type-metadata/std",
+
+    "adder/std",
+    "subber/std",
+    "accumulator/std",
 ]
 test-env = [
 	"std",
     "ink_core/test-env",
     "ink_model/test-env",
     "ink_lang/test-env",
+    "type-metadata/std",
+
+    "adder/test-env",
+    "subber/test-env",
+    "accumulator/test-env",
 ]
 ink-generate-abi = [
     "std",
     "ink_abi",
     "type-metadata",
     "ink_core/ink-generate-abi",
-    "ink_lang/ink-generate-abi",
+
+    "adder/ink-generate-abi",
+    "subber/ink-generate-abi",
+    "accumulator/ink-generate-abi",
 ]
 ink-as-dependency = []
 
@@ -55,7 +71,10 @@ overflow-checks = true
 
 [workspace]
 members = [
-	".ink/abi_gen"
+	".ink/abi_gen",
+    "accumulator",
+    "adder",
+    "subber",
 ]
 exclude = [
 	".ink"

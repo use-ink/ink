@@ -14,28 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod abi;
-mod as_dependency;
-mod build;
-mod doc;
-mod test;
+#![cfg_attr(not(feature = "std"), no_std)]
 
-use crate::hir;
-use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
+use ink_core::{
+    memory::format,
+    storage,
+};
+use ink_lang::contract;
 
-/// Generates code for the given contract.
-///
-/// # Note
-///
-/// This generates code for normal Wasm smart contract builds as
-/// well as code for specialized `test` and `doc` targets.
-pub fn generate_code(contract: &hir::Contract) -> TokenStream2 {
-    let mut tokens = quote! {};
-    build::generate_code(&mut tokens, contract);
-    doc::generate_code(&mut tokens, contract);
-    test::generate_code(&mut tokens, contract);
-    abi::generate_code(&mut tokens, contract);
-    as_dependency::generate_code(&mut tokens, contract);
-    tokens
+contract! {
+    #![env = ink_core::env::DefaultSrmlTypes]
+
+    /// Decrements the accumulator's value.
+    struct Subber {
+        /// The accumulator to store values.
+        accumulator: storage::Value<accumulator::Accumulator>,
+    }
+
+    impl Deploy for Subber {
+        fn deploy(&mut self, accumulator: AccountId) {
+            self.accumulator.set(accumulator::Accumulator::from_account_id(accumulator));
+        }
+    }
+
+    impl Subber {
+        pub(external) fn dec(&mut self, by: i32) {
+            self.accumulator.inc(-by);
+        }
+    }
 }
