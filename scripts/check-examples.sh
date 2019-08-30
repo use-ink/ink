@@ -19,32 +19,39 @@ declare -A results_abi
 
 all_checks_passed=0
 for example in $(ls examples/lang); do
-    cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml
-    result_wasm=$?
-    let "all_checks_passed |= $result_wasm"
-    if [ $result_wasm -eq 0 ]
+    if [ -f "examples/lang/$example/Cargo.toml" ]
     then
-        results_wasm[$example]="ok"
+        # Simple example smart contracts
+        cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml
+        result_wasm=$?
+        let "all_checks_passed |= $result_wasm"
+        if [ $result_wasm -eq 0 ]
+        then
+            results_wasm[$example]="ok"
+        else
+            results_wasm[$example]="ERROR"
+        fi
+        cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml
+        result_test=$?
+        let "all_checks_passed |= $result_test"
+        if [ $result_test -eq 0 ]
+        then
+            results_test[$example]="ok"
+        else
+            results_test[$example]="ERROR"
+        fi
+        cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml
+        result_abi=$?
+        let "all_checks_passed |= $result_abi"
+        if [ $result_abi -eq 0 ]
+        then
+            results_abi[$example]="ok"
+        else
+            results_abi[$example]="ERROR"
+        fi
     else
-        results_wasm[$example]="ERROR"
-    fi
-    cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml
-    result_test=$?
-    let "all_checks_passed |= $result_test"
-    if [ $result_test -eq 0 ]
-    then
-        results_test[$example]="ok"
-    else
-        results_test[$example]="ERROR"
-    fi
-    cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml
-    result_abi=$?
-    let "all_checks_passed |= $result_abi"
-    if [ $result_abi -eq 0 ]
-    then
-        results_abi[$example]="ok"
-    else
-        results_abi[$example]="ERROR"
+        # More complex smart contracts like the Delegator contract
+        echo "Cargo.toml does NOT exist for $example"
     fi
 done
 
