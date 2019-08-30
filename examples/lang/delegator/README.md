@@ -4,14 +4,14 @@ The delegator smart contract is our showcase for executing other smart contracts
 
 It consists in total of 4 different smart contract:
 
-- Delegator: Delegates calls either to the Adder or Subber smart contract
+- Delegator (root): Delegates calls either to the Adder or Subber smart contract
 - Adder: Increases a value in the Accumulator smart contract
 - Subber: Decreases a value in the Accumulator smart contract
 - Accumulator: Owns a simple `i32` value that can be incremented or decremented
 
 In order to test this bundle of smart contracts you need to do the following:
 
-1. Compile all four smart contracts using the `./build.sh` script in their respective folders.
+1. Compile all dependencies of the Delegator smart contract using the `./build-all.sh` script.
    As usual you will receive their respective Wasm blobs in their respective `target` folders.
 1. Go to the delegator directory (root of the example) and run `cargo run -p abi-gen` in order
    to generate the ABI file for the Delegator smart contract.
@@ -27,5 +27,3 @@ In order to test this bundle of smart contracts you need to do the following:
    the value stored in the Accumulator smart contract respectively and `switch` to switch the currently
    delegated-to smart contract.
    The initial delegated-to smart contract is the Adder.
-
-For ease of use you can also use the provided `build.sh` script in the root of the directory.
