@@ -54,7 +54,7 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
         // codegen_for_messages(tokens, contract);
         tokens.extend(codegen_for_messages(contract));
         codegen_for_message_impls(tokens, contract);
-        codegen_for_method_impls(tokens, contract);
+        tokens.extend(codegen_for_method_impls(contract));
         codegen_for_instantiate(tokens, contract);
         codegen_for_entry_points(tokens, contract);
         codegen_for_event_mod(tokens, contract);
@@ -409,36 +409,30 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
     });
 }
 
-fn codegen_for_method_impls(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    let state_name = &contract.name;
-    let methods_impls = {
-        let mut content = quote! {};
-        for method in contract.methods.iter() {
-            for attr in &method.attrs {
-                attr.to_tokens(&mut content)
-            }
-            let fn_decl = &method.sig.decl;
-            fn_decl.fn_tok.to_tokens(&mut content);
-            method.sig.ident.to_tokens(&mut content);
-            let generics = &fn_decl.generics;
-            generics.lt_token.to_tokens(&mut content);
-            generics.params.to_tokens(&mut content);
-            generics.gt_token.to_tokens(&mut content);
-            fn_decl.paren_tok.surround(&mut content, |inner_toks| {
-                fn_decl.inputs.to_tokens(inner_toks);
-            });
-            fn_decl.output.to_tokens(&mut content);
-            generics.where_clause.to_tokens(&mut content);
-            method.block.to_tokens(&mut content);
+fn codegen_for_method_impls(contract: &hir::Contract) -> TokenStream2 {
+    if contract.methods.iter().count() == 0 {
+        return quote! {}
+    }
+    let ident = &contract.name;
+    let method_impls = contract.methods.iter().map(|method| {
+        let attrs = &method.attrs;
+        let ident = &method.sig.ident;
+        let inputs = &method.sig.decl.inputs;
+        let output = &method.sig.decl.output;
+        let (_impl_generics, type_generics, where_clause) =
+            method.sig.decl.generics.split_for_impl();
+        let block = &method.block;
+        quote_spanned! { ident.span() =>
+            #( #attrs )*
+            fn #ident #type_generics ( #(#inputs)* ) #output #where_clause #block
         }
-        content
-    };
-    if contract.methods.iter().count() > 0 {
-        tokens.extend(quote! {
-            impl #state_name {
-                #methods_impls
-            }
-        })
+    });
+    quote_spanned! { ident.span() =>
+        impl #ident {
+            #(
+                #method_impls
+            )*
+        }
     }
 }
 
