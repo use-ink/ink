@@ -115,13 +115,13 @@ fn contract_compiles() {
                         /// # Note
                         ///
                         /// Also emits an event.
-                        257544423 => Inc();
+                        257544423u32 => Inc();
                         /// Decrements the internal counter.
                         ///
                         /// # Note
                         ///
                         /// Also emits an event.
-                        1772705147 => Dec();
+                        1772705147u32 => Dec();
                     }
                 }
 

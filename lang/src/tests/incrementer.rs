@@ -97,11 +97,11 @@ fn contract_compiles() {
 
                     ink_model::messages! {
                         /// Increments the internal counter.
-                        257544423 => Inc(by: u32);
+                        257544423u32 => Inc(by: u32);
                         /// Returns the internal counter.
-                        4266279973 => Get() -> u32;
+                        4266279973u32 => Get() -> u32;
                         /// Returns `true` if `x` is greater than the internal value.
-                        363906316 => Compare(x: u32) -> bool;
+                        363906316u32 => Compare(x: u32) -> bool;
                     }
                 }
 

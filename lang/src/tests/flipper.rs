@@ -90,9 +90,9 @@ fn contract_compiles() {
 
                     ink_model::messages! {
                         /// Flips the internal boolean.
-                        970692492 => Flip();
+                        970692492u32 => Flip();
                         /// Returns the internal boolean.
-                        4266279973 => Get() -> bool;
+                        4266279973u32 => Get() -> bool;
                     }
                 }
 
