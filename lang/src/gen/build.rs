@@ -25,7 +25,6 @@ use crate::{
 };
 use proc_macro2::{
     Ident,
-    Span,
     TokenStream as TokenStream2,
 };
 use quote::{
@@ -56,7 +55,7 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
         tokens.extend(codegen_for_message_impls(contract));
         tokens.extend(codegen_for_method_impls(contract));
         codegen_for_instantiate(tokens, contract);
-        codegen_for_entry_points(tokens, contract);
+        tokens.extend(codegen_for_entry_points(contract));
         codegen_for_event_mod(tokens, contract);
         result
     };
@@ -231,22 +230,22 @@ fn codegen_for_event_emit_trait(tokens: &mut TokenStream2, contract: &hir::Contr
     })
 }
 
-fn codegen_for_entry_points(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    let state_name = &contract.name;
+fn codegen_for_entry_points(contract: &hir::Contract) -> TokenStream2 {
+    let ident = &contract.name;
 
-    tokens.extend(quote! {
+    quote_spanned! { ident.span() =>
         #[cfg(not(test))]
         #[no_mangle]
         fn deploy() -> u32 {
-            #state_name::instantiate().deploy().to_u32()
+            #ident::instantiate().deploy().to_u32()
         }
 
         #[cfg(not(test))]
         #[no_mangle]
         fn call() -> u32 {
-            #state_name::instantiate().dispatch().to_u32()
+            #ident::instantiate().dispatch().to_u32()
         }
-    })
+    }
 }
 
 fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) {
