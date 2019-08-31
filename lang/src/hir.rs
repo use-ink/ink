@@ -463,7 +463,7 @@ impl From<Message> for DeployHandler {
 ///
 /// Messages of a smart contract are only callable externally.
 /// They are used to communicate with other smart contracts.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Message {
     /// The attributes.
     ///

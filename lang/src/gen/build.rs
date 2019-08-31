@@ -53,7 +53,7 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
         tokens.extend(codegen_for_state(contract));
         // codegen_for_messages(tokens, contract);
         tokens.extend(codegen_for_messages(contract));
-        codegen_for_message_impls(tokens, contract);
+        tokens.extend(codegen_for_message_impls(contract));
         tokens.extend(codegen_for_method_impls(contract));
         codegen_for_instantiate(tokens, contract);
         codegen_for_entry_points(tokens, contract);
@@ -375,38 +375,31 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
     })
 }
 
-fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    let state_name = &contract.name;
+fn codegen_for_message_impls(contract: &hir::Contract) -> TokenStream2 {
+    let ident = &contract.name;
     let env_types = &contract.env_types_type;
-    let env_handler: syn::Type = syn::parse_quote! {
-        ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>>
-    };
-    let message_impls = {
-        let mut content = quote! {};
-        for message in iter::once(&contract.on_deploy.clone().into_message())
-            .chain(contract.messages.iter())
-        {
-            for attr in &message.attrs {
-                attr.to_tokens(&mut content)
-            }
-            <Token![pub]>::default().to_tokens(&mut content);
-            let fn_decl = &message.sig.decl;
-            fn_decl.fn_tok.to_tokens(&mut content);
-            message.sig.ident.to_tokens(&mut content);
-            fn_decl.paren_tok.surround(&mut content, |inner_toks| {
-                let inputs_with_env = fn_decl.inputs_with_env(&env_handler);
-                inputs_with_env.to_tokens(inner_toks);
+    let message_impls =
+        iter::once(contract.on_deploy.clone().into_message())
+            .chain(contract.messages.iter().cloned())
+            .map(|message| {
+                let attrs = &message.attrs;
+                let ident = &message.sig.ident;
+                let inputs_with_env = message.sig.decl
+                    .inputs_with_env(&env_types);
+                let output = &message.sig.decl.output;
+                let block = &message.block;
+                quote_spanned! { ident.span() =>
+                    #( #attrs )*
+                    pub fn #ident ( #inputs_with_env ) #output #block
+                }
             });
-            fn_decl.output.to_tokens(&mut content);
-            message.block.to_tokens(&mut content);
+    quote_spanned! { ident.span() =>
+        impl #ident {
+            #(
+                #message_impls
+            )*
         }
-        content
-    };
-    tokens.extend(quote! {
-        impl #state_name {
-            #message_impls
-        }
-    });
+    }
 }
 
 fn codegen_for_method_impls(contract: &hir::Contract) -> TokenStream2 {

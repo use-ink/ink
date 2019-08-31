@@ -298,7 +298,7 @@ impl FnDecl {
         }
     }
 
-    pub fn inputs_with_env(&self, env_handler: &syn::Type) -> FnInputs {
+    pub fn inputs_with_env(&self, env_types: &syn::Type) -> FnInputs {
         assert!(self.is_self_ref());
         let mut inputs_with_env: Punctuated<FnArg, Token![,]> = Default::default();
         let mut inputs_iter = self.inputs.iter();
@@ -306,9 +306,13 @@ impl FnDecl {
         inputs_with_env.push_value(self_arg.clone());
         inputs_with_env.push_punct(Default::default());
         let custom_arg_captured: ArgCaptured = if self.kind() == FnDeclKind::SelfRefMut {
-            syn::parse_quote! { env: &mut #env_handler }
+            syn::parse_quote! {
+                env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>>
+            }
         } else {
-            syn::parse_quote! { env: &#env_handler }
+            syn::parse_quote! {
+                env: &ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>>
+            }
         };
         inputs_with_env.push(FnArg::Captured(custom_arg_captured.into_arg_captured()));
         for input in inputs_iter {
