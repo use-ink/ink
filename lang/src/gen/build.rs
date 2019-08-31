@@ -50,7 +50,7 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
         let mut result = quote! {};
         let tokens = &mut result;
         // codegen_for_contract_env(tokens, contract);
-        codegen_for_state(tokens, contract);
+        tokens.extend(codegen_for_state(contract));
         // codegen_for_messages(tokens, contract);
         tokens.extend(codegen_for_messages(contract));
         codegen_for_message_impls(tokens, contract);
@@ -442,19 +442,13 @@ fn codegen_for_method_impls(tokens: &mut TokenStream2, contract: &hir::Contract)
     }
 }
 
-fn codegen_for_state(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    let state_attrs_toks = {
-        let mut content = quote! {};
-        for attr in &contract.state.attrs {
-            attr.to_tokens(&mut content)
-        }
-        content
-    };
-    let struct_fields_toks = &contract.state.fields;
-    let name = &contract.name;
-    tokens.extend(quote! {
+fn codegen_for_state(contract: &hir::Contract) -> TokenStream2 {
+    let attrs = &contract.state.attrs;
+    let fields = contract.state.fields.named.iter();
+    let ident = &contract.name;
+    quote_spanned!(ident.span() =>
         ink_model::state! {
-            #state_attrs_toks
+            #(#attrs)*
             #[cfg_attr(
                 feature = "ink-generate-abi",
                 derive(
@@ -462,10 +456,13 @@ fn codegen_for_state(tokens: &mut TokenStream2, contract: &hir::Contract) {
                     ink_abi::HasLayout,
                 )
             )]
-            pub struct #name
-                #struct_fields_toks
+            pub struct #ident {
+                #(
+                    #fields ,
+                )*
+            }
         }
-    });
+    )
 }
 
 fn codegen_for_messages(contract: &hir::Contract) -> TokenStream2 {
