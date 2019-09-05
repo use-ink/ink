@@ -21,26 +21,32 @@ extern crate proc_macro;
 #[macro_use]
 mod error;
 
-mod ast;
-mod gen;
-mod hir;
-mod ident_ext;
-mod parser;
+// mod ast;
+// mod gen;
+mod hir2;
+mod extensions;
+// mod parser;
 
-#[cfg(feature = "ink-generate-abi")]
-mod old_abi;
+// #[cfg(feature = "ink-generate-abi")]
+// mod old_abi;
 
-#[cfg(test)]
-mod tests;
+// #[cfg(test)]
+// mod tests;
 
 mod contract;
 
 use proc_macro::TokenStream;
 
-#[proc_macro]
-pub fn contract(input: TokenStream) -> TokenStream {
-    contract::generate(input.into()).into()
+#[proc_macro_attribute]
+pub fn contract(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    // TODO: check that attributes are empty
+    contract::generate(item.into()).into()
 }
+
+// #[proc_macro]
+// pub fn contract(input: TokenStream) -> TokenStream {
+//     contract::generate(input.into()).into()
+// }
 
 #[cfg(test)]
 pub use contract::generate_or_err;

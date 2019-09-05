@@ -29,3 +29,15 @@ macro_rules! format_err {
         }
     }
 }
+
+macro_rules! bail_span {
+    ($($args:tt)*) => {
+        return Err(format_err_span!($($args)*).into())
+    }
+}
+
+macro_rules! format_err_span {
+    ($span:expr, $($msg:tt)*) => {
+        syn::parse::Error::new($span, format_args!($($msg)*))
+    }
+}

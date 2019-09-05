@@ -16,13 +16,13 @@
 
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
+use core::convert::TryFrom;
 
-#[cfg(feature = "ink-generate-abi")]
-use crate::old_abi;
+// #[cfg(feature = "ink-generate-abi")]
+// use crate::old_abi;
 use crate::{
-    gen,
-    hir,
-    parser,
+    hir2 as hir,
+    hir2::GenerateCode as _,
 };
 
 pub fn generate(input: TokenStream2) -> TokenStream2 {
@@ -33,10 +33,7 @@ pub fn generate(input: TokenStream2) -> TokenStream2 {
 }
 
 pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
-    let ast_contract = parser::parse_contract(input.clone())?;
-    let hir_contract = hir::Contract::from_ast(&ast_contract)?;
-    #[cfg(feature = "ink-generate-abi")]
-    old_abi::generate_old_abi(&hir_contract)?;
-    let tokens = gen::generate_code(&hir_contract);
-    Ok(tokens)
+    let rust_mod = syn::parse2::<syn::ItemMod>(input)?;
+    let ink_hir = hir::Contract::try_from(rust_mod)?;
+    Ok(ink_hir.generate_code())
 }

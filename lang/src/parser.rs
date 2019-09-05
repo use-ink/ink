@@ -126,7 +126,7 @@ impl ast::ItemEnvTypesMeta {
                 ty,
             })
         };
-        syn::parse::Parser::parse2(parser, attr.tts.clone())
+        syn::parse::Parser::parse2(parser, attr.tokens.clone())
     }
 }
 
@@ -177,7 +177,7 @@ impl Parse for ast::DeployItemMethod {
         let (paren_tok, inputs) = {
             let content;
             let paren_tok = syn::parenthesized!(content in input);
-            let inputs = content.parse_terminated(ast::FnArg::parse)?;
+            let inputs = content.parse_terminated(syn::FnArg::parse)?;
             (paren_tok, inputs)
         };
         let output = input.parse()?;
@@ -232,7 +232,7 @@ impl Parse for ast::ItemImplMethod {
         let (paren_tok, inputs) = {
             let content;
             let paren_tok = syn::parenthesized!(content in input);
-            let inputs = content.parse_terminated(ast::FnArg::parse)?;
+            let inputs = content.parse_terminated(syn::FnArg::parse)?;
             (paren_tok, inputs)
         };
         let output = input.parse()?;
@@ -284,63 +284,63 @@ impl Parse for ast::ExternalVisibility {
     }
 }
 
-impl Parse for ast::FnArg {
-    fn parse(input: ParseStream<'_>) -> Result<Self> {
-        if input.peek(Token![&]) {
-            let ahead = input.fork();
-            if ahead.call(ast::FnArg::arg_self_ref).is_ok() && !ahead.peek(Token![:]) {
-                return input
-                    .call(ast::FnArg::arg_self_ref)
-                    .map(ast::FnArg::SelfRef)
-            }
-        }
+// impl Parse for syn::FnArg {
+//     fn parse(input: ParseStream<'_>) -> Result<Self> {
+//         if input.peek(Token![&]) {
+//             let ahead = input.fork();
+//             if ahead.call(syn::FnArg::arg_self_ref).is_ok() && !ahead.peek(Token![:]) {
+//                 return input
+//                     .call(syn::FnArg::arg_self_ref)
+//                     .map(syn::FnArg::SelfRef)
+//             }
+//         }
 
-        if input.peek(Token![mut]) || input.peek(Token![self]) {
-            let ahead = input.fork();
-            if ahead.call(ast::FnArg::arg_self).is_ok() && !ahead.peek(Token![:]) {
-                return input.call(ast::FnArg::arg_self).map(ast::FnArg::SelfValue)
-            }
-        }
+//         if input.peek(Token![mut]) || input.peek(Token![self]) {
+//             let ahead = input.fork();
+//             if ahead.call(syn::FnArg::arg_self).is_ok() && !ahead.peek(Token![:]) {
+//                 return input.call(syn::FnArg::arg_self).map(syn::FnArg::SelfValue)
+//             }
+//         }
 
-        let ahead = input.fork();
-        let err = match ahead.call(ast::FnArg::arg_captured) {
-            Ok(_) => {
-                return input
-                    .call(ast::FnArg::arg_captured)
-                    .map(ast::FnArg::Captured)
-            }
-            Err(err) => err,
-        };
+//         let ahead = input.fork();
+//         let err = match ahead.call(syn::FnArg::arg_captured) {
+//             Ok(_) => {
+//                 return input
+//                     .call(syn::FnArg::arg_captured)
+//                     .map(syn::FnArg::Captured)
+//             }
+//             Err(err) => err,
+//         };
 
-        Err(err)
-    }
-}
+//         Err(err)
+//     }
+// }
 
-impl ast::FnArg {
-    fn arg_self_ref(input: ParseStream) -> Result<syn::ArgSelfRef> {
-        Ok(syn::ArgSelfRef {
-            and_token: input.parse()?,
-            lifetime: input.parse()?,
-            mutability: input.parse()?,
-            self_token: input.parse()?,
-        })
-    }
+// impl syn::FnArg {
+//     fn arg_self_ref(input: ParseStream) -> Result<syn::Receiver> {
+//         Ok(syn::Receiver {
+//             and_token: input.parse()?,
+//             lifetime: input.parse()?,
+//             mutability: input.parse()?,
+//             self_token: input.parse()?,
+//         })
+//     }
 
-    fn arg_self(input: ParseStream) -> Result<syn::ArgSelf> {
-        Ok(syn::ArgSelf {
-            mutability: input.parse()?,
-            self_token: input.parse()?,
-        })
-    }
+//     fn arg_self(input: ParseStream) -> Result<syn::Receiver> {
+//         Ok(syn::Receiver {
+//             mutability: input.parse()?,
+//             self_token: input.parse()?,
+//         })
+//     }
 
-    fn arg_captured(input: ParseStream) -> Result<syn::ArgCaptured> {
-        Ok(syn::ArgCaptured {
-            pat: input.parse()?,
-            colon_token: input.parse()?,
-            ty: input.parse()?,
-        })
-    }
-}
+//     fn arg_captured(input: ParseStream) -> Result<syn::Receiver> {
+//         Ok(syn::Receiver {
+//             pat: input.parse()?,
+//             colon_token: input.parse()?,
+//             ty: input.parse()?,
+//         })
+//     }
+// }
 
 impl Parse for ast::ItemEvent {
     fn parse(input: ParseStream<'_>) -> Result<Self> {

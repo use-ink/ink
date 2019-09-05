@@ -27,6 +27,47 @@ use syn::{
     Type,
 };
 
+/// Types implementing this trait can be checked for representing
+/// proper ink! syntax.
+trait IsValidInk {
+    /// Returns `Ok` if the given syntactic structure is valid ink!
+    /// and otherwise returns an appropriate error.
+    fn is_valid_ink(&self) -> Result<()>;
+}
+
+/// Transforms the type into a valid ink! type.
+///
+/// This performs some semantic and syntactic checks on the generalized
+/// input (mostly normal Rust) and converts the data structure into a
+/// specialized ink! representation if possible. Returns an
+/// appropriate error otherwise.
+pub trait FromRust<Rust> {
+    /// The specialized ink! representation of the same entity.
+    type Ink;
+
+    /// Checks invariants and converts the generalized Rust representation
+    /// into a specialized ink! representation of the same entity if possible.
+    /// Returns an appropriate error otherwise.
+    fn from_rust(ast: Rust) -> Result<Self::Ink>;
+}
+
+/// Mirror trait to `FromRust`.
+///
+/// Automatically implemented for all types that implement the `FromRust` trait
+/// in a similar manner as done for Rust's `Into` trait for `From` trait implementers.
+pub trait IntoInk<Ink> {
+    fn into_ink(self) -> Result<Ink>;
+}
+
+impl<Rust, Ink> IntoInk<Ink> for Rust
+where
+    Ink: FromRust<Rust>,
+{
+    fn into_ink(self) -> Result<Self::Ink> {
+        Ink::from_rust(self)
+    }
+}
+
 /// A smart contract.
 #[derive(Debug)]
 pub struct Contract {
@@ -244,7 +285,7 @@ impl Contract {
                     }
                     Some(self_ty) => {
                         match self_ty {
-                            ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => bail!(
+                            syn::FnArg::SelfValue(_) | syn::FnArg::Captured(_) => bail!(
                                 self_ty,
                                 "contract messages must operate on `&self` or `&mut self`"
                             ),
@@ -254,7 +295,7 @@ impl Contract {
                 }
             }
             for fn_arg in inputs.iter().skip(1) {
-                if let ast::FnArg::Captured(arg_captured) = fn_arg {
+                if let syn::FnArg::Captured(arg_captured) = fn_arg {
                     if let syn::Pat::Ident(pat_ident) = &arg_captured.pat {
                         if pat_ident.ident == "env" {
                             bail!(
@@ -312,13 +353,13 @@ impl Contract {
         let deploy_impl_block = deploy_impl_blocks[0];
 
         let fn_decl = &deploy_impl_block.item.decl;
-        let self_ty: &ast::FnArg = &fn_decl.inputs.first().unwrap().into_value();
+        let self_ty: &syn::FnArg = &fn_decl.inputs.first().unwrap().into_value();
 
-        if let ast::FnArg::SelfRef(syn::ArgSelfRef {
+        if let syn::FnArg::SelfRef(syn::Receiver {
             mutability: None, ..
         })
-        | ast::FnArg::SelfValue(_)
-        | ast::FnArg::Captured(_) = self_ty
+        | syn::FnArg::SelfValue(_)
+        | syn::FnArg::Captured(_) = self_ty
         {
             bail!(
                 self_ty,
@@ -327,7 +368,7 @@ impl Contract {
         }
 
         for fn_arg in fn_decl.inputs.iter().skip(1) {
-            if let ast::FnArg::Captured(arg_captured) = fn_arg {
+            if let syn::FnArg::Captured(arg_captured) = fn_arg {
                 if let syn::Pat::Ident(pat_ident) = &arg_captured.pat {
                     if pat_ident.ident == "env" {
                         bail!(
@@ -497,7 +538,7 @@ impl Message {
             .next()
             .expect("messages must always have at least `&mut self` as parameter");
         match self_arg {
-            ast::FnArg::SelfRef(syn::ArgSelfRef { mutability, .. }) => {
+            syn::FnArg::SelfRef(syn::Receiver { mutability, .. }) => {
                 mutability.is_some()
             }
             _ => panic!(),

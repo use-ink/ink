@@ -30,11 +30,9 @@ use proc_macro2::{
 use quote::{
     quote,
     quote_spanned,
-    ToTokens,
 };
 use std::iter;
 use syn::{
-    punctuated::Punctuated,
     Token,
 };
 
@@ -48,13 +46,11 @@ pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
     let mod_body = {
         let mut result = quote! {};
         let tokens = &mut result;
-        // codegen_for_contract_env(tokens, contract);
         tokens.extend(codegen_for_state(contract));
-        // codegen_for_messages(tokens, contract);
         tokens.extend(codegen_for_messages(contract));
         tokens.extend(codegen_for_message_impls(contract));
         tokens.extend(codegen_for_method_impls(contract));
-        codegen_for_instantiate(tokens, contract);
+        tokens.extend(codegen_for_instantiate(contract));
         tokens.extend(codegen_for_entry_points(contract));
         codegen_for_event_mod(tokens, contract);
         result
@@ -248,131 +244,211 @@ fn codegen_for_entry_points(contract: &hir::Contract) -> TokenStream2 {
     }
 }
 
-fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    let state_name = &contract.name;
-    let env_types = &contract.env_types_type;
-
-    let deploy_handler_toks = {
-        let deploy_fn_args = {
-            let mut deploy_fn_args: Punctuated<ast::FnArg, Token![,]> = Punctuated::new();
-            for input in contract.on_deploy.decl.inputs.iter().skip(1) {
-                deploy_fn_args.push(input.clone())
-            }
-            deploy_fn_args
+fn codegen_for_instantiate(contract: &hir::Contract) -> TokenStream2 {
+    fn codegen_for_deploy(contract: &hir::Contract) -> TokenStream2 {
+        let deploy = &contract.on_deploy;
+        let inputs = deploy.decl.inputs_without_self();
+        let args = inputs.to_actual_params();
+        let span = deploy.decl.fn_tok.span;
+        let inputs = match args.len() {
+            0 => quote_spanned! { span => () },
+            1 => quote_spanned! { span => #inputs },
+            _ => quote_spanned! { span => ( #inputs ) },
         };
-        let deploy_call_args = {
-            let mut deploy_call_args: Punctuated<syn::Pat, Token![,]> = Punctuated::new();
-            for captured in deploy_fn_args.iter().filter_map(|fn_arg| {
-                if let ast::FnArg::Captured(captured) = fn_arg {
-                    Some(captured)
-                } else {
-                    None
-                }
-            }) {
-                deploy_call_args.push(captured.pat.clone())
-            }
-            deploy_call_args
-        };
-        let deploy_fn_args_toks = match deploy_fn_args.iter().count() {
-            0 => quote! {()},
-            1 => deploy_fn_args.into_token_stream(),
-            _ => {
-                let mut toks = quote! {};
-                syn::token::Paren::default().surround(&mut toks, |surrounded_toks| {
-                    deploy_call_args.to_tokens(surrounded_toks)
-                });
-                toks
-            }
-        };
-        quote! {
-            .on_deploy(|env, #deploy_fn_args_toks| {
+        quote_spanned! { span =>
+            .on_deploy(|env, #inputs| {
                 let (handler, state) = env.split_mut();
-                state.deploy(handler, #deploy_call_args)
+                state.deploy(handler, #args)
             })
         }
-    };
+    }
 
-    let messages_toks = {
-        let mut content = quote! {};
-        for message in &contract.messages {
-            let msg_ident = &message.sig.ident;
-
-            use heck::CamelCase as _;
-            let camelcase_msg_ident = Ident::new(
-                &message.sig.ident.to_string().to_camel_case(),
-                message.sig.ident.span(),
-            );
-
-            let msg_fn_args = {
-                let mut msg_fn_args: Punctuated<ast::FnArg, Token![,]> =
-                    Default::default();
-                for input in message.sig.decl.inputs.iter().skip(1) {
-                    msg_fn_args.push(input.clone())
-                }
-                msg_fn_args
-            };
-
-            let msg_call_args = {
-                let mut msg_call_args: Punctuated<syn::Pat, Token![,]> =
-                    Default::default();
-                for captured in msg_fn_args.iter().filter_map(|fn_arg| {
-                    if let ast::FnArg::Captured(captured) = fn_arg {
-                        Some(captured)
-                    } else {
-                        None
-                    }
-                }) {
-                    msg_call_args.push(captured.pat.clone())
-                }
-                msg_call_args
-            };
-
-            let msg_fn_args_toks = match msg_fn_args.iter().count() {
-                0 => quote! {_},
-                1 => msg_fn_args.into_token_stream(),
-                _ => {
-                    let mut toks = quote! {};
-                    syn::token::Paren::default().surround(&mut toks, |surrounded_toks| {
-                        msg_call_args.to_tokens(surrounded_toks)
-                    });
-                    toks
-                }
-            };
-
-            let msg_toks = if message.is_mut() {
-                quote! {
-                    .on_msg_mut::< msg::#camelcase_msg_ident >(|env, #msg_fn_args_toks| {
-                        let (handler, state) = env.split_mut();
-                        state. #msg_ident (handler, #msg_call_args)
+    fn codegen_for_messages<'a>(contract: &'a hir::Contract) -> impl Iterator<Item = TokenStream2> + 'a {
+        contract.messages
+            .iter()
+            .map(|message| {
+                let ident = &message.sig.ident;
+                let inputs = message.sig.decl.inputs_without_self();
+                let args = inputs.to_actual_params();
+                let span = ident.span();
+                let inputs = match args.len() {
+                    0 => quote_spanned! { span => _ },
+                    1 => quote_spanned! { span => #inputs },
+                    _ => quote_spanned! { span => ( #inputs ) },
+                };
+                use heck::CamelCase as _;
+                let camelcase_ident = Ident::new(
+                    &ident.to_string().to_camel_case(),
+                    ident.span(),
+                );
+                let (on_msg, env_split) = if message.is_mut() {
+                    (
+                        quote_spanned! { span => on_msg_mut },
+                        quote_spanned! { span => split_mut },
+                    )
+                } else {
+                    (
+                        quote_spanned! { span => on_msg },
+                        quote_spanned! { span => split },
+                    )
+                };
+                quote_spanned! { span =>
+                    .#on_msg::<msg::#camelcase_ident>(|env, #inputs| {
+                        let (handler, state) = env.#env_split();
+                        state.#ident(handler, #args)
                     })
                 }
-            } else {
-                quote! {
-                    .on_msg::< msg::#camelcase_msg_ident >(|env, #msg_fn_args_toks| {
-                        let (handler, state) = env.split();
-                        state.  #msg_ident (handler, #msg_call_args)
-                    })
-                }
-            };
-            msg_toks.to_tokens(&mut content)
-        }
-        content
-    };
+            })
+    }
 
-    tokens.extend(quote! {
+    let ident = &contract.name;
+    let env_types = &contract.env_types_type;
+
+    let deploy = codegen_for_deploy(contract);
+    let messages = codegen_for_messages(contract);
+
+    quote_spanned! { ident.span() =>
         use ink_model::Contract as _;
 
         #[cfg(not(test))]
-        impl #state_name {
+        impl #ident {
             pub(crate) fn instantiate() -> impl ink_model::Contract {
                 ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<#env_types>>()
-                    #deploy_handler_toks
-                    #messages_toks
+                    #deploy
+                    #(
+                        #messages
+                    )*
                     .instantiate()
             }
         }
-    })
+    }
 }
+
+// fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) {
+//     let state_name = &contract.name;
+//     let env_types = &contract.env_types_type;
+
+//     let deploy_handler_toks = {
+//         let deploy_fn_args = {
+//             let mut deploy_fn_args: Punctuated<syn::FnArg, Token![,]> = Punctuated::new();
+//             for input in contract.on_deploy.decl.inputs.iter().skip(1) {
+//                 deploy_fn_args.push(input.clone())
+//             }
+//             deploy_fn_args
+//         };
+//         let deploy_call_args = {
+//             let mut deploy_call_args: Punctuated<syn::Pat, Token![,]> = Punctuated::new();
+//             for captured in deploy_fn_args.iter().filter_map(|fn_arg| {
+//                 if let syn::FnArg::Captured(captured) = fn_arg {
+//                     Some(captured)
+//                 } else {
+//                     None
+//                 }
+//             }) {
+//                 deploy_call_args.push(captured.pat.clone())
+//             }
+//             deploy_call_args
+//         };
+//         let deploy_fn_args_toks = match deploy_fn_args.iter().count() {
+//             0 => quote! {()},
+//             1 => deploy_fn_args.into_token_stream(),
+//             _ => {
+//                 let mut toks = quote! {};
+//                 syn::token::Paren::default().surround(&mut toks, |surrounded_toks| {
+//                     deploy_call_args.to_tokens(surrounded_toks)
+//                 });
+//                 toks
+//             }
+//         };
+//         quote! {
+//             .on_deploy(|env, #deploy_fn_args_toks| {
+//                 let (handler, state) = env.split_mut();
+//                 state.deploy(handler, #deploy_call_args)
+//             })
+//         }
+//     };
+
+//     let messages_toks = {
+//         let mut content = quote! {};
+//         for message in &contract.messages {
+//             let msg_ident = &message.sig.ident;
+
+//             use heck::CamelCase as _;
+//             let camelcase_msg_ident = Ident::new(
+//                 &message.sig.ident.to_string().to_camel_case(),
+//                 message.sig.ident.span(),
+//             );
+
+//             let msg_fn_args = {
+//                 let mut msg_fn_args: Punctuated<syn::FnArg, Token![,]> =
+//                     Default::default();
+//                 for input in message.sig.decl.inputs.iter().skip(1) {
+//                     msg_fn_args.push(input.clone())
+//                 }
+//                 msg_fn_args
+//             };
+
+//             let msg_call_args = {
+//                 let mut msg_call_args: Punctuated<syn::Pat, Token![,]> =
+//                     Default::default();
+//                 for captured in msg_fn_args.iter().filter_map(|fn_arg| {
+//                     if let syn::FnArg::Captured(captured) = fn_arg {
+//                         Some(captured)
+//                     } else {
+//                         None
+//                     }
+//                 }) {
+//                     msg_call_args.push(captured.pat.clone())
+//                 }
+//                 msg_call_args
+//             };
+
+//             let msg_fn_args_toks = match msg_fn_args.iter().count() {
+//                 0 => quote! {_},
+//                 1 => msg_fn_args.into_token_stream(),
+//                 _ => {
+//                     let mut toks = quote! {};
+//                     syn::token::Paren::default().surround(&mut toks, |surrounded_toks| {
+//                         msg_call_args.to_tokens(surrounded_toks)
+//                     });
+//                     toks
+//                 }
+//             };
+
+//             let msg_toks = if message.is_mut() {
+//                 quote! {
+//                     .on_msg_mut::< msg::#camelcase_msg_ident >(|env, #msg_fn_args_toks| {
+//                         let (handler, state) = env.split_mut();
+//                         state. #msg_ident (handler, #msg_call_args)
+//                     })
+//                 }
+//             } else {
+//                 quote! {
+//                     .on_msg::< msg::#camelcase_msg_ident >(|env, #msg_fn_args_toks| {
+//                         let (handler, state) = env.split();
+//                         state.  #msg_ident (handler, #msg_call_args)
+//                     })
+//                 }
+//             };
+//             msg_toks.to_tokens(&mut content)
+//         }
+//         content
+//     };
+//
+//     tokens.extend(quote! {
+//         use ink_model::Contract as _;
+
+//         #[cfg(not(test))]
+//         impl #state_name {
+//             pub(crate) fn instantiate() -> impl ink_model::Contract {
+//                 ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<#env_types>>()
+//                     #deploy_handler_toks
+//                     #messages_toks
+//                     .instantiate()
+//             }
+//         }
+//     })
+// }
 
 fn codegen_for_message_impls(contract: &hir::Contract) -> TokenStream2 {
     let ident = &contract.name;
@@ -402,24 +478,28 @@ fn codegen_for_message_impls(contract: &hir::Contract) -> TokenStream2 {
 }
 
 fn codegen_for_method_impls(contract: &hir::Contract) -> TokenStream2 {
-    if contract.methods.iter().count() == 0 {
-        return quote! {}
-    }
+    // if contract.methods.iter().count() == 0 {
+    //     return quote! {}
+    // }
     let ident = &contract.name;
-    let method_impls = contract.methods.iter().map(|method| {
-        let attrs = &method.attrs;
-        let ident = &method.sig.ident;
-        let inputs = &method.sig.decl.inputs;
-        let output = &method.sig.decl.output;
-        let (_impl_generics, type_generics, where_clause) =
-            method.sig.decl.generics.split_for_impl();
-        let block = &method.block;
-        quote_spanned! { ident.span() =>
-            #( #attrs )*
-            fn #ident #type_generics ( #(#inputs)* ) #output #where_clause #block
-        }
-    });
+    let method_impls = contract.methods
+        .iter()
+        .map(|method| {
+            let attrs = &method.attrs;
+            let ident = &method.sig.ident;
+            let inputs = &method.sig.decl.inputs;
+            let output = &method.sig.decl.output;
+            let (_impl_generics, type_generics, where_clause) =
+                method.sig.decl.generics.split_for_impl();
+            let block = &method.block;
+            quote_spanned! { ident.span() =>
+                #( #attrs )*
+                fn #ident #type_generics ( #(#inputs)* ) #output #where_clause #block
+            }
+        });
+
     quote_spanned! { ident.span() =>
+        /// Method implementations.
         impl #ident {
             #(
                 #method_impls

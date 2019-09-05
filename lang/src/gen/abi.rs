@@ -20,7 +20,7 @@
 //! are not able to access type information or anything that is related to that.
 
 use crate::{
-    ast,
+    ast::FnArgExt,
     hir,
 };
 use proc_macro2::TokenStream as TokenStream2;
@@ -36,7 +36,7 @@ use syn::{
 /// Practically speaking this method removes the trailing start `" = \""` and end `\"`
 /// of documentation strings coming from Syn attribute token streams.
 fn trim_doc_string(attr: &syn::Attribute) -> String {
-    attr.tts
+    attr.tokens
         .to_string()
         .trim_start_matches('=')
         .trim_start()
@@ -78,7 +78,7 @@ fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
         .decl
         .inputs
         .iter()
-        .filter_map(ast::FnArg::is_captured)
+        .filter_map(syn::FnArg::is_captured)
         .map(|capt| {
             let name = match &capt.pat {
                 syn::Pat::Ident(pat_ident) => {
@@ -141,9 +141,9 @@ fn generate_abi_messages<'a>(
             .decl
             .inputs
             .iter()
-            .filter_map(ast::FnArg::is_captured)
+            .filter_map(FnArgExt::pat_type)
             .map(|capt| {
-                let name: String = match &capt.pat {
+                let name: String = match &*capt.pat {
                     syn::Pat::Ident(pat_ident) => {
                         if pat_ident.by_ref.is_none()
                             && pat_ident.mutability.is_none()

@@ -23,7 +23,7 @@
 //! replaced by direct forwards to the remote call infrastructure going through SRML contracts.
 
 use crate::{
-    ast,
+    ast::FnArgExt,
     hir,
 };
 use proc_macro2::TokenStream as TokenStream2;
@@ -137,7 +137,7 @@ fn generate_create(contract: &hir::Contract) -> TokenStream2 {
         .decl
         .inputs
         .iter()
-        .filter_map(ast::FnArg::ident)
+        .filter_map(FnArgExt::ident)
         .map(|ident| quote! { #ident });
     quote_spanned! { deploy_handler.decl.fn_tok.span =>
         #(#attrs)*
@@ -171,7 +171,7 @@ fn generate_messages_as_dependency<'a>(
             .decl
             .inputs
             .iter()
-            .filter_map(ast::FnArg::ident)
+            .filter_map(syn::FnArg::ident)
             .map(|ident| quote! { #ident });
         let output = &message.sig.decl.output;
         let (_impl_generics, type_generics, where_clause) =
@@ -232,7 +232,7 @@ fn generate_call_enhancer_messages<'a>(
             let args = message.sig.decl.inputs.iter().skip(1);
             let inputs = message.sig.decl.inputs
                 .iter()
-                .filter_map(ast::FnArg::ident)
+                .filter_map(syn::FnArg::ident)
                 .map(|ident| quote! { #ident });
             let output = &message.sig.decl.output;
             let (_impl_generics, type_generics, where_clause) = message.sig.decl.generics.split_for_impl();

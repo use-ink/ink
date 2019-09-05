@@ -19,7 +19,6 @@
 //! Test code is generated under the `#[cfg(test)]` compile flag.
 
 use crate::{
-    ast,
     hir,
     ident_ext::IdentExt,
 };
@@ -97,7 +96,7 @@ fn generate_test_deploy(tokens: &mut TokenStream2, contract: &hir::Contract) {
             let inputs = {
                 let mut inputs: Punctuated<syn::Pat, Token![,]> = Default::default();
                 for input in &contract.on_deploy.decl.inputs {
-                    if let ast::FnArg::Captured(captured) = input {
+                    if let syn::FnArg::Captured(captured) = input {
                         inputs.push(captured.pat.clone())
                     }
                 }

@@ -25,6 +25,7 @@ use syn::{
     token,
     ReturnType,
     Token,
+    parse::Result,
 };
 
 #[derive(Debug)]
@@ -132,7 +133,7 @@ impl EventArg {
             .find(|attr| {
                 attr.style == syn::AttrStyle::Outer
                     && attr.path.is_ident("indexed")
-                    && attr.tts.is_empty()
+                    && attr.tokens.is_empty()
             })
             .is_some()
     }
@@ -219,26 +220,26 @@ pub struct MethodSig {
 pub struct FnDecl {
     pub fn_tok: token::Fn,
     pub paren_tok: token::Paren,
-    pub inputs: Punctuated<FnArg, token::Comma>,
+    pub inputs: Punctuated<syn::FnArg, token::Comma>,
     pub output: ReturnType,
     pub generics: syn::Generics,
 }
 
 pub struct FnInputs {
-    punct: Punctuated<FnArg, Token![,]>,
+    punct: Punctuated<syn::FnArg, Token![,]>,
 }
 
 impl FnInputs {
     pub fn to_actual_params(&self) -> Punctuated<syn::Pat, Token![,]> {
         let mut params: Punctuated<syn::Pat, Token![,]> = Default::default();
-        for captured in self.punct.iter().filter_map(|fn_arg| {
-            if let FnArg::Captured(captured) = fn_arg {
-                Some(captured)
+        for pat_type in self.punct.iter().filter_map(|fn_arg| {
+            if let syn::FnArg::Typed(pat_type) = fn_arg {
+                Some(pat_type)
             } else {
                 None
             }
         }) {
-            params.push(captured.pat.clone())
+            params.push((*pat_type.pat).clone())
         }
         params
     }
@@ -259,19 +260,22 @@ pub enum FnDeclKind {
 }
 
 impl FnDecl {
-    pub fn kind(&self) -> FnDeclKind {
-        match self.inputs.iter().next().unwrap() {
-            FnArg::SelfRef(self_ref) => {
-                if self_ref.mutability.is_some() {
-                    FnDeclKind::SelfRefMut
-                } else {
-                    FnDeclKind::SelfRef
-                }
-            }
-            FnArg::SelfValue(_) => FnDeclKind::SelfVal,
-            _ => FnDeclKind::Static,
-        }
-    }
+    // pub fn kind(&self) -> FnDeclKind {
+    //     match self.inputs.iter().next().unwrap() {
+    //         syn::FnArg::Receiver(receiver) => {
+    //             if receiver.reference.is_none() {
+    //                 bail!(receiver.span(), "receiver must be a reference")
+    //             }
+    //             if receiver.mutability.is_some() {
+    //                 FnDeclKind::SelfRefMut
+    //             } else {
+    //                 FnDeclKind::SelfRef
+    //             }
+    //         }
+    //         syn::FnArg::SelfValue(_) => FnDeclKind::SelfVal,
+    //         _ => FnDeclKind::Static,
+    //     }
+    // }
 
     pub fn is_self_ref(&self) -> bool {
         if let FnDeclKind::SelfRef | FnDeclKind::SelfRefMut = self.kind() {
@@ -289,7 +293,7 @@ impl FnDecl {
 
     pub fn inputs_without_self(&self) -> FnInputs {
         assert!(self.is_self_ref());
-        let mut inputs_without_self: Punctuated<FnArg, Token![,]> = Default::default();
+        let mut inputs_without_self: Punctuated<syn::FnArg, Token![,]> = Default::default();
         for input in self.inputs.iter().skip(1) {
             inputs_without_self.push(input.clone())
         }
@@ -300,12 +304,12 @@ impl FnDecl {
 
     pub fn inputs_with_env(&self, env_types: &syn::Type) -> FnInputs {
         assert!(self.is_self_ref());
-        let mut inputs_with_env: Punctuated<FnArg, Token![,]> = Default::default();
+        let mut inputs_with_env: Punctuated<syn::FnArg, Token![,]> = Default::default();
         let mut inputs_iter = self.inputs.iter();
         let self_arg = inputs_iter.next().unwrap();
         inputs_with_env.push_value(self_arg.clone());
         inputs_with_env.push_punct(Default::default());
-        let custom_arg_captured: ArgCaptured = if self.kind() == FnDeclKind::SelfRefMut {
+        let custom_arg_captured: syn::PatType = if self.kind() == FnDeclKind::SelfRefMut {
             syn::parse_quote! {
                 env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>>
             }
@@ -314,82 +318,12 @@ impl FnDecl {
                 env: &ink_model::EnvHandler<ink_core::env::ContractEnv<#env_types>>
             }
         };
-        inputs_with_env.push(FnArg::Captured(custom_arg_captured.into_arg_captured()));
+        inputs_with_env.push(syn::FnArg::Captured(custom_arg_captured.into_arg_captured()));
         for input in inputs_iter {
             inputs_with_env.push(input.clone())
         }
         FnInputs {
             punct: inputs_with_env,
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum FnArg {
-    SelfRef(syn::ArgSelfRef),
-    SelfValue(syn::ArgSelf),
-    Captured(syn::ArgCaptured),
-}
-
-impl FnArg {
-    /// Returns the ident if available.
-    pub fn ident(&self) -> Option<proc_macro2::Ident> {
-        match self {
-            FnArg::SelfRef(_) | FnArg::SelfValue(_) => None,
-            FnArg::Captured(captured) => {
-                match &captured.pat {
-                    syn::Pat::Ident(pat_ident) => Some(pat_ident.ident.clone()),
-                    _ => None,
-                }
-            }
-        }
-    }
-
-    /// Returns `true` if the fn argument is captured.
-    pub fn is_captured(&self) -> Option<&syn::ArgCaptured> {
-        match self {
-            FnArg::Captured(capt) => Some(capt),
-            _ => None,
-        }
-    }
-}
-
-impl quote::ToTokens for FnArg {
-    fn to_tokens(&self, tokens: &mut TokenStream2) {
-        match self {
-            FnArg::SelfRef(arg_self_ref) => arg_self_ref.to_tokens(tokens),
-            FnArg::SelfValue(arg_self_value) => arg_self_value.to_tokens(tokens),
-            FnArg::Captured(arg_captured) => arg_captured.to_tokens(tokens),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct ArgCaptured {
-    pub pat: syn::Pat,
-    pub colon_token: Token![:],
-    pub ty: syn::Type,
-}
-
-impl syn::parse::Parse for ArgCaptured {
-    fn parse(input: syn::parse::ParseStream) -> syn::parse::Result<Self> {
-        let pat = input.parse()?;
-        let colon_token = input.parse()?;
-        let ty = input.parse()?;
-        Ok(Self {
-            pat,
-            colon_token,
-            ty,
-        })
-    }
-}
-
-impl ArgCaptured {
-    pub fn into_arg_captured(self) -> syn::ArgCaptured {
-        syn::ArgCaptured {
-            pat: self.pat,
-            colon_token: self.colon_token,
-            ty: self.ty,
         }
     }
 }

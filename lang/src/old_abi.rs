@@ -23,7 +23,6 @@
 //! the newly introduced `ink-generate-abi` crate feature.
 
 use crate::{
-    ast,
     hir,
 };
 use serde::{
@@ -378,10 +377,10 @@ pub struct ParamDescription {
     ty: TypeDescription,
 }
 
-impl TryFrom<&syn::ArgCaptured> for ParamDescription {
+impl TryFrom<&syn::Receiver> for ParamDescription {
     type Error = syn::Error;
 
-    fn try_from(arg: &syn::ArgCaptured) -> Result<Self> {
+    fn try_from(arg: &syn::Receiver) -> Result<Self> {
         let name = match &arg.pat {
             syn::Pat::Ident(ident) => ident.ident.to_string(),
             _ => {
@@ -412,7 +411,7 @@ impl TryFrom<&hir::DeployHandler> for DeployDescription {
             .iter()
             .filter_map(|arg| {
                 match arg {
-                    ast::FnArg::Captured(captured) => {
+                    syn::FnArg::Captured(captured) => {
                         let description = ParamDescription::try_from(captured);
                         Some(description)
                     }
@@ -490,7 +489,7 @@ impl TryFrom<&hir::Message> for MessageDescription {
                     .iter()
                     .filter_map(|arg| {
                         match arg {
-                            ast::FnArg::Captured(captured) => {
+                            syn::FnArg::Captured(captured) => {
                                 Some(ParamDescription::try_from(captured))
                             }
                             _ => None,
