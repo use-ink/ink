@@ -4,19 +4,17 @@ mod into_hir;
 #[cfg(test)]
 mod tests;
 
-pub use self::{
-    data::{
-        GenerateCode,
-        Item,
-        Contract,
-        ItemStorage,
-        ItemEvent,
-        ItemImpl,
-        ItemMeta,
-        Function,
-        FunctionKind,
-        Signature,
-        FnArg,
-        IdentType,
-    },
+pub use self::data::{
+    Contract,
+    FnArg,
+    Function,
+    FunctionKind,
+    GenerateCode,
+    IdentType,
+    Item,
+    ItemEvent,
+    ItemImpl,
+    ItemMeta,
+    ItemStorage,
+    Signature,
 };

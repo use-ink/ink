@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
-use core::convert::TryFrom;
 
 // #[cfg(feature = "ink-generate-abi")]
 // use crate::old_abi;

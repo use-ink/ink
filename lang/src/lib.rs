@@ -23,8 +23,8 @@ mod error;
 
 // mod ast;
 // mod gen;
-mod hir2;
 mod extensions;
+mod hir2;
 // mod parser;
 
 // #[cfg(feature = "ink-generate-abi")]

@@ -1,33 +1,33 @@
 use crate::hir2::data::{
     Contract,
+    FnArg,
     Function,
     FunctionKind,
+    IdentType,
     Item,
     ItemEvent,
     ItemImpl,
     ItemMeta,
-    MetaSimple,
     ItemStorage,
+    MetaSimple,
     Signature,
-    FnArg,
-    IdentType,
 };
 use core::convert::TryFrom;
 use either::Either;
 use itertools::Itertools as _;
 use proc_macro2::Ident;
+use std::iter::FromIterator as _;
 use syn::{
     ext::IdentExt as _,
     parse::{
         Parse,
         ParseStream,
     },
+    punctuated::Punctuated,
     spanned::Spanned as _,
     Result,
     Token,
-    punctuated::Punctuated,
 };
-use std::iter::FromIterator as _;
 
 impl TryFrom<syn::ItemMod> for Contract {
     type Error = syn::Error;
@@ -53,7 +53,8 @@ impl TryFrom<syn::ItemMod> for Contract {
             .map(Item::try_from)
             .collect::<Result<Vec<_>>>()?;
         let (storage, events, functions) = split_items(items)?;
-        let meta_items = item_mod.attrs
+        let meta_items = item_mod
+            .attrs
             .iter()
             .cloned()
             .filter_map(|attr| ItemMeta::try_from(attr).ok())
@@ -87,12 +88,12 @@ impl Parse for ItemMeta {
         let paren_token = syn::parenthesized!(content in input);
         let ident = content.parse::<Ident>()?;
         if content.is_empty() {
-            return Ok(ItemMeta::Simple(MetaSimple {
-                paren_token,
-                ident,
-            }))
+            return Ok(ItemMeta::Simple(MetaSimple { paren_token, ident }))
         }
-        bail_span!(paren_token.span, "invalid ink! attribute in the given context")
+        bail_span!(
+            paren_token.span,
+            "invalid ink! attribute in the given context"
+        )
     }
 }
 
@@ -200,10 +201,12 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         }
         let type_path = match &*item_impl.self_ty {
             syn::Type::Path(type_path) => type_path,
-            _ => bail!(
-                item_impl.self_ty,
-                "encountered invalid ink! implementer type ascription",
-            )
+            _ => {
+                bail!(
+                    item_impl.self_ty,
+                    "encountered invalid ink! implementer type ascription",
+                )
+            }
         };
         if let Some(qself) = &type_path.qself {
             let span = qself
@@ -265,27 +268,33 @@ impl TryFrom<syn::ImplItemMethod> for Function {
         //
         // Simple attributes are e.g. `#[ink(event)]` that have only
         // one simple identifier in their `(` and `)` body.
-        let (simple, non_simple): (Vec<_>, Vec<_>) = method.attrs
+        let (simple, non_simple): (Vec<_>, Vec<_>) = method
+            .attrs
             .iter()
             .cloned()
             .filter_map(|attr| ItemMeta::try_from(attr).ok())
-            .partition_map(|attr| match attr {
-                ItemMeta::Simple(simple) => Either::Left(simple),
-                non_simple => Either::Right(non_simple),
+            .partition_map(|attr| {
+                match attr {
+                    ItemMeta::Simple(simple) => Either::Left(simple),
+                    non_simple => Either::Right(non_simple),
+                }
             });
         // Errors if unsupported or unknown non-simple ink! attributes
         // were found for ink! functions.
         if non_simple.len() != 0 {
-            return Err(
-                non_simple
-                    .into_iter()
-                    .map(|non_simple| format_err_span!(
+            return Err(non_simple
+                .into_iter()
+                .map(|non_simple| {
+                    format_err_span!(
                         non_simple.span(),
                         "encountered unsupported ink! attribute for function",
-                    ))
-                    .fold1(|mut err1, err2| { err1.combine(err2); err1 })
-                    .expect("this must be some since we got at least one error; qed")
-            )
+                    )
+                })
+                .fold1(|mut err1, err2| {
+                    err1.combine(err2);
+                    err1
+                })
+                .expect("this must be some since we got at least one error; qed"))
         }
         let mut kind = FunctionKind::Method;
         // Checks for ink! attributes concerning ink! functions.
@@ -300,10 +309,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
                 let new_kind = match attr.ident.to_string().as_str() {
                     "constructor" => Ok(FunctionKind::Constructor),
                     "message" => Ok(FunctionKind::Message),
-                    unknown => Err(format_err!(
-                        unknown,
-                        "unknown ink! attribute found",
-                    )),
+                    unknown => Err(format_err!(unknown, "unknown ink! attribute found",)),
                 }?;
                 if kind == FunctionKind::Method {
                     kind = new_kind;
@@ -316,7 +322,10 @@ impl TryFrom<syn::ImplItemMethod> for Function {
                 }
             })
             .filter_map(Result::err)
-            .fold1(|mut err1, err2| { err1.combine(err2); err1 })
+            .fold1(|mut err1, err2| {
+                err1.combine(err2);
+                err1
+            })
         {
             return Err(err)
         }
@@ -337,36 +346,33 @@ impl TryFrom<syn::ImplItemMethod> for Function {
         // Check and convert method signature into ink! function signature.
         let sig = Signature::try_from(method.sig)?;
         // Followed by some checks that are depending on the given function kind:
-        if kind == FunctionKind::Constructor {
-            if !sig.is_mut() {
-                bail_span!(
-                    sig.span(),
-                    "constructors in ink! must always be `&mut self`",
-                )
+        match kind {
+            FunctionKind::Constructor => {
+                if !sig.is_mut() {
+                    bail_span!(
+                        sig.span(),
+                        "constructors in ink! must always be `&mut self`",
+                    )
+                }
+                if sig.output == syn::ReturnType::Default {
+                    bail!(
+                        sig.output,
+                        "constructors in ink! must have no specified return type",
+                    )
+                }
             }
-            if sig.output == syn::ReturnType::Default {
-                bail!(
-                    sig.output,
-                    "constructors in ink! must have no specified return type",
-                )
+            FunctionKind::Message | FunctionKind::Method => {
+                if sig.self_arg().reference.is_none() {
+                    bail_span!(
+                        sig.span(),
+                        "ink! messages and methods must be either `&self` or `&mut self`",
+                    )
+                }
             }
         }
-        if kind == FunctionKind::Message || kind == FunctionKind::Method {
-            if sig.self_arg().reference.is_none() {
-                bail_span!(
-                    sig.span(),
-                    "ink! messages and methods must be either `&self` or `&mut self`",
-                )
-            }
-        }
-        // TODO:
-        // - constructor
-        //      - check `&mut self`
-        //      - check return type is `None`
-        // - message & method
-        //      - check `&self` or `&mut self`
         // Retain non-ink! attributes only.
-        let non_ink_attrs = method.attrs
+        let non_ink_attrs = method
+            .attrs
             .into_iter()
             .filter(|attr| ItemMeta::try_from(attr.clone()).is_ok())
             .collect::<Vec<_>>();
@@ -377,14 +383,6 @@ impl TryFrom<syn::ImplItemMethod> for Function {
             sig,
             block: method.block,
         })
-
-        // `ImplItemMethod`
-        //
-        // attrs: Vec<Attribute>, DONE
-        // vis: Visibility, DONE
-        // defaultness: Option<Default>, DONE
-        // sig: Signature,
-        // block: Block, NO CHECKS NEEDED
     }
 }
 
@@ -393,28 +391,16 @@ impl TryFrom<syn::Signature> for Signature {
 
     fn try_from(sig: syn::Signature) -> Result<Self> {
         if let Some(constness) = sig.constness {
-            bail!(
-                constness,
-                "`const fn` is not supported for ink! functions",
-            )
+            bail!(constness, "`const fn` is not supported for ink! functions",)
         }
         if let Some(asyncness) = sig.asyncness {
-            bail!(
-                asyncness,
-                "`async fn` is not supported for ink! functions",
-            )
+            bail!(asyncness, "`async fn` is not supported for ink! functions",)
         }
         if let Some(unsafety) = sig.unsafety {
-            bail!(
-                unsafety,
-                "`unsafe fn` is not supported for ink! functions",
-            )
+            bail!(unsafety, "`unsafe fn` is not supported for ink! functions",)
         }
         if let Some(abi) = sig.abi {
-            bail!(
-                abi,
-                "specifying ABI is not allowed in ink! functions",
-            )
+            bail!(abi, "specifying ABI is not allowed in ink! functions",)
         }
         if let Some(variadic) = sig.variadic {
             bail!(
@@ -428,11 +414,12 @@ impl TryFrom<syn::Signature> for Signature {
                 "`&self` or `&mut self` is mandatory for ink! functions",
             )
         }
-        let inputs = sig.inputs
+        let inputs = sig
+            .inputs
             .iter()
             .cloned()
             .map(FnArg::try_from)
-            .collect::<Result<Punctuated::<FnArg, Token![,]>>>()?;
+            .collect::<Result<Punctuated<FnArg, Token![,]>>>()?;
         if let FnArg::Typed(ident_type) = &inputs[0] {
             bail_span!(
                 ident_type.span(),
@@ -441,10 +428,12 @@ impl TryFrom<syn::Signature> for Signature {
         }
         for input in inputs.iter().skip(1) {
             match input {
-                FnArg::Receiver(receiver) => bail!(
-                    receiver,
-                    "unexpected `self` argument found for ink! function",
-                ),
+                FnArg::Receiver(receiver) => {
+                    bail!(
+                        receiver,
+                        "unexpected `self` argument found for ink! function",
+                    )
+                }
                 _ => (),
             }
         }
@@ -464,31 +453,27 @@ impl TryFrom<syn::FnArg> for FnArg {
 
     fn try_from(fn_arg: syn::FnArg) -> Result<Self> {
         match fn_arg {
-            syn::FnArg::Receiver(receiver) => {
-                Ok(FnArg::Receiver(receiver))
-            }
-            syn::FnArg::Typed(pat_type) => {
-                match *pat_type.pat {
-                    syn::Pat::Ident(pat_ident) => {
-                        if let Some(by_ref) = pat_ident.by_ref {
-                            bail!(
-                                by_ref,
-                                "`ref` modifier is unsupported for ink! function arguments",
-                            )
-                        }
-                        Ok(FnArg::Typed(IdentType {
-                            attrs: pat_ident.attrs,
-                            ident: pat_ident.ident,
-                            colon_token: pat_type.colon_token,
-                            ty: *pat_type.ty,
-                        }))
+            syn::FnArg::Receiver(receiver) => Ok(FnArg::Receiver(receiver)),
+            syn::FnArg::Typed(pat_type) => match *pat_type.pat {
+                syn::Pat::Ident(pat_ident) => {
+                    if let Some(by_ref) = pat_ident.by_ref {
+                        bail!(
+                            by_ref,
+                            "`ref` modifier is unsupported for ink! function arguments",
+                        )
                     }
-                    unsupported => bail!(
-                        unsupported,
-                        "encountered unsupported function argument syntax for ink! function",
-                    )
+                    Ok(FnArg::Typed(IdentType {
+                        attrs: pat_ident.attrs,
+                        ident: pat_ident.ident,
+                        colon_token: pat_type.colon_token,
+                        ty: *pat_type.ty,
+                    }))
                 }
-            }
+                unsupported => bail!(
+                    unsupported,
+                    "encountered unsupported function argument syntax for ink! function",
+                ),
+            },
         }
     }
 }
@@ -507,7 +492,7 @@ impl TryFrom<syn::Item> for Item {
                     .cloned()
                     .filter_map(|attr| ItemMeta::try_from(attr).ok())
                     .collect::<Vec<_>>();
-                if ink_attrs.iter().any(|meta| meta.is_simple("event",)) {
+                if ink_attrs.iter().any(|meta| meta.is_simple("event")) {
                     return ItemEvent::try_from(item_struct).map(Into::into)
                 }
                 // Users can leave away `#[ink(storage)]` so this can be the fallback.

@@ -1,15 +1,15 @@
+use derive_more::From;
 use proc_macro2::{
     Ident,
-    TokenStream as TokenStream2,
     Span,
-};
-use syn::{
-    Token,
-    punctuated::Punctuated,
-    spanned::Spanned as _,
+    TokenStream as TokenStream2,
 };
 use quote::quote;
-use derive_more::From;
+use syn::{
+    punctuated::Punctuated,
+    spanned::Spanned as _,
+    Token,
+};
 
 /// The contract with all required information.
 pub struct Contract {
@@ -307,7 +307,9 @@ impl Signature {
 
     /// Returns the span of `self`.
     pub fn span(&self) -> Span {
-        self.fn_token.span().join(self.output.span())
+        self.fn_token
+            .span()
+            .join(self.output.span())
             .expect("spans of `ident` and `ty` must be in the same file; qed")
     }
 }
@@ -342,7 +344,9 @@ pub struct IdentType {
 impl IdentType {
     /// Returns the span of `self`.
     pub fn span(&self) -> Span {
-        self.ident.span().join(self.ty.span())
+        self.ident
+            .span()
+            .join(self.ty.span())
             .expect("spans of `ident` and `ty` must be in the same file; qed")
     }
 }
