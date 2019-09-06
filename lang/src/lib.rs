@@ -14,26 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-#![recursion_limit = "256"]
-
 extern crate proc_macro;
 
 #[macro_use]
 mod error;
 
-// mod ast;
-// mod gen;
+mod contract;
 mod extensions;
 mod hir2;
-// mod parser;
-
-// #[cfg(feature = "ink-generate-abi")]
-// mod old_abi;
-
-// #[cfg(test)]
-// mod tests;
-
-mod contract;
 
 use proc_macro::TokenStream;
 
@@ -41,11 +29,6 @@ use proc_macro::TokenStream;
 pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
     contract::generate(attr.into(), item.into()).into()
 }
-
-// #[proc_macro]
-// pub fn contract(input: TokenStream) -> TokenStream {
-//     contract::generate(input.into()).into()
-// }
 
 #[cfg(test)]
 pub use contract::generate_or_err;
