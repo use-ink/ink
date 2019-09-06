@@ -3,12 +3,15 @@ use crate::hir2::data::{
     FnArg,
     Function,
     FunctionKind,
+    FunctionSelector,
     IdentType,
     Item,
     ItemEvent,
     ItemImpl,
     ItemMeta,
     ItemStorage,
+    KindConstructor,
+    KindMessage,
     MetaSimple,
     Signature,
 };
@@ -51,11 +54,7 @@ impl TryFrom<syn::ItemMod> for Contract {
             .map(Item::try_from)
             .collect::<Result<Vec<_>>>()?;
         let (storage, events, functions) = split_items(items)?;
-        if functions
-            .iter()
-            .filter(|f| f.is_constructor())
-            .count() == 0
-        {
+        if functions.iter().filter(|f| f.is_constructor()).count() == 0 {
             bail!(
                 &item_mod,
                 "ink! contracts require at least one constructor function declared with `#[ink(constructor)]`",
@@ -315,8 +314,16 @@ impl TryFrom<syn::ImplItemMethod> for Function {
             .iter()
             .map(|attr| {
                 let new_kind = match attr.ident.to_string().as_str() {
-                    "constructor" => Ok(FunctionKind::Constructor),
-                    "message" => Ok(FunctionKind::Message),
+                    "constructor" => {
+                        Ok(FunctionKind::Constructor(KindConstructor {
+                            selector: FunctionSelector::from(&method.sig.ident),
+                        }))
+                    }
+                    "message" => {
+                        Ok(FunctionKind::Message(KindMessage {
+                            selector: FunctionSelector::from(&method.sig.ident),
+                        }))
+                    }
                     unknown => Err(format_err!(unknown, "unknown ink! attribute found",)),
                 }?;
                 if kind == FunctionKind::Method {
@@ -355,7 +362,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
         let sig = Signature::try_from(method.sig)?;
         // Followed by some checks that are depending on the given function kind:
         match kind {
-            FunctionKind::Constructor => {
+            FunctionKind::Constructor(_) => {
                 if !sig.is_mut() {
                     bail_span!(
                         sig.span(),
@@ -369,7 +376,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
                     )
                 }
             }
-            FunctionKind::Message | FunctionKind::Method => {
+            FunctionKind::Message(_) | FunctionKind::Method => {
                 if sig.self_arg().reference.is_none() {
                     bail_span!(
                         sig.span(),

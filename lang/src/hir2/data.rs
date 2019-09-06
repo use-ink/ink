@@ -248,27 +248,90 @@ pub struct Function {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FunctionKind {
     /// A contract constructor.
-    Constructor,
+    Constructor(KindConstructor),
     /// A contract message.
-    Message,
+    Message(KindMessage),
     /// A normal (private) method.
     Method,
 }
 
+/// A function that is a contract constructor.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct KindConstructor {
+    /// The function selector.
+    pub selector: FunctionSelector,
+}
+
+/// A function that is a contract message.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct KindMessage {
+    /// The function selector.
+    pub selector: FunctionSelector,
+}
+
+/// A function selector.
+///
+/// # Note
+///
+/// This is equal to the first four bytes of the SHA-3 hash of a function's name.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct FunctionSelector(u32);
+
+impl FunctionSelector {
+    /// Returns the `u32` representation of the function selector.
+    pub fn to_u32(&self) -> u32 {
+        self.0
+    }
+}
+
+impl From<&'_ Ident> for FunctionSelector {
+    fn from(ident: &Ident) -> Self {
+        Self::from(ident.to_string().as_str())
+    }
+}
+
+impl From<&'_ str> for FunctionSelector {
+    fn from(name: &str) -> Self {
+        let sha3_hash = ink_utils::hash::keccak256(name.as_bytes());
+        Self(u32::from_le_bytes([
+            sha3_hash[0],
+            sha3_hash[1],
+            sha3_hash[2],
+            sha3_hash[3],
+        ]))
+    }
+}
+
 impl Function {
+    /// Returns the kind of the function.
+    ///
+    /// The kind also provides special information associated to the concrete kind, e.g. function selector.
+    pub fn kind(&self) -> &FunctionKind {
+        &self.kind
+    }
+
     /// Returns `true` if the function is a contract constructor.
     pub fn is_constructor(&self) -> bool {
-        self.kind == FunctionKind::Constructor
+        match self.kind() {
+            FunctionKind::Constructor(_) => true,
+            _ => false,
+        }
     }
 
     /// Returns `true` if the function is a contract message.
     pub fn is_message(&self) -> bool {
-        self.kind == FunctionKind::Message
+        match self.kind() {
+            FunctionKind::Message(_) => true,
+            _ => false,
+        }
     }
 
     /// Returns `true` if the function is a method.
     pub fn is_method(&self) -> bool {
-        self.kind == FunctionKind::Method
+        match self.kind() {
+            FunctionKind::Method => true,
+            _ => false,
+        }
     }
 }
 
