@@ -37,20 +37,30 @@ impl TryFrom<syn::ItemMod> for Contract {
                 "contract module must have no visibility modifier",
             )
         }
-        let items = match item_mod.content {
+        let items = match &item_mod.content {
             None => {
                 bail!(
                     item_mod,
                     "contract module must be inline, e.g. `mod m {{ ... }}`",
                 )
             }
-            Some((_brace, items)) => items,
+            Some((_brace, items)) => items.clone(),
         };
         let items = items
             .into_iter()
             .map(Item::try_from)
             .collect::<Result<Vec<_>>>()?;
         let (storage, events, functions) = split_items(items)?;
+        if functions
+            .iter()
+            .filter(|f| f.is_constructor())
+            .count() == 0
+        {
+            bail!(
+                &item_mod,
+                "ink! contracts require at least one constructor function declared with `#[ink(constructor)]`",
+            )
+        }
         let meta_items = item_mod
             .attrs
             .iter()
