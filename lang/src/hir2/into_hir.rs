@@ -352,7 +352,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
                         "constructors in ink! must always be `&mut self`",
                     )
                 }
-                if sig.output == syn::ReturnType::Default {
+                if sig.output != syn::ReturnType::Default {
                     bail!(
                         sig.output,
                         "constructors in ink! must have no specified return type",

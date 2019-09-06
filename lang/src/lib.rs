@@ -38,9 +38,8 @@ mod contract;
 use proc_macro::TokenStream;
 
 #[proc_macro_attribute]
-pub fn contract(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    // TODO: check that attributes are empty
-    contract::generate(item.into()).into()
+pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
+    contract::generate(attr.into(), item.into()).into()
 }
 
 // #[proc_macro]

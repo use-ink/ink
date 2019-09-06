@@ -22,11 +22,7 @@ macro_rules! bail {
 
 macro_rules! format_err {
     ($tokens:expr, $($msg:tt)*) => {
-        match &$tokens {
-            t => {
-                syn::parse::Error::new_spanned(t, format_args!($($msg)*))
-            }
-        }
+        syn::parse::Error::new_spanned(&$tokens, format_args!($($msg)*))
     }
 }
 

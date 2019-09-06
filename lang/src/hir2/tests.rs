@@ -1,5 +1,6 @@
 use crate::hir2::ItemMeta;
 use core::convert::TryFrom;
+use trybuild;
 
 #[test]
 fn parse_meta_storage() {

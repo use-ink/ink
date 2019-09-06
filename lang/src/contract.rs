@@ -25,14 +25,20 @@ use crate::{
     hir2::GenerateCode as _,
 };
 
-pub fn generate(input: TokenStream2) -> TokenStream2 {
-    match generate_or_err(input) {
+pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    match generate_or_err(attr, input) {
         Ok(tokens) => tokens,
         Err(err) => err.to_compile_error(),
     }
 }
 
-pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
+pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+    if !attr.is_empty() {
+        bail!(
+            attr,
+            "passing parameters to `#[ink::contract]` is currently unsupported",
+        )
+    }
     let rust_mod = syn::parse2::<syn::ItemMod>(input)?;
     let ink_hir = hir::Contract::try_from(rust_mod)?;
     Ok(ink_hir.generate_code())
