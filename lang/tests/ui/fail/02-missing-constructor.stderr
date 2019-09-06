@@ -1,0 +1,1 @@
+error: ink! contracts require at least one constructor function declared with `#[ink(constructor)]`
