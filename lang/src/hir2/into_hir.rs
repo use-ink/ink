@@ -16,9 +16,7 @@ use core::convert::TryFrom;
 use either::Either;
 use itertools::Itertools as _;
 use proc_macro2::Ident;
-use std::iter::FromIterator as _;
 use syn::{
-    ext::IdentExt as _,
     parse::{
         Parse,
         ParseStream,
@@ -39,14 +37,14 @@ impl TryFrom<syn::ItemMod> for Contract {
                 "contract module must have no visibility modifier",
             )
         }
-        let (brace, items) = match item_mod.content {
+        let items = match item_mod.content {
             None => {
                 bail!(
                     item_mod,
                     "contract module must be inline, e.g. `mod m {{ ... }}`",
                 )
             }
-            Some(content) => content,
+            Some((_brace, items)) => items,
         };
         let items = items
             .into_iter()
@@ -454,26 +452,28 @@ impl TryFrom<syn::FnArg> for FnArg {
     fn try_from(fn_arg: syn::FnArg) -> Result<Self> {
         match fn_arg {
             syn::FnArg::Receiver(receiver) => Ok(FnArg::Receiver(receiver)),
-            syn::FnArg::Typed(pat_type) => match *pat_type.pat {
-                syn::Pat::Ident(pat_ident) => {
-                    if let Some(by_ref) = pat_ident.by_ref {
-                        bail!(
+            syn::FnArg::Typed(pat_type) => {
+                match *pat_type.pat {
+                    syn::Pat::Ident(pat_ident) => {
+                        if let Some(by_ref) = pat_ident.by_ref {
+                            bail!(
                             by_ref,
                             "`ref` modifier is unsupported for ink! function arguments",
                         )
+                        }
+                        Ok(FnArg::Typed(IdentType {
+                            attrs: pat_ident.attrs,
+                            ident: pat_ident.ident,
+                            colon_token: pat_type.colon_token,
+                            ty: *pat_type.ty,
+                        }))
                     }
-                    Ok(FnArg::Typed(IdentType {
-                        attrs: pat_ident.attrs,
-                        ident: pat_ident.ident,
-                        colon_token: pat_type.colon_token,
-                        ty: *pat_type.ty,
-                    }))
-                }
-                unsupported => bail!(
+                    unsupported => bail!(
                     unsupported,
                     "encountered unsupported function argument syntax for ink! function",
                 ),
-            },
+                }
+            }
         }
     }
 }
