@@ -303,6 +303,15 @@ impl From<&'_ str> for FunctionSelector {
 }
 
 impl Function {
+    /// Returns the selector of the constructor or message or `None` if it is a method.
+    pub fn selector(&self) -> Option<FunctionSelector> {
+        match self.kind() {
+            FunctionKind::Constructor(constructor) => Some(constructor.selector),
+            FunctionKind::Message(message) => Some(message.selector),
+            _ => None,
+        }
+    }
+
     /// Returns the kind of the function.
     ///
     /// The kind also provides special information associated to the concrete kind, e.g. function selector.
