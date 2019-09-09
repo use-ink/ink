@@ -18,7 +18,7 @@ pub struct Contract {
     /// The modules snake case identifier.
     pub ident: Ident,
     /// Special ink! meta attributes.
-    pub meta_items: Vec<ItemMeta>,
+    pub meta_info: Vec<MetaInfo>,
     /// Outer and inner attributes of the module.
     ///
     /// This also containes the environmental types definition
@@ -30,6 +30,22 @@ pub struct Contract {
     pub events: Vec<ItemEvent>,
     /// Messages, constructors and methods of the contract.
     pub functions: Vec<Function>,
+}
+
+/// The specified environmental types.
+pub struct EnvTypes {
+    /// The specified types.
+    ty: syn::Type,
+}
+
+/// The specified version of a contract.
+pub struct Version {
+    /// The major version, e.g. the `X` in `[X, Y, Z]`.
+    major: u32,
+    /// The minor version, e.g. the `Y` in `[X, Y, Z]`.
+    minor: u32,
+    /// The patch version, e.g. the `Z` in `[X, Y, Z]`.
+    patch: u32,
 }
 
 /// Types implementing this trait are code generators for the ink! language.
@@ -48,8 +64,6 @@ impl GenerateCode for Contract {
 /// Intermediate description of a contracts components.
 #[derive(From)]
 pub enum Item {
-    /// A meta item.
-    Meta(ItemMeta),
     /// A storage definition.
     Storage(ItemStorage),
     /// An event definition.
@@ -58,57 +72,30 @@ pub enum Item {
     Impl(ItemImpl),
 }
 
-/// A specialized ink! meta attribute.
+/// ink! markers use to indicate certain ink! specific properties.
 ///
 /// # Note
 ///
-/// It is possible to set multiple meta items with one meta attribute:
+/// Generally these are the subset of Rust attributes that have `ink` as identifier.
+///
+/// # Examples
+///
+/// `#[ink(storage)]` on a `struct` indicates that the `struct` represents the contract's storage.
 ///
 /// ```no_compile
-/// #[ink(
-///     env = DefaultSrmlTypes,
-///     version = 0.1.0,
-/// )]
+/// #[ink(storage)]
+/// struct MyStorage { ... }
 /// ```
-#[derive(Debug, From)]
-pub enum ItemMeta {
-    /// Environmental types definition: `#[ink(env = DefaultSrmlTypes)]`
-    Env(MetaEnv),
-    /// Information about the ink! version: `#[ink(version = X.Y.Z)]`
-    Version(MetaVersion),
-    /// Simple single-identifier ink! attribute: e.g. `#[ink(storage)]` or `#[ink(event)]`
-    Simple(MetaSimple),
+pub enum Marker {
+    /// A simple ink! marker without additional data.
+    Simple(SimpleMarker),
 }
 
-/// Simple single-identifier ink! attribute: e.g. `#[ink(storage)]` or `#[ink(event)]`
-#[derive(Debug)]
-pub struct MetaSimple {
-    /// The parentheses around the `event` identifier.
-    pub paren_token: syn::token::Paren,
-    /// The simple identifier.
-    pub ident: Ident,
-}
-
-impl MetaSimple {
-    /// Returns the span of `self`.
-    pub fn span(&self) -> Span {
-        self.paren_token.span
-    }
-}
-
-impl PartialEq<str> for MetaSimple {
-    fn eq(&self, other: &str) -> bool {
-        self.ident == other
-    }
-}
-
-impl ItemMeta {
+impl Marker {
     /// Returns the span of `self`.
     pub fn span(&self) -> Span {
         match self {
-            ItemMeta::Env(meta_env) => meta_env.span(),
-            ItemMeta::Version(meta_version) => meta_version.span(),
-            ItemMeta::Simple(meta_simple) => meta_simple.span(),
+            Marker::Simple(marker_simple) => marker_simple.span(),
         }
     }
 
@@ -117,9 +104,9 @@ impl ItemMeta {
     /// # Examples
     ///
     /// Simple attributes are for example `#[ink(storage)]` where `storage` is its ident.
-    fn filter_simple_by_ident(&self, ident: &str) -> Option<&MetaSimple> {
+    fn filter_simple_by_ident(&self, ident: &str) -> Option<&SimpleMarker> {
         match self {
-            ItemMeta::Simple(meta_simple) if meta_simple == ident => Some(meta_simple),
+            Marker::Simple(marker_simple) if marker_simple == ident => Some(marker_simple),
             _ => None,
         }
     }
@@ -136,21 +123,85 @@ impl ItemMeta {
     /// Returns the simple ink! attribute identifier and `None` if `self` is not simple.
     pub fn get_simple(&self) -> Option<&Ident> {
         match self {
-            ItemMeta::Simple(meta_simple) => Some(&meta_simple.ident),
+            Marker::Simple(marker_simple) => Some(&marker_simple.ident),
             _ => None,
         }
     }
+}
+
+/// A simple ink! marker that consists of a single identifier.
+///
+/// # Examples
+///
+/// - `#[ink(storage)]`
+/// - `#[ink(event)]`
+pub struct SimpleMarker {
+    /// The parentheses around the single identifier.
+    pub paren_token: syn::token::Paren,
+    /// The single identifier.
+    pub ident: Ident,
+}
+
+impl SimpleMarker {
+    /// Returns the span of `self`.
+    pub fn span(&self) -> Span {
+        self.paren_token.span
+    }
+}
+
+impl PartialEq<str> for SimpleMarker {
+    fn eq(&self, other: &str) -> bool {
+        self.ident == other
+    }
+}
+
+/// Parameters given to ink!'s `#[contract(..)]` attribute.
+///
+/// # Example
+///
+/// ```no_compile
+/// #[ink::contract(env = DefaultSrmlTypes, version = 0.1.0)]
+/// ```
+pub struct Params {
+    /// The delimited meta information parameters.
+    pub meta_infos: Punctuated<MetaInfo, Token![,]>,
+}
+
+/// A specialized ink! contract meta information.
+///
+/// This information is usually given at the contract definition via attribute parameters.
+///
+/// # Example
+///
+/// ```no_compile
+/// #[ink::contract(
+///     env = DefaultSrmlTypes, // The used chain types.
+///     version = 0.1.0,        // The used ink! version.
+/// )]
+/// mod my_contract { ... }
+/// ```
+///
+/// # Note
+///
+/// Even though ink! could define some defaults for this meta information we currently
+/// require contracts to specify them and may relax this in the future.
+#[derive(Debug, From)]
+pub enum MetaInfo {
+    /// Environmental types definition: `#[ink(env = DefaultSrmlTypes)]`
+    Env(MetaEnv),
+    /// Information about the ink! version: `#[ink(version = x.y.z)]`
+    Version(MetaVersion),
 }
 
 /// The environment types definition: `#[ink(env = DefaultSrmlTypes)]`
 #[derive(Debug)]
 pub struct MetaEnv {
     /// The `env` identifier.
-    env: Ident,
+    pub env: Ident,
     /// The `=` token.
-    eq_token: Token![=],
+    pub eq_token: Token![=],
     /// The environmental types type.
-    ty: syn::Type,
+    pub ty: syn::Type,
 }
 
 impl MetaEnv {
@@ -163,23 +214,35 @@ impl MetaEnv {
     }
 }
 
+/// An unsuffixed integer literal: `0` or `42` or `1337`
+#[derive(Debug)]
+pub struct UnsuffixedLitInt {
+    pub(crate) lit_int: syn::LitInt,
+}
+
+impl UnsuffixedLitInt {
+    /// Returns the unsuffixed literal integer.
+    pub fn lit_int(&self) -> &syn::LitInt {
+        &self.lit_int
+    }
+
+    /// Returns the span of `self`.
+    pub fn span(&self) -> Span {
+        self.lit_int.span()
+    }
+}
+
 /// The used ink! version: `#[ink(version = 0.1.0)]`
 #[derive(Debug)]
 pub struct MetaVersion {
     /// The `version` identifier.
-    version: Ident,
+    pub version: Ident,
     /// The `=` token.
-    eq_token: Token![=],
-    /// The major version.
-    major: syn::LitInt,
-    /// The first dot `.`.
-    dot_1: Token![.],
-    /// The minor version.
-    minor: syn::LitInt,
-    /// The second dot `.`.
-    dot_2: Token![.],
-    /// The patch version.
-    patch: syn::LitInt,
+    pub eq_token: Token![=],
+    /// The `[` and `]` surrounding the actual version information.
+    pub bracket_token: syn::token::Bracket,
+    /// The version information.
+    pub parts: Punctuated<UnsuffixedLitInt, Token![,]>,
 }
 
 impl MetaVersion {
@@ -187,7 +250,7 @@ impl MetaVersion {
     pub fn span(&self) -> Span {
         self.version
             .span()
-            .join(self.patch.span())
+            .join(self.bracket_token.span)
             .expect("both spans are in the same file AND we are using nightly Rust; qed")
     }
 }

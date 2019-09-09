@@ -14,7 +14,9 @@ pub use self::data::{
     Item,
     ItemEvent,
     ItemImpl,
-    ItemMeta,
     ItemStorage,
     Signature,
+    Marker,
+    MetaInfo,
+    Params,
 };

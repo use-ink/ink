@@ -21,8 +21,8 @@ use syn::Result;
 // #[cfg(feature = "ink-generate-abi")]
 // use crate::old_abi;
 use crate::{
-    hir2 as hir,
-    hir2::GenerateCode as _,
+    ir,
+    ir::GenerateCode as _,
 };
 
 pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
@@ -33,13 +33,8 @@ pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
 }
 
 pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
-    if !attr.is_empty() {
-        bail!(
-            attr,
-            "passing parameters to `#[ink::contract]` is currently unsupported",
-        )
-    }
+    let params = syn::parse2::<ir::Params>(attr)?;
     let rust_mod = syn::parse2::<syn::ItemMod>(input)?;
-    let ink_hir = hir::Contract::try_from(rust_mod)?;
-    Ok(ink_hir.generate_code())
+    let ink_ir = ir::Contract::try_from(rust_mod)?;
+    Ok(ink_ir.generate_code())
 }

@@ -2,10 +2,11 @@
 
 use ink_lang as ink;
 
-#[ink::contract]
+#[ink::contract(
+    env = DefaultSrmlTypes,
+    version = [0, 1, 0],
+)]
 mod multiple_constructors {
-    #![ink(env = DefaultSrmlTypes)]
-
     #[ink(storage)]
     struct MultipleConstructors {}
 

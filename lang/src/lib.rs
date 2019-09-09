@@ -21,7 +21,7 @@ mod error;
 
 mod contract;
 mod extensions;
-mod hir2;
+mod ir;
 
 use proc_macro::TokenStream;
 

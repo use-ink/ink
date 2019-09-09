@@ -1,4 +1,4 @@
-use crate::hir2::data::{
+use crate::ir::data::{
     Contract,
     FnArg,
     Function,
@@ -8,12 +8,17 @@ use crate::hir2::data::{
     Item,
     ItemEvent,
     ItemImpl,
-    ItemMeta,
     ItemStorage,
     KindConstructor,
     KindMessage,
-    MetaSimple,
     Signature,
+    Marker,
+    SimpleMarker,
+    MetaInfo,
+    MetaVersion,
+    MetaEnv,
+    UnsuffixedLitInt,
+    Params,
 };
 use core::convert::TryFrom;
 use either::Either;
@@ -29,6 +34,115 @@ use syn::{
     Result,
     Token,
 };
+
+impl Parse for Params {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let meta_infos = Punctuated::parse_terminated(input)?;
+        Ok(Self { meta_infos })
+    }
+}
+
+impl Parse for MetaInfo {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let ident = input.fork().parse::<Ident>()?;
+        match ident.to_string().as_str() {
+            "version" => input.parse::<MetaVersion>().map(Into::into),
+            "env" => input.parse::<MetaEnv>().map(Into::into),
+            unknown => Err(
+                format_err_span!(ident.span(), "unknown ink! meta information: {}", unknown)
+            ),
+        }
+    }
+}
+
+impl Parse for UnsuffixedLitInt {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let lit_int: syn::LitInt = input.parse()?;
+        if lit_int.suffix() != "" {
+            bail!(
+                lit_int,
+                "integer suffixes are not allowed here",
+            )
+        }
+        Ok(Self { lit_int })
+    }
+}
+
+impl Parse for MetaVersion {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let version_ident = input.parse()?;
+        if version_ident != "version" {
+            bail!(
+                version_ident,
+                "invalid identifier for meta version information",
+            )
+        }
+        let eq_token = input.parse()?;
+        let content;
+        let bracket_token = syn::bracketed!(content in input);
+        let parts = Punctuated::parse_terminated(&content)?;
+        if parts.len() != 3 {
+            bail_span!(
+                bracket_token.span,
+                "expected 3 elements in version array",
+            )
+        }
+        Ok(Self {
+            version: version_ident,
+            eq_token,
+            bracket_token,
+            parts,
+        })
+        // let major = input.parse()?;
+        // let dot_1 = input.parse()?;
+        // let minor = input.parse()?;
+        // let dot_2 = input.parse()?;
+        // let patch = input.parse()?;
+        // Ok(Self {
+        //     version: version_ident,
+        //     eq_token,
+        //     major,
+        //     dot_1,
+        //     minor,
+        //     dot_2,
+        //     patch,
+        // })
+    }
+}
+
+impl Parse for MetaEnv {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let env_ident = input.parse()?;
+        if env_ident != "env" {
+            bail!(
+                env_ident,
+                "invalid identifier for meta environment information",
+            )
+        }
+        let eq_token = input.parse()?;
+        let ty = input.parse()?;
+        Ok(Self {
+            env: env_ident,
+            eq_token,
+            ty,
+        })
+    }
+}
+
+impl Parse for Marker {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let content;
+        let paren_token = syn::parenthesized!(content in input);
+        let ident = content.parse::<Ident>()?;
+        if content.is_empty() {
+            return Ok(Marker::Simple(SimpleMarker { paren_token, ident }))
+        }
+        bail_span!(
+            paren_token.span,
+            "invalid ink! attribute in the given context",
+        )
+    }
+}
 
 impl TryFrom<syn::ItemMod> for Contract {
     type Error = syn::Error;
@@ -60,16 +174,10 @@ impl TryFrom<syn::ItemMod> for Contract {
                 "ink! contracts require at least one constructor function declared with `#[ink(constructor)]`",
             )
         }
-        let meta_items = item_mod
-            .attrs
-            .iter()
-            .cloned()
-            .filter_map(|attr| ItemMeta::try_from(attr).ok())
-            .collect::<Vec<_>>();
         Ok(Self {
             mod_token: item_mod.mod_token,
             ident: item_mod.ident,
-            meta_items,
+            meta_info: Vec::new(), // TODO
             attrs: item_mod.attrs,
             storage,
             events,
@@ -78,29 +186,14 @@ impl TryFrom<syn::ItemMod> for Contract {
     }
 }
 
-impl TryFrom<syn::Attribute> for ItemMeta {
+impl TryFrom<syn::Attribute> for Marker {
     type Error = syn::Error;
 
     fn try_from(attr: syn::Attribute) -> Result<Self> {
         if !attr.path.is_ident("ink") {
-            bail!(attr, "encountered non-ink! meta attribute")
+            bail!(attr, "encountered non-ink! attribute")
         }
-        syn::parse2::<ItemMeta>(attr.tokens)
-    }
-}
-
-impl Parse for ItemMeta {
-    fn parse(input: ParseStream) -> Result<Self> {
-        let content;
-        let paren_token = syn::parenthesized!(content in input);
-        let ident = content.parse::<Ident>()?;
-        if content.is_empty() {
-            return Ok(ItemMeta::Simple(MetaSimple { paren_token, ident }))
-        }
-        bail_span!(
-            paren_token.span,
-            "invalid ink! attribute in the given context"
-        )
+        syn::parse2::<Self>(attr.tokens)
     }
 }
 
@@ -111,7 +204,7 @@ impl TryFrom<syn::ItemStruct> for ItemStorage {
         if let Some(invalid_meta) = item_struct
             .attrs
             .iter()
-            .filter_map(|attr| ItemMeta::try_from(attr.clone()).ok())
+            .filter_map(|attr| Marker::try_from(attr.clone()).ok())
             .find(|ink_meta| !ink_meta.is_simple("storage"))
         {
             bail_span!(
@@ -150,7 +243,7 @@ impl TryFrom<syn::ItemStruct> for ItemEvent {
         if let Some(invalid_meta) = item_struct
             .attrs
             .iter()
-            .filter_map(|attr| ItemMeta::try_from(attr.clone()).ok())
+            .filter_map(|attr| Marker::try_from(attr.clone()).ok())
             .find(|ink_meta| !ink_meta.is_simple("event"))
         {
             bail_span!(
@@ -279,10 +372,10 @@ impl TryFrom<syn::ImplItemMethod> for Function {
             .attrs
             .iter()
             .cloned()
-            .filter_map(|attr| ItemMeta::try_from(attr).ok())
+            .filter_map(|attr| Marker::try_from(attr).ok())
             .partition_map(|attr| {
                 match attr {
-                    ItemMeta::Simple(simple) => Either::Left(simple),
+                    Marker::Simple(simple) => Either::Left(simple),
                     non_simple => Either::Right(non_simple),
                 }
             });
@@ -389,7 +482,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
         let non_ink_attrs = method
             .attrs
             .into_iter()
-            .filter(|attr| ItemMeta::try_from(attr.clone()).is_ok())
+            .filter(|attr| Marker::try_from(attr.clone()).is_ok())
             .collect::<Vec<_>>();
         // Finally return the checked ink! function.
         Ok(Self {
@@ -507,7 +600,7 @@ impl TryFrom<syn::Item> for Item {
                     .attrs
                     .iter()
                     .cloned()
-                    .filter_map(|attr| ItemMeta::try_from(attr).ok())
+                    .filter_map(|attr| Marker::try_from(attr).ok())
                     .collect::<Vec<_>>();
                 if ink_attrs.iter().any(|meta| meta.is_simple("event")) {
                     return ItemEvent::try_from(item_struct).map(Into::into)

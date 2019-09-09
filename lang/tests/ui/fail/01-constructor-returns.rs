@@ -2,13 +2,15 @@
 
 use ink_lang as ink;
 
-#[ink::contract]
+#[ink::contract(
+    env = DefaultSrmlTypes,
+    version = [0, 1, 0],
+)]
 mod noop {
-    #![ink(env = DefaultSrmlTypes)]
-
     #[ink(storage)]
     struct Noop {}
 
+    #[ink(impl)]
     impl Noop {
         #[ink(constructor)]
         fn new(&mut self) -> Self {}
