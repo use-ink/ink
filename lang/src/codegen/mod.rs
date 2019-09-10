@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+mod model;
+
 use crate::ir::Contract;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
