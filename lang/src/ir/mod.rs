@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! This module provides
+//!
+//! - Data structures for ink! IR and ink! parameters
+//! - Parsing procedures for Rust and ink! code
+//! - Conversion routines from rust AST to ink! IR
+
 mod data;
 mod into_hir;
 mod params;

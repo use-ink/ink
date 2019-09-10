@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Contains data structures and parsing routines for parameters to the ink! macro.
+
 use crate::ir::UnsuffixedLitInt;
 use derive_more::From;
 use proc_macro2::{

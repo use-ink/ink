@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Contains all converion routines from Rust AST to ink! IR.
+
 use crate::ir::{
     Contract,
     FnArg,

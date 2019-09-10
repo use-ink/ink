@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Contains all ink! IR data structures and definitions.
+
 use derive_more::From;
 use proc_macro2::{
     Ident,

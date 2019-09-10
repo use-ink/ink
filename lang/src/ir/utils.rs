@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Contains general utilities for the ink! IR module.
+
 use proc_macro2::Span;
 use syn::{
     parse::{
