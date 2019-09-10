@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Module to introduce extended functionality to types from other crates.
+
 use proc_macro2::{
     Ident,
     Span,
