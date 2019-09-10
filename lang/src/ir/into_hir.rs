@@ -1,3 +1,19 @@
+// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// This file is part of ink!.
+//
+// ink! is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// ink! is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
+
 use crate::ir::data::{
     Contract,
     FnArg,
@@ -11,14 +27,14 @@ use crate::ir::data::{
     ItemStorage,
     KindConstructor,
     KindMessage,
-    Signature,
     Marker,
-    SimpleMarker,
+    MetaEnv,
     MetaInfo,
     MetaVersion,
-    MetaEnv,
-    UnsuffixedLitInt,
     Params,
+    Signature,
+    SimpleMarker,
+    UnsuffixedLitInt,
 };
 use core::convert::TryFrom;
 use either::Either;
@@ -48,9 +64,13 @@ impl Parse for MetaInfo {
         match ident.to_string().as_str() {
             "version" => input.parse::<MetaVersion>().map(Into::into),
             "env" => input.parse::<MetaEnv>().map(Into::into),
-            unknown => Err(
-                format_err_span!(ident.span(), "unknown ink! meta information: {}", unknown)
-            ),
+            unknown => {
+                Err(format_err_span!(
+                    ident.span(),
+                    "unknown ink! meta information: {}",
+                    unknown
+                ))
+            }
         }
     }
 }
@@ -59,10 +79,7 @@ impl Parse for UnsuffixedLitInt {
     fn parse(input: ParseStream) -> Result<Self> {
         let lit_int: syn::LitInt = input.parse()?;
         if lit_int.suffix() != "" {
-            bail!(
-                lit_int,
-                "integer suffixes are not allowed here",
-            )
+            bail!(lit_int, "integer suffixes are not allowed here",)
         }
         Ok(Self { lit_int })
     }
@@ -82,10 +99,7 @@ impl Parse for MetaVersion {
         let bracket_token = syn::bracketed!(content in input);
         let parts = Punctuated::parse_terminated(&content)?;
         if parts.len() != 3 {
-            bail_span!(
-                bracket_token.span,
-                "expected 3 elements in version array",
-            )
+            bail_span!(bracket_token.span, "expected 3 elements in version array",)
         }
         Ok(Self {
             version: version_ident,
@@ -93,20 +107,6 @@ impl Parse for MetaVersion {
             bracket_token,
             parts,
         })
-        // let major = input.parse()?;
-        // let dot_1 = input.parse()?;
-        // let minor = input.parse()?;
-        // let dot_2 = input.parse()?;
-        // let patch = input.parse()?;
-        // Ok(Self {
-        //     version: version_ident,
-        //     eq_token,
-        //     major,
-        //     dot_1,
-        //     minor,
-        //     dot_2,
-        //     patch,
-        // })
     }
 }
 

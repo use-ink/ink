@@ -10,7 +10,6 @@ mod noop {
     #[ink(storage)]
     struct Noop {}
 
-    #[ink(impl)]
     impl Noop {
         #[ink(constructor)]
         fn new(&mut self) -> Self {}
