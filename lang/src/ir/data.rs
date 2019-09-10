@@ -110,6 +110,18 @@ impl Marker {
         }
     }
 
+    /// Returns the identifier of `self`.
+    ///
+    /// # Example
+    ///
+    /// Every ink! marker has an identifier.
+    /// For `#[ink(storage)]` this is `storage`, for `#[ink(event)]` it is `event`.
+    pub fn ident(&self) -> &Ident {
+        match self {
+            Marker::Simple(marker_simple) => &marker_simple.ident,
+        }
+    }
+
     /// Returns the ink! attribute if it is simple and the idents match or `None`.
     ///
     /// # Examples
@@ -131,13 +143,6 @@ impl Marker {
     /// Simple attributes are for example `#[ink(storage)]` where `storage` is its ident.
     pub fn is_simple(&self, ident: &str) -> bool {
         self.filter_simple_by_ident(ident).is_some()
-    }
-
-    /// Returns the simple ink! attribute identifier and `None` if `self` is not simple.
-    pub fn get_simple(&self) -> Option<&Ident> {
-        match self {
-            Marker::Simple(marker_simple) => Some(&marker_simple.ident),
-        }
     }
 }
 
