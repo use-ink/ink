@@ -18,9 +18,7 @@ use derive_more::From;
 use proc_macro2::{
     Ident,
     Span,
-    TokenStream as TokenStream2,
 };
-use quote::quote;
 use syn::{
     punctuated::Punctuated,
     spanned::Spanned as _,

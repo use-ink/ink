@@ -19,7 +19,6 @@ use crate::ir::{
     Params,
 };
 use core::convert::TryFrom;
-use trybuild;
 
 #[test]
 fn parse_meta_storage() {
@@ -39,7 +38,7 @@ fn parse_meta_event() {
 
 #[test]
 fn parse_params() {
-    let input: Params = syn::parse_quote! {
+    let _input: Params = syn::parse_quote! {
         env = DefaultSrmlTypes, version = [0, 1, 0]
     };
 }
