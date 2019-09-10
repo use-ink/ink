@@ -21,8 +21,8 @@ use syn::Result;
 // #[cfg(feature = "ink-generate-abi")]
 // use crate::old_abi;
 use crate::{
+    codegen::GenerateCode as _,
     ir,
-    ir::GenerateCode as _,
 };
 
 pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {

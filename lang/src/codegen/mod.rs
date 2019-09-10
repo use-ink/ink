@@ -14,40 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod data;
-mod into_hir;
-mod params;
-mod utils;
+use crate::ir::Contract;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
 
-#[cfg(test)]
-mod tests;
+/// Types implementing this trait are code generators for the ink! language.
+pub trait GenerateCode {
+    /// Generates ink! contract code.
+    fn generate_code(&self) -> TokenStream2;
+}
 
-pub use self::{
-    data::{
-        Contract,
-        FnArg,
-        Function,
-        FunctionKind,
-        FunctionSelector,
-        IdentType,
-        Item,
-        ItemEvent,
-        ItemImpl,
-        ItemStorage,
-        KindConstructor,
-        KindMessage,
-        Marker,
-        MetaInfo,
-        MetaTypes,
-        MetaVersion,
-        Signature,
-        SimpleMarker,
-    },
-    params::{
-        MetaParam,
-        ParamTypes,
-        ParamVersion,
-        Params,
-    },
-    utils::UnsuffixedLitInt,
-};
+impl GenerateCode for Contract {
+    /// Generates ink! contract code.
+    fn generate_code(&self) -> TokenStream2 {
+        quote! {}
+    }
+}

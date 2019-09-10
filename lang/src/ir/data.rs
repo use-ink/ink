@@ -29,17 +29,14 @@ use syn::{
 
 /// The contract with all required information.
 pub struct Contract {
+    /// Outer and inner attributes of the module.
+    pub attrs: Vec<syn::Attribute>,
     /// The `mod` token.
     pub mod_token: Token![mod],
     /// The modules snake case identifier.
     pub ident: Ident,
     /// Special ink! meta attributes.
     pub meta_info: MetaInfo,
-    /// Outer and inner attributes of the module.
-    ///
-    /// This also containes the environmental types definition
-    /// as well as the ink! version.
-    pub attrs: Vec<syn::Attribute>,
     /// The state struct.
     pub storage: ItemStorage,
     /// All event structs.
@@ -75,19 +72,6 @@ pub struct MetaVersion {
     pub minor: u32,
     /// The patch version, e.g. the `Z` in `[X, Y, Z]`.
     pub patch: u32,
-}
-
-/// Types implementing this trait are code generators for the ink! language.
-pub trait GenerateCode {
-    /// Generates ink! contract code.
-    fn generate_code(&self) -> TokenStream2;
-}
-
-impl GenerateCode for Contract {
-    /// Generates ink! contract code.
-    fn generate_code(&self) -> TokenStream2 {
-        quote! {}
-    }
 }
 
 /// Intermediate description of a contracts components.
