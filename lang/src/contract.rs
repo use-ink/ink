@@ -35,6 +35,6 @@ pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
 pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
     let params = syn::parse2::<ir::Params>(attr)?;
     let rust_mod = syn::parse2::<syn::ItemMod>(input)?;
-    let ink_ir = ir::Contract::try_from(rust_mod)?;
+    let ink_ir = ir::Contract::try_from((params, rust_mod))?;
     Ok(ink_ir.generate_code())
 }

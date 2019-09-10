@@ -16,15 +16,16 @@
 
 use proc_macro2::Span;
 use syn::{
-    Result,
     parse::{
         Parse,
         ParseStream,
     },
+    spanned::Spanned,
+    Result,
 };
 
 /// An unsuffixed integer literal: `0` or `42` or `1337`
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UnsuffixedLitInt {
     pub(crate) lit_int: syn::LitInt,
 }
@@ -34,9 +35,10 @@ impl UnsuffixedLitInt {
     pub fn lit_int(&self) -> &syn::LitInt {
         &self.lit_int
     }
+}
 
-    /// Returns the span of `self`.
-    pub fn span(&self) -> Span {
+impl Spanned for UnsuffixedLitInt {
+    fn span(&self) -> Span {
         self.lit_int.span()
     }
 }

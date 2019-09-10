@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::ir::MetaInfo;
 use derive_more::From;
 use proc_macro2::{
     Ident,
@@ -35,7 +34,7 @@ pub struct Contract {
     /// The modules snake case identifier.
     pub ident: Ident,
     /// Special ink! meta attributes.
-    pub meta_info: Vec<MetaInfo>,
+    pub meta_info: MetaInfo,
     /// Outer and inner attributes of the module.
     ///
     /// This also containes the environmental types definition
@@ -49,20 +48,33 @@ pub struct Contract {
     pub functions: Vec<Function>,
 }
 
+/// The meta information for a contract.
+///
+/// # Note
+///
+/// This is generally provided as parameters to the `#[ink::contract(..)]`
+/// custom attribute. Mandatory parameters are `types` and `version`.
+pub struct MetaInfo {
+    /// The environmental types.
+    pub env_types: MetaTypes,
+    /// The used ink! version.
+    pub ink_version: MetaVersion,
+}
+
 /// The specified environmental types.
-pub struct EnvTypes {
+pub struct MetaTypes {
     /// The specified types.
-    ty: syn::Type,
+    pub ty: syn::Type,
 }
 
 /// The specified version of a contract.
-pub struct Version {
+pub struct MetaVersion {
     /// The major version, e.g. the `X` in `[X, Y, Z]`.
-    major: u32,
+    pub major: u32,
     /// The minor version, e.g. the `Y` in `[X, Y, Z]`.
-    minor: u32,
+    pub minor: u32,
     /// The patch version, e.g. the `Z` in `[X, Y, Z]`.
-    patch: u32,
+    pub patch: u32,
 }
 
 /// Types implementing this trait are code generators for the ink! language.

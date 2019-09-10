@@ -28,6 +28,13 @@ use crate::ir::{
     KindConstructor,
     KindMessage,
     Marker,
+    MetaInfo,
+    MetaParam,
+    MetaTypes,
+    MetaVersion,
+    ParamTypes,
+    ParamVersion,
+    Params,
     Signature,
     SimpleMarker,
 };
@@ -35,6 +42,7 @@ use core::convert::TryFrom;
 use either::Either;
 use itertools::Itertools as _;
 use proc_macro2::Ident;
+use std::collections::HashSet;
 use syn::{
     parse::{
         Parse,
@@ -61,10 +69,10 @@ impl Parse for Marker {
     }
 }
 
-impl TryFrom<syn::ItemMod> for Contract {
+impl TryFrom<(Params, syn::ItemMod)> for Contract {
     type Error = syn::Error;
 
-    fn try_from(item_mod: syn::ItemMod) -> Result<Self> {
+    fn try_from((params, item_mod): (Params, syn::ItemMod)) -> Result<Self> {
         if item_mod.vis != syn::Visibility::Inherited {
             bail!(
                 item_mod.vis,
@@ -91,14 +99,90 @@ impl TryFrom<syn::ItemMod> for Contract {
                 "ink! contracts require at least one constructor function declared with `#[ink(constructor)]`",
             )
         }
+        let meta_info = MetaInfo::try_from(params)?;
         Ok(Self {
             mod_token: item_mod.mod_token,
             ident: item_mod.ident,
-            meta_info: Vec::new(), // TODO
             attrs: item_mod.attrs,
+            meta_info,
             storage,
             events,
             functions,
+        })
+    }
+}
+
+impl TryFrom<Params> for MetaInfo {
+    type Error = syn::Error;
+
+    fn try_from(params: Params) -> Result<Self> {
+        let mut unique_params = HashSet::new();
+        let mut env_types = None;
+        let mut ink_version = None;
+        for param in params.params.iter().cloned() {
+            let name = param.ident().to_string();
+            if !unique_params.insert(name) {
+                bail_span!(param.span(), "encountered parameter multiple times",)
+            }
+            match param {
+                MetaParam::Types(param_types) => {
+                    env_types = Some(MetaTypes::try_from(param_types)?)
+                }
+                MetaParam::Version(param_version) => {
+                    ink_version = Some(MetaVersion::try_from(param_version)?)
+                }
+            }
+        }
+        match (env_types, ink_version) {
+            (None, _) => {
+                bail_span!(
+                    params.span(),
+                    "expected `types` argument at `#[ink::contract(..)]`",
+                )
+            }
+            (_, None) => {
+                bail_span!(
+                    params.span(),
+                    "expected `version` argument at `#[ink::contract(..)]`",
+                )
+            }
+            (Some(env_types), Some(ink_version)) => {
+                Ok(Self {
+                    env_types,
+                    ink_version,
+                })
+            }
+        }
+    }
+}
+
+impl TryFrom<ParamTypes> for MetaTypes {
+    type Error = syn::Error;
+
+    fn try_from(params: ParamTypes) -> Result<Self> {
+        Ok(Self { ty: params.ty })
+    }
+}
+
+impl TryFrom<ParamVersion> for MetaVersion {
+    type Error = syn::Error;
+
+    fn try_from(params: ParamVersion) -> Result<Self> {
+        if params.parts.len() != 3 {
+            bail_span!(
+                params.span(),
+                "expected exactly 3 components in version argument, e.g. `[x, y, z]`",
+            )
+        }
+        let parts = params
+            .parts
+            .into_iter()
+            .map(|part| part.lit_int.base10_parse::<u32>())
+            .collect::<Result<Vec<_>>>()?;
+        Ok(Self {
+            major: parts[0],
+            minor: parts[1],
+            patch: parts[2],
         })
     }
 }
@@ -290,8 +374,10 @@ impl TryFrom<syn::ImplItemMethod> for Function {
             .iter()
             .cloned()
             .filter_map(|attr| Marker::try_from(attr).ok())
-            .map(|attr| match attr {
-                Marker::Simple(simple) => simple,
+            .map(|attr| {
+                match attr {
+                    Marker::Simple(simple) => simple,
+                }
             });
         // Checks for ink! attributes concerning ink! functions.
         //
@@ -549,7 +635,6 @@ fn split_items(items: Vec<Item>) -> Result<(ItemStorage, Vec<ItemEvent>, Vec<Fun
                         "we should not have any storages left at this point; qed"
                     )
                 }
-                _ => unreachable!("we do not expect any other kinds of items"),
             }
         });
     let functions = impl_blocks

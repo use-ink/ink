@@ -23,31 +23,32 @@ mod utils;
 mod tests;
 
 pub use self::{
-    utils::{
-        UnsuffixedLitInt,
-    },
-    params::{
-        Params,
-        MetaInfo,
-        MetaEnv,
-        MetaVersion,
-    },
     data::{
         Contract,
         FnArg,
         Function,
         FunctionKind,
+        FunctionSelector,
         GenerateCode,
         IdentType,
         Item,
         ItemEvent,
         ItemImpl,
         ItemStorage,
-        Marker,
-        Signature,
-        FunctionSelector,
         KindConstructor,
         KindMessage,
+        Marker,
+        MetaInfo,
+        MetaTypes,
+        MetaVersion,
+        Signature,
         SimpleMarker,
     },
+    params::{
+        MetaParam,
+        ParamTypes,
+        ParamVersion,
+        Params,
+    },
+    utils::UnsuffixedLitInt,
 };

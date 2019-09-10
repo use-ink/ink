@@ -15,21 +15,21 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::ir::UnsuffixedLitInt;
-use syn::{
-    Result,
-    parse::{
-        Parse,
-        ParseStream,
-    },
-    spanned::Spanned,
-    Token,
-    punctuated::Punctuated,
-};
+use derive_more::From;
 use proc_macro2::{
     Ident,
     Span,
 };
-use derive_more::From;
+use syn::{
+    parse::{
+        Parse,
+        ParseStream,
+    },
+    punctuated::Punctuated,
+    spanned::Spanned,
+    Result,
+    Token,
+};
 
 /// Parameters given to ink!'s `#[contract(..)]` attribute.
 ///
@@ -40,7 +40,22 @@ use derive_more::From;
 /// ```
 pub struct Params {
     /// The delimited meta information parameters.
-    pub meta_infos: Punctuated<MetaInfo, Token![,]>,
+    pub params: Punctuated<MetaParam, Token![,]>,
+}
+
+impl Spanned for Params {
+    fn span(&self) -> Span {
+        if self.params.len() == 0 {
+            Span::call_site()
+        } else {
+            self.params
+                .first()
+                .unwrap()
+                .span()
+                .join(self.params.last().unwrap().span())
+                .expect("params in `self` must be within the same file; qed")
+        }
+    }
 }
 
 /// A specialized ink! contract meta information.
@@ -61,17 +76,41 @@ pub struct Params {
 ///
 /// Even though ink! could define some defaults for this meta information we currently
 /// require contracts to specify them and may relax this in the future.
-#[derive(Debug, From)]
-pub enum MetaInfo {
+#[derive(Debug, Clone, From)]
+pub enum MetaParam {
     /// Environmental types definition: `#[ink(env = DefaultSrmlTypes)]`
-    Env(MetaEnv),
+    Types(ParamTypes),
     /// Information about the ink! version: `#[ink(version = x.y.z)]`
-    Version(MetaVersion),
+    Version(ParamVersion),
+}
+
+impl MetaParam {
+    /// Returns the identifier of the meta information.
+    ///
+    /// # Examples
+    ///
+    /// - for `types = DefaultSrmlTypes` this is `types`
+    /// - for `version = [0, 1, 0]` this is `version`
+    pub fn ident(&self) -> &Ident {
+        match self {
+            MetaParam::Types(meta_env) => &meta_env.env,
+            MetaParam::Version(version) => &version.version,
+        }
+    }
+}
+
+impl Spanned for MetaParam {
+    fn span(&self) -> Span {
+        match self {
+            MetaParam::Types(param_types) => param_types.span(),
+            MetaParam::Version(param_version) => param_version.span(),
+        }
+    }
 }
 
 /// The environment types definition: `#[ink(env = DefaultSrmlTypes)]`
-#[derive(Debug)]
-pub struct MetaEnv {
+#[derive(Debug, Clone)]
+pub struct ParamTypes {
     /// The `env` identifier.
     pub env: Ident,
     /// The `=` token.
@@ -80,7 +119,7 @@ pub struct MetaEnv {
     pub ty: syn::Type,
 }
 
-impl MetaEnv {
+impl ParamTypes {
     /// Returns the span of `self`.
     pub fn span(&self) -> Span {
         self.env
@@ -91,8 +130,8 @@ impl MetaEnv {
 }
 
 /// The used ink! version: `#[ink(version = 0.1.0)]`
-#[derive(Debug)]
-pub struct MetaVersion {
+#[derive(Debug, Clone)]
+pub struct ParamVersion {
     /// The `version` identifier.
     pub version: Ident,
     /// The `=` token.
@@ -103,7 +142,7 @@ pub struct MetaVersion {
     pub parts: Punctuated<UnsuffixedLitInt, Token![,]>,
 }
 
-impl MetaVersion {
+impl ParamVersion {
     /// Returns the span of `self`.
     pub fn span(&self) -> Span {
         self.version
@@ -115,17 +154,17 @@ impl MetaVersion {
 
 impl Parse for Params {
     fn parse(input: ParseStream) -> Result<Self> {
-        let meta_infos = Punctuated::parse_terminated(input)?;
-        Ok(Self { meta_infos })
+        let params = Punctuated::parse_terminated(input)?;
+        Ok(Self { params })
     }
 }
 
-impl Parse for MetaInfo {
+impl Parse for MetaParam {
     fn parse(input: ParseStream) -> Result<Self> {
         let ident = input.fork().parse::<Ident>()?;
         match ident.to_string().as_str() {
-            "version" => input.parse::<MetaVersion>().map(Into::into),
-            "env" => input.parse::<MetaEnv>().map(Into::into),
+            "version" => input.parse::<ParamVersion>().map(Into::into),
+            "env" => input.parse::<ParamTypes>().map(Into::into),
             unknown => {
                 Err(format_err_span!(
                     ident.span(),
@@ -137,7 +176,7 @@ impl Parse for MetaInfo {
     }
 }
 
-impl Parse for MetaVersion {
+impl Parse for ParamVersion {
     fn parse(input: ParseStream) -> Result<Self> {
         let version_ident = input.parse()?;
         if version_ident != "version" {
@@ -162,7 +201,7 @@ impl Parse for MetaVersion {
     }
 }
 
-impl Parse for MetaEnv {
+impl Parse for ParamTypes {
     fn parse(input: ParseStream) -> Result<Self> {
         let env_ident = input.parse()?;
         if env_ident != "env" {
