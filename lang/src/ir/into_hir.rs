@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::ir::data::{
+use crate::ir::{
     Contract,
     FnArg,
     Function,
@@ -28,13 +28,8 @@ use crate::ir::data::{
     KindConstructor,
     KindMessage,
     Marker,
-    MetaEnv,
-    MetaInfo,
-    MetaVersion,
-    Params,
     Signature,
     SimpleMarker,
-    UnsuffixedLitInt,
 };
 use core::convert::TryFrom;
 use either::Either;
@@ -50,84 +45,6 @@ use syn::{
     Result,
     Token,
 };
-
-impl Parse for Params {
-    fn parse(input: ParseStream) -> Result<Self> {
-        let meta_infos = Punctuated::parse_terminated(input)?;
-        Ok(Self { meta_infos })
-    }
-}
-
-impl Parse for MetaInfo {
-    fn parse(input: ParseStream) -> Result<Self> {
-        let ident = input.fork().parse::<Ident>()?;
-        match ident.to_string().as_str() {
-            "version" => input.parse::<MetaVersion>().map(Into::into),
-            "env" => input.parse::<MetaEnv>().map(Into::into),
-            unknown => {
-                Err(format_err_span!(
-                    ident.span(),
-                    "unknown ink! meta information: {}",
-                    unknown
-                ))
-            }
-        }
-    }
-}
-
-impl Parse for UnsuffixedLitInt {
-    fn parse(input: ParseStream) -> Result<Self> {
-        let lit_int: syn::LitInt = input.parse()?;
-        if lit_int.suffix() != "" {
-            bail!(lit_int, "integer suffixes are not allowed here",)
-        }
-        Ok(Self { lit_int })
-    }
-}
-
-impl Parse for MetaVersion {
-    fn parse(input: ParseStream) -> Result<Self> {
-        let version_ident = input.parse()?;
-        if version_ident != "version" {
-            bail!(
-                version_ident,
-                "invalid identifier for meta version information",
-            )
-        }
-        let eq_token = input.parse()?;
-        let content;
-        let bracket_token = syn::bracketed!(content in input);
-        let parts = Punctuated::parse_terminated(&content)?;
-        if parts.len() != 3 {
-            bail_span!(bracket_token.span, "expected 3 elements in version array",)
-        }
-        Ok(Self {
-            version: version_ident,
-            eq_token,
-            bracket_token,
-            parts,
-        })
-    }
-}
-
-impl Parse for MetaEnv {
-    fn parse(input: ParseStream) -> Result<Self> {
-        let env_ident = input.parse()?;
-        if env_ident != "env" {
-            bail!(
-                env_ident,
-                "invalid identifier for meta environment information",
-            )
-        }
-        let eq_token = input.parse()?;
-        let ty = input.parse()?;
-        Ok(Self {
-            env: env_ident,
-            eq_token,
-            ty,
-        })
-    }
-}
 
 impl Parse for Marker {
     fn parse(input: ParseStream) -> Result<Self> {
@@ -368,43 +285,22 @@ impl TryFrom<syn::ImplItemMethod> for Function {
         //
         // Simple attributes are e.g. `#[ink(event)]` that have only
         // one simple identifier in their `(` and `)` body.
-        let (simple, non_simple): (Vec<_>, Vec<_>) = method
+        let simple = method
             .attrs
             .iter()
             .cloned()
             .filter_map(|attr| Marker::try_from(attr).ok())
-            .partition_map(|attr| {
-                match attr {
-                    Marker::Simple(simple) => Either::Left(simple),
-                    non_simple => Either::Right(non_simple),
-                }
+            .map(|attr| match attr {
+                Marker::Simple(simple) => simple,
             });
-        // Errors if unsupported or unknown non-simple ink! attributes
-        // were found for ink! functions.
-        if non_simple.len() != 0 {
-            return Err(non_simple
-                .into_iter()
-                .map(|non_simple| {
-                    format_err_span!(
-                        non_simple.span(),
-                        "encountered unsupported ink! attribute for function",
-                    )
-                })
-                .fold1(|mut err1, err2| {
-                    err1.combine(err2);
-                    err1
-                })
-                .expect("this must be some since we got at least one error; qed"))
-        }
-        let mut kind = FunctionKind::Method;
         // Checks for ink! attributes concerning ink! functions.
         //
         // Bails out into error upon unknown or unsupported found ink! attributes.
         // Also errors if some ink! attributes conflict, e.g. if there is a
         // `#[ink(constructor)]` and `#[ink(message)]` attribute or if there is
         // the same attribute multiple times.
+        let mut kind = FunctionKind::Method;
         if let Some(err) = simple
-            .iter()
             .map(|attr| {
                 let new_kind = match attr.ident.to_string().as_str() {
                     "constructor" => {

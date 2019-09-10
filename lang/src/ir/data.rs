@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use crate::ir::MetaInfo;
 use derive_more::From;
 use proc_macro2::{
     Ident,
@@ -142,7 +143,6 @@ impl Marker {
     pub fn get_simple(&self) -> Option<&Ident> {
         match self {
             Marker::Simple(marker_simple) => Some(&marker_simple.ident),
-            _ => None,
         }
     }
 }
@@ -170,106 +170,6 @@ impl SimpleMarker {
 impl PartialEq<str> for SimpleMarker {
     fn eq(&self, other: &str) -> bool {
         self.ident == other
-    }
-}
-
-/// Parameters given to ink!'s `#[contract(..)]` attribute.
-///
-/// # Example
-///
-/// ```no_compile
-/// #[ink::contract(env = DefaultSrmlTypes, version = 0.1.0)]
-/// ```
-pub struct Params {
-    /// The delimited meta information parameters.
-    pub meta_infos: Punctuated<MetaInfo, Token![,]>,
-}
-
-/// A specialized ink! contract meta information.
-///
-/// This information is usually given at the contract definition via attribute parameters.
-///
-/// # Example
-///
-/// ```no_compile
-/// #[ink::contract(
-///     env = DefaultSrmlTypes, // The used chain types.
-///     version = 0.1.0,        // The used ink! version.
-/// )]
-/// mod my_contract { ... }
-/// ```
-///
-/// # Note
-///
-/// Even though ink! could define some defaults for this meta information we currently
-/// require contracts to specify them and may relax this in the future.
-#[derive(Debug, From)]
-pub enum MetaInfo {
-    /// Environmental types definition: `#[ink(env = DefaultSrmlTypes)]`
-    Env(MetaEnv),
-    /// Information about the ink! version: `#[ink(version = x.y.z)]`
-    Version(MetaVersion),
-}
-
-/// The environment types definition: `#[ink(env = DefaultSrmlTypes)]`
-#[derive(Debug)]
-pub struct MetaEnv {
-    /// The `env` identifier.
-    pub env: Ident,
-    /// The `=` token.
-    pub eq_token: Token![=],
-    /// The environmental types type.
-    pub ty: syn::Type,
-}
-
-impl MetaEnv {
-    /// Returns the span of `self`.
-    pub fn span(&self) -> Span {
-        self.env
-            .span()
-            .join(self.ty.span())
-            .expect("both spans are in the same file AND we are using nightly Rust; qed")
-    }
-}
-
-/// An unsuffixed integer literal: `0` or `42` or `1337`
-#[derive(Debug)]
-pub struct UnsuffixedLitInt {
-    pub(crate) lit_int: syn::LitInt,
-}
-
-impl UnsuffixedLitInt {
-    /// Returns the unsuffixed literal integer.
-    pub fn lit_int(&self) -> &syn::LitInt {
-        &self.lit_int
-    }
-
-    /// Returns the span of `self`.
-    pub fn span(&self) -> Span {
-        self.lit_int.span()
-    }
-}
-
-/// The used ink! version: `#[ink(version = 0.1.0)]`
-#[derive(Debug)]
-pub struct MetaVersion {
-    /// The `version` identifier.
-    pub version: Ident,
-    /// The `=` token.
-    pub eq_token: Token![=],
-    /// The `[` and `]` surrounding the actual version information.
-    pub bracket_token: syn::token::Bracket,
-    /// The version information.
-    pub parts: Punctuated<UnsuffixedLitInt, Token![,]>,
-}
-
-impl MetaVersion {
-    /// Returns the span of `self`.
-    pub fn span(&self) -> Span {
-        self.version
-            .span()
-            .join(self.bracket_token.span)
-            .expect("both spans are in the same file AND we are using nightly Rust; qed")
     }
 }
 

@@ -16,23 +16,38 @@
 
 mod data;
 mod into_hir;
+mod params;
+mod utils;
 
 #[cfg(test)]
 mod tests;
 
-pub use self::data::{
-    Contract,
-    FnArg,
-    Function,
-    FunctionKind,
-    GenerateCode,
-    IdentType,
-    Item,
-    ItemEvent,
-    ItemImpl,
-    ItemStorage,
-    Marker,
-    MetaInfo,
-    Params,
-    Signature,
+pub use self::{
+    utils::{
+        UnsuffixedLitInt,
+    },
+    params::{
+        Params,
+        MetaInfo,
+        MetaEnv,
+        MetaVersion,
+    },
+    data::{
+        Contract,
+        FnArg,
+        Function,
+        FunctionKind,
+        GenerateCode,
+        IdentType,
+        Item,
+        ItemEvent,
+        ItemImpl,
+        ItemStorage,
+        Marker,
+        Signature,
+        FunctionSelector,
+        KindConstructor,
+        KindMessage,
+        SimpleMarker,
+    },
 };
