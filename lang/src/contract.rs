@@ -17,9 +17,6 @@
 use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
-
-// #[cfg(feature = "ink-generate-abi")]
-// use crate::old_abi;
 use crate::{
     codegen::GenerateCode as _,
     ir,
