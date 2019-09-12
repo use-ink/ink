@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::msg_handler::MessageHandlerSelector;
+use crate::Selector;
 
 /// Constructor and messages implement this to communicate their selectors.
 pub trait FnSelector {
     /// The selector.
-    const SELECTOR: MessageHandlerSelector;
+    const SELECTOR: Selector;
 }
 
 /// The input types of either a contructor or message.
@@ -64,8 +64,8 @@ macro_rules! constructors {
 		pub(crate) struct $name;
 
         impl $crate::FnSelector for $name {
-			const SELECTOR: $crate::MessageHandlerSelector =
-                $crate::MessageHandlerSelector::new($selector);
+			const SELECTOR: $crate::Selector =
+                $crate::Selector::new($selector);
         }
 
         impl $crate::FnInput for $name {
@@ -103,8 +103,8 @@ macro_rules! messages {
 		pub(crate) enum $name {}
 
         impl $crate::FnSelector for $name {
-			const SELECTOR: $crate::MessageHandlerSelector =
-                $crate::MessageHandlerSelector::new($selector);
+			const SELECTOR: $crate::Selector =
+                $crate::Selector::new($selector);
         }
 
         impl $crate::FnInput for $name {
@@ -161,8 +161,8 @@ macro_rules! messages {
 		pub(crate) enum $name {}
 
         impl $crate::FnSelector for $name {
-			const SELECTOR: $crate::MessageHandlerSelector =
-                $crate::MessageHandlerSelector::new($selector);
+			const SELECTOR: $crate::Selector =
+                $crate::Selector::new($selector);
         }
 
         impl $crate::FnInput for $name {
