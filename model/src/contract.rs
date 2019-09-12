@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+#[allow(unused)]
 use crate::{
     checks,
     exec_env::ExecutionEnv,
@@ -21,7 +22,7 @@ use crate::{
     FnInput,
     FnOutput,
     msg_handler::{
-        CallData,
+        CallAbi,
         MessageHandler,
         MessageHandlerMut,
         RawMessageHandler,
@@ -442,7 +443,7 @@ where
         // Internally calls the associated call<Msg>.
         use scale::Decode;
         let input = Env::input();
-        let call_data = CallData::decode(&mut &input[..]).unwrap();
+        let call_data = CallAbi::decode(&mut &input[..]).unwrap();
         let mut this = self;
         if let Err(err) = this.call_with_and_return(call_data) {
             return err
@@ -485,7 +486,7 @@ where
 
     /// Calls the message encoded by the given call data
     /// and returns the resulting value back to the caller.
-    fn call_with_and_return(&mut self, call_data: CallData) -> Result<(), RetCode> {
+    fn call_with_and_return(&mut self, call_data: CallAbi) -> Result<(), RetCode> {
         let result = self.call_with(call_data)?;
         if !result.is_empty() {
             self.env.return_data(result)
@@ -501,7 +502,7 @@ where
     ///   message that is encoded by the given call data.
     /// - If the encoded input arguments for the message do not
     ///   match the expected format.
-    fn call_with(&mut self, call_data: CallData) -> Result<Vec<u8>, RetCode> {
+    fn call_with(&mut self, call_data: CallAbi) -> Result<Vec<u8>, RetCode> {
         match self.handlers.handle_call(&mut self.env, call_data) {
             Ok(encoded_result) => Ok(encoded_result),
             Err(_err) => Err(RetCode::failure()),
@@ -531,7 +532,7 @@ where
         <Msg as FnOutput>::Output: scale::Decode,
     {
         let encoded_result = self
-            .call_with(CallData::from_msg::<Msg>(input))
+            .call_with(CallAbi::from_msg::<Msg>(input))
             .expect("`call` failed to execute properly");
         use scale::Decode;
         <Msg as FnOutput>::Output::decode(&mut &encoded_result[..])

@@ -52,15 +52,26 @@ pub type RawMessageHandlerMut<Msg, State, Env> = fn(
     <Msg as FnInput>::Input,
 ) -> <Msg as FnOutput>::Output;
 
+/// A hash to identify a called function.
+#[derive(Copy, Clone, PartialEq, Eq, Decode)]
+pub struct Selector(u32);
+
+impl Selector {
+    /// Creates a new message handler selector from the given value.
+    pub const fn new(raw: u32) -> Self {
+        Self(raw)
+    }
+}
+
 /// The raw data with which a contract is being called.
-pub struct CallData {
+pub struct CallAbi {
     /// The decoded message selector.
     selector: Selector,
     /// The raw undecoded parameter bytes.
     raw_params: Vec<u8>,
 }
 
-impl Decode for CallData {
+impl Decode for CallAbi {
     fn decode<I: scale::Input>(input: &mut I) -> CoreResult<Self, scale::Error> {
         let selector = Selector::decode(input)?;
         let mut param_buf = Vec::new();
@@ -74,7 +85,7 @@ impl Decode for CallData {
     }
 }
 
-impl CallData {
+impl CallAbi {
     /// Returns the message handler selector part of this call data.
     pub fn selector(&self) -> Selector {
         self.selector
@@ -101,17 +112,6 @@ impl CallData {
             selector: <Msg as FnSelector>::SELECTOR,
             raw_params: args.encode(),
         }
-    }
-}
-
-/// A hash to identify a called function.
-#[derive(Copy, Clone, PartialEq, Eq, Decode)]
-pub struct Selector(u32);
-
-impl Selector {
-    /// Creates a new message handler selector from the given value.
-    pub const fn new(raw: u32) -> Self {
-        Self(raw)
     }
 }
 
@@ -284,7 +284,7 @@ pub trait HandleCall<State, Env> {
     fn handle_call(
         &self,
         env: &mut ExecutionEnv<State, Env>,
-        data: CallData,
+        data: CallAbi,
     ) -> Result<Vec<u8>>;
 }
 
@@ -302,7 +302,7 @@ impl<State, Env> HandleCall<State, Env> for UnreachableMessageHandler {
     fn handle_call(
         &self,
         _env: &mut ExecutionEnv<State, Env>,
-        _data: CallData,
+        _data: CallAbi,
     ) -> Result<Vec<u8>> {
         Err(Error::InvalidFunctionSelector)
     }
@@ -321,7 +321,7 @@ macro_rules! impl_handle_call_for_chain {
             fn handle_call(
                 &self,
                 env: &mut ExecutionEnv<State, Env>,
-                data: CallData,
+                data: CallAbi,
             ) -> Result<Vec<u8>> {
                 let args = <Msg as FnInput>::Input::decode(&mut &data.params()[..])
                     .map_err(|_| Error::InvalidArguments)?;
@@ -346,7 +346,7 @@ macro_rules! impl_handle_call_for_chain {
             fn handle_call(
                 &self,
                 env: &mut ExecutionEnv<State, Env>,
-                data: CallData,
+                data: CallAbi,
             ) -> Result<Vec<u8>> {
                 let (handler, rest) = self;
                 if $msg_handler_kind::<Msg, State, Env>::selector() == data.selector() {

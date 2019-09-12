@@ -82,7 +82,7 @@ pub use crate::{
         Named,
     },
     msg_handler::{
-        CallData,
+        CallAbi,
         Error,
         HandleCall,
         MessageHandler,
