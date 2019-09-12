@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use crate::Named;
 use ink_core::storage::{
     alloc::{
         AllocateUsing,
@@ -23,16 +24,7 @@ use ink_core::storage::{
 };
 
 /// Types implementing this type can be used as contract state.
-pub trait ContractState: AllocateUsing + Initialize + Flush {
-    /// The name of the contract state.
-    ///
-    /// # Note
-    ///
-    /// - This must be a valid Rust identifier.
-    /// - Normally this reflects the name of the contract.
-    // const NAME: &'static str;
-    const NAME: &'static str;
-}
+pub trait Storage: AllocateUsing + Initialize + Flush + Named {}
 
 /// Define contract state with less boilerplate code.
 #[macro_export]
@@ -92,9 +84,11 @@ macro_rules! state {
             }
         }
 
-		impl $crate::ContractState for $state_name {
+        impl $crate::Named for $state_name {
 			const NAME: &'static str = stringify!($state_name);
-		}
+        }
+
+		impl $crate::Storage for $state_name {}
 	};
 	(
 		$( #[$state_meta:meta] )*

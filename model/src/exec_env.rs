@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::ContractState;
+use crate::Storage;
 use core::marker::PhantomData;
 use ink_core::{
     env::{
@@ -44,7 +44,7 @@ pub struct ExecutionEnv<State, Env> {
 
 impl<State, Env> AllocateUsing for ExecutionEnv<State, Env>
 where
-    State: ContractState,
+    State: Storage,
 {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
@@ -58,7 +58,7 @@ where
 
 impl<State, Env> Initialize for ExecutionEnv<State, Env>
 where
-    State: ContractState,
+    State: Storage,
 {
     type Args = ();
 
