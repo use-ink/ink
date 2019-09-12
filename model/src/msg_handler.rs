@@ -15,6 +15,9 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+    FnInput,
+    FnOutput,
+    FnSelector,
     exec_env::ExecutionEnv,
     msg::Message,
     state::ContractState,
@@ -36,7 +39,7 @@ use scale::Decode;
 /// - Read-only message handlers cannot mutate contract state.
 /// - Requires `Msg` to impl `Message` and `State` to impl `ContractState`.
 pub type RawMessageHandler<Msg, State, Env> =
-    fn(&ExecutionEnv<State, Env>, <Msg as Message>::Input) -> <Msg as Message>::Output;
+    fn(&ExecutionEnv<State, Env>, <Msg as FnInput>::Input) -> <Msg as FnOutput>::Output;
 
 /// A raw mutable message handler for the given message and state.
 ///
@@ -46,8 +49,8 @@ pub type RawMessageHandler<Msg, State, Env> =
 /// - Requires `Msg` to impl `Message` and `State` to impl `ContractState`.
 pub type RawMessageHandlerMut<Msg, State, Env> = fn(
     &mut ExecutionEnv<State, Env>,
-    <Msg as Message>::Input,
-) -> <Msg as Message>::Output;
+    <Msg as FnInput>::Input,
+) -> <Msg as FnOutput>::Output;
 
 /// The raw data with which a contract is being called.
 pub struct CallData {
@@ -88,14 +91,14 @@ impl CallData {
     ///
     /// This should normally only be needed in test code if a user
     /// wants to test the handling of a specific message.
-    pub fn from_msg<Msg>(args: <Msg as Message>::Input) -> Self
+    pub fn from_msg<Msg>(args: <Msg as FnInput>::Input) -> Self
     where
         Msg: Message,
-        <Msg as Message>::Input: scale::Encode,
+        <Msg as FnInput>::Input: scale::Encode,
     {
         use scale::Encode;
         Self {
-            selector: <Msg as Message>::SELECTOR,
+            selector: <Msg as FnSelector>::SELECTOR,
             raw_params: args.encode(),
         }
     }
@@ -137,7 +140,7 @@ where
 {
     /// Returns the associated handler selector.
     pub const fn selector() -> MessageHandlerSelector {
-        <Msg as Message>::SELECTOR
+        <Msg as FnSelector>::SELECTOR
     }
 }
 
@@ -245,7 +248,7 @@ where
 {
     /// Returns the associated handler selector.
     pub const fn selector() -> MessageHandlerSelector {
-        <Msg as Message>::SELECTOR
+        <Msg as FnSelector>::SELECTOR
     }
 }
 
@@ -311,7 +314,7 @@ macro_rules! impl_handle_call_for_chain {
             for $msg_handler_kind<Msg, State, Env>
         where
             Msg: Message,
-            <Msg as Message>::Output: scale::Encode,
+            <Msg as FnOutput>::Output: scale::Encode,
             State: ContractState,
             Env: env::Env,
         {
@@ -320,7 +323,7 @@ macro_rules! impl_handle_call_for_chain {
                 env: &mut ExecutionEnv<State, Env>,
                 data: CallData,
             ) -> Result<Vec<u8>> {
-                let args = <Msg as Message>::Input::decode(&mut &data.params()[..])
+                let args = <Msg as FnInput>::Input::decode(&mut &data.params()[..])
                     .map_err(|_| Error::InvalidArguments)?;
                 let result = (self.raw_handler)(env, args);
                 if $requires_flushing {
@@ -335,7 +338,7 @@ macro_rules! impl_handle_call_for_chain {
             for ($msg_handler_kind<Msg, State, Env>, Rest)
         where
             Msg: Message,
-            <Msg as Message>::Output: 'static,
+            <Msg as FnOutput>::Output: 'static,
             State: ContractState,
             Env: env::Env,
             Rest: HandleCall<State, Env>,
