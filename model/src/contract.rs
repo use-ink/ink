@@ -15,6 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+    checks,
     exec_env::ExecutionEnv,
     msg::Message,
     msg_handler::{
@@ -237,7 +238,8 @@ where
         (MessageHandlerMut<Msg, State, Env>, HandlerChain),
     >
     where
-        Msg: Message,
+        Msg: Message + checks::CheckIsMessageMut,
+        <<Msg as checks::CheckIsMessageMut>::Value as checks::IsMessageMutRename>::Value: checks::IsMessageMut,
         State: ContractState,
         Env: env::Env,
     {

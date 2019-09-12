@@ -57,6 +57,8 @@ mod contract;
 mod exec_env;
 mod msg_handler;
 
+pub mod checks;
+
 pub use crate::{
     contract::{
         Contract,
