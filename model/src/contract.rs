@@ -29,7 +29,7 @@ use crate::{
         RawMessageHandlerMut,
         UnreachableMessageHandler,
     },
-    state::Storage,
+    Storage,
 };
 use core::marker::PhantomData;
 use ink_core::{

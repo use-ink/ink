@@ -48,7 +48,7 @@
 )]
 
 #[macro_use]
-mod state;
+mod storage;
 
 #[macro_use]
 mod msg;
@@ -93,7 +93,7 @@ pub use crate::{
         Result,
         UnreachableMessageHandler,
     },
-    state::{
+    storage::{
         Storage,
     },
 };
