@@ -20,7 +20,7 @@ use crate::{
     FnSelector,
     exec_env::ExecutionEnv,
     msg::Message,
-    state::Storage,
+    Storage,
 };
 use core::{
     marker::PhantomData,

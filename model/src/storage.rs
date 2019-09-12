@@ -28,7 +28,7 @@ pub trait Storage: AllocateUsing + Initialize + Flush + Named {}
 
 /// Define contract state with less boilerplate code.
 #[macro_export]
-macro_rules! state {
+macro_rules! storage {
 	(
 		$( #[$state_meta:meta] )*
 		$vis:vis struct $state_name:ident {
@@ -99,7 +99,7 @@ macro_rules! state {
 			),*
 		}
 	) => {
-		$crate::state! {
+		$crate::storage! {
 			$vis struct $state_name {
 				$(
 					$( #[$field_meta] )*

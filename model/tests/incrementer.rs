@@ -22,18 +22,24 @@ use ink_core::{
     storage,
 };
 use ink_model::{
+    constructors,
     messages,
-    state,
+    storage,
     ContractDecl,
     TestableContract,
 };
 
-state! {
+storage! {
     /// A simple contract having just one value that can be incremented and returned.
     struct Adder {
         /// The simple value on the contract storage.
         val: storage::Value<u32>
     }
+}
+
+constructors! {
+    /// Initializes the contract with the initial value.
+    0 => New(init_value: u32);
 }
 
 messages! {
@@ -58,27 +64,32 @@ fn instantiate() -> impl TestableContract<DeployArgs = u32> {
 		.instantiate()
 }
 
-#[test]
-fn inc_and_read() {
-    let mut contract = instantiate();
-    contract.deploy(0_u32);
-    assert_eq!(contract.call::<Get>(()), 0_u32);
-    contract.call::<Inc>(1);
-    assert_eq!(contract.call::<Get>(()), 1_u32);
-    contract.call::<Inc>(41);
-    assert_eq!(contract.call::<Get>(()), 42_u32);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-#[should_panic]
-fn read_without_deploy() {
-    let mut contract = instantiate();
-    let _res = contract.call::<Get>(());
-}
+    #[test]
+    fn inc_and_read() {
+        let mut contract = instantiate();
+        contract.deploy(0_u32);
+        assert_eq!(contract.call::<Get>(()), 0_u32);
+        contract.call::<Inc>(1);
+        assert_eq!(contract.call::<Get>(()), 1_u32);
+        contract.call::<Inc>(41);
+        assert_eq!(contract.call::<Get>(()), 42_u32);
+    }
 
-#[test]
-#[should_panic]
-fn write_without_deploy() {
-    let mut contract = instantiate();
-    contract.call::<Inc>(100);
+    #[test]
+    #[should_panic]
+    fn read_without_deploy() {
+        let mut contract = instantiate();
+        let _res = contract.call::<Get>(());
+    }
+
+    #[test]
+    #[should_panic]
+    fn write_without_deploy() {
+        let mut contract = instantiate();
+        contract.call::<Inc>(100);
+    }
 }

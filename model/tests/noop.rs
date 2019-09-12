@@ -22,13 +22,13 @@ use ink_core::env::{
 };
 use ink_model::{
     messages,
-    state,
+    storage,
     Contract,
     ContractDecl,
     EnvHandler,
 };
 
-state! {
+storage! {
     /// The simplest contract that can still be deployed and called.
     struct Noop {}
 }
