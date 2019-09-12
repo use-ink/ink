@@ -18,6 +18,8 @@ use crate::{
     checks,
     exec_env::ExecutionEnv,
     msg::Message,
+    FnInput,
+    FnOutput,
     msg_handler::{
         CallData,
         MessageHandler,
@@ -376,11 +378,11 @@ pub trait TestableContract {
     /// # Panics
     ///
     /// If the contract has no message handler setup for the given message.
-    fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
+    fn call<Msg>(&mut self, input: <Msg as FnInput>::Input) -> <Msg as FnOutput>::Output
     where
         Msg: Message,
-        <Msg as Message>::Input: scale::Encode,
-        <Msg as Message>::Output: scale::Decode;
+        <Msg as FnInput>::Input: scale::Encode,
+        <Msg as FnOutput>::Output: scale::Decode;
 }
 
 /// An instance of a contract.
@@ -522,17 +524,17 @@ where
             .expect("`deploy` failed to execute properly")
     }
 
-    fn call<Msg>(&mut self, input: <Msg as Message>::Input) -> <Msg as Message>::Output
+    fn call<Msg>(&mut self, input: <Msg as FnInput>::Input) -> <Msg as FnOutput>::Output
     where
         Msg: Message,
-        <Msg as Message>::Input: scale::Encode,
-        <Msg as Message>::Output: scale::Decode,
+        <Msg as FnInput>::Input: scale::Encode,
+        <Msg as FnOutput>::Output: scale::Decode,
     {
         let encoded_result = self
             .call_with(CallData::from_msg::<Msg>(input))
             .expect("`call` failed to execute properly");
         use scale::Decode;
-        <Msg as Message>::Output::decode(&mut &encoded_result[..])
+        <Msg as FnOutput>::Output::decode(&mut &encoded_result[..])
             .expect("`call_with` only encodes the correct types")
     }
 }

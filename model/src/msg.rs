@@ -16,24 +16,74 @@
 
 use crate::msg_handler::MessageHandlerSelector;
 
-/// Types implementing this trait are usable as contract messages.
-pub trait Message {
-    /// The expected input type, also known as parameter types.
-    type Input: scale::Decode;
-    /// The output of the message, also known as return type.
-    type Output: scale::Encode + 'static;
-    /// The user provided message selector.
-    ///
-    /// This identifier must be unique for every message.
+/// Constructor and messages implement this to communicate their selectors.
+pub trait FnSelector {
+    /// The selector.
     const SELECTOR: MessageHandlerSelector;
-    /// Whether the message is allowed to mutate state.
-    const IS_MUT: bool;
-    /// The name of the message.
-    ///
-    /// # Note
-    ///
-    /// This must be a valid Rust identifier.
+}
+
+/// The input types of either a contructor or message.
+pub trait FnInput {
+    /// The inputs.
+    type Input: scale::Decode;
+}
+
+/// The output type of a constructor or message.
+pub trait FnOutput {
+    /// The output.
+    type Output: scale::Encode + 'static;
+}
+
+/// The compile-time known name of an entity.
+pub trait Named {
+    /// The name.
     const NAME: &'static str;
+}
+
+/// Types implementing this trait are usable as constructors.
+pub trait Constructor: FnSelector + FnInput + FnOutput + Named {}
+
+/// Types implementing this trait are usable as contract messages.
+pub trait Message: FnSelector + FnInput + FnOutput + Named {
+    const IS_MUT: bool;
+}
+
+/// Defines constructors for contracts with less boilerplate code.
+#[macro_export]
+macro_rules! constructors {
+	(
+		$( #[$attr:meta] )*
+		$selector:literal => $name:ident (
+			$( $param_name:ident : $param_ty:ty ),*
+		);
+
+		$($rest:tt)*
+	) => {
+		$( #[$attr] )*
+		#[derive(Copy, Clone)]
+		pub(crate) struct $name;
+
+        impl $crate::FnSelector for $name {
+			const SELECTOR: $crate::MessageHandlerSelector =
+                $crate::MessageHandlerSelector::new($selector);
+        }
+
+        impl $crate::FnInput for $name {
+            type Input = ( $($param_ty),* );
+        }
+
+        impl $crate::FnOutput for $name {
+            type Output = ();
+        }
+
+        impl $crate::Named for $name {
+            const NAME: &'static str = stringify!($name);
+        }
+
+		impl $crate::Constructor for $name {}
+
+		messages!($($rest)*);
+	};
 }
 
 /// Defines messages for contracts with less boilerplate code.
@@ -41,27 +91,39 @@ pub trait Message {
 macro_rules! messages {
     // Rule for `&self` message with a return type.
 	(
-		$( #[$msg_meta:meta] )*
-		$msg_id:literal => $msg_name:ident (
+		$( #[$attr:meta] )*
+		$selector:literal => $name:ident (
 			&self $( , $param_name:ident : $param_ty:ty )* $(,)?
-		) -> $ret_ty:ty ;
+		) -> $output:ty ;
 
 		$($rest:tt)*
 	) => {
-		$( #[$msg_meta] )*
+		$( #[$attr] )*
 		#[derive(Copy, Clone)]
-		pub(crate) struct $msg_name;
+		pub(crate) enum $name {}
 
-		impl $crate::Message for $msg_name {
-			type Input = ($($param_ty),*);
-			type Output = $ret_ty;
+        impl $crate::FnSelector for $name {
+			const SELECTOR: $crate::MessageHandlerSelector =
+                $crate::MessageHandlerSelector::new($selector);
+        }
 
+        impl $crate::FnInput for $name {
+            type Input = ( $($param_ty),* );
+        }
+
+        impl $crate::FnOutput for $name {
+            type Output = $output;
+        }
+
+        impl $crate::Named for $name {
+            const NAME: &'static str = stringify!($name);
+        }
+
+		impl $crate::Message for $name {
             const IS_MUT: bool = false;
-			const SELECTOR: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
-			const NAME: &'static str = stringify!($msg_name);
 		}
 
-        impl $crate::checks::CheckIsMessageMut for $msg_name {
+        impl $crate::checks::CheckIsMessageMut for $name {
             type Value = [Self; <Self as $crate::Message>::IS_MUT as usize];
         }
 
@@ -69,16 +131,16 @@ macro_rules! messages {
 	};
     // Rule for `&self` message without a return type.
 	(
-		$( #[$msg_meta:meta] )*
-		$msg_id:literal => $msg_name:ident (
+		$( #[$attr:meta] )*
+		$selector:literal => $name:ident (
 			&self $( , $param_name:ident : $param_ty:ty )* $(,)?
 		) ;
 
 		$($rest:tt)*
 	) => {
 		messages!(
-			$( #[$msg_meta] )*
-			$msg_id => $msg_name (
+			$( #[$attr] )*
+			$selector => $name (
 				&self $( , $param_name : $param_ty )*
 			) -> ();
 
@@ -87,27 +149,39 @@ macro_rules! messages {
 	};
     // Rule for `&mut self` message with a return type.
 	(
-		$( #[$msg_meta:meta] )*
-		$msg_id:literal => $msg_name:ident (
+		$( #[$attr:meta] )*
+		$selector:literal => $name:ident (
 			&mut self $( , $param_name:ident : $param_ty:ty )* $(,)?
-		) -> $ret_ty:ty ;
+		) -> $output:ty ;
 
 		$($rest:tt)*
 	) => {
-		$( #[$msg_meta] )*
+		$( #[$attr] )*
 		#[derive(Copy, Clone)]
-		pub(crate) struct $msg_name;
+		pub(crate) enum $name {}
 
-		impl $crate::Message for $msg_name {
-			type Input = ($($param_ty),*);
-			type Output = $ret_ty;
+        impl $crate::FnSelector for $name {
+			const SELECTOR: $crate::MessageHandlerSelector =
+                $crate::MessageHandlerSelector::new($selector);
+        }
 
+        impl $crate::FnInput for $name {
+            type Input = ( $($param_ty),* );
+        }
+
+        impl $crate::FnOutput for $name {
+            type Output = $output;
+        }
+
+        impl $crate::Named for $name {
+            const NAME: &'static str = stringify!($name);
+        }
+
+		impl $crate::Message for $name {
             const IS_MUT: bool = true;
-			const SELECTOR: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
-			const NAME: &'static str = stringify!($msg_name);
 		}
 
-        impl $crate::checks::CheckIsMessageMut for $msg_name {
+        impl $crate::checks::CheckIsMessageMut for $name {
             type Value = [Self; <Self as $crate::Message>::IS_MUT as usize];
         }
 
@@ -115,16 +189,16 @@ macro_rules! messages {
 	};
     // Rule for `&mut self` message without a return type.
 	(
-		$( #[$msg_meta:meta] )*
-		$msg_id:literal => $msg_name:ident (
+		$( #[$attr:meta] )*
+		$selector:literal => $name:ident (
 			&mut self $( , $param_name:ident : $param_ty:ty )* $(,)?
 		) ;
 
 		$($rest:tt)*
 	) => {
 		messages!(
-			$( #[$msg_meta] )*
-			$msg_id => $msg_name (
+			$( #[$attr] )*
+			$selector => $name (
 				&mut self $( , $param_name : $param_ty )*
 			) -> ();
 

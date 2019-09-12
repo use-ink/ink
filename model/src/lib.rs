@@ -73,7 +73,14 @@ pub use crate::{
         EnvHandler,
         ExecutionEnv,
     },
-    msg::Message,
+    msg::{
+        Constructor,
+        Message,
+        FnSelector,
+        FnInput,
+        FnOutput,
+        Named,
+    },
     msg_handler::{
         CallData,
         Error,
