@@ -65,7 +65,7 @@ pub use crate::{
         ContractDecl,
         ContractInstance,
         DeployHandler,
-        EmptyContractState,
+        EmptyStorage,
         NoDeployArgs,
         TestableContract,
     },
@@ -93,5 +93,7 @@ pub use crate::{
         Result,
         UnreachableMessageHandler,
     },
-    state::ContractState,
+    state::{
+        Storage,
+    },
 };

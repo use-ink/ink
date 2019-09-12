@@ -29,7 +29,7 @@ use crate::{
         RawMessageHandlerMut,
         UnreachableMessageHandler,
     },
-    state::ContractState,
+    state::Storage,
 };
 use core::marker::PhantomData;
 use ink_core::{
@@ -148,13 +148,13 @@ where
 
 /// An empty contract state.
 #[derive(Copy, Clone)]
-pub struct EmptyContractState;
+pub struct EmptyStorage;
 
 /// An empty env.
 #[derive(Copy, Clone)]
 pub struct EmptyEnv;
 
-impl ContractDecl<EmptyContractState, EmptyEnv, NoDeployArgs, UnreachableMessageHandler> {
+impl ContractDecl<EmptyStorage, EmptyEnv, NoDeployArgs, UnreachableMessageHandler> {
     /// Creates a new contract declaration with the given name.
     pub const fn using<State, Env>(
     ) -> ContractDecl<State, Env, NoDeployArgs, UnreachableMessageHandler> {
@@ -220,7 +220,7 @@ where
     >
     where
         Msg: Message,
-        State: ContractState,
+        State: Storage,
         Env: env::Env,
     {
         self.append_msg_handler(MessageHandler::from_raw(handler))
@@ -243,7 +243,7 @@ where
     where
         Msg: Message + checks::CheckIsMessageMut,
         <<Msg as checks::CheckIsMessageMut>::Value as checks::IsMessageMutRename>::Value: checks::IsMessageMut,
-        State: ContractState,
+        State: Storage,
         Env: env::Env,
     {
         self.append_msg_handler(MessageHandlerMut::from_raw(handler))
@@ -254,7 +254,7 @@ impl<State, Env, DeployArgs, HandlerChain>
     ContractDecl<State, Env, DeployArgs, HandlerChain>
 where
     // Self: Copy, // Required in order to make this compile-time computable.
-    State: ContractState,
+    State: Storage,
 {
     /// Creates an instance of the contract declaration.
     ///
@@ -402,7 +402,7 @@ pub struct ContractInstance<State, Env, DeployArgs, HandlerChain> {
 impl<State, Env, DeployArgs, HandlerChain> Contract
     for ContractInstance<State, Env, DeployArgs, HandlerChain>
 where
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
     DeployArgs: scale::Decode,
     HandlerChain: crate::HandleCall<State, Env>,
@@ -456,7 +456,7 @@ where
 impl<State, Env, DeployArgs, HandlerChain>
     ContractInstance<State, Env, DeployArgs, HandlerChain>
 where
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
     DeployArgs: scale::Decode,
     HandlerChain: crate::HandleCall<State, Env>,
@@ -513,7 +513,7 @@ where
 impl<State, Env, DeployArgs, HandlerChain> TestableContract
     for ContractInstance<State, Env, DeployArgs, HandlerChain>
 where
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
     DeployArgs: scale::Codec,
     HandlerChain: crate::HandleCall<State, Env>,

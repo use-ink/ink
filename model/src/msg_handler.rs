@@ -20,7 +20,7 @@ use crate::{
     FnSelector,
     exec_env::ExecutionEnv,
     msg::Message,
-    state::ContractState,
+    state::Storage,
 };
 use core::{
     marker::PhantomData,
@@ -37,7 +37,7 @@ use scale::Decode;
 /// # Note
 ///
 /// - Read-only message handlers cannot mutate contract state.
-/// - Requires `Msg` to impl `Message` and `State` to impl `ContractState`.
+/// - Requires `Msg` to impl `Message` and `State` to impl `Storage`.
 pub type RawMessageHandler<Msg, State, Env> =
     fn(&ExecutionEnv<State, Env>, <Msg as FnInput>::Input) -> <Msg as FnOutput>::Output;
 
@@ -46,7 +46,7 @@ pub type RawMessageHandler<Msg, State, Env> =
 /// # Note
 ///
 /// - Mutable message handlers may mutate contract state.
-/// - Requires `Msg` to impl `Message` and `State` to impl `ContractState`.
+/// - Requires `Msg` to impl `Message` and `State` to impl `Storage`.
 pub type RawMessageHandlerMut<Msg, State, Env> = fn(
     &mut ExecutionEnv<State, Env>,
     <Msg as FnInput>::Input,
@@ -121,7 +121,7 @@ impl CallAbi {
 pub struct MessageHandler<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
     /// Required in order to trick Rust into thinking that it actually owns a message.
@@ -135,7 +135,7 @@ where
 impl<Msg, State, Env> MessageHandler<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
     /// Returns the associated handler selector.
@@ -147,7 +147,7 @@ where
 impl<Msg, State, Env> Copy for MessageHandler<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
 }
@@ -155,7 +155,7 @@ where
 impl<Msg, State, Env> Clone for MessageHandler<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
     fn clone(&self) -> Self {
@@ -169,7 +169,7 @@ where
 impl<Msg, State, Env> MessageHandler<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
     /// Constructs a message handler from its raw counterpart.
@@ -192,7 +192,7 @@ where
 pub struct MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
     /// Required in order to trick Rust into thinking that it actually owns a message.
@@ -206,7 +206,7 @@ where
 impl<Msg, State, Env> Copy for MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
 }
@@ -214,7 +214,7 @@ where
 impl<Msg, State, Env> Clone for MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
     fn clone(&self) -> Self {
@@ -228,7 +228,7 @@ where
 impl<Msg, State, Env> MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
     /// Constructs a message handler from its raw counterpart.
@@ -243,7 +243,7 @@ where
 impl<Msg, State, Env> MessageHandlerMut<Msg, State, Env>
 where
     Msg: Message,
-    State: ContractState,
+    State: Storage,
     Env: env::Env,
 {
     /// Returns the associated handler selector.
@@ -315,7 +315,7 @@ macro_rules! impl_handle_call_for_chain {
         where
             Msg: Message,
             <Msg as FnOutput>::Output: scale::Encode,
-            State: ContractState,
+            State: Storage,
             Env: env::Env,
         {
             fn handle_call(
@@ -339,7 +339,7 @@ macro_rules! impl_handle_call_for_chain {
         where
             Msg: Message,
             <Msg as FnOutput>::Output: 'static,
-            State: ContractState,
+            State: Storage,
             Env: env::Env,
             Rest: HandleCall<State, Env>,
         {
