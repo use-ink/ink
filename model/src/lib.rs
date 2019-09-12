@@ -87,7 +87,7 @@ pub use crate::{
         HandleCall,
         MessageHandler,
         MessageHandlerMut,
-        MessageHandlerSelector,
+        Selector,
         RawMessageHandler,
         RawMessageHandlerMut,
         Result,

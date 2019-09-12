@@ -55,14 +55,14 @@ pub type RawMessageHandlerMut<Msg, State, Env> = fn(
 /// The raw data with which a contract is being called.
 pub struct CallData {
     /// The decoded message selector.
-    selector: MessageHandlerSelector,
+    selector: Selector,
     /// The raw undecoded parameter bytes.
     raw_params: Vec<u8>,
 }
 
 impl Decode for CallData {
     fn decode<I: scale::Input>(input: &mut I) -> CoreResult<Self, scale::Error> {
-        let selector = MessageHandlerSelector::decode(input)?;
+        let selector = Selector::decode(input)?;
         let mut param_buf = Vec::new();
         while let Ok(byte) = input.read_byte() {
             param_buf.push(byte)
@@ -76,7 +76,7 @@ impl Decode for CallData {
 
 impl CallData {
     /// Returns the message handler selector part of this call data.
-    pub fn selector(&self) -> MessageHandlerSelector {
+    pub fn selector(&self) -> Selector {
         self.selector
     }
 
@@ -106,9 +106,9 @@ impl CallData {
 
 /// A hash to identify a called function.
 #[derive(Copy, Clone, PartialEq, Eq, Decode)]
-pub struct MessageHandlerSelector(u32);
+pub struct Selector(u32);
 
-impl MessageHandlerSelector {
+impl Selector {
     /// Creates a new message handler selector from the given value.
     pub const fn new(raw: u32) -> Self {
         Self(raw)
@@ -139,7 +139,7 @@ where
     Env: env::Env,
 {
     /// Returns the associated handler selector.
-    pub const fn selector() -> MessageHandlerSelector {
+    pub const fn selector() -> Selector {
         <Msg as FnSelector>::SELECTOR
     }
 }
@@ -247,7 +247,7 @@ where
     Env: env::Env,
 {
     /// Returns the associated handler selector.
-    pub const fn selector() -> MessageHandlerSelector {
+    pub const fn selector() -> Selector {
         <Msg as FnSelector>::SELECTOR
     }
 }
