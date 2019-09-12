@@ -95,7 +95,7 @@ impl CallData {
     {
         use scale::Encode;
         Self {
-            selector: <Msg as Message>::ID,
+            selector: <Msg as Message>::SELECTOR,
             raw_params: args.encode(),
         }
     }
@@ -137,7 +137,7 @@ where
 {
     /// Returns the associated handler selector.
     pub const fn selector() -> MessageHandlerSelector {
-        <Msg as Message>::ID
+        <Msg as Message>::SELECTOR
     }
 }
 
@@ -245,7 +245,7 @@ where
 {
     /// Returns the associated handler selector.
     pub const fn selector() -> MessageHandlerSelector {
-        <Msg as Message>::ID
+        <Msg as Message>::SELECTOR
     }
 }
 

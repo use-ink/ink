@@ -38,9 +38,9 @@ state! {
 
 messages! {
     /// Increases the storage value by the given amount.
-    0 => Inc(by: u32);
+    0 => Inc(&mut self, by: u32);
     /// Returns the storage value.
-    1 => Get() -> u32;
+    1 => Get(&self) -> u32;
 }
 
 #[rustfmt::skip]

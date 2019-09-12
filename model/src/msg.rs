@@ -16,19 +16,18 @@
 
 use crate::msg_handler::MessageHandlerSelector;
 
-/// A message with an expected input type and output (result) type.
+/// Types implementing this trait are usable as contract messages.
 pub trait Message {
     /// The expected input type, also known as parameter types.
     type Input: scale::Decode;
-
     /// The output of the message, also known as return type.
     type Output: scale::Encode + 'static;
-
     /// The user provided message selector.
     ///
     /// This identifier must be unique for every message.
-    const ID: MessageHandlerSelector;
-
+    const SELECTOR: MessageHandlerSelector;
+    /// Whether the message is allowed to mutate state.
+    const IS_MUT: bool;
     /// The name of the message.
     ///
     /// # Note
@@ -40,10 +39,11 @@ pub trait Message {
 /// Defines messages for contracts with less boilerplate code.
 #[macro_export]
 macro_rules! messages {
+    // Rule for `&self` message with a return type.
 	(
 		$( #[$msg_meta:meta] )*
 		$msg_id:literal => $msg_name:ident (
-			$( $param_name:ident : $param_ty:ty ),*
+			&self $( , $param_name:ident : $param_ty:ty )* $(,)?
 		) -> $ret_ty:ty ;
 
 		$($rest:tt)*
@@ -56,16 +56,22 @@ macro_rules! messages {
 			type Input = ($($param_ty),*);
 			type Output = $ret_ty;
 
-			const ID: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
+            const IS_MUT: bool = false;
+			const SELECTOR: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
 			const NAME: &'static str = stringify!($msg_name);
 		}
 
+        impl $crate::checks::CheckIsMessageMut for $msg_name {
+            type Value = [Self; <Self as $crate::Message>::IS_MUT as usize];
+        }
+
 		messages!($($rest)*);
 	};
+    // Rule for `&self` message without a return type.
 	(
 		$( #[$msg_meta:meta] )*
 		$msg_id:literal => $msg_name:ident (
-			$( $param_name:ident : $param_ty:ty ),*
+			&self $( , $param_name:ident : $param_ty:ty )* $(,)?
 		) ;
 
 		$($rest:tt)*
@@ -73,11 +79,58 @@ macro_rules! messages {
 		messages!(
 			$( #[$msg_meta] )*
 			$msg_id => $msg_name (
-				$( $param_name : $param_ty ),*
+				&self $( , $param_name : $param_ty )*
 			) -> ();
 
 			$($rest)*
 		);
 	};
+    // Rule for `&mut self` message with a return type.
+	(
+		$( #[$msg_meta:meta] )*
+		$msg_id:literal => $msg_name:ident (
+			&mut self $( , $param_name:ident : $param_ty:ty )* $(,)?
+		) -> $ret_ty:ty ;
+
+		$($rest:tt)*
+	) => {
+		$( #[$msg_meta] )*
+		#[derive(Copy, Clone)]
+		pub(crate) struct $msg_name;
+
+		impl $crate::Message for $msg_name {
+			type Input = ($($param_ty),*);
+			type Output = $ret_ty;
+
+            const IS_MUT: bool = true;
+			const SELECTOR: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
+			const NAME: &'static str = stringify!($msg_name);
+		}
+
+        impl $crate::checks::CheckIsMessageMut for $msg_name {
+            type Value = [Self; <Self as $crate::Message>::IS_MUT as usize];
+        }
+
+		messages!($($rest)*);
+	};
+    // Rule for `&mut self` message without a return type.
+	(
+		$( #[$msg_meta:meta] )*
+		$msg_id:literal => $msg_name:ident (
+			&mut self $( , $param_name:ident : $param_ty:ty )* $(,)?
+		) ;
+
+		$($rest:tt)*
+	) => {
+		messages!(
+			$( #[$msg_meta] )*
+			$msg_id => $msg_name (
+				&mut self $( , $param_name : $param_ty )*
+			) -> ();
+
+			$($rest)*
+		);
+	};
+    // Base rule to end macro.
 	() => {};
 }

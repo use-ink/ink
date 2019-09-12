@@ -34,7 +34,7 @@ state! {
 }
 
 messages! {
-    0 => DoNothing();
+    0 => DoNothing(&self);
 }
 
 impl Noop {
