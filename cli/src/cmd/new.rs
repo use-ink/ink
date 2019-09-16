@@ -17,7 +17,6 @@
 use crate::{
     cmd::{
         CommandError,
-        CommandErrorKind,
         Result,
     },
     AbstractionLayer,
@@ -110,14 +109,11 @@ fn initialize_for_lang(name: &str) -> Result<String> {
 pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<String> {
     match layer {
         AbstractionLayer::Core => {
-            Err(CommandError::new(
-                CommandErrorKind::UnimplementedAbstractionLayer,
-            ))
+            Err(CommandError::UnimplementedAbstractionLayer)
         }
         AbstractionLayer::Model => {
-            Err(CommandError::new(
-                CommandErrorKind::UnimplementedAbstractionLayer,
-            ))
+            Err(CommandError::UnimplementedAbstractionLayer)
+
         }
         AbstractionLayer::Lang => initialize_for_lang(name),
     }
@@ -132,7 +128,7 @@ mod tests {
         let result = super::initialize_for_lang("should-fail");
         assert_eq!(
             format!("{:?}", result),
-            r#"Err(CommandError { kind: Other("Contract names cannot contain hyphens") })"#
+            r#"Err(Other("Contract names cannot contain hyphens"))"#
         )
     }
 
@@ -145,7 +141,7 @@ mod tests {
         std::fs::remove_dir_all(name).unwrap();
         assert_eq!(
             format!("{:?}", result),
-            r#"Err(CommandError { kind: Other("A Cargo package already exists in test_contract_cargo_project_already_exists") })"#
+            r#"Err(Other("A Cargo package already exists in test_contract_cargo_project_already_exists"))"#
         )
     }
 
@@ -160,7 +156,7 @@ mod tests {
         std::fs::remove_dir_all(dir).unwrap();
         assert_eq!(
             format!("{:?}", result),
-            r#"Err(CommandError { kind: Other("New contract file dont_overwrite_existing_files/build.sh already exists") })"#
+            r#"Err(Other("New contract file dont_overwrite_existing_files/build.sh already exists"))"#
         )
     }
 }

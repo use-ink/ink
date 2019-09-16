@@ -110,18 +110,17 @@ fn main() {
 fn exec(cmd: Command) -> cmd::Result<String> {
     use crate::cmd::{
         CommandError,
-        CommandErrorKind,
     };
     match &cmd {
         Command::New { layer, name } => cmd::execute_new(*layer, name),
         Command::Build {} => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
+            Err(CommandError::UnimplementedCommand)
         }
         Command::Test {} => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
+            Err(CommandError::UnimplementedCommand)
         }
         Command::Deploy { .. } => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
+            Err(CommandError::UnimplementedCommand)
         }
     }
 }
