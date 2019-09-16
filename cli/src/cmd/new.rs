@@ -17,7 +17,6 @@
 use crate::{
     cmd::{
         CommandError,
-        CommandErrorKind,
         Result,
     },
     AbstractionLayer,
@@ -36,12 +35,18 @@ use std::{
 };
 
 /// Initializes a project structure for the `lang` abstraction layer.
-fn initialize_for_lang(name: &str) -> Result<()> {
+fn initialize_for_lang(name: &str) -> Result<String> {
     if name.contains("-") {
         return Err("Contract names cannot contain hyphens".into())
     }
-    fs::create_dir(name)?;
+
     let out_dir = path::Path::new(name);
+    if out_dir.join("Cargo.toml").exists() {
+        return Err(format!("A Cargo package already exists in {}", name).into())
+    }
+    if !out_dir.exists() {
+        fs::create_dir(out_dir)?;
+    }
 
     let template = include_bytes!(concat!(env!("OUT_DIR"), "/template.zip"));
     let mut cursor = Cursor::new(Vec::new());
@@ -69,7 +74,21 @@ fn initialize_for_lang(name: &str) -> Result<()> {
                     fs::create_dir_all(&p)?;
                 }
             }
-            let mut outfile = fs::File::create(&outpath)?;
+            let mut outfile = fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(outpath.clone())
+                .map_err(|e| {
+                    if e.kind() == std::io::ErrorKind::AlreadyExists {
+                        CommandError::from(format!(
+                            "New contract file {} already exists",
+                            outpath.display()
+                        ))
+                    } else {
+                        CommandError::from(e)
+                    }
+                })?;
+
             outfile.write_all(contents.as_bytes())?;
         }
 
@@ -84,20 +103,17 @@ fn initialize_for_lang(name: &str) -> Result<()> {
         }
     }
 
-    Ok(())
+    Ok(format!("Created contract {}", name))
 }
 
-pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<()> {
+pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<String> {
     match layer {
         AbstractionLayer::Core => {
-            Err(CommandError::new(
-                CommandErrorKind::UnimplementedAbstractionLayer,
-            ))
+            Err(CommandError::UnimplementedAbstractionLayer)
         }
         AbstractionLayer::Model => {
-            Err(CommandError::new(
-                CommandErrorKind::UnimplementedAbstractionLayer,
-            ))
+            Err(CommandError::UnimplementedAbstractionLayer)
+
         }
         AbstractionLayer::Lang => initialize_for_lang(name),
     }
@@ -105,12 +121,42 @@ pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn rejects_hyphenated_name() {
         let result = super::initialize_for_lang("should-fail");
         assert_eq!(
             format!("{:?}", result),
-            r#"Err(CommandError { kind: Other("Contract names cannot contain hyphens") })"#
+            r#"Err(Other("Contract names cannot contain hyphens"))"#
+        )
+    }
+
+    #[test]
+    fn contract_cargo_project_already_exists() {
+        let name = "test_contract_cargo_project_already_exists";
+        let _ = super::initialize_for_lang(name);
+        let result = super::initialize_for_lang(name);
+        // clean up created files
+        std::fs::remove_dir_all(name).unwrap();
+        assert_eq!(
+            format!("{:?}", result),
+            r#"Err(Other("A Cargo package already exists in test_contract_cargo_project_already_exists"))"#
+        )
+    }
+
+    #[test]
+    fn dont_overwrite_existing_files_not_in_cargo_project() {
+        let name = "dont_overwrite_existing_files";
+        let dir = path::Path::new(name);
+        fs::create_dir_all(dir).unwrap();
+        fs::File::create(dir.join("build.sh")).unwrap();
+        let result = super::initialize_for_lang(name);
+        // clean up created files
+        std::fs::remove_dir_all(dir).unwrap();
+        assert_eq!(
+            format!("{:?}", result),
+            r#"Err(Other("New contract file dont_overwrite_existing_files/build.sh already exists"))"#
         )
     }
 }

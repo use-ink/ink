@@ -20,50 +20,21 @@ use std::{
 };
 use zip::result::ZipError;
 
-/// The kinds of command errors.
-#[derive(Debug)]
-pub enum CommandErrorKind {
+/// An error that can be encountered while executing commands.
+#[derive(Debug, derive_more::From, derive_more::Display)]
+pub enum CommandError {
     Io(IoError),
+    #[display(fmt="Command unimplemented")]
     UnimplementedCommand,
+    #[display(fmt="Abstraction layer unimplemented")]
     UnimplementedAbstractionLayer,
     ZipError(ZipError),
     Other(String),
 }
 
-/// An error that can be encountered while executing commands.
-#[derive(Debug)]
-pub struct CommandError {
-    kind: CommandErrorKind,
-}
-
-impl From<IoError> for CommandError {
-    fn from(error: IoError) -> Self {
-        Self {
-            kind: CommandErrorKind::Io(error),
-        }
-    }
-}
-
-impl From<ZipError> for CommandError {
-    fn from(error: ZipError) -> Self {
-        Self {
-            kind: CommandErrorKind::ZipError(error),
-        }
-    }
-}
-
 impl From<&str> for CommandError {
     fn from(error: &str) -> Self {
-        Self {
-            kind: CommandErrorKind::Other(error.to_string()),
-        }
-    }
-}
-
-impl CommandError {
-    /// Creates a new command error from the given kind.
-    pub fn new(kind: CommandErrorKind) -> Self {
-        Self { kind }
+        CommandError::Other(error.into())
     }
 }
 
