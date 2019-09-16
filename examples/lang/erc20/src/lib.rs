@@ -21,8 +21,8 @@ use ink_core::{
     memory::format,
     storage,
 };
-use ink_model::EnvHandler;
 use ink_lang::contract;
+use ink_model::EnvHandler;
 
 contract! {
     #![env = DefaultSrmlTypes]

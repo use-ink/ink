@@ -28,6 +28,7 @@
 //! has to be enabled.
 
 mod api;
+mod calls;
 mod srml;
 mod traits;
 
@@ -40,15 +41,18 @@ mod test_env;
 pub use api::*;
 pub use traits::*;
 
-pub use self::srml::{
-    CallError,
-    DefaultSrmlTypes,
-};
-
-#[cfg(not(feature = "test-env"))]
-pub use self::srml::{
-    CallAbi,
-    CallBuilder,
+pub use self::{
+    calls::{
+        CallBuilder,
+        CreateBuilder,
+        FromAccountId,
+        ReturnType,
+    },
+    srml::DefaultSrmlTypes,
+    traits::{
+        CallError,
+        CreateError,
+    },
 };
 
 /// The storage environment implementation that is currently being used.

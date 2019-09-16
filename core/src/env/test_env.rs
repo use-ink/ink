@@ -43,6 +43,42 @@ pub struct EventData {
     data: Vec<u8>,
 }
 
+/// Raw recorded data of smart contract creates and instantiations.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RawCreateData {
+    code_hash: Vec<u8>,
+    gas_limit: u64,
+    value: Vec<u8>,
+    input_data: Vec<u8>,
+}
+
+/// Decoded recorded data of smart contract creates and instantiations.
+pub struct CreateData<E>
+where
+    E: EnvTypes,
+{
+    pub code_hash: E::Hash,
+    pub gas_limit: u64,
+    pub value: E::Balance,
+    pub input_data: Vec<u8>,
+}
+
+impl<E> From<RawCreateData> for CreateData<E>
+where
+    E: EnvTypes,
+{
+    fn from(raw: RawCreateData) -> Self {
+        Self {
+            code_hash: Decode::decode(&mut &raw.code_hash[..])
+                .expect("encountered invalid encoded code hash"),
+            gas_limit: raw.gas_limit,
+            value: Decode::decode(&mut &raw.value[..])
+                .expect("encountered invalid encoded value"),
+            input_data: raw.input_data,
+        }
+    }
+}
+
 impl EventData {
     /// Returns the uninterpreted bytes of the emitted event.
     fn data_as_bytes(&self) -> &[u8] {
@@ -201,6 +237,10 @@ pub struct TestEnvData {
     call_return: Vec<u8>,
     /// Returned data.
     return_data: Vec<u8>,
+    /// Recorded smart contract instantiations.
+    creates: Vec<RawCreateData>,
+    /// The address of the next instantiated smart contract.
+    next_create_address: Vec<u8>,
 }
 
 impl Default for TestEnvData {
@@ -224,6 +264,8 @@ impl Default for TestEnvData {
             calls: Vec::new(),
             call_return: Vec::new(),
             return_data: Vec::new(),
+            creates: Vec::new(),
+            next_create_address: Vec::new(),
         }
     }
 }
@@ -246,6 +288,8 @@ impl TestEnvData {
         self.calls.clear();
         self.call_return.clear();
         self.return_data.clear();
+        self.creates.clear();
+        self.next_create_address.clear();
     }
 
     /// Increments the total number of reads from the storage.
@@ -364,6 +408,33 @@ impl TestEnvData {
     pub fn returned_data(&self) -> &[u8] {
         &self.return_data
     }
+
+    /// Records a new smart contract instantiation.
+    pub fn add_create(
+        &mut self,
+        code_hash: &[u8],
+        gas_limit: u64,
+        value: &[u8],
+        input_data: &[u8],
+    ) {
+        let new_create = RawCreateData {
+            code_hash: code_hash.to_vec(),
+            gas_limit,
+            value: value.to_vec(),
+            input_data: input_data.to_vec(),
+        };
+        self.creates.push(new_create);
+    }
+
+    /// Returns an iterator over all recorded smart contract instantiations.
+    pub fn creates(&self) -> impl DoubleEndedIterator<Item = &RawCreateData> {
+        self.creates.iter()
+    }
+
+    /// Sets the address of the next instantiated smart contract.
+    pub fn set_next_create_address(&mut self, account_id: &[u8]) {
+        self.next_create_address = account_id.to_vec();
+    }
 }
 
 impl TestEnvData {
@@ -454,6 +525,17 @@ impl TestEnvData {
         self.add_call(callee, gas, value, input_data);
         self.call_return.clone()
     }
+
+    pub fn create(
+        &mut self,
+        code_hash: &[u8],
+        gas_limit: u64,
+        value: &[u8],
+        input_data: &[u8],
+    ) -> Vec<u8> {
+        self.add_create(code_hash, gas_limit, value, input_data);
+        self.next_create_address.clone()
+    }
 }
 
 thread_local! {
@@ -517,6 +599,15 @@ where
             .with(|test_env| test_env.borrow_mut().set_return_data(expected_return_data))
     }
 
+    /// Sets the address of the next instantiated smart contract.
+    pub fn set_next_create_address(account_id: T::AccountId) {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow_mut()
+                .set_next_create_address(&account_id.encode())
+        })
+    }
+
     impl_env_setters_for_test_env!(
         (set_address, address, T::AccountId),
         (set_balance, balance, T::Balance),
@@ -554,6 +645,19 @@ where
                         input_data: raw_call_data.input_data.clone(),
                     }
                 })
+                .collect::<Vec<_>>()
+                .into_iter()
+        })
+    }
+
+    /// Returns an iterator over all recorded smart contract instantiations.
+    pub fn creates() -> impl DoubleEndedIterator<Item = CreateData<T>> {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow()
+                .creates()
+                .cloned()
+                .map(Into::into)
                 .collect::<Vec<_>>()
                 .into_iter()
         })
@@ -653,10 +757,28 @@ where
         let callee = &(callee.encode())[..];
         let value = &(value.encode())[..];
         TEST_ENV_DATA.with(|test_env| {
-            U::decode(
+            Decode::decode(
                 &mut &(test_env.borrow_mut().call(callee, gas, value, input_data))[..],
             )
             .map_err(|_| CallError)
+        })
+    }
+
+    fn create(
+        code_hash: T::Hash,
+        gas_limit: u64,
+        value: T::Balance,
+        input_data: &[u8],
+    ) -> Result<T::AccountId, CreateError> {
+        let code_hash = &(code_hash.encode())[..];
+        let value = &(value.encode())[..];
+        TEST_ENV_DATA.with(|test_env| {
+            Decode::decode(
+                &mut &(test_env
+                    .borrow_mut()
+                    .create(code_hash, gas_limit, value, input_data))[..],
+            )
+            .map_err(|_| CreateError)
         })
     }
 }

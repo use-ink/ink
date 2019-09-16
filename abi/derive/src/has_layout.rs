@@ -74,6 +74,7 @@ fn generate_fields_layout<'a>(
                 _ink_abi::LayoutField::new(stringify!(#ident), self.#ident.layout())
             }
         } else {
+            let n = proc_macro2::Literal::usize_unsuffixed(n);
             quote! {
                 _ink_abi::LayoutField::new(stringify!(#n), self.#n.layout())
             }
