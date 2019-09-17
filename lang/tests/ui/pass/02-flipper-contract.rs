@@ -1,6 +1,10 @@
 #![feature(proc_macro_hygiene)]
 
 use ink_lang as ink;
+use ink_core::{
+    env::DefaultSrmlTypes,
+    storage,
+};
 
 #[ink::contract(
     env = DefaultSrmlTypes,
@@ -10,14 +14,6 @@ mod flipper {
     #[ink(storage)]
     struct Flipper {
         value: storage::Value<bool>,
-    }
-
-    #[ink(event)]
-    struct Flipped {
-        #[indexed]
-        current: bool,
-        #[indexed]
-        by: AccountId,
     }
 
     impl Flipper {
@@ -33,10 +29,7 @@ mod flipper {
 
         #[ink(message)]
         fn flip(&mut self) {
-            let current = !self.get();
-            let by = self.env.caller();
-            self.env.emit_event(Flipper { current, by });
-            *self.value = current;
+            *self.value = !self.get();
         }
 
         #[ink(message)]
