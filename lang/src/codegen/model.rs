@@ -23,9 +23,11 @@ use quote::{
     quote_spanned,
 };
 use proc_macro2::TokenStream as TokenStream2;
+use derive_more::From;
 
 /// Generates code for the `ink_model` parts that dispatch constructors
 /// and messages from the input and also handle the returning of data.
+#[derive(From)]
 pub struct Model<'a> {
     /// The contract to generate code for.
     contract: &'a Contract,
@@ -37,41 +39,37 @@ impl GenerateCode for Model<'_> {
     }
 }
 
+/// Generates code for the `ink_model::Contract` instantiation procedure.
+#[derive(From)]
+pub struct Instantiate<'a> {
+    contract: &'a Contract,
+}
+
 /// Generates code for the environmental types used by a contract.
-pub struct MetaTypes<'a> {
+#[derive(From)]
+pub struct EnvTypes<'a> {
     /// The contract to generate code for.
     contract: &'a Contract,
 }
 
-impl GenerateCode for MetaTypes<'_> {
+impl GenerateCode for EnvTypes<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let env_types = &self.contract.meta_info.env_types.ty;
 
         quote! {
-            mod env_types {
-                use super::*;
-                use ink_core::env::{ContractEnv, EnvTypes};
-
-                pub type AccountId = <#env_types as EnvTypes>::AccountId;
-                pub type Balance = <#env_types as EnvTypes>::Balance;
-                pub type Hash = <#env_types as EnvTypes>::Hash;
-                pub type Moment = <#env_types as EnvTypes>::Moment;
-                pub type BlockNumber = <#env_types as EnvTypes>::BlockNumber;
-            }
-
             type Env = ink_core::env::ContractEnv<#env_types>;
-            use env_types::{
-                AccountId,
-                Balance,
-                Hash,
-                Moment,
-                BlockNumber,
-            };
+
+            type AccountId = <#env_types as ink_core::env::EnvTypes>::AccountId;
+            type Balance = <#env_types as ink_core::env::EnvTypes>::Balance;
+            type Hash = <#env_types as ink_core::env::EnvTypes>::Hash;
+            type Moment = <#env_types as ink_core::env::EnvTypes>::Moment;
+            type BlockNumber = <#env_types as ink_core::env::EnvTypes>::BlockNumber;
         }
     }
 }
 
 /// Generates code for the entry points of a contract.
+#[derive(From)]
 pub struct EntryPoints<'a> {
     /// The contract to generate code for.
     contract: &'a Contract,

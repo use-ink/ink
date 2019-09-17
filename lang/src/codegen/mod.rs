@@ -19,6 +19,14 @@ mod model;
 use crate::ir::Contract;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+use derive_more::From;
+
+pub use self::{
+    model::{
+        EnvTypes,
+        EntryPoints,
+    },
+};
 
 /// Types implementing this trait are code generators for the ink! language.
 pub trait GenerateCode {
@@ -26,9 +34,35 @@ pub trait GenerateCode {
     fn generate_code(&self) -> TokenStream2;
 }
 
-impl GenerateCode for Contract {
+/// Generates code for the entirety of the ink! contract.
+#[derive(From)]
+pub struct ContractModule<'a> {
+    /// The contract to generate code for.
+    contract: &'a Contract,
+}
+
+impl GenerateCode for ContractModule<'_> {
     /// Generates ink! contract code.
     fn generate_code(&self) -> TokenStream2 {
-        quote! {}
+        let ident = &self.contract.ident;
+
+        let entry_points = EntryPoints::from(self.contract).generate_code();
+        let env_types = EnvTypes::from(self.contract).generate_code();
+
+        quote! {
+            mod #ident {
+                use super::*;
+
+                // #entry_points
+                #env_types
+            }
+            pub use #ident::*;
+        }
+    }
+}
+
+impl GenerateCode for Contract {
+    fn generate_code(&self) -> TokenStream2 {
+        ContractModule::from(self).generate_code()
     }
 }
