@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::Named;
+use crate::{
+    EnvAccess,
+    Named,
+};
 use ink_core::storage::{
     alloc::{
         AllocateUsing,
@@ -24,7 +27,7 @@ use ink_core::storage::{
 };
 
 /// Types implementing this type can be used as contract state.
-pub trait Storage: AllocateUsing + Initialize + Flush + Named {}
+pub trait Storage: AllocateUsing + Initialize + Flush + Named + EnvAccess {}
 
 /// Define contract state with less boilerplate code.
 #[macro_export]
@@ -39,22 +42,24 @@ macro_rules! storage {
 		}
 	) => {
 		$( #[$state_meta] )*
-		$vis struct $state_name {
+		$vis struct $state_name<E> {
 			$(
 				$( #[$field_meta] )*
-				$field_name : $field_ty
-			),*
+				$field_name : $field_ty ,
+			)*
+            env: $crate::EnvHandler<E>,
 		}
 
-		impl ink_core::storage::Flush for $state_name {
+		impl<E> ink_core::storage::Flush for $state_name<E> {
 			fn flush(&mut self) {
 				$(
-					self.$field_name.flush()
-				);*
+					self.$field_name.flush();
+				)*
+                self.env.flush();
 			}
 		}
 
-		impl ink_core::storage::alloc::AllocateUsing for $state_name {
+		impl<E> ink_core::storage::alloc::AllocateUsing for $state_name<E> {
 			unsafe fn allocate_using<A>(alloc: &mut A) -> Self
 			where
 				A: ink_core::storage::alloc::Allocate,
@@ -62,13 +67,14 @@ macro_rules! storage {
 				use ink_core::storage::alloc::AllocateUsing;
 				Self {
 					$(
-						$field_name : AllocateUsing::allocate_using(alloc)
-					),*
+						$field_name : AllocateUsing::allocate_using(alloc),
+					)*
+                    env: AllocateUsing::allocate_using(alloc),
 				}
 			}
 		}
 
-        impl ink_core::storage::alloc::Initialize for $state_name {
+        impl<E> ink_core::storage::alloc::Initialize for $state_name<E> {
             type Args = ();
 
             #[inline(always)]
@@ -81,14 +87,27 @@ macro_rules! storage {
                 $(
                     self.$field_name.try_default_initialize();
                 )*
+                self.env.try_default_initialize();
             }
         }
 
-        impl $crate::Named for $state_name {
+        impl<E> $crate::EnvAccess for $state_name<E> {
+            type Env = $crate::EnvHandler<E>;
+
+            fn env(&self) -> &Self::Env {
+                &self.env
+            }
+
+            fn env_mut(&mut self) -> &mut Self::Env {
+                &mut self.env
+            }
+        }
+
+        impl<E> $crate::Named for $state_name<E> {
 			const NAME: &'static str = stringify!($state_name);
         }
 
-		impl $crate::Storage for $state_name {}
+		impl<E> $crate::Storage for $state_name<E> {}
 	};
 	(
 		$( #[$state_meta:meta] )*

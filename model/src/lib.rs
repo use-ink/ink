@@ -54,46 +54,45 @@ mod storage;
 mod msg;
 
 mod contract;
+mod dispatch;
 mod exec_env;
-mod msg_handler;
 
 pub mod checks;
 
 pub use crate::{
     contract::{
         Contract,
-        ContractDecl,
-        ContractInstance,
-        DeployHandler,
-        EmptyStorage,
-        NoDeployArgs,
-        TestableContract,
+        ContractBuilder,
+        Instance,
+    },
+    dispatch::{
+        CallAbi,
+        Dispatch,
+        DispatchList,
+        DispatchableFn,
+        DispatchableFnMut,
+        Dispatcher,
+        DispatcherMut,
+        EmptyDispatchList,
+        ErrCode,
+        Error,
+        PushDispatcher,
+        Result,
+        Selector,
+        UnreachableDispatcher,
     },
     exec_env::{
+        EnvAccess,
         EnvHandler,
         ExecutionEnv,
     },
     msg::{
         Constructor,
-        Message,
-        FnSelector,
         FnInput,
         FnOutput,
+        FnSelector,
+        Message,
         Named,
     },
-    msg_handler::{
-        CallAbi,
-        Error,
-        HandleCall,
-        MessageHandler,
-        MessageHandlerMut,
-        Selector,
-        RawMessageHandler,
-        RawMessageHandlerMut,
-        Result,
-        UnreachableMessageHandler,
-    },
-    storage::{
-        Storage,
-    },
+    storage::Storage,
 };

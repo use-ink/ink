@@ -40,13 +40,13 @@ pub trait Named {
     const NAME: &'static str;
 }
 
-/// Types implementing this trait are usable as constructors.
-pub trait Constructor: FnSelector + FnInput + FnOutput + Named {}
-
 /// Types implementing this trait are usable as contract messages.
 pub trait Message: FnSelector + FnInput + FnOutput + Named {
     const IS_MUT: bool;
 }
+
+/// Types implementing this trait are usable as contract constructors.
+pub trait Constructor: Message {}
 
 /// Defines constructors for contracts with less boilerplate code.
 #[macro_export]
@@ -80,7 +80,11 @@ macro_rules! constructors {
             const NAME: &'static str = stringify!($name);
         }
 
-		impl $crate::Constructor for $name {}
+		impl $crate::Message for $name {
+            const IS_MUT: bool = true;
+        }
+
+        impl $crate::Constructor for $name {}
 
 		messages!($($rest)*);
 	};
