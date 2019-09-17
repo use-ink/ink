@@ -21,11 +21,11 @@ use ink_core::env::{
     DefaultSrmlTypes,
 };
 use ink_model::{
+    constructors,
     messages,
     storage,
     Contract,
-    ContractDecl,
-    EnvHandler,
+    Instance,
 };
 
 storage! {
@@ -33,25 +33,17 @@ storage! {
     struct Noop {}
 }
 
-messages! {
-    0 => DoNothing(&self);
-}
-
-impl Noop {
-    pub fn deploy(&mut self, _env: &mut EnvHandler<ContractEnv<DefaultSrmlTypes>>) {}
-    pub fn do_nothing(&self, _env: &EnvHandler<ContractEnv<DefaultSrmlTypes>>) {}
-}
+constructors! { 0 => ConstructNothing(); }
+messages! { 0 => DoNothing(&self); }
 
 #[rustfmt::skip]
-fn instantiate() -> impl Contract {
-	ContractDecl::using::<Noop, ContractEnv<DefaultSrmlTypes>>()
-		.on_deploy(|env, ()| {
-            let (handler, state) = env.split_mut();
-            state.deploy(handler)
+fn declare() -> impl Instance {
+	Contract::with_storage::<Noop<ContractEnv<DefaultSrmlTypes>>>()
+		.on_construct::<ConstructNothing>(|_contract, _| {
+            ()
         })
-        .on_msg::<DoNothing>(|env, ()| {
-            let (handler, state) = env.split();
-            state.do_nothing(handler)
+        .on_msg::<DoNothing>(|_contract, _| {
+            ()
         })
-		.instantiate()
+		.done()
 }

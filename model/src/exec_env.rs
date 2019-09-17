@@ -15,18 +15,27 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::Storage;
-use core::marker::PhantomData;
+use core::{
+    marker::PhantomData,
+    ops::{
+        Deref,
+        DerefMut,
+    },
+};
 use ink_core::{
     env::{
         self,
         CallError,
         Env,
     },
-    storage::alloc::{
-        Allocate,
-        AllocateUsing,
-        CellChunkAlloc,
-        Initialize,
+    storage::{
+        alloc::{
+            Allocate,
+            AllocateUsing,
+            CellChunkAlloc,
+            Initialize,
+        },
+        Flush,
     },
 };
 use scale::{
@@ -34,12 +43,41 @@ use scale::{
     Encode as _,
 };
 
+/// Access to the environment definitions.
+pub trait EnvAccess {
+    // /// The environmental type definition.
+    // type Target: Deref<Target = EnvHandler<E>> + DerefMut<Target = EnvHandler<E>>;
+
+    // /// Immutable environment access.
+    // fn env(&self) -> &Self::Target;
+    // /// Mutable environment access.
+    // fn env_mut(&mut self) -> &mut Self::Target;
+
+    /// The environmental type.
+    type Env;
+
+    /// Immutable environment access.
+    fn env(&self) -> &Self::Env;
+    /// Mutable environment access.
+    fn env_mut(&mut self) -> &mut Self::Env;
+}
+
 /// Provides a safe interface to an environment given a contract state.
 pub struct ExecutionEnv<State, Env> {
     /// The environment handler.
     env_handler: EnvHandler<Env>,
     /// The contract state.
     pub state: State,
+}
+
+impl<State, Env> Flush for ExecutionEnv<State, Env>
+where
+    State: Flush,
+{
+    fn flush(&mut self) {
+        self.env_handler.flush();
+        self.state.flush();
+    }
 }
 
 impl<State, Env> AllocateUsing for ExecutionEnv<State, Env>
@@ -68,7 +106,7 @@ where
     }
 }
 
-impl<State, Env> core::ops::Deref for ExecutionEnv<State, Env> {
+impl<State, Env> Deref for ExecutionEnv<State, Env> {
     type Target = EnvHandler<Env>;
 
     fn deref(&self) -> &Self::Target {
@@ -76,7 +114,7 @@ impl<State, Env> core::ops::Deref for ExecutionEnv<State, Env> {
     }
 }
 
-impl<State, Env> core::ops::DerefMut for ExecutionEnv<State, Env> {
+impl<State, Env> DerefMut for ExecutionEnv<State, Env> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.env_handler
     }
@@ -112,6 +150,12 @@ pub struct EnvHandler<T> {
     /// The dynamic allocator.
     pub dyn_alloc: CellChunkAlloc,
     env_marker: PhantomData<T>,
+}
+
+impl<T> Flush for EnvHandler<T> {
+    fn flush(&mut self) {
+        self.dyn_alloc.flush();
+    }
 }
 
 impl<T> AllocateUsing for EnvHandler<T> {
