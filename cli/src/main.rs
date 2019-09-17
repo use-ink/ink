@@ -117,21 +117,27 @@ enum Command {
     },
 }
 
-fn main() -> cmd::Result<()> {
+fn main() {
     env_logger::init();
 
     let Opts::Contract(args) = Opts::from_args();
+    match exec(args.cmd) {
+        Ok(msg) => println!("\t{}", msg),
+        Err(err) => eprintln!("error: {}", err),
+    }
+}
+
+fn exec(cmd: Command) -> cmd::Result<String> {
     use crate::cmd::{
         CommandError,
-        CommandErrorKind,
     };
-    match &args.cmd {
+    match &cmd {
         Command::New { layer, name } => cmd::execute_new(*layer, name),
         Command::Build {} => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
+            Err(CommandError::UnimplementedCommand)
         }
         Command::Test {} => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
+            Err(CommandError::UnimplementedCommand)
         }
         Command::Deploy {
             url,

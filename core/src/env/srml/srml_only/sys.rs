@@ -20,7 +20,6 @@
 
 extern "C" {
     /// Creates a new smart contract account.
-    #[allow(unused)]
     pub fn ext_create(
         init_code_ptr: u32,
         init_code_len: u32,

@@ -72,13 +72,14 @@ fn contract_compiles() {
                 use super::*;
                 use ink_core::env::{ContractEnv, EnvTypes};
 
-                pub type AccountId = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::AccountId;
-                pub type Balance = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Balance;
-                pub type Hash = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Hash;
-                pub type Moment = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::Moment;
-                pub type BlockNumber = <ContractEnv<DefaultSrmlTypes> as EnvTypes>::BlockNumber;
+                pub type AccountId = <DefaultSrmlTypes as EnvTypes>::AccountId;
+                pub type Balance = <DefaultSrmlTypes as EnvTypes>::Balance;
+                pub type Hash = <DefaultSrmlTypes as EnvTypes>::Hash;
+                pub type Moment = <DefaultSrmlTypes as EnvTypes>::Moment;
+                pub type BlockNumber = <DefaultSrmlTypes as EnvTypes>::BlockNumber;
             }
 
+            type Env = ink_core::env::ContractEnv<DefaultSrmlTypes>;
             use types::{
                 AccountId,
                 Balance,
@@ -87,153 +88,164 @@ fn contract_compiles() {
                 BlockNumber,
             };
 
-            ink_model::state! {
-                /// Tests emitting of custom defined events.
-                #[cfg_attr(
-                    feature = "ink-generate-abi",
-                    derive(type_metadata::Metadata, ink_abi::HasLayout,)
-                )]
-                pub struct CallCounter {
-                    /// A simple counter for the calls.
-                    count: storage::Value<u32>,
-                }
-            }
-
-
-            mod msg {
+            #[cfg(not(feature = "ink-as-dependency"))]
+            mod normal {
                 use super::*;
-                use ink_model::messages;
 
-                ink_model::messages! {
+                ink_model::state! {
+                    /// Tests emitting of custom defined events.
+                    #[cfg_attr(
+                        feature = "ink-generate-abi",
+                        derive(type_metadata::Metadata, ink_abi::HasLayout,)
+                    )]
+                    pub struct CallCounter {
+                        /// A simple counter for the calls.
+                        count: storage::Value<u32>,
+                    }
+                }
+
+
+                mod msg {
+                    use super::*;
+                    use ink_model::messages;
+
+                    ink_model::messages! {
+                        /// Increments the internal counter.
+                        ///
+                        /// # Note
+                        ///
+                        /// Also emits an event.
+                        257544423 => Inc();
+                        /// Decrements the internal counter.
+                        ///
+                        /// # Note
+                        ///
+                        /// Also emits an event.
+                        1772705147 => Dec();
+                    }
+                }
+
+                impl CallCounter {
+                    pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {}
+
                     /// Increments the internal counter.
                     ///
                     /// # Note
                     ///
                     /// Also emits an event.
-                    257544423 => Inc();
+                    pub fn inc(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {
+                        self.value += 1;
+                        env.emit(IncCalled { current: *self.value });
+                    }
+
                     /// Decrements the internal counter.
                     ///
                     /// # Note
                     ///
                     /// Also emits an event.
-                    1772705147 => Dec();
-                }
-            }
-
-            impl CallCounter {
-                pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {}
-
-                /// Increments the internal counter.
-                ///
-                /// # Note
-                ///
-                /// Also emits an event.
-                pub fn inc(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {
-                    self.value += 1;
-                    env.emit(IncCalled { current: *self.value });
+                    pub fn dec(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {
+                        self.value -= 1;
+                        env.emit(DecCalled { current: *self.value });
+                    }
                 }
 
-                /// Decrements the internal counter.
-                ///
-                /// # Note
-                ///
-                /// Also emits an event.
-                pub fn dec(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {
-                    self.value -= 1;
-                    env.emit(DecCalled { current: *self.value });
+                use ink_model::Contract as _;
+
+                #[cfg(not(test))]
+                impl CallCounter {
+                    pub(crate) fn instantiate() -> impl ink_model::Contract {
+                        ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<DefaultSrmlTypes>>()
+                            .on_deploy(|env, ()| {
+                                let (handler, state) = env.split_mut();
+                                state.deploy(handler,)
+                            })
+                            .on_msg_mut::<msg::Inc>(|env, _| {
+                                let (handler, state) = env.split_mut();
+                                state.inc(handler,)
+                            })
+                            .on_msg_mut::<msg::Dec>(|env, _| {
+                                let (handler, state) = env.split_mut();
+                                state.dec(handler,)
+                            })
+                            .instantiate()
+                    }
                 }
-            }
 
-            use ink_model::Contract as _;
+                #[cfg(not(test))] #[no_mangle] fn deploy() -> u32 { CallCounter::instantiate().deploy().to_u32() }
+                #[cfg(not(test))] #[no_mangle] fn call() -> u32 { CallCounter::instantiate().dispatch().to_u32() }
 
-            #[cfg(not(test))]
-            impl CallCounter {
-                pub(crate) fn instantiate() -> impl ink_model::Contract {
-                    ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<DefaultSrmlTypes>>()
-                        .on_deploy(|env, ()| {
-                            let (handler, state) = env.split_mut();
-                            state.deploy(handler,)
-                        })
-                        .on_msg_mut::<msg::Inc>(|env, _| {
-                            let (handler, state) = env.split_mut();
-                            state.inc(handler,)
-                        })
-                        .on_msg_mut::<msg::Dec>(|env, _| {
-                            let (handler, state) = env.split_mut();
-                            state.dec(handler,)
-                        })
-                        .instantiate()
-                }
-            }
-
-            #[cfg(not(test))] #[no_mangle] fn deploy() -> u32 { CallCounter::instantiate().deploy().to_u32() }
-            #[cfg(not(test))] #[no_mangle] fn call() -> u32 { CallCounter::instantiate().dispatch().to_u32() }
-
-            mod events {
-                use super::*;
-
-                mod private {
+                mod events {
                     use super::*;
 
-                    #[doc(hidden)]
+                    mod private {
+                        use super::*;
+
+                        #[doc(hidden)]
+                        #[derive(scale::Encode, scale::Decode)]
+                        pub enum Event {
+                            DecCalled(DecCalled),
+                            IncCalled(IncCalled),
+                        }
+
+                        /// Used to seal the emit trait.
+                        pub trait Sealed { }
+                    }
+
                     #[derive(scale::Encode, scale::Decode)]
-                    pub enum Event {
-                        DecCalled(DecCalled),
-                        IncCalled(IncCalled),
+                    /// Fires when the value is decremented.
+                    pub struct DecCalled {
+                        /// The current value.
+                        pub current: u32,
                     }
 
-                    /// Used to seal the emit trait.
-                    pub trait Sealed { }
-                }
-
-                #[derive(scale::Encode, scale::Decode)]
-                /// Fires when the value is decremented.
-                pub struct DecCalled {
-                    /// The current value.
-                    pub current: u32,
-                }
-
-                impl From<DecCalled> for private::Event {
-                    fn from(event: DecCalled) -> Self {
-                        private::Event::DecCalled(event)
+                    impl From<DecCalled> for private::Event {
+                        fn from(event: DecCalled) -> Self {
+                            private::Event::DecCalled(event)
+                        }
                     }
-                }
 
-                #[derive(scale::Encode, scale::Decode)]
-                /// Fires when the value is incremented.
-                pub struct IncCalled {
-                    /// The current value.
-                    pub current: u32,
-                }
-
-                impl From<IncCalled> for private::Event {
-                    fn from(event: IncCalled) -> Self {
-                        private::Event::IncCalled(event)
+                    #[derive(scale::Encode, scale::Decode)]
+                    /// Fires when the value is incremented.
+                    pub struct IncCalled {
+                        /// The current value.
+                        pub current: u32,
                     }
-                }
 
-                pub trait EmitEventExt: private::Sealed {
-                    /// Emits the given event.
-                    fn emit<E>(&self, event: E)
-                    where
-                        E: Into<private::Event>,
-                    {
-                        use scale::Encode as _;
-                        <ink_core::env::ContractEnv<DefaultSrmlTypes> as ink_core::env::Env>::deposit_raw_event(
-                            &[], event.into().encode().as_slice()
-                        )
+                    impl From<IncCalled> for private::Event {
+                        fn from(event: IncCalled) -> Self {
+                            private::Event::IncCalled(event)
+                        }
                     }
+
+                    pub trait EmitEventExt: private::Sealed {
+                        /// Emits the given event.
+                        fn emit<E>(&self, event: E)
+                        where
+                            E: Into<private::Event>,
+                        {
+                            use scale::Encode as _;
+                            <ink_core::env::ContractEnv<DefaultSrmlTypes> as ink_core::env::Env>::deposit_raw_event(
+                                &[], event.into().encode().as_slice()
+                            )
+                        }
+                    }
+
+                    impl EmitEventExt for ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>> { }
+                    impl private::Sealed for ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>> { }
                 }
 
-                impl EmitEventExt for ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>> { }
-                impl private::Sealed for ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>> { }
+                use events::{
+                    EmitEventExt as _,
+                    DecCalled,
+                    IncCalled,
+                };
             }
 
-            use events::{
-                EmitEventExt as _,
-                DecCalled,
-                IncCalled,
-            };
+            #[cfg(not(feature = "ink-as-dependency"))]
+            use normal::*;
+
+            #[cfg(not(feature = "ink-as-dependency"))]
+            use ink_core::env::FromAccountId as _;
 
             #[cfg(test)]
             mod test {
@@ -291,6 +303,7 @@ fn contract_compiles() {
                 }
             }
 
+            #[cfg(not(feature = "ink-as-dependency"))]
             #[cfg(feature = "ink-generate-abi")]
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
@@ -361,6 +374,127 @@ fn contract_compiles() {
                 };
                 ink_abi::InkProject::new(layout, contract)
             }
+
+            #[cfg(feature = "ink-as-dependency")]
+            mod as_dependency {
+                use super::*;
+
+                /// Tests emitting of custom defined events.
+                #[derive(Clone, scale::Encode, scale::Decode)]
+                #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+                pub struct CallCounter {
+                    account_id: AccountId,
+                }
+
+                impl ink_core::storage::Flush for CallCounter {
+                    fn flush(&mut self) {}
+                }
+
+                /// Allows to enhance calls to `&self` contract messages.
+                pub struct CallEnhancer<'a> {
+                    contract: &'a CallCounter,
+                }
+
+                /// Allows to enhance calls to `&mut self` contract messages.
+                pub struct CallEnhancerMut<'a> {
+                    contract: &'a mut CallCounter,
+                }
+
+                impl ink_core::env::FromAccountId<Env> for CallCounter {
+                    fn from_account_id(account_id: AccountId) -> Self {
+                        Self { account_id }
+                    }
+                }
+
+                impl CallCounter {
+                    pub fn new(code_hash: Hash,) -> ink_core::env::CreateBuilder<Env, Self> {
+                        ink_core::env::CreateBuilder::<Env, Self>::new(code_hash)
+                    }
+                    /// Returns the internal account ID of the contract.
+                    pub fn account_id(&self) -> AccountId {
+                        self.account_id
+                    }
+                    /// Allows to enhance calls to `&self` contract messages.
+                    pub fn call(&self) -> CallEnhancer {
+                        CallEnhancer { contract : self }
+                    }
+                    /// Allows to enhance calls to `&mut self` contract messages.
+                    pub fn call_mut(&mut self) -> CallEnhancerMut {
+                        CallEnhancerMut { contract : self }
+                    }
+                }
+
+                impl CallCounter {
+                    /// Increments the internal counter.
+                    ///
+                    /// # Note
+                    ///
+                    /// Also emits an event.
+                    pub fn inc(&mut self,) {
+                        self
+                            .call_mut()
+                            .inc()
+                            .fire()
+                            .expect(
+                                concat!(
+                                    "invocation of ",
+                                    stringify!(CallCounter),
+                                    "::",
+                                    stringify!(inc),
+                                    " message was invalid"
+                                )
+                            )
+                    }
+
+                    /// Decrements the internal counter.
+                    ///
+                    /// # Note
+                    ///
+                    /// Also emits an event.
+                    pub fn dec(&mut self,) {
+                        self
+                            .call_mut()
+                            .dec()
+                            .fire()
+                            .expect(
+                                concat!(
+                                    "invocation of ",
+                                    stringify!(CallCounter),
+                                    "::",
+                                    stringify!(dec),
+                                    " message was invalid"
+                                )
+                            )
+                    }
+                }
+
+                impl<'a> CallEnhancer<'a> {}
+
+                impl<'a> CallEnhancerMut<'a> {
+                    /// Increments the internal counter.
+                    ///
+                    /// # Note
+                    ///
+                    /// Also emits an event.
+                    pub fn inc(self,) -> ink_core::env::CallBuilder<Env, ()> {
+                        ink_core::env::CallBuilder::<Env, ()>::invoke(
+                            self.contract.account_id.clone(), 257544423u32)
+                    }
+
+                    /// Decrements the internal counter.
+                    ///
+                    /// # Note
+                    ///
+                    /// Also emits an event.
+                    pub fn dec(self,) -> ink_core::env::CallBuilder<Env, ()> {
+                        ink_core::env::CallBuilder::<Env, ()>::invoke(
+                            self.contract.account_id.clone(), 1772705147u32)
+                    }
+                }
+            }
+
+            #[cfg(feature = "ink-as-dependency")]
+            pub use as_dependency::{CallCounter, CallEnhancer, CallEnhancerMut,};
         },
     )
 }

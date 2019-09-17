@@ -15,6 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 mod abi;
+mod as_dependency;
 mod build;
 mod doc;
 mod test;
@@ -35,5 +36,6 @@ pub fn generate_code(contract: &hir::Contract) -> TokenStream2 {
     doc::generate_code(&mut tokens, contract);
     test::generate_code(&mut tokens, contract);
     abi::generate_code(&mut tokens, contract);
+    as_dependency::generate_code(&mut tokens, contract);
     tokens
 }

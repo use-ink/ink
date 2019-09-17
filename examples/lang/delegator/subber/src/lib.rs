@@ -14,15 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod deploy;
-mod error;
-mod new;
+#![cfg_attr(not(feature = "std"), no_std)]
 
-pub(crate) use self::{
-    deploy::execute_deploy,
-    error::{
-        CommandError,
-        Result,
-    },
-    new::execute_new,
+use ink_core::{
+    memory::format,
+    storage,
 };
+use ink_lang::contract;
+
+contract! {
+    #![env = ink_core::env::DefaultSrmlTypes]
+
+    /// Decrements the accumulator's value.
+    struct Subber {
+        /// The accumulator to store values.
+        accumulator: storage::Value<accumulator::Accumulator>,
+    }
+
+    impl Deploy for Subber {
+        fn deploy(&mut self, accumulator: AccountId) {
+            self.accumulator.set(accumulator::Accumulator::from_account_id(accumulator));
+        }
+    }
+
+    impl Subber {
+        pub(external) fn dec(&mut self, by: i32) {
+            self.accumulator.inc(-by);
+        }
+    }
+}

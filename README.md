@@ -39,6 +39,15 @@ ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to
 
 Use the scripts provided under `scripts` directory in order to run checks on either the workspace or all examples. Please do this before pushing work in a PR.
 
+### Examples
+
+For running the example smart contracts found under `examples` you also need to install some further tools:
+
+- `wabt` (WebAssembly Binary Toolkit)
+- `wasm-utils` (Parity's Wasm Utilities)
+
+For more information how to install these on your system go [here](https://substrate.dev/docs/en/contracts/installing-ink#wasm-utilities).
+
 ### Testing
 
 Off-chain testing is done by `cargo test`.
@@ -77,6 +86,20 @@ contract! {
         pub(external) fn get(&self) -> bool {
             *self.value
         }
+    }
+}
+
+/// Run off-chain tests with `cargo test`.
+#[cfg(tests)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        let mut flipper = Flipper::deploy_mock();
+        assert_eq!(flipper.get(), false);
+        flipper.flip();
+        assert_eq!(flipper.get(), true);
     }
 }
 ```
