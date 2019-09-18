@@ -165,9 +165,9 @@ impl ContractSpec {
         ContractSpecBuilder {
             name,
             deploy: None,
-            messages: vec![],
-            events: vec![],
-            docs: vec![],
+            messages: Vec::new(),
+            events: Vec::new(),
+            docs: Vec::new(),
             marker: PhantomData,
         }
     }
@@ -203,8 +203,8 @@ impl DeploySpec {
     pub fn new() -> DeploySpecBuilder {
         DeploySpecBuilder {
             spec: Self {
-                args: vec![],
-                docs: vec![],
+                args: Vec::new(),
+                docs: Vec::new(),
             },
         }
     }
@@ -292,9 +292,9 @@ impl MessageSpec {
                 name,
                 selector: 0,
                 mutates: false,
-                args: vec![],
+                args: Vec::new(),
                 return_type: ReturnTypeSpec::none(),
-                docs: vec![],
+                docs: Vec::new(),
             },
             marker: PhantomData,
         }
@@ -473,8 +473,8 @@ impl EventSpec {
         EventSpecBuilder {
             spec: Self {
                 name,
-                args: vec![],
-                docs: vec![],
+                args: Vec::new(),
+                docs: Vec::new(),
             },
         }
     }
