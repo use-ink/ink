@@ -299,6 +299,10 @@ pub struct MessageSpec<F: Form = MetaForm> {
     docs: Vec<&'static str>,
 }
 
+/// Type state for builders to tell that some mandatory state has not yet been set
+/// yet or to fail upon setting the same state multiple times.
+pub struct Missing<S>(PhantomData<fn() -> S>);
+
 mod state {
     //! Type states that tell what state of a message has not
     //! yet been set properly for a valid construction.
@@ -310,10 +314,6 @@ mod state {
     /// Type state for the return type of a message.
     pub struct Returns;
 }
-
-/// Type state for the message builder to tell that some mandatory state has not yet been set
-/// yet or to fail upon setting the same state multiple times.
-pub struct Missing<S>(PhantomData<fn() -> S>);
 
 impl MessageSpec {
     /// Creates a new message spec builder.
