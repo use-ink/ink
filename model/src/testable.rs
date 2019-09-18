@@ -101,11 +101,10 @@ where
     where
         M2: Message + 'static,
         <M2 as FnInput>::Input: scale::Encode + 'static,
-        <M2 as FnOutput>::Output: scale::Decode + 'static
+        <M2 as FnOutput>::Output: scale::Decode + 'static,
     {
         // TODO: Why do we need the `let _ = ..;` here? (Warnings!)
-        self
-            .contract
+        self.contract
             .messages
             .dispatch_return::<M2>(&mut self.contract.storage, input)
             .expect("failed at evaluating a message of a testable contract")
