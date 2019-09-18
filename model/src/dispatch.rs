@@ -211,6 +211,8 @@ macro_rules! impl_dispatcher_for {
                 <M2 as FnOutput>::Output: 'static,
             {
                 if TypeId::of::<M>() != TypeId::of::<M2>() {
+                    // We can reach this point if there are two different
+                    // messages `M` and `M2` that have the same selector.
                     return Err(Error::InvalidArguments)
                 }
                 // M and M2 are equal at this point.
@@ -218,10 +220,14 @@ macro_rules! impl_dispatcher_for {
                 // - <M as FnInput>::Input == <M2 as FnInput>::Input
                 // - <M as FnOutput>::Output == <M2 as FnOutput>::Output
                 let input: <M as FnInput>::Input = unsafe {
+                    // We cannot use `transmute` here because it is too restrictive
+                    // and doesn't allow transmuting between dependend types.
                     core::mem::transmute_copy::<_, _>(&input)
                 };
                 let output: <M as FnOutput>::Output = self.eval(storage, input);
                 let output: <M2 as FnOutput>::Output = unsafe {
+                    // We cannot use `transmute` here because it is too restrictive
+                    // and doesn't allow transmuting between dependend types.
                     core::mem::transmute_copy::<_, _>(&output)
                 };
                 Ok(output)
