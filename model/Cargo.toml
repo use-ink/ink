@@ -16,7 +16,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 ink_core = { path = "../core", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
-derive_more = "0.15"
+derive_more = { version = "0.15", default-features = false, features = ["no_std"] }
 
 [features]
 default = ["test-env"]
