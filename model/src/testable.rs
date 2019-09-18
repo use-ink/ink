@@ -33,7 +33,7 @@ pub trait TestConstructInstance: Sized {
     /// # Panics
     ///
     /// If the provided constructor is unknown to the contract.
-    fn construct_with<C>(self, inputs: <C as FnInput>::Input) -> TestableInstance<Self>
+    fn construct_with<C>(self, inputs: <C as FnInput>::Input) -> TestableContract<Self>
     where
         C: Constructor + 'static,
         <C as FnInput>::Input: 'static,
@@ -49,7 +49,7 @@ where
     M: Message,
     DispatchList<C, RestC>: DispatchReturn<S>,
 {
-    fn construct_with<C2>(self, inputs: <C2 as FnInput>::Input) -> TestableInstance<Self>
+    fn construct_with<C2>(self, inputs: <C2 as FnInput>::Input) -> TestableContract<Self>
     where
         C2: Constructor + 'static,
         <C2 as FnInput>::Input: 'static,
@@ -69,9 +69,9 @@ where
 ///
 /// Restricts the interface to provide only contract messages after construction.
 #[derive(From)]
-pub struct TestableInstance<C> {
+pub struct TestableContract<C> {
     /// The wrapped smart contract.
-    _contract: C,
+    contract: C,
 }
 
 /// Trait implemented by testable contract instances.
@@ -81,9 +81,33 @@ pub trait TestCallInstance {
     /// # Panics
     ///
     /// If the provided message is unknown to the contract.
-    fn call_mut<M>(&mut self, inputs: <M as FnInput>::Input) -> <M as FnOutput>::Output
+    fn call_mut<M>(&mut self, input: <M as FnInput>::Input) -> <M as FnOutput>::Output
     where
-        M: Message,
-        <M as FnInput>::Input: scale::Encode,
-        <M as FnOutput>::Output: scale::Decode;
+        M: Message + 'static,
+        <M as FnInput>::Input: scale::Encode + 'static,
+        <M as FnOutput>::Output: scale::Decode + 'static;
+}
+
+impl<S, C, RestC, M, RestM> TestCallInstance
+    for TestableContract<Contract<S, DispatchList<C, RestC>, DispatchList<M, RestM>>>
+where
+    S: Storage,
+    C: Constructor,
+    <C as FnInput>::Input: 'static,
+    M: Message,
+    DispatchList<M, RestM>: DispatchReturn<S>,
+{
+    fn call_mut<M2>(&mut self, input: <M2 as FnInput>::Input) -> <M2 as FnOutput>::Output
+    where
+        M2: Message + 'static,
+        <M2 as FnInput>::Input: scale::Encode + 'static,
+        <M2 as FnOutput>::Output: scale::Decode + 'static
+    {
+        // TODO: Why do we need the `let _ = ..;` here? (Warnings!)
+        self
+            .contract
+            .messages
+            .dispatch_return::<M2>(&mut self.contract.storage, input)
+            .expect("failed at evaluating a message of a testable contract")
+    }
 }
