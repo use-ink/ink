@@ -21,7 +21,7 @@ use crate::{
     Message,
     Storage,
 };
-#[cfg(test)]
+#[cfg(feature = "test-env")]
 use core::any::TypeId;
 use derive_more::Display;
 use ink_core::memory::vec::Vec;
@@ -196,7 +196,7 @@ macro_rules! impl_dispatcher_for {
             }
         }
 
-        #[cfg(test)]
+        #[cfg(feature = "test-env")]
         impl<M, S> DispatchReturn<S> for $name<M, S>
         where
             M: Message + 'static,
@@ -321,7 +321,7 @@ pub trait Dispatch<S> {
 }
 
 /// Trait for off-chain test environments to test calls to concrete messages.
-#[cfg(test)]
+#[cfg(feature = "test-env")]
 pub trait DispatchReturn<S>
 where
     S: Storage,
@@ -353,7 +353,7 @@ impl<S> Dispatch<S> for UnreachableDispatcher {
     }
 }
 
-#[cfg(test)]
+#[cfg(feature = "test-env")]
 impl<S> DispatchReturn<S> for UnreachableDispatcher
 where
     S: Storage,
@@ -430,7 +430,7 @@ where
     }
 }
 
-#[cfg(test)]
+#[cfg(feature = "test-env")]
 impl<S, D, Rest> DispatchReturn<S> for DispatchList<D, Rest>
 where
     S: Storage,

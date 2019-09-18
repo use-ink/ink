@@ -44,9 +44,6 @@ impl<S, C, RestC, M, RestM> TestConstructInstance
     for Contract<S, DispatchList<C, RestC>, DispatchList<M, RestM>>
 where
     S: Storage,
-    C: Constructor,
-    <C as FnInput>::Input: 'static,
-    M: Message,
     DispatchList<C, RestC>: DispatchReturn<S>,
 {
     fn construct_with<C2>(self, inputs: <C2 as FnInput>::Input) -> TestableContract<Self>
@@ -81,7 +78,7 @@ pub trait TestCallInstance {
     /// # Panics
     ///
     /// If the provided message is unknown to the contract.
-    fn call_mut<M>(&mut self, input: <M as FnInput>::Input) -> <M as FnOutput>::Output
+    fn call<M>(&mut self, input: <M as FnInput>::Input) -> <M as FnOutput>::Output
     where
         M: Message + 'static,
         <M as FnInput>::Input: scale::Encode + 'static,
@@ -92,18 +89,14 @@ impl<S, C, RestC, M, RestM> TestCallInstance
     for TestableContract<Contract<S, DispatchList<C, RestC>, DispatchList<M, RestM>>>
 where
     S: Storage,
-    C: Constructor,
-    <C as FnInput>::Input: 'static,
-    M: Message,
     DispatchList<M, RestM>: DispatchReturn<S>,
 {
-    fn call_mut<M2>(&mut self, input: <M2 as FnInput>::Input) -> <M2 as FnOutput>::Output
+    fn call<M2>(&mut self, input: <M2 as FnInput>::Input) -> <M2 as FnOutput>::Output
     where
         M2: Message + 'static,
         <M2 as FnInput>::Input: scale::Encode + 'static,
         <M2 as FnOutput>::Output: scale::Decode + 'static,
     {
-        // TODO: Why do we need the `let _ = ..;` here? (Warnings!)
         self.contract
             .messages
             .dispatch_return::<M2>(&mut self.contract.storage, input)

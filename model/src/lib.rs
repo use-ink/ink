@@ -56,13 +56,20 @@ mod msg;
 mod contract;
 mod dispatch;
 mod exec_env;
-#[cfg(test)]
+#[cfg(feature = "test-env")]
 mod testable;
 
 pub mod checks;
 
-#[cfg(test)]
-pub use crate::dispatch::DispatchReturn;
+#[cfg(feature = "test-env")]
+pub use crate::{
+    dispatch::DispatchReturn,
+    testable::{
+        TestConstructInstance,
+        TestableContract,
+        TestCallInstance,
+    },
+};
 
 pub use crate::{
     contract::{
