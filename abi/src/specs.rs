@@ -367,6 +367,13 @@ impl<S> ConstructorSpecBuilder<S> {
     }
 }
 
+impl ConstructorSpecBuilder<state::Selector> {
+    /// Finishes construction of the constructor.
+    pub fn done(self) -> ConstructorSpec {
+        self.spec
+    }
+}
+
 /// Describes a contract message.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
