@@ -65,9 +65,9 @@ pub mod checks;
 pub use crate::{
     dispatch::DispatchReturn,
     testable::{
+        TestCallInstance,
         TestConstructInstance,
         TestableContract,
-        TestCallInstance,
     },
 };
 

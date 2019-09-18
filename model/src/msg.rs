@@ -51,20 +51,20 @@ pub trait Constructor: Message {}
 /// Defines constructors for contracts with less boilerplate code.
 #[macro_export]
 macro_rules! constructors {
-	(
-		$( #[$attr:meta] )*
-		$selector:literal => $name:ident (
-			$( $param_name:ident : $param_ty:ty ),*
-		);
+    (
+        $( #[$attr:meta] )*
+        $selector:literal => $name:ident (
+            $( $param_name:ident : $param_ty:ty ),*
+        );
 
-		$($rest:tt)*
-	) => {
-		$( #[$attr] )*
-		#[derive(Copy, Clone)]
-		pub(crate) struct $name;
+        $($rest:tt)*
+    ) => {
+        $( #[$attr] )*
+        #[derive(Copy, Clone)]
+        pub(crate) struct $name;
 
         impl $crate::FnSelector for $name {
-			const SELECTOR: $crate::Selector =
+            const SELECTOR: $crate::Selector =
                 $crate::Selector::new($selector);
         }
 
@@ -80,34 +80,35 @@ macro_rules! constructors {
             const NAME: &'static str = stringify!($name);
         }
 
-		impl $crate::Message for $name {
+        impl $crate::Message for $name {
             const IS_MUT: bool = true;
         }
 
         impl $crate::Constructor for $name {}
 
-		messages!($($rest)*);
-	};
+        constructors!($($rest)*);
+    };
+    () => {};
 }
 
 /// Defines messages for contracts with less boilerplate code.
 #[macro_export]
 macro_rules! messages {
     // Rule for `&self` message with a return type.
-	(
-		$( #[$attr:meta] )*
-		$selector:literal => $name:ident (
-			&self $( , $param_name:ident : $param_ty:ty )* $(,)?
-		) -> $output:ty ;
+    (
+        $( #[$attr:meta] )*
+        $selector:literal => $name:ident (
+            &self $( , $param_name:ident : $param_ty:ty )* $(,)?
+        ) -> $output:ty ;
 
-		$($rest:tt)*
-	) => {
-		$( #[$attr] )*
-		#[derive(Copy, Clone)]
-		pub(crate) enum $name {}
+        $($rest:tt)*
+    ) => {
+        $( #[$attr] )*
+        #[derive(Copy, Clone)]
+        pub(crate) enum $name {}
 
         impl $crate::FnSelector for $name {
-			const SELECTOR: $crate::Selector =
+            const SELECTOR: $crate::Selector =
                 $crate::Selector::new($selector);
         }
 
@@ -123,49 +124,49 @@ macro_rules! messages {
             const NAME: &'static str = stringify!($name);
         }
 
-		impl $crate::Message for $name {
+        impl $crate::Message for $name {
             const IS_MUT: bool = false;
-		}
+        }
 
         impl $crate::checks::CheckIsMessageMut for $name {
             type Value = [Self; <Self as $crate::Message>::IS_MUT as usize];
         }
 
-		messages!($($rest)*);
-	};
+        messages!($($rest)*);
+    };
     // Rule for `&self` message without a return type.
-	(
-		$( #[$attr:meta] )*
-		$selector:literal => $name:ident (
-			&self $( , $param_name:ident : $param_ty:ty )* $(,)?
-		) ;
+    (
+        $( #[$attr:meta] )*
+        $selector:literal => $name:ident (
+            &self $( , $param_name:ident : $param_ty:ty )* $(,)?
+        ) ;
 
-		$($rest:tt)*
-	) => {
-		messages!(
-			$( #[$attr] )*
-			$selector => $name (
-				&self $( , $param_name : $param_ty )*
-			) -> ();
+        $($rest:tt)*
+    ) => {
+        messages!(
+            $( #[$attr] )*
+            $selector => $name (
+                &self $( , $param_name : $param_ty )*
+            ) -> ();
 
-			$($rest)*
-		);
-	};
+            $($rest)*
+        );
+};
     // Rule for `&mut self` message with a return type.
-	(
-		$( #[$attr:meta] )*
-		$selector:literal => $name:ident (
-			&mut self $( , $param_name:ident : $param_ty:ty )* $(,)?
-		) -> $output:ty ;
+    (
+        $( #[$attr:meta] )*
+        $selector:literal => $name:ident (
+            &mut self $( , $param_name:ident : $param_ty:ty )* $(,)?
+        ) -> $output:ty ;
 
-		$($rest:tt)*
-	) => {
-		$( #[$attr] )*
-		#[derive(Copy, Clone)]
-		pub(crate) enum $name {}
+        $($rest:tt)*
+    ) => {
+        $( #[$attr] )*
+        #[derive(Copy, Clone)]
+        pub(crate) enum $name {}
 
         impl $crate::FnSelector for $name {
-			const SELECTOR: $crate::Selector =
+            const SELECTOR: $crate::Selector =
                 $crate::Selector::new($selector);
         }
 
@@ -181,34 +182,34 @@ macro_rules! messages {
             const NAME: &'static str = stringify!($name);
         }
 
-		impl $crate::Message for $name {
+        impl $crate::Message for $name {
             const IS_MUT: bool = true;
-		}
+        }
 
         impl $crate::checks::CheckIsMessageMut for $name {
             type Value = [Self; <Self as $crate::Message>::IS_MUT as usize];
         }
 
-		messages!($($rest)*);
-	};
+        messages!($($rest)*);
+    };
     // Rule for `&mut self` message without a return type.
-	(
-		$( #[$attr:meta] )*
-		$selector:literal => $name:ident (
-			&mut self $( , $param_name:ident : $param_ty:ty )* $(,)?
-		) ;
+    (
+        $( #[$attr:meta] )*
+        $selector:literal => $name:ident (
+            &mut self $( , $param_name:ident : $param_ty:ty )* $(,)?
+        ) ;
 
-		$($rest:tt)*
-	) => {
-		messages!(
-			$( #[$attr] )*
-			$selector => $name (
-				&mut self $( , $param_name : $param_ty )*
-			) -> ();
+        $($rest:tt)*
+    ) => {
+        messages!(
+            $( #[$attr] )*
+            $selector => $name (
+                &mut self $( , $param_name : $param_ty )*
+            ) -> ();
 
-			$($rest)*
-		);
-	};
+            $($rest)*
+        );
+    };
     // Base rule to end macro.
-	() => {};
+    () => {};
 }
