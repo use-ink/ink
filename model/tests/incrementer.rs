@@ -109,9 +109,9 @@ mod tests {
     fn inc_and_read() {
         let mut contract = declare().construct_with::<New>(0_u32);
         assert_eq!(contract.call::<Get>(()), 0_u32);
-        // contract.call::<Inc>(1);
-        // assert_eq!(contract.call::<Get>(()), 1_u32);
-        // contract.call::<Inc>(41);
-        // assert_eq!(contract.call::<Get>(()), 42_u32);
+        contract.call::<Inc>(1);
+        assert_eq!(contract.call::<Get>(()), 1_u32);
+        contract.call::<Inc>(41);
+        assert_eq!(contract.call::<Get>(()), 42_u32);
     }
 }
