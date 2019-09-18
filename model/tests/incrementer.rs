@@ -21,6 +21,8 @@ use ink_core::{
     },
     storage,
 };
+#[cfg(feature = "test-env")]
+use ink_model::TestConstructInstance;
 use ink_model::{
     constructors,
     messages,
@@ -49,47 +51,67 @@ messages! {
     1 => Get(&self) -> u32;
 }
 
-#[rustfmt::skip]
-fn declare() -> impl Instance {
-	Contract::with_storage::<Adder<ContractEnv<DefaultSrmlTypes>>>()
-		.on_construct::<New>(|contract, init_val| {
-			contract.val.set(init_val)
-		})
-		.on_msg_mut::<Inc>(|contract, by| {
-			contract.val += by
-		})
-		.on_msg::<Get>(|contract, _| {
-			*contract.val
-		})
-		.done()
+macro_rules! declare_contract {
+    () => {
+        Contract::with_storage::<Adder<ContractEnv<DefaultSrmlTypes>>>()
+            .on_construct::<New>(|contract, init_val| contract.val.set(init_val))
+            .on_msg_mut::<Inc>(|contract, by| contract.val += by)
+            .on_msg::<Get>(|contract, _| *contract.val)
+            .done()
+    };
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-
-//     #[test]
-//     fn inc_and_read() {
-//         let mut contract = instantiate();
-//         contract.deploy(0_u32);
-//         assert_eq!(contract.call::<Get>(()), 0_u32);
-//         contract.call::<Inc>(1);
-//         assert_eq!(contract.call::<Get>(()), 1_u32);
-//         contract.call::<Inc>(41);
-//         assert_eq!(contract.call::<Get>(()), 42_u32);
-//     }
-
-//     #[test]
-//     #[should_panic]
-//     fn read_without_deploy() {
-//         let mut contract = instantiate();
-//         let _res = contract.call::<Get>(());
-//     }
-
-//     #[test]
-//     #[should_panic]
-//     fn write_without_deploy() {
-//         let mut contract = instantiate();
-//         contract.call::<Inc>(100);
-//     }
+// #[cfg(not(feature = "test-env"))]
+// fn declare() -> impl Instance {
+//     declare_contract!()
 // }
+
+// #[cfg(feature = "test-env")]
+// fn declare() -> impl Instance + TestConstructInstance {
+//     declare_contract!()
+// }
+
+use ink_model::{
+    DispatchList,
+    Dispatcher,
+    DispatcherMut,
+    UnreachableDispatcher,
+};
+fn declare() ->
+    Contract<
+        Adder<ContractEnv<DefaultSrmlTypes>>,
+        DispatchList<
+            DispatcherMut<New, Adder<ContractEnv<DefaultSrmlTypes>>>,
+            UnreachableDispatcher,
+        >,
+        DispatchList<
+            Dispatcher<Get, Adder<ContractEnv<DefaultSrmlTypes>>>,
+            DispatchList<
+                DispatcherMut<Inc, Adder<ContractEnv<DefaultSrmlTypes>>>,
+                UnreachableDispatcher,
+            >,
+        >,
+    >
+{
+    declare_contract!()
+}
+
+#[cfg(all(test, feature = "test-env"))]
+mod tests {
+    use super::*;
+
+    use ink_model::{
+        TestCallInstance,
+        TestConstructInstance,
+    };
+
+    #[test]
+    fn inc_and_read() {
+        let mut contract = declare().construct_with::<New>(0_u32);
+        assert_eq!(contract.call::<Get>(()), 0_u32);
+        // contract.call::<Inc>(1);
+        // assert_eq!(contract.call::<Get>(()), 1_u32);
+        // contract.call::<Inc>(41);
+        // assert_eq!(contract.call::<Get>(()), 42_u32);
+    }
+}
