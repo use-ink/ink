@@ -72,7 +72,7 @@ fn contract_compiles() {
             mod normal {
                 use super::*;
 
-                ink_model::state! {
+                ink_model::storage! {
                     /// A simple contract that has a boolean value that can be flipped and be returned.
                     #[cfg_attr(
                         feature = "ink-generate-abi",
@@ -86,29 +86,34 @@ fn contract_compiles() {
 
                 mod msg {
                     use super::*;
-                    use ink_model::messages;
+                    use ink_model::{constructors, messages};
+
+                    ink_model::constructors! {
+                        /// Constructs the contract.
+                        0 => Deploy();
+                    }
 
                     ink_model::messages! {
                         /// Flips the internal boolean.
-                        970692492 => Flip();
+                        970692492 => Flip(&mut self);
                         /// Returns the internal boolean.
-                        4266279973 => Get() -> bool;
+                        4266279973 => Get(&self) -> bool;
                     }
                 }
 
                 impl Flipper {
                     /// The internal boolean is initialized with `true`.
-                    pub fn deploy(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {
+                    pub fn deploy(&mut self) {
                         self.value.set(true)
                     }
 
                     /// Flips the internal boolean.
-                    pub fn flip(&mut self, env: &mut ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) {
+                    pub fn flip(&mut self) {
                         self.value = !(*self.value)
                     }
 
                     /// Returns the internal boolean.
-                    pub fn get(&self, env: &ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes> >) -> bool {
+                    pub fn get(&self) -> bool {
                         *self.value
                     }
                 }
@@ -118,18 +123,15 @@ fn contract_compiles() {
                 #[cfg(not(test))]
                 impl Flipper {
                     pub(crate) fn instantiate() -> impl ink_model::Contract {
-                        ink_model::ContractDecl::using::<Self, ink_core::env::ContractEnv<DefaultSrmlTypes>>()
-                            .on_deploy(|env, ()| {
-                                let (handler, state) = env.split_mut();
-                                state.deploy(handler,)
+                        ink_model::ContractDecl::using::<Self<ink_core::env::ContractEnv<DefaultSrmlTypes>>>()
+                            .on_construct::<msg::Deploy>(|contract, _| {
+                                contract.on_deploy()
                             })
-                            .on_msg_mut::<msg::Flip>(|env, _| {
-                                let (handler, state) = env.split_mut();
-                                state.flip(handler,)
+                            .on_msg_mut::<msg::Flip>(|contract, _| {
+                                contract.flip()
                             })
-                            .on_msg::<msg::Get>(|env, _| {
-                                let (handler, state) = env.split();
-                                state.get(handler,)
+                            .on_msg::<msg::Get>(|contract, _| {
+                                contract.get()
                             })
                             .instantiate()
                     }
