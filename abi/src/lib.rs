@@ -39,7 +39,6 @@ pub use self::{
         ConstructorSpecBuilder,
         ContractSpec,
         ContractSpecBuilder,
-        DeploySpec,
         EventParamSpec,
         EventSpec,
         EventSpecBuilder,

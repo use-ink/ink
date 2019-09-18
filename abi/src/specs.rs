@@ -39,8 +39,6 @@ use alloc::{
 pub struct ContractSpec<F: Form = MetaForm> {
     /// The name of the contract.
     name: F::String,
-    /// The deploy handler of the contract.
-    deploy: DeploySpec<F>,
     /// The set of constructors of the contract.
     constructors: Vec<ConstructorSpec<F>>,
     /// The external messages of the contract.
@@ -57,7 +55,6 @@ impl IntoCompact for ContractSpec {
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ContractSpec {
             name: registry.register_string(&self.name),
-            deploy: self.deploy.into_compact(registry),
             constructors: self
                 .constructors
                 .into_iter()
@@ -87,8 +84,6 @@ pub enum Invalid {}
 pub struct ContractSpecBuilder<S = Invalid> {
     /// The name of the to-be-constructed contract specification.
     name: <MetaForm as Form>::String,
-    /// The deploy handler of the to-be-constructed contract specification.
-    deploy: Option<DeploySpec>,
     /// The constructors of the to-be-constructed constract specification.
     constructors: Vec<ConstructorSpec>,
     /// The messages of the to-be-constructed contract specification.
@@ -102,19 +97,6 @@ pub struct ContractSpecBuilder<S = Invalid> {
 }
 
 impl ContractSpecBuilder<Invalid> {
-    /// Sets the deploy handler of the contract specification.
-    pub fn on_deploy(self, deploy_handler: DeploySpec) -> ContractSpecBuilder<Valid> {
-        ContractSpecBuilder {
-            name: self.name,
-            deploy: Some(deploy_handler),
-            constructors: self.constructors, // TODO
-            messages: self.messages,
-            events: self.events,
-            docs: self.docs,
-            marker: PhantomData,
-        }
-    }
-
     /// Sets the constructors of the contract specification.
     pub fn constructors<C>(self, constructors: C) -> Self
     where
@@ -169,13 +151,10 @@ impl<S> ContractSpecBuilder<S> {
 impl ContractSpecBuilder<Valid> {
     /// Finalizes construction of the contract specification.
     pub fn done(self) -> ContractSpec {
-        assert!(!self.contructors.is_empty(), "must have at least one constructor");
+        assert!(!self.constructors.is_empty(), "must have at least one constructor");
         assert!(!self.messages.is_empty(), "must have at least one message");
         ContractSpec {
             name: self.name,
-            deploy: self
-                .deploy
-                .expect("a valid contract spec build must have a deploy handler; qed"),
             constructors: self.constructors,
             messages: self.messages,
             events: self.events,
@@ -189,84 +168,12 @@ impl ContractSpec {
     pub fn new(name: <MetaForm as Form>::String) -> ContractSpecBuilder {
         ContractSpecBuilder {
             name,
-            deploy: None,
             constructors: Vec::new(),
             messages: Vec::new(),
             events: Vec::new(),
             docs: Vec::new(),
             marker: PhantomData,
         }
-    }
-}
-
-/// Describes the deploy handler of a contract.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
-pub struct DeploySpec<F: Form = MetaForm> {
-    /// The parameters of the deploy handler.
-    args: Vec<MessageParamSpec<F>>,
-    /// The deploy handler documentation.
-    docs: Vec<&'static str>,
-}
-
-impl IntoCompact for DeploySpec {
-    type Output = DeploySpec<CompactForm>;
-
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
-        DeploySpec {
-            args: self
-                .args
-                .into_iter()
-                .map(|arg| arg.into_compact(registry))
-                .collect::<Vec<_>>(),
-            docs: self.docs,
-        }
-    }
-}
-
-impl DeploySpec {
-    /// Creates a new deploy specification builder.
-    pub fn new() -> DeploySpecBuilder {
-        DeploySpecBuilder {
-            spec: Self {
-                args: Vec::new(),
-                docs: Vec::new(),
-            },
-        }
-    }
-}
-
-/// A builder to construct a deploy specification.
-pub struct DeploySpecBuilder {
-    spec: DeploySpec,
-}
-
-impl DeploySpecBuilder {
-    /// Sets the input arguments of the deploy spec.
-    pub fn args<A>(self, args: A) -> DeploySpecBuilder
-    where
-        A: IntoIterator<Item = MessageParamSpec>,
-    {
-        let mut this = self;
-        debug_assert!(this.spec.args.is_empty());
-        this.spec.args = args.into_iter().collect::<Vec<_>>();
-        this
-    }
-
-    /// Sets the documentation of the deploy spec.
-    pub fn docs<D>(self, docs: D) -> DeploySpecBuilder
-    where
-        D: IntoIterator<Item = &'static str>,
-    {
-        let mut this = self;
-        debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
-        this
-    }
-
-    /// Finishes building the deploy spec.
-    pub fn done(self) -> DeploySpec {
-        self.spec
     }
 }
 
