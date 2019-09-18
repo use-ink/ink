@@ -76,6 +76,7 @@ pub enum Valid {}
 /// The message builder is not ready to finalize construction.
 pub enum Invalid {}
 
+/// A builder for contracts.
 pub struct ContractSpecBuilder<S = Invalid> {
     /// The name of the to-be-constructed contract specification.
     name: <MetaForm as Form>::String,

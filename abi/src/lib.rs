@@ -55,6 +55,7 @@ use type_metadata::{
     Registry,
 };
 
+/// An entire ink! project for ABI file generation purposes.
 #[derive(Debug, Serialize)]
 pub struct InkProject {
     registry: Registry,
@@ -65,6 +66,7 @@ pub struct InkProject {
 }
 
 impl InkProject {
+    /// Creates a new ink! project.
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
         L: Into<StorageLayout>,
