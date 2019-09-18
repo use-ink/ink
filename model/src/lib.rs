@@ -56,8 +56,13 @@ mod msg;
 mod contract;
 mod dispatch;
 mod exec_env;
+#[cfg(test)]
+mod testable;
 
 pub mod checks;
+
+#[cfg(test)]
+pub use crate::dispatch::DispatchReturn;
 
 pub use crate::{
     contract::{

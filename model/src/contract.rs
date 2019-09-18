@@ -40,9 +40,9 @@ use ink_core::storage::{
 
 /// A contract definition.
 pub struct Contract<S, C, M> {
-    storage: S,
-    constructors: C,
-    messages: M,
+    pub(crate) storage: S,
+    pub(crate) constructors: C,
+    pub(crate) messages: M,
 }
 
 impl Contract<(), (), ()> {
@@ -177,71 +177,3 @@ where
         this.messages.dispatch(&mut this.storage, call_data)
     }
 }
-
-// /// An interface that allows for simple testing of contracts.
-// pub trait TestableContract {
-//     /// The arguments used for deployment.
-//     ///
-//     /// These must be the same as the ones defined on the deploy handler
-//     /// of a contract declaration.
-//     type DeployArgs: scale::Encode;
-
-//     /// Deploys the contract given the provided arguments for deployment.
-//     ///
-//     /// # Note
-//     ///
-//     /// This shall be performed only once during the lifetime of a contract.
-//     ///
-//     /// # Panics
-//     ///
-//     /// This might panic if the provided arguments do not match the expected.
-//     fn deploy(&mut self, deploy_args: Self::DeployArgs);
-
-//     /// Calls the contract with the given message and its
-//     /// inputs and upon successful execution returns its result.
-//     ///
-//     /// # Note
-//     ///
-//     /// Takes `&mut self` since it could potentially call a message
-//     /// that mutates state. There currently is no separation between
-//     /// messages that mutate state and those that do not.
-//     ///
-//     /// # Panics
-//     ///
-//     /// If the contract has no message handler setup for the given message.
-//     fn call<Msg>(&mut self, input: <Msg as FnInput>::Input) -> <Msg as FnOutput>::Output
-//     where
-//         Msg: Message,
-//         <Msg as FnInput>::Input: scale::Encode,
-//         <Msg as FnOutput>::Output: scale::Decode;
-// }
-
-// impl<S, Env, DeployArgs, HandlerChain> TestableContract
-//     for ContractInstance<S, Env, DeployArgs, HandlerChain>
-// where
-//     S: Storage,
-//     Env: env::Env,
-//     DeployArgs: scale::Codec,
-//     HandlerChain: Dispatch<S>,
-// {
-//     type DeployArgs = DeployArgs;
-
-//     fn deploy(&mut self, input: Self::DeployArgs) {
-//         self.deploy_with(&input.encode()[..])
-//             .expect("`deploy` failed to execute properly")
-//     }
-
-//     fn call<Msg>(&mut self, input: <Msg as FnInput>::Input) -> <Msg as FnOutput>::Output
-//     where
-//         Msg: Message,
-//         <Msg as FnInput>::Input: scale::Encode,
-//         <Msg as FnOutput>::Output: scale::Decode,
-//     {
-//         let encoded_result = self
-//             .call_with(CallAbi::from_msg::<Msg>(input))
-//             .expect("`call` failed to execute properly");
-//         use scale::Decode;
-//         <Msg as FnOutput>::Output::decode(&mut &encoded_result[..])
-//             .expect("`call_with` only encodes the correct types")
-//     }
-// }

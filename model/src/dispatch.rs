@@ -21,6 +21,8 @@ use crate::{
     Message,
     Storage,
 };
+#[cfg(test)]
+use core::any::TypeId;
 use derive_more::Display;
 use ink_core::memory::vec::Vec;
 use scale::Decode;
@@ -193,6 +195,38 @@ macro_rules! impl_dispatcher_for {
                 Ok(())
             }
         }
+
+        #[cfg(test)]
+        impl<M, S> DispatchReturn<S> for $name<M, S>
+        where
+            M: Message + 'static,
+            <M as FnInput>::Input: 'static,
+            <M as FnOutput>::Output: 'static,
+            S: Storage,
+        {
+            fn dispatch_return<M2>(&self, storage: &mut S, input: <M2 as FnInput>::Input) -> Result<<M2 as FnOutput>::Output>
+            where
+                M2: Message + 'static,
+                <M2 as FnInput>::Input: 'static,
+                <M2 as FnOutput>::Output: 'static,
+            {
+                if TypeId::of::<M>() != TypeId::of::<M2>() {
+                    return Err(Error::InvalidArguments)
+                }
+                // M and M2 are equal at this point.
+                // And with this follows:
+                // - <M as FnInput>::Input == <M2 as FnInput>::Input
+                // - <M as FnOutput>::Output == <M2 as FnOutput>::Output
+                let input: <M as FnInput>::Input = unsafe {
+                    core::mem::transmute_copy::<_, _>(&input)
+                };
+                let output: <M as FnOutput>::Output = self.eval(storage, input);
+                let output: <M2 as FnOutput>::Output = unsafe {
+                    core::mem::transmute_copy::<_, _>(&output)
+                };
+                Ok(output)
+            }
+        }
     };
     ( // Forwarding rule for `mut`
         $( #[$meta:meta] )*
@@ -225,7 +259,7 @@ impl_dispatcher_for! {
 }
 
 /// Errors the may occure during message dispatch.
-#[derive(Display)]
+#[derive(Debug, Display)]
 pub enum Error {
     /// Encountered when the dispatcher was given an unknown function selector.
     #[display(fmt = "encountered unknown function selector")]
@@ -237,6 +271,7 @@ pub enum Error {
 }
 
 /// An error code returned to the SRML contract host side upon `create` and `call`.
+#[derive(Debug, Copy, Clone)]
 pub struct ErrCode(u8);
 
 impl From<Error> for ErrCode {
@@ -263,6 +298,11 @@ impl ErrCode {
     pub fn invalid_arguments() -> Self {
         ErrCode(2)
     }
+
+    /// Converts the error code into a `u32`.
+    pub fn to_u32(self) -> u32 {
+        self.0 as u32
+    }
 }
 
 /// Results of message handling operations.
@@ -272,6 +312,24 @@ pub type Result<T> = core::result::Result<T, Error>;
 pub trait Dispatch<S> {
     /// Dispatches the call and returns the encoded result.
     fn dispatch(&self, storage: &mut S, input: CallAbi) -> Result<()>;
+}
+
+/// Trait for off-chain test environments to test calls to concrete messages.
+#[cfg(test)]
+pub trait DispatchReturn<S>
+where
+    S: Storage,
+{
+    /// Dispatches into the given message `M` and returns the result or an appropriate error.
+    fn dispatch_return<M>(
+        &self,
+        storage: &mut S,
+        input: <M as FnInput>::Input,
+    ) -> Result<<M as FnOutput>::Output>
+    where
+        M: Message + 'static,
+        <M as FnInput>::Input: 'static,
+        <M as FnOutput>::Output: 'static;
 }
 
 /// A dispatcher that shall never dispatch.
@@ -285,6 +343,25 @@ pub struct UnreachableDispatcher;
 
 impl<S> Dispatch<S> for UnreachableDispatcher {
     fn dispatch(&self, _storage: &mut S, _data: CallAbi) -> Result<()> {
+        Err(Error::InvalidFunctionSelector)
+    }
+}
+
+#[cfg(test)]
+impl<S> DispatchReturn<S> for UnreachableDispatcher
+where
+    S: Storage,
+{
+    fn dispatch_return<M>(
+        &self,
+        _storage: &mut S,
+        _input: <M as FnInput>::Input,
+    ) -> Result<<M as FnOutput>::Output>
+    where
+        M: Message + 'static,
+        <M as FnInput>::Input: 'static,
+        <M as FnOutput>::Output: 'static,
+    {
         Err(Error::InvalidFunctionSelector)
     }
 }
@@ -343,6 +420,31 @@ where
             self.dispatcher.dispatch(storage, data)
         } else {
             self.rest.dispatch(storage, data)
+        }
+    }
+}
+
+#[cfg(test)]
+impl<S, D, Rest> DispatchReturn<S> for DispatchList<D, Rest>
+where
+    S: Storage,
+    D: DispatchReturn<S> + FnSelector,
+    Rest: DispatchReturn<S>,
+{
+    fn dispatch_return<M>(
+        &self,
+        storage: &mut S,
+        input: <M as FnInput>::Input,
+    ) -> Result<<M as FnOutput>::Output>
+    where
+        M: Message + 'static,
+        <M as FnInput>::Input: 'static,
+        <M as FnOutput>::Output: 'static,
+    {
+        if <D as FnSelector>::SELECTOR == <M as FnSelector>::SELECTOR {
+            self.dispatcher.dispatch_return::<M>(storage, input)
+        } else {
+            self.rest.dispatch_return::<M>(storage, input)
         }
     }
 }
