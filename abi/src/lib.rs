@@ -36,11 +36,14 @@ pub use self::{
     },
     specs::{
         ContractSpec,
+        ContractSpecBuilder,
         DeploySpec,
         EventParamSpec,
         EventSpec,
+        EventSpecBuilder,
         MessageParamSpec,
         MessageSpec,
+        MessageSpecBuilder,
         ReturnTypeSpec,
     },
 };
