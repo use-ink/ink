@@ -35,6 +35,8 @@ pub use self::{
         StorageLayout,
     },
     specs::{
+        ConstructorSpec,
+        ConstructorSpecBuilder,
         ContractSpec,
         ContractSpecBuilder,
         DeploySpec,

@@ -41,6 +41,8 @@ pub struct ContractSpec<F: Form = MetaForm> {
     name: F::String,
     /// The deploy handler of the contract.
     deploy: DeploySpec<F>,
+    /// The set of constructors of the contract.
+    constructors: Vec<ConstructorSpec<F>>,
     /// The external messages of the contract.
     messages: Vec<MessageSpec<F>>,
     /// The events of the contract.
@@ -56,6 +58,11 @@ impl IntoCompact for ContractSpec {
         ContractSpec {
             name: registry.register_string(&self.name),
             deploy: self.deploy.into_compact(registry),
+            constructors: self
+                .constructors
+                .into_iter()
+                .map(|constructor| constructor.into_compact(registry))
+                .collect::<Vec<_>>(),
             messages: self
                 .messages
                 .into_iter()
@@ -82,6 +89,8 @@ pub struct ContractSpecBuilder<S = Invalid> {
     name: <MetaForm as Form>::String,
     /// The deploy handler of the to-be-constructed contract specification.
     deploy: Option<DeploySpec>,
+    /// The constructors of the to-be-constructed constract specification.
+    constructors: Vec<ConstructorSpec>,
     /// The messages of the to-be-constructed contract specification.
     messages: Vec<MessageSpec>,
     /// The events of the to-be-constructed contract specification.
@@ -98,10 +107,23 @@ impl ContractSpecBuilder<Invalid> {
         ContractSpecBuilder {
             name: self.name,
             deploy: Some(deploy_handler),
+            constructors: self.constructors, // TODO
             messages: self.messages,
             events: self.events,
             docs: self.docs,
             marker: PhantomData,
+        }
+    }
+
+    /// Sets the constructors of the contract specification.
+    pub fn constructors<C>(self, constructors: C) -> Self
+    where
+        C: IntoIterator<Item = ConstructorSpec>,
+    {
+        debug_assert!(self.constructors.is_empty());
+        Self {
+            constructors: constructors.into_iter().collect::<Vec<_>>(),
+            ..self
         }
     }
 }
@@ -147,11 +169,14 @@ impl<S> ContractSpecBuilder<S> {
 impl ContractSpecBuilder<Valid> {
     /// Finalizes construction of the contract specification.
     pub fn done(self) -> ContractSpec {
+        assert!(!self.contructors.is_empty(), "must have at least one constructor");
+        assert!(!self.messages.is_empty(), "must have at least one message");
         ContractSpec {
             name: self.name,
             deploy: self
                 .deploy
                 .expect("a valid contract spec build must have a deploy handler; qed"),
+            constructors: self.constructors,
             messages: self.messages,
             events: self.events,
             docs: self.docs,
@@ -165,6 +190,7 @@ impl ContractSpec {
         ContractSpecBuilder {
             name,
             deploy: None,
+            constructors: Vec::new(),
             messages: Vec::new(),
             events: Vec::new(),
             docs: Vec::new(),
@@ -241,6 +267,103 @@ impl DeploySpecBuilder {
     /// Finishes building the deploy spec.
     pub fn done(self) -> DeploySpec {
         self.spec
+    }
+}
+
+/// Describes a constructor of a contract.
+#[derive(Debug, PartialEq, Eq, Serialize)]
+#[serde(bound = "F::TypeId: Serialize")]
+pub struct ConstructorSpec<F: Form = MetaForm> {
+    /// The name of the message.
+    name: F::String,
+    /// The selector hash of the message.
+    selector: u32,
+    /// The parameters of the deploy handler.
+    args: Vec<MessageParamSpec<F>>,
+    /// The deploy handler documentation.
+    docs: Vec<&'static str>,
+}
+
+impl IntoCompact for ConstructorSpec {
+    type Output = ConstructorSpec<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        ConstructorSpec {
+            name: registry.register_string(&self.name),
+            selector: self.selector,
+            args: self
+                .args
+                .into_iter()
+                .map(|arg| arg.into_compact(registry))
+                .collect::<Vec<_>>(),
+            docs: self.docs,
+        }
+    }
+}
+
+/// A builder for constructors.
+///
+/// # Dev
+///
+/// Some of the fields are guarded by a type-state pattern to
+/// fail at compile-time instead of at run-time. This is useful
+/// to better debug code-gen macros.
+pub struct ConstructorSpecBuilder<Selector> {
+    spec: ConstructorSpec,
+    marker: PhantomData<fn() -> Selector>,
+}
+
+impl ConstructorSpec {
+    /// Creates a new constructor spec builder.
+    pub fn new(
+        name: <MetaForm as Form>::String,
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+        ConstructorSpecBuilder {
+            spec: Self {
+                name,
+                selector: 0,
+                args: Vec::new(),
+                docs: Vec::new(),
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl ConstructorSpecBuilder<Missing<state::Selector>> {
+    /// Sets the function selector of the message.
+    pub fn selector(self, selector: u32) -> ConstructorSpecBuilder<state::Selector> {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                selector,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<S> ConstructorSpecBuilder<S> {
+    /// Sets the input arguments of the message specification.
+    pub fn args<A>(self, args: A) -> Self
+    where
+        A: IntoIterator<Item = MessageParamSpec>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.args.is_empty());
+        this.spec.args = args.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Sets the documentation of the message specification.
+    pub fn docs<D>(self, docs: D) -> Self
+    where
+        D: IntoIterator<Item = &'static str>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.docs.is_empty());
+        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this
     }
 }
 
