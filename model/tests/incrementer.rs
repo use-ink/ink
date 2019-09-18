@@ -42,6 +42,8 @@ storage! {
 constructors! {
     /// Initializes the contract with the initial value.
     0 => New(init_value: u32);
+    /// Initializes the contract with 0.
+    1 => Default();
 }
 
 messages! {
@@ -55,6 +57,7 @@ macro_rules! declare_contract {
     () => {
         Contract::with_storage::<Adder<ContractEnv<DefaultSrmlTypes>>>()
             .on_construct::<New>(|contract, init_val| contract.val.set(init_val))
+            .on_construct::<Default>(|contract, _| contract.val.set(0))
             .on_msg_mut::<Inc>(|contract, by| contract.val += by)
             .on_msg::<Get>(|contract, _| *contract.val)
             .done()
@@ -77,22 +80,23 @@ use ink_model::{
     DispatcherMut,
     UnreachableDispatcher,
 };
-fn declare() ->
-    Contract<
-        Adder<ContractEnv<DefaultSrmlTypes>>,
+fn declare() -> Contract<
+    Adder<ContractEnv<DefaultSrmlTypes>>,
+    DispatchList<
+        DispatcherMut<Default, Adder<ContractEnv<DefaultSrmlTypes>>>,
         DispatchList<
             DispatcherMut<New, Adder<ContractEnv<DefaultSrmlTypes>>>,
             UnreachableDispatcher,
         >,
+    >,
+    DispatchList<
+        Dispatcher<Get, Adder<ContractEnv<DefaultSrmlTypes>>>,
         DispatchList<
-            Dispatcher<Get, Adder<ContractEnv<DefaultSrmlTypes>>>,
-            DispatchList<
-                DispatcherMut<Inc, Adder<ContractEnv<DefaultSrmlTypes>>>,
-                UnreachableDispatcher,
-            >,
+            DispatcherMut<Inc, Adder<ContractEnv<DefaultSrmlTypes>>>,
+            UnreachableDispatcher,
         >,
-    >
-{
+    >,
+> {
     declare_contract!()
 }
 
