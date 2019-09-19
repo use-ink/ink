@@ -229,27 +229,41 @@ fn contract_compiles() {
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
                     ink_abi::ContractSpec::new("Incrementer")
-                        .on_deploy(ink_abi::DeploySpec::new()
-                            .args(vec![
-                                ink_abi::MessageParamSpec::new::<u32>("init_value"),
-                            ])
-                            .docs(vec![
-                                "Automatically called when the contract is deployed.",
-                            ])
-                            .done()
-                        )
+                        .constructors(vec![
+                            ink_abi::ConstructorSpec::new("on_deploy")
+                                .selector(0)
+                                .args(vec![
+                                    ink_abi::MessageParamSpec::new("init_value")
+                                        .of_type(
+                                            ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                                vec!["u32"].into_iter().map(AsRef::as_ref)
+                                            )
+                                        )
+                                        .done(),
+                                ])
+                                .docs(vec![
+                                    "Automatically called when the contract is deployed.",
+                                ])
+                                .done()
+                        ])
                         .messages(vec![
                             ink_abi::MessageSpec::new("inc")
                                 .selector(257544423u32)
                                 .mutates(true)
                                 .args(vec![
-                                    ink_abi::MessageParamSpec::new::<u32>("by"),
+                                    ink_abi::MessageParamSpec::new("by")
+                                        .of_type(
+                                            ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                                vec!["u32"].into_iter().map(AsRef::as_ref)
+                                            )
+                                        )
+                                        .done(),
                                 ])
                                 .docs(vec![
                                     "Increments the internal counter.",
                                 ])
                                 .returns(
-                                    ink_abi::ReturnTypeSpec::none()
+                                    ink_abi::ReturnTypeSpec::new(None)
                                 )
                                 .done(),
                             ink_abi::MessageSpec::new("get")
@@ -260,21 +274,36 @@ fn contract_compiles() {
                                     "Returns the internal counter.",
                                 ])
                                 .returns(
-                                    ink_abi::ReturnTypeSpec::new::<u32>()
+                                    ink_abi::ReturnTypeSpec::new(
+                                        ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                            vec!["u32"].into_iter().map(AsRef::as_ref)
+                                        )
+                                    )
                                 )
                                 .done(),
                             ink_abi::MessageSpec::new("compare")
                                 .selector(363906316u32)
                                 .mutates(false)
-                                .args(vec![ink_abi::MessageParamSpec::new::<u32>("x"),
-                            ])
-                            .docs(vec![
-                                "Returns `true` if `x` is greater than the internal value.",
-                            ])
-                            .returns(
-                                ink_abi::ReturnTypeSpec::new::<bool>()
-                            )
-                            .done(),
+                                .args(vec![
+                                    ink_abi::MessageParamSpec::new("x")
+                                        .of_type(
+                                            ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                                vec!["u32"].into_iter().map(AsRef::as_ref)
+                                            )
+                                        )
+                                        .done(),
+                                ])
+                                .docs(vec![
+                                    "Returns `true` if `x` is greater than the internal value.",
+                                ])
+                                .returns(
+                                    ink_abi::ReturnTypeSpec::new(
+                                        ink_abi::TypeSpec::with_name_segs::<bool, _>(
+                                            vec!["bool"].into_iter().map(AsRef::as_ref)
+                                        )
+                                    )
+                                )
+                                .done(),
                         ])
                         .events(vec![])
                         .docs(vec![])
