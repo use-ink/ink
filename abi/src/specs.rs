@@ -333,7 +333,7 @@ impl MessageSpec {
                 selector: 0,
                 mutates: false,
                 args: Vec::new(),
-                return_type: ReturnTypeSpec::none(),
+                return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
             },
             marker: PhantomData,
@@ -545,6 +545,17 @@ pub type DisplayName<F> = type_metadata::Namespace<F>;
 /// known displayed representation of the type. This is useful for cases
 /// where the type is used through a type alias in order to provide
 /// information about the alias name.
+///
+/// # Examples
+///
+/// Consider the following Rust function:
+/// ```no_compile
+/// fn is_sorted(input: &[i32], pred: Predicate) -> bool;
+/// ```
+/// In this above example `input` would have no displayable name,
+/// `pred`'s display name is `Predicate` and the display name of
+/// the return type is simply `bool`. Note that `Predicate` could
+/// simply be a type alias to `fn(i32, i32) -> Ordering`.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct TypeSpec<F: Form = MetaForm> {
@@ -650,7 +661,9 @@ impl EventParamSpec {
         EventParamSpecBuilder {
             spec: Self {
                 name,
+                // By default event parameters are not indexed.
                 indexed: false,
+                // We initialize every parameter type as `()`.
                 ty: TypeSpec::new::<()>(),
             },
         }
@@ -690,7 +703,7 @@ impl EventParamSpecBuilder {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
-    opt_type: Option<F::TypeId>,
+    opt_type: Option<TypeSpec<F>>,
 }
 
 impl IntoCompact for ReturnTypeSpec {
@@ -698,33 +711,30 @@ impl IntoCompact for ReturnTypeSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ReturnTypeSpec {
-            opt_type: self.opt_type.map(|opt_ty| registry.register_type(&opt_ty)),
+            opt_type: self
+                .opt_type
+                .map(|opt_type| opt_type.into_compact(registry)),
         }
     }
 }
 
 impl ReturnTypeSpec {
-    /// Creates a new return type specification indicating no return type.
-    pub fn none() -> Self {
-        Self { opt_type: None }
-    }
-
-    /// Creates a new return type specification for the given type.
-    pub fn new<T>() -> Self
+    /// Creates a new return type specification from the given type or `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use ink_abi::{TypeSpec, ReturnTypeSpec};
+    /// ReturnTypeSpec::new(None); // no return type;
+    /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
+    /// ```
+    pub fn new<T>(ty: T) -> Self
     where
-        T: Metadata,
+        T: Into<Option<TypeSpec>>,
     {
         Self {
-            opt_type: Some(T::meta_type()),
+            opt_type: ty.into(),
         }
-    }
-
-    /// Creates a new return type specification for the given type.
-    pub fn of<T>(_ty: &T) -> Self
-    where
-        T: Metadata,
-    {
-        Self::new::<T>()
     }
 }
 
@@ -736,7 +746,7 @@ pub struct MessageParamSpec<F: Form = MetaForm> {
     name: F::String,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: F::TypeId,
+    ty: TypeSpec<F>,
 }
 
 impl IntoCompact for MessageParamSpec {
@@ -745,28 +755,40 @@ impl IntoCompact for MessageParamSpec {
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         MessageParamSpec {
             name: registry.register_string(self.name),
-            ty: registry.register_type(&self.ty),
+            ty: self.ty.into_compact(registry),
         }
     }
 }
 
 impl MessageParamSpec {
-    /// Creates a new parameter specification for the given name and type.
-    pub fn new<T>(name: &'static str) -> Self
-    where
-        T: Metadata,
-    {
-        Self {
-            name,
-            ty: T::meta_type(),
+    /// Constructs a new message parameter specification via builder.
+    pub fn new(name: &'static str) -> MessageParamSpecBuilder {
+        MessageParamSpecBuilder {
+            spec: Self {
+                name,
+                // Uses `()` type by default.
+                ty: TypeSpec::new::<()>(),
+            },
         }
     }
+}
 
-    /// Creates a new parameter specification for the given name and type.
-    pub fn of<T>(name: &'static str, _ty: &T) -> Self
-    where
-        T: Metadata,
-    {
-        Self::new::<T>(name)
+/// Used to construct a message parameter specification.
+pub struct MessageParamSpecBuilder {
+    /// The to-be-constructed message parameter specification.
+    spec: MessageParamSpec,
+}
+
+impl MessageParamSpecBuilder {
+    /// Sets the type of the message parameter.
+    pub fn of_type(self, ty: TypeSpec) -> Self {
+        let mut this = self;
+        this.spec.ty = ty;
+        this
+    }
+
+    /// Finishes construction of the message parameter.
+    pub fn done(self) -> MessageParamSpec {
+        self.spec
     }
 }
