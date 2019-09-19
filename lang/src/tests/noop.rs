@@ -162,17 +162,19 @@ fn contract_compiles() {
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
                     ink_abi::ContractSpec::new("Noop")
-                        .on_deploy(ink_abi::DeploySpec::new()
-                        .args(vec![])
-                        .docs(vec![
-                            "Does nothing to initialize itself.",
+                        .constructors(vec![
+                            ink_abi::ConstructorSpec::new("on_deploy")
+                                .selector(0)
+                                .args(vec![])
+                                .docs(vec![
+                                    "Does nothing to initialize itself.",
+                                ])
+                                .done()
                         ])
+                        .messages(vec![])
+                        .events(vec![])
+                        .docs(vec![])
                         .done()
-                    )
-                    .messages(vec![])
-                    .events(vec![])
-                    .docs(vec![])
-                    .done()
                 };
                 let layout = {
                     unsafe {
