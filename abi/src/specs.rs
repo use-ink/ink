@@ -159,7 +159,10 @@ impl ContractSpecBuilder<Valid> {
             !self.spec.constructors.is_empty(),
             "must have at least one constructor"
         );
-        assert!(!self.spec.messages.is_empty(), "must have at least one message");
+        assert!(
+            !self.spec.messages.is_empty(),
+            "must have at least one message"
+        );
         self.spec
     }
 }
