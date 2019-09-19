@@ -82,30 +82,25 @@ pub enum Invalid {}
 
 /// A builder for contracts.
 pub struct ContractSpecBuilder<S = Invalid> {
-    /// The name of the to-be-constructed contract specification.
-    name: <MetaForm as Form>::String,
-    /// The constructors of the to-be-constructed constract specification.
-    constructors: Vec<ConstructorSpec>,
-    /// The messages of the to-be-constructed contract specification.
-    messages: Vec<MessageSpec>,
-    /// The events of the to-be-constructed contract specification.
-    events: Vec<EventSpec>,
-    /// The documentation of the to-be-constructed contract specification.
-    docs: Vec<<MetaForm as Form>::String>,
+    /// The to-be-constructed contract specification.
+    spec: ContractSpec,
     /// Marker for compile-time checking of valid contract specifications.
     marker: PhantomData<fn() -> S>,
 }
 
 impl ContractSpecBuilder<Invalid> {
     /// Sets the constructors of the contract specification.
-    pub fn constructors<C>(self, constructors: C) -> Self
+    pub fn constructors<C>(self, constructors: C) -> ContractSpecBuilder<Valid>
     where
         C: IntoIterator<Item = ConstructorSpec>,
     {
-        debug_assert!(self.constructors.is_empty());
-        Self {
-            constructors: constructors.into_iter().collect::<Vec<_>>(),
-            ..self
+        debug_assert!(self.spec.constructors.is_empty());
+        ContractSpecBuilder {
+            spec: ContractSpec {
+                constructors: constructors.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
+            marker: Default::default(),
         }
     }
 }
@@ -116,9 +111,12 @@ impl<S> ContractSpecBuilder<S> {
     where
         M: IntoIterator<Item = MessageSpec>,
     {
-        debug_assert!(self.messages.is_empty());
+        debug_assert!(self.spec.messages.is_empty());
         Self {
-            messages: messages.into_iter().collect::<Vec<_>>(),
+            spec: ContractSpec {
+                messages: messages.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
             ..self
         }
     }
@@ -128,9 +126,12 @@ impl<S> ContractSpecBuilder<S> {
     where
         E: IntoIterator<Item = EventSpec>,
     {
-        debug_assert!(self.events.is_empty());
+        debug_assert!(self.spec.events.is_empty());
         Self {
-            events: events.into_iter().collect::<Vec<_>>(),
+            spec: ContractSpec {
+                events: events.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
             ..self
         }
     }
@@ -140,9 +141,12 @@ impl<S> ContractSpecBuilder<S> {
     where
         D: IntoIterator<Item = &'static str>,
     {
-        debug_assert!(self.docs.is_empty());
+        debug_assert!(self.spec.docs.is_empty());
         Self {
-            docs: docs.into_iter().collect::<Vec<_>>(),
+            spec: ContractSpec {
+                docs: docs.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
             ..self
         }
     }
@@ -152,17 +156,11 @@ impl ContractSpecBuilder<Valid> {
     /// Finalizes construction of the contract specification.
     pub fn done(self) -> ContractSpec {
         assert!(
-            !self.constructors.is_empty(),
+            !self.spec.constructors.is_empty(),
             "must have at least one constructor"
         );
-        assert!(!self.messages.is_empty(), "must have at least one message");
-        ContractSpec {
-            name: self.name,
-            constructors: self.constructors,
-            messages: self.messages,
-            events: self.events,
-            docs: self.docs,
-        }
+        assert!(!self.spec.messages.is_empty(), "must have at least one message");
+        self.spec
     }
 }
 
@@ -170,11 +168,13 @@ impl ContractSpec {
     /// Creates a new contract specification.
     pub fn new(name: <MetaForm as Form>::String) -> ContractSpecBuilder {
         ContractSpecBuilder {
-            name,
-            constructors: Vec::new(),
-            messages: Vec::new(),
-            events: Vec::new(),
-            docs: Vec::new(),
+            spec: Self {
+                name,
+                constructors: Vec::new(),
+                messages: Vec::new(),
+                events: Vec::new(),
+                docs: Vec::new(),
+            },
             marker: PhantomData,
         }
     }
