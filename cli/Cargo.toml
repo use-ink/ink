@@ -15,6 +15,7 @@ categories = ["cli", "tool"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
+derive_more = "0.14.0"
 structopt = "0.2.15"
 itertools = "0.8"
 heck = "0.3"
