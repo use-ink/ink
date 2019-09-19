@@ -603,8 +603,7 @@ impl TypeSpec {
     {
         Self {
             ty: T::meta_type(),
-            display_name: DisplayName::new(segments)
-                .expect("display name is invalid"),
+            display_name: DisplayName::new(segments).expect("display name is invalid"),
         }
     }
 
@@ -630,7 +629,7 @@ pub struct EventParamSpec<F: Form = MetaForm> {
     indexed: bool,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: F::TypeId,
+    ty: TypeSpec<F>,
 }
 
 impl IntoCompact for EventParamSpec {
@@ -640,30 +639,48 @@ impl IntoCompact for EventParamSpec {
         EventParamSpec {
             name: registry.register_string(self.name),
             indexed: self.indexed,
-            ty: registry.register_type(&self.ty),
+            ty: self.ty.into_compact(registry),
         }
     }
 }
 
 impl EventParamSpec {
-    /// Creates a new event parameter specification.
-    pub fn new<T>(name: &'static str, indexed: bool) -> Self
-    where
-        T: Metadata,
-    {
-        Self {
-            name,
-            indexed,
-            ty: T::meta_type(),
+    /// Creates a new event parameter specification builder.
+    pub fn new(name: &'static str) -> EventParamSpecBuilder {
+        EventParamSpecBuilder {
+            spec: Self {
+                name,
+                indexed: false,
+                ty: TypeSpec::new::<()>(),
+            },
         }
     }
+}
 
-    /// Creates a new event parameter specification.
-    pub fn of<T>(name: &'static str, _ty: &T, indexed: bool) -> Self
-    where
-        T: Metadata,
-    {
-        Self::new::<T>(name, indexed)
+/// Used to construct an event parameter specification.
+pub struct EventParamSpecBuilder {
+    /// The built-up event parameter specification.
+    spec: EventParamSpec,
+}
+
+impl EventParamSpecBuilder {
+    /// Sets the type of the event parameter.
+    pub fn of_type(self, spec: TypeSpec) -> Self {
+        let mut this = self;
+        this.spec.ty = spec;
+        this
+    }
+
+    /// If the event parameter is indexed.
+    pub fn indexed(self, is_indexed: bool) -> Self {
+        let mut this = self;
+        this.spec.indexed = is_indexed;
+        this
+    }
+
+    /// Finishes constructing the event parameter spec.
+    pub fn done(self) -> EventParamSpec {
+        self.spec
     }
 }
 

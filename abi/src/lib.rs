@@ -35,11 +35,11 @@ pub use self::{
         StorageLayout,
     },
     specs::{
-        DisplayName,
         ConstructorSpec,
         ConstructorSpecBuilder,
         ContractSpec,
         ContractSpecBuilder,
+        DisplayName,
         EventParamSpec,
         EventSpec,
         EventSpecBuilder,
