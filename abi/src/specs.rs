@@ -84,7 +84,7 @@ pub enum Invalid {}
 pub struct ContractSpecBuilder<S = Invalid> {
     /// The name of the to-be-constructed contract specification.
     name: <MetaForm as Form>::String,
-    /// The constructors of the to-be-constructed constract specification.
+    /// The constructors of the to-be-constructed contract specification.
     constructors: Vec<ConstructorSpec>,
     /// The messages of the to-be-constructed contract specification.
     messages: Vec<MessageSpec>,
