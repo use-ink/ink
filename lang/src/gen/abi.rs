@@ -109,9 +109,10 @@ fn generate_abi_constructor(contract: &hir::Contract) -> TokenStream2 {
                 }
             };
             let ty = &capt.ty;
+            let type_spec = generate_type_spec_code(ty);
             quote! {
                 ink_abi::MessageParamSpec::new(#name)
-                    .of_type(ink_abi::TypeSpec::new::<#ty>())
+                    .of_type(#type_spec)
                     .done()
             }
         })
@@ -171,9 +172,10 @@ fn generate_abi_messages<'a>(
                     _ => unreachable!("encountered invalid argument syntax: the only allowed is `ident : type`"),
                 };
                 let ty = &capt.ty;
+                let type_spec = generate_type_spec_code(ty);
                 quote! {
                     ink_abi::MessageParamSpec::new(#name)
-                        .of_type(ink_abi::TypeSpec::new::<#ty>())
+                        .of_type(#type_spec)
                         .done()
                 }
             });
@@ -184,8 +186,9 @@ fn generate_abi_messages<'a>(
                 }
             }
             syn::ReturnType::Type(_, ty) => {
+                let type_spec = generate_type_spec_code(ty);
                 quote! {
-                    ink_abi::ReturnTypeSpec::new(ink_abi::TypeSpec::new::<#ty>())
+                    ink_abi::ReturnTypeSpec::new(#type_spec)
                 }
             }
         };
@@ -207,6 +210,30 @@ fn generate_abi_messages<'a>(
     })
 }
 
+fn generate_type_spec_code(ty: &syn::Type) -> TokenStream2 {
+    fn without_display_name(ty: &syn::Type) -> TokenStream2 {
+        quote! { ink_abi::TypeSpec::new::<#ty>() }
+    }
+    if let syn::Type::Path(type_path) = ty {
+        if type_path.qself.is_some() {
+            return without_display_name(ty)
+        }
+        let path = &type_path.path;
+        if path.segments.len() == 0 {
+            return without_display_name(ty)
+        }
+        let segs = path
+            .segments
+            .iter()
+            .map(|seg| seg.ident.to_string())
+            .collect::<Vec<_>>();
+        return quote! {
+            ink_abi::TypeSpec::with_name_segs::<#ty, _>(vec![#(#segs),*].into_iter().map(AsRef::as_ref))
+        }
+    }
+    without_display_name(ty)
+}
+
 fn generate_abi_events<'a>(
     contract: &'a hir::Contract,
 ) -> impl Iterator<Item = TokenStream2> + 'a {
@@ -216,9 +243,10 @@ fn generate_abi_events<'a>(
             let name = &event_arg.ident;
             let indexed = event_arg.is_indexed();
             let ty = &event_arg.ty;
+            let type_spec = generate_type_spec_code(ty);
             quote! {
                 ink_abi::EventParamSpec::new(stringify!(#name))
-                    .of_type(ink_abi::TypeSpec::new::<#ty>())
+                    .of_type(#type_spec)
                     .indexed(#indexed)
                     .done()
             }
