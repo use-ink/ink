@@ -1,0 +1,5 @@
+error: constructors in ink! must have no specified return type
+  --> $DIR/01-constructor-returns.rs:15:27
+   |
+15 |         fn new(&mut self) -> Self {}
+   |                           ^^^^^^^
