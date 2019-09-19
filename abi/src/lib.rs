@@ -35,6 +35,7 @@ pub use self::{
         StorageLayout,
     },
     specs::{
+        DisplayName,
         ConstructorSpec,
         ConstructorSpecBuilder,
         ContractSpec,
@@ -46,6 +47,7 @@ pub use self::{
         MessageSpec,
         MessageSpecBuilder,
         ReturnTypeSpec,
+        TypeSpec,
     },
 };
 

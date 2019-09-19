@@ -520,6 +520,106 @@ impl EventSpec {
     }
 }
 
+/// Describes the syntactical name of a type at a given type position.
+///
+/// This is important when trying to work with type aliases.
+/// Normally a type alias is transparent and so scenarios such as
+/// ```no_compile
+/// type Foo = i32;
+/// fn bar(foo: Foo);
+/// ```
+/// Will only communicate that `foo` is of type `i32` which is correct,
+/// however, it will miss the potentially important information that it
+/// is being used through a type alias named `Foo`.
+///
+/// In ink! we current experience this problem with environmental types
+/// such as the `Balance` type that is just a type alias to `u128` in the
+/// default setup. Even though it would be useful for third party tools
+/// such as the Polkadot UI to know that we are handling with `Balance`
+/// types, we currently cannot communicate this without display names.
+pub type DisplayName<F> = type_metadata::Namespace<F>;
+
+/// A type specification.
+///
+/// This contains the actual type as well as an optional compile-time
+/// known displayed representation of the type. This is useful for cases
+/// where the type is used through a type alias in order to provide
+/// information about the alias name.
+#[derive(Debug, PartialEq, Eq, Serialize)]
+#[serde(bound = "F::TypeId: Serialize")]
+pub struct TypeSpec<F: Form = MetaForm> {
+    /// The actual type.
+    ty: F::TypeId,
+    /// The compile-time known displayed representation of the type.
+    display_name: DisplayName<F>,
+}
+
+impl IntoCompact for TypeSpec {
+    type Output = TypeSpec<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        TypeSpec {
+            ty: registry.register_type(&self.ty),
+            display_name: self.display_name.into_compact(registry),
+        }
+    }
+}
+
+impl TypeSpec {
+    /// Creates a new type specification with a display name.
+    ///
+    /// The name is any valid Rust identifier or path.
+    ///
+    /// # Examples
+    ///
+    /// Valid display names are `foo`, `foo::bar`, `foo::bar::Baz`, etc.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given display name is invalid.
+    pub fn with_name_str<T>(display_name: &'static str) -> Self
+    where
+        T: Metadata,
+    {
+        Self::with_name_segs::<T, _>(display_name.split("::"))
+    }
+
+    /// Creates a new type specification with a display name
+    /// represented by the given path segments.
+    ///
+    /// The display name segments all must be valid Rust identifiers.
+    ///
+    /// # Examples
+    ///
+    /// Valid display names are `foo`, `foo::bar`, `foo::bar::Baz`, etc.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given display name is invalid.
+    pub fn with_name_segs<T, S>(segments: S) -> Self
+    where
+        T: Metadata,
+        S: IntoIterator<Item = <MetaForm as Form>::String>,
+    {
+        Self {
+            ty: T::meta_type(),
+            display_name: DisplayName::new(segments)
+                .expect("display name is invalid"),
+        }
+    }
+
+    /// Creates a new type specification without a display name.
+    pub fn new<T>() -> Self
+    where
+        T: Metadata,
+    {
+        Self {
+            ty: T::meta_type(),
+            display_name: DisplayName::prelude(),
+        }
+    }
+}
+
 /// Describes a pair of parameter name and type.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
