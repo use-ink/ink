@@ -24,11 +24,17 @@ use zip::result::ZipError;
 #[derive(Debug, derive_more::From, derive_more::Display)]
 pub enum CommandError {
     Io(IoError),
-    #[display(fmt="Command unimplemented")]
+    #[display(fmt = "Command unimplemented")]
     UnimplementedCommand,
-    #[display(fmt="Abstraction layer unimplemented")]
+    #[display(fmt = "Abstraction layer unimplemented")]
     UnimplementedAbstractionLayer,
     ZipError(ZipError),
+    BuildFailed,
+    #[display(fmt = "Error invoking `cargo metadata`")]
+    CargoMetadata(cargo_metadata::Error),
+    WasmDeserialization(parity_wasm::elements::Error),
+    #[display(fmt = "Optimizer failed")]
+    Optimizer(pwasm_utils::OptimizerError),
     Other(String),
 }
 
