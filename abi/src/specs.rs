@@ -39,8 +39,8 @@ use alloc::{
 pub struct ContractSpec<F: Form = MetaForm> {
     /// The name of the contract.
     name: F::String,
-    /// The deploy handler of the contract.
-    deploy: DeploySpec<F>,
+    /// The set of constructors of the contract.
+    constructors: Vec<ConstructorSpec<F>>,
     /// The external messages of the contract.
     messages: Vec<MessageSpec<F>>,
     /// The events of the contract.
@@ -55,7 +55,11 @@ impl IntoCompact for ContractSpec {
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ContractSpec {
             name: registry.register_string(&self.name),
-            deploy: self.deploy.into_compact(registry),
+            constructors: self
+                .constructors
+                .into_iter()
+                .map(|constructor| constructor.into_compact(registry))
+                .collect::<Vec<_>>(),
             messages: self
                 .messages
                 .into_iter()
@@ -76,31 +80,27 @@ pub enum Valid {}
 /// The message builder is not ready to finalize construction.
 pub enum Invalid {}
 
+/// A builder for contracts.
 pub struct ContractSpecBuilder<S = Invalid> {
-    /// The name of the to-be-constructed contract specification.
-    name: <MetaForm as Form>::String,
-    /// The deploy handler of the to-be-constructed contract specification.
-    deploy: Option<DeploySpec>,
-    /// The messages of the to-be-constructed contract specification.
-    messages: Vec<MessageSpec>,
-    /// The events of the to-be-constructed contract specification.
-    events: Vec<EventSpec>,
-    /// The documentation of the to-be-constructed contract specification.
-    docs: Vec<<MetaForm as Form>::String>,
+    /// The to-be-constructed contract specification.
+    spec: ContractSpec,
     /// Marker for compile-time checking of valid contract specifications.
     marker: PhantomData<fn() -> S>,
 }
 
 impl ContractSpecBuilder<Invalid> {
-    /// Sets the deploy handler of the contract specification.
-    pub fn on_deploy(self, deploy_handler: DeploySpec) -> ContractSpecBuilder<Valid> {
+    /// Sets the constructors of the contract specification.
+    pub fn constructors<C>(self, constructors: C) -> ContractSpecBuilder<Valid>
+    where
+        C: IntoIterator<Item = ConstructorSpec>,
+    {
+        debug_assert!(self.spec.constructors.is_empty());
         ContractSpecBuilder {
-            name: self.name,
-            deploy: Some(deploy_handler),
-            messages: self.messages,
-            events: self.events,
-            docs: self.docs,
-            marker: PhantomData,
+            spec: ContractSpec {
+                constructors: constructors.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
+            marker: Default::default(),
         }
     }
 }
@@ -111,9 +111,12 @@ impl<S> ContractSpecBuilder<S> {
     where
         M: IntoIterator<Item = MessageSpec>,
     {
-        debug_assert!(self.messages.is_empty());
+        debug_assert!(self.spec.messages.is_empty());
         Self {
-            messages: messages.into_iter().collect::<Vec<_>>(),
+            spec: ContractSpec {
+                messages: messages.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
             ..self
         }
     }
@@ -123,9 +126,12 @@ impl<S> ContractSpecBuilder<S> {
     where
         E: IntoIterator<Item = EventSpec>,
     {
-        debug_assert!(self.events.is_empty());
+        debug_assert!(self.spec.events.is_empty());
         Self {
-            events: events.into_iter().collect::<Vec<_>>(),
+            spec: ContractSpec {
+                events: events.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
             ..self
         }
     }
@@ -135,9 +141,12 @@ impl<S> ContractSpecBuilder<S> {
     where
         D: IntoIterator<Item = &'static str>,
     {
-        debug_assert!(self.docs.is_empty());
+        debug_assert!(self.spec.docs.is_empty());
         Self {
-            docs: docs.into_iter().collect::<Vec<_>>(),
+            spec: ContractSpec {
+                docs: docs.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
             ..self
         }
     }
@@ -146,15 +155,15 @@ impl<S> ContractSpecBuilder<S> {
 impl ContractSpecBuilder<Valid> {
     /// Finalizes construction of the contract specification.
     pub fn done(self) -> ContractSpec {
-        ContractSpec {
-            name: self.name,
-            deploy: self
-                .deploy
-                .expect("a valid contract spec build must have a deploy handler; qed"),
-            messages: self.messages,
-            events: self.events,
-            docs: self.docs,
-        }
+        assert!(
+            !self.spec.constructors.is_empty(),
+            "must have at least one constructor"
+        );
+        assert!(
+            !self.spec.messages.is_empty(),
+            "must have at least one message"
+        );
+        self.spec
     }
 }
 
@@ -162,31 +171,39 @@ impl ContractSpec {
     /// Creates a new contract specification.
     pub fn new(name: <MetaForm as Form>::String) -> ContractSpecBuilder {
         ContractSpecBuilder {
-            name,
-            deploy: None,
-            messages: vec![],
-            events: vec![],
-            docs: vec![],
+            spec: Self {
+                name,
+                constructors: Vec::new(),
+                messages: Vec::new(),
+                events: Vec::new(),
+                docs: Vec::new(),
+            },
             marker: PhantomData,
         }
     }
 }
 
-/// Describes the deploy handler of a contract.
+/// Describes a constructor of a contract.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
-pub struct DeploySpec<F: Form = MetaForm> {
+pub struct ConstructorSpec<F: Form = MetaForm> {
+    /// The name of the message.
+    name: F::String,
+    /// The selector hash of the message.
+    selector: u32,
     /// The parameters of the deploy handler.
     args: Vec<MessageParamSpec<F>>,
     /// The deploy handler documentation.
     docs: Vec<&'static str>,
 }
 
-impl IntoCompact for DeploySpec {
-    type Output = DeploySpec<CompactForm>;
+impl IntoCompact for ConstructorSpec {
+    type Output = ConstructorSpec<CompactForm>;
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
-        DeploySpec {
+        ConstructorSpec {
+            name: registry.register_string(&self.name),
+            selector: self.selector,
             args: self
                 .args
                 .into_iter()
@@ -197,26 +214,51 @@ impl IntoCompact for DeploySpec {
     }
 }
 
-impl DeploySpec {
-    /// Creates a new deploy specification builder.
-    pub fn new() -> DeploySpecBuilder {
-        DeploySpecBuilder {
+/// A builder for constructors.
+///
+/// # Dev
+///
+/// Some of the fields are guarded by a type-state pattern to
+/// fail at compile-time instead of at run-time. This is useful
+/// to better debug code-gen macros.
+pub struct ConstructorSpecBuilder<Selector> {
+    spec: ConstructorSpec,
+    marker: PhantomData<fn() -> Selector>,
+}
+
+impl ConstructorSpec {
+    /// Creates a new constructor spec builder.
+    pub fn new(
+        name: <MetaForm as Form>::String,
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+        ConstructorSpecBuilder {
             spec: Self {
-                args: vec![],
-                docs: vec![],
+                name,
+                selector: 0,
+                args: Vec::new(),
+                docs: Vec::new(),
             },
+            marker: PhantomData,
         }
     }
 }
 
-/// A builder to construct a deploy specification.
-pub struct DeploySpecBuilder {
-    spec: DeploySpec,
+impl ConstructorSpecBuilder<Missing<state::Selector>> {
+    /// Sets the function selector of the message.
+    pub fn selector(self, selector: u32) -> ConstructorSpecBuilder<state::Selector> {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                selector,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
 }
 
-impl DeploySpecBuilder {
-    /// Sets the input arguments of the deploy spec.
-    pub fn args<A>(self, args: A) -> DeploySpecBuilder
+impl<S> ConstructorSpecBuilder<S> {
+    /// Sets the input arguments of the message specification.
+    pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = MessageParamSpec>,
     {
@@ -226,8 +268,8 @@ impl DeploySpecBuilder {
         this
     }
 
-    /// Sets the documentation of the deploy spec.
-    pub fn docs<D>(self, docs: D) -> DeploySpecBuilder
+    /// Sets the documentation of the message specification.
+    pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
     {
@@ -236,9 +278,11 @@ impl DeploySpecBuilder {
         this.spec.docs = docs.into_iter().collect::<Vec<_>>();
         this
     }
+}
 
-    /// Finishes building the deploy spec.
-    pub fn done(self) -> DeploySpec {
+impl ConstructorSpecBuilder<state::Selector> {
+    /// Finishes construction of the constructor.
+    pub fn done(self) -> ConstructorSpec {
         self.spec
     }
 }
@@ -261,6 +305,10 @@ pub struct MessageSpec<F: Form = MetaForm> {
     docs: Vec<&'static str>,
 }
 
+/// Type state for builders to tell that some mandatory state has not yet been set
+/// yet or to fail upon setting the same state multiple times.
+pub struct Missing<S>(PhantomData<fn() -> S>);
+
 mod state {
     //! Type states that tell what state of a message has not
     //! yet been set properly for a valid construction.
@@ -272,10 +320,6 @@ mod state {
     /// Type state for the return type of a message.
     pub struct Returns;
 }
-
-/// Type state for the message builder to tell that some mandatory state has not yet been set
-/// yet or to fail upon setting the same state multiple times.
-pub struct Missing<S>(PhantomData<fn() -> S>);
 
 impl MessageSpec {
     /// Creates a new message spec builder.
@@ -291,9 +335,9 @@ impl MessageSpec {
                 name,
                 selector: 0,
                 mutates: false,
-                args: vec![],
-                return_type: ReturnTypeSpec::none(),
-                docs: vec![],
+                args: Vec::new(),
+                return_type: ReturnTypeSpec::new(None),
+                docs: Vec::new(),
             },
             marker: PhantomData,
         }
@@ -472,9 +516,119 @@ impl EventSpec {
         EventSpecBuilder {
             spec: Self {
                 name,
-                args: vec![],
-                docs: vec![],
+                args: Vec::new(),
+                docs: Vec::new(),
             },
+        }
+    }
+}
+
+/// Describes the syntactical name of a type at a given type position.
+///
+/// This is important when trying to work with type aliases.
+/// Normally a type alias is transparent and so scenarios such as
+/// ```no_compile
+/// type Foo = i32;
+/// fn bar(foo: Foo);
+/// ```
+/// Will only communicate that `foo` is of type `i32` which is correct,
+/// however, it will miss the potentially important information that it
+/// is being used through a type alias named `Foo`.
+///
+/// In ink! we current experience this problem with environmental types
+/// such as the `Balance` type that is just a type alias to `u128` in the
+/// default setup. Even though it would be useful for third party tools
+/// such as the Polkadot UI to know that we are handling with `Balance`
+/// types, we currently cannot communicate this without display names.
+pub type DisplayName<F> = type_metadata::Namespace<F>;
+
+/// A type specification.
+///
+/// This contains the actual type as well as an optional compile-time
+/// known displayed representation of the type. This is useful for cases
+/// where the type is used through a type alias in order to provide
+/// information about the alias name.
+///
+/// # Examples
+///
+/// Consider the following Rust function:
+/// ```no_compile
+/// fn is_sorted(input: &[i32], pred: Predicate) -> bool;
+/// ```
+/// In this above example `input` would have no displayable name,
+/// `pred`'s display name is `Predicate` and the display name of
+/// the return type is simply `bool`. Note that `Predicate` could
+/// simply be a type alias to `fn(i32, i32) -> Ordering`.
+#[derive(Debug, PartialEq, Eq, Serialize)]
+#[serde(bound = "F::TypeId: Serialize")]
+pub struct TypeSpec<F: Form = MetaForm> {
+    /// The actual type.
+    ty: F::TypeId,
+    /// The compile-time known displayed representation of the type.
+    display_name: DisplayName<F>,
+}
+
+impl IntoCompact for TypeSpec {
+    type Output = TypeSpec<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        TypeSpec {
+            ty: registry.register_type(&self.ty),
+            display_name: self.display_name.into_compact(registry),
+        }
+    }
+}
+
+impl TypeSpec {
+    /// Creates a new type specification with a display name.
+    ///
+    /// The name is any valid Rust identifier or path.
+    ///
+    /// # Examples
+    ///
+    /// Valid display names are `foo`, `foo::bar`, `foo::bar::Baz`, etc.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given display name is invalid.
+    pub fn with_name_str<T>(display_name: &'static str) -> Self
+    where
+        T: Metadata,
+    {
+        Self::with_name_segs::<T, _>(display_name.split("::"))
+    }
+
+    /// Creates a new type specification with a display name
+    /// represented by the given path segments.
+    ///
+    /// The display name segments all must be valid Rust identifiers.
+    ///
+    /// # Examples
+    ///
+    /// Valid display names are `foo`, `foo::bar`, `foo::bar::Baz`, etc.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given display name is invalid.
+    pub fn with_name_segs<T, S>(segments: S) -> Self
+    where
+        T: Metadata,
+        S: IntoIterator<Item = <MetaForm as Form>::String>,
+    {
+        Self {
+            ty: T::meta_type(),
+            display_name: DisplayName::new(segments).expect("display name is invalid"),
+        }
+    }
+
+    /// Creates a new type specification without a display name.
+    pub fn new<T>() -> Self
+    where
+        T: Metadata,
+    {
+        Self {
+            ty: T::meta_type(),
+            display_name: DisplayName::prelude(),
         }
     }
 }
@@ -489,7 +643,7 @@ pub struct EventParamSpec<F: Form = MetaForm> {
     indexed: bool,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: F::TypeId,
+    ty: TypeSpec<F>,
 }
 
 impl IntoCompact for EventParamSpec {
@@ -499,30 +653,50 @@ impl IntoCompact for EventParamSpec {
         EventParamSpec {
             name: registry.register_string(self.name),
             indexed: self.indexed,
-            ty: registry.register_type(&self.ty),
+            ty: self.ty.into_compact(registry),
         }
     }
 }
 
 impl EventParamSpec {
-    /// Creates a new event parameter specification.
-    pub fn new<T>(name: &'static str, indexed: bool) -> Self
-    where
-        T: Metadata,
-    {
-        Self {
-            name,
-            indexed,
-            ty: T::meta_type(),
+    /// Creates a new event parameter specification builder.
+    pub fn new(name: &'static str) -> EventParamSpecBuilder {
+        EventParamSpecBuilder {
+            spec: Self {
+                name,
+                // By default event parameters are not indexed.
+                indexed: false,
+                // We initialize every parameter type as `()`.
+                ty: TypeSpec::new::<()>(),
+            },
         }
     }
+}
 
-    /// Creates a new event parameter specification.
-    pub fn of<T>(name: &'static str, _ty: &T, indexed: bool) -> Self
-    where
-        T: Metadata,
-    {
-        Self::new::<T>(name, indexed)
+/// Used to construct an event parameter specification.
+pub struct EventParamSpecBuilder {
+    /// The built-up event parameter specification.
+    spec: EventParamSpec,
+}
+
+impl EventParamSpecBuilder {
+    /// Sets the type of the event parameter.
+    pub fn of_type(self, spec: TypeSpec) -> Self {
+        let mut this = self;
+        this.spec.ty = spec;
+        this
+    }
+
+    /// If the event parameter is indexed.
+    pub fn indexed(self, is_indexed: bool) -> Self {
+        let mut this = self;
+        this.spec.indexed = is_indexed;
+        this
+    }
+
+    /// Finishes constructing the event parameter spec.
+    pub fn done(self) -> EventParamSpec {
+        self.spec
     }
 }
 
@@ -532,7 +706,7 @@ impl EventParamSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
-    opt_type: Option<F::TypeId>,
+    opt_type: Option<TypeSpec<F>>,
 }
 
 impl IntoCompact for ReturnTypeSpec {
@@ -540,33 +714,30 @@ impl IntoCompact for ReturnTypeSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ReturnTypeSpec {
-            opt_type: self.opt_type.map(|opt_ty| registry.register_type(&opt_ty)),
+            opt_type: self
+                .opt_type
+                .map(|opt_type| opt_type.into_compact(registry)),
         }
     }
 }
 
 impl ReturnTypeSpec {
-    /// Creates a new return type specification indicating no return type.
-    pub fn none() -> Self {
-        Self { opt_type: None }
-    }
-
-    /// Creates a new return type specification for the given type.
-    pub fn new<T>() -> Self
+    /// Creates a new return type specification from the given type or `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use ink_abi::{TypeSpec, ReturnTypeSpec};
+    /// ReturnTypeSpec::new(None); // no return type;
+    /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
+    /// ```
+    pub fn new<T>(ty: T) -> Self
     where
-        T: Metadata,
+        T: Into<Option<TypeSpec>>,
     {
         Self {
-            opt_type: Some(T::meta_type()),
+            opt_type: ty.into(),
         }
-    }
-
-    /// Creates a new return type specification for the given type.
-    pub fn of<T>(_ty: &T) -> Self
-    where
-        T: Metadata,
-    {
-        Self::new::<T>()
     }
 }
 
@@ -578,7 +749,7 @@ pub struct MessageParamSpec<F: Form = MetaForm> {
     name: F::String,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: F::TypeId,
+    ty: TypeSpec<F>,
 }
 
 impl IntoCompact for MessageParamSpec {
@@ -587,28 +758,40 @@ impl IntoCompact for MessageParamSpec {
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         MessageParamSpec {
             name: registry.register_string(self.name),
-            ty: registry.register_type(&self.ty),
+            ty: self.ty.into_compact(registry),
         }
     }
 }
 
 impl MessageParamSpec {
-    /// Creates a new parameter specification for the given name and type.
-    pub fn new<T>(name: &'static str) -> Self
-    where
-        T: Metadata,
-    {
-        Self {
-            name,
-            ty: T::meta_type(),
+    /// Constructs a new message parameter specification via builder.
+    pub fn new(name: &'static str) -> MessageParamSpecBuilder {
+        MessageParamSpecBuilder {
+            spec: Self {
+                name,
+                // Uses `()` type by default.
+                ty: TypeSpec::new::<()>(),
+            },
         }
     }
+}
 
-    /// Creates a new parameter specification for the given name and type.
-    pub fn of<T>(name: &'static str, _ty: &T) -> Self
-    where
-        T: Metadata,
-    {
-        Self::new::<T>(name)
+/// Used to construct a message parameter specification.
+pub struct MessageParamSpecBuilder {
+    /// The to-be-constructed message parameter specification.
+    spec: MessageParamSpec,
+}
+
+impl MessageParamSpecBuilder {
+    /// Sets the type of the message parameter.
+    pub fn of_type(self, ty: TypeSpec) -> Self {
+        let mut this = self;
+        this.spec.ty = ty;
+        this
+    }
+
+    /// Finishes construction of the message parameter.
+    pub fn done(self) -> MessageParamSpec {
+        self.spec
     }
 }
