@@ -67,5 +67,6 @@ mod test_utils;
 
 mod byte_utils;
 pub mod env;
+pub mod env2;
 pub mod memory;
 pub mod storage;
