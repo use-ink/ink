@@ -29,10 +29,6 @@ use crate::{
 };
 use core::marker::PhantomData;
 use scale::Decode;
-use smallvec::{
-    smallvec,
-    SmallVec,
-};
 
 /// The function selector.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Decode, scale::Encode)]
