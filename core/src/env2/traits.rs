@@ -139,9 +139,10 @@ pub trait Env:
         D: BuildEvent<Self>;
 
     /// Invokes a runtime dispatchable function with the given call data.
-    fn invoke_runtime<T>(call_data: &T) -> Result<()>
+    fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
     where
-        T: scale::Encode;
+        O: scale::Output + AsRef<[u8]> + Reset,
+        V: scale::Encode;
 
     /// Returns a random hash given the subject.
     fn random<I>(buffer: I, subject: &[u8]) -> Result<Self::Hash>
