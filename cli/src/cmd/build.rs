@@ -23,6 +23,7 @@ use parity_wasm::elements::{
     External,
     MemoryType,
     Module,
+    Section,
 };
 use std::{
     io::{
@@ -153,6 +154,16 @@ fn ensure_maximum_memory_pages(
     Ok(())
 }
 
+/// Strips all custom sections.
+///
+/// Presently all custom sections are not required so they can be stripped safely.
+fn strip_custom_sections(module: &mut Module) {
+    module.sections_mut().retain(|section| match section {
+        Section::Custom(_) => false,
+        _ => true,
+    });
+}
+
 /// Performs required post-processing steps on the wasm artifact.
 fn post_process_wasm(crate_metadata: &CrateMetadata) -> Result<()> {
     // Deserialize wasm module from a file.
@@ -163,10 +174,8 @@ fn post_process_wasm(crate_metadata: &CrateMetadata) -> Result<()> {
     // In practice only tree-shaking is performed, i.e transitively removing all symbols that are
     // NOT used by the specified entrypoints.
     pwasm_utils::optimize(&mut module, ["call", "deploy"].to_vec())?;
-
-    // Ensure that the wasm binary imports memory with the maximum set to less or equal the allowed
-    // limit.
     ensure_maximum_memory_pages(&mut module, MAX_MEMORY_PAGES)?;
+    strip_custom_sections(&mut module);
 
     parity_wasm::serialize_to_file(&crate_metadata.dest_wasm, module)?;
     Ok(())
