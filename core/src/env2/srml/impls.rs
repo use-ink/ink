@@ -252,7 +252,7 @@ where
     fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>
     where
         IO: scale::Input + scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
-        D: BuildCreate<Self>
+        D: BuildCreate<Self>,
     {
         // First we reset the buffer to start from a clean slate.
         buffer.reset();
@@ -362,7 +362,7 @@ where
         ext::random_seed(subject);
         let req_len = ext::scratch_size();
         buffer.enlarge_to(req_len);
-        let ret = ext::scratch_read(&mut buffer.as_mut(), 0);
+        let _ret = ext::scratch_read(&mut buffer.as_mut(), 0);
         Decode::decode(&mut &buffer.as_mut()[..]).map_err(Into::into)
     }
 

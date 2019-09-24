@@ -127,7 +127,10 @@ pub trait Env:
         D: BuildCall<Self>;
 
     /// Instantiates a contract from the given create data and returns its account ID.
-    fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>
+    fn create_contract<IO, D>(
+        buffer: &mut IO,
+        create_data: &D,
+    ) -> Result<Self::AccountId>
     where
         IO: scale::Input + scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         D: BuildCreate<Self>;
