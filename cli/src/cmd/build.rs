@@ -197,3 +197,35 @@ pub(crate) fn execute_build() -> Result<String> {
         crate_metadata.dest_wasm.display()
     ))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        cmd::execute_new,
+        AbstractionLayer,
+    };
+    use tempfile::TempDir;
+    use std::env;
+
+    fn with_tmp_dir<F: FnOnce()>(f: F) {
+
+        let original_cwd = env::current_dir().expect("failed to get current working directory");
+        let tmp_dir = TempDir::new().expect("temporary directory creation failed");
+        env::set_current_dir(tmp_dir.path()).expect("setting the current dir to temp failed");
+
+        f();
+
+        env::set_current_dir(original_cwd).expect("restoring cwd failed");
+    }
+
+    #[cfg(feature="test-ci-only")]
+    #[test]
+    fn build_template() {
+        with_tmp_dir(|| {
+            execute_new(AbstractionLayer::Lang, "new_project").expect("new project creation failed");
+            env::set_current_dir("./new_project").expect("cwd to new_project failed");
+            execute_build().expect("build failed");
+        });
+    }
+}
