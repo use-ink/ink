@@ -17,6 +17,7 @@
 //! Environment definitions and access.
 
 pub mod call;
+mod env_access;
 mod error;
 pub mod property;
 mod srml;
@@ -25,6 +26,9 @@ mod traits;
 mod utils;
 
 pub use self::{
+    env_access::{
+        EnvAccess,
+    },
     error::{
         CallError,
         CreateError,
