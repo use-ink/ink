@@ -50,7 +50,7 @@ where
     /// Gets the property.
     ///
     /// Uses `buffer` for intermediate computation.
-    fn get_property<I>(buffer: I) -> Result<P::In>
+    fn get_property<I>(buffer: &mut I) -> Result<P::In>
     where
         I: scale::Input + AsMut<[u8]> + EnlargeTo;
 }
@@ -63,7 +63,7 @@ where
     /// Sets the property.
     ///
     /// Uses `buffer` for intermediate computation.
-    fn set_property<O>(buffer: O, encoded: &P::Out) -> Result<()>
+    fn set_property<O>(buffer: &mut O, encoded: &P::Out) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset;
 }
@@ -91,13 +91,13 @@ pub trait Env:
     ///
     /// - If `key` associates no elements.
     /// - If the element at `key` could not be decoded into `T`.
-    fn get_contract_storage<I, T>(key: Key, buffer: I) -> Result<T>
+    fn get_contract_storage<I, T>(key: Key, buffer: &mut I) -> Result<T>
     where
         I: scale::Input + AsMut<[u8]> + EnlargeTo,
         T: scale::Decode;
 
     /// Sets the value at the key to the given encoded value.
-    fn set_contract_storage<O, T>(key: Key, buffer: O, val: &T)
+    fn set_contract_storage<O, T>(key: Key, buffer: &mut O, val: &T)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
         T: scale::Encode;
@@ -110,7 +110,7 @@ pub trait Env:
     /// # Note
     ///
     /// Invokations fire and forget and thus won't return a value back.
-    fn invoke_contract<O, D>(mut buffer: O, call_data: &D) -> Result<()>
+    fn invoke_contract<O, D>(buffer: &mut O, call_data: &D) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset,
         D: BuildCall<Self>;
@@ -120,7 +120,7 @@ pub trait Env:
     /// # Note
     ///
     /// Evaluations return a return value back to the caller.
-    fn eval_contract<IO, D, R>(buffer: IO, call_data: &D) -> Result<R>
+    fn eval_contract<IO, D, R>(buffer: &mut IO, call_data: &D) -> Result<R>
     where
         IO: scale::Input + scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
