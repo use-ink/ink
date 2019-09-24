@@ -86,7 +86,7 @@ pub struct CallData {
     /// # Note
     ///
     /// Has the invariant of always holding at least 4 bytes (the selector).
-    bytes: SmallVec<[u8; 8]>,
+    bytes: Vec<u8>,
 }
 
 impl CallData {
@@ -94,7 +94,7 @@ impl CallData {
     pub fn new(selector: Selector) -> Self {
         let bytes = selector.to_bytes();
         Self {
-            bytes: smallvec![bytes[0], bytes[1], bytes[2], bytes[3]],
+            bytes: vec![bytes[0], bytes[1], bytes[2], bytes[3]],
         }
     }
 
@@ -103,7 +103,7 @@ impl CallData {
     where
         A: scale::Encode,
     {
-        arg.encode_to(&mut self.bytes);
+        arg.encode_to(&mut self.bytes)
     }
 
     /// Returns the selector of `self`.
@@ -139,7 +139,7 @@ impl scale::Decode for CallData {
     fn decode<I: scale::Input>(
         input: &mut I,
     ) -> core::result::Result<Self, scale::Error> {
-        let mut bytes = SmallVec::new();
+        let mut bytes = Vec::new();
         while let Ok(byte) = input.read_byte() {
             bytes.push(byte);
         }
