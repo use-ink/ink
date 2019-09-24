@@ -55,7 +55,7 @@ pub fn call(callee: &[u8], gas_limit: u64, value: &[u8], call_data: &[u8]) -> Re
     .into()
 }
 
-pub fn deposit_event(topics: &[u8], data: &[u8]) -> RetCode {
+pub fn deposit_event(topics: &[u8], data: &[u8]) {
     unsafe {
         sys::ext_deposit_event(
             topics.as_ptr() as u32,
@@ -63,8 +63,7 @@ pub fn deposit_event(topics: &[u8], data: &[u8]) -> RetCode {
             data.as_ptr() as u32,
             data.len() as u32,
         )
-    };
-    RetCode::success()
+    }
 }
 
 pub fn set_storage(key: &[u8], value: Option<&[u8]>) {

@@ -133,8 +133,9 @@ pub trait Env:
         D: BuildCreate<Self>;
 
     /// Emits an event with the given event data.
-    fn emit_event<D>(event_data: &D) -> Result<()>
+    fn emit_event<O, D>(buffer: &mut O, event_data: &D)
     where
+        O: scale::Output + AsRef<[u8]> + Reset,
         D: BuildEvent<Self>;
 
     /// Invokes a runtime dispatchable function with the given call data.

@@ -289,11 +289,26 @@ where
         Decode::decode(&mut &buffer.as_ref()[0..req_len]).map_err(Into::into)
     }
 
-    fn emit_event<D>(event_data: &D) -> Result<()>
+    fn emit_event<I, D>(buffer: &mut I, event_data: &D)
     where
+        I: scale::Output + AsRef<[u8]> + Reset,
         D: BuildEvent<Self>,
     {
-        unimplemented!()
+        // First we reset the buffer to start from a clean slate.
+        buffer.reset();
+        // Now we encode `topics` and the raw encoded `data`
+        // each after one another into our buffer and remember their
+        // boundaries using guards respectively.
+        event_data.topics().encode_to(buffer);
+        let topics_guard = buffer.as_ref().len();
+        event_data.data().encode_to(buffer);
+        // We now use the guards in order to split the buffer into
+        // some read-only slices that each store their respective
+        // encoded value and call the actual routine.
+        let topics = &buffer.as_ref()[0..topics_guard];
+        let data = &buffer.as_ref()[topics_guard..];
+        // Do the actual depositing of the event.
+        ext::deposit_event(topics, data);
     }
 
     fn invoke_runtime<V>(call_data: &V) -> Result<()>
