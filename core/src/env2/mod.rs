@@ -22,6 +22,7 @@ pub mod property;
 mod srml;
 mod test;
 mod traits;
+mod utils;
 
 pub use self::{
     error::{
@@ -31,10 +32,16 @@ pub use self::{
         Result,
     },
     traits::{
+        BuildCall,
+        BuildCreate,
+        BuildEvent,
         Env,
         EnvTypes,
         GetProperty,
-        EnlargeTo,
         SetProperty,
+    },
+    utils::{
+        EnlargeTo,
+        Reset,
     },
 };

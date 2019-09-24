@@ -36,15 +36,11 @@ pub fn create(
             create_data.as_ptr() as u32,
             create_data.len() as u32,
         )
-    }.into()
+    }
+    .into()
 }
 
-pub fn call(
-    callee: &[u8],
-    gas_limit: u64,
-    value: &[u8],
-    call_data: &[u8],
-) -> RetCode {
+pub fn call(callee: &[u8], gas_limit: u64, value: &[u8], call_data: &[u8]) -> RetCode {
     unsafe {
         sys::ext_call(
             callee.as_ptr() as u32,
@@ -55,13 +51,11 @@ pub fn call(
             call_data.as_ptr() as u32,
             call_data.len() as u32,
         )
-    }.into()
+    }
+    .into()
 }
 
-pub fn deposit_event(
-    topics: &[u8],
-    data: &[u8],
-) -> RetCode {
+pub fn deposit_event(topics: &[u8], data: &[u8]) -> RetCode {
     unsafe {
         sys::ext_deposit_event(
             topics.as_ptr() as u32,
@@ -73,10 +67,7 @@ pub fn deposit_event(
     RetCode::success()
 }
 
-pub fn set_storage(
-    key: &[u8],
-    value: Option<&[u8]>,
-) -> RetCode {
+pub fn set_storage(key: &[u8], value: Option<&[u8]>) {
     match value {
         Some(value) => unsafe {
             sys::ext_set_storage(
@@ -85,25 +76,13 @@ pub fn set_storage(
                 value.as_ptr() as u32,
                 value.len() as u32,
             )
-        }
-        None => unsafe {
-            sys::ext_set_storage(
-                key.as_ptr() as u32,
-                0,
-                0,
-                0,
-            )
         },
-    };
-    RetCode::success()
+        None => unsafe { sys::ext_set_storage(key.as_ptr() as u32, 0, 0, 0) },
+    }
 }
 
-pub fn get_storage(
-    key: &[u8],
-) -> RetCode {
-    unsafe {
-        sys::ext_get_storage(key.as_ptr() as u32)
-    }.into()
+pub fn get_storage(key: &[u8]) -> RetCode {
+    unsafe { sys::ext_get_storage(key.as_ptr() as u32) }.into()
 }
 
 pub fn restore_to(
@@ -127,12 +106,8 @@ pub fn restore_to(
     RetCode::success()
 }
 
-pub fn dispatch_call(
-    call: &[u8],
-) -> RetCode {
-    unsafe {
-        sys::ext_dispatch_call(call.as_ptr() as u32, call.len() as u32)
-    };
+pub fn dispatch_call(call: &[u8]) -> RetCode {
+    unsafe { sys::ext_dispatch_call(call.as_ptr() as u32, call.len() as u32) };
     RetCode::success()
 }
 
@@ -141,23 +116,12 @@ pub fn scratch_size() -> usize {
 }
 
 pub fn scratch_read(dest: &mut [u8], offset: u32) -> RetCode {
-    unsafe {
-        sys::ext_scratch_read(
-            dest.as_mut_ptr() as u32,
-            offset,
-            dest.len() as u32,
-        )
-    };
+    unsafe { sys::ext_scratch_read(dest.as_mut_ptr() as u32, offset, dest.len() as u32) };
     RetCode::success()
 }
 
 pub fn scratch_write(src: &[u8]) -> RetCode {
-    unsafe {
-        sys::ext_scratch_write(
-            src.as_ptr() as u32,
-            src.len() as u32,
-        )
-    };
+    unsafe { sys::ext_scratch_write(src.as_ptr() as u32, src.len() as u32) };
     RetCode::success()
 }
 
@@ -186,34 +150,17 @@ impl_ext_wrapper_for! {
 }
 
 pub fn set_rent_allowance(value: &[u8]) -> RetCode {
-    unsafe {
-        sys::ext_set_rent_allowance(
-            value.as_ptr() as u32,
-            value.len() as u32,
-        )
-    };
+    unsafe { sys::ext_set_rent_allowance(value.as_ptr() as u32, value.len() as u32) };
     RetCode::success()
 }
 
-pub fn random_seed(subject: &[u8]) -> RetCode {
-    unsafe {
-        sys::ext_random_seed(
-            subject.as_ptr() as u32,
-            subject.len() as u32,
-        )
-    };
-    RetCode::success()
+pub fn random_seed(subject: &[u8]) {
+    unsafe { sys::ext_random_seed(subject.as_ptr() as u32, subject.len() as u32) }
 }
 
-pub fn println(content: &str) -> RetCode {
+pub fn println(content: &str) {
     let bytes = content.as_bytes();
-    unsafe {
-        sys::ext_println(
-            bytes.as_ptr() as u32,
-            bytes.len() as u32,
-        )
-    };
-    RetCode::success()
+    unsafe { sys::ext_println(bytes.as_ptr() as u32, bytes.len() as u32) }
 }
 
 mod sys {
@@ -261,7 +208,7 @@ mod sys {
             rent_allowance_ptr: u32,
             rent_allowance_len: u32,
             delta_ptr: u32,
-            delta_count: u32
+            delta_count: u32,
         );
 
         pub fn ext_dispatch_call(call_ptr: u32, call_len: u32);
@@ -287,4 +234,3 @@ mod sys {
         pub fn ext_println(str_ptr: u32, str_len: u32);
     }
 }
-

@@ -30,8 +30,8 @@ use crate::{
 use core::marker::PhantomData;
 use scale::Decode;
 use smallvec::{
-    SmallVec,
     smallvec,
+    SmallVec,
 };
 
 /// The function selector.
@@ -136,7 +136,9 @@ impl scale::Encode for CallData {
 }
 
 impl scale::Decode for CallData {
-    fn decode<I: scale::Input>(input: &mut I) -> core::result::Result<Self, scale::Error> {
+    fn decode<I: scale::Input>(
+        input: &mut I,
+    ) -> core::result::Result<Self, scale::Error> {
         let mut bytes = SmallVec::new();
         while let Ok(byte) = input.read_byte() {
             bytes.push(byte);

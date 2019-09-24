@@ -12,6 +12,11 @@ impl RetCode {
         Self { code: 0 }
     }
 
+    /// Returns `true` if `self` is success.
+    pub fn is_success(self) -> bool {
+        self.code == 0
+    }
+
     /// Returns the `u32` representation of `self`.
     pub fn to_u32(self) -> u32 {
         self.code

@@ -37,7 +37,12 @@ pub enum Error {
     Call(CallError),
     Create(CreateError),
     Codec(scale::Error),
-    BufferTooSmall,
+    InvalidStorageKey,
+    InvalidStorageRead,
+    InvalidPropertyRead,
+    InvalidContractCall,
+    InvalidContractCallReturn,
+    InvalidRandomSeed,
 }
 
 /// The environmental error type.

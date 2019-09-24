@@ -18,6 +18,4 @@ pub mod ext;
 mod impls;
 mod ret_code;
 
-pub use self::{
-    ret_code::RetCode,
-};
+pub use self::ret_code::RetCode;
