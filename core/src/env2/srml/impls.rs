@@ -311,11 +311,15 @@ where
         ext::deposit_event(topics, data);
     }
 
-    fn invoke_runtime<V>(call_data: &V) -> Result<()>
+    fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
     where
+        O: scale::Output + AsRef<[u8]> + Reset,
         V: scale::Encode,
     {
-        unimplemented!()
+        buffer.reset();
+        call_data.encode_to(buffer);
+        ext::dispatch_call(buffer.as_ref());
+    }
     }
 
     fn random<I>(mut buffer: I, subject: &[u8]) -> Result<Self::Hash>
