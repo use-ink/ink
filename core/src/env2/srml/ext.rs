@@ -18,7 +18,10 @@
 //!
 //! Refer to substrate SRML contract module for more documentation.
 
-use crate::env2::srml::RetCode;
+use crate::{
+    storage::Key,
+    env2::srml::RetCode,
+};
 
 pub fn create(
     code_hash: &[u8],
@@ -88,8 +91,8 @@ pub fn restore_to(
     dest: &[u8],
     code_hash: &[u8],
     rent_allowance: &[u8],
-    delta: &[u8],
-) -> RetCode {
+    filtered_keys: &[Key],
+) {
     unsafe {
         sys::ext_restore_to(
             dest.as_ptr() as u32,
@@ -98,11 +101,10 @@ pub fn restore_to(
             code_hash.len() as u32,
             rent_allowance.as_ptr() as u32,
             rent_allowance.len() as u32,
-            delta.as_ptr() as u32,
-            delta.len() as u32,
+            filtered_keys.as_ptr() as u32,
+            filtered_keys.len() as u32,
         )
-    };
-    RetCode::success()
+    }
 }
 
 pub fn dispatch_call(call: &[u8]) -> RetCode {

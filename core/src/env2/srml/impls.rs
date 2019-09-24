@@ -320,6 +320,39 @@ where
         call_data.encode_to(buffer);
         ext::dispatch_call(buffer.as_ref());
     }
+
+    fn restore_to<O>(
+        buffer: &mut O,
+        dest: Self::AccountId,
+        code_hash: Self::Hash,
+        rent_allowance: Self::Balance,
+        filtered_keys: &[Key],
+    ) where
+        O: scale::Output + AsRef<[u8]> + Reset,
+    {
+        // First we reset the buffer to start from a clean slate.
+        buffer.reset();
+        // Now we encode `dest`, `code_hash` and `rent_allowance`
+        // each after one another into our buffer and remember their
+        // boundaries using guards respectively.
+        dest.encode_to(buffer);
+        let dest_guard = buffer.as_ref().len();
+        code_hash.encode_to(buffer);
+        let code_hash_guard = buffer.as_ref().len();
+        rent_allowance.encode_to(buffer);
+        // We now use the guards in order to split the buffer into
+        // some read-only slices that each store their respective
+        // encoded value and call the actual routine.
+        let dest = &buffer.as_ref()[0..dest_guard];
+        let code_hash = &buffer.as_ref()[dest_guard..code_hash_guard];
+        let rent_allowance = &buffer.as_ref()[code_hash_guard..];
+        // Perform the actual restoration process.
+        ext::restore_to(
+            dest,
+            code_hash,
+            rent_allowance,
+            filtered_keys,
+        );
     }
 
     fn random<I>(mut buffer: I, subject: &[u8]) -> Result<Self::Hash>

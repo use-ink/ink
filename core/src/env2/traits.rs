@@ -144,6 +144,20 @@ pub trait Env:
         O: scale::Output + AsRef<[u8]> + Reset,
         V: scale::Encode;
 
+    /// Restores the contract to the given address.
+    ///
+    /// The `filtered_keys` indicate keys to ignore for evaluating
+    /// the equality of the restoration storage. These keys might be required
+    /// by the restoring contract but not by the restored contract.
+    fn restore_to<O>(
+        buffer: &mut O,
+        dest: Self::AccountId,
+        code_hash: Self::Hash,
+        rent_allowance: Self::Balance,
+        filtered_keys: &[Key],
+    ) where
+        O: scale::Output + AsRef<[u8]> + Reset;
+
     /// Returns a random hash given the subject.
     fn random<I>(buffer: I, subject: &[u8]) -> Result<Self::Hash>
     where
