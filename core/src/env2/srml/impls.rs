@@ -65,7 +65,7 @@ impl<T> SrmlEnv<T>
 where
     T: EnvTypes,
 {
-    fn get_property_impl<P, I>(buffer: &mut I, ext_fn: fn()) -> Result<P::In>
+    fn get_property_impl<P, I>(buffer: &mut I, ext_fn: fn()) -> P::In
     where
         P: property::ReadProperty,
         I: AsMut<[u8]> + EnlargeTo,
@@ -73,11 +73,9 @@ where
         ext_fn();
         let req_len = ext::scratch_size();
         buffer.enlarge_to(req_len as usize);
-        let ret = ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
-        if !ret.is_success() {
-            return Err(Error::InvalidPropertyRead)
-        }
-        Decode::decode(&mut &buffer.as_mut()[0..req_len]).map_err(Into::into)
+        ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
+        Decode::decode(&mut &buffer.as_mut()[0..req_len])
+            .expect("failed at decoding the property")
     }
 }
 
@@ -90,7 +88,7 @@ macro_rules! impl_get_property_for {
             {
                 fn get_property<I>(
                     buffer: &mut I,
-                ) -> Result<<property::$name<Self> as property::ReadProperty>::In>
+                ) -> <property::$name<Self> as property::ReadProperty>::In
                 where
                     I: AsMut<[u8]> + EnlargeTo,
                 {
@@ -107,7 +105,7 @@ where
 {
     fn get_property<I>(
         buffer: &mut I,
-    ) -> Result<<property::Input<Self> as property::ReadProperty>::In>
+    ) -> <property::Input<Self> as property::ReadProperty>::In
     where
         I: AsMut<[u8]> + EnlargeTo,
     {
@@ -135,14 +133,13 @@ where
     fn set_property<O>(
         buffer: &mut O,
         value: &<property::RentAllowance<Self> as property::WriteProperty>::Out,
-    ) -> Result<()>
+    )
     where
         O: scale::Output + AsRef<[u8]> + Reset,
     {
         buffer.reset();
         value.encode_to(buffer);
         ext::set_rent_allowance(buffer.as_ref());
-        Ok(())
     }
 }
 

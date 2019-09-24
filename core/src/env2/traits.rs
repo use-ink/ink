@@ -50,7 +50,7 @@ where
     /// Gets the property.
     ///
     /// Uses `buffer` for intermediate computation.
-    fn get_property<I>(buffer: &mut I) -> Result<P::In>
+    fn get_property<I>(buffer: &mut I) -> P::In
     where
         I: AsMut<[u8]> + EnlargeTo;
 }
@@ -63,7 +63,7 @@ where
     /// Sets the property.
     ///
     /// Uses `buffer` for intermediate computation.
-    fn set_property<O>(buffer: &mut O, encoded: &P::Out) -> Result<()>
+    fn set_property<O>(buffer: &mut O, encoded: &P::Out)
     where
         O: scale::Output + AsRef<[u8]> + Reset;
 }
