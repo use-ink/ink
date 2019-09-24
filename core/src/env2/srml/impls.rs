@@ -68,7 +68,7 @@ where
     fn get_property_impl<P, I>(buffer: &mut I, ext_fn: fn()) -> Result<P::In>
     where
         P: property::ReadProperty,
-        I: scale::Input + AsMut<[u8]> + EnlargeTo,
+        I: AsMut<[u8]> + EnlargeTo,
     {
         ext_fn();
         let req_len = ext::scratch_size();
@@ -92,7 +92,7 @@ macro_rules! impl_get_property_for {
                     buffer: &mut I,
                 ) -> Result<<property::$name<Self> as property::ReadProperty>::In>
                 where
-                    I: scale::Input + AsMut<[u8]> + EnlargeTo,
+                    I: AsMut<[u8]> + EnlargeTo,
                 {
                     Self::get_property_impl::<property::$name::<T>, _>(buffer, $sys_fn)
                 }
@@ -109,7 +109,7 @@ where
         buffer: &mut I,
     ) -> Result<<property::Input<Self> as property::ReadProperty>::In>
     where
-        I: scale::Input + AsMut<[u8]> + EnlargeTo,
+        I: AsMut<[u8]> + EnlargeTo,
     {
         Self::get_property_impl::<property::Input<T>, _>(buffer, || ())
     }
@@ -121,7 +121,7 @@ impl_get_property_for! {
     (GasPrice use ext::gas_price),
     (GasLeft use ext::gas_left),
     (NowInMs use ext::now),
-    (AccountId use ext::address),
+    (Address use ext::address),
     (Balance use ext::balance),
     (RentAllowance use ext::rent_allowance),
     (BlockNumber use ext::block_number),
@@ -146,31 +146,13 @@ where
     }
 }
 
-impl<T> SetProperty<property::Output<Self>> for SrmlEnv<T>
-where
-    T: EnvTypes,
-{
-    fn set_property<O>(
-        buffer: &mut O,
-        value: &<property::Output<Self> as property::WriteProperty>::Out,
-    ) -> Result<()>
-    where
-        O: scale::Output + AsRef<[u8]> + Reset,
-    {
-        buffer.reset();
-        value.encode_to(buffer);
-        ext::scratch_write(buffer.as_ref());
-        Ok(())
-    }
-}
-
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
 {
     fn get_contract_storage<I, R>(key: Key, buffer: &mut I) -> Result<R>
     where
-        I: scale::Input + AsMut<[u8]> + EnlargeTo,
+        I: AsMut<[u8]> + EnlargeTo,
         R: scale::Decode,
     {
         let ret = ext::get_storage(key.as_bytes());
@@ -233,7 +215,7 @@ where
 
     fn eval_contract<IO, D, R>(buffer: &mut IO, call_data: &D) -> Result<R>
     where
-        IO: scale::Input + scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
+        IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
         D: BuildCall<Self>,
     {
@@ -251,7 +233,7 @@ where
 
     fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>
     where
-        IO: scale::Input + scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
+        IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         D: BuildCreate<Self>,
     {
         // First we reset the buffer to start from a clean slate.
@@ -355,9 +337,21 @@ where
         );
     }
 
+    fn output<O, R>(
+        buffer: &mut O,
+        return_value: &R,
+    ) where
+        O: scale::Output + AsRef<[u8]> + Reset,
+        R: scale::Encode,
+    {
+        buffer.reset();
+        return_value.encode_to(buffer);
+        ext::scratch_write(buffer.as_ref());
+    }
+
     fn random<I>(mut buffer: I, subject: &[u8]) -> Result<Self::Hash>
     where
-        I: scale::Input + AsMut<[u8]> + EnlargeTo,
+        I: AsMut<[u8]> + EnlargeTo,
     {
         ext::random_seed(subject);
         let req_len = ext::scratch_size();

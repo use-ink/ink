@@ -1,4 +1,9 @@
-use crate::env2::EnvTypes;
+use crate::{
+    env2::{
+        call::CallData,
+        EnvTypes,
+    },
+};
 use core::marker::PhantomData;
 
 pub(crate) mod private {
@@ -93,11 +98,11 @@ impl_property_for! {
     struct GasPrice { read: Some<E::Balance>, write: None },
     struct GasLeft { read: Some<E::Balance>, write: None },
     struct NowInMs { read: Some<E::Moment>, write: None },
-    struct AccountId { read: Some<E::AccountId>, write: None },
+    struct Address { read: Some<E::AccountId>, write: None },
     struct Balance { read: Some<E::Balance>, write: None },
     struct RentAllowance { read: Some<E::Balance>, write: Some<E::Balance> },
     struct BlockNumber { read: Some<E::BlockNumber>, write: None },
     struct MinimumBalance { read: Some<E::Balance>, write: None },
-    struct Input { read: Some<()>, write: None },
+    struct Input { read: Some<CallData>, write: None },
     struct Output { read: None, write: Some<[u8]> },
 }

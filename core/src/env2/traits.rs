@@ -52,7 +52,7 @@ where
     /// Uses `buffer` for intermediate computation.
     fn get_property<I>(buffer: &mut I) -> Result<P::In>
     where
-        I: scale::Input + AsMut<[u8]> + EnlargeTo;
+        I: AsMut<[u8]> + EnlargeTo;
 }
 
 /// Allows mutating contract properties.
@@ -68,6 +68,7 @@ where
         O: scale::Output + AsRef<[u8]> + Reset;
 }
 
+/// The interface that ink! environments have to implement.
 pub trait Env:
     EnvTypes
     + Sized
@@ -76,14 +77,13 @@ pub trait Env:
     + GetProperty<property::GasPrice<Self>>
     + GetProperty<property::GasLeft<Self>>
     + GetProperty<property::NowInMs<Self>>
-    + GetProperty<property::AccountId<Self>>
+    + GetProperty<property::Address<Self>>
     + GetProperty<property::Balance<Self>>
     + GetProperty<property::RentAllowance<Self>>
     + SetProperty<property::RentAllowance<Self>>
     + GetProperty<property::BlockNumber<Self>>
     + GetProperty<property::MinimumBalance<Self>>
     + GetProperty<property::Input<Self>>
-    + SetProperty<property::Output<Self>>
 {
     /// Returns the value at the contract storage at the position of the key.
     ///
@@ -93,7 +93,7 @@ pub trait Env:
     /// - If the element at `key` could not be decoded into `T`.
     fn get_contract_storage<I, T>(key: Key, buffer: &mut I) -> Result<T>
     where
-        I: scale::Input + AsMut<[u8]> + EnlargeTo,
+        I: AsMut<[u8]> + EnlargeTo,
         T: scale::Decode;
 
     /// Sets the value at the key to the given encoded value.
@@ -122,7 +122,7 @@ pub trait Env:
     /// Evaluations return a return value back to the caller.
     fn eval_contract<IO, D, R>(buffer: &mut IO, call_data: &D) -> Result<R>
     where
-        IO: scale::Input + scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
+        IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
         D: BuildCall<Self>;
 
@@ -132,7 +132,7 @@ pub trait Env:
         create_data: &D,
     ) -> Result<Self::AccountId>
     where
-        IO: scale::Input + scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
+        IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         D: BuildCreate<Self>;
 
     /// Emits an event with the given event data.
@@ -161,10 +161,18 @@ pub trait Env:
     ) where
         O: scale::Output + AsRef<[u8]> + Reset;
 
+    /// Returns the given value back to the caller of the executed contract.
+    fn output<O, R>(
+        buffer: &mut O,
+        return_value: &R,
+    ) where
+        O: scale::Output + AsRef<[u8]> + Reset,
+        R: scale::Encode;
+
     /// Returns a random hash given the subject.
     fn random<I>(buffer: I, subject: &[u8]) -> Result<Self::Hash>
     where
-        I: scale::Input + AsMut<[u8]> + EnlargeTo;
+        I: AsMut<[u8]> + EnlargeTo;
 
     /// Prints the contents as a single line.
     fn println(content: &str);

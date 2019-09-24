@@ -107,9 +107,8 @@ pub fn restore_to(
     }
 }
 
-pub fn dispatch_call(call: &[u8]) -> RetCode {
-    unsafe { sys::ext_dispatch_call(call.as_ptr() as u32, call.len() as u32) };
-    RetCode::success()
+pub fn dispatch_call(call: &[u8]) {
+    unsafe { sys::ext_dispatch_call(call.as_ptr() as u32, call.len() as u32) }
 }
 
 pub fn scratch_size() -> usize {
