@@ -222,6 +222,7 @@ where
         let endowment = &buffer.as_ref()[callee_guard..endowment_guard];
         let gas_limit = call_data.gas_limit();
         let call_data = &buffer.as_ref()[endowment_guard..];
+        // Do the actual contract call.
         let ret = ext::call(callee, gas_limit, endowment, call_data);
         if !ret.is_success() {
             // Maybe the called contract trapped.
@@ -241,18 +242,51 @@ where
         // the returned data and decode it for the result value.
         let req_len = ext::scratch_size();
         buffer.enlarge_to(req_len);
-        let ret = ext::scratch_read(buffer.as_mut(), 0);
+        let ret = ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
         if !ret.is_success() {
             return Err(Error::InvalidContractCallReturn)
         }
-        Decode::decode(&mut &buffer.as_mut()[..]).map_err(Into::into)
+        Decode::decode(&mut &buffer.as_ref()[0..req_len]).map_err(Into::into)
     }
 
-    fn create_contract<D>(create_data: &D) -> Result<Self::AccountId>
+    fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>
     where
-        D: BuildCreate<Self>,
+        IO: scale::Input + scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
+        D: BuildCreate<Self>
     {
-        unimplemented!()
+        // First we reset the buffer to start from a clean slate.
+        buffer.reset();
+        // Now we encode `code_hash`, `endowment` and `input_data`
+        // each after one another into our buffer and remember their
+        // boundaries using the guards.
+        create_data.code_hash().encode_to(buffer);
+        let code_hash_guard = buffer.as_ref().len();
+        create_data.endowment().encode_to(buffer);
+        let endowment_guard = buffer.as_ref().len();
+        create_data.input_data().encode_to(buffer);
+        // We now use the guards in order to split the buffer into
+        // some read-only slices that each store their respective
+        // encoded value and call the actual routine.
+        let code_hash = &buffer.as_ref()[0..code_hash_guard];
+        let endowment = &buffer.as_ref()[code_hash_guard..endowment_guard];
+        let gas_limit = create_data.gas_limit();
+        let call_data = &buffer.as_ref()[endowment_guard..];
+        // Do the actual contract instantiation.
+        let ret = ext::create(code_hash, gas_limit, endowment, call_data);
+        if !ret.is_success() {
+            // Maybe the called contract trapped.
+            return Err(Error::InvalidContractInstantiation)
+        }
+        // At this point our contract instantiation was successful
+        // and we can now fetch the returned data and decode it for
+        // the result value.
+        let req_len = ext::scratch_size();
+        buffer.enlarge_to(req_len);
+        let ret = ext::scratch_read(buffer.as_mut(), 0);
+        if !ret.is_success() {
+            return Err(Error::InvalidContractInstantiationReturn)
+        }
+        Decode::decode(&mut &buffer.as_ref()[0..req_len]).map_err(Into::into)
     }
 
     fn emit_event<D>(event_data: &D) -> Result<()>

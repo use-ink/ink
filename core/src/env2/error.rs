@@ -42,6 +42,8 @@ pub enum Error {
     InvalidPropertyRead,
     InvalidContractCall,
     InvalidContractCallReturn,
+    InvalidContractInstantiation,
+    InvalidContractInstantiationReturn,
     InvalidRandomSeed,
 }
 
