@@ -211,4 +211,9 @@ where
         self.set_has_interacted();
         T::random(&mut self.buffer, subject)
     }
+
+    /// Prints the given contents to the environmental log.
+    pub fn println(&mut self, content: &str) {
+        T::println(content)
+    }
 }
