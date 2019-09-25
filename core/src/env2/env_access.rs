@@ -18,10 +18,10 @@ use crate::{
     env2::{
         call::CallData,
         property,
-        GetProperty,
-        SetProperty,
         Env,
         EnvTypes,
+        GetProperty,
+        SetProperty,
     },
 };
 use core::marker::PhantomData;
@@ -134,7 +134,11 @@ where
     pub fn set_rent_allowance(&mut self, new_value: T::Balance) {
         self.assert_not_yet_returned();
         self.set_has_interacted();
-        <T as SetProperty<property::RentAllowance<T>>>::set_property(&mut self.buffer, &new_value)
+        <T as SetProperty<property::RentAllowance<T>>>::set_property(
+            &mut self.buffer,
+            &new_value,
+        )
+    }
     }
 
     /// Returns the input to the executed contract.

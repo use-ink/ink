@@ -39,7 +39,6 @@ pub enum Error {
     Codec(scale::Error),
     InvalidStorageKey,
     InvalidStorageRead,
-    InvalidPropertyRead,
     InvalidContractCall,
     InvalidContractCallReturn,
     InvalidContractInstantiation,
