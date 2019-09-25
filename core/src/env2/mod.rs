@@ -15,6 +15,30 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 //! Environment definitions and access.
+//!
+//! Provides 5 different preferred ways to access the underlying environment.
+//!
+//! | Access Type | Optimized Access | Restricted Access | Dynamic Allocator |
+//! |---|---|---|---|
+//! | `T: Env` | No | - | No |
+//! | `EnvAccess` | Yes | `&self` | No |
+//! | `EnvAccessMut` | Yes | `&mut self` | No |
+//! | `DynEnvAccess` | Yes | `&self` | Yes |
+//! | `DynEnvAccessMut` | Yes | `&mut self` | Yes |
+//!
+//! # Explanations
+//!
+//! - **Optimized Access:** The environment tries to reuse buffers and minimize allocations.
+//! - **Restricted Access:** The environment might restrict usage for certain message types.
+//! - **Dynamic Allocator:** The environment provides a dynamic allocator and an interface to
+//!                          allocate and instantiate dynamic storage objects.
+//!
+//! # Note
+//!
+//! - If your contract uses dynamic allocations prefer using `DynEnvAccess` or `DynEnvAccessMut`.
+//! - For `&self` messages prefer using `EnvAccess` or `DynEnvAccess`.
+//! - For `&mut self` messages prefer using `EnvAccessMut` or `DynEnvAccessMut`.
+//! - Direct access through `T: Env` is always the least optimal solution and generally not preferred.
 
 pub mod call;
 mod dyn_env;
