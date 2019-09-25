@@ -18,7 +18,7 @@ use crate::{
     storage::Key,
     env2::{
         Env,
-        EnvAccess,
+        EnvAccessMut,
         Result,
         CallParams,
         CreateParams,
@@ -27,8 +27,30 @@ use crate::{
 };
 use core::cell::RefCell;
 
-pub struct DynEnv<T> {
-    access: RefCell<EnvAccess<T>>,
+/// A `&self` accessor to `EnvAccessMut`.
+///
+/// This allows ink! `&self` messages to make use of the environment efficiently
+/// while also maintaining access invariants through runtime checks.
+/// A wrapper arround `EnvAccessMut` allowing for `&self` accesses to make it
+/// usable in `&self` ink! messages.
+///
+/// # Note
+///
+/// Using `EnvAccessMut` is preferable since it performs these access checks at
+/// compile-time.
+pub struct EnvAccess<T> {
+    /// Allows accessing the inner environment by `&self` instead of `&mut self`.
+    ///
+    /// This is important to make `DynEnv` work also in conjunction with `&self` messages.
+    access: RefCell<EnvAccessMut<T>>,
+}
+
+impl<T> From<EnvAccessMut<T>> for EnvAccess<T> {
+    fn from(env_access_mut: EnvAccessMut<T>) -> Self {
+        Self {
+            access: RefCell::new(env_access_mut)
+        }
+    }
 }
 
 macro_rules! impl_forward_for {
@@ -89,7 +111,7 @@ macro_rules! impl_forward_for {
     () => {};
 }
 
-impl<T> DynEnv<T>
+impl<T> EnvAccess<T>
 where
     T: Env,
 {

@@ -31,7 +31,7 @@ use crate::{
 use core::marker::PhantomData;
 
 /// A wrapper around environments to make accessing them more efficient.
-pub struct EnvAccess<E> {
+pub struct EnvAccessMut<E> {
     /// The wrapped environment to access.
     env: PhantomData<E>,
     /// A buffer to make environment accesses
@@ -50,7 +50,7 @@ pub struct EnvAccess<E> {
     has_returned_value: bool,
 }
 
-impl<E> Default for EnvAccess<E> {
+impl<E> Default for EnvAccessMut<E> {
     fn default() -> Self {
         Self {
             env: Default::default(),
@@ -61,7 +61,7 @@ impl<E> Default for EnvAccess<E> {
     }
 }
 
-impl<T> EnvTypes for EnvAccess<T>
+impl<T> EnvTypes for EnvAccessMut<T>
 where
     T: EnvTypes,
 {
@@ -96,7 +96,7 @@ macro_rules! impl_get_property_for {
     () => {}
 }
 
-impl<T> EnvAccess<T>
+impl<T> EnvAccessMut<T>
 where
     T: Env,
 {

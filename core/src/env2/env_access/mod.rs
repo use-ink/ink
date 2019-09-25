@@ -14,40 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! Environment definitions and access.
-
-pub mod call;
-mod env_access;
-mod error;
-pub mod property;
-mod srml;
-mod test;
-mod traits;
-pub mod utils;
-
-pub mod errors {
-    pub use super::error::{
-        CallError,
-        CreateError,
-    };
-}
+mod mutable;
+mod immutable;
 
 pub use self::{
-    env_access::{
-        EnvAccess,
-        EnvAccessMut,
-    },
-    error::{
-        Error,
-        Result,
-    },
-    traits::{
-        CallParams,
-        CreateParams,
-        EmitEventParams,
-        Env,
-        EnvTypes,
-        GetProperty,
-        SetProperty,
-    },
+    mutable::EnvAccessMut,
+    immutable::EnvAccess,
 };
