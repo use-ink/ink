@@ -21,8 +21,10 @@ use crate::{
         Env,
         EnvTypes,
         GetProperty,
+        Result,
         SetProperty,
     },
+    storage::Key,
 };
 use core::marker::PhantomData;
 
@@ -139,6 +141,31 @@ where
             &new_value,
         )
     }
+
+    /// Writes the value to the contract storage under the given key.
+    pub fn set_contract_storage<V>(&mut self, key: Key, value: &V)
+    where
+        V: scale::Encode,
+    {
+        T::set_contract_storage(&mut self.buffer, key, value)
+    }
+
+    /// Returns the value stored under the given key in the contract's storage.
+    ///
+    /// # Errors
+    ///
+    /// - If the key's entry is empty
+    /// - If the decoding of the typed value failed
+    pub fn get_contract_storage<R>(&mut self, key: Key) -> Result<R>
+    where
+        R: scale::Decode,
+    {
+        T::get_contract_storage(&mut self.buffer, key)
+    }
+
+    /// Clears the contract's storage key entry.
+    pub fn clear_contract_storage(&mut self, key: Key) {
+        T::clear_contract_storage(key)
     }
 
     /// Returns the input to the executed contract.
