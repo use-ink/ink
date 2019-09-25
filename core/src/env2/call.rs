@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Infrastructure for calling and instantiating contracts from within contracts.
+
 use crate::{
     env2::{
         CreateParams,
@@ -280,11 +282,15 @@ where
     }
 }
 
-/// Needed because of conflicting implementations of From<T> for T
-/// resulting of generated `ink_lang` code.
+/// Types that can be contructed from an `AccountId`
+///
+/// # Note
+///
+/// This is needed because of conflicting implementations of `From<T> for T`
+/// in the generated code of `ink_lang`.
 pub trait FromAccountId<E>
 where
-    E: Env,
+    E: EnvTypes,
 {
     fn from_account_id(account_id: <E as EnvTypes>::AccountId) -> Self;
 }

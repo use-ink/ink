@@ -25,6 +25,7 @@ mod test;
 mod traits;
 pub mod utils;
 
+/// Error definitions specific to environment accesses.
 pub mod errors {
     pub use super::error::{
         CallError,

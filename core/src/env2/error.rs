@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Error definitions specific to environment accesses.
+
 use derive_more::From;
 
 /// Error encountered by calling a remote contract.
@@ -32,6 +34,7 @@ pub struct CallError;
 #[derive(Debug, Copy, Clone)]
 pub struct CreateError;
 
+/// Errors that can be encountered while accessing the contract's environment.
 #[derive(Debug, Clone, From)]
 pub enum Error {
     Call(CallError),
