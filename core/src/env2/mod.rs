@@ -50,12 +50,27 @@ mod test;
 mod traits;
 pub mod utils;
 
+use cfg_if::cfg_if;
+
 /// Error definitions specific to environment accesses.
 pub mod errors {
     pub use super::error::{
         CallError,
         CreateError,
     };
+}
+
+cfg_if! {
+    if #[cfg(feature = "test-env")] {
+        pub use self::test::{
+            TestEnv,
+        };
+    } else {
+        pub use self::srml::{
+            SrmlEnv,
+            RetCode,
+        };
+    }
 }
 
 pub use self::{
