@@ -99,13 +99,13 @@ where
     T: Env,
 {
     /// Asserts that no value has been returned yet by the contract execution.
-    pub fn assert_not_yet_returned(&self) {
+    fn assert_not_yet_returned(&self) {
         assert!(!self.has_returned_value)
     }
 
     /// Sets the flag for recording interaction between executed contract
     /// and environment to `true`.
-    pub fn set_has_interacted(&mut self) {
+    fn set_has_interacted(&mut self) {
         self.has_interacted = true;
     }
 
