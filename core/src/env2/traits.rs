@@ -170,7 +170,7 @@ pub trait Env:
         R: scale::Encode;
 
     /// Returns a random hash given the subject.
-    fn random<I>(buffer: I, subject: &[u8]) -> Result<Self::Hash>
+    fn random<I>(buffer: &mut I, subject: &[u8]) -> Self::Hash
     where
         I: AsMut<[u8]> + EnlargeTo;
 

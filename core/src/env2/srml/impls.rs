@@ -346,15 +346,16 @@ where
         ext::scratch_write(buffer.as_ref());
     }
 
-    fn random<I>(mut buffer: I, subject: &[u8]) -> Result<Self::Hash>
+    fn random<I>(buffer: &mut I, subject: &[u8]) -> Self::Hash
     where
         I: AsMut<[u8]> + EnlargeTo,
     {
         ext::random_seed(subject);
         let req_len = ext::scratch_size();
         buffer.enlarge_to(req_len);
-        let _ret = ext::scratch_read(&mut buffer.as_mut(), 0);
-        Decode::decode(&mut &buffer.as_mut()[..]).map_err(Into::into)
+        ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
+        Decode::decode(&mut &buffer.as_mut()[0..req_len])
+            .expect("failed at decoding value returned by `ext_random_seed`")
     }
 
     fn println(content: &str) {

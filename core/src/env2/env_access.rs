@@ -200,4 +200,15 @@ where
         self.has_returned_value = true;
         T::output(&mut self.buffer, &return_value);
     }
+
+    /// Returns a random hash.
+    ///
+    /// # Note
+    ///
+    /// The subject buffer can be used to further randomize the hash.
+    pub fn random(&mut self, subject: &[u8]) -> T::Hash {
+        self.assert_not_yet_returned();
+        self.set_has_interacted();
+        T::random(&mut self.buffer, subject)
+    }
 }
