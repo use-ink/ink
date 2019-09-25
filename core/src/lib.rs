@@ -26,7 +26,6 @@
 #![deny(
     bad_style,
 	const_err,
-	dead_code,
 	improper_ctypes,
 	legacy_directory_ownership,
 	non_shorthand_field_patterns,
@@ -39,19 +38,13 @@
 	safe_extern_statics,
 	unconditional_recursion,
 	unions_with_drop_fields,
-	unused,
 	unused_allocation,
 	unused_comparisons,
 	unused_parens,
 	while_true,
-	// missing-copy-implementations,
-	// missing_docs,
 	trivial_casts,
 	trivial_numeric_casts,
 	unused_extern_crates,
-	// unused_import_braces,
-	// unused_qualifications,
-	// unused_results,
 )]
 
 // This extern crate definition is required since otherwise rustc

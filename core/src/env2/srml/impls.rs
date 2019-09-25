@@ -74,7 +74,7 @@ where
     {
         ext_fn();
         let req_len = ext::scratch_size();
-        buffer.enlarge_to(req_len as usize);
+        buffer.enlarge_to(req_len);
         ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
         Decode::decode(&mut &buffer.as_mut()[0..req_len])
             .expect("failed at decoding the property")
