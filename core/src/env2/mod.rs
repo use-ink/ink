@@ -17,6 +17,7 @@
 //! Environment definitions and access.
 
 pub mod call;
+mod dyn_env;
 mod env_access;
 mod error;
 pub mod property;
@@ -34,6 +35,11 @@ pub mod errors {
 }
 
 pub use self::{
+    dyn_env::{
+        DynEnv,
+        DynEnvAccess,
+        DynEnvAccessMut,
+    },
     env_access::{
         EnvAccess,
         EnvAccessMut,
