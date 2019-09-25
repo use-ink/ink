@@ -160,6 +160,8 @@ fn ensure_maximum_memory_pages(
 fn strip_custom_sections(module: &mut Module) {
     module.sections_mut().retain(|section| match section {
         Section::Custom(_) => false,
+        Section::Name(_) => false,
+        Section::Reloc(_) => false,
         _ => true,
     });
 }
