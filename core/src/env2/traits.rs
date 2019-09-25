@@ -18,8 +18,10 @@ use crate::{
     env2::{
         call::CallData,
         property,
-        EnlargeTo,
-        Reset,
+        utils::{
+            EnlargeTo,
+            Reset,
+        },
         Result,
     },
     storage::Key,

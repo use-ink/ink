@@ -18,8 +18,10 @@ use crate::{
     env2::{
         CreateParams,
         CallParams,
-        CallError,
-        CreateError,
+        errors::{
+            CallError,
+            CreateError,
+        },
         Env,
         EnvTypes,
     },

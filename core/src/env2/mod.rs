@@ -23,15 +23,18 @@ pub mod property;
 mod srml;
 mod test;
 mod traits;
-mod utils;
+pub mod utils;
 
-pub use self::{
-    env_access::{
-        EnvAccess,
-    },
-    error::{
+pub mod errors {
+    pub use super::error::{
         CallError,
         CreateError,
+    };
+}
+
+pub use self::{
+    env_access::EnvAccess,
+    error::{
         Error,
         Result,
     },
@@ -43,9 +46,5 @@ pub use self::{
         EnvTypes,
         GetProperty,
         SetProperty,
-    },
-    utils::{
-        EnlargeTo,
-        Reset,
     },
 };
