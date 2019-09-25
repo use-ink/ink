@@ -75,6 +75,23 @@ where
     type Call = T::Call;
 }
 
+macro_rules! impl_get_property_for {
+    (
+        $( #[$meta:meta] )*
+        fn $fn_name:ident< $prop_name:ident >() -> $ret:ty; $($tt:tt)*
+    ) => {
+        $( #[$meta] )*
+        pub fn $fn_name(&mut self) -> $ret {
+            self.assert_not_yet_returned();
+            self.set_has_interacted();
+            <T as GetProperty<property::$prop_name<T>>>::get_property(&mut self.buffer)
+        }
+
+        impl_get_property_for!($($tt)*);
+    };
+    () => {}
+}
+
 impl<T> EnvAccess<T>
 where
     T: Env,
@@ -90,60 +107,27 @@ where
         self.has_interacted = true;
     }
 
-    /// Returns the address of the caller of the executed contract.
-    pub fn caller(&mut self) -> T::AccountId {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::Caller<T>>>::get_property(&mut self.buffer)
-    }
-
-    /// Returns the transferred balance for the contract execution.
-    pub fn transferred_balance(&mut self) -> T::Balance {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::TransferredBalance<T>>>::get_property(&mut self.buffer)
-    }
-
-    /// Returns the current price for gas.
-    pub fn gas_price(&mut self) -> T::Balance {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::GasPrice<T>>>::get_property(&mut self.buffer)
-    }
-
-    /// Returns the amount of gas left for the contract execution.
-    pub fn gas_left(&mut self) -> T::Balance {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::GasLeft<T>>>::get_property(&mut self.buffer)
-    }
-
-    /// Returns the current block time in milliseconds.
-    pub fn now_in_ms(&mut self) -> T::Moment {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::NowInMs<T>>>::get_property(&mut self.buffer)
-    }
-
-    /// Returns the address of the executed contract.
-    pub fn address(&mut self) -> T::AccountId {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::Address<T>>>::get_property(&mut self.buffer)
-    }
-
-    /// Returns the balance of the executed contract.
-    pub fn balance(&mut self) -> T::Balance {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::Balance<T>>>::get_property(&mut self.buffer)
-    }
-
-    /// Returns the current rent allowance for the executed contract.
-    pub fn rent_allowance(&mut self) -> T::Balance {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::RentAllowance<T>>>::get_property(&mut self.buffer)
+    impl_get_property_for! {
+        /// Returns the address of the caller of the executed contract.
+        fn caller<Caller>() -> T::AccountId;
+        /// Returns the transferred balance for the contract execution.
+        fn transferred_balance<TransferredBalance>() -> T::Balance;
+        /// Returns the current price for gas.
+        fn gas_price<GasPrice>() -> T::Balance;
+        /// Returns the amount of gas left for the contract execution.
+        fn gas_left<GasLeft>() -> T::Balance;
+        /// Returns the current block time in milliseconds.
+        fn now_in_ms<NowInMs>() -> T::Moment;
+        /// Returns the address of the executed contract.
+        fn address<Address>() -> T::AccountId;
+        /// Returns the balance of the executed contract.
+        fn balance<Balance>() -> T::Balance;
+        /// Returns the current rent allowance for the executed contract.
+        fn rent_allowance<RentAllowance>() -> T::Balance;
+        /// Returns the current block number.
+        fn block_number<BlockNumber>() -> T::BlockNumber;
+        /// Returns the minimum balance of the executed contract.
+        fn minimum_balance<MinimumBalance>() -> T::Balance;
     }
 
     /// Sets the rent allowance of the executed contract to the new value.
@@ -151,20 +135,6 @@ where
         self.assert_not_yet_returned();
         self.set_has_interacted();
         <T as SetProperty<property::RentAllowance<T>>>::set_property(&mut self.buffer, &new_value)
-    }
-
-    /// Returns the current block number.
-    pub fn block_number(&mut self) -> T::BlockNumber {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::BlockNumber<T>>>::get_property(&mut self.buffer)
-    }
-
-    /// Returns the minimum balance of the executed contract.
-    pub fn minimum_balance(&mut self) -> T::Balance {
-        self.assert_not_yet_returned();
-        self.set_has_interacted();
-        <T as GetProperty<property::MinimumBalance<T>>>::get_property(&mut self.buffer)
     }
 
     /// Returns the input to the executed contract.
