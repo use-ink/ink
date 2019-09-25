@@ -45,6 +45,14 @@ pub struct EnvAccess<T> {
     access: RefCell<EnvAccessMut<T>>,
 }
 
+impl<T> Default for EnvAccess<T> {
+    fn default() -> Self {
+        Self {
+            access: RefCell::new(Default::default())
+        }
+    }
+}
+
 impl<T> From<EnvAccessMut<T>> for EnvAccess<T> {
     fn from(env_access_mut: EnvAccessMut<T>) -> Self {
         Self {
