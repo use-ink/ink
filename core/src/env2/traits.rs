@@ -113,7 +113,7 @@ pub trait Env:
     fn invoke_contract<O, D>(buffer: &mut O, call_data: &D) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        D: BuildCall<Self>;
+        D: CallParams<Self>;
 
     /// Evaluates a contract call with the given call data.
     ///
@@ -124,7 +124,7 @@ pub trait Env:
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
-        D: BuildCall<Self>;
+        D: CallParams<Self>;
 
     /// Instantiates a contract from the given create data and returns its account ID.
     fn create_contract<IO, D>(
@@ -133,13 +133,13 @@ pub trait Env:
     ) -> Result<Self::AccountId>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
-        D: BuildCreate<Self>;
+        D: CreateParams<Self>;
 
     /// Emits an event with the given event data.
     fn emit_event<O, D>(buffer: &mut O, event_data: &D)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        D: BuildEvent<Self>;
+        D: EmitEventParams<Self>;
 
     /// Invokes a runtime dispatchable function with the given call data.
     fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
@@ -179,7 +179,7 @@ pub trait Env:
 }
 
 /// Types implementing this are suitable as call data.
-pub trait BuildCall<E>
+pub trait CallParams<E>
 where
     E: EnvTypes,
 {
@@ -194,7 +194,7 @@ where
 }
 
 /// Types implementing this are suitable as create data.
-pub trait BuildCreate<E>
+pub trait CreateParams<E>
 where
     E: EnvTypes,
 {
@@ -209,7 +209,7 @@ where
 }
 
 /// Types implementing this are suitable as event data.
-pub trait BuildEvent<E>
+pub trait EmitEventParams<E>
 where
     E: EnvTypes,
 {

@@ -36,9 +36,9 @@ pub use self::{
         Result,
     },
     traits::{
-        BuildCall,
-        BuildCreate,
-        BuildEvent,
+        CallParams,
+        CreateParams,
+        EmitEventParams,
         Env,
         EnvTypes,
         GetProperty,

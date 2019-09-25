@@ -18,9 +18,9 @@ use crate::{
     env2::{
         property,
         srml::ext,
-        BuildCall,
-        BuildCreate,
-        BuildEvent,
+        CallParams,
+        CreateParams,
+        EmitEventParams,
         EnlargeTo,
         Env,
         EnvTypes,
@@ -182,7 +182,7 @@ where
     fn invoke_contract<O, D>(buffer: &mut O, call_data: &D) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        D: BuildCall<Self>,
+        D: CallParams<Self>,
     {
         // First we reset the buffer to start from a clean slate.
         buffer.reset();
@@ -214,7 +214,7 @@ where
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
-        D: BuildCall<Self>,
+        D: CallParams<Self>,
     {
         Self::invoke_contract(buffer, call_data)?;
         // At this point our call was successful and we can now fetch
@@ -231,7 +231,7 @@ where
     fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
-        D: BuildCreate<Self>,
+        D: CreateParams<Self>,
     {
         // First we reset the buffer to start from a clean slate.
         buffer.reset();
@@ -271,7 +271,7 @@ where
     fn emit_event<I, D>(buffer: &mut I, event_data: &D)
     where
         I: scale::Output + AsRef<[u8]> + Reset,
-        D: BuildEvent<Self>,
+        D: EmitEventParams<Self>,
     {
         // First we reset the buffer to start from a clean slate.
         buffer.reset();

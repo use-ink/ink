@@ -15,8 +15,9 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env::{
-        self,
+    env2::{
+        CreateParams,
+        CallParams,
         CallError,
         CreateError,
         Env,
@@ -166,6 +167,30 @@ where
     contract_marker: PhantomData<fn() -> C>,
 }
 
+impl<E, C> CreateParams<E> for CreateBuilder<E, C>
+where
+    E: EnvTypes,
+{
+    /// The code hash of the contract.
+    fn code_hash(&self) -> &E::Hash {
+        &self.code_hash
+    }
+
+    /// The gas limit for the contract instantiation.
+    fn gas_limit(&self) -> u64 {
+        self.gas_limit
+    }
+    /// The endowment for the instantiated contract.
+    fn endowment(&self) -> &E::Balance {
+        &self.value
+    }
+
+    /// The raw encoded input data.
+    fn input_data(&self) -> &CallData {
+        &self.call_data
+    }
+}
+
 impl<E, C> CreateBuilder<E, C>
 where
     E: EnvTypes,
@@ -198,6 +223,30 @@ where
     return_type: PhantomData<ReturnType<R>>,
     /// The already encoded call data respecting the ABI.
     call_data: CallData,
+}
+
+impl<E, R> CallParams<E> for CallBuilder<E, R>
+where
+    E: EnvTypes,
+{
+    /// The code hash of the contract.
+    fn callee(&self) -> &E::AccountId {
+        &self.account_id
+    }
+
+    /// The gas limit for the contract instantiation.
+    fn gas_limit(&self) -> u64 {
+        self.gas_limit
+    }
+    /// The endowment for the instantiated contract.
+    fn endowment(&self) -> &E::Balance {
+        &self.value
+    }
+
+    /// The raw encoded input data.
+    fn input_data(&self) -> &CallData {
+        &self.call_data
+    }
 }
 
 impl<E, C> CreateBuilder<E, C>
@@ -323,12 +372,13 @@ where
     /// Fires the call to the remote smart contract.
     /// Returns the returned data back to the caller.
     pub fn fire(self) -> Result<R, CallError> {
-        env::call_evaluate::<E, R>(
-            self.account_id,
-            self.gas_limit,
-            self.value,
-            self.call_data.to_bytes(),
-        )
+        // env::call_evaluate::<E, R>(
+        //     self.account_id,
+        //     self.gas_limit,
+        //     self.value,
+        //     self.call_data.to_bytes(),
+        // )
+        unimplemented!() // TODO: needs access to `EnvAccess` to be efficient
     }
 }
 
@@ -338,11 +388,12 @@ where
 {
     /// Fires the call to the remote smart contract.
     pub fn fire(self) -> Result<(), CallError> {
-        env::call_invoke::<E>(
-            self.account_id,
-            self.gas_limit,
-            self.value,
-            self.call_data.to_bytes(),
-        )
+        // env::call_invoke::<E>(
+        //     self.account_id,
+        //     self.gas_limit,
+        //     self.value,
+        //     self.call_data.to_bytes(),
+        // )
+        unimplemented!() // TODO: needs access to `EnvAccess` to be efficient
     }
 }

@@ -23,6 +23,8 @@ use crate::{
         GetProperty,
         Result,
         SetProperty,
+        CallParams,
+        CreateParams,
     },
     storage::Key,
 };
@@ -166,6 +168,50 @@ where
     /// Clears the contract's storage key entry.
     pub fn clear_contract_storage(&mut self, key: Key) {
         T::clear_contract_storage(key)
+    }
+
+    /// Invokes a contract message.
+    ///
+    /// # Errors
+    ///
+    /// If the called contract has trapped.
+    pub fn invoke_contract<D>(&mut self, call_data: &D) -> Result<()>
+    where
+        D: CallParams<T>,
+    {
+        T::invoke_contract(&mut self.buffer, call_data)
+    }
+
+    /// Evaluates a contract message and returns its result.
+    ///
+    /// # Errors
+    ///
+    /// - If the called contract traps.
+    /// - If the account ID is invalid.
+    /// - If given too few endowment.
+    /// - If arguments passed to the called contract are invalid.
+    /// - If the called contract runs out of gas.
+    pub fn eval_contract<D, R>(&mut self, call_data: &D) -> Result<R>
+    where
+        D: CallParams<T>,
+        R: scale::Decode,
+    {
+        T::eval_contract(&mut self.buffer, call_data)
+    }
+
+    /// Instantiates another contract.
+    ///
+    /// # Errors
+    ///
+    /// - If the instantiation process traps.
+    /// - If the code hash is invalid.
+    /// - If given too few endowment.
+    /// - If the instantiation process runs out of gas.
+    pub fn create_contract<D>(&mut self, create_data: &D) -> Result<T::AccountId>
+    where
+        D: CreateParams<T>,
+    {
+        T::create_contract(&mut self.buffer, create_data)
     }
 
     /// Returns the input to the executed contract.
