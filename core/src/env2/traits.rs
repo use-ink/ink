@@ -91,13 +91,13 @@ pub trait Env:
     ///
     /// - If `key` associates no elements.
     /// - If the element at `key` could not be decoded into `T`.
-    fn get_contract_storage<I, T>(key: Key, buffer: &mut I) -> Result<T>
+    fn get_contract_storage<I, T>(buffer: &mut I, key: Key) -> Result<T>
     where
         I: AsMut<[u8]> + EnlargeTo,
         T: scale::Decode;
 
     /// Sets the value at the key to the given encoded value.
-    fn set_contract_storage<O, T>(key: Key, buffer: &mut O, val: &T)
+    fn set_contract_storage<O, T>(buffer: &mut O, key: Key, val: &T)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
         T: scale::Encode;

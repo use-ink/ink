@@ -147,7 +147,7 @@ impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
 {
-    fn get_contract_storage<I, R>(key: Key, buffer: &mut I) -> Result<R>
+    fn get_contract_storage<I, R>(buffer: &mut I, key: Key) -> Result<R>
     where
         I: AsMut<[u8]> + EnlargeTo,
         R: scale::Decode,
@@ -165,7 +165,7 @@ where
         Decode::decode(&mut &buffer.as_mut()[0..req_len]).map_err(Into::into)
     }
 
-    fn set_contract_storage<O, V>(key: Key, buffer: &mut O, val: &V)
+    fn set_contract_storage<O, V>(buffer: &mut O, key: Key, val: &V)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
         V: scale::Encode,
