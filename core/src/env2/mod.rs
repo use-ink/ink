@@ -18,19 +18,23 @@
 //!
 //! Provides 5 different preferred ways to access the underlying environment.
 //!
-//! | Access Type | Optimized Access | Restricted Access | Dynamic Allocator |
-//! |---|---|---|---|
-//! | `T: Env` | No | - | No |
-//! | `EnvAccess` | Yes | `&self` | No |
-//! | `EnvAccessMut` | Yes | `&mut self` | No |
-//! | `DynEnvAccess` | Yes | `&self` | Yes |
-//! | `DynEnvAccessMut` | Yes | `&mut self` | Yes |
+//! | Access Type | Optimized Access | Restricted Access | Checked Access | Dynamic Allocator |
+//! |---|---|---|---|---|
+//! | `SrmlEnv` or `TestEnv` | No | - | No | No |
+//! | `EnvAccess` | Yes | `&self` | Yes (@rt) | No |
+//! | `EnvAccessMut` | Yes | `&mut self` | Yes (@ct) | No |
+//! | `DynEnv<EnvAccess>` | Yes | `&self` | Yes (@rt) | Yes |
+//! | `DynEnv<EnvAccessMut>` | Yes | `&mut self` | Yes (@ct) | Yes |
+//!
+//! * - @rt: reads "at runtime"
+//! * - @ct: reads "at compiletime"
 //!
 //! # Explanations
 //!
-//! - **Optimized Access:** The environment tries to reuse buffers and minimize allocations.
-//! - **Restricted Access:** The environment might restrict usage for certain message types.
-//! - **Dynamic Allocator:** The environment provides a dynamic allocator and an interface to
+//! - **Optimized Access:** Tries to reuse buffers and minimize allocations.
+//! - **Restricted Access:** Restricts usage for certain message types, e.g. only for `&mut self` messages.
+//! - **Checked Access:** Checks certain accesses to the environment for obvious failures.
+//! - **Dynamic Allocator:** Additionally provides an out-of-box dynamic allocator and an interface to
 //!                          allocate and instantiate dynamic storage objects.
 //!
 //! # Note
@@ -38,7 +42,7 @@
 //! - If your contract uses dynamic allocations prefer using `DynEnvAccess` or `DynEnvAccessMut`.
 //! - For `&self` messages prefer using `EnvAccess` or `DynEnvAccess`.
 //! - For `&mut self` messages prefer using `EnvAccessMut` or `DynEnvAccessMut`.
-//! - Direct access through `T: Env` is always the least optimal solution and generally not preferred.
+//! - Direct access to `SrmlEnv` or `TestEnv` is always the least optimal solution and generally not preferred.
 
 pub mod call;
 mod dyn_env;
