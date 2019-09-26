@@ -27,11 +27,12 @@ use zip::result::ZipError;
 #[derive(Debug, derive_more::From, derive_more::Display)]
 pub enum CommandError {
     Io(IoError),
-    #[display(fmt="Command unimplemented")]
+    #[display(fmt = "Command unimplemented")]
     UnimplementedCommand,
-    #[display(fmt="Abstraction layer unimplemented")]
+    #[display(fmt = "Abstraction layer unimplemented")]
     UnimplementedAbstractionLayer,
     Rpc(RpcError),
+    #[display(fmt = "Secret string error")]
     SecretString(SecretStringError),
     SubXt(SubXtError),
     ZipError(ZipError),

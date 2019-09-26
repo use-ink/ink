@@ -15,13 +15,6 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::cmd::Result;
-use node_runtime::{
-    Event,
-};
-
-use srml_contracts::{
-    RawEvent as ContractsEvent,
-};
 
 use std::{
     collections::HashMap,
@@ -31,7 +24,7 @@ use std::{
 };
 use runtime_primitives::generic::Era;
 use substrate_primitives::{H256, crypto::Pair, sr25519};
-use subxt::{srml::{balances::Balances, contracts::{Contracts, ContractsXt}, system::System}};
+use subxt::{balances::Balances, contracts::{Contracts, ContractsXt}, system::System};
 use futures::future::Future;
 
 type CargoToml = HashMap<String, toml::Value>;
@@ -72,17 +65,11 @@ fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
 }
 
 fn extract_code_hash(extrinsic_result: subxt::ExtrinsicSuccess<Runtime>) -> Result<H256> {
-    extrinsic_result
-        .events
-        .iter()
-        .find_map(|event| {
-            if let Event::contracts(ContractsEvent::CodeStored(hash)) = event {
-                Some(hash.clone())
-            } else {
-                None
-            }
-        })
-        .ok_or("Failed to find contract.CodeStored event".into())
+    match extrinsic_result.find_event::<H256>("Contracts", "CodeStored") {
+        Some(Ok(hash)) => Ok(hash),
+        Some(Err(err)) => Err(format!("Failed to decode code hash: {}", err).into()),
+        None => Err("Failed to find Contracts::CodeStored Event".into())
+    }
 }
 
 #[derive(Debug)]
@@ -130,7 +117,7 @@ pub(crate) fn execute_deploy(
     password: Option<&str>,
     gas: u64,
     contract_wasm_path: Option<PathBuf>,
-) -> Result<()> {
+) -> Result<String> {
     let signer = sr25519::Pair::from_string(surl, password)?;
 
     let code = load_contract_code(contract_wasm_path)?;
@@ -150,9 +137,7 @@ pub(crate) fn execute_deploy(
     log::debug!("Deploy success: {:?}", extrinsic_success);
 
     let code_hash = extract_code_hash(extrinsic_success)?;
-    println!("Code hash: {:?}", code_hash);
-
-    Ok(())
+    Ok(format!("Code hash: {:?}", code_hash))
 }
 
 #[cfg(test)]
