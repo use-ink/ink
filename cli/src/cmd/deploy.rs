@@ -16,16 +16,27 @@
 
 use crate::cmd::Result;
 
+use futures::future::Future;
+use runtime_primitives::generic::Era;
 use std::{
     collections::HashMap,
     fs,
     io::Read,
     path::PathBuf,
 };
-use runtime_primitives::generic::Era;
-use substrate_primitives::{H256, crypto::Pair, sr25519};
-use subxt::{balances::Balances, contracts::{Contracts, ContractsXt}, system::System};
-use futures::future::Future;
+use substrate_primitives::{
+    crypto::Pair,
+    sr25519,
+    H256,
+};
+use subxt::{
+    balances::Balances,
+    contracts::{
+        Contracts,
+        ContractsXt,
+    },
+    system::System,
+};
 
 type CargoToml = HashMap<String, toml::Value>;
 
@@ -68,7 +79,7 @@ fn extract_code_hash(extrinsic_result: subxt::ExtrinsicSuccess<Runtime>) -> Resu
     match extrinsic_result.find_event::<H256>("Contracts", "CodeStored") {
         Some(Ok(hash)) => Ok(hash),
         Some(Err(err)) => Err(format!("Failed to decode code hash: {}", err).into()),
-        None => Err("Failed to find Contracts::CodeStored Event".into())
+        None => Err("Failed to find Contracts::CodeStored Event".into()),
     }
 }
 
@@ -148,7 +159,8 @@ mod tests {
         path,
     };
 
-    #[test] #[ignore] // depends on a local substrate node running
+    #[test]
+    #[ignore] // depends on a local substrate node running
     fn deploy_contract() {
         const CONTRACT: &str = r#"
 (module
@@ -168,7 +180,8 @@ mod tests {
         let _ = file.write_all(&wasm);
 
         let url = url::Url::parse("ws://localhost:9944").unwrap();
-        let result = super::execute_deploy(url, "//Alice", None, 500_000, Some(wasm_path));
+        let result =
+            super::execute_deploy(url, "//Alice", None, 500_000, Some(wasm_path));
 
         assert!(result.is_ok());
     }
