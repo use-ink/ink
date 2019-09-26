@@ -15,9 +15,14 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 mod impls;
+mod storage;
 
 pub use self::{
     impls::{
         TestEnv,
+    },
+    storage::{
+        Entry,
+        Storage,
     },
 };
