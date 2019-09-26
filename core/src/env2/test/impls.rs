@@ -15,20 +15,31 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env2::EnvTypes,
+    env2::{
+        EnvTypes,
+        test::{
+            Storage,
+        },
+    },
 };
-use core::marker::PhantomData;
 
 /// The test environment.
 ///
 /// This allows for limited off-chain testing of smart contracts
 /// with enhanced support for introspection and mutation of the
 /// emulated SRML contracts environment.
-pub struct TestEnv<T> {
-    /// The test environment is generic over the chosen set of types,
-    /// however, it doesn't need to store an instance of those since
-    /// they are known at compiletime.
-    env_types: PhantomData<fn () -> T>,
+pub struct TestEnv<T>
+where
+    T: EnvTypes,
+{
+    /// The emulated contract storage.
+    storage: Storage,
+    /// The emulated chain state.
+    state: ChainState<T>,
+    /// The most current block.
+    block: Block<T>,
+    /// The current contract execution context.
+    exec_context: ExecutionContext<T>,
 }
 
 impl<T> EnvTypes for TestEnv<T>
@@ -92,4 +103,43 @@ where
     gas_limit: Option<T::Balance>,
     /// The associated block for the execution.
     block: Block<T>,
+}
+
+/// Allocates new account IDs.
+///
+/// This is used whenever a new account or contract
+/// is created on the emulated chain.
+pub struct AccountIdAlloc<T>
+where
+    T: EnvTypes,
+{
+    /// The current account ID.
+    current: T::AccountId,
+}
+
+impl<T> Default for AccountIdAlloc<T>
+where
+    T: EnvTypes,
+    T::AccountId: From<usize>,
+{
+    fn default() -> Self {
+        Self {
+            current: 0.into(),
+        }
+    }
+}
+
+use core::ops::{
+    AddAssign,
+};
+
+impl<T> AccountIdAlloc<T>
+where
+    T: EnvTypes,
+    T::AccountId: AddAssign<usize> + Clone,
+{
+    pub fn next(&mut self) -> T::AccountId {
+        self.current += 1;
+        self.current.clone()
+    }
 }

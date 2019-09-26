@@ -50,7 +50,7 @@ mod env_access;
 mod error;
 pub mod property;
 mod srml;
-mod test;
+pub mod test;
 mod traits;
 pub mod utils;
 
