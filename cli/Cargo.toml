@@ -25,6 +25,9 @@ futures = "0.1.28"
 jsonrpc-core-client = { version = "13.0", features = ["ws"] }
 toml = "0.5"
 zip = { version = "0.5", default-features = false }
+pwasm-utils = "0.11.0"
+parity-wasm = "0.40.2"
+cargo_metadata = "0.8.2"
 node-runtime = { git = "https://github.com/paritytech/substrate/", package = "node-runtime", features = ["std"] }
 runtime_primitives = { git = "https://github.com/paritytech/substrate/", package = "sr-primitives" }
 serde = { version = "1.0", features = ["derive"] }
@@ -36,9 +39,14 @@ subxt = { git = "https://github.com/paritytech/substrate-subxt/", package = "sub
 tokio = "0.1.21"
 url = "1.7"
 
-[dev-dependencies]
-wabt = "0.9.0"
-
 [build-dependencies]
 zip = { version = "0.5", default-features = false }
 walkdir = "1.0"
+
+[dev-dependencies]
+tempfile = "3.1.0"
+wabt = "0.9.0"
+
+[features]
+default = []
+test-ci-only = []

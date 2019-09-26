@@ -36,6 +36,12 @@ pub enum CommandError {
     SecretString(SecretStringError),
     SubXt(SubXtError),
     ZipError(ZipError),
+    BuildFailed,
+    #[display(fmt = "Error invoking `cargo metadata`")]
+    CargoMetadata(cargo_metadata::Error),
+    WasmDeserialization(parity_wasm::elements::Error),
+    #[display(fmt = "Optimizer failed")]
+    Optimizer(pwasm_utils::OptimizerError),
     Other(String),
 }
 

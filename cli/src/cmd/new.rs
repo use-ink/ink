@@ -150,13 +150,13 @@ mod tests {
         let name = "dont_overwrite_existing_files";
         let dir = path::Path::new(name);
         fs::create_dir_all(dir).unwrap();
-        fs::File::create(dir.join("build.sh")).unwrap();
+        fs::File::create(dir.join(".gitignore")).unwrap();
         let result = super::initialize_for_lang(name);
         // clean up created files
         std::fs::remove_dir_all(dir).unwrap();
         assert_eq!(
             format!("{:?}", result),
-            r#"Err(Other("New contract file dont_overwrite_existing_files/build.sh already exists"))"#
+            r#"Err(Other("New contract file dont_overwrite_existing_files/.gitignore already exists"))"#
         )
     }
 }
