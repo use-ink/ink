@@ -52,6 +52,7 @@ pub mod property;
 mod srml;
 pub mod test;
 mod traits;
+pub mod types;
 pub mod utils;
 
 use cfg_if::cfg_if;
