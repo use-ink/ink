@@ -101,4 +101,5 @@ pub use self::{
         GetProperty,
         SetProperty,
     },
+    types::DefaultSrmlTypes,
 };

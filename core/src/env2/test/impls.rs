@@ -15,20 +15,39 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+    byte_utils,
     env2::{
-        EnvTypes,
-        test::{
-            Storage,
+        DefaultSrmlTypes,
+        call::{
+            Selector,
+            CallData,
         },
+        property,
+        test::Storage,
+        utils::{
+            EnlargeTo,
+            Reset,
+        },
+        EnvTypes,
+        GetProperty,
+        SetProperty,
+        types,
     },
 };
+use core::marker::PhantomData;
 
-/// The test environment.
+type DefaultAccountId = types::AccountId;
+type DefaultBalance = types::Balance;
+type DefaultHash = types::Hash;
+type DefaultMoment = types::Moment;
+type DefaultBlockNumber = types::BlockNumber;
+
+/// The instance of the test environment.
 ///
 /// This allows for limited off-chain testing of smart contracts
 /// with enhanced support for introspection and mutation of the
 /// emulated SRML contracts environment.
-pub struct TestEnv<T>
+pub struct TestEnvInstance<T>
 where
     T: EnvTypes,
 {
@@ -40,6 +59,23 @@ where
     block: Block<T>,
     /// The current contract execution context.
     exec_context: ExecutionContext<T>,
+}
+
+impl<T> Default for TestEnvInstance<T>
+where
+    T: EnvTypes,
+    ChainState<T>: Default,
+    Block<T>: Default,
+    ExecutionContext<T>: Default,
+{
+    fn default() -> Self {
+        Self {
+            storage: Default::default(),
+            state: Default::default(),
+            block: Default::default(),
+            exec_context: Default::default(),
+        }
+    }
 }
 
 impl<T> EnvTypes for TestEnv<T>
@@ -63,12 +99,25 @@ where
 /// The emulated chain state.
 ///
 /// This stores general information about the chain.
+#[derive(Debug, Clone)]
 pub struct ChainState<T>
 where
     T: EnvTypes,
 {
     /// The current gas price.
     gas_price: T::Balance,
+}
+
+impl<T> Default for ChainState<T>
+where
+    T: EnvTypes,
+    <T as EnvTypes>::Balance: From<DefaultBalance>,
+{
+    fn default() -> Self {
+        Self {
+            gas_price: 0.into(),
+        }
+    }
 }
 
 /// A block within the emulated chain.
@@ -84,6 +133,20 @@ where
     now_in_ms: T::Moment,
 }
 
+impl<T> Default for Block<T>
+where
+    T: EnvTypes,
+    <T as EnvTypes>::BlockNumber: From<DefaultBlockNumber>,
+    <T as EnvTypes>::Moment: From<DefaultMoment>,
+{
+    fn default() -> Self {
+        Self {
+            number: 0.into(),
+            now_in_ms: 0.into(),
+        }
+    }
+}
+
 /// An execution context is opened whenever a contract is being called or instantiated.
 pub struct ExecutionContext<T>
 where
@@ -97,6 +160,8 @@ where
     endowment: T::Balance,
     /// The amount of gas left for further execution.
     gas_left: T::Balance,
+    /// The raw call data for the contract execution.
+    call_data: CallData,
     /// The limit of gas usage.
     ///
     /// There might be no limit thus `gas_left` is the actual limit then.
@@ -105,41 +170,72 @@ where
     block: Block<T>,
 }
 
-/// Allocates new account IDs.
-///
-/// This is used whenever a new account or contract
-/// is created on the emulated chain.
-pub struct AccountIdAlloc<T>
+impl<T> Default for ExecutionContext<T>
 where
     T: EnvTypes,
-{
-    /// The current account ID.
-    current: T::AccountId,
-}
-
-impl<T> Default for AccountIdAlloc<T>
-where
-    T: EnvTypes,
-    T::AccountId: From<usize>,
+    <T as EnvTypes>::AccountId: From<DefaultAccountId>,
+    <T as EnvTypes>::Balance: From<DefaultBalance>,
+    Block<T>: Default,
 {
     fn default() -> Self {
         Self {
-            current: 0.into(),
+            caller: DefaultAccountId::from([0x00; 32]).into(),
+            callee: DefaultAccountId::from([0x01; 32]).into(),
+            endowment: 0.into(),
+            gas_left: 0.into(),
+            call_data: CallData::new(Selector::from([0, 1, 2, 3])),
+            gas_limit: None,
+            block: Default::default(),
         }
     }
 }
 
-use core::ops::{
-    AddAssign,
-};
+/// Allocates new account IDs.
+///
+/// This is used whenever a new account or contract
+/// is created on the emulated chain.
+pub struct AccountIdAlloc<T> {
+    /// The current account ID.
+    current: [u8; 32],
+    /// Environmental types marker.
+    marker: PhantomData<fn() -> T>,
+}
+
+impl<T> Default for AccountIdAlloc<T> {
+    fn default() -> Self {
+        Self {
+            current: [0x0; 32],
+            marker: Default::default(),
+        }
+    }
+}
 
 impl<T> AccountIdAlloc<T>
 where
     T: EnvTypes,
-    T::AccountId: AddAssign<usize> + Clone,
+    T::AccountId: From<[u8; 32]>,
 {
     pub fn next(&mut self) -> T::AccountId {
-        self.current += 1;
-        self.current.clone()
+        byte_utils::bytes_add_bytes(&mut self.current, &[0x01]);
+        self.current.into()
+    }
+}
+
+pub struct TestEnv<T> {
+    marker: PhantomData<fn() -> T>,
+}
+
+impl<T> GetProperty<property::Input<Self>> for TestEnv<T>
+where
+    T: EnvTypes,
+{
+    fn get_property<I>(
+        buffer: &mut I,
+    ) -> <property::Input<Self> as property::ReadProperty>::In
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+    {
+        // self.exec_context.call_data.clone()
+        unimplemented!()
     }
 }

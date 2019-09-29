@@ -34,9 +34,10 @@ use crate::{
 };
 use core::marker::PhantomData;
 use scale::Decode;
+use derive_more::From;
 
 /// The function selector.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Decode, scale::Encode)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, From, scale::Decode, scale::Encode)]
 pub struct Selector {
     /// The 4 underlying bytes.
     bytes: [u8; 4],
@@ -53,13 +54,6 @@ impl<'a> From<&'a [u8]> for Selector {
         Self {
             bytes: [keccak[0], keccak[1], keccak[2], keccak[3]],
         }
-    }
-}
-
-impl From<[u8; 4]> for Selector {
-    /// Reinterprets the given 4 bytes as selector.
-    fn from(bytes: [u8; 4]) -> Self {
-        Self { bytes }
     }
 }
 

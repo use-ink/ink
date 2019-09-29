@@ -19,6 +19,7 @@ mod storage;
 
 pub use self::{
     impls::{
+        TestEnvInstance,
         TestEnv,
     },
     storage::{
