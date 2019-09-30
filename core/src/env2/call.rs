@@ -298,9 +298,9 @@ where
     /// Runs the process to create and instantiate a new smart contract.
     /// Returns the account ID of the newly created smart contract.
     pub fn create(self) -> Result<C, CreateError> {
-        // env::create::<E>(self.code_hash, self.gas_limit, self.value, &self.call_data)
-        //     .map(FromAccountId::from_account_id)
-        unimplemented!() // TODO
+        E::create_contract(&mut Vec::new(), &self)
+            .map(FromAccountId::from_account_id)
+            .map_err(|_| CreateError)
     }
 }
 
@@ -375,13 +375,8 @@ where
     /// Fires the call to the remote smart contract.
     /// Returns the returned data back to the caller.
     pub fn fire(self) -> Result<R, CallError> {
-        // env::call_evaluate::<E, R>(
-        //     self.account_id,
-        //     self.gas_limit,
-        //     self.value,
-        //     self.call_data.to_bytes(),
-        // )
-        unimplemented!() // TODO: needs access to `EnvAccess` to be efficient
+        E::eval_contract(&mut Vec::new(), &self)
+            .map_err(|_| CallError)
     }
 }
 
@@ -391,12 +386,7 @@ where
 {
     /// Fires the call to the remote smart contract.
     pub fn fire(self) -> Result<(), CallError> {
-        // env::call_invoke::<E>(
-        //     self.account_id,
-        //     self.gas_limit,
-        //     self.value,
-        //     self.call_data.to_bytes(),
-        // )
-        unimplemented!() // TODO: needs access to `EnvAccess` to be efficient
+        E::invoke_contract(&mut Vec::new(), &self)
+            .map_err(|_| CallError)
     }
 }
