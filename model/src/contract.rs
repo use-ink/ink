@@ -31,7 +31,6 @@ use core::marker::PhantomData;
 use ink_core::{
     env,
     memory::vec::Vec,
-    storage::alloc::Initialize,
 };
 
 /// A marker struct to tell that the deploy handler requires no arguments.
@@ -277,10 +276,7 @@ where
             // order which could be achieved by simply putting all contracts
             // into a contract struct that itself implements `AllocateUsing`.
             let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-            let mut env: ExecutionEnv<State, Env> =
-                AllocateUsing::allocate_using(&mut alloc);
-            env.initialize(());
-            env
+            AllocateUsing::allocate_using(&mut alloc)
         };
         ContractInstance {
             env,
