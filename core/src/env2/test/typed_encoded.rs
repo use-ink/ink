@@ -22,6 +22,7 @@ use core::{
     },
     marker::PhantomData,
 };
+use core::cmp::Ordering;
 
 /// A wrapper around an encoded entity that only allows type safe accesses.
 ///
@@ -68,6 +69,22 @@ impl<M> PartialEq<Self> for TypedEncoded<M> {
 }
 
 impl<M> Eq for TypedEncoded<M> {}
+
+impl<M> PartialOrd<Self> for TypedEncoded<M> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.type_id != other.type_id {
+            return None
+        }
+        self.as_bytes().partial_cmp(other.as_bytes())
+    }
+}
+
+impl<M> Ord for TypedEncoded<M> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other)
+            .expect("expect to have same `type_id`")
+    }
+}
 
 impl<M> Clone for TypedEncoded<M> {
     fn clone(&self) -> Self {
