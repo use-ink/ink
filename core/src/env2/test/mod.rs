@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod impls;
+mod instance;
 mod storage;
 mod typed_encoded;
 
 pub use self::{
-    impls::{
-        TestEnvInstance,
-        TestEnv,
-    },
+    instance::TestEnvInstance,
     storage::{
         Entry,
         Storage,

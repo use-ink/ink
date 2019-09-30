@@ -68,7 +68,6 @@ pub mod errors {
 cfg_if! {
     if #[cfg(feature = "test-env")] {
         pub use self::test::{
-            TestEnv,
         };
     } else {
         pub use self::srml::{
