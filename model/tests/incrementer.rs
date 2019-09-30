@@ -68,17 +68,3 @@ fn inc_and_read() {
     contract.call::<Inc>(41);
     assert_eq!(contract.call::<Get>(()), 42_u32);
 }
-
-#[test]
-#[should_panic]
-fn read_without_deploy() {
-    let mut contract = instantiate();
-    let _res = contract.call::<Get>(());
-}
-
-#[test]
-#[should_panic]
-fn write_without_deploy() {
-    let mut contract = instantiate();
-    contract.call::<Inc>(100);
-}

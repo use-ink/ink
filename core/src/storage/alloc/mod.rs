@@ -17,7 +17,6 @@
 //! Facilities to allocate and deallocate contract storage dynamically.
 
 mod bump_alloc;
-mod cc_alloc;
 mod dyn_alloc;
 mod traits;
 
@@ -26,7 +25,6 @@ mod tests;
 
 pub use self::{
     bump_alloc::BumpAlloc,
-    cc_alloc::CellChunkAlloc,
     dyn_alloc::DynAlloc,
     traits::{
         Allocate,
