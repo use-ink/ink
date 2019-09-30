@@ -30,22 +30,22 @@ use crate::{
 /// Type markers used in conjunction with `TypedEncoded`.
 mod type_marker {
     /// Type marker representing an environmental `AccountId`.
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug)]
     pub enum AccountId {}
     /// Type marker representing an environmental `Balance`.
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug)]
     pub enum Balance {}
     /// Type marker representing an environmental `Hash`.
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug)]
     pub enum Hash {}
     /// Type marker representing an environmental `Moment`.
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug)]
     pub enum Moment {}
     /// Type marker representing an environmental `BlockNumber`.
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug)]
     pub enum BlockNumber {}
     /// Type marker representing an environmental `Call`.
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug)]
     pub enum Call {}
 }
 
