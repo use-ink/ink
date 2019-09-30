@@ -14,27 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    byte_utils,
-    env2::{
-        DefaultSrmlTypes,
-        call::{
-            Selector,
-            CallData,
-        },
-        property,
-        test::Storage,
-        utils::{
-            EnlargeTo,
-            Reset,
-        },
-        EnvTypes,
-        GetProperty,
-        SetProperty,
-        types,
-    },
-};
-use scale::{Codec, Encode, Decode};
 use core::{
     marker::PhantomData,
     any::TypeId,
@@ -46,26 +25,85 @@ use core::{
 ///
 /// Checks are implemented at runtime.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct TypedEncoded {
+pub struct TypedEncoded<M> {
     /// The bytes of the encoded representation of the type.
     encoded: Vec<u8>,
     /// The unique identifier of the encoded type.
     type_id: TypeId,
+    /// Classification marker.
+    ///
+    /// # Note
+    ///
+    /// - This shouldn't be the typed that is actually stored as encoded
+    ///   representation in `self.encoded` but should primarily be an
+    ///   abstract marker type that may be used for classification.
+    /// - The idea behind the marker is to say that whenever two instances
+    ///   of `TypedEncoded` share a marker they are guaranteed to also have
+    ///   a common (but unknown) `type_id` so they can decode to the same
+    ///   original type and thus we can allow to interoperate on them.
+    ///
+    /// # Example
+    ///
+    /// The `TestEnvInstance` might use one abstract marker for every
+    /// of the fundamental SRML types: `Balance`, `AccountId`, `Hash`, etc.
+    /// With this and the explicit guarantee that two instances of `TypedEncoded`
+    /// with the same abstract marker also share the same (unknown) `type_id`
+    /// it is possible to allow them to interoperate.
+    marker: PhantomData<fn () -> M>,
 }
 
 /// Marker that indicates untypedness for an instance of `TypedEncoded`.
-enum Untyped {}
+///
+/// # Note
+///
+/// - We abuse this to initialize instances of `TypedEncoded` where concrete
+///   types for them are not yet known.
+/// - This allows for a special case where even instances with differing marker
+///   types can interoperate as long as at least one of them has `Uninitialized` as marker,
+///   although this is type unsafe since we cannot guarantee that the encoding matches
+///   the type.
+enum Uninitialized {}
 
-impl Default for TypedEncoded {
+impl<M> Default for TypedEncoded<M> {
+    /// Creates an uninitialized instance.
+    ///
+    /// # Note
+    ///
+    /// This instance can be initialized with a proper value at a later point
+    /// using a call to `TypedEncoded::try_initialize`.
     fn default() -> Self {
         Self {
             encoded: Vec::new(),
-            type_id: TypeId::of::<Untyped>(),
+            type_id: TypeId::of::<Uninitialized>(),
+            marker: Default::default(),
         }
     }
 }
 
-impl TypedEncoded {
+/// Encountered when trying to initialize an already initialized `TypedEncoded`.
+#[derive(Debug, PartialEq, Eq)]
+pub struct AlreadyInitialized;
+
+impl<M> TypedEncoded<M> {
+    /// Initializes `self` with a given encodable value.
+    ///
+    /// # Errors
+    ///
+    /// If `self` has already been initialized or is an initialized instance.
+    pub fn try_initialize<V>(&mut self, value: &V) -> Result<(), AlreadyInitialized>
+    where
+        V: scale::Encode + 'static,
+    {
+        if self.type_id != TypeId::of::<Uninitialized>() {
+            return Err(AlreadyInitialized)
+        }
+        self.encoded = value.encode();
+        self.type_id = TypeId::of::<V>();
+        Ok(())
+    }
+}
+
+impl<M> TypedEncoded<M> {
     /// Returns the encoded bytes.
     fn as_bytes(&self) -> &[u8] {
         &self.encoded
@@ -76,7 +114,7 @@ impl TypedEncoded {
 #[derive(Debug, PartialEq, Eq)]
 pub struct UnmatchingType;
 
-impl TypedEncoded
+impl<M> TypedEncoded<M>
 {
     /// Converts back into the original typed origin.
     ///
@@ -109,7 +147,7 @@ impl TypedEncoded
     }
 }
 
-impl TypedEncoded
+impl<M> TypedEncoded<M>
 {
     /// Converts the original typed entity into its encoded representation.
     pub fn from_origin<T>(value: &T) -> Self
@@ -119,6 +157,7 @@ impl TypedEncoded
         Self {
             encoded: value.encode(),
             type_id: TypeId::of::<T>(),
+            marker: Default::default(),
         }
     }
 }
