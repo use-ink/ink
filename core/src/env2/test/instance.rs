@@ -64,9 +64,29 @@ pub type Call = TypedEncoded<type_marker::Call>;
 
 /// The instance of the test environment.
 ///
-/// This allows for limited off-chain testing of smart contracts
-/// with enhanced support for introspection and mutation of the
-/// emulated SRML contracts environment.
+/// # Single Instance
+///
+/// This is basically the database of the actual test environment.
+/// We need exactly one single instance of this type which the actual
+/// `TestEnv` is going to access through `thread_local` storage.
+/// Since `thread_local` storage doesn't allow for generics `TestEnvInstance`
+/// needs to be `EnvTypes` agnostic.
+///
+/// # Type Safety
+///
+/// To counter the lost type safety of being `EnvTypes` agnostic
+/// `TestEnvInstance` uses the `TypedEncoded` abstraction where possible
+/// since it provides a small type-safe runtime-checked wrapper
+/// arround the state.
+///
+/// # Default
+///
+/// The `thread_local` storage is using the `Default` implementation
+/// of `TestEnvInstance` in order to initialize it thread locally.
+/// However, since we are using `TypedEncoded` we need a separate initialization
+/// routine to actually initialize those for their guarantees around type safe accesses.
+/// To initialize `TestEnvInstance` type-safely `TestEnv` is using its `initialize_using`
+/// routine which has certain constraints to the actual environmental types.
 #[derive(Debug, Default)]
 pub struct TestEnvInstance {
     /// The emulated contract storage.
