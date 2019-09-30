@@ -175,6 +175,12 @@ pub trait Env:
         I: AsMut<[u8]> + EnlargeTo;
 
     /// Prints the contents as a single line.
+    ///
+    /// # Note
+    ///
+    /// This is a pure debug utility and should not be used in production.
+    /// In fact production chains will generally reject contracts upon deploy
+    /// that make use of this functionality.
     fn println(content: &str);
 }
 
