@@ -15,8 +15,9 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use core::{
-    marker::PhantomData,
     any::TypeId,
+    hash::{Hash, Hasher},
+    marker::PhantomData,
 };
 
 /// A wrapper around an encoded entity that only allows type safe accesses.
@@ -24,7 +25,7 @@ use core::{
 /// # Note
 ///
 /// Checks are implemented at runtime.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug)]
 pub struct TypedEncoded<M> {
     /// The bytes of the encoded representation of the type.
     encoded: Vec<u8>,
@@ -49,7 +50,40 @@ pub struct TypedEncoded<M> {
     /// With this and the explicit guarantee that two instances of `TypedEncoded`
     /// with the same abstract marker also share the same (unknown) `type_id`
     /// it is possible to allow them to interoperate.
-    marker: PhantomData<fn () -> M>,
+    marker: PhantomData<fn() -> M>,
+}
+
+impl<M> PartialEq<Self> for TypedEncoded<M> {
+    fn eq(&self, other: &Self) -> bool {
+        if self.type_id == other.type_id
+            && self.encoded.as_slice() == other.encoded.as_slice()
+        {
+            return true
+        }
+        false
+    }
+}
+
+impl<M> Eq for TypedEncoded<M> {}
+
+impl<M> Clone for TypedEncoded<M> {
+    fn clone(&self) -> Self {
+        Self {
+            encoded: self.encoded.clone(),
+            type_id: self.type_id.clone(),
+            marker: Default::default(),
+        }
+    }
+}
+
+impl<M> Hash for TypedEncoded<M> {
+    fn hash<H>(&self, state: &mut H)
+    where
+        H: Hasher,
+    {
+        self.encoded.hash(state);
+        self.type_id.hash(state);
+    }
 }
 
 /// Marker that indicates untypedness for an instance of `TypedEncoded`.
@@ -114,8 +148,7 @@ impl<M> TypedEncoded<M> {
 #[derive(Debug, PartialEq, Eq)]
 pub struct UnmatchingType;
 
-impl<M> TypedEncoded<M>
-{
+impl<M> TypedEncoded<M> {
     /// Converts back into the original typed origin.
     ///
     /// # Errors
@@ -147,8 +180,7 @@ impl<M> TypedEncoded<M>
     }
 }
 
-impl<M> TypedEncoded<M>
-{
+impl<M> TypedEncoded<M> {
     /// Converts the original typed entity into its encoded representation.
     pub fn from_origin<T>(value: &T) -> Self
     where
