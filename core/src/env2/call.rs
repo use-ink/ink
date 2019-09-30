@@ -134,7 +134,8 @@ impl scale::Decode for CallData {
     fn decode<I: scale::Input>(
         input: &mut I,
     ) -> core::result::Result<Self, scale::Error> {
-        let mut bytes = Vec::new();
+        let remaining_len = input.remaining_len().unwrap_or(None).unwrap_or(0);
+        let mut bytes = Vec::with_capacity(remaining_len);
         while let Ok(byte) = input.read_byte() {
             bytes.push(byte);
         }
