@@ -15,8 +15,8 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    storage::Key,
     memory::collections::btree_map::BTreeMap,
+    storage::Key,
 };
 use core::cell::Cell;
 

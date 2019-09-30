@@ -19,6 +19,6 @@ mod impls;
 mod ret_code;
 
 pub use self::{
-    ret_code::RetCode,
     impls::SrmlEnv,
+    ret_code::RetCode,
 };

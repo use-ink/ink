@@ -18,12 +18,12 @@
 
 use crate::{
     env2::{
-        CreateParams,
-        CallParams,
         errors::{
             CallError,
             CreateError,
         },
+        CallParams,
+        CreateParams,
         Env,
         EnvTypes,
     },
@@ -33,8 +33,8 @@ use crate::{
     },
 };
 use core::marker::PhantomData;
-use scale::Decode;
 use derive_more::From;
+use scale::Decode;
 
 /// The function selector.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, From, scale::Decode, scale::Encode)]

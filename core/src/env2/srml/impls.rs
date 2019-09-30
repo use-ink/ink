@@ -18,13 +18,13 @@ use crate::{
     env2::{
         property,
         srml::ext,
-        CallParams,
-        CreateParams,
-        EmitEventParams,
         utils::{
             EnlargeTo,
             Reset,
         },
+        CallParams,
+        CreateParams,
+        EmitEventParams,
         Env,
         EnvTypes,
         Error,
@@ -135,8 +135,7 @@ where
     fn set_property<O>(
         buffer: &mut O,
         value: &<property::RentAllowance<Self> as property::WriteProperty>::Out,
-    )
-    where
+    ) where
         O: scale::Output + AsRef<[u8]> + Reset,
     {
         buffer.reset();
@@ -328,18 +327,11 @@ where
         let code_hash = &buffer.as_ref()[dest_guard..code_hash_guard];
         let rent_allowance = &buffer.as_ref()[code_hash_guard..];
         // Perform the actual restoration process.
-        ext::restore_to(
-            dest,
-            code_hash,
-            rent_allowance,
-            filtered_keys,
-        );
+        ext::restore_to(dest, code_hash, rent_allowance, filtered_keys);
     }
 
-    fn output<O, R>(
-        buffer: &mut O,
-        return_value: &R,
-    ) where
+    fn output<O, R>(buffer: &mut O, return_value: &R)
+    where
         O: scale::Output + AsRef<[u8]> + Reset,
         R: scale::Encode,
     {

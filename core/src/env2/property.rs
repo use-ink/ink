@@ -18,11 +18,9 @@
 //!
 //! Allow to query and mutate certain properties of a smart contract.
 
-use crate::{
-    env2::{
-        call::CallData,
-        EnvTypes,
-    },
+use crate::env2::{
+    call::CallData,
+    EnvTypes,
 };
 use core::marker::PhantomData;
 

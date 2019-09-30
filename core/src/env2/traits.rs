@@ -164,10 +164,8 @@ pub trait Env:
         O: scale::Output + AsRef<[u8]> + Reset;
 
     /// Returns the given value back to the caller of the executed contract.
-    fn output<O, R>(
-        buffer: &mut O,
-        return_value: &R,
-    ) where
+    fn output<O, R>(buffer: &mut O, return_value: &R)
+    where
         O: scale::Output + AsRef<[u8]> + Reset,
         R: scale::Encode;
 

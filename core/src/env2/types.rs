@@ -26,17 +26,17 @@ use crate::{
     env::EnvTypes,
     storage::Flush,
 };
+use core::{
+    array::TryFromSliceError,
+    convert::TryFrom,
+};
+use derive_more::From;
 use scale::{
     Decode,
     Encode,
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
-use core::{
-    array::TryFromSliceError,
-    convert::TryFrom,
-};
-use derive_more::From;
 
 /// The fundamental types of the SRML default configuration.
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]

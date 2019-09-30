@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod mutable;
 mod immutable;
+mod mutable;
 
 pub use self::{
-    mutable::EnvAccessMut,
     immutable::EnvAccess,
+    mutable::EnvAccessMut,
 };

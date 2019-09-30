@@ -15,15 +15,15 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    storage::Key,
     env2::{
+        call::CallData,
+        CallParams,
+        CreateParams,
         Env,
         EnvAccessMut,
         Result,
-        CallParams,
-        CreateParams,
-        call::CallData,
     },
+    storage::Key,
 };
 use core::cell::RefCell;
 
@@ -48,7 +48,7 @@ pub struct EnvAccess<T> {
 impl<T> Default for EnvAccess<T> {
     fn default() -> Self {
         Self {
-            access: RefCell::new(Default::default())
+            access: RefCell::new(Default::default()),
         }
     }
 }
@@ -56,7 +56,7 @@ impl<T> Default for EnvAccess<T> {
 impl<T> From<EnvAccessMut<T>> for EnvAccess<T> {
     fn from(env_access_mut: EnvAccessMut<T>) -> Self {
         Self {
-            access: RefCell::new(env_access_mut)
+            access: RefCell::new(env_access_mut),
         }
     }
 }

@@ -19,8 +19,8 @@
 //! Refer to substrate SRML contract module for more documentation.
 
 use crate::{
-    storage::Key,
     env2::srml::RetCode,
+    storage::Key,
 };
 
 pub fn create(

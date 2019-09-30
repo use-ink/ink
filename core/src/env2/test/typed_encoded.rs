@@ -16,7 +16,10 @@
 
 use core::{
     any::TypeId,
-    hash::{Hash, Hasher},
+    hash::{
+        Hash,
+        Hasher,
+    },
     marker::PhantomData,
 };
 

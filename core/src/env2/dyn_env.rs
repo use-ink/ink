@@ -22,8 +22,8 @@ use crate::{
     storage::{
         alloc::{
             Allocate,
-            DynAlloc,
             AllocateUsing,
+            DynAlloc,
             Initialize,
         },
         Flush,
@@ -88,7 +88,7 @@ where
     {
         Self {
             env: Default::default(),
-            alloc: AllocateUsing::allocate_using(alloc)
+            alloc: AllocateUsing::allocate_using(alloc),
         }
     }
 }
