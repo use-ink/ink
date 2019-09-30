@@ -58,6 +58,8 @@ use crate::{
 pub struct TestEnvInstance {
     /// The emulated contract storage.
     storage: Storage,
+    /// The accounts registered on the chain.
+    accounts: Accounts,
     /// The emulated chain state.
     state: ChainState,
     /// The most current block.

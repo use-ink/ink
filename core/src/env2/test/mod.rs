@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+mod account;
 mod instance;
 mod storage;
 mod typed_encoded;
@@ -24,6 +25,9 @@ pub use self::{
     storage::{
         Entry,
         Storage,
+    },
+    account::{
+        Accounts,
     },
     typed_encoded::TypedEncoded,
     types::{
