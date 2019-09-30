@@ -181,7 +181,7 @@ where
         ///
         /// - If the called contract traps.
         /// - If the account ID is invalid.
-        /// - If given too few endowment.
+        /// - If given too little endowment.
         /// - If arguments passed to the called contract are invalid.
         /// - If the called contract runs out of gas.
         fn eval_contract<D, R>(&self, call_data: &D) -> Result<R>
@@ -195,7 +195,7 @@ where
         ///
         /// - If the instantiation process traps.
         /// - If the code hash is invalid.
-        /// - If given too few endowment.
+        /// - If given too little endowment.
         /// - If the instantiation process runs out of gas.
         fn create_contract<D>(&self, create_data: &D) -> Result<T::AccountId>
         where
