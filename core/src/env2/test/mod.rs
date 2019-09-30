@@ -16,6 +16,7 @@
 
 mod impls;
 mod storage;
+mod typed_encoded;
 
 pub use self::{
     impls::{
@@ -26,4 +27,5 @@ pub use self::{
         Entry,
         Storage,
     },
+    typed_encoded::TypedEncoded,
 };
