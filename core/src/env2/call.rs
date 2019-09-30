@@ -147,7 +147,7 @@ impl scale::Decode for CallData {
 ///
 /// Used as a marker type to differentiate at compile-time between invoke and evaluate.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct ReturnType<T>(PhantomData<fn () -> T>);
+pub struct ReturnType<T>(PhantomData<fn() -> T>);
 
 /// Builds up contract instantiations.
 pub struct CreateBuilder<E, C>
@@ -375,8 +375,7 @@ where
     /// Fires the call to the remote smart contract.
     /// Returns the returned data back to the caller.
     pub fn fire(self) -> Result<R, CallError> {
-        E::eval_contract(&mut Vec::new(), &self)
-            .map_err(|_| CallError)
+        E::eval_contract(&mut Vec::new(), &self).map_err(|_| CallError)
     }
 }
 
@@ -386,7 +385,6 @@ where
 {
     /// Fires the call to the remote smart contract.
     pub fn fire(self) -> Result<(), CallError> {
-        E::invoke_contract(&mut Vec::new(), &self)
-            .map_err(|_| CallError)
+        E::invoke_contract(&mut Vec::new(), &self).map_err(|_| CallError)
     }
 }
