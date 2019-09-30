@@ -17,6 +17,7 @@
 mod instance;
 mod storage;
 mod typed_encoded;
+mod types;
 
 pub use self::{
     instance::TestEnvInstance,
@@ -25,4 +26,12 @@ pub use self::{
         Storage,
     },
     typed_encoded::TypedEncoded,
+    types::{
+        Balance,
+        AccountId,
+        Moment,
+        BlockNumber,
+        Hash,
+        Call,
+    },
 };
