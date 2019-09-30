@@ -147,7 +147,7 @@ impl scale::Decode for CallData {
 ///
 /// Used as a marker type to differentiate at compile-time between invoke and evaluate.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct ReturnType<T>(PhantomData<T>);
+pub struct ReturnType<T>(PhantomData<fn () -> T>);
 
 /// Builds up contract instantiations.
 pub struct CreateBuilder<E, C>
