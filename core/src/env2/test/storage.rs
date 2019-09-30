@@ -26,6 +26,7 @@ use core::cell::Cell;
 ///
 /// Additionally to its data it also stores the total
 /// number of reads and writes done to this entry.
+#[derive(Debug)]
 pub struct Entry {
     /// The actual data that is stored in this storage entry.
     data: Vec<u8>,
@@ -101,6 +102,7 @@ impl Entry {
 /// Also every entry and the storage itself are
 /// storing counts of read and write accesses for
 /// further introspection of storage access.
+#[derive(Debug)]
 pub struct Storage {
     /// All storage entries.
     entries: BTreeMap<Key, Entry>,
