@@ -15,31 +15,16 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    byte_utils,
     env2::{
         call::{
             CallData,
             Selector,
         },
-        property,
         test::{
             Storage,
             TypedEncoded,
         },
-        types,
-        utils::{
-            EnlargeTo,
-            Reset,
-        },
-        DefaultSrmlTypes,
-        EnvTypes,
-        GetProperty,
-        SetProperty,
     },
-};
-use core::{
-    cell::RefCell,
-    marker::PhantomData,
 };
 
 /// Type markers used in conjunction with `TypedEncoded`.
