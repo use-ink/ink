@@ -49,8 +49,6 @@ mod dyn_env;
 mod env_access;
 mod error;
 pub mod property;
-mod srml;
-pub mod test;
 mod traits;
 pub mod types;
 pub mod utils;
@@ -67,9 +65,11 @@ pub mod errors {
 
 cfg_if! {
     if #[cfg(feature = "test-env")] {
+        pub mod test;
         pub use self::test::{
         };
     } else {
+        mod srml;
         pub use self::srml::{
             SrmlEnv,
             RetCode,
