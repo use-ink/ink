@@ -308,10 +308,13 @@ fn contract_compiles() {
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
                     ink_abi::ContractSpec::new("CallCounter")
-                        .on_deploy(ink_abi::DeploySpec::new()
-                        .args(vec![])
-                        .docs(vec![])
-                        .done())
+                        .constructors(vec![
+                            ink_abi::ConstructorSpec::new("on_deploy")
+                                .selector(0)
+                                .args(vec![])
+                                .docs(vec![])
+                                .done()
+                        ])
                         .messages(vec![
                             ink_abi::MessageSpec::new("inc")
                                 .selector(257544423u32)
@@ -325,7 +328,7 @@ fn contract_compiles() {
                                     "Also emits an event.",
                                 ])
                                 .returns(
-                                    ink_abi::ReturnTypeSpec::none()
+                                    ink_abi::ReturnTypeSpec::new(None)
                                 )
                                 .done(),
                             ink_abi::MessageSpec::new("dec")
@@ -339,25 +342,40 @@ fn contract_compiles() {
                                     "",
                                     "Also emits an event.",
                                 ])
-                                .returns(ink_abi::ReturnTypeSpec::none())
+                                .returns(ink_abi::ReturnTypeSpec::new(None))
                                 .done(),
                         ])
                         .events(vec![
                             ink_abi::EventSpec::new(stringify!(DecCalled))
                                 .args(vec![
-                                    ink_abi::EventParamSpec::new::<u32>(stringify!(current), false),
+                                    ink_abi::EventParamSpec::new(stringify!(current))
+                                        .of_type(
+                                            ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                                vec!["u32"].into_iter().map(AsRef::as_ref)
+                                            )
+                                        )
+                                        .indexed(false)
+                                        .done(),
                                 ])
                                 .docs(vec![
                                     "Fires when the value is decremented.",
                                 ])
                                 .done(),
                             ink_abi::EventSpec::new(stringify!(IncCalled))
-                                .args(vec![ink_abi::EventParamSpec::new::<u32>(stringify!(current), false),
-                            ])
-                            .docs(vec![
-                                "Fires when the value is incremented.",
-                            ])
-                            .done(),
+                                .args(vec![
+                                    ink_abi::EventParamSpec::new(stringify!(current))
+                                        .of_type(
+                                            ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                                vec!["u32"].into_iter().map(AsRef::as_ref)
+                                            )
+                                        )
+                                        .indexed(false)
+                                        .done(),
+                                ])
+                                .docs(vec![
+                                    "Fires when the value is incremented.",
+                                ])
+                                .done(),
                         ])
                         .docs(vec![])
                         .done()

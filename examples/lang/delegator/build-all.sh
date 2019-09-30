@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd accumulator && ./build.sh && popd &&
-pushd adder && ./build.sh && popd &&
-pushd subber && ./build.sh && popd &&
-./build.sh
+pushd accumulator && cargo contract build && popd &&
+pushd adder && cargo contract build && popd &&
+pushd subber && cargo contract build && popd &&
+cargo contract build

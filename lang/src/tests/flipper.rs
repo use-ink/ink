@@ -206,34 +206,40 @@ fn contract_compiles() {
             pub fn ink_generate_abi() -> ink_abi::InkProject{
                 let contract = {
                     ink_abi::ContractSpec::new("Flipper")
-                        .on_deploy(ink_abi::DeploySpec::new()
-                        .args(vec![])
-                        .docs(vec![
-                            "The internal boolean is initialized with `true`.",
+                        .constructors(vec![
+                            ink_abi::ConstructorSpec::new("on_deploy")
+                                .selector(0)
+                                .args(vec![])
+                                .docs(vec![
+                                    "The internal boolean is initialized with `true`.",
+                                ])
+                                .done()
                         ])
-                        .done()
-                    )
-                    .messages(vec![
-                        ink_abi::MessageSpec::new("flip")
-                            .selector(970692492u32)
-                            .mutates(true)
-                            .args(vec![])
-                            .docs(vec!["Flips the internal boolean.",])
-                            .returns(ink_abi::ReturnTypeSpec::none())
-                            .done(),
-                        ink_abi::MessageSpec::new("get")
-                            .selector(4266279973u32)
-                            .mutates(false)
-                            .args(vec![])
-                            .docs(vec!["Returns the internal boolean.",])
-                            .returns(
-                                ink_abi::ReturnTypeSpec::new::<bool>()
-                            )
-                            .done(),
-                        ])
-                        .events(vec![])
-                        .docs(vec![])
-                        .done()
+                        .messages(vec![
+                            ink_abi::MessageSpec::new("flip")
+                                .selector(970692492u32)
+                                .mutates(true)
+                                .args(vec![])
+                                .docs(vec!["Flips the internal boolean.",])
+                                .returns(ink_abi::ReturnTypeSpec::new(None))
+                                .done(),
+                            ink_abi::MessageSpec::new("get")
+                                .selector(4266279973u32)
+                                .mutates(false)
+                                .args(vec![])
+                                .docs(vec!["Returns the internal boolean.",])
+                                .returns(
+                                    ink_abi::ReturnTypeSpec::new(
+                                        ink_abi::TypeSpec::with_name_segs::<bool, _>(
+                                            vec!["bool"].into_iter().map(AsRef::as_ref)
+                                        )
+                                    )
+                                )
+                                .done(),
+                            ])
+                            .events(vec![])
+                            .docs(vec![])
+                            .done()
                 };
                 let layout = {
                     unsafe {

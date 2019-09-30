@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+mod build;
 mod error;
 mod new;
 
 pub(crate) use self::{
+    build::execute_build,
     error::{
         CommandError,
-        CommandErrorKind,
         Result,
     },
     new::execute_new,

@@ -340,6 +340,10 @@ where
             "[ink_core::Vec::swap_remove] Error: \
              expected `Some` value since vector is not empty",
         );
+        if self.is_empty() {
+            // This is true if the vec had only 1 element.
+            return Some(popped)
+        }
         Some(self.cells.put(n, popped).expect(
             "[ink_core::Vec::swap_remove] Error: \
              expected success since the vector is not empty",

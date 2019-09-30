@@ -41,12 +41,17 @@ Use the scripts provided under `scripts` directory in order to run checks on eit
 
 ### Examples
 
-For running the example smart contracts found under `examples` you also need to install some further tools:
+For building the example smart contracts found under `examples` you will need to have `cargo-contract` installed.
 
-- `wabt` (WebAssembly Binary Toolkit)
-- `wasm-utils` (Parity's Wasm Utilities)
+```
+cargo install cargo-contract
+```
 
-For more information how to install these on your system go [here](https://substrate.dev/docs/en/contracts/installing-ink#wasm-utilities).
+Execute the following command in shell while in an example's directory:
+
+```
+cargo contract build
+```
 
 ### Testing
 
