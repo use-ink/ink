@@ -26,3 +26,15 @@ pub(crate) use self::{
     },
     new::execute_new,
 };
+
+#[cfg(test)]
+mod tests {
+    use tempfile::TempDir;
+    use std::path::PathBuf;
+
+    pub fn with_tmp_dir<F: FnOnce(&PathBuf)>(f: F) {
+        let tmp_dir = TempDir::new().expect("temporary directory creation failed");
+
+        f(&tmp_dir.into_path());
+    }
+}

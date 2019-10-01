@@ -207,19 +207,8 @@ mod tests {
         cmd::execute_new,
         AbstractionLayer,
     };
-    use tempfile::TempDir;
+    use crate::cmd::tests::with_tmp_dir;
     use std::env;
-
-    fn with_tmp_dir<F: FnOnce()>(f: F) {
-
-        let original_cwd = env::current_dir().expect("failed to get current working directory");
-        let tmp_dir = TempDir::new().expect("temporary directory creation failed");
-        env::set_current_dir(tmp_dir.path()).expect("setting the current dir to temp failed");
-
-        f();
-
-        env::set_current_dir(original_cwd).expect("restoring cwd failed");
-    }
 
     #[cfg(feature="test-ci-only")]
     #[test]
