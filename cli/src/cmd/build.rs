@@ -46,11 +46,9 @@ struct CrateMetadata {
 /// Parses the contract manifest and returns relevant metadata.
 fn collect_crate_metadata(working_dir: Option<&PathBuf>) -> Result<CrateMetadata> {
     let mut cmd = MetadataCommand::new();
-
     if let Some(dir) = working_dir {
         cmd.current_dir(dir);
     }
-
     let metadata = cmd.exec()?;
 
     let root_package_id = metadata
@@ -92,7 +90,6 @@ fn collect_crate_metadata(working_dir: Option<&PathBuf>) -> Result<CrateMetadata
 /// Currently it assumes that user wants to use `+nightly`.
 fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
     let mut cmd = Command::new("cargo");
-
     if let Some(dir) = working_dir {
         cmd.current_dir(dir);
     }
