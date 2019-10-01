@@ -59,12 +59,12 @@ test-linux:
   <<:                              *docker-env
   before_script:
     # Print rustc and cargo versions
-    - rustc -vV
-    - cargo -vV
-    - bash --version
+    # - rustc -vV
+    # - cargo -vV
+    # - bash --version
     # Install cargo-kcov Cargo plugin
-    - cargo install --force cargo-kcov
-    - cargo kcov -vV
+    # - cargo install --force cargo-kcov
+    # - cargo kcov -vV
     # Install kcov binary
     # - curl https://github.com/SimonKagstrom/kcov/archive/v36.tar.gz
     # - tar xzf v36.tar.gz
@@ -88,13 +88,13 @@ test-linux:
   - |
     ./scripts/check-workspace.sh
     check_workspace=$?
-    if [ $check_workspace -eq 0 ]
-    then
-      # Execute and upload kcov results
-      cargo kcov --verbose --coveralls --all --no-clean-rebuild
-      kcov=$?
-      bash <(curl -s https://codecov.io/bash)
-    fi
+    # if [ $check_workspace -eq 0 ]
+    # then
+    #   # Execute and upload kcov results
+    #   cargo kcov --verbose --coveralls --all --no-clean-rebuild
+    #   kcov=$?
+    #   bash <(curl -s https://codecov.io/bash)
+    # fi
     ./scripts/check-examples.sh
     check_examples=$?
     if [ $check_examples -eq 0 ] && [ $check_workspace -eq 0 ]
