@@ -49,8 +49,10 @@ pub(crate) enum AbstractionLayer {
     Lang,
 }
 
-use std::result::Result as StdResult;
-use std::path::PathBuf;
+use std::{
+    path::PathBuf,
+    result::Result as StdResult,
+};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub(crate) struct InvalidAbstractionLayer;
@@ -114,7 +116,11 @@ fn main() {
 fn exec(cmd: Command) -> cmd::Result<String> {
     use crate::cmd::CommandError;
     match &cmd {
-        Command::New { layer, name, target_dir } => cmd::execute_new(*layer, name, target_dir.as_ref()),
+        Command::New {
+            layer,
+            name,
+            target_dir,
+        } => cmd::execute_new(*layer, name, target_dir.as_ref()),
         Command::Build {} => cmd::execute_build(None),
         Command::Test {} => Err(CommandError::UnimplementedCommand),
         Command::Deploy { .. } => Err(CommandError::UnimplementedCommand),

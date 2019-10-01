@@ -32,9 +32,11 @@ use std::{
         SeekFrom,
         Write,
     },
-    path,
+    path::{
+        self,
+        PathBuf,
+    },
 };
-use std::path::PathBuf;
 
 /// Initializes a project structure for the `lang` abstraction layer.
 fn initialize_for_lang(name: &str, target_dir: Option<&PathBuf>) -> Result<String> {
@@ -108,7 +110,11 @@ fn initialize_for_lang(name: &str, target_dir: Option<&PathBuf>) -> Result<Strin
     Ok(format!("Created contract {}", name))
 }
 
-pub(crate) fn execute_new(layer: AbstractionLayer, name: &str, dir: Option<&PathBuf>) -> Result<String> {
+pub(crate) fn execute_new(
+    layer: AbstractionLayer,
+    name: &str,
+    dir: Option<&PathBuf>,
+) -> Result<String> {
     match layer {
         AbstractionLayer::Core => {
             Err(CommandError::UnimplementedAbstractionLayer)
@@ -135,7 +141,11 @@ mod tests {
     #[test]
     fn rejects_hyphenated_name() {
         with_tmp_dir(|path| {
-            let result = execute_new(AbstractionLayer::Lang, "rejects-hyphenated-name", Some(path));
+            let result = execute_new(
+                AbstractionLayer::Lang,
+                "rejects-hyphenated-name",
+                Some(path),
+            );
             assert_eq!(
                 format!("{:?}", result),
                 r#"Err(Other("Contract names cannot contain hyphens"))"#
