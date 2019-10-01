@@ -32,10 +32,7 @@ use std::{
         SeekFrom,
         Write,
     },
-    path::{
-        self,
-        PathBuf,
-    },
+    path::PathBuf,
 };
 
 /// Initializes a project structure for the `lang` abstraction layer.

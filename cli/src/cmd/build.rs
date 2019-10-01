@@ -213,7 +213,6 @@ pub(crate) fn execute_build(working_dir: Option<&PathBuf>) -> Result<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::{
         cmd::{
             execute_new,
@@ -221,7 +220,6 @@ mod tests {
         },
         AbstractionLayer,
     };
-    use std::env;
 
     #[cfg(feature = "test-ci-only")]
     #[test]
@@ -229,7 +227,7 @@ mod tests {
         with_tmp_dir(|path| {
             execute_new(AbstractionLayer::Lang, "new_project", Some(path))
                 .expect("new project creation failed");
-            execute_build(Some(&path.join("new_project"))).expect("build failed");
+            super::execute_build(Some(&path.join("new_project"))).expect("build failed");
         });
     }
 }
