@@ -116,13 +116,8 @@ pub(crate) fn execute_new(
     dir: Option<&PathBuf>,
 ) -> Result<String> {
     match layer {
-        AbstractionLayer::Core => {
-            Err(CommandError::UnimplementedAbstractionLayer)
-        }
-        AbstractionLayer::Model => {
-            Err(CommandError::UnimplementedAbstractionLayer)
-
-        }
+        AbstractionLayer::Core => Err(CommandError::UnimplementedAbstractionLayer),
+        AbstractionLayer::Model => Err(CommandError::UnimplementedAbstractionLayer),
         AbstractionLayer::Lang => initialize_for_lang(name, dir),
     }
 }
