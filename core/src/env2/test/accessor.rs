@@ -171,7 +171,7 @@ impl_get_property_for! {
         let account = Ref::map(instance.borrow(), |instance| {
             let account_id = &instance.exec_context.callee;
             instance.accounts
-                .get(&account_id)
+                .get(account_id)
                 .expect("callee is required to be in the accounts DB")
         });
         account.balance.to_origin()
@@ -181,7 +181,7 @@ impl_get_property_for! {
         let account = Ref::map(instance.borrow(), |instance| {
             let account_id = &instance.exec_context.callee;
             instance.accounts
-                .get(&account_id)
+                .get(account_id)
                 .expect("callee is required to be in the accounts DB")
         });
         account.rent_allowance.to_origin()
