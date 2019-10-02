@@ -87,20 +87,6 @@ where
     type Call = T::Call;
 }
 
-impl<T> GetProperty<property::Input<Self>> for TestEnv<T>
-where
-    T: EnvTypes,
-{
-    fn get_property<I>(
-        _buffer: &mut I,
-    ) -> <property::Input<Self> as property::ReadProperty>::In
-    where
-        I: AsMut<[u8]> + EnlargeTo,
-    {
-        INSTANCE.with(|instance| instance.borrow().exec_context.call_data.clone())
-    }
-}
-
 impl<T> SetProperty<property::RentAllowance<Self>> for TestEnv<T>
 where
     T: EnvTypes,
@@ -145,6 +131,10 @@ macro_rules! impl_get_property_for {
 }
 
 impl_get_property_for! {
+    Input => |instance| {
+        instance.borrow().exec_context.call_data.clone()
+    }
+
     Caller => |instance| {
         instance.borrow().exec_context.caller.to_origin()
     }
