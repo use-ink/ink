@@ -97,7 +97,7 @@ fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
     // We also assume that the user uses +nightly.
     let output = cmd
         .args(&[
-            "+nightly",
+//            "+nightly",
             "build",
             "--no-default-features",
             "--release",
