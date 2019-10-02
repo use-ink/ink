@@ -90,14 +90,26 @@ fn collect_crate_metadata(working_dir: Option<&PathBuf>) -> Result<CrateMetadata
 /// Currently it assumes that user wants to use `+nightly`.
 fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
     let mut cmd = Command::new("cargo");
+    let mut is_nightly_cmd = Command::new("cargo");
     if let Some(dir) = working_dir {
         cmd.current_dir(dir);
+        is_nightly_cmd.current_dir(dir);
     }
 
-    // We also assume that the user uses +nightly.
+    let is_nightly_default = is_nightly_cmd
+        .arg("--version")
+        .output()
+        .map_err(|_| ())
+        .and_then(|o| String::from_utf8(o.stdout).map_err(|_| ()))
+        .unwrap_or_default()
+        .contains("-nightly");
+
+    if !is_nightly_default {
+        cmd.arg("+nightly");
+    }
+
     let output = cmd
         .args(&[
-//            "+nightly",
             "build",
             "--no-default-features",
             "--release",
