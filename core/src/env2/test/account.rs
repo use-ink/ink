@@ -28,6 +28,7 @@ use crate::{
     },
     memory::collections::btree_map::BTreeMap,
 };
+use core::borrow::Borrow;
 
 /// The on-chain registered accounts.
 ///
@@ -45,12 +46,20 @@ impl AccountsDb {
     }
 
     /// Returns the account associated with the given ID and otherwise returns `None`.
-    pub fn get(&self, account_id: &AccountId) -> Option<&Account> {
+    pub fn get<Q: ?Sized>(&self, account_id: &Q) -> Option<&Account>
+    where
+        AccountId: Borrow<Q>,
+        Q: Ord,
+    {
         self.accounts.get(account_id)
     }
 
     /// Returns the account associated with the given ID and otherwise returns `None`.
-    pub fn get_mut(&mut self, account_id: &AccountId) -> Option<&mut Account> {
+    pub fn get_mut<Q: ?Sized>(&mut self, account_id: &Q) -> Option<&mut Account>
+    where
+        AccountId: Borrow<Q>,
+        Q: Ord,
+    {
         self.accounts.get_mut(account_id)
     }
 }
