@@ -32,6 +32,7 @@ use crate::{
         EmitEventParams,
         Env,
         Result,
+        Error,
         DefaultSrmlTypes,
         call::{
             Selector,
@@ -205,7 +206,23 @@ where
         I: AsMut<[u8]> + EnlargeTo,
         R: scale::Decode,
     {
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            let storage = Ref::map(instance.borrow(), |instance| {
+                let account_id = &instance.exec_context.callee;
+                &instance.accounts
+                    .get(account_id)
+                    .expect("callee is required to be in the accounts DB")
+                    .contract()
+                    .expect("callee must refer to a contract account")
+                    .storage
+            });
+            let encoded = storage
+                .read(key)
+                .map(|entry| entry.data())
+                .ok_or(Error::InvalidStorageRead)?;
+            Ok(scale::Decode::decode(&mut &encoded[..])
+                .map_err(|_| Error::InvalidStorageRead)?)
+        })
     }
 
     fn set_contract_storage<O, V>(buffer: &mut O, key: Key, val: &V)
