@@ -45,7 +45,7 @@ variables:
 
 #### stage:                        check-workspace
 
-cargo-check-af:
+kcov:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
@@ -102,12 +102,6 @@ cargo-build-nf:
   <<:                              *docker-env
   script:
   - time cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
-
-test-coverage:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  script:
-
 
 #### stage:                        examples
 
