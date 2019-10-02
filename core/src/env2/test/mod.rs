@@ -20,14 +20,14 @@ mod storage;
 mod typed_encoded;
 mod types;
 
-pub use self::{
+use self::{
     instance::TestEnvInstance,
     storage::{
         Entry,
         Storage,
     },
     account::{
-        Accounts,
+        AccountsDb,
     },
     typed_encoded::TypedEncoded,
     types::{
