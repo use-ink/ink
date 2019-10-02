@@ -23,7 +23,15 @@
 
 use crate::{
     byte_utils,
+    storage::{
+        Key,
+    },
     env2::{
+        CallParams,
+        CreateParams,
+        EmitEventParams,
+        Env,
+        Result,
         DefaultSrmlTypes,
         call::{
             Selector,
@@ -185,5 +193,102 @@ impl_get_property_for! {
 
     MinimumBalance => |instance| {
         instance.borrow().state.minimum_balance.to_origin()
+    }
+}
+
+impl<T> Env for TestEnv<T>
+where
+    T: EnvTypes,
+{
+    fn get_contract_storage<I, R>(buffer: &mut I, key: Key) -> Result<R>
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+        R: scale::Decode,
+    {
+        unimplemented!()
+    }
+
+    fn set_contract_storage<O, V>(buffer: &mut O, key: Key, val: &V)
+    where
+        O: scale::Output + AsRef<[u8]> + Reset,
+        V: scale::Encode,
+    {
+        unimplemented!()
+    }
+
+    fn clear_contract_storage(key: Key) {
+        unimplemented!()
+    }
+
+    fn invoke_contract<O, D>(buffer: &mut O, call_data: &D) -> Result<()>
+    where
+        O: scale::Output + AsRef<[u8]> + Reset,
+        D: CallParams<Self>,
+    {
+        unimplemented!()
+    }
+
+    fn eval_contract<IO, D, R>(buffer: &mut IO, call_data: &D) -> Result<R>
+    where
+        IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
+        R: scale::Decode,
+        D: CallParams<Self>,
+    {
+        unimplemented!()
+    }
+
+    fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>
+    where
+        IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
+        D: CreateParams<Self>,
+    {
+        unimplemented!()
+    }
+
+    fn emit_event<I, D>(buffer: &mut I, event_data: &D)
+    where
+        I: scale::Output + AsRef<[u8]> + Reset,
+        D: EmitEventParams<Self>,
+    {
+        unimplemented!()
+    }
+
+    fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
+    where
+        O: scale::Output + AsRef<[u8]> + Reset,
+        V: scale::Encode,
+    {
+        unimplemented!()
+    }
+
+    fn restore_to<O>(
+        buffer: &mut O,
+        dest: Self::AccountId,
+        code_hash: Self::Hash,
+        rent_allowance: Self::Balance,
+        filtered_keys: &[Key],
+    ) where
+        O: scale::Output + AsRef<[u8]> + Reset,
+    {
+        unimplemented!()
+    }
+
+    fn output<O, R>(buffer: &mut O, return_value: &R)
+    where
+        O: scale::Output + AsRef<[u8]> + Reset,
+        R: scale::Encode,
+    {
+        unimplemented!()
+    }
+
+    fn random<I>(buffer: &mut I, subject: &[u8]) -> Self::Hash
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+    {
+        unimplemented!()
+    }
+
+    fn println(content: &str) {
+        println!("{}", content)
     }
 }
