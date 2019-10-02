@@ -54,7 +54,7 @@ variables:
 #       - cmake
 #       - zlib1g-dev
 
-test-linux:
+check-workspace:
   stage:                           test
   <<:                              *docker-env
   before_script:
@@ -107,7 +107,7 @@ test-linux:
     fi
 
 
-test-linux:
+check-examples:
   stage:                           test
   <<:                              *docker-env
   before_script:
