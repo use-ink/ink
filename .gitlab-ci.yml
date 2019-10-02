@@ -88,6 +88,7 @@ test-linux:
   script:
   - |
     rustup default nightly-2019-08-30
+    rustup target add wasm32-unknown-unknown
     ./scripts/check-workspace.sh
     check_workspace=$?
     # if [ $check_workspace -eq 0 ]
