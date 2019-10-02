@@ -59,9 +59,10 @@ test-linux:
   <<:                              *docker-env
   before_script:
     # Print rustc and cargo versions
-    # - rustc -vV
-    # - cargo -vV
-    # - bash --version
+    - rustc -vV
+    - cargo -vV
+    - rustup show
+    - bash --version
     # Install cargo-kcov Cargo plugin
     # - cargo install --force cargo-kcov
     # - cargo kcov -vV
@@ -86,6 +87,7 @@ test-linux:
     # - rustup target add wasm32-unknown-unknown
   script:
   - |
+    rustup default nightly-2019-08-30
     ./scripts/check-workspace.sh
     check_workspace=$?
     # if [ $check_workspace -eq 0 ]
