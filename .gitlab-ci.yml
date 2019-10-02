@@ -16,6 +16,7 @@ variables:
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   RUSTFLAGS:                       "-C link-dead-code"
+  REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
@@ -26,10 +27,12 @@ variables:
       - artifacts/
 
 .docker-env:                       &docker-env
-  image:                           parity/rust-builder:latest
+  image:                           ${REGISTRY}/ink-ci-linux:latest
   before_script:
+    - cargo -vV
+    - rustc -vV
     - rustup show
-    - cargo --version
+    - bash --version
     - sccache -s
   only:
     - master
@@ -42,61 +45,12 @@ variables:
 
 #### stage:                        test
 
-# addons:
-#   apt:
-#     packages:
-#       - libcurl4-openssl-dev
-#       - libelf-dev
-#       - libdw-dev
-#       - binutils-dev
-#       - libiberty-dev
-#       - g++
-#       - cmake
-#       - zlib1g-dev
-
 check-workspace:
   stage:                           test
   <<:                              *docker-env
-  before_script:
-    # Print rustc and cargo versions
-    - rustc -vV
-    - cargo -vV
-    - rustup show
-    - bash --version
-    # Install cargo-kcov Cargo plugin
-    # - cargo install --force cargo-kcov
-    # - cargo kcov -vV
-    # Install kcov binary
-    # - curl https://github.com/SimonKagstrom/kcov/archive/v36.tar.gz
-    # - tar xzf v36.tar.gz
-    # - pushd kcov-36
-    # - mkdir build
-    # - pushd build
-    # - cmake ..
-    # - make
-    # - sudo make install # Puts kcov in the default location usually /usr/local/bin/kcov
-    # - kcov --version
-    # - popd
-    # - popd
-    # Export cargo binaries, python and misc settings
-    # - export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$HOME/Library/Python/2.7/bin:$PATH
-    # Print current work directory state as directions.
-    # - ls -lah
-    # install rust components
-    - rustup default nightly-2019-08-30
-    - rustup target add wasm32-unknown-unknown
-    - rustup component add clippy rustfmt
-    # - rustup target add wasm32-unknown-unknown
   script:
   - ./scripts/check-workspace.sh
   - check_workspace=$?
-    # if [ $check_workspace -eq 0 ]
-    # then
-    #   # Execute and upload kcov results
-    #   cargo kcov --verbose --coveralls --all --no-clean-rebuild
-    #   kcov=$?
-    #   bash <(curl -s https://codecov.io/bash)
-    # fi
   - if [ $check_workspace -eq 0 ];
     then
       echo "Workspace checks have passed!";
@@ -110,16 +64,6 @@ check-workspace:
 check-examples:
   stage:                           test
   <<:                              *docker-env
-  before_script:
-    # Print rustc and cargo versions
-    - rustc -vV
-    - cargo -vV
-    - rustup show
-    - bash --version
-    # install rust components
-    - rustup default nightly-2019-08-30
-    - rustup target add wasm32-unknown-unknown
-    - rustup component add clippy rustfmt
   script:
     - ./scripts/check-examples.sh
     - check_examples=$?
