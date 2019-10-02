@@ -96,7 +96,7 @@ examples-wasm:
     - for example in $(ls examples/lang); do
         time cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
       done
-    - sccache-s
+    - sccache -s
 
 examples-test:
   stage:                           test
@@ -105,7 +105,7 @@ examples-test:
     - for example in $(ls examples/lang); do
         time cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
       done
-    - sccache-s
+    - sccache -s
 
 examples-abi:
   stage:                           test
@@ -114,6 +114,6 @@ examples-abi:
     - for example in $(ls examples/lang); do
         time cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
       done
-    - sccache-s
+    - sccache -s
 
 # stage:                            build
