@@ -73,7 +73,7 @@ check-workspace:
   - time cargo test --verbose --all --all-features
   - time cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
 
-check-examples:
+.check-examples:
   stage:                           test
   <<:                              *docker-env
   script:
@@ -88,5 +88,32 @@ check-examples:
         exit 1;
       fi
     - sccache -s
+
+examples-wasm:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - for example in $(ls examples/lang); do
+        time cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
+      done
+    - sccache-s
+
+examples-test:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - for example in $(ls examples/lang); do
+        time cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
+      done
+    - sccache-s
+
+examples-abi:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - for example in $(ls examples/lang); do
+        time cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
+      done
+    - sccache-s
 
 # stage:                            build
