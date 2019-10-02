@@ -101,6 +101,19 @@ macro_rules! impl_get_property_for {
     }
 }
 
+impl_get_property_for! {
+    (Caller use ext::caller),
+    (TransferredBalance use ext::value_transferred),
+    (GasPrice use ext::gas_price),
+    (GasLeft use ext::gas_left),
+    (NowInMs use ext::now),
+    (Address use ext::address),
+    (Balance use ext::balance),
+    (RentAllowance use ext::rent_allowance),
+    (BlockNumber use ext::block_number),
+    (MinimumBalance use ext::minimum_balance),
+}
+
 impl<T> GetProperty<property::Input<Self>> for SrmlEnv<T>
 where
     T: EnvTypes,
@@ -113,19 +126,6 @@ where
     {
         Self::get_property_impl::<property::Input<T>, _>(buffer, || ())
     }
-}
-
-impl_get_property_for! {
-    (Caller use ext::caller),
-    (TransferredBalance use ext::value_transferred),
-    (GasPrice use ext::gas_price),
-    (GasLeft use ext::gas_left),
-    (NowInMs use ext::now),
-    (Address use ext::address),
-    (Balance use ext::balance),
-    (RentAllowance use ext::rent_allowance),
-    (BlockNumber use ext::block_number),
-    (MinimumBalance use ext::minimum_balance),
 }
 
 impl<T> SetProperty<property::RentAllowance<Self>> for SrmlEnv<T>
