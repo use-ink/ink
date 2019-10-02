@@ -6,8 +6,8 @@
 
 
 stages:
-  - test
-  - build
+  - check-workspace
+  - examples
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -43,54 +43,55 @@ variables:
   tags:
     - linux-docker
 
-#### stage:                        test
+#### stage:                        check-workspace
 
-.check-workspace:
-  stage:                           test
-  <<:                              *docker-env
-  script:
-  - ./scripts/check-workspace.sh
-  - check_workspace=$?
-  - if [ $check_workspace -eq 0 ];
-    then
-      echo "Workspace checks have passed!";
-      exit 0;
-    else
-      echo "Some workspace checks have not passed!";
-      exit 1;
-    fi
-  - sccache -s
-
-check-workspace:
-  stage:                           test
+cargo-check-af:
+  stage:                           check-workspace
   <<:                              *docker-env
   script:
   - time cargo check --verbose --all --all-features
-  - time cargo check --verbose --all --no-default-features
-  - time cargo fmt --verbose --all -- --check
-  - time cargo clippy --verbose --all --all-features -- -D warnings
-  - time cargo clippy --verbose --all --no-default-features -- -D warnings
-  - time cargo test --verbose --all --all-features
-  - time cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
 
-.check-examples:
-  stage:                           test
+cargo-check-nf:
+  stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - ./scripts/check-examples.sh
-    - check_examples=$?
-    - if [ $check_examples -eq 0 ];
-      then
-        echo "Examples checks have passed!";
-        exit 0;
-      else
-        echo "Some examples checks have not passed!";
-        exit 1;
-      fi
-    - sccache -s
+  - time cargo check --verbose --all --no-default-features
+
+cargo-fmt:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+  - time cargo fmt --verbose --all -- --check
+
+cargo-clippy-af:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+  - time cargo clippy --verbose --all --all-features -- -D warnings
+
+cargo-clippy-nf:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+  - time cargo clippy --verbose --all --no-default-features -- -D warnings
+
+cargo-test-af:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+  - time cargo test --verbose --all --all-features
+
+cargo-build-nf:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+  - time cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
+
+
+  # stage:                            build
 
 examples-wasm:
-  stage:                           test
+  stage:                           examples
   <<:                              *docker-env
   script:
     - for example in $(ls examples/lang); do
@@ -99,7 +100,7 @@ examples-wasm:
     - sccache -s
 
 examples-test:
-  stage:                           test
+  stage:                           examples
   <<:                              *docker-env
   script:
     - for example in $(ls examples/lang); do
@@ -108,12 +109,10 @@ examples-test:
     - sccache -s
 
 examples-abi:
-  stage:                           test
+  stage:                           examples
   <<:                              *docker-env
   script:
     - for example in $(ls examples/lang); do
         time cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
       done
     - sccache -s
-
-# stage:                            build
