@@ -15,6 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 mod account;
+mod accessor;
 mod instance;
 mod storage;
 mod typed_encoded;
@@ -39,3 +40,5 @@ use self::{
         Call,
     },
 };
+
+pub use self::accessor::TestEnv;
