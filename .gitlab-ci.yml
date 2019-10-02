@@ -88,9 +88,8 @@ test-linux:
     - rustup component add clippy rustfmt
     # - rustup target add wasm32-unknown-unknown
   script:
-  - |
-    ./scripts/check-workspace.sh
-    check_workspace=$?
+  - ./scripts/check-workspace.sh
+  - check_workspace=$?
     # if [ $check_workspace -eq 0 ]
     # then
     #   # Execute and upload kcov results
@@ -98,13 +97,39 @@ test-linux:
     #   kcov=$?
     #   bash <(curl -s https://codecov.io/bash)
     # fi
-    ./scripts/check-examples.sh
-    check_examples=$?
-    if [ $check_examples -eq 0 ] && [ $check_workspace -eq 0 ]
+  - if [ $check_workspace -eq 0 ];
     then
-      echo "All checks have passed!"
-      exit 0
+      echo "Workspace checks have passed!";
+      exit 0;
     else
-      echo "Some checks have not passed!"
-      exit 1
+      echo "Some workspace checks have not passed!";
+      exit 1;
     fi
+
+
+test-linux:
+  stage:                           test
+  <<:                              *docker-env
+  before_script:
+    # Print rustc and cargo versions
+    - rustc -vV
+    - cargo -vV
+    - rustup show
+    - bash --version
+    # install rust components
+    - rustup default nightly-2019-08-30
+    - rustup target add wasm32-unknown-unknown
+    - rustup component add clippy rustfmt
+  script:
+    - ./scripts/check-examples.sh
+    - check_examples=$?
+    - if [ $check_examples -eq 0 ];
+      then
+        echo "Examples checks have passed!";
+        exit 0;
+      else
+        echo "Some examples checks have not passed!";
+        exit 1;
+      fi
+
+# stage:                            build
