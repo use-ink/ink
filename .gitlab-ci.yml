@@ -59,21 +59,29 @@ check-workspace:
       echo "Some workspace checks have not passed!";
       exit 1;
     fi
+  - sccache -s
 
 
-check-examples:
+examples-wasm:
   stage:                           test
   <<:                              *docker-env
   script:
-    - ./scripts/check-examples.sh
-    - check_examples=$?
-    - if [ $check_examples -eq 0 ];
-      then
-        echo "Examples checks have passed!";
-        exit 0;
-      else
-        echo "Some examples checks have not passed!";
-        exit 1;
-      fi
+    - cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml
+    - sccache -s
+
+examples-test:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml
+    - sccache -s
+
+examples-abi:
+  stage:                           test
+  <<:                              *docker-env
+  script:
+    - cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml
+    - sccache -s
+
 
 # stage:                            build
