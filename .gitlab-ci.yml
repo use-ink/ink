@@ -88,7 +88,7 @@ cargo-build-nf:
   - time cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
 
 
-  # stage:                            build
+#### stage:                        examples
 
 examples-wasm:
   stage:                           examples
