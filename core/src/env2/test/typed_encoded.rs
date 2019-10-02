@@ -212,4 +212,34 @@ impl<M> TypedEncoded<M> {
             marker: Default::default(),
         }
     }
+
+    /// Tries to assign a new value to `self`.
+    ///
+    /// # Errors
+    ///
+    /// If the types of the current and new value do not match.
+    pub fn try_assign<'a, 'b, T>(&'a mut self, new_value: &'b T) -> Result<(), UnmatchingType>
+    where
+        T: scale::Encode + 'static,
+    {
+        if self.type_id != TypeId::of::<T>() {
+            return Err(UnmatchingType)
+        }
+        self.encoded.clear();
+        new_value.encode_to(&mut self.encoded);
+        Ok(())
+    }
+
+    /// Assigns a new value to `self`.
+    ///
+    /// # Panics
+    ///
+    /// If the types of the current and new value do not match.
+    pub fn assign<'a, 'b, T>(&'a mut self, new_value: &'b T)
+    where
+        T: scale::Encode + 'static,
+    {
+        self.try_assign(new_value)
+            .expect("encountered invalid assignment type")
+    }
 }
