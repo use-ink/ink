@@ -46,7 +46,7 @@ use crate::{
 };
 use core::{
     marker::PhantomData,
-    cell::{RefCell, RefMut},
+    cell::{RefCell, Ref, RefMut},
 };
 
 thread_local! {
@@ -113,12 +113,87 @@ where
     {
         INSTANCE.with(|instance| {
             let mut account = RefMut::map(instance.borrow_mut(), |instance| {
-                let account_id = &mut instance.exec_context.callee;
+                let account_id = &instance.exec_context.callee;
                 instance.accounts
-                    .get_mut(&account_id)
+                    .get_mut(account_id)
                     .expect("callee is required to be in the accounts DB")
             });
             account.rent_allowance.assign(value);
         })
+    }
+}
+
+macro_rules! impl_get_property_for {
+    ( $prop_name:ident => |$name:ident| $body:tt $($rest:tt)* ) => {
+        impl<T> GetProperty<property::$prop_name<Self>> for TestEnv<T>
+        where
+            T: EnvTypes,
+        {
+            fn get_property<I>(
+                _buffer: &mut I,
+            ) -> <property::$prop_name<Self> as property::ReadProperty>::In
+            where
+                I: AsMut<[u8]> + EnlargeTo,
+            {
+                INSTANCE.with(|$name| $body)
+            }
+        }
+
+        impl_get_property_for!($($rest)*);
+    };
+    () => {};
+}
+
+impl_get_property_for! {
+    Caller => |instance| {
+        instance.borrow().exec_context.caller.to_origin()
+    }
+
+    TransferredBalance => |instance| {
+        instance.borrow().exec_context.transferred_balance.to_origin()
+    }
+
+    GasPrice => |instance| {
+        instance.borrow().state.gas_price.to_origin()
+    }
+
+    GasLeft => |instance| {
+        instance.borrow().exec_context.gas_left.to_origin()
+    }
+
+    NowInMs => |instance| {
+        instance.borrow().exec_context.gas_left.to_origin()
+    }
+
+    Address => |instance| {
+        instance.borrow().exec_context.callee.to_origin()
+    }
+
+    Balance => |instance| {
+        let account = Ref::map(instance.borrow(), |instance| {
+            let account_id = &instance.exec_context.callee;
+            instance.accounts
+                .get(&account_id)
+                .expect("callee is required to be in the accounts DB")
+        });
+        account.balance.to_origin()
+    }
+
+    RentAllowance => |instance| {
+        let account = Ref::map(instance.borrow(), |instance| {
+            let account_id = &instance.exec_context.callee;
+            instance.accounts
+                .get(&account_id)
+                .expect("callee is required to be in the accounts DB")
+        });
+        account.rent_allowance.to_origin()
+    }
+
+    BlockNumber => |instance| {
+        instance.borrow().block.number.to_origin()
+    }
+
+    MinimumBalance => |instance| {
+        instance.borrow().state.minimum_balance.to_origin()
     }
 }
