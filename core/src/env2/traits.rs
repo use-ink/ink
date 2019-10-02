@@ -31,17 +31,17 @@ use scale::Codec;
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.
-    type AccountId: Codec + Clone + PartialEq + Eq;
+    type AccountId: 'static + Codec + Clone + PartialEq + Eq;
     /// The type of balances.
-    type Balance: Codec + Clone + PartialEq + Eq;
+    type Balance: 'static + Codec + Clone + PartialEq + Eq;
     /// The type of hash.
-    type Hash: Codec + Clone + PartialEq + Eq;
+    type Hash: 'static + Codec + Clone + PartialEq + Eq;
     /// The type of timestamps.
-    type Moment: Codec + Clone + PartialEq + Eq;
+    type Moment: 'static + Codec + Clone + PartialEq + Eq;
     /// The type of block number.
-    type BlockNumber: Codec + Clone + PartialEq + Eq;
+    type BlockNumber: 'static + Codec + Clone + PartialEq + Eq;
     /// The type of a call into the runtime
-    type Call: scale::Encode;
+    type Call: 'static + scale::Encode;
 }
 
 /// Allows reading contract properties.
