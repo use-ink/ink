@@ -56,16 +56,14 @@ use crate::{
 /// routine which has certain constraints to the actual environmental types.
 #[derive(Debug, Default)]
 pub struct TestEnvInstance {
-    /// The emulated contract storage.
-    storage: Storage,
     /// The accounts registered on the chain.
     pub accounts: AccountsDb,
     /// The emulated chain state.
-    state: ChainState,
-    /// The most current block.
-    block: Block,
+    pub state: ChainState,
+    /// The current and latest block.
+    pub block: Block,
     /// The current contract execution context.
-    exec_context: ExecutionContext,
+    pub exec_context: ExecutionContext,
 }
 
 /// The emulated chain state.
@@ -73,8 +71,12 @@ pub struct TestEnvInstance {
 /// This stores general information about the chain.
 #[derive(Debug, Clone, Default)]
 pub struct ChainState {
+    /// The emulated chain storage.
+    pub storage: Storage,
     /// The current gas price.
-    gas_price: Balance,
+    pub gas_price: Balance,
+    /// The existential deposit.
+    pub existential_balance: Balance,
 }
 
 /// A block within the emulated chain.
@@ -83,30 +85,28 @@ pub struct ChainState {
 #[derive(Debug, Clone, Default)]
 pub struct Block {
     /// The number of the block.
-    number: BlockNumber,
+    pub number: BlockNumber,
     /// The blocktime in milliseconds.
-    now_in_ms: Moment,
+    pub now_in_ms: Moment,
 }
 
 /// An execution context is opened whenever a contract is being called or instantiated.
 #[derive(Debug, Clone)]
 pub struct ExecutionContext {
     /// The caller of the execution.
-    caller: AccountId,
+    pub caller: AccountId,
     /// The address of the called contract.
-    callee: AccountId,
+    pub callee: AccountId,
     /// The endowment for the call.
-    endowment: Balance,
+    pub endowment: Balance,
     /// The amount of gas left for further execution.
-    gas_left: Balance,
-    /// The raw call data for the contract execution.
-    call_data: CallData,
+    pub gas_left: Balance,
     /// The limit of gas usage.
     ///
     /// There might be no limit thus `gas_left` is the actual limit then.
-    gas_limit: Option<Balance>,
-    /// The associated block for the execution.
-    block: Block,
+    pub gas_limit: Option<Balance>,
+    /// The raw call data for the contract execution.
+    pub call_data: CallData,
 }
 
 impl Default for ExecutionContext {
@@ -116,9 +116,8 @@ impl Default for ExecutionContext {
             callee: Default::default(),
             endowment: Default::default(),
             gas_left: Default::default(),
-            call_data: CallData::new(Selector::from([0x00; 4])),
             gas_limit: Default::default(),
-            block: Default::default(),
+            call_data: CallData::new(Selector::from([0x00; 4])),
         }
     }
 }
