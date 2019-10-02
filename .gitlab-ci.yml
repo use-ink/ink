@@ -83,12 +83,12 @@ test-linux:
     # Print current work directory state as directions.
     # - ls -lah
     # install rust components
+    - rustup default nightly-2019-08-30
+    - rustup target add wasm32-unknown-unknown
     - rustup component add clippy rustfmt
     # - rustup target add wasm32-unknown-unknown
   script:
   - |
-    rustup default nightly-2019-08-30
-    rustup target add wasm32-unknown-unknown
     ./scripts/check-workspace.sh
     check_workspace=$?
     # if [ $check_workspace -eq 0 ]
