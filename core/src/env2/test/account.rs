@@ -33,12 +33,29 @@ use crate::{
 ///
 /// An account can be either a user account or a contract account.
 #[derive(Debug, Clone)]
-pub struct Accounts {
+pub struct AccountsDb {
     /// All on-chain registered accounts.
     accounts: BTreeMap<AccountId, Account>,
 }
 
-impl Default for Accounts {
+impl AccountsDb {
+    /// Returns the number of accounts in the database.
+    pub fn len(&self) -> usize {
+        self.accounts.len()
+    }
+
+    /// Returns the account associated with the given ID and otherwise returns `None`.
+    pub fn get(&self, account_id: &AccountId) -> Option<&Account> {
+        self.accounts.get(account_id)
+    }
+
+    /// Returns the account associated with the given ID and otherwise returns `None`.
+    pub fn get_mut(&mut self, account_id: &AccountId) -> Option<&mut Account> {
+        self.accounts.get_mut(account_id)
+    }
+}
+
+impl Default for AccountsDb {
     fn default() -> Self {
         Self {
             accounts: BTreeMap::new(),
@@ -50,26 +67,62 @@ impl Default for Accounts {
 #[derive(Debug, Clone)]
 pub struct Account {
     /// The current balance of the account.
-    balance: Balance,
+    pub balance: Balance,
+    /// The rent allowance.
+    ///
+    /// This is not only valid for contract accounts per se.
+    pub rent_allowance: Balance,
     /// The kind of the account and associated data.
-    kind: AccountKind,
+    pub kind: AccountKind,
 }
 
 impl Account {
     /// Returns `true` if `self` is a user account.
     pub fn is_user(&self) -> bool {
-        if let AccountKind::User(_) = self.kind {
+        if let AccountKind::User(_) = &self.kind {
             return true
         }
         false
     }
 
+    /// Returns the user account if `self` is a user account and otherwise return `None`.
+    pub fn user(&self) -> Option<&UserAccount> {
+        if let AccountKind::User(user_account) = &self.kind {
+            return Some(user_account)
+        }
+        return None
+    }
+
+    /// Returns the user account if `self` is a user account and otherwise return `None`.
+    pub fn user_mut(&mut self) -> Option<&mut UserAccount> {
+        if let AccountKind::User(user_account) = &mut self.kind {
+            return Some(user_account)
+        }
+        return None
+    }
+
     /// Returns `true` if `self` is a contract account.
     pub fn is_contract(&self) -> bool {
-        if let AccountKind::Contract(_) = self.kind {
+        if let AccountKind::Contract(_) = &self.kind {
             return true
         }
         false
+    }
+
+    /// Returns the user account if `self` is a user account and otherwise return `None`.
+    pub fn contract(&self) -> Option<&ContractAccount> {
+        if let AccountKind::Contract(contract_account) = &self.kind {
+            return Some(contract_account)
+        }
+        return None
+    }
+
+    /// Returns the user account if `self` is a user account and otherwise return `None`.
+    pub fn contract_mut(&mut self) -> Option<&mut ContractAccount> {
+        if let AccountKind::Contract(contract_account) = &mut self.kind {
+            return Some(contract_account)
+        }
+        return None
     }
 }
 
@@ -88,16 +141,39 @@ pub enum AccountKind {
 #[derive(Debug, Clone)]
 pub struct UserAccount {
     /// The users display name.
-    display_name: String,
+    pub display_name: String,
+}
+
+impl UserAccount {
+    /// Creates a new user account.
+    pub fn new<S>(name: S) -> Self
+    where
+        S: Into<String>,
+    {
+        Self {
+            display_name: name.into(),
+        }
+    }
 }
 
 /// Specific state of contract accounts.
 #[derive(Debug, Clone)]
 pub struct ContractAccount {
     /// The associated code hash.
-    code_hash: Hash,
+    pub code_hash: Hash,
     /// The contract's unique storage.
-    storage: Storage,
+    pub storage: Storage,
     /// The minimum balance allowed for the contract.
-    minimum_balance: Balance,
+    pub minimum_balance: Balance,
+}
+
+impl ContractAccount {
+    /// Creates a new contract account.
+    pub fn new(code_hash: Hash) -> Self {
+        Self {
+            code_hash,
+            storage: Storage::default(),
+            minimum_balance: TypedEncoded::from_origin(&0),
+        }
+    }
 }

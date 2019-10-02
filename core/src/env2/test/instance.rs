@@ -23,7 +23,7 @@ use crate::{
         test::{
             Storage,
             TypedEncoded,
-            Accounts,
+            AccountsDb,
             types::*,
         },
     },
@@ -59,7 +59,7 @@ pub struct TestEnvInstance {
     /// The emulated contract storage.
     storage: Storage,
     /// The accounts registered on the chain.
-    accounts: Accounts,
+    pub accounts: AccountsDb,
     /// The emulated chain state.
     state: ChainState,
     /// The most current block.
