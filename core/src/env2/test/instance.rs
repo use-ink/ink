@@ -76,7 +76,7 @@ pub struct ChainState {
     /// The current gas price.
     pub gas_price: Balance,
     /// The existential deposit.
-    pub existential_balance: Balance,
+    pub minimum_balance: Balance,
 }
 
 /// A block within the emulated chain.
@@ -98,7 +98,7 @@ pub struct ExecutionContext {
     /// The address of the called contract.
     pub callee: AccountId,
     /// The endowment for the call.
-    pub endowment: Balance,
+    pub transferred_balance: Balance,
     /// The amount of gas left for further execution.
     pub gas_left: Balance,
     /// The limit of gas usage.
@@ -114,7 +114,7 @@ impl Default for ExecutionContext {
         Self {
             caller: Default::default(),
             callee: Default::default(),
-            endowment: Default::default(),
+            transferred_balance: Default::default(),
             gas_left: Default::default(),
             gas_limit: Default::default(),
             call_data: CallData::new(Selector::from([0x00; 4])),
