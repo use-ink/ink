@@ -30,7 +30,9 @@ cfg-if = "0.1"
 
 [features]
 default = ["test-env"]
-test-env = ["std"]
+test-env = [
+    "std",
+]
 std = [
     "ink_abi/std",
     "ink_alloc/std",

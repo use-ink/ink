@@ -200,6 +200,7 @@ impl_get_property_for! {
 impl<T> Env for TestEnv<T>
 where
     T: EnvTypes,
+    <T as EnvTypes>::Hash: From<[u8; 32]>,
 {
     fn get_contract_storage<I, R>(_buffer: &mut I, key: Key) -> Result<R>
     where
@@ -371,7 +372,7 @@ where
         // Instead we are going to return a unique randomized `Hash` in
         // dependence of the given `subject` buffer.
         // Given the same `subject` buffer we also return the same `Hash`.
-        unimplemented!()
+        ink_utils::hash::keccak256(subject).into()
     }
 
     fn println(content: &str) {
