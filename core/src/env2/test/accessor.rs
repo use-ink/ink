@@ -30,7 +30,9 @@ use crate::{
             CallContractRecord,
             CreateContractRecord,
             EmitEventRecord,
+            InvokeRuntimeRecord,
             Record,
+            RestoreContractRecord,
         },
         utils::{
             EnlargeTo,
@@ -324,7 +326,7 @@ where
         unimplemented!()
     }
 
-    fn emit_event<I, D>(buffer: &mut I, event_data: &D)
+    fn emit_event<I, D>(_buffer: &mut I, event_data: &D)
     where
         I: scale::Output + AsRef<[u8]> + Reset,
         D: EmitEventParams<Self>,
@@ -332,10 +334,15 @@ where
         // With the off-chain test environment we have no means
         // to emit an event on the chain since there is no chain.
         // What we do instead is to log the call and do nothing.
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            instance
+                .borrow_mut()
+                .records
+                .push(Record::from(EmitEventRecord::new(event_data)));
+        })
     }
 
-    fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
+    fn invoke_runtime<O, V>(_buffer: &mut O, call_data: &V)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
         V: scale::Encode,
@@ -346,11 +353,16 @@ where
         //
         // Since runtime invokations are async fire-and-forget a
         // contract cannot check for it being run anyways.
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            instance
+                .borrow_mut()
+                .records
+                .push(Record::from(InvokeRuntimeRecord::new(call_data.encode())));
+        })
     }
 
     fn restore_to<O>(
-        buffer: &mut O,
+        _buffer: &mut O,
         dest: Self::AccountId,
         code_hash: Self::Hash,
         rent_allowance: Self::Balance,
@@ -361,7 +373,16 @@ where
         // With the off-chain test environment we have no means
         // to restore another contract on the chain since there is no chain.
         // What we do instead is to log the restoration and do nothing.
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            instance.borrow_mut().records.push(Record::from(
+                RestoreContractRecord::new::<T>(
+                    dest,
+                    code_hash,
+                    rent_allowance,
+                    filtered_keys,
+                ),
+            ));
+        })
     }
 
     /// Sets the output of the contract within the test environment.
