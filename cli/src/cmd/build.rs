@@ -128,7 +128,6 @@ fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
     // Dump the output streams produced by cargo into the stdout/stderr.
     io::stdout().write_all(&output.stdout)?;
     io::stderr().write_all(&output.stderr)?;
-    return Err(Error::BuildFailed)
 
     Ok(())
 }
