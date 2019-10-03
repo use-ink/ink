@@ -7,7 +7,7 @@ rust:
   # - stable
   # - beta
   - nightly
-  - nightly-2019-09-25
+  - nightly-2019-10-03
 
 matrix:
   allow_failures:
