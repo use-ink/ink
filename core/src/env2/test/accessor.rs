@@ -23,9 +23,14 @@
 
 use crate::{
     env2::{
+        error::CallError,
         property,
         test::{
             instance::TestEnvInstance,
+            CallContractRecord,
+            CreateContractRecord,
+            EmitEventRecord,
+            Record,
         },
         utils::{
             EnlargeTo,
@@ -260,7 +265,7 @@ where
         })
     }
 
-    fn invoke_contract<O, D>(buffer: &mut O, call_data: &D) -> Result<()>
+    fn invoke_contract<O, D>(_buffer: &mut O, call_data: &D) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset,
         D: CallParams<Self>,
@@ -270,10 +275,16 @@ where
         // What we do instead is to log the call and do nothing.
         // The codegen of ink! shall instead call the contract directly
         // and log a call through an invokation of this API.
-        Ok(())
+        INSTANCE.with(|instance| {
+            instance
+                .borrow_mut()
+                .records
+                .push(Record::from(CallContractRecord::new(call_data)));
+            Ok(())
+        })
     }
 
-    fn eval_contract<IO, D, R>(buffer: &mut IO, call_data: &D) -> Result<R>
+    fn eval_contract<IO, D, R>(_buffer: &mut IO, call_data: &D) -> Result<R>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
@@ -290,7 +301,13 @@ where
         // For the sake of simplicity we will return an error here since
         // we cannot generically construct an `R` out of thin air for the
         // return type. The codegen of ink! will have to handle this case.
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            instance
+                .borrow_mut()
+                .records
+                .push(Record::from(CallContractRecord::new(call_data)));
+            Err(Error::Call(CallError))
+        })
     }
 
     fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>

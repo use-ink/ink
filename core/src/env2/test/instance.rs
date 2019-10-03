@@ -24,6 +24,7 @@ use crate::{
         test::{
             types::*,
             AccountsDb,
+            Record,
             Storage,
             TypedEncoded,
         },
@@ -68,6 +69,8 @@ pub struct TestEnvInstance {
     pub exec_context: ExecutionContext,
     /// Account ID generator.
     pub account_id_gen: AccountIdGen,
+    /// Records of certain events and environmental interactions.
+    pub records: Vec<Record>,
 }
 
 /// The emulated chain state.
