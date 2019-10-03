@@ -247,7 +247,18 @@ where
     }
 
     fn clear_contract_storage(key: Key) {
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            let mut storage = RefMut::map(instance.borrow_mut(), |instance| {
+                let account_id = &instance.exec_context.callee;
+                &mut instance.accounts
+                    .get_mut(account_id)
+                    .expect("callee is required to be in the accounts DB")
+                    .contract_mut()
+                    .expect("callee must refer to a contract account")
+                    .storage
+            });
+            storage.clear(key);
+        })
     }
 
     fn invoke_contract<O, D>(buffer: &mut O, call_data: &D) -> Result<()>
