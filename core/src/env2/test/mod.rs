@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Test environment for off-chain testing and utilities.
+
 mod accessor;
 mod account;
 mod instance;
