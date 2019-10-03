@@ -167,7 +167,7 @@ impl_get_property_for! {
     }
 
     NowInMs => |instance| {
-        instance.borrow().exec_context.gas_left.to_origin()
+        instance.borrow().block.now_in_ms.to_origin()
     }
 
     Address => |instance| {
