@@ -349,6 +349,13 @@ where
         unimplemented!()
     }
 
+    /// Sets the output of the contract within the test environment.
+    ///
+    /// # Panics
+    ///
+    /// If this function is called multiple times from within a contract.
+    /// Setting output multiple times is not allows in any environment
+    /// so this acts as another safety guard.
     fn output<O, R>(buffer: &mut O, return_value: &R)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
@@ -360,7 +367,12 @@ where
         //
         // What we do instead is to log the encoded value to make it possible
         // to query for it through the test environment after the successful call.
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            if instance.borrow().exec_context.output.is_some() {
+                panic!("cannot set contract output multiple times within the same execution")
+            }
+            instance.borrow_mut().exec_context.output = Some(return_value.encode());
+        })
     }
 
     fn random<I>(buffer: &mut I, subject: &[u8]) -> Self::Hash

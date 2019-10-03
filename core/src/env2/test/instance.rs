@@ -107,6 +107,11 @@ pub struct ExecutionContext {
     pub gas_limit: Option<Balance>,
     /// The raw call data for the contract execution.
     pub call_data: CallData,
+    /// The output of the contract if any.
+    ///
+    /// Since this can be an arbitrary type we need to store it
+    /// as its most general form: raw bytes.
+    pub output: Option<Vec<u8>>,
 }
 
 impl Default for ExecutionContext {
@@ -118,6 +123,7 @@ impl Default for ExecutionContext {
             gas_left: Default::default(),
             gas_limit: Default::default(),
             call_data: CallData::new(Selector::from([0x00; 4])),
+            output: None,
         }
     }
 }
