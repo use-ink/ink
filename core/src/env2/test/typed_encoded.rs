@@ -16,13 +16,13 @@
 
 use core::{
     any::TypeId,
+    cmp::Ordering,
     hash::{
         Hash,
         Hasher,
     },
     marker::PhantomData,
 };
-use core::cmp::Ordering;
 
 /// A wrapper around an encoded entity that only allows type safe accesses.
 ///
@@ -218,7 +218,10 @@ impl<M> TypedEncoded<M> {
     /// # Errors
     ///
     /// If the types of the current and new value do not match.
-    pub fn try_assign<'a, 'b, T>(&'a mut self, new_value: &'b T) -> Result<(), UnmatchingType>
+    pub fn try_assign<'a, 'b, T>(
+        &'a mut self,
+        new_value: &'b T,
+    ) -> Result<(), UnmatchingType>
     where
         T: scale::Encode + 'static,
     {

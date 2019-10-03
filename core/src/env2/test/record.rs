@@ -15,9 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env2::{
-        call::CallData,
-    },
+    env2::call::CallData,
     memory::vec::Vec,
 };
 use derive_more::From;

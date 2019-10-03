@@ -23,39 +23,41 @@
 
 use crate::{
     byte_utils,
-    storage::{
-        Key,
-    },
     env2::{
-        CallParams,
-        CreateParams,
-        EmitEventParams,
-        Env,
-        Result,
-        Error,
-        DefaultSrmlTypes,
         call::{
-            Selector,
             CallData,
+            Selector,
         },
         property,
         test::{
             instance::TestEnvInstance,
             Storage,
         },
+        types,
         utils::{
             EnlargeTo,
             Reset,
         },
+        CallParams,
+        CreateParams,
+        DefaultSrmlTypes,
+        EmitEventParams,
+        Env,
         EnvTypes,
+        Error,
         GetProperty,
+        Result,
         SetProperty,
-        types,
     },
+    storage::Key,
 };
 use core::{
+    cell::{
+        Ref,
+        RefCell,
+        RefMut,
+    },
     marker::PhantomData,
-    cell::{RefCell, Ref, RefMut},
 };
 
 thread_local! {
@@ -109,7 +111,8 @@ where
         INSTANCE.with(|instance| {
             let mut account = RefMut::map(instance.borrow_mut(), |instance| {
                 let account_id = &instance.exec_context.callee;
-                instance.accounts
+                instance
+                    .accounts
                     .get_mut(account_id)
                     .expect("callee is required to be in the accounts DB")
             });
@@ -210,7 +213,8 @@ where
         INSTANCE.with(|instance| {
             let storage = Ref::map(instance.borrow(), |instance| {
                 let account_id = &instance.exec_context.callee;
-                &instance.accounts
+                &instance
+                    .accounts
                     .get(account_id)
                     .expect("callee is required to be in the accounts DB")
                     .contract()
@@ -234,7 +238,8 @@ where
         INSTANCE.with(|instance| {
             let mut storage = RefMut::map(instance.borrow_mut(), |instance| {
                 let account_id = &instance.exec_context.callee;
-                &mut instance.accounts
+                &mut instance
+                    .accounts
                     .get_mut(account_id)
                     .expect("callee is required to be in the accounts DB")
                     .contract_mut()
@@ -251,7 +256,8 @@ where
         INSTANCE.with(|instance| {
             let mut storage = RefMut::map(instance.borrow_mut(), |instance| {
                 let account_id = &instance.exec_context.callee;
-                &mut instance.accounts
+                &mut instance
+                    .accounts
                     .get_mut(account_id)
                     .expect("callee is required to be in the accounts DB")
                     .contract_mut()
@@ -369,7 +375,9 @@ where
         // to query for it through the test environment after the successful call.
         INSTANCE.with(|instance| {
             if instance.borrow().exec_context.output.is_some() {
-                panic!("cannot set contract output multiple times within the same execution")
+                panic!(
+                    "cannot set contract output multiple times within the same execution"
+                )
             }
             instance.borrow_mut().exec_context.output = Some(return_value.encode());
         })

@@ -21,9 +21,9 @@ use crate::{
             Selector,
         },
         test::{
+            types::*,
             Storage,
             TypedEncoded,
-            types::*,
         },
     },
     memory::collections::btree_map::BTreeMap,

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod account;
 mod accessor;
+mod account;
 mod instance;
 mod record;
 mod storage;
@@ -23,28 +23,26 @@ mod typed_encoded;
 mod types;
 
 use self::{
+    account::AccountsDb,
     instance::TestEnvInstance,
     record::{
-        Record,
         CallContractRecord,
         CreateContractRecord,
         EmitEventRecord,
+        Record,
     },
     storage::{
         Entry,
         Storage,
     },
-    account::{
-        AccountsDb,
-    },
     typed_encoded::TypedEncoded,
     types::{
-        Balance,
         AccountId,
-        Moment,
+        Balance,
         BlockNumber,
-        Hash,
         Call,
+        Hash,
+        Moment,
     },
 };
 
