@@ -60,7 +60,7 @@ pub struct CallContractRecord {
 
 impl CallContractRecord {
     /// Creates a new record for a contract call.
-    fn new<'a, E, C>(call_params: &'a C) -> Self
+    pub fn new<'a, E, C>(call_params: &'a C) -> Self
     where
         E: EnvTypes,
         C: CallParams<E>,
@@ -89,7 +89,7 @@ pub struct CreateContractRecord {
 
 impl CreateContractRecord {
     /// Creates a new record for a contract instantiation.
-    fn new<'a, E, C>(create_params: &'a C) -> Self
+    pub fn new<'a, E, C>(create_params: &'a C) -> Self
     where
         E: EnvTypes,
         C: CreateParams<E>,
@@ -114,7 +114,7 @@ pub struct EmitEventRecord {
 
 impl EmitEventRecord {
     /// Creates a new record for a contract instantiation.
-    fn new<'a, E, R>(emit_event: &'a R) -> Self
+    pub fn new<'a, E, R>(emit_event: &'a R) -> Self
     where
         E: EnvTypes,
         R: EmitEventParams<E>,
