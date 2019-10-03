@@ -27,12 +27,16 @@ use crate::{
         property,
         test::{
             instance::TestEnvInstance,
+            Account,
+            AccountKind,
             CallContractRecord,
+            ContractAccount,
             CreateContractRecord,
             EmitEventRecord,
             InvokeRuntimeRecord,
             Record,
             RestoreContractRecord,
+            TypedEncoded,
         },
         utils::{
             EnlargeTo,
@@ -203,6 +207,7 @@ impl<T> Env for TestEnv<T>
 where
     T: EnvTypes,
     <T as EnvTypes>::Hash: From<[u8; 32]>,
+    <T as EnvTypes>::AccountId: From<[u8; 32]>,
 {
     fn get_contract_storage<I, R>(_buffer: &mut I, key: Key) -> Result<R>
     where
@@ -312,7 +317,10 @@ where
         })
     }
 
-    fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>
+    fn create_contract<IO, D>(
+        _buffer: &mut IO,
+        create_data: &D,
+    ) -> Result<Self::AccountId>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         D: CreateParams<Self>,
@@ -323,7 +331,28 @@ where
         // Instead we register a new contract account into the emulated accounts
         // data base. This is not equivalent to instantiation of a new contract.
         // However, this allows to query certain stats about the newly created contract.
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            // Record the contract instantiation.
+            instance
+                .borrow_mut()
+                .records
+                .push(Record::from(CreateContractRecord::new(create_data)));
+            // Actual instantiation of a contract.
+            let (typed_encoded, account_id) =
+                instance.borrow_mut().account_id_gen.next::<T>();
+            instance.borrow_mut().accounts.insert(
+                typed_encoded,
+                Account {
+                    balance: TypedEncoded::from_origin(&0),
+                    rent_allowance: TypedEncoded::from_origin(&0),
+                    kind: AccountKind::Contract(ContractAccount::new(
+                        TypedEncoded::from_origin(create_data.code_hash()),
+                    )),
+                },
+            );
+
+            Ok(account_id)
+        })
     }
 
     fn emit_event<I, D>(_buffer: &mut I, event_data: &D)

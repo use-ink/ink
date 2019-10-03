@@ -23,15 +23,21 @@ mod typed_encoded;
 mod types;
 
 use self::{
-    account::AccountsDb,
+    account::{
+        Account,
+        AccountKind,
+        AccountsDb,
+        ContractAccount,
+        UserAccount,
+    },
     instance::TestEnvInstance,
     record::{
         CallContractRecord,
         CreateContractRecord,
         EmitEventRecord,
         InvokeRuntimeRecord,
-        RestoreContractRecord,
         Record,
+        RestoreContractRecord,
     },
     storage::{
         Entry,
