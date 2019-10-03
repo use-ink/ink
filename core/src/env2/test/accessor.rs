@@ -201,7 +201,7 @@ impl<T> Env for TestEnv<T>
 where
     T: EnvTypes,
 {
-    fn get_contract_storage<I, R>(buffer: &mut I, key: Key) -> Result<R>
+    fn get_contract_storage<I, R>(_buffer: &mut I, key: Key) -> Result<R>
     where
         I: AsMut<[u8]> + EnlargeTo,
         R: scale::Decode,
