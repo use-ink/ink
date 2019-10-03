@@ -266,6 +266,11 @@ where
         O: scale::Output + AsRef<[u8]> + Reset,
         D: CallParams<Self>,
     {
+        // With the off-chain test environment we have no means to invoke
+        // a remote contract on the chain since there is no chain.
+        // What we do instead is to log the call and do nothing.
+        // The codegen of ink! shall instead call the contract directly
+        // and log a call through an invokation of this API.
         unimplemented!()
     }
 
@@ -275,6 +280,17 @@ where
         R: scale::Decode,
         D: CallParams<Self>,
     {
+        // With the off-chain test environment we have no means to invoke
+        // a remote contract on the chain since there is no chain.
+        // What we do instead is to log the call and do nothing.
+        // The codegen of ink! shall instead call the contract directly
+        // and log a call through an invokation of this API.
+        //
+        // # Note
+        //
+        // For the sake of simplicity we will return an error here since
+        // we cannot generically construct an `R` out of thin air for the
+        // return type. The codegen of ink! will have to handle this case.
         unimplemented!()
     }
 
@@ -283,6 +299,11 @@ where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         D: CreateParams<Self>,
     {
+        // With the off-chain test environment we have no means to instantiate
+        // a remote contract on the chain since there is no chain.
+        // What we do instead is to log the call and do nothing.
+        // The codegen of ink! shall instead instantiate the contract directly
+        // and log a call through an invokation of this API.
         unimplemented!()
     }
 
@@ -291,6 +312,9 @@ where
         I: scale::Output + AsRef<[u8]> + Reset,
         D: EmitEventParams<Self>,
     {
+        // With the off-chain test environment we have no means
+        // to emit an event on the chain since there is no chain.
+        // What we do instead is to log the call and do nothing.
         unimplemented!()
     }
 
@@ -299,6 +323,12 @@ where
         O: scale::Output + AsRef<[u8]> + Reset,
         V: scale::Encode,
     {
+        // With the off-chain test environment we have no means
+        // to emit an event on the chain since there is no chain.
+        // What we do instead is to log the call and do nothing.
+        //
+        // Since runtime invokations are async fire-and-forget a
+        // contract cannot check for it being run anyways.
         unimplemented!()
     }
 
@@ -311,6 +341,9 @@ where
     ) where
         O: scale::Output + AsRef<[u8]> + Reset,
     {
+        // With the off-chain test environment we have no means
+        // to restore another contract on the chain since there is no chain.
+        // What we do instead is to log the restoration and do nothing.
         unimplemented!()
     }
 
@@ -319,6 +352,12 @@ where
         O: scale::Output + AsRef<[u8]> + Reset,
         R: scale::Encode,
     {
+        // With the off-chain test environment we have no means to
+        // return a value from a contract since there are no other contracts
+        // on the chain since there is no chain (I am not even joking ...).
+        //
+        // What we do instead is to log the encoded value to make it possible
+        // to query for it through the test environment after the successful call.
         unimplemented!()
     }
 
@@ -326,6 +365,12 @@ where
     where
         I: AsMut<[u8]> + EnlargeTo,
     {
+        // We return a randomized value as best effort.
+        // This won't have the same guarantees as the `random_seed` functionality
+        // provided by Substrate.
+        // Instead we are going to return a unique randomized `Hash` in
+        // dependence of the given `subject` buffer.
+        // Given the same `subject` buffer we also return the same `Hash`.
         unimplemented!()
     }
 
