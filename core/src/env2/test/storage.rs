@@ -15,7 +15,10 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    memory::collections::btree_map::BTreeMap,
+    memory::collections::btree_map::{
+        self,
+        BTreeMap,
+    },
     storage::Key,
 };
 use core::cell::Cell;
@@ -128,9 +131,19 @@ impl Storage {
     /// # Note
     ///
     /// Overwrites if there was already a value stored under the key.
-    pub fn write(&mut self, key: Key, value: &[u8]) {
+    pub fn write<V>(&mut self, key: Key, value: V)
+    where
+        V: Into<Vec<u8>>,
+    {
         self.inc_total_writes();
-        self.entries.insert(key, Entry::new(value));
+        match self.entries.entry(key) {
+            btree_map::Entry::Occupied(mut occupied) => {
+                occupied.get_mut().overwrite(value);
+            }
+            btree_map::Entry::Vacant(vacant) => {
+                vacant.insert(Entry::new(value));
+            }
+        }
     }
 
     /// Clears the entry under the given key.
