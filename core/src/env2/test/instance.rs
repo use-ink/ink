@@ -15,7 +15,9 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
+    byte_utils,
     env2::{
+        EnvTypes,
         call::{
             CallData,
             Selector,
@@ -64,6 +66,8 @@ pub struct TestEnvInstance {
     pub block: Block,
     /// The current contract execution context.
     pub exec_context: ExecutionContext,
+    /// Account ID generator.
+    pub account_id_gen: AccountIdGen,
 }
 
 /// The emulated chain state.
@@ -125,5 +129,29 @@ impl Default for ExecutionContext {
             call_data: CallData::new(Selector::from([0x00; 4])),
             output: None,
         }
+    }
+}
+
+/// Allocates new account IDs.
+///
+/// This is used whenever a new account or contract
+/// is created on the emulated chain.
+#[derive(Debug, Clone, Default)]
+pub struct AccountIdGen {
+    /// The current account ID.
+    current: [u8; 32],
+}
+
+impl AccountIdGen {
+    /// Returns the next account ID.
+    pub fn next<E>(&mut self) -> (AccountId, <E as EnvTypes>::AccountId)
+    where
+        E: EnvTypes,
+        <E as EnvTypes>::AccountId: From<[u8; 32]>,
+    {
+        byte_utils::bytes_add_bytes(&mut self.current, &[0x01]);
+        let account_id: <E as EnvTypes>::AccountId = self.current.into();
+        let typed_encoded = TypedEncoded::from_origin(&account_id);
+        (typed_encoded, account_id)
     }
 }
