@@ -15,10 +15,17 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env2::call::CallData,
+    env2::{
+        call::CallData,
+        CallParams,
+        CreateParams,
+        EmitEventParams,
+        EnvTypes,
+    },
     memory::vec::Vec,
 };
 use derive_more::From;
+use scale::Encode as _;
 
 /// A record of an event happening on the off-chain test environment.
 ///
@@ -42,13 +49,29 @@ pub enum Record {
 #[derive(Debug)]
 pub struct CallContractRecord {
     /// Recorded code hash for the created contract.
-    pub account_id: Vec<u8>,
+    pub callee: Vec<u8>,
     /// Recorded gas limit for the contract creation.
     pub gas_limit: u64,
     /// Recorded endowment.
     pub endowment: Vec<u8>,
     /// Recorded input data for contract creation.
     pub input_data: CallData,
+}
+
+impl CallContractRecord {
+    /// Creates a new record for a contract call.
+    fn new<'a, E, C>(call_params: &'a C) -> Self
+    where
+        E: EnvTypes,
+        C: CallParams<E>,
+    {
+        Self {
+            callee: call_params.callee().encode(),
+            gas_limit: call_params.gas_limit(),
+            endowment: call_params.endowment().encode(),
+            input_data: call_params.input_data().clone(),
+        }
+    }
 }
 
 /// A contract instantitation record.
@@ -64,6 +87,22 @@ pub struct CreateContractRecord {
     pub input_data: CallData,
 }
 
+impl CreateContractRecord {
+    /// Creates a new record for a contract instantiation.
+    fn new<'a, E, C>(create_params: &'a C) -> Self
+    where
+        E: EnvTypes,
+        C: CreateParams<E>,
+    {
+        Self {
+            code_hash: create_params.code_hash().encode(),
+            gas_limit: create_params.gas_limit(),
+            endowment: create_params.endowment().encode(),
+            input_data: create_params.input_data().clone(),
+        }
+    }
+}
+
 /// Record for an emitted event.
 #[derive(Debug)]
 pub struct EmitEventRecord {
@@ -71,4 +110,18 @@ pub struct EmitEventRecord {
     pub topics: Vec<u8>,
     /// Recorded encoding of the emitted event.
     pub data: Vec<u8>,
+}
+
+impl EmitEventRecord {
+    /// Creates a new record for a contract instantiation.
+    fn new<'a, E, R>(emit_event: &'a R) -> Self
+    where
+        E: EnvTypes,
+        R: EmitEventParams<E>,
+    {
+        Self {
+            topics: emit_event.topics().encode(),
+            data: emit_event.data().to_vec(),
+        }
+    }
 }
