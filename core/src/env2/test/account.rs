@@ -15,12 +15,10 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    env2::{
-        test::{
-            types::*,
-            Storage,
-            TypedEncoded,
-        },
+    env2::test::{
+        types::*,
+        Storage,
+        TypedEncoded,
     },
     memory::collections::btree_map::BTreeMap,
 };
