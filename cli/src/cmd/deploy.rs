@@ -17,7 +17,11 @@
 use crate::cmd::Result;
 
 use futures::future::Future;
-use runtime_primitives::generic::Era;
+use runtime_primitives::{
+    generic::{Era, Header},
+    traits::{IdentityLookup, Verify, BlakeTwo256},
+    AnySignature,
+};
 use std::{
     collections::HashMap,
     fs,
@@ -83,41 +87,21 @@ fn extract_code_hash(extrinsic_result: subxt::ExtrinsicSuccess<Runtime>) -> Resu
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 struct Runtime;
 
 impl System for Runtime {
-    type Index = <node_runtime::Runtime as srml_system::Trait>::Index;
-    type BlockNumber = <node_runtime::Runtime as srml_system::Trait>::BlockNumber;
-    type Hash = <node_runtime::Runtime as srml_system::Trait>::Hash;
-    type Hashing = <node_runtime::Runtime as srml_system::Trait>::Hashing;
-    type AccountId = <node_runtime::Runtime as srml_system::Trait>::AccountId;
-    type Lookup = <node_runtime::Runtime as srml_system::Trait>::Lookup;
-    type Header = <node_runtime::Runtime as srml_system::Trait>::Header;
-    type Event = <node_runtime::Runtime as srml_system::Trait>::Event;
-
-    type SignedExtra = (
-        srml_system::CheckVersion<node_runtime::Runtime>,
-        srml_system::CheckGenesis<node_runtime::Runtime>,
-        srml_system::CheckEra<node_runtime::Runtime>,
-        srml_system::CheckNonce<node_runtime::Runtime>,
-        srml_system::CheckWeight<node_runtime::Runtime>,
-        srml_balances::TakeFees<node_runtime::Runtime>,
-    );
-    fn extra(nonce: Self::Index) -> Self::SignedExtra {
-        (
-            srml_system::CheckVersion::<node_runtime::Runtime>::new(),
-            srml_system::CheckGenesis::<node_runtime::Runtime>::new(),
-            srml_system::CheckEra::<node_runtime::Runtime>::from(Era::Immortal),
-            srml_system::CheckNonce::<node_runtime::Runtime>::from(nonce),
-            srml_system::CheckWeight::<node_runtime::Runtime>::new(),
-            srml_balances::TakeFees::<node_runtime::Runtime>::from(0),
-        )
-    }
+    type Index = u32;
+    type BlockNumber = u32;
+    type Hash = substrate_primitives::H256;
+    type Hashing = BlakeTwo256;
+    type AccountId = <AnySignature as Verify>::Signer;
+    type Address = srml_indices::address::Address<Self::AccountId, u32>;
+    type Header = Header<Self::BlockNumber, BlakeTwo256>;
 }
 
 impl Balances for Runtime {
-    type Balance = <node_runtime::Runtime as srml_balances::Trait>::Balance;
+    type Balance = u64;
 }
 
 impl Contracts for Runtime {}

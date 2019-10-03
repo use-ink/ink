@@ -28,12 +28,12 @@ zip = { version = "0.5", default-features = false }
 pwasm-utils = "0.11.0"
 parity-wasm = "0.40.2"
 cargo_metadata = "0.8.2"
-node-runtime = { git = "https://github.com/paritytech/substrate/", package = "node-runtime", features = ["std"] }
 runtime_primitives = { git = "https://github.com/paritytech/substrate/", package = "sr-primitives" }
 serde = { version = "1.0", features = ["derive"] }
 srml-contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts" }
 srml-balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances" }
 srml-system = { git = "https://github.com/paritytech/substrate/", package = "srml-system" }
+srml-indices = { git = "https://github.com/paritytech/substrate/", package = "srml-indices" }
 substrate-primitives = { git = "https://github.com/paritytech/substrate/", package = "substrate-primitives" }
 subxt = { git = "https://github.com/paritytech/substrate-subxt/", package = "substrate-subxt" }
 tokio = "0.1.21"
