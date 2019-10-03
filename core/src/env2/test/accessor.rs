@@ -302,9 +302,10 @@ where
     {
         // With the off-chain test environment we have no means to instantiate
         // a remote contract on the chain since there is no chain.
-        // What we do instead is to log the call and do nothing.
-        // The codegen of ink! shall instead instantiate the contract directly
-        // and log a call through an invokation of this API.
+        //
+        // Instead we register a new contract account into the emulated accounts
+        // data base. This is not equivalent to instantiation of a new contract.
+        // However, this allows to query certain stats about the newly created contract.
         unimplemented!()
     }
 
