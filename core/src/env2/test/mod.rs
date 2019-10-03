@@ -29,6 +29,8 @@ use self::{
         CallContractRecord,
         CreateContractRecord,
         EmitEventRecord,
+        InvokeRuntimeRecord,
+        RestoreContractRecord,
         Record,
     },
     storage::{

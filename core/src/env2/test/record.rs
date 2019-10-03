@@ -23,6 +23,7 @@ use crate::{
         EnvTypes,
     },
     memory::vec::Vec,
+    storage::Key,
 };
 use derive_more::From;
 use scale::Encode as _;
@@ -38,6 +39,44 @@ pub enum Record {
     Create(CreateContractRecord),
     /// Emitted events.
     EmitEvent(EmitEventRecord),
+    /// Invokation of the runtime.
+    InvokeRuntime(InvokeRuntimeRecord),
+    /// Restoration of a contract.
+    RestoreContract(RestoreContractRecord),
+}
+
+impl Record {
+    /// Returns the contract call record if `self` is one and otherwise `None`.
+    pub fn contract_call(&self) -> Option<&CallContractRecord> {
+        match self {
+            Record::Call(call_record) => Some(call_record),
+            _ => None,
+        }
+    }
+
+    /// Returns the contract instantiation record if `self` is one and otherwise `None`.
+    pub fn contract_instantiation(&self) -> Option<&CreateContractRecord> {
+        match self {
+            Record::Create(create_record) => Some(create_record),
+            _ => None,
+        }
+    }
+
+    /// Returns the emitted event record if `self` is one and otherwise `None`.
+    pub fn emitted_event(&self) -> Option<&EmitEventRecord> {
+        match self {
+            Record::EmitEvent(emitted_event) => Some(emitted_event),
+            _ => None,
+        }
+    }
+
+    /// Returns the runtime invokation record if `self` is one and otherwise `None`.
+    pub fn runtime_invokation(&self) -> Option<&InvokeRuntimeRecord> {
+        match self {
+            Record::InvokeRuntime(runtime_invokation) => Some(runtime_invokation),
+            _ => None,
+        }
+    }
 }
 
 /// A contract call record.
@@ -122,6 +161,60 @@ impl EmitEventRecord {
         Self {
             topics: emit_event.topics().encode(),
             data: emit_event.data().to_vec(),
+        }
+    }
+}
+
+/// Record of a runtime invokation.
+#[derive(Debug)]
+pub struct InvokeRuntimeRecord {
+    /// Since we have to be agnostic over runtimes we cannot
+    /// be more precise here than use the completely generic
+    /// encoded raw bytes of the runtime call.
+    pub encoded: Vec<u8>,
+}
+
+impl InvokeRuntimeRecord {
+    /// Creates a new record for a runtime invokation.
+    pub fn new<V>(data: V) -> Self
+    where
+        V: Into<Vec<u8>>,
+    {
+        Self {
+            encoded: data.into(),
+        }
+    }
+}
+
+/// Record of a contract restoration.
+#[derive(Debug)]
+pub struct RestoreContractRecord {
+    /// The destination account ID.
+    pub dest: Vec<u8>,
+    /// The original code hash of the contract.
+    pub code_hash: Vec<u8>,
+    /// The initial rent allowance for the restored contract.
+    pub rent_allowance: Vec<u8>,
+    /// The filtered keys for the restoration process.
+    pub filtered_keys: Vec<Key>,
+}
+
+impl RestoreContractRecord {
+    /// Creates a new record for a contract restoration.
+    pub fn new<E>(
+        dest: <E as EnvTypes>::AccountId,
+        code_hash: <E as EnvTypes>::Hash,
+        rent_allowance: <E as EnvTypes>::Balance,
+        filtered_keys: &[Key],
+    ) -> Self
+    where
+        E: EnvTypes,
+    {
+        Self {
+            dest: dest.encode(),
+            code_hash: code_hash.encode(),
+            rent_allowance: rent_allowance.encode(),
+            filtered_keys: filtered_keys.to_vec(),
         }
     }
 }
