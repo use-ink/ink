@@ -17,12 +17,19 @@
 mod account;
 mod accessor;
 mod instance;
+mod record;
 mod storage;
 mod typed_encoded;
 mod types;
 
 use self::{
     instance::TestEnvInstance,
+    record::{
+        Record,
+        CallContractRecord,
+        CreateContractRecord,
+        EmitEventRecord,
+    },
     storage::{
         Entry,
         Storage,
