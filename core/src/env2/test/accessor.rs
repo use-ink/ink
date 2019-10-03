@@ -225,12 +225,25 @@ where
         })
     }
 
-    fn set_contract_storage<O, V>(buffer: &mut O, key: Key, val: &V)
+    fn set_contract_storage<O, V>(buffer: &mut O, key: Key, value: &V)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
         V: scale::Encode,
     {
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            let mut storage = RefMut::map(instance.borrow_mut(), |instance| {
+                let account_id = &instance.exec_context.callee;
+                &mut instance.accounts
+                    .get_mut(account_id)
+                    .expect("callee is required to be in the accounts DB")
+                    .contract_mut()
+                    .expect("callee must refer to a contract account")
+                    .storage
+            });
+            buffer.reset();
+            value.encode_to(buffer);
+            storage.write(key, buffer.as_ref());
+        })
     }
 
     fn clear_contract_storage(key: Key) {
