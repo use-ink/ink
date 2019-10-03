@@ -39,6 +39,11 @@ impl AccountsDb {
         self.accounts.len()
     }
 
+    /// Inserts a new account to the data base.
+    pub fn insert(&mut self, account_id: AccountId, account: Account) {
+        self.accounts.insert(account_id, account);
+    }
+
     /// Returns the account associated with the given ID and otherwise returns `None`.
     pub fn get<Q: ?Sized>(&self, account_id: &Q) -> Option<&Account>
     where
