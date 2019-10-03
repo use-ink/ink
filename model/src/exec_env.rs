@@ -25,7 +25,7 @@ use ink_core::{
     storage::alloc::{
         Allocate,
         AllocateUsing,
-        CellChunkAlloc,
+        DynAlloc,
         Initialize,
     },
 };
@@ -110,7 +110,7 @@ impl<State, Env> ExecutionEnv<State, Env> {
 /// allocations and deallocations.
 pub struct EnvHandler<T> {
     /// The dynamic allocator.
-    pub dyn_alloc: CellChunkAlloc,
+    pub dyn_alloc: DynAlloc,
     env_marker: PhantomData<T>,
 }
 

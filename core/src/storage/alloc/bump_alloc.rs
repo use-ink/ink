@@ -28,7 +28,7 @@ use type_metadata::Metadata;
 /// It is not designed to be used during contract execution and it
 /// also cannot deallocate key allocated by it.
 ///
-/// Users are recommended to use the [`CellChunkAlloc`](struct.CellChunkAlloc.html)
+/// Users are recommended to use the [`DynAlloc`](struct.DynAlloc.html)
 /// for dynamic storage allocation purposes instead.
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct BumpAlloc {

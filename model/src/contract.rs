@@ -253,7 +253,7 @@ where
 {
     /// Creates an instance of the contract declaration.
     ///
-    /// This assocates the state with the contract storage
+    /// This associates the state with the contract storage
     /// and defines its layout.
     pub fn instantiate(self) -> ContractInstance<State, Env, DeployArgs, HandlerChain> {
         use ink_core::storage::{
@@ -263,7 +263,7 @@ where
             },
             Key,
         };
-        let env: ExecutionEnv<State, Env> = unsafe {
+        let env = unsafe {
             // Note that it is totally fine here to start with a key
             // offset of `0x0` as long as we only consider having one
             // contract instance per execution. Otherwise their
