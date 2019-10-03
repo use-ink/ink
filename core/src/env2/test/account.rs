@@ -16,10 +16,6 @@
 
 use crate::{
     env2::{
-        call::{
-            CallData,
-            Selector,
-        },
         test::{
             types::*,
             Storage,

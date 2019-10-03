@@ -22,25 +22,17 @@
 //! contract's memory.
 
 use crate::{
-    byte_utils,
     env2::{
-        call::{
-            CallData,
-            Selector,
-        },
         property,
         test::{
             instance::TestEnvInstance,
-            Storage,
         },
-        types,
         utils::{
             EnlargeTo,
             Reset,
         },
         CallParams,
         CreateParams,
-        DefaultSrmlTypes,
         EmitEventParams,
         Env,
         EnvTypes,
@@ -278,7 +270,7 @@ where
         // What we do instead is to log the call and do nothing.
         // The codegen of ink! shall instead call the contract directly
         // and log a call through an invokation of this API.
-        unimplemented!()
+        Ok(())
     }
 
     fn eval_contract<IO, D, R>(buffer: &mut IO, call_data: &D) -> Result<R>
@@ -362,7 +354,7 @@ where
     /// If this function is called multiple times from within a contract.
     /// Setting output multiple times is not allows in any environment
     /// so this acts as another safety guard.
-    fn output<O, R>(buffer: &mut O, return_value: &R)
+    fn output<O, R>(_buffer: &mut O, return_value: &R)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
         R: scale::Encode,
@@ -383,7 +375,7 @@ where
         })
     }
 
-    fn random<I>(buffer: &mut I, subject: &[u8]) -> Self::Hash
+    fn random<I>(_buffer: &mut I, subject: &[u8]) -> Self::Hash
     where
         I: AsMut<[u8]> + EnlargeTo,
     {

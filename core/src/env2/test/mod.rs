@@ -24,7 +24,9 @@ mod types;
 
 use self::{
     account::AccountsDb,
-    instance::TestEnvInstance,
+    instance::{
+        TestEnvInstance,
+    },
     record::{
         CallContractRecord,
         CreateContractRecord,
