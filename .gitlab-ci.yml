@@ -45,22 +45,6 @@ variables:
 
 #### stage:                        check-workspace
 
-kcov:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  script:
-    - |
-      ./scripts/check-workspace.sh
-      check_workspace=$?
-
-      if [ $check_workspace -eq 0 ]
-      then
-        # Execute and upload kcov results
-        cargo kcov --verbose --coveralls --all --no-clean-rebuild
-        kcov=$?
-        bash <(curl -s https://codecov.io/bash)
-      fi
-
 cargo-check-af:
   stage:                           check-workspace
   <<:                              *docker-env
