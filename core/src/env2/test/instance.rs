@@ -24,6 +24,7 @@ use crate::{
         test::{
             types::*,
             AccountsDb,
+            AlreadyInitialized,
             Record,
             Storage,
             TypedEncoded,
@@ -73,6 +74,39 @@ pub struct TestEnvInstance {
     pub records: Vec<Record>,
 }
 
+impl TestEnvInstance {
+    /// Initializes `self` with a given encodable value.
+    ///
+    /// # Errors
+    ///
+    /// If `self` has already been initialized or is an initialized instance.
+    pub fn try_initialize<E>(&mut self) -> Result<(), AlreadyInitialized>
+    where
+        E: EnvTypes,
+        <E as EnvTypes>::AccountId: From<[u8; 32]>,
+        <E as EnvTypes>::Balance: From<u128>,
+        <E as EnvTypes>::BlockNumber: From<u64>,
+        <E as EnvTypes>::Moment: From<u64>,
+    {
+        self.state.try_initialize::<E>(
+            <E as EnvTypes>::Balance::from(1),
+            <E as EnvTypes>::Balance::from(0),
+        )?;
+        self.block.try_initialize::<E>(
+            <E as EnvTypes>::BlockNumber::from(0),
+            <E as EnvTypes>::Moment::from(0),
+        )?;
+        self.exec_context.try_initialize::<E>(
+            <E as EnvTypes>::AccountId::from([0x00; 32]),
+            <E as EnvTypes>::AccountId::from([0x01; 32]),
+            <E as EnvTypes>::Balance::from(1000),
+            <E as EnvTypes>::Balance::from(500_000),
+            None,
+        )?;
+        Ok(())
+    }
+}
+
 /// The emulated chain state.
 ///
 /// This stores general information about the chain.
@@ -86,6 +120,27 @@ pub struct ChainState {
     pub minimum_balance: Balance,
 }
 
+impl ChainState {
+    /// Initializes `self` with a given encodable value.
+    ///
+    /// # Errors
+    ///
+    /// If `self` has already been initialized or is an initialized instance.
+    pub fn try_initialize<E>(
+        &mut self,
+        gas_price: <E as EnvTypes>::Balance,
+        minimum_balance: <E as EnvTypes>::Balance,
+    ) -> Result<(), AlreadyInitialized>
+    where
+        E: EnvTypes,
+        <E as EnvTypes>::Balance: From<u128>,
+    {
+        self.gas_price = TypedEncoded::from_origin(&gas_price);
+        self.minimum_balance = TypedEncoded::from_origin(&minimum_balance);
+        Ok(())
+    }
+}
+
 /// A block within the emulated chain.
 ///
 /// This stores information associated to blocks.
@@ -95,6 +150,26 @@ pub struct Block {
     pub number: BlockNumber,
     /// The blocktime in milliseconds.
     pub now_in_ms: Moment,
+}
+
+impl Block {
+    /// Initializes `self` with a given encodable value.
+    ///
+    /// # Errors
+    ///
+    /// If `self` has already been initialized or is an initialized instance.
+    pub fn try_initialize<E>(
+        &mut self,
+        number: <E as EnvTypes>::BlockNumber,
+        now_in_ms: <E as EnvTypes>::Moment,
+    ) -> Result<(), AlreadyInitialized>
+    where
+        E: EnvTypes,
+    {
+        self.number = TypedEncoded::from_origin(&number);
+        self.now_in_ms = TypedEncoded::from_origin(&now_in_ms);
+        Ok(())
+    }
 }
 
 /// An execution context is opened whenever a contract is being called or instantiated.
@@ -119,6 +194,32 @@ pub struct ExecutionContext {
     /// Since this can be an arbitrary type we need to store it
     /// as its most general form: raw bytes.
     pub output: Option<Vec<u8>>,
+}
+
+impl ExecutionContext {
+    /// Initializes `self` with a given encodable value.
+    ///
+    /// # Errors
+    ///
+    /// If `self` has already been initialized or is an initialized instance.
+    pub fn try_initialize<E>(
+        &mut self,
+        caller: <E as EnvTypes>::AccountId,
+        callee: <E as EnvTypes>::AccountId,
+        transferred_balance: <E as EnvTypes>::Balance,
+        gas_left: <E as EnvTypes>::Balance,
+        gas_limit: Option<<E as EnvTypes>::Balance>,
+    ) -> Result<(), AlreadyInitialized>
+    where
+        E: EnvTypes,
+    {
+        self.caller = TypedEncoded::from_origin(&caller);
+        self.callee = TypedEncoded::from_origin(&callee);
+        self.transferred_balance = TypedEncoded::from_origin(&transferred_balance);
+        self.gas_left = TypedEncoded::from_origin(&gas_left);
+        self.gas_limit = gas_limit.map(|gas_limit| TypedEncoded::from_origin(&gas_limit));
+        Ok(())
+    }
 }
 
 impl Default for ExecutionContext {

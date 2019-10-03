@@ -45,7 +45,10 @@ use self::{
         Entry,
         Storage,
     },
-    typed_encoded::TypedEncoded,
+    typed_encoded::{
+        TypedEncoded,
+        AlreadyInitialized,
+    },
     types::{
         AccountId,
         Balance,
