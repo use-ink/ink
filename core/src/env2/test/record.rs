@@ -21,6 +21,10 @@ use crate::{
         CreateParams,
         EmitEventParams,
         EnvTypes,
+        test::{
+            types::*,
+            TypedEncoded,
+        },
     },
     memory::vec::Vec,
     storage::Key,
@@ -88,11 +92,11 @@ impl Record {
 #[derive(Debug)]
 pub struct CallContractRecord {
     /// Recorded code hash for the created contract.
-    pub callee: Vec<u8>,
+    pub callee: AccountId,
     /// Recorded gas limit for the contract creation.
     pub gas_limit: u64,
     /// Recorded endowment.
-    pub endowment: Vec<u8>,
+    pub endowment: Balance,
     /// Recorded input data for contract creation.
     pub input_data: CallData,
 }
@@ -105,9 +109,9 @@ impl CallContractRecord {
         C: CallParams<E>,
     {
         Self {
-            callee: call_params.callee().encode(),
+            callee: TypedEncoded::from_origin(call_params.callee()),
             gas_limit: call_params.gas_limit(),
-            endowment: call_params.endowment().encode(),
+            endowment: TypedEncoded::from_origin(call_params.endowment()),
             input_data: call_params.input_data().clone(),
         }
     }
@@ -117,11 +121,11 @@ impl CallContractRecord {
 #[derive(Debug)]
 pub struct CreateContractRecord {
     /// Recorded code hash for the created contract.
-    pub code_hash: Vec<u8>,
+    pub code_hash: Hash,
     /// Recorded gas limit for the contract creation.
     pub gas_limit: u64,
     /// Recorded endowment.
-    pub endowment: Vec<u8>,
+    pub endowment: Balance,
     /// Recorded input data for contract creation.
     pub input_data: CallData,
 }
@@ -134,9 +138,9 @@ impl CreateContractRecord {
         C: CreateParams<E>,
     {
         Self {
-            code_hash: create_params.code_hash().encode(),
+            code_hash: TypedEncoded::from_origin(create_params.code_hash()),
             gas_limit: create_params.gas_limit(),
-            endowment: create_params.endowment().encode(),
+            endowment: TypedEncoded::from_origin(create_params.endowment()),
             input_data: create_params.input_data().clone(),
         }
     }
@@ -146,7 +150,7 @@ impl CreateContractRecord {
 #[derive(Debug)]
 pub struct EmitEventRecord {
     /// Recorded topics of the emitted event.
-    pub topics: Vec<u8>,
+    pub topics: Vec<Hash>,
     /// Recorded encoding of the emitted event.
     pub data: Vec<u8>,
 }
@@ -159,7 +163,11 @@ impl EmitEventRecord {
         R: EmitEventParams<E>,
     {
         Self {
-            topics: emit_event.topics().encode(),
+            topics: emit_event
+                .topics()
+                .iter()
+                .map(|topic| TypedEncoded::from_origin(topic))
+                .collect::<Vec<_>>(),
             data: emit_event.data().to_vec(),
         }
     }
@@ -190,11 +198,11 @@ impl InvokeRuntimeRecord {
 #[derive(Debug)]
 pub struct RestoreContractRecord {
     /// The destination account ID.
-    pub dest: Vec<u8>,
+    pub dest: AccountId,
     /// The original code hash of the contract.
-    pub code_hash: Vec<u8>,
+    pub code_hash: Hash,
     /// The initial rent allowance for the restored contract.
-    pub rent_allowance: Vec<u8>,
+    pub rent_allowance: Balance,
     /// The filtered keys for the restoration process.
     pub filtered_keys: Vec<Key>,
 }
@@ -202,18 +210,18 @@ pub struct RestoreContractRecord {
 impl RestoreContractRecord {
     /// Creates a new record for a contract restoration.
     pub fn new<E>(
-        dest: <E as EnvTypes>::AccountId,
-        code_hash: <E as EnvTypes>::Hash,
-        rent_allowance: <E as EnvTypes>::Balance,
+        dest: &<E as EnvTypes>::AccountId,
+        code_hash: &<E as EnvTypes>::Hash,
+        rent_allowance: &<E as EnvTypes>::Balance,
         filtered_keys: &[Key],
     ) -> Self
     where
         E: EnvTypes,
     {
         Self {
-            dest: dest.encode(),
-            code_hash: code_hash.encode(),
-            rent_allowance: rent_allowance.encode(),
+            dest: TypedEncoded::from_origin(dest),
+            code_hash: TypedEncoded::from_origin(code_hash),
+            rent_allowance: TypedEncoded::from_origin(rent_allowance),
             filtered_keys: filtered_keys.to_vec(),
         }
     }

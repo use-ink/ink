@@ -405,9 +405,9 @@ where
         INSTANCE.with(|instance| {
             instance.borrow_mut().records.push(Record::from(
                 RestoreContractRecord::new::<T>(
-                    dest,
-                    code_hash,
-                    rent_allowance,
+                    &dest,
+                    &code_hash,
+                    &rent_allowance,
                     filtered_keys,
                 ),
             ));
