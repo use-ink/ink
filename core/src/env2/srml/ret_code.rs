@@ -14,22 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! Facilities to allocate and deallocate contract storage dynamically.
+use derive_more::From;
 
-mod bump_alloc;
-mod dyn_alloc;
-mod traits;
+/// A return code which is the result of an external SRML call.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, From)]
+pub struct RetCode {
+    code: u32,
+}
 
-#[cfg(all(test, feature = "test-env"))]
-mod tests;
+impl RetCode {
+    /// Creates a `success` indicating return code.
+    pub fn success() -> Self {
+        Self { code: 0 }
+    }
 
-pub use self::{
-    bump_alloc::BumpAlloc,
-    dyn_alloc::DynAlloc,
-    traits::{
-        Allocate,
-        AllocateUsing,
-        Allocator,
-        Initialize,
-    },
-};
+    /// Returns `true` if `self` is success.
+    pub fn is_success(self) -> bool {
+        self.code == 0
+    }
+
+    /// Returns the `u32` representation of `self`.
+    pub fn to_u32(self) -> u32 {
+        self.code
+    }
+}

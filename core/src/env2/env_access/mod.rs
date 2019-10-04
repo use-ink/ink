@@ -14,22 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! Facilities to allocate and deallocate contract storage dynamically.
-
-mod bump_alloc;
-mod dyn_alloc;
-mod traits;
-
-#[cfg(all(test, feature = "test-env"))]
-mod tests;
+mod immutable;
+mod mutable;
 
 pub use self::{
-    bump_alloc::BumpAlloc,
-    dyn_alloc::DynAlloc,
-    traits::{
-        Allocate,
-        AllocateUsing,
-        Allocator,
-        Initialize,
-    },
+    immutable::EnvAccess,
+    mutable::EnvAccessMut,
 };

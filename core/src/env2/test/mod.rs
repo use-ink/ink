@@ -14,22 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! Facilities to allocate and deallocate contract storage dynamically.
+//! Test environment for off-chain testing and utilities.
 
-mod bump_alloc;
-mod dyn_alloc;
-mod traits;
+mod accessor;
+pub mod account;
+mod instance;
+pub mod record;
+pub mod storage;
+mod typed_encoded;
+pub mod types;
 
-#[cfg(all(test, feature = "test-env"))]
-mod tests;
-
-pub use self::{
-    bump_alloc::BumpAlloc,
-    dyn_alloc::DynAlloc,
-    traits::{
-        Allocate,
-        AllocateUsing,
-        Allocator,
-        Initialize,
+use self::{
+    account::{
+        Account,
+        AccountKind,
+        AccountsDb,
+        ContractAccount,
+    },
+    instance::TestEnvInstance,
+    record::{
+        CallContractRecord,
+        CreateContractRecord,
+        EmitEventRecord,
+        InvokeRuntimeRecord,
+        Record,
+        RestoreContractRecord,
+    },
+    typed_encoded::{
+        AlreadyInitialized,
+        TypedEncoded,
     },
 };
+
+pub use self::accessor::TestEnv;
