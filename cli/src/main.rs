@@ -145,7 +145,7 @@ fn exec(cmd: Command) -> cmd::Result<String> {
                 suri,
                 password.as_ref().map(String::as_ref),
                 *gas,
-                wasm_path.clone(),
+                wasm_path.as_ref(),
             )
         }
     }

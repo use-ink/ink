@@ -14,7 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::cmd::Result;
+use crate::{
+    cmd::{
+        build,
+        Result,
+    }
+};
 
 use futures::future::Future;
 use runtime_primitives::{
@@ -26,7 +31,7 @@ use std::{
     collections::HashMap,
     fs,
     io::Read,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 use substrate_primitives::{
     crypto::Pair,
@@ -42,34 +47,10 @@ use subxt::{
     system::System,
 };
 
-type CargoToml = HashMap<String, toml::Value>;
-
-fn get_contract_wasm_path() -> Result<PathBuf> {
-    let manifest_dir = PathBuf::from(".");
-    let cargo_toml_path = manifest_dir.join("Cargo.toml");
-
-    let mut content = String::new();
-    let mut file = fs::File::open(&cargo_toml_path)
-        .map_err(|e| format!("Failed to open {}: {}", cargo_toml_path.display(), e))?;
-    file.read_to_string(&mut content)?;
-
-    let cargo_toml: CargoToml = toml::from_str(&content)
-        .map_err(|e| format!("Failed to parse Cargo.toml: {}", e))?;
-
-    let contract_name = cargo_toml
-        .get("package")
-        .and_then(|value| value.as_table())
-        .and_then(|t| t.get("name"))
-        .and_then(|v| v.as_str())
-        .ok_or("Failed to find valid name property in Cargo.toml")?;
-
-    Ok(manifest_dir
-        .join("target")
-        .join(format!("{}-pruned.wasm", contract_name)))
-}
-
-fn load_contract_code(path: Option<PathBuf>) -> Result<Vec<u8>> {
-    let contract_wasm_path = path.map(Ok).unwrap_or_else(get_contract_wasm_path)?;
+fn load_contract_code(path: Option<&PathBuf>) -> Result<Vec<u8>> {
+    let default_wasm_path = build::collect_crate_metadata()
+        .map(|metadata| metadata.dest_wasm())?;
+    let contract_wasm_path = path.unwrap_or(&default_wasm_path);
 
     let mut data = Vec::new();
     let mut file = fs::File::open(&contract_wasm_path)
@@ -111,7 +92,7 @@ pub(crate) fn execute_deploy(
     surl: &str,
     password: Option<&str>,
     gas: u64,
-    contract_wasm_path: Option<PathBuf>,
+    contract_wasm_path: Option<&PathBuf>,
 ) -> Result<String> {
     let signer = sr25519::Pair::from_string(surl, password)?;
 
@@ -166,7 +147,7 @@ mod tests {
 
         let url = url::Url::parse("ws://localhost:9944").unwrap();
         let result =
-            super::execute_deploy(url, "//Alice", None, 500_000, Some(wasm_path));
+            super::execute_deploy(url, "//Alice", None, 500_000, Some(&wasm_path));
 
         assert_matches!(result, Ok(_));
     }
