@@ -286,3 +286,14 @@ fn iter_size_hint() {
         assert_eq!(iter.size_hint(), (3, Some(3)));
     })
 }
+
+#[test]
+fn regression_issue_193() {
+    run_test(|| {
+        let mut vec = new_empty_vec();
+        vec.push(5);
+        assert_eq!(vec.len(), 1);
+        assert_eq!(vec.swap_remove(0), Some(5));
+        assert_eq!(vec.len(), 0);
+    })
+}

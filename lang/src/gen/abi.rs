@@ -71,10 +71,10 @@ fn generate_abi_mod_body(contract: &hir::Contract) -> TokenStream2 {
     }
 }
 
-fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
-    let deploy_handler = &contract.on_deploy;
+fn generate_abi_constructor(contract: &hir::Contract) -> TokenStream2 {
+    let constructor = &contract.on_deploy;
 
-    let args = deploy_handler
+    let args = constructor
         .decl
         .inputs
         .iter()
@@ -109,15 +109,19 @@ fn generate_abi_deploy_handler(contract: &hir::Contract) -> TokenStream2 {
                 }
             };
             let ty = &capt.ty;
+            let type_spec = generate_type_spec_code(ty);
             quote! {
-                ink_abi::MessageParamSpec::new::<#ty>(#name)
+                ink_abi::MessageParamSpec::new(#name)
+                    .of_type(#type_spec)
+                    .done()
             }
         })
         .collect::<Punctuated<_, Token![,]>>();
-    let docs = deploy_handler.docs().map(trim_doc_string);
+    let docs = constructor.docs().map(trim_doc_string);
 
     quote! {
-        ink_abi::DeploySpec::new()
+        ink_abi::ConstructorSpec::new("on_deploy")
+            .selector(0)
             .args(vec![
                 #(#args ,)*
             ])
@@ -168,19 +172,23 @@ fn generate_abi_messages<'a>(
                     _ => unreachable!("encountered invalid argument syntax: the only allowed is `ident : type`"),
                 };
                 let ty = &capt.ty;
+                let type_spec = generate_type_spec_code(ty);
                 quote! {
-                    ink_abi::MessageParamSpec::new::<#ty>(#name)
+                    ink_abi::MessageParamSpec::new(#name)
+                        .of_type(#type_spec)
+                        .done()
                 }
             });
         let ret_type = match &message.sig.decl.output {
             syn::ReturnType::Default => {
                 quote! {
-                    ink_abi::ReturnTypeSpec::none()
+                    ink_abi::ReturnTypeSpec::new(None)
                 }
             }
             syn::ReturnType::Type(_, ty) => {
+                let type_spec = generate_type_spec_code(ty);
                 quote! {
-                    ink_abi::ReturnTypeSpec::new::<#ty>()
+                    ink_abi::ReturnTypeSpec::new(#type_spec)
                 }
             }
         };
@@ -202,6 +210,30 @@ fn generate_abi_messages<'a>(
     })
 }
 
+fn generate_type_spec_code(ty: &syn::Type) -> TokenStream2 {
+    fn without_display_name(ty: &syn::Type) -> TokenStream2 {
+        quote! { ink_abi::TypeSpec::new::<#ty>() }
+    }
+    if let syn::Type::Path(type_path) = ty {
+        if type_path.qself.is_some() {
+            return without_display_name(ty)
+        }
+        let path = &type_path.path;
+        if path.segments.len() == 0 {
+            return without_display_name(ty)
+        }
+        let segs = path
+            .segments
+            .iter()
+            .map(|seg| seg.ident.to_string())
+            .collect::<Vec<_>>();
+        return quote! {
+            ink_abi::TypeSpec::with_name_segs::<#ty, _>(vec![#(#segs),*].into_iter().map(AsRef::as_ref))
+        }
+    }
+    without_display_name(ty)
+}
+
 fn generate_abi_events<'a>(
     contract: &'a hir::Contract,
 ) -> impl Iterator<Item = TokenStream2> + 'a {
@@ -211,8 +243,12 @@ fn generate_abi_events<'a>(
             let name = &event_arg.ident;
             let indexed = event_arg.is_indexed();
             let ty = &event_arg.ty;
+            let type_spec = generate_type_spec_code(ty);
             quote! {
-                ink_abi::EventParamSpec::new::<#ty>(stringify!(#name), #indexed)
+                ink_abi::EventParamSpec::new(stringify!(#name))
+                    .of_type(#type_spec)
+                    .indexed(#indexed)
+                    .done()
             }
         });
         let docs = event.docs().map(trim_doc_string);
@@ -238,15 +274,15 @@ fn generate_abi_contract(contract: &hir::Contract) -> TokenStream2 {
     // or allow for inner-attribute doc style within the `contract!` macro call.
     let docs = quote! {};
 
-    let deploy_handler = generate_abi_deploy_handler(contract);
+    let constructor = generate_abi_constructor(contract);
     let messages = generate_abi_messages(contract);
     let events = generate_abi_events(contract);
 
     quote! {
         ink_abi::ContractSpec::new(#contract_name_lit)
-            .on_deploy(
-                #deploy_handler
-            )
+            .constructors(vec![
+                #constructor
+            ])
             .messages(vec![
                 #(#messages ,)*
             ])

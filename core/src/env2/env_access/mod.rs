@@ -14,15 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod build;
-mod error;
-mod new;
+mod immutable;
+mod mutable;
 
-pub(crate) use self::{
-    build::execute_build,
-    error::{
-        CommandError,
-        Result,
-    },
-    new::execute_new,
+pub use self::{
+    immutable::EnvAccess,
+    mutable::EnvAccessMut,
 };

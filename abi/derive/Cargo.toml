@@ -11,9 +11,9 @@ readme = "../README.md"
 proc-macro = true
 
 [dependencies]
-quote = "0.6"
-syn = { version = "0.15", features = ["full"] }
-proc-macro2 = "0.4"
+quote = "1.0"
+syn = { version = "1.0", features = ["full"] }
+proc-macro2 = "1.0"
 
 [features]
 default = ["std"]

@@ -14,15 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod build;
-mod error;
-mod new;
+//! Test environment for off-chain testing and utilities.
 
-pub(crate) use self::{
-    build::execute_build,
-    error::{
-        CommandError,
-        Result,
+mod accessor;
+pub mod account;
+mod instance;
+pub mod record;
+pub mod storage;
+mod typed_encoded;
+pub mod types;
+
+use self::{
+    account::{
+        Account,
+        AccountKind,
+        AccountsDb,
+        ContractAccount,
     },
-    new::execute_new,
+    instance::TestEnvInstance,
+    record::{
+        CallContractRecord,
+        CreateContractRecord,
+        EmitEventRecord,
+        InvokeRuntimeRecord,
+        Record,
+        RestoreContractRecord,
+    },
+    typed_encoded::{
+        AlreadyInitialized,
+        TypedEncoded,
+    },
 };
+
+pub use self::accessor::TestEnv;

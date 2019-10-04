@@ -35,13 +35,21 @@ pub use self::{
         StorageLayout,
     },
     specs::{
+        ConstructorSpec,
+        ConstructorSpecBuilder,
         ContractSpec,
-        DeploySpec,
+        ContractSpecBuilder,
+        DisplayName,
         EventParamSpec,
+        EventParamSpecBuilder,
         EventSpec,
+        EventSpecBuilder,
         MessageParamSpec,
+        MessageParamSpecBuilder,
         MessageSpec,
+        MessageSpecBuilder,
         ReturnTypeSpec,
+        TypeSpec,
     },
 };
 
@@ -52,6 +60,7 @@ use type_metadata::{
     Registry,
 };
 
+/// An entire ink! project for ABI file generation purposes.
 #[derive(Debug, Serialize)]
 pub struct InkProject {
     registry: Registry,
@@ -62,6 +71,7 @@ pub struct InkProject {
 }
 
 impl InkProject {
+    /// Creates a new ink! project.
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
         L: Into<StorageLayout>,

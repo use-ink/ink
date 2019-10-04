@@ -99,22 +99,20 @@ enum Command {
     },
 }
 
-fn main() -> cmd::Result<()> {
+fn main() {
     let Opts::Contract(args) = Opts::from_args();
-    use crate::cmd::{
-        CommandError,
-        CommandErrorKind,
-    };
-    match &args.cmd {
+    match exec(args.cmd) {
+        Ok(msg) => println!("\t{}", msg),
+        Err(err) => eprintln!("error: {}", err),
+    }
+}
+
+fn exec(cmd: Command) -> cmd::Result<String> {
+    use crate::cmd::CommandError;
+    match &cmd {
         Command::New { layer, name } => cmd::execute_new(*layer, name),
-        Command::Build {} => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
-        }
-        Command::Test {} => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
-        }
-        Command::Deploy { .. } => {
-            Err(CommandError::new(CommandErrorKind::UnimplementedCommand))
-        }
+        Command::Build {} => cmd::execute_build(),
+        Command::Test {} => Err(CommandError::UnimplementedCommand),
+        Command::Deploy { .. } => Err(CommandError::UnimplementedCommand),
     }
 }

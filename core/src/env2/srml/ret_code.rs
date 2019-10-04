@@ -14,15 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod build;
-mod error;
-mod new;
+use derive_more::From;
 
-pub(crate) use self::{
-    build::execute_build,
-    error::{
-        CommandError,
-        Result,
-    },
-    new::execute_new,
-};
+/// A return code which is the result of an external SRML call.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, From)]
+pub struct RetCode {
+    code: u32,
+}
+
+impl RetCode {
+    /// Creates a `success` indicating return code.
+    pub fn success() -> Self {
+        Self { code: 0 }
+    }
+
+    /// Returns `true` if `self` is success.
+    pub fn is_success(self) -> bool {
+        self.code == 0
+    }
+
+    /// Returns the `u32` representation of `self`.
+    pub fn to_u32(self) -> u32 {
+        self.code
+    }
+}

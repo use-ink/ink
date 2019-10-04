@@ -14,15 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod build;
-mod error;
-mod new;
+pub mod ext;
+mod impls;
+mod ret_code;
 
-pub(crate) use self::{
-    build::execute_build,
-    error::{
-        CommandError,
-        Result,
-    },
-    new::execute_new,
+pub use self::{
+    impls::SrmlEnv,
+    ret_code::RetCode,
 };

@@ -53,6 +53,7 @@ where
         <C2 as FnOutput>::Output: 'static,
     {
         let mut this = self;
+        this.storage.try_default_initialize();
         // TODO: Why do we need the `let _ = ..;` here? (Warnings!)
         let _ = this
             .constructors
