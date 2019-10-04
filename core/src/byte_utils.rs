@@ -25,7 +25,7 @@ fn invert_bytes(bytes: &mut [u8]) {
 
 /// Negate the given bytes inplace.
 ///
-/// Interprets the bytes as twos-complement number.
+/// Interprets the bytes as big endian twos-complement number.
 pub fn negate_bytes(bytes: &mut [u8]) {
     invert_bytes(bytes);
     bytes_add_bytes(bytes, &[0x01]);
