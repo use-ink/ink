@@ -102,7 +102,7 @@ fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
             .output()?;
         io::stdout().write_all(&ls.stdout)?;
 
-        let more = Command::new("more")
+        let more = Command::new("cat")
             .arg(dir.join(".cargo/config"))
             .output()?;
         io::stdout().write_all(&more.stdout)?;
