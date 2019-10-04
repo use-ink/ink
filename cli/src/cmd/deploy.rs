@@ -47,6 +47,8 @@ use subxt::{
     system::System,
 };
 
+/// Load the wasm blob from the specified path, or defaults to the target contract wasm in the
+/// current project, inferred via the crate metadata.
 fn load_contract_code(path: Option<&PathBuf>) -> Result<Vec<u8>> {
     let default_wasm_path = build::collect_crate_metadata()
         .map(|metadata| metadata.dest_wasm())?;
@@ -60,6 +62,8 @@ fn load_contract_code(path: Option<&PathBuf>) -> Result<Vec<u8>> {
     return Ok(data)
 }
 
+/// If the extrinsic was successfully included in a block, attempt to extract the code hash from the
+/// `Contracts::CodeStored` event
 fn extract_code_hash(extrinsic_result: subxt::ExtrinsicSuccess<Runtime>) -> Result<H256> {
     match extrinsic_result.find_event::<H256>("Contracts", "CodeStored") {
         Some(Ok(hash)) => Ok(hash),
@@ -68,6 +72,12 @@ fn extract_code_hash(extrinsic_result: subxt::ExtrinsicSuccess<Runtime>) -> Resu
     }
 }
 
+/// Define a Runtime to provide a subset of types for interacting with the target chain via RPC.
+///
+/// # Note
+///
+/// The concrete types MUST be compatible with the target chain's respective concrete type
+/// definitions.
 #[derive(Debug, Clone, Eq, PartialEq)]
 struct Runtime;
 
@@ -87,6 +97,14 @@ impl Balances for Runtime {
 
 impl Contracts for Runtime {}
 
+/// Put contract code to a smart contract enabled substrate chain.
+/// Returns the code hash of the deployed contract if successful.
+///
+/// Optionally supply the contract wasm path, defaults to destination contract file inferred from
+/// Cargo.toml of the current contract project.
+///
+/// Creates an extrinsic with the `Contracts::put_code` Call, submits via RPC, then waits for
+/// the `ContractsEvent::CodeStored` event.
 pub(crate) fn execute_deploy(
     url: url::Url,
     surl: &str,
