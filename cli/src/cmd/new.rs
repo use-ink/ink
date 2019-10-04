@@ -108,13 +108,8 @@ fn initialize_for_lang(name: &str) -> Result<String> {
 
 pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<String> {
     match layer {
-        AbstractionLayer::Core => {
-            Err(CommandError::UnimplementedAbstractionLayer)
-        }
-        AbstractionLayer::Model => {
-            Err(CommandError::UnimplementedAbstractionLayer)
-
-        }
+        AbstractionLayer::Core => Err(CommandError::UnimplementedAbstractionLayer),
+        AbstractionLayer::Model => Err(CommandError::UnimplementedAbstractionLayer),
         AbstractionLayer::Lang => initialize_for_lang(name),
     }
 }

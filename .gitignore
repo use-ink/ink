@@ -13,11 +13,5 @@
 # More information here http://doc.crates.io/guide.html#cargotoml-vs-cargolock
 Cargo.lock
 
-# Ignore VS Code artifacts.
-**/.vscode/**
-
-# Ignore idea artifacts.
-**/.idea/**
-
 # Ignore history files.
 **/.history/**

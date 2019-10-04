@@ -20,6 +20,7 @@ use structopt::{
     clap::AppSettings,
     StructOpt,
 };
+use url::Url;
 
 #[derive(Debug, StructOpt)]
 #[structopt(bin_name = "cargo")]
@@ -93,13 +94,32 @@ enum Command {
     /// Deploy the smart contract on-chain. (Also for testing purposes.)
     #[structopt(name = "deploy")]
     Deploy {
-        /// Deploy on a local development chain.
-        #[structopt(name = "dev", short, long)]
-        on_dev: bool,
+        /// Websockets url of a substrate node
+        #[structopt(
+            name = "url",
+            long,
+            parse(try_from_str),
+            default_value = "ws://localhost:9944"
+        )]
+        url: Url,
+        /// Secret key URI for the account deploying the contract.
+        #[structopt(name = "suri", long, short)]
+        suri: String,
+        /// Password for the secret key
+        #[structopt(name = "password", long, short)]
+        password: Option<String>,
+        #[structopt(name = "gas", long, default_value = "500000")]
+        /// Maximum amount of gas to be used in this deployment
+        gas: u64,
+        /// Path to wasm contract code, defaults to ./target/<name>-pruned.wasm
+        #[structopt(parse(from_os_str))]
+        wasm_path: Option<std::path::PathBuf>,
     },
 }
 
 fn main() {
+    env_logger::init();
+
     let Opts::Contract(args) = Opts::from_args();
     match exec(args.cmd) {
         Ok(msg) => println!("\t{}", msg),
@@ -113,6 +133,20 @@ fn exec(cmd: Command) -> cmd::Result<String> {
         Command::New { layer, name } => cmd::execute_new(*layer, name),
         Command::Build {} => cmd::execute_build(),
         Command::Test {} => Err(CommandError::UnimplementedCommand),
-        Command::Deploy { .. } => Err(CommandError::UnimplementedCommand),
+        Command::Deploy {
+            url,
+            suri,
+            password,
+            gas,
+            wasm_path,
+        } => {
+            cmd::execute_deploy(
+                url.clone(),
+                suri,
+                password.as_ref().map(String::as_ref),
+                *gas,
+                wasm_path.as_ref(),
+            )
+        }
     }
 }
