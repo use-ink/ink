@@ -173,8 +173,14 @@ impl<T> AllocateUsing for EnvHandler<T> {
 impl<T> Initialize for EnvHandler<T> {
     type Args = ();
 
+    #[inline(always)]
+    fn default_value() -> Option<Self::Args> {
+        // With this we can also default initialize storage state structs.
+        Some(())
+    }
+
     fn initialize(&mut self, _: Self::Args) {
-        self.dyn_alloc.initialize(())
+        self.dyn_alloc.initialize(());
     }
 }
 
