@@ -137,6 +137,7 @@ pub(crate) fn execute_deploy(
 
 #[cfg(test)]
 mod tests {
+    use assert_matches::assert_matches;
     use std::{
         fs,
         io::Write,
@@ -167,6 +168,6 @@ mod tests {
         let result =
             super::execute_deploy(url, "//Alice", None, 500_000, Some(wasm_path));
 
-        assert!(result.is_ok());
+        assert_matches!(result, Ok(_));
     }
 }
