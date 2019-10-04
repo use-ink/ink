@@ -19,7 +19,7 @@ declare -A results_abi
 
 all_checks_passed=0
 for example in $(ls examples/lang); do
-    time cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml
+    cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml
     result_wasm=$?
     let "all_checks_passed |= $result_wasm"
     if [ $result_wasm -eq 0 ]
@@ -28,7 +28,7 @@ for example in $(ls examples/lang); do
     else
         results_wasm[$example]="ERROR"
     fi
-    time cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml
+    cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml
     result_test=$?
     let "all_checks_passed |= $result_test"
     if [ $result_test -eq 0 ]
@@ -37,7 +37,7 @@ for example in $(ls examples/lang); do
     else
         results_test[$example]="ERROR"
     fi
-    time cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml
+    cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml
     result_abi=$?
     let "all_checks_passed |= $result_abi"
     if [ $result_abi -eq 0 ]

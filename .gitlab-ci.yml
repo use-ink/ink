@@ -49,43 +49,43 @@ cargo-check-af:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - time cargo check --verbose --all --all-features
+  - cargo check --verbose --all --all-features
 
 cargo-check-nf:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - time cargo check --verbose --all --no-default-features
+  - cargo check --verbose --all --no-default-features
 
 cargo-fmt:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - time cargo fmt --verbose --all -- --check
+  - cargo fmt --verbose --all -- --check
 
 cargo-clippy-af:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - time cargo clippy --verbose --all --all-features -- -D warnings
+  - cargo clippy --verbose --all --all-features -- -D warnings
 
 cargo-clippy-nf:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - time cargo clippy --verbose --all --no-default-features -- -D warnings
+  - cargo clippy --verbose --all --no-default-features -- -D warnings
 
 cargo-test-af:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - time cargo test --verbose --all --all-features
+  - cargo test --verbose --all --all-features
 
 cargo-build-nf:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - time cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
+  - cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
 
 #### stage:                        examples
 
@@ -94,7 +94,7 @@ examples-wasm:
   <<:                              *docker-env
   script:
     - for example in $(ls examples/lang); do
-        time cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
+        cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
       done
     - sccache -s
 
@@ -103,7 +103,7 @@ examples-test:
   <<:                              *docker-env
   script:
     - for example in $(ls examples/lang); do
-        time cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
+        cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
       done
     - sccache -s
 
@@ -112,6 +112,6 @@ examples-abi:
   <<:                              *docker-env
   script:
     - for example in $(ls examples/lang); do
-        time cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
+        cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
       done
     - sccache -s
