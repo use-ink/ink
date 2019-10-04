@@ -24,6 +24,7 @@
 
 use crate::{
     env::EnvTypes,
+    memory::vec::Vec,
     storage::Flush,
 };
 use core::{

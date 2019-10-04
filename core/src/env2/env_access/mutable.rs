@@ -26,6 +26,7 @@ use crate::{
         Result,
         SetProperty,
     },
+    memory::vec::Vec,
     storage::Key,
 };
 use core::marker::PhantomData;
