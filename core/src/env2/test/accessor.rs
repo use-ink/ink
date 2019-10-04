@@ -26,7 +26,6 @@ use crate::{
         error::CallError,
         property,
         test::{
-            TestEnvInstance,
             Account,
             AccountKind,
             CallContractRecord,
@@ -36,6 +35,7 @@ use crate::{
             InvokeRuntimeRecord,
             Record,
             RestoreContractRecord,
+            TestEnvInstance,
             TypedEncoded,
         },
         utils::{

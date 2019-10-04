@@ -22,11 +22,11 @@ use crate::{
             Selector,
         },
         test::{
+            storage::Storage,
             types::*,
             AccountsDb,
             AlreadyInitialized,
             Record,
-            storage::Storage,
             TypedEncoded,
         },
         EnvTypes,

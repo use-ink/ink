@@ -17,14 +17,14 @@
 use crate::{
     env2::{
         call::CallData,
-        CallParams,
-        CreateParams,
-        EmitEventParams,
-        EnvTypes,
         test::{
             types::*,
             TypedEncoded,
         },
+        CallParams,
+        CreateParams,
+        EmitEventParams,
+        EnvTypes,
     },
     memory::vec::Vec,
     storage::Key,

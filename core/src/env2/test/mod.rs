@@ -41,8 +41,8 @@ use self::{
         RestoreContractRecord,
     },
     typed_encoded::{
-        TypedEncoded,
         AlreadyInitialized,
+        TypedEncoded,
     },
 };
 
