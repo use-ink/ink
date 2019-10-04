@@ -66,15 +66,25 @@ pub mod errors {
 cfg_if! {
     if #[cfg(feature = "test-env")] {
         pub mod test;
-        pub use self::test::{
-            TestEnv as EnvImpl,
-        };
+        /// The currently chosen environmental implementation.
+        ///
+        /// When compiling for Wasm and Substrate this refers to `SrmlEnv` and
+        /// when compiling for off-chain testing this refer to `TestEnv`.
+        ///
+        /// This configuration compiled for off-chain testing.
+        pub type EnvImpl<T> = self::test::TestEnv<T>;
     } else {
         mod srml;
         pub use self::srml::{
-            SrmlEnv as EnvImpl,
             RetCode,
         };
+        /// The currently chosen environmental implementation.
+        ///
+        /// When compiling for Wasm and Substrate this refers to `SrmlEnv` and
+        /// when compiling for off-chain testing this refer to `TestEnv`.
+        ///
+        /// This configuration compiled as Wasm for Substrate.
+        pub type EnvImpl<T> = self::srml::SrmlEnv<T>;
     }
 }
 
