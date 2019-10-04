@@ -26,6 +26,7 @@ use crate::{
         error::CallError,
         property,
         test::{
+            typed_encoded::AlreadyInitialized,
             Account,
             AccountKind,
             CallContractRecord,
@@ -81,6 +82,29 @@ thread_local! {
 pub struct TestEnv<T> {
     /// Needed to trick Rust into allowing `T`.
     marker: PhantomData<fn() -> T>,
+}
+
+impl<T> TestEnv<T>
+where
+    T: EnvTypes,
+    // The below constraints are satisfied for the default SRLM type configuration.
+    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    <T as EnvTypes>::Balance: From<u128>,
+    <T as EnvTypes>::BlockNumber: From<u64>,
+    <T as EnvTypes>::Moment: From<u64>,
+{
+    /// Tries to initialize the test environment with proper state.
+    ///
+    /// The test environment must only be used after it has been initialized.
+    /// Otherwise accessing its state will certainly crash the execution due
+    /// to type mismatches.
+    ///
+    /// # Errors
+    ///
+    /// If the test environment has already been initialized.
+    pub fn try_initialize() -> core::result::Result<(), AlreadyInitialized> {
+        INSTANCE.with(|instance| instance.borrow_mut().try_initialize::<T>())
+    }
 }
 
 impl<T> EnvTypes for TestEnv<T>
