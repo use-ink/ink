@@ -64,14 +64,20 @@ pub struct MetaTypes {
     pub ty: syn::Type,
 }
 
-/// The specified version of a contract.
+/// The major, minor and patch version of the version parameter.
+///
+/// # Note
+///
+/// Uses semantic versioning rules.
+/// Prerelease and build-metadata information are cut.
+#[derive(Debug, Clone)]
 pub struct MetaVersion {
-    /// The major version, e.g. the `X` in `[X, Y, Z]`.
-    pub major: u32,
-    /// The minor version, e.g. the `Y` in `[X, Y, Z]`.
-    pub minor: u32,
-    /// The patch version, e.g. the `Z` in `[X, Y, Z]`.
-    pub patch: u32,
+    /// The major version.
+    pub major: usize,
+    /// The minor version.
+    pub minor: usize,
+    /// The patch version.
+    pub patch: usize,
 }
 
 /// Intermediate description of a contracts components.

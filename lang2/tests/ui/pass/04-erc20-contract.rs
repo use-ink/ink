@@ -8,7 +8,7 @@ use ink_core::{
 
 #[ink::contract(
     env = DefaultSrmlTypes,
-    version = [0, 1, 0],
+    version = "0.1.0",
 )]
 mod erc20 {
     #[ink(storage)]

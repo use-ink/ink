@@ -131,7 +131,7 @@ impl TryFrom<Params> for MetaInfo {
                     env_types = Some(MetaTypes::try_from(param_types)?)
                 }
                 MetaParam::Version(param_version) => {
-                    ink_version = Some(MetaVersion::try_from(param_version)?)
+                    ink_version = Some(param_version.data)
                 }
             }
         }
@@ -163,29 +163,6 @@ impl TryFrom<ParamTypes> for MetaTypes {
 
     fn try_from(params: ParamTypes) -> Result<Self> {
         Ok(Self { ty: params.ty })
-    }
-}
-
-impl TryFrom<ParamVersion> for MetaVersion {
-    type Error = syn::Error;
-
-    fn try_from(params: ParamVersion) -> Result<Self> {
-        if params.parts.len() != 3 {
-            bail_span!(
-                params.span(),
-                "expected exactly 3 components in version argument, e.g. `[x, y, z]`",
-            )
-        }
-        let parts = params
-            .parts
-            .into_iter()
-            .map(|part| part.lit_int.base10_parse::<u32>())
-            .collect::<Result<Vec<_>>>()?;
-        Ok(Self {
-            major: parts[0],
-            minor: parts[1],
-            patch: parts[2],
-        })
     }
 }
 

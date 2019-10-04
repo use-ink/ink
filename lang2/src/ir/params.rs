@@ -16,12 +16,17 @@
 
 //! Contains data structures and parsing routines for parameters to the ink! macro.
 
-use crate::ir::UnsuffixedLitInt;
+use crate::ir::{
+    MetaVersion,
+    UnsuffixedLitInt,
+};
+use core::convert::TryFrom;
 use derive_more::From;
 use proc_macro2::{
     Ident,
     Span,
 };
+use regex::Regex;
 use syn::{
     parse::{
         Parse,
@@ -29,6 +34,8 @@ use syn::{
     },
     punctuated::Punctuated,
     spanned::Spanned,
+    Error,
+    LitStr,
     Result,
     Token,
 };
@@ -138,10 +145,10 @@ pub struct ParamVersion {
     pub version: Ident,
     /// The `=` token.
     pub eq_token: Token![=],
-    /// The `[` and `]` surrounding the actual version information.
-    pub bracket_token: syn::token::Bracket,
-    /// The version information.
-    pub parts: Punctuated<UnsuffixedLitInt, Token![,]>,
+    /// The input literal string.
+    pub value: LitStr,
+    /// The decoded major, minor and patch version.
+    pub data: MetaVersion,
 }
 
 impl ParamVersion {
@@ -149,7 +156,7 @@ impl ParamVersion {
     pub fn span(&self) -> Span {
         self.version
             .span()
-            .join(self.bracket_token.span)
+            .join(self.value.span())
             .expect("both spans are in the same file AND we are using nightly Rust; qed")
     }
 }
@@ -178,6 +185,47 @@ impl Parse for MetaParam {
     }
 }
 
+impl<'a> TryFrom<&'a str> for MetaVersion {
+    type Error = regex::Error;
+
+    fn try_from(content: &'a str) -> core::result::Result<Self, Self::Error> {
+        let re = Regex::new(
+            r"(?x)
+            ^(?P<major>0|[1-9]\d*) # major version
+            \.
+            (?P<minor>0|[1-9]\d*)  # minor version
+            \.
+            (?P<patch>0|[1-9]\d*)  # patch version
+
+            (?:-
+                (?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)
+                (?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))
+            *))?
+
+            (?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
+        ",
+        )
+        .unwrap();
+        let caps = re.captures(content).ok_or(regex::Error::Syntax(
+            "couldn't properly match against semantic version".into(),
+        ))?;
+        let major = caps["major"]
+            .parse::<usize>()
+            .expect("major version parsing cannot fail since guaranteed by regex; qed");
+        let minor = caps["minor"]
+            .parse::<usize>()
+            .expect("minor version parsing cannot fail since guaranteed by regex; qed");
+        let patch = caps["patch"]
+            .parse::<usize>()
+            .expect("patch version parsing cannot fail since guaranteed by regex; qed");
+        Ok(Self {
+            major,
+            minor,
+            patch,
+        })
+    }
+}
+
 impl Parse for ParamVersion {
     fn parse(input: ParseStream) -> Result<Self> {
         let version_ident = input.parse()?;
@@ -188,17 +236,20 @@ impl Parse for ParamVersion {
             )
         }
         let eq_token = input.parse()?;
-        let content;
-        let bracket_token = syn::bracketed!(content in input);
-        let parts = Punctuated::parse_terminated(&content)?;
-        if parts.len() != 3 {
-            bail_span!(bracket_token.span, "expected 3 elements in version array",)
-        }
+        let value: LitStr = input.parse()?;
+        let content: &str = &value.value();
+        let data = MetaVersion::try_from(content).map_err(|err| {
+            format_err_span!(
+                value.span(),
+                "couldn't match provided version as semantic version string: {}",
+                content,
+            )
+        })?;
         Ok(Self {
             version: version_ident,
             eq_token,
-            bracket_token,
-            parts,
+            value,
+            data,
         })
     }
 }

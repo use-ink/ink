@@ -41,6 +41,6 @@ fn parse_meta_event() {
 #[test]
 fn parse_params() {
     let _input: Params = syn::parse_quote! {
-        env = DefaultSrmlTypes, version = [0, 1, 0]
+        env = DefaultSrmlTypes, version = "0.1.0"
     };
 }
