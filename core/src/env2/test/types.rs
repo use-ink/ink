@@ -14,6 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Emulated environmental types of the test environment.
+//!
+//! Due to technical constraints it is not possible to define the test
+//! environment instance thread-locally and generically over the actual
+//! environmental types.
+//!
+//! For that reason we store the type information of all the environmental
+//! types at runtime to at least have some kind of type safety upon access.
+//! This is done via the `TypedEncoded` abstraction that stores the
+//! SCALE encoded bytes and also has a runtime type information marker
+//! assigned upon initialization to check whether accesses to it are
+//! type safe.
+
 use crate::env2::test::TypedEncoded;
 
 /// Type markers used in conjunction with `TypedEncoded`.

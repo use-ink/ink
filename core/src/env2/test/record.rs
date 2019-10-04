@@ -14,6 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! Records are log entries for important events that were happening
+//! on the emulated block chain.
+//!
+//! Records are a critical component for the emulated test environment
+//! since certain operations are not possible to be emulated in its
+//! current implementation, e.g. contract execution or proper
+//! runtime on-chain behaviour since it's off-chain.
+//!
+//! For this records are stored instead of performing certain operations
+//! that the user can query after or during the emulated contract execution.
+
 use crate::{
     env2::{
         call::CallData,

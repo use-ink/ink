@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! The accounts database stores all user- and contract accounts
+//! of the emulated block chain.
+//!
+//! It can also be used to store new accounts and query information
+//! about existing ones.
+//!
+//! The executed smart contract as well as the default caller will
+//! always have predefined accounts.
+
 use crate::{
     env2::test::{
         storage::Storage,

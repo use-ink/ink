@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+//! The storage emulates the chain's storage as well as the unique
+//! storage of the executed contract.
+//!
+//! It is a map from `Key` (32-bytes) to a generic `Vec<u8>`.
+//! This is pretty close to the actual on-chain storage in Substrate.
+
 use crate::{
     memory::collections::btree_map::{
         self,
