@@ -23,4 +23,5 @@ fn compile_tests() {
     t.pass("tests/ui/pass/04-erc20-contract.rs");
     t.compile_fail("tests/ui/fail/01-constructor-returns.rs");
     t.compile_fail("tests/ui/fail/02-missing-constructor.rs");
+    t.compile_fail("tests/ui/fail/03-invalid-version.rs");
 }
