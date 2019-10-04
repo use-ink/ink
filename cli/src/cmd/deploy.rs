@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    cmd::{
-        build::{self, CrateMetadata},
-        Result,
-    }
+use crate::cmd::{
+    build::{
+        self,
+        CrateMetadata,
+    },
+    Result,
 };
 
 use futures::future::Future;
@@ -42,8 +43,8 @@ use subxt::{
 ///
 /// Defaults to the target contract wasm in the current project, inferred via the crate metadata.
 fn load_contract_code(path: Option<&PathBuf>) -> Result<Vec<u8>> {
-    let default_wasm_path = build::collect_crate_metadata()
-        .map(CrateMetadata::dest_wasm)?;
+    let default_wasm_path =
+        build::collect_crate_metadata().map(CrateMetadata::dest_wasm)?;
     let contract_wasm_path = path.unwrap_or(&default_wasm_path);
 
     let mut data = Vec::new();
@@ -57,7 +58,9 @@ fn load_contract_code(path: Option<&PathBuf>) -> Result<Vec<u8>> {
 /// Attempt to extract the code hash from the extrinsic result.
 ///
 /// Returns an Error if the `Contracts::CodeStored` is not found or cannot be decoded.
-fn extract_code_hash<T: System>(extrinsic_result: subxt::ExtrinsicSuccess<T>) -> Result<H256> {
+fn extract_code_hash<T: System>(
+    extrinsic_result: subxt::ExtrinsicSuccess<T>,
+) -> Result<H256> {
     match extrinsic_result.find_event::<H256>("Contracts", "CodeStored") {
         Some(Ok(hash)) => Ok(hash),
         Some(Err(err)) => Err(format!("Failed to decode code hash: {}", err).into()),
