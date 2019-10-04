@@ -23,13 +23,11 @@ log = "0.4"
 heck = "0.3"
 futures = "0.1.28"
 jsonrpc-core-client = { version = "13.0", features = ["ws"] }
-toml = "0.5"
 zip = { version = "0.5", default-features = false }
 pwasm-utils = "0.11.0"
 parity-wasm = "0.40.2"
 cargo_metadata = "0.8.2"
 runtime_primitives = { git = "https://github.com/paritytech/substrate/", package = "sr-primitives" }
-serde = { version = "1.0", features = ["derive"] }
 srml-contracts = { git = "https://github.com/paritytech/substrate/", package = "srml-contracts" }
 srml-balances = { git = "https://github.com/paritytech/substrate/", package = "srml-balances" }
 srml-system = { git = "https://github.com/paritytech/substrate/", package = "srml-system" }
