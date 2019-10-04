@@ -17,12 +17,12 @@
 //! Test environment for off-chain testing and utilities.
 
 mod accessor;
-mod account;
+pub mod account;
 mod instance;
-mod record;
-mod storage;
+pub mod record;
+pub mod storage;
 mod typed_encoded;
-mod types;
+pub mod types;
 
 use self::{
     account::{
@@ -30,7 +30,6 @@ use self::{
         AccountKind,
         AccountsDb,
         ContractAccount,
-        UserAccount,
     },
     instance::TestEnvInstance,
     record::{
@@ -41,21 +40,9 @@ use self::{
         Record,
         RestoreContractRecord,
     },
-    storage::{
-        Entry,
-        Storage,
-    },
     typed_encoded::{
         TypedEncoded,
         AlreadyInitialized,
-    },
-    types::{
-        AccountId,
-        Balance,
-        BlockNumber,
-        Call,
-        Hash,
-        Moment,
     },
 };
 

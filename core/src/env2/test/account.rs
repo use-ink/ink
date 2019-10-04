@@ -17,7 +17,7 @@
 use crate::{
     env2::test::{
         types::*,
-        Storage,
+        storage::Storage,
         TypedEncoded,
     },
     memory::collections::btree_map::BTreeMap,

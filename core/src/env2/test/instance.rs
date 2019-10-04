@@ -26,7 +26,7 @@ use crate::{
             AccountsDb,
             AlreadyInitialized,
             Record,
-            Storage,
+            storage::Storage,
             TypedEncoded,
         },
         EnvTypes,

@@ -30,7 +30,6 @@ use crate::{
     storage::Key,
 };
 use derive_more::From;
-use scale::Encode as _;
 
 /// A record of an event happening on the off-chain test environment.
 ///

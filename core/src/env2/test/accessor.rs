@@ -26,7 +26,7 @@ use crate::{
         error::CallError,
         property,
         test::{
-            instance::TestEnvInstance,
+            TestEnvInstance,
             Account,
             AccountKind,
             CallContractRecord,
