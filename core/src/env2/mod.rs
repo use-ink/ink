@@ -67,12 +67,12 @@ cfg_if! {
     if #[cfg(feature = "test-env")] {
         pub mod test;
         pub use self::test::{
-            TestEnv,
+            TestEnv as EnvImpl,
         };
     } else {
         mod srml;
         pub use self::srml::{
-            SrmlEnv,
+            SrmlEnv as EnvImpl,
             RetCode,
         };
     }
