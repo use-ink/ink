@@ -32,47 +32,47 @@ pub trait Storage: AllocateUsing + Initialize + Flush + Named + EnvAccess {}
 /// Define contract state with less boilerplate code.
 #[macro_export]
 macro_rules! storage {
-	(
-		$( #[$state_meta:meta] )*
-		$vis:vis struct $state_name:ident {
-			$(
-				$( #[$field_meta:meta] )*
-				$field_name:ident : $field_ty:ty ,
-			)*
-		}
-	) => {
-		$( #[$state_meta] )*
-		$vis struct $state_name<E> {
-			$(
-				$( #[$field_meta] )*
-				$field_name : $field_ty ,
-			)*
+    (
+        $( #[$state_meta:meta] )*
+        $vis:vis struct $state_name:ident {
+            $(
+                $( #[$field_meta:meta] )*
+                $field_name:ident : $field_ty:ty ,
+            )*
+        }
+    ) => {
+        $( #[$state_meta] )*
+        $vis struct $state_name<E> {
+            $(
+                $( #[$field_meta] )*
+                $field_name : $field_ty ,
+            )*
             env: $crate::EnvHandler<E>,
-		}
+        }
 
-		impl<E> ink_core::storage::Flush for $state_name<E> {
-			fn flush(&mut self) {
-				$(
-					self.$field_name.flush();
-				)*
+        impl<E> ink_core::storage::Flush for $state_name<E> {
+            fn flush(&mut self) {
+                $(
+                    self.$field_name.flush();
+                )*
                 self.env.flush();
-			}
-		}
+            }
+        }
 
-		impl<E> ink_core::storage::alloc::AllocateUsing for $state_name<E> {
-			unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-			where
-				A: ink_core::storage::alloc::Allocate,
-			{
-				use ink_core::storage::alloc::AllocateUsing;
-				Self {
-					$(
-						$field_name : AllocateUsing::allocate_using(alloc),
-					)*
+        impl<E> ink_core::storage::alloc::AllocateUsing for $state_name<E> {
+            unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+            where
+                A: ink_core::storage::alloc::Allocate,
+            {
+                use ink_core::storage::alloc::AllocateUsing;
+                Self {
+                    $(
+                        $field_name : AllocateUsing::allocate_using(alloc),
+                    )*
                     env: AllocateUsing::allocate_using(alloc),
-				}
-			}
-		}
+                }
+            }
+        }
 
         impl<E> ink_core::storage::alloc::Initialize for $state_name<E> {
             type Args = ();
@@ -104,27 +104,27 @@ macro_rules! storage {
         }
 
         impl<E> $crate::Named for $state_name<E> {
-			const NAME: &'static str = stringify!($state_name);
+           const NAME: &'static str = stringify!($state_name);
         }
 
-		impl<E> $crate::Storage for $state_name<E> {}
-	};
-	(
-		$( #[$state_meta:meta] )*
-		$vis:vis struct $state_name:ident {
-			$(
-				$( #[$field_meta:meta] )*
-				$field_name:ident : $field_ty:ty
-			),*
-		}
-	) => {
-		$crate::storage! {
-			$vis struct $state_name {
-				$(
-					$( #[$field_meta] )*
-					$field_name : $field_ty ,
-				)*
-			}
-		}
-	};
+        impl<E> $crate::Storage for $state_name<E> {}
+    };
+    (
+        $( #[$state_meta:meta] )*
+        $vis:vis struct $state_name:ident {
+            $(
+                $( #[$field_meta:meta] )*
+                $field_name:ident : $field_ty:ty
+            ),*
+        }
+    ) => {
+        $crate::storage! {
+            $vis struct $state_name {
+                $(
+                    $( #[$field_meta] )*
+                    $field_name : $field_ty ,
+                )*
+            }
+        }
+};
 }
