@@ -109,12 +109,12 @@ impl Contracts for Runtime {}
 /// the `ContractsEvent::CodeStored` event.
 pub(crate) fn execute_deploy(
     url: url::Url,
-    surl: &str,
+    suri: &str,
     password: Option<&str>,
     gas: u64,
     contract_wasm_path: Option<&PathBuf>,
 ) -> Result<String> {
-    let signer = sr25519::Pair::from_string(surl, password)?;
+    let signer = sr25519::Pair::from_string(suri, password)?;
 
     let code = load_contract_code(contract_wasm_path)?;
 
