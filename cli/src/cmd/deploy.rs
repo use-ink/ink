@@ -22,16 +22,10 @@ use crate::{
 };
 
 use futures::future::Future;
-use runtime_primitives::{
-    generic::{Era, Header},
-    traits::{IdentityLookup, Verify, BlakeTwo256},
-    AnySignature,
-};
 use std::{
-    collections::HashMap,
     fs,
     io::Read,
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 use substrate_primitives::{
     crypto::Pair,
@@ -39,12 +33,9 @@ use substrate_primitives::{
     H256,
 };
 use subxt::{
-    balances::Balances,
-    contracts::{
-        Contracts,
-        ContractsXt,
-    },
+    contracts::ContractsXt,
     system::System,
+    DefaultNodeRuntime,
 };
 
 /// Load the wasm blob from the specified path.
@@ -66,38 +57,13 @@ fn load_contract_code(path: Option<&PathBuf>) -> Result<Vec<u8>> {
 /// Attempt to extract the code hash from the extrinsic result.
 ///
 /// Returns an Error if the `Contracts::CodeStored` is not found or cannot be decoded.
-fn extract_code_hash(extrinsic_result: subxt::ExtrinsicSuccess<Runtime>) -> Result<H256> {
+fn extract_code_hash<T: System>(extrinsic_result: subxt::ExtrinsicSuccess<T>) -> Result<H256> {
     match extrinsic_result.find_event::<H256>("Contracts", "CodeStored") {
         Some(Ok(hash)) => Ok(hash),
         Some(Err(err)) => Err(format!("Failed to decode code hash: {}", err).into()),
         None => Err("Failed to find Contracts::CodeStored Event".into()),
     }
 }
-
-/// Define a Runtime to provide a subset of types for interacting with the target chain via RPC.
-///
-/// # Note
-///
-/// The concrete types MUST be compatible with the target chain's respective concrete type
-/// definitions.
-#[derive(Debug, Clone, Eq, PartialEq)]
-struct Runtime;
-
-impl System for Runtime {
-    type Index = u32;
-    type BlockNumber = u32;
-    type Hash = substrate_primitives::H256;
-    type Hashing = BlakeTwo256;
-    type AccountId = <AnySignature as Verify>::Signer;
-    type Address = srml_indices::address::Address<Self::AccountId, u32>;
-    type Header = Header<Self::BlockNumber, BlakeTwo256>;
-}
-
-impl Balances for Runtime {
-    type Balance = u64;
-}
-
-impl Contracts for Runtime {}
 
 /// Put contract code to a smart contract enabled substrate chain.
 /// Returns the code hash of the deployed contract if successful.
@@ -118,7 +84,7 @@ pub(crate) fn execute_deploy(
 
     let code = load_contract_code(contract_wasm_path)?;
 
-    let fut = subxt::ClientBuilder::<Runtime>::new()
+    let fut = subxt::ClientBuilder::<DefaultNodeRuntime>::new()
         .set_url(url)
         .build()
         .and_then(|cli| cli.xt(signer, None))
