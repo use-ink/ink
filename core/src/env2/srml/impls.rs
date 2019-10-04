@@ -41,6 +41,17 @@ use scale::{
 };
 
 /// The SRML contract environment.
+///
+/// # Dev Notes
+///
+/// The implementation of environmental access routines have to be as efficient
+/// as possible to not waste gas by any means. This has the effect that implementation
+/// of some environmental access routines defined here are suboptimal in respect
+/// to readability.
+///
+/// Any avoidable inefficiency is regarded by us as a bug.
+/// If you spot such an inefficiency please report an issue at:
+/// https://github.com/paritytech/ink/issues.
 pub struct SrmlEnv<T> {
     marker: PhantomData<fn() -> T>,
 }
