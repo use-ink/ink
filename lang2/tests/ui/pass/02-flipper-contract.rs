@@ -1,8 +1,8 @@
 #![feature(proc_macro_hygiene)]
 
-use ink_lang as ink;
+use ink_lang2 as ink;
 use ink_core::{
-    env::DefaultSrmlTypes,
+    env2::DefaultSrmlTypes,
     storage,
 };
 
