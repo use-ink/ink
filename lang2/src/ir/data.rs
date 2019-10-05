@@ -22,12 +22,12 @@ use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
 };
+use quote::ToTokens;
 use syn::{
     punctuated::Punctuated,
     spanned::Spanned as _,
     Token,
 };
-use quote::ToTokens;
 
 /// The contract with all required information.
 pub struct Contract {

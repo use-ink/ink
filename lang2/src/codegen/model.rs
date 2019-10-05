@@ -15,15 +15,15 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    ir::Contract,
     codegen::GenerateCode,
+    ir::Contract,
 };
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     quote_spanned,
 };
-use proc_macro2::TokenStream as TokenStream2;
-use derive_more::From;
 
 /// Generates code for the `ink_model` parts that dispatch constructors
 /// and messages from the input and also handle the returning of data.

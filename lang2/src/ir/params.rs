@@ -16,9 +16,7 @@
 
 //! Contains data structures and parsing routines for parameters to the ink! macro.
 
-use crate::ir::{
-    MetaVersion,
-};
+use crate::ir::MetaVersion;
 use core::convert::TryFrom;
 use derive_more::From;
 use proc_macro2::{

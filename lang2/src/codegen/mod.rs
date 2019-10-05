@@ -18,14 +18,14 @@ mod model;
 mod storage;
 
 use crate::ir::Contract;
+use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use derive_more::From;
 
 pub use self::{
     model::{
-        EnvTypes,
         EntryPoints,
+        EnvTypes,
     },
     storage::Storage,
 };

@@ -541,10 +541,12 @@ impl TryFrom<syn::FnArg> for FnArg {
                             ty: *pat_type.ty,
                         }))
                     }
-                    unsupported => bail!(
+                    unsupported => {
+                        bail!(
                     unsupported,
                     "encountered unsupported function argument syntax for ink! function",
-                ),
+                )
+                    }
                 }
             }
         }
