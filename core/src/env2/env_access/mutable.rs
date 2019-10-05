@@ -217,9 +217,10 @@ where
     }
 
     /// Emits an event with the given event data.
-    pub fn emit_event<D>(&mut self, event_data: &D)
+    pub fn emit_event<D, C>(&mut self, event_data: &D)
     where
-        D: EmitEventParams<T>
+        D: EmitEventParams<T, C>,
+        C: scale::Encode,
     {
         T::emit_event(&mut self.buffer, event_data)
     }

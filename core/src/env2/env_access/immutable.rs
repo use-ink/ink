@@ -203,9 +203,10 @@ where
             D: CreateParams<T>;
 
         /// Emits an event with the given event data.
-        fn emit_event<D>(&self, event_data: &D)
+        fn emit_event<D, C>(&self, event_data: &D)
         where
-            D: EmitEventParams<T>;
+            D: EmitEventParams<T, C>,
+            C: scale::Encode;
 
         /// Returns the input to the executed contract.
         ///

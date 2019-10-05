@@ -167,10 +167,11 @@ pub struct EmitEventRecord {
 
 impl EmitEventRecord {
     /// Creates a new record for a contract instantiation.
-    pub fn new<'a, E, R>(emit_event: &'a R) -> Self
+    pub fn new<'a, E, R, C>(emit_event: &'a R) -> Self
     where
         E: EnvTypes,
-        R: EmitEventParams<E>,
+        R: EmitEventParams<E, C>,
+        C: scale::Encode,
     {
         Self {
             topics: emit_event
@@ -178,7 +179,7 @@ impl EmitEventRecord {
                 .iter()
                 .map(|topic| TypedEncoded::from_origin(topic))
                 .collect::<Vec<_>>(),
-            data: emit_event.data().to_vec(),
+            data: emit_event.data().encode(),
         }
     }
 }

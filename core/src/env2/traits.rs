@@ -138,10 +138,11 @@ pub trait Env:
         D: CreateParams<Self>;
 
     /// Emits an event with the given event data.
-    fn emit_event<O, D>(buffer: &mut O, event_data: &D)
+    fn emit_event<O, D, C>(buffer: &mut O, event_data: &D)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        D: EmitEventParams<Self>;
+        D: EmitEventParams<Self, C>,
+        C: scale::Encode;
 
     /// Invokes a runtime dispatchable function with the given call data.
     fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
@@ -215,12 +216,13 @@ where
 }
 
 /// Types implementing this are suitable as event data.
-pub trait EmitEventParams<E>
+pub trait EmitEventParams<E, C>
 where
     E: EnvTypes,
+    C: scale::Encode,
 {
     /// The event topics.
     fn topics(&self) -> &[E::Hash];
     /// The raw encoded event data.
-    fn data(&self) -> &[u8];
+    fn data(&self) -> &C;
 }

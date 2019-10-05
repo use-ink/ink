@@ -280,10 +280,11 @@ where
         Decode::decode(&mut &buffer.as_ref()[0..req_len]).map_err(Into::into)
     }
 
-    fn emit_event<I, D>(buffer: &mut I, event_data: &D)
+    fn emit_event<I, D, C>(buffer: &mut I, event_data: &D)
     where
         I: scale::Output + AsRef<[u8]> + Reset,
-        D: EmitEventParams<Self>,
+        D: EmitEventParams<Self, C>,
+        C: scale::Encode,
     {
         // First we reset the buffer to start from a clean slate.
         buffer.reset();

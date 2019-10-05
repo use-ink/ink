@@ -379,10 +379,11 @@ where
         })
     }
 
-    fn emit_event<I, D>(_buffer: &mut I, event_data: &D)
+    fn emit_event<I, D, C>(_buffer: &mut I, event_data: &D)
     where
         I: scale::Output + AsRef<[u8]> + Reset,
-        D: EmitEventParams<Self>,
+        D: EmitEventParams<Self, C>,
+        C: scale::Encode,
     {
         // With the off-chain test environment we have no means
         // to emit an event on the chain since there is no chain.
