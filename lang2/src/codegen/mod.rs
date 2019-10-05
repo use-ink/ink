@@ -15,6 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 mod model;
+mod storage;
 
 use crate::ir::Contract;
 use proc_macro2::TokenStream as TokenStream2;
@@ -26,6 +27,7 @@ pub use self::{
         EnvTypes,
         EntryPoints,
     },
+    storage::Storage,
 };
 
 /// Types implementing this trait are code generators for the ink! language.
