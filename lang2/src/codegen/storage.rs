@@ -130,7 +130,7 @@ impl Storage<'_> {
                     Some(())
                 }
 
-                fn initialize(&mut self, args: Self::Args) {
+                fn initialize(&mut self, _args: Self::Args) {
                     #(
                         self.#fields.try_default_initialize();
                     )*
