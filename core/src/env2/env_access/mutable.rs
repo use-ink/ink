@@ -20,6 +20,7 @@ use crate::{
         property,
         CallParams,
         CreateParams,
+        EmitEventParams,
         Env,
         EnvTypes,
         GetProperty,
@@ -213,6 +214,14 @@ where
         D: CreateParams<T>,
     {
         T::create_contract(&mut self.buffer, create_data)
+    }
+
+    /// Emits an event with the given event data.
+    pub fn emit_event<D>(&mut self, event_data: &D)
+    where
+        D: EmitEventParams<T>
+    {
+        T::emit_event(&mut self.buffer, event_data)
     }
 
     /// Returns the input to the executed contract.

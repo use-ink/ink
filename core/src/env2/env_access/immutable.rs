@@ -19,6 +19,7 @@ use crate::{
         call::CallData,
         CallParams,
         CreateParams,
+        EmitEventParams,
         Env,
         EnvAccessMut,
         Result,
@@ -200,6 +201,11 @@ where
         fn create_contract<D>(&self, create_data: &D) -> Result<T::AccountId>
         where
             D: CreateParams<T>;
+
+        /// Emits an event with the given event data.
+        fn emit_event<D>(&self, event_data: &D)
+        where
+            D: EmitEventParams<T>;
 
         /// Returns the input to the executed contract.
         ///
