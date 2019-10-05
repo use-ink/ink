@@ -387,6 +387,11 @@ impl Signature {
         }
     }
 
+    /// Returns an iterator over the function arguments without the receiver.
+    pub fn inputs(&self) -> impl Iterator<Item = &FnArg> {
+        self.inputs.iter().skip(1)
+    }
+
     /// Returns the span of `self`.
     pub fn span(&self) -> Span {
         self.fn_token
