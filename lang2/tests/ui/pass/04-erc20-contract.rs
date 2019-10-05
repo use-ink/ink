@@ -29,7 +29,7 @@ mod erc20 {
     struct Approved {
         #[indexed] owner: AccountId,
         #[indexed] spender: AccountId,
-        #[indexed] value: Balance,
+        #[indexed] amount: Balance,
     }
 
     impl Flipper {
@@ -39,13 +39,13 @@ mod erc20 {
             self.balances.insert(self.env.caller(), initial_supply);
             self.env.emit_event(Transferred {
                 from: None,
-                to: Some(env.caller()),
+                to: Some(self.env.caller()),
                 value: initial_supply
             });
         }
 
         #[ink(message)]
-        fn total_supply(&self) {
+        fn total_supply(&self) -> Balance {
             *self.total_supply
         }
 
@@ -62,12 +62,12 @@ mod erc20 {
 
         #[ink(message)]
         fn approve(&mut self, spender: AccountId, amount: Balance) -> bool {
-            let owner = env.caller();
+            let owner = self.env.caller();
             self.allowances.insert((owner, spender), amount);
             self.env.emit_event(Approved {
                 owner: owner,
                 spender: spender,
-                value: value
+                amount
             });
             true
         }
@@ -75,7 +75,7 @@ mod erc20 {
         #[ink(message)]
         fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: Balance) -> bool {
             let caller = self.env.caller();
-            let allowance = self.allowance_or_zero(&from, &caller);
+            let allowance = self.allowance_of_or_zero(&from, &caller);
             if allowance < amount {
                 return false
             }

@@ -1,13 +1,9 @@
 #![feature(proc_macro_hygiene)]
 
 use ink_lang2 as ink;
-use ink_core::{
-    env2::DefaultSrmlTypes,
-    storage,
-};
 
 #[ink::contract(
-    env = DefaultSrmlTypes,
+    env = ink_core::env2::DefaultSrmlTypes,
     version = "0.1.0",
 )]
 mod noop {
