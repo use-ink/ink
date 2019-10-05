@@ -40,7 +40,7 @@ trybuild = "1.0"
 pretty_assertions = "0.6.1"
 
 [lib]
-name = "ink_lang"
+name = "ink_lang2"
 proc-macro = true
 
 [features]
