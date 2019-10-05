@@ -83,13 +83,13 @@ impl GenerateCode for EntryPoints<'_> {
             #[cfg(not(test))]
             #[no_mangle]
             fn deploy() -> u32 {
-                // #ident::instantiate().deploy().to_u32()
+                0
             }
 
             #[cfg(not(test))]
             #[no_mangle]
             fn call() -> u32 {
-                // #ident::instantiate().dispatch().to_u32()
+                0
             }
         }
     }
