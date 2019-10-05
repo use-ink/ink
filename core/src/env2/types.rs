@@ -23,7 +23,7 @@
 //! implementations in order to write ink! contracts for other chain configurations.
 
 use crate::{
-    env::EnvTypes,
+    env2::EnvTypes,
     memory::vec::Vec,
     storage::Flush,
 };
