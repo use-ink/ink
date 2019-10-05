@@ -46,15 +46,17 @@ impl GenerateCode for ContractModule<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let ident = &self.contract.ident;
 
-        let _entry_points = EntryPoints::from(self.contract).generate_code();
+        let entry_points = EntryPoints::from(self.contract).generate_code();
         let env_types = EnvTypes::from(self.contract).generate_code();
+        let storage = Storage::from(self.contract).generate_code();
 
         quote! {
             mod #ident {
                 use super::*;
 
-                // #entry_points
                 #env_types
+                #storage
+                #entry_points
             }
             pub use #ident::*;
         }
