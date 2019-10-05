@@ -72,9 +72,9 @@ impl Storage<'_> {
         });
         quote_spanned!( span =>
             impl ink_core::storage::alloc::AllocateUsing for #ident {
-                fn allocate_using<A>(alloc: &mut A) -> Self
+                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
                 where
-                    A: ink_core::storage::alloc::Allocator,
+                    A: ink_core::storage::alloc::Allocate,
                 {
                     Self {
                         #(
