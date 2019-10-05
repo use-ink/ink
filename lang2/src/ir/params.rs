@@ -18,7 +18,6 @@
 
 use crate::ir::{
     MetaVersion,
-    UnsuffixedLitInt,
 };
 use core::convert::TryFrom;
 use derive_more::From;
@@ -34,7 +33,6 @@ use syn::{
     },
     punctuated::Punctuated,
     spanned::Spanned,
-    Error,
     LitStr,
     Result,
     Token,
@@ -238,7 +236,7 @@ impl Parse for ParamVersion {
         let eq_token = input.parse()?;
         let value: LitStr = input.parse()?;
         let content: &str = &value.value();
-        let data = MetaVersion::try_from(content).map_err(|err| {
+        let data = MetaVersion::try_from(content).map_err(|_| {
             format_err_span!(
                 value.span(),
                 "couldn't match provided version as semantic version string: {}",
