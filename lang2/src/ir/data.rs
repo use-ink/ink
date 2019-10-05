@@ -192,6 +192,15 @@ pub struct ItemStorage {
     pub attrs: Vec<syn::Attribute>,
     /// Fields of the storage struct.
     pub fields: syn::FieldsNamed,
+    /// The original span of the struct definition.
+    pub span: Span,
+}
+
+impl ItemStorage {
+    /// Returns the span of the original `struct` definition.
+    pub fn span(&self) -> Span {
+        self.span
+    }
 }
 
 /// An event struct.

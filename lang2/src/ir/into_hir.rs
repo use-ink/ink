@@ -196,6 +196,7 @@ impl TryFrom<syn::ItemStruct> for ItemStorage {
                 "visibility modifiers are not allowed for `storage` structs",
             )
         }
+        let span = item_struct.span();
         let fields = match item_struct.fields {
             syn::Fields::Named(named_fields) => named_fields,
             syn::Fields::Unnamed(unnamed_fields) => {
@@ -210,6 +211,7 @@ impl TryFrom<syn::ItemStruct> for ItemStorage {
             ident: item_struct.ident,
             attrs: item_struct.attrs,
             fields,
+            span,
         })
     }
 }
