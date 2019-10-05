@@ -20,12 +20,14 @@ use derive_more::From;
 use proc_macro2::{
     Ident,
     Span,
+    TokenStream as TokenStream2,
 };
 use syn::{
     punctuated::Punctuated,
     spanned::Spanned as _,
     Token,
 };
+use quote::ToTokens;
 
 /// The contract with all required information.
 pub struct Contract {
@@ -239,6 +241,15 @@ pub struct Function {
     pub sig: Signature,
     /// The statements of the function.
     pub block: syn::Block,
+    /// The span of the original function definition.
+    pub span: Span,
+}
+
+impl Function {
+    /// Returns the span from the original function definition.
+    pub fn span(&self) -> Span {
+        self.span
+    }
 }
 
 /// The kind of a function.
@@ -354,6 +365,8 @@ pub struct Signature {
     /// The parentheses `(` and `)`.
     pub paren_token: syn::token::Paren,
     /// The function inputs, delimited by `,`.
+    ///
+    /// Includes the receiver: `&self` or `&mut self`
     pub inputs: Punctuated<FnArg, Token![,]>,
     /// The function output.
     pub output: syn::ReturnType,
@@ -393,6 +406,15 @@ pub enum FnArg {
     Typed(IdentType),
 }
 
+impl ToTokens for FnArg {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        match self {
+            FnArg::Receiver(receiver) => receiver.to_tokens(tokens),
+            FnArg::Typed(ident_type) => ident_type.to_tokens(tokens),
+        }
+    }
+}
+
 /// A captured argument.
 ///
 /// # Examples
@@ -408,6 +430,17 @@ pub struct IdentType {
     pub colon_token: Token![:],
     /// The type.
     pub ty: syn::Type,
+}
+
+impl ToTokens for IdentType {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        for attr in &self.attrs {
+            attr.to_tokens(tokens);
+        }
+        self.ident.to_tokens(tokens);
+        self.colon_token.to_tokens(tokens);
+        self.ty.to_tokens(tokens);
+    }
 }
 
 impl IdentType {

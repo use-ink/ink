@@ -344,6 +344,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
     type Error = syn::Error;
 
     fn try_from(method: syn::ImplItemMethod) -> Result<Self> {
+        let span = method.span();
         // Partitions ink! attributes into simple and non-simple.
         //
         // Simple attributes are e.g. `#[ink(event)]` that have only
@@ -451,6 +452,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
             kind,
             sig,
             block: method.block,
+            span,
         })
     }
 }

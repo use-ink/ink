@@ -18,6 +18,7 @@ use crate::{
     codegen::GenerateCode,
     ir::{
         Contract,
+        Function,
         Marker,
     },
 };
@@ -139,6 +140,54 @@ impl Storage<'_> {
             }
         )
     }
+
+    /// Generate a single function defined on the storage struct.
+    fn generate_function(&self, function: &Function) -> TokenStream2 {
+        let span = function.span();
+        // Generate `pub` functions for constructors and messages only.
+        let vis = if function.is_constructor() || function.is_message() {
+            quote_spanned!(span => pub)
+        } else {
+            quote_spanned!(span => )
+        };
+        // Filter all `ink` attributes for code generation.
+        let attrs = function
+            .attrs
+            .iter()
+            .filter(|&attr| Marker::try_from(attr.clone()).is_err());
+        let ident = &function.sig.ident;
+        let (_, type_generics, where_clause) = function.sig.generics.split_for_impl();
+        let inputs = &function.sig.inputs;
+        let output = &function.sig.output;
+        let block = &function.block;
+        quote_spanned!( span =>
+            #( #attrs )*
+            #vis fn #ident #type_generics (
+                #inputs,
+            ) #output
+            #where_clause
+            #block
+        )
+    }
+
+    /// Generates all the constructors, messages and methods defined on the storage struct.
+    fn generate_functions(&self) -> TokenStream2 {
+        let storage = &self.contract.storage;
+        let span = storage.span();
+        let ident = &storage.ident;
+        let fns = self
+            .contract
+            .functions
+            .iter()
+            .map(|fun| self.generate_function(fun));
+        quote_spanned!( span =>
+            impl #ident {
+                #(
+                    #fns
+                )*
+            }
+        )
+    }
 }
 
 impl GenerateCode for Storage<'_> {
@@ -147,12 +196,14 @@ impl GenerateCode for Storage<'_> {
         let allocate_using_impl = self.allocate_using_impl();
         let flush_impl = self.flush_impl();
         let initialize_impl = self.initialize_impl();
+        let methods = self.generate_functions();
 
         quote_spanned!( self.contract.storage.span() =>
             #struct_def
             #allocate_using_impl
             #flush_impl
             #initialize_impl
+            #methods
         )
     }
 }
