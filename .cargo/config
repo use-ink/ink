@@ -1,0 +1,4 @@
+[target.wasm32-unknown-unknown]
+rustflags = [
+	"-C", "link-dead-code"
+]
