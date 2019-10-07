@@ -101,24 +101,6 @@ fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
     if let Some(dir) = working_dir {
         cmd.current_dir(dir);
         is_nightly_cmd.current_dir(dir);
-
-        // TODO: [AJ] remove these once CI fixed
-        let ls = Command::new("ls")
-            .arg("-a")
-            .current_dir(dir)
-            .output()
-            .expect("ls failed");
-        io::stdout().write_all(&ls.stdout)?;
-
-        let config_dir = dir.join(".cargo");
-        println!("Config dir: {}", config_dir.display());
-
-        let cat = Command::new("cat")
-            .current_dir(config_dir)
-            .arg("config")
-            .output()
-            .expect("cat failed");
-        io::stdout().write_all(&cat.stdout)?;
     }
 
     let is_nightly_default = is_nightly_cmd
@@ -143,17 +125,12 @@ fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
         ])
         .output()?;
 
-    // TODO: [AJ] restore this once test passes on CI
-//    if !output.status.success() {
-//        // Dump the output streams produced by cargo into the stdout/stderr.
-//        io::stdout().write_all(&output.stdout)?;
-//        io::stderr().write_all(&output.stderr)?;
-//        return Err(Error::BuildFailed)
-//    }
-
-    // Dump the output streams produced by cargo into the stdout/stderr.
-    io::stdout().write_all(&output.stdout)?;
-    io::stderr().write_all(&output.stderr)?;
+    if !output.status.success() {
+        // Dump the output streams produced by cargo into the stdout/stderr.
+        io::stdout().write_all(&output.stdout)?;
+        io::stderr().write_all(&output.stderr)?;
+        return Err(Error::BuildFailed)
+    }
 
     Ok(())
 }
