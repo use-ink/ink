@@ -1,4 +1,4 @@
-[target.wasm32-unknown-unknown]
+[build]
 rustflags = [
 	"-C", "link-dead-code"
 ]
