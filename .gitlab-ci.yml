@@ -15,6 +15,7 @@ variables:
   SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
+  RUSTFLAGS:                       "-C link-dead-code"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
 
 .collect-artifacts:                &collect-artifacts
@@ -34,9 +35,6 @@ variables:
     - bash --version
     - sccache -s
     - echo
-    # `--link-dead-code` required code coverage: cannot use RUSTFLAGS env var because it overrides
-    # linker args for tests which exercise the `cargo-contract build` command.
-    - printf '[build]\nrustflags = ["-C", "link-dead-code"]' > $CARGO_HOME/config
   only:
     - master
     - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
