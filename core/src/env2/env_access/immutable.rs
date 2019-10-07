@@ -24,7 +24,15 @@ use crate::{
         EnvAccessMut,
         Result,
     },
-    storage::Key,
+    storage::{
+        Key,
+        Flush,
+        alloc::{
+            AllocateUsing,
+            Allocate,
+            Initialize,
+        },
+    },
 };
 use core::cell::RefCell;
 
@@ -44,6 +52,25 @@ pub struct EnvAccess<T> {
     ///
     /// This is important to make `DynEnv` work also in conjunction with `&self` messages.
     access: RefCell<EnvAccessMut<T>>,
+}
+
+impl<E> AllocateUsing for EnvAccess<E> {
+    unsafe fn allocate_using<A>(_alloc: &mut A) -> Self
+    where
+        A: Allocate,
+    {
+        Self::default()
+    }
+}
+
+impl<E> Flush for EnvAccess<E> {
+    fn flush(&mut self) {}
+}
+
+impl<E> Initialize for EnvAccess<E> {
+    type Args = ();
+
+    fn initialize(&mut self, _args: Self::Args) {}
 }
 
 impl<T> Default for EnvAccess<T> {

@@ -28,7 +28,15 @@ use crate::{
         SetProperty,
     },
     memory::vec::Vec,
-    storage::Key,
+    storage::{
+        Key,
+        Flush,
+        alloc::{
+            AllocateUsing,
+            Allocate,
+            Initialize,
+        },
+    },
 };
 use core::marker::PhantomData;
 
@@ -50,6 +58,25 @@ pub struct EnvAccessMut<E> {
     /// This flag is used to check at runtime if the environment
     /// is used correctly in respect to returning its value.
     has_returned_value: bool,
+}
+
+impl<E> AllocateUsing for EnvAccessMut<E> {
+    unsafe fn allocate_using<A>(_alloc: &mut A) -> Self
+    where
+        A: Allocate,
+    {
+        Self::default()
+    }
+}
+
+impl<E> Flush for EnvAccessMut<E> {
+    fn flush(&mut self) {}
+}
+
+impl<E> Initialize for EnvAccessMut<E> {
+    type Args = ();
+
+    fn initialize(&mut self, _args: Self::Args) {}
 }
 
 impl<E> Default for EnvAccessMut<E> {
