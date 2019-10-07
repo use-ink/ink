@@ -38,13 +38,20 @@ use std::{
 const MAX_MEMORY_PAGES: u32 = 16;
 
 /// Relevant metadata obtained from Cargo.toml.
-struct CrateMetadata {
+pub struct CrateMetadata {
     original_wasm: PathBuf,
     dest_wasm: PathBuf,
 }
 
+impl CrateMetadata {
+    /// Get the path of the wasm destination file
+    pub fn dest_wasm(self) -> PathBuf {
+        self.dest_wasm
+    }
+}
+
 /// Parses the contract manifest and returns relevant metadata.
-fn collect_crate_metadata(working_dir: Option<&PathBuf>) -> Result<CrateMetadata> {
+pub fn collect_crate_metadata(working_dir: Option<&PathBuf>) -> Result<CrateMetadata> {
     let mut cmd = MetadataCommand::new();
     if let Some(dir) = working_dir {
         cmd.current_dir(dir);

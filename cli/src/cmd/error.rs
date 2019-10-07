@@ -14,10 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use jsonrpc_core_client::RpcError;
 use std::{
     io::Error as IoError,
     result::Result as StdResult,
 };
+use substrate_primitives::crypto::SecretStringError;
+use subxt::Error as SubXtError;
 use zip::result::ZipError;
 
 /// An error that can be encountered while executing commands.
@@ -28,6 +31,10 @@ pub enum CommandError {
     UnimplementedCommand,
     #[display(fmt = "Abstraction layer unimplemented")]
     UnimplementedAbstractionLayer,
+    Rpc(RpcError),
+    #[display(fmt = "Secret string error")]
+    SecretString(SecretStringError),
+    SubXt(SubXtError),
     ZipError(ZipError),
     BuildFailed,
     #[display(fmt = "Error invoking `cargo metadata`")]
