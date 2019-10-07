@@ -106,13 +106,19 @@ fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
         let ls = Command::new("ls")
             .arg("-a")
             .current_dir(dir)
-            .output()?;
+            .output()
+            .expect("ls failed");
         io::stdout().write_all(&ls.stdout)?;
 
-        let more = Command::new("cat")
-            .current_dir(dir.join(".cargo/config"))
-            .output()?;
-        io::stdout().write_all(&more.stdout)?;
+        let config_dir = dir.join(".cargo");
+        println!("Config dir: {}", config_dir.display());
+
+        let cat = Command::new("cat")
+            .current_dir(config_dir)
+            .arg("config")
+            .output()
+            .expect("cat failed");
+        io::stdout().write_all(&cat.stdout)?;
     }
 
     let is_nightly_default = is_nightly_cmd
