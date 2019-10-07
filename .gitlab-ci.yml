@@ -15,7 +15,7 @@ variables:
   SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
-  RUSTFLAGS:                       "-C link-dead-code"
+#  RUSTFLAGS:                       "-C link-dead-code"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
 
 .collect-artifacts:                &collect-artifacts
