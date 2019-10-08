@@ -36,11 +36,11 @@ struct Counter {
 }
 
 impl Counter {
-    pub fn add(&mut self, by: u32) {
+    pub fn increase(&mut self) {
         self.value += 1;
     }
 
-    pub fn sub(&mut self, by: u32) {
+    pub fn decrease(&mut self) {
         self.value -= 1;
     }
 
@@ -168,7 +168,7 @@ contract! {
             let count = self.owned_tokens_count
                 .get_mut(from)
                 .ok_or("cannot get account count")?;
-            count.sub(1u32);
+            count.decrease();
             Ok(())
         }
 
@@ -184,7 +184,7 @@ contract! {
             let count = self.owned_tokens_count
                 .get_mut(to)
                 .ok_or("cannot get account count")?;
-            count.add(1u32);
+            count.increase();
             Ok(())
             } else{
                 Err("token has owner")
