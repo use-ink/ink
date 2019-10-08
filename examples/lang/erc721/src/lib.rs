@@ -72,7 +72,6 @@ contract! {
 
     /// The storage items for a typical ERC721 token implementation.
     struct Erc721 {
-        /// The total supply.
         token_owner: storage::HashMap<TokenId, AccountId>,
         token_approvals: storage::HashMap<TokenId, AccountId>,
         owned_tokens_count: storage::HashMap<AccountId, Counter>,
@@ -80,8 +79,7 @@ contract! {
     }
 
     impl Deploy for Erc721 {
-        fn deploy(&mut self, name: u8, symbol: u8) {
-        }
+        fn deploy(&mut self) {}
     }
 
     impl Erc721 {
@@ -130,13 +128,13 @@ contract! {
 
             self.clear_approval(from, id)?;
             self.remove_token_from(from, id)?;
-            self.add_token_to(env, to, id)?;
+            self.add_token_to(to, id)?;
             env.emit(Transfer {
                 from: *from,
                 to: *to,
                 id: *id,
             });
-            Ok(())            
+            Ok(())
         }
 
         fn clear_approval(&mut self, from: &AccountId, id: &TokenId) -> Result<(), &'static str> {
@@ -172,7 +170,7 @@ contract! {
             Ok(())
         }
 
-        fn add_token_to(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn add_token_to(&mut self, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             if self.owner_of(id) != AccountId::from([0x0; 32]){
                 return Err("already assigned")
             };
@@ -194,7 +192,7 @@ contract! {
 
         fn balance_of(&self, of: &AccountId) -> u32 {
             let balance: u32 = match self.owned_tokens_count.get(of) {
-                Some(count) => *count.value,
+                Some(count) => count.get(),
                 None => 0u32,
             };
             balance
@@ -225,7 +223,7 @@ mod tests {
         let alice = AccountId::from([0x0; 32]);
         env::test::set_caller::<Types>(alice);
 
-        let erc721 = Erc721::deploy_mock(1,2);
+        let erc721 = Erc721::deploy_mock();
         assert_eq!(erc721.get_total_supply(), 0);
         assert_eq!(erc721.get_balance(alice), 0);
         assert_eq!(erc721.get_owner(1), AccountId::from([0x0; 32]));
