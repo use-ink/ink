@@ -20,14 +20,38 @@ use ink_core::{
     env::DefaultSrmlTypes,
     memory::format,
     storage,
+    storage::Flush,
 };
 use ink_lang::contract;
 use ink_model::EnvHandler;
-use ink_core::storage::alloc::Initialize as _;
-use ink_core::storage::alloc::AllocateUsing as _;
-use std::ops::Index;
+use scale::{Encode, Decode};
 
 pub type Result<T, E> = core::result::Result<T, E>;
+pub type TokenId = u32;
+
+#[derive(Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+struct Counter {
+    value: storage::Value<u32>,
+}
+
+impl Counter {
+    pub fn add(&mut self, by: u32) {
+        self.value += 1;
+    }
+
+    pub fn sub(&mut self, by: u32) {
+        self.value -= 1;
+    }
+
+    pub fn get(&self) -> u32 {
+        *self.value
+    }
+}
+
+impl Flush for Counter {
+	fn flush(&mut self) {}
+}
 
 contract! {
     #![env = DefaultSrmlTypes]
@@ -36,37 +60,31 @@ contract! {
     event Transfer {
         from: AccountId,
         to: AccountId,
-        token_id: u32,
+        id: TokenId,
     }
 
     // Event deposited when an approval occurs
     event Approval {
         owner: AccountId,
         to: AccountId,
-        token_id: u32,
+        id: TokenId,
     }
 
     /// The storage items for a typical ERC721 token implementation.
     struct Erc721 {
         /// The total supply.
-        token_owner: storage::HashMap<u32, AccountId>,
-        token_approvals: storage::HashMap<u32, AccountId>,
-        owned_tokens: storage::HashMap<AccountId, storage::Vec<u32>>,
-        all_tokens: storage::Vec<u32>,
-        name: storage::Vec<u8>,
-        symbol: storage::Vec<u8>,
-
+        token_owner: storage::HashMap<TokenId, AccountId>,
+        token_approvals: storage::HashMap<TokenId, AccountId>,
+        owned_tokens_count: storage::HashMap<AccountId, Counter>,
+        all_tokens: storage::Vec<TokenId>,
     }
 
     impl Deploy for Erc721 {
         fn deploy(&mut self, name: u8, symbol: u8) {
-            self.name.push(name);
-            self.symbol.push(symbol);
         }
     }
 
     impl Erc721 {
-
         pub(external) fn get_total_supply(&self) -> u32 {
             let total_supply = self.all_tokens.len();
             env.println(&format!("Erc20::total_supply = {:?}", total_supply));
@@ -79,134 +97,119 @@ contract! {
             balance
         }
 
-        pub(external) fn get_owner(&self, token_id: u32) -> AccountId {
-            let owner = self.owner_of(&token_id);
-            env.println(&format!("Erc721::owner_of(token = {:?}) = {:?}", token_id, owner));
+        pub(external) fn get_owner(&self, id: u32) -> AccountId {
+            let owner = self.owner_of(&id);
+            env.println(&format!("Erc721::owner_of(token = {:?}) = {:?}", id, owner));
             owner
         }
-
     }
 
     impl Erc721 {
-        
-        fn approve(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, to: &AccountId, token_id: &u32) -> Result<(), &'static str> {
+        fn approve(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             let caller = env.caller();
-
-            if caller == self.owner_of(token_id){
-
-                self.token_approvals.insert(*token_id, caller);
-
+            if caller == self.owner_of(id){
+                self.token_approvals
+                    .insert(*id, caller)
+                    .ok_or("cannot approve token")?;
                 env.emit(Approval {
                     owner: caller,
                     to: *to,
-                    token_id: *token_id,
+                    id: *id,
                 });
-
                 Ok(())
-
             } else{
                 Err("not owner")
             }
         }
 
-        fn transfer_from(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, from: &AccountId, to: &AccountId, token_id: &u32) -> Result<(), &'static str> {        
+        fn transfer_from(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {        
             let caller = env.caller();
+            if !self.approved_or_owner(&caller, id){
+                return Err("not approved")
+            };
 
-            if self.approved_or_owner(&caller, token_id){
-
-                self.clear_approval(from, token_id)?;
-                self.remove_token_from(from, token_id)?;
-                self.add_token_to(env, to, token_id)?;
-
-                env.emit(Transfer {
-                    from: *from,
-                    to: *to,
-                    token_id: *token_id,
-                });
-
-                Ok(())
-
-            } else{
-                Err("not approved")
-            }
-            
+            self.clear_approval(from, id)?;
+            self.remove_token_from(from, id)?;
+            self.add_token_to(env, to, id)?;
+            env.emit(Transfer {
+                from: *from,
+                to: *to,
+                id: *id,
+            });
+            Ok(())            
         }
 
-        fn clear_approval(&mut self, from: &AccountId, token_id: &u32) -> Result<(), &'static str> {
-            
-            if *from == self.owner_of(token_id){
-                match self.token_approvals.remove(token_id) {
-                    Some(_res) => Ok(()),
-                    None => Err("cannot remove token approval")
-                }
-            } else{
-                Err("not owner")
-            }
-        }
-
-        fn remove_token_from(&mut self, from: &AccountId, token_id: &u32) -> Result<(), &'static str> {
-
-            if self.owner_of(token_id) != *from {
+        fn clear_approval(&mut self, from: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+            if self.owner_of(id) != *from {
                 return Err("not owner")
             };
-
-            if !self.owned_tokens.contains_key(from){
-                return Err("tokens not found");
+            if !self.token_approvals.contains_key(id){
+                return Err("approval not found");
             };
 
-            let tokens = self.owned_tokens
-            .get_mut(from)
-            .expect("cannot get tokens");
-
-            match tokens.swap_remove(*tokens.index(*token_id)) {
+            match self.token_approvals.remove(id) {
                 Some(_res) => Ok(()),
-                None => Err("cannot remove token")
+                None => Err("cannot remove token approval")
             }
         }
 
-        fn add_token_to(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, to: &AccountId, token_id: &u32) -> Result<(), &'static str> {
-
-            if self.owner_of(token_id) != AccountId::from([0x0; 32]){
-                return Err("already assigned")
+        fn remove_token_from(&mut self, from: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+            if self.owner_of(id) != *from {
+                return Err("not owner")
+            };
+            if !self.token_owner.contains_key(id){
+                return Err("token not found");
             };
 
-            if !self.owned_tokens.contains_key(to){
-
-                let new_vec = unsafe {storage::Vec::<u32>::allocate_using(&mut env.dyn_alloc)}.initialize_into(());
-                
-                self.owned_tokens
-                    .insert(*to, new_vec)
-                    .ok_or("cannot add tokens")?;
+            match self.token_owner.remove(id) {
+                Some(_res) => Ok(()),
+                None => Err("cannot remove token")
             };
-
-            let tokens = self.owned_tokens
-                .get_mut(to)
-                .expect("cannot find tokens");
-
-            tokens.push(*token_id);
-
+            let count = self.owned_tokens_count
+                .get_mut(from)
+                .ok_or("cannot get account count")?;
+            count.sub(1u32);
             Ok(())
         }
 
-        fn balance_of(&self, of: &AccountId, ) -> u32 {
-            
-            let balance = match self.owned_tokens.get(of) {
-                Some(num) => num.len(),
+        fn add_token_to(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+            if self.owner_of(id) != AccountId::from([0x0; 32]){
+                return Err("already assigned")
+            };
+
+            if !self.token_owner.contains_key(id){
+                self.token_owner
+                    .insert(*id, *to)
+                    .ok_or("cannot insert token")?;
+            let count = self.owned_tokens_count
+                .get_mut(to)
+                .ok_or("cannot get account count")?;
+            count.add(1u32);
+            Ok(())
+            } else{
+                Err("token has owner")
+            }
+
+        }
+
+        fn balance_of(&self, of: &AccountId) -> u32 {
+            let balance: u32 = match self.owned_tokens_count.get(of) {
+                Some(count) => *count.value,
                 None => 0u32,
             };
             balance
         }
 
-        fn owner_of(&self, token_id: &u32, ) -> AccountId {
-            *self.token_owner.get(token_id).unwrap_or(&AccountId::from([0x0; 32]))
+        fn owner_of(&self, id: &TokenId, ) -> AccountId {
+            *self.token_owner.get(id).unwrap_or(&AccountId::from([0x0; 32]))
         }
 
-        fn approved_for(&self, token_id: &u32) -> AccountId {
-            *self.token_approvals.get(token_id).unwrap_or(&AccountId::from([0x0; 32]))
+        fn approved_for(&self, id: &TokenId) -> AccountId {
+            *self.token_approvals.get(id).unwrap_or(&AccountId::from([0x0; 32]))
         }
 
-        fn approved_or_owner(&self, owner: &AccountId, token_id: &u32) -> bool {
-            *owner == self.owner_of(token_id) ||  *owner == self.approved_for(token_id)
+        fn approved_or_owner(&self, owner: &AccountId, id: &TokenId) -> bool {
+            *owner == self.owner_of(id) ||  *owner == self.approved_for(id)
         }
     }
 }
