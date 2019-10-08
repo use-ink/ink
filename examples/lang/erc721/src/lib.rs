@@ -23,16 +23,17 @@ use ink_core::{
     storage::Flush,
 };
 use ink_lang::contract;
-use ink_model::EnvHandler;
+use ink_model;
 use scale::{Encode, Decode};
 
+pub type EnvHandler = ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>;
 pub type Result<T, E> = core::result::Result<T, E>;
 pub type TokenId = u32;
 
 #[derive(Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 struct Counter {
-    value: storage::Value<u32>,
+    value: u32,
 }
 
 impl Counter {
@@ -44,8 +45,8 @@ impl Counter {
         self.value -= 1;
     }
 
-    pub fn get(&self) -> u32 {
-        *self.value
+    pub fn count_val(&self) -> u32 {
+        self.value
     }
 }
 
@@ -74,7 +75,7 @@ contract! {
     struct Erc721 {
         token_owner: storage::HashMap<TokenId, AccountId>,
         token_approvals: storage::HashMap<TokenId, AccountId>,
-        owned_tokens_count: storage::HashMap<AccountId, Counter>,
+        owned_tokens_count: storage::HashMap<AccountId, storage::Value<Counter>>,
         all_tokens: storage::Vec<TokenId>,
     }
 
@@ -103,7 +104,7 @@ contract! {
     }
 
     impl Erc721 {
-        fn approve(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn approve(&mut self, env: &mut EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             let caller = env.caller();
             if caller == self.owner_of(id){
                 self.token_approvals
@@ -120,7 +121,7 @@ contract! {
             }
         }
 
-        fn transfer_from(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {        
+        fn transfer_from(&mut self, env: &mut EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {        
             let caller = env.caller();
             if !self.approved_or_owner(&caller, id){
                 return Err("not approved")
@@ -192,7 +193,7 @@ contract! {
 
         fn balance_of(&self, of: &AccountId) -> u32 {
             let balance: u32 = match self.owned_tokens_count.get(of) {
-                Some(count) => count.get(),
+                Some(num) => num.get().count_val(),
                 None => 0u32,
             };
             balance
