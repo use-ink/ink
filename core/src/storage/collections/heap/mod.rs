@@ -14,8 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-pub mod bitvec;
-pub mod hash_map;
-pub mod heap;
-pub mod stash;
-pub mod vec;
+//! A heap collection.
+//!
+/// Provides `O(log(n))` push and pop operations.
+/// Implemented as a ternary heap.
+
+#[cfg(all(test, feature = "test-env"))]
+mod tests;
+
+mod impls;
+
+pub use self::impls::{
+    Heap,
+    Iter,
+    Values,
+};

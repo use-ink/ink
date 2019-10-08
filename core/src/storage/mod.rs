@@ -95,6 +95,10 @@ pub use self::{
             self,
             HashMap,
         },
+        heap::{
+            self,
+            Heap,
+        },
         stash::{
             self,
             Stash,
