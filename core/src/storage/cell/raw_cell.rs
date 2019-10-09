@@ -50,6 +50,7 @@ pub struct RawCell {
 }
 
 impl AllocateUsing for RawCell {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,

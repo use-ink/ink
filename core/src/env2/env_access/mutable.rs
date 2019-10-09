@@ -70,12 +70,14 @@ impl<E> AllocateUsing for EnvAccessMut<E> {
 }
 
 impl<E> Flush for EnvAccessMut<E> {
+    #[inline]
     fn flush(&mut self) {}
 }
 
 impl<E> Initialize for EnvAccessMut<E> {
     type Args = ();
 
+    #[inline(always)]
     fn initialize(&mut self, _args: Self::Args) {}
 }
 

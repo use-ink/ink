@@ -340,6 +340,7 @@ impl<T> Flush for SyncCell<T>
 where
     T: scale::Encode + Flush,
 {
+    #[inline]
     fn flush(&mut self) {
         if self.cache.is_dirty() {
             match self.cache.get_mut() {
@@ -355,6 +356,7 @@ where
 }
 
 impl<T> AllocateUsing for SyncCell<T> {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,

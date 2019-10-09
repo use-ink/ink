@@ -75,6 +75,7 @@ impl scale::Decode for BitVec {
 }
 
 impl AllocateUsing for BitVec {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -89,12 +90,14 @@ impl AllocateUsing for BitVec {
 impl Initialize for BitVec {
     type Args = ();
 
+    #[inline]
     fn initialize(&mut self, _: Self::Args) {
         self.len.set(0);
     }
 }
 
 impl Flush for BitVec {
+    #[inline]
     fn flush(&mut self) {
         self.len.flush();
         self.blocks.flush();
@@ -102,6 +105,7 @@ impl Flush for BitVec {
 }
 
 impl Drop for BitVec {
+    #[inline]
     fn drop(&mut self) {
         for n in 0..self.len_blocks() {
             self.blocks.clear(n)

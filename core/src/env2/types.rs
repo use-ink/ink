@@ -119,6 +119,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
 }
 
 impl Flush for AccountId {
+    #[inline]
     fn flush(&mut self) {}
 }
 
@@ -137,5 +138,6 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
 }
 
 impl Flush for Hash {
+    #[inline]
     fn flush(&mut self) {}
 }

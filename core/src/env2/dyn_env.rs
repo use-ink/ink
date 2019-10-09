@@ -61,18 +61,21 @@ pub struct DynEnv<E> {
 impl<E> Deref for DynEnv<E> {
     type Target = E;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.env
     }
 }
 
 impl<E> DerefMut for DynEnv<E> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.env
     }
 }
 
 impl<E> Flush for DynEnv<E> {
+    #[inline]
     fn flush(&mut self) {
         self.alloc.flush()
     }
@@ -82,6 +85,7 @@ impl<E> AllocateUsing for DynEnv<E>
 where
     E: Default,
 {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -96,6 +100,7 @@ where
 impl<E> Initialize for DynEnv<E> {
     type Args = ();
 
+    #[inline]
     fn initialize(&mut self, _args: Self::Args) {
         self.alloc.initialize(());
     }

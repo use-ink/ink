@@ -72,6 +72,7 @@ impl<T> Flush for SyncChunk<T>
 where
     T: scale::Encode + Flush,
 {
+    #[inline]
     fn flush(&mut self) {
         for (n, dirty_val) in self.cache.iter_dirty() {
             match dirty_val.get_mut() {
@@ -114,6 +115,7 @@ where
 }
 
 impl<T> AllocateUsing for SyncChunk<T> {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,

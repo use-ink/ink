@@ -165,6 +165,7 @@ impl<T> scale::Decode for Vec<T> {
 }
 
 impl<T> AllocateUsing for Vec<T> {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -179,10 +180,12 @@ impl<T> AllocateUsing for Vec<T> {
 impl<T> Initialize for Vec<T> {
     type Args = ();
 
+    #[inline(always)]
     fn default_value() -> Option<Self::Args> {
         Some(())
     }
 
+    #[inline]
     fn initialize(&mut self, _args: Self::Args) {
         self.len.set(0);
     }
