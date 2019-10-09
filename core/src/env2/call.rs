@@ -144,6 +144,9 @@ impl scale::Decode for CallData {
         while let Ok(byte) = input.read_byte() {
             bytes.push(byte);
         }
+        if bytes.len() < 4 {
+            return Err(scale::Error::from("require at least 4 bytes for input data"))
+        }
         Ok(Self { bytes })
     }
 }
