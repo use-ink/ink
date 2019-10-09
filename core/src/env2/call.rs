@@ -63,8 +63,13 @@ impl Selector {
         From::from(name.as_bytes())
     }
 
+    /// Creates a selector directly from 4 bytes.
+    pub const fn from_bytes(bytes: [u8; 4]) -> Self {
+        Self { bytes }
+    }
+
     /// Returns the underlying bytes of the selector.
-    pub fn to_bytes(&self) -> [u8; 4] {
+    pub const fn to_bytes(&self) -> [u8; 4] {
         self.bytes
     }
 }
