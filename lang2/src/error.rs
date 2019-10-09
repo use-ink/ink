@@ -14,52 +14,71 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-//! Provide macros to simplify error reporting in procedural macros.
+/// A dispatch result.
+pub type DispatchResult = core::result::Result<(), DispatchError>;
 
-/// Returns a generated error result directly to the caller.
-///
-/// # Note
-///
-/// Takes some tokens that implement `ToTokens` trait in order to form a `Span`
-/// and also takes a format string plus arbitrary many formatting parameters.
-macro_rules! bail {
-    ($($args:tt)*) => {
-        return Err(format_err!($($args)*).into())
+/// A dispatch error.
+#[derive(Copy, Clone)]
+pub enum DispatchError {
+    UnknownInstantiateSelector,
+    UnknownCallSelector,
+    InvalidInstantiateParameters,
+    InvalidCallParameters,
+}
+
+impl DispatchError {
+    /// Converts `self` into an associated `u32` that SRML contracts can handle.
+    #[inline]
+    pub fn to_u32(self) -> u32 {
+        match self {
+            DispatchError::UnknownInstantiateSelector => 0x01,
+            DispatchError::UnknownCallSelector => 0x02,
+            DispatchError::InvalidInstantiateParameters => 0x03,
+            DispatchError::InvalidCallParameters => 0x04,
+        }
     }
 }
 
-/// Creates a macro error.
-///
-/// # Note
-///
-/// Takes some tokens that implement `ToTokens` trait in order to form a `Span`
-/// and also takes a format string plus arbitrary many formatting parameters.
-macro_rules! format_err {
-    ($tokens:expr, $($msg:tt)*) => {
-        syn::parse::Error::new_spanned(&$tokens, format_args!($($msg)*))
+/// A return code indicating success or error in a compact form.
+#[derive(Copy, Clone)]
+pub struct DispatchRetCode(u32);
+
+impl DispatchRetCode {
+    /// Creates a return code indicating success.
+    #[inline]
+    pub fn success() -> Self {
+        Self(0)
+    }
+
+    /// Returns the `u32` representation of `self`.
+    ///
+    /// # Note
+    ///
+    /// This is useful to communicate back to SRML contracts.
+    #[inline]
+    pub fn to_u32(self) -> u32 {
+        self.0
     }
 }
 
-/// Returns a generated error result directory to the caller.
-///
-/// # Note
-///
-/// Takes a concrete span as first argument followed by some format string plus
-/// some additional format parameters.
-macro_rules! bail_span {
-    ($($args:tt)*) => {
-        return Err(format_err_span!($($args)*).into())
+impl From<DispatchError> for DispatchRetCode {
+    #[inline]
+    fn from(err: DispatchError) -> Self {
+        match err {
+            DispatchError::UnknownInstantiateSelector => Self(0x01),
+            DispatchError::UnknownCallSelector => Self(0x02),
+            DispatchError::InvalidInstantiateParameters => Self(0x03),
+            DispatchError::InvalidCallParameters => Self(0x04),
+        }
     }
 }
 
-/// Creates a macro error.
-///
-/// # Note
-///
-/// Takes a concrete span as first argument followed by some format string plus
-/// some additional format parameters.
-macro_rules! format_err_span {
-    ($span:expr, $($msg:tt)*) => {
-        syn::parse::Error::new($span, format_args!($($msg)*))
+impl From<DispatchResult> for DispatchRetCode {
+    #[inline]
+    fn from(res: DispatchResult) -> Self {
+        match res {
+            Ok(_) => Self::success(),
+            Err(err) => Self::from(err),
+        }
     }
 }

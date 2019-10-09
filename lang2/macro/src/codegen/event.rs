@@ -14,39 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-
-#[cfg(not(feature = "std"))]
-extern crate alloc;
-
-mod dispatch;
-mod error;
-mod msg;
-
-pub use ink_lang2_macro::contract;
-
-pub use self::{
-    dispatch::{
-        Dispatch,
-        DispatchMode,
-        dispatch_constr,
-        dispatch_msg,
-        dispatch_msg_mut,
-        DerefEnv,
-    },
-    error::{
-        DispatchError,
-        DispatchResult,
-        DispatchRetCode,
-    },
-    msg::{
-        Constr,
-        Constructor,
-        Dispatchable,
-        FnInput,
-        FnOutput,
-        FnSelector,
-        Message,
-        Msg,
-    },
+use crate::{
+    ir::Contract,
+    codegen::GenerateCode,
 };
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::{quote, quote_spanned};
+use syn::spanned::Spanned as _;
+
+/// Generates code for the contract's event structs.
+#[derive(From)]
+pub struct Events<'a> {
+    /// The contract to generate code for.
+    contract: &'a Contract,
+}
+
+impl Events<'_> {
+    fn generate_event_structs(&self) -> TokenStream2 {
+        quote! {}
+    }
+}
+
+impl GenerateCode for Events<'_> {
+    fn generate_code(&self) -> TokenStream2 {
+        let event_structs = self.generate_event_structs();
+
+        quote_spanned!( self.contract.mod_token.span() =>
+            #event_structs
+        )
+    }
+}

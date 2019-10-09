@@ -14,39 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+extern crate proc_macro;
 
-#[cfg(not(feature = "std"))]
-extern crate alloc;
-
-mod dispatch;
+#[macro_use]
 mod error;
-mod msg;
 
-pub use ink_lang2_macro::contract;
+mod codegen;
+mod contract;
+mod extensions;
+mod ir;
 
-pub use self::{
-    dispatch::{
-        Dispatch,
-        DispatchMode,
-        dispatch_constr,
-        dispatch_msg,
-        dispatch_msg_mut,
-        DerefEnv,
-    },
-    error::{
-        DispatchError,
-        DispatchResult,
-        DispatchRetCode,
-    },
-    msg::{
-        Constr,
-        Constructor,
-        Dispatchable,
-        FnInput,
-        FnOutput,
-        FnSelector,
-        Message,
-        Msg,
-    },
-};
+use proc_macro::TokenStream;
+
+#[proc_macro_attribute]
+pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
+    contract::generate(attr.into(), item.into()).into()
+}
+
+#[cfg(test)]
+pub use contract::generate_or_err;
