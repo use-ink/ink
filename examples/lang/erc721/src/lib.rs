@@ -20,39 +20,14 @@ use ink_core::{
     env::DefaultSrmlTypes,
     memory::format,
     storage,
-    storage::Flush,
 };
 use ink_lang::contract;
 use ink_model;
-use scale::{Encode, Decode};
 
 pub type EnvHandler = ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>;
 pub type Result<T, E> = core::result::Result<T, E>;
 pub type TokenId = u32;
-
-#[derive(Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
-struct Counter {
-    value: u32,
-}
-
-impl Counter {
-    pub fn increase(&mut self) {
-        self.value += 1;
-    }
-
-    pub fn decrease(&mut self) {
-        self.value -= 1;
-    }
-
-    pub fn count_val(&self) -> u32 {
-        self.value
-    }
-}
-
-impl Flush for Counter {
-	fn flush(&mut self) {}
-}
+pub type Counter = u32;
 
 contract! {
     #![env = DefaultSrmlTypes]
@@ -75,7 +50,7 @@ contract! {
     struct Erc721 {
         token_owner: storage::HashMap<TokenId, AccountId>,
         token_approvals: storage::HashMap<TokenId, AccountId>,
-        owned_tokens_count: storage::HashMap<AccountId, storage::Value<Counter>>,
+        owned_tokens_count: storage::HashMap<AccountId, Counter>,
         all_tokens: storage::Vec<TokenId>,
     }
 
@@ -89,7 +64,7 @@ contract! {
             env.println(&format!("Erc20::total_supply = {:?}", total_supply));
             total_supply
         }
-        
+
         pub(external) fn get_balance(&self, owner: AccountId) -> u32 {
             let balance = self.balance_of(&owner);
             env.println(&format!("Erc721::balance_of(owner = {:?}) = {:?}", owner, balance));
@@ -106,28 +81,28 @@ contract! {
     impl Erc721 {
         fn approve(&mut self, env: &mut EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             let caller = env.caller();
-            if caller == self.owner_of(id){
-                self.token_approvals
-                    .insert(*id, caller)
-                    .ok_or("cannot approve token")?;
-                env.emit(Approval {
-                    owner: caller,
-                    to: *to,
-                    id: *id,
-                });
-                Ok(())
-            } else{
-                Err("not owner")
-            }
+            if self.owner_of(id) != caller {
+                return Err("not owner")
+            };
+
+            self.token_approvals
+                .insert(*id, caller)
+                .ok_or("cannot approve token")?;
+            env.emit(Approval {
+                owner: caller,
+                to: *to,
+                id: *id,
+            });
+            Ok(())
         }
 
-        fn transfer_from(&mut self, env: &mut EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {        
+        fn transfer_from(&mut self, env: &mut EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             let caller = env.caller();
             if !self.approved_or_owner(&caller, id){
                 return Err("not approved")
             };
 
-            self.clear_approval(from, id)?;
+            self.clear_approval(id)?;
             self.remove_token_from(from, id)?;
             self.add_token_to(to, id)?;
             env.emit(Transfer {
@@ -138,10 +113,7 @@ contract! {
             Ok(())
         }
 
-        fn clear_approval(&mut self, from: &AccountId, id: &TokenId) -> Result<(), &'static str> {
-            if self.owner_of(id) != *from {
-                return Err("not owner")
-            };
+        fn clear_approval(&mut self, id: &TokenId) -> Result<(), &'static str> {
             if !self.token_approvals.contains_key(id){
                 return Err("approval not found");
             };
@@ -156,47 +128,88 @@ contract! {
             if self.owner_of(id) != *from {
                 return Err("not owner")
             };
-            if !self.token_owner.contains_key(id){
+            if !self.exists(id){
                 return Err("token not found");
             };
 
-            match self.token_owner.remove(id) {
-                Some(_res) => Ok(()),
-                None => Err("cannot remove token")
-            };
+            self.token_owner
+                .remove(id)
+                .ok_or("cannot remove token")?;
             let count = self.owned_tokens_count
                 .get_mut(from)
-                .ok_or("cannot get account count")?;
-            count.decrease();
+                .ok_or("cannot get account counter")?;
+            *count += 1u32;
             Ok(())
         }
 
         fn add_token_to(&mut self, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
-            if self.owner_of(id) != AccountId::from([0x0; 32]){
-                return Err("already assigned")
+            if self.exists(id){
+                 return Err("token exists and assigned")
             };
 
-            if !self.token_owner.contains_key(id){
-                self.token_owner
-                    .insert(*id, *to)
-                    .ok_or("cannot insert token")?;
+            self.token_owner
+                .insert(*id, *to)
+                .ok_or("cannot insert token")?;
             let count = self.owned_tokens_count
                 .get_mut(to)
-                .ok_or("cannot get account count")?;
-            count.increase();
+                .ok_or("cannot get account counter")?;
+            *count -= 1u32;
             Ok(())
-            } else{
-                Err("token has owner")
-            }
+        }
 
+        fn mint(&mut self, env: &mut EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+            if *to == AccountId::from([0x0; 32]){
+                return Err("cannot mint to account zero")
+            };
+            if self.exists(id){
+                return Err("token already minted")
+            };
+
+            self.token_owner
+                .insert(*id, *to)
+                .ok_or("cannot insert token")?;
+
+            if self.balance_of(to) > 0 {
+                let count = self.owned_tokens_count 
+                    .get_mut(to)
+                    .ok_or("cannot get account counter")?;
+                *count += 1u32;
+            } else{
+                self.owned_tokens_count
+                .insert(*to, 1u32)
+                .ok_or("cannot insert counter")?;
+            }
+            env.emit(Transfer {
+                from: AccountId::from([0x0; 32]),
+                to: *to,
+                id: *id,
+            });
+            Ok(())
+        }
+
+        fn burn(&mut self, env: &mut EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), &'static str> {
+            if self.owner_of(id) == *from {
+                return Err("burn of token that is not own")
+            };
+
+            self.clear_approval(id)?;
+            let count = self.owned_tokens_count
+                .get_mut(from)
+                .ok_or("cannot get account counter")?;
+            *count -= 1u32;
+            self.token_owner
+                .remove(id)
+                .ok_or("cannot remove token")?;
+            env.emit(Transfer {
+                from: *from,
+                to: AccountId::from([0x0; 32]),
+                id: *id,
+            });
+            Ok(())
         }
 
         fn balance_of(&self, of: &AccountId) -> u32 {
-            let balance: u32 = match self.owned_tokens_count.get(of) {
-                Some(num) => num.get().count_val(),
-                None => 0u32,
-            };
-            balance
+            *self.owned_tokens_count.get(of).unwrap_or(&0u32)
         }
 
         fn owner_of(&self, id: &TokenId, ) -> AccountId {
@@ -209,6 +222,10 @@ contract! {
 
         fn approved_or_owner(&self, owner: &AccountId, id: &TokenId) -> bool {
             *owner == self.owner_of(id) ||  *owner == self.approved_for(id)
+        }
+
+        fn exists(&self, id: &TokenId) -> bool {
+            self.token_owner.get(id).is_some() && self.token_owner.contains_key(id)
         }
     }
 }
