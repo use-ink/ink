@@ -50,8 +50,7 @@ contract! {
     struct Erc721 {
         token_owner: storage::HashMap<TokenId, AccountId>,
         token_approvals: storage::HashMap<TokenId, AccountId>,
-        owned_tokens_count: storage::HashMap<AccountId, Counter>,
-        all_tokens: storage::Vec<TokenId>,
+        owned_tokens_count: storage::HashMap<AccountId, Counter>
     }
 
     impl Deploy for Erc721 {
@@ -59,12 +58,6 @@ contract! {
     }
 
     impl Erc721 {
-        pub(external) fn get_total_supply(&self) -> u32 {
-            let total_supply = self.all_tokens.len();
-            env.println(&format!("Erc20::total_supply = {:?}", total_supply));
-            total_supply
-        }
-
         pub(external) fn get_balance(&self, owner: AccountId) -> u32 {
             let balance = self.balance_of(&owner);
             env.println(&format!("Erc721::balance_of(owner = {:?}) = {:?}", owner, balance));
@@ -80,6 +73,18 @@ contract! {
         pub(external) fn mint_token(&mut self, to: AccountId, id: TokenId) -> Result<(), &'static str> {
             self.mint(env, &to, &id)?;
             env.println(&format!("Erc721::minted(token = {:?}) = {:?}", id, to));
+            Ok(())
+        }
+
+        pub(external) fn transfer_token(&mut self, from: AccountId, to: AccountId, id: TokenId) -> Result<(), &'static str> {
+            self.transfer_from(env, &from, &to, &id)?;
+            env.println(&format!("Erc721::transfered(token = {:?}) = {:?}", id, to));
+            Ok(())
+        }
+
+        pub(external) fn burn_token(&mut self, from: AccountId, id: TokenId) -> Result<(), &'static str> {
+            self.burn(env, &from, &id)?;
+            env.println(&format!("Erc721::burned(token = {:?}) = {:?}", id, from));
             Ok(())
         }
     }
@@ -121,7 +126,7 @@ contract! {
 
         fn clear_approval(&mut self, id: &TokenId) -> Result<(), &'static str> {
             if !self.token_approvals.contains_key(id){
-                return Err("approval not found");
+                return Ok(());
             };
 
             match self.token_approvals.remove(id) {
@@ -150,10 +155,10 @@ contract! {
                  return Err("token exists and assigned")
             };
 
-            self.increase_counter_of(to);
+            self.increase_counter_of(to); //?; TODO: fix insert error propagation
             self.token_owner
                 .insert(*id, *to)
-                .ok_or("cannot insert token")?;
+                .ok_or("cannot insert token"); //?; TODO: fix insert error propagation
             Ok(())
         }
 
@@ -167,9 +172,8 @@ contract! {
 
             self.token_owner
                 .insert(*id, *to)
-                .ok_or("cannot insert token")?;
-            self.increase_counter_of(to);
-            self.all_tokens.push(*id);
+                .ok_or("cannot insert token"); //?; TODO: fix insert error propagation
+            self.increase_counter_of(to); //?; TODO: fix insert error propagation
             env.emit(Transfer {
                 from: AccountId::from([0x0; 32]),
                 to: *to,
@@ -179,7 +183,8 @@ contract! {
         }
 
         fn burn(&mut self, env: &EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), &'static str> {
-            if self.owner_of(id) == *from {
+            let caller = env.caller();
+            if self.owner_of(id) != caller {
                 return Err("burn of token that is not own")
             };
 
@@ -193,7 +198,7 @@ contract! {
                 to: AccountId::from([0x0; 32]),
                 id: *id,
             });
-            self.all_tokens.swap_remove(*id);
+
             Ok(())
         }
 
@@ -253,23 +258,56 @@ mod tests {
         env::test::set_caller::<Types>(alice);
 
         let erc721 = Erc721::deploy_mock();
-        assert_eq!(erc721.get_total_supply(), 0);
         assert_eq!(erc721.get_balance(alice), 0);
         assert_eq!(erc721.get_owner(1), AccountId::from([0x0; 32]));
     }
 
     #[test]
-    fn mint_token_works() {
+    fn mint_works() {
         let alice = AccountId::from([0x1; 32]);
         env::test::set_caller::<Types>(alice);
 
         let mut erc721 = Erc721::deploy_mock();
-        assert_eq!(erc721.get_total_supply(), 0);
         assert_eq!(erc721.get_balance(alice), 0);
         assert_eq!(erc721.get_owner(1), AccountId::from([0x0; 32]));
         assert_eq!(erc721.mint_token(alice, 1),Ok(()));
-        assert_eq!(erc721.get_total_supply(), 1);
         assert_eq!(erc721.get_balance(alice), 1);
         assert_eq!(erc721.get_owner(1), alice);
+    }
+
+    #[test]
+    fn transfer_works() {
+        let alice = AccountId::from([0x1; 32]);
+        let bob = AccountId::from([0x2; 32]);
+        env::test::set_caller::<Types>(alice);
+
+        let mut erc721 = Erc721::deploy_mock();
+        assert_eq!(erc721.mint_token(alice, 1),Ok(()));
+        assert_eq!(erc721.get_balance(alice), 1);
+        assert_eq!(erc721.get_owner(1), alice);
+        assert_eq!(erc721.transfer_token(alice, bob, 1),Ok(()));
+        assert_eq!(erc721.get_balance(alice), 0);
+        assert_eq!(erc721.get_balance(bob), 1);
+        assert_eq!(erc721.get_owner(1), bob);
+    }
+
+    #[test]
+    fn burn_works() {
+        let alice = AccountId::from([0x1; 32]);
+        let bob = AccountId::from([0x2; 32]);
+        env::test::set_caller::<Types>(alice);
+
+        let mut erc721 = Erc721::deploy_mock();
+        assert_eq!(erc721.mint_token(alice, 1),Ok(()));
+        assert_eq!(erc721.get_balance(alice), 1);
+        assert_eq!(erc721.get_owner(1), alice);
+        assert_eq!(erc721.transfer_token(alice, bob, 1),Ok(()));
+        assert_eq!(erc721.get_balance(alice), 0);
+        assert_eq!(erc721.get_balance(bob), 1);
+        assert_eq!(erc721.get_owner(1), bob);
+
+        env::test::set_caller::<Types>(bob);
+        assert_eq!(erc721.burn_token(bob, 1),Ok(()));
+        assert_eq!(erc721.get_balance(bob), 0);
     }
 }
