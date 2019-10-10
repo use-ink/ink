@@ -102,9 +102,9 @@ contract! {
                 return Err("not owner")
             };
 
-            self.token_approvals
-                .insert(*id, *to)
-                .ok_or("cannot approve token"); //?; fix
+            if !self.token_approvals.insert(*id, *to).is_none() {
+                return Err("cannot insert approval")
+            };
             env.emit(Approval {
                 owner: caller,
                 to: *to,
@@ -158,10 +158,10 @@ contract! {
                  return Err("token exists and assigned")
             };
 
-            self.increase_counter_of(to); //?; fix
-            self.token_owner
-                .insert(*id, *to)
-                .ok_or("cannot insert token"); //?; fix
+            self.increase_counter_of(to)?;
+            if !self.token_owner.insert(*id, *to).is_none() {
+                return Err("cannot insert token")
+            };
             Ok(())
         }
 
@@ -173,10 +173,10 @@ contract! {
                 return Err("token already minted")
             };
 
-            self.token_owner
-                .insert(*id, *to)
-                .ok_or("cannot insert token"); //?; fix
-            self.increase_counter_of(to); //?; fix
+            if !self.token_owner.insert(*id, *to).is_none() {
+                return Err("cannot insert token")
+            };
+            self.increase_counter_of(to)?;
             env.emit(Transfer {
                 from: AccountId::from([0x0; 32]),
                 to: *to,
@@ -210,12 +210,13 @@ contract! {
                     .get_mut(of)
                     .ok_or("cannot get account counter")?;
                 *count += 1;
+                return Ok(());
             } else{
-                self.owned_tokens_count
-                    .insert(*of, 1)
-                    .ok_or("cannot insert counter")?;
-            }
-            Ok(())
+                match self.owned_tokens_count.insert(*of, 1) {
+                    Some(_) => return Err("cannot insert counter"),
+                    None => return Ok(())
+                };
+            };
         }
 
         fn decrease_counter_of(&mut self, of: &AccountId) -> Result<(), &'static str> {
