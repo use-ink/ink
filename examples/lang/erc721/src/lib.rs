@@ -132,13 +132,10 @@ contract! {
                 return Err("token not found");
             };
 
+            self.decrease_counter_of(from)?;
             self.token_owner
                 .remove(id)
                 .ok_or("cannot remove token")?;
-            let count = self.owned_tokens_count
-                .get_mut(from)
-                .ok_or("cannot get account counter")?;
-            *count += 1u32;
             Ok(())
         }
 
@@ -147,13 +144,10 @@ contract! {
                  return Err("token exists and assigned")
             };
 
+            self.increase_counter_of(to);
             self.token_owner
                 .insert(*id, *to)
                 .ok_or("cannot insert token")?;
-            let count = self.owned_tokens_count
-                .get_mut(to)
-                .ok_or("cannot get account counter")?;
-            *count -= 1u32;
             Ok(())
         }
 
@@ -168,17 +162,8 @@ contract! {
             self.token_owner
                 .insert(*id, *to)
                 .ok_or("cannot insert token")?;
-
-            if self.balance_of(to) > 0 {
-                let count = self.owned_tokens_count 
-                    .get_mut(to)
-                    .ok_or("cannot get account counter")?;
-                *count += 1u32;
-            } else{
-                self.owned_tokens_count
-                .insert(*to, 1u32)
-                .ok_or("cannot insert counter")?;
-            }
+            self.increase_counter_of(to);
+            self.all_tokens.push(*id);
             env.emit(Transfer {
                 from: AccountId::from([0x0; 32]),
                 to: *to,
@@ -193,10 +178,7 @@ contract! {
             };
 
             self.clear_approval(id)?;
-            let count = self.owned_tokens_count
-                .get_mut(from)
-                .ok_or("cannot get account counter")?;
-            *count -= 1u32;
+            self.decrease_counter_of(from)?;
             self.token_owner
                 .remove(id)
                 .ok_or("cannot remove token")?;
@@ -205,6 +187,29 @@ contract! {
                 to: AccountId::from([0x0; 32]),
                 id: *id,
             });
+            self.all_tokens.swap_remove(*id);
+            Ok(())
+        }
+
+        fn increase_counter_of(&mut self, of: &AccountId) -> Result<(), &'static str> {
+            if self.balance_of(of) > 0 {
+                let count = self.owned_tokens_count 
+                    .get_mut(of)
+                    .ok_or("cannot get account counter")?;
+                *count += 1;
+            } else{
+                self.owned_tokens_count
+                    .insert(*of, 1)
+                    .ok_or("cannot insert counter")?;
+            }
+            Ok(())
+        }
+
+        fn decrease_counter_of(&mut self, of: &AccountId) -> Result<(), &'static str> {
+            let count = self.owned_tokens_count
+                .get_mut(of)
+                .ok_or("cannot get account counter")?;
+            *count -= 1;
             Ok(())
         }
 
