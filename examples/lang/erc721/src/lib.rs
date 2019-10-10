@@ -71,15 +71,21 @@ contract! {
             balance
         }
 
-        pub(external) fn get_owner(&self, id: u32) -> AccountId {
+        pub(external) fn get_owner(&self, id: TokenId) -> AccountId {
             let owner = self.owner_of(&id);
             env.println(&format!("Erc721::owner_of(token = {:?}) = {:?}", id, owner));
             owner
         }
+
+        pub(external) fn mint_token(&mut self, to: AccountId, id: TokenId) -> Result<(), &'static str> {
+            self.mint(env, &to, &id)?;
+            env.println(&format!("Erc721::minted(token = {:?}) = {:?}", id, to));
+            Ok(())
+        }
     }
 
     impl Erc721 {
-        fn approve(&mut self, env: &mut EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn approve(&mut self, env: &EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             let caller = env.caller();
             if self.owner_of(id) != caller {
                 return Err("not owner")
@@ -96,7 +102,7 @@ contract! {
             Ok(())
         }
 
-        fn transfer_from(&mut self, env: &mut EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn transfer_from(&mut self, env: &EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             let caller = env.caller();
             if !self.approved_or_owner(&caller, id){
                 return Err("not approved")
@@ -151,7 +157,7 @@ contract! {
             Ok(())
         }
 
-        fn mint(&mut self, env: &mut EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn mint(&mut self, env: &EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             if *to == AccountId::from([0x0; 32]){
                 return Err("cannot mint to account zero")
             };
@@ -172,7 +178,7 @@ contract! {
             Ok(())
         }
 
-        fn burn(&mut self, env: &mut EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), &'static str> {
+        fn burn(&mut self, env: &EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), &'static str> {
             if self.owner_of(id) == *from {
                 return Err("burn of token that is not own")
             };
@@ -243,12 +249,27 @@ mod tests {
 
     #[test]
     fn deployment_works() {
-        let alice = AccountId::from([0x0; 32]);
+        let alice = AccountId::from([0x1; 32]);
         env::test::set_caller::<Types>(alice);
 
         let erc721 = Erc721::deploy_mock();
         assert_eq!(erc721.get_total_supply(), 0);
         assert_eq!(erc721.get_balance(alice), 0);
         assert_eq!(erc721.get_owner(1), AccountId::from([0x0; 32]));
+    }
+
+    #[test]
+    fn mint_token_works() {
+        let alice = AccountId::from([0x1; 32]);
+        env::test::set_caller::<Types>(alice);
+
+        let mut erc721 = Erc721::deploy_mock();
+        assert_eq!(erc721.get_total_supply(), 0);
+        assert_eq!(erc721.get_balance(alice), 0);
+        assert_eq!(erc721.get_owner(1), AccountId::from([0x0; 32]));
+        assert_eq!(erc721.mint_token(alice, 1),Ok(()));
+        assert_eq!(erc721.get_total_supply(), 1);
+        assert_eq!(erc721.get_balance(alice), 1);
+        assert_eq!(erc721.get_owner(1), alice);
     }
 }
