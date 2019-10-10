@@ -87,6 +87,12 @@ contract! {
             env.println(&format!("Erc721::burned(token = {:?}) = {:?}", id, from));
             Ok(())
         }
+
+        pub(external) fn approve_transfer(&mut self, to: AccountId, id: TokenId) -> Result<(), &'static str> {
+            self.approve(env, &to, &id)?;
+            env.println(&format!("Erc721::approved(token = {:?}) = {:?}", id, to));
+            Ok(())
+        }
     }
 
     impl Erc721 {
@@ -97,8 +103,8 @@ contract! {
             };
 
             self.token_approvals
-                .insert(*id, caller)
-                .ok_or("cannot approve token")?;
+                .insert(*id, *to)
+                .ok_or("cannot approve token"); //?; fix
             env.emit(Approval {
                 owner: caller,
                 to: *to,
@@ -136,9 +142,6 @@ contract! {
         }
 
         fn remove_token_from(&mut self, from: &AccountId, id: &TokenId) -> Result<(), &'static str> {
-            if self.owner_of(id) != *from {
-                return Err("not owner")
-            };
             if !self.exists(id){
                 return Err("token not found");
             };
@@ -155,10 +158,10 @@ contract! {
                  return Err("token exists and assigned")
             };
 
-            self.increase_counter_of(to); //?; TODO: fix insert error propagation
+            self.increase_counter_of(to); //?; fix
             self.token_owner
                 .insert(*id, *to)
-                .ok_or("cannot insert token"); //?; TODO: fix insert error propagation
+                .ok_or("cannot insert token"); //?; fix
             Ok(())
         }
 
@@ -172,8 +175,8 @@ contract! {
 
             self.token_owner
                 .insert(*id, *to)
-                .ok_or("cannot insert token"); //?; TODO: fix insert error propagation
-            self.increase_counter_of(to); //?; TODO: fix insert error propagation
+                .ok_or("cannot insert token"); //?; fix
+            self.increase_counter_of(to); //?; fix
             env.emit(Transfer {
                 from: AccountId::from([0x0; 32]),
                 to: *to,
@@ -198,7 +201,6 @@ contract! {
                 to: AccountId::from([0x0; 32]),
                 id: *id,
             });
-
             Ok(())
         }
 
@@ -280,8 +282,8 @@ mod tests {
         let alice = AccountId::from([0x1; 32]);
         let bob = AccountId::from([0x2; 32]);
         env::test::set_caller::<Types>(alice);
-
         let mut erc721 = Erc721::deploy_mock();
+
         assert_eq!(erc721.mint_token(alice, 1),Ok(()));
         assert_eq!(erc721.get_balance(alice), 1);
         assert_eq!(erc721.get_owner(1), alice);
@@ -296,8 +298,8 @@ mod tests {
         let alice = AccountId::from([0x1; 32]);
         let bob = AccountId::from([0x2; 32]);
         env::test::set_caller::<Types>(alice);
-
         let mut erc721 = Erc721::deploy_mock();
+
         assert_eq!(erc721.mint_token(alice, 1),Ok(()));
         assert_eq!(erc721.get_balance(alice), 1);
         assert_eq!(erc721.get_owner(1), alice);
@@ -309,5 +311,37 @@ mod tests {
         env::test::set_caller::<Types>(bob);
         assert_eq!(erc721.burn_token(bob, 1),Ok(()));
         assert_eq!(erc721.get_balance(bob), 0);
+    }
+
+    #[test]
+    fn approved_transfer_works() {
+        let alice = AccountId::from([0x1; 32]);
+        let bob = AccountId::from([0x2; 32]);
+        let cris = AccountId::from([0x3; 32]);
+        env::test::set_caller::<Types>(alice);
+        let mut erc721 = Erc721::deploy_mock();
+
+        assert_eq!(erc721.get_balance(alice), 0);
+        assert_eq!(erc721.get_balance(bob), 0);
+        assert_eq!(erc721.get_balance(cris), 0);
+
+        assert_eq!(erc721.mint_token(alice, 1),Ok(()));
+        assert_eq!(erc721.get_balance(alice), 1);
+        assert_eq!(erc721.get_balance(bob), 0);
+        assert_eq!(erc721.get_balance(cris), 0);
+
+        env::test::set_caller::<Types>(bob);
+        assert_eq!(erc721.transfer_token(alice, cris, 1), Err("not approved"));
+
+        env::test::set_caller::<Types>(alice);
+        assert_eq!(erc721.approve_transfer(bob, 1),Ok(()));
+
+        env::test::set_caller::<Types>(bob);
+        assert_eq!(erc721.transfer_token(alice, cris, 1), Ok(()));
+        assert_eq!(erc721.get_owner(1), cris);
+
+        assert_eq!(erc721.get_balance(alice), 0);
+        assert_eq!(erc721.get_balance(bob), 0);
+        assert_eq!(erc721.get_balance(cris), 1);
     }
 }
