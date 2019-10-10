@@ -482,4 +482,12 @@ where
     fn println(content: &str) {
         println!("{}", content)
     }
+
+    fn get_runtime_storage<I, R>(_buffer: &mut I, _key: &[u8]) -> Result<R>
+        where
+            I: AsMut<[u8]> + EnlargeTo,
+            R: scale::Decode,
+    {
+        unimplemented!()
+    }
 }
