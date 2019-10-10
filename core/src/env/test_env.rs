@@ -175,6 +175,8 @@ impl StorageEntry {
 pub struct TestEnvData {
     /// The storage entries.
     storage: HashMap<Key, StorageEntry>,
+    /// The runtime storage entries
+    runtime_storage: HashMap<Vec<u8>, StorageEntry>,
     /// The address of the contract.
     ///
     /// # Note
@@ -248,6 +250,7 @@ impl Default for TestEnvData {
         Self {
             address: Vec::new(),
             storage: HashMap::new(),
+            runtime_storage: HashMap::new(),
             balance: Vec::new(),
             caller: Vec::new(),
             input: Vec::new(),
@@ -276,6 +279,7 @@ impl TestEnvData {
         self.address.clear();
         self.balance.clear();
         self.storage.clear();
+        self.runtime_storage.clear();
         self.caller.clear();
         self.input.clear();
         self.random_seed.clear();
@@ -434,6 +438,16 @@ impl TestEnvData {
     /// Sets the address of the next instantiated smart contract.
     pub fn set_next_create_address(&mut self, account_id: &[u8]) {
         self.next_create_address = account_id.to_vec();
+    }
+
+    /// Sets the runtime storage value
+    pub fn set_runtime_storage(&mut self, key: Vec<u8>, value: &[u8]) {
+        match self.runtime_storage.entry(key) {
+            Entry::Occupied(mut occupied) => occupied.get_mut().write(value.to_vec()),
+            Entry::Vacant(vacant) => {
+                vacant.insert(StorageEntry::new(value.to_vec()));
+            }
+        }
     }
 }
 
@@ -608,6 +622,13 @@ where
         })
     }
 
+    pub fn set_runtime_storage<U: scale::Encode>(key: Vec<u8>, value: U) {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow_mut()
+                .set_runtime_storage(key, &value.encode())
+        })
+    }
     impl_env_setters_for_test_env!(
         (set_address, address, T::AccountId),
         (set_balance, balance, T::Balance),
@@ -779,6 +800,16 @@ where
                     .create(code_hash, gas_limit, value, input_data))[..],
             )
             .map_err(|_| CreateError)
+        })
+    }
+
+    fn runtime_get_storage<U: Decode>(key: &[u8]) -> Option<Result<U, scale::Error>> {
+        TEST_ENV_DATA.with(|test_env| {
+            test_env
+                .borrow_mut()
+                .runtime_storage
+                .get(key)
+                .map(|value| Decode::decode(&mut &value.data[..]))
         })
     }
 }

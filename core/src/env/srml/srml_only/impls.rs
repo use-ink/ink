@@ -245,4 +245,13 @@ where
         <Self as EnvTypes>::AccountId::decode(&mut &read_scratch_buffer()[..])
             .map_err(|_| CreateError)
     }
+
+    fn runtime_get_storage<U: Decode>(key: &[u8]) -> Option<Result<T, scale::Error>> {
+        const SUCCESS: u32 = 0;
+        let result =  unsafe { sys::ext_runtime_get_storage(key.as_bytes().as_ptr() as u32, key.len() as u32) };
+        if result == SUCCESS {
+            return Some(U::decode(&mut &read_scratch_buffer()[..]))
+        }
+        None
+    }
 }
