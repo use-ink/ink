@@ -180,6 +180,6 @@ pub trait Env: EnvTypes {
         input_data: &[u8],
     ) -> Result<<Self as EnvTypes>::AccountId, CreateError>;
 
-    /// Returns the raw runtime storage value at the given key
+    /// Returns the runtime storage value at the given key
     fn runtime_get_storage<U: Decode>(key: &[u8]) -> Option<Result<U, scale::Error>>;
 }

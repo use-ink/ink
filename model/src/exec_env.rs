@@ -222,7 +222,7 @@ impl<T: Env> EnvHandler<T> {
     }
 
     /// Returns the runtime storage value at the given key
-    fn runtime_get_storage<U: Decode>(key: &[u8]) -> Option<Result<U, scale::Error>> {
-        T::runtime_get_storage(key)
+    pub fn runtime_get_storage<U: Decode>(&self, key: &[u8]) -> Option<Result<U, scale::Error>> {
+        T::runtime_get_storage::<U>(key)
     }
 }
