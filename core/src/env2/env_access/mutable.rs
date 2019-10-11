@@ -61,6 +61,7 @@ pub struct EnvAccessMut<E> {
 }
 
 impl<E> AllocateUsing for EnvAccessMut<E> {
+    #[inline]
     unsafe fn allocate_using<A>(_alloc: &mut A) -> Self
     where
         A: Allocate,

@@ -55,6 +55,7 @@ pub struct EnvAccess<T> {
 }
 
 impl<E> AllocateUsing for EnvAccess<E> {
+    #[inline]
     unsafe fn allocate_using<A>(_alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -64,13 +65,14 @@ impl<E> AllocateUsing for EnvAccess<E> {
 }
 
 impl<E> Flush for EnvAccess<E> {
-    #[inline]
+    #[inline(always)]
     fn flush(&mut self) {}
 }
 
 impl<E> Initialize for EnvAccess<E> {
     type Args = ();
 
+    #[inline(always)]
     fn initialize(&mut self, _args: Self::Args) {}
 }
 
