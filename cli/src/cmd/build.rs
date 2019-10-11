@@ -88,20 +88,10 @@ pub fn collect_crate_metadata() -> Result<CrateMetadata> {
     })
 }
 
-/// Invokes `cargo build` in the current directory.
-///
-/// Currently it assumes that user wants to use `+nightly`.
-fn build_cargo_project() -> Result<()> {
-    // We also assume that the user uses +nightly.
+fn exec_cargo(command: &str, args: &[&'static str]) -> Result<()> {
     let output = Command::new("cargo")
-        .args(&[
-            "+nightly",
-            "build",
-            "--no-default-features",
-            "--release",
-            "--target=wasm32-unknown-unknown",
-            "--verbose",
-        ])
+        .arg(command)
+        .args(args)
         .output()?;
 
     if !output.status.success() {
@@ -112,6 +102,18 @@ fn build_cargo_project() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Invokes `cargo build` in the current directory.
+///
+/// Currently it assumes that user wants to use `+nightly`.
+fn build_cargo_project() -> Result<()> {
+    exec_cargo("build", &[
+        "--no-default-features",
+        "--release",
+        "--target=wasm32-unknown-unknown",
+        "--verbose",
+    ])
 }
 
 /// Ensures the wasm memory import of a given module has the maximum number of pages.
@@ -190,16 +192,31 @@ fn post_process_wasm(crate_metadata: &CrateMetadata) -> Result<()> {
     Ok(())
 }
 
+/// Generates the contract abi artifacts.
+fn generate_abi() -> Result<()> {
+    exec_cargo("run", &[
+        "--package",
+        "abi-gen",
+        "--verbose",
+    ])
+}
+
 /// Executes build of the smart-contract which produces a wasm binary that is ready for deploying.
 ///
 /// It does so by invoking build by cargo and then post processing the final binary.
-pub(crate) fn execute_build() -> Result<String> {
-    println!(" [1/3] Collecting crate metadata");
+pub(crate) fn execute_build(gen_abi: bool) -> Result<String> {
+    let steps = if gen_abi { 4 } else { 3 };
+    println!(" [1/{}] Collecting crate metadata", steps);
     let crate_metadata = collect_crate_metadata()?;
-    println!(" [2/3] Building cargo project");
+    println!(" [2/{}] Building cargo project", steps);
     build_cargo_project()?;
-    println!(" [3/3] Post processing wasm file");
+    println!(" [3/{}] Post processing wasm file", steps);
     post_process_wasm(&crate_metadata)?;
+
+    if gen_abi {
+        println!(" [{}/{}] Collecting crate metadata", steps, steps);
+        generate_abi()?;
+    }
 
     Ok(format!(
         "Your contract is ready.\nYou can find it here:\n{}",
@@ -234,7 +251,7 @@ mod tests {
         with_tmp_dir(|| {
             execute_new(AbstractionLayer::Lang, "new_project").expect("new project creation failed");
             env::set_current_dir("./new_project").expect("cwd to new_project failed");
-            execute_build().expect("build failed");
+            execute_build(true).expect("build failed");
         });
     }
 }
