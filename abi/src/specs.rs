@@ -15,7 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use core::marker::PhantomData;
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 use type_metadata::{
     form::{
         CompactForm,
@@ -190,6 +190,7 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
     /// The selector hash of the message.
+    #[serde(serialize_with = "serialize_selector")]
     selector: u32,
     /// The parameters of the deploy handler.
     args: Vec<MessageParamSpec<F>>,
@@ -294,6 +295,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
     /// The selector hash of the message.
+    #[serde(serialize_with = "serialize_selector")]
     selector: u32,
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
@@ -794,4 +796,13 @@ impl MessageParamSpecBuilder {
     pub fn done(self) -> MessageParamSpec {
         self.spec
     }
+}
+
+fn serialize_selector<S>(selector: &u32, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let b = selector.to_be_bytes();
+    let hex = format!("0x{:02X}{:02X}{:02X}{:02X}", b[0], b[1], b[2], b[3]);
+    serializer.serialize_str(&hex)
 }
