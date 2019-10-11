@@ -21,12 +21,12 @@ use crate::{
             BumpAlloc,
             Initialize,
         },
+        collections::heap::impls::HeapType,
         Heap,
         Key,
     },
     test_utils::run_test,
 };
-use crate::storage::collections::heap::impls::HeapType;
 
 /// Run the supplied test for the min and max heap.
 fn run_min_max_test<F>(test: F) -> ()
@@ -67,9 +67,7 @@ fn assert_push_equals_sorted_pop(
     vec: Vec<i32>,
     expected: Vec<i32>,
 ) {
-    vec
-        .into_iter()
-        .for_each(|i| heap.push(i));
+    vec.into_iter().for_each(|i| heap.push(i));
 
     expected
         .into_iter()
@@ -336,13 +334,7 @@ fn unordered_push_results_in_ordered_pop() {
 fn min_heap_with_three_levels() {
     run_test(|| {
         let mut heap = empty_heap(HeapType::Min);
-        let vec = vec![
-            100,
-            10, 20, 30,
-            7, 8, 9,
-            17, 18, 29,
-            27, 28, 30,
-        ];
+        let vec = vec![100, 10, 20, 30, 7, 8, 9, 17, 18, 29, 27, 28, 30];
         let mut expected = vec.clone();
         expected.sort();
         assert_push_equals_sorted_pop(&mut heap, vec, expected);
@@ -353,13 +345,7 @@ fn min_heap_with_three_levels() {
 fn max_heap_with_three_levels() {
     run_test(|| {
         let mut heap = empty_heap(HeapType::Max);
-        let vec = vec![
-            100,
-            10, 20, 30,
-            7, 8, 9,
-            17, 18, 29,
-            27, 28, 30,
-        ];
+        let vec = vec![100, 10, 20, 30, 7, 8, 9, 17, 18, 29, 27, 28, 30];
         let mut expected = vec.clone();
         expected.sort_by(|a, b| b.cmp(a));
         assert_push_equals_sorted_pop(&mut heap, vec, expected);

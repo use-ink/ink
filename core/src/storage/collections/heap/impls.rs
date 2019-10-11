@@ -146,10 +146,7 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Values<'a, T>
-where
-    T: scale::Codec + cmp::PartialOrd,
-{}
+impl<'a, T> ExactSizeIterator for Values<'a, T> where T: scale::Codec + cmp::PartialOrd {}
 
 impl<'a, T> DoubleEndedIterator for Values<'a, T>
 where
@@ -200,14 +197,14 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
         if self.yielded == self.heap.len() {
-            return None;
+            return None
         }
         while self.begin < self.end {
             let cur = self.begin;
             self.begin += 1;
             if let Some(elem) = self.heap.get(cur) {
                 self.yielded += 1;
-                return Some((cur, elem));
+                return Some((cur, elem))
             }
         }
         None
@@ -219,10 +216,7 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T>
-where
-    T: scale::Codec + cmp::PartialOrd,
-{}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Codec + cmp::PartialOrd {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
@@ -231,13 +225,13 @@ where
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
         if self.yielded == self.heap.len() {
-            return None;
+            return None
         }
         while self.begin < self.end {
             self.end -= 1;
             if let Some(elem) = self.heap.get(self.end) {
                 self.yielded += 1;
-                return Some((self.end, elem));
+                return Some((self.end, elem))
             }
         }
         None
@@ -279,10 +273,7 @@ impl<T> Initialize for Heap<T> {
     }
 
     fn initialize(&mut self, heap_type: Self::Args) {
-        self.header.set(HeapHeader {
-            len: 0,
-            heap_type: heap_type,
-        });
+        self.header.set(HeapHeader { len: 0, heap_type });
     }
 }
 
@@ -318,13 +309,13 @@ where
     /// Complexity is `O(log(n))`.
     pub fn pop(&mut self) -> Option<T> {
         if self.header.len == 0 {
-            return None;
+            return None
         }
 
         let tmp = self.entries.take(0);
         if self.header.len == 1 {
             self.header.len -= 1;
-            return tmp;
+            return tmp
         }
 
         self.relocate(self.header.len - 1, 0);
@@ -338,14 +329,16 @@ where
     /// sort order is maintained.
     fn repair_top(&mut self) {
         let mut top_index = 0;
-        let top_value = self.entries.take(top_index)
+        let top_value = self
+            .entries
+            .take(top_index)
             .expect("failed taking top element from heap");
-        let mut succ_index = self.find_successor(
-            top_index * CHILDS + 1,
-            top_index * CHILDS + CHILDS
-        );
+        let mut succ_index =
+            self.find_successor(top_index * CHILDS + 1, top_index * CHILDS + CHILDS);
         while succ_index < self.header.len && {
-            let succ_value = self.entries.get(succ_index)
+            let succ_value = self
+                .entries
+                .get(succ_index)
                 .expect("failed retrieving successor");
             match self.header.heap_type {
                 HeapType::Min => top_value > *succ_value,
@@ -354,10 +347,8 @@ where
         } {
             self.relocate(succ_index, top_index);
             top_index = succ_index;
-            succ_index = self.find_successor(
-                succ_index * CHILDS + 1,
-                succ_index * CHILDS + CHILDS
-            );
+            succ_index = self
+                .find_successor(succ_index * CHILDS + 1, succ_index * CHILDS + CHILDS);
         }
         let _ = self.entries.put(top_index, top_value);
     }
@@ -373,10 +364,11 @@ where
         let mut i = from + 1;
 
         while i <= to && i < self.header.len {
-            let succ_value = self.entries.get(succ_index)
+            let succ_value = self
+                .entries
+                .get(succ_index)
                 .expect("failed getting successor value");
-            let i_value = self.entries.get(i)
-                .expect("failed getting value at index");
+            let i_value = self.entries.get(i).expect("failed getting value at index");
             let is_successor = match self.header.heap_type {
                 HeapType::Min => succ_value > i_value,
                 HeapType::Max => succ_value < i_value,
@@ -404,7 +396,7 @@ where
         if self.len() == 0 {
             let _ = self.entries.put(0, val);
             self.header.len += 1;
-            return;
+            return
         }
 
         // Relocate until the item is smaller (`HeapType::Min`) or greater (`HeapType::Max`)
@@ -412,7 +404,9 @@ where
         let mut index = self.header.len;
         let mut parent_index = self.parent_index(index);
         while index != 0 && {
-            let parent_value = self.entries.get(parent_index)
+            let parent_value = self
+                .entries
+                .get(parent_index)
                 .expect("failed getting parent value");
             match self.header.heap_type {
                 HeapType::Min => val < *parent_value,
@@ -450,8 +444,7 @@ where
     /// Relocate the item at index `from` to `to`.
     /// Overwrites the item at `to`
     fn relocate(&mut self, from: u32, to: u32) {
-        let entry = self.entries.take(from)
-            .expect("failed relocating item");
+        let entry = self.entries.take(from).expect("failed relocating item");
         let _ = self.entries.put(to, entry);
     }
 
