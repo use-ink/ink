@@ -220,4 +220,9 @@ impl<T: Env> EnvHandler<T> {
     ) -> Result<U, CallError> {
         T::call_evaluate(callee, gas, value, input_data)
     }
+
+    /// Returns the runtime storage value at the given key
+    fn runtime_get_storage<U: Decode>(key: &[u8]) -> Option<Result<U, scale::Error>> {
+        T::runtime_get_storage(key)
+    }
 }
