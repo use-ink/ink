@@ -11,7 +11,7 @@ You can find our code of conduct [here](CODE_OF_CONDUCT.md).
 
 ## During Development
 
-### Commits
+### Commits.
 
 Please follow our simple commit style guidelines.
 
