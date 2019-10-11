@@ -20,9 +20,17 @@ contract! {
         pub(external) fn get_balance(&self, account: AccountId) -> Balance {
             const BALANCE_OF: &[u8] = b"balance:";
             let key = account.to_keyed_vec(BALANCE_OF);
-            env.runtime_get_storage::<Balance>(&key)
-                .expect("account key should have a balance")
-                .expect("should decode runtime storage balance")
+            match env.runtime_get_storage::<Balance>(&key) {
+                Some(Ok(balance)) => balance,
+                Some(Err(_)) => {
+                    env.println("Error decoding balance");
+                    0
+                },
+                None => {
+                    env.println("Balance for account not found");
+                    0
+                }
+            }
         }
     }
 }
