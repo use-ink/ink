@@ -193,6 +193,9 @@ contract! {
 
         fn burn(&mut self, env: &EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), &'static str> {
             let caller = env.caller();
+            if !self.exists(id){
+                 return Err("token does not exists")
+            };
             if self.owner_of(id) != caller && *from != AccountId::from([0x0; 32]) {
                 return Err("burn of token that is not own")
             };
@@ -263,12 +266,16 @@ mod tests {
     type Types = ink_core::env::DefaultSrmlTypes;
     type Erc721Test = test::TestableErc721;
 
-    fn generate_accounts(length: u8) -> Vec<AccountId> {
-        let mut accounts: Vec<AccountId>  = vec![AccountId::from([0x0; 32]); 1];
-        for n in 1..=length {
-            accounts.push(AccountId::from([n; 32]));
+    fn generate_accounts(length: u8) -> Option<Vec<AccountId>> {
+        if length > 0 {
+            let mut accounts: Vec<AccountId> = vec![AccountId::from([0x0; 32]); 1];
+            for n in 1..=length {
+                accounts.push(AccountId::from([n; 32]));
+            }
+            Some(accounts)
+        } else{
+            None
         }
-        accounts
     }
 
     fn initialize_erc721(from: AccountId) -> Erc721Test {
@@ -278,7 +285,7 @@ mod tests {
 
     #[test]
     fn deployment_works() {
-        let accounts = generate_accounts(3);
+        let accounts = generate_accounts(3).unwrap();
         let erc721 = initialize_erc721(accounts[0]);
         assert_eq!(erc721.get_balance(accounts[0]), 0);
         assert_eq!(erc721.get_owner(1), AccountId::from([0x0; 32]));
@@ -286,21 +293,24 @@ mod tests {
 
     #[test]
     fn mint_works() {
-        let accounts = generate_accounts(2);
+        let accounts = generate_accounts(2).unwrap();
         let mut erc721 = initialize_erc721(accounts[0]);
         assert_eq!(erc721.get_owner(1), accounts[0]);
         assert_eq!(erc721.get_balance(accounts[1]), 0);
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
         assert_eq!(erc721.get_owner(1), accounts[1]);
-        assert_eq!(erc721.mint_token(accounts[2], 2),Ok(()));
+        assert_eq!(erc721.mint_token(accounts[1], 2),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 2);
+        assert_eq!(erc721.get_owner(2), accounts[1]);
+        assert_eq!(erc721.mint_token(accounts[2], 3),Ok(()));
         assert_eq!(erc721.get_balance(accounts[2]), 1);
-        assert_eq!(erc721.get_owner(2), accounts[2]);
+        assert_eq!(erc721.get_owner(3), accounts[2]);
     }
 
     #[test]
     fn mint_existing_should_fail() {
-        let accounts = generate_accounts(2);
+        let accounts = generate_accounts(2).unwrap();
         let mut erc721 = initialize_erc721(accounts[0]);
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
@@ -312,7 +322,7 @@ mod tests {
 
     #[test]
     fn transfer_works() {
-        let accounts = generate_accounts(2);
+        let accounts = generate_accounts(2).unwrap();
         let mut erc721 = initialize_erc721(accounts[0]);
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
@@ -327,7 +337,7 @@ mod tests {
 
     #[test]
     fn invalid_transfer_should_fail() {
-        let accounts = generate_accounts(3);
+        let accounts = generate_accounts(3).unwrap();
         let mut erc721 = initialize_erc721(accounts[0]);
         assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 2), Err("token not found"));
         assert_eq!(erc721.get_owner(2), accounts[0]);
@@ -348,7 +358,7 @@ mod tests {
 
     #[test]
     fn burn_works() {
-        let accounts = generate_accounts(3);
+        let accounts = generate_accounts(3).unwrap();
         let mut erc721 = initialize_erc721(accounts[0]);
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
@@ -367,7 +377,7 @@ mod tests {
 
     #[test]
     fn approved_transfer_works() {
-        let accounts = generate_accounts(3);
+        let accounts = generate_accounts(3).unwrap();
         let mut erc721 = initialize_erc721(accounts[0]);
 
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
@@ -386,7 +396,7 @@ mod tests {
 
     #[test]
     fn not_approved_transfer_should_fail() {
-        let accounts = generate_accounts(3);
+        let accounts = generate_accounts(3).unwrap();
         let mut erc721 = initialize_erc721(accounts[0]);
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
