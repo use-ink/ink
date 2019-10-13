@@ -101,7 +101,10 @@ contract! {
             if self.owner_of(id) != caller {
                 return Err("not owner")
             };
-
+            if *to == AccountId::from([0x0; 32]) {
+                return Err("cannot approve account zero")
+            };
+            
             if !self.token_approvals.insert(*id, *to).is_none() {
                 return Err("cannot insert approval")
             };
@@ -115,6 +118,9 @@ contract! {
 
         fn transfer_from(&mut self, env: &EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
             let caller = env.caller();
+            if !self.exists(id){
+                return Err("token not found");
+            };
             if !self.approved_or_owner(&caller, id){
                 return Err("not approved")
             };
@@ -187,7 +193,7 @@ contract! {
 
         fn burn(&mut self, env: &EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), &'static str> {
             let caller = env.caller();
-            if self.owner_of(id) != caller {
+            if self.owner_of(id) != caller && *from != AccountId::from([0x0; 32]) {
                 return Err("burn of token that is not own")
             };
 
@@ -239,8 +245,9 @@ contract! {
             *self.token_approvals.get(id).unwrap_or(&AccountId::from([0x0; 32]))
         }
 
-        fn approved_or_owner(&self, owner: &AccountId, id: &TokenId) -> bool {
-            *owner == self.owner_of(id) ||  *owner == self.approved_for(id)
+        fn approved_or_owner(&self, from: &AccountId, id: &TokenId) -> bool {
+            *from != AccountId::from([0x0; 32]) && 
+            (*from == self.owner_of(id) ||  *from == self.approved_for(id))
         }
 
         fn exists(&self, id: &TokenId) -> bool {
@@ -305,15 +312,38 @@ mod tests {
 
     #[test]
     fn transfer_works() {
-        let accounts = generate_accounts(5);
+        let accounts = generate_accounts(2);
         let mut erc721 = initialize_erc721(accounts[0]);
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
         assert_eq!(erc721.get_owner(1), accounts[1]);
+
+        env::test::set_caller::<Types>(accounts[1]);
         assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 0);
         assert_eq!(erc721.get_balance(accounts[2]), 1);
         assert_eq!(erc721.get_owner(1), accounts[2]);
+    }
+
+    #[test]
+    fn invalid_transfer_should_fail() {
+        let accounts = generate_accounts(3);
+        let mut erc721 = initialize_erc721(accounts[0]);
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 2), Err("token not found"));
+        assert_eq!(erc721.get_owner(2), accounts[0]);
+        assert_eq!(erc721.mint_token(accounts[1], 2),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 1);
+        assert_eq!(erc721.get_owner(2), accounts[1]);
+
+        env::test::set_caller::<Types>(accounts[2]);
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 2), Err("not approved"));
+        assert_eq!(erc721.mint_token(accounts[2], 55),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[2]), 1);
+        assert_eq!(erc721.get_owner(55), accounts[2]);
+
+        env::test::set_caller::<Types>(accounts[2]);
+        assert_eq!(erc721.transfer_token(accounts[2], accounts[3], 2), Err("not approved"));
+        assert_eq!(erc721.get_owner(2), accounts[1]);
     }
 
     #[test]
@@ -323,6 +353,8 @@ mod tests {
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
         assert_eq!(erc721.get_owner(1), accounts[1]);
+
+        env::test::set_caller::<Types>(accounts[1]);
         assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 0);
         assert_eq!(erc721.get_balance(accounts[2]), 1);
@@ -338,17 +370,8 @@ mod tests {
         let accounts = generate_accounts(3);
         let mut erc721 = initialize_erc721(accounts[0]);
 
-        assert_eq!(erc721.get_balance(accounts[1]), 0);
-        assert_eq!(erc721.get_balance(accounts[2]), 0);
-        assert_eq!(erc721.get_balance(accounts[3]), 0);
-
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
-        assert_eq!(erc721.get_balance(accounts[1]), 1);
-        assert_eq!(erc721.get_balance(accounts[2]), 0);
-        assert_eq!(erc721.get_balance(accounts[3]), 0);
-
-        env::test::set_caller::<Types>(accounts[2]);
-        assert_eq!(erc721.transfer_token(accounts[1], accounts[3], 1), Err("not approved"));
+        assert_eq!(erc721.get_owner(1), accounts[1]);
 
         env::test::set_caller::<Types>(accounts[1]);
         assert_eq!(erc721.approve_transfer(accounts[2], 1),Ok(()));
@@ -356,9 +379,24 @@ mod tests {
         env::test::set_caller::<Types>(accounts[2]);
         assert_eq!(erc721.transfer_token(accounts[1], accounts[3], 1), Ok(()));
         assert_eq!(erc721.get_owner(1), accounts[3]);
-
         assert_eq!(erc721.get_balance(accounts[1]), 0);
         assert_eq!(erc721.get_balance(accounts[2]), 0);
         assert_eq!(erc721.get_balance(accounts[3]), 1);
+    }
+
+    #[test]
+    fn not_approved_transfer_should_fail() {
+        let accounts = generate_accounts(3);
+        let mut erc721 = initialize_erc721(accounts[0]);
+        assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 1);
+        assert_eq!(erc721.get_balance(accounts[2]), 0);
+        assert_eq!(erc721.get_balance(accounts[3]), 0);
+
+        env::test::set_caller::<Types>(accounts[2]);
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[3], 1), Err("not approved"));
+        assert_eq!(erc721.get_balance(accounts[1]), 1);
+        assert_eq!(erc721.get_balance(accounts[2]), 0);
+        assert_eq!(erc721.get_balance(accounts[3]), 0);
     }
 }
