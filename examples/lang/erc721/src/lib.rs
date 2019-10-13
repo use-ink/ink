@@ -78,7 +78,7 @@ contract! {
 
         pub(external) fn transfer_token(&mut self, from: AccountId, to: AccountId, id: TokenId) -> Result<(), &'static str> {
             self.transfer_from(env, &from, &to, &id)?;
-            env.println(&format!("Erc721::transfered(token = {:?}) = {:?}", id, to));
+            env.println(&format!("Erc721::transferred(token = {:?}) = {:?}", id, to));
             Ok(())
         }
 
@@ -254,95 +254,111 @@ mod tests {
     use super::*;
     use ink_core::env;
     type Types = ink_core::env::DefaultSrmlTypes;
+    type Erc721Test = test::TestableErc721;
+
+    fn generate_accounts(length: u8) -> Vec<AccountId> {
+        let mut accounts: Vec<AccountId>  = vec![AccountId::from([0x0; 32]); 1];
+        for n in 1..=length {
+            accounts.push(AccountId::from([n; 32]));
+        }
+        accounts
+    }
+
+    fn initialize_erc721(from: AccountId) -> Erc721Test {
+        env::test::set_caller::<Types>(from);
+        Erc721::deploy_mock()
+    }
 
     #[test]
     fn deployment_works() {
-        let alice = AccountId::from([0x1; 32]);
-        env::test::set_caller::<Types>(alice);
-
-        let erc721 = Erc721::deploy_mock();
-        assert_eq!(erc721.get_balance(alice), 0);
+        let accounts = generate_accounts(3);
+        let erc721 = initialize_erc721(accounts[0]);
+        assert_eq!(erc721.get_balance(accounts[0]), 0);
         assert_eq!(erc721.get_owner(1), AccountId::from([0x0; 32]));
     }
 
     #[test]
     fn mint_works() {
-        let alice = AccountId::from([0x1; 32]);
-        env::test::set_caller::<Types>(alice);
+        let accounts = generate_accounts(2);
+        let mut erc721 = initialize_erc721(accounts[0]);
+        assert_eq!(erc721.get_owner(1), accounts[0]);
+        assert_eq!(erc721.get_balance(accounts[1]), 0);
+        assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 1);
+        assert_eq!(erc721.get_owner(1), accounts[1]);
+        assert_eq!(erc721.mint_token(accounts[2], 2),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[2]), 1);
+        assert_eq!(erc721.get_owner(2), accounts[2]);
+    }
 
-        let mut erc721 = Erc721::deploy_mock();
-        assert_eq!(erc721.get_balance(alice), 0);
-        assert_eq!(erc721.get_owner(1), AccountId::from([0x0; 32]));
-        assert_eq!(erc721.mint_token(alice, 1),Ok(()));
-        assert_eq!(erc721.get_balance(alice), 1);
-        assert_eq!(erc721.get_owner(1), alice);
+    #[test]
+    fn mint_existing_should_fail() {
+        let accounts = generate_accounts(2);
+        let mut erc721 = initialize_erc721(accounts[0]);
+        assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 1);
+        assert_eq!(erc721.get_owner(1), accounts[1]);
+        assert_eq!(erc721.mint_token(accounts[2], 1), Err("token already minted"));
+        assert_eq!(erc721.get_balance(accounts[2]), 0);
+        assert_eq!(erc721.get_owner(1), accounts[1]);
     }
 
     #[test]
     fn transfer_works() {
-        let alice = AccountId::from([0x1; 32]);
-        let bob = AccountId::from([0x2; 32]);
-        env::test::set_caller::<Types>(alice);
-        let mut erc721 = Erc721::deploy_mock();
-
-        assert_eq!(erc721.mint_token(alice, 1),Ok(()));
-        assert_eq!(erc721.get_balance(alice), 1);
-        assert_eq!(erc721.get_owner(1), alice);
-        assert_eq!(erc721.transfer_token(alice, bob, 1),Ok(()));
-        assert_eq!(erc721.get_balance(alice), 0);
-        assert_eq!(erc721.get_balance(bob), 1);
-        assert_eq!(erc721.get_owner(1), bob);
+        let accounts = generate_accounts(5);
+        let mut erc721 = initialize_erc721(accounts[0]);
+        assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 1);
+        assert_eq!(erc721.get_owner(1), accounts[1]);
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 0);
+        assert_eq!(erc721.get_balance(accounts[2]), 1);
+        assert_eq!(erc721.get_owner(1), accounts[2]);
     }
 
     #[test]
     fn burn_works() {
-        let alice = AccountId::from([0x1; 32]);
-        let bob = AccountId::from([0x2; 32]);
-        env::test::set_caller::<Types>(alice);
-        let mut erc721 = Erc721::deploy_mock();
+        let accounts = generate_accounts(3);
+        let mut erc721 = initialize_erc721(accounts[0]);
+        assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 1);
+        assert_eq!(erc721.get_owner(1), accounts[1]);
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 0);
+        assert_eq!(erc721.get_balance(accounts[2]), 1);
+        assert_eq!(erc721.get_owner(1), accounts[2]);
 
-        assert_eq!(erc721.mint_token(alice, 1),Ok(()));
-        assert_eq!(erc721.get_balance(alice), 1);
-        assert_eq!(erc721.get_owner(1), alice);
-        assert_eq!(erc721.transfer_token(alice, bob, 1),Ok(()));
-        assert_eq!(erc721.get_balance(alice), 0);
-        assert_eq!(erc721.get_balance(bob), 1);
-        assert_eq!(erc721.get_owner(1), bob);
-
-        env::test::set_caller::<Types>(bob);
-        assert_eq!(erc721.burn_token(bob, 1),Ok(()));
-        assert_eq!(erc721.get_balance(bob), 0);
+        env::test::set_caller::<Types>(accounts[2]);
+        assert_eq!(erc721.burn_token(accounts[2], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[2]), 0);
     }
 
     #[test]
     fn approved_transfer_works() {
-        let alice = AccountId::from([0x1; 32]);
-        let bob = AccountId::from([0x2; 32]);
-        let cris = AccountId::from([0x3; 32]);
-        env::test::set_caller::<Types>(alice);
-        let mut erc721 = Erc721::deploy_mock();
+        let accounts = generate_accounts(3);
+        let mut erc721 = initialize_erc721(accounts[0]);
 
-        assert_eq!(erc721.get_balance(alice), 0);
-        assert_eq!(erc721.get_balance(bob), 0);
-        assert_eq!(erc721.get_balance(cris), 0);
+        assert_eq!(erc721.get_balance(accounts[1]), 0);
+        assert_eq!(erc721.get_balance(accounts[2]), 0);
+        assert_eq!(erc721.get_balance(accounts[3]), 0);
 
-        assert_eq!(erc721.mint_token(alice, 1),Ok(()));
-        assert_eq!(erc721.get_balance(alice), 1);
-        assert_eq!(erc721.get_balance(bob), 0);
-        assert_eq!(erc721.get_balance(cris), 0);
+        assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
+        assert_eq!(erc721.get_balance(accounts[1]), 1);
+        assert_eq!(erc721.get_balance(accounts[2]), 0);
+        assert_eq!(erc721.get_balance(accounts[3]), 0);
 
-        env::test::set_caller::<Types>(bob);
-        assert_eq!(erc721.transfer_token(alice, cris, 1), Err("not approved"));
+        env::test::set_caller::<Types>(accounts[2]);
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[3], 1), Err("not approved"));
 
-        env::test::set_caller::<Types>(alice);
-        assert_eq!(erc721.approve_transfer(bob, 1),Ok(()));
+        env::test::set_caller::<Types>(accounts[1]);
+        assert_eq!(erc721.approve_transfer(accounts[2], 1),Ok(()));
 
-        env::test::set_caller::<Types>(bob);
-        assert_eq!(erc721.transfer_token(alice, cris, 1), Ok(()));
-        assert_eq!(erc721.get_owner(1), cris);
+        env::test::set_caller::<Types>(accounts[2]);
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[3], 1), Ok(()));
+        assert_eq!(erc721.get_owner(1), accounts[3]);
 
-        assert_eq!(erc721.get_balance(alice), 0);
-        assert_eq!(erc721.get_balance(bob), 0);
-        assert_eq!(erc721.get_balance(cris), 1);
+        assert_eq!(erc721.get_balance(accounts[1]), 0);
+        assert_eq!(erc721.get_balance(accounts[2]), 0);
+        assert_eq!(erc721.get_balance(accounts[3]), 1);
     }
 }
