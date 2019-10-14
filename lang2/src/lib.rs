@@ -27,12 +27,13 @@ pub use ink_lang2_macro::contract;
 
 pub use self::{
     dispatch::{
-        Dispatch,
-        DispatchMode,
         dispatch_constr,
         dispatch_msg,
         dispatch_msg_mut,
-        DerefEnv,
+        AccessEnv,
+        AccessEnvMut,
+        Dispatch,
+        DispatchMode,
     },
     error::{
         DispatchError,

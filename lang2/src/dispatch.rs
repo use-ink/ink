@@ -18,10 +18,10 @@ use crate::{
     Constructor,
     DispatchError,
     DispatchResult,
+    DispatchRetCode,
     FnInput,
     FnOutput,
     Message,
-    DispatchRetCode,
 };
 use core::any::TypeId;
 use ink_core::{
@@ -72,53 +72,60 @@ pub trait Dispatch {
     fn dispatch(mode: DispatchMode) -> DispatchRetCode;
 }
 
-/// Allows to directly access the environment generically.
+/// Allows to directly access the environment read-only.
 ///
 /// # Note
 ///
 /// This is generally implemented for storage structs that include
 /// their environment in order to allow the different dispatch functions
 /// to use it for returning the contract's output.
-///
-/// May make use of other environmental functions in the future.
-pub trait DerefEnv<E> {
+pub trait AccessEnv {
     /// The environment accessor.
     ///
     /// # Note
     ///
     /// This can be any of `ink_core::env::DynEnv` or `ink_core::env::EnvAccessMut`.
     /// The set of possible types may be extended in the future.
-    type Target: core::ops::Deref<Target = ink_core::env2::EnvAccessMut<E>>
-        + core::ops::DerefMut;
+    type Target;
 
     /// Returns an immutable access to the environment.
     fn env(&self) -> &Self::Target;
+}
 
+/// Allows to directly access the environment mutably.
+///
+/// # Note
+///
+/// This is generally implemented for storage structs that include
+/// their environment in order to allow the different dispatch functions
+/// to use it for returning the contract's output.
+pub trait AccessEnvMut: AccessEnv {
     /// Returns a mutable access to the environment.
     fn env_mut(&mut self) -> &mut Self::Target;
 }
 
-/// Executes a contract message for the given inputs on the storage.
+/// Executes a contract message for the given inputs.
 ///
 /// # Note
 ///
 /// The message may not mutate the storage.
 #[inline]
 pub fn dispatch_msg<E, S, M>(
-    storage: &mut S,
+    storage: &S,
     call_data: &CallData,
     impl_fn: fn(&S, <M as FnInput>::Input) -> <M as FnOutput>::Output,
 ) -> DispatchResult
 where
     E: Env,
-    S: DerefEnv<E>,
+    S: AccessEnv,
+    <S as AccessEnv>::Target: core::ops::Deref<Target = ink_core::env2::EnvAccess<E>>,
     M: Message,
 {
     let params = <M as FnInput>::Input::decode(&mut call_data.params())
         .map_err(|_| DispatchError::InvalidInstantiateParameters)?;
-    let ret = impl_fn(&storage, params);
+    let ret = impl_fn(storage, params);
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        storage.env_mut().output(&ret);
+        storage.env().output(&ret);
     }
     Ok(())
 }
@@ -136,7 +143,9 @@ pub fn dispatch_msg_mut<E, S, M>(
 ) -> DispatchResult
 where
     E: Env,
-    S: DerefEnv<E> + Flush,
+    S: AccessEnvMut + Flush,
+    <S as AccessEnv>::Target:
+        core::ops::DerefMut<Target = ink_core::env2::EnvAccessMut<E>>,
     M: Message,
 {
     let params = <M as FnInput>::Input::decode(&mut call_data.params())
