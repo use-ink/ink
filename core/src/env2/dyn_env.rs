@@ -58,6 +58,18 @@ pub struct DynEnv<E> {
     alloc: DynAlloc,
 }
 
+impl<E> DynEnv<E> {
+    #[inline]
+    pub fn env(&self) -> &E {
+        &self.env
+    }
+
+    #[inline]
+    pub fn env_mut(&mut self) -> &mut E {
+        &mut self.env
+    }
+}
+
 impl<E> From<DynEnv<EnvAccessMut<E>>> for DynEnv<EnvAccess<E>> {
     fn from(dyn_env: DynEnv<EnvAccessMut<E>>) -> Self {
         Self {
