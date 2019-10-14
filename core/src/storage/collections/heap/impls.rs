@@ -149,7 +149,8 @@ where
     }
 }
 
-/// Unordered iterator over the elements of a heap.
+/// Iterator over the elements of a heap. The iteration is not
+/// guaranteed to be ordered, it is arbitrary!
 #[derive(Debug)]
 pub struct Iter<'a, T> {
     /// The heap that is iterated over.
@@ -400,7 +401,8 @@ where
         let _ = self.entries.put(index, val);
     }
 
-    /// Returns an unordered iterator over the references of all nodes of the heap.
+    /// Returns an iterator over the references of all nodes of the heap.
+    /// The item order is arbitrary!
     ///
     /// # Note
     ///
@@ -429,7 +431,8 @@ where
         (n - 1) / CHILDS
     }
 
-    /// Returns an unordered iterator over all items of the heap.
+    /// Returns an iterator over all items of the heap.
+    /// The item order is arbitrary!
     ///
     /// # Note
     ///

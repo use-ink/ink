@@ -224,7 +224,7 @@ fn push_negative_positive_range_max() {
 }
 
 #[test]
-fn iterator_min() {
+fn iter() {
     run_test(|| {
         // given
         let heap = filled_heap();
@@ -233,24 +233,7 @@ fn iterator_min() {
         let mut iter = heap.iter();
 
         // then
-        assert_eq!(iter.next(), Some((0, &1337)));
-        assert_eq!(iter.next(), Some((1, &5)));
-        assert_eq!(iter.next(), Some((2, &42)));
-        assert_eq!(iter.next(), Some((3, &77)));
-        assert_eq!(iter.next(), None);
-    })
-}
-
-#[test]
-fn iterator_max() {
-    run_test(|| {
-        // given
-        let heap = filled_heap();
-
-        // when
-        let mut iter = heap.iter();
-
-        // then
+        // order can be arbitrary
         assert_eq!(iter.next(), Some((0, &1337)));
         assert_eq!(iter.next(), Some((1, &5)));
         assert_eq!(iter.next(), Some((2, &42)));
