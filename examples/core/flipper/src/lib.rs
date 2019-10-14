@@ -19,10 +19,21 @@ pub struct GenericFlipper<E> {
     env: E,
 }
 
+#[cfg(feature = "ink-dyn-alloc")]
 pub type Flipper =
     GenericFlipper<ink_core::env2::DynEnv<ink_core::env2::EnvAccessMut<Env>>>;
+
+#[cfg(feature = "ink-dyn-alloc")]
 pub type FlipperImm =
     GenericFlipper<ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>>;
+
+#[cfg(not(feature = "ink-dyn-alloc"))]
+pub type Flipper =
+    GenericFlipper<ink_core::env2::EnvAccessMut<Env>>;
+
+#[cfg(not(feature = "ink-dyn-alloc"))]
+pub type FlipperImm =
+    GenericFlipper<ink_core::env2::EnvAccess<Env>>;
 
 impl Flipper {
     pub fn new(&mut self, init_value: bool) {
@@ -49,7 +60,6 @@ impl FlipperImm {
 }
 
 const _: () = {
-
     impl From<Flipper> for FlipperImm {
         fn from(flipper: Flipper) -> Self {
             FlipperImm {
@@ -136,8 +146,20 @@ const _: () = {
 
     impl ink_lang2::Dispatch for Flipper {
         fn dispatch(mode: ink_lang2::DispatchMode) -> ink_lang2::DispatchRetCode {
+
+            #[cfg(feature = "ink-dyn-alloc")]
             impl ink_lang2::AccessEnv for Flipper {
                 type Target = ink_core::env2::DynEnv<ink_core::env2::EnvAccessMut<Env>>;
+
+                #[inline]
+                fn env(&self) -> &Self::Target {
+                    &self.env
+                }
+            }
+
+            #[cfg(not(feature = "ink-dyn-alloc"))]
+            impl ink_lang2::AccessEnv for Flipper {
+                type Target = ink_core::env2::EnvAccessMut<Env>;
 
                 #[inline]
                 fn env(&self) -> &Self::Target {
@@ -152,6 +174,7 @@ const _: () = {
                 }
             }
 
+            #[cfg(feature = "ink-dyn-alloc")]
             impl ink_lang2::AccessEnv for FlipperImm {
                 type Target = ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>;
 
@@ -160,6 +183,17 @@ const _: () = {
                     &self.env
                 }
             }
+
+            #[cfg(not(feature = "ink-dyn-alloc"))]
+            impl ink_lang2::AccessEnv for FlipperImm {
+                type Target = ink_core::env2::EnvAccess<Env>;
+
+                #[inline]
+                fn env(&self) -> &Self::Target {
+                    &self.env
+                }
+            }
+
             /// A concrete instance of a dispatchable message.
             pub struct Msg<S> {
                 /// We need to wrap inner because of Rust's orphan rules.

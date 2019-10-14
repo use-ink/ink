@@ -22,7 +22,7 @@ crate-type = [
 ]
 
 [features]
-default = ["test-env"]
+default = ["test-env", "ink-dyn-alloc"]
 std = [
     "ink_abi/std",
     "ink_core/std",
@@ -43,6 +43,7 @@ ink-generate-abi = [
     "ink_lang2/ink-generate-abi",
 ]
 ink-as-dependency = []
+ink-dyn-alloc = []
 
 [profile.release]
 panic = "abort"
