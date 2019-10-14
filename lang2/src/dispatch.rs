@@ -28,6 +28,9 @@ use ink_core::{
     env2::{
         call::CallData,
         Env,
+        DynEnv,
+        EnvAccess,
+        EnvAccessMut,
     },
     storage::Flush,
 };
@@ -102,6 +105,42 @@ pub trait AccessEnv {
 pub trait AccessEnvMut: AccessEnv {
     /// Returns a mutable access to the environment.
     fn env_mut(&mut self) -> &mut Self::Target;
+}
+
+impl<E> AccessEnv for DynEnv<E> {
+    type Target = E;
+
+    fn env(&self) -> &Self::Target {
+        DynEnv::env(self)
+    }
+}
+
+impl<E> AccessEnvMut for DynEnv<E> {
+    fn env_mut(&mut self) -> &mut Self::Target {
+        DynEnv::env_mut(self)
+    }
+}
+
+impl<E> AccessEnv for EnvAccess<E> {
+    type Target = Self;
+
+    fn env(&self) -> &Self::Target {
+        self
+    }
+}
+
+impl<E> AccessEnv for EnvAccessMut<E> {
+    type Target = Self;
+
+    fn env(&self) -> &Self::Target {
+        self
+    }
+}
+
+impl<E> AccessEnvMut for EnvAccessMut<E> {
+    fn env_mut(&mut self) -> &mut Self::Target {
+        self
+    }
 }
 
 /// Executes a contract message for the given inputs.
