@@ -58,6 +58,15 @@ pub struct DynEnv<E> {
     alloc: DynAlloc,
 }
 
+impl<E> From<DynEnv<EnvAccessMut<E>>> for DynEnv<EnvAccess<E>> {
+    fn from(dyn_env: DynEnv<EnvAccessMut<E>>) -> Self {
+        Self {
+            env: dyn_env.env.into(),
+            alloc: dyn_env.alloc,
+        }
+    }
+}
+
 impl<E> Deref for DynEnv<E> {
     type Target = E;
 
