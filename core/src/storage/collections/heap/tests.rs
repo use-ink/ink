@@ -338,8 +338,19 @@ fn min_heap_with_three_levels() {
             Heap::allocate_using(&mut alloc).initialize_into(())
         };
         let vec = vec![
-            V(100), V(10), V(20), V(30), V(7), V(8), V(9),
-            V(17), V(18), V(29), V(27), V(28), V(30)
+            V(100),
+            V(10),
+            V(20),
+            V(30),
+            V(7),
+            V(8),
+            V(9),
+            V(17),
+            V(18),
+            V(29),
+            V(27),
+            V(28),
+            V(30),
         ];
         let mut expected = vec.clone();
         expected.sort_by(|a, b| b.cmp(a));
