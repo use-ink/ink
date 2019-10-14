@@ -157,14 +157,18 @@ pub fn dispatch_msg<E, S, M>(
 where
     E: Env,
     S: AccessEnv,
-    <S as AccessEnv>::Target: core::ops::Deref<Target = ink_core::env2::EnvAccess<E>>,
+    <S as AccessEnv>::Target:
+        AccessEnv<Target = ink_core::env2::EnvAccess<E>>,
+    // We need double indirection because of optional `DynEnv` usage.
+    <<S as AccessEnv>::Target as AccessEnv>::Target:
+        AccessEnv<Target = ink_core::env2::EnvAccess<E>>,
     M: Message,
 {
     let params = <M as FnInput>::Input::decode(&mut call_data.params())
         .map_err(|_| DispatchError::InvalidInstantiateParameters)?;
     let ret = impl_fn(storage, params);
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        storage.env().output(&ret);
+        storage.env().env().output(&ret);
     }
     Ok(())
 }
@@ -184,14 +188,17 @@ where
     E: Env,
     S: AccessEnvMut + Flush,
     <S as AccessEnv>::Target:
-        core::ops::DerefMut<Target = ink_core::env2::EnvAccessMut<E>>,
+        AccessEnvMut<Target = ink_core::env2::EnvAccessMut<E>>,
+    // We need double indirection because of optional `DynEnv` usage.
+    <<S as AccessEnv>::Target as AccessEnv>::Target:
+        AccessEnvMut<Target = ink_core::env2::EnvAccessMut<E>>,
     M: Message,
 {
     let params = <M as FnInput>::Input::decode(&mut call_data.params())
         .map_err(|_| DispatchError::InvalidInstantiateParameters)?;
     let ret = impl_fn(storage, params);
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        storage.env_mut().output(&ret);
+        storage.env_mut().env_mut().output(&ret);
     }
     // Only flush in case the message is really defined as mutable.
     if <M as Message>::IS_MUT {
