@@ -25,7 +25,7 @@ use ink_lang::contract;
 use ink_model;
 
 pub type EnvHandler = ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>;
-pub type Result<T, E> = core::result::Result<T, E>;
+pub use core::result::Result;
 pub type TokenId = u32;
 pub type Counter = u32;
 
