@@ -1,39 +1,28 @@
 #![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use core::mem::ManuallyDrop;
-use ink_core::{
-    env2::{
-        call::CallData,
-        DefaultSrmlTypes,
-        DynEnv,
-        EnvAccessMut,
-        // EnvTypes,
-    },
-    storage::{
-        self,
-        alloc::{
-            Allocate,
-            AllocateUsing,
-            BumpAlloc,
-            Initialize,
-        },
-        Flush,
-        Key,
-    },
-};
+use ink_core::storage;
 
-type Env = ink_core::env2::EnvImpl<DefaultSrmlTypes>;
+type Env = ink_core::env2::EnvImpl<ink_core::env2::DefaultSrmlTypes>;
 // type AccountId = <DefaultSrmlTypes as EnvTypes>::AccountId;
 // type Balance = <DefaultSrmlTypes as EnvTypes>::Balance;
 // type Hash = <DefaultSrmlTypes as EnvTypes>::Hash;
 // type Moment = <DefaultSrmlTypes as EnvTypes>::Moment;
 // type BlockNumber = <DefaultSrmlTypes as EnvTypes>::BlockNumber;
 
-pub struct Flipper {
+pub struct Storage {
     value: storage::Value<bool>,
-    env: DynEnv<EnvAccessMut<Env>>,
 }
+
+pub struct GenericFlipper<E> {
+    storage: Storage,
+    env: E,
+}
+
+pub type Flipper =
+    GenericFlipper<ink_core::env2::DynEnv<ink_core::env2::EnvAccessMut<Env>>>;
+pub type FlipperImm =
+    GenericFlipper<ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>>;
 
 impl Flipper {
     pub fn new(&mut self, init_value: bool) {
@@ -53,55 +42,124 @@ impl Flipper {
     }
 }
 
-impl AllocateUsing for Flipper {
-    unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-    where
-        A: Allocate,
-    {
-        Self {
-            value: AllocateUsing::allocate_using(alloc),
-            env: AllocateUsing::allocate_using(alloc),
-        }
-    }
-}
-
-impl Flush for Flipper {
-    fn flush(&mut self) {
-        self.value.flush();
-        self.env.flush();
-    }
-}
-
-impl Initialize for Flipper {
-    type Args = ();
-
-    fn default_value() -> Option<Self::Args> {
-        Some(())
-    }
-
-    fn initialize(&mut self, _args: Self::Args) {
-        self.value.try_default_initialize();
-        self.env.try_default_initialize();
+impl FlipperImm {
+    pub fn get(&self) -> bool {
+        *self.value
     }
 }
 
 const _: () = {
+
+    impl From<Flipper> for FlipperImm {
+        fn from(flipper: Flipper) -> Self {
+            FlipperImm {
+                storage: flipper.storage,
+                env: flipper.env.into(),
+            }
+        }
+    }
+
+    impl<E> core::ops::Deref for GenericFlipper<E> {
+        type Target = Storage;
+
+        fn deref(&self) -> &Self::Target {
+            &self.storage
+        }
+    }
+
+    impl<E> core::ops::DerefMut for GenericFlipper<E> {
+        fn deref_mut(&mut self) -> &mut Self::Target {
+            &mut self.storage
+        }
+    }
+
+    impl ink_core::storage::alloc::AllocateUsing for Storage {
+        unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+        where
+            A: ink_core::storage::alloc::Allocate,
+        {
+            Self {
+                value: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+            }
+        }
+    }
+
+    impl ink_core::storage::Flush for Storage {
+        fn flush(&mut self) {
+            self.value.flush();
+        }
+    }
+
+    impl ink_core::storage::alloc::Initialize for Storage {
+        type Args = ();
+
+        fn default_value() -> Option<Self::Args> {
+            Some(())
+        }
+
+        fn initialize(&mut self, _args: Self::Args) {
+            self.value.try_default_initialize();
+        }
+    }
+
+    impl ink_core::storage::alloc::AllocateUsing for Flipper {
+        unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+        where
+            A: ink_core::storage::alloc::Allocate,
+        {
+            Self {
+                storage: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+                env: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+            }
+        }
+    }
+
+    impl ink_core::storage::Flush for Flipper {
+        fn flush(&mut self) {
+            self.storage.flush();
+            self.env.flush();
+        }
+    }
+
+    impl ink_core::storage::alloc::Initialize for Flipper {
+        type Args = ();
+
+        fn default_value() -> Option<Self::Args> {
+            Some(())
+        }
+
+        fn initialize(&mut self, _args: Self::Args) {
+            self.storage.try_default_initialize();
+            self.env.try_default_initialize();
+        }
+    }
+
     impl ink_lang2::Dispatch for Flipper {
         fn dispatch(mode: ink_lang2::DispatchMode) -> ink_lang2::DispatchRetCode {
-            impl ink_lang2::DerefEnv<Env> for Flipper {
-                type Target = DynEnv<EnvAccessMut<Env>>;
+            impl ink_lang2::AccessEnv for Flipper {
+                type Target = ink_core::env2::DynEnv<ink_core::env2::EnvAccessMut<Env>>;
 
                 #[inline]
                 fn env(&self) -> &Self::Target {
                     &self.env
                 }
+            }
 
+            impl ink_lang2::AccessEnvMut for Flipper {
                 #[inline]
                 fn env_mut(&mut self) -> &mut Self::Target {
                     &mut self.env
                 }
             }
 
+            impl ink_lang2::AccessEnv for FlipperImm {
+                type Target = ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>;
+
+                #[inline]
+                fn env(&self) -> &Self::Target {
+                    &self.env
+                }
+            }
             /// A concrete instance of a dispatchable message.
             pub struct Msg<S> {
                 /// We need to wrap inner because of Rust's orphan rules.
@@ -182,7 +240,7 @@ const _: () = {
             /// Dispatches for instantiations of the contract.
             fn dispatch_instantiate(
                 flipper: &mut Flipper,
-                call_data: &CallData,
+                call_data: &ink_core::env2::call::CallData,
             ) -> ink_lang2::DispatchResult {
                 let selector = call_data.selector();
                 match selector {
@@ -199,10 +257,10 @@ const _: () = {
                 }
             }
 
-            /// Dispatches for calls on the contract.
-            fn dispatch_call(
+            /// Dispatches for mutable calls on the contract.
+            fn dispatch_call_mut(
                 flipper: &mut Flipper,
-                call_data: &CallData,
+                call_data: &ink_core::env2::call::CallData,
             ) -> ink_lang2::DispatchResult {
                 match call_data.selector() {
                     s if s == <Msg<[(); FLIP_ID]> as ink_lang2::FnSelector>::SELECTOR => {
@@ -212,6 +270,16 @@ const _: () = {
                             |flipper, _| flipper.flip(),
                         )
                     }
+                    _ => Err(ink_lang2::DispatchError::UnknownCallSelector),
+                }
+            }
+
+            /// Dispatches for read-only calls on the contract.
+            fn dispatch_call(
+                flipper: &FlipperImm,
+                call_data: &ink_core::env2::call::CallData,
+            ) -> ink_lang2::DispatchResult {
+                match call_data.selector() {
                     s if s == <Msg<[(); GET_ID]> as ink_lang2::FnSelector>::SELECTOR => {
                         ink_lang2::dispatch_msg::<Env, _, Msg<[(); GET_ID]>>(
                             flipper,
@@ -229,17 +297,21 @@ const _: () = {
             ///
             /// Returns a `ManuallyDrop` instance because the static storage should
             /// never be dropped upon finishing a contract execution.
-            fn allocate() -> ManuallyDrop<Flipper> {
+            fn allocate() -> core::mem::ManuallyDrop<Flipper> {
                 let flipper = unsafe {
-                    let mut alloc = BumpAlloc::from_raw_parts(Key(BUMP_ALLOC_ORIGIN));
+                    let mut alloc = ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                        ink_core::storage::Key(BUMP_ALLOC_ORIGIN),
+                    );
+                    use ink_core::storage::alloc::AllocateUsing as _;
                     Flipper::allocate_using(&mut alloc)
                 };
-                ManuallyDrop::new(flipper)
+                core::mem::ManuallyDrop::new(flipper)
             }
 
             let mut flipper = allocate();
             // Initialize only if we instantiate a new contract.
             if mode == ink_lang2::DispatchMode::Instantiate {
+                use ink_core::storage::alloc::Initialize as _;
                 flipper.try_default_initialize();
             }
             // Dispatch using the contract execution input.
@@ -248,7 +320,16 @@ const _: () = {
                 ink_lang2::DispatchMode::Instantiate => {
                     dispatch_instantiate(&mut flipper, &call_data)
                 }
-                ink_lang2::DispatchMode::Call => dispatch_call(&mut flipper, &call_data),
+                ink_lang2::DispatchMode::Call => {
+                    if let ret @ Ok(_) = dispatch_call_mut(&mut flipper, &call_data) {
+                        ret
+                    } else {
+                        // Transform mutable `Flipper` into read-only `Flipper`.
+                        let flipper_imm =
+                            core::mem::ManuallyDrop::new(core::mem::ManuallyDrop::into_inner(flipper).into());
+                        dispatch_call(&flipper_imm, &call_data)
+                    }
+                }
             };
             ret.into()
         }
@@ -258,7 +339,8 @@ const _: () = {
 #[cfg(not(test))]
 #[no_mangle]
 fn deploy() -> u32 {
-    <Flipper as ink_lang2::Dispatch>::dispatch(ink_lang2::DispatchMode::Instantiate).to_u32()
+    <Flipper as ink_lang2::Dispatch>::dispatch(ink_lang2::DispatchMode::Instantiate)
+        .to_u32()
 }
 
 #[cfg(not(test))]
