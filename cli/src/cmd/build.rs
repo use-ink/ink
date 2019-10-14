@@ -90,6 +90,7 @@ pub fn collect_crate_metadata() -> Result<CrateMetadata> {
 
 fn exec_cargo(command: &str, args: &[&'static str]) -> Result<()> {
     let output = Command::new("cargo")
+        .arg("+nightly")
         .arg(command)
         .args(args)
         .output()?;
