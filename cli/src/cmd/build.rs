@@ -214,7 +214,7 @@ pub(crate) fn execute_build(gen_abi: bool) -> Result<String> {
     post_process_wasm(&crate_metadata)?;
 
     if gen_abi {
-        println!(" [{}/{}] Collecting crate metadata", steps, steps);
+        println!(" [{}/{}] Generating abi", steps, steps);
         generate_abi()?;
     }
 
