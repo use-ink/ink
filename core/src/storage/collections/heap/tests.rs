@@ -21,31 +21,26 @@ use crate::{
             BumpAlloc,
             Initialize,
         },
-        collections::heap::impls::HeapType,
         Heap,
         Key,
     },
     test_utils::run_test,
 };
+use core::cmp;
+use scale::{
+    Decode,
+    Encode,
+};
 
-/// Run the supplied test for the min and max heap.
-fn run_min_max_test<F>(test: F) -> ()
-where
-    F: Fn(HeapType) -> () + std::panic::UnwindSafe,
-{
-    test(HeapType::Min);
-    test(HeapType::Max);
-}
-
-fn empty_heap(heap_type: HeapType) -> Heap<i32> {
+fn empty_heap() -> Heap<i32> {
     unsafe {
         let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-        Heap::allocate_using(&mut alloc).initialize_into(heap_type)
+        Heap::allocate_using(&mut alloc).initialize_into(())
     }
 }
 
-fn filled_heap(heap_type: HeapType) -> Heap<i32> {
-    let mut heap = empty_heap(heap_type);
+fn filled_heap() -> Heap<i32> {
+    let mut heap = empty_heap();
     heap.push(42);
     heap.push(5);
     heap.push(1337);
@@ -62,10 +57,10 @@ fn filled_heap(heap_type: HeapType) -> Heap<i32> {
 /// in `expected`. The `expected` vec must contain all elements which are
 /// returned, as the function finally checks that there are no more elements
 /// left in the heap.
-fn assert_push_equals_sorted_pop(
-    heap: &mut Heap<i32>,
-    vec: Vec<i32>,
-    expected: Vec<i32>,
+fn assert_push_equals_sorted_pop<T: Ord + scale::Codec + core::fmt::Debug>(
+    heap: &mut Heap<T>,
+    vec: Vec<T>,
+    expected: Vec<T>,
 ) {
     vec.into_iter().for_each(|i| heap.push(i));
 
@@ -79,9 +74,9 @@ fn assert_push_equals_sorted_pop(
 
 #[test]
 fn new_unchecked() {
-    run_min_max_test(|heap_type| {
+    run_test(|| {
         // given
-        let heap = empty_heap(heap_type);
+        let heap = empty_heap();
 
         // then
         assert_eq!(heap.len(), 0);
@@ -92,9 +87,9 @@ fn new_unchecked() {
 
 #[test]
 fn push_on_empty_heap() {
-    run_min_max_test(|heap_type| {
+    run_test(|| {
         // given
-        let mut heap = empty_heap(heap_type);
+        let mut heap = empty_heap();
         assert_eq!(heap.pop(), None);
 
         // when
@@ -107,31 +102,10 @@ fn push_on_empty_heap() {
 }
 
 #[test]
-fn push_duplicates_min() {
-    run_test(|| {
-        // given
-        let mut heap = empty_heap(HeapType::Min);
-
-        // when
-        heap.push(10);
-        heap.push(20);
-        heap.push(10);
-        heap.push(20);
-
-        // then
-        assert_eq!(heap.len(), 4);
-        assert_eq!(heap.pop(), Some(10));
-        assert_eq!(heap.pop(), Some(10));
-        assert_eq!(heap.pop(), Some(20));
-        assert_eq!(heap.pop(), Some(20));
-    })
-}
-
-#[test]
 fn push_duplicates_max() {
     run_test(|| {
         // given
-        let mut heap = empty_heap(HeapType::Max);
+        let mut heap = empty_heap();
 
         // when
         heap.push(10);
@@ -151,7 +125,7 @@ fn push_duplicates_max() {
 fn peek() {
     run_test(|| {
         // given
-        let mut heap = empty_heap(HeapType::Min);
+        let mut heap = empty_heap();
         assert_eq!(heap.peek(), None);
 
         // when
@@ -166,7 +140,7 @@ fn peek() {
 fn peek_mut() {
     run_test(|| {
         // given
-        let mut heap = empty_heap(HeapType::Min);
+        let mut heap = empty_heap();
         heap.push(42);
 
         // when
@@ -181,9 +155,9 @@ fn peek_mut() {
 
 #[test]
 fn pop_empty_and_refill() {
-    run_min_max_test(|heap_type| {
+    run_test(|| {
         // given
-        let mut heap = filled_heap(heap_type);
+        let mut heap = filled_heap();
         for _ in 0..heap.len() {
             let _ = heap.pop();
         }
@@ -200,9 +174,9 @@ fn pop_empty_and_refill() {
 
 #[test]
 fn take_empty() {
-    run_min_max_test(|heap_type| {
+    run_test(|| {
         // given
-        let mut heap = empty_heap(heap_type);
+        let mut heap = empty_heap();
 
         // then
         assert_eq!(heap.pop(), None);
@@ -215,7 +189,7 @@ fn take_empty() {
 fn push_negative_positive_range_min() {
     run_test(|| {
         // given
-        let mut heap = empty_heap(HeapType::Min);
+        let mut heap = empty_heap();
 
         // when
         heap.push(-1);
@@ -224,9 +198,9 @@ fn push_negative_positive_range_min() {
 
         // then
         assert_eq!(heap.len(), 3);
-        assert_eq!(heap.pop(), Some(-1));
-        assert_eq!(heap.pop(), Some(0));
         assert_eq!(heap.pop(), Some(1));
+        assert_eq!(heap.pop(), Some(0));
+        assert_eq!(heap.pop(), Some(-1));
     })
 }
 
@@ -234,7 +208,7 @@ fn push_negative_positive_range_min() {
 fn push_negative_positive_range_max() {
     run_test(|| {
         // given
-        let mut heap = empty_heap(HeapType::Max);
+        let mut heap = empty_heap();
 
         // when
         heap.push(-1);
@@ -253,15 +227,15 @@ fn push_negative_positive_range_max() {
 fn iterator_min() {
     run_test(|| {
         // given
-        let heap = filled_heap(HeapType::Min);
+        let heap = filled_heap();
 
         // when
         let mut iter = heap.iter();
 
         // then
-        assert_eq!(iter.next(), Some((0, &5)));
-        assert_eq!(iter.next(), Some((1, &42)));
-        assert_eq!(iter.next(), Some((2, &1337)));
+        assert_eq!(iter.next(), Some((0, &1337)));
+        assert_eq!(iter.next(), Some((1, &5)));
+        assert_eq!(iter.next(), Some((2, &42)));
         assert_eq!(iter.next(), Some((3, &77)));
         assert_eq!(iter.next(), None);
     })
@@ -271,7 +245,7 @@ fn iterator_min() {
 fn iterator_max() {
     run_test(|| {
         // given
-        let heap = filled_heap(HeapType::Max);
+        let heap = filled_heap();
 
         // when
         let mut iter = heap.iter();
@@ -289,16 +263,16 @@ fn iterator_max() {
 fn iter_back() {
     run_test(|| {
         // given
-        let heap = filled_heap(HeapType::Min);
+        let heap = filled_heap();
 
         // when
         let mut iter = heap.iter();
 
         // then
         assert_eq!(iter.next_back(), Some((3, &77)));
-        assert_eq!(iter.next_back(), Some((2, &1337)));
-        assert_eq!(iter.next_back(), Some((1, &42)));
-        assert_eq!(iter.next_back(), Some((0, &5)));
+        assert_eq!(iter.next_back(), Some((2, &42)));
+        assert_eq!(iter.next_back(), Some((1, &5)));
+        assert_eq!(iter.next_back(), Some((0, &1337)));
         assert_eq!(iter.next_back(), None);
     })
 }
@@ -307,7 +281,7 @@ fn iter_back() {
 fn iter_size_hint() {
     run_test(|| {
         // given
-        let heap = filled_heap(HeapType::Min);
+        let heap = filled_heap();
 
         // when
         let mut iter = heap.iter();
@@ -322,21 +296,10 @@ fn iter_size_hint() {
 #[test]
 fn unordered_push_results_in_ordered_pop() {
     run_test(|| {
-        let mut heap = empty_heap(HeapType::Min);
+        let mut heap = empty_heap();
         let vec = vec![5, 42, 1337, 77, -1, 0, 9999, 3, 65, 90, 1000000, -32];
         let mut expected = vec.clone();
-        expected.sort();
-        assert_push_equals_sorted_pop(&mut heap, vec, expected);
-    })
-}
-
-#[test]
-fn min_heap_with_three_levels() {
-    run_test(|| {
-        let mut heap = empty_heap(HeapType::Min);
-        let vec = vec![100, 10, 20, 30, 7, 8, 9, 17, 18, 29, 27, 28, 30];
-        let mut expected = vec.clone();
-        expected.sort();
+        expected.sort_by(|a, b| b.cmp(a));
         assert_push_equals_sorted_pop(&mut heap, vec, expected);
     })
 }
@@ -344,8 +307,40 @@ fn min_heap_with_three_levels() {
 #[test]
 fn max_heap_with_three_levels() {
     run_test(|| {
-        let mut heap = empty_heap(HeapType::Max);
+        let mut heap = empty_heap();
         let vec = vec![100, 10, 20, 30, 7, 8, 9, 17, 18, 29, 27, 28, 30];
+        let mut expected = vec.clone();
+        expected.sort_by(|a, b| b.cmp(a));
+        assert_push_equals_sorted_pop(&mut heap, vec, expected);
+    })
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Encode, Decode)]
+struct V(u32);
+
+impl Ord for V {
+    fn cmp(&self, other: &V) -> cmp::Ordering {
+        other.0.cmp(&self.0)
+    }
+}
+
+impl PartialOrd for V {
+    fn partial_cmp(&self, other: &V) -> Option<cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+#[test]
+fn min_heap_with_three_levels() {
+    run_test(|| {
+        let mut heap: Heap<V> = unsafe {
+            let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+            Heap::allocate_using(&mut alloc).initialize_into(())
+        };
+        let vec = vec![
+            V(100), V(10), V(20), V(30), V(7), V(8), V(9),
+            V(17), V(18), V(29), V(27), V(28), V(30)
+        ];
         let mut expected = vec.clone();
         expected.sort_by(|a, b| b.cmp(a));
         assert_push_equals_sorted_pop(&mut heap, vec, expected);

@@ -43,6 +43,9 @@ use type_metadata::Metadata;
 const CHILDS: u32 = 3;
 
 /// A heap collection.
+/// The heap depends on `Ord` and is a max-heap by default. In order to
+/// make it a min-heap implement the `Ord` trait explicitly on the type
+/// which is stored in the heap.
 ///
 /// Provides `O(log(n))` push and pop operations.
 /// Implemented as a ternary heap.
@@ -53,15 +56,6 @@ pub struct Heap<T> {
     header: storage::Value<HeapHeader>,
     /// The nodes of the heap.
     entries: SyncChunk<T>,
-}
-
-#[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
-pub enum HeapType {
-    /// A min-heap, a nodes value is smaller than or equal to the values in its children.
-    Min,
-    /// A max-heap, a nodes value is greater than or equal to the values in its children.
-    Max,
 }
 
 /// Densely stored general information required by a heap.
@@ -77,8 +71,6 @@ pub enum HeapType {
 struct HeapHeader {
     /// The number of items stored in the heap.
     len: u32,
-    /// The heap type, min or max.
-    heap_type: HeapType,
 }
 
 impl Flush for HeapHeader {
@@ -98,13 +90,13 @@ impl<'a, T> Values<'a, T> {
     /// Creates a new iterator for the given storage heap.
     pub(crate) fn new(heap: &'a Heap<T>) -> Self
     where
-        T: scale::Codec + cmp::PartialOrd,
+        T: scale::Codec + cmp::Ord,
     {
         Self { iter: heap.iter() }
     }
 }
 
-impl<T> Flush for Heap<T>
+impl<T: Ord> Flush for Heap<T>
 where
     T: Encode + Flush,
 {
@@ -115,7 +107,7 @@ where
 }
 
 #[cfg(feature = "ink-generate-abi")]
-impl<T> HasLayout for Heap<T>
+impl<T: Ord> HasLayout for Heap<T>
 where
     T: Metadata + 'static,
 {
@@ -133,7 +125,7 @@ where
 
 impl<'a, T> Iterator for Values<'a, T>
 where
-    T: scale::Codec + cmp::PartialOrd,
+    T: scale::Codec + cmp::Ord,
 {
     type Item = &'a T;
 
@@ -146,11 +138,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Values<'a, T> where T: scale::Codec + cmp::PartialOrd {}
+impl<'a, T> ExactSizeIterator for Values<'a, T> where T: scale::Codec + cmp::Ord {}
 
 impl<'a, T> DoubleEndedIterator for Values<'a, T>
 where
-    T: scale::Codec + cmp::PartialOrd,
+    T: scale::Codec + cmp::Ord,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back().map(|(_index, value)| value)
@@ -177,7 +169,7 @@ impl<'a, T> Iter<'a, T> {
     /// Creates a new iterator for the given storage heap.
     pub(crate) fn new(heap: &'a Heap<T>) -> Self
     where
-        T: scale::Codec + cmp::PartialOrd,
+        T: scale::Codec + cmp::Ord,
     {
         Self {
             heap,
@@ -190,7 +182,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: scale::Codec + cmp::PartialOrd,
+    T: scale::Codec + cmp::Ord,
 {
     type Item = (u32, &'a T);
 
@@ -216,11 +208,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Codec + cmp::PartialOrd {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Codec + cmp::Ord {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: scale::Codec + cmp::PartialOrd,
+    T: scale::Codec + cmp::Ord,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
@@ -238,14 +230,14 @@ where
     }
 }
 
-impl<T> Encode for Heap<T> {
+impl<T: Ord> Encode for Heap<T> {
     fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.header.encode_to(dest);
         self.entries.encode_to(dest);
     }
 }
 
-impl<T> Decode for Heap<T> {
+impl<T: Ord> Decode for Heap<T> {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let header = storage::Value::decode(input)?;
         let entries = SyncChunk::decode(input)?;
@@ -253,7 +245,7 @@ impl<T> Decode for Heap<T> {
     }
 }
 
-impl<T> AllocateUsing for Heap<T> {
+impl<T: Ord> AllocateUsing for Heap<T> {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -265,21 +257,21 @@ impl<T> AllocateUsing for Heap<T> {
     }
 }
 
-impl<T> Initialize for Heap<T> {
-    type Args = HeapType;
+impl<T: Ord> Initialize for Heap<T> {
+    type Args = ();
 
     fn default_value() -> Option<Self::Args> {
-        Some(HeapType::Min)
+        Some(())
     }
 
-    fn initialize(&mut self, heap_type: Self::Args) {
-        self.header.set(HeapHeader { len: 0, heap_type });
+    fn initialize(&mut self, _: Self::Args) {
+        self.header.set(HeapHeader { len: 0 });
     }
 }
 
-impl<T> Heap<T>
+impl<T: Ord> Heap<T>
 where
-    T: scale::Codec + cmp::PartialOrd,
+    T: scale::Codec + cmp::Ord,
 {
     /// Returns the element stored at index `n` if any.
     pub fn len(&self) -> u32 {
@@ -302,9 +294,6 @@ where
     }
 
     /// If the heap is not empty the first item is returned and removed.
-    ///
-    /// In case of `HeapType::Min` this is the smallest item, in case of
-    /// `HeapType::Max` the largest.
     ///
     /// Complexity is `O(log(n))`.
     pub fn pop(&mut self) -> Option<T> {
@@ -340,10 +329,7 @@ where
                 .entries
                 .get(succ_index)
                 .expect("failed retrieving successor");
-            match self.header.heap_type {
-                HeapType::Min => top_value > *succ_value,
-                HeapType::Max => top_value < *succ_value,
-            }
+            top_value < *succ_value
         } {
             self.relocate(succ_index, top_index);
             top_index = succ_index;
@@ -353,9 +339,7 @@ where
         let _ = self.entries.put(top_index, top_value);
     }
 
-    ///  Returns the child node with
-    ///     * in case of `HeapType::Min` the lowest value.
-    ///     * in case of `HeapType::Max` the largest value.
+    ///  Returns the child node with the largest value.
     ///
     /// The `from` parameter refers to the start index of the search,
     /// the `to` parameter to the end index for the search.
@@ -369,11 +353,7 @@ where
                 .get(succ_index)
                 .expect("failed getting successor value");
             let i_value = self.entries.get(i).expect("failed getting value at index");
-            let is_successor = match self.header.heap_type {
-                HeapType::Min => succ_value > i_value,
-                HeapType::Max => succ_value < i_value,
-            };
-            if is_successor {
+            if succ_value < i_value {
                 succ_index = i;
             }
             i += 1;
@@ -399,8 +379,7 @@ where
             return
         }
 
-        // Relocate until the item is smaller (`HeapType::Min`) or greater (`HeapType::Max`)
-        // than its parent value.
+        // Relocate until the item is greater than its parent value.
         let mut index = self.header.len;
         let mut parent_index = self.parent_index(index);
         while index != 0 && {
@@ -408,10 +387,7 @@ where
                 .entries
                 .get(parent_index)
                 .expect("failed getting parent value");
-            match self.header.heap_type {
-                HeapType::Min => val < *parent_value,
-                HeapType::Max => val > *parent_value,
-            }
+            val > *parent_value
         } {
             self.relocate(parent_index, index);
 
