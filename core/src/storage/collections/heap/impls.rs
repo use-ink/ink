@@ -69,7 +69,7 @@ pub struct Heap<T> {
 #[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 struct HeapHeader {
-    /// The number of items stored in the heap.
+    /// The number of nodes stored in the heap.
     len: u32,
 }
 
@@ -155,11 +155,11 @@ where
 pub struct Iter<'a, T> {
     /// The heap that is iterated over.
     heap: &'a Heap<T>,
-    /// The index of the current start item of the iteration.
+    /// The index of the current start node of the iteration.
     begin: u32,
-    /// The index of the current end item of the iteration.
+    /// The index of the current end node of the iteration.
     end: u32,
-    /// The amount of already yielded items.
+    /// The amount of already yielded nodes.
     ///
     /// Required to offer an exact `size_hint` implementation.
     /// Also can be used to exit iteration as early as possible.
@@ -284,17 +284,17 @@ where
         self.len() == 0
     }
 
-    /// Returns the greatest item if not empty.
+    /// Returns the first node if not empty.
     pub fn peek(&self) -> Option<&T> {
         self.entries.get(0)
     }
 
-    /// Mutates the greatest item if not empty and returns a reference to the result.
+    /// Mutates the first node if not empty and returns a reference to the result.
     pub fn peek_mut(&mut self) -> Option<&mut T> {
         self.entries.get_mut(0)
     }
 
-    /// If the heap is not empty the first item is returned and removed.
+    /// If the heap is not empty the first node is returned and removed.
     ///
     /// Complexity is `O(log(n))`.
     pub fn pop(&mut self) -> Option<T> {
@@ -364,7 +364,7 @@ where
 
     /// Pushes an item onto the heap.
     ///
-    /// Panics in case the heap already contains `u32::Max` items.
+    /// Panics in case the heap already contains `u32::Max` nodes.
     /// Complexity is `O(log(n))`.
     pub fn push(&mut self, val: T) {
         if self.len() == u32::max_value() {
@@ -402,7 +402,7 @@ where
     }
 
     /// Returns an iterator over the references of all nodes of the heap.
-    /// The item order is arbitrary!
+    /// The order is arbitrary!
     ///
     /// # Note
     ///
@@ -414,25 +414,25 @@ where
         Values::new(self)
     }
 
-    /// Returns the item at index `n`.
+    /// Returns the node at index `n`.
     fn get(&self, n: u32) -> Option<&T> {
         self.entries.get(n)
     }
 
-    /// Relocate the item at index `from` to `to`.
-    /// Overwrites the item at `to`
+    /// Relocate the node at index `from` to `to`.
+    /// Overwrites the node at `to`.
     fn relocate(&mut self, from: u32, to: u32) {
-        let entry = self.entries.take(from).expect("failed relocating item");
+        let entry = self.entries.take(from).expect("failed relocating node");
         let _ = self.entries.put(to, entry);
     }
 
-    /// Returns the parent index of the item at `n`.
+    /// Returns the parent index of the node at `n`.
     fn parent_index(&self, n: u32) -> u32 {
         (n - 1) / CHILDS
     }
 
-    /// Returns an iterator over all items of the heap.
-    /// The item order is arbitrary!
+    /// Returns an iterator over all nodes of the heap.
+    /// The order is arbitrary!
     ///
     /// # Note
     ///
