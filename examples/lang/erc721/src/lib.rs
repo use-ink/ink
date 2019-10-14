@@ -21,13 +21,23 @@ use ink_core::{
     memory::format,
     storage,
 };
-pub use core::result::Result;
 use ink_lang::contract;
 use ink_model;
 
+pub use core::result::Result;
 pub type EnvHandler = ink_model::EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>;
 pub type TokenId = u32;
 pub type Counter = u32;
+pub type ErrNo = u32;
+
+const NOT_OWNER: ErrNo = 1;
+const INSERT_ERROR: ErrNo = 2;
+const TOKEN_EXISTS: ErrNo = 3;
+const NOT_APPROVED: ErrNo = 4;
+const TOKEN_NOT_FOUND: ErrNo = 5;
+const CAN_NOT_GET_COUNTER: ErrNo = 6;
+const ACCOUNT_ZERO_NOT_ALLOWED: ErrNo = 7;
+const CAN_NOT_REMOVE: ErrNo = 8;
 
 contract! {
     #![env = DefaultSrmlTypes]
@@ -64,31 +74,31 @@ contract! {
             balance
         }
 
-        pub(external) fn get_owner(&self, id: TokenId) -> AccountId {
+        pub(external) fn get_owner(&self, id: u32) -> AccountId {
             let owner = self.owner_of(&id);
             env.println(&format!("Erc721::owner_of(token = {:?}) = {:?}", id, owner));
             owner
         }
 
-        pub(external) fn mint_token(&mut self, to: AccountId, id: TokenId) -> Result<(), &'static str> {
+        pub(external) fn mint_token(&mut self, to: AccountId, id: u32) -> Result<(), u32> {
             self.mint(env, &to, &id)?;
             env.println(&format!("Erc721::minted(token = {:?}) = {:?}", id, to));
             Ok(())
         }
 
-        pub(external) fn transfer_token(&mut self, from: AccountId, to: AccountId, id: TokenId) -> Result<(), &'static str> {
+        pub(external) fn transfer_token(&mut self, from: AccountId, to: AccountId, id: u32) -> Result<(), u32> {
             self.transfer_from(env, &from, &to, &id)?;
             env.println(&format!("Erc721::transferred(token = {:?}) = {:?}", id, to));
             Ok(())
         }
 
-        pub(external) fn burn_token(&mut self, from: AccountId, id: TokenId) -> Result<(), &'static str> {
+        pub(external) fn burn_token(&mut self, from: AccountId, id: u32) -> Result<(), u32> {
             self.burn(env, &from, &id)?;
             env.println(&format!("Erc721::burned(token = {:?}) = {:?}", id, from));
             Ok(())
         }
 
-        pub(external) fn approve_transfer(&mut self, to: AccountId, id: TokenId) -> Result<(), &'static str> {
+        pub(external) fn approve_transfer(&mut self, to: AccountId, id: u32) -> Result<(), u32> {
             self.approve(env, &to, &id)?;
             env.println(&format!("Erc721::approved(token = {:?}) = {:?}", id, to));
             Ok(())
@@ -96,17 +106,17 @@ contract! {
     }
 
     impl Erc721 {
-        fn approve(&mut self, env: &EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn approve(&mut self, env: &EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), ErrNo> {
             let caller = env.caller();
             if self.owner_of(id) != caller {
-                return Err("not owner")
+                return Err(NOT_OWNER)
             };
             if *to == AccountId::from([0x0; 32]) {
-                return Err("cannot approve account zero")
+                return Err(ACCOUNT_ZERO_NOT_ALLOWED)
             };
             
             if !self.token_approvals.insert(*id, *to).is_none() {
-                return Err("cannot insert approval")
+                return Err(INSERT_ERROR)
             };
             env.emit(Approval {
                 owner: caller,
@@ -116,13 +126,13 @@ contract! {
             Ok(())
         }
 
-        fn transfer_from(&mut self, env: &EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn transfer_from(&mut self, env: &EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), ErrNo> {
             let caller = env.caller();
             if !self.exists(id){
-                return Err("token not found");
+                return Err(TOKEN_NOT_FOUND);
             };
             if !self.approved_or_owner(&caller, id){
-                return Err("not approved")
+                return Err(NOT_APPROVED)
             };
 
             self.clear_approval(id)?;
@@ -136,51 +146,51 @@ contract! {
             Ok(())
         }
 
-        fn clear_approval(&mut self, id: &TokenId) -> Result<(), &'static str> {
+        fn clear_approval(&mut self, id: &TokenId) -> Result<(), ErrNo> {
             if !self.token_approvals.contains_key(id){
                 return Ok(());
             };
 
             match self.token_approvals.remove(id) {
                 Some(_res) => Ok(()),
-                None => Err("cannot remove token approval")
+                None => Err(CAN_NOT_REMOVE)
             }
         }
 
-        fn remove_token_from(&mut self, from: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn remove_token_from(&mut self, from: &AccountId, id: &TokenId) -> Result<(), ErrNo> {
             if !self.exists(id){
-                return Err("token not found");
+                return Err(TOKEN_NOT_FOUND);
             };
 
             self.decrease_counter_of(from)?;
             self.token_owner
                 .remove(id)
-                .ok_or("cannot remove token")?;
+                .ok_or(CAN_NOT_REMOVE)?;
             Ok(())
         }
 
-        fn add_token_to(&mut self, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn add_token_to(&mut self, to: &AccountId, id: &TokenId) -> Result<(), ErrNo> {
             if self.exists(id){
-                 return Err("token exists and assigned")
+                 return Err(TOKEN_EXISTS)
             };
 
             self.increase_counter_of(to)?;
             if !self.token_owner.insert(*id, *to).is_none() {
-                return Err("cannot insert token")
+                return Err(INSERT_ERROR)
             };
             Ok(())
         }
 
-        fn mint(&mut self, env: &EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), &'static str> {
+        fn mint(&mut self, env: &EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), ErrNo> {
             if *to == AccountId::from([0x0; 32]){
-                return Err("cannot mint to account zero")
+                return Err(ACCOUNT_ZERO_NOT_ALLOWED)
             };
             if self.exists(id){
-                return Err("token already minted")
+                return Err(TOKEN_EXISTS)
             };
 
             if !self.token_owner.insert(*id, *to).is_none() {
-                return Err("cannot insert token")
+                return Err(INSERT_ERROR)
             };
             self.increase_counter_of(to)?;
             env.emit(Transfer {
@@ -191,20 +201,20 @@ contract! {
             Ok(())
         }
 
-        fn burn(&mut self, env: &EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), &'static str> {
+        fn burn(&mut self, env: &EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), ErrNo> {
             let caller = env.caller();
             if !self.exists(id){
-                 return Err("token does not exists")
+                 return Err(TOKEN_NOT_FOUND)
             };
             if self.owner_of(id) != caller && *from != AccountId::from([0x0; 32]) {
-                return Err("burn of token that is not own")
+                return Err(NOT_OWNER)
             };
 
             self.clear_approval(id)?;
             self.decrease_counter_of(from)?;
             self.token_owner
                 .remove(id)
-                .ok_or("cannot remove token")?;
+                .ok_or(CAN_NOT_REMOVE)?;
             env.emit(Transfer {
                 from: *from,
                 to: AccountId::from([0x0; 32]),
@@ -213,25 +223,25 @@ contract! {
             Ok(())
         }
 
-        fn increase_counter_of(&mut self, of: &AccountId) -> Result<(), &'static str> {
+        fn increase_counter_of(&mut self, of: &AccountId) -> Result<(), ErrNo> {
             if self.balance_of(of) > 0 {
                 let count = self.owned_tokens_count 
                     .get_mut(of)
-                    .ok_or("cannot get account counter")?;
+                    .ok_or(CAN_NOT_GET_COUNTER)?;
                 *count += 1;
                 return Ok(());
             } else{
                 match self.owned_tokens_count.insert(*of, 1) {
-                    Some(_) => return Err("cannot insert counter"),
+                    Some(_) => return Err(INSERT_ERROR),
                     None => return Ok(())
                 };
             };
         }
 
-        fn decrease_counter_of(&mut self, of: &AccountId) -> Result<(), &'static str> {
+        fn decrease_counter_of(&mut self, of: &AccountId) -> Result<(), ErrNo> {
             let count = self.owned_tokens_count
                 .get_mut(of)
-                .ok_or("cannot get account counter")?;
+                .ok_or(CAN_NOT_GET_COUNTER)?;
             *count -= 1;
             Ok(())
         }
@@ -315,7 +325,7 @@ mod tests {
         assert_eq!(erc721.mint_token(accounts[1], 1),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
         assert_eq!(erc721.get_owner(1), accounts[1]);
-        assert_eq!(erc721.mint_token(accounts[2], 1), Err("token already minted"));
+        assert_eq!(erc721.mint_token(accounts[2], 1), Err(TOKEN_EXISTS));
         assert_eq!(erc721.get_balance(accounts[2]), 0);
         assert_eq!(erc721.get_owner(1), accounts[1]);
     }
@@ -339,20 +349,20 @@ mod tests {
     fn invalid_transfer_should_fail() {
         let accounts = generate_accounts(3).unwrap();
         let mut erc721 = initialize_erc721(accounts[0]);
-        assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 2), Err("token not found"));
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 2), Err(TOKEN_NOT_FOUND));
         assert_eq!(erc721.get_owner(2), accounts[0]);
         assert_eq!(erc721.mint_token(accounts[1], 2),Ok(()));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
         assert_eq!(erc721.get_owner(2), accounts[1]);
 
         env::test::set_caller::<Types>(accounts[2]);
-        assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 2), Err("not approved"));
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[2], 2), Err(NOT_APPROVED));
         assert_eq!(erc721.mint_token(accounts[2], 55),Ok(()));
         assert_eq!(erc721.get_balance(accounts[2]), 1);
         assert_eq!(erc721.get_owner(55), accounts[2]);
 
         env::test::set_caller::<Types>(accounts[2]);
-        assert_eq!(erc721.transfer_token(accounts[2], accounts[3], 2), Err("not approved"));
+        assert_eq!(erc721.transfer_token(accounts[2], accounts[3], 2), Err(NOT_APPROVED));
         assert_eq!(erc721.get_owner(2), accounts[1]);
     }
 
@@ -404,7 +414,7 @@ mod tests {
         assert_eq!(erc721.get_balance(accounts[3]), 0);
 
         env::test::set_caller::<Types>(accounts[2]);
-        assert_eq!(erc721.transfer_token(accounts[1], accounts[3], 1), Err("not approved"));
+        assert_eq!(erc721.transfer_token(accounts[1], accounts[3], 1), Err(NOT_APPROVED));
         assert_eq!(erc721.get_balance(accounts[1]), 1);
         assert_eq!(erc721.get_balance(accounts[2]), 0);
         assert_eq!(erc721.get_balance(accounts[3]), 0);
