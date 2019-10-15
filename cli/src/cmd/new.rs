@@ -36,7 +36,7 @@ use std::{
 
 /// Initializes a project structure for the `lang` abstraction layer.
 fn initialize_for_lang(name: &str) -> Result<String> {
-    if name.contains("-") {
+    if name.contains('-') {
         return Err("Contract names cannot contain hyphens".into())
     }
 
@@ -120,7 +120,7 @@ mod tests {
 
     #[test]
     fn rejects_hyphenated_name() {
-        let result = super::initialize_for_lang("should-fail");
+        let result = initialize_for_lang("should-fail");
         assert_eq!(
             format!("{:?}", result),
             r#"Err(Other("Contract names cannot contain hyphens"))"#
@@ -130,8 +130,8 @@ mod tests {
     #[test]
     fn contract_cargo_project_already_exists() {
         let name = "test_contract_cargo_project_already_exists";
-        let _ = super::initialize_for_lang(name);
-        let result = super::initialize_for_lang(name);
+        let _ = initialize_for_lang(name);
+        let result = initialize_for_lang(name);
         // clean up created files
         std::fs::remove_dir_all(name).unwrap();
         assert_eq!(
@@ -146,7 +146,7 @@ mod tests {
         let dir = path::Path::new(name);
         fs::create_dir_all(dir).unwrap();
         fs::File::create(dir.join(".gitignore")).unwrap();
-        let result = super::initialize_for_lang(name);
+        let result = initialize_for_lang(name);
         // clean up created files
         std::fs::remove_dir_all(dir).unwrap();
         assert_eq!(

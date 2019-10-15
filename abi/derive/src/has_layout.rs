@@ -31,9 +31,9 @@ use syn::{
 };
 
 pub fn generate(input: TokenStream2) -> TokenStream2 {
-    match generate_impl(input.into()) {
-        Ok(output) => output.into(),
-        Err(err) => err.to_compile_error().into(),
+    match generate_impl(input) {
+        Ok(output) => output,
+        Err(err) => err.to_compile_error(),
     }
 }
 
@@ -61,7 +61,7 @@ pub fn generate_impl(input: TokenStream2) -> Result<TokenStream2> {
         }
     };
 
-    Ok(wrap(ident, "HAS_LAYOUT", has_layout_impl).into())
+    Ok(wrap(ident, "HAS_LAYOUT", has_layout_impl))
 }
 
 fn generate_fields_layout<'a>(

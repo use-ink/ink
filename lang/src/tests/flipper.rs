@@ -205,9 +205,9 @@ fn contract_compiles() {
             #[cfg(feature = "ink-generate-abi")]
             pub fn ink_generate_abi() -> ink_abi::InkProject{
                 let contract = {
-                    ink_abi::ContractSpec::new("Flipper")
+                    ink_abi::ContractSpec::builder("Flipper")
                         .constructors(vec![
-                            ink_abi::ConstructorSpec::new("on_deploy")
+                            ink_abi::ConstructorSpec::builder("on_deploy")
                                 .selector(0)
                                 .args(vec![])
                                 .docs(vec![
@@ -216,14 +216,14 @@ fn contract_compiles() {
                                 .done()
                         ])
                         .messages(vec![
-                            ink_abi::MessageSpec::new("flip")
+                            ink_abi::MessageSpec::builder("flip")
                                 .selector(970692492u32)
                                 .mutates(true)
                                 .args(vec![])
                                 .docs(vec!["Flips the internal boolean.",])
                                 .returns(ink_abi::ReturnTypeSpec::new(None))
                                 .done(),
-                            ink_abi::MessageSpec::new("get")
+                            ink_abi::MessageSpec::builder("get")
                                 .selector(4266279973u32)
                                 .mutates(false)
                                 .args(vec![])

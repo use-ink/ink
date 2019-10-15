@@ -40,9 +40,9 @@ fn trim_doc_string(attr: &syn::Attribute) -> String {
         .to_string()
         .trim_start_matches('=')
         .trim_start()
-        .trim_start_matches("r")
-        .trim_start_matches("\"")
-        .trim_end_matches("\"")
+        .trim_start_matches('r')
+        .trim_start_matches('\"')
+        .trim_end_matches('\"')
         .trim()
         .into()
 }
@@ -111,7 +111,7 @@ fn generate_abi_constructor(contract: &hir::Contract) -> TokenStream2 {
             let ty = &capt.ty;
             let type_spec = generate_type_spec_code(ty);
             quote! {
-                ink_abi::MessageParamSpec::new(#name)
+                ink_abi::MessageParamSpec::builder(#name)
                     .of_type(#type_spec)
                     .done()
             }
@@ -120,7 +120,7 @@ fn generate_abi_constructor(contract: &hir::Contract) -> TokenStream2 {
     let docs = constructor.docs().map(trim_doc_string);
 
     quote! {
-        ink_abi::ConstructorSpec::new("on_deploy")
+        ink_abi::ConstructorSpec::builder("on_deploy")
             .selector(0)
             .args(vec![
                 #(#args ,)*
@@ -174,7 +174,7 @@ fn generate_abi_messages<'a>(
                 let ty = &capt.ty;
                 let type_spec = generate_type_spec_code(ty);
                 quote! {
-                    ink_abi::MessageParamSpec::new(#name)
+                    ink_abi::MessageParamSpec::builder(#name)
                         .of_type(#type_spec)
                         .done()
                 }
@@ -193,7 +193,7 @@ fn generate_abi_messages<'a>(
             }
         };
         quote! {
-            ink_abi::MessageSpec::new(#name)
+            ink_abi::MessageSpec::builder(#name)
                 .selector(#selector)
                 .mutates(#is_mut)
                 .args(vec![
@@ -219,7 +219,7 @@ fn generate_type_spec_code(ty: &syn::Type) -> TokenStream2 {
             return without_display_name(ty)
         }
         let path = &type_path.path;
-        if path.segments.len() == 0 {
+        if path.segments.is_empty() {
             return without_display_name(ty)
         }
         let segs = path
@@ -245,7 +245,7 @@ fn generate_abi_events<'a>(
             let ty = &event_arg.ty;
             let type_spec = generate_type_spec_code(ty);
             quote! {
-                ink_abi::EventParamSpec::new(stringify!(#name))
+                ink_abi::EventParamSpec::builder(stringify!(#name))
                     .of_type(#type_spec)
                     .indexed(#indexed)
                     .done()
@@ -253,7 +253,7 @@ fn generate_abi_events<'a>(
         });
         let docs = event.docs().map(trim_doc_string);
         quote! {
-            ink_abi::EventSpec::new(stringify!(#name))
+            ink_abi::EventSpec::builder(stringify!(#name))
                 .args(vec![
                     #(#args ,)*
                 ])
@@ -279,7 +279,7 @@ fn generate_abi_contract(contract: &hir::Contract) -> TokenStream2 {
     let events = generate_abi_events(contract);
 
     quote! {
-        ink_abi::ContractSpec::new(#contract_name_lit)
+        ink_abi::ContractSpec::builder(#contract_name_lit)
             .constructors(vec![
                 #constructor
             ])

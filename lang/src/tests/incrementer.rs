@@ -228,12 +228,12 @@ fn contract_compiles() {
             #[cfg(feature = "ink-generate-abi")]
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
-                    ink_abi::ContractSpec::new("Incrementer")
+                    ink_abi::ContractSpec::builder("Incrementer")
                         .constructors(vec![
-                            ink_abi::ConstructorSpec::new("on_deploy")
+                            ink_abi::ConstructorSpec::builder("on_deploy")
                                 .selector(0)
                                 .args(vec![
-                                    ink_abi::MessageParamSpec::new("init_value")
+                                    ink_abi::MessageParamSpec::builder("init_value")
                                         .of_type(
                                             ink_abi::TypeSpec::with_name_segs::<u32, _>(
                                                 vec!["u32"].into_iter().map(AsRef::as_ref)
@@ -247,11 +247,11 @@ fn contract_compiles() {
                                 .done()
                         ])
                         .messages(vec![
-                            ink_abi::MessageSpec::new("inc")
+                            ink_abi::MessageSpec::builder("inc")
                                 .selector(257544423u32)
                                 .mutates(true)
                                 .args(vec![
-                                    ink_abi::MessageParamSpec::new("by")
+                                    ink_abi::MessageParamSpec::builder("by")
                                         .of_type(
                                             ink_abi::TypeSpec::with_name_segs::<u32, _>(
                                                 vec!["u32"].into_iter().map(AsRef::as_ref)
@@ -266,7 +266,7 @@ fn contract_compiles() {
                                     ink_abi::ReturnTypeSpec::new(None)
                                 )
                                 .done(),
-                            ink_abi::MessageSpec::new("get")
+                            ink_abi::MessageSpec::builder("get")
                                 .selector(4266279973u32)
                                 .mutates(false)
                                 .args(vec![])
@@ -281,11 +281,11 @@ fn contract_compiles() {
                                     )
                                 )
                                 .done(),
-                            ink_abi::MessageSpec::new("compare")
+                            ink_abi::MessageSpec::builder("compare")
                                 .selector(363906316u32)
                                 .mutates(false)
                                 .args(vec![
-                                    ink_abi::MessageParamSpec::new("x")
+                                    ink_abi::MessageParamSpec::builder("x")
                                         .of_type(
                                             ink_abi::TypeSpec::with_name_segs::<u32, _>(
                                                 vec!["u32"].into_iter().map(AsRef::as_ref)

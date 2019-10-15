@@ -205,6 +205,7 @@ where
     /// # Note
     ///
     /// Read-only message handlers do not mutate contract state.
+    #[allow(clippy::type_complexity)]
     pub const fn on_msg<Msg>(
         self,
         handler: RawMessageHandler<Msg, State, Env>,
@@ -227,6 +228,7 @@ where
     /// # Note
     ///
     /// Mutable message handlers may mutate contract state.
+    #[allow(clippy::type_complexity)]
     pub const fn on_msg_mut<Msg>(
         self,
         handler: RawMessageHandlerMut<Msg, State, Env>,

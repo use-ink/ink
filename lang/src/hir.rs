@@ -90,7 +90,6 @@ impl Contract {
                         Span::call_site(),
                         format!("unknown env attribute '{}'", meta.ident),
                     ))
-                    .into()
                 }
             })
             .collect::<Result<Vec<_>>>()?;
@@ -98,8 +97,7 @@ impl Contract {
             return Err(syn::Error::new(
                 Span::call_site(),
                 "couldn't find an `#![env = <EnvTypesImpl>]` attribute",
-            )
-            .into())
+            ))
         }
         if env_types.len() > 1 {
             return Err(syn::Error::new(
@@ -108,8 +106,7 @@ impl Contract {
                     "requires exactly one `#![env = <EnvTypesImpl>]` attribute; found {:?}",
                     env_types.len()
                 ),
-            )
-            .into())
+            ))
         }
         Ok(env_types[0].clone())
     }
