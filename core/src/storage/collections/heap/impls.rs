@@ -24,7 +24,7 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
-use core::cmp;
+use core::cmp::Ord;
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -33,14 +33,16 @@ use ink_abi::{
     StorageLayout,
 };
 use scale::{
+    Codec,
     Decode,
     Encode,
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+use super::access_wrapper::AccessWrapper;
 
 /// We implement a ternary tree, i.e. a k-ary tree with k = 3.
-const CHILDS: u32 = 3;
+pub const CHILDREN: u32 = 3;
 
 /// A heap collection.
 /// The heap depends on `Ord` and is a max-heap by default. In order to
@@ -55,7 +57,7 @@ pub struct Heap<T> {
     /// Stores densely packed general heap information.
     header: storage::Value<HeapHeader>,
     /// The nodes of the heap.
-    entries: SyncChunk<T>,
+    entries: AccessWrapper<T>,
 }
 
 /// Densely stored general information required by a heap.
@@ -90,15 +92,16 @@ impl<'a, T> Values<'a, T> {
     /// Creates a new iterator for the given storage heap.
     pub(crate) fn new(heap: &'a Heap<T>) -> Self
     where
-        T: scale::Codec + cmp::Ord,
+        T: scale::Codec + Ord + Copy,
     {
         Self { iter: heap.iter() }
     }
 }
 
-impl<T: Ord> Flush for Heap<T>
+impl<T> Flush for Heap<T>
 where
-    T: Encode + Flush,
+    T: Ord + Encode + Flush + Copy,
+    AccessWrapper<T>: Flush,
 {
     fn flush(&mut self) {
         self.header.flush();
@@ -125,7 +128,7 @@ where
 
 impl<'a, T> Iterator for Values<'a, T>
 where
-    T: scale::Codec + cmp::Ord,
+    T: Copy + Codec + Ord,
 {
     type Item = &'a T;
 
@@ -138,11 +141,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Values<'a, T> where T: scale::Codec + cmp::Ord {}
+impl<'a, T> ExactSizeIterator for Values<'a, T> where T: Copy + Codec + Ord {}
 
 impl<'a, T> DoubleEndedIterator for Values<'a, T>
 where
-    T: scale::Codec + cmp::Ord,
+    T: Copy + Codec + Ord,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back().map(|(_index, value)| value)
@@ -170,7 +173,7 @@ impl<'a, T> Iter<'a, T> {
     /// Creates a new iterator for the given storage heap.
     pub(crate) fn new(heap: &'a Heap<T>) -> Self
     where
-        T: scale::Codec + cmp::Ord,
+        T: Copy + Codec + Ord,
     {
         Self {
             heap,
@@ -183,7 +186,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: scale::Codec + cmp::Ord,
+    T: Copy + Codec + Ord,
 {
     type Item = (u32, &'a T);
 
@@ -209,11 +212,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Codec + cmp::Ord {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: Copy + Codec + Ord {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: scale::Codec + cmp::Ord,
+    T: Copy + Codec + Ord,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
@@ -231,34 +234,49 @@ where
     }
 }
 
-impl<T: Ord> Encode for Heap<T> {
+impl<T> Encode for Heap<T>
+where
+    T: Ord,
+{
     fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.header.encode_to(dest);
         self.entries.encode_to(dest);
     }
 }
 
-impl<T: Ord> Decode for Heap<T> {
+impl<T> Decode for Heap<T>
+where
+    T: Copy + Ord + Encode + Decode,
+{
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let header = storage::Value::decode(input)?;
         let entries = SyncChunk::decode(input)?;
-        Ok(Self { header, entries })
+        Ok(Self {
+            header,
+            entries: AccessWrapper::new(entries),
+        })
     }
 }
 
-impl<T: Ord> AllocateUsing for Heap<T> {
+impl<T> AllocateUsing for Heap<T>
+where
+    T: Copy + Ord + Encode + Decode,
+{
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
     {
         Self {
             header: storage::Value::allocate_using(alloc),
-            entries: SyncChunk::allocate_using(alloc),
+            entries: AccessWrapper::new(SyncChunk::allocate_using(alloc)),
         }
     }
 }
 
-impl<T: Ord> Initialize for Heap<T> {
+impl<T> Initialize for Heap<T>
+where
+    T: Ord,
+{
     type Args = ();
 
     fn default_value() -> Option<Self::Args> {
@@ -270,9 +288,9 @@ impl<T: Ord> Initialize for Heap<T> {
     }
 }
 
-impl<T: Ord> Heap<T>
+impl<T> Heap<T>
 where
-    T: scale::Codec + cmp::Ord,
+    T: Copy + Codec + Ord,
 {
     /// Returns the element stored at index `n` if any.
     pub fn len(&self) -> u32 {
@@ -302,7 +320,7 @@ where
             return None
         }
 
-        let tmp = self.entries.take(0);
+        let tmp = Some(self.entries.take(0).expect("failed fetching root"));
         if self.header.len == 1 {
             self.header.len -= 1;
             return tmp
@@ -324,7 +342,7 @@ where
             .take(top_index)
             .expect("failed taking top element from heap");
         let mut succ_index =
-            self.find_successor(top_index * CHILDS + 1, top_index * CHILDS + CHILDS);
+            self.find_successor(top_index * CHILDREN + 1, top_index * CHILDREN + CHILDREN);
         while succ_index < self.header.len && {
             let succ_value = self
                 .entries
@@ -335,12 +353,12 @@ where
             self.relocate(succ_index, top_index);
             top_index = succ_index;
             succ_index = self
-                .find_successor(succ_index * CHILDS + 1, succ_index * CHILDS + CHILDS);
+                .find_successor(succ_index * CHILDREN + 1, succ_index * CHILDREN + CHILDREN);
         }
         let _ = self.entries.put(top_index, top_value);
     }
 
-    ///  Returns the child node with the largest value.
+    /// Returns the child node with the largest value.
     ///
     /// The `from` parameter refers to the start index of the search,
     /// the `to` parameter to the end index for the search.
@@ -364,7 +382,7 @@ where
 
     /// Pushes an item onto the heap.
     ///
-    /// Panics in case the heap already contains `u32::Max` nodes.
+    /// Panics in case the heap already contains `u32::max` nodes.
     /// Complexity is `O(log(n))`.
     pub fn push(&mut self, val: T) {
         if self.len() == u32::max_value() {
@@ -428,7 +446,7 @@ where
 
     /// Returns the parent index of the node at `n`.
     fn parent_index(&self, n: u32) -> u32 {
-        (n - 1) / CHILDS
+        (n - 1) / CHILDREN
     }
 
     /// Returns an iterator over all nodes of the heap.

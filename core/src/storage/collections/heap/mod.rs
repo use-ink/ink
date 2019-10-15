@@ -25,6 +25,7 @@
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 
+mod access_wrapper;
 mod impls;
 
 pub use self::impls::{

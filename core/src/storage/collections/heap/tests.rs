@@ -26,8 +26,15 @@ use crate::{
     },
     test_utils::run_test,
 };
-use core::cmp;
+use core::{
+    cmp::{
+        Ord,
+        Ordering,
+    },
+    fmt::Debug,
+};
 use scale::{
+    Codec,
     Decode,
     Encode,
 };
@@ -57,7 +64,7 @@ fn filled_heap() -> Heap<i32> {
 /// in `expected`. The `expected` vec must contain all elements which are
 /// returned, as the function finally checks that there are no more elements
 /// left in the heap.
-fn assert_push_equals_sorted_pop<T: Ord + scale::Codec + core::fmt::Debug>(
+fn assert_push_equals_sorted_pop<T: Copy + Ord + Codec + Debug>(
     heap: &mut Heap<T>,
     vec: Vec<T>,
     expected: Vec<T>,
@@ -302,13 +309,13 @@ fn max_heap_with_three_levels() {
 struct V(u32);
 
 impl Ord for V {
-    fn cmp(&self, other: &V) -> cmp::Ordering {
+    fn cmp(&self, other: &V) -> Ordering {
         other.0.cmp(&self.0)
     }
 }
 
 impl PartialOrd for V {
-    fn partial_cmp(&self, other: &V) -> Option<cmp::Ordering> {
+    fn partial_cmp(&self, other: &V) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
