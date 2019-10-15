@@ -165,11 +165,13 @@ fn ensure_maximum_memory_pages(
 ///
 /// Presently all custom sections are not required so they can be stripped safely.
 fn strip_custom_sections(module: &mut Module) {
-    module.sections_mut().retain(|section| match section {
-        Section::Custom(_) => false,
-        Section::Name(_) => false,
-        Section::Reloc(_) => false,
-        _ => true,
+    module.sections_mut().retain(|section| {
+        match section {
+            Section::Custom(_) => false,
+            Section::Name(_) => false,
+            Section::Reloc(_) => false,
+            _ => true,
+        }
     });
 }
 
@@ -214,25 +216,27 @@ mod tests {
         cmd::execute_new,
         AbstractionLayer,
     };
-    use tempfile::TempDir;
     use std::env;
+    use tempfile::TempDir;
 
     fn with_tmp_dir<F: FnOnce()>(f: F) {
-
-        let original_cwd = env::current_dir().expect("failed to get current working directory");
+        let original_cwd =
+            env::current_dir().expect("failed to get current working directory");
         let tmp_dir = TempDir::new().expect("temporary directory creation failed");
-        env::set_current_dir(tmp_dir.path()).expect("setting the current dir to temp failed");
+        env::set_current_dir(tmp_dir.path())
+            .expect("setting the current dir to temp failed");
 
         f();
 
         env::set_current_dir(original_cwd).expect("restoring cwd failed");
     }
 
-    #[cfg(feature="test-ci-only")]
+    #[cfg(feature = "test-ci-only")]
     #[test]
     fn build_template() {
         with_tmp_dir(|| {
-            execute_new(AbstractionLayer::Lang, "new_project").expect("new project creation failed");
+            execute_new(AbstractionLayer::Lang, "new_project")
+                .expect("new project creation failed");
             env::set_current_dir("./new_project").expect("cwd to new_project failed");
             execute_build().expect("build failed");
         });
