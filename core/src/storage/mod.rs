@@ -95,9 +95,9 @@ pub use self::{
             self,
             HashMap,
         },
-        heap::{
+        binary_heap::{
             self,
-            Heap,
+            BinaryHeap,
         },
         stash::{
             self,

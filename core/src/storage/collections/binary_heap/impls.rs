@@ -44,18 +44,17 @@ use super::access_wrapper::AccessWrapper;
 /// We implement a ternary tree, i.e. a k-ary tree with k = 3.
 pub const CHILDREN: u32 = 3;
 
-/// A heap collection.
+/// A binary heap collection.
 /// The heap depends on `Ord` and is a max-heap by default. In order to
 /// make it a min-heap implement the `Ord` trait explicitly on the type
 /// which is stored in the heap.
 ///
 /// Provides `O(log(n))` push and pop operations.
-/// Implemented as a ternary heap.
 #[derive(Debug)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
-pub struct Heap<T> {
+pub struct BinaryHeap<T> {
     /// Stores densely packed general heap information.
-    header: storage::Value<HeapHeader>,
+    header: storage::Value<BinaryHeapHeader>,
     /// The nodes of the heap.
     entries: AccessWrapper<T>,
 }
@@ -70,12 +69,12 @@ pub struct Heap<T> {
 /// and writes to the underlying contract storage.
 #[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
-struct HeapHeader {
+struct BinaryHeapHeader {
     /// The number of nodes stored in the heap.
     len: u32,
 }
 
-impl Flush for HeapHeader {
+impl Flush for BinaryHeapHeader {
     fn flush(&mut self) {
         self.len.flush();
     }
@@ -90,7 +89,7 @@ pub struct Values<'a, T> {
 
 impl<'a, T> Values<'a, T> {
     /// Creates a new iterator for the given storage heap.
-    pub(crate) fn new(heap: &'a Heap<T>) -> Self
+    pub(crate) fn new(heap: &'a BinaryHeap<T>) -> Self
     where
         T: scale::Codec + Ord + Copy,
     {
@@ -98,7 +97,7 @@ impl<'a, T> Values<'a, T> {
     }
 }
 
-impl<T> Flush for Heap<T>
+impl<T> Flush for BinaryHeap<T>
 where
     T: Ord + Encode + Flush + Copy,
     AccessWrapper<T>: Flush,
@@ -110,7 +109,7 @@ where
 }
 
 #[cfg(feature = "ink-generate-abi")]
-impl<T: Ord> HasLayout for Heap<T>
+impl<T: Ord> HasLayout for BinaryHeap<T>
 where
     T: Metadata + 'static,
 {
@@ -157,7 +156,7 @@ where
 #[derive(Debug)]
 pub struct Iter<'a, T> {
     /// The heap that is iterated over.
-    heap: &'a Heap<T>,
+    heap: &'a BinaryHeap<T>,
     /// The index of the current start node of the iteration.
     begin: u32,
     /// The index of the current end node of the iteration.
@@ -171,7 +170,7 @@ pub struct Iter<'a, T> {
 
 impl<'a, T> Iter<'a, T> {
     /// Creates a new iterator for the given storage heap.
-    pub(crate) fn new(heap: &'a Heap<T>) -> Self
+    pub(crate) fn new(heap: &'a BinaryHeap<T>) -> Self
     where
         T: Copy + Codec + Ord,
     {
@@ -234,7 +233,7 @@ where
     }
 }
 
-impl<T> Encode for Heap<T>
+impl<T> Encode for BinaryHeap<T>
 where
     T: Ord,
 {
@@ -244,7 +243,7 @@ where
     }
 }
 
-impl<T> Decode for Heap<T>
+impl<T> Decode for BinaryHeap<T>
 where
     T: Copy + Ord + Encode + Decode,
 {
@@ -258,7 +257,7 @@ where
     }
 }
 
-impl<T> AllocateUsing for Heap<T>
+impl<T> AllocateUsing for BinaryHeap<T>
 where
     T: Copy + Ord + Encode + Decode,
 {
@@ -273,7 +272,7 @@ where
     }
 }
 
-impl<T> Initialize for Heap<T>
+impl<T> Initialize for BinaryHeap<T>
 where
     T: Ord,
 {
@@ -284,11 +283,11 @@ where
     }
 
     fn initialize(&mut self, _: Self::Args) {
-        self.header.set(HeapHeader { len: 0 });
+        self.header.set(BinaryHeapHeader { len: 0 });
     }
 }
 
-impl<T> Heap<T>
+impl<T> BinaryHeap<T>
 where
     T: Copy + Codec + Ord,
 {

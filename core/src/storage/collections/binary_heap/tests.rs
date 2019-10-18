@@ -21,7 +21,7 @@ use crate::{
             BumpAlloc,
             Initialize,
         },
-        Heap,
+        BinaryHeap,
         Key,
     },
     test_utils::run_test,
@@ -39,14 +39,14 @@ use scale::{
     Encode,
 };
 
-fn empty_heap() -> Heap<i32> {
+fn empty_heap() -> BinaryHeap<i32> {
     unsafe {
         let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-        Heap::allocate_using(&mut alloc).initialize_into(())
+        BinaryHeap::allocate_using(&mut alloc).initialize_into(())
     }
 }
 
-fn filled_heap() -> Heap<i32> {
+fn filled_heap() -> BinaryHeap<i32> {
     let mut heap = empty_heap();
     heap.push(42);
     heap.push(5);
@@ -65,7 +65,7 @@ fn filled_heap() -> Heap<i32> {
 /// returned, as the function finally checks that there are no more elements
 /// left in the heap.
 fn assert_push_equals_sorted_pop<T: Copy + Ord + Codec + Debug>(
-    heap: &mut Heap<T>,
+    heap: &mut BinaryHeap<T>,
     vec: Vec<T>,
     expected: Vec<T>,
 ) {
@@ -323,9 +323,9 @@ impl PartialOrd for V {
 #[test]
 fn min_heap_with_three_levels() {
     run_test(|| {
-        let mut heap: Heap<V> = unsafe {
+        let mut heap: BinaryHeap<V> = unsafe {
             let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-            Heap::allocate_using(&mut alloc).initialize_into(())
+            BinaryHeap::allocate_using(&mut alloc).initialize_into(())
         };
         let vec = vec![
             V(100),
