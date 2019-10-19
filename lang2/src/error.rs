@@ -20,8 +20,11 @@ pub type DispatchResult = core::result::Result<(), DispatchError>;
 /// A dispatch error.
 #[derive(Copy, Clone)]
 pub enum DispatchError {
+    UnknownSelector,
     UnknownInstantiateSelector,
     UnknownCallSelector,
+
+    InvalidParameters,
     InvalidInstantiateParameters,
     InvalidCallParameters,
 }
@@ -31,10 +34,12 @@ impl DispatchError {
     #[inline]
     pub fn to_u32(self) -> u32 {
         match self {
-            DispatchError::UnknownInstantiateSelector => 0x01,
-            DispatchError::UnknownCallSelector => 0x02,
-            DispatchError::InvalidInstantiateParameters => 0x03,
-            DispatchError::InvalidCallParameters => 0x04,
+            DispatchError::UnknownSelector => 0x01,
+            DispatchError::UnknownInstantiateSelector => 0x02,
+            DispatchError::UnknownCallSelector => 0x03,
+            DispatchError::InvalidParameters => 0x04,
+            DispatchError::InvalidInstantiateParameters => 0x05,
+            DispatchError::InvalidCallParameters => 0x06,
         }
     }
 }
@@ -65,10 +70,12 @@ impl From<DispatchError> for DispatchRetCode {
     #[inline]
     fn from(err: DispatchError) -> Self {
         match err {
-            DispatchError::UnknownInstantiateSelector => Self(0x01),
-            DispatchError::UnknownCallSelector => Self(0x02),
-            DispatchError::InvalidInstantiateParameters => Self(0x03),
-            DispatchError::InvalidCallParameters => Self(0x04),
+            DispatchError::UnknownSelector => Self(0x01),
+            DispatchError::UnknownInstantiateSelector => Self(0x02),
+            DispatchError::UnknownCallSelector => Self(0x03),
+            DispatchError::InvalidParameters => Self(0x04),
+            DispatchError::InvalidInstantiateParameters => Self(0x05),
+            DispatchError::InvalidCallParameters => Self(0x06),
         }
     }
 }
