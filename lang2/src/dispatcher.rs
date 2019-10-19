@@ -193,32 +193,6 @@ macro_rules! impl_dispatcher_for {
                 (self.dispatchable)(storage, inputs)
             }
         }
-
-        // impl<Msg, S, Env> Dispatch<S> for $name<Msg, S>
-        // where
-        //     Msg: Message,
-        //     <Msg as FnInput>::Input: scale::Decode,
-        //     <Msg as FnOutput>::Output: scale::Encode,
-        //     S: Flush + AccessEnv,
-        //     // We need the double dispatch for optional `DynEnv` usage.
-        //     <S as AccessEnv>::Target: AccessEnv<Target = EnvAccess<Env>>,
-        //     Env: ink_core::env2::Env,
-        // {
-        //     fn dispatch(&self, storage: &mut S, data: &CallData) -> Result<()> {
-        //         use scale::Decode as _;
-        //         let args = <Msg as FnInput>::Input::decode(&mut &data.params()[..])
-        //             .map_err(|_| DispatchError::InvalidParameters)?;
-        //         let result = self.eval(storage, args);
-        //         if TypeId::of::<<Msg as FnOutput>::Output>() != TypeId::of::<()>() {
-        //             storage.env().env().output(&result)
-        //         }
-        //         if <Msg as Message>::IS_MUT {
-        //             // Flush the storage since the message might have mutated it.
-        //             storage.flush();
-        //         }
-        //         Ok(())
-        //     }
-        // }
     };
     ( // Forwarding rule for `mut`
         $( #[$meta:meta] )*
