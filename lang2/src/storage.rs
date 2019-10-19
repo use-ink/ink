@@ -14,44 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-
-#[cfg(not(feature = "std"))]
-extern crate alloc;
-
-mod access_env;
-mod dispatch;
-mod error;
-mod msg;
-mod storage;
-
-pub use ink_lang2_macro::contract;
-
-pub use self::{
-    access_env::{
-    dispatch::{
-        dispatch_constr,
-        dispatch_msg,
-        dispatch_msg_mut,
-        AccessEnv,
-        AccessEnvMut,
+use ink_core::storage::{
+    Flush,
+    alloc::{
+        Initialize,
+        AllocateUsing,
     },
-        Dispatch,
-        DispatchMode,
-    },
-    error::{
-        DispatchError,
-        DispatchResult,
-        DispatchRetCode,
-    },
-    msg::{
-        Constr,
-        Dispatchable,
-        FnInput,
-        FnOutput,
-        FnSelector,
-        Message,
-        Msg,
-    },
-    storage::Storage,
 };
+
+/// Types implementing this trait are storage structs.
+pub trait Storage: AllocateUsing + Initialize + Flush {}
