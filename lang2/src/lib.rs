@@ -15,11 +15,14 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(const_fn)]
 
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
 mod access_env;
+mod contract;
+mod dispatcher;
 mod error;
 mod msg;
 mod storage;
@@ -31,7 +34,24 @@ pub use self::{
         AccessEnv,
         AccessEnvMut,
     },
+    contract::{
+        ContractDispatch,
+        ContractInstance,
         DispatchMode,
+        StoragePair,
+        Contract,
+        ContractBuilder,
+    },
+    dispatcher::{
+        Dispatch,
+        DispatchList,
+        DispatchableFn,
+        DispatchableFnMut,
+        Dispatcher,
+        DispatcherMut,
+        EmptyDispatchList,
+        PushDispatcher,
+        UnreachableDispatcher,
     },
     error::{
         DispatchError,
