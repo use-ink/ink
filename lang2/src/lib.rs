@@ -20,7 +20,6 @@
 extern crate alloc;
 
 mod access_env;
-mod dispatch;
 mod error;
 mod msg;
 mod storage;
@@ -29,14 +28,9 @@ pub use ink_lang2_macro::contract;
 
 pub use self::{
     access_env::{
-    dispatch::{
-        dispatch_constr,
-        dispatch_msg,
-        dispatch_msg_mut,
         AccessEnv,
         AccessEnvMut,
     },
-        Dispatch,
         DispatchMode,
     },
     error::{
