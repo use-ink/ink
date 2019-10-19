@@ -35,14 +35,10 @@ pub trait FnSelector {
     const SELECTOR: Selector;
 }
 
-/// Types implementing this are messages.
+/// Types implementing this are messages that may only read from storage.
 pub trait Message: FnInput + FnOutput + FnSelector {
-    /// Indicates whether the message has been defined as `&mut self`.
     const IS_MUT: bool;
 }
-
-/// Types implementing this are constructors.
-pub trait Constructor: FnInput + FnSelector {}
 
 /// A concrete instance of a dispatchable function.
 pub struct Dispatchable<S, M> {
@@ -62,11 +58,3 @@ pub type Msg<S> = Dispatchable<S, marker::MessageMarker>;
 
 /// A concrete constructor instance.
 pub type Constr<S> = Dispatchable<S, marker::ConstructorMarker>;
-
-impl<T> FnOutput for T
-where
-    T: Constructor,
-{
-    // TODO: decide whether we need this auto-impl
-    type Output = ();
-}

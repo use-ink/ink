@@ -45,7 +45,6 @@ pub use self::{
     },
     msg::{
         Constr,
-        Constructor,
         Dispatchable,
         FnInput,
         FnOutput,
