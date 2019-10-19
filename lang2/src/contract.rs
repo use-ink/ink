@@ -364,7 +364,7 @@ where
     DispatchList<MutMsgsHead, MutMsgsRest>: Dispatch<<Storage as StoragePair>::Mut>,
     Env: ink_core::env2::Env,
 {
-    pub fn dispatch2(mut self, mode: DispatchMode) -> Result<(), DispatchError> {
+    pub fn dispatch_using_mode(mut self, mode: DispatchMode) -> Result<(), DispatchError> {
         // Initialize storage if we instantiate the contract.
         if mode == DispatchMode::Instantiate {
             use ink_core::storage::alloc::Initialize as _;

@@ -280,7 +280,7 @@ const _: () = {
                 .on_msg_mut::<Msg<[(); FLIP_ID]>>(|storage, _| storage.flip())
                 .on_msg::<Msg<[(); GET_ID]>>(|storage, _| storage.get())
                 .done();
-            contract.dispatch2(mode)
+            contract.dispatch_using_mode(mode)
         }
     }
 };
