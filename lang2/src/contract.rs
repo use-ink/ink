@@ -328,7 +328,7 @@ pub trait ContractInstance {
 
 /// The contract dispatch mode.
 ///
-/// Tells the [`Contract::dispatch`] routine what to dispatch for.
+/// Tells the [`Contract::dispatch_using_mode`] routine what to dispatch for.
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DispatchMode {
     /// Mode for instantiating a contract.
