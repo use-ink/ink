@@ -806,3 +806,27 @@ where
     let hex = format!("0x{:02X}{:02X}{:02X}{:02X}", b[0], b[1], b[2], b[3]);
     serializer.serialize_str(&hex)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn construct_selector_must_serialize_to_hex() {
+        // given
+        let name = <MetaForm as Form>::String::from("foo");
+        let cs: ConstructorSpec<MetaForm> = ConstructorSpec {
+            name,
+            selector: 123456789,
+            args: Vec::new(),
+            docs: Vec::new(),
+        };
+        let mut registry = Registry::new();
+
+        // when
+        let json = serde_json::to_string(&cs.into_compact(&mut registry)).unwrap();
+
+        // then
+        assert_eq!(json, "{\"name\":1,\"selector\":\"0x075BCD15\",\"args\":[],\"docs\":[]}");
+    }
+}
