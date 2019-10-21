@@ -21,3 +21,13 @@ pub use self::{
     immutable::EnvAccess,
     mutable::EnvAccessMut,
 };
+
+/// Allows to access the environment from `&EnvAccess` and `&mut EnvAccess`
+/// respectively with different degree of efficiency.
+pub trait AccessEnv {
+    /// The environment definition.
+    type Target;
+
+    /// Access the environment.
+    fn env(self) -> Self::Target;
+}

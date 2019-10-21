@@ -22,6 +22,7 @@ use crate::{
         EmitEventParams,
         Env,
         EnvAccessMut,
+        AccessEnv,
         Result,
     },
     storage::{
@@ -47,11 +48,29 @@ use core::cell::RefCell;
 ///
 /// Using `EnvAccessMut` is preferable since it performs these access checks at
 /// compile-time.
-pub struct EnvAccess<T> {
+pub struct EnvAccess<E> {
     /// Allows accessing the inner environment by `&self` instead of `&mut self`.
     ///
     /// This is important to make `DynEnv` work also in conjunction with `&self` messages.
-    access: RefCell<EnvAccessMut<T>>,
+    access: RefCell<EnvAccessMut<E>>,
+}
+
+impl<'a, E> AccessEnv for &'a EnvAccess<E> {
+    type Target = core::cell::RefMut<'a, EnvAccessMut<E>>;
+
+    #[inline]
+    fn env(self) -> Self::Target {
+        self.access.borrow_mut()
+    }
+}
+
+impl<'a, E> AccessEnv for &'a mut EnvAccess<E> {
+    type Target = &'a mut EnvAccessMut<E>;
+
+    #[inline]
+    fn env(self) -> Self::Target {
+        self.access.get_mut()
+    }
 }
 
 impl<E> AllocateUsing for EnvAccess<E> {

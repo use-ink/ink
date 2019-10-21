@@ -95,6 +95,7 @@ pub use self::{
         DynEnvAccessMut,
     },
     env_access::{
+        AccessEnv,
         EnvAccess,
         EnvAccessMut,
     },
