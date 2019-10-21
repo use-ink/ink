@@ -179,7 +179,14 @@ mod __ink_storage {
             *self.value = !self.get();
         }
 
-        pub fn get(&self) -> bool {
+        // Generating `get` as `&mut self` instead of `&self` allows us to
+        // tell the Rust compiler to check if the underlying environment accesses
+        // are respecting rules of `&mut self` which are stricter than the rules
+        // for `&self`. These rules have to hold even though we generally
+        // only use the `&self` version of the `get` message. This should not
+        // result in code bloat since the compiler should be able to simply
+        // remove these generated guard-messages again.
+        pub fn get(&mut self) -> bool {
             *self.value
         }
     }
