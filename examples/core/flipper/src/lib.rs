@@ -14,26 +14,17 @@ type Env = ink_core::env2::EnvImpl<ink_core::env2::DefaultSrmlTypes>;
 mod __ink_storage {
     use super::*;
 
-    pub struct StorageAndEnv<E> {
+    #[cfg(feature = "ink-dyn-alloc")]
+    pub type UsedEnv = ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>;
+    #[cfg(not(feature = "ink-dyn-alloc"))]
+    pub type UsedEnv = ink_core::env2::EnvAccess<Env>;
+
+    pub struct StorageAndEnv {
         storage: Flipper,
-        env: E,
+        env: UsedEnv,
     }
 
-    #[cfg(feature = "ink-dyn-alloc")]
-    pub type FlipperAndEnvMut =
-        StorageAndEnv<ink_core::env2::DynEnv<ink_core::env2::EnvAccessMut<Env>>>;
-
-    #[cfg(feature = "ink-dyn-alloc")]
-    pub type FlipperAndEnv =
-        StorageAndEnv<ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>>;
-
-    #[cfg(not(feature = "ink-dyn-alloc"))]
-    pub type FlipperAndEnvMut = StorageAndEnv<ink_core::env2::EnvAccessMut<Env>>;
-
-    #[cfg(not(feature = "ink-dyn-alloc"))]
-    pub type FlipperAndEnv = StorageAndEnv<ink_core::env2::EnvAccess<Env>>;
-
-    impl<E> core::ops::Deref for StorageAndEnv<E> {
+    impl core::ops::Deref for StorageAndEnv {
         type Target = Flipper;
 
         fn deref(&self) -> &Self::Target {
@@ -41,18 +32,42 @@ mod __ink_storage {
         }
     }
 
-    impl<E> core::ops::DerefMut for StorageAndEnv<E> {
+    impl core::ops::DerefMut for StorageAndEnv {
         fn deref_mut(&mut self) -> &mut Self::Target {
             &mut self.storage
         }
     }
 
-    impl From<FlipperAndEnvMut> for FlipperAndEnv {
-        fn from(flipper: FlipperAndEnvMut) -> Self {
-            Self {
-                storage: flipper.storage,
-                env: flipper.env.into(),
-            }
+    #[cfg(feature = "ink-dyn-alloc")]
+    impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
+        fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+            use ink_core::env2::AccessEnv as _;
+            self.env.env()
+        }
+    }
+
+    #[cfg(not(feature = "ink-dyn-alloc"))]
+    impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
+        fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+            &mut self.env
+        }
+    }
+
+    impl<'a> ink_core::env2::AccessEnv for &'a StorageAndEnv {
+        type Target = <&'a UsedEnv as ink_core::env2::AccessEnv>::Target;
+
+        fn env(self) -> Self::Target {
+            use ink_core::env2::AccessEnv as _;
+            self.env.env()
+        }
+    }
+
+    impl<'a> ink_core::env2::AccessEnv for &'a mut StorageAndEnv {
+        type Target = <&'a mut UsedEnv as ink_core::env2::AccessEnv>::Target;
+
+        fn env(self) -> Self::Target {
+            use ink_core::env2::AccessEnv as _;
+            (&mut self.env).env()
         }
     }
 
@@ -85,7 +100,7 @@ mod __ink_storage {
         }
     }
 
-    impl ink_core::storage::alloc::AllocateUsing for FlipperAndEnvMut {
+    impl ink_core::storage::alloc::AllocateUsing for StorageAndEnv {
         unsafe fn allocate_using<A>(alloc: &mut A) -> Self
         where
             A: ink_core::storage::alloc::Allocate,
@@ -97,14 +112,14 @@ mod __ink_storage {
         }
     }
 
-    impl ink_core::storage::Flush for FlipperAndEnvMut {
+    impl ink_core::storage::Flush for StorageAndEnv {
         fn flush(&mut self) {
             self.storage.flush();
             self.env.flush();
         }
     }
 
-    impl ink_core::storage::alloc::Initialize for FlipperAndEnvMut {
+    impl ink_core::storage::alloc::Initialize for StorageAndEnv {
         type Args = ();
 
         fn default_value() -> Option<Self::Args> {
@@ -117,56 +132,11 @@ mod __ink_storage {
         }
     }
 
-    impl ink_lang2::Storage for FlipperAndEnvMut {}
+    impl ink_lang2::Storage for StorageAndEnv {}
 
-    #[cfg(feature = "ink-dyn-alloc")]
-    impl ink_lang2::AccessEnv for FlipperAndEnvMut {
-        type Target = ink_core::env2::DynEnv<ink_core::env2::EnvAccessMut<Env>>;
+    use ink_core::env2::AccessEnv as _;
 
-        #[inline]
-        fn env(&self) -> &Self::Target {
-            &self.env
-        }
-    }
-
-    #[cfg(not(feature = "ink-dyn-alloc"))]
-    impl ink_lang2::AccessEnv for FlipperAndEnvMut {
-        type Target = ink_core::env2::EnvAccessMut<Env>;
-
-        #[inline]
-        fn env(&self) -> &Self::Target {
-            &self.env
-        }
-    }
-
-    impl ink_lang2::AccessEnvMut for FlipperAndEnvMut {
-        #[inline]
-        fn env_mut(&mut self) -> &mut Self::Target {
-            &mut self.env
-        }
-    }
-
-    #[cfg(feature = "ink-dyn-alloc")]
-    impl ink_lang2::AccessEnv for FlipperAndEnv {
-        type Target = ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>;
-
-        #[inline]
-        fn env(&self) -> &Self::Target {
-            &self.env
-        }
-    }
-
-    #[cfg(not(feature = "ink-dyn-alloc"))]
-    impl ink_lang2::AccessEnv for FlipperAndEnv {
-        type Target = ink_core::env2::EnvAccess<Env>;
-
-        #[inline]
-        fn env(&self) -> &Self::Target {
-            &self.env
-        }
-    }
-
-    impl FlipperAndEnvMut {
+    impl StorageAndEnv {
         pub fn new(&mut self, init_value: bool) {
             self.value.set(init_value);
         }
@@ -179,19 +149,6 @@ mod __ink_storage {
             *self.value = !self.get();
         }
 
-        // Generating `get` as `&mut self` instead of `&self` allows us to
-        // tell the Rust compiler to check if the underlying environment accesses
-        // are respecting rules of `&mut self` which are stricter than the rules
-        // for `&self`. These rules have to hold even though we generally
-        // only use the `&self` version of the `get` message. This should not
-        // result in code bloat since the compiler should be able to simply
-        // remove these generated guard-messages again.
-        pub fn get(&mut self) -> bool {
-            *self.value
-        }
-    }
-
-    impl FlipperAndEnv {
         pub fn get(&self) -> bool {
             *self.value
         }
@@ -206,12 +163,12 @@ const _: () = {
     /// A concrete instance of a dispatchable message.
     pub struct Msg<S> {
         /// We need to wrap inner because of Rust's orphan rules.
-        marker: core::marker::PhantomData<fn () -> S>,
+        marker: core::marker::PhantomData<fn() -> S>,
     }
 
     pub struct Constr<S> {
         /// We need to wrap inner because of Rust's orphan rules.
-        marker: core::marker::PhantomData<fn () -> S>,
+        marker: core::marker::PhantomData<fn() -> S>,
     }
 
     const NEW_ID: usize = 0;
@@ -306,16 +263,13 @@ const _: () = {
         fn dispatch_using_mode(
             mode: ink_lang2::DispatchMode,
         ) -> core::result::Result<(), ink_lang2::DispatchError> {
-            ink_lang2::Contract::with_storage::<(
-                __ink_storage::FlipperAndEnvMut,
-                __ink_storage::FlipperAndEnv,
-            )>()
-            .on_instantiate::<Constr<[(); 0]>>(|storage, arg| storage.new(arg))
-            .on_instantiate::<Constr<[(); 1]>>(|storage, _| storage.default())
-            .on_msg_mut::<Msg<[(); FLIP_ID]>>(|storage, _| storage.flip())
-            .on_msg::<Msg<[(); GET_ID]>>(|storage, _| storage.get())
-            .done()
-            .dispatch_using_mode(mode)
+            ink_lang2::Contract::with_storage::<(__ink_storage::StorageAndEnv)>()
+                .on_instantiate::<Constr<[(); NEW_ID]>>(|storage, arg| storage.new(arg))
+                .on_instantiate::<Constr<[(); DEFAULT_ID]>>(|storage, _| storage.default())
+                .on_msg_mut::<Msg<[(); FLIP_ID]>>(|storage, _| storage.flip())
+                .on_msg::<Msg<[(); GET_ID]>>(|storage, _| storage.get())
+                .done()
+                .dispatch_using_mode(mode)
         }
     }
 };
