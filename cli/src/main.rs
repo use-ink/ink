@@ -87,11 +87,10 @@ enum Command {
     },
     /// Builds the smart contract.
     #[structopt(name = "build")]
-    Build {
-        /// Generate the contract abi artifacts
-        #[structopt(long = "abi")]
-        generate_abi: bool,
-    },
+    Build {},
+    /// Generate abi artifacts
+    #[structopt(name = "generate-abi")]
+    GenerateAbi {},
     /// Test the smart contract off-chain.
     #[structopt(name = "test")]
     Test {},
@@ -135,7 +134,8 @@ fn exec(cmd: Command) -> cmd::Result<String> {
     use crate::cmd::CommandError;
     match &cmd {
         Command::New { layer, name } => cmd::execute_new(*layer, name),
-        Command::Build { generate_abi} => cmd::execute_build(*generate_abi),
+        Command::Build {} => cmd::execute_build(),
+        Command::GenerateAbi {} => cmd::execute_generate_abi(),
         Command::Test {} => Err(CommandError::UnimplementedCommand),
         Command::Deploy {
             url,
