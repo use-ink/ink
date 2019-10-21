@@ -20,26 +20,19 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
-mod access_env;
 mod contract;
 mod dispatcher;
 mod error;
-mod msg;
-mod storage;
+mod traits;
 
 pub use ink_lang2_macro::contract;
 
 pub use self::{
-    access_env::{
-        AccessEnv,
-        AccessEnvMut,
-    },
     contract::{
-        DispatchUsingMode,
-        DispatchMode,
-        StoragePair,
         Contract,
         ContractBuilder,
+        DispatchMode,
+        DispatchUsingMode,
     },
     dispatcher::{
         Dispatch,
@@ -57,11 +50,12 @@ pub use self::{
         DispatchResult,
         DispatchRetCode,
     },
-    msg::{
+    traits::{
         FnInput,
         FnOutput,
         FnSelector,
         Message,
+        AccessEnv,
+        Storage,
     },
-    storage::Storage,
 };

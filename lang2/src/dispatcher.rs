@@ -16,7 +16,6 @@
 
 use crate::{
     AccessEnv,
-    AccessEnvMut,
     DispatchError,
     FnInput,
     FnOutput,
@@ -42,7 +41,10 @@ pub type Result<T> = core::result::Result<T, DispatchError>;
 /// Types implementing this trait can handle contract calls.
 pub trait Dispatch<S> {
     /// Dispatches the call and returns the call result.
-    fn dispatch(&self, storage: &mut S, input: &CallData) -> Result<()>;
+    fn dispatch<Env>(&self, storage: &mut S, input: &CallData) -> Result<()>
+    where
+        S: AccessEnv<Env>,
+        Env: ink_core::env2::Env;
 }
 
 /// A dispatcher that shall never dispatch.
@@ -55,7 +57,11 @@ pub trait Dispatch<S> {
 pub struct UnreachableDispatcher;
 
 impl<S> Dispatch<S> for UnreachableDispatcher {
-    fn dispatch(&self, _storage: &mut S, _data: &CallData) -> Result<()> {
+    fn dispatch<Env>(&self, _storage: &mut S, _data: &CallData) -> Result<()>
+    where
+        S: AccessEnv<Env>,
+        Env: ink_core::env2::Env,
+    {
         Err(DispatchError::UnknownSelector)
     }
 }
@@ -108,7 +114,11 @@ where
     D: Dispatch<S> + FnSelector,
     Rest: Dispatch<S>,
 {
-    fn dispatch(&self, storage: &mut S, data: &CallData) -> Result<()> {
+    fn dispatch<Env>(&self, storage: &mut S, data: &CallData) -> Result<()>
+    where
+        S: AccessEnv<Env>,
+        Env: ink_core::env2::Env,
+    {
         if <D as FnSelector>::SELECTOR == data.selector() {
             self.dispatcher.dispatch(storage, data)
         } else {
@@ -193,6 +203,33 @@ macro_rules! impl_dispatcher_for {
                 (self.dispatchable)(storage, inputs)
             }
         }
+
+        impl<Msg, S> Dispatch<S> for $name<Msg, S>
+        where
+            Msg: Message,
+            <Msg as FnInput>::Input: scale::Decode,
+            <Msg as FnOutput>::Output: scale::Encode,
+            S: Flush,
+        {
+            fn dispatch<Env>(&self, storage: &mut S, data: &CallData) -> Result<()>
+            where
+                S: AccessEnv<Env>,
+                Env: ink_core::env2::Env,
+            {
+                use scale::Decode as _;
+                let args = <Msg as FnInput>::Input::decode(&mut &data.params()[..])
+                    .map_err(|_| DispatchError::InvalidParameters)?;
+                let result = self.eval(storage, args);
+                if TypeId::of::<<Msg as FnOutput>::Output>() != TypeId::of::<()>() {
+                    storage.env().output(&result)
+                }
+                if <Msg as Message>::IS_MUT {
+                    // Flush the storage since the message might have mutated it.
+                    storage.flush();
+                }
+                Ok(())
+            }
+        }
     };
     ( // Forwarding rule for `mut`
         $( #[$meta:meta] )*
@@ -213,53 +250,4 @@ impl_dispatcher_for! {
 impl_dispatcher_for! {
     /// Dispatcher for potentially storage mutating messages and constructors.
     struct DispatcherMut(mut DispatchableFnMut);
-}
-
-impl<Msg, S, Env> Dispatch<S> for Dispatcher<Msg, S>
-where
-    Msg: Message,
-    <Msg as FnInput>::Input: scale::Decode,
-    <Msg as FnOutput>::Output: scale::Encode,
-    S: AccessEnv,
-    // We need the double dispatch for optional `DynEnv` usage.
-    <S as AccessEnv>::Target: AccessEnv<Target = EnvAccess<Env>>,
-    Env: ink_core::env2::Env,
-{
-    fn dispatch(&self, storage: &mut S, data: &CallData) -> Result<()> {
-        use scale::Decode as _;
-        let args = <Msg as FnInput>::Input::decode(&mut &data.params()[..])
-            .map_err(|_| DispatchError::InvalidParameters)?;
-        let result = self.eval(storage, args);
-        if TypeId::of::<<Msg as FnOutput>::Output>() != TypeId::of::<()>() {
-            storage.env().env().output(&result)
-        }
-        // We don't need to flush because we rely on storage state to not be modified.
-        Ok(())
-    }
-}
-
-impl<Msg, S, Env> Dispatch<S> for DispatcherMut<Msg, S>
-where
-    Msg: Message,
-    <Msg as FnInput>::Input: scale::Decode,
-    <Msg as FnOutput>::Output: scale::Encode,
-    S: Flush + AccessEnvMut,
-    // We need the double dispatch for optional `DynEnv` usage.
-    <S as AccessEnv>::Target: AccessEnvMut<Target = EnvAccessMut<Env>>,
-    Env: ink_core::env2::Env,
-{
-    fn dispatch(&self, storage: &mut S, data: &CallData) -> Result<()> {
-        use scale::Decode as _;
-        let args = <Msg as FnInput>::Input::decode(&mut &data.params()[..])
-            .map_err(|_| DispatchError::InvalidParameters)?;
-        let result = self.eval(storage, args);
-        if TypeId::of::<<Msg as FnOutput>::Output>() != TypeId::of::<()>() {
-            storage.env_mut().env_mut().output(&result)
-        }
-        if <Msg as Message>::IS_MUT {
-            // Flush the storage since the message might have mutated it.
-            storage.flush();
-        }
-        Ok(())
-    }
 }
