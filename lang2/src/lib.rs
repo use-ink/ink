@@ -35,7 +35,7 @@ pub use self::{
         AccessEnvMut,
     },
     contract::{
-        ContractDispatch,
+        DispatchUsingMode,
         ContractInstance,
         DispatchMode,
         StoragePair,

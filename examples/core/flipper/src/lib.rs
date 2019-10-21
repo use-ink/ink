@@ -295,8 +295,8 @@ const _: () = {
         const IS_MUT: bool = false;
     }
 
-    impl ink_lang2::ContractDispatch for Flipper {
-        fn dispatch(
+    impl ink_lang2::DispatchUsingMode for Flipper {
+        fn dispatch_using_mode(
             mode: ink_lang2::DispatchMode,
         ) -> core::result::Result<(), ink_lang2::DispatchError> {
             ink_lang2::Contract::with_storage::<(
@@ -316,17 +316,21 @@ const _: () = {
 #[cfg(not(test))]
 #[no_mangle]
 fn deploy() -> u32 {
-    ink_lang2::DispatchRetCode::from(<Flipper as ink_lang2::ContractDispatch>::dispatch(
-        ink_lang2::DispatchMode::Instantiate,
-    ))
+    ink_lang2::DispatchRetCode::from(
+        <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+            ink_lang2::DispatchMode::Instantiate,
+        ),
+    )
     .to_u32()
 }
 
 #[cfg(not(test))]
 #[no_mangle]
 fn call() -> u32 {
-    ink_lang2::DispatchRetCode::from(<Flipper as ink_lang2::ContractDispatch>::dispatch(
-        ink_lang2::DispatchMode::Call,
-    ))
+    ink_lang2::DispatchRetCode::from(
+        <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+            ink_lang2::DispatchMode::Call,
+        ),
+    )
     .to_u32()
 }

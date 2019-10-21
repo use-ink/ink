@@ -393,6 +393,9 @@ where
     }
 }
 
-pub trait ContractDispatch {
-    fn dispatch(mode: DispatchMode) -> Result<(), DispatchError>;
+/// Trait implemented by contracts themselves in order to provide a clean
+/// interface for the C-ABI specified `call` and `create` functions to forward
+/// calls to.
+pub trait DispatchUsingMode {
+    fn dispatch_using_mode(mode: DispatchMode) -> Result<(), DispatchError>;
 }
