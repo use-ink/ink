@@ -37,6 +37,28 @@ pub trait GenerateCode {
     fn generate_code(&self) -> TokenStream2;
 }
 
+/// Types implementing this trait can use sub-generators to generate code.
+pub trait GenerateCodeUsing {
+    /// Returns a reference to the underlying contract.
+    fn contract(&self) -> &Contract;
+
+    /// Generates ink! contract code using a sub-generator.
+    fn generate_code_using<'a, G>(&'a self) -> TokenStream2
+    where
+        G: From<&'a Contract> + GenerateCode,
+    {
+        crate::codegen::generate_code::<G>(self.contract())
+    }
+}
+
+/// Generates code for the contract using the provided generator.
+pub fn generate_code<'a, G>(contract: &'a Contract) -> TokenStream2
+where
+    G: From<&'a Contract> + GenerateCode,
+{
+    G::from(contract).generate_code()
+}
+
 /// Generates code for the entirety of the ink! contract.
 #[derive(From)]
 pub struct ContractModule<'a> {
@@ -44,14 +66,20 @@ pub struct ContractModule<'a> {
     contract: &'a Contract,
 }
 
+impl<'a> GenerateCodeUsing for ContractModule<'a> {
+    fn contract(&self) -> &Contract {
+        self.contract
+    }
+}
+
 impl GenerateCode for ContractModule<'_> {
     /// Generates ink! contract code.
     fn generate_code(&self) -> TokenStream2 {
         let ident = &self.contract.ident;
 
-        let entry_points = EntryPoints::from(self.contract).generate_code();
-        let env_types = EnvTypes::from(self.contract).generate_code();
-        let storage = Storage::from(self.contract).generate_code();
+        let entry_points = self.generate_code_using::<EntryPoints>();
+        let env_types = self.generate_code_using::<EnvTypes>();
+        let storage = self.generate_code_using::<Storage>();
 
         quote! {
             mod #ident {
