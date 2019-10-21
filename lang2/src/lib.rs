@@ -58,13 +58,10 @@ pub use self::{
         DispatchRetCode,
     },
     msg::{
-        Constr,
-        Dispatchable,
         FnInput,
         FnOutput,
         FnSelector,
         Message,
-        Msg,
     },
     storage::Storage,
 };

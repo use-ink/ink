@@ -199,12 +199,12 @@ const _: () = {
     /// A concrete instance of a dispatchable message.
     pub struct Msg<S> {
         /// We need to wrap inner because of Rust's orphan rules.
-        inner: ink_lang2::Msg<S>,
+        marker: core::marker::PhantomData<fn () -> S>,
     }
 
     pub struct Constr<S> {
         /// We need to wrap inner because of Rust's orphan rules.
-        inner: ink_lang2::Constr<S>,
+        marker: core::marker::PhantomData<fn () -> S>,
     }
 
     const NEW_ID: usize = 0;

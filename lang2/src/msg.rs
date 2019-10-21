@@ -39,22 +39,3 @@ pub trait FnSelector {
 pub trait Message: FnInput + FnOutput + FnSelector {
     const IS_MUT: bool;
 }
-
-/// A concrete instance of a dispatchable function.
-pub struct Dispatchable<S, M> {
-    /// Used to make the compiler think that we actually make use of `S` and `M`.
-    marker: PhantomData<fn() -> (S, M)>,
-}
-
-mod marker {
-    /// Indicates messages.
-    pub enum MessageMarker {}
-    /// Indicates constructors.
-    pub enum ConstructorMarker {}
-}
-
-/// A concrete message instance.
-pub type Msg<S> = Dispatchable<S, marker::MessageMarker>;
-
-/// A concrete constructor instance.
-pub type Constr<S> = Dispatchable<S, marker::ConstructorMarker>;
