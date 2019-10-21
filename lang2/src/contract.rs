@@ -320,12 +320,6 @@ where
     }
 }
 
-/// Interface to work with instantiated contracts.
-pub trait ContractInstance {
-    /// Instantiates or calls the contract.
-    fn dispatch(self, mode: DispatchMode) -> Result<(), DispatchError>;
-}
-
 /// The contract dispatch mode.
 ///
 /// Tells the [`Contract::dispatch_using_mode`] routine what to dispatch for.

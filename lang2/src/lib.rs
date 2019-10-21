@@ -36,7 +36,6 @@ pub use self::{
     },
     contract::{
         DispatchUsingMode,
-        ContractInstance,
         DispatchMode,
         StoragePair,
         Contract,
