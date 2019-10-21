@@ -15,33 +15,32 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    ir::Contract,
     codegen::GenerateCode,
+    ir::Contract,
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, quote_spanned};
-use syn::spanned::Spanned as _;
+use quote::quote;
 
-/// Generates code for the contract's event structs.
+/// Generates code for the environmental types used by a contract.
 #[derive(From)]
-pub struct Events<'a> {
+pub struct EnvTypes<'a> {
     /// The contract to generate code for.
     contract: &'a Contract,
 }
 
-impl Events<'_> {
-    fn generate_event_structs(&self) -> TokenStream2 {
-        quote! {}
-    }
-}
-
-impl GenerateCode for Events<'_> {
+impl GenerateCode for EnvTypes<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let event_structs = self.generate_event_structs();
+        let env_types = &self.contract.meta_info.env_types.ty;
 
-        quote_spanned!( self.contract.mod_token.span() =>
-            #event_structs
-        )
+        quote! {
+            type Env = ink_core::env2::EnvImpl<#env_types>;
+
+            type AccountId = <#env_types as ink_core::env2::EnvTypes>::AccountId;
+            type Balance = <#env_types as ink_core::env2::EnvTypes>::Balance;
+            type Hash = <#env_types as ink_core::env2::EnvTypes>::Hash;
+            type Moment = <#env_types as ink_core::env2::EnvTypes>::Moment;
+            type BlockNumber = <#env_types as ink_core::env2::EnvTypes>::BlockNumber;
+        }
     }
 }

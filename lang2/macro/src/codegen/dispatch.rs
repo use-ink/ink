@@ -15,55 +15,42 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    codegen::GenerateCode,
+    codegen::{
+        GenerateCode,
+        GenerateCodeUsing,
+    },
     ir::Contract,
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
-};
+use quote::{quote, quote_spanned};
 
-/// Generates code for the `ink_model` parts that dispatch constructors
+/// Generates code for the dispatch parts that dispatch constructors
 /// and messages from the input and also handle the returning of data.
 #[derive(From)]
-pub struct Model<'a> {
+pub struct Dispatch<'a> {
     /// The contract to generate code for.
     contract: &'a Contract,
 }
 
-impl GenerateCode for Model<'_> {
-    fn generate_code(&self) -> TokenStream2 {
-        quote! {}
+impl<'a> GenerateCodeUsing for Dispatch<'a> {
+    fn contract(&self) -> &Contract {
+        self.contract
     }
 }
 
-/// Generates code for the `ink_model::Contract` instantiation procedure.
-#[derive(From)]
-pub struct Instantiate<'a> {
-    contract: &'a Contract,
-}
-
-/// Generates code for the environmental types used by a contract.
-#[derive(From)]
-pub struct EnvTypes<'a> {
-    /// The contract to generate code for.
-    contract: &'a Contract,
-}
-
-impl GenerateCode for EnvTypes<'_> {
+impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let env_types = &self.contract.meta_info.env_types.ty;
-
         quote! {
-            type Env = ink_core::env2::EnvImpl<#env_types>;
+            impl ink_lang2::Dispatch for Flipper {
+                fn dispatch(mode: ink_lang2::DispatchMode) -> ink_lang2::DispatchRetCode {
+                    let entry_points = self.generate_code_using::<EntryPoints>();
 
-            type AccountId = <#env_types as ink_core::env2::EnvTypes>::AccountId;
-            type Balance = <#env_types as ink_core::env2::EnvTypes>::Balance;
-            type Hash = <#env_types as ink_core::env2::EnvTypes>::Hash;
-            type Moment = <#env_types as ink_core::env2::EnvTypes>::Moment;
-            type BlockNumber = <#env_types as ink_core::env2::EnvTypes>::BlockNumber;
+                    quote! {
+
+                    }
+                }
+            }
         }
     }
 }

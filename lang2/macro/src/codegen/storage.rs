@@ -36,9 +36,15 @@ pub struct Storage<'a> {
     contract: &'a Contract,
 }
 
+macro_rules! format_ident {
+    ( $span_expr:expr => $format_str:literal $(, $format_frag:expr)* $(,)? ) => {
+        syn::Ident::new(&format!($format_str, $($format_frag)*), $span_expr)
+    };
+}
+
 impl Storage<'_> {
     /// Generates the storage struct definition.
-    fn generate_struct(&self) -> TokenStream2 {
+    fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
         let span = storage.span();
         // Filter all `ink` attributes for code generation.
@@ -58,6 +64,20 @@ impl Storage<'_> {
                 env: ink_core::env2::DynEnv<ink_core::env2::EnvAccessMut<Env>>,
             }
         )
+    }
+
+    /// Generates the storage and environment struct definition.
+    fn generate_storage_and_env_struct(&self) -> TokenStream2 {
+        let storage = &self.contract.storage;
+        let span = storage.span();
+
+        let attrs = storage
+            .attrs
+            .iter()
+            .filter(|&attr| Marker::try_from(attr.clone()).is_err());
+        let name = format_ident!(span => "StorageAndEnv{}", "Flipper");
+        let name = syn::Ident::new(&format!("StorageAndEnvFor{}", "Flipper"), span);
+        unimplemented!()
     }
 
     /// Generates the `AllocateUsing` trait implementation for the storage struct.
@@ -192,7 +212,7 @@ impl Storage<'_> {
 
 impl GenerateCode for Storage<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let struct_def = self.generate_struct();
+        let struct_def = self.generate_storage_struct();
         let allocate_using_impl = self.allocate_using_impl();
         let flush_impl = self.flush_impl();
         let initialize_impl = self.initialize_impl();

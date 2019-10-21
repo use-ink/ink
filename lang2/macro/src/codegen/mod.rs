@@ -14,22 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod event;
-mod model;
+mod contract_module;
+mod dispatch;
+mod env_types;
 mod storage;
 
-use crate::ir::Contract;
-use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
-
-pub use self::{
-    model::{
-        EntryPoints,
-        EnvTypes,
-    },
-    storage::Storage,
-};
+use crate::ir::Contract;
 
 /// Types implementing this trait are code generators for the ink! language.
 pub trait GenerateCode {
@@ -47,55 +38,15 @@ pub trait GenerateCodeUsing {
     where
         G: From<&'a Contract> + GenerateCode,
     {
-        crate::codegen::generate_code::<G>(self.contract())
+        // crate::codegen::generate_code::<G>(self.contract())
+        G::from(self.contract()).generate_code()
     }
 }
 
-/// Generates code for the contract using the provided generator.
-pub fn generate_code<'a, G>(contract: &'a Contract) -> TokenStream2
-where
-    G: From<&'a Contract> + GenerateCode,
-{
-    G::from(contract).generate_code()
-}
-
-/// Generates code for the entirety of the ink! contract.
-#[derive(From)]
-pub struct ContractModule<'a> {
-    /// The contract to generate code for.
-    contract: &'a Contract,
-}
-
-impl<'a> GenerateCodeUsing for ContractModule<'a> {
-    fn contract(&self) -> &Contract {
-        self.contract
-    }
-}
-
-impl GenerateCode for ContractModule<'_> {
-    /// Generates ink! contract code.
-    fn generate_code(&self) -> TokenStream2 {
-        let ident = &self.contract.ident;
-
-        let entry_points = self.generate_code_using::<EntryPoints>();
-        let env_types = self.generate_code_using::<EnvTypes>();
-        let storage = self.generate_code_using::<Storage>();
-
-        quote! {
-            mod #ident {
-                use super::*;
-
-                #env_types
-                #storage
-                #entry_points
-            }
-            pub use #ident::*;
-        }
-    }
-}
-
-impl GenerateCode for Contract {
-    fn generate_code(&self) -> TokenStream2 {
-        ContractModule::from(self).generate_code()
-    }
-}
+// /// Generates code for the contract using the provided generator.
+// fn generate_code<'a, G>(contract: &'a Contract) -> TokenStream2
+// where
+//     G: From<&'a Contract> + GenerateCode,
+// {
+//     G::from(contract).generate_code()
+// }
