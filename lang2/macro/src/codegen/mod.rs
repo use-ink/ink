@@ -42,11 +42,3 @@ pub trait GenerateCodeUsing {
         G::from(self.contract()).generate_code()
     }
 }
-
-// /// Generates code for the contract using the provided generator.
-// fn generate_code<'a, G>(contract: &'a Contract) -> TokenStream2
-// where
-//     G: From<&'a Contract> + GenerateCode,
-// {
-//     G::from(contract).generate_code()
-// }
