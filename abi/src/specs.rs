@@ -191,7 +191,7 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     name: F::String,
     /// The selector hash of the message.
     #[serde(serialize_with = "serialize_selector")]
-    selector: u32,
+    selector: [u8; 4],
     /// The parameters of the deploy handler.
     args: Vec<MessageParamSpec<F>>,
     /// The deploy handler documentation.
@@ -235,7 +235,7 @@ impl ConstructorSpec {
         ConstructorSpecBuilder {
             spec: Self {
                 name,
-                selector: 0,
+                selector: [0u8; 4],
                 args: Vec::new(),
                 docs: Vec::new(),
             },
@@ -246,7 +246,7 @@ impl ConstructorSpec {
 
 impl ConstructorSpecBuilder<Missing<state::Selector>> {
     /// Sets the function selector of the message.
-    pub fn selector(self, selector: u32) -> ConstructorSpecBuilder<state::Selector> {
+    pub fn selector(self, selector: [u8; 4]) -> ConstructorSpecBuilder<state::Selector> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 selector,
@@ -296,7 +296,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     name: F::String,
     /// The selector hash of the message.
     #[serde(serialize_with = "serialize_selector")]
-    selector: u32,
+    selector: [u8; 4],
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
     /// The parameters of the message.
@@ -335,7 +335,7 @@ impl MessageSpec {
         MessageSpecBuilder {
             spec: Self {
                 name,
-                selector: 0,
+                selector: [0u8; 4],
                 mutates: false,
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
@@ -360,7 +360,7 @@ pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
 
 impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
     /// Sets the function selector of the message.
-    pub fn selector(self, selector: u32) -> MessageSpecBuilder<state::Selector, M, R> {
+    pub fn selector(self, selector: [u8; 4]) -> MessageSpecBuilder<state::Selector, M, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 selector,
@@ -798,12 +798,11 @@ impl MessageParamSpecBuilder {
     }
 }
 
-fn serialize_selector<S>(selector: &u32, serializer: S) -> Result<S::Ok, S::Error>
+fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    let b = selector.to_be_bytes();
-    let hex = format!("0x{:02X}{:02X}{:02X}{:02X}", b[0], b[1], b[2], b[3]);
+    let hex = format!("0x{:02X}{:02X}{:02X}{:02X}", s[0], s[1], s[2], s[3]);
     serializer.serialize_str(&hex)
 }
 
@@ -817,7 +816,7 @@ mod tests {
         let name = <MetaForm as Form>::String::from("foo");
         let cs: ConstructorSpec<MetaForm> = ConstructorSpec {
             name,
-            selector: 123456789,
+            selector: 123456789u32.to_be_bytes(),
             args: Vec::new(),
             docs: Vec::new(),
         };

@@ -40,15 +40,106 @@ pub trait Message {
 /// Defines messages for contracts with less boilerplate code.
 #[macro_export]
 macro_rules! messages {
-	(
-		$( #[$msg_meta:meta] )*
-		$msg_id:literal => $msg_name:ident (
+    // metavariable (typically a doc comment) + return type
+    (
+        $( #[$msg_meta:meta] )+
+        $msg_id:expr => $msg_name:ident (
 			$( $param_name:ident : $param_ty:ty ),*
 		) -> $ret_ty:ty ;
 
 		$($rest:tt)*
 	) => {
-		$( #[$msg_meta] )*
+        messages!(
+            $( #[$msg_meta] )+
+            DELIMITER $msg_id => $msg_name (
+                $( $param_name : $param_ty ),*
+            ) -> $ret_ty;
+            $($rest)*
+        );
+	};
+
+    // metavariable + no return type
+    (
+        $( #[$msg_meta:meta] )+
+        $msg_id:expr => $msg_name:ident (
+			$( $param_name:ident : $param_ty:ty ),*
+		) ;
+
+		$($rest:tt)*
+	) => {
+        messages!(
+            $( #[$msg_meta] )+
+            DELIMITER $msg_id => $msg_name (
+                $( $param_name : $param_ty ),*
+            ) -> ();
+            $($rest)*
+        );
+	};
+
+    // no metavariable + return type
+    (
+        $msg_id:expr => $msg_name:ident (
+			$( $param_name:ident : $param_ty:ty ),*
+		) -> $ret_ty:ty ;
+
+		$($rest:tt)*
+	) => {
+        messages!(
+            DELIMITER $msg_id => $msg_name (
+                $( $param_name : $param_ty ),*
+            ) -> $ret_ty;
+            $($rest)*
+        );
+	};
+
+    // no metavariable + no return type
+    (
+        $msg_id:expr => $msg_name:ident (
+			$( $param_name:ident : $param_ty:ty ),*
+		) ;
+
+		$($rest:tt)*
+	) => {
+        messages!(
+            DELIMITER $msg_id => $msg_name (
+                $( $param_name : $param_ty ),*
+            ) -> ();
+            $($rest)*
+        );
+	};
+
+    // with delimiter + metavariable
+    (
+        $( #[$msg_meta:meta] )*
+        DELIMITER $msg_id:expr => $msg_name:ident (
+            $( $param_name:ident : $param_ty:ty ),*
+        ) -> $ret_ty:ty ;
+
+        $($rest:tt)*
+    ) => {
+        $( #[$msg_meta] )*
+		#[derive(Copy, Clone)]
+		pub(crate) struct $msg_name;
+
+		impl $crate::Message for $msg_name {
+			type Input = ($($param_ty),*);
+			type Output = $ret_ty;
+
+			const ID: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
+			const NAME: &'static str = stringify!($msg_name);
+		}
+
+		messages!($($rest)*);
+    };
+
+    // with delimiter + no metavariable
+    (
+        DELIMITER $msg_id:expr => $msg_name:ident (
+			$( $param_name:ident : $param_ty:ty ),*
+		) -> $ret_ty:ty ;
+
+		$($rest:tt)*
+	) => {
 		#[derive(Copy, Clone)]
 		pub(crate) struct $msg_name;
 
@@ -62,22 +153,6 @@ macro_rules! messages {
 
 		messages!($($rest)*);
 	};
-	(
-		$( #[$msg_meta:meta] )*
-		$msg_id:literal => $msg_name:ident (
-			$( $param_name:ident : $param_ty:ty ),*
-		) ;
 
-		$($rest:tt)*
-	) => {
-		messages!(
-			$( #[$msg_meta] )*
-			$msg_id => $msg_name (
-				$( $param_name : $param_ty ),*
-			) -> ();
-
-			$($rest)*
-		);
-	};
 	() => {};
 }
