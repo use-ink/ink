@@ -15,7 +15,10 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use core::marker::PhantomData;
-use serde::{Serialize, Serializer};
+use serde::{
+    Serialize,
+    Serializer,
+};
 use type_metadata::{
     form::{
         CompactForm,
@@ -360,7 +363,10 @@ pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
 
 impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
     /// Sets the function selector of the message.
-    pub fn selector(self, selector: [u8; 4]) -> MessageSpecBuilder<state::Selector, M, R> {
+    pub fn selector(
+        self,
+        selector: [u8; 4],
+    ) -> MessageSpecBuilder<state::Selector, M, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 selector,
@@ -826,6 +832,9 @@ mod tests {
         let json = serde_json::to_string(&cs.into_compact(&mut registry)).unwrap();
 
         // then
-        assert_eq!(json, "{\"name\":1,\"selector\":\"0x075BCD15\",\"args\":[],\"docs\":[]}");
+        assert_eq!(
+            json,
+            "{\"name\":1,\"selector\":\"0x075BCD15\",\"args\":[],\"docs\":[]}"
+        );
     }
 }
