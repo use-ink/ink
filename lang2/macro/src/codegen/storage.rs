@@ -25,24 +25,212 @@ use crate::{
 use core::convert::TryFrom as _;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::quote_spanned;
+use quote::{
+    quote,
+    quote_spanned,
+};
 
-/// Generates code for the contract's storage struct.
-///
-/// Also includes code generation for all required trait implementations.
 #[derive(From)]
 pub struct Storage<'a> {
-    /// The contract to generate code for.
     contract: &'a Contract,
 }
 
-macro_rules! format_ident {
-    ( $span_expr:expr => $format_str:literal $(, $format_frag:expr)* $(,)? ) => {
-        syn::Ident::new(&format!($format_str, $($format_frag)*), $span_expr)
-    };
+impl GenerateCode for Storage<'_> {
+    fn generate_code(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let storage_span = self.contract.storage.span();
+
+        let aliases = self.generate_aliases();
+        let trait_impls = self.generate_trait_impls_for_storage();
+        let access_env_impls = self.generate_access_env_trait_impls();
+        let message_impls = self.generate_message_impls();
+        let storage_struct = self.generate_storage_struct();
+        let storage_and_env_wrapper = self.generate_storage_and_env_wrapper();
+
+        quote_spanned!(storage_span =>
+            pub type #storage_ident = __ink_storage::StorageAndEnv;
+
+            #[doc(hidden)]
+            mod __ink_storage {
+                use super::*;
+
+                #aliases
+                #access_env_impls
+                #trait_impls
+                #storage_struct
+                #storage_and_env_wrapper
+
+                const _: () = {
+                    // Used to make `self.env()` available in message code.
+                    use ink_core::env2::AccessEnv as _;
+
+                    #message_impls
+                };
+            }
+        )
+    }
 }
 
 impl Storage<'_> {
+    fn generate_access_env_trait_impls(&self) -> TokenStream2 {
+        let access_env_impls = if self.contract.meta_info.is_dynamic_allocation_enabled() {
+            quote! {
+                impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
+                    fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+                        use ink_core::env2::AccessEnv as _;
+                        self.__env.env()
+                    }
+                }
+            }
+        } else {
+            quote! {
+                impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
+                    fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+                        &mut self.__env
+                    }
+                }
+            }
+        };
+        quote! {
+            #access_env_impls
+
+            impl<'a> ink_core::env2::AccessEnv for &'a StorageAndEnv {
+                type Target = <&'a UsedEnv as ink_core::env2::AccessEnv>::Target;
+
+                fn env(self) -> Self::Target {
+                    use ink_core::env2::AccessEnv as _;
+                    self.__env.env()
+                }
+            }
+
+            impl<'a> ink_core::env2::AccessEnv for &'a mut StorageAndEnv {
+                type Target = <&'a mut UsedEnv as ink_core::env2::AccessEnv>::Target;
+
+                fn env(self) -> Self::Target {
+                    use ink_core::env2::AccessEnv as _;
+                    (&mut self.__env).env()
+                }
+            }
+        }
+    }
+
+    fn generate_aliases(&self) -> TokenStream2 {
+        if self.contract.meta_info.is_dynamic_allocation_enabled() {
+            quote! {
+                pub type UsedEnv = ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>;
+            }
+        } else {
+            quote! {
+                pub type UsedEnv = ink_core::env2::EnvAccess<Env>;
+            }
+        }
+    }
+
+    fn generate_trait_impls_for_storage(&self) -> TokenStream2 {
+        let field_idents = &self
+            .contract
+            .storage
+            .fields
+            .named
+            .iter()
+            .map(|named_field| &named_field.ident)
+            .collect::<Vec<_>>();
+
+        quote! {
+            impl ink_core::storage::alloc::AllocateUsing for Storage {
+                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+                where
+                    A: ink_core::storage::alloc::Allocate,
+                {
+                    Self {
+                        #(
+                            #field_idents: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+                        )*
+                    }
+                }
+            }
+
+            impl ink_core::storage::Flush for Storage {
+                fn flush(&mut self) {
+                    #(
+                        self.#field_idents.flush();
+                    )*
+                }
+            }
+
+            impl ink_core::storage::alloc::Initialize for Storage {
+                type Args = ();
+
+                fn default_value() -> Option<Self::Args> {
+                    Some(())
+                }
+
+                fn initialize(&mut self, _args: Self::Args) {
+                    #(
+                        self.#field_idents.try_default_initialize();
+                    )*
+                }
+            }
+        }
+    }
+
+    fn generate_storage_and_env_wrapper(&self) -> TokenStream2 {
+        quote! {
+            pub struct StorageAndEnv {
+                __storage: Storage,
+                __env: UsedEnv,
+            }
+
+            impl core::ops::Deref for StorageAndEnv {
+                type Target = Storage;
+
+                fn deref(&self) -> &Self::Target {
+                    &self.__storage
+                }
+            }
+
+            impl core::ops::DerefMut for StorageAndEnv {
+                fn deref_mut(&mut self) -> &mut Self::Target {
+                    &mut self.__storage
+                }
+            }
+
+            impl ink_core::storage::alloc::AllocateUsing for StorageAndEnv {
+                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+                where
+                    A: ink_core::storage::alloc::Allocate,
+                {
+                    Self {
+                        __storage: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+                        __env: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+                    }
+                }
+            }
+
+            impl ink_core::storage::Flush for StorageAndEnv {
+                fn flush(&mut self) {
+                    self.__storage.flush();
+                    self.__env.flush();
+                }
+            }
+
+            impl ink_core::storage::alloc::Initialize for StorageAndEnv {
+                type Args = ();
+
+                fn default_value() -> Option<Self::Args> {
+                    Some(())
+                }
+
+                fn initialize(&mut self, _args: Self::Args) {
+                    self.__storage.try_default_initialize();
+                    self.__env.try_default_initialize();
+                }
+            }
+
+            impl ink_lang2::Storage for StorageAndEnv {}
+        }
+    }
+
     /// Generates the storage struct definition.
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
@@ -52,117 +240,20 @@ impl Storage<'_> {
             .attrs
             .iter()
             .filter(|&attr| Marker::try_from(attr.clone()).is_err());
-        let name = &storage.ident;
         let fields = storage.fields.named.iter();
 
         quote_spanned!( span =>
             #(#attrs)*
-            pub struct #name {
+            pub struct Storage {
                 #(
                     #fields ,
                 )*
-                env: ink_core::env2::DynEnv<ink_core::env2::EnvAccessMut<Env>>,
             }
         )
     }
 
-    /// Generates the storage and environment struct definition.
-    fn generate_storage_and_env_struct(&self) -> TokenStream2 {
-        let storage = &self.contract.storage;
-        let span = storage.span();
-
-        let attrs = storage
-            .attrs
-            .iter()
-            .filter(|&attr| Marker::try_from(attr.clone()).is_err());
-        let name = format_ident!(span => "StorageAndEnv{}", "Flipper");
-        let name = syn::Ident::new(&format!("StorageAndEnvFor{}", "Flipper"), span);
-        unimplemented!()
-    }
-
-    /// Generates the `AllocateUsing` trait implementation for the storage struct.
-    fn allocate_using_impl(&self) -> TokenStream2 {
-        let storage = &self.contract.storage;
-        let span = storage.span();
-        let ident = &storage.ident;
-        let fields = storage.fields.named.iter().map(|field| {
-            field
-                .ident
-                .as_ref()
-                .expect("we only operate on named fields; qed")
-        });
-        quote_spanned!( span =>
-            impl ink_core::storage::alloc::AllocateUsing for #ident {
-                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-                where
-                    A: ink_core::storage::alloc::Allocate,
-                {
-                    Self {
-                        #(
-                            #fields: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
-                        )*
-                        env: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
-                    }
-                }
-            }
-        )
-    }
-
-    /// Generates the `Flush` trait implementation for the storage struct.
-    fn flush_impl(&self) -> TokenStream2 {
-        let storage = &self.contract.storage;
-        let span = storage.span();
-        let ident = &storage.ident;
-        let fields = storage.fields.named.iter().map(|field| {
-            field
-                .ident
-                .as_ref()
-                .expect("we only operate on named fields; qed")
-        });
-        quote_spanned!( span =>
-            impl ink_core::storage::Flush for #ident {
-                fn flush(&mut self) {
-                    #(
-                        self.#fields.flush();
-                    )*
-                    self.env.flush();
-                }
-            }
-        )
-    }
-
-    /// Generates the `Initialize` trait implementation for the storage struct.
-    fn initialize_impl(&self) -> TokenStream2 {
-        let storage = &self.contract.storage;
-        let span = storage.span();
-        let ident = &storage.ident;
-        let fields = storage.fields.named.iter().map(|field| {
-            field
-                .ident
-                .as_ref()
-                .expect("we only operate on named fields; qed")
-        });
-        quote_spanned!( span =>
-            impl ink_core::storage::alloc::Initialize for #ident {
-                type Args = ();
-
-                #[inline(always)]
-                fn default_value() -> Option<Self::Args> {
-                    Some(())
-                }
-
-                fn initialize(&mut self, _args: Self::Args) {
-                    #(
-                        self.#fields.try_default_initialize();
-                    )*
-                    self.env.try_default_initialize();
-                }
-            }
-        )
-    }
-
-    /// Generate a single function defined on the storage struct.
-    fn generate_function(&self, function: &Function) -> TokenStream2 {
+    /// Generate a single message defined on the storage struct.
+    fn generate_message(&self, function: &Function) -> TokenStream2 {
         let span = function.span();
         // Generate `pub` functions for constructors and messages only.
         let vis = if function.is_constructor() || function.is_message() {
@@ -191,39 +282,21 @@ impl Storage<'_> {
     }
 
     /// Generates all the constructors, messages and methods defined on the storage struct.
-    fn generate_functions(&self) -> TokenStream2 {
+    fn generate_message_impls(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
         let span = storage.span();
-        let ident = &storage.ident;
+        // let ident = &storage.ident;
         let fns = self
             .contract
             .functions
             .iter()
-            .map(|fun| self.generate_function(fun));
+            .map(|fun| self.generate_message(fun));
         quote_spanned!( span =>
-            impl #ident {
+            impl StorageAndEnv {
                 #(
                     #fns
                 )*
             }
-        )
-    }
-}
-
-impl GenerateCode for Storage<'_> {
-    fn generate_code(&self) -> TokenStream2 {
-        let struct_def = self.generate_storage_struct();
-        let allocate_using_impl = self.allocate_using_impl();
-        let flush_impl = self.flush_impl();
-        let initialize_impl = self.initialize_impl();
-        let methods = self.generate_functions();
-
-        quote_spanned!( self.contract.storage.span() =>
-            #struct_def
-            #allocate_using_impl
-            #flush_impl
-            #initialize_impl
-            #methods
         )
     }
 }
