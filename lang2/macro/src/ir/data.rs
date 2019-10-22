@@ -60,6 +60,13 @@ pub struct MetaInfo {
     pub ink_version: MetaVersion,
 }
 
+impl MetaInfo {
+    /// Returns `true` if the user enabled dynamic storage allocation.
+    pub fn is_dynamic_allocation_enabled(&self) -> bool {
+        false // TODO
+    }
+}
+
 /// The specified environmental types.
 pub struct MetaTypes {
     /// The specified types.
