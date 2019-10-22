@@ -25,7 +25,6 @@ use crate::{
 };
 use proc_macro2::{
     Ident,
-    Span,
     TokenStream as TokenStream2,
 };
 use quote::{
