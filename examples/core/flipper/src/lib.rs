@@ -19,13 +19,17 @@ mod __ink_storage {
     #[cfg(not(feature = "ink-dyn-alloc"))]
     pub type UsedEnv = ink_core::env2::EnvAccess<Env>;
 
+    pub struct Storage {
+        value: storage::Value<bool>,
+    }
+
     pub struct StorageAndEnv {
-        storage: Flipper,
+        storage: Storage,
         env: UsedEnv,
     }
 
     impl core::ops::Deref for StorageAndEnv {
-        type Target = Flipper;
+        type Target = Storage;
 
         fn deref(&self) -> &Self::Target {
             &self.storage
@@ -71,7 +75,7 @@ mod __ink_storage {
         }
     }
 
-    impl ink_core::storage::alloc::AllocateUsing for Flipper {
+    impl ink_core::storage::alloc::AllocateUsing for Storage {
         unsafe fn allocate_using<A>(alloc: &mut A) -> Self
         where
             A: ink_core::storage::alloc::Allocate,
@@ -82,13 +86,13 @@ mod __ink_storage {
         }
     }
 
-    impl ink_core::storage::Flush for Flipper {
+    impl ink_core::storage::Flush for Storage {
         fn flush(&mut self) {
             self.value.flush();
         }
     }
 
-    impl ink_core::storage::alloc::Initialize for Flipper {
+    impl ink_core::storage::alloc::Initialize for Storage {
         type Args = ();
 
         fn default_value() -> Option<Self::Args> {
@@ -134,30 +138,30 @@ mod __ink_storage {
 
     impl ink_lang2::Storage for StorageAndEnv {}
 
-    use ink_core::env2::AccessEnv as _;
+    const _: () = {
+        use ink_core::env2::AccessEnv as _;
 
-    impl StorageAndEnv {
-        pub fn new(&mut self, init_value: bool) {
-            self.value.set(init_value);
-        }
+        impl StorageAndEnv {
+            pub fn new(&mut self, init_value: bool) {
+                self.value.set(init_value);
+            }
 
-        pub fn default(&mut self) {
-            self.new(false)
-        }
+            pub fn default(&mut self) {
+                self.new(false)
+            }
 
-        pub fn flip(&mut self) {
-            *self.value = !self.get();
-        }
+            pub fn flip(&mut self) {
+                *self.value = !self.get();
+            }
 
-        pub fn get(&self) -> bool {
-            *self.value
+            pub fn get(&self) -> bool {
+                *self.value
+            }
         }
-    }
+    };
 }
 
-pub struct Flipper {
-    value: storage::Value<bool>,
-}
+pub type Flipper = __ink_storage::StorageAndEnv;
 
 const _: () = {
     /// A concrete instance of a dispatchable message.
