@@ -290,12 +290,17 @@ pub struct KindMessage {
 ///
 /// This is equal to the first four bytes of the SHA-3 hash of a function's name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct FunctionSelector(u32);
+pub struct FunctionSelector([u8; 4]);
 
 impl FunctionSelector {
-    /// Returns the `u32` representation of the function selector.
-    pub fn to_u32(&self) -> u32 {
-        self.0
+    /// Returns the underlying four bytes.
+    pub fn as_bytes(&self) -> &[u8; 4] {
+        &self.0
+    }
+
+    /// Returns a unique identifier as `usize`.
+    pub fn unique_id(&self) -> usize {
+        u32::from_le_bytes(self.0) as usize
     }
 }
 
@@ -308,12 +313,12 @@ impl From<&'_ Ident> for FunctionSelector {
 impl From<&'_ str> for FunctionSelector {
     fn from(name: &str) -> Self {
         let sha3_hash = ink_utils::hash::keccak256(name.as_bytes());
-        Self(u32::from_le_bytes([
+        Self([
             sha3_hash[0],
             sha3_hash[1],
             sha3_hash[2],
             sha3_hash[3],
-        ]))
+        ])
     }
 }
 
