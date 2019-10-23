@@ -242,9 +242,9 @@ fn iter() {
         // then
         // order can be arbitrary
         assert_eq!(iter.next(), Some((0, &1337)));
-        assert_eq!(iter.next(), Some((1, &5)));
+        assert_eq!(iter.next(), Some((1, &77)));
         assert_eq!(iter.next(), Some((2, &42)));
-        assert_eq!(iter.next(), Some((3, &77)));
+        assert_eq!(iter.next(), Some((3, &5)));
         assert_eq!(iter.next(), None);
     })
 }
@@ -259,9 +259,9 @@ fn iter_back() {
         let mut iter = heap.iter();
 
         // then
-        assert_eq!(iter.next_back(), Some((3, &77)));
+        assert_eq!(iter.next_back(), Some((3, &5)));
         assert_eq!(iter.next_back(), Some((2, &42)));
-        assert_eq!(iter.next_back(), Some((1, &5)));
+        assert_eq!(iter.next_back(), Some((1, &77)));
         assert_eq!(iter.next_back(), Some((0, &1337)));
         assert_eq!(iter.next_back(), None);
     })
@@ -295,7 +295,7 @@ fn unordered_push_results_in_ordered_pop() {
 }
 
 #[test]
-fn max_heap_with_three_levels() {
+fn max_heap_with_multiple_levels() {
     run_test(|| {
         let mut heap = empty_heap();
         let vec = vec![100, 10, 20, 30, 7, 8, 9, 17, 18, 29, 27, 28, 30];
@@ -321,7 +321,7 @@ impl PartialOrd for V {
 }
 
 #[test]
-fn min_heap_with_three_levels() {
+fn min_heap_with_multiple_levels() {
     run_test(|| {
         let mut heap: BinaryHeap<V> = unsafe {
             let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));

@@ -24,7 +24,10 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
-use core::cmp::Ord;
+use core::cmp::{
+    Ord,
+    Ordering
+};
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -41,8 +44,8 @@ use scale::{
 use type_metadata::Metadata;
 use super::access_wrapper::AccessWrapper;
 
-/// We implement a ternary tree, i.e. a k-ary tree with k = 3.
-pub const CHILDREN: u32 = 3;
+/// We implement a binary tree.
+pub const CHILDREN: u32 = 2;
 
 /// A binary heap collection.
 /// The heap depends on `Ord` and is a max-heap by default. In order to
@@ -340,8 +343,7 @@ where
             .entries
             .take(top_index)
             .expect("failed taking top element from heap");
-        let mut succ_index =
-            self.find_successor(top_index * CHILDREN + 1, top_index * CHILDREN + CHILDREN);
+        let mut succ_index = self.find_successor(top_index);
         while succ_index < self.header.len && {
             let succ_value = self
                 .entries
@@ -351,32 +353,28 @@ where
         } {
             self.relocate(succ_index, top_index);
             top_index = succ_index;
-            succ_index = self
-                .find_successor(succ_index * CHILDREN + 1, succ_index * CHILDREN + CHILDREN);
+            succ_index = self.find_successor(succ_index);
         }
         let _ = self.entries.put(top_index, top_value);
     }
 
-    /// Returns the child node with the largest value.
+    /// Returns the index of the child node with the largest value.
     ///
-    /// The `from` parameter refers to the start index of the search,
-    /// the `to` parameter to the end index for the search.
-    fn find_successor(&mut self, from: u32, to: u32) -> u32 {
-        let mut succ_index = from;
-        let mut i = from + 1;
-
-        while i <= to && i < self.header.len {
-            let succ_value = self
-                .entries
-                .get(succ_index)
-                .expect("failed getting successor value");
-            let i_value = self.entries.get(i).expect("failed getting value at index");
-            if succ_value < i_value {
-                succ_index = i;
-            }
-            i += 1;
+    /// The `index` parameter refers to the parent node.
+    fn find_successor(&mut self, index: u32) -> u32 {
+        let left_index = index * CHILDREN + 1;
+        let right_index = index * CHILDREN + 2;
+        if right_index >= self.header.len {
+            return left_index
         }
-        succ_index
+
+        let left = self.entries.get(left_index).expect("failed getting left value");
+        let right = self.entries.get(right_index).expect("failed getting right value");
+        match left.cmp(right)  {
+            Ordering::Less => right_index,
+            Ordering::Equal => right_index,
+            Ordering::Greater => left_index,
+        }
     }
 
     /// Pushes an item onto the heap.
