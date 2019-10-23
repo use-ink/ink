@@ -32,10 +32,10 @@ use scale::{
 const COUNT: u32 = 3;
 
 #[derive(Debug, Encode, Decode)]
-pub struct Group<T> ([Option<T>; COUNT as usize]);
+pub struct Group<T>([Option<T>; COUNT as usize]);
 
 #[derive(Debug, Encode, Decode)]
-pub struct DuplexSyncChunk<T> (SyncChunk<Group<T>>);
+pub struct DuplexSyncChunk<T>(SyncChunk<Group<T>>);
 
 impl<T> Flush for DuplexSyncChunk<T>
 where
@@ -58,9 +58,7 @@ where
     pub fn get(&self, n: u32) -> Option<&T> {
         let group = n / COUNT;
         let in_group = n % COUNT;
-        match self.0.get(group).map(|g| {
-            g.0[in_group as usize].as_ref()
-        }) {
+        match self.0.get(group).map(|g| g.0[in_group as usize].as_ref()) {
             None => None,
             Some(v) => v,
         }
@@ -90,7 +88,7 @@ where
                 let taken = core::mem::replace(&mut existing_group[in_group], None);
                 let _ = self.0.put(group, Group(existing_group));
                 taken
-            },
+            }
         }
     }
 
@@ -104,10 +102,10 @@ where
                 new_group[in_group] = Some(new_val);
                 let _ = self.0.put(group, Group(new_group));
                 None
-            },
+            }
             Some(existing_group) => {
                 core::mem::replace(&mut existing_group.0[in_group], Some(new_val))
-            },
+            }
         }
     }
 }

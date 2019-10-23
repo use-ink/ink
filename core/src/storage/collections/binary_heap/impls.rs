@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use super::duplex_sync_chunk::DuplexSyncChunk;
 use crate::storage::{
     self,
     alloc::{
@@ -26,7 +27,7 @@ use crate::storage::{
 };
 use core::cmp::{
     Ord,
-    Ordering
+    Ordering,
 };
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
@@ -42,7 +43,6 @@ use scale::{
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
-use super::duplex_sync_chunk::DuplexSyncChunk;
 
 /// We implement a binary tree.
 pub const CHILDREN: u32 = 2;
@@ -348,8 +348,14 @@ where
             return left_index
         }
 
-        let left = self.entries.get(left_index).expect("failed getting left value");
-        let right = self.entries.get(right_index).expect("failed getting right value");
+        let left = self
+            .entries
+            .get(left_index)
+            .expect("failed getting left value");
+        let right = self
+            .entries
+            .get(right_index)
+            .expect("failed getting right value");
         match left.cmp(right)  {
             Ordering::Less => right_index,
             Ordering::Equal => right_index,
