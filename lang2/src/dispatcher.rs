@@ -28,8 +28,6 @@ use ink_core::{
             CallData,
             Selector,
         },
-        EnvAccess,
-        EnvAccessMut,
     },
     storage::Flush,
 };

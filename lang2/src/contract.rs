@@ -27,15 +27,10 @@ use crate::{
     FnInput,
     FnOutput,
     PushDispatcher,
-    Storage,
 };
 use core::{
     marker::PhantomData,
     mem::ManuallyDrop,
-};
-use ink_core::env2::{
-    EnvAccess,
-    EnvAccessMut,
 };
 
 /// The contract definition.
@@ -223,7 +218,6 @@ where
     {
         // Initialize storage if we instantiate the contract.
         if mode == DispatchMode::Instantiate {
-            use ink_core::storage::alloc::Initialize as _;
             self.storage.try_default_initialize();
         }
         // Dispatch using the contract execution input.
