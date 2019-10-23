@@ -164,7 +164,7 @@ fn contract_compiles() {
                     ink_abi::ContractSpec::new("Noop")
                         .constructors(vec![
                             ink_abi::ConstructorSpec::new("on_deploy")
-                                .selector(0)
+                                .selector([0u8; 4])
                                 .args(vec![])
                                 .docs(vec![
                                     "Does nothing to initialize itself.",

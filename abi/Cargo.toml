@@ -19,6 +19,9 @@ derive_more = { version = "0.15", default-features = false, features = ["no_std"
 ink_abi_derive = { version = "0.1.0", path = "derive", default-features = false, optional = true }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"] }
 
+[dev-dependencies]
+serde_json = "1.0"
+
 [features]
 default = [
     "std",
