@@ -24,8 +24,8 @@ use crate::hir;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
-    Expr,
     parse_str,
+    Expr,
 };
 
 /// Generates code for the given contract.
