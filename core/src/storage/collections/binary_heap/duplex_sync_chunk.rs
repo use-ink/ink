@@ -35,9 +35,9 @@ const COUNT: u32 = 3;
 pub struct Group<T> ([Option<T>; COUNT as usize]);
 
 #[derive(Debug, Encode, Decode)]
-pub struct AccessWrapper<T> (SyncChunk<Group<T>>);
+pub struct DuplexSyncChunk<T> (SyncChunk<Group<T>>);
 
-impl<T> Flush for AccessWrapper<T>
+impl<T> Flush for DuplexSyncChunk<T>
 where
     T: Flush,
     SyncChunk<Group<T>>: Flush,
@@ -47,12 +47,12 @@ where
     }
 }
 
-impl<T> AccessWrapper<T>
+impl<T> DuplexSyncChunk<T>
 where
     T: scale::Encode + scale::Decode + Copy + Clone,
 {
-    pub fn new(chunk: SyncChunk<Group<T>>) -> AccessWrapper<T> {
-        AccessWrapper(chunk)
+    pub fn new(chunk: SyncChunk<Group<T>>) -> DuplexSyncChunk<T> {
+        DuplexSyncChunk(chunk)
     }
 
     /// Returns the value of the `n`-th cell if any.

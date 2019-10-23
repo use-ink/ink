@@ -24,7 +24,7 @@
 #[cfg(all(test, feature = "test-env"))]
 mod tests;
 
-mod access_wrapper;
+mod duplex_sync_chunk;
 mod impls;
 
 pub use self::impls::{

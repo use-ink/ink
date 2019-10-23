@@ -42,7 +42,7 @@ use scale::{
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
-use super::access_wrapper::AccessWrapper;
+use super::duplex_sync_chunk::DuplexSyncChunk;
 
 /// We implement a binary tree.
 pub const CHILDREN: u32 = 2;
@@ -59,7 +59,7 @@ pub struct BinaryHeap<T> {
     /// Stores densely packed general heap information.
     header: storage::Value<BinaryHeapHeader>,
     /// The nodes of the heap.
-    entries: AccessWrapper<T>,
+    entries: DuplexSyncChunk<T>,
 }
 
 /// Densely stored general information required by a heap.
@@ -103,7 +103,7 @@ impl<'a, T> Values<'a, T> {
 impl<T> Flush for BinaryHeap<T>
 where
     T: Ord + Encode + Flush + Copy,
-    AccessWrapper<T>: Flush,
+    DuplexSyncChunk<T>: Flush,
 {
     fn flush(&mut self) {
         self.header.flush();
@@ -255,7 +255,7 @@ where
         let entries = SyncChunk::decode(input)?;
         Ok(Self {
             header,
-            entries: AccessWrapper::new(entries),
+            entries: DuplexSyncChunk::new(entries),
         })
     }
 }
@@ -270,7 +270,7 @@ where
     {
         Self {
             header: storage::Value::allocate_using(alloc),
-            entries: AccessWrapper::new(SyncChunk::allocate_using(alloc)),
+            entries: DuplexSyncChunk::new(SyncChunk::allocate_using(alloc)),
         }
     }
 }
