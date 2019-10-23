@@ -21,11 +21,11 @@
 
 use crate::{
     ast,
+    gen::selector_to_expr,
     hir,
 };
 use proc_macro2::{
     Ident,
-    Span,
     TokenStream as TokenStream2,
 };
 use quote::{
@@ -473,12 +473,7 @@ fn codegen_for_messages(tokens: &mut TokenStream2, contract: &hir::Contract) {
             for attr in &message.attrs {
                 attr.to_tokens(&mut content)
             }
-            let msg_selector = message.selector();
-            let msg_id = syn::LitInt::new(
-                msg_selector.into(),
-                syn::IntSuffix::None,
-                Span::call_site(),
-            );
+            let msg_id = selector_to_expr(message.selector());
             msg_id.to_tokens(&mut content);
             <Token![=>]>::default().to_tokens(&mut content);
             use heck::CamelCase as _;

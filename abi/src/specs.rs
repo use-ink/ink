@@ -15,7 +15,10 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use core::marker::PhantomData;
-use serde::Serialize;
+use serde::{
+    Serialize,
+    Serializer,
+};
 use type_metadata::{
     form::{
         CompactForm,
@@ -190,7 +193,8 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
     /// The selector hash of the message.
-    selector: u32,
+    #[serde(serialize_with = "serialize_selector")]
+    selector: [u8; 4],
     /// The parameters of the deploy handler.
     args: Vec<MessageParamSpec<F>>,
     /// The deploy handler documentation.
@@ -234,7 +238,7 @@ impl ConstructorSpec {
         ConstructorSpecBuilder {
             spec: Self {
                 name,
-                selector: 0,
+                selector: [0u8; 4],
                 args: Vec::new(),
                 docs: Vec::new(),
             },
@@ -245,7 +249,7 @@ impl ConstructorSpec {
 
 impl ConstructorSpecBuilder<Missing<state::Selector>> {
     /// Sets the function selector of the message.
-    pub fn selector(self, selector: u32) -> ConstructorSpecBuilder<state::Selector> {
+    pub fn selector(self, selector: [u8; 4]) -> ConstructorSpecBuilder<state::Selector> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 selector,
@@ -294,7 +298,8 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
     /// The selector hash of the message.
-    selector: u32,
+    #[serde(serialize_with = "serialize_selector")]
+    selector: [u8; 4],
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
     /// The parameters of the message.
@@ -333,7 +338,7 @@ impl MessageSpec {
         MessageSpecBuilder {
             spec: Self {
                 name,
-                selector: 0,
+                selector: [0u8; 4],
                 mutates: false,
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
@@ -358,7 +363,10 @@ pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
 
 impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
     /// Sets the function selector of the message.
-    pub fn selector(self, selector: u32) -> MessageSpecBuilder<state::Selector, M, R> {
+    pub fn selector(
+        self,
+        selector: [u8; 4],
+    ) -> MessageSpecBuilder<state::Selector, M, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 selector,
@@ -793,5 +801,40 @@ impl MessageParamSpecBuilder {
     /// Finishes construction of the message parameter.
     pub fn done(self) -> MessageParamSpec {
         self.spec
+    }
+}
+
+fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let hex = format!("0x{:02X}{:02X}{:02X}{:02X}", s[0], s[1], s[2], s[3]);
+    serializer.serialize_str(&hex)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn construct_selector_must_serialize_to_hex() {
+        // given
+        let name = <MetaForm as Form>::String::from("foo");
+        let cs: ConstructorSpec<MetaForm> = ConstructorSpec {
+            name,
+            selector: 123456789u32.to_be_bytes(),
+            args: Vec::new(),
+            docs: Vec::new(),
+        };
+        let mut registry = Registry::new();
+
+        // when
+        let json = serde_json::to_string(&cs.into_compact(&mut registry)).unwrap();
+
+        // then
+        assert_eq!(
+            json,
+            "{\"name\":1,\"selector\":\"0x075BCD15\",\"args\":[],\"docs\":[]}"
+        );
     }
 }

@@ -478,9 +478,11 @@ impl TryFrom<&hir::Message> for MessageDescription {
     type Error = syn::Error;
 
     fn try_from(message: &hir::Message) -> Result<Self> {
+        let s = message.selector();
+        let selector = u32::from_le_bytes([s[3], s[2], s[1], s[0]]).into();
         Ok(Self {
             name: message.sig.ident.to_string(),
-            selector: message.selector().into(),
+            selector,
             mutates: message.is_mut(),
             args: {
                 message
