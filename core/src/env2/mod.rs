@@ -89,11 +89,7 @@ cfg_if! {
 }
 
 pub use self::{
-    dyn_env::{
-        DynEnv,
-        DynEnvAccess,
-        DynEnvAccessMut,
-    },
+    dyn_env::DynEnv,
     env_access::{
         AccessEnv,
         EnvAccess,

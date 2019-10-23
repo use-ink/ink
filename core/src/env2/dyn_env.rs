@@ -34,22 +34,6 @@ use core::ops::{
     DerefMut,
 };
 
-/// Environment with `&self` access and a dynamic allocator.
-///
-/// # Note
-///
-/// - Accesses to `DynEnvAccess` are checked at runtime.
-/// - The dynamic allocator allows to dynamically allocate and deallocate objects on the storage.
-pub type DynEnvAccess<E> = DynEnv<EnvAccess<E>>;
-
-/// Environment with `&mut self`-only access and a dynamic allocator.
-///
-/// # Note
-///
-/// - Accesses to `DynEnvAccessMut` are checked at compiletime.
-/// - The dynamic allocator allows to dynamically allocate and deallocate objects on the storage.
-pub type DynEnvAccessMut<E> = DynEnv<EnvAccessMut<E>>;
-
 /// A wrapper around `EnvAccess` or `EnvAccessMut` that adds a dynamic storage allocator.
 pub struct DynEnv<E> {
     /// The wrapped environment.
