@@ -400,8 +400,13 @@ impl Signature {
     }
 
     /// Returns an iterator over the function arguments without the receiver.
-    pub fn inputs(&self) -> impl Iterator<Item = &FnArg> {
-        self.inputs.iter().skip(1)
+    pub fn inputs(&self) -> impl Iterator<Item = &IdentType> {
+        self.inputs.iter().skip(1).filter_map(|arg| {
+            match arg {
+                FnArg::Receiver(_) => None,
+                FnArg::Typed(ident_type) => Some(ident_type),
+            }
+        })
     }
 
     /// Returns the span of `self`.
