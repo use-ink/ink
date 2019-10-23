@@ -40,9 +40,9 @@ pub trait Message {
 /// Defines messages for contracts with less boilerplate code.
 #[macro_export]
 macro_rules! messages {
-    // When parsing a doc comment Rust cannot decide unambiguously if
-    // it should match the doc comment to `$msg_meta:meta` or `$msg_id:expr`.
-    // Hence we introduce a `@delimiter` between the two of them.
+    // When parsing the macro with a doc comment Rust cannot decide
+    // unambiguously if it should match the doc comment to `meta` or
+    // `expr`. Hence we introduce a `@delimiter` between the two of them.
     // The first two rules match for macro invocations containing this
     // delimiter, the subsequent ones add the delimiter if it's missing.
 
