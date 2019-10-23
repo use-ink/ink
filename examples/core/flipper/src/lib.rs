@@ -45,8 +45,7 @@ mod __ink_storage {
     #[cfg(feature = "ink-dyn-alloc")]
     impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
         fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
-            use ink_core::env2::AccessEnv as _;
-            self.env.env()
+            self.env.env_mut()
         }
     }
 
