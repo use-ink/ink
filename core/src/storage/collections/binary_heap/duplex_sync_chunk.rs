@@ -39,7 +39,6 @@ pub struct DuplexSyncChunk<T> (SyncChunk<Group<T>>);
 
 impl<T> Flush for DuplexSyncChunk<T>
 where
-    T: Flush,
     SyncChunk<Group<T>>: Flush,
 {
     fn flush(&mut self) {
