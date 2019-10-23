@@ -19,10 +19,18 @@ mod __ink_storage {
     #[cfg(not(feature = "ink-dyn-alloc"))]
     pub type UsedEnv = ink_core::env2::EnvAccess<Env>;
 
+    #[cfg_attr(
+        feature = "ink-generate-abi",
+        derive(type_metadata::Metadata, ink_abi::HasLayout)
+    )]
     pub struct Storage {
         value: storage::Value<bool>,
     }
 
+    #[cfg_attr(
+        feature = "ink-generate-abi",
+        derive(type_metadata::Metadata)
+    )]
     pub struct StorageAndEnv {
         storage: Storage,
         env: UsedEnv,
@@ -266,7 +274,9 @@ const _: () = {
         ) -> core::result::Result<(), ink_lang2::DispatchError> {
             ink_lang2::Contract::with_storage::<(__ink_storage::StorageAndEnv)>()
                 .on_instantiate::<Constr<[(); NEW_ID]>>(|storage, arg| storage.new(arg))
-                .on_instantiate::<Constr<[(); DEFAULT_ID]>>(|storage, _| storage.default())
+                .on_instantiate::<Constr<[(); DEFAULT_ID]>>(|storage, _| {
+                    storage.default()
+                })
                 .on_msg_mut::<Msg<[(); FLIP_ID]>>(|storage, _| storage.flip())
                 .on_msg::<Msg<[(); GET_ID]>>(|storage, _| storage.get())
                 .done()
@@ -294,5 +304,72 @@ const _: () = {
             ),
         )
         .to_u32()
+    }
+};
+
+#[cfg(feature = "ink-generate-abi")]
+const _: () = {
+    impl ink_lang2::GenerateAbi for Flipper {
+        fn generate_abi() -> ink_abi::InkProject {
+            let contract = {
+                ink_abi::ContractSpec::new("Flipper")
+                    .constructors(vec![
+                        ink_abi::ConstructorSpec::new("new")
+                            .selector(0)
+                            .args(vec![
+                                ink_abi::MessageParamSpec::new("init_value")
+                                    .of_type(ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                        vec!["u32"].into_iter().map(AsRef::as_ref),
+                                    ))
+                                    .done()
+                            ])
+                            .docs(vec![])
+                            .done(),
+                        ink_abi::ConstructorSpec::new("default")
+                            .selector(1)
+                            .args(vec![])
+                            .docs(vec![])
+                            .done()
+                    ])
+                    .messages(vec![
+                        ink_abi::MessageSpec::new("flip")
+                            .selector(970692492u32)
+                            .mutates(true)
+                            .args(vec![])
+                            .docs(vec![
+                                "Flips the current state of our smart contract.",
+                            ])
+                            .returns(ink_abi::ReturnTypeSpec::new(None))
+                            .done(),
+                        ink_abi::MessageSpec::new("get")
+                            .selector(4266279973u32)
+                            .mutates(false)
+                            .args(vec![])
+                            .docs(vec!["Returns the current state."])
+                            .returns(ink_abi::ReturnTypeSpec::new(
+                                ink_abi::TypeSpec::with_name_segs::<bool, _>(
+                                    vec!["bool"].into_iter().map(AsRef::as_ref),
+                                ),
+                            ))
+                            .done(),
+                    ])
+                    .events(vec![])
+                    .docs(vec![])
+                    .done()
+            };
+            let layout = {
+                unsafe {
+                    use ink_abi::HasLayout as _;
+                    use ink_core::storage::alloc::AllocateUsing as _;
+                    core::mem::ManuallyDrop::new(
+                        Flipper::allocate_using(&mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                            ink_core::storage::Key([0x0; 32]),
+                        ))
+                    )
+                    .layout()
+                }
+            };
+            ink_abi::InkProject::new(layout, contract)
+        }
     }
 };
