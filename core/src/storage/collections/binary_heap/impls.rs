@@ -73,7 +73,7 @@ impl<'a, T> Values<'a, T> {
     /// Creates a new iterator for the given storage heap.
     pub(crate) fn new(heap: &'a BinaryHeap<T>) -> Self
     where
-        T: scale::Codec + Ord + Copy,
+        T: scale::Codec + Ord,
     {
         Self { iter: heap.iter() }
     }
@@ -81,7 +81,7 @@ impl<'a, T> Values<'a, T> {
 
 impl<T> Flush for BinaryHeap<T>
 where
-    T: Ord + Encode + Flush + Copy,
+    T: Ord + Encode + Flush,
     DuplexSyncChunk<T>: Flush,
 {
     fn flush(&mut self) {
@@ -109,7 +109,7 @@ where
 
 impl<'a, T> Iterator for Values<'a, T>
 where
-    T: Copy + Codec + Ord,
+    T: Codec + Ord,
 {
     type Item = &'a T;
 
@@ -122,11 +122,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Values<'a, T> where T: Copy + Codec + Ord {}
+impl<'a, T> ExactSizeIterator for Values<'a, T> where T: Codec + Ord {}
 
 impl<'a, T> DoubleEndedIterator for Values<'a, T>
 where
-    T: Copy + Codec + Ord,
+    T: Codec + Ord,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back().map(|(_index, value)| value)
@@ -154,7 +154,7 @@ impl<'a, T> Iter<'a, T> {
     /// Creates a new iterator for the given storage heap.
     pub(crate) fn new(heap: &'a BinaryHeap<T>) -> Self
     where
-        T: Copy + Codec + Ord,
+        T: Codec + Ord,
     {
         Self {
             heap,
@@ -167,7 +167,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: Copy + Codec + Ord,
+    T: Codec + Ord,
 {
     type Item = (u32, &'a T);
 
@@ -193,11 +193,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: Copy + Codec + Ord {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: Codec + Ord {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: Copy + Codec + Ord,
+    T: Codec + Ord,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
@@ -227,7 +227,7 @@ where
 
 impl<T> Decode for BinaryHeap<T>
 where
-    T: Copy + Ord + Encode + Decode,
+    T: Ord + Encode + Decode,
 {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let len = storage::Value::decode(input)?;
@@ -241,7 +241,7 @@ where
 
 impl<T> AllocateUsing for BinaryHeap<T>
 where
-    T: Copy + Ord + Encode + Decode,
+    T: Ord + Encode + Decode,
 {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
@@ -271,7 +271,7 @@ where
 
 impl<T> BinaryHeap<T>
 where
-    T: Copy + Codec + Ord,
+    T: Codec + Ord,
 {
     /// Returns the element stored at index `n` if any.
     pub fn len(&self) -> u32 {

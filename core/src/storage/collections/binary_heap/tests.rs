@@ -64,7 +64,7 @@ fn filled_heap() -> BinaryHeap<i32> {
 /// in `expected`. The `expected` vec must contain all elements which are
 /// returned, as the function finally checks that there are no more elements
 /// left in the heap.
-fn assert_push_equals_sorted_pop<T: Copy + Ord + Codec + Debug>(
+fn assert_push_equals_sorted_pop<T: Ord + Codec + Debug>(
     heap: &mut BinaryHeap<T>,
     vec: Vec<T>,
     expected: Vec<T>,
@@ -305,7 +305,7 @@ fn max_heap_with_multiple_levels() {
     })
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Encode, Decode)]
+#[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 struct V(u32);
 
 impl Ord for V {

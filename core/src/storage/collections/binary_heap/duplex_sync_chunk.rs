@@ -31,7 +31,7 @@ use scale::{
 // Number of values stored in each entry of the `SyncChunk`.
 const COUNT: u32 = 3;
 
-#[derive(Copy, Clone, Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 pub struct Group<T> ([Option<T>; COUNT as usize]);
 
 #[derive(Debug, Encode, Decode)]
@@ -48,7 +48,7 @@ where
 
 impl<T> DuplexSyncChunk<T>
 where
-    T: scale::Encode + scale::Decode + Copy + Clone,
+    T: scale::Encode + scale::Decode,
 {
     pub fn new(chunk: SyncChunk<Group<T>>) -> DuplexSyncChunk<T> {
         DuplexSyncChunk(chunk)
@@ -87,8 +87,7 @@ where
                 let mut existing_group = existing_group.0;
                 let in_group = (n % COUNT) as usize;
 
-                let taken = existing_group[in_group];
-                existing_group[in_group] = None;
+                let taken = core::mem::replace(&mut existing_group[in_group], None);
                 let _ = self.0.put(group, Group(existing_group));
                 taken
             },
@@ -107,9 +106,7 @@ where
                 None
             },
             Some(existing_group) => {
-                let prior = existing_group.0[in_group];
-                existing_group.0[in_group] = Some(new_val);
-                prior
+                core::mem::replace(&mut existing_group.0[in_group], Some(new_val))
             },
         }
     }
