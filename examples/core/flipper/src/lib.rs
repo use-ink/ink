@@ -273,26 +273,26 @@ const _: () = {
                 .dispatch_using_mode(mode)
         }
     }
+
+    #[cfg(not(test))]
+    #[no_mangle]
+    fn deploy() -> u32 {
+        ink_lang2::DispatchRetCode::from(
+            <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                ink_lang2::DispatchMode::Instantiate,
+            ),
+        )
+        .to_u32()
+    }
+
+    #[cfg(not(test))]
+    #[no_mangle]
+    fn call() -> u32 {
+        ink_lang2::DispatchRetCode::from(
+            <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                ink_lang2::DispatchMode::Call,
+            ),
+        )
+        .to_u32()
+    }
 };
-
-#[cfg(not(test))]
-#[no_mangle]
-fn deploy() -> u32 {
-    ink_lang2::DispatchRetCode::from(
-        <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
-            ink_lang2::DispatchMode::Instantiate,
-        ),
-    )
-    .to_u32()
-}
-
-#[cfg(not(test))]
-#[no_mangle]
-fn call() -> u32 {
-    ink_lang2::DispatchRetCode::from(
-        <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
-            ink_lang2::DispatchMode::Call,
-        ),
-    )
-    .to_u32()
-}
