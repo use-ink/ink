@@ -52,7 +52,7 @@ pub struct EnvAccess<E> {
     /// Allows accessing the inner environment by `&self` instead of `&mut self`.
     ///
     /// This is important to make `DynEnv` work also in conjunction with `&self` messages.
-    access: RefCell<EnvAccessMut<E>>,
+    pub(crate) access: RefCell<EnvAccessMut<E>>,
 }
 
 impl<'a, E> AccessEnv for &'a EnvAccess<E> {

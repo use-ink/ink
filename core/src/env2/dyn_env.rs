@@ -18,6 +18,7 @@ use crate::{
     env2::{
         EnvAccess,
         EnvAccessMut,
+        AccessEnv,
     },
     storage::{
         alloc::{
@@ -54,12 +55,21 @@ impl<E> DynEnv<E> {
     }
 }
 
-impl<E> From<DynEnv<EnvAccessMut<E>>> for DynEnv<EnvAccess<E>> {
-    fn from(dyn_env: DynEnv<EnvAccessMut<E>>) -> Self {
-        Self {
-            env: dyn_env.env.into(),
-            alloc: dyn_env.alloc,
-        }
+impl<'a, E> AccessEnv for &'a DynEnv<EnvAccess<E>> {
+    type Target = core::cell::RefMut<'a, EnvAccessMut<E>>;
+
+    #[inline]
+    fn env(self) -> Self::Target {
+        (&self.env).env()
+    }
+}
+
+impl<'a, E> AccessEnv for &'a mut DynEnv<EnvAccess<E>> {
+    type Target = &'a mut EnvAccessMut<E>;
+
+    #[inline]
+    fn env(self) -> Self::Target {
+        (&mut self.env).env()
     }
 }
 
