@@ -27,10 +27,12 @@ use scale::{
     Decode,
     Encode,
 };
-use super::impls::CHILDREN;
+
+// Number of values stored in each entry of the `SyncChunk`.
+const COUNT: u32 = 3;
 
 #[derive(Copy, Clone, Debug, Encode, Decode)]
-pub struct Group<T> ([Option<T>; CHILDREN as usize]);
+pub struct Group<T> ([Option<T>; COUNT as usize]);
 
 #[derive(Debug, Encode, Decode)]
 pub struct AccessWrapper<T> (SyncChunk<Group<T>>);
@@ -55,8 +57,8 @@ where
 
     /// Returns the value of the `n`-th cell if any.
     pub fn get(&self, n: u32) -> Option<&T> {
-        let group = n / CHILDREN;
-        let in_group = n % CHILDREN;
+        let group = n / COUNT;
+        let in_group = n % COUNT;
         match self.0.get(group).map(|g| {
             g.0[in_group as usize].as_ref()
         }) {
@@ -67,9 +69,9 @@ where
 
     /// Returns the value of the `n`-th cell if any.
     pub fn get_mut(&mut self, n: u32) -> Option<&mut T> {
-        let group = n / CHILDREN;
+        let group = n / COUNT;
         match self.0.get_mut(group).map(|g| {
-            let in_group = (n % CHILDREN) as usize;
+            let in_group = (n % COUNT) as usize;
             g.0[in_group].as_mut()
         }) {
             None => None,
@@ -79,12 +81,12 @@ where
 
     /// Takes the value of the `n`-th cell if any.
     pub fn take(&mut self, n: u32) -> Option<T> {
-        let group = n / CHILDREN;
+        let group = n / COUNT;
         match self.0.take(group) {
             None => None,
             Some(existing_group) => {
                 let mut existing_group = existing_group.0;
-                let in_group = (n % CHILDREN) as usize;
+                let in_group = (n % COUNT) as usize;
 
                 let taken = existing_group[in_group];
                 existing_group[in_group] = None;
@@ -96,11 +98,11 @@ where
 
     /// Replaces the value of the `n`-th cell and returns its old value if any.
     pub fn put(&mut self, n: u32, new_val: T) -> Option<T> {
-        let group = n / CHILDREN;
-        let in_group = (n % CHILDREN) as usize;
+        let group = n / COUNT;
+        let in_group = (n % COUNT) as usize;
         match self.0.get_mut(group) {
             None => {
-                let mut new_group: [Option<T>; CHILDREN as usize] = Default::default();
+                let mut new_group: [Option<T>; COUNT as usize] = Default::default();
                 new_group[in_group] = Some(new_val);
                 let _ = self.0.put(group, Group(new_group));
                 None
