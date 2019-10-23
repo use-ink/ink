@@ -19,7 +19,6 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 ink_utils = { path = "../../utils/", default-features = false }
-ink_model = { path = "../../model/", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 
 quote = "1"
@@ -48,7 +47,6 @@ proc-macro = true
 default = ["test-env"]
 std = [
     "ink_utils/std",
-    "ink_model/std",
     "scale/std",
     "itertools/use_std",
     "either/use_std",
@@ -56,7 +54,6 @@ std = [
 ]
 test-env = [
     "std",
-    "ink_model/test-env",
 ]
 ink-generate-abi = [
     "std",
