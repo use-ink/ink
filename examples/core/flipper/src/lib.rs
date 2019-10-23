@@ -60,8 +60,7 @@ mod __ink_storage {
         type Target = <&'a UsedEnv as ink_core::env2::AccessEnv>::Target;
 
         fn env(self) -> Self::Target {
-            use ink_core::env2::AccessEnv as _;
-            self.env.env()
+            ink_core::env2::AccessEnv::env(&self.env)
         }
     }
 
@@ -69,8 +68,7 @@ mod __ink_storage {
         type Target = <&'a mut UsedEnv as ink_core::env2::AccessEnv>::Target;
 
         fn env(self) -> Self::Target {
-            use ink_core::env2::AccessEnv as _;
-            (&mut self.env).env()
+            ink_core::env2::AccessEnv::env(&mut self.env)
         }
     }
 
