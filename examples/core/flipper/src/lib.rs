@@ -161,14 +161,14 @@ mod __ink_storage {
 pub type Flipper = __ink_storage::StorageAndEnv;
 
 const _: () = {
-    /// A concrete instance of a dispatchable message.
+    // A concrete instance of a dispatchable message.
     pub struct Msg<S> {
-        /// We need to wrap inner because of Rust's orphan rules.
+        // We need to wrap inner because of Rust's orphan rules.
         marker: core::marker::PhantomData<fn() -> S>,
     }
 
     pub struct Constr<S> {
-        /// We need to wrap inner because of Rust's orphan rules.
+        // We need to wrap inner because of Rust's orphan rules.
         marker: core::marker::PhantomData<fn() -> S>,
     }
 
