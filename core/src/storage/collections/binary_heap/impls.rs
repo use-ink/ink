@@ -56,31 +56,10 @@ pub const CHILDREN: u32 = 2;
 #[derive(Debug)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct BinaryHeap<T> {
-    /// Stores densely packed general heap information.
-    header: storage::Value<BinaryHeapHeader>,
+    /// The number of nodes stored in the heap.
+    len: storage::Value<u32>,
     /// The nodes of the heap.
     entries: DuplexSyncChunk<T>,
-}
-
-/// Densely stored general information required by a heap.
-///
-/// # Note
-///
-/// Separation of these fields into a sub structure has been made
-/// for performance reasons so that they all reside in the same
-/// storage entity. This allows implementations to perform less reads
-/// and writes to the underlying contract storage.
-#[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
-struct BinaryHeapHeader {
-    /// The number of nodes stored in the heap.
-    len: u32,
-}
-
-impl Flush for BinaryHeapHeader {
-    fn flush(&mut self) {
-        self.len.flush();
-    }
 }
 
 /// Iterator over the values of a heap.
@@ -106,7 +85,7 @@ where
     DuplexSyncChunk<T>: Flush,
 {
     fn flush(&mut self) {
-        self.header.flush();
+        self.len.flush();
         self.entries.flush();
     }
 }
@@ -120,7 +99,7 @@ where
         LayoutStruct::new(
             Self::meta_type(),
             vec![
-                LayoutField::of("header", &self.header),
+                LayoutField::of("len", &self.len),
                 LayoutField::of("entries", &self.entries),
             ],
         )
@@ -241,7 +220,7 @@ where
     T: Ord,
 {
     fn encode_to<W: scale::Output>(&self, dest: &mut W) {
-        self.header.encode_to(dest);
+        self.len.encode_to(dest);
         self.entries.encode_to(dest);
     }
 }
@@ -251,10 +230,10 @@ where
     T: Copy + Ord + Encode + Decode,
 {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
-        let header = storage::Value::decode(input)?;
+        let len = storage::Value::decode(input)?;
         let entries = SyncChunk::decode(input)?;
         Ok(Self {
-            header,
+            len,
             entries: DuplexSyncChunk::new(entries),
         })
     }
@@ -269,7 +248,7 @@ where
         A: Allocate,
     {
         Self {
-            header: storage::Value::allocate_using(alloc),
+            len: storage::Value::allocate_using(alloc),
             entries: DuplexSyncChunk::new(SyncChunk::allocate_using(alloc)),
         }
     }
@@ -286,7 +265,7 @@ where
     }
 
     fn initialize(&mut self, _: Self::Args) {
-        self.header.set(BinaryHeapHeader { len: 0 });
+        self.len.set(0);
     }
 }
 
@@ -296,7 +275,7 @@ where
 {
     /// Returns the element stored at index `n` if any.
     pub fn len(&self) -> u32 {
-        self.header.len
+        *self.len.get()
     }
 
     /// Returns `true` if the heap is empty.
@@ -318,19 +297,20 @@ where
     ///
     /// Complexity is `O(log(n))`.
     pub fn pop(&mut self) -> Option<T> {
-        if self.header.len == 0 {
+        let len = self.len();
+        if len == 0 {
             return None
         }
 
         let tmp = Some(self.entries.take(0).expect("failed fetching root"));
-        if self.header.len == 1 {
-            self.header.len -= 1;
+        if len == 1 {
+            self.len.set(len - 1);
             return tmp
         }
 
-        self.relocate(self.header.len - 1, 0);
+        self.relocate(len - 1, 0);
 
-        self.header.len -= 1;
+        self.len.set(len - 1);
         self.repair_top();
         tmp
     }
@@ -344,7 +324,7 @@ where
             .take(top_index)
             .expect("failed taking top element from heap");
         let mut succ_index = self.find_successor(top_index);
-        while succ_index < self.header.len && {
+        while succ_index < self.len() && {
             let succ_value = self
                 .entries
                 .get(succ_index)
@@ -364,7 +344,7 @@ where
     fn find_successor(&mut self, index: u32) -> u32 {
         let left_index = index * CHILDREN + 1;
         let right_index = index * CHILDREN + 2;
-        if right_index >= self.header.len {
+        if right_index >= self.len() {
             return left_index
         }
 
@@ -382,21 +362,22 @@ where
     /// Panics in case the heap already contains `u32::max` nodes.
     /// Complexity is `O(log(n))`.
     pub fn push(&mut self, val: T) {
-        if self.len() == u32::max_value() {
+        let len = self.len();
+        if len == u32::max_value() {
             panic!(
                 "[ink_core::Heap::push] Error: \
                  cannot push more elements than `u32::Max`"
             )
         }
 
-        if self.len() == 0 {
+        if len == 0 {
             let _ = self.entries.put(0, val);
-            self.header.len += 1;
+            self.len.set(len + 1);
             return
         }
 
         // Relocate until the item is greater than its parent value.
-        let mut index = self.header.len;
+        let mut index = len;
         let mut parent_index = self.parent_index(index);
         while index != 0 && {
             let parent_value = self
@@ -412,7 +393,7 @@ where
                 parent_index = self.parent_index(index);
             }
         }
-        self.header.len += 1;
+        self.len.set(self.len() + 1);
         let _ = self.entries.put(index, val);
     }
 
