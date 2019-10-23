@@ -15,7 +15,7 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 mod contract_module;
-// mod dispatch;
+mod dispatch;
 mod env_types;
 mod storage;
 

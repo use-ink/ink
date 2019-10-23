@@ -22,7 +22,7 @@ pub use crate::{
     codegen::{
         GenerateCode,
         GenerateCodeUsing,
-        // dispatch::Dispatch,
+        dispatch::Dispatch,
         env_types::EnvTypes,
         storage::Storage,
     },
@@ -49,7 +49,7 @@ impl GenerateCode for ContractModule<'_> {
 
         let env_types = self.generate_code_using::<EnvTypes>();
         let storage = self.generate_code_using::<Storage>();
-        // let dispatch = self.generate_code_using::<Dispatch>();
+        let dispatch = self.generate_code_using::<Dispatch>();
 
         quote! {
             mod #ident {
@@ -57,7 +57,7 @@ impl GenerateCode for ContractModule<'_> {
 
                 #env_types
                 #storage
-                // #dispatch
+                #dispatch
             }
             pub use #ident::*;
         }

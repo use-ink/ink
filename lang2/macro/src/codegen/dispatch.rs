@@ -19,64 +19,247 @@ use crate::{
         GenerateCode,
         GenerateCodeUsing,
     },
-    ir::Contract,
+    ir,
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, quote_spanned};
+use quote::{
+    quote,
+    quote_spanned,
+};
 
 /// Generates code for the dispatch parts that dispatch constructors
 /// and messages from the input and also handle the returning of data.
 #[derive(From)]
 pub struct Dispatch<'a> {
     /// The contract to generate code for.
-    contract: &'a Contract,
+    contract: &'a ir::Contract,
 }
 
 impl<'a> GenerateCodeUsing for Dispatch<'a> {
-    fn contract(&self) -> &Contract {
+    fn contract(&self) -> &ir::Contract {
         self.contract
     }
 }
 
 impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
+        let message_trait_impls = self.generate_message_trait_impls();
+        let message_namespaces = self.generate_message_namespaces();
+        let dispatch_using_mode = self.generate_dispatch_using_mode();
+        let entry_points = self.generate_entry_points();
+
         quote! {
-            impl ink_lang2::Dispatch for Flipper {
-                fn dispatch(mode: ink_lang2::DispatchMode) -> ink_lang2::DispatchRetCode {
-                    let entry_points = self.generate_code_using::<EntryPoints>();
-
-                    quote! {
-
-                    }
-                }
-            }
+            const _: () = {
+                #message_namespaces
+                #message_trait_impls
+                #dispatch_using_mode
+                #entry_points
+            };
         }
     }
 }
 
-/// Generates code for the entry points of a contract.
-#[derive(From)]
-pub struct EntryPoints<'a> {
-    /// The contract to generate code for.
-    contract: &'a Contract,
-}
+impl Dispatch<'_> {
+    fn generate_trait_impls_for_message(&self, function: &ir::Function) -> TokenStream2 {
+        if !(function.is_constructor() || function.is_message()) {
+            return quote! {}
+        }
+        let span = function.span();
+        let selector = function
+            .selector()
+            .expect("this is either a message or constructor at this point; qed");
+        let (selector_bytes, selector_id) = (selector.as_bytes(), selector.unique_id());
+        let sig = &function.sig;
+        let inputs = sig.inputs().map(|ident_type| &ident_type.ty);
+        let output = &sig.output;
+        let output_type = match output {
+            syn::ReturnType::Default => quote! {},
+            syn::ReturnType::Type(_, ty) => quote! { #ty },
+        };
+        let is_mut = sig.is_mut();
+        let (selector_bytes_0, selector_bytes_1, selector_bytes_2, selector_bytes_3) = (
+            selector_bytes[0],
+            selector_bytes[1],
+            selector_bytes[2],
+            selector_bytes[3],
+        );
 
-impl GenerateCode for EntryPoints<'_> {
-    fn generate_code(&self) -> TokenStream2 {
-        let ident = &self.contract.ident;
+        use syn::spanned::Spanned as _;
 
-        quote_spanned! { ident.span() =>
+        let namespace = match function.kind() {
+            ir::FunctionKind::Constructor(_) => quote! { Constr },
+            ir::FunctionKind::Message(_) => quote! { Msg },
+            ir::FunctionKind::Method => panic!("ICE: can't match a method at this point"),
+        };
+
+        let fn_input = quote_spanned!(sig.inputs.span() =>
+            impl ink_lang2::FnInput for #namespace<[(); #selector_id]> {
+                type Input = (#(#inputs)*);
+            }
+        );
+        let fn_output = quote_spanned!(sig.output.span() =>
+            impl ink_lang2::FnOutput for #namespace<[(); #selector_id]> {
+                type Output = (#output_type);
+            }
+        );
+        let fn_selector = quote_spanned!(span =>
+            impl ink_lang2::FnSelector for #namespace<[(); #selector_id]> {
+                const SELECTOR: ink_core::env2::call::Selector = ink_core::env2::call::Selector::from_bytes([
+                    #selector_bytes_0,
+                    #selector_bytes_1,
+                    #selector_bytes_2,
+                    #selector_bytes_3
+                ]);
+            }
+        );
+        let message_impl = quote_spanned!(span =>
+            impl ink_lang2::Message for #namespace<[(); #selector_id]> {
+                const IS_MUT: bool = #is_mut;
+            }
+        );
+
+        quote_spanned!(span =>
+            #fn_input
+            #fn_output
+            #fn_selector
+            #message_impl
+        )
+    }
+
+    fn generate_message_trait_impls(&self) -> TokenStream2 {
+        let fns = self
+            .contract
+            .functions
+            .iter()
+            .map(|fun| self.generate_trait_impls_for_message(fun));
+        quote! {
+            #( #fns )*
+        }
+    }
+
+    fn generate_message_namespaces(&self) -> TokenStream2 {
+        quote! {
+            // / Namespace for messages.
+            // /
+            // / # Note
+            // /
+            // / The `S` parameter is going to refer to array types `[(); N]`
+            // / where `N` is the unique identifier of the associated message
+            // / selector.
+            pub struct Msg<S> {
+                // / We need to wrap inner because of Rust's orphan rules.
+                marker: core::marker::PhantomData<fn() -> S>,
+            }
+
+            // / Namespace for constructors.
+            // /
+            // / # Note
+            // /
+            // / The `S` parameter is going to refer to array types `[(); N]`
+            // / where `N` is the unique identifier of the associated constructor
+            // / selector.
+            pub struct Constr<S> {
+                // / We need to wrap inner because of Rust's orphan rules.
+                marker: core::marker::PhantomData<fn() -> S>,
+            }
+        }
+    }
+
+    fn generate_dispatch_using_mode_fragment(
+        &self,
+        function: &ir::Function,
+    ) -> TokenStream2 {
+        if !(function.is_constructor() || function.is_message()) {
+            return quote! {}
+        }
+        let selector = function
+            .selector()
+            .expect("this is either a message or constructor at this point; qed");
+        let selector_id = selector.unique_id();
+        let sig = &function.sig;
+        let input_idents = sig
+            .inputs()
+            .map(|ident_type| &ident_type.ident)
+            .collect::<Vec<_>>();
+        let (pat_idents, fn_idents) = if input_idents.is_empty() {
+            (quote! { _ }, quote! {})
+        } else {
+            (quote! { (#(#input_idents)*) }, quote! { #(#input_idents)* })
+        };
+
+        let builder_name = if function.is_constructor() {
+            quote! { on_instantiate }
+        } else {
+            if sig.is_mut() {
+                quote! { on_msg_mut }
+            } else {
+                quote! { on_msg }
+            }
+        };
+
+        let namespace = match function.kind() {
+            ir::FunctionKind::Constructor(_) => quote! { Constr },
+            ir::FunctionKind::Message(_) => quote! { Msg },
+            ir::FunctionKind::Method => panic!("ICE: can't match a method at this point"),
+        };
+        let fn_name = &sig.ident;
+
+        quote! {
+            .#builder_name::<#namespace<[(); #selector_id]>>(|storage, #pat_idents| {
+                storage.#fn_name(#fn_idents)
+            })
+        }
+    }
+
+    fn generate_dispatch_using_mode(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let fragments = self
+            .contract
+            .functions
+            .iter()
+            .map(|fun| self.generate_dispatch_using_mode_fragment(fun));
+
+        quote! {
+            impl ink_lang2::DispatchUsingMode for #storage_ident {
+                fn dispatch_using_mode(
+                    mode: ink_lang2::DispatchMode
+                ) -> core::result::Result<(), ink_lang2::DispatchError> {
+                    ink_lang2::Contract::with_storage::<(__ink_storage::StorageAndEnv)>()
+                        #(
+                            #fragments
+                        )*
+                        .done()
+                        .dispatch_using_mode(mode)
+                }
+            }
+        }
+    }
+
+    fn generate_entry_points(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+
+        quote! {
             #[cfg(not(test))]
             #[no_mangle]
             fn deploy() -> u32 {
-                0
+                ink_lang2::DispatchRetCode::from(
+                    <#storage_ident as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                        ink_lang2::DispatchMode::Instantiate,
+                    ),
+                )
+                .to_u32()
             }
 
             #[cfg(not(test))]
             #[no_mangle]
             fn call() -> u32 {
-                0
+                ink_lang2::DispatchRetCode::from(
+                    <#storage_ident as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                        ink_lang2::DispatchMode::Call,
+                    ),
+                )
+                .to_u32()
             }
         }
     }
