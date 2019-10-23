@@ -97,11 +97,11 @@ fn contract_compiles() {
 
                     ink_model::messages! {
                         /// Increments the internal counter.
-                        257544423 => Inc(by: u32);
+                        [15, 89, 208, 231] => Inc(by: u32);
                         /// Returns the internal counter.
-                        4266279973 => Get() -> u32;
+                        [254, 74, 68, 37] => Get() -> u32;
                         /// Returns `true` if `x` is greater than the internal value.
-                        363906316 => Compare(x: u32) -> bool;
+                        [21, 176, 197, 12] => Compare(x: u32) -> bool;
                     }
                 }
 
@@ -231,7 +231,7 @@ fn contract_compiles() {
                     ink_abi::ContractSpec::new("Incrementer")
                         .constructors(vec![
                             ink_abi::ConstructorSpec::new("on_deploy")
-                                .selector(0)
+                                .selector([0u8; 4])
                                 .args(vec![
                                     ink_abi::MessageParamSpec::new("init_value")
                                         .of_type(
@@ -248,7 +248,7 @@ fn contract_compiles() {
                         ])
                         .messages(vec![
                             ink_abi::MessageSpec::new("inc")
-                                .selector(257544423u32)
+                                .selector([15, 89, 208, 231])
                                 .mutates(true)
                                 .args(vec![
                                     ink_abi::MessageParamSpec::new("by")
@@ -267,7 +267,7 @@ fn contract_compiles() {
                                 )
                                 .done(),
                             ink_abi::MessageSpec::new("get")
-                                .selector(4266279973u32)
+                                .selector([254, 74, 68, 37])
                                 .mutates(false)
                                 .args(vec![])
                                 .docs(vec![
@@ -282,7 +282,7 @@ fn contract_compiles() {
                                 )
                                 .done(),
                             ink_abi::MessageSpec::new("compare")
-                                .selector(363906316u32)
+                                .selector([21, 176, 197, 12])
                                 .mutates(false)
                                 .args(vec![
                                     ink_abi::MessageParamSpec::new("x")
@@ -432,7 +432,7 @@ fn contract_compiles() {
                     /// Returns the internal counter.
                     pub fn get(self,) -> ink_core::env::CallBuilder<Env, ink_core::env::ReturnType<u32>> {
                         ink_core::env::CallBuilder::eval(
-                            self.contract.account_id.clone(), 4266279973u32
+                            self.contract.account_id.clone(), [254, 74, 68, 37]
                         )
                     }
 
@@ -443,7 +443,7 @@ fn contract_compiles() {
                                 .contract
                                 .account_id
                                 .clone(),
-                            363906316u32
+                            [21, 176, 197, 12]
                         ).push_arg(&x)
                     }
                 }
@@ -452,7 +452,7 @@ fn contract_compiles() {
                     /// Increments the internal counter.
                     pub fn inc(self, by: u32,) -> ink_core::env::CallBuilder<Env, ()> {
                         ink_core::env::CallBuilder::<Env, ()>::invoke(
-                            self.contract.account_id.clone(), 257544423u32
+                            self.contract.account_id.clone(), [15, 89, 208, 231]
                         ).push_arg(&by)
                     }
                 }
