@@ -55,6 +55,40 @@ pub struct EnvAccess<E> {
     pub(crate) access: RefCell<EnvAccessMut<E>>,
 }
 
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeId for EnvAccess<E>
+where
+    E: type_metadata::Metadata,
+{
+    fn type_id() -> type_metadata::TypeId {
+        type_metadata::TypeIdCustom::new(
+            "EnvAccess",
+            type_metadata::Namespace::from_module_path(module_path!())
+                .expect("namespace from module path cannot fail"),
+            vec![
+                E::meta_type(),
+            ],
+        )
+        .into()
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeDef for EnvAccess<E>
+where
+    crate::env2::EnvAccessMut<E>: type_metadata::Metadata,
+{
+    fn type_def() -> type_metadata::TypeDef {
+        type_metadata::TypeDefStruct::new(vec![
+            type_metadata::NamedField::new(
+                "access",
+                <crate::env2::EnvAccessMut<E> as type_metadata::Metadata>::meta_type(),
+            ),
+        ])
+        .into()
+    }
+}
+
 impl<'a, E> AccessEnv for &'a EnvAccess<E> {
     type Target = core::cell::RefMut<'a, EnvAccessMut<E>>;
 

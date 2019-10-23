@@ -40,7 +40,14 @@ use scale::{
 use type_metadata::Metadata;
 
 /// The fundamental types of the SRML default configuration.
-#[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
+#[cfg_attr(
+    feature = "test-env",
+    derive(Debug, Clone, PartialEq, Eq)
+)]
+#[cfg_attr(
+    feature = "ink-generate-abi",
+    derive(type_metadata::Metadata),
+)]
 pub enum DefaultSrmlTypes {}
 
 impl EnvTypes for DefaultSrmlTypes {

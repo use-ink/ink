@@ -56,6 +56,31 @@ pub struct SrmlEnv<T> {
     marker: PhantomData<fn() -> T>,
 }
 
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeId for TestEnv<E>
+where
+    E: type_metadata::Metadata,
+{
+    fn type_id() -> type_metadata::TypeId {
+        type_metadata::TypeIdCustom::new(
+            "TestEnv",
+            type_metadata::Namespace::from_module_path(module_path!())
+                .expect("namespace from module path cannot fail"),
+            vec![
+                E::meta_type(),
+            ],
+        )
+        .into()
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeDef for TestEnv<E> {
+    fn type_def() -> type_metadata::TypeDef {
+        type_metadata::TypeDefStruct::new(vec![]).into()
+    }
+}
+
 impl<T> EnvTypes for SrmlEnv<T>
 where
     T: EnvTypes,

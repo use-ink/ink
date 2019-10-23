@@ -40,6 +40,10 @@ use crate::{
 };
 use core::marker::PhantomData;
 
+#[cfg_attr(
+    feature = "ink-generate-abi",
+    derive(type_metadata::Metadata),
+)]
 /// A wrapper around environments to make accessing them more efficient.
 pub struct EnvAccessMut<E> {
     /// The wrapped environment to access.

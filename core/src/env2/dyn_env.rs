@@ -36,11 +36,32 @@ use core::ops::{
 };
 
 /// A wrapper around `EnvAccess` or `EnvAccessMut` that adds a dynamic storage allocator.
+#[cfg_attr(
+    feature = "ink-generate-abi",
+    derive(type_metadata::Metadata),
+)]
 pub struct DynEnv<E> {
     /// The wrapped environment.
     env: E,
     /// The dynamic storage allocator.
     alloc: DynAlloc,
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> ink_abi::HasLayout for DynEnv<E>
+where
+    E: type_metadata::Metadata + 'static,
+{
+    fn layout(&self) -> ink_abi::StorageLayout {
+        use type_metadata::Metadata as _;
+        ink_abi::LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                ink_abi::LayoutField::new("alloc", self.alloc.layout())
+            ],
+        )
+        .into()
+    }
 }
 
 impl<E> DynEnv<E> {
