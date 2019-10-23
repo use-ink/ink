@@ -24,6 +24,7 @@
 
 use crate::{
     ast,
+    gen::selector_to_expr,
     hir,
 };
 use proc_macro2::TokenStream as TokenStream2;
@@ -31,7 +32,6 @@ use quote::{
     quote,
     quote_spanned,
 };
-use syn::parse_str;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Mutability {
@@ -237,12 +237,7 @@ fn generate_call_enhancer_messages<'a>(
                 .map(|ident| quote! { #ident });
             let output = &message.sig.decl.output;
             let (_impl_generics, type_generics, where_clause) = message.sig.decl.generics.split_for_impl();
-            let selector = message.selector();
-            let selector = format!(
-                "[{}, {}, {}, {}]",
-                selector[0], selector[1], selector[2], selector[3]
-            );
-            let selector = parse_str::<syn::Expr>(&selector).expect("failed to parse selector");
+            let selector = selector_to_expr(message.selector());
             match output {
                 syn::ReturnType::Default => quote_spanned! { ident.span() =>
                     #(#attrs)*

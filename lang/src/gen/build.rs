@@ -21,6 +21,7 @@
 
 use crate::{
     ast,
+    gen::selector_to_expr,
     hir,
 };
 use proc_macro2::{
@@ -33,7 +34,6 @@ use quote::{
 };
 use std::iter;
 use syn::{
-    parse_str,
     punctuated::Punctuated,
     Token,
 };
@@ -473,13 +473,7 @@ fn codegen_for_messages(tokens: &mut TokenStream2, contract: &hir::Contract) {
             for attr in &message.attrs {
                 attr.to_tokens(&mut content)
             }
-            let msg_selector = message.selector();
-            let msg_selector = format!(
-                "[{}, {}, {}, {}]",
-                msg_selector[0], msg_selector[1], msg_selector[2], msg_selector[3]
-            );
-            let msg_id = parse_str::<syn::Expr>(&msg_selector)
-                .expect("failed to parse msg_id");
+            let msg_id = selector_to_expr(message.selector());
             msg_id.to_tokens(&mut content);
             <Token![=>]>::default().to_tokens(&mut content);
             use heck::CamelCase as _;

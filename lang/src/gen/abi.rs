@@ -21,13 +21,13 @@
 
 use crate::{
     ast,
+    gen::selector_to_expr,
     hir,
 };
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
     self,
-    parse_str,
     punctuated::Punctuated,
     Token,
 };
@@ -137,14 +137,7 @@ fn generate_abi_messages<'a>(
     contract: &'a hir::Contract,
 ) -> impl Iterator<Item = TokenStream2> + 'a {
     contract.messages.iter().map(|message| {
-        let selector = message.selector();
-        let selector = format!(
-            "[{}, {}, {}, {}]",
-            selector[0], selector[1], selector[2], selector[3]
-        );
-        let selector = parse_str::<syn::Expr>(&selector)
-            .expect("failed to parse selector");
-
+        let selector = selector_to_expr(message.selector());
         let is_mut = message.is_mut();
         let docs = message.docs().map(trim_doc_string);
         let name = message.sig.ident.to_string();
