@@ -186,7 +186,7 @@ contract! {
         }
 
         fn add_token_to(&mut self, to: &AccountId, id: &TokenId) -> Result<(), u32> {
-            if self.exists(id){
+            if self.exists(id) {
                  return Err(Error::TokenExists.to_u32())
             };
 
