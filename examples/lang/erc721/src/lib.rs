@@ -207,7 +207,7 @@ contract! {
 
             if !self.token_owner.insert(*id, *to).is_none() {
                 return Err(Error::CanNotInsert.to_u32())
-            };
+            }
             self.increase_counter_of(to)?;
             env.emit(Transfer {
                 from: AccountId::from([0x0; 32]),
