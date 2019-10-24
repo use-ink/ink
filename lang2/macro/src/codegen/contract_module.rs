@@ -20,6 +20,7 @@ use quote::quote;
 
 pub use crate::{
     codegen::{
+        abi::GenerateAbi,
         GenerateCode,
         GenerateCodeUsing,
         dispatch::Dispatch,
@@ -50,6 +51,7 @@ impl GenerateCode for ContractModule<'_> {
         let env_types = self.generate_code_using::<EnvTypes>();
         let storage = self.generate_code_using::<Storage>();
         let dispatch = self.generate_code_using::<Dispatch>();
+        let generate_abi = self.generate_code_using::<GenerateAbi>();
 
         quote! {
             mod #ident {
@@ -58,6 +60,7 @@ impl GenerateCode for ContractModule<'_> {
                 #env_types
                 #storage
                 #dispatch
+                #generate_abi
             }
             pub use #ident::*;
         }

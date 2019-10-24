@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+mod abi;
 mod contract_module;
 mod dispatch;
 mod env_types;
