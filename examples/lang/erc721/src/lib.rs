@@ -144,7 +144,7 @@ contract! {
 
         fn transfer_from(&mut self, env: &EnvHandler, from: &AccountId, to: &AccountId, id: &TokenId) -> Result<(), Error> {
             let caller = env.caller();
-            if !self.exists(id){
+            if !self.exists(id) {
                 return Err(Error::TokenNotFound);
             };
             if !self.approved_or_owner(&caller, id){
