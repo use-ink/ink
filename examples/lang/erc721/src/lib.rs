@@ -249,7 +249,7 @@ contract! {
             } else{
                 match self.owned_tokens_count.insert(*of, 1) {
                     Some(_) => Err(Error::CanNotInsert),
-                    None => return Ok(())
+                    None => Ok(()),
                 }
             }
         }
