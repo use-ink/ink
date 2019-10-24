@@ -201,7 +201,7 @@ contract! {
             if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::AccountZeroNotAllowed.to_u32())
             };
-            if self.exists(id){
+            if self.exists(id) {
                 return Err(Error::TokenExists.to_u32())
             };
 
