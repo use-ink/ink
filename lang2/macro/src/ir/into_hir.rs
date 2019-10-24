@@ -444,7 +444,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
         let non_ink_attrs = method
             .attrs
             .into_iter()
-            .filter(|attr| Marker::try_from(attr.clone()).is_ok())
+            .filter(|attr| Marker::try_from(attr.clone()).is_err())
             .collect::<Vec<_>>();
         // Finally return the checked ink! function.
         Ok(Self {
