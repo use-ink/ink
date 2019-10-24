@@ -16,17 +16,17 @@
 
 use crate::{
     codegen::GenerateCode,
-    ir::Contract,
+    ir,
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
+use quote::{quote, quote_spanned};
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
 pub struct GenerateAbi<'a> {
     /// The contract to generate code for.
-    contract: &'a Contract,
+    contract: &'a ir::Contract,
 }
 
 impl GenerateCode for GenerateAbi<'_> {
@@ -54,20 +54,141 @@ impl GenerateCode for GenerateAbi<'_> {
 }
 
 impl GenerateAbi<'_> {
-    fn generate_constructors(&self) -> impl Iterator<Item = TokenStream2> {
-        vec![].into_iter()
+    fn generate_constructors<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+        self.contract
+            .functions
+            .iter()
+            .filter_map(|function| {
+                function.filter_constructor().map(|kind| (function, kind))
+            })
+            .map(move |(constructor, kind)| {
+                let span = constructor.span();
+                let ident_lit = constructor.sig.ident.to_string();
+                let selector_bytes = kind.selector.as_bytes();
+
+                let docs = ir::filter_map_trimmed_doc_strings(&constructor.attrs);
+                let args = constructor
+                    .sig
+                    .inputs()
+                    .map(|fn_arg| {
+                        self.generate_message_param(fn_arg)
+                    });
+
+                quote_spanned!(span =>
+                    ink_abi::ConstructorSpec::new(#ident_lit)
+                        .selector([#(#selector_bytes),*])
+                        .args(vec![
+                            #(#args ,)*
+                        ])
+                        .docs(vec![
+                            #(#docs ,)*
+                        ])
+                        .done()
+                )
+            })
     }
 
-    fn generate_messages(&self) -> impl Iterator<Item = TokenStream2> {
-        vec![].into_iter()
+    fn generate_type_spec(&self, ty: &syn::Type) -> TokenStream2 {
+        fn without_display_name(ty: &syn::Type) -> TokenStream2 {
+            quote! { ink_abi::TypeSpec::new::<#ty>() }
+        }
+        if let syn::Type::Path(type_path) = ty {
+            if type_path.qself.is_some() {
+                return without_display_name(ty)
+            }
+            let path = &type_path.path;
+            if path.segments.len() == 0 {
+                return without_display_name(ty)
+            }
+            let segs = path
+                .segments
+                .iter()
+                .map(|seg| seg.ident.to_string())
+                .collect::<Vec<_>>();
+            quote! {
+                ink_abi::TypeSpec::with_name_segs::<#ty, _>(
+                    vec![#(#segs),*].into_iter().map(AsRef::as_ref)
+                )
+            }
+        } else {
+            without_display_name(ty)
+        }
+    }
+
+    fn generate_return_type(&self, ret_ty: &syn::ReturnType) -> TokenStream2 {
+        match ret_ty {
+            syn::ReturnType::Default => {
+                quote! {
+                    ink_abi::ReturnTypeSpec::new(None)
+                }
+            }
+            syn::ReturnType::Type(_, ty) => {
+                let type_spec = self.generate_type_spec(ty);
+                quote! {
+                    ink_abi::ReturnTypeSpec::new(#type_spec)
+                }
+            }
+        }
+    }
+
+    fn generate_message_param(&self, fn_arg: &ir::IdentType) -> TokenStream2 {
+        let ident_lit = &fn_arg.ident.to_string();
+        let type_spec = self.generate_type_spec(&fn_arg.ty);
+
+        quote! {
+            ink_abi::MessageParamSpec::new(#ident_lit)
+                .of_type(#type_spec)
+                .done()
+        }
+    }
+
+    fn generate_messages<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+        self.contract
+            .functions
+            .iter()
+            .filter_map(|function| {
+                function.filter_message().map(|kind| (function, kind))
+            })
+            .map(move |(message, kind)| {
+                let span = message.span();
+                let ident_lit = message.sig.ident.to_string();
+                let selector_bytes = kind.selector.as_bytes();
+                let is_mut = message.sig.is_mut();
+
+                let docs = ir::filter_map_trimmed_doc_strings(&message.attrs);
+
+                let args = message
+                    .sig
+                    .inputs()
+                    .map(|fn_arg| {
+                        self.generate_message_param(fn_arg)
+                    });
+                let ret_ty = self.generate_return_type(&message.sig.output);
+
+                quote_spanned!(span =>
+                    ink_abi::MessageSpec::new(#ident_lit)
+                        .selector([#(#selector_bytes),*])
+                        .mutates(#is_mut)
+                        .args(vec![
+                            #(#args ,)*
+                        ])
+                        .docs(vec![
+                            #(#docs ,)*
+                        ])
+                        .returns(
+                            #ret_ty
+                        )
+                        .done()
+                )
+            })
     }
 
     fn generate_events(&self) -> impl Iterator<Item = TokenStream2> {
         vec![].into_iter()
     }
 
-    fn generate_docs(&self) -> impl Iterator<Item = TokenStream2> {
-        vec![].into_iter()
+    fn generate_docs<'a>(&'a self) -> impl Iterator<Item = String> + 'a {
+        ir::filter_map_trimmed_doc_strings(&self.contract.attrs)
     }
 
     fn generate_contract(&self) -> TokenStream2 {
