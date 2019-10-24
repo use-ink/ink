@@ -198,7 +198,7 @@ contract! {
         }
 
         fn mint(&mut self, env: &EnvHandler, to: &AccountId, id: &TokenId) -> Result<(), u32> {
-            if *to == AccountId::from([0x0; 32]){
+            if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::AccountZeroNotAllowed.to_u32())
             };
             if self.exists(id){
