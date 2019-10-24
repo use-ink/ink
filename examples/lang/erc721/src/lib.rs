@@ -193,7 +193,7 @@ contract! {
             self.increase_counter_of(to)?;
             if !self.token_owner.insert(*id, *to).is_none() {
                 return Err(Error::CanNotInsert.to_u32())
-            };
+            }
             Ok(())
         }
 
