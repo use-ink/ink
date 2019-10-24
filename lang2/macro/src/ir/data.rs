@@ -339,20 +339,30 @@ impl Function {
         &self.kind
     }
 
+    /// Returns the constructor kind if the function is a constructor and otherwise `None`.
+    pub fn filter_constructor(&self) -> Option<&KindConstructor> {
+        match self.kind() {
+            FunctionKind::Constructor(constructor) => Some(constructor),
+            _ => None,
+        }
+    }
+
+    /// Returns the message kind if the function is a message and otherwise `None`.
+    pub fn filter_message(&self) -> Option<&KindMessage> {
+        match self.kind() {
+            FunctionKind::Message(message) => Some(message),
+            _ => None,
+        }
+    }
+
     /// Returns `true` if the function is a contract constructor.
     pub fn is_constructor(&self) -> bool {
-        match self.kind() {
-            FunctionKind::Constructor(_) => true,
-            _ => false,
-        }
+        self.filter_constructor().is_some()
     }
 
     /// Returns `true` if the function is a contract message.
     pub fn is_message(&self) -> bool {
-        match self.kind() {
-            FunctionKind::Message(_) => true,
-            _ => false,
-        }
+        self.filter_message().is_some()
     }
 
     /// Returns `true` if the function is a method.
