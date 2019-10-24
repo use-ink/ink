@@ -219,11 +219,11 @@ macro_rules! impl_dispatcher_for {
                     .map_err(|_| DispatchError::InvalidParameters)?;
                 let result = self.eval(storage, args);
                 if TypeId::of::<<Msg as FnOutput>::Output>() != TypeId::of::<()>() {
-                    storage.env().output(&result)
+                    AccessEnv::env(storage).output(&result)
                 }
                 if <Msg as Message>::IS_MUT {
                     // Flush the storage since the message might have mutated it.
-                    storage.flush();
+                    Flush::flush(storage);
                 }
                 Ok(())
             }
