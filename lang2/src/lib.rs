@@ -20,12 +20,18 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
+#[cfg(feature = "ink-generate-abi")]
+mod abi;
+
 mod contract;
 mod dispatcher;
 mod error;
 mod traits;
 
 pub use ink_lang2_macro::contract;
+
+#[cfg(feature = "ink-generate-abi")]
+pub use self::abi::GenerateAbi;
 
 pub use self::{
     contract::{
