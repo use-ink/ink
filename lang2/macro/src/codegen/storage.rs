@@ -283,7 +283,6 @@ impl Storage<'_> {
     fn generate_message_impls(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
         let span = storage.span();
-        // let ident = &storage.ident;
         let fns = self
             .contract
             .functions
