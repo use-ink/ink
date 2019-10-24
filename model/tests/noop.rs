@@ -34,6 +34,9 @@ state! {
 }
 
 messages! {
+    /// Multiline comment
+    /// for a function
+    /// which does nothing.
     [0u8; 4] => DoNothing();
 }
 
