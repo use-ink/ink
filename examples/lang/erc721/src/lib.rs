@@ -266,7 +266,7 @@ contract! {
             *self.owned_tokens_count.get(of).unwrap_or(&0u32)
         }
 
-        fn owner_of(&self, id: &TokenId, ) -> AccountId {
+        fn owner_of(&self, id: &TokenId) -> AccountId {
             *self.token_owner.get(id).unwrap_or(&AccountId::from([0x0; 32]))
         }
 
