@@ -245,7 +245,7 @@ contract! {
                     .get_mut(of)
                     .ok_or(Error::CanNotGetCounter.to_u32())?;
                 *count += 1;
-                return Ok(());
+                return Ok(())
             } else{
                 match self.owned_tokens_count.insert(*of, 1) {
                     Some(_) => Err(Error::CanNotInsert.to_u32()),
