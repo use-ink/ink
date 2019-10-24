@@ -28,7 +28,7 @@ pwasm-utils = "0.11.0"
 parity-wasm = "0.40.2"
 cargo_metadata = "0.8.2"
 substrate-primitives = { git = "https://github.com/paritytech/substrate/", package = "substrate-primitives" }
-subxt = { git = "https://github.com/paritytech/substrate-subxt/", package = "substrate-subxt" }
+subxt = { git = "https://github.com/paritytech/substrate-subxt/", branch = "v0.1", package = "substrate-subxt" }
 tokio = "0.1.21"
 url = "1.7"
 
