@@ -219,7 +219,7 @@ contract! {
 
         fn burn(&mut self, env: &EnvHandler, from: &AccountId, id: &TokenId)-> Result<(), u32> {
             let caller = env.caller();
-            if !self.exists(id){
+            if !self.exists(id) {
                  return Err(Error::TokenNotFound.to_u32())
             };
             if self.owner_of(id) != caller && *from != AccountId::from([0x0; 32]) {
