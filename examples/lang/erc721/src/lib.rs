@@ -251,7 +251,7 @@ contract! {
                     Some(_) => Err(Error::CanNotInsert),
                     None => return Ok(())
                 }
-            };
+            }
         }
 
         fn decrease_counter_of(&mut self, of: &AccountId) -> Result<(), Error> {
