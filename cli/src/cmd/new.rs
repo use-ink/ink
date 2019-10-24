@@ -23,6 +23,7 @@ use crate::{
 };
 use heck::CamelCase as _;
 use std::{
+    env,
     fs,
     io::{
         Cursor,
@@ -31,21 +32,21 @@ use std::{
         SeekFrom,
         Write,
     },
-    path,
+    path::PathBuf,
 };
 
 /// Initializes a project structure for the `lang` abstraction layer.
-fn initialize_for_lang(name: &str) -> Result<String> {
+fn initialize_for_lang(name: &str, target_dir: Option<&PathBuf>) -> Result<String> {
     if name.contains("-") {
         return Err("Contract names cannot contain hyphens".into())
     }
 
-    let out_dir = path::Path::new(name);
+    let out_dir = target_dir.unwrap_or(&env::current_dir()?).join(name);
     if out_dir.join("Cargo.toml").exists() {
         return Err(format!("A Cargo package already exists in {}", name).into())
     }
     if !out_dir.exists() {
-        fs::create_dir(out_dir)?;
+        fs::create_dir(&out_dir)?;
     }
 
     let template = include_bytes!(concat!(env!("OUT_DIR"), "/template.zip"));
@@ -82,7 +83,7 @@ fn initialize_for_lang(name: &str) -> Result<String> {
                     if e.kind() == std::io::ErrorKind::AlreadyExists {
                         CommandError::from(format!(
                             "New contract file {} already exists",
-                            outpath.display()
+                            file.sanitized_name().display()
                         ))
                     } else {
                         CommandError::from(e)
@@ -106,52 +107,69 @@ fn initialize_for_lang(name: &str) -> Result<String> {
     Ok(format!("Created contract {}", name))
 }
 
-pub(crate) fn execute_new(layer: AbstractionLayer, name: &str) -> Result<String> {
+pub(crate) fn execute_new(
+    layer: AbstractionLayer,
+    name: &str,
+    dir: Option<&PathBuf>,
+) -> Result<String> {
     match layer {
         AbstractionLayer::Core => Err(CommandError::UnimplementedAbstractionLayer),
         AbstractionLayer::Model => Err(CommandError::UnimplementedAbstractionLayer),
-        AbstractionLayer::Lang => initialize_for_lang(name),
+        AbstractionLayer::Lang => initialize_for_lang(name, dir),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{
+        cmd::{
+            execute_new,
+            tests::with_tmp_dir,
+        },
+        AbstractionLayer,
+    };
 
     #[test]
     fn rejects_hyphenated_name() {
-        let result = super::initialize_for_lang("should-fail");
-        assert_eq!(
-            format!("{:?}", result),
-            r#"Err(Other("Contract names cannot contain hyphens"))"#
-        )
+        with_tmp_dir(|path| {
+            let result = execute_new(
+                AbstractionLayer::Lang,
+                "rejects-hyphenated-name",
+                Some(path),
+            );
+            assert_eq!(
+                format!("{:?}", result),
+                r#"Err(Other("Contract names cannot contain hyphens"))"#
+            )
+        });
     }
 
     #[test]
     fn contract_cargo_project_already_exists() {
-        let name = "test_contract_cargo_project_already_exists";
-        let _ = super::initialize_for_lang(name);
-        let result = super::initialize_for_lang(name);
-        // clean up created files
-        std::fs::remove_dir_all(name).unwrap();
-        assert_eq!(
-            format!("{:?}", result),
-            r#"Err(Other("A Cargo package already exists in test_contract_cargo_project_already_exists"))"#
-        )
+        with_tmp_dir(|path| {
+            let name = "test_contract_cargo_project_already_exists";
+            let _ = execute_new(AbstractionLayer::Lang, name, Some(path));
+            let result = execute_new(AbstractionLayer::Lang, name, Some(path));
+            assert_eq!(
+                format!("{:?}", result),
+                r#"Err(Other("A Cargo package already exists in test_contract_cargo_project_already_exists"))"#
+            )
+        });
     }
 
     #[test]
     fn dont_overwrite_existing_files_not_in_cargo_project() {
-        let name = "dont_overwrite_existing_files";
-        let dir = path::Path::new(name);
-        fs::create_dir_all(dir).unwrap();
-        fs::File::create(dir.join(".gitignore")).unwrap();
-        let result = super::initialize_for_lang(name);
-        // clean up created files
-        std::fs::remove_dir_all(dir).unwrap();
-        assert_eq!(
-            format!("{:?}", result),
-            r#"Err(Other("New contract file dont_overwrite_existing_files/.gitignore already exists"))"#
-        )
+        with_tmp_dir(|path| {
+            let name = "dont_overwrite_existing_files";
+            let dir = path.join(name);
+            fs::create_dir_all(&dir).unwrap();
+            fs::File::create(dir.join(".gitignore")).unwrap();
+            let result = execute_new(AbstractionLayer::Lang, name, Some(path));
+            assert_eq!(
+                format!("{:?}", result),
+                r#"Err(Other("New contract file .gitignore already exists"))"#
+            )
+        });
     }
 }
