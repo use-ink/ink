@@ -203,7 +203,7 @@ contract! {
             };
             if self.exists(id) {
                 return Err(Error::TokenExists.to_u32())
-            };
+            }
 
             if !self.token_owner.insert(*id, *to).is_none() {
                 return Err(Error::CanNotInsert.to_u32())
