@@ -103,11 +103,11 @@ impl CallData {
 
 /// A hash to identify a called function.
 #[derive(Copy, Clone, PartialEq, Eq, Decode)]
-pub struct MessageHandlerSelector(u32);
+pub struct MessageHandlerSelector([u8; 4]);
 
 impl MessageHandlerSelector {
     /// Creates a new message handler selector from the given value.
-    pub const fn new(raw: u32) -> Self {
+    pub const fn new(raw: [u8; 4]) -> Self {
         Self(raw)
     }
 }
