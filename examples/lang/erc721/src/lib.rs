@@ -163,7 +163,7 @@ contract! {
         }
 
         fn clear_approval(&mut self, id: &TokenId) -> Result<(), u32> {
-            if !self.token_approvals.contains_key(id){
+            if !self.token_approvals.contains_key(id) {
                 return Ok(());
             };
 
