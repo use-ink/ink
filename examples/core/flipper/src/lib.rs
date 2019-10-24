@@ -311,7 +311,7 @@ const _: () = {
 const _: () = {
     impl ink_lang2::GenerateAbi for Flipper {
         fn generate_abi() -> ink_abi::InkProject {
-            let contract = {
+            let contract: ink_abi::ContractSpec = {
                 ink_abi::ContractSpec::new("Flipper")
                     .constructors(vec![
                         ink_abi::ConstructorSpec::new("new")
@@ -357,7 +357,7 @@ const _: () = {
                     .docs(vec![])
                     .done()
             };
-            let layout = {
+            let layout: ink_abi::StorageLayout = {
                 unsafe {
                     use ink_abi::HasLayout as _;
                     use ink_core::storage::alloc::AllocateUsing as _;
