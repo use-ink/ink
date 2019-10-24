@@ -33,8 +33,8 @@ derive_more = { version = "0.15", default-features = false }
 regex = "1.3"
 
 [dev-dependencies]
-ink_core = { path = "../../core/", default-features = false }
-ink_lang2 = { path = "..", default-features = false }
+ink_core = { path = "../../core/" }
+ink_lang2 = { path = ".." }
 
 trybuild = "1.0"
 pretty_assertions = "0.6.1"
