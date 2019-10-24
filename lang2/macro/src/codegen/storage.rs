@@ -62,6 +62,7 @@ impl GenerateCode for Storage<'_> {
 
                 const _: () = {
                     // Used to make `self.env()` available in message code.
+                    #[allow(unused_imports)]
                     use ink_core::env2::AccessEnv as _;
 
                     #message_impls
