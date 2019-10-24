@@ -86,12 +86,6 @@ impl Dispatch<'_> {
             syn::ReturnType::Type(_, ty) => quote! { #ty },
         };
         let is_mut = sig.is_mut();
-        let (selector_bytes_0, selector_bytes_1, selector_bytes_2, selector_bytes_3) = (
-            selector_bytes[0],
-            selector_bytes[1],
-            selector_bytes[2],
-            selector_bytes[3],
-        );
 
         use syn::spanned::Spanned as _;
 
@@ -114,10 +108,7 @@ impl Dispatch<'_> {
         let fn_selector = quote_spanned!(span =>
             impl ink_lang2::FnSelector for #namespace<[(); #selector_id]> {
                 const SELECTOR: ink_core::env2::call::Selector = ink_core::env2::call::Selector::from_bytes([
-                    #selector_bytes_0,
-                    #selector_bytes_1,
-                    #selector_bytes_2,
-                    #selector_bytes_3
+                    #( #selector_bytes ),*
                 ]);
             }
         );
