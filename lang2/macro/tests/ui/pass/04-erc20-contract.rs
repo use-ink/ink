@@ -36,10 +36,10 @@ mod erc20 {
         #[ink(constructor)]
         fn new(&mut self, initial_supply: Balance) {
             self.total_supply.set(initial_supply);
-            self.balances.insert(self.env.caller(), initial_supply);
-            self.env.emit_event(Transferred {
+            self.balances.insert(self.env().caller(), initial_supply);
+            self.env().emit_event(Transferred {
                 from: None,
-                to: Some(self.env.caller()),
+                to: Some(self.env().caller()),
                 value: initial_supply
             });
         }
@@ -56,15 +56,15 @@ mod erc20 {
 
         #[ink(message)]
         fn transfer(&mut self, to: AccountId, amount: Balance) -> bool {
-            let from = self.env.caller();
+            let from = self.env().caller();
             self.transfer_from_to(from, to, amount)
         }
 
         #[ink(message)]
         fn approve(&mut self, spender: AccountId, amount: Balance) -> bool {
-            let owner = self.env.caller();
+            let owner = self.env().caller();
             self.allowances.insert((owner, spender), amount);
-            self.env.emit_event(Approved {
+            self.env().emit_event(Approved {
                 owner: owner,
                 spender: spender,
                 amount
@@ -74,7 +74,7 @@ mod erc20 {
 
         #[ink(message)]
         fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: Balance) -> bool {
-            let caller = self.env.caller();
+            let caller = self.env().caller();
             let allowance = self.allowance_of_or_zero(&from, &caller);
             if allowance < amount {
                 return false
@@ -91,7 +91,7 @@ mod erc20 {
             let to_balance = self.balance_of_or_zero(&to);
             self.balances.insert(from.clone(), from_balance - amount);
             self.balances.insert(to.clone(), to_balance + amount);
-            self.env.emit_event(Transferred { from, to, amount });
+            self.env().emit_event(Transferred { from, to, amount });
             true
         }
 

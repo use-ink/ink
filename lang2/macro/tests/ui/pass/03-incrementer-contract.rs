@@ -35,7 +35,7 @@ mod incrementer {
 
         #[ink(message)]
         fn inc_by(&mut self, by: i32) {
-            self.env.emit_event(Flipper { caller: self.env.caller(), by });
+            self.env().emit_event(Flipper { caller: self.env().caller(), by });
             *self.value += by as i64;
         }
 
