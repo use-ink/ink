@@ -305,6 +305,9 @@ fn max_heap_with_multiple_levels() {
     })
 }
 
+/// A simple wrapper struct which is stored in the heap
+/// for testing purposes (mostly to verify that custom
+/// implemented `Ord` and `PartialOrd` are respected).
 #[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
 struct V(u32);
 
