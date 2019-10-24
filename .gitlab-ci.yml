@@ -33,7 +33,6 @@ variables:
     - rustup show
     - bash --version
     # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
-    - echo ${CARGO_HOME}
     - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
     - sccache -s
   only:
