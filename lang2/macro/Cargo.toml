@@ -19,8 +19,8 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 ink_utils = { path = "../../utils/", default-features = false }
-scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 
+scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 quote = "1"
 syn = { version = "1", features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = "1"
