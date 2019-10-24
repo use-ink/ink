@@ -181,6 +181,10 @@ impl Storage<'_> {
             .filter(|&attr| Marker::try_from(attr.clone()).is_err());
         quote! {
             #(#attrs)*
+            #[cfg_attr(
+                feature = "ink-generate-abi",
+                derive(type_metadata::Metadata, ink_abi::HasLayout)
+            )]
             pub struct StorageAndEnv {
                 __storage: Storage,
                 __env: UsedEnv,
@@ -249,6 +253,10 @@ impl Storage<'_> {
 
         quote_spanned!( span =>
             #(#attrs)*
+            #[cfg_attr(
+                feature = "ink-generate-abi",
+                derive(type_metadata::Metadata, ink_abi::HasLayout)
+            )]
             pub struct Storage {
                 #(
                     #fields ,
