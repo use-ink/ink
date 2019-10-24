@@ -78,8 +78,7 @@ impl Storage<'_> {
             quote! {
                 impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
                     fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
-                        use ink_core::env2::AccessEnv as _;
-                        self.__env.env()
+                        self.__env.env_mut()
                     }
                 }
             }
@@ -99,7 +98,7 @@ impl Storage<'_> {
                 type Target = <&'a UsedEnv as ink_core::env2::AccessEnv>::Target;
 
                 fn env(self) -> Self::Target {
-                    ink_core::env2::AccessEnv::env(&self.env)
+                    ink_core::env2::AccessEnv::env(&self.__env)
                 }
             }
 
@@ -107,7 +106,7 @@ impl Storage<'_> {
                 type Target = <&'a mut UsedEnv as ink_core::env2::AccessEnv>::Target;
 
                 fn env(self) -> Self::Target {
-                    ink_core::env2::AccessEnv::env(&mut self.env)
+                    ink_core::env2::AccessEnv::env(&mut self.__env)
                 }
             }
         }
