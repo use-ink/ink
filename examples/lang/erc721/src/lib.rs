@@ -174,7 +174,7 @@ contract! {
         }
 
         fn remove_token_from(&mut self, from: &AccountId, id: &TokenId) -> Result<(), u32> {
-            if !self.exists(id){
+            if !self.exists(id) {
                 return Err(Error::TokenNotFound.to_u32());
             };
 
