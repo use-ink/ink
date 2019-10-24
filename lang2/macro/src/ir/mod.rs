@@ -55,5 +55,8 @@ pub use self::{
         ParamVersion,
         Params,
     },
-    utils::UnsuffixedLitInt,
+    utils::{
+        filter_map_trimmed_doc_strings,
+        UnsuffixedLitInt,
+    },
 };

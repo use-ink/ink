@@ -54,3 +54,38 @@ impl Parse for UnsuffixedLitInt {
         Ok(Self { lit_int })
     }
 }
+
+/// Filters the given attributes for `#[doc(..)]` attributes
+/// and trims them to human-readable documentation strings.
+///
+/// # Note
+///
+/// This is mainly used in the ABI generation routines.
+pub fn filter_map_trimmed_doc_strings<'a, I>(
+    attrs: I,
+) -> impl Iterator<Item = String> + 'a
+where
+    I: IntoIterator<Item = &'a syn::Attribute>,
+    <I as IntoIterator>::IntoIter: 'a,
+{
+    attrs
+        .into_iter()
+        .filter(move |attr| attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc"))
+        .map(to_trimmed_doc_string)
+}
+
+/// Trims a doc string obtained from an attribute token stream into the actual doc string.
+///
+/// Practically speaking this method removes the trailing start `" = \""` and end `\"`
+/// of documentation strings coming from Syn attribute token streams.
+pub fn to_trimmed_doc_string(attr: &syn::Attribute) -> String {
+    attr.tokens
+        .to_string()
+        .trim_start_matches('=')
+        .trim_start()
+        .trim_start_matches("r")
+        .trim_start_matches("\"")
+        .trim_end_matches("\"")
+        .trim()
+        .into()
+}
