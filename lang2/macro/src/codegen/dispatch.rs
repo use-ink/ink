@@ -27,6 +27,10 @@ use quote::{
     quote,
     quote_spanned,
 };
+use syn::{
+    Token,
+    punctuated::Punctuated,
+};
 
 /// Generates code for the dispatch parts that dispatch constructors
 /// and messages from the input and also handle the returning of data.
@@ -71,7 +75,11 @@ impl Dispatch<'_> {
             .expect("this is either a message or constructor at this point; qed");
         let (selector_bytes, selector_id) = (selector.as_bytes(), selector.unique_id());
         let sig = &function.sig;
-        let inputs = sig.inputs().map(|ident_type| &ident_type.ty);
+        let inputs = sig
+            .inputs()
+            .map(|ident_type| &ident_type.ty);
+        let inputs_punct = inputs
+            .collect::<Punctuated<_, Token![,]>>();
         let output = &sig.output;
         let output_type = match output {
             syn::ReturnType::Default => quote! {},
@@ -95,7 +103,7 @@ impl Dispatch<'_> {
 
         let fn_input = quote_spanned!(sig.inputs.span() =>
             impl ink_lang2::FnInput for #namespace<[(); #selector_id]> {
-                type Input = (#(#inputs)*);
+                type Input = (#inputs_punct);
             }
         );
         let fn_output = quote_spanned!(sig.output.span() =>
@@ -181,11 +189,11 @@ impl Dispatch<'_> {
         let input_idents = sig
             .inputs()
             .map(|ident_type| &ident_type.ident)
-            .collect::<Vec<_>>();
+            .collect::<Punctuated<_, Token![,]>>();
         let (pat_idents, fn_idents) = if input_idents.is_empty() {
             (quote! { _ }, quote! {})
         } else {
-            (quote! { (#(#input_idents)*) }, quote! { #(#input_idents)* })
+            (quote! { (#input_idents) }, quote! { #input_idents })
         };
 
         let builder_name = if function.is_constructor() {

@@ -173,7 +173,14 @@ impl Storage<'_> {
     }
 
     fn generate_storage_and_env_wrapper(&self) -> TokenStream2 {
+        // Filter all `ink` attributes for code generation.
+        let storage = &self.contract.storage;
+        let attrs = storage
+            .attrs
+            .iter()
+            .filter(|&attr| Marker::try_from(attr.clone()).is_err());
         quote! {
+            #(#attrs)*
             pub struct StorageAndEnv {
                 __storage: Storage,
                 __env: UsedEnv,
