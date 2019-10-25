@@ -58,12 +58,20 @@ pub struct MetaInfo {
     pub env_types: MetaTypes,
     /// The used ink! version.
     pub ink_version: MetaVersion,
+    /// If dynamic allocations have been enabled.
+    pub dynamic_allocations_enabled: bool,
+    /// If contract shall be compiled as dependency.
+    pub compile_as_dependency: bool,
 }
 
 impl MetaInfo {
     /// Returns `true` if the user enabled dynamic storage allocation.
     pub fn is_dynamic_allocation_enabled(&self) -> bool {
-        false // TODO
+        self.dynamic_allocations_enabled
+    }
+
+    pub fn is_compiled_as_dependency(&self) -> bool {
+        self.compile_as_dependency
     }
 }
 
@@ -71,6 +79,14 @@ impl MetaInfo {
 pub struct MetaTypes {
     /// The specified types.
     pub ty: syn::Type,
+}
+
+impl Default for MetaTypes {
+    fn default() -> Self {
+        Self {
+            ty: syn::parse_quote!{ ink_core::env2::DefaultSrmlTypes }
+        }
+    }
 }
 
 /// The major, minor and patch version of the version parameter.

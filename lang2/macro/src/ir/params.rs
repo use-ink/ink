@@ -87,6 +87,14 @@ pub enum MetaParam {
     Types(ParamTypes),
     /// Information about the ink! version: `#[ink(version = x.y.z)]`
     Version(ParamVersion),
+    /// If dynamic allocations are enabled: `#[ink(dynamic_allocations: true)]`
+    ///
+    /// Default value: `false`
+    DynamicAllocations(ParamDynamicAllocations),
+    /// If the contract shall be compiled as depedency: `#[ink(compile_as_dependency: true)]`
+    ///
+    /// Default value: `false`
+    CompileAsDependency(ParamCompileAsDependency),
 }
 
 impl MetaParam {
@@ -98,8 +106,10 @@ impl MetaParam {
     /// - for `version = [0, 1, 0]` this is `version`
     pub fn ident(&self) -> &Ident {
         match self {
-            MetaParam::Types(meta_env) => &meta_env.env,
-            MetaParam::Version(version) => &version.version,
+            MetaParam::Types(param) => &param.ident,
+            MetaParam::Version(param) => &param.ident,
+            MetaParam::DynamicAllocations(param) => &param.ident,
+            MetaParam::CompileAsDependency(param) => &param.ident,
         }
     }
 }
@@ -107,9 +117,53 @@ impl MetaParam {
 impl Spanned for MetaParam {
     fn span(&self) -> Span {
         match self {
-            MetaParam::Types(param_types) => param_types.span(),
-            MetaParam::Version(param_version) => param_version.span(),
+            MetaParam::Types(param) => param.span(),
+            MetaParam::Version(param) => param.span(),
+            MetaParam::DynamicAllocations(param) => param.span(),
+            MetaParam::CompileAsDependency(param) => param.span(),
         }
+    }
+}
+
+/// Specifies if a contract shall be compiled with dynamic allocations enabled.
+#[derive(Debug, Clone)]
+pub struct ParamCompileAsDependency {
+    /// The `compile-as-dependency` identifier.
+    pub ident: Ident,
+    /// The `=` token.
+    pub eq_token: Token![=],
+    /// The boolean value literal.
+    pub value: syn::LitBool,
+}
+
+impl ParamCompileAsDependency {
+    /// Returns the span of `self`.
+    pub fn span(&self) -> Span {
+        self.ident
+            .span()
+            .join(self.value.span)
+            .expect("both spans are in the same file AND we are using nightly Rust; qed")
+    }
+}
+
+/// Specifies if a contract shall be compiled with dynamic allocations enabled.
+#[derive(Debug, Clone)]
+pub struct ParamDynamicAllocations {
+    /// The `dynamic-allocations` identifier.
+    pub ident: Ident,
+    /// The `=` token.
+    pub eq_token: Token![=],
+    /// The boolean value literal.
+    pub value: syn::LitBool,
+}
+
+impl ParamDynamicAllocations {
+    /// Returns the span of `self`.
+    pub fn span(&self) -> Span {
+        self.ident
+            .span()
+            .join(self.value.span)
+            .expect("both spans are in the same file AND we are using nightly Rust; qed")
     }
 }
 
@@ -117,7 +171,7 @@ impl Spanned for MetaParam {
 #[derive(Debug, Clone)]
 pub struct ParamTypes {
     /// The `env` identifier.
-    pub env: Ident,
+    pub ident: Ident,
     /// The `=` token.
     pub eq_token: Token![=],
     /// The environmental types type.
@@ -127,7 +181,7 @@ pub struct ParamTypes {
 impl ParamTypes {
     /// Returns the span of `self`.
     pub fn span(&self) -> Span {
-        self.env
+        self.ident
             .span()
             .join(self.ty.span())
             .expect("both spans are in the same file AND we are using nightly Rust; qed")
@@ -138,7 +192,7 @@ impl ParamTypes {
 #[derive(Debug, Clone)]
 pub struct ParamVersion {
     /// The `version` identifier.
-    pub version: Ident,
+    pub ident: Ident,
     /// The `=` token.
     pub eq_token: Token![=],
     /// The input literal string.
@@ -150,7 +204,7 @@ pub struct ParamVersion {
 impl ParamVersion {
     /// Returns the span of `self`.
     pub fn span(&self) -> Span {
-        self.version
+        self.ident
             .span()
             .join(self.value.span())
             .expect("both spans are in the same file AND we are using nightly Rust; qed")
@@ -170,6 +224,8 @@ impl Parse for MetaParam {
         match ident.to_string().as_str() {
             "version" => input.parse::<ParamVersion>().map(Into::into),
             "env" => input.parse::<ParamTypes>().map(Into::into),
+            "compile_as_dependency" => input.parse::<ParamCompileAsDependency>().map(Into::into),
+            "dynamic_allocations" => input.parse::<ParamDynamicAllocations>().map(Into::into),
             unknown => {
                 Err(format_err_span!(
                     ident.span(),
@@ -242,7 +298,7 @@ impl Parse for ParamVersion {
             )
         })?;
         Ok(Self {
-            version: version_ident,
+            ident: version_ident,
             eq_token,
             value,
             data,
@@ -262,9 +318,46 @@ impl Parse for ParamTypes {
         let eq_token = input.parse()?;
         let ty = input.parse()?;
         Ok(Self {
-            env: env_ident,
+            ident: env_ident,
             eq_token,
             ty,
+        })
+    }
+}
+
+impl Parse for ParamCompileAsDependency {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let env_ident = input.parse()?;
+        if env_ident != "compile_as_dependency" {
+            bail!(
+                env_ident,
+                "invalid identifier for meta environment information",
+            )
+        }
+        let eq_token = input.parse()?;
+        let value = input.parse()?;
+        Ok(Self {
+            ident: env_ident,
+            eq_token,
+            value,
+        })
+    }
+}
+impl Parse for ParamDynamicAllocations {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let env_ident = input.parse()?;
+        if env_ident != "dynamic_allocations" {
+            bail!(
+                env_ident,
+                "invalid identifier for meta environment information",
+            )
+        }
+        let eq_token = input.parse()?;
+        let value = input.parse()?;
+        Ok(Self {
+            ident: env_ident,
+            eq_token,
+            value,
         })
     }
 }

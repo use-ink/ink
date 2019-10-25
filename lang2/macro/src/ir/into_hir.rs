@@ -119,40 +119,41 @@ impl TryFrom<Params> for MetaInfo {
         let mut unique_params = HashSet::new();
         let mut env_types = None;
         let mut ink_version = None;
+        let mut dynamic_allocations: Option<bool> = None;
+        let mut compile_as_dependency: Option<bool> = None;
         for param in params.params.iter().cloned() {
             let name = param.ident().to_string();
             if !unique_params.insert(name) {
                 bail_span!(param.span(), "encountered parameter multiple times",)
             }
             match param {
-                MetaParam::Types(param_types) => {
-                    env_types = Some(MetaTypes::try_from(param_types)?)
+                MetaParam::Types(param) => {
+                    env_types = Some(MetaTypes::try_from(param)?)
                 }
-                MetaParam::Version(param_version) => {
-                    ink_version = Some(param_version.data)
+                MetaParam::Version(param) => {
+                    ink_version = Some(param.data)
+                }
+                MetaParam::DynamicAllocations(param) => {
+                    dynamic_allocations = Some(param.value.value)
+                }
+                MetaParam::CompileAsDependency(param) => {
+                    compile_as_dependency = Some(param.value.value)
                 }
             }
         }
-        match (env_types, ink_version) {
-            (None, _) => {
-                bail_span!(
-                    params.span(),
-                    "expected `types` argument at `#[ink::contract(..)]`",
-                )
-            }
-            (_, None) => {
-                bail_span!(
-                    params.span(),
-                    "expected `version` argument at `#[ink::contract(..)]`",
-                )
-            }
-            (Some(env_types), Some(ink_version)) => {
-                Ok(Self {
-                    env_types,
-                    ink_version,
-                })
-            }
-        }
+        let ink_version = match ink_version {
+            None => bail_span!(
+                params.span(),
+                "expected `types` argument at `#[ink::contract(..)]`",
+            ),
+            Some(ink_version) => ink_version,
+        };
+        Ok(Self {
+            env_types: env_types.unwrap_or_default(),
+            ink_version,
+            dynamic_allocations_enabled: dynamic_allocations.unwrap_or(false),
+            compile_as_dependency: compile_as_dependency.unwrap_or(false),
+        })
     }
 }
 
