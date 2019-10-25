@@ -52,14 +52,14 @@ mod __ink_storage {
 
     #[cfg(feature = "ink-dyn-alloc")]
     impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
-        fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+        fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
             self.env.env_mut()
         }
     }
 
     #[cfg(not(feature = "ink-dyn-alloc"))]
     impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
-        fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+        fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
             &mut self.env
         }
     }
@@ -315,7 +315,7 @@ const _: () = {
                 ink_abi::ContractSpec::new("Flipper")
                     .constructors(vec![
                         ink_abi::ConstructorSpec::new("new")
-                            .selector(0)
+                            .selector([0x00; 4])
                             .args(vec![
                                 ink_abi::MessageParamSpec::new("init_value")
                                     .of_type(ink_abi::TypeSpec::with_name_segs::<u32, _>(
@@ -326,14 +326,14 @@ const _: () = {
                             .docs(vec![])
                             .done(),
                         ink_abi::ConstructorSpec::new("default")
-                            .selector(1)
+                            .selector([0x00, 0x00, 0x00, 0x01])
                             .args(vec![])
                             .docs(vec![])
                             .done()
                     ])
                     .messages(vec![
                         ink_abi::MessageSpec::new("flip")
-                            .selector(970692492u32)
+                            .selector([140u8, 151u8, 219u8, 57u8])
                             .mutates(true)
                             .args(vec![])
                             .docs(vec![
@@ -342,7 +342,7 @@ const _: () = {
                             .returns(ink_abi::ReturnTypeSpec::new(None))
                             .done(),
                         ink_abi::MessageSpec::new("get")
-                            .selector(4266279973u32)
+                            .selector([37u8, 68u8, 74u8, 254u8])
                             .mutates(false)
                             .args(vec![])
                             .docs(vec!["Returns the current state."])
