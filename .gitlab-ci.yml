@@ -50,13 +50,13 @@ cargo-check-af:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo check --verbose --all-features --package utils core model lang cli abi
+  - cargo check --verbose --all-features --package utils model lang cli abi
 
 cargo-check-nf:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo check --verbose --no-default-features --package utils core model lang cli abi
+  - cargo check --verbose --no-default-features --package utils model lang cli abi
 
 cargo-fmt:
   stage:                           check-workspace
@@ -68,25 +68,25 @@ cargo-clippy-af:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo clippy --verbose --all-features --package utils core model lang cli abi -- -D warnings
+  - cargo clippy --verbose --all-features --package utils model lang cli abi -- -D warnings
 
 cargo-clippy-nf:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo clippy --verbose --no-default-features --package utils core model lang cli abi -- -D warnings
+  - cargo clippy --verbose --no-default-features --package utils model lang cli abi -- -D warnings
 
 cargo-test-af:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo test --verbose --all-features --package utils core model lang cli abi
+  - cargo test --verbose --all-features --package utils model lang cli abi
 
 cargo-build-nf:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo build --verbose --no-default-features --release --target=wasm32-unknown-unknown --package utils core model lang cli abi
+  - cargo build --verbose --no-default-features --release --target=wasm32-unknown-unknown --package utils model lang cli abi
 
 #### stage:                        examples
 
