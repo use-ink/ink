@@ -46,6 +46,7 @@ impl GenerateCode for Storage<'_> {
         let message_impls = self.generate_message_impls();
         let storage_struct = self.generate_storage_struct();
         let storage_and_env_wrapper = self.generate_storage_and_env_wrapper();
+        let layout_impls = self.generate_has_layout();
 
         quote_spanned!(storage_span =>
             pub type #storage_ident = __ink_storage::StorageAndEnv;
@@ -59,6 +60,7 @@ impl GenerateCode for Storage<'_> {
                 #trait_impls
                 #storage_struct
                 #storage_and_env_wrapper
+                #layout_impls
 
                 const _: () = {
                     // Used to make `self.env()` available in message code.
@@ -172,6 +174,31 @@ impl Storage<'_> {
         }
     }
 
+    fn generate_has_layout(&self) -> TokenStream2 {
+        let env_layout = if self.contract.meta_info.is_dynamic_allocation_enabled() {
+            quote! { ink_abi::LayoutField::new("env", self.__env.layout()), }
+        } else {
+            quote! {}
+        };
+        quote! {
+            #[cfg(feature = "ink-generate-abi")]
+            impl ink_abi::HasLayout for StorageAndEnv {
+                fn layout(&self) -> ink_abi::StorageLayout {
+                    use type_metadata::Metadata as _;
+                    ink_abi::LayoutStruct::new(
+                        Self::meta_type(),
+                        vec![
+                            ink_abi::LayoutField::new("storage", self.__storage.layout()),
+                            #env_layout
+                        ],
+                    )
+                    .into()
+                }
+            }
+
+        }
+    }
+
     fn generate_storage_and_env_wrapper(&self) -> TokenStream2 {
         // Filter all `ink` attributes for code generation.
         let storage = &self.contract.storage;
@@ -184,7 +211,7 @@ impl Storage<'_> {
             #(#attrs)*
             #[cfg_attr(
                 feature = "ink-generate-abi",
-                derive(type_metadata::Metadata, ink_abi::HasLayout)
+                derive(type_metadata::Metadata)
             )]
             pub struct StorageAndEnv {
                 __storage: Storage,
