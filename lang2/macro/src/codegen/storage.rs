@@ -79,7 +79,7 @@ impl Storage<'_> {
         let access_env_impls = if self.contract.meta_info.is_dynamic_allocation_enabled() {
             quote! {
                 impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
-                    fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+                    fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
                         self.__env.env_mut()
                     }
                 }
@@ -87,7 +87,7 @@ impl Storage<'_> {
         } else {
             quote! {
                 impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
-                    fn env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+                    fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
                         &mut self.__env
                     }
                 }

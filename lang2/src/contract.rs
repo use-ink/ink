@@ -221,7 +221,7 @@ where
             self.storage.try_default_initialize();
         }
         // Dispatch using the contract execution input.
-        let call_data = self.storage.env().input();
+        let call_data = self.storage.access_env().input();
         let ret = match mode {
             DispatchMode::Instantiate => {
                 self.constructors.dispatch(&mut self.storage, &call_data)

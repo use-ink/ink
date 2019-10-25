@@ -60,7 +60,7 @@ pub trait Message: FnInput + FnOutput + FnSelector {
 /// to use it for returning the contract's output.
 pub trait AccessEnv<Env> {
     /// Returns a mutable access to the environment.
-    fn env(&mut self) -> &mut EnvAccess<Env>;
+    fn access_env(&mut self) -> &mut EnvAccess<Env>;
 }
 
 /// Types implementing this trait are storage structs.
