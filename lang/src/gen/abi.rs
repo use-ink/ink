@@ -112,7 +112,7 @@ fn generate_abi_constructor(contract: &hir::Contract) -> TokenStream2 {
             let ty = &capt.ty;
             let type_spec = generate_type_spec_code(ty);
             quote! {
-                ink_abi::MessageParamSpec::builder(#name)
+                ink_abi::MessageParamSpec::new(#name)
                     .of_type(#type_spec)
                     .done()
             }
@@ -175,7 +175,7 @@ fn generate_abi_messages<'a>(
                 let ty = &capt.ty;
                 let type_spec = generate_type_spec_code(ty);
                 quote! {
-                    ink_abi::MessageParamSpec::builder(#name)
+                    ink_abi::MessageParamSpec::new(#name)
                         .of_type(#type_spec)
                         .done()
                 }
@@ -194,7 +194,7 @@ fn generate_abi_messages<'a>(
             }
         };
         quote! {
-            ink_abi::MessageSpec::builder(#name)
+            ink_abi::MessageSpec::new(#name)
                 .selector(#selector)
                 .mutates(#is_mut)
                 .args(vec![
@@ -246,7 +246,7 @@ fn generate_abi_events<'a>(
             let ty = &event_arg.ty;
             let type_spec = generate_type_spec_code(ty);
             quote! {
-                ink_abi::EventParamSpec::builder(stringify!(#name))
+                ink_abi::EventParamSpec::new(stringify!(#name))
                     .of_type(#type_spec)
                     .indexed(#indexed)
                     .done()
@@ -254,7 +254,7 @@ fn generate_abi_events<'a>(
         });
         let docs = event.docs().map(trim_doc_string);
         quote! {
-            ink_abi::EventSpec::builder(stringify!(#name))
+            ink_abi::EventSpec::new(stringify!(#name))
                 .args(vec![
                     #(#args ,)*
                 ])
@@ -280,7 +280,7 @@ fn generate_abi_contract(contract: &hir::Contract) -> TokenStream2 {
     let events = generate_abi_events(contract);
 
     quote! {
-        ink_abi::ContractSpec::builder(#contract_name_lit)
+        ink_abi::ContractSpec::new(#contract_name_lit)
             .constructors(vec![
                 #constructor
             ])

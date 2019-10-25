@@ -172,7 +172,7 @@ impl ContractSpecBuilder<Valid> {
 
 impl ContractSpec {
     /// Creates a new contract specification.
-    pub fn builder(name: <MetaForm as Form>::String) -> ContractSpecBuilder {
+    pub fn new(name: <MetaForm as Form>::String) -> ContractSpecBuilder {
         ContractSpecBuilder {
             spec: Self {
                 name,
@@ -232,7 +232,7 @@ pub struct ConstructorSpecBuilder<Selector> {
 
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
-    pub fn builder(
+    pub fn new(
         name: <MetaForm as Form>::String,
     ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
         ConstructorSpecBuilder {
@@ -328,7 +328,7 @@ mod state {
 
 impl MessageSpec {
     /// Creates a new message spec builder.
-    pub fn builder(
+    pub fn new(
         name: <MetaForm as Form>::String,
     ) -> MessageSpecBuilder<
         Missing<state::Selector>,
@@ -521,7 +521,7 @@ impl IntoCompact for EventSpec {
 
 impl EventSpec {
     /// Creates a new event specification builder.
-    pub fn builder(name: &'static str) -> EventSpecBuilder {
+    pub fn new(name: &'static str) -> EventSpecBuilder {
         EventSpecBuilder {
             spec: Self {
                 name,
@@ -669,7 +669,7 @@ impl IntoCompact for EventParamSpec {
 
 impl EventParamSpec {
     /// Creates a new event parameter specification builder.
-    pub fn builder(name: &'static str) -> EventParamSpecBuilder {
+    pub fn new(name: &'static str) -> EventParamSpecBuilder {
         EventParamSpecBuilder {
             spec: Self {
                 name,
@@ -774,7 +774,7 @@ impl IntoCompact for MessageParamSpec {
 
 impl MessageParamSpec {
     /// Constructs a new message parameter specification via builder.
-    pub fn builder(name: &'static str) -> MessageParamSpecBuilder {
+    pub fn new(name: &'static str) -> MessageParamSpecBuilder {
         MessageParamSpecBuilder {
             spec: Self {
                 name,

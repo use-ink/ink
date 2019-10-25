@@ -307,7 +307,7 @@ fn contract_compiles() {
             #[cfg(feature = "ink-generate-abi")]
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
-                    ink_abi::ContractSpec::builder("CallCounter")
+                    ink_abi::ContractSpec::new("CallCounter")
                         .constructors(vec![
                             ink_abi::ConstructorSpec::new("on_deploy")
                                 .selector([0u8; 4])
@@ -346,9 +346,9 @@ fn contract_compiles() {
                                 .done(),
                         ])
                         .events(vec![
-                            ink_abi::EventSpec::builder(stringify!(DecCalled))
+                            ink_abi::EventSpec::new(stringify!(DecCalled))
                                 .args(vec![
-                                    ink_abi::EventParamSpec::builder(stringify!(current))
+                                    ink_abi::EventParamSpec::new(stringify!(current))
                                         .of_type(
                                             ink_abi::TypeSpec::with_name_segs::<u32, _>(
                                                 vec!["u32"].into_iter().map(AsRef::as_ref)
@@ -361,9 +361,9 @@ fn contract_compiles() {
                                     "Fires when the value is decremented.",
                                 ])
                                 .done(),
-                            ink_abi::EventSpec::builder(stringify!(IncCalled))
+                            ink_abi::EventSpec::new(stringify!(IncCalled))
                                 .args(vec![
-                                    ink_abi::EventParamSpec::builder(stringify!(current))
+                                    ink_abi::EventParamSpec::new(stringify!(current))
                                         .of_type(
                                             ink_abi::TypeSpec::with_name_segs::<u32, _>(
                                                 vec!["u32"].into_iter().map(AsRef::as_ref)

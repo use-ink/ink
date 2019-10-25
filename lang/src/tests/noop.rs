@@ -161,7 +161,7 @@ fn contract_compiles() {
             #[cfg(feature = "ink-generate-abi")]
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
-                    ink_abi::ContractSpec::builder("Noop")
+                    ink_abi::ContractSpec::new("Noop")
                         .constructors(vec![
                             ink_abi::ConstructorSpec::new("on_deploy")
                                 .selector([0u8; 4])

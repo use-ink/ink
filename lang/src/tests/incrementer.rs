@@ -228,12 +228,12 @@ fn contract_compiles() {
             #[cfg(feature = "ink-generate-abi")]
             pub fn ink_generate_abi() -> ink_abi::InkProject {
                 let contract = {
-                    ink_abi::ContractSpec::builder("Incrementer")
+                    ink_abi::ContractSpec::new("Incrementer")
                         .constructors(vec![
                             ink_abi::ConstructorSpec::new("on_deploy")
                                 .selector([0u8; 4])
                                 .args(vec![
-                                    ink_abi::MessageParamSpec::builder("init_value")
+                                    ink_abi::MessageParamSpec::new("init_value")
                                         .of_type(
                                             ink_abi::TypeSpec::with_name_segs::<u32, _>(
                                                 vec!["u32"].into_iter().map(AsRef::as_ref)
@@ -251,7 +251,7 @@ fn contract_compiles() {
                                 .selector([15, 89, 208, 231])
                                 .mutates(true)
                                 .args(vec![
-                                    ink_abi::MessageParamSpec::builder("by")
+                                    ink_abi::MessageParamSpec::new("by")
                                         .of_type(
                                             ink_abi::TypeSpec::with_name_segs::<u32, _>(
                                                 vec!["u32"].into_iter().map(AsRef::as_ref)
@@ -285,7 +285,7 @@ fn contract_compiles() {
                                 .selector([21, 176, 197, 12])
                                 .mutates(false)
                                 .args(vec![
-                                    ink_abi::MessageParamSpec::builder("x")
+                                    ink_abi::MessageParamSpec::new("x")
                                         .of_type(
                                             ink_abi::TypeSpec::with_name_segs::<u32, _>(
                                                 vec!["u32"].into_iter().map(AsRef::as_ref)
