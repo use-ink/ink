@@ -115,13 +115,13 @@ fn contract_compiles() {
                         /// # Note
                         ///
                         /// Also emits an event.
-                        257544423 => Inc();
+                        [15, 89, 208, 231] => Inc();
                         /// Decrements the internal counter.
                         ///
                         /// # Note
                         ///
                         /// Also emits an event.
-                        1772705147 => Dec();
+                        [105, 169, 85, 123] => Dec();
                     }
                 }
 
@@ -309,15 +309,15 @@ fn contract_compiles() {
                 let contract = {
                     ink_abi::ContractSpec::builder("CallCounter")
                         .constructors(vec![
-                            ink_abi::ConstructorSpec::builder("on_deploy")
-                                .selector(0)
+                            ink_abi::ConstructorSpec::new("on_deploy")
+                                .selector([0u8; 4])
                                 .args(vec![])
                                 .docs(vec![])
                                 .done()
                         ])
                         .messages(vec![
-                            ink_abi::MessageSpec::builder("inc")
-                                .selector(257544423u32)
+                            ink_abi::MessageSpec::new("inc")
+                                .selector([15, 89, 208, 231])
                                 .mutates(true)
                                 .args(vec![])
                                 .docs(vec![
@@ -331,8 +331,8 @@ fn contract_compiles() {
                                     ink_abi::ReturnTypeSpec::new(None)
                                 )
                                 .done(),
-                            ink_abi::MessageSpec::builder("dec")
-                                .selector(1772705147u32)
+                            ink_abi::MessageSpec::new("dec")
+                                .selector([105, 169, 85, 123])
                                 .mutates(true)
                                 .args(vec![])
                                 .docs(vec![
@@ -496,7 +496,7 @@ fn contract_compiles() {
                     /// Also emits an event.
                     pub fn inc(self,) -> ink_core::env::CallBuilder<Env, ()> {
                         ink_core::env::CallBuilder::<Env, ()>::invoke(
-                            self.contract.account_id.clone(), 257544423u32)
+                            self.contract.account_id.clone(), [15, 89, 208, 231])
                     }
 
                     /// Decrements the internal counter.
@@ -506,7 +506,7 @@ fn contract_compiles() {
                     /// Also emits an event.
                     pub fn dec(self,) -> ink_core::env::CallBuilder<Env, ()> {
                         ink_core::env::CallBuilder::<Env, ()>::invoke(
-                            self.contract.account_id.clone(), 1772705147u32)
+                            self.contract.account_id.clone(), [105, 169, 85, 123])
                     }
                 }
             }

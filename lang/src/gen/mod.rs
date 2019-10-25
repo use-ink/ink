@@ -23,6 +23,10 @@ mod test;
 use crate::hir;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+use syn::{
+    parse_str,
+    Expr,
+};
 
 /// Generates code for the given contract.
 ///
@@ -38,4 +42,14 @@ pub fn generate_code(contract: &hir::Contract) -> TokenStream2 {
     abi::generate_code(&mut tokens, contract);
     as_dependency::generate_code(&mut tokens, contract);
     tokens
+}
+
+/// The function is required because syn doesn't provide a
+/// `ToTokens` implementation for `[u8; 4]`.
+fn selector_to_expr(selector: [u8; 4]) -> Expr {
+    let selector = format!(
+        "[{}, {}, {}, {}]",
+        selector[0], selector[1], selector[2], selector[3]
+    );
+    parse_str::<syn::Expr>(&selector).expect("failed to parse selector")
 }

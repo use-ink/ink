@@ -90,9 +90,9 @@ fn contract_compiles() {
 
                     ink_model::messages! {
                         /// Flips the internal boolean.
-                        970692492 => Flip();
+                        [57, 219, 151, 140] => Flip();
                         /// Returns the internal boolean.
-                        4266279973 => Get() -> bool;
+                        [254, 74, 68, 37] => Get() -> bool;
                     }
                 }
 
@@ -207,8 +207,8 @@ fn contract_compiles() {
                 let contract = {
                     ink_abi::ContractSpec::builder("Flipper")
                         .constructors(vec![
-                            ink_abi::ConstructorSpec::builder("on_deploy")
-                                .selector(0)
+                            ink_abi::ConstructorSpec::new("on_deploy")
+                                .selector([0u8; 4])
                                 .args(vec![])
                                 .docs(vec![
                                     "The internal boolean is initialized with `true`.",
@@ -216,15 +216,15 @@ fn contract_compiles() {
                                 .done()
                         ])
                         .messages(vec![
-                            ink_abi::MessageSpec::builder("flip")
-                                .selector(970692492u32)
+                            ink_abi::MessageSpec::new("flip")
+                                .selector([57, 219, 151, 140])
                                 .mutates(true)
                                 .args(vec![])
                                 .docs(vec!["Flips the internal boolean.",])
                                 .returns(ink_abi::ReturnTypeSpec::new(None))
                                 .done(),
-                            ink_abi::MessageSpec::builder("get")
-                                .selector(4266279973u32)
+                            ink_abi::MessageSpec::new("get")
+                                .selector([254, 74, 68, 37])
                                 .mutates(false)
                                 .args(vec![])
                                 .docs(vec!["Returns the internal boolean.",])
@@ -345,7 +345,7 @@ fn contract_compiles() {
                     /// Returns the internal boolean.
                     pub fn get(self,) -> ink_core::env::CallBuilder<Env, ink_core::env::ReturnType<bool>> {
                         ink_core::env::CallBuilder::eval(
-                            self.contract.account_id.clone(), 4266279973u32
+                            self.contract.account_id.clone(), [254, 74, 68, 37]
                         )
                     }
                 }
@@ -354,7 +354,7 @@ fn contract_compiles() {
                     /// Flips the internal boolean.
                     pub fn flip(self,) -> ink_core::env::CallBuilder<Env, ()> {
                         ink_core::env::CallBuilder::<Env, ()>::invoke(
-                            self.contract.account_id.clone(), 970692492u32)
+                            self.contract.account_id.clone(), [57, 219, 151, 140])
                     }
                 }
             }

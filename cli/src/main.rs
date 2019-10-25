@@ -50,7 +50,10 @@ pub(crate) enum AbstractionLayer {
     Lang,
 }
 
-use std::result::Result as StdResult;
+use std::{
+    path::PathBuf,
+    result::Result as StdResult,
+};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub(crate) struct InvalidAbstractionLayer;
@@ -84,6 +87,9 @@ enum Command {
         layer: AbstractionLayer,
         /// The name of the newly created smart contract.
         name: String,
+        /// The optional target directory for the contract project
+        #[structopt(short, long, parse(from_os_str))]
+        target_dir: Option<PathBuf>,
     },
     /// Builds the smart contract.
     #[structopt(name = "build")]
@@ -130,8 +136,12 @@ fn main() {
 fn exec(cmd: Command) -> cmd::Result<String> {
     use crate::cmd::CommandError;
     match &cmd {
-        Command::New { layer, name } => cmd::execute_new(*layer, name),
-        Command::Build {} => cmd::execute_build(),
+        Command::New {
+            layer,
+            name,
+            target_dir,
+        } => cmd::execute_new(*layer, name, target_dir.as_ref()),
+        Command::Build {} => cmd::execute_build(None),
         Command::Test {} => Err(CommandError::UnimplementedCommand),
         Command::Deploy {
             url,
