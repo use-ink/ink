@@ -37,7 +37,7 @@ use std::{
 
 /// Initializes a project structure for the `lang` abstraction layer.
 fn initialize_for_lang(name: &str, target_dir: Option<&PathBuf>) -> Result<String> {
-    if name.contains("-") {
+    if name.contains('-') {
         return Err("Contract names cannot contain hyphens".into())
     }
 

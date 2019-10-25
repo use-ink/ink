@@ -90,7 +90,7 @@ impl<M> Clone for TypedEncoded<M> {
     fn clone(&self) -> Self {
         Self {
             encoded: self.encoded.clone(),
-            type_id: self.type_id.clone(),
+            type_id: self.type_id,
             marker: Default::default(),
         }
     }
@@ -218,10 +218,7 @@ impl<M> TypedEncoded<M> {
     /// # Errors
     ///
     /// If the types of the current and new value do not match.
-    pub fn try_assign<'a, 'b, T>(
-        &'a mut self,
-        new_value: &'b T,
-    ) -> Result<(), UnmatchingType>
+    pub fn try_assign<T>(&mut self, new_value: &T) -> Result<(), UnmatchingType>
     where
         T: scale::Encode + 'static,
     {
@@ -238,7 +235,7 @@ impl<M> TypedEncoded<M> {
     /// # Panics
     ///
     /// If the types of the current and new value do not match.
-    pub fn assign<'a, 'b, T>(&'a mut self, new_value: &'b T)
+    pub fn assign<T>(&mut self, new_value: &T)
     where
         T: scale::Encode + 'static,
     {

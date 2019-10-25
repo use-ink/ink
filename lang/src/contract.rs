@@ -33,7 +33,7 @@ pub fn generate(input: TokenStream2) -> TokenStream2 {
 }
 
 pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
-    let ast_contract = parser::parse_contract(input.clone())?;
+    let ast_contract = parser::parse_contract(input)?;
     let hir_contract = hir::Contract::from_ast(&ast_contract)?;
     #[cfg(feature = "ink-generate-abi")]
     old_abi::generate_old_abi(&hir_contract)?;
