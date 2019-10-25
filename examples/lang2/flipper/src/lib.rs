@@ -20,7 +20,7 @@
 use ink_core::storage;
 use ink_lang2 as ink;
 
-#[ink::contract(version = "0.1.0", dynamic_allocations = true)]
+#[ink::contract(version = "0.1.0")]
 mod flipper {
     #[ink(storage)]
     struct Flipper {
