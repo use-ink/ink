@@ -1,15 +1,9 @@
 #![feature(proc_macro_hygiene)]
 
+use ink_core::storage;
 use ink_lang2 as ink;
-use ink_core::{
-    env2::DefaultSrmlTypes,
-    storage,
-};
 
-#[ink::contract(
-    env = DefaultSrmlTypes,
-    version = "0.1.0",
-)]
+#[ink::contract(version = "0.1.0")]
 mod erc20 {
     #[ink(storage)]
     struct Erc20 {
@@ -20,16 +14,22 @@ mod erc20 {
 
     #[ink(event)]
     struct Transferred {
-        #[indexed] from: Option<AccountId>,
-        #[indexed] to: Option<AccountId>,
-        #[indexed] amount: Balance,
+        #[indexed]
+        from: Option<AccountId>,
+        #[indexed]
+        to: Option<AccountId>,
+        #[indexed]
+        amount: Balance,
     }
 
     #[ink(event)]
     struct Approved {
-        #[indexed] owner: AccountId,
-        #[indexed] spender: AccountId,
-        #[indexed] amount: Balance,
+        #[indexed]
+        owner: AccountId,
+        #[indexed]
+        spender: AccountId,
+        #[indexed]
+        amount: Balance,
     }
 
     impl Flipper {
@@ -40,7 +40,7 @@ mod erc20 {
             self.env().emit_event(Transferred {
                 from: None,
                 to: Some(self.env().caller()),
-                value: initial_supply
+                value: initial_supply,
             });
         }
 
@@ -65,15 +65,20 @@ mod erc20 {
             let owner = self.env().caller();
             self.allowances.insert((owner, spender), amount);
             self.env().emit_event(Approved {
-                owner: owner,
-                spender: spender,
-                amount
+                owner,
+                spender,
+                amount,
             });
             true
         }
 
         #[ink(message)]
-        fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: Balance) -> bool {
+        fn transfer_from(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            amount: Balance,
+        ) -> bool {
             let caller = self.env().caller();
             let allowance = self.allowance_of_or_zero(&from, &caller);
             if allowance < amount {
@@ -83,10 +88,15 @@ mod erc20 {
             self.transfer_from_to(from, to, amount)
         }
 
-        fn transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) -> bool {
+        fn transfer_from_to(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            amount: Balance,
+        ) -> bool {
             let from_balance = self.balance_of_or_zero(&from);
             if from_balance < amount {
-                return false;
+                return false
             }
             let to_balance = self.balance_of_or_zero(&to);
             self.balances.insert(from.clone(), from_balance - amount);
@@ -99,7 +109,11 @@ mod erc20 {
             *self.balances.get(owner).unwrap_or(&0)
         }
 
-        fn allowance_of_or_zero(&self, owner: &AccountId, spender: &AccountId) -> Balance {
+        fn allowance_of_or_zero(
+            &self,
+            owner: &AccountId,
+            spender: &AccountId,
+        ) -> Balance {
             *self.allowances.get(&(*owner, *spender)).unwrap_or(&0)
         }
     }

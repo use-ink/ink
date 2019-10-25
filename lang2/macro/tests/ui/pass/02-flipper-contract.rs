@@ -1,15 +1,9 @@
 #![feature(proc_macro_hygiene)]
 
+use ink_core::storage;
 use ink_lang2 as ink;
-use ink_core::{
-    env2::DefaultSrmlTypes,
-    storage,
-};
 
-#[ink::contract(
-    env = DefaultSrmlTypes,
-    version = "0.1.0",
-)]
+#[ink::contract(version = "0.1.0")]
 mod flipper {
     #[ink(storage)]
     struct Flipper {

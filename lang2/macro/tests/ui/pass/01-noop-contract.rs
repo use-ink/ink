@@ -3,7 +3,6 @@
 use ink_lang2 as ink;
 
 #[ink::contract(
-    env = ink_core::env2::DefaultSrmlTypes,
     version = "0.1.0",
 )]
 mod noop {
@@ -13,6 +12,9 @@ mod noop {
     impl Noop {
         #[ink(constructor)]
         fn new(&mut self) {}
+
+        #[ink(message)]
+        fn noop(&self) {}
     }
 }
 
