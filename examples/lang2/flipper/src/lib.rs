@@ -17,17 +17,10 @@
 #![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_core::{
-    env2::DefaultSrmlTypes,
-    memory::format,
-    storage,
-};
+use ink_core::storage;
 use ink_lang2 as ink;
 
-#[ink::contract(
-    env = DefaultSrmlTypes,
-    version = "0.1.0",
-)]
+#[ink::contract(version = "0.1.0", dynamic_allocations = true)]
 mod flipper {
     #[ink(storage)]
     struct Flipper {
