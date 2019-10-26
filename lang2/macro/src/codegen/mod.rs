@@ -18,6 +18,7 @@ mod abi;
 mod contract;
 mod dispatch;
 mod env_types;
+mod events;
 mod storage;
 
 use crate::ir::Contract;

@@ -37,7 +37,6 @@ pub struct Storage<'a> {
 
 impl GenerateCode for Storage<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let storage_ident = &self.contract.storage.ident;
         let storage_span = self.contract.storage.span();
 
         let aliases = self.generate_aliases();
@@ -47,6 +46,13 @@ impl GenerateCode for Storage<'_> {
         let storage_struct = self.generate_storage_struct();
         let storage_and_env_wrapper = self.generate_storage_and_env_wrapper();
         let layout_impls = self.generate_has_layout();
+
+        let use_emit_event = if !self.contract.events.is_empty() {
+            // Required to allow for `self.env().emit_event(..)` in messages and constructors.
+            quote! { use __ink_events::__ink_private::EmitEvent as _; }
+        } else {
+            quote! {}
+        };
 
         quote_spanned!(storage_span =>
             #[doc(hidden)]
@@ -68,6 +74,7 @@ impl GenerateCode for Storage<'_> {
                 #[allow(unused_imports)]
                 use ink_core::env2::AccessEnv as _;
 
+                #use_emit_event
                 #message_impls
             };
         )
@@ -76,7 +83,8 @@ impl GenerateCode for Storage<'_> {
 
 impl Storage<'_> {
     fn generate_access_env_trait_impls(&self) -> TokenStream2 {
-        let access_env_impls = if self.contract.meta_info.is_dynamic_allocation_enabled() {
+        let access_env_impls = if self.contract.meta_info.is_dynamic_allocation_enabled()
+        {
             quote! {
                 impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
                     fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
@@ -277,7 +285,15 @@ impl Storage<'_> {
             .attrs
             .iter()
             .filter(|&attr| Marker::try_from(attr.clone()).is_err());
-        let fields = storage.fields.named.iter();
+        let mut fields = storage.fields.clone();
+        fields
+            .named
+            .iter_mut()
+            .for_each(|field| {
+                field.vis = syn::Visibility::Public(syn::VisPublic {
+                    pub_token: Default::default(),
+                })
+            });
 
         quote_spanned!( span =>
             #(#attrs)*
@@ -285,11 +301,8 @@ impl Storage<'_> {
                 feature = "ink-generate-abi",
                 derive(type_metadata::Metadata, ink_abi::HasLayout)
             )]
-            pub struct Storage {
-                #(
-                    #fields ,
-                )*
-            }
+            pub struct Storage
+                #fields
         )
     }
 

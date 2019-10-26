@@ -240,6 +240,16 @@ pub struct ItemEvent {
     pub fields: syn::FieldsNamed,
 }
 
+impl ItemEvent {
+    /// Returns the span of the original `struct` definition.
+    pub fn span(&self) -> Span {
+        self.struct_token
+            .span()
+            .join(self.fields.span())
+            .expect("spans of `struct_token` and `fields` must be in the same file; qed")
+    }
+}
+
 /// An implementation block in ink!.
 pub struct ItemImpl {
     /// Inner attributes.

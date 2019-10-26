@@ -26,6 +26,7 @@ pub use crate::{
         dispatch::Dispatch,
         env_types::EnvTypes,
         storage::Storage,
+        events::Events,
     },
     ir::Contract,
 };
@@ -53,6 +54,7 @@ impl GenerateCode for ContractModule<'_> {
         let storage = self.generate_code_using::<Storage>();
         let dispatch = self.generate_code_using::<Dispatch>();
         let generate_abi = self.generate_code_using::<GenerateAbi>();
+        let events = self.generate_code_using::<Events>();
 
         quote! {
             mod #ident {
@@ -70,8 +72,8 @@ impl GenerateCode for ContractModule<'_> {
 
                 #generate_abi
                 #dispatch
+                #events
             }
-            pub use #ident::*;
         }
     }
 }
