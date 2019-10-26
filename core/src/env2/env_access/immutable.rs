@@ -17,22 +17,22 @@
 use crate::{
     env2::{
         call::CallData,
+        AccessEnv,
         CallParams,
         CreateParams,
-        EmitEventParams,
         Env,
         EnvAccessMut,
-        AccessEnv,
         Result,
+        Topics,
     },
     storage::{
-        Key,
-        Flush,
         alloc::{
-            AllocateUsing,
             Allocate,
+            AllocateUsing,
             Initialize,
         },
+        Flush,
+        Key,
     },
 };
 use core::cell::RefCell;
@@ -65,9 +65,7 @@ where
             "EnvAccess",
             type_metadata::Namespace::from_module_path(module_path!())
                 .expect("namespace from module path cannot fail"),
-            vec![
-                E::meta_type(),
-            ],
+            vec![E::meta_type()],
         )
         .into()
     }
@@ -79,12 +77,10 @@ where
     crate::env2::EnvAccessMut<E>: type_metadata::Metadata,
 {
     fn type_def() -> type_metadata::TypeDef {
-        type_metadata::TypeDefStruct::new(vec![
-            type_metadata::NamedField::new(
-                "access",
-                <crate::env2::EnvAccessMut<E> as type_metadata::Metadata>::meta_type(),
-            ),
-        ])
+        type_metadata::TypeDefStruct::new(vec![type_metadata::NamedField::new(
+            "access",
+            <crate::env2::EnvAccessMut<E> as type_metadata::Metadata>::meta_type(),
+        )])
         .into()
     }
 }
@@ -286,10 +282,10 @@ where
             D: CreateParams<T>;
 
         /// Emits an event with the given event data.
-        fn emit_event<D, C>(&self, event_data: &D)
+        fn emit_event<Event>(&self, event: Event)
         where
-            D: EmitEventParams<T, C>,
-            C: scale::Encode;
+            Event: Topics<T>,
+            Event: scale::Encode;
 
         /// Returns the input to the executed contract.
         ///

@@ -24,13 +24,13 @@ use crate::{
         },
         CallParams,
         CreateParams,
-        EmitEventParams,
         Env,
         EnvTypes,
         Error,
         GetProperty,
         Result,
         SetProperty,
+        Topics,
     },
     storage::Key,
 };
@@ -66,9 +66,7 @@ where
             "TestEnv",
             type_metadata::Namespace::from_module_path(module_path!())
                 .expect("namespace from module path cannot fail"),
-            vec![
-                E::meta_type(),
-            ],
+            vec![E::meta_type()],
         )
         .into()
     }
@@ -305,20 +303,19 @@ where
         Decode::decode(&mut &buffer.as_ref()[0..req_len]).map_err(Into::into)
     }
 
-    fn emit_event<I, D, C>(buffer: &mut I, event_data: &D)
+    fn emit_event<O, Event>(buffer: &mut O, event: Event)
     where
-        I: scale::Output + AsRef<[u8]> + Reset,
-        D: EmitEventParams<Self, C>,
-        C: scale::Encode,
+        O: scale::Output + AsRef<[u8]> + Reset,
+        Event: Topics<Self> + scale::Encode,
     {
         // First we reset the buffer to start from a clean slate.
         buffer.reset();
         // Now we encode `topics` and the raw encoded `data`
         // each after one another into our buffer and remember their
         // boundaries using guards respectively.
-        event_data.topics().encode_to(buffer);
+        event.topics().encode_to(buffer);
         let topics_guard = buffer.as_ref().len();
-        event_data.data().encode_to(buffer);
+        event.encode_to(buffer);
         // We now use the guards in order to split the buffer into
         // some read-only slices that each store their respective
         // encoded value and call the actual routine.

@@ -102,11 +102,11 @@ pub use self::{
     traits::{
         CallParams,
         CreateParams,
-        EmitEventParams,
         Env,
         EnvTypes,
         GetProperty,
         SetProperty,
+        Topics,
     },
     types::DefaultSrmlTypes,
 };

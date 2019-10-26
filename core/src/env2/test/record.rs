@@ -34,7 +34,7 @@ use crate::{
         },
         CallParams,
         CreateParams,
-        EmitEventParams,
+        Topics,
         EnvTypes,
     },
     memory::vec::Vec,
@@ -166,20 +166,19 @@ pub struct EmitEventRecord {
 }
 
 impl EmitEventRecord {
-    /// Creates a new record for a contract instantiation.
-    pub fn new<'a, E, R, C>(emit_event: &'a R) -> Self
+    /// Creates a new record for an emitted event.
+    pub fn new<Env, Event>(event: Event) -> Self
     where
-        E: EnvTypes,
-        R: EmitEventParams<E, C>,
-        C: scale::Encode,
+        Env: EnvTypes,
+        Event: Topics<Env> + scale::Encode,
     {
         Self {
-            topics: emit_event
+            topics: event
                 .topics()
                 .iter()
                 .map(|topic| TypedEncoded::from_origin(topic))
                 .collect::<Vec<_>>(),
-            data: emit_event.data().encode(),
+            data: event.encode(),
         }
     }
 }

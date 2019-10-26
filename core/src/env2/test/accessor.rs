@@ -45,13 +45,13 @@ use crate::{
         },
         CallParams,
         CreateParams,
-        EmitEventParams,
         Env,
         EnvTypes,
         Error,
         GetProperty,
         Result,
         SetProperty,
+        Topics,
     },
     storage::Key,
 };
@@ -94,9 +94,7 @@ where
             "TestEnv",
             type_metadata::Namespace::from_module_path(module_path!())
                 .expect("namespace from module path cannot fail"),
-            vec![
-                E::meta_type(),
-            ],
+            vec![E::meta_type()],
         )
         .into()
     }
@@ -404,11 +402,10 @@ where
         })
     }
 
-    fn emit_event<I, D, C>(_buffer: &mut I, event_data: &D)
+    fn emit_event<O, Event>(_buffer: &mut O, event: Event)
     where
-        I: scale::Output + AsRef<[u8]> + Reset,
-        D: EmitEventParams<Self, C>,
-        C: scale::Encode,
+        O: scale::Output + AsRef<[u8]> + Reset,
+        Event: Topics<Self> + scale::Encode,
     {
         // With the off-chain test environment we have no means
         // to emit an event on the chain since there is no chain.
@@ -417,7 +414,7 @@ where
             instance
                 .borrow_mut()
                 .records
-                .push(Record::from(EmitEventRecord::new(event_data)));
+                .push(Record::from(EmitEventRecord::new(event)));
         })
     }
 
