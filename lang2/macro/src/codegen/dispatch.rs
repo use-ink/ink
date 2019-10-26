@@ -224,7 +224,7 @@ impl Dispatch<'_> {
                 fn dispatch_using_mode(
                     mode: ink_lang2::DispatchMode
                 ) -> core::result::Result<(), ink_lang2::DispatchError> {
-                    ink_lang2::Contract::with_storage::<(__ink_storage::StorageAndEnv)>()
+                    ink_lang2::Contract::with_storage::<(__ink_private::StorageAndEnv)>()
                         #(
                             #fragments
                         )*

@@ -49,8 +49,6 @@ impl GenerateCode for Storage<'_> {
         let layout_impls = self.generate_has_layout();
 
         quote_spanned!(storage_span =>
-            pub type #storage_ident = __ink_storage::StorageAndEnv;
-
             #[doc(hidden)]
             mod __ink_storage {
                 use super::*;
@@ -61,15 +59,17 @@ impl GenerateCode for Storage<'_> {
                 #storage_struct
                 #storage_and_env_wrapper
                 #layout_impls
-
-                const _: () = {
-                    // Used to make `self.env()` available in message code.
-                    #[allow(unused_imports)]
-                    use ink_core::env2::AccessEnv as _;
-
-                    #message_impls
-                };
             }
+
+            pub use __ink_storage::StorageAndEnv;
+
+            const _: () = {
+                // Used to make `self.env()` available in message code.
+                #[allow(unused_imports)]
+                use ink_core::env2::AccessEnv as _;
+
+                #message_impls
+            };
         )
     }
 }
