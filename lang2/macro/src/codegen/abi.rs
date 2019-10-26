@@ -207,6 +207,9 @@ impl GenerateAbi<'_> {
                 ink_abi::EventParamSpec::new(#ident_lit)
                     .of_type(#ty_spec)
                     .indexed(#is_topic)
+                    .docs(
+                        #( #docs, )*
+                    )
                     .done()
             )
         })
