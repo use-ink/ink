@@ -14,33 +14,34 @@ mod erc20 {
 
     #[ink(event)]
     struct Transferred {
-        #[indexed]
+        #[ink(topic)]
         from: Option<AccountId>,
-        #[indexed]
+        #[ink(topic)]
         to: Option<AccountId>,
-        #[indexed]
+        #[ink(topic)]
         amount: Balance,
     }
 
     #[ink(event)]
     struct Approved {
-        #[indexed]
+        #[ink(topic)]
         owner: AccountId,
-        #[indexed]
+        #[ink(topic)]
         spender: AccountId,
-        #[indexed]
+        #[ink(topic)]
         amount: Balance,
     }
 
     impl Flipper {
         #[ink(constructor)]
         fn new(&mut self, initial_supply: Balance) {
+            let caller = self.env().caller();
             self.total_supply.set(initial_supply);
-            self.balances.insert(self.env().caller(), initial_supply);
+            self.balances.insert(caller, initial_supply);
             self.env().emit_event(Transferred {
                 from: None,
-                to: Some(self.env().caller()),
-                value: initial_supply,
+                to: Some(caller),
+                amount: initial_supply,
             });
         }
 
@@ -101,7 +102,7 @@ mod erc20 {
             let to_balance = self.balance_of_or_zero(&to);
             self.balances.insert(from.clone(), from_balance - amount);
             self.balances.insert(to.clone(), to_balance + amount);
-            self.env().emit_event(Transferred { from, to, amount });
+            self.env().emit_event(Transferred { from: Some(from), to: Some(to), amount });
             true
         }
 
