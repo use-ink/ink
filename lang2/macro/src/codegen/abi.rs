@@ -20,7 +20,10 @@ use crate::{
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, quote_spanned};
+use quote::{
+    quote,
+    quote_spanned,
+};
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
@@ -70,9 +73,7 @@ impl GenerateAbi<'_> {
                 let args = constructor
                     .sig
                     .inputs()
-                    .map(|fn_arg| {
-                        self.generate_message_param(fn_arg)
-                    });
+                    .map(|fn_arg| self.generate_message_param(fn_arg));
 
                 quote_spanned!(span =>
                     ink_abi::ConstructorSpec::new(#ident_lit)
@@ -146,9 +147,7 @@ impl GenerateAbi<'_> {
         self.contract
             .functions
             .iter()
-            .filter_map(|function| {
-                function.filter_message().map(|kind| (function, kind))
-            })
+            .filter_map(|function| function.filter_message().map(|kind| (function, kind)))
             .map(move |(message, kind)| {
                 let span = message.span();
                 let ident_lit = message.sig.ident.to_string();
@@ -160,9 +159,7 @@ impl GenerateAbi<'_> {
                 let args = message
                     .sig
                     .inputs()
-                    .map(|fn_arg| {
-                        self.generate_message_param(fn_arg)
-                    });
+                    .map(|fn_arg| self.generate_message_param(fn_arg));
                 let ret_ty = self.generate_return_type(&message.sig.output);
 
                 quote_spanned!(span =>
@@ -183,8 +180,58 @@ impl GenerateAbi<'_> {
             })
     }
 
-    fn generate_events(&self) -> impl Iterator<Item = TokenStream2> {
-        vec![].into_iter()
+    fn generate_event_args<'a>(
+        &'a self,
+        event: &'a ir::ItemEvent,
+    ) -> impl Iterator<Item = TokenStream2> + 'a {
+        event.fields.named.iter().map(move |field| {
+            use syn::spanned::Spanned as _;
+            let span = field.span();
+            let ident = &field
+                .ident
+                .as_ref()
+                .expect("we only operate on named fields");
+            let ident_lit = ident.to_string();
+            // Query attributes for `#[ink(topic)]` marker.
+            use core::convert::TryFrom as _;
+            let is_topic = field
+                .attrs
+                .iter()
+                .cloned()
+                .filter_map(|attr| ir::Marker::try_from(attr).ok())
+                .any(|marker| marker.ident() == "topic");
+            let docs = ir::filter_map_trimmed_doc_strings(&field.attrs);
+            let ty_spec = self.generate_type_spec(&field.ty);
+
+            quote_spanned!(span =>
+                ink_abi::EventParamSpec::new(#ident_lit)
+                    .of_type(#ty_spec)
+                    .indexed(#is_topic)
+                    .done()
+            )
+        })
+    }
+
+    fn generate_events<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+        self.contract.events.iter().map(move |event| {
+            let span = event.span();
+            let ident = &event.ident;
+            let ident_lit = ident.to_string();
+
+            let docs = ir::filter_map_trimmed_doc_strings(&event.attrs);
+            let args = self.generate_event_args(event);
+
+            quote_spanned!(span =>
+                ink_abi::EventSpec::new(#ident_lit)
+                    .args(vec![
+                        #( #args, )*
+                    ])
+                    .docs(vec![
+                        #( #docs, )*
+                    ])
+                    .done()
+            )
+        })
     }
 
     fn generate_docs<'a>(&'a self) -> impl Iterator<Item = String> + 'a {
