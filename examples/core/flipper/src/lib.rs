@@ -13,7 +13,7 @@ type _BlockNumber =
     <ink_core::env2::DefaultSrmlTypes as ink_core::env2::EnvTypes>::BlockNumber;
 
 #[doc(hidden)]
-mod __ink_storage {
+mod __ink_private {
     use super::*;
 
     #[cfg(feature = "ink-dyn-alloc")]
@@ -26,13 +26,10 @@ mod __ink_storage {
         derive(type_metadata::Metadata, ink_abi::HasLayout)
     )]
     pub struct Storage {
-        value: storage::Value<bool>,
+        pub value: storage::Value<bool>,
     }
 
-    #[cfg_attr(
-        feature = "ink-generate-abi",
-        derive(type_metadata::Metadata)
-    )]
+    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
     pub struct StorageAndEnv {
         storage: Storage,
         env: UsedEnv,
@@ -145,10 +142,94 @@ mod __ink_storage {
 
     impl ink_lang2::Storage for StorageAndEnv {}
 
-    const _: () = {
-        use ink_core::env2::AccessEnv as _;
+    pub use __ink_events::{EmitEvent, Flipped, OwnedFlipped};
 
-        impl StorageAndEnv {
+    mod __ink_events {
+        use super::*;
+
+        #[derive(scale::Encode)]
+        pub struct Flipped<'a> {
+            pub caller: &'a AccountId,
+            pub result: bool,
+        }
+
+        impl ink_core::env2::Topics<Env> for Flipped<'_> {
+            fn topics(&self) -> &'static [Hash] {
+                &[
+                    // ink_utils::keccak(&caller),
+                    // ink_utils::keccak(&result),
+                ]
+            }
+        }
+
+        #[derive(scale::Encode)]
+        pub struct OwnedFlipped {
+            pub caller: AccountId,
+            pub result: bool,
+        }
+
+        impl ink_core::env2::Topics<Env> for OwnedFlipped {
+            fn topics(&self) -> &'static [Hash] {
+                &[
+                    // ink_utils::keccak(&caller),
+                    // ink_utils::keccak(&result),
+                ]
+            }
+        }
+
+        #[derive(scale::Encode)]
+        pub enum Event<'a> {
+            Flipped(Flipped<'a>),
+            OwnedFlipped(OwnedFlipped),
+        }
+
+        impl<'a> From<Flipped<'a>> for Event<'a> {
+            fn from(kind: Flipped<'a>) -> Self {
+                Event::Flipped(kind)
+            }
+        }
+
+        impl From<OwnedFlipped> for Event<'_> {
+            fn from(kind: OwnedFlipped) -> Self {
+                Event::OwnedFlipped(kind)
+            }
+        }
+
+        impl ink_core::env2::Topics<Env> for Event<'_> {
+            fn topics(&self) -> &'static [Hash] {
+                match self {
+                    Event::Flipped(event) => event.topics(),
+                    Event::OwnedFlipped(event) => event.topics(),
+                }
+            }
+        }
+
+        pub trait EmitEvent {
+            fn emit<'b , E>(self, event: E)
+            where
+                E: Into<Event<'b>>;
+        }
+
+        impl<'a> EmitEvent for &'a mut ink_core::env2::EnvAccessMut<Env> {
+            fn emit<'b, E>(self, event: E)
+            where
+                E: Into<Event<'b>>,
+            {
+                self.emit_event(event.into())
+            }
+        }
+    }
+}
+
+use __ink_private::{Flipped, OwnedFlipped};
+pub type Flipper = __ink_private::StorageAndEnv;
+
+const _: () =
+    {
+        use ink_core::env2::AccessEnv as _;
+        use __ink_private::EmitEvent as _;
+
+        impl Flipper {
             pub fn new(&mut self, init_value: bool) {
                 self.value.set(init_value);
             }
@@ -158,17 +239,27 @@ mod __ink_storage {
             }
 
             pub fn flip(&mut self) {
+                let caller = self.env().caller();
+                let result = !self.get();
+                self.env().emit(Flipped {
+                    caller: &caller,
+                    result,
+                });
+                self.env().emit(OwnedFlipped { caller, result });
                 *self.value = !self.get();
             }
 
             pub fn get(&self) -> bool {
+                let caller = self.env().caller();
+                self.env().emit(Flipped {
+                    caller: &caller,
+                    result: false,
+                });
+                self.env().emit(OwnedFlipped { caller, result: true });
                 *self.value
             }
         }
     };
-}
-
-pub type Flipper = __ink_storage::StorageAndEnv;
 
 const _: () = {
     // A concrete instance of a dispatchable message.
@@ -274,7 +365,7 @@ const _: () = {
         fn dispatch_using_mode(
             mode: ink_lang2::DispatchMode,
         ) -> core::result::Result<(), ink_lang2::DispatchError> {
-            ink_lang2::Contract::with_storage::<(__ink_storage::StorageAndEnv)>()
+            ink_lang2::Contract::with_storage::<(__ink_private::StorageAndEnv)>()
                 .on_instantiate::<Constr<[(); NEW_ID]>>(|storage, arg| storage.new(arg))
                 .on_instantiate::<Constr<[(); DEFAULT_ID]>>(|storage, _| {
                     storage.default()
@@ -318,29 +409,25 @@ const _: () = {
                     .constructors(vec![
                         ink_abi::ConstructorSpec::new("new")
                             .selector([0x00; 4])
-                            .args(vec![
-                                ink_abi::MessageParamSpec::new("init_value")
-                                    .of_type(ink_abi::TypeSpec::with_name_segs::<u32, _>(
-                                        vec!["u32"].into_iter().map(AsRef::as_ref),
-                                    ))
-                                    .done()
-                            ])
+                            .args(vec![ink_abi::MessageParamSpec::new("init_value")
+                                .of_type(ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                    vec!["u32"].into_iter().map(AsRef::as_ref),
+                                ))
+                                .done()])
                             .docs(vec![])
                             .done(),
                         ink_abi::ConstructorSpec::new("default")
                             .selector([0x00, 0x00, 0x00, 0x01])
                             .args(vec![])
                             .docs(vec![])
-                            .done()
+                            .done(),
                     ])
                     .messages(vec![
                         ink_abi::MessageSpec::new("flip")
                             .selector([140u8, 151u8, 219u8, 57u8])
                             .mutates(true)
                             .args(vec![])
-                            .docs(vec![
-                                "Flips the current state of our smart contract.",
-                            ])
+                            .docs(vec!["Flips the current state of our smart contract."])
                             .returns(ink_abi::ReturnTypeSpec::new(None))
                             .done(),
                         ink_abi::MessageSpec::new("get")
@@ -363,11 +450,11 @@ const _: () = {
                 unsafe {
                     use ink_abi::HasLayout as _;
                     use ink_core::storage::alloc::AllocateUsing as _;
-                    core::mem::ManuallyDrop::new(
-                        Flipper::allocate_using(&mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                    core::mem::ManuallyDrop::new(Flipper::allocate_using(
+                        &mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
                             ink_core::storage::Key([0x0; 32]),
-                        ))
-                    )
+                        ),
+                    ))
                     .layout()
                 }
             };
