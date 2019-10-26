@@ -74,6 +74,8 @@ impl GenerateCode for ContractModule<'_> {
                 #dispatch
                 #events
             }
+
+            pub use #ident::#storage_ident;
         }
     }
 }
