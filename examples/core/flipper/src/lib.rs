@@ -4,11 +4,13 @@
 use ink_core::storage;
 
 type Env = ink_core::env2::EnvImpl<ink_core::env2::DefaultSrmlTypes>;
-// type AccountId = <DefaultSrmlTypes as EnvTypes>::AccountId;
-// type Balance = <DefaultSrmlTypes as EnvTypes>::Balance;
-// type Hash = <DefaultSrmlTypes as EnvTypes>::Hash;
-// type Moment = <DefaultSrmlTypes as EnvTypes>::Moment;
-// type BlockNumber = <DefaultSrmlTypes as EnvTypes>::BlockNumber;
+type AccountId =
+    <ink_core::env2::DefaultSrmlTypes as ink_core::env2::EnvTypes>::AccountId;
+type _Balance = <ink_core::env2::DefaultSrmlTypes as ink_core::env2::EnvTypes>::Balance;
+type Hash = <ink_core::env2::DefaultSrmlTypes as ink_core::env2::EnvTypes>::Hash;
+type _Moment = <ink_core::env2::DefaultSrmlTypes as ink_core::env2::EnvTypes>::Moment;
+type _BlockNumber =
+    <ink_core::env2::DefaultSrmlTypes as ink_core::env2::EnvTypes>::BlockNumber;
 
 #[doc(hidden)]
 mod __ink_storage {
