@@ -132,6 +132,30 @@ macro_rules! impl_get_property_for {
     () => {}
 }
 
+/// Allow emitting generic events.
+pub trait EmitEvent<T>
+where
+    T: Env,
+{
+    /// Emits an event with the given event data.
+    fn emit_event<Event>(&mut self, event: Event)
+    where
+        Event: Topics<T> + scale::Encode;
+}
+
+impl<T> EmitEvent<T> for EnvAccessMut<T>
+where
+    T: Env,
+{
+    /// Emits an event with the given event data.
+    fn emit_event<Event>(&mut self, event: Event)
+    where
+        Event: Topics<T> + scale::Encode,
+    {
+        T::emit_event(&mut self.buffer, event)
+    }
+}
+
 impl<T> EnvAccessMut<T>
 where
     T: Env,
@@ -248,14 +272,6 @@ where
         D: CreateParams<T>,
     {
         T::create_contract(&mut self.buffer, create_data)
-    }
-
-    /// Emits an event with the given event data.
-    pub fn emit_event<Event>(&mut self, event: Event)
-    where
-        Event: Topics<T> + scale::Encode,
-    {
-        T::emit_event(&mut self.buffer, event)
     }
 
     /// Returns the input to the executed contract.

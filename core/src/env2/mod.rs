@@ -94,6 +94,7 @@ pub use self::{
         AccessEnv,
         EnvAccess,
         EnvAccessMut,
+        EmitEvent,
     },
     error::{
         Error,

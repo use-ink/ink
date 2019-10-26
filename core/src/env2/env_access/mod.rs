@@ -19,7 +19,10 @@ mod mutable;
 
 pub use self::{
     immutable::EnvAccess,
-    mutable::EnvAccessMut,
+    mutable::{
+        EnvAccessMut,
+        EmitEvent,
+    },
 };
 
 /// Allows to access the environment from `&EnvAccess` and `&mut EnvAccess`

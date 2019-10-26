@@ -16,6 +16,7 @@
 
 use crate::{
     env2::{
+        env_access::EmitEvent as _,
         call::CallData,
         AccessEnv,
         CallParams,
