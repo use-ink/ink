@@ -20,8 +20,8 @@ mod dispatch;
 mod env_types;
 mod storage;
 
-use proc_macro2::TokenStream as TokenStream2;
 use crate::ir::Contract;
+use proc_macro2::TokenStream as TokenStream2;
 
 /// Types implementing this trait are code generators for the ink! language.
 pub trait GenerateCode {
