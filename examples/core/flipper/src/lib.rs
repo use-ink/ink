@@ -205,17 +205,17 @@ mod __ink_private {
         }
 
         pub trait EmitEvent {
-            fn emit<'b , E>(self, event: E)
+            fn emit_event<'b , E>(self, event: E)
             where
                 E: Into<Event<'b>>;
         }
 
         impl<'a> EmitEvent for &'a mut ink_core::env2::EnvAccessMut<Env> {
-            fn emit<'b, E>(self, event: E)
+            fn emit_event<'b, E>(self, event: E)
             where
                 E: Into<Event<'b>>,
             {
-                self.emit_event(event.into())
+                ink_core::env2::EmitEvent::emit_event(self, event.into())
             }
         }
     }
@@ -241,21 +241,21 @@ const _: () =
             pub fn flip(&mut self) {
                 let caller = self.env().caller();
                 let result = !self.get();
-                self.env().emit(Flipped {
+                self.env().emit_event(Flipped {
                     caller: &caller,
                     result,
                 });
-                self.env().emit(OwnedFlipped { caller, result });
+                self.env().emit_event(OwnedFlipped { caller, result });
                 *self.value = !self.get();
             }
 
             pub fn get(&self) -> bool {
                 let caller = self.env().caller();
-                self.env().emit(Flipped {
+                self.env().emit_event(Flipped {
                     caller: &caller,
                     result: false,
                 });
-                self.env().emit(OwnedFlipped { caller, result: true });
+                self.env().emit_event(OwnedFlipped { caller, result: true });
                 *self.value
             }
         }
