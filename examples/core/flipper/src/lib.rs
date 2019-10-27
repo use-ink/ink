@@ -25,11 +25,13 @@ mod __ink_private {
         feature = "ink-generate-abi",
         derive(type_metadata::Metadata, ink_abi::HasLayout)
     )]
+    #[cfg_attr(test, derive(Debug))]
     pub struct Storage {
         pub value: storage::Value<bool>,
     }
 
     #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+    #[cfg_attr(test, derive(Debug))]
     pub struct StorageAndEnv {
         storage: Storage,
         env: UsedEnv,
@@ -142,7 +144,11 @@ mod __ink_private {
 
     impl ink_lang2::Storage for StorageAndEnv {}
 
-    pub use __ink_events::{EmitEvent, Flipped, OwnedFlipped};
+    pub use __ink_events::{
+        EmitEvent,
+        Flipped,
+        OwnedFlipped,
+    };
 
     mod __ink_events {
         use super::*;
@@ -205,7 +211,7 @@ mod __ink_private {
         }
 
         pub trait EmitEvent {
-            fn emit_event<'b , E>(self, event: E)
+            fn emit_event<'b, E>(self, event: E)
             where
                 E: Into<Event<'b>>;
         }
@@ -221,45 +227,50 @@ mod __ink_private {
     }
 }
 
-use __ink_private::{Flipped, OwnedFlipped};
+use __ink_private::{
+    Flipped,
+    OwnedFlipped,
+};
 pub type Flipper = __ink_private::StorageAndEnv;
 
-const _: () =
-    {
-        use ink_core::env2::AccessEnv as _;
-        use __ink_private::EmitEvent as _;
+const _: () = {
+    use __ink_private::EmitEvent as _;
+    use ink_core::env2::AccessEnv as _;
 
-        impl Flipper {
-            pub fn new(&mut self, init_value: bool) {
-                self.value.set(init_value);
-            }
-
-            pub fn default(&mut self) {
-                self.new(false)
-            }
-
-            pub fn flip(&mut self) {
-                let caller = self.env().caller();
-                let result = !self.get();
-                self.env().emit_event(Flipped {
-                    caller: &caller,
-                    result,
-                });
-                self.env().emit_event(OwnedFlipped { caller, result });
-                *self.value = !self.get();
-            }
-
-            pub fn get(&self) -> bool {
-                let caller = self.env().caller();
-                self.env().emit_event(Flipped {
-                    caller: &caller,
-                    result: false,
-                });
-                self.env().emit_event(OwnedFlipped { caller, result: true });
-                *self.value
-            }
+    impl Flipper {
+        pub fn new(&mut self, init_value: bool) {
+            self.value.set(init_value);
         }
-    };
+
+        pub fn default(&mut self) {
+            self.new(false)
+        }
+
+        pub fn flip(&mut self) {
+            let caller = self.env().caller();
+            let result = !self.get();
+            self.env().emit_event(Flipped {
+                caller: &caller,
+                result,
+            });
+            self.env().emit_event(OwnedFlipped { caller, result });
+            *self.value = !self.get();
+        }
+
+        pub fn get(&self) -> bool {
+            let caller = self.env().caller();
+            self.env().emit_event(Flipped {
+                caller: &caller,
+                result: false,
+            });
+            self.env().emit_event(OwnedFlipped {
+                caller,
+                result: true,
+            });
+            *self.value
+        }
+    }
+};
 
 const _: () = {
     // A concrete instance of a dispatchable message.
@@ -462,3 +473,100 @@ const _: () = {
         }
     }
 };
+
+#[cfg(test)]
+mod __ink_testable {
+    use super::*;
+
+    mod __ink_private {
+        use super::*;
+
+        /// Used to seal the traits introduced here from outside.
+        pub trait Sealed {}
+
+        pub trait TestableContract: Sized {
+            type Wrapped: From<Self>
+                + core::ops::Deref<Target = Self>
+                + core::ops::DerefMut<Target = Self>;
+
+            fn instantiate() -> Self::Wrapped;
+        }
+
+        impl TestableContract for Flipper {
+            type Wrapped = TestableFlipper;
+
+            fn instantiate() -> Self::Wrapped {
+                let mut contract: Flipper = unsafe {
+                    let mut alloc = ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                        ink_core::storage::Key([0x00; 32]),
+                    );
+                    ink_core::storage::alloc::AllocateUsing::allocate_using(&mut alloc)
+                };
+                ink_core::env2::test::TestEnv::<ink_core::env2::DefaultSrmlTypes>::try_initialize();
+                ink_core::storage::alloc::Initialize::try_default_initialize(&mut contract);
+                contract.into()
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct TestableFlipper {
+            contract: Flipper,
+        }
+
+        impl From<Flipper> for TestableFlipper {
+            fn from(contract: Flipper) -> Self {
+                Self { contract }
+            }
+        }
+
+        impl core::ops::Deref for TestableFlipper {
+            type Target = Flipper;
+
+            fn deref(&self) -> &Self::Target {
+                &self.contract
+            }
+        }
+
+        impl core::ops::DerefMut for TestableFlipper {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.contract
+            }
+        }
+    }
+
+    pub trait TestableConstructors: __ink_private::TestableContract {
+        fn new(init_value: bool) -> <Self as __ink_private::TestableContract>::Wrapped;
+        fn default() -> <Self as __ink_private::TestableContract>::Wrapped;
+    }
+
+    impl TestableConstructors for Flipper {
+        fn new(init_value: bool) -> <Self as __ink_private::TestableContract>::Wrapped {
+            let mut contract = <Self as __ink_private::TestableContract>::instantiate();
+            contract.new(init_value);
+            contract
+        }
+
+        fn default() -> <Self as __ink_private::TestableContract>::Wrapped {
+            let mut contract = <Self as __ink_private::TestableContract>::instantiate();
+            contract.default();
+            contract
+        }
+    }
+}
+
+#[cfg(test)]
+pub use __ink_testable::TestableConstructors as Testable;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        let mut flipper = <Flipper as Testable>::new(false);
+        let res = flipper.get();
+        assert_eq!(res, false);
+        flipper.flip();
+        assert_eq!(flipper.get(), true);
+    }
+}
