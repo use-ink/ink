@@ -7,6 +7,7 @@ use ink_lang2 as ink;
 pub type TokenId = u32;
 
 #[derive(scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
 pub enum Error {
     SpecifiedTokenHasNoOwner,
     ApprovalToCurrentOwner,
