@@ -34,13 +34,15 @@ pub struct GenerateAbi<'a> {
 
 impl GenerateCode for GenerateAbi<'_> {
     fn generate_code(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+
         let contract = self.generate_contract();
         let layout = self.generate_layout();
 
         quote! {
             #[cfg(feature = "ink-generate-abi")]
             const _: () = {
-                impl ink_lang2::GenerateAbi for Flipper {
+                impl ink_lang2::GenerateAbi for #storage_ident {
                     fn generate_abi() -> ink_abi::InkProject {
                         let contract: ink_abi::ContractSpec = {
                             #contract
