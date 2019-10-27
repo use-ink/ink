@@ -40,6 +40,7 @@ use core::ops::{
     feature = "ink-generate-abi",
     derive(type_metadata::Metadata),
 )]
+#[derive(Debug)]
 pub struct DynEnv<E> {
     /// The wrapped environment.
     env: E,

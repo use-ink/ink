@@ -56,6 +56,12 @@ pub struct EnvAccess<E> {
     pub(crate) access: RefCell<EnvAccessMut<E>>,
 }
 
+impl<E> core::fmt::Debug for EnvAccess<E> {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("EnvAccess").finish()
+    }
+}
+
 #[cfg(feature = "ink-generate-abi")]
 impl<E> type_metadata::HasTypeId for EnvAccess<E>
 where

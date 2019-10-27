@@ -44,6 +44,7 @@ use core::marker::PhantomData;
     feature = "ink-generate-abi",
     derive(type_metadata::Metadata),
 )]
+#[derive(Debug)]
 /// A wrapper around environments to make accessing them more efficient.
 pub struct EnvAccessMut<E> {
     /// The wrapped environment to access.
