@@ -652,6 +652,8 @@ pub struct EventParamSpec<F: Form = MetaForm> {
     /// The type of the parameter.
     #[serde(rename = "type")]
     ty: TypeSpec<F>,
+    /// The documentation associated with the arguments.
+    docs: Vec<&'static str>,
 }
 
 impl IntoCompact for EventParamSpec {
@@ -662,6 +664,7 @@ impl IntoCompact for EventParamSpec {
             name: registry.register_string(self.name),
             indexed: self.indexed,
             ty: self.ty.into_compact(registry),
+            docs: self.docs,
         }
     }
 }
@@ -676,6 +679,8 @@ impl EventParamSpec {
                 indexed: false,
                 // We initialize every parameter type as `()`.
                 ty: TypeSpec::new::<()>(),
+                // We start with empty docs.
+                docs: vec![],
             },
         }
     }
@@ -700,6 +705,21 @@ impl EventParamSpecBuilder {
         let mut this = self;
         this.spec.indexed = is_indexed;
         this
+    }
+
+    /// Sets the documentation of the event parameter.
+    pub fn docs<D>(self, docs: D) -> Self
+    where
+        D: IntoIterator<Item = &'static str>,
+    {
+        debug_assert!(self.spec.docs.is_empty());
+        Self {
+            spec: EventParamSpec {
+                docs: docs.into_iter().collect::<Vec<_>>(),
+                ..self.spec
+            },
+            ..self
+        }
     }
 
     /// Finishes constructing the event parameter spec.
