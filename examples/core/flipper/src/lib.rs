@@ -12,551 +12,575 @@ type _Moment = <ink_core::env2::DefaultSrmlTypes as ink_core::env2::EnvTypes>::M
 type _BlockNumber =
     <ink_core::env2::DefaultSrmlTypes as ink_core::env2::EnvTypes>::BlockNumber;
 
-#[doc(hidden)]
-mod __ink_private {
+mod flipper {
     use super::*;
 
-    #[cfg(feature = "ink-dyn-alloc")]
-    pub type UsedEnv = ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>;
-    #[cfg(not(feature = "ink-dyn-alloc"))]
-    pub type UsedEnv = ink_core::env2::EnvAccess<Env>;
+    #[doc(hidden)]
+    mod __ink_private {
+        use super::*;
 
-    #[cfg_attr(
-        feature = "ink-generate-abi",
-        derive(type_metadata::Metadata, ink_abi::HasLayout)
-    )]
-    #[cfg_attr(test, derive(Debug))]
-    pub struct Storage {
-        pub value: storage::Value<bool>,
-    }
+        #[cfg(feature = "ink-dyn-alloc")]
+        pub type UsedEnv = ink_core::env2::DynEnv<ink_core::env2::EnvAccess<Env>>;
+        #[cfg(not(feature = "ink-dyn-alloc"))]
+        pub type UsedEnv = ink_core::env2::EnvAccess<Env>;
 
-    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
-    #[cfg_attr(test, derive(Debug))]
-    pub struct StorageAndEnv {
-        storage: Storage,
-        env: UsedEnv,
-    }
-
-    impl core::ops::Deref for StorageAndEnv {
-        type Target = Storage;
-
-        fn deref(&self) -> &Self::Target {
-            &self.storage
+        #[cfg_attr(
+            feature = "ink-generate-abi",
+            derive(type_metadata::Metadata, ink_abi::HasLayout)
+        )]
+        #[cfg_attr(test, derive(Debug))]
+        pub struct Storage {
+            pub value: storage::Value<bool>,
         }
-    }
 
-    impl core::ops::DerefMut for StorageAndEnv {
-        fn deref_mut(&mut self) -> &mut Self::Target {
-            &mut self.storage
+        #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+        #[cfg_attr(test, derive(Debug))]
+        pub struct StorageAndEnv {
+            storage: Storage,
+            env: UsedEnv,
         }
-    }
 
-    #[cfg(feature = "ink-dyn-alloc")]
-    impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
-        fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
-            self.env.env_mut()
-        }
-    }
+        impl core::ops::Deref for StorageAndEnv {
+            type Target = Storage;
 
-    #[cfg(not(feature = "ink-dyn-alloc"))]
-    impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
-        fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
-            &mut self.env
-        }
-    }
-
-    impl<'a> ink_core::env2::AccessEnv for &'a StorageAndEnv {
-        type Target = <&'a UsedEnv as ink_core::env2::AccessEnv>::Target;
-
-        fn env(self) -> Self::Target {
-            ink_core::env2::AccessEnv::env(&self.env)
-        }
-    }
-
-    impl<'a> ink_core::env2::AccessEnv for &'a mut StorageAndEnv {
-        type Target = <&'a mut UsedEnv as ink_core::env2::AccessEnv>::Target;
-
-        fn env(self) -> Self::Target {
-            ink_core::env2::AccessEnv::env(&mut self.env)
-        }
-    }
-
-    impl ink_core::storage::alloc::AllocateUsing for Storage {
-        unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-        where
-            A: ink_core::storage::alloc::Allocate,
-        {
-            Self {
-                value: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+            fn deref(&self) -> &Self::Target {
+                &self.storage
             }
         }
-    }
 
-    impl ink_core::storage::Flush for Storage {
-        fn flush(&mut self) {
-            self.value.flush();
-        }
-    }
-
-    impl ink_core::storage::alloc::Initialize for Storage {
-        type Args = ();
-
-        fn default_value() -> Option<Self::Args> {
-            Some(())
-        }
-
-        fn initialize(&mut self, _args: Self::Args) {
-            self.value.try_default_initialize();
-        }
-    }
-
-    impl ink_core::storage::alloc::AllocateUsing for StorageAndEnv {
-        unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-        where
-            A: ink_core::storage::alloc::Allocate,
-        {
-            Self {
-                storage: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
-                env: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+        impl core::ops::DerefMut for StorageAndEnv {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.storage
             }
         }
-    }
 
-    impl ink_core::storage::Flush for StorageAndEnv {
-        fn flush(&mut self) {
-            self.storage.flush();
-            self.env.flush();
-        }
-    }
-
-    impl ink_core::storage::alloc::Initialize for StorageAndEnv {
-        type Args = ();
-
-        fn default_value() -> Option<Self::Args> {
-            Some(())
+        #[cfg(feature = "ink-dyn-alloc")]
+        impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
+            fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+                self.env.env_mut()
+            }
         }
 
-        fn initialize(&mut self, _args: Self::Args) {
-            self.storage.try_default_initialize();
-            self.env.try_default_initialize();
+        #[cfg(not(feature = "ink-dyn-alloc"))]
+        impl ink_lang2::AccessEnv<Env> for StorageAndEnv {
+            fn access_env(&mut self) -> &mut ink_core::env2::EnvAccess<Env> {
+                &mut self.env
+            }
         }
+
+        impl<'a> ink_core::env2::AccessEnv for &'a StorageAndEnv {
+            type Target = <&'a UsedEnv as ink_core::env2::AccessEnv>::Target;
+
+            fn env(self) -> Self::Target {
+                ink_core::env2::AccessEnv::env(&self.env)
+            }
+        }
+
+        impl<'a> ink_core::env2::AccessEnv for &'a mut StorageAndEnv {
+            type Target = <&'a mut UsedEnv as ink_core::env2::AccessEnv>::Target;
+
+            fn env(self) -> Self::Target {
+                ink_core::env2::AccessEnv::env(&mut self.env)
+            }
+        }
+
+        impl ink_core::storage::alloc::AllocateUsing for Storage {
+            unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+            where
+                A: ink_core::storage::alloc::Allocate,
+            {
+                Self {
+                    value: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+                }
+            }
+        }
+
+        impl ink_core::storage::Flush for Storage {
+            fn flush(&mut self) {
+                self.value.flush();
+            }
+        }
+
+        impl ink_core::storage::alloc::Initialize for Storage {
+            type Args = ();
+
+            fn default_value() -> Option<Self::Args> {
+                Some(())
+            }
+
+            fn initialize(&mut self, _args: Self::Args) {
+                self.value.try_default_initialize();
+            }
+        }
+
+        impl ink_core::storage::alloc::AllocateUsing for StorageAndEnv {
+            unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+            where
+                A: ink_core::storage::alloc::Allocate,
+            {
+                Self {
+                    storage: ink_core::storage::alloc::AllocateUsing::allocate_using(
+                        alloc,
+                    ),
+                    env: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
+                }
+            }
+        }
+
+        impl ink_core::storage::Flush for StorageAndEnv {
+            fn flush(&mut self) {
+                self.storage.flush();
+                self.env.flush();
+            }
+        }
+
+        impl ink_core::storage::alloc::Initialize for StorageAndEnv {
+            type Args = ();
+
+            fn default_value() -> Option<Self::Args> {
+                Some(())
+            }
+
+            fn initialize(&mut self, _args: Self::Args) {
+                self.storage.try_default_initialize();
+                self.env.try_default_initialize();
+            }
+        }
+
+        impl ink_lang2::Storage for StorageAndEnv {}
+
+        pub use __ink_events::{
+            EmitEvent,
+            Flipped,
+            OwnedFlipped,
+        };
+
+        mod __ink_events {
+            use super::*;
+
+            #[derive(scale::Encode)]
+            pub struct Flipped<'a> {
+                pub caller: &'a AccountId,
+                pub result: bool,
+            }
+
+            impl ink_core::env2::Topics<Env> for Flipped<'_> {
+                fn topics(&self) -> &'static [Hash] {
+                    &[
+                        // ink_utils::keccak(&caller),
+                        // ink_utils::keccak(&result),
+                    ]
+                }
+            }
+
+            #[derive(scale::Encode)]
+            pub struct OwnedFlipped {
+                pub caller: AccountId,
+                pub result: bool,
+            }
+
+            impl ink_core::env2::Topics<Env> for OwnedFlipped {
+                fn topics(&self) -> &'static [Hash] {
+                    &[
+                        // ink_utils::keccak(&caller),
+                        // ink_utils::keccak(&result),
+                    ]
+                }
+            }
+
+            #[derive(scale::Encode)]
+            pub enum Event<'a> {
+                Flipped(Flipped<'a>),
+                OwnedFlipped(OwnedFlipped),
+            }
+
+            impl<'a> From<Flipped<'a>> for Event<'a> {
+                fn from(kind: Flipped<'a>) -> Self {
+                    Event::Flipped(kind)
+                }
+            }
+
+            impl From<OwnedFlipped> for Event<'_> {
+                fn from(kind: OwnedFlipped) -> Self {
+                    Event::OwnedFlipped(kind)
+                }
+            }
+
+            impl ink_core::env2::Topics<Env> for Event<'_> {
+                fn topics(&self) -> &'static [Hash] {
+                    match self {
+                        Event::Flipped(event) => event.topics(),
+                        Event::OwnedFlipped(event) => event.topics(),
+                    }
+                }
+            }
+
+            pub trait EmitEvent {
+                fn emit_event<'b, E>(self, event: E)
+                where
+                    E: Into<Event<'b>>;
+            }
+
+            impl<'a> EmitEvent for &'a mut ink_core::env2::EnvAccessMut<Env> {
+                fn emit_event<'b, E>(self, event: E)
+                where
+                    E: Into<Event<'b>>,
+                {
+                    ink_core::env2::EmitEvent::emit_event(self, event.into())
+                }
+            }
+        }
+
+        #[cfg(test)]
+        mod __ink_testable {
+            use super::*;
+
+            mod __ink_private {
+                use super::*;
+
+                pub trait TestableContract: Sized {
+                    type Wrapped: From<Self>
+                        + core::ops::Deref<Target = Self>
+                        + core::ops::DerefMut<Target = Self>;
+
+                    fn instantiate() -> Self::Wrapped;
+                }
+
+                impl TestableContract for StorageAndEnv {
+                    type Wrapped = TestableStorageAndEnv;
+
+                    fn instantiate() -> Self::Wrapped {
+                        let mut contract: Self = unsafe {
+                            let mut alloc =
+                                ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                                    ink_core::storage::Key([0x00; 32]),
+                                );
+                            ink_core::storage::alloc::AllocateUsing::allocate_using(
+                                &mut alloc,
+                            )
+                        };
+                        ink_core::env2::test::TestEnv::<ink_core::env2::DefaultSrmlTypes>::try_initialize()
+                            .expect("encountered already initialized test environment");
+                        ink_core::storage::alloc::Initialize::try_default_initialize(
+                            &mut contract,
+                        );
+                        contract.into()
+                    }
+                }
+
+                #[derive(Debug)]
+                pub struct TestableStorageAndEnv {
+                    contract: StorageAndEnv,
+                }
+
+                impl From<StorageAndEnv> for TestableStorageAndEnv {
+                    fn from(contract: Flipper) -> Self {
+                        Self { contract }
+                    }
+                }
+
+                impl core::ops::Deref for TestableStorageAndEnv {
+                    type Target = StorageAndEnv;
+
+                    fn deref(&self) -> &Self::Target {
+                        &self.contract
+                    }
+                }
+
+                impl core::ops::DerefMut for TestableStorageAndEnv {
+                    fn deref_mut(&mut self) -> &mut Self::Target {
+                        &mut self.contract
+                    }
+                }
+            }
+            pub use __ink_private::TestableStorageAndEnv;
+
+            impl TestableStorageAndEnv {
+                pub fn new(
+                    init_value: bool,
+                ) -> <StorageAndEnv as __ink_private::TestableContract>::Wrapped
+                {
+                    let mut contract =
+                        <StorageAndEnv as __ink_private::TestableContract>::instantiate();
+                    contract.new(init_value);
+                    contract
+                }
+
+                pub fn default(
+                ) -> <StorageAndEnv as __ink_private::TestableContract>::Wrapped
+                {
+                    let mut contract =
+                        <StorageAndEnv as __ink_private::TestableContract>::instantiate();
+                    contract.default();
+                    contract
+                }
+            }
+        }
+
+        #[cfg(test)]
+        pub use __ink_testable::TestableStorageAndEnv;
     }
 
-    impl ink_lang2::Storage for StorageAndEnv {}
-
-    pub use __ink_events::{
-        EmitEvent,
+    pub use __ink_private::StorageAndEnv as Flipper;
+    use __ink_private::{
         Flipped,
         OwnedFlipped,
     };
 
-    mod __ink_events {
-        use super::*;
+    #[cfg(test)]
+    pub use __ink_private::TestableStorageAndEnv as TestableFlipper;
 
-        #[derive(scale::Encode)]
-        pub struct Flipped<'a> {
-            pub caller: &'a AccountId,
-            pub result: bool,
-        }
+    const _: () = {
+        use __ink_private::EmitEvent as _;
+        use ink_core::env2::AccessEnv as _;
 
-        impl ink_core::env2::Topics<Env> for Flipped<'_> {
-            fn topics(&self) -> &'static [Hash] {
-                &[
-                    // ink_utils::keccak(&caller),
-                    // ink_utils::keccak(&result),
-                ]
+        impl Flipper {
+            pub fn new(&mut self, init_value: bool) {
+                self.value.set(init_value);
+            }
+
+            pub fn default(&mut self) {
+                self.new(false)
+            }
+
+            pub fn flip(&mut self) {
+                let caller = self.env().caller();
+                let result = !self.get();
+                self.env().emit_event(Flipped {
+                    caller: &caller,
+                    result,
+                });
+                self.env().emit_event(OwnedFlipped { caller, result });
+                *self.value = !self.get();
+            }
+
+            pub fn get(&self) -> bool {
+                let caller = self.env().caller();
+                self.env().emit_event(Flipped {
+                    caller: &caller,
+                    result: false,
+                });
+                self.env().emit_event(OwnedFlipped {
+                    caller,
+                    result: true,
+                });
+                *self.value
             }
         }
-
-        #[derive(scale::Encode)]
-        pub struct OwnedFlipped {
-            pub caller: AccountId,
-            pub result: bool,
-        }
-
-        impl ink_core::env2::Topics<Env> for OwnedFlipped {
-            fn topics(&self) -> &'static [Hash] {
-                &[
-                    // ink_utils::keccak(&caller),
-                    // ink_utils::keccak(&result),
-                ]
-            }
-        }
-
-        #[derive(scale::Encode)]
-        pub enum Event<'a> {
-            Flipped(Flipped<'a>),
-            OwnedFlipped(OwnedFlipped),
-        }
-
-        impl<'a> From<Flipped<'a>> for Event<'a> {
-            fn from(kind: Flipped<'a>) -> Self {
-                Event::Flipped(kind)
-            }
-        }
-
-        impl From<OwnedFlipped> for Event<'_> {
-            fn from(kind: OwnedFlipped) -> Self {
-                Event::OwnedFlipped(kind)
-            }
-        }
-
-        impl ink_core::env2::Topics<Env> for Event<'_> {
-            fn topics(&self) -> &'static [Hash] {
-                match self {
-                    Event::Flipped(event) => event.topics(),
-                    Event::OwnedFlipped(event) => event.topics(),
-                }
-            }
-        }
-
-        pub trait EmitEvent {
-            fn emit_event<'b, E>(self, event: E)
-            where
-                E: Into<Event<'b>>;
-        }
-
-        impl<'a> EmitEvent for &'a mut ink_core::env2::EnvAccessMut<Env> {
-            fn emit_event<'b, E>(self, event: E)
-            where
-                E: Into<Event<'b>>,
-            {
-                ink_core::env2::EmitEvent::emit_event(self, event.into())
-            }
-        }
-    }
-}
-
-use __ink_private::{
-    Flipped,
-    OwnedFlipped,
-};
-pub type Flipper = __ink_private::StorageAndEnv;
-
-const _: () = {
-    use __ink_private::EmitEvent as _;
-    use ink_core::env2::AccessEnv as _;
-
-    impl Flipper {
-        pub fn new(&mut self, init_value: bool) {
-            self.value.set(init_value);
-        }
-
-        pub fn default(&mut self) {
-            self.new(false)
-        }
-
-        pub fn flip(&mut self) {
-            let caller = self.env().caller();
-            let result = !self.get();
-            self.env().emit_event(Flipped {
-                caller: &caller,
-                result,
-            });
-            self.env().emit_event(OwnedFlipped { caller, result });
-            *self.value = !self.get();
-        }
-
-        pub fn get(&self) -> bool {
-            let caller = self.env().caller();
-            self.env().emit_event(Flipped {
-                caller: &caller,
-                result: false,
-            });
-            self.env().emit_event(OwnedFlipped {
-                caller,
-                result: true,
-            });
-            *self.value
-        }
-    }
-};
-
-const _: () = {
-    // A concrete instance of a dispatchable message.
-    pub struct Msg<S> {
-        // We need to wrap inner because of Rust's orphan rules.
-        marker: core::marker::PhantomData<fn() -> S>,
-    }
-
-    pub struct Constr<S> {
-        // We need to wrap inner because of Rust's orphan rules.
-        marker: core::marker::PhantomData<fn() -> S>,
-    }
-
-    const NEW_ID: usize = 0;
-
-    const DEFAULT_ID: usize = 1;
-
-    const FLIP_ID: usize = {
-        (0u32
-            + ((57u8 as u32) << 0)
-            + ((219u8 as u32) << 2)
-            + ((151u8 as u32) << 4)
-            + ((140u8 as u32) << 6)) as usize
     };
 
-    const GET_ID: usize = {
-        (0u32
-            + ((254u8 as u32) << 0)
-            + ((74u8 as u32) << 2)
-            + ((68u8 as u32) << 4)
-            + ((37u8 as u32) << 6)) as usize
-    };
-
-    impl ink_lang2::FnInput for Constr<[(); NEW_ID]> {
-        type Input = bool;
-    }
-
-    impl ink_lang2::FnOutput for Constr<[(); NEW_ID]> {
-        type Output = ();
-    }
-
-    impl ink_lang2::FnSelector for Constr<[(); NEW_ID]> {
-        const SELECTOR: ink_core::env2::call::Selector =
-            ink_core::env2::call::Selector::from_bytes([0x00; 4]);
-    }
-
-    impl ink_lang2::Message for Constr<[(); NEW_ID]> {
-        const IS_MUT: bool = true;
-    }
-
-    impl ink_lang2::FnInput for Constr<[(); DEFAULT_ID]> {
-        type Input = ();
-    }
-
-    impl ink_lang2::FnOutput for Constr<[(); DEFAULT_ID]> {
-        type Output = ();
-    }
-
-    impl ink_lang2::FnSelector for Constr<[(); DEFAULT_ID]> {
-        const SELECTOR: ink_core::env2::call::Selector =
-            ink_core::env2::call::Selector::from_bytes([0x01; 4]);
-    }
-
-    impl ink_lang2::Message for Constr<[(); DEFAULT_ID]> {
-        const IS_MUT: bool = true;
-    }
-
-    impl ink_lang2::FnInput for Msg<[(); FLIP_ID]> {
-        type Input = ();
-    }
-
-    impl ink_lang2::FnOutput for Msg<[(); FLIP_ID]> {
-        type Output = ();
-    }
-
-    impl ink_lang2::FnSelector for Msg<[(); FLIP_ID]> {
-        const SELECTOR: ink_core::env2::call::Selector =
-            ink_core::env2::call::Selector::from_bytes([57, 219, 151, 140]);
-    }
-
-    impl ink_lang2::Message for Msg<[(); FLIP_ID]> {
-        const IS_MUT: bool = true;
-    }
-
-    impl ink_lang2::FnInput for Msg<[(); GET_ID]> {
-        type Input = ();
-    }
-
-    impl ink_lang2::FnOutput for Msg<[(); GET_ID]> {
-        type Output = bool;
-    }
-
-    impl ink_lang2::FnSelector for Msg<[(); GET_ID]> {
-        const SELECTOR: ink_core::env2::call::Selector =
-            ink_core::env2::call::Selector::from_bytes([254, 74, 68, 37]);
-    }
-
-    impl ink_lang2::Message for Msg<[(); GET_ID]> {
-        const IS_MUT: bool = false;
-    }
-
-    impl ink_lang2::DispatchUsingMode for Flipper {
-        fn dispatch_using_mode(
-            mode: ink_lang2::DispatchMode,
-        ) -> core::result::Result<(), ink_lang2::DispatchError> {
-            ink_lang2::Contract::with_storage::<(__ink_private::StorageAndEnv)>()
-                .on_instantiate::<Constr<[(); NEW_ID]>>(|storage, arg| storage.new(arg))
-                .on_instantiate::<Constr<[(); DEFAULT_ID]>>(|storage, _| {
-                    storage.default()
-                })
-                .on_msg_mut::<Msg<[(); FLIP_ID]>>(|storage, _| storage.flip())
-                .on_msg::<Msg<[(); GET_ID]>>(|storage, _| storage.get())
-                .done()
-                .dispatch_using_mode(mode)
+    const _: () = {
+        // A concrete instance of a dispatchable message.
+        pub struct Msg<S> {
+            // We need to wrap inner because of Rust's orphan rules.
+            marker: core::marker::PhantomData<fn() -> S>,
         }
-    }
 
-    #[cfg(not(test))]
-    #[no_mangle]
-    fn deploy() -> u32 {
-        ink_lang2::DispatchRetCode::from(
-            <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
-                ink_lang2::DispatchMode::Instantiate,
-            ),
-        )
-        .to_u32()
-    }
+        pub struct Constr<S> {
+            // We need to wrap inner because of Rust's orphan rules.
+            marker: core::marker::PhantomData<fn() -> S>,
+        }
 
-    #[cfg(not(test))]
-    #[no_mangle]
-    fn call() -> u32 {
-        ink_lang2::DispatchRetCode::from(
-            <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
-                ink_lang2::DispatchMode::Call,
-            ),
-        )
-        .to_u32()
-    }
-};
+        const NEW_ID: usize = 0;
 
-#[cfg(feature = "ink-generate-abi")]
-const _: () = {
-    impl ink_lang2::GenerateAbi for Flipper {
-        fn generate_abi() -> ink_abi::InkProject {
-            let contract: ink_abi::ContractSpec = {
-                ink_abi::ContractSpec::new("Flipper")
-                    .constructors(vec![
-                        ink_abi::ConstructorSpec::new("new")
-                            .selector([0x00; 4])
-                            .args(vec![ink_abi::MessageParamSpec::new("init_value")
-                                .of_type(ink_abi::TypeSpec::with_name_segs::<u32, _>(
-                                    vec!["u32"].into_iter().map(AsRef::as_ref),
-                                ))
-                                .done()])
-                            .docs(vec![])
-                            .done(),
-                        ink_abi::ConstructorSpec::new("default")
-                            .selector([0x00, 0x00, 0x00, 0x01])
-                            .args(vec![])
-                            .docs(vec![])
-                            .done(),
-                    ])
-                    .messages(vec![
-                        ink_abi::MessageSpec::new("flip")
-                            .selector([140u8, 151u8, 219u8, 57u8])
-                            .mutates(true)
-                            .args(vec![])
-                            .docs(vec!["Flips the current state of our smart contract."])
-                            .returns(ink_abi::ReturnTypeSpec::new(None))
-                            .done(),
-                        ink_abi::MessageSpec::new("get")
-                            .selector([37u8, 68u8, 74u8, 254u8])
-                            .mutates(false)
-                            .args(vec![])
-                            .docs(vec!["Returns the current state."])
-                            .returns(ink_abi::ReturnTypeSpec::new(
-                                ink_abi::TypeSpec::with_name_segs::<bool, _>(
-                                    vec!["bool"].into_iter().map(AsRef::as_ref),
-                                ),
-                            ))
-                            .done(),
-                    ])
-                    .events(vec![])
-                    .docs(vec![])
+        const DEFAULT_ID: usize = 1;
+
+        const FLIP_ID: usize = {
+            (0u32
+                + ((57u8 as u32) << 0)
+                + ((219u8 as u32) << 2)
+                + ((151u8 as u32) << 4)
+                + ((140u8 as u32) << 6)) as usize
+        };
+
+        const GET_ID: usize = {
+            (0u32
+                + ((254u8 as u32) << 0)
+                + ((74u8 as u32) << 2)
+                + ((68u8 as u32) << 4)
+                + ((37u8 as u32) << 6)) as usize
+        };
+
+        impl ink_lang2::FnInput for Constr<[(); NEW_ID]> {
+            type Input = bool;
+        }
+
+        impl ink_lang2::FnOutput for Constr<[(); NEW_ID]> {
+            type Output = ();
+        }
+
+        impl ink_lang2::FnSelector for Constr<[(); NEW_ID]> {
+            const SELECTOR: ink_core::env2::call::Selector =
+                ink_core::env2::call::Selector::from_bytes([0x00; 4]);
+        }
+
+        impl ink_lang2::Message for Constr<[(); NEW_ID]> {
+            const IS_MUT: bool = true;
+        }
+
+        impl ink_lang2::FnInput for Constr<[(); DEFAULT_ID]> {
+            type Input = ();
+        }
+
+        impl ink_lang2::FnOutput for Constr<[(); DEFAULT_ID]> {
+            type Output = ();
+        }
+
+        impl ink_lang2::FnSelector for Constr<[(); DEFAULT_ID]> {
+            const SELECTOR: ink_core::env2::call::Selector =
+                ink_core::env2::call::Selector::from_bytes([0x01; 4]);
+        }
+
+        impl ink_lang2::Message for Constr<[(); DEFAULT_ID]> {
+            const IS_MUT: bool = true;
+        }
+
+        impl ink_lang2::FnInput for Msg<[(); FLIP_ID]> {
+            type Input = ();
+        }
+
+        impl ink_lang2::FnOutput for Msg<[(); FLIP_ID]> {
+            type Output = ();
+        }
+
+        impl ink_lang2::FnSelector for Msg<[(); FLIP_ID]> {
+            const SELECTOR: ink_core::env2::call::Selector =
+                ink_core::env2::call::Selector::from_bytes([57, 219, 151, 140]);
+        }
+
+        impl ink_lang2::Message for Msg<[(); FLIP_ID]> {
+            const IS_MUT: bool = true;
+        }
+
+        impl ink_lang2::FnInput for Msg<[(); GET_ID]> {
+            type Input = ();
+        }
+
+        impl ink_lang2::FnOutput for Msg<[(); GET_ID]> {
+            type Output = bool;
+        }
+
+        impl ink_lang2::FnSelector for Msg<[(); GET_ID]> {
+            const SELECTOR: ink_core::env2::call::Selector =
+                ink_core::env2::call::Selector::from_bytes([254, 74, 68, 37]);
+        }
+
+        impl ink_lang2::Message for Msg<[(); GET_ID]> {
+            const IS_MUT: bool = false;
+        }
+
+        impl ink_lang2::DispatchUsingMode for Flipper {
+            fn dispatch_using_mode(
+                mode: ink_lang2::DispatchMode,
+            ) -> core::result::Result<(), ink_lang2::DispatchError> {
+                ink_lang2::Contract::with_storage::<(__ink_private::StorageAndEnv)>()
+                    .on_instantiate::<Constr<[(); NEW_ID]>>(|storage, arg| {
+                        storage.new(arg)
+                    })
+                    .on_instantiate::<Constr<[(); DEFAULT_ID]>>(|storage, _| {
+                        storage.default()
+                    })
+                    .on_msg_mut::<Msg<[(); FLIP_ID]>>(|storage, _| storage.flip())
+                    .on_msg::<Msg<[(); GET_ID]>>(|storage, _| storage.get())
                     .done()
-            };
-            let layout: ink_abi::StorageLayout = {
-                unsafe {
-                    use ink_abi::HasLayout as _;
-                    use ink_core::storage::alloc::AllocateUsing as _;
-                    core::mem::ManuallyDrop::new(Flipper::allocate_using(
-                        &mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
-                            ink_core::storage::Key([0x0; 32]),
-                        ),
-                    ))
-                    .layout()
-                }
-            };
-            ink_abi::InkProject::new(layout, contract)
-        }
-    }
-};
-
-#[cfg(test)]
-mod __ink_testable {
-    use super::*;
-
-    mod __ink_private {
-        use super::*;
-
-        /// Used to seal the traits introduced here from outside.
-        pub trait Sealed {}
-
-        pub trait TestableContract: Sized {
-            type Wrapped: From<Self>
-                + core::ops::Deref<Target = Self>
-                + core::ops::DerefMut<Target = Self>;
-
-            fn instantiate() -> Self::Wrapped;
+                    .dispatch_using_mode(mode)
+            }
         }
 
-        impl TestableContract for Flipper {
-            type Wrapped = TestableFlipper;
+        #[cfg(not(test))]
+        #[no_mangle]
+        fn deploy() -> u32 {
+            ink_lang2::DispatchRetCode::from(
+                <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                    ink_lang2::DispatchMode::Instantiate,
+                ),
+            )
+            .to_u32()
+        }
 
-            fn instantiate() -> Self::Wrapped {
-                let mut contract: Flipper = unsafe {
-                    let mut alloc = ink_core::storage::alloc::BumpAlloc::from_raw_parts(
-                        ink_core::storage::Key([0x00; 32]),
-                    );
-                    ink_core::storage::alloc::AllocateUsing::allocate_using(&mut alloc)
+        #[cfg(not(test))]
+        #[no_mangle]
+        fn call() -> u32 {
+            ink_lang2::DispatchRetCode::from(
+                <Flipper as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                    ink_lang2::DispatchMode::Call,
+                ),
+            )
+            .to_u32()
+        }
+    };
+
+    #[cfg(feature = "ink-generate-abi")]
+    const _: () = {
+        impl ink_lang2::GenerateAbi for Flipper {
+            fn generate_abi() -> ink_abi::InkProject {
+                let contract: ink_abi::ContractSpec = {
+                    ink_abi::ContractSpec::new("Flipper")
+                        .constructors(vec![
+                            ink_abi::ConstructorSpec::new("new")
+                                .selector([0x00; 4])
+                                .args(vec![ink_abi::MessageParamSpec::new("init_value")
+                                    .of_type(ink_abi::TypeSpec::with_name_segs::<u32, _>(
+                                        vec!["u32"].into_iter().map(AsRef::as_ref),
+                                    ))
+                                    .done()])
+                                .docs(vec![])
+                                .done(),
+                            ink_abi::ConstructorSpec::new("default")
+                                .selector([0x00, 0x00, 0x00, 0x01])
+                                .args(vec![])
+                                .docs(vec![])
+                                .done(),
+                        ])
+                        .messages(vec![
+                            ink_abi::MessageSpec::new("flip")
+                                .selector([140u8, 151u8, 219u8, 57u8])
+                                .mutates(true)
+                                .args(vec![])
+                                .docs(vec![
+                                    "Flips the current state of our smart contract.",
+                                ])
+                                .returns(ink_abi::ReturnTypeSpec::new(None))
+                                .done(),
+                            ink_abi::MessageSpec::new("get")
+                                .selector([37u8, 68u8, 74u8, 254u8])
+                                .mutates(false)
+                                .args(vec![])
+                                .docs(vec!["Returns the current state."])
+                                .returns(ink_abi::ReturnTypeSpec::new(
+                                    ink_abi::TypeSpec::with_name_segs::<bool, _>(
+                                        vec!["bool"].into_iter().map(AsRef::as_ref),
+                                    ),
+                                ))
+                                .done(),
+                        ])
+                        .events(vec![])
+                        .docs(vec![])
+                        .done()
                 };
-                ink_core::env2::test::TestEnv::<ink_core::env2::DefaultSrmlTypes>::try_initialize()
-                    .expect("encountered already initialized test environment");
-                ink_core::storage::alloc::Initialize::try_default_initialize(&mut contract);
-                contract.into()
+                let layout: ink_abi::StorageLayout = {
+                    unsafe {
+                        use ink_abi::HasLayout as _;
+                        use ink_core::storage::alloc::AllocateUsing as _;
+                        core::mem::ManuallyDrop::new(Flipper::allocate_using(
+                            &mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                                ink_core::storage::Key([0x0; 32]),
+                            ),
+                        ))
+                        .layout()
+                    }
+                };
+                ink_abi::InkProject::new(layout, contract)
             }
         }
-
-        #[derive(Debug)]
-        pub struct TestableFlipper {
-            contract: Flipper,
-        }
-
-        impl From<Flipper> for TestableFlipper {
-            fn from(contract: Flipper) -> Self {
-                Self { contract }
-            }
-        }
-
-        impl core::ops::Deref for TestableFlipper {
-            type Target = Flipper;
-
-            fn deref(&self) -> &Self::Target {
-                &self.contract
-            }
-        }
-
-        impl core::ops::DerefMut for TestableFlipper {
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.contract
-            }
-        }
-    }
-
-    pub trait TestableConstructors: __ink_private::TestableContract {
-        fn new(init_value: bool) -> <Self as __ink_private::TestableContract>::Wrapped;
-        fn default() -> <Self as __ink_private::TestableContract>::Wrapped;
-    }
-
-    impl TestableConstructors for Flipper {
-        fn new(init_value: bool) -> <Self as __ink_private::TestableContract>::Wrapped {
-            let mut contract = <Self as __ink_private::TestableContract>::instantiate();
-            contract.new(init_value);
-            contract
-        }
-
-        fn default() -> <Self as __ink_private::TestableContract>::Wrapped {
-            let mut contract = <Self as __ink_private::TestableContract>::instantiate();
-            contract.default();
-            contract
-        }
-    }
+    };
 }
 
+#[cfg(not(test))]
+pub use crate::flipper::Flipper;
+
 #[cfg(test)]
-pub use __ink_testable::TestableConstructors as Testable;
+pub use crate::flipper::TestableFlipper as Flipper;
 
 #[cfg(test)]
 mod tests {
@@ -564,7 +588,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let mut flipper = <Flipper as Testable>::new(false);
+        let mut flipper = Flipper::new(false);
         let res = flipper.get();
         assert_eq!(res, false);
         flipper.flip();
