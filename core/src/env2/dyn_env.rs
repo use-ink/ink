@@ -137,6 +137,11 @@ impl<E> Initialize for DynEnv<E> {
     type Args = ();
 
     #[inline]
+    fn default_value() -> Option<Self::Args> {
+        Some(())
+    }
+
+    #[inline]
     fn initialize(&mut self, _args: Self::Args) {
         self.alloc.initialize(());
     }

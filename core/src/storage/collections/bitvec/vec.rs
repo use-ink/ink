@@ -90,6 +90,11 @@ impl AllocateUsing for BitVec {
 impl Initialize for BitVec {
     type Args = ();
 
+    #[inline(always)]
+    fn default_value() -> Option<Self::Args> {
+        Some(())
+    }
+
     #[inline]
     fn initialize(&mut self, _: Self::Args) {
         self.len.set(0);
