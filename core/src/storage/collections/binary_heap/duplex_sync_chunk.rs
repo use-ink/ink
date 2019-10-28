@@ -124,9 +124,7 @@ where
                 let _ = self.0.put(group, Group(new_group));
                 None
             }
-            Some(existing_group) => {
-                existing_group.0[in_group].replace(new_val)
-            }
+            Some(existing_group) => existing_group.0[in_group].replace(new_val),
         }
     }
 }
@@ -141,7 +139,7 @@ fn get_group_index(n: u32) -> u32 {
             // so when calculating indices we need to account for the
             // items which have been left empty in the first group.
             let padding = COUNT - 1;
-            (n + padding)  / COUNT
+            (n + padding) / COUNT
         }
     }
 }
@@ -156,9 +154,7 @@ fn get_ingroup_index(n: u32) -> usize {
     match (group, n) {
         (0, 0) => 0,
         (0, _) => panic!("first group contains only root node"),
-        (_, _) => {
-            ((n - 1) % COUNT) as usize
-        },
+        (_, _) => ((n - 1) % COUNT) as usize,
     }
 }
 

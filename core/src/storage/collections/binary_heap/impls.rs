@@ -356,7 +356,7 @@ where
             .entries
             .get(right_index)
             .expect("failed getting right value");
-        match left.cmp(right)  {
+        match left.cmp(right) {
             Ordering::Less => right_index,
             Ordering::Equal => right_index,
             Ordering::Greater => left_index,
