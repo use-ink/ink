@@ -32,13 +32,6 @@ pub struct UnsuffixedLitInt {
     pub(crate) lit_int: syn::LitInt,
 }
 
-impl UnsuffixedLitInt {
-    /// Returns the unsuffixed literal integer.
-    pub fn lit_int(&self) -> &syn::LitInt {
-        &self.lit_int
-    }
-}
-
 impl Spanned for UnsuffixedLitInt {
     fn span(&self) -> Span {
         self.lit_int.span()
