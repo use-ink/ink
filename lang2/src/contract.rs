@@ -46,8 +46,7 @@ pub struct Contract<Storage, Constrs, Msgs> {
 impl Contract<(), (), ()> {
     /// Creates a new contract definition for the given storage type.
     pub fn with_storage<Storage>(
-    ) -> ContractBuilder<Storage, EmptyDispatchList, EmptyDispatchList>
-    {
+    ) -> ContractBuilder<Storage, EmptyDispatchList, EmptyDispatchList> {
         ContractBuilder {
             storage: Default::default(),
             constructors: DispatchList::empty(),
@@ -67,11 +66,7 @@ impl<S> Default for StorageMarker<S> {
 }
 
 /// Simplifies declaration of a smart contract.
-pub struct ContractBuilder<
-    Storage,
-    Constrs,
-    Msgs,
-> {
+pub struct ContractBuilder<Storage, Constrs, Msgs> {
     storage: StorageMarker<Storage>,
     constructors: Constrs,
     messages: Msgs,
@@ -85,7 +80,11 @@ where
     pub fn on_instantiate<C>(
         self,
         dfn: DispatchableFnMut<C, Storage>,
-    ) -> ContractBuilder<Storage, DispatchList<DispatcherMut<C, Storage>, Constrs>, EmptyDispatchList>
+    ) -> ContractBuilder<
+        Storage,
+        DispatchList<DispatcherMut<C, Storage>, Constrs>,
+        EmptyDispatchList,
+    >
     where
         C: FnInput + FnOutput,
     {
@@ -107,11 +106,7 @@ where
     pub fn on_msg<M>(
         self,
         dfn: DispatchableFn<M, Storage>,
-    ) -> ContractBuilder<
-        Storage,
-        Constrs,
-        DispatchList<Dispatcher<M, Storage>, Msgs>,
-    >
+    ) -> ContractBuilder<Storage, Constrs, DispatchList<Dispatcher<M, Storage>, Msgs>>
     where
         M: FnInput + FnOutput,
     {
@@ -133,11 +128,7 @@ where
     pub fn on_msg_mut<M>(
         self,
         dfn: DispatchableFnMut<M, Storage>,
-    ) -> ContractBuilder<
-        Storage,
-        Constrs,
-        DispatchList<DispatcherMut<M, Storage>, Msgs>,
-    >
+    ) -> ContractBuilder<Storage, Constrs, DispatchList<DispatcherMut<M, Storage>, Msgs>>
     where
         M: FnInput + FnOutput,
     {
@@ -226,9 +217,7 @@ where
             DispatchMode::Instantiate => {
                 self.constructors.dispatch(&mut self.storage, &call_data)
             }
-            DispatchMode::Call => {
-                self.messages.dispatch(&mut self.storage, &call_data)
-            }
+            DispatchMode::Call => self.messages.dispatch(&mut self.storage, &call_data),
         };
         ret.into()
     }

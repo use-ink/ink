@@ -21,12 +21,12 @@ use quote::quote;
 pub use crate::{
     codegen::{
         abi::GenerateAbi,
-        GenerateCode,
-        GenerateCodeUsing,
         dispatch::Dispatch,
         env_types::EnvTypes,
-        storage::Storage,
         events::Events,
+        storage::Storage,
+        GenerateCode,
+        GenerateCodeUsing,
     },
     ir::Contract,
 };

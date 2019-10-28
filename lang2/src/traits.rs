@@ -16,16 +16,16 @@
 
 use ink_core::{
     env2::{
-        EnvAccess,
         call::Selector,
+        EnvAccess,
     },
     storage::{
-        Flush,
         alloc::{
             AllocateUsing,
             Initialize,
         },
-    }
+        Flush,
+    },
 };
 
 /// Dispatchable functions that have inputs.

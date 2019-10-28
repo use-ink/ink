@@ -224,8 +224,12 @@ impl Parse for MetaParam {
         match ident.to_string().as_str() {
             "version" => input.parse::<ParamVersion>().map(Into::into),
             "env" => input.parse::<ParamTypes>().map(Into::into),
-            "compile_as_dependency" => input.parse::<ParamCompileAsDependency>().map(Into::into),
-            "dynamic_allocations" => input.parse::<ParamDynamicAllocations>().map(Into::into),
+            "compile_as_dependency" => {
+                input.parse::<ParamCompileAsDependency>().map(Into::into)
+            }
+            "dynamic_allocations" => {
+                input.parse::<ParamDynamicAllocations>().map(Into::into)
+            }
             unknown => {
                 Err(format_err_span!(
                     ident.span(),

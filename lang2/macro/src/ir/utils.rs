@@ -58,17 +58,15 @@ pub fn filter_ink_attributes<'a, I>(
     attrs: I,
 ) -> impl Iterator<Item = &'a syn::Attribute> + 'a
 where
-    I: IntoIterator<Item = &'a syn::Attribute> + 'a
+    I: IntoIterator<Item = &'a syn::Attribute> + 'a,
 {
     attrs.into_iter().filter(|attr| is_ink_attribute(attr))
 }
 
 /// Returns `true` if the attributes contain any `#[ink(..)]` markers.
-pub fn has_ink_attributes<'a, I>(
-    attrs: I,
-) -> bool
+pub fn has_ink_attributes<'a, I>(attrs: I) -> bool
 where
-    I: IntoIterator<Item = &'a syn::Attribute> + 'a
+    I: IntoIterator<Item = &'a syn::Attribute> + 'a,
 {
     filter_ink_attributes(attrs).count() > 0
 }
@@ -88,7 +86,9 @@ where
 {
     attrs
         .into_iter()
-        .filter(move |attr| attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc"))
+        .filter(move |attr| {
+            attr.style == syn::AttrStyle::Outer && attr.path.is_ident("doc")
+        })
         .map(to_trimmed_doc_string)
 }
 

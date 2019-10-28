@@ -286,14 +286,11 @@ impl Storage<'_> {
             .iter()
             .filter(|&attr| Marker::try_from(attr.clone()).is_err());
         let mut fields = storage.fields.clone();
-        fields
-            .named
-            .iter_mut()
-            .for_each(|field| {
-                field.vis = syn::Visibility::Public(syn::VisPublic {
-                    pub_token: Default::default(),
-                })
-            });
+        fields.named.iter_mut().for_each(|field| {
+            field.vis = syn::Visibility::Public(syn::VisPublic {
+                pub_token: Default::default(),
+            })
+        });
 
         quote_spanned!( span =>
             #(#attrs)*

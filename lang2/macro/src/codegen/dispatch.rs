@@ -28,8 +28,8 @@ use quote::{
     quote_spanned,
 };
 use syn::{
-    Token,
     punctuated::Punctuated,
+    Token,
 };
 
 /// Generates code for the dispatch parts that dispatch constructors
@@ -75,11 +75,8 @@ impl Dispatch<'_> {
             .expect("this is either a message or constructor at this point; qed");
         let (selector_bytes, selector_id) = (selector.as_bytes(), selector.unique_id());
         let sig = &function.sig;
-        let inputs = sig
-            .inputs()
-            .map(|ident_type| &ident_type.ty);
-        let inputs_punct = inputs
-            .collect::<Punctuated<_, Token![,]>>();
+        let inputs = sig.inputs().map(|ident_type| &ident_type.ty);
+        let inputs_punct = inputs.collect::<Punctuated<_, Token![,]>>();
         let output = &sig.output;
         let output_type = match output {
             syn::ReturnType::Default => quote! {},

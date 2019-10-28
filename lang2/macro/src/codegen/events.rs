@@ -141,17 +141,16 @@ impl Events<'_> {
                 .iter()
                 .filter(|&attr| ir::Marker::try_from(attr.clone()).is_err());
             let mut fields = item_event.fields.clone();
-            fields
-                .named
-                .iter_mut()
-                .for_each(|field| {
-                    // Set visibility of all fields to `pub`.
-                    field.vis = syn::Visibility::Public(syn::VisPublic {
-                        pub_token: Default::default(),
-                    });
-                    // Only re-generate non-ink! attributes.
-                    field.attrs.retain(|attr| ir::Marker::try_from(attr.clone()).is_err())
+            fields.named.iter_mut().for_each(|field| {
+                // Set visibility of all fields to `pub`.
+                field.vis = syn::Visibility::Public(syn::VisPublic {
+                    pub_token: Default::default(),
                 });
+                // Only re-generate non-ink! attributes.
+                field
+                    .attrs
+                    .retain(|attr| ir::Marker::try_from(attr.clone()).is_err())
+            });
 
             quote_spanned!(span =>
                 #(#attrs)*

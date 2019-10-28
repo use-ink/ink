@@ -57,11 +57,11 @@ pub use self::{
         DispatchRetCode,
     },
     traits::{
+        AccessEnv,
         FnInput,
         FnOutput,
         FnSelector,
         Message,
-        AccessEnv,
         Storage,
     },
 };

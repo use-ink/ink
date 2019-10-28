@@ -22,16 +22,14 @@ use crate::{
     FnSelector,
     Message,
 };
+use core::any::TypeId;
 use ink_core::{
-    env2::{
-        call::{
-            CallData,
-            Selector,
-        },
+    env2::call::{
+        CallData,
+        Selector,
     },
     storage::Flush,
 };
-use core::any::TypeId;
 
 /// Results of message handling operations.
 pub type Result<T> = core::result::Result<T, DispatchError>;

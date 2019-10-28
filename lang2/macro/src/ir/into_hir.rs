@@ -97,9 +97,11 @@ impl TryFrom<(Params, syn::ItemMod)> for Contract {
             .map(ir::Item::try_from)
             .collect::<Result<Vec<_>>>()?
             .into_iter()
-            .partition_map(|item| match item {
-                ir::Item::Ink(ink_item) => Either::Left(ink_item),
-                ir::Item::Rust(rust_item) => Either::Right(rust_item),
+            .partition_map(|item| {
+                match item {
+                    ir::Item::Ink(ink_item) => Either::Left(ink_item),
+                    ir::Item::Rust(rust_item) => Either::Right(rust_item),
+                }
             });
         let (storage, events, functions) = split_items(ink_items)?;
         if functions.iter().filter(|f| f.is_constructor()).count() == 0 {

@@ -15,9 +15,9 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    lint,
     codegen::GenerateCode as _,
     ir,
+    lint,
 };
 use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
@@ -34,7 +34,12 @@ pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenS
     lint::idents_respect_pred(
         input.clone(),
         move |ident| !ident.to_string().starts_with("__ink"),
-        move |ident| format_err!(ident, "identifiers starting with `__ink` are forbidden in ink!"),
+        move |ident| {
+            format_err!(
+                ident,
+                "identifiers starting with `__ink` are forbidden in ink!"
+            )
+        },
     )?;
     let params = syn::parse2::<ir::Params>(attr)?;
     let rust_mod = syn::parse2::<syn::ItemMod>(input)?;
