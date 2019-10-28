@@ -20,8 +20,8 @@ mod mutable;
 pub use self::{
     immutable::EnvAccess,
     mutable::{
-        EnvAccessMut,
         EmitEvent,
+        EnvAccessMut,
     },
 };
 

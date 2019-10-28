@@ -92,9 +92,9 @@ pub use self::{
     dyn_env::DynEnv,
     env_access::{
         AccessEnv,
+        EmitEvent,
         EnvAccess,
         EnvAccessMut,
-        EmitEvent,
     },
     error::{
         Error,

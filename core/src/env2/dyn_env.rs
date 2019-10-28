@@ -16,9 +16,9 @@
 
 use crate::{
     env2::{
+        AccessEnv,
         EnvAccess,
         EnvAccessMut,
-        AccessEnv,
     },
     storage::{
         alloc::{
@@ -36,10 +36,7 @@ use core::ops::{
 };
 
 /// A wrapper around `EnvAccess` or `EnvAccessMut` that adds a dynamic storage allocator.
-#[cfg_attr(
-    feature = "ink-generate-abi",
-    derive(type_metadata::Metadata),
-)]
+#[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
 #[derive(Debug)]
 pub struct DynEnv<E> {
     /// The wrapped environment.
@@ -57,9 +54,7 @@ where
         use type_metadata::Metadata as _;
         ink_abi::LayoutStruct::new(
             Self::meta_type(),
-            vec![
-                ink_abi::LayoutField::new("alloc", self.alloc.layout())
-            ],
+            vec![ink_abi::LayoutField::new("alloc", self.alloc.layout())],
         )
         .into()
     }

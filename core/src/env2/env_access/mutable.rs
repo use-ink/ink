@@ -20,30 +20,27 @@ use crate::{
         property,
         CallParams,
         CreateParams,
-        Topics,
         Env,
         EnvTypes,
         GetProperty,
         Result,
         SetProperty,
+        Topics,
     },
     memory::vec::Vec,
     storage::{
-        Key,
-        Flush,
         alloc::{
-            AllocateUsing,
             Allocate,
+            AllocateUsing,
             Initialize,
         },
+        Flush,
+        Key,
     },
 };
 use core::marker::PhantomData;
 
-#[cfg_attr(
-    feature = "ink-generate-abi",
-    derive(type_metadata::Metadata),
-)]
+#[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
 #[derive(Debug)]
 /// A wrapper around environments to make accessing them more efficient.
 pub struct EnvAccessMut<E> {
