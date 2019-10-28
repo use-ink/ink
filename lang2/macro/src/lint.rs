@@ -20,8 +20,8 @@ use proc_macro2::{
     TokenTree as TokenTree2,
 };
 
-/// Returns `true` if all `Ident` items within the given input `TokenStream`
-/// respect the given predicate.
+/// Returns `Ok` if all identifiers within the `TokenStream` match `pred`
+/// and otherwise return an error pointing to the faulty `Ident`.
 pub fn idents_respect_pred<P, E>(
     input: TokenStream2,
     pred: P,
