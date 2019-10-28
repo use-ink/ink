@@ -2,9 +2,7 @@
 
 use ink_lang2 as ink;
 
-#[ink::contract(
-    version = "0.1.0",
-)]
+#[ink::contract(version = "0.1.0")]
 mod noop {
     #[ink(storage)]
     struct Noop {}
