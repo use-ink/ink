@@ -67,13 +67,14 @@ fn filled_heap() -> BinaryHeap<i32> {
 fn assert_push_equals_sorted_pop<T: Ord + Codec + Debug>(
     heap: &mut BinaryHeap<T>,
     vec: Vec<T>,
-    expected: Vec<T>,
 ) {
     vec.into_iter().for_each(|i| heap.push(i));
 
-    expected
-        .into_iter()
-        .for_each(|i| assert_eq!(heap.pop(), Some(i)));
+    let mut prior = None;
+    while let Some(val) = heap.pop() {
+        prior.map(|p| assert!(val <= p)); // it's a max heap
+        prior = Some(val);
+    }
 
     assert_eq!(heap.pop(), None);
     assert_eq!(heap.len(), 0);
@@ -288,9 +289,7 @@ fn unordered_push_results_in_ordered_pop() {
     run_test(|| {
         let mut heap = empty_heap();
         let vec = vec![5, 42, 1337, 77, -1, 0, 9999, 3, 65, 90, 1000000, -32];
-        let mut expected = vec.clone();
-        expected.sort_by(|a, b| b.cmp(a));
-        assert_push_equals_sorted_pop(&mut heap, vec, expected);
+        assert_push_equals_sorted_pop(&mut heap, vec);
     })
 }
 
@@ -299,9 +298,7 @@ fn max_heap_with_multiple_levels() {
     run_test(|| {
         let mut heap = empty_heap();
         let vec = vec![100, 10, 20, 30, 7, 8, 9, 17, 18, 29, 27, 28, 30];
-        let mut expected = vec.clone();
-        expected.sort_by(|a, b| b.cmp(a));
-        assert_push_equals_sorted_pop(&mut heap, vec, expected);
+        assert_push_equals_sorted_pop(&mut heap, vec);
     })
 }
 
@@ -345,8 +342,6 @@ fn min_heap_with_multiple_levels() {
             V(28),
             V(30),
         ];
-        let mut expected = vec.clone();
-        expected.sort_by(|a, b| b.cmp(a));
-        assert_push_equals_sorted_pop(&mut heap, vec, expected);
+        assert_push_equals_sorted_pop(&mut heap, vec);
     })
 }
