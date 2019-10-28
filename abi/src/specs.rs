@@ -356,6 +356,7 @@ impl MessageSpec {
 /// Some of the fields are guarded by a type-state pattern to
 /// fail at compile-time instead of at run-time. This is useful
 /// to better debug code-gen macros.
+#[allow(clippy::type_complexity)]
 pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
     spec: MessageSpec,
     marker: PhantomData<fn() -> (Selector, Mutates, Returns)>,
@@ -808,7 +809,10 @@ fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    let hex = format!("0x{:02X}{:02X}{:02X}{:02X}", s[0], s[1], s[2], s[3]);
+    let hex = format!(
+        r#"["0x{:02X}","0x{:02X}","0x{:02X}","0x{:02X}"]"#,
+        s[0], s[1], s[2], s[3]
+    );
     serializer.serialize_str(&hex)
 }
 
@@ -834,7 +838,7 @@ mod tests {
         // then
         assert_eq!(
             json,
-            "{\"name\":1,\"selector\":\"0x075BCD15\",\"args\":[],\"docs\":[]}"
+            r#"{"name":1,"selector":"[\"0x07\",\"0x5B\",\"0xCD\",\"0x15\"]","args":[],"docs":[]}"#
         );
     }
 }

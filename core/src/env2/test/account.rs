@@ -48,6 +48,11 @@ impl AccountsDb {
         self.accounts.len()
     }
 
+    /// Returns `true` if the number of accounts in the database is 0.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Inserts a new account to the data base.
     pub fn insert(&mut self, account_id: AccountId, account: Account) {
         self.accounts.insert(account_id, account);
@@ -107,7 +112,7 @@ impl Account {
         if let AccountKind::User(user_account) = &self.kind {
             return Some(user_account)
         }
-        return None
+        None
     }
 
     /// Returns the user account if `self` is a user account and otherwise return `None`.
@@ -115,7 +120,7 @@ impl Account {
         if let AccountKind::User(user_account) = &mut self.kind {
             return Some(user_account)
         }
-        return None
+        None
     }
 
     /// Returns `true` if `self` is a contract account.
@@ -131,7 +136,7 @@ impl Account {
         if let AccountKind::Contract(contract_account) = &self.kind {
             return Some(contract_account)
         }
-        return None
+        None
     }
 
     /// Returns the user account if `self` is a user account and otherwise return `None`.
@@ -139,7 +144,7 @@ impl Account {
         if let AccountKind::Contract(contract_account) = &mut self.kind {
             return Some(contract_account)
         }
-        return None
+        None
     }
 }
 

@@ -40,21 +40,19 @@ pub trait Message {
 /// Defines messages for contracts with less boilerplate code.
 #[macro_export]
 macro_rules! messages {
-    // When parsing the macro with a doc comment Rust cannot decide
-    // unambiguously if it should match the doc comment to `meta` or
-    // `expr`. Hence we introduce a `@delimiter` between the two of them.
-    // The first two rules match for macro invocations containing this
-    // delimiter, the subsequent ones add the delimiter if it's missing.
+    // There are three macros to handle the different cases of
+    // `$prefix => Foo(maybe_args, …) -> maybe_return_type;`
+    //  where `$prefix` can be either `[a, b, c, d]` or `[a; 4]`.
 
-    // With delimiter and a metavariable (typically a doc comment).
+    // Matches `[a, b, c, d] => Foo(maybe_args, …) -> return type;`.
     (
-        $( #[$msg_meta:meta] )+
-        @delimiter $msg_id:expr => $msg_name:ident (
+        $( #[$msg_meta:meta] )*
+        [ $a:literal, $b:literal, $c:literal, $d:literal $(,)? ] => $msg_name:ident (
             $( $param_name:ident : $param_ty:ty ),*
         ) -> $ret_ty:ty ;
         $($rest:tt)*
     ) => {
-        $( #[$msg_meta] )+
+        $( #[$msg_meta] )*
         #[derive(Copy, Clone)]
         pub(crate) struct $msg_name;
 
@@ -62,97 +60,46 @@ macro_rules! messages {
             type Input = ($($param_ty),*);
             type Output = $ret_ty;
 
-            const ID: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
+            const ID: $crate::MessageHandlerSelector =
+                $crate::MessageHandlerSelector::new([$a, $b, $c, $d]);
             const NAME: &'static str = stringify!($msg_name);
         }
 
         messages!($($rest)*);
     };
 
-    // With delimiter and no metavariable.
+    // Matches `[a, b, c, d] => Foo(maybe_args, …);` (no return type).
     (
-        @delimiter $msg_id:expr => $msg_name:ident (
-            $( $param_name:ident : $param_ty:ty ),*
-        ) -> $ret_ty:ty ;
-
-        $($rest:tt)*
-    ) => {
-        #[derive(Copy, Clone)]
-        pub(crate) struct $msg_name;
-
-        impl $crate::Message for $msg_name {
-            type Input = ($($param_ty),*);
-            type Output = $ret_ty;
-
-            const ID: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
-            const NAME: &'static str = stringify!($msg_name);
-        }
-
-        messages!($($rest)*);
-    };
-
-    // Without delimiter, with a metavariable and a return type.
-    (
-        $( #[$msg_meta:meta] )+
-        $msg_id:expr => $msg_name:ident (
-            $( $param_name:ident : $param_ty:ty ),*
-        ) -> $ret_ty:ty ;
-
-        $($rest:tt)*
-    ) => {
-        messages!(
-            $( #[$msg_meta] )+
-            @delimiter $msg_id => $msg_name (
-                $( $param_name : $param_ty ),*
-            ) -> $ret_ty;
-            $($rest)*
-        );
-    };
-
-    // Without delimiter, with a metavariable but no return type.
-    (
-        $( #[$msg_meta:meta] )+
-        $msg_id:expr => $msg_name:ident (
+        $( #[$msg_meta:meta] )*
+        [ $a:literal, $b:literal, $c:literal, $d:literal $(,)? ] => $msg_name:ident (
             $( $param_name:ident : $param_ty:ty ),*
         ) ;
-
         $($rest:tt)*
     ) => {
         messages!(
-            $( #[$msg_meta] )+
-            @delimiter $msg_id => $msg_name (
+            $( #[$msg_meta] )*
+            [$a, $b, $c, $d] => $msg_name (
                 $( $param_name : $param_ty ),*
             ) -> ();
             $($rest)*
         );
     };
 
-    // Without delimiter, no metavariable but a return type.
+    // Matches
+    // * `[a; 4] => Foo(maybe_args, …) -> return type;` and
+    // * `[a; 4] => Foo(maybe_args, …);`
     (
-        $msg_id:expr => $msg_name:ident (
+        $( #[$msg_meta:meta] )*
+        [ $a:literal; 4 $(,)? ] => $msg_name:ident (
             $( $param_name:ident : $param_ty:ty ),*
-        ) -> $ret_ty:ty ;
+        ) $(-> $maybe_ret:tt)*;
         $($rest:tt)*
     ) => {
         messages!(
-            @delimiter $msg_id => $msg_name (
+            $( #[$msg_meta] )*
+            [$a, $a, $a, $a] => $msg_name (
                 $( $param_name : $param_ty ),*
-            ) -> $ret_ty;
-            $($rest)*
-        );
-    };
-
-    // Without delimiter, no metavariable and no return type.
-    (
-        $msg_id:expr => $msg_name:ident (
-            $( $param_name:ident : $param_ty:ty ),*
-        ) ;
-        $($rest:tt)*
-    ) => {
-        messages!(
-            @delimiter $msg_id => $msg_name (
-                $( $param_name : $param_ty ),*
-            ) -> ();
+            ) $(-> $maybe_ret)* ;
             $($rest)*
         );
     };

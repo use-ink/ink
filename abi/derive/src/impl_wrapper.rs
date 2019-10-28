@@ -35,7 +35,7 @@ pub fn wrap(
     trait_name: &'static str,
     impl_quote: TokenStream2,
 ) -> TokenStream2 {
-    let mut renamed = String::from(format!("_IMPL_{}_FOR_", trait_name));
+    let mut renamed = format!("_IMPL_{}_FOR_", trait_name);
     renamed.push_str(ident.to_string().trim_start_matches("r#"));
     let dummy_const = Ident::new(&renamed, Span::call_site());
 

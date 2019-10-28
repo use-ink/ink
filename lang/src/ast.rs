@@ -81,6 +81,7 @@ impl Contract {
     }
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug)]
 pub enum Item {
     EnvMeta(ItemEnvMeta),
@@ -127,14 +128,11 @@ pub struct EventArg {
 impl EventArg {
     /// Returns `true` if the event argument is indexed.
     pub fn is_indexed(&self) -> bool {
-        self.attrs
-            .iter()
-            .find(|attr| {
-                attr.style == syn::AttrStyle::Outer
-                    && attr.path.is_ident("indexed")
-                    && attr.tts.is_empty()
-            })
-            .is_some()
+        self.attrs.iter().any(|attr| {
+            attr.style == syn::AttrStyle::Outer
+                && attr.path.is_ident("indexed")
+                && attr.tts.is_empty()
+        })
     }
 }
 
@@ -320,6 +318,7 @@ impl FnDecl {
     }
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone)]
 pub enum FnArg {
     SelfRef(syn::ArgSelfRef),

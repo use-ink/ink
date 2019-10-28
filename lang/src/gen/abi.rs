@@ -41,9 +41,9 @@ fn trim_doc_string(attr: &syn::Attribute) -> String {
         .to_string()
         .trim_start_matches('=')
         .trim_start()
-        .trim_start_matches("r")
-        .trim_start_matches("\"")
-        .trim_end_matches("\"")
+        .trim_start_matches('r')
+        .trim_start_matches('\"')
+        .trim_end_matches('\"')
         .trim()
         .into()
 }
@@ -220,7 +220,7 @@ fn generate_type_spec_code(ty: &syn::Type) -> TokenStream2 {
             return without_display_name(ty)
         }
         let path = &type_path.path;
-        if path.segments.len() == 0 {
+        if path.segments.is_empty() {
             return without_display_name(ty)
         }
         let segs = path

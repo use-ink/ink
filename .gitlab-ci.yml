@@ -15,7 +15,6 @@ variables:
   SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
-  RUSTFLAGS:                       "-C link-dead-code"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
 
 .collect-artifacts:                &collect-artifacts
@@ -33,6 +32,8 @@ variables:
     - rustc -vV
     - rustup show
     - bash --version
+    # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
+    - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
     - sccache -s
   only:
     - master
