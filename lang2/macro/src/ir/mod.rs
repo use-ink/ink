@@ -37,6 +37,8 @@ pub use self::{
         FunctionSelector,
         IdentType,
         Item,
+        InkItem,
+        RustItem,
         ItemEvent,
         ItemImpl,
         ItemStorage,

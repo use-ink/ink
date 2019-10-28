@@ -105,14 +105,30 @@ pub struct MetaVersion {
     pub patch: usize,
 }
 
-/// Intermediate description of a contracts components.
+/// Either an ink! or a Rust item.
 #[derive(From)]
 pub enum Item {
-    /// A storage definition.
+    /// An ink! item.
+    Ink(InkItem),
+    /// A Rust item.
+    Rust(RustItem),
+}
+
+/// A simple wrapper around items that are identified to be Rust.
+#[derive(From)]
+pub struct RustItem {
+    /// The inner Rust item.
+    pub item: syn::Item,
+}
+
+/// Intermediate description of a contracts components.
+#[derive(From)]
+pub enum InkItem {
+    /// The ink! storage definition.
     Storage(ItemStorage),
-    /// An event definition.
+    /// An ink! event definition.
     Event(ItemEvent),
-    /// An implementation block.
+    /// An ink! implementation block.
     Impl(ItemImpl),
 }
 

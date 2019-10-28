@@ -16,27 +16,30 @@
 
 //! Contains all converion routines from Rust AST to ink! IR.
 
-use crate::ir::{
-    Contract,
-    FnArg,
-    Function,
-    FunctionKind,
-    FunctionSelector,
-    IdentType,
-    Item,
-    ItemEvent,
-    ItemImpl,
-    ItemStorage,
-    KindConstructor,
-    KindMessage,
-    Marker,
-    MetaInfo,
-    MetaParam,
-    MetaTypes,
-    ParamTypes,
-    Params,
-    Signature,
-    SimpleMarker,
+use crate::{
+    ir,
+    ir::{
+        utils,
+        Contract,
+        FnArg,
+        Function,
+        FunctionKind,
+        FunctionSelector,
+        IdentType,
+        ItemEvent,
+        ItemImpl,
+        ItemStorage,
+        KindConstructor,
+        KindMessage,
+        Marker,
+        MetaInfo,
+        MetaParam,
+        MetaTypes,
+        ParamTypes,
+        Params,
+        Signature,
+        SimpleMarker,
+    },
 };
 use core::convert::TryFrom;
 use either::Either;
@@ -88,15 +91,27 @@ impl TryFrom<(Params, syn::ItemMod)> for Contract {
             }
             Some((_brace, items)) => items.clone(),
         };
-        let items = items
+        use itertools::Itertools as _;
+        let (ink_items, _rust_items): (Vec<_>, Vec<_>) = items
             .into_iter()
-            .map(Item::try_from)
-            .collect::<Result<Vec<_>>>()?;
-        let (storage, events, functions) = split_items(items)?;
+            .map(ir::Item::try_from)
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .partition_map(|item| match item {
+                ir::Item::Ink(ink_item) => Either::Left(ink_item),
+                ir::Item::Rust(rust_item) => Either::Right(rust_item),
+            });
+        let (storage, events, functions) = split_items(ink_items)?;
         if functions.iter().filter(|f| f.is_constructor()).count() == 0 {
             bail!(
                 &item_mod,
-                "ink! contracts require at least one constructor function declared with `#[ink(constructor)]`",
+                "ink! contracts require at least one `#[ink(constructor)]`"
+            )
+        }
+        if functions.iter().filter(|f| f.is_message()).count() == 0 {
+            bail!(
+                &item_mod,
+                "ink! contracts require at least one `#[ink(message)]`"
             )
         }
         let meta_info = MetaInfo::try_from(params)?;
@@ -127,12 +142,8 @@ impl TryFrom<Params> for MetaInfo {
                 bail_span!(param.span(), "encountered parameter multiple times",)
             }
             match param {
-                MetaParam::Types(param) => {
-                    env_types = Some(MetaTypes::try_from(param)?)
-                }
-                MetaParam::Version(param) => {
-                    ink_version = Some(param.data)
-                }
+                MetaParam::Types(param) => env_types = Some(MetaTypes::try_from(param)?),
+                MetaParam::Version(param) => ink_version = Some(param.data),
                 MetaParam::DynamicAllocations(param) => {
                     dynamic_allocations = Some(param.value.value)
                 }
@@ -142,10 +153,12 @@ impl TryFrom<Params> for MetaInfo {
             }
         }
         let ink_version = match ink_version {
-            None => bail_span!(
-                params.span(),
-                "expected `types` argument at `#[ink::contract(..)]`",
-            ),
+            None => {
+                bail_span!(
+                    params.span(),
+                    "expected `types` argument at `#[ink::contract(..)]`",
+                )
+            }
             Some(ink_version) => ink_version,
         };
         Ok(Self {
@@ -554,29 +567,59 @@ impl TryFrom<syn::FnArg> for FnArg {
     }
 }
 
-impl TryFrom<syn::Item> for Item {
+impl TryFrom<syn::Item> for ir::Item {
     type Error = syn::Error;
 
     fn try_from(item: syn::Item) -> Result<Self> {
         match item {
-            syn::Item::Impl(item_impl) => ItemImpl::try_from(item_impl).map(Into::into),
+            syn::Item::Impl(item_impl) => {
+                // An ink! `impl` block is identified by having `#[ink(..)]`
+                // markers on at least one function or having an `#[ink(impl)]`
+                // marker on itself.
+                let has_ink_marker_on_impl = utils::has_ink_attributes(&item_impl.attrs);
+                // Queries all methods in the `impl` block for `#[ink(..)]` markers.
+                let has_ink_marker_on_fns = item_impl
+                    .items
+                    .iter()
+                    .filter_map(|impl_item| {
+                        match impl_item {
+                            syn::ImplItem::Method(method) => Some(method),
+                            _ => None,
+                        }
+                    })
+                    .filter(|method| utils::has_ink_attributes(&method.attrs))
+                    .count()
+                    > 0;
+                if has_ink_marker_on_impl || has_ink_marker_on_fns {
+                    ir::ItemImpl::try_from(item_impl)
+                        .map(Into::into)
+                        .map(ir::Item::Ink)
+                } else {
+                    Ok(ir::RustItem::from(syn::Item::Impl(item_impl)).into())
+                }
+            }
             syn::Item::Struct(item_struct) => {
-                // Can either be a storage or event struct.
-                let ink_attrs = item_struct
+                let ink_markers = item_struct
                     .attrs
                     .iter()
                     .cloned()
                     .filter_map(|attr| Marker::try_from(attr).ok())
                     .collect::<Vec<_>>();
-                if ink_attrs.iter().any(|meta| meta.is_simple("event")) {
-                    return ItemEvent::try_from(item_struct).map(Into::into)
+                if ink_markers.is_empty() {
+                    Ok(ir::RustItem::from(syn::Item::Struct(item_struct)).into())
+                } else if ink_markers.iter().any(|marker| marker.is_simple("storage")) {
+                    ir::ItemStorage::try_from(item_struct)
+                        .map(Into::into)
+                        .map(ir::Item::Ink)
+                } else if ink_markers.iter().any(|marker| marker.is_simple("event")) {
+                    ir::ItemEvent::try_from(item_struct)
+                        .map(Into::into)
+                        .map(ir::Item::Ink)
+                } else {
+                    bail!(item_struct, "found invalid `#[ink(..)]` marker")
                 }
-                // Users can leave away `#[ink(storage)]` so this can be the fallback.
-                return ItemStorage::try_from(item_struct).map(Into::into)
             }
-            unsupported => {
-                bail!(unsupported, "encountered unsupported contract module item",)
-            }
+            rust_item => Ok(ir::Item::Rust(rust_item.into())),
         }
     }
 }
@@ -587,11 +630,13 @@ impl TryFrom<syn::Item> for Item {
 ///
 /// - When there is no storage struct.
 /// - When a contract item is invalid.
-fn split_items(items: Vec<Item>) -> Result<(ItemStorage, Vec<ItemEvent>, Vec<Function>)> {
-    let (mut storages, non_storage_items): (Vec<ItemStorage>, Vec<Item>) =
+fn split_items(
+    items: Vec<ir::InkItem>,
+) -> Result<(ir::ItemStorage, Vec<ir::ItemEvent>, Vec<ir::Function>)> {
+    let (mut storages, non_storage_items): (Vec<ir::ItemStorage>, Vec<ir::InkItem>) =
         items.into_iter().partition_map(|item| {
             match item {
-                Item::Storage(item_storage) => Either::Left(item_storage),
+                ir::InkItem::Storage(item_storage) => Either::Left(item_storage),
                 other => Either::Right(other),
             }
         });
@@ -612,9 +657,9 @@ fn split_items(items: Vec<Item>) -> Result<(ItemStorage, Vec<ItemEvent>, Vec<Fun
     let (events, impl_blocks): (Vec<ItemEvent>, Vec<ItemImpl>) =
         non_storage_items.into_iter().partition_map(|item| {
             match item {
-                Item::Event(item_event) => Either::Left(item_event),
-                Item::Impl(item_impl) => Either::Right(item_impl),
-                Item::Storage(_) => {
+                ir::InkItem::Event(item_event) => Either::Left(item_event),
+                ir::InkItem::Impl(item_impl) => Either::Right(item_impl),
+                ir::InkItem::Storage(_) => {
                     unreachable!(
                         "we should not have any storages left at this point; qed"
                     )
