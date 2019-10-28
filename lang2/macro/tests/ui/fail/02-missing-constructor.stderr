@@ -1,4 +1,4 @@
-error: ink! contracts require at least one constructor function declared with `#[ink(constructor)]`
+error: ink! contracts require at least one `#[ink(constructor)]`
   --> $DIR/02-missing-constructor.rs:9:1
    |
 9  | / mod noop {
