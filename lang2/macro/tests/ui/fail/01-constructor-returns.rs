@@ -13,6 +13,9 @@ mod noop {
     impl Noop {
         #[ink(constructor)]
         fn new(&mut self) -> Self {}
+
+        #[ink(message)]
+        fn noop(&self) {}
     }
 }
 

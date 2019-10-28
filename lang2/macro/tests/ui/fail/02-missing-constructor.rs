@@ -9,6 +9,11 @@ use ink_lang2 as ink;
 mod noop {
     #[ink(storage)]
     struct Noop {}
+
+    impl Noop {
+        #[ink(message)]
+        fn noop(&self) {}
+    }
 }
 
 fn main() {}
