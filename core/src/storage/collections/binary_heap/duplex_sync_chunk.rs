@@ -85,7 +85,7 @@ where
                 let mut existing_group = existing_group.0;
                 let in_group = (n % COUNT) as usize;
 
-                let taken = core::mem::replace(&mut existing_group[in_group], None);
+                let taken = existing_group[in_group].take();
                 let _ = self.0.put(group, Group(existing_group));
                 taken
             }
@@ -104,7 +104,7 @@ where
                 None
             }
             Some(existing_group) => {
-                core::mem::replace(&mut existing_group.0[in_group], Some(new_val))
+                existing_group.0[in_group].replace(new_val)
             }
         }
     }
