@@ -55,6 +55,11 @@ impl Parse for UnsuffixedLitInt {
     }
 }
 
+/// Returns `true` if the given attribute is any of `#[ink(..)]`.
+pub fn is_ink_attribute(attr: &syn::Attribute) -> bool {
+    attr.path.is_ident("ink")
+}
+
 /// Yields back the filtered `#[ink(..)]` markers if any.
 pub fn filter_ink_attributes<'a, I>(
     attrs: I,
@@ -62,7 +67,7 @@ pub fn filter_ink_attributes<'a, I>(
 where
     I: IntoIterator<Item = &'a syn::Attribute> + 'a
 {
-    attrs.into_iter().filter(move |attr| attr.path.is_ident("ink"))
+    attrs.into_iter().filter(|attr| is_ink_attribute(attr))
 }
 
 /// Returns `true` if the attributes contain any `#[ink(..)]` markers.
