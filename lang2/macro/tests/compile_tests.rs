@@ -26,4 +26,5 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/01-constructor-returns.rs");
     t.compile_fail("tests/ui/fail/02-missing-constructor.rs");
     t.compile_fail("tests/ui/fail/03-invalid-version.rs");
+    t.compile_fail("tests/ui/fail/04-missing-message.rs");
 }
