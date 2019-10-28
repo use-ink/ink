@@ -55,6 +55,7 @@ impl GenerateCode for ContractModule<'_> {
         let dispatch = self.generate_code_using::<Dispatch>();
         let generate_abi = self.generate_code_using::<GenerateAbi>();
         let events = self.generate_code_using::<Events>();
+        let non_ink_items = &self.contract.non_ink_items;
 
         quote! {
             mod #ident {
@@ -73,6 +74,10 @@ impl GenerateCode for ContractModule<'_> {
                 #generate_abi
                 #dispatch
                 #events
+
+                #(
+                    #non_ink_items
+                )*
             }
 
             pub use #ident::#storage_ident;

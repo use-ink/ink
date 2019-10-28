@@ -45,6 +45,11 @@ pub struct Contract {
     pub events: Vec<ItemEvent>,
     /// Messages, constructors and methods of the contract.
     pub functions: Vec<Function>,
+    /// All non-ink! items defined in the contract module.
+    ///
+    /// These generally will just be carried and re-generated
+    /// and not be restricted by any ink! related analysis.
+    pub non_ink_items: Vec<RustItem>,
 }
 
 /// The meta information for a contract.
@@ -119,6 +124,12 @@ pub enum Item {
 pub struct RustItem {
     /// The inner Rust item.
     pub item: syn::Item,
+}
+
+impl ToTokens for RustItem {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        self.item.to_tokens(tokens)
+    }
 }
 
 /// Intermediate description of a contracts components.

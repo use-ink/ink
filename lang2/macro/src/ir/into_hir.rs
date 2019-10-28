@@ -92,7 +92,7 @@ impl TryFrom<(Params, syn::ItemMod)> for Contract {
             Some((_brace, items)) => items.clone(),
         };
         use itertools::Itertools as _;
-        let (ink_items, _rust_items): (Vec<_>, Vec<_>) = items
+        let (ink_items, rust_items): (Vec<_>, Vec<_>) = items
             .into_iter()
             .map(ir::Item::try_from)
             .collect::<Result<Vec<_>>>()?
@@ -123,6 +123,7 @@ impl TryFrom<(Params, syn::ItemMod)> for Contract {
             storage,
             events,
             functions,
+            non_ink_items: rust_items,
         })
     }
 }
