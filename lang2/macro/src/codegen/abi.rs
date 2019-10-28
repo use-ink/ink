@@ -17,6 +17,7 @@
 use crate::{
     codegen::GenerateCode,
     ir,
+    ir::utils,
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -71,7 +72,7 @@ impl GenerateAbi<'_> {
                 let ident_lit = constructor.sig.ident.to_string();
                 let selector_bytes = kind.selector.as_bytes();
 
-                let docs = ir::filter_map_trimmed_doc_strings(&constructor.attrs);
+                let docs = utils::filter_map_trimmed_doc_strings(&constructor.attrs);
                 let args = constructor
                     .sig
                     .inputs()
@@ -156,7 +157,7 @@ impl GenerateAbi<'_> {
                 let selector_bytes = kind.selector.as_bytes();
                 let is_mut = message.sig.is_mut();
 
-                let docs = ir::filter_map_trimmed_doc_strings(&message.attrs);
+                let docs = utils::filter_map_trimmed_doc_strings(&message.attrs);
 
                 let args = message
                     .sig
@@ -202,7 +203,7 @@ impl GenerateAbi<'_> {
                 .cloned()
                 .filter_map(|attr| ir::Marker::try_from(attr).ok())
                 .any(|marker| marker.ident() == "topic");
-            let docs = ir::filter_map_trimmed_doc_strings(&field.attrs);
+            let docs = utils::filter_map_trimmed_doc_strings(&field.attrs);
             let ty_spec = self.generate_type_spec(&field.ty);
 
             quote_spanned!(span =>
@@ -223,7 +224,7 @@ impl GenerateAbi<'_> {
             let ident = &event.ident;
             let ident_lit = ident.to_string();
 
-            let docs = ir::filter_map_trimmed_doc_strings(&event.attrs);
+            let docs = utils::filter_map_trimmed_doc_strings(&event.attrs);
             let args = self.generate_event_args(event);
 
             quote_spanned!(span =>
@@ -240,7 +241,7 @@ impl GenerateAbi<'_> {
     }
 
     fn generate_docs<'a>(&'a self) -> impl Iterator<Item = String> + 'a {
-        ir::filter_map_trimmed_doc_strings(&self.contract.attrs)
+        utils::filter_map_trimmed_doc_strings(&self.contract.attrs)
     }
 
     fn generate_contract(&self) -> TokenStream2 {

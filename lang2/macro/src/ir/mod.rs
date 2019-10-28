@@ -23,7 +23,7 @@
 mod data;
 mod into_hir;
 mod params;
-mod utils;
+pub mod utils;
 
 #[cfg(test)]
 mod tests;
@@ -54,9 +54,5 @@ pub use self::{
         ParamTypes,
         ParamVersion,
         Params,
-    },
-    utils::{
-        filter_map_trimmed_doc_strings,
-        UnsuffixedLitInt,
     },
 };
