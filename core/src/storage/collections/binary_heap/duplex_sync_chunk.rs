@@ -23,7 +23,9 @@
 //! structure -- the value which is stored at index `0` (the root) will
 //! always be stored in its own group with no other values in it. The
 //! intention is to be able to store child nodes paired together
-//! in a group.
+//! in a group, since for query operations you have to access both
+//! elements anyways. This allows to skip one expensive read for every
+//! accessed pair.
 //!
 //! For example, for `COUNT = 2` the first group (at index `0`) will
 //! contain `[Some(root), None]`. The subsequent group at index `1`
