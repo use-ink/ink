@@ -3,28 +3,28 @@
 use ink_core::storage;
 use ink_lang2 as ink;
 
-/// A token ID.
-pub type TokenId = u32;
-
-#[derive(scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
-pub enum Error {
-    SpecifiedTokenHasNoOwner,
-    ApprovalToCurrentOwner,
-    ApproveCallerNotLegitimate,
-    ApprovedQueryForNonexistentToken,
-    ApproveToCaller,
-    TransferCallerIsNotOwnerOrApproved,
-    OperatorQueryForNonexistentToken,
-    TransferOfTokenThatIsNotOwned,
-    TokenAlreadyMinted,
-    CannotBurnNonexistentToken,
-}
-
-pub type Result<T> = core::result::Result<T, Error>;
-
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
+    /// A token ID.
+    pub type TokenId = u32;
+
+    #[derive(scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+    pub enum Error {
+        SpecifiedTokenHasNoOwner,
+        ApprovalToCurrentOwner,
+        ApproveCallerNotLegitimate,
+        ApprovedQueryForNonexistentToken,
+        ApproveToCaller,
+        TransferCallerIsNotOwnerOrApproved,
+        OperatorQueryForNonexistentToken,
+        TransferOfTokenThatIsNotOwned,
+        TokenAlreadyMinted,
+        CannotBurnNonexistentToken,
+    }
+
+    pub type Result<T> = core::result::Result<T, Error>;
+
     /// The storage items for a typical ERC721 token implementation.
     #[ink(storage)]
     struct Erc721 {
