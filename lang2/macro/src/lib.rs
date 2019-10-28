@@ -23,6 +23,7 @@ mod codegen;
 mod contract;
 mod extensions;
 mod ir;
+mod lint;
 
 use proc_macro::TokenStream;
 
