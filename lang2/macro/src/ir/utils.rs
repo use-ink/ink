@@ -53,6 +53,16 @@ pub fn is_ink_attribute(attr: &syn::Attribute) -> bool {
     attr.path.is_ident("ink")
 }
 
+/// Yields back all non-`#[ink(..)]` attributes if any.
+pub fn filter_non_ink_attributes<'a, I>(
+    attrs: I,
+) -> impl Iterator<Item = &'a syn::Attribute> + 'a
+where
+    I: IntoIterator<Item = &'a syn::Attribute> + 'a,
+{
+    attrs.into_iter().filter(|attr| !is_ink_attribute(attr))
+}
+
 /// Yields back the filtered `#[ink(..)]` markers if any.
 pub fn filter_ink_attributes<'a, I>(
     attrs: I,
