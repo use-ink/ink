@@ -72,11 +72,11 @@ impl GenerateCode for ContractModule<'_> {
 
                     #storage
                     #event_helpers
+                    #dispatch
                 }
                 pub type #storage_ident = __ink_private::StorageAndEnv;
 
                 #generate_abi
-                #dispatch
                 #event_structs
 
                 #(
