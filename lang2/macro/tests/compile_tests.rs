@@ -28,4 +28,5 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/03-invalid-version.rs");
     t.compile_fail("tests/ui/fail/04-missing-message.rs");
     t.compile_fail("tests/ui/fail/05-forbidden-idents.rs");
+    t.compile_fail("tests/ui/fail/06-access-generated-fields.rs");
 }

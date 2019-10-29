@@ -1,0 +1,5 @@
+error[E0616]: field `__storage` of struct `noop::__ink_private::__ink_storage::StorageAndEnv` is private
+  --> $DIR/06-access-generated-fields.rs:16:22
+   |
+16 |             let _ = &self.__storage;
+   |                      ^^^^^^^^^^^^^^
