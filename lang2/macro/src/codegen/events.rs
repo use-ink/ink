@@ -17,6 +17,7 @@
 use crate::{
     codegen::GenerateCode,
     ir,
+    ir::utils,
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -136,10 +137,7 @@ impl Events<'_> {
             let span = item_event.span();
             let ident = &item_event.ident;
             use core::convert::TryFrom as _;
-            let attrs = item_event
-                .attrs
-                .iter()
-                .filter(|&attr| ir::Marker::try_from(attr.clone()).is_err());
+            let attrs = utils::filter_non_ink_attributes(&item_event.attrs);
             let mut fields = item_event.fields.clone();
             fields.named.iter_mut().for_each(|field| {
                 // Set visibility of all fields to `pub`.

@@ -19,10 +19,9 @@ use crate::{
     ir::{
         Contract,
         Function,
-        Marker,
+        utils,
     },
 };
-use core::convert::TryFrom as _;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
@@ -208,12 +207,7 @@ impl Storage<'_> {
     }
 
     fn generate_storage_and_env_wrapper(&self) -> TokenStream2 {
-        // Filter all `ink` attributes for code generation.
-        let storage = &self.contract.storage;
-        let attrs = storage
-            .attrs
-            .iter()
-            .filter(|&attr| Marker::try_from(attr.clone()).is_err());
+        let attrs = utils::filter_non_ink_attributes(&self.contract.storage.attrs);
 
         quote! {
             #(#attrs)*
@@ -280,11 +274,7 @@ impl Storage<'_> {
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
         let span = storage.span();
-        // Filter all `ink` attributes for code generation.
-        let attrs = storage
-            .attrs
-            .iter()
-            .filter(|&attr| Marker::try_from(attr.clone()).is_err());
+        let attrs = utils::filter_non_ink_attributes(&storage.attrs);
         let mut fields = storage.fields.clone();
         fields.named.iter_mut().for_each(|field| {
             field.vis = syn::Visibility::Public(syn::VisPublic {
@@ -312,11 +302,7 @@ impl Storage<'_> {
         } else {
             quote_spanned!(span => )
         };
-        // Filter all `ink` attributes for code generation.
-        let attrs = function
-            .attrs
-            .iter()
-            .filter(|&attr| Marker::try_from(attr.clone()).is_err());
+        let attrs = utils::filter_non_ink_attributes(&self.contract.storage.attrs);
         let ident = &function.sig.ident;
         let (_, type_generics, where_clause) = function.sig.generics.split_for_impl();
         let inputs = &function.sig.inputs;
