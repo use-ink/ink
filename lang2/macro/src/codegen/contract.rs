@@ -80,7 +80,12 @@ impl GenerateCode for ContractModule<'_> {
                 )*
             }
 
-            pub use #ident::#storage_ident;
+            // Only re-export if we want to generate the ABI.
+            // We should rethink this approach is it isn't a good
+            // idea to generate code outside of the scope of the
+            // given ink! module.
+            #[cfg(feature = "ink-generate-abi")]
+            pub use crate::#ident::#storage_ident;
         }
     }
 }
