@@ -54,6 +54,11 @@ impl GenerateCode for Dispatch<'_> {
         let entry_points = self.generate_entry_points();
 
         quote! {
+            // We do not genreate contract dispatch code
+            // while the contract is being tested or the
+            // `test-env` has been enabled since both resulting
+            // compilations do not require dispatching.
+            #[cfg(not(any(test, feature = "test-env")))]
             const _: () = {
                 #message_namespaces
                 #message_trait_impls
