@@ -23,7 +23,11 @@ pub use crate::{
         abi::GenerateAbi,
         dispatch::Dispatch,
         env_types::EnvTypes,
-        events::{EventHelpers, EventStructs, EventImports},
+        events::{
+            EventHelpers,
+            EventImports,
+            EventStructs,
+        },
         storage::Storage,
         testable::TestWrapper,
         GenerateCode,
