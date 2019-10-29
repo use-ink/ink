@@ -44,3 +44,25 @@ impl GenerateCode for EnvTypes<'_> {
         }
     }
 }
+
+/// Generates code for the environmental types used by a contract.
+#[derive(From)]
+pub struct EnvTypesImports<'a> {
+    /// The contract to generate code for.
+    _contract: &'a Contract,
+}
+
+impl GenerateCode for EnvTypesImports<'_> {
+    fn generate_code(&self) -> TokenStream2 {
+        quote! {
+            use super::{
+                Env,
+                AccountId,
+                Balance,
+                Hash,
+                Moment,
+                BlockNumber,
+            };
+        }
+    }
+}

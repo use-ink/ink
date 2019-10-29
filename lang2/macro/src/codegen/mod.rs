@@ -51,7 +51,7 @@ mod events;
 mod storage;
 mod testable;
 
-use crate::ir::Contract;
+use crate::ir;
 use proc_macro2::TokenStream as TokenStream2;
 
 /// Types implementing this trait are code generators for the ink! language.
@@ -63,12 +63,12 @@ pub trait GenerateCode {
 /// Types implementing this trait can use sub-generators to generate code.
 pub trait GenerateCodeUsing {
     /// Returns a reference to the underlying contract.
-    fn contract(&self) -> &Contract;
+    fn contract(&self) -> &ir::Contract;
 
     /// Generates ink! contract code using a sub-generator.
     fn generate_code_using<'a, G>(&'a self) -> TokenStream2
     where
-        G: From<&'a Contract> + GenerateCode,
+        G: From<&'a ir::Contract> + GenerateCode,
     {
         // crate::codegen::generate_code::<G>(self.contract())
         G::from(self.contract()).generate_code()

@@ -23,7 +23,7 @@ pub use crate::{
         abi::GenerateAbi,
         dispatch::Dispatch,
         env_types::EnvTypes,
-        events::Events,
+        events::{EventHelpers, EventStructs, EventImports},
         storage::Storage,
         GenerateCode,
         GenerateCodeUsing,
@@ -54,7 +54,9 @@ impl GenerateCode for ContractModule<'_> {
         let storage = self.generate_code_using::<Storage>();
         let dispatch = self.generate_code_using::<Dispatch>();
         let generate_abi = self.generate_code_using::<GenerateAbi>();
-        let events = self.generate_code_using::<Events>();
+        let event_helpers = self.generate_code_using::<EventHelpers>();
+        let event_structs = self.generate_code_using::<EventStructs>();
+        let event_imports = self.generate_code_using::<EventImports>();
         let non_ink_items = &self.contract.non_ink_items;
 
         quote! {
@@ -66,14 +68,16 @@ impl GenerateCode for ContractModule<'_> {
                 // Private struct and other type definitions.
                 mod __ink_private {
                     use super::*;
+                    #event_imports
 
                     #storage
+                    #event_helpers
                 }
                 pub type #storage_ident = __ink_private::StorageAndEnv;
 
                 #generate_abi
                 #dispatch
-                #events
+                #event_structs
 
                 #(
                     #non_ink_items
