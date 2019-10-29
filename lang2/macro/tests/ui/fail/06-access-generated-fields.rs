@@ -9,7 +9,9 @@ mod noop {
 
     impl Noop {
         #[ink(constructor)]
-        fn new(&mut self) {}
+        fn new(&mut self) {
+            let _ = &self.__env;
+        }
 
         #[ink(message)]
         fn noop(&self) {
