@@ -26,6 +26,7 @@ mod abi;
 mod contract;
 mod dispatcher;
 mod error;
+mod testable;
 mod traits;
 
 pub use ink_lang2_macro::contract;
@@ -56,6 +57,7 @@ pub use self::{
         DispatchResult,
         DispatchRetCode,
     },
+    testable::InstantiateTestable,
     traits::{
         AccessEnv,
         FnInput,

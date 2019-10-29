@@ -17,9 +17,9 @@
 use crate::{
     codegen::GenerateCode,
     ir::{
+        utils,
         Contract,
         Function,
-        utils,
     },
 };
 use derive_more::From;
@@ -215,6 +215,7 @@ impl Storage<'_> {
                 feature = "ink-generate-abi",
                 derive(type_metadata::Metadata)
             )]
+            #[cfg_attr(any(test, feature = "test-env"), derive(Debug))]
             pub struct StorageAndEnv {
                 __storage: Storage,
                 __env: UsedEnv,
@@ -288,6 +289,7 @@ impl Storage<'_> {
                 feature = "ink-generate-abi",
                 derive(type_metadata::Metadata, ink_abi::HasLayout)
             )]
+            #[cfg_attr(any(test, feature = "test-env"), derive(Debug))]
             pub struct Storage
                 #fields
         )

@@ -209,7 +209,6 @@ impl Dispatch<'_> {
     }
 
     fn generate_dispatch_using_mode(&self) -> TokenStream2 {
-        let storage_ident = &self.contract.storage.ident;
         let fragments = self
             .contract
             .functions
@@ -217,11 +216,11 @@ impl Dispatch<'_> {
             .map(|fun| self.generate_dispatch_using_mode_fragment(fun));
 
         quote! {
-            impl ink_lang2::DispatchUsingMode for #storage_ident {
+            impl ink_lang2::DispatchUsingMode for StorageAndEnv {
                 fn dispatch_using_mode(
                     mode: ink_lang2::DispatchMode
                 ) -> core::result::Result<(), ink_lang2::DispatchError> {
-                    ink_lang2::Contract::with_storage::<#storage_ident>()
+                    ink_lang2::Contract::with_storage::<StorageAndEnv>()
                         #(
                             #fragments
                         )*
@@ -233,14 +232,12 @@ impl Dispatch<'_> {
     }
 
     fn generate_entry_points(&self) -> TokenStream2 {
-        let storage_ident = &self.contract.storage.ident;
-
         quote! {
             #[cfg(not(test))]
             #[no_mangle]
             fn deploy() -> u32 {
                 ink_lang2::DispatchRetCode::from(
-                    <#storage_ident as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                    <StorageAndEnv as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
                         ink_lang2::DispatchMode::Instantiate,
                     ),
                 )
@@ -251,7 +248,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             fn call() -> u32 {
                 ink_lang2::DispatchRetCode::from(
-                    <#storage_ident as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                    <StorageAndEnv as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
                         ink_lang2::DispatchMode::Call,
                     ),
                 )
