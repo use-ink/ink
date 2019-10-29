@@ -14,12 +14,42 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+/// Generate principles about the code generation of ink!.
+///
+/// The user provided module that has the `#[ink::contract]` is called
+/// the ink! module.
+///
+/// - User provided definitions such as the `#[ink(event)]` definitions
+///   but also non-ink! definitions shall be re-generated at the root of the ink! module.
+///   The only modification on these user provided definitions is the
+///   removal of `#[ink(..)]` attributes. The only exception to
+///   this rule is the `#[ink(storage)] struct` that is going to be generated
+///   within `__ink_private` module because of required structural changes as
+///   well as to restrict access to certain implementation details.
+/// - All utility and helper definitions used exclusively by ink!
+///   shall be defined within the `__ink_private` module that itself
+///   is defined as child of the ink! module. Further sub-modules
+///   inside this structure are allowed to further restrict scopes.
+/// - Code genenration shall avoid introducing new names and instead rely on
+///   already given names and definitions or use techniques such as using
+///   generic utility structures and `[(); N]` generics where `N` is a unique
+///   hash of some required entity.
+/// - Code shall generated with respect to runtime efficiency to not waste gas
+///   upon contract execution. For this the generated code shall try to use
+///   compile-time execution friendly routines that the compiler is known
+///   to handle efficiently.
+/// - Generated code shall never conflict with user provided code. This goes
+///   hand-in-hand with avoiding name clashes but further says that types shall
+///   not implement non-ink! traits if not necessary and instead rely optionally
+///   on the user to define them.
+
 mod abi;
 mod contract;
 mod dispatch;
 mod env_types;
 mod events;
 mod storage;
+mod testable;
 
 use crate::ir::Contract;
 use proc_macro2::TokenStream as TokenStream2;
