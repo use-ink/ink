@@ -40,8 +40,8 @@ use crate::storage::{
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
-    LayoutStruct,
     LayoutField,
+    LayoutStruct,
     StorageLayout,
 };
 use scale::{
@@ -82,9 +82,7 @@ where
     fn layout(&self) -> StorageLayout {
         LayoutStruct::new(
             Self::meta_type(),
-            vec![
-                LayoutField::of("sync_chunk", &self.0),
-            ],
+            vec![LayoutField::of("sync_chunk", &self.0)],
         ).into()
     }
 }
