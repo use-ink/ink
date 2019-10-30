@@ -305,20 +305,8 @@ fn max_heap_with_multiple_levels() {
 /// A simple wrapper struct which is stored in the heap
 /// for testing purposes (mostly to verify that custom
 /// implemented `Ord` and `PartialOrd` are respected).
-#[derive(Clone, Debug, Eq, PartialEq, Encode, Decode)]
+#[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Encode, Decode)]
 struct V(u32);
-
-impl Ord for V {
-    fn cmp(&self, other: &V) -> Ordering {
-        other.0.cmp(&self.0)
-    }
-}
-
-impl PartialOrd for V {
-    fn partial_cmp(&self, other: &V) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
 
 #[test]
 fn min_heap_with_multiple_levels() {
