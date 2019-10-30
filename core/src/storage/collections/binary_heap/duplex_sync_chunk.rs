@@ -38,6 +38,7 @@ use crate::storage::{
     Flush,
 };
 use scale::{
+    Codec,
     Decode,
     Encode,
 };
@@ -64,7 +65,7 @@ where
 
 impl<T> DuplexSyncChunk<T>
 where
-    T: scale::Encode + scale::Decode,
+    T: Codec,
 {
     pub fn new(chunk: SyncChunk<Group<T>>) -> DuplexSyncChunk<T> {
         DuplexSyncChunk(chunk)

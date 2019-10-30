@@ -224,7 +224,7 @@ impl<T> Encode for BinaryHeap<T> {
 
 impl<T> Decode for BinaryHeap<T>
 where
-    T: Encode + Decode,
+    T: Codec,
 {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let len = storage::Value::decode(input)?;
@@ -238,7 +238,7 @@ where
 
 impl<T> AllocateUsing for BinaryHeap<T>
 where
-    T: Encode + Decode,
+    T: Codec,
 {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
