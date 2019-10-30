@@ -131,7 +131,7 @@ impl<T> SyncChunk<T> {
         self.cache.update_mut(n, None);
     }
 
-    /// Returns the unterlying key to the cells.
+    /// Returns the underlying key to the cells.
     ///
     /// # Note
     ///

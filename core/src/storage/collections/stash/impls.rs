@@ -62,7 +62,7 @@ use type_metadata::Metadata;
 #[derive(Debug)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Stash<T> {
-    /// Stores densly packed general stash information.
+    /// Stores densely packed general stash information.
     header: storage::Value<StashHeader>,
     /// The entries of the stash.
     entries: SyncChunk<Entry<T>>,
@@ -74,7 +74,7 @@ pub struct Stash<T> {
 ///
 /// Separation of these fields into a sub structure has been made
 /// for performance reasons so that they all reside in the same
-/// storage entiry. This allows implementations to perform less reads
+/// storage entity. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
 #[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
@@ -336,7 +336,7 @@ impl<T> Stash<T> {
         Values::new(self)
     }
 
-    /// Returns the unterlying key to the cells.
+    /// Returns the underlying key to the cells.
     ///
     /// # Note
     ///
