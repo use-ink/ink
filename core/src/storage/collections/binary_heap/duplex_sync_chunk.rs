@@ -37,11 +37,20 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutStruct,
+    LayoutField,
+    StorageLayout,
+};
 use scale::{
     Codec,
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 // Number of values stored in each entry of the `SyncChunk`.
 // Note that the first group (at index `0`) will only ever
@@ -49,9 +58,11 @@ use scale::{
 const COUNT: u32 = 2;
 
 #[derive(Debug, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Group<T>([Option<T>; COUNT as usize]);
 
 #[derive(Debug, Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct DuplexSyncChunk<T>(SyncChunk<Group<T>>);
 
 impl<T> Flush for DuplexSyncChunk<T>
@@ -60,6 +71,21 @@ where
 {
     fn flush(&mut self) {
         self.0.flush();
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<T> HasLayout for DuplexSyncChunk<T>
+where
+    T: Metadata + 'static,
+{
+    fn layout(&self) -> StorageLayout {
+        LayoutStruct::new(
+            Self::meta_type(),
+            vec![
+                LayoutField::of("sync_chunk", &self.0),
+            ],
+        ).into()
     }
 }
 
