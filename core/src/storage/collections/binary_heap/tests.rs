@@ -27,10 +27,7 @@ use crate::{
     test_utils::run_test,
 };
 use core::{
-    cmp::{
-        Ord,
-        Ordering,
-    },
+    cmp::Ord,
     fmt::Debug,
 };
 use scale::{

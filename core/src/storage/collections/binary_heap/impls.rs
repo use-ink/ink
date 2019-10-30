@@ -81,7 +81,7 @@ impl<'a, T> Values<'a, T> {
 
 impl<T> Flush for BinaryHeap<T>
 where
-    T: Ord + Encode + Flush,
+    T: Encode + Flush,
     DuplexSyncChunk<T>: Flush,
 {
     fn flush(&mut self) {
@@ -91,7 +91,7 @@ where
 }
 
 #[cfg(feature = "ink-generate-abi")]
-impl<T: Ord> HasLayout for BinaryHeap<T>
+impl<T> HasLayout for BinaryHeap<T>
 where
     T: Metadata + 'static,
 {
@@ -215,10 +215,7 @@ where
     }
 }
 
-impl<T> Encode for BinaryHeap<T>
-where
-    T: Ord,
-{
+impl<T> Encode for BinaryHeap<T> {
     fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.len.encode_to(dest);
         self.entries.encode_to(dest);
@@ -227,7 +224,7 @@ where
 
 impl<T> Decode for BinaryHeap<T>
 where
-    T: Ord + Encode + Decode,
+    T: Encode + Decode,
 {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         let len = storage::Value::decode(input)?;
@@ -241,7 +238,7 @@ where
 
 impl<T> AllocateUsing for BinaryHeap<T>
 where
-    T: Ord + Encode + Decode,
+    T: Encode + Decode,
 {
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
@@ -254,10 +251,7 @@ where
     }
 }
 
-impl<T> Initialize for BinaryHeap<T>
-where
-    T: Ord,
-{
+impl<T> Initialize for BinaryHeap<T> {
     type Args = ();
 
     fn default_value() -> Option<Self::Args> {
