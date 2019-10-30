@@ -113,7 +113,7 @@ impl<T> scale::Decode for TypedChunk<T> {
 }
 
 impl<T> TypedChunk<T> {
-    /// Returns the unterlying key to the cells.
+    /// Returns the underlying key to the cells.
     ///
     /// # Note
     ///
