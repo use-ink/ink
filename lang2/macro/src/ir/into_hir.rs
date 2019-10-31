@@ -18,28 +18,7 @@
 
 use crate::{
     ir,
-    ir::{
-        utils,
-        Contract,
-        FnArg,
-        Function,
-        FunctionKind,
-        FunctionSelector,
-        IdentType,
-        ItemEvent,
-        ItemImpl,
-        ItemStorage,
-        KindConstructor,
-        KindMessage,
-        Marker,
-        MetaInfo,
-        MetaParam,
-        MetaTypes,
-        ParamTypes,
-        Params,
-        Signature,
-        SimpleMarker,
-    },
+    ir::utils,
 };
 use core::convert::TryFrom;
 use either::Either;
@@ -57,13 +36,13 @@ use syn::{
     Token,
 };
 
-impl Parse for Marker {
+impl Parse for ir::Marker {
     fn parse(input: ParseStream) -> Result<Self> {
         let content;
         let paren_token = syn::parenthesized!(content in input);
         let ident = content.parse::<Ident>()?;
         if content.is_empty() {
-            return Ok(Marker::Simple(SimpleMarker { paren_token, ident }))
+            return Ok(ir::Marker::Simple(ir::SimpleMarker { paren_token, ident }))
         }
         bail_span!(
             paren_token.span,
@@ -72,10 +51,10 @@ impl Parse for Marker {
     }
 }
 
-impl TryFrom<(Params, syn::ItemMod)> for Contract {
+impl TryFrom<(ir::Params, syn::ItemMod)> for ir::Contract {
     type Error = syn::Error;
 
-    fn try_from((params, item_mod): (Params, syn::ItemMod)) -> Result<Self> {
+    fn try_from((params, item_mod): (ir::Params, syn::ItemMod)) -> Result<Self> {
         if item_mod.vis != syn::Visibility::Inherited {
             bail!(
                 item_mod.vis,
@@ -116,7 +95,7 @@ impl TryFrom<(Params, syn::ItemMod)> for Contract {
                 "ink! contracts require at least one `#[ink(message)]`"
             )
         }
-        let meta_info = MetaInfo::try_from(params)?;
+        let meta_info = ir::MetaInfo::try_from(params)?;
         Ok(Self {
             mod_token: item_mod.mod_token,
             ident: item_mod.ident,
@@ -130,10 +109,10 @@ impl TryFrom<(Params, syn::ItemMod)> for Contract {
     }
 }
 
-impl TryFrom<Params> for MetaInfo {
+impl TryFrom<ir::Params> for ir::MetaInfo {
     type Error = syn::Error;
 
-    fn try_from(params: Params) -> Result<Self> {
+    fn try_from(params: ir::Params) -> Result<Self> {
         let mut unique_params = HashSet::new();
         let mut env_types = None;
         let mut ink_version = None;
@@ -145,12 +124,14 @@ impl TryFrom<Params> for MetaInfo {
                 bail_span!(param.span(), "encountered parameter multiple times",)
             }
             match param {
-                MetaParam::Types(param) => env_types = Some(MetaTypes::try_from(param)?),
-                MetaParam::Version(param) => ink_version = Some(param.data),
-                MetaParam::DynamicAllocations(param) => {
+                ir::MetaParam::Types(param) => {
+                    env_types = Some(ir::MetaTypes::try_from(param)?)
+                }
+                ir::MetaParam::Version(param) => ink_version = Some(param.data),
+                ir::MetaParam::DynamicAllocations(param) => {
                     dynamic_allocations = Some(param.value.value)
                 }
-                MetaParam::CompileAsDependency(param) => {
+                ir::MetaParam::CompileAsDependency(param) => {
                     compile_as_dependency = Some(param.value.value)
                 }
             }
@@ -173,15 +154,15 @@ impl TryFrom<Params> for MetaInfo {
     }
 }
 
-impl TryFrom<ParamTypes> for MetaTypes {
+impl TryFrom<ir::ParamTypes> for ir::MetaTypes {
     type Error = syn::Error;
 
-    fn try_from(params: ParamTypes) -> Result<Self> {
+    fn try_from(params: ir::ParamTypes) -> Result<Self> {
         Ok(Self { ty: params.ty })
     }
 }
 
-impl TryFrom<syn::Attribute> for Marker {
+impl TryFrom<syn::Attribute> for ir::Marker {
     type Error = syn::Error;
 
     fn try_from(attr: syn::Attribute) -> Result<Self> {
@@ -192,14 +173,14 @@ impl TryFrom<syn::Attribute> for Marker {
     }
 }
 
-impl TryFrom<syn::ItemStruct> for ItemStorage {
+impl TryFrom<syn::ItemStruct> for ir::ItemStorage {
     type Error = syn::Error;
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self> {
         if let Some(invalid_meta) = item_struct
             .attrs
             .iter()
-            .filter_map(|attr| Marker::try_from(attr.clone()).ok())
+            .filter_map(|attr| ir::Marker::try_from(attr.clone()).ok())
             .find(|ink_meta| !ink_meta.is_simple("storage"))
         {
             bail_span!(
@@ -223,7 +204,7 @@ impl TryFrom<syn::ItemStruct> for ItemStorage {
                 bail!(item_struct, "unit `storage` structs are not allowed",)
             }
         };
-        Ok(ItemStorage {
+        Ok(ir::ItemStorage {
             struct_token: item_struct.struct_token,
             ident: item_struct.ident,
             attrs: item_struct.attrs,
@@ -233,14 +214,14 @@ impl TryFrom<syn::ItemStruct> for ItemStorage {
     }
 }
 
-impl TryFrom<syn::ItemStruct> for ItemEvent {
+impl TryFrom<syn::ItemStruct> for ir::ItemEvent {
     type Error = syn::Error;
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self> {
         if let Some(invalid_meta) = item_struct
             .attrs
             .iter()
-            .filter_map(|attr| Marker::try_from(attr.clone()).ok())
+            .filter_map(|attr| ir::Marker::try_from(attr.clone()).ok())
             .find(|ink_meta| !ink_meta.is_simple("event"))
         {
             bail_span!(
@@ -263,7 +244,7 @@ impl TryFrom<syn::ItemStruct> for ItemEvent {
                 bail!(item_struct, "unit `event` structs are not allowed",)
             }
         };
-        Ok(ItemEvent {
+        Ok(ir::ItemEvent {
             struct_token: item_struct.struct_token,
             ident: item_struct.ident,
             attrs: item_struct.attrs,
@@ -272,7 +253,7 @@ impl TryFrom<syn::ItemStruct> for ItemEvent {
     }
 }
 
-impl TryFrom<syn::ItemImpl> for ItemImpl {
+impl TryFrom<syn::ItemImpl> for ir::ItemImpl {
     type Error = syn::Error;
 
     fn try_from(item_impl: syn::ItemImpl) -> Result<Self> {
@@ -345,7 +326,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 }
                 None
             })
-            .map(Function::try_from)
+            .map(ir::Function::try_from)
             .collect::<Result<Vec<_>>>()?;
         Ok(Self {
             attrs: item_impl.attrs,
@@ -357,7 +338,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
     }
 }
 
-impl TryFrom<syn::ImplItemMethod> for Function {
+impl TryFrom<syn::ImplItemMethod> for ir::Function {
     type Error = syn::Error;
 
     fn try_from(method: syn::ImplItemMethod) -> Result<Self> {
@@ -370,10 +351,10 @@ impl TryFrom<syn::ImplItemMethod> for Function {
             .attrs
             .iter()
             .cloned()
-            .filter_map(|attr| Marker::try_from(attr).ok())
+            .filter_map(|attr| ir::Marker::try_from(attr).ok())
             .map(|attr| {
                 match attr {
-                    Marker::Simple(simple) => simple,
+                    ir::Marker::Simple(simple) => simple,
                 }
             });
         // Checks for ink! attributes concerning ink! functions.
@@ -382,23 +363,23 @@ impl TryFrom<syn::ImplItemMethod> for Function {
         // Also errors if some ink! attributes conflict, e.g. if there is a
         // `#[ink(constructor)]` and `#[ink(message)]` attribute or if there is
         // the same attribute multiple times.
-        let mut kind = FunctionKind::Method;
+        let mut kind = ir::FunctionKind::Method;
         if let Some(err) = simple
             .map(|attr| {
                 let new_kind = match attr.ident.to_string().as_str() {
                     "constructor" => {
-                        Ok(FunctionKind::Constructor(KindConstructor {
-                            selector: FunctionSelector::from(&method.sig.ident),
+                        Ok(ir::FunctionKind::Constructor(ir::KindConstructor {
+                            selector: ir::FunctionSelector::from(&method.sig.ident),
                         }))
                     }
                     "message" => {
-                        Ok(FunctionKind::Message(KindMessage {
-                            selector: FunctionSelector::from(&method.sig.ident),
+                        Ok(ir::FunctionKind::Message(ir::KindMessage {
+                            selector: ir::FunctionSelector::from(&method.sig.ident),
                         }))
                     }
                     unknown => Err(format_err!(unknown, "unknown ink! attribute found",)),
                 }?;
-                if kind == FunctionKind::Method {
+                if kind == ir::FunctionKind::Method {
                     kind = new_kind;
                     Ok(())
                 } else {
@@ -431,10 +412,10 @@ impl TryFrom<syn::ImplItemMethod> for Function {
             )
         }
         // Check and convert method signature into ink! function signature.
-        let sig = Signature::try_from(method.sig)?;
+        let sig = ir::Signature::try_from(method.sig)?;
         // Followed by some checks that are depending on the given function kind:
         match kind {
-            FunctionKind::Constructor(_) => {
+            ir::FunctionKind::Constructor(_) => {
                 if !sig.is_mut() {
                     bail_span!(
                         sig.span(),
@@ -448,7 +429,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
                     )
                 }
             }
-            FunctionKind::Message(_) | FunctionKind::Method => {
+            ir::FunctionKind::Message(_) | ir::FunctionKind::Method => {
                 if sig.self_arg().reference.is_none() {
                     bail_span!(
                         sig.span(),
@@ -461,7 +442,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
         let non_ink_attrs = method
             .attrs
             .into_iter()
-            .filter(|attr| Marker::try_from(attr.clone()).is_err())
+            .filter(|attr| ir::Marker::try_from(attr.clone()).is_err())
             .collect::<Vec<_>>();
         // Finally return the checked ink! function.
         Ok(Self {
@@ -474,7 +455,7 @@ impl TryFrom<syn::ImplItemMethod> for Function {
     }
 }
 
-impl TryFrom<syn::Signature> for Signature {
+impl TryFrom<syn::Signature> for ir::Signature {
     type Error = syn::Error;
 
     fn try_from(sig: syn::Signature) -> Result<Self> {
@@ -506,9 +487,9 @@ impl TryFrom<syn::Signature> for Signature {
             .inputs
             .iter()
             .cloned()
-            .map(FnArg::try_from)
-            .collect::<Result<Punctuated<FnArg, Token![,]>>>()?;
-        if let FnArg::Typed(ident_type) = &inputs[0] {
+            .map(ir::FnArg::try_from)
+            .collect::<Result<Punctuated<ir::FnArg, Token![,]>>>()?;
+        if let ir::FnArg::Typed(ident_type) = &inputs[0] {
             bail_span!(
                 ident_type.span(),
                 "first argument of ink! functions must be `&self` or `&mut self`",
@@ -522,7 +503,7 @@ impl TryFrom<syn::Signature> for Signature {
                 )
             }
         }
-        Ok(Signature {
+        Ok(ir::Signature {
             fn_token: sig.fn_token,
             ident: sig.ident,
             generics: sig.generics,
@@ -533,12 +514,12 @@ impl TryFrom<syn::Signature> for Signature {
     }
 }
 
-impl TryFrom<syn::FnArg> for FnArg {
+impl TryFrom<syn::FnArg> for ir::FnArg {
     type Error = syn::Error;
 
     fn try_from(fn_arg: syn::FnArg) -> Result<Self> {
         match fn_arg {
-            syn::FnArg::Receiver(receiver) => Ok(FnArg::Receiver(receiver)),
+            syn::FnArg::Receiver(receiver) => Ok(ir::FnArg::Receiver(receiver)),
             syn::FnArg::Typed(pat_type) => {
                 match *pat_type.pat {
                     syn::Pat::Ident(pat_ident) => {
@@ -548,7 +529,7 @@ impl TryFrom<syn::FnArg> for FnArg {
                             "`ref` modifier is unsupported for ink! function arguments",
                         )
                         }
-                        Ok(FnArg::Typed(IdentType {
+                        Ok(ir::FnArg::Typed(ir::IdentType {
                             attrs: pat_ident.attrs,
                             ident: pat_ident.ident,
                             colon_token: pat_type.colon_token,
@@ -603,7 +584,7 @@ impl TryFrom<syn::Item> for ir::Item {
                     .attrs
                     .iter()
                     .cloned()
-                    .filter_map(|attr| Marker::try_from(attr).ok())
+                    .filter_map(|attr| ir::Marker::try_from(attr).ok())
                     .collect::<Vec<_>>();
                 if ink_markers.is_empty() {
                     Ok(ir::RustItem::from(syn::Item::Struct(item_struct)).into())
@@ -654,7 +635,7 @@ fn split_items(
             .pop()
             .expect("there must be exactly one storage in `storages`"))
     }?;
-    let (events, impl_blocks): (Vec<ItemEvent>, Vec<ItemImpl>) =
+    let (events, impl_blocks): (Vec<ir::ItemEvent>, Vec<ir::ItemImpl>) =
         non_storage_items.into_iter().partition_map(|item| {
             match item {
                 ir::InkItem::Event(item_event) => Either::Left(item_event),
