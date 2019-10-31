@@ -19,6 +19,7 @@ use crate::{
         call::{
             CallData,
             Selector,
+            seal,
         },
         errors::CallError,
         Env,
@@ -34,13 +35,6 @@ use core::marker::PhantomData;
 /// Used as a marker type to differentiate at compile-time between invoke and evaluate.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct ReturnType<T>(PhantomData<fn() -> T>);
-
-mod seal {
-    /// The call builder is sealed and won't accept further arguments.
-    pub enum Sealed {}
-    /// The call builder is unsealed and will accept further arguments.
-    pub enum Unsealed {}
-}
 
 /// The final parameters to the cross-contract call.
 pub struct CallParams<E, R>

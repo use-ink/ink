@@ -30,6 +30,7 @@ pub use self::{
         CreateBuilder,
     },
     utils::{
+        seal,
         Selector,
         CallData,
     },

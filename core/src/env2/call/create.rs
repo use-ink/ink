@@ -19,6 +19,7 @@ use crate::{
         call::{
             CallData,
             Selector,
+            seal,
         },
         errors::CreateError,
         Env,
@@ -58,13 +59,6 @@ where
     call_data: CallData,
     /// The type of the instantiated contract.
     contract_marker: PhantomData<fn() -> C>,
-}
-
-mod seal {
-    /// The call builder is sealed and won't accept further arguments.
-    pub enum Sealed {}
-    /// The call builder is unsealed and will accept further arguments.
-    pub enum Unsealed {}
 }
 
 /// Builds up contract instantiations.
