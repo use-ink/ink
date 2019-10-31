@@ -241,7 +241,7 @@ impl CrossCalling<'_> {
                 let failure_msg = match output {
                     syn::ReturnType::Default => {
                         format!(
-                            "invokation of {}::{} message was invalid",
+                            "invocation of {}::{} message was invalid",
                             storage_ident_lit, ident_lit,
                         )
                     }
