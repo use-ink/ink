@@ -40,7 +40,7 @@ where
             }
             TokenTree2::Group(group) => {
                 // We ignore upon success and return back upon error.
-                let _ = idents_respect_pred(group.stream(), pred, or_err)?;
+                idents_respect_pred(group.stream(), pred, or_err)?;
             }
             TokenTree2::Punct(_) | TokenTree2::Literal(_) => (),
         }

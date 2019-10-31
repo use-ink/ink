@@ -61,7 +61,7 @@ impl Selector {
     }
 
     /// Returns the underlying bytes of the selector.
-    pub const fn to_bytes(&self) -> [u8; 4] {
+    pub const fn to_bytes(self) -> [u8; 4] {
         self.bytes
     }
 }

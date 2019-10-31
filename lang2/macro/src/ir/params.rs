@@ -50,7 +50,7 @@ pub struct Params {
 
 impl Spanned for Params {
     fn span(&self) -> Span {
-        if self.params.len() == 0 {
+        if self.params.is_empty() {
             Span::call_site()
         } else {
             self.params
@@ -82,6 +82,7 @@ impl Spanned for Params {
 /// Even though ink! could define some defaults for this meta information we currently
 /// require contracts to specify them and may relax this in the future.
 #[derive(Debug, Clone, From)]
+#[allow(clippy::large_enum_variant)] // We should benchmark this somehow.
 pub enum MetaParam {
     /// Environmental types definition: `#[ink(env = DefaultSrmlTypes)]`
     Types(ParamTypes),
@@ -262,7 +263,7 @@ impl<'a> TryFrom<&'a str> for MetaVersion {
         ",
         )
         .unwrap();
-        let caps = re.captures(content).ok_or(regex::Error::Syntax(
+        let caps = re.captures(content).ok_or_else(|| regex::Error::Syntax(
             "couldn't properly match against semantic version".into(),
         ))?;
         let major = caps["major"]

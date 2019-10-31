@@ -113,6 +113,7 @@ pub struct MetaVersion {
 
 /// Either an ink! or a Rust item.
 #[derive(From)]
+#[allow(clippy::large_enum_variant)] // We should benchmark this somehow.
 pub enum Item {
     /// An ink! item.
     Ink(InkItem),
@@ -353,7 +354,7 @@ impl FunctionSelector {
     }
 
     /// Returns a unique identifier as `usize`.
-    pub fn unique_id(&self) -> usize {
+    pub fn unique_id(self) -> usize {
         u32::from_le_bytes(self.0) as usize
     }
 }
@@ -453,7 +454,7 @@ impl Signature {
     /// Returns the `self` input.
     pub fn self_arg(&self) -> &syn::Receiver {
         if let FnArg::Receiver(receiver) = &self.inputs[0] {
-            return &receiver
+            &receiver
         } else {
             unreachable!("must contain the receiver in the first argument position")
         }
@@ -479,6 +480,7 @@ impl Signature {
 }
 
 /// A single input of a function.
+#[allow(clippy::large_enum_variant)] // We should benchmark this somehow.
 pub enum FnArg {
     /// Either `&self` or `&mut self`.
     ///

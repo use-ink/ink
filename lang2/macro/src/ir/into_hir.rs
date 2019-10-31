@@ -350,7 +350,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         Ok(Self {
             attrs: item_impl.attrs,
             impl_token: item_impl.impl_token,
-            self_ty: ident.clone(),
+            self_ty: ident,
             brace_token: item_impl.brace_token,
             functions,
         })
@@ -496,7 +496,7 @@ impl TryFrom<syn::Signature> for Signature {
                 "variadic functions are not allowed as ink! functions",
             )
         }
-        if sig.inputs.len() == 0 {
+        if sig.inputs.is_empty() {
             bail!(
                 sig.inputs,
                 "`&self` or `&mut self` is mandatory for ink! functions",
@@ -515,14 +515,11 @@ impl TryFrom<syn::Signature> for Signature {
             )
         }
         for input in inputs.iter().skip(1) {
-            match input {
-                FnArg::Receiver(receiver) => {
-                    bail!(
-                        receiver,
-                        "unexpected `self` argument found for ink! function",
-                    )
-                }
-                _ => (),
+            if let ir::FnArg::Receiver(receiver) = input {
+                bail!(
+                    receiver,
+                    "unexpected `self` argument found for ink! function",
+                )
             }
         }
         Ok(Signature {

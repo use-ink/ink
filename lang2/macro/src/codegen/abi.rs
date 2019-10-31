@@ -101,7 +101,7 @@ impl GenerateAbi<'_> {
                 return without_display_name(ty)
             }
             let path = &type_path.path;
-            if path.segments.len() == 0 {
+            if path.segments.is_empty() {
                 return without_display_name(ty)
             }
             let segs = path

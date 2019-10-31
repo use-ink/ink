@@ -194,12 +194,10 @@ impl Dispatch<'_> {
 
         let builder_name = if function.is_constructor() {
             quote! { on_instantiate }
+        } else if sig.is_mut() {
+            quote! { on_msg_mut }
         } else {
-            if sig.is_mut() {
-                quote! { on_msg_mut }
-            } else {
-                quote! { on_msg }
-            }
+            quote! { on_msg }
         };
 
         let namespace = match function.kind() {
