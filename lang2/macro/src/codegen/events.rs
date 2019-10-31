@@ -19,6 +19,7 @@ use crate::{
         env_types::EnvTypesImports,
         GenerateCode,
         GenerateCodeUsing,
+        cross_calling::CrossCallingConflictCfg,
     },
     ir,
     ir::utils,
@@ -55,6 +56,7 @@ impl<'a> GenerateCodeUsing for EventHelpers<'a> {
 
 impl GenerateCode for EventHelpers<'_> {
     fn generate_code(&self) -> TokenStream2 {
+        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let topics_impls = self.generate_topics_impls();
         let event_enum = self.generate_event_enum();
         let emit_event_trait = self.generate_emit_event_trait();
@@ -67,6 +69,7 @@ impl GenerateCode for EventHelpers<'_> {
         }
 
         quote! {
+            #conflic_depedency_cfg
             mod __ink_events {
                 #env_imports
                 #event_imports
@@ -78,6 +81,7 @@ impl GenerateCode for EventHelpers<'_> {
                 #event_enum
                 #emit_event_trait
             }
+            #conflic_depedency_cfg
             pub use __ink_events::{EmitEvent, Event};
         }
     }
@@ -170,9 +174,17 @@ pub struct EventStructs<'a> {
     contract: &'a ir::Contract,
 }
 
+impl<'a> GenerateCodeUsing for EventStructs<'a> {
+    fn contract(&self) -> &ir::Contract {
+        self.contract
+    }
+}
+
 impl EventStructs<'_> {
     fn generate_event_structs<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        self.contract.events.iter().map(|item_event| {
+        self.contract.events.iter().map(move |item_event| {
+            let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
+
             let span = item_event.span();
             let ident = &item_event.ident;
             let attrs = utils::filter_non_ink_attributes(&item_event.attrs);
@@ -189,6 +201,7 @@ impl EventStructs<'_> {
             });
 
             quote_spanned!(span =>
+                #conflic_depedency_cfg
                 #(#attrs)*
                 #[derive(scale::Encode)]
                 pub struct #ident
@@ -225,11 +238,19 @@ pub struct EventImports<'a> {
     contract: &'a ir::Contract,
 }
 
+impl<'a> GenerateCodeUsing for EventImports<'a> {
+    fn contract(&self) -> &ir::Contract {
+        self.contract
+    }
+}
+
 impl GenerateCode for EventImports<'_> {
     fn generate_code(&self) -> TokenStream2 {
         if self.contract.events.is_empty() {
             return quote! {}
         }
+
+        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let event_idents = self
             .contract
             .events
@@ -237,6 +258,7 @@ impl GenerateCode for EventImports<'_> {
             .map(|item_event| &item_event.ident);
 
         quote! {
+            #conflic_depedency_cfg
             pub use super::{
                 #( #event_idents ),*
             };
