@@ -101,8 +101,6 @@ pub use self::{
         Result,
     },
     traits::{
-        CallParams,
-        CreateParams,
         Env,
         EnvTypes,
         GetProperty,

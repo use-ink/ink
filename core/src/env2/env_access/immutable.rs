@@ -16,11 +16,14 @@
 
 use crate::{
     env2::{
-        call::CallData,
+        call::{
+            CallData,
+            CreateParams,
+            CallParams,
+            ReturnType,
+        },
         env_access::EmitEvent as _,
         AccessEnv,
-        CallParams,
-        CreateParams,
         Env,
         EnvAccessMut,
         Result,
@@ -258,9 +261,7 @@ where
         /// # Errors
         ///
         /// If the called contract has trapped.
-        fn invoke_contract<D>(&self, call_data: &D) -> Result<()>
-        where
-            D: CallParams<T>;
+        fn invoke_contract(&self, call_data: &CallParams<T, ()>) -> Result<()>;
 
         /// Evaluates a contract message and returns its result.
         ///
@@ -271,9 +272,8 @@ where
         /// - If given too little endowment.
         /// - If arguments passed to the called contract are invalid.
         /// - If the called contract runs out of gas.
-        fn eval_contract<D, R>(&self, call_data: &D) -> Result<R>
+        fn eval_contract<R>(&self, call_data: &CallParams<T, ReturnType<R>>) -> Result<R>
         where
-            D: CallParams<T>,
             R: scale::Decode;
 
         /// Instantiates another contract.
@@ -284,9 +284,7 @@ where
         /// - If the code hash is invalid.
         /// - If given too little endowment.
         /// - If the instantiation process runs out of gas.
-        fn create_contract<D>(&self, create_data: &D) -> Result<T::AccountId>
-        where
-            D: CreateParams<T>;
+        fn create_contract<C>(&self, params: &CreateParams<T, C>) -> Result<T::AccountId>;
 
         /// Emits an event with the given event data.
         fn emit_event<Event>(&self, event: Event)

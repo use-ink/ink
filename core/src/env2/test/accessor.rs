@@ -25,6 +25,11 @@ use crate::{
     env2::{
         error::CallError,
         property,
+        call::{
+            CreateParams,
+            CallParams,
+            ReturnType,
+        },
         test::{
             typed_encoded::AlreadyInitialized,
             Account,
@@ -43,8 +48,6 @@ use crate::{
             EnlargeTo,
             Reset,
         },
-        CallParams,
-        CreateParams,
         Env,
         EnvTypes,
         Error,
@@ -319,10 +322,9 @@ where
         })
     }
 
-    fn invoke_contract<O, D>(_buffer: &mut O, call_data: &D) -> Result<()>
+    fn invoke_contract<O>(_buffer: &mut O, call_data: &CallParams<Self, ()>) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        D: CallParams<Self>,
     {
         // With the off-chain test environment we have no means to invoke
         // a remote contract on the chain since there is no chain.
@@ -338,11 +340,10 @@ where
         })
     }
 
-    fn eval_contract<IO, D, R>(_buffer: &mut IO, call_data: &D) -> Result<R>
+    fn eval_contract<IO, R>(_buffer: &mut IO, call_data: &CallParams<Self, ReturnType<R>>) -> Result<R>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
-        D: CallParams<Self>,
     {
         // With the off-chain test environment we have no means to invoke
         // a remote contract on the chain since there is no chain.
@@ -364,13 +365,12 @@ where
         })
     }
 
-    fn create_contract<IO, D>(
+    fn create_contract<IO, C>(
         _buffer: &mut IO,
-        create_data: &D,
+        create_data: &CreateParams<Self, C>,
     ) -> Result<Self::AccountId>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
-        D: CreateParams<Self>,
     {
         // With the off-chain test environment we have no means to instantiate
         // a remote contract on the chain since there is no chain.

@@ -27,13 +27,15 @@
 
 use crate::{
     env2::{
-        call::CallData,
+        call::{
+            CallData,
+            CreateParams,
+            CallParams,
+        },
         test::{
             types::*,
             TypedEncoded,
         },
-        CallParams,
-        CreateParams,
         EnvTypes,
         Topics,
     },
@@ -113,10 +115,9 @@ pub struct CallContractRecord {
 
 impl CallContractRecord {
     /// Creates a new record for a contract call.
-    pub fn new<'a, E, C>(call_params: &'a C) -> Self
+    pub fn new<'a, E, R>(call_params: &'a CallParams<E, R>) -> Self
     where
         E: EnvTypes,
-        C: CallParams<E>,
     {
         Self {
             callee: TypedEncoded::from_origin(call_params.callee()),
@@ -142,10 +143,9 @@ pub struct CreateContractRecord {
 
 impl CreateContractRecord {
     /// Creates a new record for a contract instantiation.
-    pub fn new<'a, E, C>(create_params: &'a C) -> Self
+    pub fn new<'a, E, C>(create_params: &'a CreateParams<E, C>) -> Self
     where
         E: EnvTypes,
-        C: CreateParams<E>,
     {
         Self {
             code_hash: TypedEncoded::from_origin(create_params.code_hash()),
