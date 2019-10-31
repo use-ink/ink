@@ -42,6 +42,11 @@ pub use self::{
         DispatchMode,
         DispatchUsingMode,
     },
+    cross_calling::{
+        ForwardCall,
+        ForwardCallMut,
+        ToAccountId,
+    },
     dispatcher::{
         Dispatch,
         DispatchList,
@@ -66,10 +71,5 @@ pub use self::{
         FnSelector,
         Message,
         Storage,
-    },
-    cross_calling::{
-        ForwardCall,
-        ForwardCallMut,
-        ToAccountId,
     },
 };

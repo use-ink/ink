@@ -198,7 +198,10 @@ impl TryFrom<syn::ItemStruct> for ir::ItemStorage {
         let fields = match item_struct.fields {
             syn::Fields::Named(named_fields) => named_fields,
             syn::Fields::Unnamed(unnamed_fields) => {
-                bail!(unnamed_fields, "`#[ink(storage)]` tuple-structs are forbidden")
+                bail!(
+                    unnamed_fields,
+                    "`#[ink(storage)]` tuple-structs are forbidden"
+                )
             }
             syn::Fields::Unit => {
                 bail!(item_struct, "`#[ink(storage)]` unit-structs are forbidden")
@@ -238,7 +241,10 @@ impl TryFrom<syn::ItemStruct> for ir::ItemEvent {
         let fields = match item_struct.fields {
             syn::Fields::Named(named_fields) => named_fields,
             syn::Fields::Unnamed(unnamed_fields) => {
-                bail!(unnamed_fields, "`#[ink(event)]` tuple-structs are forbidden",)
+                bail!(
+                    unnamed_fields,
+                    "`#[ink(event)]` tuple-structs are forbidden",
+                )
             }
             syn::Fields::Unit => {
                 bail!(item_struct, "`#[ink(event)]` unit-structs are forbidden",)

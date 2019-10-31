@@ -16,10 +16,10 @@
 
 use crate::{
     codegen::{
+        cross_calling::CrossCallingConflictCfg,
         env_types::EnvTypesImports,
         GenerateCode,
         GenerateCodeUsing,
-        cross_calling::CrossCallingConflictCfg,
     },
     ir,
     ir::utils,
@@ -183,7 +183,8 @@ impl<'a> GenerateCodeUsing for EventStructs<'a> {
 impl EventStructs<'_> {
     fn generate_event_structs<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.events.iter().map(move |item_event| {
-            let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
+            let conflic_depedency_cfg =
+                self.generate_code_using::<CrossCallingConflictCfg>();
 
             let span = item_event.span();
             let ident = &item_event.ident;

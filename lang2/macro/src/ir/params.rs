@@ -263,9 +263,11 @@ impl<'a> TryFrom<&'a str> for MetaVersion {
         ",
         )
         .unwrap();
-        let caps = re.captures(content).ok_or_else(|| regex::Error::Syntax(
-            "couldn't properly match against semantic version".into(),
-        ))?;
+        let caps = re.captures(content).ok_or_else(|| {
+            regex::Error::Syntax(
+                "couldn't properly match against semantic version".into(),
+            )
+        })?;
         let major = caps["major"]
             .parse::<usize>()
             .expect("major version parsing cannot fail since guaranteed by regex; qed");

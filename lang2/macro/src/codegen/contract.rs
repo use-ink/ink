@@ -21,11 +21,11 @@ use quote::quote;
 pub use crate::{
     codegen::{
         abi::GenerateAbi,
-        dispatch::Dispatch,
         cross_calling::{
             CrossCalling,
             CrossCallingConflictCfg,
         },
+        dispatch::Dispatch,
         env_types::EnvTypes,
         events::{
             EventHelpers,
