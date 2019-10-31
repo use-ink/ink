@@ -18,21 +18,6 @@ use ink_core::env2::EnvTypes;
 
 /// Implemented by contracts that are compiled as dependencies.
 ///
-/// This allows to forward contstructor calls to a create forwarder
-/// that encodes and dispatches the calls to the chain.
-pub trait ForwardCreate<Env>
-where
-    Env: ink_core::env2::EnvTypes,
-{
-    /// The create forwarder that handles constructor calls.
-    type Forwarder;
-
-    /// Instantiate a create forwarder to forward constructor calls.
-    fn create(code_hash: <Env as EnvTypes>::Hash) -> Self::Forwarder;
-}
-
-/// Implemented by contracts that are compiled as dependencies.
-///
 /// This allows to forward `&self` calls to a call forwarder
 /// that encodes and dispatches the calls to the chain.
 pub trait ForwardCall {

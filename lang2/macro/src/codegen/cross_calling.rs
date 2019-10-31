@@ -101,7 +101,6 @@ impl GenerateCode for CrossCalling<'_> {
         let storage = self.generate_storage();
         let storage_impls = self.generate_storage_impls();
         let storage_fns = self.generate_storage_fns();
-        let create_forwarder = self.generate_create_forwarder();
         let ref_forwarder = self.generate_ref_forwarder();
         let ref_mut_forwarder = self.generate_ref_mut_forwarder();
 
@@ -113,7 +112,6 @@ impl GenerateCode for CrossCalling<'_> {
                 #storage
                 #storage_fns
                 #storage_impls
-                #create_forwarder
                 #ref_forwarder
                 #ref_mut_forwarder
             }
@@ -282,39 +280,6 @@ impl CrossCalling<'_> {
                 )*
                 #(
                     #storage_messages
-                )*
-            }
-        }
-    }
-
-    fn generate_forwarding_constructors<'a>(
-        &'a self,
-    ) -> impl Iterator<Item = TokenStream2> + 'a {
-        vec![].into_iter() // TODO
-    }
-
-    fn generate_create_forwarder(&self) -> TokenStream2 {
-        let forwarding_constructors = self.generate_forwarding_constructors();
-
-        quote! {
-            impl ink_lang2::ForwardCreate<Env> for StorageAsDependency {
-                type Forwarder = CreateForwarder;
-
-                fn create(code_hash: Hash) -> Self::Forwarder {
-                    CreateForwarder { code_hash }
-                }
-            }
-
-            pub struct CreateForwarder
-            where
-                Env: ink_core::env2::EnvTypes,
-            {
-                code_hash: Hash,
-            }
-
-            impl CreateForwarder {
-                #(
-                    #forwarding_constructors
                 )*
             }
         }

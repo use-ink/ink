@@ -68,7 +68,6 @@ pub use self::{
         Storage,
     },
     cross_calling::{
-        ForwardCreate,
         ForwardCall,
         ForwardCallMut,
         ToAccountId,
