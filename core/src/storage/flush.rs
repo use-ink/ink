@@ -177,7 +177,7 @@ where
     V: Flush,
 {
     fn flush(&mut self) {
-        for (_key, val) in self {
+        for val in self.values_mut() {
             // We do not need to write back keys since they are immutable.
             val.flush();
         }

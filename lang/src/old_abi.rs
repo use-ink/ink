@@ -791,7 +791,7 @@ mod tests {
             r#"{"Result<T,E>":{"T":["bool","i32"],"E":{"[T;n]":{"T":"u8","n":8}}}}"#,
         );
         assert_json_roundtrip(
-            parse_quote!(Result<Result<u8,i8>,Result<u16,i16>>),
+            parse_quote!(Result<Result<u8, i8>, Result<u16, i16>>),
             r#"{"Result<T,E>":{"T":{"Result<T,E>":{"T":"u8","E":"i8"}},"E":{"Result<T,E>":{"T":"u16","E":"i16"}}}}"#,
         );
     }

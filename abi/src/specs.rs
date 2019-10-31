@@ -356,6 +356,7 @@ impl MessageSpec {
 /// Some of the fields are guarded by a type-state pattern to
 /// fail at compile-time instead of at run-time. This is useful
 /// to better debug code-gen macros.
+#[allow(clippy::type_complexity)]
 pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
     spec: MessageSpec,
     marker: PhantomData<fn() -> (Selector, Mutates, Returns)>,

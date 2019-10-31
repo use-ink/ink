@@ -60,7 +60,7 @@ impl ast::Item {
 impl Parse for ast::Item {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let inner_attrs: ast::ItemEnvMeta = input.parse()?;
-        if inner_attrs.env_types_metas.len() > 0 {
+        if !inner_attrs.env_types_metas.is_empty() {
             return Ok(ast::Item::EnvMeta(inner_attrs))
         }
         let attrs_outer = syn::Attribute::parse_outer(input)?;
