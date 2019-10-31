@@ -140,7 +140,7 @@ impl TryFrom<ir::Params> for ir::MetaInfo {
             None => {
                 bail_span!(
                     params.span(),
-                    "expected `types` argument at `#[ink::contract(..)]`",
+                    "expected `version` argument at `#[ink::contract(..)]`",
                 )
             }
             Some(ink_version) => ink_version,
@@ -185,23 +185,23 @@ impl TryFrom<syn::ItemStruct> for ir::ItemStorage {
         {
             bail_span!(
                 invalid_meta.span(),
-                "invalid ink! attribute found for `storage` struct",
+                "invalid ink! attribute found for `#[ink(storage)]` struct",
             )
         }
         if item_struct.vis != syn::Visibility::Inherited {
             bail!(
                 item_struct.vis,
-                "visibility modifiers are not allowed for `storage` structs",
+                "visibility modifiers are not allowed for `#[ink(storage)]` structs",
             )
         }
         let span = item_struct.span();
         let fields = match item_struct.fields {
             syn::Fields::Named(named_fields) => named_fields,
             syn::Fields::Unnamed(unnamed_fields) => {
-                bail!(unnamed_fields, "`storage` structs must have named fields",)
+                bail!(unnamed_fields, "`#[ink(storage)]` tuple-structs are forbidden")
             }
             syn::Fields::Unit => {
-                bail!(item_struct, "unit `storage` structs are not allowed",)
+                bail!(item_struct, "`#[ink(storage)]` unit-structs are forbidden")
             }
         };
         Ok(ir::ItemStorage {
@@ -226,22 +226,22 @@ impl TryFrom<syn::ItemStruct> for ir::ItemEvent {
         {
             bail_span!(
                 invalid_meta.span(),
-                "invalid ink! attribute found for `event` struct",
+                "invalid ink! attribute found for `#[ink(event)]` struct",
             )
         }
         if item_struct.vis != syn::Visibility::Inherited {
             bail!(
                 item_struct,
-                "visibility modifiers are not allowed for `event` structs",
+                "visibility modifiers are not allowed for `#[ink(event)]` structs",
             )
         }
         let fields = match item_struct.fields {
             syn::Fields::Named(named_fields) => named_fields,
             syn::Fields::Unnamed(unnamed_fields) => {
-                bail!(unnamed_fields, "`event` structs must have named fields",)
+                bail!(unnamed_fields, "`#[ink(event)]` tuple-structs are forbidden",)
             }
             syn::Fields::Unit => {
-                bail!(item_struct, "unit `event` structs are not allowed",)
+                bail!(item_struct, "`#[ink(event)]` unit-structs are forbidden",)
             }
         };
         Ok(ir::ItemEvent {
