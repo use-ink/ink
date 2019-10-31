@@ -15,7 +15,10 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    codegen::GenerateCode,
+    codegen::{
+        GenerateCode,
+        GenerateCodeUsing,
+    },
     ir,
     ir::utils,
 };
@@ -29,6 +32,64 @@ use quote::{
 #[derive(From)]
 pub struct TestWrapper<'a> {
     contract: &'a ir::Contract,
+}
+
+impl GenerateCodeUsing for TestWrapper<'_> {
+    fn contract(&self) -> &ir::Contract {
+        &self.contract
+    }
+}
+
+impl GenerateCode for TestWrapper<'_> {
+    fn generate_code(&self) -> TokenStream2 {
+        let wrapped_constructors = self.generate_constructors();
+        let testable_storage_and_env = self.generate_testable_storage_and_env();
+
+        quote! {
+            #[cfg(all(test, feature = "test-env"))]
+            pub use self::__ink_testable::TestableStorageAndEnv;
+
+            #[cfg(all(test, feature = "test-env"))]
+            mod __ink_testable {
+                use super::*;
+
+                impl ink_lang2::InstantiateTestable for StorageAndEnv {
+                    type Wrapped = TestableStorageAndEnv;
+
+                    fn instantiate() -> Self::Wrapped {
+                        let mut contract: Self = unsafe {
+                            let mut alloc =
+                                ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                                    ink_core::storage::Key([0x00; 32]),
+                                );
+                            ink_core::storage::alloc::AllocateUsing::allocate_using(
+                                &mut alloc,
+                            )
+                        };
+                        ink_core::env2::test::TestEnv::<ink_core::env2::DefaultSrmlTypes>::try_initialize()
+                            .expect("encountered already initialized test environment");
+                        ink_core::storage::alloc::Initialize::try_default_initialize(
+                            &mut contract,
+                        );
+                        contract.into()
+                    }
+                }
+
+                pub use self::__ink_private::TestableStorageAndEnv;
+                mod __ink_private {
+                    use super::*;
+
+                    #testable_storage_and_env
+                }
+
+                impl TestableStorageAndEnv {
+                    #(
+                        #wrapped_constructors
+                    )*
+                }
+            }
+        }
+    }
 }
 
 impl TestWrapper<'_> {
@@ -86,58 +147,6 @@ impl TestWrapper<'_> {
             impl core::ops::DerefMut for TestableStorageAndEnv {
                 fn deref_mut(&mut self) -> &mut Self::Target {
                     &mut self.contract
-                }
-            }
-        }
-    }
-}
-
-impl GenerateCode for TestWrapper<'_> {
-    fn generate_code(&self) -> TokenStream2 {
-        let wrapped_constructors = self.generate_constructors();
-        let testable_storage_and_env = self.generate_testable_storage_and_env();
-
-        quote! {
-            #[cfg(all(test, feature = "test-env"))]
-            pub use self::__ink_testable::TestableStorageAndEnv;
-
-            #[cfg(all(test, feature = "test-env"))]
-            mod __ink_testable {
-                use super::*;
-
-                impl ink_lang2::InstantiateTestable for StorageAndEnv {
-                    type Wrapped = TestableStorageAndEnv;
-
-                    fn instantiate() -> Self::Wrapped {
-                        let mut contract: Self = unsafe {
-                            let mut alloc =
-                                ink_core::storage::alloc::BumpAlloc::from_raw_parts(
-                                    ink_core::storage::Key([0x00; 32]),
-                                );
-                            ink_core::storage::alloc::AllocateUsing::allocate_using(
-                                &mut alloc,
-                            )
-                        };
-                        ink_core::env2::test::TestEnv::<ink_core::env2::DefaultSrmlTypes>::try_initialize()
-                            .expect("encountered already initialized test environment");
-                        ink_core::storage::alloc::Initialize::try_default_initialize(
-                            &mut contract,
-                        );
-                        contract.into()
-                    }
-                }
-
-                pub use self::__ink_private::TestableStorageAndEnv;
-                mod __ink_private {
-                    use super::*;
-
-                    #testable_storage_and_env
-                }
-
-                impl TestableStorageAndEnv {
-                    #(
-                        #wrapped_constructors
-                    )*
                 }
             }
         }

@@ -15,8 +15,13 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::{
-    codegen::GenerateCode,
+    codegen::{
+        GenerateCode,
+        GenerateCodeUsing,
+        cross_calling::CrossCallingConflictCfg,
+    },
     ir::{
+        self,
         utils,
         Contract,
         Function,
@@ -34,10 +39,17 @@ pub struct Storage<'a> {
     contract: &'a Contract,
 }
 
+impl<'a> GenerateCodeUsing for Storage<'a> {
+    fn contract(&self) -> &ir::Contract {
+        self.contract
+    }
+}
+
 impl GenerateCode for Storage<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let storage_span = self.contract.storage.span();
 
+        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let aliases = self.generate_aliases();
         let trait_impls = self.generate_trait_impls_for_storage();
         let access_env_impls = self.generate_access_env_trait_impls();
@@ -55,6 +67,7 @@ impl GenerateCode for Storage<'_> {
 
         quote_spanned!(storage_span =>
             #[doc(hidden)]
+            #conflic_depedency_cfg
             mod __ink_storage {
                 use super::*;
 
@@ -66,8 +79,10 @@ impl GenerateCode for Storage<'_> {
                 #layout_impls
             }
 
+            #conflic_depedency_cfg
             pub use __ink_storage::StorageAndEnv;
 
+            #conflic_depedency_cfg
             const _: () = {
                 // Used to make `self.env()` available in message code.
                 #[allow(unused_imports)]

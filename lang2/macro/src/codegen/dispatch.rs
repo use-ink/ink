@@ -18,6 +18,7 @@ use crate::{
     codegen::{
         GenerateCode,
         GenerateCodeUsing,
+        cross_calling::CrossCallingConflictCfg,
     },
     ir,
 };
@@ -48,6 +49,7 @@ impl<'a> GenerateCodeUsing for Dispatch<'a> {
 
 impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
+        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let message_trait_impls = self.generate_message_trait_impls();
         let message_namespaces = self.generate_message_namespaces();
         let dispatch_using_mode = self.generate_dispatch_using_mode();
@@ -59,6 +61,7 @@ impl GenerateCode for Dispatch<'_> {
             // `test-env` has been enabled since both resulting
             // compilations do not require dispatching.
             #[cfg(not(any(test, feature = "test-env")))]
+            #conflic_depedency_cfg
             const _: () = {
                 #message_namespaces
                 #message_trait_impls

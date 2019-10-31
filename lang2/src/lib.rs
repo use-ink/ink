@@ -24,6 +24,7 @@ extern crate alloc;
 mod abi;
 
 mod contract;
+mod cross_calling;
 mod dispatcher;
 mod error;
 mod testable;
@@ -65,5 +66,11 @@ pub use self::{
         FnSelector,
         Message,
         Storage,
+    },
+    cross_calling::{
+        ForwardCreate,
+        ForwardCall,
+        ForwardCallMut,
+        ToAccountId,
     },
 };

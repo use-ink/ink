@@ -74,6 +74,11 @@ impl MetaInfo {
     pub fn is_dynamic_allocation_enabled(&self) -> bool {
         self.dynamic_allocations_enabled
     }
+
+    /// Returns `true` if the contract is set to compile as dependency.
+    pub fn is_compiled_as_dependency(&self) -> bool {
+        self.compile_as_dependency
+    }
 }
 
 /// The specified environmental types.

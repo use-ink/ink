@@ -22,6 +22,10 @@ pub use crate::{
     codegen::{
         abi::GenerateAbi,
         dispatch::Dispatch,
+        cross_calling::{
+            CrossCalling,
+            CrossCallingConflictCfg,
+        },
         env_types::EnvTypes,
         events::{
             EventHelpers,
@@ -55,6 +59,7 @@ impl GenerateCode for ContractModule<'_> {
         let ident = &self.contract.ident;
         let storage_ident = &self.contract.storage.ident;
 
+        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let env_types = self.generate_code_using::<EnvTypes>();
         let storage = self.generate_code_using::<Storage>();
         let dispatch = self.generate_code_using::<Dispatch>();
@@ -63,6 +68,7 @@ impl GenerateCode for ContractModule<'_> {
         let event_structs = self.generate_code_using::<EventStructs>();
         let event_imports = self.generate_code_using::<EventImports>();
         let test_wrapper = self.generate_code_using::<TestWrapper>();
+        let cross_calling = self.generate_code_using::<CrossCalling>();
         let non_ink_items = &self.contract.non_ink_items;
 
         quote! {
@@ -81,13 +87,18 @@ impl GenerateCode for ContractModule<'_> {
                     #dispatch
                     #generate_abi
                     #test_wrapper
+                    #cross_calling
                 }
 
                 #[cfg(all(test, feature = "test-env"))]
                 pub type #storage_ident = self::__ink_private::TestableStorageAndEnv;
 
                 #[cfg(not(all(test, feature = "test-env")))]
+                #conflic_depedency_cfg
                 pub type #storage_ident = self::__ink_private::StorageAndEnv;
+
+                #[cfg(feature = "ink-as-dependency")]
+                pub type #storage_ident = self::__ink_private::StorageAsDependency;
 
                 #event_structs
 
@@ -101,6 +112,7 @@ impl GenerateCode for ContractModule<'_> {
             // idea to generate code outside of the scope of the
             // given ink! module.
             #[cfg(feature = "ink-generate-abi")]
+            #conflic_depedency_cfg
             pub use crate::#ident::#storage_ident;
         }
     }

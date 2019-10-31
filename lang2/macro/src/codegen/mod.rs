@@ -45,6 +45,7 @@
 
 mod abi;
 mod contract;
+mod cross_calling;
 mod dispatch;
 mod env_types;
 mod events;
