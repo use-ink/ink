@@ -71,7 +71,6 @@ pub trait GenerateCodeUsing {
     where
         G: From<&'a ir::Contract> + GenerateCode,
     {
-        // crate::codegen::generate_code::<G>(self.contract())
         G::from(self.contract()).generate_code()
     }
 }
