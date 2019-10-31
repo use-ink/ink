@@ -56,7 +56,7 @@ impl GenerateCode for Dispatch<'_> {
         let entry_points = self.generate_entry_points();
 
         quote! {
-            // We do not genreate contract dispatch code
+            // We do not generate contract dispatch code
             // while the contract is being tested or the
             // `test-env` has been enabled since both resulting
             // compilations do not require dispatching.

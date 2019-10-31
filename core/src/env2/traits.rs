@@ -115,7 +115,7 @@ pub trait Env:
     ///
     /// # Note
     ///
-    /// Invokations fire and forget and thus won't return a value back.
+     /// Invocations fire and forget and thus won't return a value back.
     fn invoke_contract<O>(buffer: &mut O, call_data: &CallParams<Self, ()>) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset;
