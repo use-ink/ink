@@ -144,7 +144,7 @@ impl CrossCalling<'_> {
 
         quote! {
             #( #attrs )*
-            #[derive(Clone, scale::Encode, scale::Decode)]
+            #[derive(Clone, Debug, scale::Encode, scale::Decode)]
             pub struct StorageAsDependency {
                 account_id: AccountId,
             }
