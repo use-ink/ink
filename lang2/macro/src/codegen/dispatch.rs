@@ -144,27 +144,27 @@ impl Dispatch<'_> {
 
     fn generate_message_namespaces(&self) -> TokenStream2 {
         quote! {
-            // / Namespace for messages.
-            // /
-            // / # Note
-            // /
-            // / The `S` parameter is going to refer to array types `[(); N]`
-            // / where `N` is the unique identifier of the associated message
-            // / selector.
+            // Namespace for messages.
+            //
+            // # Note
+            //
+            // The `S` parameter is going to refer to array types `[(); N]`
+            // where `N` is the unique identifier of the associated message
+            // selector.
             pub struct Msg<S> {
-                // / We need to wrap inner because of Rust's orphan rules.
+                // We need to wrap inner because of Rust's orphan rules.
                 marker: core::marker::PhantomData<fn() -> S>,
             }
 
-            // / Namespace for constructors.
-            // /
-            // / # Note
-            // /
-            // / The `S` parameter is going to refer to array types `[(); N]`
-            // / where `N` is the unique identifier of the associated constructor
-            // / selector.
+            // Namespace for constructors.
+            //
+            // # Note
+            //
+            // The `S` parameter is going to refer to array types `[(); N]`
+            // where `N` is the unique identifier of the associated constructor
+            // selector.
             pub struct Constr<S> {
-                // / We need to wrap inner because of Rust's orphan rules.
+                // We need to wrap inner because of Rust's orphan rules.
                 marker: core::marker::PhantomData<fn() -> S>,
             }
         }
