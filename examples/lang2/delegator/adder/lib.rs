@@ -23,7 +23,7 @@ use accumulator::Accumulator;
 
 #[ink::contract(version = "0.1.0")]
 mod adder {
-    /// Incremements the accumulator's value.
+    /// Incremements the underlying accumulator's value.
     #[ink(storage)]
     struct Adder {
         /// The accumulator to store the value.

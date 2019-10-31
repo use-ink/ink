@@ -23,7 +23,7 @@ use accumulator::Accumulator;
 
 #[ink::contract(version = "0.1.0")]
 mod subber {
-    /// Incremements the accumulator's value.
+    /// Decreases the accumulator's value.
     #[ink(storage)]
     struct Subber {
         /// The accumulator to store the value.
