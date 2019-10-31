@@ -92,7 +92,7 @@ pub enum MetaParam {
     ///
     /// Default value: `false`
     DynamicAllocations(ParamDynamicAllocations),
-    /// If the contract shall be compiled as depedency: `#[ink(compile_as_dependency: true)]`
+    /// If the contract shall be compiled as dependency: `#[ink(compile_as_dependency: true)]`
     ///
     /// Default value: `false`
     CompileAsDependency(ParamCompileAsDependency),
