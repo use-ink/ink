@@ -29,8 +29,8 @@ use crate::{
     env2::{
         call::{
             CallData,
-            CreateParams,
             CallParams,
+            CreateParams,
         },
         test::{
             types::*,

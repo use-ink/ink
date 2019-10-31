@@ -18,8 +18,8 @@ use crate::{
     env2::{
         call::{
             CallData,
-            CreateParams,
             CallParams,
+            CreateParams,
             ReturnType,
         },
         env_access::EmitEvent as _,

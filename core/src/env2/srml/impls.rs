@@ -16,16 +16,16 @@
 
 use crate::{
     env2::{
+        call::{
+            CallParams,
+            CreateParams,
+            ReturnType,
+        },
         property,
         srml::ext,
         utils::{
             EnlargeTo,
             Reset,
-        },
-        call::{
-            CallParams,
-            CreateParams,
-            ReturnType,
         },
         Env,
         EnvTypes,
@@ -188,7 +188,10 @@ where
     /// Invokes the cross-contract call from the given parameters.
     ///
     /// Uses the given buffer as cache for intermediate data.
-    fn invoke_contract_impl<O, Any>(buffer: &mut O, call_data: &CallParams<Self, Any>) -> Result<()>
+    fn invoke_contract_impl<O, Any>(
+        buffer: &mut O,
+        call_data: &CallParams<Self, Any>,
+    ) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset,
     {
@@ -262,7 +265,10 @@ where
         Self::invoke_contract_impl(buffer, call_data)
     }
 
-    fn eval_contract<IO, R>(buffer: &mut IO, call_data: &CallParams<Self, ReturnType<R>>) -> Result<R>
+    fn eval_contract<IO, R>(
+        buffer: &mut IO,
+        call_data: &CallParams<Self, ReturnType<R>>,
+    ) -> Result<R>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
@@ -279,7 +285,10 @@ where
         Decode::decode(&mut &buffer.as_ref()[0..req_len]).map_err(Into::into)
     }
 
-    fn create_contract<IO, C>(buffer: &mut IO, create_data: &CreateParams<Self, C>) -> Result<Self::AccountId>
+    fn create_contract<IO, C>(
+        buffer: &mut IO,
+        create_data: &CreateParams<Self, C>,
+    ) -> Result<Self::AccountId>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
     {

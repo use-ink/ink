@@ -23,13 +23,13 @@
 
 use crate::{
     env2::{
-        error::CallError,
-        property,
         call::{
-            CreateParams,
             CallParams,
+            CreateParams,
             ReturnType,
         },
+        error::CallError,
+        property,
         test::{
             typed_encoded::AlreadyInitialized,
             Account,
@@ -340,7 +340,10 @@ where
         })
     }
 
-    fn eval_contract<IO, R>(_buffer: &mut IO, call_data: &CallParams<Self, ReturnType<R>>) -> Result<R>
+    fn eval_contract<IO, R>(
+        _buffer: &mut IO,
+        call_data: &CallParams<Self, ReturnType<R>>,
+    ) -> Result<R>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,

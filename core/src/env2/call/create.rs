@@ -30,7 +30,10 @@ use crate::{
 use core::marker::PhantomData;
 
 pub mod state {
-    pub use crate::env2::call::state::{Sealed, Unsealed};
+    pub use crate::env2::call::state::{
+        Sealed,
+        Unsealed,
+    };
 
     /// Type state to indicate that the `code_hash` for cross-contract
     /// instantiation has already been provided.
@@ -124,7 +127,9 @@ where
     }
 
     /// Creates a new create builder without setting any presets.
-    pub fn build(selector: Selector) -> CreateBuilder<E, C, state::Unsealed, state::CodeHashUnassigned> {
+    pub fn build(
+        selector: Selector,
+    ) -> CreateBuilder<E, C, state::Unsealed, state::CodeHashUnassigned> {
         CreateBuilder {
             params: CreateParams::new(selector),
             state: Default::default(),

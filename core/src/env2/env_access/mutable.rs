@@ -18,8 +18,8 @@ use crate::{
     env2::{
         call::{
             CallData,
-            CreateParams,
             CallParams,
+            CreateParams,
             ReturnType,
         },
         property,
@@ -249,7 +249,10 @@ where
     /// - If given too few endowment.
     /// - If arguments passed to the called contract are invalid.
     /// - If the called contract runs out of gas.
-    pub fn eval_contract<R>(&mut self, call_data: &CallParams<T, ReturnType<R>>) -> Result<R>
+    pub fn eval_contract<R>(
+        &mut self,
+        call_data: &CallParams<T, ReturnType<R>>,
+    ) -> Result<R>
     where
         R: scale::Decode,
     {
@@ -264,7 +267,10 @@ where
     /// - If the code hash is invalid.
     /// - If given too few endowment.
     /// - If the instantiation process runs out of gas.
-    pub fn create_contract<C>(&mut self, params: &CreateParams<T, C>) -> Result<T::AccountId> {
+    pub fn create_contract<C>(
+        &mut self,
+        params: &CreateParams<T, C>,
+    ) -> Result<T::AccountId> {
         T::create_contract(&mut self.buffer, params)
     }
 

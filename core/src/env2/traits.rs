@@ -17,8 +17,8 @@
 use crate::{
     env2::{
         call::{
-            CreateParams,
             CallParams,
+            CreateParams,
             ReturnType,
         },
         property,
@@ -115,7 +115,7 @@ pub trait Env:
     ///
     /// # Note
     ///
-     /// Invocations fire and forget and thus won't return a value back.
+    /// Invocations fire and forget and thus won't return a value back.
     fn invoke_contract<O>(buffer: &mut O, call_data: &CallParams<Self, ()>) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset;
@@ -125,7 +125,10 @@ pub trait Env:
     /// # Note
     ///
     /// Evaluations return a return value back to the caller.
-    fn eval_contract<IO, R>(buffer: &mut IO, call_data: &CallParams<Self, ReturnType<R>>) -> Result<R>
+    fn eval_contract<IO, R>(
+        buffer: &mut IO,
+        call_data: &CallParams<Self, ReturnType<R>>,
+    ) -> Result<R>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode;

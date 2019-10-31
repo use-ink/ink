@@ -17,9 +17,9 @@
 use crate::{
     env2::{
         call::{
+            state,
             CallData,
             Selector,
-            state,
         },
         errors::CallError,
         Env,
