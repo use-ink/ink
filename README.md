@@ -29,6 +29,8 @@
 
 ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language targeting Substrate blockchains.
 
+For more information please visit [the ink! tutorial](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract).
+
 ## Developer Documentation
 
 | `ink_abi` | `ink_core` | `ink_model` |
@@ -39,119 +41,91 @@ ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to
 
 Use the scripts provided under `scripts` directory in order to run checks on either the workspace or all examples. Please do this before pushing work in a PR.
 
-### Examples
+## Examples
 
 For building the example smart contracts found under `examples` you will need to have `cargo-contract` installed.
 
 ```
-cargo install cargo-contract
+cargo install --git https://github.com/paritytech/ink cargo-contract
 ```
 
-Execute the following command in shell while in an example's directory:
+Add `--force` option to update to the most recent `cargo-contract` version.
 
-```
-cargo contract build
-```
+Please visit [the documentation](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract)
+about building contracts and generating metadata.
 
-### Testing
+### Hello, World! - The Flipper
 
-Off-chain testing is done by `cargo test`.
-If you want to test all workspace crates, do `cargo test --all`.
+The `Flipper` contract is a simple contract containing only a single `bool` value
+that it can flip from `true` to `false` and vice versa and return the current state.
 
-## Example
-
-Below is an example using ink! demonstrating a simple Flipper smart contract
-that has a boolean state that can be flipped or returned.
+Below you can see the code using the `ink_lang2` frontend to ink!.
 
 ```rust
-contract! {
-    /// Specify concrete implementation of contract environment types
-    #![env = ink_core::env::DefaultSrmlTypes]
+use ink_core::storage;
+use ink_lang2 as ink;
 
-    /// Flips its state between `true` and `false`.
+#[ink::contract(version = "0.1.0")]
+mod flipper {
+    /// The storage of the flipper contract.
+    #[ink(storage)]
     struct Flipper {
-        /// The current state of our flag.
+        /// The single `bool` value.
         value: storage::Value<bool>,
     }
 
-    impl Deploy for Flipper {
-        /// Initializes our state to `false` upon deploying our smart contract.
-        fn deploy(&mut self) {
-            self.value.set(false)
-        }
-    }
-
     impl Flipper {
-        /// Flips the current state of our smart contract.
-        pub(external) fn flip(&mut self) {
-            *self.value = !*self.value;
+        /// Instantiates a new Flipper contract and initializes `value` to `init_value`.
+        #[ink(constructor)]
+        fn new(&mut self, init_value: bool) {
+            self.value.set(init_value);
         }
 
-        /// Returns the current state.
-        pub(external) fn get(&self) -> bool {
+        /// Instantiates a new Flipper contract and initializes `value` to `false` by default.
+        #[ink(constructor)]
+        fn default(&mut self) {
+            self.new(false)
+        }
+
+        /// Flips `value` from `true` to `false` or vice versa.
+        #[ink(message)]
+        fn flip(&mut self) {
+            *self.value = !self.get();
+        }
+
+        /// Returns the current state of `value`.
+        #[ink(message)]
+        fn get(&self) -> bool {
             *self.value
         }
     }
-}
 
-/// Run off-chain tests with `cargo test`.
-#[cfg(tests)]
-mod tests {
-    use super::*;
+    /// As in normal Rust code we are able to define tests like below.
+    ///
+    /// Simply execute `cargo test` in order to test your contract.
+    #[cfg(test)]
+    mod tests {
+        use super::*;
 
-    #[test]
-    fn it_works() {
-        let mut flipper = Flipper::deploy_mock();
-        assert_eq!(flipper.get(), false);
-        flipper.flip();
-        assert_eq!(flipper.get(), true);
+        #[test]
+        fn default_works() {
+            // Note that `#[ink(constructor)]` functions that above have been
+            // defined as `&mut self` can be used as normal Rust constructors
+            // in test mode.
+            let flipper = Flipper::default();
+            assert_eq!(flipper.get(), false);
+        }
+
+        #[test]
+        fn it_works() {
+            let mut flipper = Flipper::new(false);
+            assert_eq!(flipper.get(), false);
+            flipper.flip();
+            assert_eq!(flipper.get(), true);
+        }
     }
 }
 ```
-
-## Documentation
-
-- User
-    - Wiki: [link](https://github.com/paritytech/ink/wiki)
-- Developer
-    - [`core`][F2]: Developer documentation for the core abstractions
-        - Storage allocators, SRML environment definitions
-        - Offchain test environment
-        - Utilities for smart contracts like collections
-    - [`model`][G2]: Developer documentation for the model abstractions
-        - Virtual model of a smart contract
-        - Contains smart contract ABI dispatch
-        - Used to build an actual smart contract eDSL on
-
-## Goals
-
-### Core Goals
-
-| | |
-|:-:|:-|
-| **Ecosystem** | Easy integration with the Rust ecosystem. |
-| **Tooling** | Rust tooling works out-of-the-box for smart contract code. This includes auto-completion, syntax highlighting, code coverage for tests, go-to definitions and other IDE goodies. |
-| **Testing** | Easy to build, test, deploy and run. |
-| **Development** | Development can be done entirely off-chain to speed up the process. |
-
-### Key Attributes
-
-| | |
-|:-:|:-|
-| **Efficient** | Compile smart contract code to machine code that is _at least_ as efficient as if you used the low-level function calls directly. |
-| **Robust** | Make it as simple as possible to write code that just does what is expected and as difficult as possible to write incorrect or exploitable code. |
-| **Simple** | Smart contract code should be as easy-to-read as possible. |
-| **Accessible** | Make it accessible to users by providing excellent documentation and teaching materials. |
-
-## Structure
-
-| Module | Description |
-|:-------|:------------|
-| `cli` | A minimalist tool to setup a smart contract project easily. |
-| `core` | The core utilities used to write smart contracts. |
-| `model` | Medium-level abstractions to write smart contracts heavily inspired by [Fleetwood](https://github.com/paritytech/fleetwood). |
-| `lang` | The actual eDSL based on `ink_core` and `ink_model` to provide a user friendly interface to writing smart contract code. |
-| `examples` | Features some smart contracts written for clarity with focus on teaching users how to use pDSL to write their own contracts. |
 
 ## Contribution
 
