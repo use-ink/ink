@@ -19,7 +19,6 @@ use crate::{
         call::{
             CallData,
             Selector,
-            seal,
         },
         errors::CreateError,
         Env,
@@ -29,6 +28,17 @@ use crate::{
     memory::vec::Vec,
 };
 use core::marker::PhantomData;
+
+pub mod state {
+    pub use crate::env2::call::state::{Sealed, Unsealed};
+
+    /// Type state to indicate that the `code_hash` for cross-contract
+    /// instantiation has already been provided.
+    pub enum CodeHashAssigned {}
+    /// Type state to indicate that the `code_hash` for cross-contract
+    /// instantitation has not yet been provided.
+    pub enum CodeHashUnassigned {}
+}
 
 /// Contracts that can be contructed from an `AccountId`
 ///
@@ -62,14 +72,14 @@ where
 }
 
 /// Builds up contract instantiations.
-pub struct CreateBuilder<E, C, Seal>
+pub struct CreateBuilder<E, C, Seal, CodeHash>
 where
     E: EnvTypes,
 {
     /// The parameters of the cross-contract instantiation.
     params: CreateParams<E, C>,
     /// Seal state.
-    seal: PhantomData<Seal>,
+    state: PhantomData<fn() -> (Seal, CodeHash)>,
 }
 
 impl<E, C> CreateParams<E, C>
@@ -114,15 +124,15 @@ where
     }
 
     /// Creates a new create builder without setting any presets.
-    pub fn build(selector: Selector) -> CreateBuilder<E, C, seal::Unsealed> {
+    pub fn build(selector: Selector) -> CreateBuilder<E, C, state::Unsealed, state::CodeHashUnassigned> {
         CreateBuilder {
             params: CreateParams::new(selector),
-            seal: Default::default(),
+            state: Default::default(),
         }
     }
 }
 
-impl<E, C, Seal> CreateBuilder<E, C, Seal>
+impl<E, C, Seal, CodeHash> CreateBuilder<E, C, Seal, CodeHash>
 where
     E: EnvTypes,
 {
@@ -137,15 +147,26 @@ where
         self.params.value = value;
         self
     }
+}
 
+impl<E, C, Seal> CreateBuilder<E, C, Seal, state::CodeHashUnassigned>
+where
+    E: EnvTypes,
+{
     /// Using the given code hash.
-    pub fn using_code(mut self, code_hash: E::Hash) -> Self {
+    pub fn using_code(
+        mut self,
+        code_hash: E::Hash,
+    ) -> CreateBuilder<E, C, Seal, state::CodeHashAssigned> {
         self.params.code_hash = code_hash;
-        self
+        CreateBuilder {
+            params: self.params,
+            state: Default::default(),
+        }
     }
 }
 
-impl<E, C> CreateBuilder<E, C, seal::Unsealed>
+impl<E, C, CodeHash> CreateBuilder<E, C, state::Unsealed, CodeHash>
 where
     E: EnvTypes,
 {
@@ -159,15 +180,15 @@ where
     }
 
     /// Seals the create builder to prevent further arguments.
-    pub fn seal(self) -> CreateBuilder<E, C, seal::Sealed> {
+    pub fn seal(self) -> CreateBuilder<E, C, state::Sealed, CodeHash> {
         CreateBuilder {
             params: self.params,
-            seal: Default::default(),
+            state: Default::default(),
         }
     }
 }
 
-impl<E, C, Seal> CreateBuilder<E, C, Seal>
+impl<E, C, Seal> CreateBuilder<E, C, Seal, state::CodeHashAssigned>
 where
     E: Env,
     C: FromAccountId<E>,

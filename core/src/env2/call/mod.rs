@@ -18,6 +18,13 @@ mod call;
 mod create;
 mod utils;
 
+pub mod state {
+    pub use crate::env2::call::{
+        utils::seal::{Sealed, Unsealed},
+        create::state::{CodeHashAssigned, CodeHashUnassigned},
+    };
+}
+
 pub use self::{
     call::{
         ReturnType,
@@ -30,7 +37,6 @@ pub use self::{
         CreateBuilder,
     },
     utils::{
-        seal,
         Selector,
         CallData,
     },

@@ -19,7 +19,7 @@ use crate::{
         call::{
             CallData,
             Selector,
-            seal,
+            state,
         },
         errors::CallError,
         Env,
@@ -108,7 +108,7 @@ where
     pub fn eval(
         callee: E::AccountId,
         selector: Selector,
-    ) -> CallBuilder<E, ReturnType<R>, seal::Unsealed> {
+    ) -> CallBuilder<E, ReturnType<R>, state::Unsealed> {
         CallBuilder {
             params: CallParams::new(callee, selector),
             seal: Default::default(),
@@ -121,7 +121,7 @@ where
     pub fn invoke(
         callee: E::AccountId,
         selector: Selector,
-    ) -> CallBuilder<E, (), seal::Unsealed> {
+    ) -> CallBuilder<E, (), state::Unsealed> {
         CallBuilder {
             params: CallParams::new(callee, selector),
             seal: Default::default(),
@@ -146,7 +146,7 @@ where
     }
 }
 
-impl<E, R> CallBuilder<E, R, seal::Unsealed>
+impl<E, R> CallBuilder<E, R, state::Unsealed>
 where
     E: EnvTypes,
 {
@@ -160,7 +160,7 @@ where
     }
 
     /// Seals the call builder to prevent further arguments.
-    pub fn seal(self) -> CallBuilder<E, R, seal::Sealed> {
+    pub fn seal(self) -> CallBuilder<E, R, state::Sealed> {
         CallBuilder {
             params: self.params,
             seal: Default::default(),

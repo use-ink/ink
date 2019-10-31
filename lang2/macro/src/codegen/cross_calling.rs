@@ -196,7 +196,8 @@ impl CrossCalling<'_> {
                     ) -> ink_core::env2::call::CreateBuilder<
                         Env,
                         Self,
-                        ink_core::env2::call::seal::Sealed
+                        ink_core::env2::call::state::Sealed,
+                        ink_core::env2::call::state::CodeHashUnassigned,
                     > {
                         ink_core::env2::call::CreateParams::<Env, Self>::build(
                             ink_core::env2::call::Selector::from_bytes([#( #selector_bytes ),*])
@@ -327,7 +328,7 @@ impl CrossCalling<'_> {
                         self,
                         #( #fn_args ),*
                     ) -> ink_core::env2::call::CallBuilder<
-                        Env, #ret_ty_sig, ink_core::env2::call::seal::Sealed
+                        Env, #ret_ty_sig, ink_core::env2::call::state::Sealed
                     > {
                         ink_core::env2::call::CallParams::<Env, #ret_ty_param>::#instantiate_fn(
                             ink_lang2::ToAccountId::to_account_id(self.contract),
