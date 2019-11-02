@@ -1,25 +1,24 @@
 [package]
-name = "{{name}}"
+name = {{name}}
 version = "0.1.0"
 authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
-ink_abi = { git = "https://github.com/paritytech/ink", package = "ink_abi", default-features = false, optional = true }
-ink_core = { git = "https://github.com/paritytech/ink", package = "ink_core", default-features = false }
-ink_model = { git = "https://github.com/paritytech/ink", package = "ink_model", default-features = false }
-ink_lang = { git = "https://github.com/paritytech/ink", package = "ink_lang", default-features = false }
+ink_abi = { path = "../../../abi", default-features = false, features = ["derive"], optional = true }
+ink_core = { path = "../../../core", default-features = false }
+ink_lang2 = { path = "../../../lang2", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "{{name}}"
+name = {{name}}
 crate-type = [
-    # Used for normal contract Wasm blobs.
-    "cdylib",
-    # Used for ABI generation.
-    "rlib",
+	# Used for normal contract Wasm blobs.
+	"cdylib",
+	# Used for ABI generation.
+	"rlib",
 ]
 
 [features]
@@ -27,23 +26,20 @@ default = ["test-env"]
 std = [
     "ink_abi/std",
     "ink_core/std",
-    "ink_model/std",
-    "ink_lang/std",
     "scale/std",
     "type-metadata/std",
 ]
 test-env = [
     "std",
     "ink_core/test-env",
-    "ink_model/test-env",
-    "ink_lang/test-env",
+    "ink_lang2/test-env",
 ]
 ink-generate-abi = [
     "std",
     "ink_abi",
     "type-metadata",
     "ink_core/ink-generate-abi",
-    "ink_lang/ink-generate-abi",
+    "ink_lang2/ink-generate-abi",
 ]
 ink-as-dependency = []
 
