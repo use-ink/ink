@@ -60,13 +60,13 @@ pub struct SrmlEnv<T> {
 }
 
 #[cfg(feature = "ink-generate-abi")]
-impl<E> type_metadata::HasTypeId for TestEnv<E>
+impl<E> type_metadata::HasTypeId for SrmlEnv<E>
 where
     E: type_metadata::Metadata,
 {
     fn type_id() -> type_metadata::TypeId {
         type_metadata::TypeIdCustom::new(
-            "TestEnv",
+            "SrmlEnv",
             type_metadata::Namespace::from_module_path(module_path!())
                 .expect("namespace from module path cannot fail"),
             vec![E::meta_type()],
@@ -76,7 +76,7 @@ where
 }
 
 #[cfg(feature = "ink-generate-abi")]
-impl<E> type_metadata::HasTypeDef for TestEnv<E> {
+impl<E> type_metadata::HasTypeDef for SrmlEnv<E> {
     fn type_def() -> type_metadata::TypeDef {
         type_metadata::TypeDefStruct::new(vec![]).into()
     }
