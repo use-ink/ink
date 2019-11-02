@@ -154,18 +154,21 @@ impl CrossCalling<'_> {
     fn generate_storage_impls(&self) -> TokenStream2 {
         quote! {
             impl ink_core::storage::Flush for StorageAsDependency {
+                #[inline(always)]
                 fn flush(&mut self) {
                     // Nothing to do here!
                 }
             }
 
             impl ink_core::env2::call::FromAccountId<Env> for StorageAsDependency {
+                #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { account_id }
                 }
             }
 
             impl ink_lang2::ToAccountId<Env> for StorageAsDependency {
+                #[inline]
                 fn to_account_id(&self) -> AccountId {
                     self.account_id
                 }
@@ -351,6 +354,7 @@ impl CrossCalling<'_> {
             impl<'a> ink_lang2::ForwardCall for &'a StorageAsDependency {
                 type Forwarder = CallForwarder<'a>;
 
+                #[inline]
                 fn call(self) -> Self::Forwarder {
                     CallForwarder { contract: self }
                 }
@@ -376,6 +380,7 @@ impl CrossCalling<'_> {
             impl<'a> ink_lang2::ForwardCallMut for &'a mut StorageAsDependency {
                 type Forwarder = CallForwarderMut<'a>;
 
+                #[inline]
                 fn call_mut(self) -> Self::Forwarder {
                     CallForwarderMut { contract: self }
                 }
