@@ -17,9 +17,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(proc_macro_hygiene)]
 
+use accumulator::Accumulator;
 use ink_core::storage;
 use ink_lang2 as ink;
-use accumulator::Accumulator;
 
 #[ink::contract(version = "0.1.0")]
 mod adder {
