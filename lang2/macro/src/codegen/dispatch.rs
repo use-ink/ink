@@ -102,11 +102,13 @@ impl Dispatch<'_> {
 
         let fn_input = quote_spanned!(sig.inputs.span() =>
             impl ink_lang2::FnInput for #namespace<[(); #selector_id]> {
+                #[allow(unused_parens)]
                 type Input = (#inputs_punct);
             }
         );
         let fn_output = quote_spanned!(sig.output.span() =>
             impl ink_lang2::FnOutput for #namespace<[(); #selector_id]> {
+                #[allow(unused_parens)]
                 type Output = (#output_type);
             }
         );
@@ -223,6 +225,7 @@ impl Dispatch<'_> {
 
         quote! {
             impl ink_lang2::DispatchUsingMode for StorageAndEnv {
+                #[allow(unused_parens)]
                 fn dispatch_using_mode(
                     mode: ink_lang2::DispatchMode
                 ) -> core::result::Result<(), ink_lang2::DispatchError> {
