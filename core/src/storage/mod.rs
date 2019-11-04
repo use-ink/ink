@@ -87,6 +87,10 @@ use self::non_clone::NonCloneMarker;
 
 pub use self::{
     collections::{
+        binary_heap::{
+            self,
+            BinaryHeap,
+        },
         bitvec::{
             self,
             BitVec,

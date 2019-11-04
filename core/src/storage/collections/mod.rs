@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+pub mod binary_heap;
 pub mod bitvec;
 pub mod hash_map;
 pub mod stash;

@@ -44,8 +44,12 @@ impl CrateMetadata {
 }
 
 /// Parses the contract manifest and returns relevant metadata.
-pub fn collect_crate_metadata() -> Result<CrateMetadata> {
-    let metadata = MetadataCommand::new().exec()?;
+pub fn collect_crate_metadata(working_dir: Option<&PathBuf>) -> Result<CrateMetadata> {
+    let mut cmd = MetadataCommand::new();
+    if let Some(dir) = working_dir {
+        cmd.current_dir(dir);
+    }
+    let metadata = cmd.exec()?;
 
     let root_package_id = metadata
         .resolve
@@ -81,7 +85,7 @@ pub fn collect_crate_metadata() -> Result<CrateMetadata> {
     })
 }
 
-/// Invokes `cargo build` in the current directory.
+/// Invokes `cargo build` in the specified directory, defaults to the current directory.
 ///
 /// Currently it assumes that user wants to use `+nightly`.
 fn build_cargo_project() -> Result<()> {
@@ -144,11 +148,13 @@ fn ensure_maximum_memory_pages(
 ///
 /// Presently all custom sections are not required so they can be stripped safely.
 fn strip_custom_sections(module: &mut Module) {
-    module.sections_mut().retain(|section| match section {
-        Section::Custom(_) => false,
-        Section::Name(_) => false,
-        Section::Reloc(_) => false,
-        _ => true,
+    module.sections_mut().retain(|section| {
+        match section {
+            Section::Custom(_) => false,
+            Section::Name(_) => false,
+            Section::Reloc(_) => false,
+            _ => true,
+        }
     });
 }
 
@@ -172,11 +178,11 @@ fn post_process_wasm(crate_metadata: &CrateMetadata) -> Result<()> {
 /// Executes build of the smart-contract which produces a wasm binary that is ready for deploying.
 ///
 /// It does so by invoking build by cargo and then post processing the final binary.
-pub(crate) fn execute_build() -> Result<String> {
+pub(crate) fn execute_build(working_dir: Option<&PathBuf>) -> Result<String> {
     println!(" [1/3] Collecting crate metadata");
-    let crate_metadata = collect_crate_metadata()?;
+    let crate_metadata = collect_crate_metadata(working_dir)?;
     println!(" [2/3] Building cargo project");
-    build_cargo_project()?;
+    build_cargo_project(working_dir)?;
     println!(" [3/3] Post processing wasm file");
     post_process_wasm(&crate_metadata)?;
 
@@ -188,32 +194,24 @@ pub(crate) fn execute_build() -> Result<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::{
-        cmd::execute_new,
+        cmd::{
+            execute_new,
+            tests::with_tmp_dir,
+        },
         AbstractionLayer,
     };
-    use tempfile::TempDir;
-    use std::env;
 
-    fn with_tmp_dir<F: FnOnce()>(f: F) {
-
-        let original_cwd = env::current_dir().expect("failed to get current working directory");
-        let tmp_dir = TempDir::new().expect("temporary directory creation failed");
-        env::set_current_dir(tmp_dir.path()).expect("setting the current dir to temp failed");
-
-        f();
-
-        env::set_current_dir(original_cwd).expect("restoring cwd failed");
-    }
-
-    #[cfg(feature="test-ci-only")]
+    #[cfg(feature = "test-ci-only")]
     #[test]
+    // FIXME: https://github.com/paritytech/ink/issues/202
+    // currently fails on CI because of global RUSTFLAGS overriding required `--import-memory`
+    #[ignore]
     fn build_template() {
-        with_tmp_dir(|| {
-            execute_new(AbstractionLayer::Lang, "new_project").expect("new project creation failed");
-            env::set_current_dir("./new_project").expect("cwd to new_project failed");
-            execute_build().expect("build failed");
+        with_tmp_dir(|path| {
+            execute_new(AbstractionLayer::Lang, "new_project", Some(path))
+                .expect("new project creation failed");
+            super::execute_build(Some(&path.join("new_project"))).expect("build failed");
         });
     }
 }

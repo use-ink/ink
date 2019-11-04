@@ -90,7 +90,6 @@ impl Contract {
                         Span::call_site(),
                         format!("unknown env attribute '{}'", meta.ident),
                     ))
-                    .into()
                 }
             })
             .collect::<Result<Vec<_>>>()?;
@@ -98,8 +97,7 @@ impl Contract {
             return Err(syn::Error::new(
                 Span::call_site(),
                 "couldn't find an `#![env = <EnvTypesImpl>]` attribute",
-            )
-            .into())
+            ))
         }
         if env_types.len() > 1 {
             return Err(syn::Error::new(
@@ -108,8 +106,7 @@ impl Contract {
                     "requires exactly one `#![env = <EnvTypesImpl>]` attribute; found {:?}",
                     env_types.len()
                 ),
-            )
-            .into())
+            ))
         }
         Ok(env_types[0].clone())
     }
@@ -244,12 +241,10 @@ impl Contract {
                     }
                     Some(self_ty) => {
                         match self_ty {
-                            ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => {
-                                bail!(
+                            ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => bail!(
                                 self_ty,
                                 "contract messages must operate on `&self` or `&mut self`"
-                            )
-                            }
+                            ),
                             _ => (),
                         }
                     }
@@ -507,14 +502,14 @@ impl Message {
     }
 
     /// Returns the message selector for this message.
-    pub fn selector(&self) -> u32 {
+    pub fn selector(&self) -> [u8; 4] {
         raw_message_selector(self.sig.ident.to_string().as_str())
     }
 }
 
-fn raw_message_selector(name: &str) -> u32 {
+fn raw_message_selector(name: &str) -> [u8; 4] {
     let keccak = ink_utils::hash::keccak256(name.as_bytes());
-    u32::from_le_bytes([keccak[0], keccak[1], keccak[2], keccak[3]])
+    [keccak[3], keccak[2], keccak[1], keccak[0]]
 }
 
 impl From<&ast::ItemImplMethod> for Message {
@@ -570,8 +565,8 @@ mod tests {
 
     #[test]
     fn message_selectors() {
-        assert_eq!(raw_message_selector("inc"), 257544423);
-        assert_eq!(raw_message_selector("get"), 4266279973);
-        assert_eq!(raw_message_selector("compare"), 363906316);
+        assert_eq!(raw_message_selector("inc"), [15, 89, 208, 231]);
+        assert_eq!(raw_message_selector("get"), [254, 74, 68, 37]);
+        assert_eq!(raw_message_selector("compare"), [21, 176, 197, 12]);
     }
 }

@@ -59,11 +59,13 @@ impl<'a> From<&'a [u8]> for Selector {
 
 impl Selector {
     /// Returns the selector for the given name.
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(name: &str) -> Self {
         From::from(name.as_bytes())
     }
 
     /// Returns the underlying bytes of the selector.
+    #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn to_bytes(&self) -> [u8; 4] {
         self.bytes
     }

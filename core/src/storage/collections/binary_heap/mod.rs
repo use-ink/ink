@@ -14,29 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use proc_macro2::TokenStream as TokenStream2;
-use syn::Result;
+//! A binary heap collection.
+//! The heap depends on `Ord` and is a max-heap by default. In order to
+//! make it a min-heap implement the `Ord` trait explicitly on the type
+//! which is stored in the heap.
+//!
+//! Provides `O(log(n))` push and pop operations.
 
-#[cfg(feature = "ink-generate-abi")]
-use crate::old_abi;
-use crate::{
-    gen,
-    hir,
-    parser,
+#[cfg(all(test, feature = "test-env"))]
+mod tests;
+
+mod duplex_sync_chunk;
+mod impls;
+
+pub use self::impls::{
+    BinaryHeap,
+    Iter,
+    Values,
 };
-
-pub fn generate(input: TokenStream2) -> TokenStream2 {
-    match generate_or_err(input) {
-        Ok(tokens) => tokens,
-        Err(err) => err.to_compile_error(),
-    }
-}
-
-pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
-    let ast_contract = parser::parse_contract(input)?;
-    let hir_contract = hir::Contract::from_ast(&ast_contract)?;
-    #[cfg(feature = "ink-generate-abi")]
-    old_abi::generate_old_abi(&hir_contract)?;
-    let tokens = gen::generate_code(&hir_contract);
-    Ok(tokens)
-}

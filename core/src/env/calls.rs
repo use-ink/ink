@@ -40,10 +40,9 @@ struct CallAbi {
 
 impl CallAbi {
     /// Creates new call ABI data for the given selector.
-    pub fn new(selector: u32) -> Self {
-        let bytes = selector.to_le_bytes();
+    pub fn new(selector: [u8; 4]) -> Self {
         Self {
-            raw: vec![bytes[0], bytes[1], bytes[2], bytes[3]],
+            raw: vec![selector[0], selector[1], selector[2], selector[3]],
         }
     }
 
@@ -177,7 +176,7 @@ where
     E::Balance: Default,
 {
     /// Instantiates an evaluatable (returns data) remote smart contract call.
-    pub fn eval(account_id: E::AccountId, selector: u32) -> Self {
+    pub fn eval(account_id: E::AccountId, selector: [u8; 4]) -> Self {
         Self {
             account_id,
             gas_limit: 0,
@@ -194,7 +193,7 @@ where
     E::Balance: Default,
 {
     /// Instantiates a non-evaluatable (returns no data) remote smart contract call.
-    pub fn invoke(account_id: E::AccountId, selector: u32) -> Self {
+    pub fn invoke(account_id: E::AccountId, selector: [u8; 4]) -> Self {
         Self {
             account_id,
             gas_limit: 0,

@@ -286,11 +286,11 @@ where
     where
         F: FnOnce() -> T,
     {
-        self.within_bounds(n).and_then(|n| {
-            Some(self.cells.put(n, f()).expect(
+        self.within_bounds(n).map(|n| {
+            self.cells.put(n, f()).expect(
                 "[ink_core::Vec::replace] Error: \
                  expected success due to access within bounds",
-            ))
+            )
         })
     }
 

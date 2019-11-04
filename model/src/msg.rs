@@ -40,44 +40,69 @@ pub trait Message {
 /// Defines messages for contracts with less boilerplate code.
 #[macro_export]
 macro_rules! messages {
-	(
-		$( #[$msg_meta:meta] )*
-		$msg_id:literal => $msg_name:ident (
-			$( $param_name:ident : $param_ty:ty ),*
-		) -> $ret_ty:ty ;
+    // There are three macros to handle the different cases of
+    // `$prefix => Foo(maybe_args, …) -> maybe_return_type;`
+    //  where `$prefix` can be either `[a, b, c, d]` or `[a; 4]`.
 
-		$($rest:tt)*
-	) => {
-		$( #[$msg_meta] )*
-		#[derive(Copy, Clone)]
-		pub(crate) struct $msg_name;
+    // Matches `[a, b, c, d] => Foo(maybe_args, …) -> return type;`.
+    (
+        $( #[$msg_meta:meta] )*
+        [ $a:literal, $b:literal, $c:literal, $d:literal $(,)? ] => $msg_name:ident (
+            $( $param_name:ident : $param_ty:ty ),*
+        ) -> $ret_ty:ty ;
+        $($rest:tt)*
+    ) => {
+        $( #[$msg_meta] )*
+        #[derive(Copy, Clone)]
+        pub(crate) struct $msg_name;
 
-		impl $crate::Message for $msg_name {
-			type Input = ($($param_ty),*);
-			type Output = $ret_ty;
+        impl $crate::Message for $msg_name {
+            type Input = ($($param_ty),*);
+            type Output = $ret_ty;
 
-			const ID: $crate::MessageHandlerSelector = $crate::MessageHandlerSelector::new($msg_id);
-			const NAME: &'static str = stringify!($msg_name);
-		}
+            const ID: $crate::MessageHandlerSelector =
+                $crate::MessageHandlerSelector::new([$a, $b, $c, $d]);
+            const NAME: &'static str = stringify!($msg_name);
+        }
 
-		messages!($($rest)*);
-	};
-	(
-		$( #[$msg_meta:meta] )*
-		$msg_id:literal => $msg_name:ident (
-			$( $param_name:ident : $param_ty:ty ),*
-		) ;
+        messages!($($rest)*);
+    };
 
-		$($rest:tt)*
-	) => {
-		messages!(
-			$( #[$msg_meta] )*
-			$msg_id => $msg_name (
-				$( $param_name : $param_ty ),*
-			) -> ();
+    // Matches `[a, b, c, d] => Foo(maybe_args, …);` (no return type).
+    (
+        $( #[$msg_meta:meta] )*
+        [ $a:literal, $b:literal, $c:literal, $d:literal $(,)? ] => $msg_name:ident (
+            $( $param_name:ident : $param_ty:ty ),*
+        ) ;
+        $($rest:tt)*
+    ) => {
+        messages!(
+            $( #[$msg_meta] )*
+            [$a, $b, $c, $d] => $msg_name (
+                $( $param_name : $param_ty ),*
+            ) -> ();
+            $($rest)*
+        );
+    };
 
-			$($rest)*
-		);
-	};
-	() => {};
+    // Matches
+    // * `[a; 4] => Foo(maybe_args, …) -> return type;` and
+    // * `[a; 4] => Foo(maybe_args, …);`
+    (
+        $( #[$msg_meta:meta] )*
+        [ $a:literal; 4 $(,)? ] => $msg_name:ident (
+            $( $param_name:ident : $param_ty:ty ),*
+        ) $(-> $maybe_ret:tt)*;
+        $($rest:tt)*
+    ) => {
+        messages!(
+            $( #[$msg_meta] )*
+            [$a, $a, $a, $a] => $msg_name (
+                $( $param_name : $param_ty ),*
+            ) $(-> $maybe_ret)* ;
+            $($rest)*
+        );
+    };
+
+    () => {};
 }

@@ -21,6 +21,7 @@
 
 use crate::{
     ast,
+    gen::selector_to_expr,
     hir,
 };
 use proc_macro2::TokenStream as TokenStream2;
@@ -40,9 +41,9 @@ fn trim_doc_string(attr: &syn::Attribute) -> String {
         .to_string()
         .trim_start_matches('=')
         .trim_start()
-        .trim_start_matches("r")
-        .trim_start_matches("\"")
-        .trim_end_matches("\"")
+        .trim_start_matches('r')
+        .trim_start_matches('\"')
+        .trim_end_matches('\"')
         .trim()
         .into()
 }
@@ -121,7 +122,7 @@ fn generate_abi_constructor(contract: &hir::Contract) -> TokenStream2 {
 
     quote! {
         ink_abi::ConstructorSpec::new("on_deploy")
-            .selector(0)
+            .selector([0u8; 4])
             .args(vec![
                 #(#args ,)*
             ])
@@ -136,7 +137,7 @@ fn generate_abi_messages<'a>(
     contract: &'a hir::Contract,
 ) -> impl Iterator<Item = TokenStream2> + 'a {
     contract.messages.iter().map(|message| {
-        let selector = message.selector();
+        let selector = selector_to_expr(message.selector());
         let is_mut = message.is_mut();
         let docs = message.docs().map(trim_doc_string);
         let name = message.sig.ident.to_string();
@@ -219,7 +220,7 @@ fn generate_type_spec_code(ty: &syn::Type) -> TokenStream2 {
             return without_display_name(ty)
         }
         let path = &type_path.path;
-        if path.segments.len() == 0 {
+        if path.segments.is_empty() {
             return without_display_name(ty)
         }
         let segs = path

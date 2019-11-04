@@ -55,3 +55,15 @@ fn exec_cargo(command: &str, args: &[&'static str]) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+    use tempfile::TempDir;
+
+    pub fn with_tmp_dir<F: FnOnce(&PathBuf)>(f: F) {
+        let tmp_dir = TempDir::new().expect("temporary directory creation failed");
+
+        f(&tmp_dir.into_path());
+    }
+}

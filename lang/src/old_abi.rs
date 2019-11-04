@@ -478,9 +478,11 @@ impl TryFrom<&hir::Message> for MessageDescription {
     type Error = syn::Error;
 
     fn try_from(message: &hir::Message) -> Result<Self> {
+        let s = message.selector();
+        let selector = u32::from_le_bytes([s[3], s[2], s[1], s[0]]).into();
         Ok(Self {
             name: message.sig.ident.to_string(),
-            selector: message.selector().into(),
+            selector,
             mutates: message.is_mut(),
             args: {
                 message
@@ -789,7 +791,7 @@ mod tests {
             r#"{"Result<T,E>":{"T":["bool","i32"],"E":{"[T;n]":{"T":"u8","n":8}}}}"#,
         );
         assert_json_roundtrip(
-            parse_quote!(Result<Result<u8,i8>,Result<u16,i16>>),
+            parse_quote!(Result<Result<u8, i8>, Result<u16, i16>>),
             r#"{"Result<T,E>":{"T":{"Result<T,E>":{"T":"u8","E":"i8"}},"E":{"Result<T,E>":{"T":"u16","E":"i16"}}}}"#,
         );
     }

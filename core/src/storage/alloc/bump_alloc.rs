@@ -39,7 +39,7 @@ pub struct BumpAlloc {
 impl BumpAlloc {
     /// Creates a new forward allocator for the given raw parts.
     ///
-    /// # Note
+    /// # Safety
     ///
     /// Do not use this directly!
     /// This is meant to be used by pDSL internals only.
