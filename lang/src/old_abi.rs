@@ -178,7 +178,7 @@ impl TryFrom<&syn::TypePath> for ResultTypeDescription {
                 if generic_args.args.len() != 2 {
                     bail!(
                         generic_args,
-                        "`Result` type requires 2 generic type arguments"
+                        "`Result` type requires 2 generic type arguments",
                     );
                 }
                 let ok_type = match &generic_args.args[0] {
@@ -229,7 +229,7 @@ impl TryFrom<&syn::Type> for TypeDescription {
                     }
                 }
             }
-            invalid => bail!(invalid, "invalid or unsupported type",),
+            invalid => bail!(invalid, "invalid or unsupported type"),
         }
     }
 }

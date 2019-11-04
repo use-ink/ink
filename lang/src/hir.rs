@@ -219,7 +219,7 @@ impl Contract {
             if method.sig.ident == "deploy" {
                 bail!(
                     method.sig.ident,
-                    "contract methods must not be named `deploy`"
+                    "contract methods must not be named `deploy`",
                 );
             }
         }
@@ -227,7 +227,7 @@ impl Contract {
             if msg.sig.ident == "deploy" {
                 bail!(
                     msg.sig.ident,
-                    "contract messages must not be named `deploy`"
+                    "contract messages must not be named `deploy`",
                 );
             }
             let inputs = &msg.sig.inputs;
@@ -236,7 +236,7 @@ impl Contract {
                     None => {
                         bail!(
                             msg.sig.ident,
-                            "contract messages must operate on `&self` or `&mut self`"
+                            "contract messages must operate on `&self` or `&mut self`",
                         );
                     }
                     Some(self_ty) => {
@@ -254,7 +254,7 @@ impl Contract {
                             _ => {
                                 bail!(
                                     self_ty,
-                                    "contract messages must operate on `&self` or `&mut self`"
+                                    "contract messages must operate on `&self` or `&mut self`",
                                 );
                             }
                         }
@@ -267,7 +267,7 @@ impl Contract {
                         if pat_ident.ident == "env" {
                             bail!(
                                 pat_ident.ident,
-                                "contract messages must not contain an argument called `env`"
+                                "contract messages must not contain an argument called `env`",
                             );
                         }
                     }
@@ -328,8 +328,8 @@ impl Contract {
             _ => {
                 bail!(
                     self_ty,
-                    "the deploy implementation must operate on `&mut self`"
-                )
+                    "the deploy implementation must operate on `&mut self`",
+                );
             }
         }
 
@@ -339,7 +339,7 @@ impl Contract {
                     if pat_ident.ident == "env" {
                         bail!(
                             pat_ident.ident,
-                            "the deploy implementation must not contain an argument named `env`"
+                            "the deploy implementation must not contain an argument named `env`",
                         );
                     }
                 }
@@ -348,13 +348,13 @@ impl Contract {
         if sig.generics != Default::default() {
             bail!(
                 sig.generics,
-                "the deploy implementation must not be generic"
+                "the deploy implementation must not be generic",
             );
         }
         if sig.output != syn::ReturnType::Default {
             bail!(
                 sig.output,
-                "the deploy implementation must not have a return type"
+                "the deploy implementation must not have a return type",
             );
         }
 
