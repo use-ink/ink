@@ -22,9 +22,6 @@ ink_utils = { path = "../utils/", default-features = false }
 ink_model = { path = "../model/", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 
-#quote = "0.6"
-#syn = { version = "0.15", features = ["parsing", "full", "extra-traits"] }
-#proc-macro2 = "0.4"
 quote = "1.0"
 syn = { version = "1.0", features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = "1.0"
