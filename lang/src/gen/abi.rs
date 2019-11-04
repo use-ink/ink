@@ -19,17 +19,13 @@
 //! This two-steps process is required because Rust macros (and thus `ink_lang`)
 //! are not able to access type information or anything that is related to that.
 
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
+
 use crate::{
     ast,
     gen::selector_to_expr,
     hir,
-};
-use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
-use syn::{
-    self,
-    punctuated::Punctuated,
-    Token,
 };
 
 /// Trims a doc string obtained from an attribute token stream into the actual doc string.
@@ -37,7 +33,7 @@ use syn::{
 /// Practically speaking this method removes the trailing start `" = \""` and end `\"`
 /// of documentation strings coming from Syn attribute token streams.
 fn trim_doc_string(attr: &syn::Attribute) -> String {
-    attr.tts
+    attr.tokens
         .to_string()
         .trim_start_matches('=')
         .trim_start()
@@ -76,12 +72,12 @@ fn generate_abi_constructor(contract: &hir::Contract) -> TokenStream2 {
     let constructor = &contract.on_deploy;
 
     let args = constructor
-        .decl
+        .sig
         .inputs
         .iter()
-        .filter_map(ast::FnArg::is_captured)
+        .filter_map(ast::FnArg::is_typed)
         .map(|capt| {
-            let name = match &capt.pat {
+            let name = match &*capt.pat {
                 syn::Pat::Ident(pat_ident) => {
                     if pat_ident.by_ref.is_none()
                         && pat_ident.mutability.is_none()
@@ -116,8 +112,7 @@ fn generate_abi_constructor(contract: &hir::Contract) -> TokenStream2 {
                     .of_type(#type_spec)
                     .done()
             }
-        })
-        .collect::<Punctuated<_, Token![,]>>();
+        });
     let docs = constructor.docs().map(trim_doc_string);
 
     quote! {
@@ -143,12 +138,11 @@ fn generate_abi_messages<'a>(
         let name = message.sig.ident.to_string();
         let inputs = message
             .sig
-            .decl
             .inputs
             .iter()
-            .filter_map(ast::FnArg::is_captured)
+            .filter_map(ast::FnArg::is_typed)
             .map(|capt| {
-                let name: String = match &capt.pat {
+                let name: String = match &*capt.pat {
                     syn::Pat::Ident(pat_ident) => {
                         if pat_ident.by_ref.is_none()
                             && pat_ident.mutability.is_none()
@@ -180,14 +174,14 @@ fn generate_abi_messages<'a>(
                         .done()
                 }
             });
-        let ret_type = match &message.sig.decl.output {
+        let ret_type = match &message.sig.output {
             syn::ReturnType::Default => {
                 quote! {
                     ink_abi::ReturnTypeSpec::new(None)
                 }
             }
             syn::ReturnType::Type(_, ty) => {
-                let type_spec = generate_type_spec_code(ty);
+                let type_spec = generate_type_spec_code(&*ty);
                 quote! {
                     ink_abi::ReturnTypeSpec::new(#type_spec)
                 }
