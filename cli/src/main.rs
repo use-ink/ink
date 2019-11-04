@@ -145,7 +145,7 @@ fn exec(cmd: Command) -> cmd::Result<String> {
             target_dir,
         } => cmd::execute_new(*layer, name, target_dir.as_ref()),
         Command::Build {} => cmd::execute_build(None),
-        Command::GenerateAbi {} => cmd::execute_generate_abi(),
+        Command::GenerateAbi {} => cmd::execute_generate_abi(None),
         Command::Test {} => Err(CommandError::UnimplementedCommand),
         Command::Deploy {
             url,
