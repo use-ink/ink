@@ -19,6 +19,7 @@ use std::{
         self,
         Write,
     },
+    path::PathBuf,
     process::Command,
 };
 
@@ -39,9 +40,27 @@ pub(crate) use self::{
     new::execute_new,
 };
 
-fn exec_cargo(command: &str, args: &[&'static str]) -> Result<()> {
-    let output = Command::new("cargo")
-        .arg("+nightly")
+fn exec_cargo(command: &str, args: &[&'static str], working_dir: Option<&PathBuf>) -> Result<()> {
+    let mut cmd = Command::new("cargo");
+    let mut is_nightly_cmd = Command::new("cargo");
+    if let Some(dir) = working_dir {
+        cmd.current_dir(dir);
+        is_nightly_cmd.current_dir(dir);
+    }
+
+    let is_nightly_default = is_nightly_cmd
+        .arg("--version")
+        .output()
+        .map_err(|_| ())
+        .and_then(|o| String::from_utf8(o.stdout).map_err(|_| ()))
+        .unwrap_or_default()
+        .contains("-nightly");
+
+    if !is_nightly_default {
+        cmd.arg("+nightly");
+    }
+
+    let output = cmd
         .arg(command)
         .args(args)
         .output()?;

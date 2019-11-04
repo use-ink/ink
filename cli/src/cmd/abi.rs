@@ -31,7 +31,7 @@ pub(crate) fn execute_generate_abi() -> Result<String> {
         "--package",
         "abi-gen",
         "--verbose",
-    ])?;
+    ], None)?;
 
     let metadata = MetadataCommand::new().exec()?;
     let mut abi_path = metadata.target_directory.clone();
