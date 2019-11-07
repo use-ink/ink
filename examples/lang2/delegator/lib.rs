@@ -94,6 +94,11 @@ mod delegator {
             self.adder.set(adder.clone());
             self.subber.set(subber.clone());
         }
+        /// Returns the accumulator's value.
+        #[ink(message)]
+        fn get(&self) -> i32 {
+            self.accumulator.get().get()
+        }
 
         /// Delegates the call to either `Adder` or `Subber`.
         #[ink(message)]
@@ -105,6 +110,7 @@ mod delegator {
         }
 
         /// Switches the delegator.
+        #[ink(message)]
         fn switch(&mut self) {
             match *self.which {
                 Which::Adder => {
