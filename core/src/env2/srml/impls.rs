@@ -320,7 +320,7 @@ where
         // the result value.
         let req_len = ext::scratch_size();
         buffer.enlarge_to(req_len);
-        let ret = ext::scratch_read(buffer.as_mut(), 0);
+        let ret = ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
         if !ret.is_success() {
             return Err(Error::InvalidContractInstantiationReturn)
         }
