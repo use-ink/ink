@@ -175,7 +175,7 @@ impl Storage<'_> {
             impl ink_core::storage::Flush for Storage {
                 fn flush(&mut self) {
                     #(
-                        self.#field_idents.flush();
+                        ink_core::storage::Flush::flush(&mut self.#field_idents);
                     )*
                 }
             }
@@ -264,10 +264,12 @@ impl Storage<'_> {
 
             impl ink_core::storage::Flush for StorageAndEnv {
                 fn flush(&mut self) {
-                    self.__storage.flush();
-                    self.__env.flush();
+                    ink_core::storage::Flush::flush(&mut self.__storage);
+                    ink_core::storage::Flush::flush(&mut self.__env);
                 }
             }
+
+
 
             impl ink_core::storage::alloc::Initialize for StorageAndEnv {
                 type Args = ();
@@ -277,8 +279,8 @@ impl Storage<'_> {
                 }
 
                 fn initialize(&mut self, _args: Self::Args) {
-                    self.__storage.try_default_initialize();
-                    self.__env.try_default_initialize();
+                    ink_core::storage::alloc::Initialize::try_default_initialize(&mut self.__storage);
+                    ink_core::storage::alloc::Initialize::try_default_initialize(&mut self.__env);
                 }
             }
 
