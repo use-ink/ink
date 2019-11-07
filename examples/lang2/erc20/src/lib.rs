@@ -73,6 +73,16 @@ mod erc20 {
         }
 
         #[ink(message)]
+        fn allowance(
+            &self,
+            owner: AccountId,
+            spender: AccountId,
+        ) -> Balance {
+            let allowance = self.allowance_of_or_zero(&owner, &spender);
+            allowance
+        }
+
+        #[ink(message)]
         fn transfer(&mut self, to: AccountId, amount: Balance) -> bool {
             let from = self.env().caller();
             self.transfer_from_to(from, to, amount)
