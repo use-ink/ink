@@ -145,6 +145,10 @@ impl CrossCalling<'_> {
         quote! {
             #( #attrs )*
             #[derive(Clone, Debug, scale::Encode, scale::Decode)]
+            #[cfg_attr(
+                feature = "ink-generate-abi",
+                derive(type_metadata::Metadata)
+            )]
             pub struct StorageAsDependency {
                 account_id: AccountId,
             }
@@ -157,6 +161,27 @@ impl CrossCalling<'_> {
                 #[inline(always)]
                 fn flush(&mut self) {
                     // Nothing to do here!
+                }
+            }
+
+            #[cfg(feature = "ink-generate-abi")]
+            impl ink_core::storage::alloc::AllocateUsing for StorageAsDependency {
+                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+                where
+                    A: ink_core::storage::alloc::Allocate,
+                {
+                    // We don't want to carry this implementation arround.
+                    // Please remove as soon as possible.
+                    unimplemented!()
+                }
+            }
+
+            #[cfg(feature = "ink-generate-abi")]
+            impl ink_abi::HasLayout for StorageAsDependency {
+                fn layout(&self) -> ink_abi::StorageLayout {
+                    ink_abi::LayoutStruct::new(
+                        <Self as type_metadata::Metadata>::meta_type(), vec![]
+                    ).into()
                 }
             }
 
