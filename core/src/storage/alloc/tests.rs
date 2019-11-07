@@ -36,9 +36,6 @@ fn dyn_simple() {
         let cells_entries = dbg!(alloc.cells_origin());
         let chunks_entries = dbg!(alloc.chunks_origin());
 
-        println!("cells_entries = {:?}", cells_entries);
-        println!("chunks_entries = {:?}", chunks_entries);
-
         let mut cell_allocs = Vec::new();
         let mut chunk_allocs = Vec::new();
 
