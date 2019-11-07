@@ -35,6 +35,9 @@ results["clippy_no_defaults"]=$?
 cargo test --verbose --all --all-features
 results["test_all_features"]=$?
 
+cargo build --verbose --no-default-features --release --target=wasm32-unknown-unknown -p ink_alloc -p ink_core -p ink_model -p ink_lang -p ink_utils
+results["build_wasm"]=$?
+
 all_checks_passed=0
 banner="-----------------"
 

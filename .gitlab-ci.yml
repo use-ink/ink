@@ -88,6 +88,12 @@ cargo-test-af:
   script:
   - cargo test --verbose --all --all-features
 
+cargo-build-nf:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+  - cargo build --verbose --no-default-features --release --target=wasm32-unknown-unknown -p ink_alloc -p ink_core -p ink_model -p ink_lang -p ink_utils
+
 #### stage:                        examples
 
 examples-wasm:
