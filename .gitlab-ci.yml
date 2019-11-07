@@ -43,7 +43,7 @@ variables:
     - /^[0-9]+$/                   # PRs
   retry:
     max: 2
-    when: 
+    when:
       - runner_system_failure
       - unknown_failure
       - api_failure
@@ -87,12 +87,6 @@ cargo-test-af:
   <<:                              *docker-env
   script:
   - cargo test --verbose --all --all-features
-
-cargo-build-nf:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  script:
-  - cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
 
 #### stage:                        examples
 

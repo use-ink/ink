@@ -16,10 +16,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_core::{
-    memory::format,
-    storage,
-};
 use ink_lang::contract;
 
 contract! {
