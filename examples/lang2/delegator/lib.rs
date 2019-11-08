@@ -90,10 +90,11 @@ mod delegator {
                 .using_code(subber_code_hash)
                 .create_using(self.env())
                 .expect("failed at instantiating the `Subber` contract");
-            self.accumulator.set(accumulator.clone());
-            self.adder.set(adder.clone());
-            self.subber.set(subber.clone());
+            self.accumulator.set(accumulator);
+            self.adder.set(adder);
+            self.subber.set(subber);
         }
+
         /// Returns the accumulator's value.
         #[ink(message)]
         fn get(&self) -> i32 {
