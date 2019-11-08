@@ -172,6 +172,7 @@ impl ContractSpecBuilder<Valid> {
 
 impl ContractSpec {
     /// Creates a new contract specification.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(name: <MetaForm as Form>::String) -> ContractSpecBuilder {
         ContractSpecBuilder {
             spec: Self {
@@ -232,6 +233,7 @@ pub struct ConstructorSpecBuilder<Selector> {
 
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(
         name: <MetaForm as Form>::String,
     ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
@@ -328,6 +330,7 @@ mod state {
 
 impl MessageSpec {
     /// Creates a new message spec builder.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(
         name: <MetaForm as Form>::String,
     ) -> MessageSpecBuilder<
@@ -521,6 +524,7 @@ impl IntoCompact for EventSpec {
 
 impl EventSpec {
     /// Creates a new event specification builder.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(name: &'static str) -> EventSpecBuilder {
         EventSpecBuilder {
             spec: Self {
@@ -669,6 +673,7 @@ impl IntoCompact for EventParamSpec {
 
 impl EventParamSpec {
     /// Creates a new event parameter specification builder.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(name: &'static str) -> EventParamSpecBuilder {
         EventParamSpecBuilder {
             spec: Self {
@@ -774,6 +779,7 @@ impl IntoCompact for MessageParamSpec {
 
 impl MessageParamSpec {
     /// Constructs a new message parameter specification via builder.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(name: &'static str) -> MessageParamSpecBuilder {
         MessageParamSpecBuilder {
             spec: Self {
@@ -805,6 +811,7 @@ impl MessageParamSpecBuilder {
     }
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
