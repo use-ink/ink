@@ -56,10 +56,10 @@ mod {{name}} {
         /// We test if the default constructor does its job.
         #[test]
         fn default_works() {
-            /// Note that even though we defined our `#[ink(constructor)]`
-            /// above as `&mut self` functions that return nothing we can call
-            /// them in test code as if they were normal Rust constructors
-            /// that take no `self` argument but return `Self`.
+            // Note that even though we defined our `#[ink(constructor)]`
+            // above as `&mut self` functions that return nothing we can call
+            // them in test code as if they were normal Rust constructors
+            // that take no `self` argument but return `Self`.
             let {{name}} = {{camel_name}}::default();
             assert_eq!({{name}}.get(), false);
         }

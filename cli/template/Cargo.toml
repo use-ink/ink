@@ -1,19 +1,20 @@
 [package]
-name = {{name}}
+name = "{{name}}"
 version = "0.1.0"
 authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
-ink_abi = { path = "../../../abi", default-features = false, features = ["derive"], optional = true }
-ink_core = { path = "../../../core", default-features = false }
-ink_lang2 = { path = "../../../lang2", default-features = false }
+ink_abi = { git = "https://github.com/paritytech/ink", package = "ink_abi", default-features = false, features = ["derive"], optional = true }
+ink_core = { git = "https://github.com/paritytech/ink", package = "ink_core", default-features = false }
+ink_lang2 = { git = "https://github.com/paritytech/ink", package = "ink_lang2", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = {{name}}
+name = "{{name}}"
+path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
 	"cdylib",

@@ -11,6 +11,6 @@ path = "main.rs"
 
 [dependencies]
 contract = { path = "../..", package = "{{name}}", default-features = false, features = ["ink-generate-abi"] }
-ink_lang2 = { path = "../../../../../lang2", default-features = false, features = ["ink-generate-abi"] }
+ink_lang2 = { git = "https://github.com/paritytech/ink", package = "ink_lang2", default-features = false, features = ["ink-generate-abi"] }
 serde = "1.0"
 serde_json = "1.0"
