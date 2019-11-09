@@ -16,14 +16,28 @@
 
 use crate::{
     env2::{
-        call::CallData,
-        CallParams,
-        CreateParams,
+        call::{
+            CallData,
+            CallParams,
+            CreateParams,
+            ReturnType,
+        },
+        env_access::EmitEvent as _,
+        AccessEnv,
         Env,
         EnvAccessMut,
         Result,
+        Topics,
     },
-    storage::Key,
+    storage::{
+        alloc::{
+            Allocate,
+            AllocateUsing,
+            Initialize,
+        },
+        Flush,
+        Key,
+    },
 };
 use core::cell::RefCell;
 
@@ -38,11 +52,87 @@ use core::cell::RefCell;
 ///
 /// Using `EnvAccessMut` is preferable since it performs these access checks at
 /// compile-time.
-pub struct EnvAccess<T> {
+pub struct EnvAccess<E> {
     /// Allows accessing the inner environment by `&self` instead of `&mut self`.
     ///
     /// This is important to make `DynEnv` work also in conjunction with `&self` messages.
-    access: RefCell<EnvAccessMut<T>>,
+    pub(crate) access: RefCell<EnvAccessMut<E>>,
+}
+
+impl<E> core::fmt::Debug for EnvAccess<E> {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("EnvAccess").finish()
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeId for EnvAccess<E>
+where
+    E: type_metadata::Metadata,
+{
+    fn type_id() -> type_metadata::TypeId {
+        type_metadata::TypeIdCustom::new(
+            "EnvAccess",
+            type_metadata::Namespace::from_module_path(module_path!())
+                .expect("namespace from module path cannot fail"),
+            vec![E::meta_type()],
+        )
+        .into()
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeDef for EnvAccess<E>
+where
+    crate::env2::EnvAccessMut<E>: type_metadata::Metadata,
+{
+    fn type_def() -> type_metadata::TypeDef {
+        type_metadata::TypeDefStruct::new(vec![type_metadata::NamedField::new(
+            "access",
+            <crate::env2::EnvAccessMut<E> as type_metadata::Metadata>::meta_type(),
+        )])
+        .into()
+    }
+}
+
+impl<'a, E> AccessEnv for &'a EnvAccess<E> {
+    type Target = core::cell::RefMut<'a, EnvAccessMut<E>>;
+
+    #[inline]
+    fn env(self) -> Self::Target {
+        self.access.borrow_mut()
+    }
+}
+
+impl<'a, E> AccessEnv for &'a mut EnvAccess<E> {
+    type Target = &'a mut EnvAccessMut<E>;
+
+    #[inline]
+    fn env(self) -> Self::Target {
+        self.access.get_mut()
+    }
+}
+
+impl<E> AllocateUsing for EnvAccess<E> {
+    #[inline]
+    unsafe fn allocate_using<A>(_alloc: &mut A) -> Self
+    where
+        A: Allocate,
+    {
+        Self::default()
+    }
+}
+
+impl<E> Flush for EnvAccess<E> {
+    #[inline(always)]
+    fn flush(&mut self) {}
+}
+
+impl<E> Initialize for EnvAccess<E> {
+    type Args = ();
+
+    #[inline(always)]
+    fn initialize(&mut self, _args: Self::Args) {}
 }
 
 impl<T> Default for EnvAccess<T> {
@@ -171,9 +261,7 @@ where
         /// # Errors
         ///
         /// If the called contract has trapped.
-        fn invoke_contract<D>(&self, call_data: &D) -> Result<()>
-        where
-            D: CallParams<T>;
+        fn invoke_contract(&self, call_data: &CallParams<T, ()>) -> Result<()>;
 
         /// Evaluates a contract message and returns its result.
         ///
@@ -184,9 +272,8 @@ where
         /// - If given too little endowment.
         /// - If arguments passed to the called contract are invalid.
         /// - If the called contract runs out of gas.
-        fn eval_contract<D, R>(&self, call_data: &D) -> Result<R>
+        fn eval_contract<R>(&self, call_data: &CallParams<T, ReturnType<R>>) -> Result<R>
         where
-            D: CallParams<T>,
             R: scale::Decode;
 
         /// Instantiates another contract.
@@ -197,9 +284,13 @@ where
         /// - If the code hash is invalid.
         /// - If given too little endowment.
         /// - If the instantiation process runs out of gas.
-        fn create_contract<D>(&self, create_data: &D) -> Result<T::AccountId>
+        fn create_contract<C>(&self, params: &CreateParams<T, C>) -> Result<T::AccountId>;
+
+        /// Emits an event with the given event data.
+        fn emit_event<Event>(&self, event: Event)
         where
-            D: CreateParams<T>;
+            Event: Topics<T>,
+            Event: scale::Encode;
 
         /// Returns the input to the executed contract.
         ///

@@ -1,0 +1,11 @@
+error: ink! contracts require at least one `#[ink(constructor)]`
+  --> $DIR/02-missing-constructor.rs:9:1
+   |
+9  | / mod noop {
+10 | |     #[ink(storage)]
+11 | |     struct Noop {}
+12 | |
+...  |
+16 | |     }
+17 | | }
+   | |_^

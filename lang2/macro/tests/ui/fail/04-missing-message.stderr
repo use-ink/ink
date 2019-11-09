@@ -1,0 +1,11 @@
+error: ink! contracts require at least one `#[ink(message)]`
+  --> $DIR/04-missing-message.rs:6:1
+   |
+6  | / mod noop {
+7  | |     #[ink(storage)]
+8  | |     struct Noop {}
+9  | |
+...  |
+13 | |     }
+14 | | }
+   | |_^

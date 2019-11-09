@@ -60,6 +60,7 @@ impl<T> scale::Decode for TypedCell<T> {
 }
 
 impl<T> AllocateUsing for TypedCell<T> {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,

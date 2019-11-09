@@ -16,21 +16,35 @@
 
 use crate::{
     env2::{
-        call::CallData,
+        call::{
+            CallData,
+            CallParams,
+            CreateParams,
+            ReturnType,
+        },
         property,
-        CallParams,
-        CreateParams,
         Env,
         EnvTypes,
         GetProperty,
         Result,
         SetProperty,
+        Topics,
     },
     memory::vec::Vec,
-    storage::Key,
+    storage::{
+        alloc::{
+            Allocate,
+            AllocateUsing,
+            Initialize,
+        },
+        Flush,
+        Key,
+    },
 };
 use core::marker::PhantomData;
 
+#[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+#[derive(Debug)]
 /// A wrapper around environments to make accessing them more efficient.
 pub struct EnvAccessMut<E> {
     /// The wrapped environment to access.
@@ -49,6 +63,28 @@ pub struct EnvAccessMut<E> {
     /// This flag is used to check at runtime if the environment
     /// is used correctly in respect to returning its value.
     has_returned_value: bool,
+}
+
+impl<E> AllocateUsing for EnvAccessMut<E> {
+    #[inline]
+    unsafe fn allocate_using<A>(_alloc: &mut A) -> Self
+    where
+        A: Allocate,
+    {
+        Self::default()
+    }
+}
+
+impl<E> Flush for EnvAccessMut<E> {
+    #[inline]
+    fn flush(&mut self) {}
+}
+
+impl<E> Initialize for EnvAccessMut<E> {
+    type Args = ();
+
+    #[inline(always)]
+    fn initialize(&mut self, _args: Self::Args) {}
 }
 
 impl<E> Default for EnvAccessMut<E> {
@@ -95,6 +131,30 @@ macro_rules! impl_get_property_for {
         impl_get_property_for!($($tt)*);
     };
     () => {}
+}
+
+/// Allow emitting generic events.
+pub trait EmitEvent<T>
+where
+    T: Env,
+{
+    /// Emits an event with the given event data.
+    fn emit_event<Event>(&mut self, event: Event)
+    where
+        Event: Topics<T> + scale::Encode;
+}
+
+impl<T> EmitEvent<T> for EnvAccessMut<T>
+where
+    T: Env,
+{
+    /// Emits an event with the given event data.
+    fn emit_event<Event>(&mut self, event: Event)
+    where
+        Event: Topics<T> + scale::Encode,
+    {
+        T::emit_event(&mut self.buffer, event)
+    }
 }
 
 impl<T> EnvAccessMut<T>
@@ -176,10 +236,7 @@ where
     /// # Errors
     ///
     /// If the called contract has trapped.
-    pub fn invoke_contract<D>(&mut self, call_data: &D) -> Result<()>
-    where
-        D: CallParams<T>,
-    {
+    pub fn invoke_contract(&mut self, call_data: &CallParams<T, ()>) -> Result<()> {
         T::invoke_contract(&mut self.buffer, call_data)
     }
 
@@ -192,9 +249,11 @@ where
     /// - If given too few endowment.
     /// - If arguments passed to the called contract are invalid.
     /// - If the called contract runs out of gas.
-    pub fn eval_contract<D, R>(&mut self, call_data: &D) -> Result<R>
+    pub fn eval_contract<R>(
+        &mut self,
+        call_data: &CallParams<T, ReturnType<R>>,
+    ) -> Result<R>
     where
-        D: CallParams<T>,
         R: scale::Decode,
     {
         T::eval_contract(&mut self.buffer, call_data)
@@ -208,11 +267,11 @@ where
     /// - If the code hash is invalid.
     /// - If given too few endowment.
     /// - If the instantiation process runs out of gas.
-    pub fn create_contract<D>(&mut self, create_data: &D) -> Result<T::AccountId>
-    where
-        D: CreateParams<T>,
-    {
-        T::create_contract(&mut self.buffer, create_data)
+    pub fn create_contract<C>(
+        &mut self,
+        params: &CreateParams<T, C>,
+    ) -> Result<T::AccountId> {
+        T::create_contract(&mut self.buffer, params)
     }
 
     /// Returns the input to the executed contract.

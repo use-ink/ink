@@ -30,7 +30,7 @@ pub fn create(
     create_data: &[u8],
 ) -> RetCode {
     unsafe {
-        sys::ext_create(
+        sys::ext_instantiate(
             code_hash.as_ptr() as u32,
             code_hash.len() as u32,
             gas_limit,
@@ -165,7 +165,7 @@ pub fn println(content: &str) {
 
 mod sys {
     extern "C" {
-        pub fn ext_create(
+        pub fn ext_instantiate(
             init_code_ptr: u32,
             init_code_len: u32,
             gas: u64,

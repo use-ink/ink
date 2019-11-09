@@ -16,6 +16,7 @@
 
 use crate::{
     env2::{
+        AccessEnv,
         EnvAccess,
         EnvAccessMut,
     },
@@ -34,23 +35,9 @@ use core::ops::{
     DerefMut,
 };
 
-/// Environment with `&self` access and a dynamic allocator.
-///
-/// # Note
-///
-/// - Accesses to `DynEnvAccess` are checked at runtime.
-/// - The dynamic allocator allows to dynamically allocate and deallocate objects on the storage.
-pub type DynEnvAccess<E> = DynEnv<EnvAccess<E>>;
-
-/// Environment with `&mut self`-only access and a dynamic allocator.
-///
-/// # Note
-///
-/// - Accesses to `DynEnvAccessMut` are checked at compiletime.
-/// - The dynamic allocator allows to dynamically allocate and deallocate objects on the storage.
-pub type DynEnvAccessMut<E> = DynEnv<EnvAccessMut<E>>;
-
 /// A wrapper around `EnvAccess` or `EnvAccessMut` that adds a dynamic storage allocator.
+#[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+#[derive(Debug)]
 pub struct DynEnv<E> {
     /// The wrapped environment.
     env: E,
@@ -58,21 +45,69 @@ pub struct DynEnv<E> {
     alloc: DynAlloc,
 }
 
+#[cfg(feature = "ink-generate-abi")]
+impl<E> ink_abi::HasLayout for DynEnv<E>
+where
+    E: type_metadata::Metadata + 'static,
+{
+    fn layout(&self) -> ink_abi::StorageLayout {
+        use type_metadata::Metadata as _;
+        ink_abi::LayoutStruct::new(
+            Self::meta_type(),
+            vec![ink_abi::LayoutField::new("alloc", self.alloc.layout())],
+        )
+        .into()
+    }
+}
+
+impl<E> DynEnv<E> {
+    #[inline]
+    pub fn env(&self) -> &E {
+        &self.env
+    }
+
+    #[inline]
+    pub fn env_mut(&mut self) -> &mut E {
+        &mut self.env
+    }
+}
+
+impl<'a, E> AccessEnv for &'a DynEnv<EnvAccess<E>> {
+    type Target = core::cell::RefMut<'a, EnvAccessMut<E>>;
+
+    #[inline]
+    fn env(self) -> Self::Target {
+        (&self.env).env()
+    }
+}
+
+impl<'a, E> AccessEnv for &'a mut DynEnv<EnvAccess<E>> {
+    type Target = &'a mut EnvAccessMut<E>;
+
+    #[inline]
+    fn env(self) -> Self::Target {
+        (&mut self.env).env()
+    }
+}
+
 impl<E> Deref for DynEnv<E> {
     type Target = E;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.env
     }
 }
 
 impl<E> DerefMut for DynEnv<E> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.env
     }
 }
 
 impl<E> Flush for DynEnv<E> {
+    #[inline]
     fn flush(&mut self) {
         self.alloc.flush()
     }
@@ -82,6 +117,7 @@ impl<E> AllocateUsing for DynEnv<E>
 where
     E: Default,
 {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -96,6 +132,12 @@ where
 impl<E> Initialize for DynEnv<E> {
     type Args = ();
 
+    #[inline]
+    fn default_value() -> Option<Self::Args> {
+        Some(())
+    }
+
+    #[inline]
     fn initialize(&mut self, _args: Self::Args) {
         self.alloc.initialize(());
     }

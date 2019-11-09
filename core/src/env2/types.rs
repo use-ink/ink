@@ -23,7 +23,7 @@
 //! implementations in order to write ink! contracts for other chain configurations.
 
 use crate::{
-    env::EnvTypes,
+    env2::EnvTypes,
     memory::vec::Vec,
     storage::Flush,
 };
@@ -41,6 +41,7 @@ use type_metadata::Metadata;
 
 /// The fundamental types of the SRML default configuration.
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]
+#[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
 pub enum DefaultSrmlTypes {}
 
 impl EnvTypes for DefaultSrmlTypes {
@@ -119,6 +120,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
 }
 
 impl Flush for AccountId {
+    #[inline]
     fn flush(&mut self) {}
 }
 
@@ -137,5 +139,6 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
 }
 
 impl Flush for Hash {
+    #[inline]
     fn flush(&mut self) {}
 }

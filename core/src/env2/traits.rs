@@ -16,7 +16,11 @@
 
 use crate::{
     env2::{
-        call::CallData,
+        call::{
+            CallParams,
+            CreateParams,
+            ReturnType,
+        },
         property,
         utils::{
             EnlargeTo,
@@ -111,37 +115,37 @@ pub trait Env:
     ///
     /// # Note
     ///
-    /// Invokations fire and forget and thus won't return a value back.
-    fn invoke_contract<O, D>(buffer: &mut O, call_data: &D) -> Result<()>
+    /// Invocations fire and forget and thus won't return a value back.
+    fn invoke_contract<O>(buffer: &mut O, call_data: &CallParams<Self, ()>) -> Result<()>
     where
-        O: scale::Output + AsRef<[u8]> + Reset,
-        D: CallParams<Self>;
+        O: scale::Output + AsRef<[u8]> + Reset;
 
     /// Evaluates a contract call with the given call data.
     ///
     /// # Note
     ///
     /// Evaluations return a return value back to the caller.
-    fn eval_contract<IO, D, R>(buffer: &mut IO, call_data: &D) -> Result<R>
+    fn eval_contract<IO, R>(
+        buffer: &mut IO,
+        call_data: &CallParams<Self, ReturnType<R>>,
+    ) -> Result<R>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
-        R: scale::Decode,
-        D: CallParams<Self>;
+        R: scale::Decode;
 
     /// Instantiates a contract from the given create data and returns its account ID.
-    fn create_contract<IO, D>(
+    fn create_contract<IO, C>(
         buffer: &mut IO,
-        create_data: &D,
+        create_data: &CreateParams<Self, C>,
     ) -> Result<Self::AccountId>
     where
-        IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
-        D: CreateParams<Self>;
+        IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset;
 
     /// Emits an event with the given event data.
-    fn emit_event<O, D>(buffer: &mut O, event_data: &D)
+    fn emit_event<O, Event>(buffer: &mut O, event_data: Event)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        D: EmitEventParams<Self>;
+        Event: Topics<Self> + scale::Encode;
 
     /// Invokes a runtime dispatchable function with the given call data.
     fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
@@ -184,43 +188,11 @@ pub trait Env:
     fn println(content: &str);
 }
 
-/// Types implementing this are suitable as call data.
-pub trait CallParams<E>
+/// Implemented by event types to communicate their topic hashes.
+pub trait Topics<E>
 where
     E: EnvTypes,
 {
-    /// The callee of the call.
-    fn callee(&self) -> &E::AccountId;
-    /// The gas limit for the contract execution.
-    fn gas_limit(&self) -> u64;
-    /// The endowment for the called contract.
-    fn endowment(&self) -> &E::Balance;
-    /// The raw encoded input data.
-    fn input_data(&self) -> &CallData;
-}
-
-/// Types implementing this are suitable as create data.
-pub trait CreateParams<E>
-where
-    E: EnvTypes,
-{
-    /// The code hash of the contract.
-    fn code_hash(&self) -> &E::Hash;
-    /// The gas limit for the contract instantiation.
-    fn gas_limit(&self) -> u64;
-    /// The endowment for the instantiated contract.
-    fn endowment(&self) -> &E::Balance;
-    /// The raw encoded input data.
-    fn input_data(&self) -> &CallData;
-}
-
-/// Types implementing this are suitable as event data.
-pub trait EmitEventParams<E>
-where
-    E: EnvTypes,
-{
-    /// The event topics.
-    fn topics(&self) -> &[E::Hash];
-    /// The raw encoded event data.
-    fn data(&self) -> &[u8];
+    /// Returns the topic hashes of `self`.
+    fn topics(&self) -> &'static [<E as EnvTypes>::Hash];
 }

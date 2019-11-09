@@ -108,6 +108,7 @@ where
     ///
     /// - Does nothing if `self` does not support default initialization.
     /// - This should never be manually implemented by any implementer.
+    #[inline]
     fn try_default_initialize(&mut self) {
         if let Some(value) = Self::default_value() {
             self.initialize(value)
@@ -122,6 +123,7 @@ where
     /// # Note
     ///
     /// Implementers should implement `initialize` instead of this.
+    #[inline]
     fn initialize_into(self, args: Self::Args) -> Self {
         let mut this = self;
         this.initialize(args);

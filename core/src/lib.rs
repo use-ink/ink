@@ -37,7 +37,6 @@
     private_in_public,
     safe_extern_statics,
     unconditional_recursion,
-    unions_with_drop_fields,
     unused_allocation,
     unused_comparisons,
     unused_parens,

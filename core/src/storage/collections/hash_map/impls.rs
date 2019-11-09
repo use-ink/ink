@@ -145,6 +145,7 @@ where
     K: scale::Encode + Flush,
     V: scale::Encode + Flush,
 {
+    #[inline]
     fn flush(&mut self) {
         self.len.flush();
         self.entries.flush();
@@ -167,6 +168,7 @@ impl<K, V> scale::Decode for HashMap<K, V> {
 }
 
 impl<K, V> AllocateUsing for HashMap<K, V> {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -181,10 +183,12 @@ impl<K, V> AllocateUsing for HashMap<K, V> {
 impl<K, V> Initialize for HashMap<K, V> {
     type Args = ();
 
+    #[inline(always)]
     fn default_value() -> Option<Self::Args> {
         Some(())
     }
 
+    #[inline]
     fn initialize(&mut self, _args: Self::Args) {
         self.len.set(0);
     }

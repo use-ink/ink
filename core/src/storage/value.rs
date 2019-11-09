@@ -76,6 +76,7 @@ where
 }
 
 impl<T> AllocateUsing for Value<T> {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -92,6 +93,7 @@ where
 {
     type Args = T;
 
+    #[inline]
     fn initialize(&mut self, args: Self::Args) {
         self.cell.set(args);
     }
@@ -183,12 +185,14 @@ impl<T> Flush for Value<T>
 where
     T: Encode + Flush,
 {
+    #[inline]
     fn flush(&mut self) {
         self.cell.flush()
     }
 }
 
 impl<T> Drop for Value<T> {
+    #[inline]
     fn drop(&mut self) {
         self.cell.clear()
     }

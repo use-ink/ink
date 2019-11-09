@@ -23,6 +23,11 @@
 
 use crate::{
     env2::{
+        call::{
+            CallParams,
+            CreateParams,
+            ReturnType,
+        },
         error::CallError,
         property,
         test::{
@@ -43,15 +48,13 @@ use crate::{
             EnlargeTo,
             Reset,
         },
-        CallParams,
-        CreateParams,
-        EmitEventParams,
         Env,
         EnvTypes,
         Error,
         GetProperty,
         Result,
         SetProperty,
+        Topics,
     },
     storage::Key,
 };
@@ -82,6 +85,29 @@ thread_local! {
 pub struct TestEnv<T> {
     /// Needed to trick Rust into allowing `T`.
     marker: PhantomData<fn() -> T>,
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeId for TestEnv<E>
+where
+    E: type_metadata::Metadata,
+{
+    fn type_id() -> type_metadata::TypeId {
+        type_metadata::TypeIdCustom::new(
+            "TestEnv",
+            type_metadata::Namespace::from_module_path(module_path!())
+                .expect("namespace from module path cannot fail"),
+            vec![E::meta_type()],
+        )
+        .into()
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeDef for TestEnv<E> {
+    fn type_def() -> type_metadata::TypeDef {
+        type_metadata::TypeDefStruct::new(vec![]).into()
+    }
 }
 
 impl<T> TestEnv<T>
@@ -296,10 +322,9 @@ where
         })
     }
 
-    fn invoke_contract<O, D>(_buffer: &mut O, call_data: &D) -> Result<()>
+    fn invoke_contract<O>(_buffer: &mut O, call_data: &CallParams<Self, ()>) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        D: CallParams<Self>,
     {
         // With the off-chain test environment we have no means to invoke
         // a remote contract on the chain since there is no chain.
@@ -315,11 +340,13 @@ where
         })
     }
 
-    fn eval_contract<IO, D, R>(_buffer: &mut IO, call_data: &D) -> Result<R>
+    fn eval_contract<IO, R>(
+        _buffer: &mut IO,
+        call_data: &CallParams<Self, ReturnType<R>>,
+    ) -> Result<R>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
-        D: CallParams<Self>,
     {
         // With the off-chain test environment we have no means to invoke
         // a remote contract on the chain since there is no chain.
@@ -341,13 +368,12 @@ where
         })
     }
 
-    fn create_contract<IO, D>(
+    fn create_contract<IO, C>(
         _buffer: &mut IO,
-        create_data: &D,
+        create_data: &CreateParams<Self, C>,
     ) -> Result<Self::AccountId>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
-        D: CreateParams<Self>,
     {
         // With the off-chain test environment we have no means to instantiate
         // a remote contract on the chain since there is no chain.
@@ -379,10 +405,10 @@ where
         })
     }
 
-    fn emit_event<I, D>(_buffer: &mut I, event_data: &D)
+    fn emit_event<O, Event>(_buffer: &mut O, event: Event)
     where
-        I: scale::Output + AsRef<[u8]> + Reset,
-        D: EmitEventParams<Self>,
+        O: scale::Output + AsRef<[u8]> + Reset,
+        Event: Topics<Self> + scale::Encode,
     {
         // With the off-chain test environment we have no means
         // to emit an event on the chain since there is no chain.
@@ -391,7 +417,7 @@ where
             instance
                 .borrow_mut()
                 .records
-                .push(Record::from(EmitEventRecord::new(event_data)));
+                .push(Record::from(EmitEventRecord::new(event)));
         })
     }
 

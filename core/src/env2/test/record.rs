@@ -27,15 +27,17 @@
 
 use crate::{
     env2::{
-        call::CallData,
+        call::{
+            CallData,
+            CallParams,
+            CreateParams,
+        },
         test::{
             types::*,
             TypedEncoded,
         },
-        CallParams,
-        CreateParams,
-        EmitEventParams,
         EnvTypes,
+        Topics,
     },
     memory::vec::Vec,
     storage::Key,
@@ -113,10 +115,9 @@ pub struct CallContractRecord {
 
 impl CallContractRecord {
     /// Creates a new record for a contract call.
-    pub fn new<E, C>(call_params: &C) -> Self
+    pub fn new<'a, E, R>(call_params: &'a CallParams<E, R>) -> Self
     where
         E: EnvTypes,
-        C: CallParams<E>,
     {
         Self {
             callee: TypedEncoded::from_origin(call_params.callee()),
@@ -142,10 +143,9 @@ pub struct CreateContractRecord {
 
 impl CreateContractRecord {
     /// Creates a new record for a contract instantiation.
-    pub fn new<E, C>(create_params: &C) -> Self
+    pub fn new<'a, E, C>(create_params: &'a CreateParams<E, C>) -> Self
     where
         E: EnvTypes,
-        C: CreateParams<E>,
     {
         Self {
             code_hash: TypedEncoded::from_origin(create_params.code_hash()),
@@ -166,19 +166,19 @@ pub struct EmitEventRecord {
 }
 
 impl EmitEventRecord {
-    /// Creates a new record for a contract instantiation.
-    pub fn new<E, R>(emit_event: &R) -> Self
+    /// Creates a new record for an emitted event.
+    pub fn new<Env, Event>(event: Event) -> Self
     where
-        E: EnvTypes,
-        R: EmitEventParams<E>,
+        Env: EnvTypes,
+        Event: Topics<Env> + scale::Encode,
     {
         Self {
-            topics: emit_event
+            topics: event
                 .topics()
                 .iter()
                 .map(|topic| TypedEncoded::from_origin(topic))
                 .collect::<Vec<_>>(),
-            data: emit_event.data().to_vec(),
+            data: event.encode(),
         }
     }
 }

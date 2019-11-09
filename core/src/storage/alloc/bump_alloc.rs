@@ -43,6 +43,7 @@ impl BumpAlloc {
     ///
     /// Do not use this directly!
     /// This is meant to be used by pDSL internals only.
+    #[inline(always)]
     pub unsafe fn from_raw_parts(offset_key: Key) -> Self {
         Self { offset_key }
     }
@@ -54,6 +55,7 @@ impl BumpAlloc {
 }
 
 impl Allocate for BumpAlloc {
+    #[inline]
     fn alloc(&mut self, size: u64) -> Key {
         if size == 0 {
             panic!(
