@@ -30,4 +30,11 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/04-missing-message.rs");
     t.compile_fail("tests/ui/fail/05-forbidden-idents.rs");
     t.compile_fail("tests/ui/fail/06-access-generated-fields.rs");
+    t.compile_fail("tests/ui/fail/07-constructor-missing-self.rs");
+    t.compile_fail("tests/ui/fail/08-constructor-self-ref.rs");
+    t.compile_fail("tests/ui/fail/09-constructor-self-val.rs");
+    t.compile_fail("tests/ui/fail/10-async-constructor.rs");
+    t.compile_fail("tests/ui/fail/11-unsafe-constructor.rs");
+    t.compile_fail("tests/ui/fail/12-const-constructor.rs");
+    t.compile_fail("tests/ui/fail/13-abi-constructor.rs");
 }
