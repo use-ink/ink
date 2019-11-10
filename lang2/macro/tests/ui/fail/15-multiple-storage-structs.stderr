@@ -1,0 +1,11 @@
+error: 2 conflicting storage struct found
+ --> $DIR/15-multiple-storage-structs.rs:8:12
+  |
+8 |     struct FirstStorage {}
+  |            ^^^^^^^^^^^^
+
+error: 2 conflicting storage struct found
+  --> $DIR/15-multiple-storage-structs.rs:12:12
+   |
+12 |     struct SecondStorage {}
+   |            ^^^^^^^^^^^^^
