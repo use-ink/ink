@@ -42,4 +42,5 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/16-storage-impl-ident-conflict.rs");
     t.compile_fail("tests/ui/fail/17-conflicting-ink-markers.rs");
     t.compile_fail("tests/ui/fail/18-conflicting-ink-markers-2.rs");
+    t.compile_fail("tests/ui/fail/19-unknown-struct-ink-marker.rs");
 }
