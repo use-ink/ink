@@ -32,7 +32,7 @@ mod erc20 {
         amount: Balance,
     }
 
-    impl Flipper {
+    impl Erc20 {
         #[ink(constructor)]
         fn new(&mut self, initial_supply: Balance) {
             let caller = self.env().caller();
