@@ -23,7 +23,7 @@ use crate::{
 use core::convert::TryFrom;
 use either::Either;
 use itertools::Itertools as _;
-use proc_macro2::Ident;
+use proc_macro2::{Span, Ident};
 use std::collections::HashSet;
 use syn::{
     parse::{
@@ -616,7 +616,7 @@ impl TryFrom<syn::Item> for ir::Item {
 ///
 /// # Erros
 ///
-/// - When there is no storage struct.
+/// - When there is not exactly one storage struct.
 /// - When a contract item is invalid.
 fn split_items(
     items: Vec<ir::InkItem>,
@@ -628,19 +628,30 @@ fn split_items(
                 other => Either::Right(other),
             }
         });
-    let storage = if storages.len() != 1 {
-        Err(storages
-            .iter()
-            .map(|storage| format_err!(storage.ident, "conflicting storage struct found"))
-            .fold1(|mut err1, err2| {
-                err1.combine(err2);
-                err1
-            })
-            .expect("there must be at least 2 conflicting storages; qed"))
-    } else {
-        Ok(storages
-            .pop()
-            .expect("there must be exactly one storage in `storages`"))
+    let storage = match storages.len() {
+        0 => {
+            Err(format_err_span!(
+                Span::call_site(),
+                "no #[ink(storage)] struct found but expected exactly 1"
+            ))
+        }
+        1 => {
+            Ok(storages
+                .pop()
+                .expect("there must be exactly one storage in `storages`"))
+        }
+        n => {
+            Err(storages
+                .iter()
+                .map(|storage| {
+                    format_err!(storage.ident, "{} conflicting storage struct found", n)
+                })
+                .fold1(|mut err1, err2| {
+                    err1.combine(err2);
+                    err1
+                })
+                .expect("there must be at least 2 conflicting storages; qed"))
+        }
     }?;
     let (events, impl_blocks): (Vec<ir::ItemEvent>, Vec<ir::ItemImpl>) =
         non_storage_items.into_iter().partition_map(|item| {
