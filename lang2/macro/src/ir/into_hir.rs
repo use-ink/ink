@@ -612,10 +612,23 @@ impl TryFrom<syn::Item> for ir::Item {
                             .map(ir::Item::Ink)
                     },
                     (None, None) => {
-                        Err(format_err!(
-                            item_struct,
-                            "encountered unsupported ink! markers for struct",
-                        ))
+                        Err(markers
+                            .iter()
+                            .map(|marker| {
+                                format_err_span!(
+                                    marker.span(),
+                                    "unsupported ink! marker for struct")
+                            })
+                            .fold(
+                                format_err!(
+                                    item_struct,
+                                    "encountered unsupported ink! markers for struct",
+                                ),
+                                |mut err1, err2| {
+                                err1.combine(err2);
+                                err1
+                            })
+                        )
                     }
                     (Some(storage_marker), Some(event_marker)) => {
                         // Special case: We have both #[ink(storage)] and #[ink(event)].
