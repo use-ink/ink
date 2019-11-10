@@ -37,4 +37,5 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/11-unsafe-constructor.rs");
     t.compile_fail("tests/ui/fail/12-const-constructor.rs");
     t.compile_fail("tests/ui/fail/13-abi-constructor.rs");
+    t.compile_fail("tests/ui/fail/14-missing-storage-struct.rs");
 }
