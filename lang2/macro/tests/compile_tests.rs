@@ -40,4 +40,5 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/14-missing-storage-struct.rs");
     t.compile_fail("tests/ui/fail/15-multiple-storage-structs.rs");
     t.compile_fail("tests/ui/fail/16-storage-impl-ident-conflict.rs");
+    t.compile_fail("tests/ui/fail/17-conflicting-ink-markers.rs");
 }
