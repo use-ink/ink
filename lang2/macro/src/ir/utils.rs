@@ -16,6 +16,7 @@
 
 //! Contains general utilities for the ink! IR module.
 
+use crate::ir;
 use proc_macro2::Span;
 use syn::{
     parse::{
@@ -71,6 +72,18 @@ where
     I: IntoIterator<Item = &'a syn::Attribute> + 'a,
 {
     attrs.into_iter().filter(|attr| is_ink_attribute(attr))
+}
+
+/// Yields back the filtered `#[ink(..)]` markers converted into their ink! form if any.
+pub fn filter_map_ink_attributes<'a, I>(attrs: I) -> impl Iterator<Item = ir::Marker>
+where
+    I: IntoIterator<Item = &'a syn::Attribute> + 'a,
+{
+    use core::convert::TryFrom as _;
+    attrs
+        .into_iter()
+        .cloned()
+        .filter_map(|attr| ir::Marker::try_from(attr).ok())
 }
 
 /// Returns `true` if the attributes contain any `#[ink(..)]` markers.
