@@ -422,16 +422,17 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
         // Followed by some checks that are depending on the given function kind:
         match kind {
             ir::FunctionKind::Constructor(_) => {
+                let self_arg = sig.self_arg();
                 if !sig.is_mut() {
-                    bail_span!(
-                        sig.span(),
-                        "constructors in ink! must always be `&mut self`",
+                    bail!(
+                        self_arg,
+                        "#[ink(constructor)] functions must have a `&mut self` receiver",
                     )
                 }
                 if sig.output != syn::ReturnType::Default {
                     bail!(
                         sig.output,
-                        "constructors in ink! must have no specified return type",
+                        "#[ink(constructor)] functions must not have a return type",
                     )
                 }
             }
@@ -485,7 +486,7 @@ impl TryFrom<syn::Signature> for ir::Signature {
         }
         if sig.inputs.is_empty() {
             bail!(
-                sig.inputs,
+                sig,
                 "`&self` or `&mut self` is mandatory for ink! functions",
             )
         }

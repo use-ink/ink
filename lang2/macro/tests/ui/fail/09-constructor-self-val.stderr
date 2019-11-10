@@ -1,0 +1,5 @@
+error: #[ink(constructor)] functions must have a `&mut self` receiver
+  --> $DIR/09-constructor-self-val.rs:12:29
+   |
+12 |         fn invalid_self_val(self) {}
+   |                             ^^^^

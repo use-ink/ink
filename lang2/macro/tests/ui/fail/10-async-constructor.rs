@@ -9,7 +9,7 @@ mod noop {
 
     impl Noop {
         #[ink(constructor)]
-        fn invalid_return(&mut self) -> Self {}
+        async fn invalid_return(&mut self) {}
 
         #[ink(message)]
         fn noop(&self) {}

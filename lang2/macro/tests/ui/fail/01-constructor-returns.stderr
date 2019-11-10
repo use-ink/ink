@@ -1,5 +1,5 @@
-error: constructors in ink! must have no specified return type
-  --> $DIR/01-constructor-returns.rs:15:27
+error: #[ink(constructor)] functions must not have a return type
+  --> $DIR/01-constructor-returns.rs:12:38
    |
-15 |         fn new(&mut self) -> Self {}
-   |                           ^^^^^^^
+12 |         fn invalid_return(&mut self) -> Self {}
+   |                                      ^^^^^^^

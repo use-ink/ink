@@ -1,0 +1,5 @@
+error: `&self` or `&mut self` is mandatory for ink! functions
+  --> $DIR/07-constructor-missing-self.rs:12:9
+   |
+12 |         fn invalid_self_val() {}
+   |         ^^^^^^^^^^^^^^^^^^^^^
