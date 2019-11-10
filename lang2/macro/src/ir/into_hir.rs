@@ -23,7 +23,10 @@ use crate::{
 use core::convert::TryFrom;
 use either::Either;
 use itertools::Itertools as _;
-use proc_macro2::{Span, Ident};
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use std::collections::HashSet;
 use syn::{
     parse::{
@@ -587,24 +590,50 @@ impl TryFrom<syn::Item> for ir::Item {
                 }
             }
             syn::Item::Struct(item_struct) => {
-                let ink_markers = item_struct
-                    .attrs
-                    .iter()
-                    .cloned()
-                    .filter_map(|attr| ir::Marker::try_from(attr).ok())
+                let markers = utils::filter_map_ink_attributes(&item_struct.attrs)
                     .collect::<Vec<_>>();
-                if ink_markers.is_empty() {
-                    Ok(ir::RustItem::from(syn::Item::Struct(item_struct)).into())
-                } else if ink_markers.iter().any(|marker| marker.is_simple("storage")) {
-                    ir::ItemStorage::try_from(item_struct)
-                        .map(Into::into)
-                        .map(ir::Item::Ink)
-                } else if ink_markers.iter().any(|marker| marker.is_simple("event")) {
-                    ir::ItemEvent::try_from(item_struct)
-                        .map(Into::into)
-                        .map(ir::Item::Ink)
-                } else {
-                    bail!(item_struct, "found invalid `#[ink(..)]` marker")
+                if markers.is_empty() {
+                    return Ok(ir::RustItem::from(syn::Item::Struct(item_struct)).into())
+                }
+                let event_marker =
+                    markers.iter().position(|marker| marker.is_simple("event"));
+                let storage_marker =
+                    markers.iter().position(|marker| marker.is_simple("storage"));
+
+                match (storage_marker, event_marker) {
+                    (Some(_storage_marker), None) => {
+                        ir::ItemStorage::try_from(item_struct)
+                            .map(Into::into)
+                            .map(ir::Item::Ink)
+                    },
+                    (None, Some(_event_marker)) => {
+                        ir::ItemEvent::try_from(item_struct)
+                            .map(Into::into)
+                            .map(ir::Item::Ink)
+                    },
+                    (None, None) => {
+                        Err(format_err!(
+                            item_struct,
+                            "encountered unsupported ink! markers for struct",
+                        ))
+                    }
+                    (Some(storage_marker), Some(event_marker)) => {
+                        // Special case: We have both #[ink(storage)] and #[ink(event)].
+                        //               This is treated as error but depending on the
+                        //               order in which the markers have been provided
+                        //               we either treat it as storage or event definition.
+                        //
+                        // We take whatever ink! marker was provided first.
+                        if storage_marker < event_marker {
+                            ir::ItemStorage::try_from(item_struct)
+                                .map(Into::into)
+                                .map(ir::Item::Ink)
+                        } else {
+                            ir::ItemEvent::try_from(item_struct)
+                                .map(Into::into)
+                                .map(ir::Item::Ink)
+                        }
+                    }
                 }
             }
             rust_item => Ok(ir::Item::Rust(rust_item.into())),
