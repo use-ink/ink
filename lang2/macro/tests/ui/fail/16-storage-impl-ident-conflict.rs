@@ -22,7 +22,7 @@ mod noop {
     // Missing the #[ink(storage)] attribute on purpose.
     struct NonStorageStruct {}
 
-    // This ink! impl block is invalid in that it implement
+    // This ink! impl block is invalid in that it implements
     // the messages and constructors for a non-existing ink!
     // storage struct. We expect a failure here.
     impl NonStorageStruct {
