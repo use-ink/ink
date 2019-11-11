@@ -18,7 +18,7 @@ mod incrementer {
         by: i32,
     }
 
-    impl Flipper {
+    impl Incrementer {
         #[ink(constructor)]
         fn new(&mut self, init_value: i32) {
             self.value.set(init_value as i64);

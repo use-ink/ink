@@ -23,7 +23,10 @@ use crate::{
 use core::convert::TryFrom;
 use either::Either;
 use itertools::Itertools as _;
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use std::collections::HashSet;
 use syn::{
     parse::{
@@ -383,7 +386,7 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                             selector: ir::FunctionSelector::from(&method.sig.ident),
                         }))
                     }
-                    unknown => Err(format_err!(unknown, "unknown ink! attribute found",)),
+                    _unknown => Err(format_err_span!(attr.span(), "unknown ink! marker",)),
                 }?;
                 if kind == ir::FunctionKind::Method {
                     kind = new_kind;
@@ -391,7 +394,7 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                 } else {
                     Err(format_err_span!(
                         attr.span(),
-                        "conflicting ink! attribute found",
+                        "conflicting ink! marker",
                     ))
                 }
             })
@@ -587,24 +590,63 @@ impl TryFrom<syn::Item> for ir::Item {
                 }
             }
             syn::Item::Struct(item_struct) => {
-                let ink_markers = item_struct
-                    .attrs
-                    .iter()
-                    .cloned()
-                    .filter_map(|attr| ir::Marker::try_from(attr).ok())
+                let markers = utils::filter_map_ink_attributes(&item_struct.attrs)
                     .collect::<Vec<_>>();
-                if ink_markers.is_empty() {
-                    Ok(ir::RustItem::from(syn::Item::Struct(item_struct)).into())
-                } else if ink_markers.iter().any(|marker| marker.is_simple("storage")) {
-                    ir::ItemStorage::try_from(item_struct)
-                        .map(Into::into)
-                        .map(ir::Item::Ink)
-                } else if ink_markers.iter().any(|marker| marker.is_simple("event")) {
-                    ir::ItemEvent::try_from(item_struct)
-                        .map(Into::into)
-                        .map(ir::Item::Ink)
-                } else {
-                    bail!(item_struct, "found invalid `#[ink(..)]` marker")
+                if markers.is_empty() {
+                    return Ok(ir::RustItem::from(syn::Item::Struct(item_struct)).into())
+                }
+                let event_marker =
+                    markers.iter().position(|marker| marker.is_simple("event"));
+                let storage_marker =
+                    markers.iter().position(|marker| marker.is_simple("storage"));
+
+                match (storage_marker, event_marker) {
+                    (Some(_storage_marker), None) => {
+                        ir::ItemStorage::try_from(item_struct)
+                            .map(Into::into)
+                            .map(ir::Item::Ink)
+                    },
+                    (None, Some(_event_marker)) => {
+                        ir::ItemEvent::try_from(item_struct)
+                            .map(Into::into)
+                            .map(ir::Item::Ink)
+                    },
+                    (None, None) => {
+                        Err(markers
+                            .iter()
+                            .map(|marker| {
+                                format_err_span!(
+                                    marker.span(),
+                                    "unsupported ink! marker for struct")
+                            })
+                            .fold(
+                                format_err!(
+                                    item_struct,
+                                    "encountered unsupported ink! markers for struct",
+                                ),
+                                |mut err1, err2| {
+                                err1.combine(err2);
+                                err1
+                            })
+                        )
+                    }
+                    (Some(storage_marker), Some(event_marker)) => {
+                        // Special case: We have both #[ink(storage)] and #[ink(event)].
+                        //               This is treated as error but depending on the
+                        //               order in which the markers have been provided
+                        //               we either treat it as storage or event definition.
+                        //
+                        // We take whatever ink! marker was provided first.
+                        if storage_marker < event_marker {
+                            ir::ItemStorage::try_from(item_struct)
+                                .map(Into::into)
+                                .map(ir::Item::Ink)
+                        } else {
+                            ir::ItemEvent::try_from(item_struct)
+                                .map(Into::into)
+                                .map(ir::Item::Ink)
+                        }
+                    }
                 }
             }
             rust_item => Ok(ir::Item::Rust(rust_item.into())),
@@ -616,7 +658,7 @@ impl TryFrom<syn::Item> for ir::Item {
 ///
 /// # Erros
 ///
-/// - When there is no storage struct.
+/// - When there is not exactly one storage struct.
 /// - When a contract item is invalid.
 fn split_items(
     items: Vec<ir::InkItem>,
@@ -628,19 +670,33 @@ fn split_items(
                 other => Either::Right(other),
             }
         });
-    let storage = if storages.len() != 1 {
-        Err(storages
-            .iter()
-            .map(|storage| format_err!(storage.ident, "conflicting storage struct found"))
-            .fold1(|mut err1, err2| {
-                err1.combine(err2);
-                err1
-            })
-            .expect("there must be at least 2 conflicting storages; qed"))
-    } else {
-        Ok(storages
-            .pop()
-            .expect("there must be exactly one storage in `storages`"))
+    let storage = match storages.len() {
+        0 => {
+            Err(format_err_span!(
+                Span::call_site(),
+                "no #[ink(storage)] struct found but expected exactly 1"
+            ))
+        }
+        1 => {
+            Ok(storages
+                .pop()
+                .expect("there must be exactly one storage in `storages`"))
+        }
+        n => {
+            Err(storages
+                .iter()
+                .map(|storage| {
+                    format_err!(storage.ident, "conflicting storage struct")
+                })
+                .fold(
+                    format_err_span!(Span::call_site(), "encountered {} conflicting storage structs", n),
+                    |mut err1, err2| {
+                        err1.combine(err2);
+                        err1
+                    }
+                )
+            )
+        }
     }?;
     let (events, impl_blocks): (Vec<ir::ItemEvent>, Vec<ir::ItemImpl>) =
         non_storage_items.into_iter().partition_map(|item| {
@@ -654,6 +710,15 @@ fn split_items(
                 }
             }
         });
+    let storage_ident = &storage.ident;
+    for item_impl in &impl_blocks {
+        if item_impl.self_ty != storage_ident.to_string() {
+            bail!(
+                item_impl.self_ty,
+                "ink! impl blocks need to be implemented for the #[ink(storage)] struct"
+            )
+        }
+    }
     let functions = impl_blocks
         .into_iter()
         .map(|impl_block| impl_block.functions)
