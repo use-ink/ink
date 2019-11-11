@@ -14,73 +14,80 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+#![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_core::{
-	env::DefaultSrmlTypes,
-	memory::format,
-	storage,
-};
-use ink_lang::contract;
-use ink_model::EnvHandler;
+use ink_core::storage;
+use ink_lang2 as ink;
 
-contract! {
-	#![env = DefaultSrmlTypes]
-
-	event Transfer {
+#[ink::contract(version = "0.1.0")]
+mod erc20 {
+	#[ink(event)]
+	struct Transfer {
+		#[ink(topic)]
 		from: Option<AccountId>,
+		#[ink(topic)]
 		to: Option<AccountId>,
+		#[ink(topic)]
 		value: Balance,
 	}
 
-	event Approval {
+	#[ink(event)]
+	struct Approval {
+		#[ink(topic)]
 		owner: AccountId,
+		#[ink(topic)]
 		spender: AccountId,
+		#[ink(topic)]
 		value: Balance,
 	}
 
+	#[ink(storage)]
 	struct Erc20 {
 		total_supply: storage::Value<Balance>,
 		balances: storage::HashMap<AccountId, Balance>,
 		allowances: storage::HashMap<(AccountId, AccountId), Balance>,
 	}
 
-	impl Deploy for Erc20 {
-		fn deploy(&mut self, initial_supply: Balance) {
-			let caller = env.caller();
+	impl Erc20 {
+		#[ink(constructor)]
+		fn new(&mut self, initial_supply: Balance) {
+			let caller = self.env().caller();
 			self.total_supply.set(initial_supply);
 			self.balances.insert(caller, initial_supply);
-			env.emit(Transfer {
+			self.env().emit_event(Transfer {
 				from: None,
 				to: Some(caller),
 				value: initial_supply,
 			});
 		}
-	}
 
-	impl Erc20 {
-
-		pub(external) fn total_supply(&self) -> Balance {
+		#[ink(message)]
+		fn total_supply(&self) -> Balance {
 			*self.total_supply
 		}
 
-		pub(external) fn balance_of(&self, owner: AccountId) -> Balance {
+		#[ink(message)]
+		fn balance_of(&self, owner: AccountId) -> Balance {
 			self.balance_of_or_zero(&owner)
 		}
 
-		pub(external) fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+		#[ink(message)]
+		fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
 			self.allowance_of_or_zero(&owner, &spender)
 		}
 
-		pub(external) fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
-			let from = env.caller();
-			self.transfer_from_to(env, from, to, value)
+		#[ink(message)]
+		fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
+			let from = self.env().caller();
+			self.transfer_from_to(from, to, value)
 		}
 
-		pub(external) fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
-			let owner = env.caller();
+		#[ink(message)]
+		fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
+			let owner = self.env().caller();
 			self.allowances.insert((owner, spender), value);
-			env.emit(Approval {
+			self.env().emit_event(Approval {
 				owner,
 				spender,
 				value,
@@ -88,39 +95,39 @@ contract! {
 			true
 		}
 
-		pub(external) fn transfer_from(
+		#[ink(message)]
+		fn transfer_from(
 			&mut self,
 			from: AccountId,
 			to: AccountId,
 			value: Balance,
 		) -> bool {
-			let caller = env.caller();
+			let caller = self.env().caller();
 			let allowance = self.allowance_of_or_zero(&from, &caller);
 			if allowance < value {
 				return false;
 			}
 			self.allowances.insert((from, caller), allowance - value);
-			self.transfer_from_to(env, from, to, value)
+			self.transfer_from_to(from, to, value)
 		}
 
 		fn transfer_from_to(
 			&mut self,
-			env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>,
 			from: AccountId,
 			to: AccountId,
 			value: Balance,
 		) -> bool {
 			let from_balance = self.balance_of_or_zero(&from);
 			if from_balance < value {
-				return false
+				return false;
 			}
 			let to_balance = self.balance_of_or_zero(&to);
-			self.balances.insert(from, from_balance - value);
-			self.balances.insert(to, to_balance + value);
-			env.emit(Transfer {
+			self.balances.insert(from.clone(), from_balance - value);
+			self.balances.insert(to.clone(), to_balance + value);
+			self.env().emit_event(Transfer {
 				from: Some(from),
 				to: Some(to),
-				value
+				value,
 			});
 			true
 		}
