@@ -115,9 +115,14 @@ impl ast::ItemEnvTypesMeta {
         let first_segment = attr
             .path
             .segments
-            .first()
-            .expect("paths have at least one segment");
-        let ident = first_segment.ident.clone();
+            .pairs()
+            .next()
+            .expect("paths have at least one segment")
+            .into_tuple();
+        if let Some(colon) = first_segment.1 {
+            return Err(syn::Error::new(colon.spans[0], "expected meta value"))
+        }
+        let ident = first_segment.0.ident.clone();
         let parser = |input: ParseStream<'_>| {
             let eq_token = input.parse()?;
             let ty = input.parse()?;
