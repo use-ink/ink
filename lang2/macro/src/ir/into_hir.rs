@@ -386,7 +386,7 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                             selector: ir::FunctionSelector::from(&method.sig.ident),
                         }))
                     }
-                    unknown => Err(format_err!(unknown, "unknown ink! attribute found",)),
+                    _unknown => Err(format_err_span!(attr.span(), "unknown ink! marker",)),
                 }?;
                 if kind == ir::FunctionKind::Method {
                     kind = new_kind;
@@ -394,7 +394,7 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                 } else {
                     Err(format_err_span!(
                         attr.span(),
-                        "conflicting ink! attribute found",
+                        "conflicting ink! marker",
                     ))
                 }
             })
