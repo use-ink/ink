@@ -27,16 +27,16 @@ use ink_model::EnvHandler;
 contract! {
 	#![env = DefaultSrmlTypes]
 
-	event Transferred {
+	event Transfer {
 		from: Option<AccountId>,
 		to: Option<AccountId>,
-		amount: Balance,
+		value: Balance,
 	}
 
-	event Approved {
+	event Approval {
 		owner: AccountId,
 		spender: AccountId,
-		amount: Balance,
+		value: Balance,
 	}
 
 	struct Erc20 {
@@ -50,15 +50,16 @@ contract! {
 			let caller = env.caller();
 			self.total_supply.set(initial_supply);
 			self.balances.insert(caller, initial_supply);
-			env.emit(Transferred {
+			env.emit(Transfer {
 				from: None,
 				to: Some(caller),
-				amount: initial_supply,
+				value: initial_supply,
 			});
 		}
 	}
 
 	impl Erc20 {
+
 		pub(external) fn total_supply(&self) -> Balance {
 			*self.total_supply
 		}
@@ -67,157 +68,73 @@ contract! {
 			self.balance_of_or_zero(&owner)
 		}
 
-		pub(external) fn allowance(
-			&self,
-			owner: AccountId,
-			spender: AccountId,
-		) -> Balance {
-			self.allowance_or_zero(&owner, &spender)
+		pub(external) fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+			self.allowance_of_or_zero(&owner, &spender)
 		}
 
 		pub(external) fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
-			self.transfer_impl(env, env.caller(), to, value)
+			let from = env.caller();
+			self.transfer_from_to(env, from, to, value)
 		}
 
-		/// Approve the passed AccountId to spend the specified amount of tokens
-		/// on the behalf of the message's sender.
 		pub(external) fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
 			let owner = env.caller();
 			self.allowances.insert((owner, spender), value);
 			env.emit(Approval {
-				owner: owner,
-				spender: spender,
-				value: value
+				owner,
+				spender,
+				value,
 			});
 			true
 		}
 
-		/// Transfer tokens from one AccountId to another.
-		pub(external) fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> bool {
-			let allowance = self.allowance_or_zero(&from, &env.caller());
+		pub(external) fn transfer_from(
+			&mut self,
+			from: AccountId,
+			to: AccountId,
+			value: Balance,
+		) -> bool {
+			let caller = env.caller();
+			let allowance = self.allowance_of_or_zero(&from, &caller);
 			if allowance < value {
+				return false;
+			}
+			self.allowances.insert((from, caller), allowance - value);
+			self.transfer_from_to(env, from, to, value)
+		}
+
+		fn transfer_from_to(
+			&mut self,
+			env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>,
+			from: AccountId,
+			to: AccountId,
+			value: Balance,
+		) -> bool {
+			let from_balance = self.balance_of_or_zero(&from);
+			if from_balance < value {
 				return false
 			}
-			self.allowances.insert((from, env.caller()), allowance - value);
-			self.transfer_impl(env, from, to, value)
-		}
-	}
-
-	impl Erc20 {
-		/// Returns the balance of the AccountId or 0 if there is no balance.
-		fn balance_of_or_zero(&self, of: &AccountId) -> Balance {
-			*self.balances.get(of).unwrap_or(&0)
-		}
-
-		/// Returns the allowance or 0 of there is no allowance.
-		fn allowance_or_zero(&self, owner: &AccountId, spender: &AccountId) -> Balance {
-			*self.allowances.get(&(*owner, *spender)).unwrap_or(&0)
-		}
-
-		/// Transfers token from a specified AccountId to another AccountId.
-		fn transfer_impl(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, from: AccountId, to: AccountId, value: Balance) -> bool {
-			let balance_from = self.balance_of_or_zero(&from);
-			let balance_to = self.balance_of_or_zero(&to);
-			if balance_from < value {
-				return false
-			}
-			self.balances.insert(from, balance_from - value);
-			self.balances.insert(to, balance_to + value);
+			let to_balance = self.balance_of_or_zero(&to);
+			self.balances.insert(from, from_balance - value);
+			self.balances.insert(to, to_balance + value);
 			env.emit(Transfer {
 				from: Some(from),
 				to: Some(to),
-				value: value
+				value
 			});
 			true
 		}
-	}
-}
 
-#[cfg(all(test, feature = "test-env"))]
-mod tests {
-	use super::*;
-	use ink_core::env;
-	type Types = ink_core::env::DefaultSrmlTypes;
+		fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
+			*self.balances.get(owner).unwrap_or(&0)
+		}
 
-	#[test]
-	fn deployment_works() {
-		let alice = AccountId::from([0x0; 32]);
-		env::test::set_caller::<Types>(alice);
-
-		// Deploy the contract with some `initial_supply`
-		let erc20 = Erc20::deploy_mock(1234);
-		// Check that the `total_supply` is `initial_supply`
-		assert_eq!(erc20.total_supply(), 1234);
-		// Check that `balance_of` Alice is `initial_supply`
-		assert_eq!(erc20.balance_of(alice), 1234);
-	}
-
-	#[test]
-	fn transfer_works() {
-		let alice = AccountId::from([0x0; 32]);
-		let bob = AccountId::from([0x1; 32]);
-
-		env::test::set_caller::<Types>(alice);
-		// Deploy the contract with some `initial_supply`
-		let mut erc20 = Erc20::deploy_mock(1234);
-		// Alice does not have enough funds for this
-		assert_eq!(erc20.transfer(bob, 4321), false);
-		// Alice can do this though
-		assert_eq!(erc20.transfer(bob, 234), true);
-		// Check Alice and Bob have the expected balance
-		assert_eq!(erc20.balance_of(alice), 1000);
-		assert_eq!(erc20.balance_of(bob), 234);
-	}
-
-	#[test]
-	fn allowance_works() {
-		let alice = AccountId::from([0x0; 32]);
-		let bob = AccountId::from([0x1; 32]);
-		let charlie = AccountId::from([0x2; 32]);
-
-		env::test::set_caller::<Types>(alice);
-		// Deploy the contract with some `initial_supply`
-		let mut erc20 = Erc20::deploy_mock(1234);
-		// Bob does not have an allowance from Alice's balance
-		assert_eq!(erc20.allowance(alice, bob), 0);
-		// Thus, Bob cannot transfer out of Alice's account
-		env::test::set_caller::<Types>(bob);
-		assert_eq!(erc20.transfer_from(alice, bob, 1), false);
-		// Alice can approve bob for some of her funds
-		env::test::set_caller::<Types>(alice);
-		assert_eq!(erc20.approve(bob, 20), true);
-		// And the allowance reflects that correctly
-		assert_eq!(erc20.allowance(alice, bob), 20);
-		// Charlie cannot send on behalf of Bob
-		env::test::set_caller::<Types>(charlie);
-		assert_eq!(erc20.transfer_from(alice, bob, 10), false);
-		// Bob cannot transfer more than he is allowed
-		env::test::set_caller::<Types>(bob);
-		assert_eq!(erc20.transfer_from(alice, charlie, 25), false);
-		// A smaller amount should work though
-		assert_eq!(erc20.transfer_from(alice, charlie, 10), true);
-		// Check that the allowance is updated
-		assert_eq!(erc20.allowance(alice, bob), 10);
-		// and the balance transferred to the right person
-		assert_eq!(erc20.balance_of(charlie), 10);
-	}
-
-	#[test]
-	fn events_work() {
-		let alice = AccountId::from([0x0; 32]);
-		let bob = AccountId::from([0x1; 32]);
-
-		// No events to start
-		env::test::set_caller::<Types>(alice);
-		assert_eq!(env::test::emitted_events::<Types>().count(), 0);
-		// Event should be emitted for initial minting
-		let mut erc20 = Erc20::deploy_mock(1234);
-		assert_eq!(env::test::emitted_events::<Types>().count(), 1);
-		// Event should be emitted for approvals
-		assert_eq!(erc20.approve(bob, 20), true);
-		assert_eq!(env::test::emitted_events::<Types>().count(), 2);
-		// Event should be emitted for transfers
-		assert_eq!(erc20.transfer(bob, 10), true);
-		assert_eq!(env::test::emitted_events::<Types>().count(), 3);
+		fn allowance_of_or_zero(
+			&self,
+			owner: &AccountId,
+			spender: &AccountId,
+		) -> Balance {
+			*self.allowances.get(&(*owner, *spender)).unwrap_or(&0)
+		}
 	}
 }
