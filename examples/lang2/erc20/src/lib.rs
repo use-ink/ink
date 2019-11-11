@@ -73,11 +73,7 @@ mod erc20 {
         }
 
         #[ink(message)]
-        fn allowance(
-            &self,
-            owner: AccountId,
-            spender: AccountId,
-        ) -> Balance {
+        fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
             self.allowance_of_or_zero(&owner, &spender)
         }
 
@@ -109,7 +105,7 @@ mod erc20 {
             let caller = self.env().caller();
             let allowance = self.allowance_of_or_zero(&from, &caller);
             if allowance < value {
-                return false
+                return false;
             }
             self.allowances.insert((from, caller), allowance - value);
             self.transfer_from_to(from, to, value)
@@ -123,7 +119,7 @@ mod erc20 {
         ) -> bool {
             let from_balance = self.balance_of_or_zero(&from);
             if from_balance < value {
-                return false
+                return false;
             }
             let to_balance = self.balance_of_or_zero(&to);
             self.balances.insert(from.clone(), from_balance - value);
