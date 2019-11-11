@@ -8,7 +8,7 @@ mod noop {
     struct Noop {}
 
     #[ink(event)]
-    #[ink(storage)] // We cannot have #[ink(event)] if we already have #[ink(storage)]
+    #[ink(storage)] // We cannot have #[ink(storage)] if we already have #[ink(event)]
     struct Event {}
 
     impl Noop {
