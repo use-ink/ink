@@ -4,20 +4,22 @@
 The ink! contract module allows Rust item definitions as well as ink! definitions annotated by #[ink(..)] markers
 
 
-Users can now specify multiple constructors that are simple &mut self methods annotated with #[ink(constructor)]
 
-Defining a message is now done by annotating it with #[ink(message)]
 
-Defining an event is now done by annotating a Rust struct with #[ink(event)]
-
-Event topics are declared by annotating the event parameter in question with #[ink(topic)] (currently ignored though)
 
 It is also possible to annotate whole impl blocks with #[ink(impl)]. This is useful if the impl block itself doesn't contain any ink! constructors or messages so ink! compiler is aware that this is still an ink! definition. Has to be used only in this situation. We should actually add warnings if used while having constructors or messages as well.
+
+
 Cross-calling of contracts works pretty much the same way it did in the old ink! language, however users are now required to specify the code_hash (.using_code(my_code_hash)) separately and also need to specify the used ink! environment (create_using(self.env()) normally).
+
 It is now possible to call ink! messages and ink! constructors. So ink! constructors allow delegation and ink! messages can easily call other ink! messages.
+
 EnvHandler is no longer exposed to the user and instead the environment is now always accessed via self.env() is all ink! constructors, messages and private methods.
+
 It is possible to enable the dynamic environment that allows for dynamic allocations by specifying dynamic_allocations = true in the parameters of the ink! header. This is disabled by default.
+
 Testing contracts off-chain is done by cargo test and users can simply use the standard routines of creating unit test modules within the ink! module itself (#[cfg(test)] mod tests { use super::*; #[test] fn my_test() { ... } }). Test instances of contracts can be created with MyContract::my_constructor(a, b) if the contract has an #[ink(storage)] struct MyContract { ... } and an #[ink(constructor)] fn my_constructor(a: A, b: B) { ... }. Messages can simply be called on the returned instance as if MyContract::my_constructor returns a Self instance.
+
 The off-chain test environment has lost a bit of power compared to the old ink! lang. It currently is no longer possible to query and set special test data about the environment but these restirctions are going to be lifted in the future.
 
 <table>
@@ -74,6 +76,8 @@ This is now automatically defined in your `ink::contract` attribute, but can als
 ```
 
 TODO
+
+You still have access to the custom types throughout your contract just as before.
 
 </td>
 </tr>
@@ -184,14 +188,42 @@ fn total_supply(&self) -> Balance {
 </tr>
 <tr>
 <td>
+Declaring Events
 </td>
 <td>
+
+We used to define events _like_ a structure, but used a custom `event` keyword:
+
+```rust
+event Transfer {
+	from: Option<AccountId>,
+	to: Option<AccountId>,
+	value: Balance,
+}
+```
+
 </td>
 <td>
+
+We now use the `ink(event)` attribute and `ink(topic)` attributes for each of the items in the event:
+
+```rust
+#[ink(event)]
+struct Transferred {
+	#[ink(topic)]
+	from: Option<AccountId>,
+	#[ink(topic)]
+	to: Option<AccountId>,
+	#[ink(topic)]
+	amount: Balance,
+}
+```
+
 </td>
 </tr>
 <tr>
 <td>
+
 </td>
 <td>
 </td>
