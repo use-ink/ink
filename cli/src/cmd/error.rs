@@ -28,14 +28,17 @@ use zip::result::ZipError;
 pub enum CommandError {
     Io(IoError),
     #[display(fmt = "Command unimplemented")]
+    #[from(ignore)]
     UnimplementedCommand,
     #[display(fmt = "Abstraction layer unimplemented")]
+    #[from(ignore)]
     UnimplementedAbstractionLayer,
     Rpc(RpcError),
     #[display(fmt = "Secret string error")]
     SecretString(SecretStringError),
     SubXt(SubXtError),
     ZipError(ZipError),
+    #[from(ignore)]
     BuildFailed,
     #[display(fmt = "Error invoking `cargo metadata`")]
     CargoMetadata(cargo_metadata::Error),
