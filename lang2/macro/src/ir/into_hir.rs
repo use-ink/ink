@@ -686,13 +686,16 @@ fn split_items(
             Err(storages
                 .iter()
                 .map(|storage| {
-                    format_err!(storage.ident, "{} conflicting storage struct found", n)
+                    format_err!(storage.ident, "conflicting storage struct")
                 })
-                .fold1(|mut err1, err2| {
-                    err1.combine(err2);
-                    err1
-                })
-                .expect("there must be at least 2 conflicting storages; qed"))
+                .fold(
+                    format_err_span!(Span::call_site(), "encountered {} conflicting storage structs", n),
+                    |mut err1, err2| {
+                        err1.combine(err2);
+                        err1
+                    }
+                )
+            )
         }
     }?;
     let (events, impl_blocks): (Vec<ir::ItemEvent>, Vec<ir::ItemImpl>) =
