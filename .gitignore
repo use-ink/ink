@@ -15,6 +15,3 @@ Cargo.lock
 
 # Ignore history files.
 **/.history/**
-
-# Ignore Intellij IDEA files
-/.idea
