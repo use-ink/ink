@@ -83,7 +83,8 @@ where
         LayoutStruct::new(
             Self::meta_type(),
             vec![LayoutField::of("sync_chunk", &self.0)],
-        ).into()
+        )
+        .into()
     }
 }
 
