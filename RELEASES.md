@@ -29,7 +29,13 @@ Now we wrap the whole contract in a standard Rust module, and include an attribu
 this object as part of the ink! language. This means that all of our code from this point forward
 will be valid Rust!
 
-### Before
+<table>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+<tr>
+<td>
 
 ```rust
 contract! {
@@ -37,7 +43,8 @@ contract! {
 }
 ```
 
-### After
+</td>
+<td>
 
 ```rust
 #[ink::contract(version = "0.1.0")]
@@ -46,7 +53,11 @@ mod erc20 {
 }
 ```
 
-> Note, we now require a mandatory ink! version in the header. You're welcome.
+</td>
+</tr>
+</table>
+
+> Note: we now require a mandatory ink! version in the header. You're welcome.
 
 ## ink! Contract Tag
 
@@ -80,7 +91,13 @@ It is possible to enable the dynamic environment that allows for dynamic allocat
 We define storage items just the same as before, but now we need to add the `#[ink(storage)]`
 attribute tag.
 
-### Before
+<table>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+<tr>
+<td>
 
 ```rust
 struct Erc20 {
@@ -90,7 +107,8 @@ struct Erc20 {
 }
 ```
 
-### After
+</td>
+<td>
 
 ```rust
 #[ink(storage)]
@@ -101,6 +119,10 @@ struct Erc20 {
 }
 ```
 
+</td>
+</tr>
+</table>
+
 ## Declaring Events
 
 To update your events, you need to:
@@ -109,7 +131,13 @@ To update your events, you need to:
 2. Add the `#[ink(event)]` attribute tag to your `struct`.
 3. Add the `#[ink(topic)]` attribute tag to each item in your event.
 
-### Before
+<table>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+<tr>
+<td>
 
 ```rust
 event Transfer {
@@ -119,7 +147,8 @@ event Transfer {
 }
 ```
 
-### After
+</td>
+<td>
 
 ```rust
 #[ink(event)]
@@ -133,12 +162,22 @@ struct Transfer {
 }
 ```
 
+</td>
+</tr>
+</table>
+
 ## Environment Handler
 
 `EnvHandler` is no longer exposed to the user and instead the environment is now always accessed via
 `self.env()`.
 
-### Before
+<table>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+<tr>
+<td>
 
 **Getting the caller:**
 
@@ -152,7 +191,8 @@ let caller = env.caller();
 env.emit(...)
 ```
 
-### After
+</td>
+<td>
 
 **Getting the caller:**
 
@@ -166,6 +206,10 @@ let caller = self.env().caller();
 self.env().emit_event(...)
 ```
 
+</td>
+</tr>
+</table>
+
 > Note: The name of the function used to emit an event was updated to `emit_event`.
 
 ## Message Functions
@@ -174,7 +218,13 @@ We used to use `pub(external)` to tag functions that could be called by the outs
 
 We now simply add the attribute `#[ink(message)]`.
 
-### Before
+<table>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+<tr>
+<td>
 
 ```rust
 pub(external) fn total_supply(&self) -> Balance {
@@ -182,7 +232,8 @@ pub(external) fn total_supply(&self) -> Balance {
 }
 ```
 
-### After
+</td>
+<td>
 
 ```rust
 #[ink(message)]
@@ -190,6 +241,10 @@ fn total_supply(&self) -> Balance {
     *self.total_supply
 }
 ```
+
+</td>
+</tr>
+</table>
 
 ## Defining a Constructor
 
@@ -280,7 +335,13 @@ Also, they need to specify the used ink! environment (most likely `self.env()`):
 create_using(self.env())
 ```
 
-### Before
+<table>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+<tr>
+<td>
 
 ```rust
 let accumulator = Accumulator::new(accumulator_code_hash, init_value)
@@ -289,7 +350,8 @@ let accumulator = Accumulator::new(accumulator_code_hash, init_value)
     .expect("failed at instantiating the accumulator contract");
 ```
 
-### After
+</td>
+<td>
 
 ```rust
 let accumulator = Accumulator::new(init_value)
@@ -298,6 +360,10 @@ let accumulator = Accumulator::new(init_value)
     .create_using(self.env())
     .expect("failed at instantiating the `Accumulator` contract");
 ```
+
+</td>
+</tr>
+</table>
 
 ## Contract Tests
 
