@@ -29,7 +29,7 @@ Now we wrap the whole contract in a standard Rust module, and include an attribu
 this object as part of the ink! language. This means that all of our code from this point forward
 will be valid Rust!
 
-<table>
+<table style="width: 100%;">
 <tr>
 <th>Before</th>
 <th>After</th>
@@ -91,7 +91,7 @@ It is possible to enable the dynamic environment that allows for dynamic allocat
 We define storage items just the same as before, but now we need to add the `#[ink(storage)]`
 attribute tag.
 
-<table>
+<table style="width: 100%;">
 <tr>
 <th>Before</th>
 <th>After</th>
@@ -131,7 +131,7 @@ To update your events, you need to:
 2. Add the `#[ink(event)]` attribute tag to your `struct`.
 3. Add the `#[ink(topic)]` attribute tag to each item in your event.
 
-<table>
+<table style="width: 100%;">
 <tr>
 <th>Before</th>
 <th>After</th>
@@ -171,7 +171,7 @@ struct Transfer {
 `EnvHandler` is no longer exposed to the user and instead the environment is now always accessed via
 `self.env()`.
 
-<table>
+<table style="width: 100%;">
 <tr>
 <th>Before</th>
 <th>After</th>
@@ -218,7 +218,7 @@ We used to use `pub(external)` to tag functions that could be called by the outs
 
 We now simply add the attribute `#[ink(message)]`.
 
-<table>
+<table style="width: 100%;">
 <tr>
 <th>Before</th>
 <th>After</th>
@@ -258,7 +258,7 @@ We tag these functions with the `#[ink(constructor)]` attribute. We can create m
 constructors by simply creating more functions with the same tag. You can name a constructor
 function whatever you want (except starting with `__ink` which is reserved for all functions).
 
-<table>
+<table style="width: 100%;">
 <tr>
 <th>Before</th>
 <th>After</th>
@@ -335,7 +335,7 @@ Also, they need to specify the used ink! environment (most likely `self.env()`):
 create_using(self.env())
 ```
 
-<table>
+<table style="width: 100%;">
 <tr>
 <th>Before</th>
 <th>After</th>
