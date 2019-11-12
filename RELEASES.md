@@ -129,6 +129,9 @@ To update your events, you need to:
 
 1. Change the old `event` keyword to a standard Rust `struct`.
 2. Add the `#[ink(event)]` attribute tag to your `struct`.
+
+If you were previously indexing the items in your event with `#[indexed]`:
+
 3. Add the `#[ink(topic)]` attribute tag to each item in your event.
 
 <table style="width: 100%;">
@@ -143,6 +146,7 @@ To update your events, you need to:
 event Transfer {
     from: Option<AccountId>,
     to: Option<AccountId>,
+    #[indexed]
     value: Balance,
 }
 ```
@@ -153,9 +157,7 @@ event Transfer {
 ```rust
 #[ink(event)]
 struct Transfer {
-    #[ink(topic)]
     from: Option<AccountId>,
-    #[ink(topic)]
     to: Option<AccountId>,
     #[ink(topic)]
     value: Balance,
@@ -400,10 +402,13 @@ It is also possible to annotate an entire impl blocks with:
 
 ```rust
 #[ink(impl)]
-impl Something { ... }.
+impl Contract {
+    fn internal_function(&mut self) {
+        self.env().emit_event(Hi);
+    }
+}.
 ```
 
-This is useful if the `impl` block itself doesn't contain any ink! constructors or messages. This
-makes the ink! compiler aware that this is still an ink! definition.
-
-It should only be used in this situation.
+This is useful if the `impl` block itself doesn't contain any ink! constructors or messages, but you
+still need to access some of the "magic" provided by ink!. In the example above, you would not have
+access to `emit_event` without `#[ink(impl)]`.
