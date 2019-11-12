@@ -88,6 +88,7 @@ impl AllocateUsing for DynAlloc {
 impl Initialize for DynAlloc {
     type Args = ();
 
+    #[inline]
     fn initialize(&mut self, _args: Self::Args) {
         self.free_cells.initialize(());
         self.free_chunks.initialize(());
@@ -95,6 +96,7 @@ impl Initialize for DynAlloc {
 }
 
 impl Flush for DynAlloc {
+    #[inline]
     fn flush(&mut self) {
         self.free_cells.flush();
         self.free_chunks.flush();
@@ -191,6 +193,7 @@ impl DynAlloc {
 
 impl Allocate for DynAlloc {
     /// Can only allocate sizes of up to `u32::MAX`.
+    #[inline]
     fn alloc(&mut self, size: u64) -> Key {
         assert!(size <= u32::max_value().into());
         assert!(size != 0);
@@ -203,6 +206,7 @@ impl Allocate for DynAlloc {
 }
 
 impl Allocator for DynAlloc {
+    #[inline]
     fn dealloc(&mut self, key: Key) {
         // This condition requires cells offset key
         // to be always smaller than chunks offset key.

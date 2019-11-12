@@ -1,0 +1,5 @@
+error: couldn't match provided version as semantic version string: foo
+ --> $DIR/03-invalid-version.rs:5:27
+  |
+5 | #[ink::contract(version = "foo")]
+  |                           ^^^^^

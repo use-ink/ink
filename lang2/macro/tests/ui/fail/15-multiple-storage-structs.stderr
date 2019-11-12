@@ -1,0 +1,17 @@
+error: encountered 2 conflicting storage structs
+ --> $DIR/15-multiple-storage-structs.rs:5:1
+  |
+5 | #[ink::contract(version = "0.1.0")]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: conflicting storage struct
+ --> $DIR/15-multiple-storage-structs.rs:8:12
+  |
+8 |     struct FirstStorage {}
+  |            ^^^^^^^^^^^^
+
+error: conflicting storage struct
+  --> $DIR/15-multiple-storage-structs.rs:12:12
+   |
+12 |     struct SecondStorage {}
+   |            ^^^^^^^^^^^^^

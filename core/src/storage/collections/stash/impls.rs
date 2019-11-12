@@ -93,6 +93,7 @@ struct StashHeader {
 }
 
 impl Flush for StashHeader {
+    #[inline]
     fn flush(&mut self) {
         self.next_vacant.flush();
         self.len.flush();
@@ -118,6 +119,7 @@ impl<T> Flush for Stash<T>
 where
     T: Encode + Flush,
 {
+    #[inline]
     fn flush(&mut self) {
         self.header.flush();
         self.entries.flush();
@@ -151,6 +153,7 @@ where
         self.iter.next().map(|(_index, value)| value)
     }
 
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -262,6 +265,7 @@ impl<T> Flush for Entry<T>
 where
     T: Flush,
 {
+    #[inline]
     fn flush(&mut self) {
         match self {
             Entry::Vacant(_) => (),
@@ -286,6 +290,7 @@ impl<T> Decode for Stash<T> {
 }
 
 impl<T> AllocateUsing for Stash<T> {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -300,10 +305,12 @@ impl<T> AllocateUsing for Stash<T> {
 impl<T> Initialize for Stash<T> {
     type Args = ();
 
+    #[inline(always)]
     fn default_value() -> Option<Self::Args> {
         Some(())
     }
 
+    #[inline]
     fn initialize(&mut self, _args: Self::Args) {
         self.header.set(StashHeader {
             next_vacant: 0,

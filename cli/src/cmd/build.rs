@@ -25,14 +25,7 @@ use parity_wasm::elements::{
     Module,
     Section,
 };
-use std::{
-    io::{
-        self,
-        Write,
-    },
-    path::PathBuf,
-    process::Command,
-};
+use std::path::PathBuf;
 
 /// This is the maximum number of pages available for a contract to allocate.
 const MAX_MEMORY_PAGES: u32 = 16;
@@ -96,43 +89,12 @@ pub fn collect_crate_metadata(working_dir: Option<&PathBuf>) -> Result<CrateMeta
 ///
 /// Currently it assumes that user wants to use `+nightly`.
 fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
-    let mut cmd = Command::new("cargo");
-    let mut is_nightly_cmd = Command::new("cargo");
-    if let Some(dir) = working_dir {
-        cmd.current_dir(dir);
-        is_nightly_cmd.current_dir(dir);
-    }
-
-    let is_nightly_default = is_nightly_cmd
-        .arg("--version")
-        .output()
-        .map_err(|_| ())
-        .and_then(|o| String::from_utf8(o.stdout).map_err(|_| ()))
-        .unwrap_or_default()
-        .contains("-nightly");
-
-    if !is_nightly_default {
-        cmd.arg("+nightly");
-    }
-
-    let output = cmd
-        .args(&[
-            "build",
-            "--no-default-features",
-            "--release",
-            "--target=wasm32-unknown-unknown",
-            "--verbose",
-        ])
-        .output()?;
-
-    if !output.status.success() {
-        // Dump the output streams produced by cargo into the stdout/stderr.
-        io::stdout().write_all(&output.stdout)?;
-        io::stderr().write_all(&output.stderr)?;
-        return Err(Error::BuildFailed)
-    }
-
-    Ok(())
+    super::exec_cargo("build", &[
+        "--no-default-features",
+        "--release",
+        "--target=wasm32-unknown-unknown",
+        "--verbose",
+    ], working_dir)
 }
 
 /// Ensures the wasm memory import of a given module has the maximum number of pages.

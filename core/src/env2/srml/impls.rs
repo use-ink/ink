@@ -16,21 +16,24 @@
 
 use crate::{
     env2::{
+        call::{
+            CallParams,
+            CreateParams,
+            ReturnType,
+        },
         property,
         srml::ext,
         utils::{
             EnlargeTo,
             Reset,
         },
-        CallParams,
-        CreateParams,
-        EmitEventParams,
         Env,
         EnvTypes,
         Error,
         GetProperty,
         Result,
         SetProperty,
+        Topics,
     },
     storage::Key,
 };
@@ -54,6 +57,29 @@ use scale::{
 /// https://github.com/paritytech/ink/issues.
 pub struct SrmlEnv<T> {
     marker: PhantomData<fn() -> T>,
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeId for SrmlEnv<E>
+where
+    E: type_metadata::Metadata,
+{
+    fn type_id() -> type_metadata::TypeId {
+        type_metadata::TypeIdCustom::new(
+            "SrmlEnv",
+            type_metadata::Namespace::from_module_path(module_path!())
+                .expect("namespace from module path cannot fail"),
+            vec![E::meta_type()],
+        )
+        .into()
+    }
+}
+
+#[cfg(feature = "ink-generate-abi")]
+impl<E> type_metadata::HasTypeDef for SrmlEnv<E> {
+    fn type_def() -> type_metadata::TypeDef {
+        type_metadata::TypeDefStruct::new(vec![]).into()
+    }
 }
 
 impl<T> EnvTypes for SrmlEnv<T>
@@ -155,6 +181,47 @@ where
     }
 }
 
+impl<T> SrmlEnv<T>
+where
+    T: EnvTypes,
+{
+    /// Invokes the cross-contract call from the given parameters.
+    ///
+    /// Uses the given buffer as cache for intermediate data.
+    fn invoke_contract_impl<O, Any>(
+        buffer: &mut O,
+        call_data: &CallParams<Self, Any>,
+    ) -> Result<()>
+    where
+        O: scale::Output + AsRef<[u8]> + Reset,
+    {
+        // First we reset the buffer to start from a clean slate.
+        buffer.reset();
+        // Now we encode `call_data`, `endowment` and `input_data`
+        // each after one another into our buffer and remember their
+        // boundaries using the guards.
+        call_data.callee().encode_to(buffer);
+        let callee_guard = buffer.as_ref().len();
+        call_data.endowment().encode_to(buffer);
+        let endowment_guard = buffer.as_ref().len();
+        call_data.input_data().encode_to(buffer);
+        // We now use the guards in order to split the buffer into
+        // some read-only slices that each store their respective
+        // encoded value and call the actual routine.
+        let callee = &buffer.as_ref()[0..callee_guard];
+        let endowment = &buffer.as_ref()[callee_guard..endowment_guard];
+        let gas_limit = call_data.gas_limit();
+        let call_data = &buffer.as_ref()[endowment_guard..];
+        // Do the actual contract call.
+        let ret = ext::call(callee, gas_limit, endowment, call_data);
+        if !ret.is_success() {
+            // Maybe the called contract trapped.
+            return Err(Error::InvalidContractCall)
+        }
+        Ok(())
+    }
+}
+
 impl<T> Env for SrmlEnv<T>
 where
     T: EnvTypes,
@@ -191,44 +258,22 @@ where
         ext::set_storage(key.as_bytes(), None);
     }
 
-    fn invoke_contract<O, D>(buffer: &mut O, call_data: &D) -> Result<()>
+    fn invoke_contract<O>(buffer: &mut O, call_data: &CallParams<Self, ()>) -> Result<()>
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        D: CallParams<Self>,
     {
-        // First we reset the buffer to start from a clean slate.
-        buffer.reset();
-        // Now we encode `call_data`, `endowment` and `input_data`
-        // each after one another into our buffer and remember their
-        // boundaries using the guards.
-        call_data.callee().encode_to(buffer);
-        let callee_guard = buffer.as_ref().len();
-        call_data.endowment().encode_to(buffer);
-        let endowment_guard = buffer.as_ref().len();
-        call_data.input_data().encode_to(buffer);
-        // We now use the guards in order to split the buffer into
-        // some read-only slices that each store their respective
-        // encoded value and call the actual routine.
-        let callee = &buffer.as_ref()[0..callee_guard];
-        let endowment = &buffer.as_ref()[callee_guard..endowment_guard];
-        let gas_limit = call_data.gas_limit();
-        let call_data = &buffer.as_ref()[endowment_guard..];
-        // Do the actual contract call.
-        let ret = ext::call(callee, gas_limit, endowment, call_data);
-        if !ret.is_success() {
-            // Maybe the called contract trapped.
-            return Err(Error::InvalidContractCall)
-        }
-        Ok(())
+        Self::invoke_contract_impl(buffer, call_data)
     }
 
-    fn eval_contract<IO, D, R>(buffer: &mut IO, call_data: &D) -> Result<R>
+    fn eval_contract<IO, R>(
+        buffer: &mut IO,
+        call_data: &CallParams<Self, ReturnType<R>>,
+    ) -> Result<R>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
         R: scale::Decode,
-        D: CallParams<Self>,
     {
-        Self::invoke_contract(buffer, call_data)?;
+        Self::invoke_contract_impl(buffer, call_data)?;
         // At this point our call was successful and we can now fetch
         // the returned data and decode it for the result value.
         let req_len = ext::scratch_size();
@@ -240,10 +285,12 @@ where
         Decode::decode(&mut &buffer.as_ref()[0..req_len]).map_err(Into::into)
     }
 
-    fn create_contract<IO, D>(buffer: &mut IO, create_data: &D) -> Result<Self::AccountId>
+    fn create_contract<IO, C>(
+        buffer: &mut IO,
+        create_data: &CreateParams<Self, C>,
+    ) -> Result<Self::AccountId>
     where
         IO: scale::Output + AsRef<[u8]> + AsMut<[u8]> + EnlargeTo + Reset,
-        D: CreateParams<Self>,
     {
         // First we reset the buffer to start from a clean slate.
         buffer.reset();
@@ -273,26 +320,26 @@ where
         // the result value.
         let req_len = ext::scratch_size();
         buffer.enlarge_to(req_len);
-        let ret = ext::scratch_read(buffer.as_mut(), 0);
+        let ret = ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
         if !ret.is_success() {
             return Err(Error::InvalidContractInstantiationReturn)
         }
         Decode::decode(&mut &buffer.as_ref()[0..req_len]).map_err(Into::into)
     }
 
-    fn emit_event<I, D>(buffer: &mut I, event_data: &D)
+    fn emit_event<O, Event>(buffer: &mut O, event: Event)
     where
-        I: scale::Output + AsRef<[u8]> + Reset,
-        D: EmitEventParams<Self>,
+        O: scale::Output + AsRef<[u8]> + Reset,
+        Event: Topics<Self> + scale::Encode,
     {
         // First we reset the buffer to start from a clean slate.
         buffer.reset();
         // Now we encode `topics` and the raw encoded `data`
         // each after one another into our buffer and remember their
         // boundaries using guards respectively.
-        event_data.topics().encode_to(buffer);
+        event.topics().encode_to(buffer);
         let topics_guard = buffer.as_ref().len();
-        event_data.data().encode_to(buffer);
+        event.encode_to(buffer);
         // We now use the guards in order to split the buffer into
         // some read-only slices that each store their respective
         // encoded value and call the actual routine.

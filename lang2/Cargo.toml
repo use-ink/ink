@@ -1,0 +1,41 @@
+[package]
+name = "ink_lang2"
+version = "0.1.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "GPL-3.0"
+readme = "README.md"
+
+description = "Rust based eDSL for writing smart contracts for Substrate"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["no-std", "embedded"]
+
+include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
+
+[dependencies]
+ink_core = { version = "0.1", path = "../core", default-features = false }
+ink_abi = { version = "0.1", path = "../abi", default-features = false, optional = true }
+ink_lang2_macro = { version = "0.1.0", path = "macro", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
+derive_more = { version = "0.15", default-features = false, features = ["no_std"] }
+
+[features]
+default = ["std", "test-env"]
+std = [
+    "ink_abi/std",
+    "ink_core/std",
+    "ink_lang2_macro/std",
+    "scale/std",
+]
+test-env = [
+    "std",
+    "ink_core/test-env",
+    "ink_lang2_macro/test-env",
+]
+ink-generate-abi = [
+    "std",
+    "ink_abi",
+    "ink_core/ink-generate-abi",
+]
