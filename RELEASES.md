@@ -46,7 +46,7 @@ mod erc20 {
 }
 ```
 
-> Note, we now require a mandatory ink! version in the header.
+> Note, we now require a mandatory ink! version in the header. You're welcome.
 
 ## ink! Contract Tag
 
@@ -166,7 +166,7 @@ let caller = self.env().caller();
 self.env().emit_event(...)
 ```
 
-> Note: The name of the function was updated to `emit_event`.
+> Note: The name of the function used to emit an event was updated to `emit_event`.
 
 ## Message Functions
 
