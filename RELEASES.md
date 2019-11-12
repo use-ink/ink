@@ -22,8 +22,8 @@ Follow the instructions below to understand how to migrate your ink! 1.0 contrac
 The fundamental change with the new ink! syntax is how we declare a new contract.
 
 We used to wrap the whole ink! contract into a `contract!` macro. At that point, all syntax within
-the macro could be custom, and mistakenly we used that to define custom syntax that made our code
-not really Rust anymore.
+the macro could be custom, and in our first iteration of the language, we used that in ways that
+made our code not really Rust anymore.
 
 Now we wrap the whole contract in a standard Rust module, and include an attribute tag to identify
 this object as part of the ink! language. This means that all of our code from this point forward
