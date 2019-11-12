@@ -53,6 +53,7 @@ mod tests {
         AbstractionLayer,
     };
 
+    #[cfg(feature = "test-ci-only")]
     #[test]
     fn generate_abi() {
         with_tmp_dir(|path| {
