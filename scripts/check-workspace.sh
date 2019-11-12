@@ -36,7 +36,7 @@ results["fmt"]=$?
 cargo test --verbose --all --all-features
 results["test_all_features"]=$?
 
-cargo build --verbose --no-default-features --release --target=wasm32-unknown-unknown -p ink_alloc -p ink_core -p ink_model -p ink_lang -p ink_utils
+cargo build --verbose --no-default-features --release --target=wasm32-unknown-unknown -p ink_alloc -p ink_core -p ink_model -p ink_lang -p ink_lang2 -p ink_utils
 results["build_wasm"]=$?
 
 all_checks_passed=0

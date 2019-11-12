@@ -40,7 +40,6 @@ pub(crate) fn execute_generate_abi(dir: Option<&PathBuf>) -> Result<String> {
 mod tests {
     use crate::{
         cmd::{
-            execute_generate_abi,
             execute_new,
             tests::with_tmp_dir,
         },
