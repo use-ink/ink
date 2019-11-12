@@ -29,6 +29,8 @@ pub(crate) fn execute_generate_abi(dir: Option<&PathBuf>) -> Result<String> {
     super::exec_cargo("run", &[
         "--package",
         "abi-gen",
+        "--release",
+        "--no-default-features",
         "--verbose",
     ], dir)?;
 
