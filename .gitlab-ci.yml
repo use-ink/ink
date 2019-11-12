@@ -70,17 +70,18 @@ cargo-fmt:
   script:
   - cargo fmt --verbose --all -- --check
 
-cargo-clippy-af:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  script:
-  - cargo clippy --verbose --all --all-features -- -D warnings
+## Running `clippy` on the `nightly-2019-10-24` toolchain will cause ICE, disable `clippy` temporarily
+#cargo-clippy-af:
+#  stage:                           check-workspace
+#  <<:                              *docker-env
+#  script:
+#  - cargo clippy --verbose --all --all-features -- -D warnings
 
-cargo-clippy-nf:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  script:
-  - cargo clippy --verbose --all --no-default-features -- -D warnings
+#cargo-clippy-nf:
+#  stage:                           check-workspace
+#  <<:                              *docker-env
+#  script:
+#  - cargo clippy --verbose --all --no-default-features -- -D warnings
 
 cargo-test-af:
   stage:                           check-workspace

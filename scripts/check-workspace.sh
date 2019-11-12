@@ -26,11 +26,12 @@ results["check_no_defaults"]=$?
 cargo fmt --verbose --all -- --check
 results["fmt"]=$?
 
-cargo clippy --verbose --all --all-features -- -D warnings
-results["clippy_all_features"]=$?
+## Running `clippy` on the `nightly-2019-10-24` toolchain will cause ICE, disable `clippy` temporarily
+#cargo clippy --verbose --all --all-features -- -D warnings
+#results["clippy_all_features"]=$?
 
-cargo clippy --verbose --all --no-default-features -- -D warnings
-results["clippy_no_defaults"]=$?
+#cargo clippy --verbose --all --no-default-features -- -D warnings
+#results["clippy_no_defaults"]=$?
 
 cargo test --verbose --all --all-features
 results["test_all_features"]=$?
