@@ -389,7 +389,7 @@ let contract = MyContract::my_constructor(a, b);
 ```
 
 Messages can simply be called on the returned instance as if `MyContract::my_constructor` returns a
-Self instance.
+`Self` instance.
 
 **The off-chain test environment has lost a bit of power compared to the old ink! language.**
 
