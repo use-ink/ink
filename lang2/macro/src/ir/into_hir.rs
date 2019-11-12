@@ -714,7 +714,7 @@ fn split_items(
         });
     let storage_ident = &storage.ident;
     for item_impl in &impl_blocks {
-        if item_impl.self_ty != storage_ident.to_string() {
+        if &item_impl.self_ty != storage_ident {
             bail!(
                 item_impl.self_ty,
                 "ink! impl blocks need to be implemented for the #[ink(storage)] struct"

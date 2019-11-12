@@ -219,7 +219,7 @@ where
             }
             DispatchMode::Call => self.messages.dispatch(&mut self.storage, &call_data),
         };
-        ret.into()
+        ret
     }
 }
 
