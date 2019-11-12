@@ -200,9 +200,16 @@ But now our constructor function is in the same place as the rest of our contrac
 the general implementation of the storage struct.
 
 We tag these functions with the `#[ink(constructor)]` attribute. We can create multiple different
-constructors by simply creating more functions with the same tag.
+constructors by simply creating more functions with the same tag. You can name a constructor
+function whatever you want (except starting with `__ink` which is reserved for all functions).
 
-### Before
+<table>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+<tr>
+<td>
 
 ```rust
 impl Deploy for Erc20 {
@@ -219,10 +226,8 @@ impl Deploy for Erc20 {
 }
 ```
 
-### After
-
-You can name a constructor function whatever you want (except starting with `__ink` which is
-reserved for all functions).
+</td>
+<td>
 
 ```rust
 impl Erc20 {
@@ -237,10 +242,12 @@ impl Erc20 {
             amount: initial_supply,
         });
     }
-//-snip-
+}
 ```
 
-> Note: We define the constructor function in the same place we define other contract functions.
+</td>
+</tr>
+</table>
 
 ## Cross Contract Calls
 
