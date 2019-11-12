@@ -40,13 +40,13 @@ pub enum Error {
     Call(CallError),
     Create(CreateError),
     Codec(scale::Error),
-    #[from(ignore)] InvalidStorageKey,
-    #[from(ignore)] InvalidStorageRead,
-    #[from(ignore)] InvalidContractCall,
-    #[from(ignore)] InvalidContractCallReturn,
-    #[from(ignore)] InvalidContractInstantiation,
-    #[from(ignore)] InvalidContractInstantiationReturn,
-    #[from(ignore)] InvalidRandomSeed,
+    InvalidStorageKey,
+    InvalidStorageRead,
+    InvalidContractCall,
+    InvalidContractCallReturn,
+    InvalidContractInstantiation,
+    InvalidContractInstantiationReturn,
+    InvalidRandomSeed,
 }
 
 /// The environmental error type.
