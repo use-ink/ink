@@ -25,7 +25,7 @@ We used to wrap the whole ink! contract into a `contract!` macro. At that point,
 the macro could be custom, and mistakenly we used that to define custom syntax that made our code
 not really Rust anymore.
 
-Now we wrap the whole contract in a standard Rust `mod`, and include an attribute tag to identify
+Now we wrap the whole contract in a standard Rust module, and include an attribute tag to identify
 this object as part of the ink! language. This means that all of our code from this point forward
 will be valid Rust!
 
