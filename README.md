@@ -49,7 +49,7 @@ For building the example smart contracts found under `examples` you will need to
 cargo install --git https://github.com/paritytech/ink cargo-contract --force
 ```
 
-We use the `--force` option to ensure you are updated to the most recent `cargo-contract` version.
+We use the `--force` to ensure you are updated to the most recent `cargo-contract` version.
 
 Please visit [the documentation](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract)
 about building contracts and generating metadata.
