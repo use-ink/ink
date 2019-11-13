@@ -64,6 +64,8 @@ contract! {
 <td>
 
 ```rust
+use ink_lang2 as ink;
+
 #[ink::contract(version = "0.1.0")]
 mod erc20 {
     ...
