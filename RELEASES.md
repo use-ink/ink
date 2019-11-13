@@ -445,7 +445,7 @@ It is also possible to annotate an entire impl blocks with:
 #[ink(impl)]
 impl Contract {
     fn internal_function(&self) {
-        self.env().emit_event(Hi);
+        self.env().emit_event(EventName);
     }
 }.
 ```
