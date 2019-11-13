@@ -15,7 +15,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
-derive_more = { version = "0.15", default-features = false, features = ["no_std"] }
+derive_more = { version = "0.99.1", default-features = false, features = ["from"] }
 ink_abi_derive = { version = "0.1.0", path = "derive", default-features = false, optional = true }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"] }
 

@@ -22,15 +22,16 @@
 //! However, it requires special treatment for all public messages since their bodies are completely
 //! replaced by direct forwards to the remote call infrastructure going through SRML contracts.
 
-use crate::{
-    ast,
-    gen::selector_to_expr,
-    hir,
-};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     quote_spanned,
+};
+
+use crate::{
+    ast,
+    gen::selector_to_expr,
+    hir,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -133,14 +134,14 @@ fn generate_state_as_dependency(contract: &hir::Contract) -> TokenStream2 {
 fn generate_create(contract: &hir::Contract) -> TokenStream2 {
     let deploy_handler = &contract.on_deploy;
     let attrs = &deploy_handler.attrs;
-    let args = deploy_handler.decl.inputs.iter().skip(1);
+    let args = deploy_handler.sig.inputs.iter().skip(1);
     let inputs = deploy_handler
-        .decl
+        .sig
         .inputs
         .iter()
         .filter_map(ast::FnArg::ident)
         .map(|ident| quote! { #ident });
-    quote_spanned! { deploy_handler.decl.fn_tok.span =>
+    quote_spanned! { deploy_handler.sig.fn_tok.span =>
         #(#attrs)*
         pub fn new(
             code_hash: Hash,
@@ -161,7 +162,7 @@ fn generate_messages_as_dependency<'a>(
     contract.messages.iter().map(move |message| {
         let ident = &message.sig.ident;
         let attrs = &message.attrs;
-        let args = message.sig.decl.inputs.iter().skip(1);
+        let args = message.sig.inputs.iter().skip(1);
         let (self_arg, call_fn) = if message.is_mut() {
             (quote! { &mut self }, quote! { call_mut() })
         } else {
@@ -169,14 +170,13 @@ fn generate_messages_as_dependency<'a>(
         };
         let inputs = message
             .sig
-            .decl
             .inputs
             .iter()
             .filter_map(ast::FnArg::ident)
             .map(|ident| quote! { #ident });
-        let output = &message.sig.decl.output;
+        let output = &message.sig.output;
         let (_impl_generics, type_generics, where_clause) =
-            message.sig.decl.generics.split_for_impl();
+            message.sig.generics.split_for_impl();
         match output {
             syn::ReturnType::Default => {
                 quote_spanned! { ident.span() =>
@@ -195,6 +195,7 @@ fn generate_messages_as_dependency<'a>(
                 }
             }
             syn::ReturnType::Type(_, ty) => {
+                let ty = &*ty;
                 quote_spanned! { ident.span() =>
                     #(#attrs)*
                     pub fn #ident #type_generics (
@@ -230,13 +231,13 @@ fn generate_call_enhancer_messages<'a>(
         .map(|message| {
             let ident = &message.sig.ident;
             let attrs = &message.attrs;
-            let args = message.sig.decl.inputs.iter().skip(1);
-            let inputs = message.sig.decl.inputs
+            let args = message.sig.inputs.iter().skip(1);
+            let inputs = message.sig.inputs
                 .iter()
                 .filter_map(ast::FnArg::ident)
                 .map(|ident| quote! { #ident });
-            let output = &message.sig.decl.output;
-            let (_impl_generics, type_generics, where_clause) = message.sig.decl.generics.split_for_impl();
+            let output = &message.sig.output;
+            let (_impl_generics, type_generics, where_clause) = message.sig.generics.split_for_impl();
             let selector = selector_to_expr(message.selector());
             match output {
                 syn::ReturnType::Default => quote_spanned! { ident.span() =>
@@ -251,16 +252,19 @@ fn generate_call_enhancer_messages<'a>(
                             )*
                     }
                 },
-                syn::ReturnType::Type(_, ty) => quote_spanned! { ident.span() =>
-                    #(#attrs)*
-                    pub fn #ident #type_generics (
-                        self,
-                        #(#args ,)*
-                    ) -> ink_core::env::CallBuilder<Env, ink_core::env::ReturnType<#ty>> #where_clause {
-                        ink_core::env::CallBuilder::eval(self.contract.account_id.clone(), #selector)
-                            #(
-                                .push_arg(&#inputs)
-                            )*
+                syn::ReturnType::Type(_, ty) => {
+                    let ty = &*ty;
+                    quote_spanned! { ident.span() =>
+                        #(#attrs)*
+                        pub fn #ident #type_generics (
+                            self,
+                            #(#args ,)*
+                        ) -> ink_core::env::CallBuilder<Env, ink_core::env::ReturnType<#ty>> #where_clause {
+                            ink_core::env::CallBuilder::eval(self.contract.account_id.clone(), #selector)
+                                #(
+                                    .push_arg(&#inputs)
+                                )*
+                        }
                     }
                 }
             }

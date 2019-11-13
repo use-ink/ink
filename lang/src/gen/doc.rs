@@ -20,7 +20,8 @@
 //! compiling a crate in order to generate special code that is only used
 //! for documentation purposes.
 
-use crate::hir;
 use proc_macro2::TokenStream as TokenStream2;
+
+use crate::hir;
 
 pub fn generate_code(_tokens: &mut TokenStream2, _contract: &hir::Contract) {}

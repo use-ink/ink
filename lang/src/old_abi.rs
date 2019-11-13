@@ -22,18 +22,17 @@
 //! Instead of using the old crate feature the old ABI generation is using
 //! the newly introduced `ink-generate-abi` crate feature.
 
-use crate::{
-    ast,
-    hir,
-};
+use std::convert::TryFrom;
+
 use serde::{
     Deserialize,
     Serialize,
 };
-use std::convert::TryFrom;
-use syn::{
-    self,
-    Result,
+use syn::Result;
+
+use crate::{
+    ast,
+    hir,
 };
 
 /// Describes a message parameter or return type.
@@ -70,19 +69,19 @@ impl TryFrom<&syn::TypePath> for OptionTypeDescription {
 
     fn try_from(type_path: &syn::TypePath) -> Result<Self> {
         if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
-            bail!(type_path, "`Option` cannot be qualified or start with `::`")
+            bail!(type_path, "`Option` cannot be qualified or start with `::`");
         }
         if type_path.path.segments.len() != 1 {
-            bail!(type_path, "too many path segments for an `Option` type")
+            bail!(type_path, "too many path segments for an `Option` type");
         }
         let seg = &type_path.path.segments[0];
         if seg.ident != "Option" {
-            bail!(type_path, "invalid ident for `Option` type")
+            bail!(type_path, "invalid ident for `Option` type");
         }
         match &seg.arguments {
             syn::PathArguments::AngleBracketed(generic_args) => {
                 if generic_args.args.len() != 1 {
-                    bail!(generic_args, "too many generic args for `Option` type")
+                    bail!(generic_args, "too many generic args for `Option` type");
                 }
                 match &generic_args.args[0] {
                     syn::GenericArgument::Type(ty) => {
@@ -118,19 +117,19 @@ impl TryFrom<&syn::TypePath> for VecTypeDescription {
 
     fn try_from(type_path: &syn::TypePath) -> Result<Self> {
         if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
-            bail!(type_path, "`Vec` cannot be qualified or start with `::`")
+            bail!(type_path, "`Vec` cannot be qualified or start with `::`");
         }
         if type_path.path.segments.len() != 1 {
-            bail!(type_path, "too many path segments for an `Vec` type")
+            bail!(type_path, "too many path segments for an `Vec` type");
         }
         let seg = &type_path.path.segments[0];
         if seg.ident != "Vec" {
-            bail!(type_path, "invalid ident for `Vec` type")
+            bail!(type_path, "invalid ident for `Vec` type");
         }
         match &seg.arguments {
             syn::PathArguments::AngleBracketed(generic_args) => {
                 if generic_args.args.len() != 1 {
-                    bail!(generic_args, "too many generic args for `Vec` type")
+                    bail!(generic_args, "too many generic args for `Vec` type");
                 }
                 match &generic_args.args[0] {
                     syn::GenericArgument::Type(ty) => {
@@ -165,22 +164,22 @@ impl TryFrom<&syn::TypePath> for ResultTypeDescription {
 
     fn try_from(type_path: &syn::TypePath) -> Result<Self> {
         if type_path.qself.is_some() || type_path.path.leading_colon.is_some() {
-            bail!(type_path, "`Result` cannot be qualified or start with `::`")
+            bail!(type_path, "`Result` cannot be qualified or start with `::`");
         }
         if type_path.path.segments.len() != 1 {
-            bail!(type_path, "too many path segments for an `Result` type")
+            bail!(type_path, "too many path segments for an `Result` type");
         }
         let seg = &type_path.path.segments[0];
         if seg.ident != "Result" {
-            bail!(type_path, "invalid ident for `Result` type")
+            bail!(type_path, "invalid ident for `Result` type");
         }
         match &seg.arguments {
             syn::PathArguments::AngleBracketed(generic_args) => {
                 if generic_args.args.len() != 2 {
                     bail!(
                         generic_args,
-                        "`Result` type requires 2 generic type arguments"
-                    )
+                        "`Result` type requires 2 generic type arguments",
+                    );
                 }
                 let ok_type = match &generic_args.args[0] {
                     syn::GenericArgument::Type(ty) => TypeDescription::try_from(ty),
@@ -213,7 +212,7 @@ impl TryFrom<&syn::Type> for TypeDescription {
             }
             syn::Type::Path(path) => {
                 if path.path.segments.len() != 1 || path.path.leading_colon.is_some() {
-                    bail!(path, "invalid self qualifier or leading `::` for type")
+                    bail!(path, "invalid self qualifier or leading `::` for type");
                 }
                 let ident = &path.path.segments[0].ident;
                 match ident.to_string().as_str() {
@@ -230,7 +229,7 @@ impl TryFrom<&syn::Type> for TypeDescription {
                     }
                 }
             }
-            invalid => bail!(invalid, "invalid or unsupported type",),
+            invalid => bail!(invalid, "invalid or unsupported type"),
         }
     }
 }
@@ -310,7 +309,7 @@ impl TryFrom<&syn::TypePath> for PrimitiveTypeDescription {
                     ty,
                     "{} is unsupported as message interface type",
                     unsupported
-                )
+                );
             }
         }
     }
@@ -360,10 +359,10 @@ impl TryFrom<&syn::TypeArray> for ArrayTypeDescription {
         {
             Ok(ArrayTypeDescription::FixedLength {
                 inner: Box::new(ty),
-                arity: int_lit.value() as u32,
+                arity: int_lit.base10_parse::<u32>()?,
             })
         } else {
-            bail!(arg.len, "invalid array length expression")
+            bail!(arg.len, "invalid array length expression");
         }
     }
 }
@@ -378,19 +377,19 @@ pub struct ParamDescription {
     ty: TypeDescription,
 }
 
-impl TryFrom<&syn::ArgCaptured> for ParamDescription {
+impl TryFrom<&syn::PatType> for ParamDescription {
     type Error = syn::Error;
 
-    fn try_from(arg: &syn::ArgCaptured) -> Result<Self> {
-        let name = match &arg.pat {
+    fn try_from(arg: &syn::PatType) -> Result<Self> {
+        let name = match &*arg.pat {
             syn::Pat::Ident(ident) => ident.ident.to_string(),
             _ => {
-                bail!(arg.pat, "unsupported type pattern, currently only identifiers like `foo` are supported")
+                bail!(arg.pat, "unsupported type pattern, currently only identifiers like `foo` are supported");
             }
         };
         Ok(Self {
             name,
-            ty: TypeDescription::try_from(&arg.ty)?,
+            ty: TypeDescription::try_from(&*arg.ty)?,
         })
     }
 }
@@ -407,13 +406,13 @@ impl TryFrom<&hir::DeployHandler> for DeployDescription {
 
     fn try_from(deploy_handler: &hir::DeployHandler) -> Result<Self> {
         let args = deploy_handler
-            .decl
+            .sig
             .inputs
             .iter()
             .filter_map(|arg| {
                 match arg {
-                    ast::FnArg::Captured(captured) => {
-                        let description = ParamDescription::try_from(captured);
+                    ast::FnArg::Typed(pat_ty) => {
+                        let description = ParamDescription::try_from(pat_ty);
                         Some(description)
                     }
                     _ => None,
@@ -487,20 +486,19 @@ impl TryFrom<&hir::Message> for MessageDescription {
             args: {
                 message
                     .sig
-                    .decl
                     .inputs
                     .iter()
                     .filter_map(|arg| {
                         match arg {
-                            ast::FnArg::Captured(captured) => {
-                                Some(ParamDescription::try_from(captured))
+                            ast::FnArg::Typed(pat_ty) => {
+                                Some(ParamDescription::try_from(pat_ty))
                             }
                             _ => None,
                         }
                     })
                     .collect::<Result<Vec<_>>>()?
             },
-            return_type: ReturnTypeDescription::try_from(&message.sig.decl.output)?,
+            return_type: ReturnTypeDescription::try_from(&message.sig.output)?,
         })
     }
 }
