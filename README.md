@@ -51,15 +51,30 @@ cargo install --git https://github.com/paritytech/ink cargo-contract
 
 Add `--force` option to update to the most recent `cargo-contract` version.
 
-Please visit [the documentation](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract)
-about building contracts and generating metadata.
+### Build example contract and generate the contracts ABI
 
-### Hello, World! - The Flipper
+To build a single example and generate the contracts wasm file, navigate to the root of the example smart contract and run:
+
+`cargo contract build`
+
+To generate the Application Binary Interface (ABI) of the contract, run the following command:
+
+`cargo contract generate-abi`
+
+You should now have a optimized `<contract-name>.wasm` file and a `abi.json` file in the `./target` folder of the contract.
+
+For further information, please have a look at our [smart contracts workshop](https://substrate.dev/substrate-contracts-workshop/).
+
+## Hello, World! - The Flipper
 
 The `Flipper` contract is a simple contract containing only a single `bool` value
 that it can flip from `true` to `false` and vice versa and return the current state.
 
-Below you can see the code using the `ink_lang2` frontend to ink!.
+To create your own version of the flipper contract, you first need to initialize a new ink! project in your working directory.
+
+`cargo contract new flipper`
+
+Below you can see the code using the `ink_lang2` version of ink!.
 
 ```rust
 use ink_core::storage;
@@ -126,6 +141,8 @@ mod flipper {
     }
 }
 ```
+
+Place this code in the ./lib.rs`file of your flipper contract and run `cargo contract build && cargo contract generate-abi` to build your first ink! smart contract example.
 
 ## Contribution
 

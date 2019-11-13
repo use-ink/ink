@@ -1,6 +1,6 @@
 # ink! code examples
 
-This folder contains a set of example contracts for ink!. 
+This folder contains a set of example contracts for ink!.
 
 Have a look at the different examples to better understand how to use ink! to build your own Substrate smart contracts.
 
@@ -16,9 +16,9 @@ cargo install --git https://github.com/paritytech/ink cargo-contract
 
 Add `--force` option to update to the most recent `cargo-contract` version.
 
-## Build example contract and abi
+## Build example contract and generate the contracts ABI
 
-To build a single example and generate a new contract wasm file, navigate to the root of the smart contract and run the following command:
+To build a single example and generate the contracts wasm file, navigate to the root of the smart contract and run the following command:
 
 `cargo contract build`
 
@@ -26,7 +26,7 @@ To generate the Application Binary Interface (ABI) of the contract, run the foll
 
 `cargo contract generate-abi`
 
-You should now have a 
+You should now have a optimized `<contract-name>.wasm` file and a `abi.json` file in the `./target` folder of your contract.
 
 ## License
 
