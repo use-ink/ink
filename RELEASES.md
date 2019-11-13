@@ -76,6 +76,8 @@ mod erc20 {
 
 > Note: we now require a mandatory ink! version in the header. You're welcome.
 
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
+
 ## ink! Contract Tag
 
 The ink! contract tag can be extended to provide other configuration information about your
@@ -102,6 +104,8 @@ It is possible to enable the dynamic environment that allows for dynamic allocat
 ```rust
 #[ink::contract(version = "0.1.0", dynamic_allocations = true)]
 ```
+
+> Note: The dynamic environment is still under research and not yet stable.
 
 ## Declaring Storage
 
@@ -139,6 +143,8 @@ struct Erc20 {
 </td>
 </tr>
 </table>
+
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
 
 ## Declaring Events
 
@@ -184,6 +190,8 @@ struct Transfer {
 </td>
 </tr>
 </table>
+
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
 
 ## Environment Handler
 
@@ -265,6 +273,8 @@ fn total_supply(&self) -> Balance {
 </tr>
 </table>
 
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
+
 ## Defining a Constructor
 
 We used to define our constructor by implementing the `Deploy` trait and defining the `deploy`
@@ -323,18 +333,27 @@ impl Erc20 {
 </tr>
 </table>
 
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
+
 ## Cross Contract Calls
 
 It is now possible to call ink! messages and ink! constructors. So ink! constructors allow
 delegation and ink! messages can easily call other ink! messages.
 
-Given another ink! contract like `mod Accumulator { ... }`, we can call any of its functions just
-like we would expect:
+Given another ink! contract like `mod Adder { ... }`, we can call any of its functions:
 
 ```rust
-use accumulator::Accumulator;
-let result = Accumulator::my_function()
+use adder::Adder;
+//--snip--
+#[ink(storage)]
+struct Delegator {
+    adder: storage::Value<Adder>,
+}
+//--snip--
+let result = self.adder.inc(by);
 ```
+
+See the [delegator example](https://github.com/paritytech/ink/blob/master/examples/lang2/delegator/lib.rs).
 
 ## Factory Contracts
 
@@ -375,6 +394,7 @@ let accumulator = Accumulator::new(accumulator_code_hash, init_value)
 ```rust
 let accumulator = Accumulator::new(init_value)
     .value(total_balance / 4)
+    .gas_limit(12345)
     .using_code(accumulator_code_hash)
     .create_using(self.env())
     .expect("failed at instantiating the `Accumulator` contract");
@@ -384,10 +404,12 @@ let accumulator = Accumulator::new(init_value)
 </tr>
 </table>
 
+See the [delegator example](https://github.com/paritytech/ink/blob/master/examples/lang2/delegator/lib.rs).
+
 ## Contract Tests
 
 Testing contracts off-chain is done by `cargo test` and users can simply use the standard routines
-of creating unit test modules within the ink! module itself:
+of creating unit test modules within the ink! project:
 
 ```rust
 #[cfg(test)]
@@ -407,6 +429,8 @@ let contract = MyContract::my_constructor(a, b);
 
 Messages can simply be called on the returned instance as if `MyContract::my_constructor` returns a
 `Self` instance.
+
+See the [flipper example](https://github.com/paritytech/ink/blob/master/examples/lang2/flipper/src/lib.rs).
 
 **The off-chain test environment has lost a bit of power compared to the old ink! language.**
 
