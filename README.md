@@ -46,10 +46,10 @@ Use the scripts provided under `scripts` directory in order to run checks on eit
 For building the example smart contracts found under `examples` you will need to have `cargo-contract` installed.
 
 ```
-cargo install --git https://github.com/paritytech/ink cargo-contract
+cargo install --git https://github.com/paritytech/ink cargo-contract --force
 ```
 
-Add `--force` option to update to the most recent `cargo-contract` version.
+We use the `--force` to ensure you are updated to the most recent `cargo-contract` version.
 
 Please visit [the documentation](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract)
 about building contracts and generating metadata.
