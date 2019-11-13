@@ -19,7 +19,7 @@ ink_abi = { version = "0.1", path = "../abi", default-features = false, optional
 ink_lang2_macro = { version = "0.1.0", path = "macro", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
-derive_more = { version = "0.15", default-features = false, features = ["no_std"] }
+derive_more = { version = "0.99.1", default-features = false, features = ["from"] }
 
 [features]
 default = ["std", "test-env"]
