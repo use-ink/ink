@@ -61,7 +61,7 @@ To generate the Application Binary Interface (ABI) of the contract, run the foll
 
 `cargo contract generate-abi`
 
-You should now have a optimized `<contract-name>.wasm` file and a `abi.json` file in the `./target` folder of the contract.
+You should now have an optimized `<contract-name>.wasm` file and an `abi.json` file in the `target` folder of the contract.
 
 For further information, please have a look at our [smart contracts workshop](https://substrate.dev/substrate-contracts-workshop/).
 
