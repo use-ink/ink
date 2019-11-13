@@ -12,9 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod binary_heap;
-pub mod bitvec;
-pub mod btree_map;
-pub mod hash_map;
-pub mod stash;
-pub mod vec;
+//! A BTreeMap collection.
+//!
+//! ToDo add more comments
+
+#[cfg(all(test, feature = "test-env"))]
+mod tests;
+
+mod impls;
+mod search;
+
+pub use self::impls::{
+    // Iter,
+    BTreeMap,
+    // Values,
+};
