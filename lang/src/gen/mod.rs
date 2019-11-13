@@ -20,13 +20,14 @@ mod build;
 mod doc;
 mod test;
 
-use crate::hir;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
     parse_str,
     Expr,
 };
+
+use crate::hir;
 
 /// Generates code for the given contract.
 ///

@@ -19,11 +19,8 @@
 //! Generated code that conflicts with specialized `test` or `doc`
 //! code needs to be guarded by `#[cfg(..)]`.
 
-use crate::{
-    ast,
-    gen::selector_to_expr,
-    hir,
-};
+use std::iter;
+
 use proc_macro2::{
     Ident,
     TokenStream as TokenStream2,
@@ -32,10 +29,15 @@ use quote::{
     quote,
     ToTokens,
 };
-use std::iter;
 use syn::{
     punctuated::Punctuated,
     Token,
+};
+
+use crate::{
+    ast,
+    gen::selector_to_expr,
+    hir,
 };
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
@@ -254,21 +256,21 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
     let deploy_handler_toks = {
         let deploy_fn_args = {
             let mut deploy_fn_args: Punctuated<ast::FnArg, Token![,]> = Punctuated::new();
-            for input in contract.on_deploy.decl.inputs.iter().skip(1) {
+            for input in contract.on_deploy.sig.inputs.iter().skip(1) {
                 deploy_fn_args.push(input.clone())
             }
             deploy_fn_args
         };
         let deploy_call_args = {
             let mut deploy_call_args: Punctuated<syn::Pat, Token![,]> = Punctuated::new();
-            for captured in deploy_fn_args.iter().filter_map(|fn_arg| {
-                if let ast::FnArg::Captured(captured) = fn_arg {
-                    Some(captured)
+            for pat_ty in deploy_fn_args.iter().filter_map(|fn_arg| {
+                if let ast::FnArg::Typed(pat_ty) = fn_arg {
+                    Some(pat_ty)
                 } else {
                     None
                 }
             }) {
-                deploy_call_args.push(captured.pat.clone())
+                deploy_call_args.push((*pat_ty.pat).clone())
             }
             deploy_call_args
         };
@@ -305,7 +307,7 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
             let msg_fn_args = {
                 let mut msg_fn_args: Punctuated<ast::FnArg, Token![,]> =
                     Default::default();
-                for input in message.sig.decl.inputs.iter().skip(1) {
+                for input in message.sig.inputs.iter().skip(1) {
                     msg_fn_args.push(input.clone())
                 }
                 msg_fn_args
@@ -314,14 +316,14 @@ fn codegen_for_instantiate(tokens: &mut TokenStream2, contract: &hir::Contract) 
             let msg_call_args = {
                 let mut msg_call_args: Punctuated<syn::Pat, Token![,]> =
                     Default::default();
-                for captured in msg_fn_args.iter().filter_map(|fn_arg| {
-                    if let ast::FnArg::Captured(captured) = fn_arg {
-                        Some(captured)
+                for pat_ty in msg_fn_args.iter().filter_map(|fn_arg| {
+                    if let ast::FnArg::Typed(pat_ty) = fn_arg {
+                        Some(pat_ty)
                     } else {
                         None
                     }
                 }) {
-                    msg_call_args.push(captured.pat.clone())
+                    msg_call_args.push((*pat_ty.pat).clone())
                 }
                 msg_call_args
             };
@@ -388,14 +390,14 @@ fn codegen_for_message_impls(tokens: &mut TokenStream2, contract: &hir::Contract
                 attr.to_tokens(&mut content)
             }
             <Token![pub]>::default().to_tokens(&mut content);
-            let fn_decl = &message.sig.decl;
-            fn_decl.fn_tok.to_tokens(&mut content);
+            let sig = &message.sig;
+            sig.fn_tok.to_tokens(&mut content);
             message.sig.ident.to_tokens(&mut content);
-            fn_decl.paren_tok.surround(&mut content, |inner_toks| {
-                let inputs_with_env = fn_decl.inputs_with_env(&env_handler);
+            sig.paren_tok.surround(&mut content, |inner_toks| {
+                let inputs_with_env = sig.inputs_with_env(&env_handler);
                 inputs_with_env.to_tokens(inner_toks);
             });
-            fn_decl.output.to_tokens(&mut content);
+            sig.output.to_tokens(&mut content);
             message.block.to_tokens(&mut content);
         }
         content
@@ -415,17 +417,17 @@ fn codegen_for_method_impls(tokens: &mut TokenStream2, contract: &hir::Contract)
             for attr in &method.attrs {
                 attr.to_tokens(&mut content)
             }
-            let fn_decl = &method.sig.decl;
-            fn_decl.fn_tok.to_tokens(&mut content);
+            let sig = &method.sig;
+            sig.fn_tok.to_tokens(&mut content);
             method.sig.ident.to_tokens(&mut content);
-            let generics = &fn_decl.generics;
+            let generics = &sig.generics;
             generics.lt_token.to_tokens(&mut content);
             generics.params.to_tokens(&mut content);
             generics.gt_token.to_tokens(&mut content);
-            fn_decl.paren_tok.surround(&mut content, |inner_toks| {
-                fn_decl.inputs.to_tokens(inner_toks);
+            sig.paren_tok.surround(&mut content, |inner_toks| {
+                sig.inputs.to_tokens(inner_toks);
             });
-            fn_decl.output.to_tokens(&mut content);
+            sig.output.to_tokens(&mut content);
             generics.where_clause.to_tokens(&mut content);
             method.block.to_tokens(&mut content);
         }
@@ -482,12 +484,12 @@ fn codegen_for_messages(tokens: &mut TokenStream2, contract: &hir::Contract) {
                 message.sig.ident.span(),
             );
             camel_case_ident.to_tokens(&mut content);
-            let fn_decl = &message.sig.decl;
-            fn_decl.paren_tok.surround(&mut content, |inner_toks| {
+            let sig = &message.sig;
+            sig.paren_tok.surround(&mut content, |inner_toks| {
                 let args_without_self = {
                     let mut args_without_self: Punctuated<ast::FnArg, Token![,]> =
                         Punctuated::new();
-                    for fn_arg in fn_decl
+                    for fn_arg in sig
 							.inputs.iter()
 							// Performing `skip(1)` here works because we already asserted
 							// that all messages have to start with either `&self` or `&mut self`.
@@ -499,7 +501,7 @@ fn codegen_for_messages(tokens: &mut TokenStream2, contract: &hir::Contract) {
                 };
                 args_without_self.to_tokens(inner_toks)
             });
-            fn_decl.output.to_tokens(&mut content);
+            sig.output.to_tokens(&mut content);
             <Token![;]>::default().to_tokens(&mut content);
         }
         content

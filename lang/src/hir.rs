@@ -130,7 +130,7 @@ impl Contract {
                 bail!(
                     event.ident,
                     "cannot declare an event with the same name as the contract",
-                )
+                );
             }
             if !unique_events.contains(event) {
                 unique_events.insert(event);
@@ -138,7 +138,7 @@ impl Contract {
                 bail!(
                     event.ident,
                     "cannot declare multiple events with the same name",
-                )
+                );
             }
         }
         let mut ret = unique_events
@@ -200,7 +200,7 @@ impl Contract {
                     impl_block.self_ty,
                     "contract impl blocks must implement for the contract type: {}",
                     contract_ident
-                )
+                );
             }
         }
         use itertools::Itertools as _;
@@ -219,54 +219,62 @@ impl Contract {
             if method.sig.ident == "deploy" {
                 bail!(
                     method.sig.ident,
-                    "contract methods must not be named `deploy`"
-                )
+                    "contract methods must not be named `deploy`",
+                );
             }
         }
         for msg in messages.iter() {
             if msg.sig.ident == "deploy" {
                 bail!(
                     msg.sig.ident,
-                    "contract messages must not be named `deploy`"
-                )
+                    "contract messages must not be named `deploy`",
+                );
             }
-            let inputs = &msg.sig.decl.inputs;
+            let inputs = &msg.sig.inputs;
             {
-                match inputs.first().map(syn::punctuated::Pair::into_value) {
+                match inputs.first() {
                     None => {
                         bail!(
                             msg.sig.ident,
-                            "contract messages must operate on `&self` or `&mut self`"
-                        )
+                            "contract messages must operate on `&self` or `&mut self`",
+                        );
                     }
                     Some(self_ty) => {
                         match self_ty {
-                            ast::FnArg::SelfValue(_) | ast::FnArg::Captured(_) => bail!(
-                                self_ty,
-                                "contract messages must operate on `&self` or `&mut self`"
-                            ),
-                            _ => (),
+                            ast::FnArg::Receiver(syn::Receiver {
+                                mutability: None,
+                                reference: Some(_),
+                                ..
+                            })
+                            | ast::FnArg::Receiver(syn::Receiver {
+                                mutability: Some(_),
+                                reference: Some(_),
+                                ..
+                            }) => (),
+                            _ => {
+                                bail!(
+                                    self_ty,
+                                    "contract messages must operate on `&self` or `&mut self`",
+                                );
+                            }
                         }
                     }
                 }
             }
             for fn_arg in inputs.iter().skip(1) {
-                if let ast::FnArg::Captured(arg_captured) = fn_arg {
-                    if let syn::Pat::Ident(pat_ident) = &arg_captured.pat {
+                if let ast::FnArg::Typed(pat_ty) = fn_arg {
+                    if let syn::Pat::Ident(pat_ident) = &*pat_ty.pat {
                         if pat_ident.ident == "env" {
                             bail!(
                                 pat_ident.ident,
-                                "contract messages must not contain an argument called `env`"
-                            )
+                                "contract messages must not contain an argument called `env`",
+                            );
                         }
                     }
                 }
             }
-            if msg.sig.decl.generics != Default::default() {
-                bail!(
-                    msg.sig.decl.generics,
-                    "contract messages must not be generic"
-                )
+            if msg.sig.generics != Default::default() {
+                bail!(msg.sig.generics, "contract messages must not be generic");
             }
         }
         Ok((messages, methods))
@@ -284,12 +292,13 @@ impl Contract {
         contract_ident: &Ident,
         contract: &ast::Contract,
     ) -> Result<DeployHandler> {
-        let mut deploy_impl_blocks = contract.deploy_impl_blocks().collect::<Vec<_>>();
+        let mut deploy_impl_blocks: Vec<&ast::ItemDeployImpl> =
+            contract.deploy_impl_blocks().collect();
         if deploy_impl_blocks.is_empty() {
             bail!(
                 contract_ident,
                 "couldn't find a contract deploy implementation; requires exactly one",
-            )
+            );
         }
         deploy_impl_blocks.retain(|block| block.self_ty == *contract_ident);
         if deploy_impl_blocks.is_empty() {
@@ -297,60 +306,61 @@ impl Contract {
                 contract_ident,
                 "couldn't find a contract deploy implementation: `impl Deploy for {} {{ ... }}`",
                 contract_ident,
-            )
+            );
         }
         if deploy_impl_blocks.len() >= 2 {
             bail!(
                 contract_ident,
                 "found more than one contract deploy implementation for {}",
                 contract_ident
-            )
+            );
         }
         let deploy_impl_block = deploy_impl_blocks[0];
 
-        let fn_decl = &deploy_impl_block.item.decl;
-        let self_ty: &ast::FnArg = &fn_decl.inputs.first().unwrap().into_value();
-
-        if let ast::FnArg::SelfRef(syn::ArgSelfRef {
-            mutability: None, ..
-        })
-        | ast::FnArg::SelfValue(_)
-        | ast::FnArg::Captured(_) = self_ty
-        {
-            bail!(
-                self_ty,
-                "the deploy implementation must operate on `&mut self`"
-            )
+        let sig = &deploy_impl_block.item.sig;
+        let self_ty = sig.inputs.first().unwrap();
+        match self_ty {
+            ast::FnArg::Receiver(syn::Receiver {
+                mutability: Some(_),
+                reference: Some(_),
+                ..
+            }) => (),
+            _ => {
+                bail!(
+                    self_ty,
+                    "the deploy implementation must operate on `&mut self`",
+                );
+            }
         }
 
-        for fn_arg in fn_decl.inputs.iter().skip(1) {
-            if let ast::FnArg::Captured(arg_captured) = fn_arg {
-                if let syn::Pat::Ident(pat_ident) = &arg_captured.pat {
+        for fn_arg in sig.inputs.iter().skip(1) {
+            if let ast::FnArg::Typed(pat_typed) = fn_arg {
+                if let syn::Pat::Ident(pat_ident) = &*pat_typed.pat {
                     if pat_ident.ident == "env" {
                         bail!(
                             pat_ident.ident,
-                            "the deploy implementation must not contain an argument named `env`"
-                        )
+                            "the deploy implementation must not contain an argument named `env`",
+                        );
                     }
                 }
             }
         }
-        if fn_decl.generics != Default::default() {
+        if sig.generics != Default::default() {
             bail!(
-                fn_decl.generics,
-                "the deploy implementation must not be generic"
-            )
+                sig.generics,
+                "the deploy implementation must not be generic",
+            );
         }
-        if fn_decl.output != syn::ReturnType::Default {
+        if sig.output != syn::ReturnType::Default {
             bail!(
-                fn_decl.output,
-                "the deploy implementation must not have a return type"
-            )
+                sig.output,
+                "the deploy implementation must not have a return type",
+            );
         }
 
         Ok(DeployHandler {
             attrs: deploy_impl_block.item.attrs.clone(),
-            decl: deploy_impl_block.item.decl.clone(),
+            sig: deploy_impl_block.item.sig.clone(),
             block: deploy_impl_block.item.block.clone(),
         })
     }
@@ -418,8 +428,8 @@ pub struct DeployHandler {
     ///
     /// Also used for documentation.
     pub attrs: Vec<syn::Attribute>,
-    /// The function declaration.
-    pub decl: ast::FnDecl,
+    /// The function signature.
+    pub sig: ast::Signature,
     /// The actual implementation.
     pub block: syn::Block,
 }
@@ -432,13 +442,9 @@ impl DeployHandler {
 
     /// Converts this on-deploy handler into its corresponding message.
     pub fn into_message(self) -> Message {
-        use crate::ident_ext::IdentExt as _;
         Message {
             attrs: self.attrs,
-            sig: ast::MethodSig {
-                ident: Ident::from_str("deploy"),
-                decl: self.decl,
-            },
+            sig: self.sig,
             block: self.block,
         }
     }
@@ -448,7 +454,7 @@ impl From<Message> for DeployHandler {
     fn from(msg: Message) -> Self {
         Self {
             attrs: msg.attrs,
-            decl: msg.sig.decl,
+            sig: msg.sig,
             block: msg.block,
         }
     }
@@ -473,7 +479,7 @@ pub struct Message {
     /// # Note
     ///
     /// This also holds the name of the message.
-    pub sig: ast::MethodSig,
+    pub sig: ast::Signature,
     /// The actual implementation.
     pub block: syn::Block,
 }
@@ -488,15 +494,16 @@ impl Message {
     pub fn is_mut(&self) -> bool {
         let self_arg = self
             .sig
-            .decl
             .inputs
             .iter()
             .next()
             .expect("messages must always have at least `&mut self` as parameter");
         match self_arg {
-            ast::FnArg::SelfRef(syn::ArgSelfRef { mutability, .. }) => {
-                mutability.is_some()
-            }
+            ast::FnArg::Receiver(syn::Receiver {
+                reference,
+                mutability,
+                ..
+            }) => reference.is_some() && mutability.is_some(),
             _ => panic!(),
         }
     }
@@ -543,7 +550,7 @@ pub struct Method {
     /// # Note
     ///
     /// This also holds the name of the method.
-    pub sig: ast::MethodSig,
+    pub sig: ast::Signature,
     /// The actual implementation.
     pub block: syn::Block,
 }
