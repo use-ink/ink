@@ -18,7 +18,7 @@ Add `--force` option to update to the most recent `cargo-contract` version.
 
 ## Build example contract and generate the contracts ABI
 
-To build a single example and generate the contracts wasm file, navigate to the root of the smart contract and run the following command:
+To build a single example and generate the contracts Wasm file, navigate to the root of the smart contract and run the following command:
 
 `cargo contract build`
 
