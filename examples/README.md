@@ -26,7 +26,7 @@ To generate the Application Binary Interface (ABI) of the contract, run the foll
 
 `cargo contract generate-abi`
 
-You should now have a optimized `<contract-name>.wasm` file and a `abi.json` file in the `./target` folder of your contract.
+You should now have an optimized `<contract-name>.wasm` file and an `abi.json` file in the `target` folder of your contract.
 
 ## License
 
