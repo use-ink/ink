@@ -25,7 +25,7 @@ ink_utils = { path = "../utils/", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 derive_more = { version = "0.99.1", default-features = false, features = ["from"] }
-smallvec = { version = "0.6.10", default-features = false, features = ["union"] }
+smallvec = { version = "1.0", default-features = false, features = ["union"] }
 cfg-if = "0.1"
 
 [features]
@@ -39,7 +39,6 @@ std = [
     "ink_utils/std",
     "scale/std",
     "type-metadata/std",
-    "smallvec/std",
 ]
 ink-generate-abi = [
     "ink_abi",
