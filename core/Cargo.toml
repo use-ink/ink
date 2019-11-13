@@ -22,7 +22,7 @@ ink_abi = { path = "../abi/", default-features = false, features = ["derive"], o
 ink_alloc = { path = "../alloc/", default-features = false }
 ink_utils = { path = "../utils/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "1.0", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "1.1", default-features = false, features = ["derive", "full"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 derive_more = { version = "0.99.1", default-features = false, features = ["from"] }
 smallvec = { version = "1.0", default-features = false, features = ["union"] }
