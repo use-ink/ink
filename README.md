@@ -1,6 +1,6 @@
 # ink! - Parity's ink to write smart contracts
 
-| Linux              | Codecov              | Coveralls              | LoC              |
+|       Linux        |       Codecov        |       Coveralls        |       LoC        |
 |:------------------:|:--------------------:|:----------------------:|:----------------:|
 | [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] |
 
@@ -33,7 +33,7 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 
 ## Developer Documentation
 
-| `ink_abi` | `ink_core` | `ink_model` |
+| `ink_abi`     | `ink_core`    | `ink_model`   |
 |-----------|------------|-------------|
 | [![][H1]][H2] | [![][F1]][F2] | [![][G1]][G2] |
 
@@ -134,4 +134,3 @@ Visit our [contribution guidelines](CONTRIBUTING.md) for more information.
 ## License
 
 The entire code within this repository is licensed under the [GPLv3](LICENSE). Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.
- of our products.
