@@ -17,6 +17,23 @@ used in and out of your contract just like standard Rust could be used!
 Follow the instructions below to understand how to migrate your ink! 1.0 contracts to this new ink!
 2.0 syntax.
 
+## Update the ink! CLI
+
+Install the latest ink! CLI using the following command:
+
+```bash
+cargo install --git https://github.com/paritytech/ink cargo-contract --force
+```
+
+There is a new contract ABI format you need to use. You can generate the ABI using:
+
+```bash
+cargo contract generate-abi
+```
+
+This will generate a file `abi.json` you should upload when deploying or interacting with a
+contract.
+
 ## Declaring a Contract
 
 The fundamental change with the new ink! syntax is how we declare a new contract.
