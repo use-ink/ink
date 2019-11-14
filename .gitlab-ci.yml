@@ -142,7 +142,7 @@ examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for DIR in examples/lang2/*; do 
+    - for example in examples/lang2/*; do 
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --all-features -- -D warnings;
       done
 
