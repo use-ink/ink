@@ -151,7 +151,7 @@ examples-clippy-wasm:
   <<:                              *docker-env
   script:
     - for DIR in examples/lang2/*; do 
-        cargo clippy --verbose --manifest-path ${DIR}/Cargo.toml --no-default-features -- -D warnings;
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features -- -D warnings;
       done
 
 examples-contract-build:
