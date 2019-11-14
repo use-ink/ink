@@ -14,7 +14,7 @@ For building the example smart contracts found in this folder you will need to h
 cargo install --git https://github.com/paritytech/ink cargo-contract
 ```
 
-Add `--force` option to update to the most recent `cargo-contract` version.
+Use the `--force` option to update to the most recent `cargo-contract` version.
 
 ## Build example contract and generate the contracts metadata
 
