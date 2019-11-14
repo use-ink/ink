@@ -33,6 +33,7 @@ variables:
     - rustup show
     - bash --version
     # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
+    - mkdir -p ${CARGO_HOME}; touch ${CARGO_HOME}/config
     - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
     - sccache -s
   only:
@@ -69,7 +70,7 @@ variables:
 #     let "results['check_no_defaults'] |= $?"
 # done
 
-check-af-core:
+check-af-core-all:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
