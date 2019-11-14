@@ -53,55 +53,101 @@ variables:
 
 #### stage:                        check-workspace
 
-# cargo-check-af:
-#   stage:                           check-workspace
-#   <<:                              *docker-env
-#   script:
-#   - cargo check --verbose --all --all-features
-
-# all_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro" "cli")
-# wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
-
-# results["check_all_features"]=true
-# for crate in "${all_crates[@]}"; do
-#     cargo check --verbose --all-features --manifest-path $crate/Cargo.toml
-#     let "results['check_all_features'] |= $?"
-#     cargo check --verbose --no-default-features --manifest-path $crate/Cargo.toml
-#     let "results['check_no_defaults'] |= $?"
-# done
-
-check-af-core-all:
+core:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo build --verbose --manifest-path core/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
-    - cargo check --verbose --all-features --manifest-path core/Cargo.toml
-    - cargo check --verbose --no-default-features --manifest-path core/Cargo.toml
+    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
+    - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+    - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
 
-check-af-core:
+alloc:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo check --verbose --all-features --manifest-path core/Cargo.toml
+    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
+    - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+    - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
 
-check-nf-core:
+utils:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo check --verbose --no-default-features --manifest-path core/Cargo.toml
+    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
+    - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+    - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
 
-build-core:
+model:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo build --verbose --manifest-path core/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
+    - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+    - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
 
+lang:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
+    - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+    - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
 
-# cargo-check-nf:
-#   stage:                           check-workspace
-#   <<:                              *docker-env
-#   script:
-#   - cargo check --verbose --all --no-default-features
+lang2:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
+    - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+    - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
+
+lang2/macro:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
+    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
+    - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+    - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
+
+check-cli:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+    - cargo check --verbose --manifest-path cli/Cargo.toml --all-features
+    - cargo check --verbose --manifest-path cli/Cargo.toml --no-default-features
+    - cargo test --verbose --manifest-path cli/Cargo.toml --all-features --release
+    - cargo fmt --verbose --manifest-path cli/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path cli/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path cli/Cargo.toml --no-default-features -- -D warnings
+
 
 # cargo-fmt:
 #   stage:                           check-workspace
@@ -133,31 +179,31 @@ build-core:
 #   script:
 #   - cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
 
-# #### stage:                        examples
+#### stage:                        examples
 
-# examples-wasm:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in $(ls examples/lang); do
-#         cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
-#       done
-#     - sccache -s
+examples-wasm:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in $(ls examples/lang); do
+        cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
+      done
+    - sccache -s
 
-# examples-test:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in $(ls examples/lang); do
-#         cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
-#       done
-#     - sccache -s
+examples-test:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in $(ls examples/lang); do
+        cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
+      done
+    - sccache -s
 
-# examples-abi:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in $(ls examples/lang); do
-#         cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
-#       done
-#     - sccache -s
+examples-abi:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in $(ls examples/lang); do
+        cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
+      done
+    - sccache -s
