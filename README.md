@@ -43,7 +43,7 @@ For building the example smart contracts found under `examples` you will need to
 cargo install --git https://github.com/paritytech/ink cargo-contract --force
 ```
 
-Use the `--force` option to ensure you are updated to the most recent `cargo-contract` version.
+Use the `--force` to ensure you are updated to the most recent `cargo-contract` version.
 
 ### Build example contract and generate the contracts metadata
 
