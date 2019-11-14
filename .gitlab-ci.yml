@@ -16,6 +16,8 @@ variables:
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
+  ALL_CRATES:                      "core alloc utils lang2 lang2/macro cli"
+  WASM_CRATES:                     "core alloc utils lang2 lang2/macro"
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
@@ -32,8 +34,8 @@ variables:
     - rustc -vV
     - rustup show
     - bash --version
-    # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
     - mkdir -p ${CARGO_HOME}; touch ${CARGO_HOME}/config
+    # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
     - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
     - sccache -s
   only:
@@ -57,26 +59,23 @@ check-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
-    - for crate in "${wasm_crates[@]}"; do
-        cargo check --verbose --all-features --release;
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --all-features;
       done
 
 check-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - wasm_crates=("core" "alloc" "utils" "lang2" "lang2/macro")
-    - for crate in "${wasm_crates[@]}"; do
-        cargo check --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+    - for crate in ${WASM_CRATES}; do
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
 build-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
-    - for crate in "${wasm_crates[@]}"; do
+    - for crate in ${ALL_CRATES}; do
         cargo build --verbose --all-features --release;
       done
 
@@ -84,8 +83,7 @@ build-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - wasm_crates=("core" "alloc" "utils" "lang2" "lang2/macro")
-    - for crate in "${wasm_crates[@]}"; do
+    - for crate in ${WASM_CRATES}; do
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
@@ -93,8 +91,7 @@ test-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
-    - for crate in "${wasm_crates[@]}"; do
+    - for crate in ${ALL_CRATES}; do
         cargo test --verbose --all-features --release;
       done
 
@@ -102,8 +99,7 @@ clippy-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
-    - for crate in "${wasm_crates[@]}"; do
+    - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features -- -D warnings;
       done
   allow_failure:                   true
@@ -112,8 +108,7 @@ clippy-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - wasm_crates=("core" "alloc" "utils" "lang2" "lang2/macro")
-    - for crate in "${wasm_crates[@]}"; do
+    - for crate in ${WASM_CRATES}; do
         cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings;
       done
   allow_failure:                   true
@@ -122,8 +117,7 @@ fmt:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
-    - for crate in "${wasm_crates[@]}"; do
+    - for crate in ${ALL_CRATES}; do
         cargo fmt --verbose -- --check;
       done
   allow_failure:                   true
@@ -148,7 +142,7 @@ examples-fmt:
       done
   allow_failure:                   true
 
-examples-clippy-all-features:
+examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
   script:
@@ -157,7 +151,7 @@ examples-clippy-all-features:
       done
   allow_failure:                   true
 
-examples-clippy-no-default-features:
+examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
   script:
@@ -172,7 +166,6 @@ examples-contract-build:
   script:
     - for DIR in examples/lang2/*; do 
         cd $DIR && 
-        pwd &&
         cargo contract build &&
         cd - >> /dev/null;
       done
@@ -183,7 +176,6 @@ examples-generate-abi:
   script:
     - for DIR in examples/lang2/*; do 
         cd $DIR && 
-        pwd && 
         cargo contract generate-abi &&
         cd - >> /dev/null;
       done
