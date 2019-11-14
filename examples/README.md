@@ -4,8 +4,6 @@ This folder contains a set of example contracts for ink!.
 
 Have a look at the different examples to better understand how to use ink! to build your own Substrate smart contracts.
 
-Besides teaching you how to write smart contracts, this folder is also meant for testing purposes. If you want to contribute to Parity ink!, please run the `check-examples.sh` script in the `./scripts` folder before submitting your PR.
-
 ## Preparation
 
 For building the example smart contracts found in this folder you will need to have `cargo-contract` installed.
