@@ -12,6 +12,7 @@ stages:
 variables:
   GIT_STRATEGY:                    fetch
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
+  CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/target/${CI_JOB_NAME}"
   SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
@@ -126,8 +127,8 @@ examples-test:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for DIR in examples/lang2/*; do 
-        cargo test --verbose --manifest-path ${DIR}/Cargo.toml;
+    - for example in examples/lang2/*; do 
+        cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
 
 examples-fmt:
