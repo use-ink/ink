@@ -90,13 +90,16 @@ check-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo check --verbose --all-features --release --all
+    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
+    - for crate in "${wasm_crates[@]}"; do
+        cargo check --verbose --all-features --release;
+      done
 
 check-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
+    - wasm_crates=("core" "alloc" "utils" "lang2" "lang2/macro")
     - for crate in "${wasm_crates[@]}"; do
         cargo check --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
@@ -105,13 +108,16 @@ build-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo build --verbose --all-features --release --all
+    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
+    - for crate in "${wasm_crates[@]}"; do
+        cargo build --verbose --all-features --release;
+      done
 
 build-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
+    - wasm_crates=("core" "alloc" "utils" "lang2" "lang2/macro")
     - for crate in "${wasm_crates[@]}"; do
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
@@ -120,19 +126,25 @@ test-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo test --verbose --all-features --release --all
+    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
+    - for crate in "${wasm_crates[@]}"; do
+        cargo test --verbose --all-features --release;
+      done
 
 clippy-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo clippy --verbose --all --all-features -- -D warnings
+    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
+    - for crate in "${wasm_crates[@]}"; do
+        cargo clippy --verbose --all-features -- -D warnings;
+      done
 
 clippy-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
+    - wasm_crates=("core" "alloc" "utils" "lang2" "lang2/macro")
     - for crate in "${wasm_crates[@]}"; do
         cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings;
       done
@@ -141,7 +153,10 @@ fmt:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-    - cargo fmt --verbose --all -- --check
+    - all_crates=("core" "alloc" "utils" "lang2" "lang2/macro" "cli")
+    - for crate in "${wasm_crates[@]}"; do
+        cargo fmt --verbose -- --check;
+      done
 
 ## my way
 core:
