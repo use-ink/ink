@@ -74,9 +74,9 @@ check-af-core-all:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
+    - cargo build --verbose --manifest-path core/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
     - cargo check --verbose --all-features --manifest-path core/Cargo.toml
     - cargo check --verbose --no-default-features --manifest-path core/Cargo.toml
-    - cargo build --verbose --manifest-path core/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
 
 check-af-core:
   stage:                           check-workspace
@@ -91,7 +91,7 @@ check-nf-core:
     - cargo check --verbose --no-default-features --manifest-path core/Cargo.toml
 
 build-core:
-  stage:                           examples
+  stage:                           check-workspace
   <<:                              *docker-env
   script:
     - cargo build --verbose --manifest-path core/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
