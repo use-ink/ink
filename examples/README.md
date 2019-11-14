@@ -9,7 +9,7 @@ Have a look at the different examples to better understand how to use ink! to bu
 For building the example smart contracts found in this folder you will need to have `cargo-contract` installed.
 
 ```
-cargo install --git https://github.com/paritytech/ink cargo-contract
+cargo install --force --git https://github.com/paritytech/ink cargo-contract
 ```
 
 Use the `--force` option to update to the most recent `cargo-contract` version.
