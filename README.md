@@ -45,7 +45,7 @@ cargo install --git https://github.com/paritytech/ink cargo-contract --force
 
 We use the `--force` to ensure you are updated to the most recent `cargo-contract` version.
 
-### Build example contract and generate the contracts ABI
+### Build example contract and generate the contracts metadata
 
 To build a single example and generate the contracts Wasm file, navigate to the root of the example smart contract and run:
 
@@ -55,7 +55,7 @@ To generate the contract metadata (a.k.a. the contract ABI), run the following c
 
 `cargo contract generate-metadata`
 
-You should now have an optimized `<contract-name>.wasm` file and an `abi.json` file in the `target` folder of the contract.
+You should now have an optimized `<contract-name>.wasm` file and an `metadata.json` file in the `target` folder of the contract.
 
 For further information, please have a look at our [smart contracts workshop](https://substrate.dev/substrate-contracts-workshop/).
 
@@ -136,7 +136,7 @@ mod flipper {
 }
 ```
 
-Place this code in the ./lib.rs`file of your flipper contract and run`cargo contract build && cargo contract generate-abi` to build your first ink! smart contract example.
+Place this code in the ./lib.rs`file of your flipper contract and run`cargo contract build && cargo contract generate-metadata` to build your first ink! smart contract example.
 
 ## Contribution
 

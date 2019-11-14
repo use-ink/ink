@@ -16,7 +16,7 @@ cargo install --git https://github.com/paritytech/ink cargo-contract
 
 Add `--force` option to update to the most recent `cargo-contract` version.
 
-## Build example contract and generate the contracts ABI
+## Build example contract and generate the contracts metadata
 
 To build a single example and generate the contracts Wasm file, navigate to the root of the smart contract and run the following command:
 
@@ -26,7 +26,7 @@ To generate the contract metadata (a.k.a. the contract ABI), run the following c
 
 `cargo contract generate-metadata`
 
-You should now have an optimized `<contract-name>.wasm` file and an `abi.json` file in the `target` folder of your contract.
+You should now have an optimized `<contract-name>.wasm` file and an `metadata.json` file in the `target` folder of your contract.
 
 ## License
 
