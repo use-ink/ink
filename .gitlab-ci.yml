@@ -52,73 +52,111 @@ variables:
 
 #### stage:                        check-workspace
 
-cargo-check-af:
+# cargo-check-af:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   script:
+#   - cargo check --verbose --all --all-features
+
+# all_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro" "cli")
+# wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
+
+# results["check_all_features"]=true
+# for crate in "${all_crates[@]}"; do
+#     cargo check --verbose --all-features --manifest-path $crate/Cargo.toml
+#     let "results['check_all_features'] |= $?"
+#     cargo check --verbose --no-default-features --manifest-path $crate/Cargo.toml
+#     let "results['check_no_defaults'] |= $?"
+# done
+
+check-af-core:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo check --verbose --all --all-features
+    - cargo check --verbose --all-features --manifest-path core/Cargo.toml
+    - cargo check --verbose --no-default-features --manifest-path core/Cargo.toml
+    - cargo build --verbose --manifest-path core/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
 
-cargo-check-nf:
+check-af-core:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo check --verbose --all --no-default-features
+    - cargo check --verbose --all-features --manifest-path core/Cargo.toml
 
-cargo-fmt:
+check-nf-core:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo fmt --verbose --all -- --check
+    - cargo check --verbose --no-default-features --manifest-path core/Cargo.toml
 
-cargo-clippy-af:
-  stage:                           check-workspace
+build-core:
+  stage:                           build
   <<:                              *docker-env
   script:
-  - cargo clippy --verbose --all --all-features -- -D warnings
+    - cargo build --verbose --manifest-path core/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
 
-cargo-clippy-nf:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  script:
-  - cargo clippy --verbose --all --no-default-features -- -D warnings
 
-cargo-test-af:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  script:
-  - cargo test --verbose --all --all-features
+# cargo-check-nf:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   script:
+#   - cargo check --verbose --all --no-default-features
 
-cargo-build-nf:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  script:
-  - cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
+# cargo-fmt:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   script:
+#   - cargo fmt --verbose --all -- --check
 
-#### stage:                        examples
+# cargo-clippy-af:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   script:
+#   - cargo clippy --verbose --all --all-features -- -D warnings
 
-examples-wasm:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in $(ls examples/lang); do
-        cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
-      done
-    - sccache -s
+# cargo-clippy-nf:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   script:
+#   - cargo clippy --verbose --all --no-default-features -- -D warnings
 
-examples-test:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in $(ls examples/lang); do
-        cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
-      done
-    - sccache -s
+# cargo-test-af:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   script:
+#   - cargo test --verbose --all --all-features
 
-examples-abi:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in $(ls examples/lang); do
-        cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
-      done
-    - sccache -s
+# cargo-build-nf:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   script:
+#   - cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
+
+# #### stage:                        examples
+
+# examples-wasm:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - for example in $(ls examples/lang); do
+#         cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
+#       done
+#     - sccache -s
+
+# examples-test:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - for example in $(ls examples/lang); do
+#         cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
+#       done
+#     - sccache -s
+
+# examples-abi:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - for example in $(ls examples/lang); do
+#         cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
+#       done
+#     - sccache -s
