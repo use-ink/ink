@@ -148,6 +148,7 @@ clippy-wasm:
     - for crate in "${wasm_crates[@]}"; do
         cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings;
       done
+  allow_failure:                   true
 
 fmt:
   stage:                           check-workspace
@@ -159,47 +160,47 @@ fmt:
       done
 
 ## my way
-core:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  <<:                              *test-set
+# core:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   <<:                              *test-set
 
-alloc:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  <<:                              *test-set
+# alloc:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   <<:                              *test-set
 
 utils:
   stage:                           check-workspace
   <<:                              *docker-env
   <<:                              *test-set
 
-lang2:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  <<:                              *test-set
+# lang2:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   <<:                              *test-set
 
-abi:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  <<:                              *test-set
+# abi:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   <<:                              *test-set
 
 lang2/macro:
   stage:                           check-workspace
   <<:                              *docker-env
   <<:                              *test-set
 
-cli:
-  stage:                           check-workspace
-  <<:                              *docker-env
-  # not built/checked for wasm
-  script:
-    # std
-    - cargo check --verbose --all-features --release --manifest-path ${CI_JOB_NAME}/Cargo.toml
-    - cargo build --verbose --all-features --release --manifest-path ${CI_JOB_NAME}/Cargo.toml
-    - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
-    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
-    - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
+# cli:
+#   stage:                           check-workspace
+#   <<:                              *docker-env
+#   # not built/checked for wasm
+#   script:
+#     # std
+#     - cargo check --verbose --all-features --release --manifest-path ${CI_JOB_NAME}/Cargo.toml
+#     - cargo build --verbose --all-features --release --manifest-path ${CI_JOB_NAME}/Cargo.toml
+#     - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+#     - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+#     - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
 
 #### stage:                        examples
 
