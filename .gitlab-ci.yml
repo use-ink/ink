@@ -135,7 +135,7 @@ examples-fmt:
   <<:                              *docker-env
   script:
     - for example in examples/lang2/*; do 
-        cargo fmt --verbose --manifest-path ${DIR}/Cargo.toml -- --check;
+        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
 
 examples-clippy-std:
