@@ -25,13 +25,13 @@ Install the latest ink! CLI using the following command:
 cargo install --git https://github.com/paritytech/ink cargo-contract --force
 ```
 
-There is a new contract ABI format you need to use. You can generate the ABI using:
+There is a new contract metadata format you need to use. You can generate the metadata using:
 
 ```bash
-cargo contract generate-abi
+cargo contract generate-metadata
 ```
 
-This will generate a file `abi.json` you should upload when deploying or interacting with a
+This will generate a file `metadata.json` you should upload when deploying or interacting with a
 contract.
 
 ## Declaring a Contract

@@ -36,7 +36,7 @@ pub(crate) fn execute_generate_metadata(dir: Option<&PathBuf>) -> Result<String>
 
     let cargo_metadata = MetadataCommand::new().exec()?;
     let mut out_path = cargo_metadata.target_directory.clone();
-    out_path.push("abi.json");
+    out_path.push("metadata.json");
 
     Ok(format!(
         "Your metadata file is ready.\nYou can find it here:\n{}",
@@ -66,7 +66,7 @@ mod tests {
 
             let mut abi_file = working_dir.clone();
             abi_file.push("target");
-            abi_file.push("abi.json");
+            abi_file.push("metadata.json");
             assert!(abi_file.exists())
         });
     }
