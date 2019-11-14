@@ -94,9 +94,9 @@ enum Command {
     /// Builds the smart contract.
     #[structopt(name = "build")]
     Build {},
-    /// Generate abi artifacts
-    #[structopt(name = "generate-abi")]
-    GenerateAbi {},
+    /// Generate contract metadata artifacts
+    #[structopt(name = "generate-metadata")]
+    GenerateMetadata {},
     /// Test the smart contract off-chain.
     #[structopt(name = "test")]
     Test {},
@@ -145,7 +145,7 @@ fn exec(cmd: Command) -> cmd::Result<String> {
             target_dir,
         } => cmd::execute_new(*layer, name, target_dir.as_ref()),
         Command::Build {} => cmd::execute_build(None),
-        Command::GenerateAbi {} => cmd::execute_generate_abi(None),
+        Command::GenerateMetadata {} => cmd::execute_generate_metadata(None),
         Command::Test {} => Err(CommandError::UnimplementedCommand),
         Command::Deploy {
             url,

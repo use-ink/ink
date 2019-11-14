@@ -23,8 +23,8 @@ use std::path::PathBuf;
 /// Executes build of the smart-contract which produces a wasm binary that is ready for deploying.
 ///
 /// It does so by invoking build by cargo and then post processing the final binary.
-pub(crate) fn execute_generate_abi(dir: Option<&PathBuf>) -> Result<String> {
-    println!(" Generating abi");
+pub(crate) fn execute_generate_metadata(dir: Option<&PathBuf>) -> Result<String> {
+    println!("  Generating metadata");
 
     super::exec_cargo("run", &[
         "--package",
@@ -34,13 +34,13 @@ pub(crate) fn execute_generate_abi(dir: Option<&PathBuf>) -> Result<String> {
         "--verbose",
     ], dir)?;
 
-    let metadata = MetadataCommand::new().exec()?;
-    let mut abi_path = metadata.target_directory.clone();
-    abi_path.push("abi.json");
+    let cargo_metadata = MetadataCommand::new().exec()?;
+    let mut out_path = cargo_metadata.target_directory.clone();
+    out_path.push("abi.json");
 
     Ok(format!(
-        "Your abi file is ready.\nYou can find it here:\n{}",
-        abi_path.display()
+        "Your metadata file is ready.\nYou can find it here:\n{}",
+        out_path.display()
     ))
 }
 
@@ -49,7 +49,7 @@ mod tests {
     use crate::{
         cmd::{
             execute_new,
-            execute_generate_abi,
+            execute_generate_metadata,
             tests::with_tmp_dir,
         },
         AbstractionLayer,
@@ -57,12 +57,12 @@ mod tests {
 
     #[cfg(feature = "test-ci-only")]
     #[test]
-    fn generate_abi() {
+    fn generate_metadata() {
         with_tmp_dir(|path| {
             execute_new(AbstractionLayer::Lang, "new_project", Some(path))
                 .expect("new project creation failed");
             let working_dir = path.join("new_project");
-            super::execute_generate_abi(Some(&working_dir)).expect("generate abi failed");
+            super::execute_generate_metadata(Some(&working_dir)).expect("generate metadata failed");
 
             let mut abi_file = working_dir.clone();
             abi_file.push("target");

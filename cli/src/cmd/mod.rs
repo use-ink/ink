@@ -23,14 +23,14 @@ use std::{
     process::Command,
 };
 
-mod abi;
+mod metadata;
 mod build;
 mod deploy;
 mod error;
 mod new;
 
 pub(crate) use self::{
-    abi::execute_generate_abi,
+    metadata::execute_generate_metadata,
     build::execute_build,
     deploy::execute_deploy,
     error::{
