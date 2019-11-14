@@ -30,7 +30,7 @@ pub(crate) fn execute_generate_abi(dir: Option<&PathBuf>) -> Result<String> {
             "--package",
             "abi-gen",
             "--release",
-            "--no-default-features",
+            // "--no-default-features", // Breaks builds for MacOS (linker errors), we should investigate this issue asap!
             "--verbose",
         ],
         dir,
