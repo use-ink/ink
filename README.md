@@ -49,11 +49,15 @@ Use the `--force` to ensure you are updated to the most recent `cargo-contract` 
 
 To build a single example and generate the contracts Wasm file, navigate to the root of the example smart contract and run:
 
-`cargo contract build`
+```
+cargo contract build
+```
 
 To generate the contract metadata (a.k.a. the contract ABI), run the following command:
 
-`cargo contract generate-metadata`
+```
+cargo contract generate-metadata
+```
 
 You should now have an optimized `<contract-name>.wasm` file and an `metadata.json` file in the `target` folder of the contract.
 
@@ -66,7 +70,9 @@ that it can flip from `true` to `false` and vice versa and return the current st
 
 To create your own version of the flipper contract, you first need to initialize a new ink! project in your working directory.
 
-`cargo contract new flipper`
+```
+cargo contract new flipper
+```
 
 Below you can see the code using the `ink_lang2` version of ink!.
 
