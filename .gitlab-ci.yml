@@ -102,7 +102,6 @@ clippy-std:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features -- -D warnings;
       done
-  allow_failure:                   true
 
 clippy-wasm:
   stage:                           check-workspace
@@ -111,7 +110,6 @@ clippy-wasm:
     - for crate in ${WASM_CRATES}; do
         cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings;
       done
-  allow_failure:                   true
 
 fmt:
   stage:                           check-workspace
@@ -120,7 +118,6 @@ fmt:
     - for crate in ${ALL_CRATES}; do
         cargo fmt --verbose -- --check;
       done
-  allow_failure:                   true
 
 
 #### stage:                        examples
@@ -140,7 +137,6 @@ examples-fmt:
     - for DIR in examples/lang2/*; do 
         cargo fmt --verbose --manifest-path ${DIR}/Cargo.toml -- --check;
       done
-  allow_failure:                   true
 
 examples-clippy-std:
   stage:                           examples
@@ -149,7 +145,6 @@ examples-clippy-std:
     - for DIR in examples/lang2/*; do 
         cargo clippy --verbose --manifest-path ${DIR}/Cargo.toml --all-features -- -D warnings;
       done
-  allow_failure:                   true
 
 examples-clippy-wasm:
   stage:                           examples
@@ -158,7 +153,6 @@ examples-clippy-wasm:
     - for DIR in examples/lang2/*; do 
         cargo clippy --verbose --manifest-path ${DIR}/Cargo.toml --no-default-features -- -D warnings;
       done
-  allow_failure:                   true
 
 examples-contract-build:
   stage:                           examples
