@@ -18,11 +18,6 @@
 //!
 //! Test code is generated under the `#[cfg(test)]` compile flag.
 
-use crate::{
-    ast,
-    hir,
-    ident_ext::IdentExt,
-};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -32,6 +27,12 @@ use syn::{
     self,
     punctuated::Punctuated,
     Token,
+};
+
+use crate::{
+    ast,
+    hir,
+    ident_ext::IdentExt,
 };
 
 pub fn generate_code(tokens: &mut TokenStream2, contract: &hir::Contract) {
@@ -87,7 +88,7 @@ fn generate_test_deploy(tokens: &mut TokenStream2, contract: &hir::Contract) {
         syn::token::Paren::default().surround(&mut content, |inner| {
             contract
                 .on_deploy
-                .decl
+                .sig
                 .inputs_without_self()
                 .to_tokens(inner)
         });
@@ -96,9 +97,9 @@ fn generate_test_deploy(tokens: &mut TokenStream2, contract: &hir::Contract) {
         syn::token::Brace::default().surround(&mut content, |inner| {
             let inputs = {
                 let mut inputs: Punctuated<syn::Pat, Token![,]> = Default::default();
-                for input in &contract.on_deploy.decl.inputs {
-                    if let ast::FnArg::Captured(captured) = input {
-                        inputs.push(captured.pat.clone())
+                for input in &contract.on_deploy.sig.inputs {
+                    if let ast::FnArg::Typed(pat_ty) = input {
+                        inputs.push((*pat_ty.pat).clone())
                     }
                 }
                 inputs
@@ -157,7 +158,7 @@ fn generate_test_allocate_fn(tokens: &mut TokenStream2, _contract: &hir::Contrac
 }
 
 fn generate_test_deploy_fn(tokens: &mut TokenStream2, contract: &hir::Contract) {
-    let log_params = contract.on_deploy.decl.inputs_without_self();
+    let log_params = contract.on_deploy.sig.inputs_without_self();
     let act_params = log_params.to_actual_params();
     tokens.extend(quote! {
         /// Deploys the testable contract by initializing it with the given values.
@@ -190,10 +191,10 @@ fn generate_test_method_fn(tokens: &mut TokenStream2, msg: &hir::Message) {
     <Token![fn]>::default().to_tokens(tokens);
     msg.sig.ident.to_tokens(tokens);
     syn::token::Paren::default()
-        .surround(tokens, |inner| msg.sig.decl.inputs().to_tokens(inner));
-    msg.sig.decl.output.to_tokens(tokens);
+        .surround(tokens, |inner| msg.sig.inputs().to_tokens(inner));
+    msg.sig.output.to_tokens(tokens);
     syn::token::Brace::default().surround(tokens, |inner| {
-        let params = msg.sig.decl.inputs_without_self().to_actual_params();
+        let params = msg.sig.inputs_without_self().to_actual_params();
         let name = &msg.sig.ident;
         let split_impl = if msg.is_mut() {
             quote! { self.env.split_mut() }

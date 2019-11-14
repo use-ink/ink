@@ -29,6 +29,8 @@ pub(crate) fn execute_generate_abi(dir: Option<&PathBuf>) -> Result<String> {
     super::exec_cargo("run", &[
         "--package",
         "abi-gen",
+        "--release",
+        "--no-default-features",
         "--verbose",
     ], dir)?;
 
@@ -53,6 +55,7 @@ mod tests {
         AbstractionLayer,
     };
 
+    #[cfg(feature = "test-ci-only")]
     #[test]
     fn generate_abi() {
         with_tmp_dir(|path| {

@@ -204,9 +204,6 @@ mod tests {
 
     #[cfg(feature = "test-ci-only")]
     #[test]
-    // FIXME: https://github.com/paritytech/ink/issues/202
-    // currently fails on CI because of global RUSTFLAGS overriding required `--import-memory`
-    #[ignore]
     fn build_template() {
         with_tmp_dir(|path| {
             execute_new(AbstractionLayer::Lang, "new_project", Some(path))

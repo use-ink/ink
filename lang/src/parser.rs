@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::ast;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Ident,
+    Span,
+    TokenStream as TokenStream2,
+};
 use syn::{
-    self,
     parse::{
         Parse,
         ParseStream,
@@ -25,6 +27,8 @@ use syn::{
     },
     Token,
 };
+
+use crate::ast;
 
 pub mod keywords {
     use syn::custom_keyword;
@@ -111,12 +115,14 @@ impl ast::ItemEnvTypesMeta {
         let first_segment = attr
             .path
             .segments
-            .first()
-            .expect("paths have at least one segment");
-        if let Some(colon) = first_segment.punct() {
+            .pairs()
+            .next()
+            .expect("paths have at least one segment")
+            .into_tuple();
+        if let Some(colon) = first_segment.1 {
             return Err(syn::Error::new(colon.spans[0], "expected meta value"))
         }
-        let ident = first_segment.value().ident.clone();
+        let ident = first_segment.0.ident.clone();
         let parser = |input: ParseStream<'_>| {
             let eq_token = input.parse()?;
             let ty = input.parse()?;
@@ -126,7 +132,7 @@ impl ast::ItemEnvTypesMeta {
                 ty,
             })
         };
-        syn::parse::Parser::parse2(parser, attr.tts.clone())
+        syn::parse::Parser::parse2(parser, attr.tokens.clone())
     }
 }
 
@@ -185,7 +191,8 @@ impl Parse for ast::DeployItemMethod {
         Ok(Self {
             attrs,
             deploy_tok,
-            decl: ast::FnDecl {
+            sig: ast::Signature {
+                ident: Ident::new("deploy", Span::call_site()),
                 fn_tok,
                 paren_tok,
                 inputs,
@@ -242,17 +249,15 @@ impl Parse for ast::ItemImplMethod {
         Ok(Self {
             attrs,
             vis,
-            sig: ast::MethodSig {
+            sig: ast::Signature {
                 ident,
-                decl: ast::FnDecl {
-                    fn_tok,
-                    paren_tok,
-                    inputs,
-                    output,
-                    generics: syn::Generics {
-                        where_clause,
-                        ..generics
-                    },
+                fn_tok,
+                paren_tok,
+                inputs,
+                output,
+                generics: syn::Generics {
+                    where_clause,
+                    ..generics
                 },
             },
             block,
@@ -288,27 +293,21 @@ impl Parse for ast::FnArg {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         if input.peek(Token![&]) {
             let ahead = input.fork();
-            if ahead.call(ast::FnArg::arg_self_ref).is_ok() && !ahead.peek(Token![:]) {
-                return input
-                    .call(ast::FnArg::arg_self_ref)
-                    .map(ast::FnArg::SelfRef)
+            if ahead.call(ast::FnArg::receiver).is_ok() && !ahead.peek(Token![:]) {
+                return input.call(ast::FnArg::receiver).map(ast::FnArg::Receiver)
             }
         }
 
         if input.peek(Token![mut]) || input.peek(Token![self]) {
             let ahead = input.fork();
-            if ahead.call(ast::FnArg::arg_self).is_ok() && !ahead.peek(Token![:]) {
-                return input.call(ast::FnArg::arg_self).map(ast::FnArg::SelfValue)
+            if ahead.call(ast::FnArg::receiver).is_ok() && !ahead.peek(Token![:]) {
+                return input.call(ast::FnArg::receiver).map(ast::FnArg::Receiver)
             }
         }
 
         let ahead = input.fork();
-        let err = match ahead.call(ast::FnArg::arg_captured) {
-            Ok(_) => {
-                return input
-                    .call(ast::FnArg::arg_captured)
-                    .map(ast::FnArg::Captured)
-            }
+        let err = match ahead.call(ast::FnArg::pat_typed) {
+            Ok(_) => return input.call(ast::FnArg::pat_typed).map(ast::FnArg::Typed),
             Err(err) => err,
         };
 
@@ -317,24 +316,13 @@ impl Parse for ast::FnArg {
 }
 
 impl ast::FnArg {
-    fn arg_self_ref(input: ParseStream) -> Result<syn::ArgSelfRef> {
-        Ok(syn::ArgSelfRef {
-            and_token: input.parse()?,
-            lifetime: input.parse()?,
-            mutability: input.parse()?,
-            self_token: input.parse()?,
-        })
+    fn receiver(input: ParseStream<'_>) -> Result<syn::Receiver> {
+        Ok(input.parse()?)
     }
 
-    fn arg_self(input: ParseStream) -> Result<syn::ArgSelf> {
-        Ok(syn::ArgSelf {
-            mutability: input.parse()?,
-            self_token: input.parse()?,
-        })
-    }
-
-    fn arg_captured(input: ParseStream) -> Result<syn::ArgCaptured> {
-        Ok(syn::ArgCaptured {
+    fn pat_typed(input: ParseStream<'_>) -> Result<syn::PatType> {
+        Ok(syn::PatType {
+            attrs: syn::Attribute::parse_outer(input)?,
             pat: input.parse()?,
             colon_token: input.parse()?,
             ty: input.parse()?,
