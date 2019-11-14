@@ -142,7 +142,7 @@ mod flipper {
 }
 ```
 
-Place this code in the ./lib.rs`file of your flipper contract and run`cargo contract build && cargo contract generate-metadata` to build your first ink! smart contract example.
+Place this code in the `./lib.rs` file of your flipper contract and run `cargo contract build && cargo contract generate-metadata` to build your first ink! smart contract example.
 
 ## Contribution
 
