@@ -168,7 +168,7 @@ examples-generate-abi:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for DIR in examples/lang2/*; do 
+    - for example in examples/lang2/*; do 
         pushd $example &&
         cargo contract generate-abi &&
         popd;
