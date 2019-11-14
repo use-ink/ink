@@ -158,10 +158,10 @@ examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for DIR in examples/lang2/*; do 
-        cd $DIR && 
+    - for example in examples/lang2/*; do
+        pushd $example &&
         cargo contract build &&
-        cd - >> /dev/null;
+        popd;
       done
 
 examples-generate-abi:
@@ -169,7 +169,7 @@ examples-generate-abi:
   <<:                              *docker-env
   script:
     - for DIR in examples/lang2/*; do 
-        cd $DIR && 
+        pushd $example &&
         cargo contract generate-abi &&
-        cd - >> /dev/null;
+        popd;
       done
