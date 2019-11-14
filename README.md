@@ -1,29 +1,23 @@
 # ink! - Parity's ink to write smart contracts
 
 |       Linux        |       Codecov        |       Coveralls        |       LoC        |
-|:------------------:|:--------------------:|:----------------------:|:----------------:|
-| [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] |
+| :----------------: | :------------------: | :--------------------: | :--------------: |
+| [![linux][a1]][a2] | [![codecov][c1]][c2] | [![coveralls][d1]][d2] | [![loc][e1]][e2] |
 
-[A1]: https://travis-ci.org/paritytech/ink.svg?branch=master
-[A2]: https://travis-ci.org/paritytech/ink
-
-[C1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
-[C2]: https://codecov.io/gh/paritytech/ink/branch/master
-
-[D1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
-[D2]: https://coveralls.io/github/paritytech/ink?branch=master
-
-[E1]: https://tokei.rs/b1/github/paritytech/ink?category=code
-[E2]: https://github.com/Aaronepower/tokei#badges
-
-[F1]: https://img.shields.io/badge/docs-core-blue.svg
-[F2]: https://paritytech.github.io/ink/ink_core
-
-[G1]: https://img.shields.io/badge/docs-model-blue.svg
-[G2]: https://paritytech.github.io/ink/ink_model
-
-[H1]: https://img.shields.io/badge/docs-abi-blue.svg
-[H2]: https://paritytech.github.io/ink/ink_abi
+[a1]: https://travis-ci.org/paritytech/ink.svg?branch=master
+[a2]: https://travis-ci.org/paritytech/ink
+[c1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
+[c2]: https://codecov.io/gh/paritytech/ink/branch/master
+[d1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
+[d2]: https://coveralls.io/github/paritytech/ink?branch=master
+[e1]: https://tokei.rs/b1/github/paritytech/ink?category=code
+[e2]: https://github.com/Aaronepower/tokei#badges
+[f1]: https://img.shields.io/badge/docs-core-blue.svg
+[f2]: https://paritytech.github.io/ink/ink_core
+[g1]: https://img.shields.io/badge/docs-model-blue.svg
+[g2]: https://paritytech.github.io/ink/ink_model
+[h1]: https://img.shields.io/badge/docs-abi-blue.svg
+[h2]: https://paritytech.github.io/ink/ink_abi
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
@@ -34,8 +28,8 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 ## Developer Documentation
 
 | `ink_abi`     | `ink_core`    | `ink_model`   |
-|-----------|------------|-------------|
-| [![][H1]][H2] | [![][F1]][F2] | [![][G1]][G2] |
+| ------------- | ------------- | ------------- |
+| [![][h1]][h2] | [![][f1]][f2] | [![][g1]][g2] |
 
 ### Scripts
 
@@ -57,9 +51,9 @@ To build a single example and generate the contracts Wasm file, navigate to the 
 
 `cargo contract build`
 
-To generate the Application Binary Interface (ABI) of the contract, run the following command:
+To generate the contract metadata (a.k.a. the contract ABI), run the following command:
 
-`cargo contract generate-abi`
+`cargo contract generate-metadata`
 
 You should now have an optimized `<contract-name>.wasm` file and an `abi.json` file in the `target` folder of the contract.
 
@@ -142,7 +136,7 @@ mod flipper {
 }
 ```
 
-Place this code in the ./lib.rs`file of your flipper contract and run `cargo contract build && cargo contract generate-abi` to build your first ink! smart contract example.
+Place this code in the ./lib.rs`file of your flipper contract and run`cargo contract build && cargo contract generate-abi` to build your first ink! smart contract example.
 
 ## Contribution
 
