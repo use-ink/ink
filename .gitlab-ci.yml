@@ -98,7 +98,7 @@ check-wasm:
   script:
     - wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
     - for crate in "${wasm_crates[@]}"; do
-        cargo check --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml
+        cargo check --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
 build-std:
@@ -113,7 +113,7 @@ build-wasm:
   script:
     - wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
     - for crate in "${wasm_crates[@]}"; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml
+        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
 test-std:
@@ -134,7 +134,7 @@ clippy-wasm:
   script:
     - wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
     - for crate in "${wasm_crates[@]}"; do
-        cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings
+        cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings;
       done
 
 fmt:
@@ -201,7 +201,7 @@ examples-fmt:
   <<:                              *docker-env
   script:
     - for DIR in examples/lang2/*; do 
-        cargo fmt --verbose --manifest-path ${DIR}/Cargo.toml -- --check
+        cargo fmt --verbose --manifest-path ${DIR}/Cargo.toml -- --check;
       done
 
 examples-clippy-all-features:
@@ -209,7 +209,7 @@ examples-clippy-all-features:
   <<:                              *docker-env
   script:
     - for DIR in examples/lang2/*; do 
-        cargo clippy --verbose --manifest-path ${DIR}/Cargo.toml --all-features -- -D warnings
+        cargo clippy --verbose --manifest-path ${DIR}/Cargo.toml --all-features -- -D warnings;
       done
 
 examples-clippy-no-default-features:
@@ -217,7 +217,7 @@ examples-clippy-no-default-features:
   <<:                              *docker-env
   script:
     - for DIR in examples/lang2/*; do 
-        cargo clippy --verbose --manifest-path ${DIR}/Cargo.toml --no-default-features -- -D warnings
+        cargo clippy --verbose --manifest-path ${DIR}/Cargo.toml --no-default-features -- -D warnings;
       done
 
 examples-contract-build:
