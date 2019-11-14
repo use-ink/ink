@@ -143,7 +143,7 @@ examples-clippy-std:
   <<:                              *docker-env
   script:
     - for DIR in examples/lang2/*; do 
-        cargo clippy --verbose --manifest-path ${DIR}/Cargo.toml --all-features -- -D warnings;
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --all-features -- -D warnings;
       done
 
 examples-clippy-wasm:
