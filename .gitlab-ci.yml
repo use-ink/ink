@@ -55,13 +55,16 @@ variables:
 
 .test-set:                         &test-set
     script:
-    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release --target=wasm32-unknown-unknown
+    # std
+    - cargo check --verbose --all-features --release --manifest-path ${CI_JOB_NAME}/Cargo.toml
+    - cargo build --verbose --all-features --release --manifest-path ${CI_JOB_NAME}/Cargo.toml
     - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
-    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
     - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
-    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
-    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
+    # wasm
+    - cargo check --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${CI_JOB_NAME}/Cargo.toml
+    - cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${CI_JOB_NAME}/Cargo.toml
     - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
+    # else
     - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
 
 core:
@@ -84,6 +87,11 @@ lang2:
   <<:                              *docker-env
   <<:                              *test-set
 
+abi:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  <<:                              *test-set
+
 lang2/macro:
   stage:                           check-workspace
   <<:                              *docker-env
@@ -92,46 +100,43 @@ lang2/macro:
 cli:
   stage:                           check-workspace
   <<:                              *docker-env
-  # the difference in script is it's not built for wasm32 target
+  # not built/checked for wasm
   script:
-    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
+    # std
+    - cargo check --verbose --all-features --release --manifest-path ${CI_JOB_NAME}/Cargo.toml
+    - cargo build --verbose --all-features --release --manifest-path ${CI_JOB_NAME}/Cargo.toml
     - cargo test --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features --release
-    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features
     - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
-    - cargo build --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features --release
-    - cargo check --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features
-    - cargo clippy --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
     - cargo fmt --verbose --manifest-path ${CI_JOB_NAME}/Cargo.toml -- --check
 
 #### stage:                        examples
 
-# cargo contract build
-# cargo test
-# cargo contract generate-abi
+.examples-test-set:                &examples-test-set
+  script:
+    - cargo test --verbose --manifest-path examples/lang2/${CI_JOB_NAME}/Cargo.toml
+    - cargo fmt --verbose --manifest-path examples/lang2/${CI_JOB_NAME}/Cargo.toml -- --check
+    - cargo clippy --verbose --manifest-path examples/lang2/${CI_JOB_NAME}/Cargo.toml --all-features -- -D warnings
+    - cargo clippy --verbose --manifest-path examples/lang2/${CI_JOB_NAME}/Cargo.toml --no-default-features -- -D warnings
+    - cd examples/lang2/${CI_JOB_NAME}
+    - cargo contract build
+    - cargo contract generate-abi
 
-# examples-wasm:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in $(ls examples/lang2); do
-#         cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
-#       done
-#     - sccache -s
+flipper:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *examples-test-set
 
-# examples-test:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in $(ls examples/lang2); do
-#         cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
-#       done
-#     - sccache -s
+incrementer:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *examples-test-set
 
-# examples-abi:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in $(ls examples/lang2); do
-#         cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
-#       done
-#     - sccache -s
+erc20:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *examples-test-set
+
+delegator:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *examples-test-set
