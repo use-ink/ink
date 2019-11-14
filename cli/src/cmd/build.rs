@@ -89,12 +89,16 @@ pub fn collect_crate_metadata(working_dir: Option<&PathBuf>) -> Result<CrateMeta
 ///
 /// Currently it assumes that user wants to use `+nightly`.
 fn build_cargo_project(working_dir: Option<&PathBuf>) -> Result<()> {
-    super::exec_cargo("build", &[
-        "--no-default-features",
-        "--release",
-        "--target=wasm32-unknown-unknown",
-        "--verbose",
-    ], working_dir)
+    super::exec_cargo(
+        "build",
+        &[
+            "--no-default-features",
+            "--release",
+            "--target=wasm32-unknown-unknown",
+            "--verbose",
+        ],
+        working_dir,
+    )
 }
 
 /// Ensures the wasm memory import of a given module has the maximum number of pages.

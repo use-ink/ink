@@ -386,16 +386,15 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                             selector: ir::FunctionSelector::from(&method.sig.ident),
                         }))
                     }
-                    _unknown => Err(format_err_span!(attr.span(), "unknown ink! marker",)),
+                    _unknown => {
+                        Err(format_err_span!(attr.span(), "unknown ink! marker",))
+                    }
                 }?;
                 if kind == ir::FunctionKind::Method {
                     kind = new_kind;
                     Ok(())
                 } else {
-                    Err(format_err_span!(
-                        attr.span(),
-                        "conflicting ink! marker",
-                    ))
+                    Err(format_err_span!(attr.span(), "conflicting ink! marker",))
                 }
             })
             .filter_map(Result::err)
@@ -597,27 +596,29 @@ impl TryFrom<syn::Item> for ir::Item {
                 }
                 let event_marker =
                     markers.iter().position(|marker| marker.is_simple("event"));
-                let storage_marker =
-                    markers.iter().position(|marker| marker.is_simple("storage"));
+                let storage_marker = markers
+                    .iter()
+                    .position(|marker| marker.is_simple("storage"));
 
                 match (storage_marker, event_marker) {
                     (Some(_storage_marker), None) => {
                         ir::ItemStorage::try_from(item_struct)
                             .map(Into::into)
                             .map(ir::Item::Ink)
-                    },
+                    }
                     (None, Some(_event_marker)) => {
                         ir::ItemEvent::try_from(item_struct)
                             .map(Into::into)
                             .map(ir::Item::Ink)
-                    },
+                    }
                     (None, None) => {
                         Err(markers
                             .iter()
                             .map(|marker| {
                                 format_err_span!(
                                     marker.span(),
-                                    "unsupported ink! marker for struct")
+                                    "unsupported ink! marker for struct"
+                                )
                             })
                             .fold(
                                 format_err!(
@@ -625,10 +626,10 @@ impl TryFrom<syn::Item> for ir::Item {
                                     "encountered unsupported ink! markers for struct",
                                 ),
                                 |mut err1, err2| {
-                                err1.combine(err2);
-                                err1
-                            })
-                        )
+                                    err1.combine(err2);
+                                    err1
+                                },
+                            ))
                     }
                     (Some(storage_marker), Some(event_marker)) => {
                         // Special case: We have both #[ink(storage)] and #[ink(event)].
@@ -685,17 +686,18 @@ fn split_items(
         n => {
             Err(storages
                 .iter()
-                .map(|storage| {
-                    format_err!(storage.ident, "conflicting storage struct")
-                })
+                .map(|storage| format_err!(storage.ident, "conflicting storage struct"))
                 .fold(
-                    format_err_span!(Span::call_site(), "encountered {} conflicting storage structs", n),
+                    format_err_span!(
+                        Span::call_site(),
+                        "encountered {} conflicting storage structs",
+                        n
+                    ),
                     |mut err1, err2| {
                         err1.combine(err2);
                         err1
-                    }
-                )
-            )
+                    },
+                ))
         }
     }?;
     let (events, impl_blocks): (Vec<ir::ItemEvent>, Vec<ir::ItemImpl>) =
@@ -712,7 +714,7 @@ fn split_items(
         });
     let storage_ident = &storage.ident;
     for item_impl in &impl_blocks {
-        if item_impl.self_ty != storage_ident.to_string() {
+        if &item_impl.self_ty != storage_ident {
             bail!(
                 item_impl.self_ty,
                 "ink! impl blocks need to be implemented for the #[ink(storage)] struct"

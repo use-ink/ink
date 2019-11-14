@@ -40,7 +40,7 @@
     trivial_numeric_casts,
     unused_extern_crates,
     unused_qualifications,
-    unused_results,
+    unused_results
 )]
 
 #[macro_use]
