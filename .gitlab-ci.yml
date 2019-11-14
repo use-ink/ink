@@ -90,7 +90,7 @@ check-nf-core:
     - cargo check --verbose --no-default-features --manifest-path core/Cargo.toml
 
 build-core:
-  stage:                           build
+  stage:                           examples
   <<:                              *docker-env
   script:
     - cargo build --verbose --manifest-path core/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
