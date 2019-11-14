@@ -171,7 +171,10 @@ examples-contract-build:
   <<:                              *docker-env
   script:
     - for DIR in examples/lang2/*; do 
-        cd $DIR && pwd && cargo contract build; 
+        cd $DIR && 
+        pwd &&
+        cargo contract build &&
+        cd - >> /dev/null;
       done
 
 examples-generate-abi:
@@ -179,5 +182,8 @@ examples-generate-abi:
   <<:                              *docker-env
   script:
     - for DIR in examples/lang2/*; do 
-        cd $DIR && pwd && cargo contract generate-abi; 
+        cd $DIR && 
+        pwd && 
+        cargo contract generate-abi &&
+        cd - >> /dev/null;
       done
