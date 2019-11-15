@@ -14,7 +14,7 @@ variables:
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/target/${CI_JOB_NAME}"
   SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
-  CARGO_INCREMENTAL:               0
+  # CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
   ALL_CRATES:                      "core alloc utils lang2 lang2/macro cli"
@@ -62,7 +62,7 @@ check-std:
   <<:                              *docker-env
   script:
     - echo $CARGO_TARGET_DIR
-    - ls /ci-cache/${CI_PROJECT_NAME}
+    - du -sh /ci-cache/${CI_PROJECT_NAME}/target/*
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features;
       done
