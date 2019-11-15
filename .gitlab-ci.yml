@@ -61,6 +61,7 @@ check-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
+    # debug
     - echo $CARGO_TARGET_DIR
     - du -sh /ci-cache/${CI_PROJECT_NAME}/target/*
     - for crate in ${ALL_CRATES}; do
