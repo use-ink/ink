@@ -40,7 +40,11 @@ pub(crate) use self::{
     new::execute_new,
 };
 
-fn exec_cargo(command: &str, args: &[&'static str], working_dir: Option<&PathBuf>) -> Result<()> {
+fn exec_cargo(
+    command: &str,
+    args: &[&'static str],
+    working_dir: Option<&PathBuf>,
+) -> Result<()> {
     let mut cmd = Command::new("cargo");
     let mut is_nightly_cmd = Command::new("cargo");
     if let Some(dir) = working_dir {
@@ -60,10 +64,7 @@ fn exec_cargo(command: &str, args: &[&'static str], working_dir: Option<&PathBuf
         cmd.arg("+nightly");
     }
 
-    let output = cmd
-        .arg(command)
-        .args(args)
-        .output()?;
+    let output = cmd.arg(command).args(args).output()?;
 
     if !output.status.success() {
         // Dump the output streams produced by cargo into the stdout/stderr.

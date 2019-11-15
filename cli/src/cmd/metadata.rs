@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::cmd::{
-    Result,
-};
+use crate::cmd::Result;
 use cargo_metadata::MetadataCommand;
 use std::path::PathBuf;
 
@@ -26,13 +24,17 @@ use std::path::PathBuf;
 pub(crate) fn execute_generate_metadata(dir: Option<&PathBuf>) -> Result<String> {
     println!("  Generating metadata");
 
-    super::exec_cargo("run", &[
-        "--package",
-        "abi-gen",
-        "--release",
-        "--no-default-features",
-        "--verbose",
-    ], dir)?;
+    super::exec_cargo(
+        "run",
+        &[
+            "--package",
+            "abi-gen",
+            "--release",
+            // "--no-default-features", // Breaks builds for MacOS (linker errors), we should investigate this issue asap!
+            "--verbose",
+        ],
+        dir,
+    )?;
 
     let cargo_metadata = MetadataCommand::new().exec()?;
     let mut out_path = cargo_metadata.target_directory.clone();

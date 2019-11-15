@@ -16,6 +16,8 @@ variables:
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
+  ALL_CRATES:                      "core alloc utils lang2 lang2/macro cli"
+  WASM_CRATES:                     "core alloc utils lang2 lang2/macro"
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
@@ -32,6 +34,7 @@ variables:
     - rustc -vV
     - rustup show
     - bash --version
+    - mkdir -p ${CARGO_HOME}; touch ${CARGO_HOME}/config
     # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
     - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
     - sccache -s
@@ -52,73 +55,121 @@ variables:
 
 #### stage:                        check-workspace
 
-cargo-check-af:
+check-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo check --verbose --all --all-features
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --all-features;
+      done
 
-cargo-check-nf:
+check-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo check --verbose --all --no-default-features
+    - for crate in ${WASM_CRATES}; do
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+      done
 
-cargo-fmt:
+build-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo fmt --verbose --all -- --check
+    - for crate in ${ALL_CRATES}; do
+        cargo build --verbose --all-features --release;
+      done
 
-cargo-clippy-af:
+build-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo clippy --verbose --all --all-features -- -D warnings
+    - for crate in ${WASM_CRATES}; do
+        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+      done
 
-cargo-clippy-nf:
+test-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo clippy --verbose --all --no-default-features -- -D warnings
+    - for crate in ${ALL_CRATES}; do
+        cargo test --verbose --all-features --release;
+      done
 
-cargo-test-af:
+clippy-std:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo test --verbose --all --all-features
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --all-features -- -D warnings;
+      done
 
-cargo-build-nf:
+clippy-wasm:
   stage:                           check-workspace
   <<:                              *docker-env
   script:
-  - cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
+    - for crate in ${WASM_CRATES}; do
+        cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings;
+      done
+
+fmt:
+  stage:                           check-workspace
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo fmt --verbose -- --check;
+      done
+
 
 #### stage:                        examples
-
-examples-wasm:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in $(ls examples/lang); do
-        cargo build --release --no-default-features --target=wasm32-unknown-unknown --verbose --manifest-path examples/lang/$example/Cargo.toml;
-      done
-    - sccache -s
 
 examples-test:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in $(ls examples/lang); do
-        cargo test --verbose --manifest-path examples/lang/$example/Cargo.toml;
+    - for DIR in examples/lang2/*; do 
+        cargo test --verbose --manifest-path ${DIR}/Cargo.toml;
       done
-    - sccache -s
 
-examples-abi:
+examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in $(ls examples/lang); do
-        cargo run --package abi-gen --manifest-path examples/lang/$example/Cargo.toml;
+    - for example in examples/lang2/*; do 
+        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
-    - sccache -s
+
+examples-clippy-std:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/lang2/*; do 
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --all-features -- -D warnings;
+      done
+
+examples-clippy-wasm:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/lang2/*; do 
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features -- -D warnings;
+      done
+
+examples-contract-build:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/lang2/*; do
+        pushd $example &&
+        cargo contract build &&
+        popd;
+      done
+
+examples-generate-abi:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/lang2/*; do 
+        pushd $example &&
+        cargo contract generate-abi &&
+        popd;
+      done

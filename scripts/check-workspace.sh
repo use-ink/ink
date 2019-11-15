@@ -17,11 +17,21 @@
 
 declare -A results
 
-cargo check --verbose --all --all-features
-results["check_all_features"]=$?
+all_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro" "cli")
+wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
 
-cargo check --verbose --all --no-default-features
-results["check_no_defaults"]=$?
+results["check_all_features"]=true
+for crate in "${all_crates[@]}"; do
+    cargo check --verbose --all-features --manifest-path $crate/Cargo.toml
+    let "results['check_all_features'] |= $?"
+    cargo check --verbose --no-default-features --manifest-path $crate/Cargo.toml
+    let "results['check_no_defaults'] |= $?"
+done
+
+for crate in "${wasm_crates[@]}"; do
+    cargo build --verbose --manifest-path $crate/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+    let "results['build_wasm'] |= $?"
+done
 
 cargo fmt --verbose --all -- --check
 results["fmt"]=$?
@@ -32,11 +42,8 @@ results["clippy_all_features"]=$?
 cargo clippy --verbose --all --no-default-features -- -D warnings
 results["clippy_no_defaults"]=$?
 
-cargo test --verbose --all --all-features
+cargo test --verbose --all --all-features --release
 results["test_all_features"]=$?
-
-cargo build --verbose --all --no-default-features --release --target=wasm32-unknown-unknown
-results["build_wasm"]=$?
 
 all_checks_passed=0
 banner="-----------------"
