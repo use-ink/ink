@@ -38,16 +38,12 @@ mod runtime {
         fn get_balance(&self, account: AccountId) -> Balance {
             const BALANCE_OF: &[u8] = b"balance:";
             let key = account.to_keyed_vec(BALANCE_OF);
-            match env.runtime_get_storage::<Balance>(&key) {
-                Some(Ok(balance)) => balance,
-                Some(Err(_)) => {
-                    env.println("Error decoding balance");
+            match self.env().get_runtime_storage::<Balance>(&key) {
+                Ok(balance) => balance,
+                Err(_) => {
+                    self.env().println("Error reading balance");
                     0
                 },
-                None => {
-                    env.println("Balance for account not found");
-                    0
-                }
             }
         }
     }
