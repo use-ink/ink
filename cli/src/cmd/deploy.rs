@@ -1,4 +1,4 @@
-// Copyright 2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2019 Parity Technologies (UK) Ltd.
 // This file is part of ink!.
 //
 // ink! is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@ use subxt::{
 /// Defaults to the target contract wasm in the current project, inferred via the crate metadata.
 fn load_contract_code(path: Option<&PathBuf>) -> Result<Vec<u8>> {
     let default_wasm_path =
-        build::collect_crate_metadata().map(CrateMetadata::dest_wasm)?;
+        build::collect_crate_metadata(path).map(CrateMetadata::dest_wasm)?;
     let contract_wasm_path = path.unwrap_or(&default_wasm_path);
 
     let mut data = Vec::new();
@@ -52,7 +52,7 @@ fn load_contract_code(path: Option<&PathBuf>) -> Result<Vec<u8>> {
         .map_err(|e| format!("Failed to open {}: {}", contract_wasm_path.display(), e))?;
     file.read_to_end(&mut data)?;
 
-    return Ok(data)
+    Ok(data)
 }
 
 /// Attempt to extract the code hash from the extrinsic result.

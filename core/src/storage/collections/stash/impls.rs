@@ -62,7 +62,7 @@ use type_metadata::Metadata;
 #[derive(Debug)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Stash<T> {
-    /// Stores densly packed general stash information.
+    /// Stores densely packed general stash information.
     header: storage::Value<StashHeader>,
     /// The entries of the stash.
     entries: SyncChunk<Entry<T>>,
@@ -74,7 +74,7 @@ pub struct Stash<T> {
 ///
 /// Separation of these fields into a sub structure has been made
 /// for performance reasons so that they all reside in the same
-/// storage entiry. This allows implementations to perform less reads
+/// storage entity. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
 #[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
@@ -93,6 +93,7 @@ struct StashHeader {
 }
 
 impl Flush for StashHeader {
+    #[inline]
     fn flush(&mut self) {
         self.next_vacant.flush();
         self.len.flush();
@@ -118,6 +119,7 @@ impl<T> Flush for Stash<T>
 where
     T: Encode + Flush,
 {
+    #[inline]
     fn flush(&mut self) {
         self.header.flush();
         self.entries.flush();
@@ -151,6 +153,7 @@ where
         self.iter.next().map(|(_index, value)| value)
     }
 
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -262,6 +265,7 @@ impl<T> Flush for Entry<T>
 where
     T: Flush,
 {
+    #[inline]
     fn flush(&mut self) {
         match self {
             Entry::Vacant(_) => (),
@@ -286,6 +290,7 @@ impl<T> Decode for Stash<T> {
 }
 
 impl<T> AllocateUsing for Stash<T> {
+    #[inline]
     unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: Allocate,
@@ -300,10 +305,12 @@ impl<T> AllocateUsing for Stash<T> {
 impl<T> Initialize for Stash<T> {
     type Args = ();
 
+    #[inline(always)]
     fn default_value() -> Option<Self::Args> {
         Some(())
     }
 
+    #[inline]
     fn initialize(&mut self, _args: Self::Args) {
         self.header.set(StashHeader {
             next_vacant: 0,
@@ -336,7 +343,7 @@ impl<T> Stash<T> {
         Values::new(self)
     }
 
-    /// Returns the unterlying key to the cells.
+    /// Returns the underlying key to the cells.
     ///
     /// # Note
     ///

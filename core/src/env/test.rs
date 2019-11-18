@@ -54,5 +54,5 @@ pub fn set_balance<T: EnvTypes>(balance: T::Balance) {
 
 /// Returns an iterator over the uninterpreted bytes of all past emitted events.
 pub fn emitted_events<T: EnvTypes>() -> impl Iterator<Item = Vec<u8>> {
-    ContractEnv::<T>::emitted_events().into_iter()
+    ContractEnv::<T>::emitted_events()
 }

@@ -1,157 +1,148 @@
 # ink! - Parity's ink to write smart contracts
 
-| Linux              | Codecov              | Coveralls              | LoC              |
-|:------------------:|:--------------------:|:----------------------:|:----------------:|
-| [![linux][A1]][A2] | [![codecov][C1]][C2] | [![coveralls][D1]][D2] | [![loc][E1]][E2] |
+|       Linux        |       Codecov        |       Coveralls        |       LoC        |
+| :----------------: | :------------------: | :--------------------: | :--------------: |
+| [![linux][a1]][a2] | [![codecov][c1]][c2] | [![coveralls][d1]][d2] | [![loc][e1]][e2] |
 
-[A1]: https://travis-ci.org/paritytech/ink.svg?branch=master
-[A2]: https://travis-ci.org/paritytech/ink
-
-[C1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
-[C2]: https://codecov.io/gh/paritytech/ink/branch/master
-
-[D1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
-[D2]: https://coveralls.io/github/paritytech/ink?branch=master
-
-[E1]: https://tokei.rs/b1/github/paritytech/ink?category=code
-[E2]: https://github.com/Aaronepower/tokei#badges
-
-[F1]: https://img.shields.io/badge/docs-core-blue.svg
-[F2]: https://paritytech.github.io/ink/ink_core
-
-[G1]: https://img.shields.io/badge/docs-model-blue.svg
-[G2]: https://paritytech.github.io/ink/ink_model
-
-[H1]: https://img.shields.io/badge/docs-abi-blue.svg
-[H2]: https://paritytech.github.io/ink/ink_abi
+[a1]: https://travis-ci.org/paritytech/ink.svg?branch=master
+[a2]: https://travis-ci.org/paritytech/ink
+[c1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
+[c2]: https://codecov.io/gh/paritytech/ink/branch/master
+[d1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
+[d2]: https://coveralls.io/github/paritytech/ink?branch=master
+[e1]: https://tokei.rs/b1/github/paritytech/ink?category=code
+[e2]: https://github.com/Aaronepower/tokei#badges
+[f1]: https://img.shields.io/badge/docs-core-blue.svg
+[f2]: https://paritytech.github.io/ink/ink_core
+[g1]: https://img.shields.io/badge/docs-model-blue.svg
+[g2]: https://paritytech.github.io/ink/ink_model
+[h1]: https://img.shields.io/badge/docs-abi-blue.svg
+[h2]: https://paritytech.github.io/ink/ink_abi
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
 ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language targeting Substrate blockchains.
 
+For more information please visit [the ink! tutorial](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract).
+
 ## Developer Documentation
 
-| `ink_abi` | `ink_core` | `ink_model` |
-|-----------|------------|-------------|
-| [![][H1]][H2] | [![][F1]][F2] | [![][G1]][G2] |
+| `ink_abi`     | `ink_core`    | `ink_model`   |
+| ------------- | ------------- | ------------- |
+| [![][h1]][h2] | [![][f1]][f2] | [![][g1]][g2] |
 
 ### Scripts
 
 Use the scripts provided under `scripts` directory in order to run checks on either the workspace or all examples. Please do this before pushing work in a PR.
 
-### Examples
+## Examples
 
 For building the example smart contracts found under `examples` you will need to have `cargo-contract` installed.
 
 ```
-cargo install cargo-contract
+cargo install --git https://github.com/paritytech/ink cargo-contract --force
 ```
 
-Execute the following command in shell while in an example's directory:
+Use the `--force` to ensure you are updated to the most recent `cargo-contract` version.
+
+### Build example contract and generate the contracts metadata
+
+To build a single example and generate the contracts Wasm file, navigate to the root of the example smart contract and run:
 
 ```
 cargo contract build
 ```
 
-### Testing
+To generate the contract metadata (a.k.a. the contract ABI), run the following command:
 
-Off-chain testing is done by `cargo test`.
-If you want to test all workspace crates, do `cargo test --all`.
+```
+cargo contract generate-metadata
+```
 
-## Example
+You should now have an optimized `<contract-name>.wasm` file and an `metadata.json` file in the `target` folder of the contract.
 
-Below is an example using ink! demonstrating a simple Flipper smart contract
-that has a boolean state that can be flipped or returned.
+For further information, please have a look at our [smart contracts workshop](https://substrate.dev/substrate-contracts-workshop/).
+
+## Hello, World! - The Flipper
+
+The `Flipper` contract is a simple contract containing only a single `bool` value
+that it can flip from `true` to `false` and vice versa and return the current state.
+
+To create your own version of the flipper contract, you first need to initialize a new ink! project in your working directory.
+
+```
+cargo contract new flipper
+```
+
+Below you can see the code using the `ink_lang2` version of ink!.
 
 ```rust
-contract! {
-    /// Specify concrete implementation of contract environment types
-    #![env = ink_core::env::DefaultSrmlTypes]
+use ink_core::storage;
+use ink_lang2 as ink;
 
-    /// Flips its state between `true` and `false`.
+#[ink::contract(version = "0.1.0")]
+mod flipper {
+    /// The storage of the flipper contract.
+    #[ink(storage)]
     struct Flipper {
-        /// The current state of our flag.
+        /// The single `bool` value.
         value: storage::Value<bool>,
     }
 
-    impl Deploy for Flipper {
-        /// Initializes our state to `false` upon deploying our smart contract.
-        fn deploy(&mut self) {
-            self.value.set(false)
-        }
-    }
-
     impl Flipper {
-        /// Flips the current state of our smart contract.
-        pub(external) fn flip(&mut self) {
-            *self.value = !*self.value;
+        /// Instantiates a new Flipper contract and initializes `value` to `init_value`.
+        #[ink(constructor)]
+        fn new(&mut self, init_value: bool) {
+            self.value.set(init_value);
         }
 
-        /// Returns the current state.
-        pub(external) fn get(&self) -> bool {
+        /// Instantiates a new Flipper contract and initializes `value` to `false` by default.
+        #[ink(constructor)]
+        fn default(&mut self) {
+            self.new(false)
+        }
+
+        /// Flips `value` from `true` to `false` or vice versa.
+        #[ink(message)]
+        fn flip(&mut self) {
+            *self.value = !self.get();
+        }
+
+        /// Returns the current state of `value`.
+        #[ink(message)]
+        fn get(&self) -> bool {
             *self.value
         }
     }
-}
 
-/// Run off-chain tests with `cargo test`.
-#[cfg(tests)]
-mod tests {
-    use super::*;
+    /// As in normal Rust code we are able to define tests like below.
+    ///
+    /// Simply execute `cargo test` in order to test your contract.
+    #[cfg(test)]
+    mod tests {
+        use super::*;
 
-    #[test]
-    fn it_works() {
-        let mut flipper = Flipper::deploy_mock();
-        assert_eq!(flipper.get(), false);
-        flipper.flip();
-        assert_eq!(flipper.get(), true);
+        #[test]
+        fn default_works() {
+            // Note that `#[ink(constructor)]` functions that above have been
+            // defined as `&mut self` can be used as normal Rust constructors
+            // in test mode.
+            let flipper = Flipper::default();
+            assert_eq!(flipper.get(), false);
+        }
+
+        #[test]
+        fn it_works() {
+            let mut flipper = Flipper::new(false);
+            assert_eq!(flipper.get(), false);
+            flipper.flip();
+            assert_eq!(flipper.get(), true);
+        }
     }
 }
 ```
 
-## Documentation
-
-- User
-    - Wiki: [link](https://github.com/paritytech/ink/wiki)
-- Developer
-    - [`core`][F2]: Developer documentation for the core abstractions
-        - Storage allocators, SRML environment definitions
-        - Offchain test environment
-        - Utilities for smart contracts like collections
-    - [`model`][G2]: Developer documentation for the model abstractions
-        - Virtual model of a smart contract
-        - Contains smart contract ABI dispatch
-        - Used to build an actual smart contract eDSL on
-
-## Goals
-
-### Core Goals
-
-| | |
-|:-:|:-|
-| **Ecosystem** | Easy integration with the Rust ecosystem. |
-| **Tooling** | Rust tooling works out-of-the-box for smart contract code. This includes auto-completion, syntax highlighting, code coverage for tests, go-to definitions and other IDE goodies. |
-| **Testing** | Easy to build, test, deploy and run. |
-| **Development** | Development can be done entirely off-chain to speed up the process. |
-
-### Key Attributes
-
-| | |
-|:-:|:-|
-| **Efficient** | Compile smart contract code to machine code that is _at least_ as efficient as if you used the low-level function calls directly. |
-| **Robust** | Make it as simple as possible to write code that just does what is expected and as difficult as possible to write incorrect or exploitable code. |
-| **Simple** | Smart contract code should be as easy-to-read as possible. |
-| **Accessible** | Make it accessible to users by providing excellent documentation and teaching materials. |
-
-## Structure
-
-| Module | Description |
-|:-------|:------------|
-| `cli` | A minimalist tool to setup a smart contract project easily. |
-| `core` | The core utilities used to write smart contracts. |
-| `model` | Medium-level abstractions to write smart contracts heavily inspired by [Fleetwood](https://github.com/paritytech/fleetwood). |
-| `lang` | The actual eDSL based on `ink_core` and `ink_model` to provide a user friendly interface to writing smart contract code. |
-| `examples` | Features some smart contracts written for clarity with focus on teaching users how to use pDSL to write their own contracts. |
+Place this code in the `./lib.rs` file of your flipper contract and run `cargo contract build && cargo contract generate-metadata` to build your first ink! smart contract example.
 
 ## Contribution
 
@@ -160,4 +151,3 @@ Visit our [contribution guidelines](CONTRIBUTING.md) for more information.
 ## License
 
 The entire code within this repository is licensed under the [GPLv3](LICENSE). Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.
- of our products.

@@ -15,7 +15,11 @@
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
 use derive_more::From;
-use serde::Serialize;
+use serde::{
+    Serialize,
+    Serializer,
+};
+use std::fmt::Write;
 use type_metadata::{
     form::{
         CompactForm,
@@ -158,7 +162,7 @@ impl IntoCompact for LayoutField {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct LayoutRange<F: Form = MetaForm> {
     /// The single key for cells or the starting key address for chunks.
-    #[serde(rename = "range.offset")]
+    #[serde(rename = "range.offset", serialize_with = "serialize_key")]
     offset: LayoutKey,
     /// The amount of associated key addresses starting from the offset key.
     #[serde(rename = "range.len")]
@@ -203,5 +207,54 @@ impl LayoutRange {
             len: 0xFFFF_FFFF,
             elem_ty,
         }
+    }
+}
+
+fn serialize_key<S>(key: &LayoutKey, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let bytes = key.0;
+    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
+    write!(hex, "0x").expect("failed writing to string");
+    for byte in &bytes {
+        write!(hex, "{:02x}", byte).expect("failed writing to string");
+    }
+
+    serializer.serialize_str(&hex)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use type_metadata::{
+        form::{
+            Form,
+            MetaForm,
+        },
+        IntoCompact,
+        Registry,
+    };
+
+    #[test]
+    fn key_must_serialize_to_hex() {
+        // given
+        let type_id = <MetaForm as Form>::TypeId::new::<u32>();
+        let offset = LayoutKey([1; 32]);
+        let cs: LayoutRange<MetaForm> = LayoutRange {
+            offset,
+            len: 1337,
+            elem_ty: type_id,
+        };
+        let mut registry = Registry::new();
+
+        // when
+        let json = serde_json::to_string(&cs.into_compact(&mut registry)).unwrap();
+
+        // then
+        assert_eq!(
+            json,
+            "{\"range.offset\":\"0x0101010101010101010101010101010101010101010101010101010101010101\",\"range.len\":1337,\"range.elem_type\":1}"
+        );
     }
 }
