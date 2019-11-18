@@ -30,8 +30,7 @@ mod runtime {
 
     impl RuntimeStorage {
         #[ink(constructor)]
-        fn default(&mut self) {
-        }
+        fn new(&mut self) {}
 
         /// Returns the account balance, read directly from runtime storage
         #[ink(message)]
@@ -48,14 +47,14 @@ mod runtime {
         }
     }
 
-    #[cfg(all(test))]
-    mod tests {
-        use super::*;
-
-        #[test]
-        fn it_works() {
-//            let contract = RuntimeStorage::default();
+//    #[cfg(all(test))]
+//    mod tests {
+//        use super::*;
+//
+//        #[test]
+//        fn it_works() {
+//            let contract = RuntimeStorage::new();
 //            assert_eq!(contract.get_balance(), false);
-        }
-    }
+//        }
+//    }
 }

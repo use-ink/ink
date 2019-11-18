@@ -88,7 +88,7 @@ pub fn get_storage(key: &[u8]) -> RetCode {
 }
 
 pub fn runtime_get_storage(key: &[u8]) -> RetCode {
-    unsafe { sys::ext_runtime_get_storage(key.as_ptr() as u32, key.len() as u32) }.into()
+    unsafe { sys::ext_get_runtime_storage(key.as_ptr() as u32, key.len() as u32) }.into()
 }
 
 pub fn restore_to(
@@ -204,7 +204,7 @@ mod sys {
         );
         pub fn ext_get_storage(key_ptr: u32) -> u32;
 
-        pub fn ext_runtime_get_storage(key_ptr: u32, key_len: u32) -> u32;
+        pub fn ext_get_runtime_storage(key_ptr: u32, key_len: u32) -> u32;
 
         pub fn ext_restore_to(
             dest_ptr: u32,
