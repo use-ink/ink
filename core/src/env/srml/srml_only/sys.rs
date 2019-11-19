@@ -82,10 +82,6 @@ extern "C" {
     /// stored at the given key into the scratch buffer.
     pub fn ext_get_storage(key_ptr: u32) -> u32;
 
-    /// Tells the execution environment to load the contents
-    /// stored in the runtime storage at the given key into the scratch buffer.
-    pub fn ext_get_runtime_storage(key_ptr: u32, key_len: u32) -> u32;
-
     /// Returns the length in bytes of the scratch buffer.
     pub fn ext_scratch_size() -> u32;
 
