@@ -38,9 +38,12 @@ mod runtime {
             const BALANCE_OF: &[u8] = b"balance:";
             let key = account.to_keyed_vec(BALANCE_OF);
             match self.env().get_runtime_storage::<Balance>(&key) {
-                Ok(balance) => balance,
+                Ok(balance) => {
+                    self.env().println("get_runtime_storage: Read balance Ok");
+                    balance
+                },
                 Err(_) => {
-                    self.env().println("Error reading balance");
+                    self.env().println("get_runtime_storage: Error reading balance");
                     0
                 },
             }
