@@ -419,7 +419,7 @@ where
             I: AsMut<[u8]> + EnlargeTo,
             R: scale::Decode,
     {
-        let ret = ext::runtime_get_storage(key);
+        let ret = ext::get_runtime_storage(key);
         if !ret.is_success() {
             return Err(Error::InvalidStorageKey)
         }
