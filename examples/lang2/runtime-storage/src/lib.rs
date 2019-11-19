@@ -35,8 +35,10 @@ mod runtime {
         /// Returns the account balance, read directly from runtime storage
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
+            self.env().println("get_balance");
             const BALANCE_OF: &[u8] = b"balance:";
             let key = account.to_keyed_vec(BALANCE_OF);
+            self.env().println("constructed key");
             match self.env().get_runtime_storage::<Balance>(&key) {
                 Ok(balance) => {
                     self.env().println("get_runtime_storage: Read balance Ok");
