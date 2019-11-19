@@ -17,27 +17,37 @@
 #![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_core::storage;
+use scale::Encode as _;
+use ink_core::{
+    memory::format,
+    storage,
+};
 use ink_lang2 as ink;
-use scale::KeyedVec as _;
 
 #[ink::contract(version = "0.1.0")]
 mod runtime {
     /// This simple contract reads a value from runtime storage
     #[ink(storage)]
     struct RuntimeStorage {
+        balance_storage_keys: storage::HashMap<AccountId, [u8; 32]>,
     }
 
     impl RuntimeStorage {
         #[ink(constructor)]
         fn new(&mut self) {}
 
+        #[ink(message)]
+        fn add_account_storage_key(&mut self, account: AccountId, key: [u8; 32]) {
+            self.env().println(&format!("Adding key for account {:?}", account.encode()));
+            self.balance_storage_keys.insert(account, key);
+        }
+
         /// Returns the account balance, read directly from runtime storage
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
-            const BALANCE_OF: &[u8] = b"balance:";
-            let key = account.to_keyed_vec(BALANCE_OF);
-            match self.env().get_runtime_storage::<Balance>(&key) {
+            let key = self.balance_storage_keys.get(&account).unwrap();
+            let result = self.env().get_runtime_storage::<Balance>(&key[..]);
+            match result {
                 Ok(balance) => {
                     self.env().println("get_runtime_storage: Read balance Ok");
                     balance
