@@ -419,13 +419,10 @@ where
             I: AsMut<[u8]> + EnlargeTo,
             R: scale::Decode,
     {
-        Self::println("get_runtime_storage");
         let ret = ext::get_runtime_storage(key);
         if !ret.is_success() {
-            Self::println("get_runtime_storage: is_success == false");
             return Err(Error::InvalidStorageKey)
         }
-        Self::println("get_runtime_storage: is_success == true");
         let req_len = ext::scratch_size();
         buffer.enlarge_to(req_len);
         let ret = ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
