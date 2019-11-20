@@ -14,10 +14,10 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(proc_macro_hygiene)]
-#![allow(unused_imports)]
-#![allow(clippy::new_ret_no_self)]
 
+#[cfg(not(feature = "ink-as-dependency"))]
 use ink_core::storage;
+
 use ink_lang2 as ink;
 
 use accumulator::Accumulator;
