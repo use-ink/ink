@@ -186,7 +186,7 @@ pub trait Env:
     /// that make use of this functionality.
     fn println(content: &str);
 
-    /// Returns the value at the *runtime* storage at the position of the key.
+    /// Returns the value from the *runtime* storage at the position of the key.
     ///
     /// # Errors
     ///

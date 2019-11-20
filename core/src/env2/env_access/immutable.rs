@@ -323,7 +323,7 @@ where
         /// Prints the given contents to the environmental log.
         fn println(&self, content: &str);
 
-        /// Returns the value at the *runtime* storage at the position of the key.
+        /// Returns the value from the *runtime* storage at the position of the key.
         ///
         /// # Errors
         ///

@@ -322,7 +322,7 @@ where
         T::println(content)
     }
 
-    /// Returns the value at the *runtime* storage at the position of the key.
+    /// Returns the value from the *runtime* storage at the position of the key.
     ///
     /// # Errors
     ///
