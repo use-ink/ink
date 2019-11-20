@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use scale::{
+    Decode,
+    Encode,
+};
+
 use super::ContractEnvStorage;
 use crate::{
     env::{
@@ -25,10 +30,6 @@ use crate::{
     },
     memory::vec::Vec,
     storage::Key,
-};
-use scale::{
-    Decode,
-    Encode,
 };
 
 /// Stores the given value under the specified key in the contract storage.

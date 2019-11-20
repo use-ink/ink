@@ -18,7 +18,8 @@ use core::hash::{
     Hash,
     Hasher,
 };
-use tiny_keccak;
+
+use tiny_keccak::Hasher as TinyKeccakHasher;
 
 /// Keccak256 hasher.
 #[derive(Clone)]
@@ -30,7 +31,7 @@ pub struct Keccak256Hasher {
 impl Default for Keccak256Hasher {
     fn default() -> Self {
         Keccak256Hasher {
-            hasher: tiny_keccak::Keccak::new_keccak256(),
+            hasher: tiny_keccak::Keccak::v256(),
         }
     }
 }
@@ -48,7 +49,7 @@ impl Keccak256Hasher {
     pub fn finish64(self) -> [u8; 8] {
         let mut arr = [0; 8];
         let res = self.finish256();
-        arr[..8].clone_from_slice(&res[..8]);
+        arr[..8].copy_from_slice(&res[..8]);
         arr
     }
 }

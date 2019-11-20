@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::BitPack;
-use crate::storage::Flush;
 use scale::{
     Decode,
     Encode,
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use super::BitPack;
+use crate::storage::Flush;
 
 /// A block of 1024 bits.
 #[derive(Debug, Copy, Clone, Encode, Decode)]

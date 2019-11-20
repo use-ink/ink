@@ -31,10 +31,6 @@
 //! The getters and setters exposed by this module take care of mapping
 //! to the correct group index.
 
-use crate::storage::{
-    chunk::SyncChunk,
-    Flush,
-};
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -49,6 +45,11 @@ use scale::{
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use crate::storage::{
+    chunk::SyncChunk,
+    Flush,
+};
 
 // Number of values stored in each entry of the `SyncChunk`.
 // Note that the first group (at index `0`) will only ever

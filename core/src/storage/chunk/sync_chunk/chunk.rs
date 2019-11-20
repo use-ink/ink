@@ -12,16 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::CacheGuard;
-use crate::storage::{
-    alloc::{
-        Allocate,
-        AllocateUsing,
-    },
-    chunk::TypedChunk,
-    Flush,
-    Key,
-};
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -36,6 +26,17 @@ use type_metadata::{
     TypeDef,
     TypeDefStruct,
     TypeId,
+};
+
+use super::CacheGuard;
+use crate::storage::{
+    alloc::{
+        Allocate,
+        AllocateUsing,
+    },
+    chunk::TypedChunk,
+    Flush,
+    Key,
 };
 
 /// A chunk of synchronized cells.

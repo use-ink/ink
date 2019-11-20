@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::*;
-
 use crate::{
     storage::Key,
     test_utils::run_test,
@@ -46,7 +45,7 @@ fn dyn_simple() {
 
         // Chunk allocations
         let alloc_sizes = &[10, u32::max_value() as u64, 1337, 2, 9999_9999];
-        for (i, &size) in alloc_sizes.into_iter().enumerate() {
+        for (i, &size) in alloc_sizes.iter().enumerate() {
             let allocated_key = alloc.alloc(size);
             assert_eq!(allocated_key, chunks_entries + ((1 << 32) * (i as u64)));
             chunk_allocs.push(allocated_key);

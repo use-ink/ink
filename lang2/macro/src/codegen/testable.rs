@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::{
+    quote,
+    quote_spanned,
+};
+
 use crate::{
     codegen::{
         GenerateCode,
@@ -19,12 +26,6 @@ use crate::{
     },
     ir,
     ir::utils,
-};
-use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
 };
 
 #[derive(From)]

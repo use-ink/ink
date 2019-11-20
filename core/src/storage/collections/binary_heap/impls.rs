@@ -12,21 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::duplex_sync_chunk::DuplexSyncChunk;
-use crate::storage::{
-    self,
-    alloc::{
-        Allocate,
-        AllocateUsing,
-        Initialize,
-    },
-    chunk::SyncChunk,
-    Flush,
-};
 use core::cmp::{
     Ord,
     Ordering,
 };
+
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -41,6 +31,18 @@ use scale::{
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use super::duplex_sync_chunk::DuplexSyncChunk;
+use crate::storage::{
+    self,
+    alloc::{
+        Allocate,
+        AllocateUsing,
+        Initialize,
+    },
+    chunk::SyncChunk,
+    Flush,
+};
 
 /// We implement a binary tree.
 pub const CHILDREN: u32 = 2;

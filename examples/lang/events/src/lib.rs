@@ -70,8 +70,9 @@ contract! {
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
-    use super::*;
     use ink_core::env;
+
+    use super::*;
 
     #[test]
     fn it_works() {

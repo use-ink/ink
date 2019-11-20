@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use scale::Codec;
+
 use crate::{
     env2::{
         call::{
@@ -28,7 +30,6 @@ use crate::{
     },
     storage::Key,
 };
-use scale::Codec;
 
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {

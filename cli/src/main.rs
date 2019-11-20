@@ -15,7 +15,7 @@
 mod cmd;
 
 use structopt::{
-    clap::AppSettings,
+    clap,
     StructOpt,
 };
 use url::Url;
@@ -23,15 +23,11 @@ use url::Url;
 #[derive(Debug, StructOpt)]
 #[structopt(bin_name = "cargo")]
 pub(crate) enum Opts {
-    #[structopt(
-        name = "contract",
-        raw(
-            setting = "AppSettings::UnifiedHelpMessage",
-            setting = "AppSettings::DeriveDisplayOrder",
-            setting = "AppSettings::DontCollapseArgsInUsage"
-        )
-    )]
     /// Utilities to develop Wasm smart contracts.
+    #[structopt(name = "contract")]
+    #[structopt(setting = clap::AppSettings::UnifiedHelpMessage)]
+    #[structopt(setting = clap::AppSettings::DeriveDisplayOrder)]
+    #[structopt(setting = clap::AppSettings::DontCollapseArgsInUsage)]
     Contract(ContractArgs),
 }
 

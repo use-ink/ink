@@ -85,7 +85,7 @@ fn index_repeat() {
 fn index_fail0() {
     let map = new_empty::<String, String>();
     // This will just fail and panic
-    &map["Won't catch this!"];
+    let _ = &map["Won't catch this!"];
 }
 
 #[test]

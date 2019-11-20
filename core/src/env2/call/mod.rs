@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod call;
+mod builder;
 mod create;
 mod utils;
 
@@ -30,7 +30,7 @@ pub mod state {
 }
 
 pub use self::{
-    call::{
+    builder::{
         CallBuilder,
         CallParams,
         ReturnType,

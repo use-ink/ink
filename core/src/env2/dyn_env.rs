@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::ops::{
+    Deref,
+    DerefMut,
+};
+
 use crate::{
     env2::{
         AccessEnv,
@@ -27,10 +32,6 @@ use crate::{
         },
         Flush,
     },
-};
-use core::ops::{
-    Deref,
-    DerefMut,
 };
 
 /// A wrapper around `EnvAccess` or `EnvAccessMut` that adds a dynamic storage allocator.

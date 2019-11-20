@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::cell::{
+    Cell,
+    RefCell,
+};
+use std::marker::PhantomData;
+
+use scale::{
+    Decode,
+    Encode,
+};
+
 use super::*;
 use crate::{
     env::{
@@ -24,15 +35,6 @@ use crate::{
     },
     storage::Key,
 };
-use core::cell::{
-    Cell,
-    RefCell,
-};
-use scale::{
-    Decode,
-    Encode,
-};
-use std::marker::PhantomData;
 
 /// A wrapper for the generic bytearray used for data in contract events.
 #[derive(Debug, Clone, PartialEq, Eq)]

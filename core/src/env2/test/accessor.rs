@@ -19,6 +19,15 @@
 //! `SrmlEnv` implementation since here we already have our buffers in the
 //! contract's memory.
 
+use core::{
+    cell::{
+        Ref,
+        RefCell,
+        RefMut,
+    },
+    marker::PhantomData,
+};
+
 use crate::{
     env2::{
         call::{
@@ -55,14 +64,6 @@ use crate::{
         Topics,
     },
     storage::Key,
-};
-use core::{
-    cell::{
-        Ref,
-        RefCell,
-        RefMut,
-    },
-    marker::PhantomData,
 };
 
 thread_local! {

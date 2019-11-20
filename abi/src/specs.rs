@@ -12,7 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(clippy::new_ret_no_self)]
+
+#[cfg(not(feature = "std"))]
+use alloc::{
+    format,
+    vec,
+    vec::Vec,
+};
 use core::marker::PhantomData;
+
 use serde::{
     Serialize,
     Serializer,
@@ -26,12 +35,6 @@ use type_metadata::{
     IntoCompact,
     Metadata,
     Registry,
-};
-
-#[cfg(not(feature = "std"))]
-use alloc::{
-    vec,
-    vec::Vec,
 };
 
 /// Describes a contract.
@@ -717,7 +720,6 @@ impl EventParamSpecBuilder {
                 docs: docs.into_iter().collect::<Vec<_>>(),
                 ..self.spec
             },
-            ..self
         }
     }
 
@@ -823,6 +825,7 @@ impl MessageParamSpecBuilder {
     }
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -841,10 +844,10 @@ mod tests {
     #[test]
     fn construct_selector_must_serialize_to_hex() {
         // given
-        let name = <MetaForm as Form>::String::from("foo");
+        let name = "foo";
         let cs: ConstructorSpec<MetaForm> = ConstructorSpec {
             name,
-            selector: 123456789u32.to_be_bytes(),
+            selector: 123_456_789u32.to_be_bytes(),
             args: Vec::new(),
             docs: Vec::new(),
         };

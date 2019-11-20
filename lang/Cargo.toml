@@ -6,19 +6,16 @@ edition = "2018"
 
 license = "APACHE-2.0"
 readme = "README.md"
-
-# repository = "https://github.com/robbepop/substrate-contract"
-# homepage = "https://github.com/robbepop/substrate-contract"
-# documentation = "https://robbepop.github.io/pwasm-abi/substrate-contract/"
-
+repository = "https://github.com/paritytech/ink"
+documentation = "https://substrate.dev/substrate-contracts-workshop/#/"
+homepage = "https://www.parity.io/"
 description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 categories = ["no-std", "embedded"]
-
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_utils = { path = "../utils/", default-features = false }
+ink_utils = { path = "../utils/" }
 ink_model = { path = "../model/", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.1", default-features = false, features = ["derive"] }
 
@@ -40,17 +37,16 @@ proc-macro = true
 
 [features]
 default = ["test-env"]
+test-env = [
+    "std",
+    "ink_model/test-env",
+]
 std = [
-    "ink_utils/std",
     "ink_model/std",
     "scale/std",
     "itertools/use_std",
     "either/use_std",
     "serde/std",
-]
-test-env = [
-    "std",
-    "ink_model/test-env",
 ]
 ink-generate-abi = [
     "std",

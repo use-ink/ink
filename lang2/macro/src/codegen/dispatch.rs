@@ -12,14 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    codegen::{
-        cross_calling::CrossCallingConflictCfg,
-        GenerateCode,
-        GenerateCodeUsing,
-    },
-    ir,
-};
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
@@ -29,6 +21,15 @@ use quote::{
 use syn::{
     punctuated::Punctuated,
     Token,
+};
+
+use crate::{
+    codegen::{
+        cross_calling::CrossCallingConflictCfg,
+        GenerateCode,
+        GenerateCodeUsing,
+    },
+    ir,
 };
 
 /// Generates code for the dispatch parts that dispatch constructors

@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
+
+use scale::{
+    Decode,
+    Encode,
+};
+
 use crate::{
     env2::{
         call::{
@@ -34,11 +41,6 @@ use crate::{
         Topics,
     },
     storage::Key,
-};
-use core::marker::PhantomData;
-use scale::{
-    Decode,
-    Encode,
 };
 
 /// The SRML contract environment.

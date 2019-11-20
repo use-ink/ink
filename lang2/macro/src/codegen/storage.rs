@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::{
+    quote,
+    quote_spanned,
+};
+
 use crate::{
     codegen::{
         cross_calling::CrossCallingConflictCfg,
@@ -24,12 +31,6 @@ use crate::{
         Contract,
         Function,
     },
-};
-use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
 };
 
 #[derive(From)]
@@ -345,6 +346,7 @@ impl Storage<'_> {
             .iter()
             .map(|fun| self.generate_message(fun));
         quote_spanned!( span =>
+            #[cfg_attr(feature = "cargo-clippy", allow(clippy::new_ret_no_self))]
             impl StorageAndEnv {
                 #(
                     #fns

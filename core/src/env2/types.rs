@@ -20,15 +20,11 @@
 //! Users are required to provide their own type definitions and `EnvTypes`
 //! implementations in order to write ink! contracts for other chain configurations.
 
-use crate::{
-    env2::EnvTypes,
-    memory::vec::Vec,
-    storage::Flush,
-};
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
 };
+
 use derive_more::From;
 use scale::{
     Decode,
@@ -36,6 +32,12 @@ use scale::{
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use crate::{
+    env2::EnvTypes,
+    memory::vec::Vec,
+    storage::Flush,
+};
 
 /// The fundamental types of the SRML default configuration.
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]

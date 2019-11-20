@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
+
 use crate::{
     codegen::GenerateCode,
     ir::Contract,
 };
-use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
 
 /// Generates code for the environmental types used by a contract.
 #[derive(From)]

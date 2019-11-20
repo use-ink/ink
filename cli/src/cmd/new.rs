@@ -12,14 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    cmd::{
-        CommandError,
-        Result,
-    },
-    AbstractionLayer,
-};
-use heck::CamelCase as _;
 use std::{
     env,
     fs,
@@ -31,6 +23,16 @@ use std::{
         Write,
     },
     path::PathBuf,
+};
+
+use heck::CamelCase as _;
+
+use crate::{
+    cmd::{
+        CommandError,
+        Result,
+    },
+    AbstractionLayer,
 };
 
 /// Initializes a project structure for the `lang` abstraction layer.
