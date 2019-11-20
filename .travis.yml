@@ -4,16 +4,11 @@ dist: trusty
 sudo: true
 
 rust:
-  # - stable
-  # - beta
-  - nightly
-  - nightly-2019-10-04
+  - nightly-2019-11-17
 
 matrix:
   allow_failures:
     - rust: nightly
-    # - rust: stable
-    # - rust: beta
 
 env:
   global:
@@ -56,31 +51,9 @@ install:
   # Print current work directory state as directions.
   - ls -lah
 
-before_script:
-  - rustup component add clippy rustfmt
-  - rustup target add wasm32-unknown-unknown
-
 script:
 - |
-  ./scripts/check-workspace.sh
-  check_workspace=$?
-
-  if [ $check_workspace -eq 0 ]
-  then
-    # Execute and upload kcov results
-    cargo kcov --verbose --coveralls --all --no-clean-rebuild
-    kcov=$?
-    bash <(curl -s https://codecov.io/bash)
-  fi
-
-  ./scripts/check-examples.sh
-  check_examples=$?
-
-  if [ $check_examples -eq 0 ] && [ $check_workspace -eq 0 ]
-  then
-    echo "All checks have passed!"
-    exit 0
-  else
-    echo "Some checks have not passed!"
-    exit 1
-  fi
+  cargo test --all-features --all
+  cargo kcov --verbose --coveralls --all --no-clean-rebuild
+  bash <(curl -s https://codecov.io/bash)
+  exit 0
