@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(clippy::new_ret_no_self)]
+
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
@@ -823,6 +825,7 @@ impl MessageParamSpecBuilder {
     }
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
