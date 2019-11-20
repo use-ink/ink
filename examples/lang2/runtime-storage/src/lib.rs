@@ -57,8 +57,10 @@ mod runtime {
             self.env().println(&format!("Getting balance for account {:?}", account.encode()));
 
             const BALANCE_OF: &[u8] = b"balance:";
-            let key = crypto::blake2_256(&account.to_keyed_vec(BALANCE_OF));
 
+            let unhashed = account.to_keyed_vec(BALANCE_OF);
+            self.env().println(&format!("Unhashed key {:?}", unhashed));
+            let key = crypto::blake2_256(&unhashed);
             self.env().println(&format!("Calculated key {:?}", key));
 
             let result = self.env().get_runtime_storage::<Balance>(&key[..]);
