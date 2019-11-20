@@ -17,53 +17,60 @@
 #![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use scale::Encode as _;
+use scale::{
+    Encode as _,
+    KeyedVec as _,
+};
 use ink_core::{
     memory::format,
-    storage,
 };
 use ink_lang2 as ink;
+
+mod crypto {
+    /// Do a Blake2 256-bit hash and place result in `dest`.
+    pub fn blake2_256_into(data: &[u8], dest: &mut [u8; 32]) {
+        dest.copy_from_slice(blake2_rfc::blake2b::blake2b(32, &[], data).as_bytes());
+    }
+
+    /// Do a Blake2 256-bit hash and return result.
+    pub fn blake2_256(data: &[u8]) -> [u8; 32] {
+        let mut r = [0; 32];
+        blake2_256_into(data, &mut r);
+        r
+    }
+}
 
 #[ink::contract(version = "0.1.0")]
 mod runtime {
     /// This simple contract reads a value from runtime storage
     #[ink(storage)]
     struct RuntimeStorage {
-        balance_storage_keys: storage::HashMap<AccountId, [u8; 32]>,
     }
 
     impl RuntimeStorage {
         #[ink(constructor)]
         fn new(&mut self) {}
 
-        #[ink(message)]
-        fn add_account_storage_key(&mut self, account: AccountId, key: [u8; 32]) {
-            self.env().println(&format!("Adding key for account {:?}", account.encode()));
-            self.balance_storage_keys.insert(account, key);
-        }
-
         /// Returns the account balance, read directly from runtime storage
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
             self.env().println(&format!("Getting balance for account {:?}", account.encode()));
-            match self.balance_storage_keys.get(&account) {
-                Some(key) => {
-                    let result = self.env().get_runtime_storage::<Balance>(&key[..]);
-                    match result {
-                        Ok(balance) => {
-                            self.env().println("get_runtime_storage: Read balance Ok");
-                            balance
-                        },
-                        Err(err) => {
-                            self.env().println(&format!("Error reading runtime storage {:?}", err));
-                            0
-                        },
-                    }
-                }
-                None => {
-                    self.env().println(&format!("No key found for account {:?}", account.encode()));
+
+            const BALANCE_OF: &[u8] = b"balance:";
+            let key = crypto::blake2_256(&account.to_keyed_vec(BALANCE_OF));
+
+            self.env().println(&format!("Calculated key {:?}", key));
+
+            let result = self.env().get_runtime_storage::<Balance>(&key[..]);
+            match result {
+                Ok(balance) => {
+                    self.env().println("get_runtime_storage: Read balance Ok");
+                    balance
+                },
+                Err(err) => {
+                    self.env().println(&format!("Error reading runtime storage {:?}", err));
                     0
-                }
+                },
             }
         }
     }
