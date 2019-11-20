@@ -14,7 +14,7 @@ variables:
   GIT_STRATEGY:                    fetch
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
   # CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/target/${CI_JOB_NAME}"
-  CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}"
+  CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
   # CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
@@ -67,7 +67,7 @@ check-std:
     # debug
     - echo $CARGO_TARGET_DIR
     # - du -sh /ci-cache/${CI_PROJECT_NAME}/target/*
-    - du -sh /ci-cache/${CI_PROJECT_NAME}/targets/
+    - du -sh /ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/*
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features;
       done
