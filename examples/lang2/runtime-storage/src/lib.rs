@@ -56,7 +56,7 @@ mod runtime {
         fn get_balance(&self, account: AccountId) -> Balance {
             self.env().println(&format!("Getting balance for account {:?}", account.encode()));
 
-            const BALANCE_OF: &[u8] = b"balance:";
+            const BALANCE_OF: &[u8] = b"Balances FreeBalance";
 
             let unhashed = account.to_keyed_vec(BALANCE_OF);
             self.env().println(&format!("Unhashed key {:?}", unhashed));
