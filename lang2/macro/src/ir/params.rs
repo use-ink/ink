@@ -350,6 +350,7 @@ impl Parse for ParamCompileAsDependency {
         })
     }
 }
+
 impl Parse for ParamDynamicAllocations {
     fn parse(input: ParseStream) -> Result<Self> {
         let env_ident = input.parse()?;

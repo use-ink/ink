@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(proc_macro_hygiene)]
 
+#[cfg(not(feature = "ink-as-dependency"))]
 use ink_core::storage;
+
 use ink_lang2 as ink;
 
 #[ink::contract(version = "0.1.0")]
@@ -103,7 +105,7 @@ mod erc20 {
             let caller = self.env().caller();
             let allowance = self.allowance_of_or_zero(&from, &caller);
             if allowance < value {
-                return false;
+                return false
             }
             self.allowances.insert((from, caller), allowance - value);
             self.transfer_from_to(from, to, value)
@@ -117,7 +119,7 @@ mod erc20 {
         ) -> bool {
             let from_balance = self.balance_of_or_zero(&from);
             if from_balance < value {
-                return false;
+                return false
             }
             let to_balance = self.balance_of_or_zero(&to);
             self.balances.insert(from.clone(), from_balance - value);

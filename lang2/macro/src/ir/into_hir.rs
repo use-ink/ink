@@ -657,7 +657,7 @@ impl TryFrom<syn::Item> for ir::Item {
 
 /// Split the storage, the events and functions out of the general contract items vector.
 ///
-/// # Erros
+/// # Errors
 ///
 /// - When there is not exactly one storage struct.
 /// - When a contract item is invalid.

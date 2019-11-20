@@ -15,8 +15,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(proc_macro_hygiene)]
 
-use accumulator::Accumulator;
+#[cfg(not(feature = "ink-as-dependency"))]
 use ink_core::storage;
+
+use accumulator::Accumulator;
 use ink_lang2 as ink;
 
 #[ink::contract(version = "0.1.0")]

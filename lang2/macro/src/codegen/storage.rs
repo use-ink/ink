@@ -268,8 +268,6 @@ impl Storage<'_> {
                 }
             }
 
-
-
             impl ink_core::storage::alloc::Initialize for StorageAndEnv {
                 type Args = ();
 
@@ -346,6 +344,7 @@ impl Storage<'_> {
             .iter()
             .map(|fun| self.generate_message(fun));
         quote_spanned!( span =>
+            #[cfg_attr(feature = "cargo-clippy", allow(clippy::new_ret_no_self))]
             impl StorageAndEnv {
                 #(
                     #fns
