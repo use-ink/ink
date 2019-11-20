@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use scale::{
+    Decode,
+    Encode,
+};
+
 use crate::{
     env,
     memory::vec::Vec,
@@ -25,11 +30,6 @@ use crate::{
         Key,
         NonCloneMarker,
     },
-};
-
-use scale::{
-    Decode,
-    Encode,
 };
 
 /// A raw cell.

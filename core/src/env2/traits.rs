@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use scale::Codec;
+
 use crate::{
     env2::{
         call::{
@@ -30,7 +32,6 @@ use crate::{
     },
     storage::Key,
 };
-use scale::Codec;
 
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {

@@ -14,21 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use super::duplex_sync_chunk::DuplexSyncChunk;
-use crate::storage::{
-    self,
-    alloc::{
-        Allocate,
-        AllocateUsing,
-        Initialize,
-    },
-    chunk::SyncChunk,
-    Flush,
-};
 use core::cmp::{
     Ord,
     Ordering,
 };
+
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -43,6 +33,18 @@ use scale::{
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use super::duplex_sync_chunk::DuplexSyncChunk;
+use crate::storage::{
+    self,
+    alloc::{
+        Allocate,
+        AllocateUsing,
+        Initialize,
+    },
+    chunk::SyncChunk,
+    Flush,
+};
 
 /// We implement a binary tree.
 pub const CHILDREN: u32 = 2;

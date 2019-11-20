@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::ContractState;
 use core::marker::PhantomData;
+
 use ink_core::{
     env::{
         self,
@@ -33,6 +33,8 @@ use scale::{
     Decode,
     Encode as _,
 };
+
+use crate::ContractState;
 
 /// Provides a safe interface to an environment given a contract state.
 pub struct ExecutionEnv<State, Env> {

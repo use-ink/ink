@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::ops::{
+    Deref,
+    DerefMut,
+};
+
 use crate::{
     env2::{
         AccessEnv,
@@ -29,10 +34,6 @@ use crate::{
         },
         Flush,
     },
-};
-use core::ops::{
-    Deref,
-    DerefMut,
 };
 
 /// A wrapper around `EnvAccess` or `EnvAccessMut` that adds a dynamic storage allocator.

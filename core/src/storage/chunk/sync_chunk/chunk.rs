@@ -14,16 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use super::CacheGuard;
-use crate::storage::{
-    alloc::{
-        Allocate,
-        AllocateUsing,
-    },
-    chunk::TypedChunk,
-    Flush,
-    Key,
-};
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -38,6 +28,17 @@ use type_metadata::{
     TypeDef,
     TypeDefStruct,
     TypeId,
+};
+
+use super::CacheGuard;
+use crate::storage::{
+    alloc::{
+        Allocate,
+        AllocateUsing,
+    },
+    chunk::TypedChunk,
+    Flush,
+    Key,
 };
 
 /// A chunk of synchronized cells.

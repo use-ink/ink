@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::marker::PhantomData;
+
 use crate::{
     env2::{
         call::{
@@ -27,7 +29,6 @@ use crate::{
     },
     memory::vec::Vec,
 };
-use core::marker::PhantomData;
 
 pub mod state {
     pub use crate::env2::call::state::{

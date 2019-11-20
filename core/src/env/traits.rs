@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    memory::vec::Vec,
-    storage::Key,
-};
 use scale::{
     Codec,
     Decode,
+};
+
+use crate::{
+    memory::vec::Vec,
+    storage::Key,
 };
 
 /// Error encountered by calling a remote contract.

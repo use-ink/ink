@@ -14,6 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::cell::{
+    Cell,
+    RefCell,
+};
+use std::marker::PhantomData;
+
+use scale::{
+    Decode,
+    Encode,
+};
+
 use super::*;
 use crate::{
     env::{
@@ -26,15 +37,6 @@ use crate::{
     },
     storage::Key,
 };
-use core::cell::{
-    Cell,
-    RefCell,
-};
-use scale::{
-    Decode,
-    Encode,
-};
-use std::marker::PhantomData;
 
 /// A wrapper for the generic bytearray used for data in contract events.
 #[derive(Debug, Clone, PartialEq, Eq)]

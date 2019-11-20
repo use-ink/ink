@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use scale::{
+    Decode,
+    Encode,
+};
+
 use super::ContractEnvStorage;
 use crate::{
     env::{
@@ -27,10 +32,6 @@ use crate::{
     },
     memory::vec::Vec,
     storage::Key,
-};
-use scale::{
-    Decode,
-    Encode,
 };
 
 /// Stores the given value under the specified key in the contract storage.

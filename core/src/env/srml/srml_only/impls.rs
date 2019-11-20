@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::marker::PhantomData;
+
+use scale::{
+    Decode,
+    Encode,
+};
+
 use crate::{
     env::{
         srml::sys,
@@ -25,11 +32,6 @@ use crate::{
     },
     memory::vec::Vec,
     storage::Key,
-};
-use core::marker::PhantomData;
-use scale::{
-    Decode,
-    Encode,
 };
 
 /// Load the contents of the scratch buffer

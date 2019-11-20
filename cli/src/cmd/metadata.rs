@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::cmd::Result;
-use cargo_metadata::MetadataCommand;
 use std::path::PathBuf;
+
+use cargo_metadata::MetadataCommand;
+
+use crate::cmd::Result;
 
 /// Executes build of the smart-contract which produces a wasm binary that is ready for deploying.
 ///

@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use jsonrpc_core_client::RpcError;
 use std::{
     io::Error as IoError,
     result::Result as StdResult,
 };
+
+use jsonrpc_core_client::RpcError;
 use substrate_primitives::crypto::SecretStringError;
 use subxt::Error as SubXtError;
 use zip::result::ZipError;

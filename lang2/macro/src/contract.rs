@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::convert::TryFrom;
+use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
+
 use crate::{
     codegen::GenerateCode as _,
     ir,
     lint,
 };
-use core::convert::TryFrom;
-use proc_macro2::TokenStream as TokenStream2;
-use syn::Result;
 
 pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
     match generate_or_err(attr, input) {

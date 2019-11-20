@@ -14,6 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
+
 use super::BitBlock;
 use crate::storage::{
     self,
@@ -25,15 +35,6 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
-#[cfg(feature = "ink-generate-abi")]
-use ink_abi::{
-    HasLayout,
-    LayoutField,
-    LayoutStruct,
-    StorageLayout,
-};
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
 
 /// A space-efficient contiguous growable bit array type.
 #[derive(Debug)]

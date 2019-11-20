@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::marker::PhantomData;
+
+use scale::{
+    Decode,
+    Encode,
+};
+
 use crate::{
     env2::{
         call::{
@@ -36,11 +43,6 @@ use crate::{
         Topics,
     },
     storage::Key,
-};
-use core::marker::PhantomData;
-use scale::{
-    Decode,
-    Encode,
 };
 
 /// The SRML contract environment.

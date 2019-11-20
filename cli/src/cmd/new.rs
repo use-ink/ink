@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    cmd::{
-        CommandError,
-        Result,
-    },
-    AbstractionLayer,
-};
-use heck::CamelCase as _;
 use std::{
     env,
     fs,
@@ -33,6 +25,16 @@ use std::{
         Write,
     },
     path::PathBuf,
+};
+
+use heck::CamelCase as _;
+
+use crate::{
+    cmd::{
+        CommandError,
+        Result,
+    },
+    AbstractionLayer,
 };
 
 /// Initializes a project structure for the `lang` abstraction layer.

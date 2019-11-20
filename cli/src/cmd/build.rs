@@ -14,10 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::cmd::{
-    CommandError as Error,
-    Result,
-};
+use std::path::PathBuf;
+
 use cargo_metadata::MetadataCommand;
 use parity_wasm::elements::{
     External,
@@ -25,7 +23,11 @@ use parity_wasm::elements::{
     Module,
     Section,
 };
-use std::path::PathBuf;
+
+use crate::cmd::{
+    CommandError as Error,
+    Result,
+};
 
 /// This is the maximum number of pages available for a contract to allocate.
 const MAX_MEMORY_PAGES: u32 = 16;

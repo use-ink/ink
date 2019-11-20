@@ -25,6 +25,8 @@
 //! For this records are stored instead of performing certain operations
 //! that the user can query after or during the emulated contract execution.
 
+use derive_more::From;
+
 use crate::{
     env2::{
         call::{
@@ -42,7 +44,6 @@ use crate::{
     memory::vec::Vec,
     storage::Key,
 };
-use derive_more::From;
 
 /// A record of an event happening on the off-chain test environment.
 ///

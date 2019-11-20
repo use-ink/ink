@@ -205,10 +205,12 @@ contract! {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use ink_core::env;
     use std::convert::TryFrom;
+
+    use ink_core::env;
     use ink_core::env::DefaultSrmlTypes;
+
+    use super::*;
 
     #[test]
     fn it_works() {

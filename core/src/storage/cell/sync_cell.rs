@@ -14,19 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    memory::boxed::Box,
-    storage::{
-        alloc::{
-            Allocate,
-            AllocateUsing,
-        },
-        cell::TypedCell,
-        Flush,
-        Key,
-    },
-};
 use core::cell::RefCell;
+
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -41,6 +30,19 @@ use type_metadata::{
     TypeDef,
     TypeDefStruct,
     TypeId,
+};
+
+use crate::{
+    memory::boxed::Box,
+    storage::{
+        alloc::{
+            Allocate,
+            AllocateUsing,
+        },
+        cell::TypedCell,
+        Flush,
+        Key,
+    },
 };
 
 /// A synchronized cell.

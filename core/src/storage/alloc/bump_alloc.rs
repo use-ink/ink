@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use super::*;
-
-use crate::storage::Key;
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use super::*;
+use crate::storage::Key;
 
 /// An allocator that is meant to allocate contract storage at
 /// compile-time by simply bumping its current allocation key.

@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::cell::RefCell;
+
 use crate::memory::collections::btree_map::{
     BTreeMap,
     Entry,
 };
-use core::cell::RefCell;
 
 /// A single cache entry.
 #[derive(Debug, PartialEq, Eq)]

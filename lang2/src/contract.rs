@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::{
+    marker::PhantomData,
+    mem::ManuallyDrop,
+};
+
 use crate::{
     AccessEnv,
     Dispatch,
@@ -27,10 +32,6 @@ use crate::{
     FnInput,
     FnOutput,
     PushDispatcher,
-};
-use core::{
-    marker::PhantomData,
-    mem::ManuallyDrop,
 };
 
 /// The contract definition.

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::ast;
 use proc_macro2::{
     Ident,
     Span,
@@ -26,6 +25,8 @@ use syn::{
     Token,
     Type,
 };
+
+use crate::ast;
 
 /// A smart contract.
 #[derive(Debug)]

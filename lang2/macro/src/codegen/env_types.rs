@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
+
 use crate::{
     codegen::GenerateCode,
     ir::Contract,
 };
-use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
 
 /// Generates code for the environmental types used by a contract.
 #[derive(From)]

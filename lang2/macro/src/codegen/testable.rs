@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::{
+    quote,
+    quote_spanned,
+};
+
 use crate::{
     codegen::{
         GenerateCode,
@@ -21,12 +28,6 @@ use crate::{
     },
     ir,
     ir::utils,
-};
-use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
 };
 
 #[derive(From)]

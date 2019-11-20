@@ -14,6 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::{
+    cmp::Ord,
+    fmt::Debug,
+};
+
+use scale::{
+    Codec,
+    Decode,
+    Encode,
+};
+
 use crate::{
     storage::{
         alloc::{
@@ -25,15 +36,6 @@ use crate::{
         Key,
     },
     test_utils::run_test,
-};
-use core::{
-    cmp::Ord,
-    fmt::Debug,
-};
-use scale::{
-    Codec,
-    Decode,
-    Encode,
 };
 
 fn empty_heap() -> BinaryHeap<i32> {
@@ -70,7 +72,7 @@ fn assert_push_equals_sorted_pop<T: Ord + Codec + Debug>(
     let mut prior = None;
     while let Some(val) = heap.pop() {
         if let Some(p) = prior {
-            assert!(val <= p);// it's a max heap
+            assert!(val <= p); // it's a max heap
         }
         prior = Some(val);
     }

@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    codegen::{
-        cross_calling::CrossCallingConflictCfg,
-        GenerateCode,
-        GenerateCodeUsing,
-    },
-    ir,
-};
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
@@ -31,6 +23,15 @@ use quote::{
 use syn::{
     punctuated::Punctuated,
     Token,
+};
+
+use crate::{
+    codegen::{
+        cross_calling::CrossCallingConflictCfg,
+        GenerateCode,
+        GenerateCodeUsing,
+    },
+    ir,
 };
 
 /// Generates code for the dispatch parts that dispatch constructors

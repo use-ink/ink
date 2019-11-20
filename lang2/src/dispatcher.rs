@@ -14,6 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::any::TypeId;
+
+use ink_core::{
+    env2::call::{
+        CallData,
+        Selector,
+    },
+    storage::Flush,
+};
+
 use crate::{
     AccessEnv,
     DispatchError,
@@ -21,14 +31,6 @@ use crate::{
     FnOutput,
     FnSelector,
     Message,
-};
-use core::any::TypeId;
-use ink_core::{
-    env2::call::{
-        CallData,
-        Selector,
-    },
-    storage::Flush,
 };
 
 /// Results of message handling operations.

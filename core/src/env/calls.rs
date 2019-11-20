@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-#[rustfmt::skip]
+use core::marker::PhantomData;
+
+use scale::Decode;
+
 use crate::{
     env::{
         self,
@@ -28,8 +31,6 @@ use crate::{
         vec::Vec,
     },
 };
-use core::marker::PhantomData;
-use scale::Decode;
 
 /// Consists of the input data to a call.
 /// The first four bytes are the function selector and the rest are SCALE encoded inputs.

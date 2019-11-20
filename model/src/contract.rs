@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+use core::marker::PhantomData;
+
+use ink_core::{
+    env,
+    memory::vec::Vec,
+};
+
 use crate::{
     exec_env::ExecutionEnv,
     msg::Message,
@@ -26,11 +33,6 @@ use crate::{
         UnreachableMessageHandler,
     },
     state::ContractState,
-};
-use core::marker::PhantomData;
-use ink_core::{
-    env,
-    memory::vec::Vec,
 };
 
 /// A marker struct to tell that the deploy handler requires no arguments.

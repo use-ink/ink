@@ -14,20 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{
-    exec_env::ExecutionEnv,
-    msg::Message,
-    state::ContractState,
-};
 use core::{
     marker::PhantomData,
     result::Result as CoreResult,
 };
+
 use ink_core::{
     env,
     memory::vec::Vec,
 };
 use scale::Decode;
+
+use crate::{
+    exec_env::ExecutionEnv,
+    msg::Message,
+    state::ContractState,
+};
 
 /// A raw read-only message handler for the given message and state.
 ///
