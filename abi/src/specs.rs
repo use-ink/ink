@@ -827,11 +827,13 @@ fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    let hex = format!(
-        r#"["0x{:02X}","0x{:02X}","0x{:02X}","0x{:02X}"]"#,
-        s[0], s[1], s[2], s[3]
-    );
-    serializer.serialize_str(&hex)
+    let arr = [
+        format!(r#"0x{:02X}"#, s[0]),
+        format!(r#"0x{:02X}"#, s[1]),
+        format!(r#"0x{:02X}"#, s[2]),
+        format!(r#"0x{:02X}"#, s[3]),
+    ];
+    arr.serialize(serializer)
 }
 
 #[cfg(test)]
@@ -856,7 +858,7 @@ mod tests {
         // then
         assert_eq!(
             json,
-            r#"{"name":1,"selector":"[\"0x07\",\"0x5B\",\"0xCD\",\"0x15\"]","args":[],"docs":[]}"#
+            r#"{"name":1,"selector":["0x07","0x5B","0xCD","0x15"],"args":[],"docs":[]}"#
         );
     }
 }
