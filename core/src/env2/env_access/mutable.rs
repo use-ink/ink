@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
+
 use crate::{
     env2::{
         call::{
@@ -39,7 +41,6 @@ use crate::{
         Key,
     },
 };
-use core::marker::PhantomData;
 
 #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
 #[derive(Debug)]

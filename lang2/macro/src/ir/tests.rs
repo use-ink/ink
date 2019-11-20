@@ -14,11 +14,12 @@
 
 //! Tests for the ink! IR module.
 
+use core::convert::TryFrom;
+
 use crate::ir::{
     Marker,
     Params,
 };
-use core::convert::TryFrom;
 
 #[test]
 fn parse_meta_storage() {

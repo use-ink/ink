@@ -147,8 +147,10 @@ contract! {
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
-    use super::*;
     use ink_core::env;
+
+    use super::*;
+
     type Types = ink_core::env::DefaultSrmlTypes;
 
     #[test]

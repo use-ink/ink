@@ -60,6 +60,13 @@
 //! kind of code duplication for the actual definition of the same version of
 //! the contracts that is not being compiled as dependency.
 
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::{
+    quote,
+    quote_spanned,
+};
+
 use crate::{
     codegen::{
         GenerateCode,
@@ -67,12 +74,6 @@ use crate::{
     },
     ir,
     ir::utils,
-};
-use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
 };
 
 #[derive(From)]

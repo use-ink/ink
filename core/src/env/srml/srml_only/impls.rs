@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
+
+use scale::{
+    Decode,
+    Encode,
+};
+
 use crate::{
     env::{
         srml::sys,
@@ -23,11 +30,6 @@ use crate::{
     },
     memory::vec::Vec,
     storage::Key,
-};
-use core::marker::PhantomData;
-use scale::{
-    Decode,
-    Encode,
 };
 
 /// Load the contents of the scratch buffer

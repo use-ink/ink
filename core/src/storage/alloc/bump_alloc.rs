@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::*;
-
-use crate::storage::Key;
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use super::*;
+use crate::storage::Key;
 
 /// An allocator that is meant to allocate contract storage at
 /// compile-time by simply bumping its current allocation key.
@@ -75,7 +75,7 @@ mod tests {
     fn allocate() {
         let offset_key = Key([0x00; 32]);
         let mut bump_alloc = unsafe { BumpAlloc::from_raw_parts(offset_key) };
-        assert_eq!(bump_alloc.alloc(1), offset_key + 0_u32);
+        assert_eq!(bump_alloc.alloc(1), offset_key);
         assert_eq!(bump_alloc.alloc(10), offset_key + 1_u32);
         assert_eq!(
             bump_alloc.alloc(u16::max_value() as u64),

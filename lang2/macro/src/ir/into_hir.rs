@@ -14,18 +14,15 @@
 
 //! Contains all conversion routines from Rust AST to ink! IR.
 
-use crate::{
-    ir,
-    ir::utils,
-};
 use core::convert::TryFrom;
+use std::collections::HashSet;
+
 use either::Either;
 use itertools::Itertools as _;
 use proc_macro2::{
     Ident,
     Span,
 };
-use std::collections::HashSet;
 use syn::{
     parse::{
         Parse,
@@ -35,6 +32,11 @@ use syn::{
     spanned::Spanned as _,
     Result,
     Token,
+};
+
+use crate::{
+    ir,
+    ir::utils,
 };
 
 impl Parse for ir::Marker {

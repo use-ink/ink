@@ -14,28 +14,26 @@
 
 use std::{
     error::Error,
+    fs::File,
     io::{
         prelude::*,
         Write,
     },
     iter::Iterator,
+    path::{
+        Path,
+        PathBuf,
+    },
     result::Result,
 };
+
+use walkdir::WalkDir;
 use zip::{
     result::ZipError,
     write::FileOptions,
     CompressionMethod,
     ZipWriter,
 };
-
-use std::{
-    fs::File,
-    path::{
-        Path,
-        PathBuf,
-    },
-};
-use walkdir::WalkDir;
 
 const DEFAULT_UNIX_PERMISSIONS: u32 = 0o755;
 

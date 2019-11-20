@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[rustfmt::skip]
+use core::marker::PhantomData;
+
+use scale::Decode;
+
 use crate::{
     env::{
         self,
@@ -26,8 +29,6 @@ use crate::{
         vec::Vec,
     },
 };
-use core::marker::PhantomData;
-use scale::Decode;
 
 /// Consists of the input data to a call.
 /// The first four bytes are the function selector and the rest are SCALE encoded inputs.

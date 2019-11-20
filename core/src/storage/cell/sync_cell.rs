@@ -12,19 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    memory::boxed::Box,
-    storage::{
-        alloc::{
-            Allocate,
-            AllocateUsing,
-        },
-        cell::TypedCell,
-        Flush,
-        Key,
-    },
-};
 use core::cell::RefCell;
+
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -39,6 +28,19 @@ use type_metadata::{
     TypeDef,
     TypeDefStruct,
     TypeId,
+};
+
+use crate::{
+    memory::boxed::Box,
+    storage::{
+        alloc::{
+            Allocate,
+            AllocateUsing,
+        },
+        cell::TypedCell,
+        Flush,
+        Key,
+    },
 };
 
 /// A synchronized cell.

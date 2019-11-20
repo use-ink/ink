@@ -17,14 +17,16 @@ use core::{
     convert::TryFrom,
 };
 
-use crate::{
-    env::EnvTypes,
-    storage::Flush,
-};
 use scale::{
     Decode,
     Encode,
 };
+
+use crate::{
+    env::EnvTypes,
+    storage::Flush,
+};
+
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 

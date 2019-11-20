@@ -50,8 +50,9 @@ mod events;
 mod storage;
 mod testable;
 
-use crate::ir;
 use proc_macro2::TokenStream as TokenStream2;
+
+use crate::ir;
 
 /// Types implementing this trait are code generators for the ink! language.
 pub trait GenerateCode {

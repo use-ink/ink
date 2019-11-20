@@ -12,6 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::iter::{
+    DoubleEndedIterator,
+    ExactSizeIterator,
+};
+
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
+
 use crate::storage::{
     self,
     alloc::{
@@ -22,19 +37,6 @@ use crate::storage::{
     chunk::SyncChunk,
     Flush,
 };
-use core::iter::{
-    DoubleEndedIterator,
-    ExactSizeIterator,
-};
-#[cfg(feature = "ink-generate-abi")]
-use ink_abi::{
-    HasLayout,
-    LayoutField,
-    LayoutStruct,
-    StorageLayout,
-};
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.
 ///

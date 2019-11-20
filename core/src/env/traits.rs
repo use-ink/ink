@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    memory::vec::Vec,
-    storage::Key,
-};
 use scale::{
     Codec,
     Decode,
+};
+
+use crate::{
+    memory::vec::Vec,
+    storage::Key,
 };
 
 /// Error encountered by calling a remote contract.

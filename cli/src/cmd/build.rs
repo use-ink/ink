@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::cmd::{
-    CommandError as Error,
-    Result,
-};
+use std::path::PathBuf;
+
 use cargo_metadata::MetadataCommand;
 use parity_wasm::elements::{
     External,
@@ -23,7 +21,11 @@ use parity_wasm::elements::{
     Module,
     Section,
 };
-use std::path::PathBuf;
+
+use crate::cmd::{
+    CommandError as Error,
+    Result,
+};
 
 /// This is the maximum number of pages available for a contract to allocate.
 const MAX_MEMORY_PAGES: u32 = 16;

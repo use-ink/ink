@@ -21,6 +21,6 @@
 //! By introducing `ink_utils` we have a way to share utility components between `ink_core` and
 //! other parts of the framework, like `ink_lang`.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![no_std]
 
 pub mod hash;

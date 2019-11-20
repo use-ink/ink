@@ -12,20 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    exec_env::ExecutionEnv,
-    msg::Message,
-    state::ContractState,
-};
 use core::{
     marker::PhantomData,
     result::Result as CoreResult,
 };
+
 use ink_core::{
     env,
     memory::vec::Vec,
 };
 use scale::Decode;
+
+use crate::{
+    exec_env::ExecutionEnv,
+    msg::Message,
+    state::ContractState,
+};
 
 /// A raw read-only message handler for the given message and state.
 ///

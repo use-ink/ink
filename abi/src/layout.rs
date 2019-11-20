@@ -12,12 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(not(feature = "std"))]
+use alloc::{
+    string::String,
+    vec::Vec,
+};
+use core::fmt::Write;
+
 use derive_more::From;
 use serde::{
     Serialize,
     Serializer,
 };
-use std::fmt::Write;
 use type_metadata::{
     form::{
         CompactForm,
@@ -27,9 +33,6 @@ use type_metadata::{
     IntoCompact,
     Registry,
 };
-
-#[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
 
 /// Implemented by types that have a storage layout.
 ///

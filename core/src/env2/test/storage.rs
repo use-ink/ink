@@ -18,6 +18,8 @@
 //! It is a map from `Key` (32-bytes) to a generic `Vec<u8>`.
 //! This is pretty close to the actual on-chain storage in Substrate.
 
+use core::cell::Cell;
+
 use crate::{
     memory::collections::btree_map::{
         self,
@@ -25,7 +27,6 @@ use crate::{
     },
     storage::Key,
 };
-use core::cell::Cell;
 
 /// An entry in the storage of the test environment.
 ///
