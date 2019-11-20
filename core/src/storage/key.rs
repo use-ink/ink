@@ -1,20 +1,17 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of ink!.
 //
-// ink! is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// ink! is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU General Public License
-// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-use crate::byte_utils;
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -28,6 +25,8 @@ use scale::{
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use crate::byte_utils;
 
 /// Typeless generic key into contract storage.
 ///
@@ -297,7 +296,7 @@ mod tests {
     #[test]
     fn key_sub() {
         run_test(|| {
-            assert_eq!(Key([0x42; 32]) - 0_u32, Key([0x42; 32]));
+            assert_eq!(Key([0x42; 32]), Key([0x42; 32]));
             assert_eq!(Key([0x00; 32]) - 1_u32, Key([0xFF; 32]));
             assert_eq!(
                 Key([0x01; 32]) - 1_u32,

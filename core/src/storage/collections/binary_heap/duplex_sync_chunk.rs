@@ -1,18 +1,16 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of ink!.
 //
-// ink! is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// ink! is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU General Public License
-// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 //! Provides a wrapper around `SyncChunk` which stores a defined amount
 //! of values in one cell (instead of the `SyncChunk` behavior of storing
@@ -33,10 +31,6 @@
 //! The getters and setters exposed by this module take care of mapping
 //! to the correct group index.
 
-use crate::storage::{
-    chunk::SyncChunk,
-    Flush,
-};
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -51,6 +45,11 @@ use scale::{
 };
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use crate::storage::{
+    chunk::SyncChunk,
+    Flush,
+};
 
 // Number of values stored in each entry of the `SyncChunk`.
 // Note that the first group (at index `0`) will only ever

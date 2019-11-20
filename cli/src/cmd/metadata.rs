@@ -1,22 +1,22 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of ink!.
 //
-// ink! is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// ink! is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU General Public License
-// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use std::path::PathBuf;
+
+use cargo_metadata::MetadataCommand;
 
 use crate::cmd::Result;
-use cargo_metadata::MetadataCommand;
-use std::path::PathBuf;
 
 /// Executes build of the smart-contract which produces a wasm binary that is ready for deploying.
 ///
@@ -37,7 +37,7 @@ pub(crate) fn execute_generate_metadata(dir: Option<&PathBuf>) -> Result<String>
     )?;
 
     let cargo_metadata = MetadataCommand::new().exec()?;
-    let mut out_path = cargo_metadata.target_directory.clone();
+    let mut out_path = cargo_metadata.target_directory;
     out_path.push("metadata.json");
 
     Ok(format!(
@@ -50,8 +50,8 @@ pub(crate) fn execute_generate_metadata(dir: Option<&PathBuf>) -> Result<String>
 mod tests {
     use crate::{
         cmd::{
-            execute_new,
             execute_generate_metadata,
+            execute_new,
             tests::with_tmp_dir,
         },
         AbstractionLayer,
@@ -64,9 +64,10 @@ mod tests {
             execute_new(AbstractionLayer::Lang, "new_project", Some(path))
                 .expect("new project creation failed");
             let working_dir = path.join("new_project");
-            super::execute_generate_metadata(Some(&working_dir)).expect("generate metadata failed");
+            execute_generate_metadata(Some(&working_dir))
+                .expect("generate metadata failed");
 
-            let mut abi_file = working_dir.clone();
+            let mut abi_file = working_dir;
             abi_file.push("target");
             abi_file.push("metadata.json");
             assert!(abi_file.exists())
