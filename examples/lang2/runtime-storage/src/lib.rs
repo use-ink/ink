@@ -61,14 +61,15 @@ mod runtime {
         }
     }
 
-//    #[cfg(all(test))]
-//    mod tests {
-//        use super::*;
-//
-//        #[test]
-//        fn it_works() {
-//            let contract = RuntimeStorage::new();
-//            assert_eq!(contract.get_balance(), false);
-//        }
-//    }
+    #[cfg(all(test))]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn non_existent_account_returns_zero() {
+            let contract = RuntimeStorage::new();
+            let account: AccountId = [0u8; 32].into();
+            assert_eq!(contract.get_balance(account), 0);
+        }
+    }
 }

@@ -509,11 +509,21 @@ where
         println!("{}", content)
     }
 
-    fn get_runtime_storage<I, R>(_buffer: &mut I, _key: &[u8]) -> Result<R>
+    fn get_runtime_storage<I, R>(_buffer: &mut I, key: &[u8]) -> Result<R>
         where
             I: AsMut<[u8]> + EnlargeTo,
             R: scale::Decode,
     {
-        unimplemented!()
+        INSTANCE.with(|instance| {
+            let storage = &instance.borrow().state.storage;
+            // raw runtime storage keys can be of any length, so hash to fit 32 byte Key size
+            let key = Key(ink_utils::hash::keccak256(key));
+            let encoded = storage
+                .read(key)
+                .map(|entry| entry.data())
+                .ok_or(Error::InvalidStorageRead)?;
+            Ok(scale::Decode::decode(&mut &encoded[..])
+                .map_err(|_| Error::InvalidStorageRead)?)
+        })
     }
 }
