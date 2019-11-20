@@ -47,7 +47,7 @@ variables:
     - /^[0-9]+$/                   # PRs
   retry:
     max: 2
-    when: 
+    when:
       - runner_system_failure
       - unknown_failure
       - api_failure
@@ -95,7 +95,7 @@ build-wasm:
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
-test-std:
+test:
   stage:                           workspace
   <<:                              *docker-env
   dependencies:
@@ -140,15 +140,15 @@ examples-test:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for DIR in examples/lang2/*; do 
-        cargo test --verbose --manifest-path ${DIR}/Cargo.toml;
+    - for example in examples/lang2/*; do
+        cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
 
 examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in examples/lang2/*; do 
+    - for example in examples/lang2/*; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
 
@@ -156,7 +156,7 @@ examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in examples/lang2/*; do 
+    - for example in examples/lang2/*; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --all-features -- -D warnings;
       done
 
@@ -164,7 +164,7 @@ examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in examples/lang2/*; do 
+    - for example in examples/lang2/*; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features -- -D warnings;
       done
 
@@ -182,7 +182,7 @@ examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in examples/lang2/*; do 
+    - for example in examples/lang2/*; do
         pushd $example &&
         cargo contract generate-metadata &&
         popd;
