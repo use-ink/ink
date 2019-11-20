@@ -17,14 +17,12 @@
 #![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use ink_core::memory::format;
+use ink_lang2 as ink;
 use scale::{
     Encode as _,
     KeyedVec as _,
 };
-use ink_core::{
-    memory::format,
-};
-use ink_lang2 as ink;
 
 mod crypto {
     /// Do a Blake2 256-bit hash and place result in `dest`.
@@ -44,8 +42,7 @@ mod crypto {
 mod runtime {
     /// This simple contract reads a value from runtime storage
     #[ink(storage)]
-    struct RuntimeStorage {
-    }
+    struct RuntimeStorage {}
 
     impl RuntimeStorage {
         #[ink(constructor)]
