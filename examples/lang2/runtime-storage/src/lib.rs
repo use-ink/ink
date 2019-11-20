@@ -45,17 +45,25 @@ mod runtime {
         /// Returns the account balance, read directly from runtime storage
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
-            let key = self.balance_storage_keys.get(&account).unwrap();
-            let result = self.env().get_runtime_storage::<Balance>(&key[..]);
-            match result {
-                Ok(balance) => {
-                    self.env().println("get_runtime_storage: Read balance Ok");
-                    balance
-                },
-                Err(_) => {
-                    self.env().println("get_runtime_storage: Error reading balance");
+            self.env().println(&format!("Getting balance for account {:?}", account.encode()));
+            match self.balance_storage_keys.get(&account) {
+                Some(key) => {
+                    let result = self.env().get_runtime_storage::<Balance>(&key[..]);
+                    match result {
+                        Ok(balance) => {
+                            self.env().println("get_runtime_storage: Read balance Ok");
+                            balance
+                        },
+                        Err(err) => {
+                            self.env().println(&format!("Error reading runtime storage {:?}", err));
+                            0
+                        },
+                    }
+                }
+                None => {
+                    self.env().println(&format!("No key found for account {:?}", account.encode()));
                     0
-                },
+                }
             }
         }
     }
