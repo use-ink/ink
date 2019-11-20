@@ -25,7 +25,7 @@ crate-type = [
 [features]
 default = ["test-env"]
 std = [
-	"blake2-rfc/std",
+    "blake2-rfc/std",
     "ink_abi/std",
     "ink_core/std",
     "scale/std",
