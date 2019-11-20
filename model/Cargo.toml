@@ -11,7 +11,7 @@ homepage = "https://www.parity.io/"
 description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 categories = ["no-std", "embedded"]
-include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 ink_core = { path = "../core", default-features = false }

@@ -213,13 +213,12 @@ where
         }
         // Dispatch using the contract execution input.
         let call_data = self.storage.access_env().input();
-        let ret = match mode {
+        match mode {
             DispatchMode::Instantiate => {
                 self.constructors.dispatch(&mut self.storage, &call_data)
             }
             DispatchMode::Call => self.messages.dispatch(&mut self.storage, &call_data),
-        };
-        ret
+        }
     }
 }
 

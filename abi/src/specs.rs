@@ -14,7 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
+#[cfg(not(feature = "std"))]
+use alloc::{
+    format,
+    vec,
+    vec::Vec,
+};
 use core::marker::PhantomData;
+
 use serde::{
     Serialize,
     Serializer,
@@ -28,12 +35,6 @@ use type_metadata::{
     IntoCompact,
     Metadata,
     Registry,
-};
-
-#[cfg(not(feature = "std"))]
-use alloc::{
-    vec,
-    vec::Vec,
 };
 
 /// Describes a contract.
@@ -719,7 +720,6 @@ impl EventParamSpecBuilder {
                 docs: docs.into_iter().collect::<Vec<_>>(),
                 ..self.spec
             },
-            ..self
         }
     }
 
@@ -843,10 +843,10 @@ mod tests {
     #[test]
     fn construct_selector_must_serialize_to_hex() {
         // given
-        let name = <MetaForm as Form>::String::from("foo");
+        let name = "foo";
         let cs: ConstructorSpec<MetaForm> = ConstructorSpec {
             name,
-            selector: 123456789u32.to_be_bytes(),
+            selector: 123_456_789u32.to_be_bytes(),
             args: Vec::new(),
             docs: Vec::new(),
         };

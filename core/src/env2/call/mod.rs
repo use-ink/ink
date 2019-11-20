@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ink!.  If not, see <http://www.gnu.org/licenses/>.
 
-mod call;
+mod builder;
 mod create;
 mod utils;
 
@@ -32,7 +32,7 @@ pub mod state {
 }
 
 pub use self::{
-    call::{
+    builder::{
         CallBuilder,
         CallParams,
         ReturnType,

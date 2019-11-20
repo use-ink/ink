@@ -297,7 +297,7 @@ mod tests {
     #[test]
     fn key_sub() {
         run_test(|| {
-            assert_eq!(Key([0x42; 32]) - 0_u32, Key([0x42; 32]));
+            assert_eq!(Key([0x42; 32]), Key([0x42; 32]));
             assert_eq!(Key([0x00; 32]) - 1_u32, Key([0xFF; 32]));
             assert_eq!(
                 Key([0x01; 32]) - 1_u32,
