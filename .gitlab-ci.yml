@@ -122,7 +122,7 @@ clippy-wasm:
     - check-wasm
   script:
     - for crate in ${WASM_CRATES}; do
-        cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings;
+        cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:
@@ -157,7 +157,7 @@ examples-clippy-std:
   <<:                              *docker-env
   script:
     - for example in examples/lang2/*; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --all-features -- -D warnings;
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
 
 examples-clippy-wasm:
@@ -165,7 +165,7 @@ examples-clippy-wasm:
   <<:                              *docker-env
   script:
     - for example in examples/lang2/*; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features -- -D warnings;
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
 examples-contract-build:
