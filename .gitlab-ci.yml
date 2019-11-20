@@ -6,7 +6,8 @@
 
 
 stages:
-  - check-workspace
+  - check
+  - workspace
   - examples
 
 variables:
@@ -55,10 +56,11 @@ variables:
   tags:
     - linux-docker
 
-#### stage:                        check-workspace
+
+#### stage:                        check
 
 check-std:
-  stage:                           check-workspace
+  stage:                           check
   <<:                              *docker-env
   script:
     # debug
@@ -69,55 +71,67 @@ check-std:
       done
 
 check-wasm:
-  stage:                           check-workspace
+  stage:                           check
   <<:                              *docker-env
   script:
     - for crate in ${WASM_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
+#### stage:                        workspace
+
 build-std:
-  stage:                           check-workspace
+  stage:                           workspace
   <<:                              *docker-env
+  dependencies:
+    - check-std
   script:
     - for crate in ${ALL_CRATES}; do
         cargo build --verbose --all-features --release;
       done
 
 build-wasm:
-  stage:                           check-workspace
+  stage:                           workspace
   <<:                              *docker-env
+  dependencies:
+    - check-wasm
   script:
     - for crate in ${WASM_CRATES}; do
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
 test:
-  stage:                           check-workspace
+  stage:                           workspace
   <<:                              *docker-env
+  dependencies:
+    - check-std
   script:
     - for crate in ${ALL_CRATES}; do
         cargo test --verbose --all-features --release;
       done
 
 clippy-std:
-  stage:                           check-workspace
+  stage:                           workspace
   <<:                              *docker-env
+  dependencies:
+    - check-std
   script:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features -- -D warnings;
       done
 
 clippy-wasm:
-  stage:                           check-workspace
+  stage:                           workspace
   <<:                              *docker-env
+  dependencies:
+    - check-wasm
   script:
     - for crate in ${WASM_CRATES}; do
         cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features -- -D warnings;
       done
 
 fmt:
-  stage:                           check-workspace
+  stage:                           workspace
   <<:                              *docker-env
   script:
     - for crate in ${ALL_CRATES}; do
@@ -169,12 +183,12 @@ examples-contract-build:
         popd;
       done
 
-examples-generate-abi:
+examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
   script:
     - for example in examples/lang2/*; do
         pushd $example &&
-        cargo contract generate-abi &&
+        cargo contract generate-metadata &&
         popd;
       done
