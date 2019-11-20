@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(clippy::new_ret_no_self)]
 
 #[cfg(not(feature = "std"))]
 extern crate alloc;

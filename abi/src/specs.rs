@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(clippy::new_ret_no_self)]
+
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
