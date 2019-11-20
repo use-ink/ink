@@ -85,7 +85,9 @@ check-wasm:
 build-std:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  # dependencies:
+  #   - check-std
+  needs:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
@@ -95,7 +97,9 @@ build-std:
 build-wasm:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  # dependencies:
+    # - check-wasm
+  needs:
     - check-wasm
   script:
     - for crate in ${WASM_CRATES}; do
@@ -105,7 +109,9 @@ build-wasm:
 test:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  # dependencies:
+    # - check-std
+  needs:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
@@ -115,7 +121,9 @@ test:
 clippy-std:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  # dependencies:
+    # - check-std
+  needs:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
@@ -125,7 +133,9 @@ clippy-std:
 clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  # dependencies:
+    # - check-wasm
+  needs:
     - check-wasm
   script:
     - for crate in ${WASM_CRATES}; do
@@ -135,6 +145,8 @@ clippy-wasm:
 fmt:
   stage:                           workspace
   <<:                              *docker-env
+  needs:
+    - check-std
   script:
     - for crate in ${ALL_CRATES}; do
         cargo fmt --verbose -- --check;
@@ -146,6 +158,8 @@ fmt:
 examples-test:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - build-std
   script:
     - for example in examples/lang2/*; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
@@ -154,6 +168,8 @@ examples-test:
 examples-fmt:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - build-std
   script:
     - for example in examples/lang2/*; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
@@ -162,6 +178,8 @@ examples-fmt:
 examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - build-std
   script:
     - for example in examples/lang2/*; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
@@ -170,6 +188,8 @@ examples-clippy-std:
 examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - build-wasm
   script:
     - for example in examples/lang2/*; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
