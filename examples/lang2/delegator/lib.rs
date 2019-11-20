@@ -20,8 +20,11 @@ use ink_core::storage;
 
 use ink_lang2 as ink;
 
+#[cfg(not(feature = "ink-as-dependency"))]
 use accumulator::Accumulator;
+#[cfg(not(feature = "ink-as-dependency"))]
 use adder::Adder;
+#[cfg(not(feature = "ink-as-dependency"))]
 use subber::Subber;
 
 #[ink::contract(version = "0.1.0")]
