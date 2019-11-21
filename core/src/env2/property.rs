@@ -16,11 +16,12 @@
 //!
 //! Allow to query and mutate certain properties of a smart contract.
 
+use core::marker::PhantomData;
+
 use crate::env2::{
     call::CallData,
     EnvTypes,
 };
-use core::marker::PhantomData;
 
 pub(crate) mod private {
     /// A seal to prevent outside crates to implement new properties.

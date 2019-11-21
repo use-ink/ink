@@ -7,9 +7,9 @@ edition = "2018"
 license = "APACHE-2.0"
 readme = "README.md"
 
-# repository = "https://github.com/robbepop/substrate-contract"
-# homepage = "https://github.com/robbepop/substrate-contract"
-# documentation = "https://robbepop.github.io/pwasm-abi/substrate-contract/"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://substrate.dev/substrate-contracts-workshop/#/"
+homepage = "https://www.parity.io/"
 
 description = "[pDSL: Parity eDSL] Rust based eDSL for writing smart contracts for Substrate"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
@@ -18,8 +18,4 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-tiny-keccak = "1.4"
-
-[features]
-default = ["std"]
-std = []
+tiny-keccak = { version = "2.0", features = ["keccak"] }

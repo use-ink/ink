@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::{
+    marker::PhantomData,
+    mem::ManuallyDrop,
+};
+
 use crate::{
     AccessEnv,
     Dispatch,
@@ -25,10 +30,6 @@ use crate::{
     FnInput,
     FnOutput,
     PushDispatcher,
-};
-use core::{
-    marker::PhantomData,
-    mem::ManuallyDrop,
 };
 
 /// The contract definition.
@@ -211,13 +212,12 @@ where
         }
         // Dispatch using the contract execution input.
         let call_data = self.storage.access_env().input();
-        let ret = match mode {
+        match mode {
             DispatchMode::Instantiate => {
                 self.constructors.dispatch(&mut self.storage, &call_data)
             }
             DispatchMode::Call => self.messages.dispatch(&mut self.storage, &call_data),
-        };
-        ret
+        }
     }
 }
 

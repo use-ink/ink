@@ -16,20 +16,11 @@
 // This might change in future versions of the pDSL.
 #![allow(clippy::implicit_hasher)]
 
-use crate::storage::{
-    self,
-    alloc::{
-        Allocate,
-        AllocateUsing,
-        Initialize,
-    },
-    chunk::SyncChunk,
-    Flush,
-};
 use core::{
     borrow::Borrow,
     hash::Hash,
 };
+
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -40,6 +31,17 @@ use ink_abi::{
 use ink_utils::hash;
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
+
+use crate::storage::{
+    self,
+    alloc::{
+        Allocate,
+        AllocateUsing,
+        Initialize,
+    },
+    chunk::SyncChunk,
+    Flush,
+};
 
 /// Mapping stored in the contract storage.
 ///

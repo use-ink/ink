@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ContractState;
 use core::marker::PhantomData;
+
 use ink_core::{
     env::{
         self,
@@ -31,6 +31,8 @@ use scale::{
     Decode,
     Encode as _,
 };
+
+use crate::ContractState;
 
 /// Provides a safe interface to an environment given a contract state.
 pub struct ExecutionEnv<State, Env> {

@@ -14,11 +14,12 @@
 
 //! Utility definitions used for environmental access.
 
-use crate::memory::vec::Vec;
 use smallvec::{
     Array,
     SmallVec,
 };
+
+use crate::memory::vec::Vec;
 
 /// Buffers that allow to reset themselves.
 ///

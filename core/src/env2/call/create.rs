@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
+
 use crate::{
     env2::{
         call::{
@@ -25,7 +27,6 @@ use crate::{
     },
     memory::vec::Vec,
 };
-use core::marker::PhantomData;
 
 pub mod state {
     pub use crate::env2::call::state::{

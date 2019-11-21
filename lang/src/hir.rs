@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ast;
 use proc_macro2::{
     Ident,
     Span,
@@ -24,6 +23,8 @@ use syn::{
     Token,
     Type,
 };
+
+use crate::ast;
 
 /// A smart contract.
 #[derive(Debug)]

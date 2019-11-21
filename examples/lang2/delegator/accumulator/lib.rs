@@ -15,7 +15,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(proc_macro_hygiene)]
 
+#[cfg(not(feature = "ink-as-dependency"))]
 use ink_core::storage;
+
 use ink_lang2 as ink;
 
 #[ink::contract(version = "0.1.0")]

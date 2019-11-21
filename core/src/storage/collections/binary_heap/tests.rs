@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::{
+    cmp::Ord,
+    fmt::Debug,
+};
+
+use scale::{
+    Codec,
+    Decode,
+    Encode,
+};
+
 use crate::{
     storage::{
         alloc::{
@@ -23,15 +34,6 @@ use crate::{
         Key,
     },
     test_utils::run_test,
-};
-use core::{
-    cmp::Ord,
-    fmt::Debug,
-};
-use scale::{
-    Codec,
-    Decode,
-    Encode,
 };
 
 fn empty_heap() -> BinaryHeap<i32> {
@@ -67,7 +69,9 @@ fn assert_push_equals_sorted_pop<T: Ord + Codec + Debug>(
 
     let mut prior = None;
     while let Some(val) = heap.pop() {
-        prior.map(|p| assert!(val <= p)); // it's a max heap
+        if let Some(p) = prior {
+            assert!(val <= p); // it's a max heap
+        }
         prior = Some(val);
     }
 
@@ -283,7 +287,7 @@ fn iter_size_hint() {
 fn unordered_push_results_in_ordered_pop() {
     run_test(|| {
         let mut heap = empty_heap();
-        let vec = vec![5, 42, 1337, 77, -1, 0, 9999, 3, 65, 90, 1000000, -32];
+        let vec = vec![5, 42, 1337, 77, -1, 0, 9999, 3, 65, 90, 1_000_000, -32];
         assert_push_equals_sorted_pop(&mut heap, vec);
     })
 }

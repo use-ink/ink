@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::cell::RefCell;
+
 use crate::{
     env2::{
         call::{
@@ -37,7 +39,6 @@ use crate::{
         Key,
     },
 };
-use core::cell::RefCell;
 
 /// A `&self` accessor to `EnvAccessMut`.
 ///

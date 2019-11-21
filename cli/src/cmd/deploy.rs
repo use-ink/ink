@@ -12,20 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::cmd::{
-    build::{
-        self,
-        CrateMetadata,
-    },
-    Result,
-};
-
-use futures::future::Future;
 use std::{
     fs,
     io::Read,
     path::PathBuf,
 };
+
+use futures::future::Future;
 use substrate_primitives::{
     crypto::Pair,
     sr25519,
@@ -35,6 +28,14 @@ use subxt::{
     contracts::ContractsXt,
     system::System,
     DefaultNodeRuntime,
+};
+
+use crate::cmd::{
+    build::{
+        self,
+        CrateMetadata,
+    },
+    Result,
 };
 
 /// Load the wasm blob from the specified path.
@@ -105,12 +106,13 @@ pub(crate) fn execute_deploy(
 
 #[cfg(test)]
 mod tests {
-    use assert_matches::assert_matches;
     use std::{
         fs,
         io::Write,
         path,
     };
+
+    use assert_matches::assert_matches;
 
     #[test]
     #[ignore] // depends on a local substrate node running

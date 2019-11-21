@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::cell::RefCell;
+
 use crate::memory::collections::btree_map::{
     BTreeMap,
     Entry,
 };
-use core::cell::RefCell;
 
 /// A single cache entry.
 #[derive(Debug, PartialEq, Eq)]

@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use derive_more::From;
+
 use crate::memory::{
     vec,
     vec::Vec,
 };
-use derive_more::From;
 
 /// Seals to guard pushing arguments to already satisfied parameter builders.
 pub mod seal {
@@ -49,6 +50,7 @@ impl<'a> From<&'a [u8]> for Selector {
 
 impl Selector {
     /// Returns the selector for the given name.
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(name: &str) -> Self {
         From::from(name.as_bytes())
     }

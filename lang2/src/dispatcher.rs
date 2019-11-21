@@ -12,6 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::any::TypeId;
+
+use ink_core::{
+    env2::call::{
+        CallData,
+        Selector,
+    },
+    storage::Flush,
+};
+
 use crate::{
     AccessEnv,
     DispatchError,
@@ -19,14 +29,6 @@ use crate::{
     FnOutput,
     FnSelector,
     Message,
-};
-use core::any::TypeId;
-use ink_core::{
-    env2::call::{
-        CallData,
-        Selector,
-    },
-    storage::Flush,
 };
 
 /// Results of message handling operations.

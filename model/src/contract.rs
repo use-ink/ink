@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
+
+use ink_core::{
+    env,
+    memory::vec::Vec,
+};
+
 use crate::{
     exec_env::ExecutionEnv,
     msg::Message,
@@ -24,11 +31,6 @@ use crate::{
         UnreachableMessageHandler,
     },
     state::ContractState,
-};
-use core::marker::PhantomData;
-use ink_core::{
-    env,
-    memory::vec::Vec,
 };
 
 /// A marker struct to tell that the deploy handler requires no arguments.

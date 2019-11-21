@@ -21,6 +21,8 @@
 //! The executed smart contract as well as the default caller will
 //! always have predefined accounts.
 
+use core::borrow::Borrow;
+
 use crate::{
     env2::test::{
         storage::Storage,
@@ -29,7 +31,6 @@ use crate::{
     },
     memory::collections::btree_map::BTreeMap,
 };
-use core::borrow::Borrow;
 
 /// The on-chain registered accounts.
 ///

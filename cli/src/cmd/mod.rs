@@ -21,20 +21,20 @@ use std::{
     process::Command,
 };
 
-mod metadata;
 mod build;
 mod deploy;
 mod error;
+mod metadata;
 mod new;
 
 pub(crate) use self::{
-    metadata::execute_generate_metadata,
     build::execute_build,
     deploy::execute_deploy,
     error::{
         CommandError,
         Result,
     },
+    metadata::execute_generate_metadata,
     new::execute_new,
 };
 

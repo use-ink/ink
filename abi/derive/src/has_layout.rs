@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::impl_wrapper::wrap;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
@@ -27,6 +26,8 @@ use syn::{
     Fields,
     Token,
 };
+
+use crate::impl_wrapper::wrap;
 
 pub fn generate(input: TokenStream2) -> TokenStream2 {
     match generate_impl(input) {
