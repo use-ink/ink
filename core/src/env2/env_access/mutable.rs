@@ -321,4 +321,17 @@ where
     pub fn println(&mut self, content: &str) {
         T::println(content)
     }
+
+    /// Returns the value from the *runtime* storage at the position of the key.
+    ///
+    /// # Errors
+    ///
+    /// - If the key's entry is empty
+    /// - If the decoding of the typed value failed
+    pub fn get_runtime_storage<R>(&mut self, key: &[u8]) -> Result<R>
+    where
+        R: scale::Decode,
+    {
+        T::get_runtime_storage(&mut self.buffer, key)
+    }
 }

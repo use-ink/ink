@@ -185,6 +185,17 @@ pub trait Env:
     /// In fact production chains will generally reject contracts upon deploy
     /// that make use of this functionality.
     fn println(content: &str);
+
+    /// Returns the value from the *runtime* storage at the position of the key.
+    ///
+    /// # Errors
+    ///
+    /// - If `key` associates no elements.
+    /// - If the element at `key` could not be decoded into `T`.
+    fn get_runtime_storage<I, T>(buffer: &mut I, key: &[u8]) -> Result<T>
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+        T: scale::Decode;
 }
 
 /// Implemented by event types to communicate their topic hashes.
