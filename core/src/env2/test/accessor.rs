@@ -515,12 +515,12 @@ where
     {
         INSTANCE.with(|instance| {
             let storage = &instance.borrow().state.storage;
-            // raw runtime storage keys can be of any length, so hash to fit 32 byte Key size
+            // Raw runtime storage keys can be of any length, so hash to fit 32 byte Key size
             let key = Key(ink_utils::hash::keccak256(key));
             let encoded = storage
                 .read(key)
                 .map(|entry| entry.data())
-                .ok_or(Error::InvalidStorageRead)?;
+                .ok_or(Error::InvalidStorageKey)?;
             Ok(scale::Decode::decode(&mut &encoded[..])
                 .map_err(|_| Error::InvalidStorageRead)?)
         })
