@@ -17,24 +17,70 @@
 extern crate alloc;
 extern crate proc_macro;
 
-#[macro_use]
-mod error;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
 
-mod macros;
+synstructure::decl_derive!([Flush] => flush_derive);
+synstructure::decl_derive!([AllocateUsing] => allocate_using_derive);
 
-use proc_macro::TokenStream;
+pub(crate) fn flush_derive(mut s: synstructure::Structure) -> TokenStream2 {
+    s.bind_with(|_| synstructure::BindStyle::Move);
+    s.add_bounds(synstructure::AddBounds::Fields);
+    let mut requires_match = false;
+    let body = s.each(|bi| {
+        requires_match = true;
+        quote! {
+            ink_core::storage::Flush::flush(#bi)
+        }
+    });
+    let body = if requires_match {
+        quote! {
+            match self {
+                #body
+            }
+        }
+    } else {
+        quote! {}
+    };
+    s.gen_impl(quote! {
+        extern crate ink_core;
 
-#[proc_macro_derive(Flush)]
-pub fn flush(input: TokenStream) -> TokenStream {
-    macros::flush::generate(input.into()).into()
+        gen impl ink_core::storage::Flush for @Self {
+            fn flush(&mut self) {
+                #body
+            }
+        }
+    })
 }
 
-// #[proc_macro_derive(AllocateUsing)]
-// pub fn allocate_using(input: TokenStream) -> TokenStream {
-//     macros::allocate_using::generate(input.into()).into()
-// }
+pub(crate) fn allocate_using_derive(mut s: synstructure::Structure) -> TokenStream2 {
+    // We cannot implement AllocateUsing on enums because we cannot specify
+    // which variant we are going to use.
+    if let syn::Data::Enum(ref _enum_data) = s.ast().data {
+        panic!("cannot derive AllocateUsing for enums")
+    }
+    s.bind_with(|_| synstructure::BindStyle::Move);
+    s.add_bounds(synstructure::AddBounds::Fields);
+    let body = s.each_variant(|vi| {
+        vi.construct(|field, _| {
+            let ty = &field.ty;
+            quote! {
+                <#ty as ink_core::storage::alloc::AllocateUsing>::allocate_using(alloc)
+            }
+        })
+    });
+    s.gen_impl(quote! {
+        extern crate ink_core;
 
-// #[proc_macro_derive(Initialize)]
-// pub fn initialize(input: TokenStream) -> TokenStream {
-//     macros::initialize::generate(input.into()).into()
-// }
+        gen impl ink_core::storage::alloc::AllocateUsing for @Self {
+            fn allocate_using<A>(alloc: &mut A) -> Self
+            where
+                A: ink_core::storage::alloc::Allocate,
+            {
+                match self {
+                    #body
+                }
+            }
+        }
+    })
+}
