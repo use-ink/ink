@@ -1,20 +1,27 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of ink!.
 //
-// ink! is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// ink! is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU General Public License
-// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
+#![allow(clippy::new_ret_no_self)]
+
+#[cfg(not(feature = "std"))]
+use alloc::{
+    format,
+    vec,
+    vec::Vec,
+};
 use core::marker::PhantomData;
+
 use serde::{
     Serialize,
     Serializer,
@@ -28,12 +35,6 @@ use type_metadata::{
     IntoCompact,
     Metadata,
     Registry,
-};
-
-#[cfg(not(feature = "std"))]
-use alloc::{
-    vec,
-    vec::Vec,
 };
 
 /// Describes a contract.
@@ -719,7 +720,6 @@ impl EventParamSpecBuilder {
                 docs: docs.into_iter().collect::<Vec<_>>(),
                 ..self.spec
             },
-            ..self
         }
     }
 
@@ -825,6 +825,7 @@ impl MessageParamSpecBuilder {
     }
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -843,10 +844,10 @@ mod tests {
     #[test]
     fn construct_selector_must_serialize_to_hex() {
         // given
-        let name = <MetaForm as Form>::String::from("foo");
+        let name = "foo";
         let cs: ConstructorSpec<MetaForm> = ConstructorSpec {
             name,
-            selector: 123456789u32.to_be_bytes(),
+            selector: 123_456_789u32.to_be_bytes(),
             args: Vec::new(),
             docs: Vec::new(),
         };

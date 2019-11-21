@@ -1,18 +1,27 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of ink!.
 //
-// ink! is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// ink! is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU General Public License
-// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use core::{
+    cmp::Ord,
+    fmt::Debug,
+};
+
+use scale::{
+    Codec,
+    Decode,
+    Encode,
+};
 
 use crate::{
     storage::{
@@ -25,15 +34,6 @@ use crate::{
         Key,
     },
     test_utils::run_test,
-};
-use core::{
-    cmp::Ord,
-    fmt::Debug,
-};
-use scale::{
-    Codec,
-    Decode,
-    Encode,
 };
 
 fn empty_heap() -> BinaryHeap<i32> {
@@ -69,7 +69,9 @@ fn assert_push_equals_sorted_pop<T: Ord + Codec + Debug>(
 
     let mut prior = None;
     while let Some(val) = heap.pop() {
-        prior.map(|p| assert!(val <= p)); // it's a max heap
+        if let Some(p) = prior {
+            assert!(val <= p); // it's a max heap
+        }
         prior = Some(val);
     }
 
@@ -285,7 +287,7 @@ fn iter_size_hint() {
 fn unordered_push_results_in_ordered_pop() {
     run_test(|| {
         let mut heap = empty_heap();
-        let vec = vec![5, 42, 1337, 77, -1, 0, 9999, 3, 65, 90, 1000000, -32];
+        let vec = vec![5, 42, 1337, 77, -1, 0, 9999, 3, 65, 90, 1_000_000, -32];
         assert_push_equals_sorted_pop(&mut heap, vec);
     })
 }
