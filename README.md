@@ -4,8 +4,8 @@
 | :----------------: | :------------------: | :--------------------: | :--------------: |
 | [![linux][a1]][a2] | [![codecov][c1]][c2] | [![coveralls][d1]][d2] | [![loc][e1]][e2] |
 
-[a1]: https://travis-ci.org/paritytech/ink.svg?branch=master
-[a2]: https://travis-ci.org/paritytech/ink
+[a1]: https://gitlab.parity.io/parity/ink/badges/master/build.svg
+[a2]: https://gitlab.parity.io/parity/ink/pipelines
 [c1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
 [c2]: https://codecov.io/gh/paritytech/ink/branch/master
 [d1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
