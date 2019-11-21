@@ -193,9 +193,9 @@ pub trait Env:
     /// - If `key` associates no elements.
     /// - If the element at `key` could not be decoded into `T`.
     fn get_runtime_storage<I, T>(buffer: &mut I, key: &[u8]) -> Result<T>
-        where
-            I: AsMut<[u8]> + EnlargeTo,
-            T: scale::Decode;
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+        T: scale::Decode;
 }
 
 /// Implemented by event types to communicate their topic hashes.

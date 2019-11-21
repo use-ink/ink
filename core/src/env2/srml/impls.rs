@@ -415,9 +415,9 @@ where
     }
 
     fn get_runtime_storage<I, R>(buffer: &mut I, key: &[u8]) -> Result<R>
-        where
-            I: AsMut<[u8]> + EnlargeTo,
-            R: scale::Decode,
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+        R: scale::Decode,
     {
         let ret = ext::get_runtime_storage(key);
         if !ret.is_success() {

@@ -509,9 +509,9 @@ where
     }
 
     fn get_runtime_storage<I, R>(_buffer: &mut I, key: &[u8]) -> Result<R>
-        where
-            I: AsMut<[u8]> + EnlargeTo,
-            R: scale::Decode,
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+        R: scale::Decode,
     {
         INSTANCE.with(|instance| {
             let storage = &instance.borrow().state.storage;
