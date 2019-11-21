@@ -1,18 +1,18 @@
 // Copyright 2018-2019 Parity Technologies (UK) Ltd.
-// This file is part of ink!.
 //
-// ink! is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// ink! is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU General Public License
-// along with ink!.  If not, see <http://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use scale::Codec;
 
 use crate::{
     env2::{
@@ -30,7 +30,6 @@ use crate::{
     },
     storage::Key,
 };
-use scale::Codec;
 
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
@@ -186,6 +185,17 @@ pub trait Env:
     /// In fact production chains will generally reject contracts upon deploy
     /// that make use of this functionality.
     fn println(content: &str);
+
+    /// Returns the value from the *runtime* storage at the position of the key.
+    ///
+    /// # Errors
+    ///
+    /// - If `key` associates no elements.
+    /// - If the element at `key` could not be decoded into `T`.
+    fn get_runtime_storage<I, T>(buffer: &mut I, key: &[u8]) -> Result<T>
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+        T: scale::Decode;
 }
 
 /// Implemented by event types to communicate their topic hashes.

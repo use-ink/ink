@@ -1,4 +1,3 @@
-
 fn main() -> Result<(), std::io::Error> {
     let abi = <contract::Flipper as ink_lang2::GenerateAbi>::generate_abi();
     let contents = serde_json::to_string_pretty(&abi)?;
