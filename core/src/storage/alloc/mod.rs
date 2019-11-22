@@ -32,5 +32,4 @@ pub use self::{
     },
 };
 
-#[cfg(feature = "derive")]
 pub use ink_core_derive::AllocateUsing;
