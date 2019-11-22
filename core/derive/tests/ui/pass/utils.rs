@@ -15,7 +15,7 @@
 #[derive(Debug, PartialEq, Eq, Default)]
 pub struct Cell {
     // We use this for testing if the Flush implementation is somewhat correct.
-    count_flushed: usize,
+    pub count_flushed: usize,
 }
 
 impl ink_core::storage::Flush for Cell {
@@ -37,7 +37,7 @@ impl ink_core::storage::alloc::AllocateUsing for Cell {
 #[derive(Debug, PartialEq, Eq, Default)]
 pub struct Chunk {
     // We use this for testing if the Flush implementation is somewhat correct.
-    count_flushed: usize,
+    pub count_flushed: usize,
 }
 
 impl ink_core::storage::Flush for Chunk {
@@ -58,7 +58,7 @@ impl ink_core::storage::alloc::AllocateUsing for Chunk {
 
 #[derive(Debug, PartialEq, Eq, Default)]
 pub struct Value<T> {
-    value: T,
+    pub value: T,
 }
 
 impl<T> ink_core::storage::Flush for Value<T>

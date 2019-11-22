@@ -17,6 +17,7 @@ mod utils;
 use ink_core_derive::Flush;
 use utils::*;
 
+#[derive(Debug, Default, PartialEq, Eq)]
 struct StorageVec<T> {
     // We use this for testing if the Flush implementation is somewhat correct.
     count_flushed: usize,
@@ -31,67 +32,154 @@ where
     T: ink_core::storage::Flush,
 {
     fn flush(&mut self) {
+        self.count_flushed += 1;
         for elem in &mut self.elems {
             elem.flush();
         }
     }
 }
 
-#[derive(Flush)]
+#[derive(Flush, Debug, Default, PartialEq, Eq)]
 struct UnitStruct;
 
-#[derive(Flush)]
+#[derive(Flush, Debug, Default, PartialEq, Eq)]
 struct NewtypeStruct(Cell);
 
-#[derive(Flush)]
+#[derive(Flush, Debug, Default, PartialEq, Eq)]
 struct NamedStruct {
     a: Cell,
     b: Chunk,
 }
 
-#[derive(Flush)]
+#[derive(Flush, Debug, Default, PartialEq, Eq)]
 struct ComplexNamedStruct {
     a: Chunk,
     b: Value<Cell>,
     c: Value<Chunk>,
 }
 
-#[derive(Flush)]
+#[derive(Flush, Debug, Default, PartialEq, Eq)]
 struct GenericNamedStruct<T> {
-    a: Option<T>,
-    b: Value<T>,
+    a: Cell,
+    b: Chunk,
     c: Value<T>,
+    d: StorageVec<Value<T>>,
 }
 
-#[derive(Flush)]
-enum EmptyEnum {}
-
-#[derive(Flush)]
+#[derive(Flush, Debug, PartialEq, Eq)]
 enum CStyleEnum {
     A,
     B,
     C,
 }
 
-#[derive(Flush)]
+impl Default for CStyleEnum {
+    fn default() -> Self {
+        Self::A
+    }
+}
+
+#[derive(Flush, Debug, PartialEq, Eq)]
 enum TupleStructEnum {
     A(Cell),
     B(Cell, Chunk),
     C(Cell, Chunk, StorageVec<Cell>),
 }
 
-#[derive(Flush)]
-enum StructEnum {
-    A { a: bool },
-    B { a: i8, b: i16 },
-    C { a: String, b: Vec<u8>, c: [u8; 32] },
+impl Default for TupleStructEnum {
+    fn default() -> Self {
+        Self::C(Cell::default(), Chunk::default(), StorageVec::<Cell>::default())
+    }
 }
 
-#[derive(Flush)]
+#[derive(Flush, Debug, PartialEq, Eq)]
+enum StructEnum {
+    A {
+        a: Cell,
+    },
+    B {
+        a: Cell,
+        b: Chunk,
+    },
+    C {
+        a: Value<Cell>,
+        b: StorageVec<Cell>,
+        c: StorageVec<Value<Chunk>>,
+    },
+}
+
+impl Default for StructEnum {
+    fn default() -> Self {
+        Self::C {
+            a: Value::default(),
+            b: StorageVec::default(),
+            c: StorageVec::default(),
+        }
+    }
+}
+
+#[derive(Flush, Debug, PartialEq, Eq)]
 enum MixedEnum {
     A,
-    B(String, Vec<u8>, [u8; 32]),
-    C { a: String, b: Vec<u8>, c: [u8; 32] },
+    B(Cell, Value<Cell>, StorageVec<Cell>),
+    C {
+        a: Chunk,
+        b: Value<Cell>,
+        c: StorageVec<Chunk>,
+    },
 }
 
-fn main() {}
+impl Default for MixedEnum {
+    fn default() -> Self {
+        Self::C {
+            a: Chunk::default(),
+            b: Value::default(),
+            c: StorageVec::<Chunk>::default(),
+        }
+    }
+}
+
+fn test_for<T>(expected: T)
+where
+    T: Default + ink_core::storage::Flush + PartialEq + Eq + core::fmt::Debug,
+{
+    let mut input = T::default();
+    input.flush();
+    assert_eq!(input, expected);
+}
+
+fn main() {
+    test_for::<UnitStruct>(Default::default());
+    test_for::<NewtypeStruct>(NewtypeStruct(Cell { count_flushed: 1 }));
+    test_for::<NamedStruct>(NamedStruct {
+        a: Cell { count_flushed: 1 },
+        b: Chunk { count_flushed: 1 }
+    });
+    test_for::<ComplexNamedStruct>(ComplexNamedStruct {
+        a: Chunk { count_flushed: 1 },
+        b: Value { value: Cell { count_flushed: 1 } },
+        c: Value { value: Chunk { count_flushed: 1 } },
+    });
+    test_for::<GenericNamedStruct<Cell>>(GenericNamedStruct::<Cell> {
+        a: Cell { count_flushed: 1 },
+        b: Chunk { count_flushed: 1 },
+        c: Value { value: Cell { count_flushed: 1 } },
+        d: StorageVec { count_flushed: 1, elems: vec![] },
+    });
+    test_for::<CStyleEnum>(Default::default());
+    test_for::<TupleStructEnum>(TupleStructEnum::C(
+        Cell { count_flushed: 1 },
+        Chunk { count_flushed: 1 },
+        StorageVec { count_flushed: 1, elems: vec![] }
+    ));
+    test_for::<StructEnum>(StructEnum::C {
+        a: Value { value: Cell { count_flushed: 1 } },
+        b: StorageVec { count_flushed: 1, elems: vec![] },
+        c: StorageVec { count_flushed: 1, elems: vec![] },
+    });
+    test_for::<MixedEnum>(MixedEnum::C {
+        a: Chunk { count_flushed: 1 },
+        b: Value { value: Cell { count_flushed: 1 } },
+        c: StorageVec { count_flushed: 1, elems: vec![] },
+    })
+}

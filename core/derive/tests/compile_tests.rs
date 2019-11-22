@@ -17,5 +17,6 @@ fn compile_tests() {
     let t = trybuild::TestCases::new();
     t.pass("tests/ui/pass/flush.rs");
     t.pass("tests/ui/pass/allocate_using.rs");
-    // t.compile_fail("tests/ui/fail/01-constructor-returns.rs");
+    t.compile_fail("tests/ui/fail/flush_empty_enum.rs");
+    t.compile_fail("tests/ui/fail/allocate_using_enum.rs");
 }
