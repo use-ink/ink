@@ -68,9 +68,9 @@ check-std:
     - echo $CARGO_TARGET_DIR
     # - du -sh /ci-cache/${CI_PROJECT_NAME}/target/*
     - du -sh /ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/*
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --all-features;
-      done
+    # - for crate in ${ALL_CRATES}; do
+    - cargo check --verbose --all-features
+    #   done
 
 check-wasm:
   stage:                           check
@@ -90,9 +90,9 @@ build-std:
   needs:
     - check-std
   script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release;
-      done
+    # - for crate in ${ALL_CRATES}; do
+    - cargo build --verbose --all-features --release;
+    #   done
 
 build-wasm:
   stage:                           workspace
@@ -114,9 +114,9 @@ test:
   needs:
     - check-std
   script:
-    - for crate in ${ALL_CRATES}; do
-        cargo test --verbose --all-features --release;
-      done
+    # - for crate in ${ALL_CRATES}; do
+    - cargo test --verbose --all-features --release;
+    #  done
 
 clippy-std:
   stage:                           workspace
@@ -126,9 +126,9 @@ clippy-std:
   needs:
     - check-std
   script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features -- -D warnings;
-      done
+    # - for crate in ${ALL_CRATES}; do
+    - cargo clippy --verbose --all-features -- -D warnings;
+    #  done
 
 clippy-wasm:
   stage:                           workspace
@@ -148,9 +148,9 @@ fmt:
   needs:
     - check-std
   script:
-    - for crate in ${ALL_CRATES}; do
-        cargo fmt --verbose -- --check;
-      done
+    # - for crate in ${ALL_CRATES}; do
+    - cargo fmt --verbose -- --check;
+    #  done
 
 
 #### stage:                        examples
