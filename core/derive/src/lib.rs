@@ -24,6 +24,9 @@ synstructure::decl_derive!([Flush] => flush_derive);
 synstructure::decl_derive!([AllocateUsing] => allocate_using_derive);
 
 pub(crate) fn flush_derive(mut s: synstructure::Structure) -> TokenStream2 {
+    if s.variants().is_empty() {
+        panic!("deriving Flush for empty enum is invalid")
+    }
     s.bind_with(|_| synstructure::BindStyle::Move);
     s.add_bounds(synstructure::AddBounds::Fields);
     // Upon seeing the first variant we set this to true.
