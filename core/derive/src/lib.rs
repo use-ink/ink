@@ -61,6 +61,11 @@ pub(crate) fn allocate_using_derive(mut s: synstructure::Structure) -> TokenStre
     }
     s.bind_with(|_| synstructure::BindStyle::Move);
     s.add_bounds(synstructure::AddBounds::Fields);
+    // The `synstructure` crate treats every input as `enum`.
+    // So even `struct`s are treated as single-variant enums.
+    // Some line above we exclude `enum` for deriving this trait so
+    // all inputs (`struct` only) have exactly one variant which
+    // is the `struct` itself.
     let body = s.variants()[0].construct(|field, _| {
         let ty = &field.ty;
         quote! {
