@@ -129,11 +129,11 @@ contract! {
         /// Transfers token from a specified AccountId to another AccountId.
         fn transfer_impl(&mut self, env: &mut EnvHandler<ink_core::env::ContractEnv<DefaultSrmlTypes>>, from: AccountId, to: AccountId, value: Balance) -> bool {
             let balance_from = self.balance_of_or_zero(&from);
-            let balance_to = self.balance_of_or_zero(&to);
             if balance_from < value {
                 return false
             }
             self.balances.insert(from, balance_from - value);
+            let balance_to = self.balance_of_or_zero(&to);
             self.balances.insert(to, balance_to + value);
             env.emit(Transfer {
                 from: Some(from),
