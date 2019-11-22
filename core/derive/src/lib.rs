@@ -61,25 +61,21 @@ pub(crate) fn allocate_using_derive(mut s: synstructure::Structure) -> TokenStre
     }
     s.bind_with(|_| synstructure::BindStyle::Move);
     s.add_bounds(synstructure::AddBounds::Fields);
-    let body = s.each_variant(|vi| {
-        vi.construct(|field, _| {
-            let ty = &field.ty;
-            quote! {
-                <#ty as ink_core::storage::alloc::AllocateUsing>::allocate_using(alloc)
-            }
-        })
+    let body = s.variants()[0].construct(|field, _| {
+        let ty = &field.ty;
+        quote! {
+            <#ty as ink_core::storage::alloc::AllocateUsing>::allocate_using(alloc)
+        }
     });
     s.gen_impl(quote! {
         extern crate ink_core;
 
         gen impl ink_core::storage::alloc::AllocateUsing for @Self {
-            fn allocate_using<A>(alloc: &mut A) -> Self
+            unsafe fn allocate_using<A>(alloc: &mut A) -> Self
             where
                 A: ink_core::storage::alloc::Allocate,
             {
-                match self {
-                    #body
-                }
+                #body
             }
         }
     })
