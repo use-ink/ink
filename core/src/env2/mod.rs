@@ -50,6 +50,7 @@ pub mod property;
 mod traits;
 pub mod types;
 pub mod utils;
+mod buffer_arena;
 
 use cfg_if::cfg_if;
 
