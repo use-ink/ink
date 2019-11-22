@@ -26,6 +26,11 @@ synstructure::decl_derive!([AllocateUsing] => allocate_using_derive);
 pub(crate) fn flush_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move);
     s.add_bounds(synstructure::AddBounds::Fields);
+    // Upon seeing the first variant we set this to true.
+    // This is needed so that we do not have a `match self`
+    // for empty enums which apparently causes errors.
+    // If there is a better solution to tackle this please
+    // update this.
     let mut requires_match = false;
     let body = s.each(|bi| {
         requires_match = true;
