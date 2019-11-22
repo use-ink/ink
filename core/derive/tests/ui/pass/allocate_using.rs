@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_core_derive::AllocateUsing;
 use ink_core::storage::Key;
+use ink_core_derive::AllocateUsing;
 
 struct DummyAlloc {
     allocated_cells: usize,
@@ -27,14 +27,14 @@ impl ink_core::storage::alloc::Allocate for DummyAlloc {
         } else {
             self.allocated_chunks += 1;
         }
-        Key::from([0x0; 32])
+        Key([0x0; 32])
     }
 }
 
 struct Cell {}
 
 impl ink_core::storage::alloc::AllocateUsing for Cell {
-    fn allocate_using<A>(alloc: &mut A) -> Self
+    unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: ink_core::storage::alloc::Allocate,
     {
@@ -46,7 +46,7 @@ impl ink_core::storage::alloc::AllocateUsing for Cell {
 struct Chunk {}
 
 impl ink_core::storage::alloc::AllocateUsing for Chunk {
-    fn allocate_using<A>(alloc: &mut A) -> Self
+    unsafe fn allocate_using<A>(alloc: &mut A) -> Self
     where
         A: ink_core::storage::alloc::Allocate,
     {
@@ -55,16 +55,45 @@ impl ink_core::storage::alloc::AllocateUsing for Chunk {
     }
 }
 
-#[derive(AllocateUsing)]
-struct A { a: bool }
+struct Value<T> {
+    value: T,
+}
+
+impl<T> ink_core::storage::alloc::AllocateUsing for Value<T>
+where
+    T: ink_core::storage::alloc::AllocateUsing,
+{
+    unsafe fn allocate_using<A>(alloc: &mut A) -> Self
+    where
+        A: ink_core::storage::alloc::Allocate,
+    {
+        Self {
+            value: <T as ink_core::storage::alloc::AllocateUsing>::allocate_using(alloc),
+        }
+    }
+}
 
 #[derive(AllocateUsing)]
-struct B { a: i8, b: i16 }
+struct Single(Cell);
 
 #[derive(AllocateUsing)]
-struct C { a: String, b: Vec<u8>, c: [u8; 32] }
+struct B {
+    a: Cell,
+    b: Chunk,
+}
 
 #[derive(AllocateUsing)]
-struct C<T> { a: Option<T>, b: Vec<T>, c: [T; 32] }
+struct C {
+    a: Chunk,
+    b: Value<Cell>,
+    c: Value<Chunk>,
+}
+
+#[derive(AllocateUsing)]
+struct D<T> {
+    a: Option<T>,
+    b: Value<T>,
+    c: Value<T>,
+}
 
 fn main() {}
