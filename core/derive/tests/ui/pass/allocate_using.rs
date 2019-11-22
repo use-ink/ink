@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod utils;
+
+use utils::*;
+
 use ink_core::storage::Key;
 use ink_core_derive::AllocateUsing;
 
+#[derive(Default)]
 struct DummyAlloc {
     allocated_cells: usize,
     allocated_chunks: usize,
@@ -31,69 +36,55 @@ impl ink_core::storage::alloc::Allocate for DummyAlloc {
     }
 }
 
-struct Cell {}
+#[derive(AllocateUsing, Debug, PartialEq, Eq)]
+struct EmptyStruct;
 
-impl ink_core::storage::alloc::AllocateUsing for Cell {
-    unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-    where
-        A: ink_core::storage::alloc::Allocate,
-    {
-        alloc.alloc(1);
-        Self {}
-    }
-}
+#[derive(AllocateUsing, Debug, PartialEq, Eq)]
+struct NewtypeStruct(Cell);
 
-struct Chunk {}
-
-impl ink_core::storage::alloc::AllocateUsing for Chunk {
-    unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-    where
-        A: ink_core::storage::alloc::Allocate,
-    {
-        alloc.alloc(100);
-        Self {}
-    }
-}
-
-struct Value<T> {
-    value: T,
-}
-
-impl<T> ink_core::storage::alloc::AllocateUsing for Value<T>
-where
-    T: ink_core::storage::alloc::AllocateUsing,
-{
-    unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-    where
-        A: ink_core::storage::alloc::Allocate,
-    {
-        Self {
-            value: <T as ink_core::storage::alloc::AllocateUsing>::allocate_using(alloc),
-        }
-    }
-}
-
-#[derive(AllocateUsing)]
-struct Single(Cell);
-
-#[derive(AllocateUsing)]
-struct B {
+#[derive(AllocateUsing, Debug, PartialEq, Eq)]
+struct NamedStruct {
     a: Cell,
     b: Chunk,
 }
 
-#[derive(AllocateUsing)]
-struct C {
+#[derive(AllocateUsing, Debug, PartialEq, Eq)]
+struct ComplexNamedStruct {
     a: Chunk,
     b: Value<Cell>,
     c: Value<Chunk>,
 }
 
-#[derive(AllocateUsing)]
-struct D<T> {
-    a: Option<T>,
-    b: Value<T>,
+#[derive(AllocateUsing, Debug, PartialEq, Eq)]
+struct GenericStruct<T> {
+    a: Cell,
+    b: Chunk,
     c: Value<T>,
+    d: Value<Value<T>>,
 }
 
-fn main() {}
+fn test_for<A>(expected_cells_alloc: usize, expected_chunks_alloc: usize)
+where
+    A: ink_core::storage::alloc::AllocateUsing,
+{
+    use ink_core::storage::alloc::AllocateUsing;
+    let mut alloc = DummyAlloc::default();
+    unsafe { <A as AllocateUsing>::allocate_using(&mut alloc) };
+    assert_eq!(
+        alloc.allocated_cells, expected_cells_alloc,
+        "number of allocated cells doesn't match expected"
+    );
+    assert_eq!(
+        alloc.allocated_chunks, expected_chunks_alloc,
+        "number of allocated chunks doesn't match expected"
+    );
+}
+
+fn main() {
+    test_for::<EmptyStruct>(0, 0);
+    test_for::<NewtypeStruct>(1, 0);
+    test_for::<NamedStruct>(1, 1);
+    test_for::<ComplexNamedStruct>(1, 2);
+    test_for::<GenericStruct<Cell>>(3, 1);
+    test_for::<GenericStruct<Chunk>>(1, 3);
+}

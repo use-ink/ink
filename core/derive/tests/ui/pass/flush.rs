@@ -12,29 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod utils;
+
 use ink_core_derive::Flush;
-
-struct Cell {
-    // We use this for testing if the Flush implementation is somewhat correct.
-    count_flushed: usize,
-}
-
-impl ink_core::storage::Flush for Cell {
-    fn flush(&mut self) {
-        self.count_flushed += 1;
-    }
-}
-
-struct Chunk {
-    // We use this for testing if the Flush implementation is somewhat correct.
-    count_flushed: usize,
-}
-
-impl ink_core::storage::Flush for Chunk {
-    fn flush(&mut self) {
-        self.count_flushed += 1;
-    }
-}
+use utils::*;
 
 struct StorageVec<T> {
     // We use this for testing if the Flush implementation is somewhat correct.
@@ -57,31 +38,57 @@ where
 }
 
 #[derive(Flush)]
-enum Empty {}
+struct UnitStruct;
 
 #[derive(Flush)]
-enum CStyle {
+struct NewtypeStruct(Cell);
+
+#[derive(Flush)]
+struct NamedStruct {
+    a: Cell,
+    b: Chunk,
+}
+
+#[derive(Flush)]
+struct ComplexNamedStruct {
+    a: Chunk,
+    b: Value<Cell>,
+    c: Value<Chunk>,
+}
+
+#[derive(Flush)]
+struct GenericNamedStruct<T> {
+    a: Option<T>,
+    b: Value<T>,
+    c: Value<T>,
+}
+
+#[derive(Flush)]
+enum EmptyEnum {}
+
+#[derive(Flush)]
+enum CStyleEnum {
     A,
     B,
     C,
 }
 
 #[derive(Flush)]
-enum TupleStruct {
+enum TupleStructEnum {
     A(Cell),
     B(Cell, Chunk),
     C(Cell, Chunk, StorageVec<Cell>),
 }
 
 #[derive(Flush)]
-enum Struct {
+enum StructEnum {
     A { a: bool },
     B { a: i8, b: i16 },
     C { a: String, b: Vec<u8>, c: [u8; 32] },
 }
 
 #[derive(Flush)]
-enum Mixed {
+enum MixedEnum {
     A,
     B(String, Vec<u8>, [u8; 32]),
     C { a: String, b: Vec<u8>, c: [u8; 32] },
