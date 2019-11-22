@@ -51,8 +51,6 @@ pub(crate) fn flush_derive(mut s: synstructure::Structure) -> TokenStream2 {
         quote! {}
     };
     s.gen_impl(quote! {
-        extern crate ink_core;
-
         gen impl ink_core::storage::Flush for @Self {
             fn flush(&mut self) {
                 #body
@@ -81,8 +79,6 @@ pub(crate) fn allocate_using_derive(mut s: synstructure::Structure) -> TokenStre
         }
     });
     s.gen_impl(quote! {
-        extern crate ink_core;
-
         gen impl ink_core::storage::alloc::AllocateUsing for @Self {
             unsafe fn allocate_using<A>(alloc: &mut A) -> Self
             where
