@@ -61,7 +61,9 @@ enum Empty {}
 
 #[derive(Flush)]
 enum CStyle {
-    A, B, C,
+    A,
+    B,
+    C,
 }
 
 #[derive(Flush)]
