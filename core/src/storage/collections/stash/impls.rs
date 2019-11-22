@@ -26,16 +26,19 @@ use scale::{
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
-use crate::storage::{
-    self,
-    alloc::{
-        Allocate,
-        AllocateUsing,
-        Initialize,
+use crate::{
+    ink_core,
+    storage::{
+        self,
+        alloc::{
+            Allocate,
+            AllocateUsing,
+            Initialize,
+        },
+        chunk::SyncChunk,
+        Flush,
+        Key,
     },
-    chunk::SyncChunk,
-    Flush,
-    Key,
 };
 
 /// A stash collection.
@@ -91,14 +94,16 @@ struct StashHeader {
     max_len: u32,
 }
 
-impl Flush for StashHeader {
-    #[inline]
-    fn flush(&mut self) {
-        self.next_vacant.flush();
-        self.len.flush();
-        self.max_len.flush();
+const _: () = {
+    impl ink_core::storage::Flush for StashHeader {
+        #[inline]
+        fn flush(&mut self) {
+            self.next_vacant.flush();
+            self.len.flush();
+            self.max_len.flush();
+        }
     }
-}
+};
 
 /// Iterator over the values of a stash.
 #[derive(Debug)]

@@ -156,12 +156,7 @@ impl CrossCalling<'_> {
 
     fn generate_storage_impls(&self) -> TokenStream2 {
         quote! {
-            impl ink_core::storage::Flush for StorageAsDependency {
-                #[inline(always)]
-                fn flush(&mut self) {
-                    // Nothing to do here!
-                }
-            }
+            impl ink_core::storage::Flush for StorageAsDependency {}
 
             #[cfg(feature = "ink-generate-abi")]
             impl ink_core::storage::alloc::AllocateUsing for StorageAsDependency {

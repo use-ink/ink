@@ -27,9 +27,7 @@ pub enum Which {
     Subber,
 }
 
-impl ink_core::storage::Flush for Which {
-    fn flush(&mut self) {}
-}
+impl ink_core::storage::Flush for Which {}
 
 contract! {
     #![env = ink_core::env::DefaultSrmlTypes]

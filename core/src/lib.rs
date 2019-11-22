@@ -58,3 +58,6 @@ pub mod env;
 pub mod env2;
 pub mod memory;
 pub mod storage;
+
+// Needed for derive macros of `core/derive` sub crate.
+pub(crate) use crate as ink_core;

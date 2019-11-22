@@ -205,9 +205,7 @@ fn contract_compiles() {
                     account_id: AccountId,
                 }
 
-                impl ink_core::storage::Flush for Noop {
-                    fn flush(&mut self) {}
-                }
+                impl ink_core::storage::Flush for Noop {}
 
                 /// Allows to enhance calls to `&self` contract messages.
                 pub struct CallEnhancer<'a> {

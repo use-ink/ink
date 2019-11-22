@@ -119,10 +119,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     }
 }
 
-impl Flush for AccountId {
-    #[inline]
-    fn flush(&mut self) {}
-}
+impl Flush for AccountId {}
 
 /// The default SRML `Hash` type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, From, Default)]
@@ -138,7 +135,4 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
     }
 }
 
-impl Flush for Hash {
-    #[inline]
-    fn flush(&mut self) {}
-}
+impl Flush for Hash {}
