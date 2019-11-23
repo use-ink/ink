@@ -92,8 +92,8 @@ impl BufferArena {
     ///            however, it retains the memory allocation.
     /// - [`EnlargeTo`]: Safely enlarges the buffer to the required minimum size
     ///                  if it isn't already large enough.
-    /// - [`AsRef<[u8]>`]: Returns a shared view into the byte buffer.
-    /// - [`AsMut<[u8]>`]: Returns an exclusive view into the byte buffer.
+    /// - [`core::convert::AsRef`]`<[u8]>`: Returns a shared view into the byte buffer.
+    /// - [`core::convert::AsMut`]`<[u8]>`: Returns an exclusive view into the byte buffer.
     pub fn get_buffer(&self) -> BufferRef {
         let in_use = self.in_use.update(|x| x + 1);
         if in_use > IN_USE_LIMIT {
