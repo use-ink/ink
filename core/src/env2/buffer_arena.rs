@@ -57,11 +57,25 @@ pub struct BufferArena {
     /// The currently available byte buffers.
     free: RefCell<Vec<Buffer>>,
     /// Counts the buffers that are currently in use at the same time.
+    ///
+    /// # Note
+    ///
+    /// This value is purely used as diagnostic measures to provide
+    /// smart contract writers with feedback if their implementation
+    /// is abusing the buffer arena.
+    /// We might want to turn these checks off for Wasm compilation.
     in_use: Cell<usize>,
     /// The number of allocated buffers owned by the buffer arena.
     ///
     /// This is always the same as the maximum number of buffers in use
     /// at the same time until the point of evaluation.
+    ///
+    /// # Note
+    ///
+    /// This value is purely used as diagnostic measures to provide
+    /// smart contract writers with feedback if their implementation
+    /// is abusing the buffer arena.
+    /// We might want to turn these checks off for Wasm compilation.
     allocated: Cell<usize>,
 }
 
@@ -110,6 +124,21 @@ impl BufferArena {
     pub(in self) fn return_buffer(&self, buffer: Buffer) {
         self.in_use.update(|x| x - 1);
         self.free.borrow_mut().push(buffer)
+    }
+
+    /// Returns the number of buffers that are currently in use at the same time.
+    pub fn in_use(&self) -> usize {
+        self.in_use.get()
+    }
+
+    /// Returns the current number of cached buffers.
+    ///
+    /// # Note
+    ///
+    /// This is equal to the maximum number of buffers in use at the same time
+    /// that has been measured until this point.
+    pub fn allocated(&self) -> usize {
+        self.allocated.get()
     }
 }
 
