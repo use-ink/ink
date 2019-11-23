@@ -68,18 +68,6 @@ pub struct BufferArena {
     /// is abusing the buffer arena.
     /// We might want to turn these checks off for Wasm compilation.
     in_use: Cell<usize>,
-    /// The number of allocated buffers owned by the buffer arena.
-    ///
-    /// This is always the same as the maximum number of buffers in use
-    /// at the same time until the point of evaluation.
-    ///
-    /// # Note
-    ///
-    /// This value is purely used as diagnostic measures to provide
-    /// smart contract writers with feedback if their implementation
-    /// is abusing the buffer arena.
-    /// We might want to turn these checks off for Wasm compilation.
-    allocated: Cell<usize>,
 }
 
 impl BufferArena {
@@ -88,11 +76,10 @@ impl BufferArena {
     /// Since this acts as cache we only require one instance of this type
     /// that we use as `thread_local` global which is safe since
     /// Wasm smart contracts are guaranteed to run in a single thread.
-    pub(in self) fn new() -> Self {
+    pub(self) fn new() -> Self {
         Self {
             free: RefCell::new(Vec::new()),
             in_use: Cell::new(0),
-            allocated: Cell::new(0),
         }
     }
 
@@ -109,7 +96,6 @@ impl BufferArena {
     /// - [`AsMut<[u8]>`]: Returns an exclusive view into the byte buffer.
     pub fn get_buffer(&self) -> BufferRef {
         let in_use = self.in_use.update(|x| x + 1);
-        self.allocated.update(|x| core::cmp::max(x, in_use));
         if in_use > IN_USE_LIMIT {
             panic!("too many concurrent byte buffers")
         }
@@ -134,14 +120,14 @@ impl BufferArena {
         self.in_use.get()
     }
 
+    /// Returns the number of buffers that are not in use.
+    pub fn free(&self) -> usize {
+        self.free.borrow().len()
+    }
+
     /// Returns the current number of cached buffers.
-    ///
-    /// # Note
-    ///
-    /// This is equal to the maximum number of buffers in use at the same time
-    /// that has been measured until this point.
     pub fn allocated(&self) -> usize {
-        self.allocated.get()
+        self.in_use() + self.free()
     }
 }
 
