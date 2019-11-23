@@ -243,30 +243,50 @@ impl Drop for BufferRef<'_> {
 mod tests {
     use super::*;
 
+    macro_rules! assert_arena {
+        (
+            $arena:ident,
+            in_use: $expected_in_use:literal,
+            free: $expected_free:literal,
+            allocated: $expected_allocated:literal
+        ) => {{
+            assert_eq!(
+                $arena.in_use(),
+                $expected_in_use,
+                "number of buffers in use doesn't match expected"
+            );
+            assert_eq!(
+                $arena.free(),
+                $expected_free,
+                "number of free buffers doens't match expected"
+            );
+            assert_eq!(
+                $arena.allocated(),
+                $expected_allocated,
+                "number of allocated buffers doesn't match expected"
+            );
+        }};
+    }
+
     #[test]
     fn it_works() {
-        let arena = BUFFER_ARENA.with(|arena| {
-            assert_eq!(arena.in_use(), 0);
-            assert_eq!(arena.allocated(), 0);
+        BUFFER_ARENA.with(|arena| {
+            assert_arena!(arena, in_use: 0, free: 0, allocated: 0);
             // Allocate a single buffer for a short time.
             {
                 let _b = arena.get_buffer();
-                assert_eq!(arena.in_use(), 1);
-                assert_eq!(arena.allocated(), 1);
+                assert_arena!(arena, in_use: 1, free: 0, allocated: 1);
             }
             // We should now have a single allocated buffer
             // but none in use.
-            assert_eq!(arena.in_use(), 0);
-            assert_eq!(arena.allocated(), 1);
+            assert_arena!(arena, in_use: 0, free: 1, allocated: 1);
             // Allocate a single buffer again so that we see
             // it is being reused.
             {
                 let _b = arena.get_buffer();
-                assert_eq!(arena.in_use(), 1);
-                assert_eq!(arena.allocated(), 1);
+                assert_arena!(arena, in_use: 1, free: 0, allocated: 1);
             }
-            assert_eq!(arena.in_use(), 0);
-            assert_eq!(arena.allocated(), 1);
+            assert_arena!(arena, in_use: 0, free: 1, allocated: 1);
             // Now we allocate 3 buffers in their own scope
             // and check the `in_use` and `allocated`.
             {
@@ -277,20 +297,16 @@ mod tests {
                         // At this point we should have 3 buffers
                         // allocated and in use.
                         let _b2 = arena.get_buffer();
-                        assert_eq!(arena.in_use(), 3);
-                        assert_eq!(arena.allocated(), 3);
+                        assert_arena!(arena, in_use: 3, free: 0, allocated: 3);
                     }
-                    assert_eq!(arena.in_use(), 2);
-                    assert_eq!(arena.allocated(), 3);
+                    assert_arena!(arena, in_use: 2, free: 1, allocated: 3);
                 }
-                assert_eq!(arena.in_use(), 1);
-                assert_eq!(arena.allocated(), 3);
+                assert_arena!(arena, in_use: 1, free: 2, allocated: 3);
             }
             // At this point we dropped all 3 buffers again
             // so none is in use but we still have 3 allocated
             // buffers.
-            assert_eq!(arena.in_use(), 0);
-            assert_eq!(arena.allocated(), 3);
+            assert_arena!(arena, in_use: 0, free: 3, allocated: 3);
         });
     }
 }
