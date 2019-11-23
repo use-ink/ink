@@ -30,7 +30,10 @@ use crate::{
     },
     memory::vec::Vec,
 };
-use core::cell::{Cell, RefCell};
+use core::cell::{
+    Cell,
+    RefCell,
+};
 
 /// The maximum amount of used byte buffers at the same time.
 ///
@@ -121,7 +124,7 @@ impl BufferArena {
     ///
     /// This is only called from the `Drop` implementation of `BufferRef`
     /// to return the wrapped buffer back to the global buffer arena instance.
-    pub(in self) fn return_buffer(&self, buffer: Buffer) {
+    pub(self) fn return_buffer(&self, buffer: Buffer) {
         self.in_use.update(|x| x - 1);
         self.free.borrow_mut().push(buffer)
     }
@@ -157,13 +160,16 @@ where
     Self: 'a,
 {
     /// Returns a new empty byte buffer.
-    pub(in self) const fn new() -> Self {
+    pub(self) const fn new() -> Self {
         Self { buffer: Vec::new() }
     }
 
     /// Wraps `self` in a buffer reference.
-    pub(in self) fn into_ref(self) -> BufferRef<'a> {
-        BufferRef { buffer: self, lt: core::marker::PhantomData }
+    pub(self) fn into_ref(self) -> BufferRef<'a> {
+        BufferRef {
+            buffer: self,
+            lt: core::marker::PhantomData,
+        }
     }
 }
 
@@ -201,7 +207,7 @@ pub struct BufferRef<'a> {
     /// The wrapped byte buffer.
     buffer: Buffer,
     /// The emulated lifetime.
-    lt: core::marker::PhantomData<fn () -> &'a ()>,
+    lt: core::marker::PhantomData<fn() -> &'a ()>,
 }
 
 impl BufferRef<'_> {
