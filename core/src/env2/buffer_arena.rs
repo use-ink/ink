@@ -21,6 +21,17 @@ use crate::{
 };
 use core::cell::{Cell, RefCell};
 
+//! This file defines the global buffer arena that is accessible globally
+//! and acts as a cache for allocated heap memory to avoid heap memory
+//! throttling resulting from heap usage for intermediate computations.
+//!
+//! Exactly this happens a lot in the boundaries between SRML contracts
+//! and ink! since encoding and decoding of SCALE values has to be done
+//! in such an intermediate buffer.
+//!
+//! Users and systems are advised to share a common set of allocated buffers
+//! provided by the global buffer arena.
+
 /// The maximum amount of used byte buffers at the same time.
 ///
 /// Since the whole point behind this byte buffer arena is to cache
