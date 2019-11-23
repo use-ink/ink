@@ -88,6 +88,11 @@ cfg_if! {
 }
 
 pub use self::{
+    buffer_arena::{
+        BUFFER_ARENA,
+        BufferArena,
+        BufferRef,
+    },
     dyn_env::DynEnv,
     env_access::{
         AccessEnv,
