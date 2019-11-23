@@ -12,15 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    env2::utils::{
-        EnlargeTo,
-        Reset,
-    },
-    memory::vec::Vec,
-};
-use core::cell::{Cell, RefCell};
-
 //! This file defines the global buffer arena that is accessible globally
 //! and acts as a cache for allocated heap memory to avoid heap memory
 //! throttling resulting from heap usage for intermediate computations.
@@ -31,6 +22,15 @@ use core::cell::{Cell, RefCell};
 //!
 //! Users and systems are advised to share a common set of allocated buffers
 //! provided by the global buffer arena.
+
+use crate::{
+    env2::utils::{
+        EnlargeTo,
+        Reset,
+    },
+    memory::vec::Vec,
+};
+use core::cell::{Cell, RefCell};
 
 /// The maximum amount of used byte buffers at the same time.
 ///
