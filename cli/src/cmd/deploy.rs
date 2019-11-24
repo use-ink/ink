@@ -18,14 +18,13 @@ use std::{
     path::PathBuf,
 };
 
-use futures::future::Future;
 use substrate_primitives::{
     crypto::Pair,
     sr25519,
     H256,
 };
 use subxt::{
-    contracts::ContractsXt,
+    contracts,
     system::System,
     DefaultNodeRuntime,
 };
@@ -86,20 +85,15 @@ pub(crate) fn execute_deploy(
 
     let code = load_contract_code(contract_wasm_path)?;
 
-    let fut = subxt::ClientBuilder::<DefaultNodeRuntime>::new()
-        .set_url(url)
-        .build()
-        .and_then(|cli| cli.xt(signer, None))
-        .and_then(move |xt| {
-            xt.contracts(|call| call.put_code(gas, code))
-                .submit_and_watch()
-        });
-
     let mut rt = tokio::runtime::Runtime::new()?;
-    let extrinsic_success = rt.block_on(fut)?;
-
+    let client_future = subxt::ClientBuilder::<DefaultNodeRuntime>::new()
+        .set_url(url)
+        .build();
+    let client = rt.block_on(client_future).unwrap();
+    let xt = rt.block_on(client.xt(signer, None)).unwrap();
+    let put_code = xt.submit_and_watch(contracts::put_code(gas, code));
+    let extrinsic_success = rt.block_on(put_code)?;
     log::debug!("Deploy success: {:?}", extrinsic_success);
-
     let code_hash = extract_code_hash(extrinsic_success)?;
     Ok(format!("Code hash: {:?}", code_hash))
 }
