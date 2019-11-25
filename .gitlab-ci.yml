@@ -128,9 +128,7 @@ fmt:
   stage:                           workspace
   <<:                              *docker-env
   script:
-    - for crate in ${ALL_CRATES}; do
-        cargo fmt --verbose -- --check;
-      done
+    - cargo fmt --verbose --all -- --check
 
 
 #### stage:                        examples
