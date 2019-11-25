@@ -30,11 +30,11 @@ use crate::{
     },
     memory::vec::Vec,
 };
+use cfg_if::cfg_if;
 use core::cell::{
     Cell,
     RefCell,
 };
-use cfg_if::cfg_if;
 
 /// The maximum amount of used byte buffers at the same time.
 ///
