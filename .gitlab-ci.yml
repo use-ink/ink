@@ -17,8 +17,7 @@ variables:
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
-  ALL_CRATES:                      "core alloc utils lang2 lang2/macro cli"
-  WASM_CRATES:                     "core alloc utils lang2 lang2/macro"
+  ALL_CRATES:                      "core alloc utils lang2 lang2/macro"
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
@@ -63,13 +62,15 @@ check-std:
   stage:                           check
   <<:                              *docker-env
   script:
-    - cargo check --verbose --all-features;
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
+      done
 
 check-wasm:
   stage:                           check
   <<:                              *docker-env
   script:
-    - for crate in ${WASM_CRATES}; do
+    - for crate in ${ALL_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
@@ -100,7 +101,9 @@ build-std:
   needs:
     - check-std
   script:
-    - cargo build --verbose --all-features --release
+    - for crate in ${ALL_CRATES}; do
+        cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+      done
 
 build-wasm:
   stage:                           workspace
@@ -108,7 +111,7 @@ build-wasm:
   needs:
     - check-wasm
   script:
-    - for crate in ${WASM_CRATES}; do
+    - for crate in ${ALL_CRATES}; do
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
@@ -118,7 +121,9 @@ test:
   needs:
     - check-std
   script:
-    - cargo test --verbose --all-features --release
+    - for crate in ${ALL_CRATES}; do
+        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+      done
 
 clippy-std:
   stage:                           workspace
@@ -126,7 +131,9 @@ clippy-std:
   needs:
     - check-std
   script:
-    - cargo clippy --verbose --all-features -- -D warnings
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
+      done
 
 clippy-wasm:
   stage:                           workspace
@@ -134,15 +141,15 @@ clippy-wasm:
   needs:
     - check-wasm
   script:
-    - for crate in ${WASM_CRATES}; do
-        cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:
   stage:                           workspace
   <<:                              *docker-env
   script:
-    - cargo fmt --verbose -- --check
+    - cargo fmt --verbose --all -- --check
 
 
 #### stage:                        examples
