@@ -34,6 +34,7 @@ use core::cell::{
     Cell,
     RefCell,
 };
+use cfg_if::cfg_if;
 
 /// The maximum amount of used byte buffers at the same time.
 ///
@@ -42,17 +43,62 @@ use core::cell::{
 /// in use at the same time should be kept small.
 const IN_USE_LIMIT: usize = 1000;
 
-thread_local! {
-    /// Global buffer arena that provides shared buffers to avoid
-    /// constantly allocating and deallocating heap memory during
-    /// contract execution.
-    ///
-    /// This is mainly useful to interact with the environment because
-    /// it requires intermediate buffers for its encoding and decoding.
-    ///
-    /// Provides a single API `get_buffer` that can be used to get
-    /// a freshly recycled buffer.
-    pub static BUFFER_ARENA: BufferArena = BufferArena::new();
+cfg_if! {
+    if #[cfg(feature = "std")] {
+        thread_local! {
+            /// Global buffer arena that provides shared buffers to avoid
+            /// constantly allocating and deallocating heap memory during
+            /// contract execution.
+            ///
+            /// This is mainly useful to interact with the environment because
+            /// it requires intermediate buffers for its encoding and decoding.
+            ///
+            /// Provides a single API `get_buffer` that can be used to get
+            /// a freshly recycled buffer.
+            pub static BUFFER_ARENA: BufferArena = BufferArena::new();
+        }
+    } else {
+        pub static BUFFER_ARENA: BufferArena = LocalKey::new(BufferArena::new());
+
+        /// Wrapper around `BufferArena` to provide similar interface
+        /// as `std::thread::LocalKey` provided by `thread_local` does.
+        ///
+        /// Also acts as safety guard to prevent references to `BufferRef`
+        /// escape the closure using the [`LocalKey::with`] API.
+        pub struct LocalKey {
+            /// The wrapped buffer arena.
+            arena: BufferArena,
+        }
+
+        /// CRITICAL NOTE
+        /// =============
+        ///
+        /// The wrapped `BufferArena` type itself is __NOT__ `Sync` since it is using
+        /// `Cell` and `RefCell` internally instead of the thread-safe alternatives.
+        /// However, since Wasm smart contracts are guaranteed to operated single
+        /// threaded we can allow for this unsafe `Sync` implementation to allow
+        /// for having the global static `BUFFER_ARENA` variable and as long as we
+        /// are only operating single threaded this shouldn't be unsafe.
+        // #[cfg(not(feature = "std"))]
+        unsafe impl Sync for LocalKey {}
+
+        impl LocalKey {
+            /// Creates a new `LocalKey` from the given `BufferArena`.
+            pub const fn new(arena: BufferArena) -> Self {
+                Self { arena }
+            }
+
+            /// Runs the given closure for the wrapped `BufferArena`.
+            ///
+            /// This way no references may escape the closure.
+            pub fn with<F>(f: F)
+            where
+                F: FnOnce(&BufferArena),
+            {
+                f(&self.arena)
+            }
+        }
+    }
 }
 
 /// A byte buffer arena that acts as a cache for allocated heap memory.
@@ -76,7 +122,7 @@ impl BufferArena {
     /// Since this acts as cache we only require one instance of this type
     /// that we use as `thread_local` global which is safe since
     /// Wasm smart contracts are guaranteed to run in a single thread.
-    pub(self) fn new() -> Self {
+    pub(self) const fn new() -> Self {
         Self {
             free: RefCell::new(Vec::new()),
             in_use: Cell::new(0),
