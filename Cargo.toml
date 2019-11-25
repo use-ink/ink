@@ -11,7 +11,6 @@ members = [
 ]
 exclude = [
     "examples/",
-    "cli/template/",
 ]
 
 [profile.release]
