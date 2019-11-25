@@ -46,6 +46,7 @@ variables:
     - web
     - /^[0-9]+$/                   # PRs
   dependencies:                    []
+  interruptible:                   true
   retry:
     max: 2
     when:
@@ -76,13 +77,19 @@ build-cli:
   stage:                           check
   <<:                              *docker-env
   script:
-    - cargo build --manifest-path cli/Cargo.toml --release
-    - ./target/release/cargo-contract -V
+    # - cargo build --manifest-path cli/Cargo.toml --release
+    - cargo install --git https://github.com/paritytech/cargo-contract --force
+    # - git clone --depth 1 https://github.com/paritytech/cargo-contract
+    # - pushd cargo-contract
+    # - cargo build --manifest-path cli/Cargo.toml --release
+    # - popd
+    # - ./target/release/cargo-contract -V
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
     paths:
-      - ./target/release/cargo-contract
+      # - ./target/release/cargo-contract
+      - /usr/local/cargo/bin/cargo-contract
 
 
 #### stage:                        workspace
@@ -180,7 +187,7 @@ examples-contract-build:
   needs:
     - build-cli
   script:
-    - cp target/release/cargo-contract ~/.cargo/bin/
+    # - cp target/release/cargo-contract /usr/local/cargo/bin/
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
@@ -196,7 +203,7 @@ examples-generate-metadata:
   needs:
     - build-cli
   script:
-    - cp target/release/cargo-contract ~/.cargo/bin/
+    # - cp target/release/cargo-contract /usr/local/cargo/bin/
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
