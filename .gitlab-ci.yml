@@ -12,6 +12,7 @@ stages:
 
 variables:
   GIT_STRATEGY:                    fetch
+  GIT_DEPTH:                       "3"
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
   SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
   CARGO_INCREMENTAL:               0
@@ -85,12 +86,15 @@ build-cli:
     # - cargo build --manifest-path cli/Cargo.toml --release
     # - popd
     # - ./target/release/cargo-contract -V
+    - which cargo-contract
+    - cp (which cargo-contract) /artifacts/
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
     paths:
       # - ./target/release/cargo-contract
-      - /usr/local/cargo/bin/cargo-contract
+      # - /usr/local/cargo/bin/cargo-contract
+      - /artifacts/cargo-contract
 
 
 #### stage:                        workspace
@@ -195,6 +199,7 @@ examples-contract-build:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
+    - cp /artifacts/cargo-contract /usr/local/cargo/bin/
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
@@ -211,6 +216,7 @@ examples-generate-metadata:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
+    - cp /artifacts/cargo-contract /usr/local/cargo/bin/
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
