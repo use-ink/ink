@@ -42,6 +42,7 @@
 //! - For `&mut self` messages prefer using `EnvAccessMut` or `DynEnvAccessMut`.
 //! - Direct access to `SrmlEnv` or `TestEnv` is always the least optimal solution and generally not preferred.
 
+mod buffer_arena;
 pub mod call;
 mod dyn_env;
 mod env_access;
@@ -50,7 +51,6 @@ pub mod property;
 mod traits;
 pub mod types;
 pub mod utils;
-mod buffer_arena;
 
 use cfg_if::cfg_if;
 
@@ -89,9 +89,9 @@ cfg_if! {
 
 pub use self::{
     buffer_arena::{
-        BUFFER_ARENA,
         BufferArena,
         BufferRef,
+        BUFFER_ARENA,
     },
     dyn_env::DynEnv,
     env_access::{
