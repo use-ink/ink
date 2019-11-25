@@ -45,6 +45,7 @@ variables:
     - schedules
     - web
     - /^[0-9]+$/                   # PRs
+  dependencies:                    []
   retry:
     max: 2
     when:
@@ -76,6 +77,7 @@ build-cli:
   <<:                              *docker-env
   script:
     - cargo build --manifest-path cli/Cargo.toml --release
+    - ./target/release/cargo-contract -V
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
@@ -166,9 +168,12 @@ examples-contract-build:
   dependencies:
     - build-cli
   script:
+    - ls -la
+    - ls ./target/release/
+    - ./target/release/cargo-contract -V
     - for example in examples/lang2/*; do
-        pushd $example &&
-        ./target/release/cargo-contract build &&
+        pushd $example && pwd && echo ${CI_BUILDS_DIR}
+        ${CI_PROJECT_DIR}/target/release/cargo-contract build &&
         popd;
       done
 
@@ -178,8 +183,11 @@ examples-generate-metadata:
   dependencies:
     - build-cli
   script:
+    - ls -la
+    - ls ./target/release/
+    - ./target/release/cargo-contract -V
     - for example in examples/lang2/*; do
-        pushd $example &&
-        ./target/release/cargo-contract generate-metadata &&
+        pushd $example && pwd && echo ${CI_BUILDS_DIR}
+        ${CI_PROJECT_DIR}/target/release/cargo-contract generate-metadata &&
         popd;
       done
