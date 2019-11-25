@@ -201,10 +201,10 @@ examples-contract-build:
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
     - which cargo-contract
-    - cargo uninstall cargo-contract
-    - which cargo-contract
+    - stat $(which cargo-contract)
     - cp artifacts/cargo-contract /usr/local/cargo/bin/
     - which cargo-contract
+    - stat $(which cargo-contract)
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
@@ -222,10 +222,10 @@ examples-generate-metadata:
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
     - which cargo-contract
-    - cargo uninstall cargo-contract
-    - which cargo-contract
+    - stat $(which cargo-contract)
     - cp artifacts/cargo-contract /usr/local/cargo/bin/
     - which cargo-contract
+    - stat $(which cargo-contract)
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
