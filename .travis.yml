@@ -4,7 +4,7 @@ dist: trusty
 sudo: true
 
 rust:
-  - nightly-2019-11-24
+  - nightly-2019-11-17
 
 matrix:
   allow_failures:

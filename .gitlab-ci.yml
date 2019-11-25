@@ -174,7 +174,7 @@ examples-contract-build:
   script:
     - for example in examples/lang2/*; do
         pushd $example &&
-        ../../../target/release/cargo-contract contract build &&
+        cargo contract build &&
         popd;
       done
 
@@ -184,6 +184,6 @@ examples-generate-metadata:
   script:
     - for example in examples/lang2/*; do
         pushd $example &&
-        ../../../target/release/cargo-contract contract generate-metadata &&
+        cargo contract generate-metadata &&
         popd;
       done
