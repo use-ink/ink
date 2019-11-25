@@ -61,7 +61,7 @@ check-std:
   <<:                              *docker-env
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --all-features;
+        cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
 check-wasm:
@@ -81,7 +81,7 @@ build-std:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release;
+        cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
       done
 
 build-wasm:
@@ -101,7 +101,7 @@ test:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo test --verbose --all-features --release;
+        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
       done
 
 clippy-std:
@@ -111,7 +111,7 @@ clippy-std:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features -- -D warnings;
+        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -121,16 +121,14 @@ clippy-wasm:
     - check-wasm
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:
   stage:                           workspace
   <<:                              *docker-env
   script:
-    - for crate in ${ALL_CRATES}; do
-        cargo fmt --verbose -- --check;
-      done
+    - cargo fmt --verbose --all -- --check
 
 
 #### stage:                        examples
