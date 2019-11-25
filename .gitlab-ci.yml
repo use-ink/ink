@@ -87,7 +87,7 @@ build-cli:
     # - popd
     # - ./target/release/cargo-contract -V
     - which cargo-contract
-    - cp (which cargo-contract) /artifacts/
+    - cp $(which cargo-contract) /artifacts/
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
