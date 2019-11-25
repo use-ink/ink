@@ -90,12 +90,16 @@ build-cli:
 build-std:
   stage:                           workspace
   <<:                              *docker-env
+  needs:
+    - check-std
   script:
     - cargo build --verbose --all-features --release
 
 build-wasm:
   stage:                           workspace
   <<:                              *docker-env
+  needs:
+    - check-wasm
   script:
     - for crate in ${WASM_CRATES}; do
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
@@ -104,18 +108,24 @@ build-wasm:
 test:
   stage:                           workspace
   <<:                              *docker-env
+  needs:
+    - check-std
   script:
     - cargo test --verbose --all-features --release
 
 clippy-std:
   stage:                           workspace
   <<:                              *docker-env
+  needs:
+    - check-std
   script:
     - cargo clippy --verbose --all-features -- -D warnings
 
 clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
+  needs:
+    - check-wasm
   script:
     - for crate in ${WASM_CRATES}; do
         cargo clippy --verbose --manifest-path ${crate}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
@@ -167,12 +177,12 @@ examples-contract-build:
   <<:                              *docker-env
   dependencies:
     - build-cli
+  needs:
+    - build-cli
   script:
-    - ls -la
-    - ls ./target/release/
     - ./target/release/cargo-contract -V
     - for example in examples/lang2/*; do
-        pushd $example && pwd && echo ${CI_BUILDS_DIR}
+        pushd $example && pwd && echo ${CI_BUILDS_DIR} &&
         ${CI_PROJECT_DIR}/target/release/cargo-contract build &&
         popd;
       done
@@ -182,12 +192,12 @@ examples-generate-metadata:
   <<:                              *docker-env
   dependencies:
     - build-cli
+  needs:
+    - build-cli
   script:
-    - ls -la
-    - ls ./target/release/
     - ./target/release/cargo-contract -V
     - for example in examples/lang2/*; do
-        pushd $example && pwd && echo ${CI_BUILDS_DIR}
+        pushd $example && pwd && echo ${CI_BUILDS_DIR} &&
         ${CI_PROJECT_DIR}/target/release/cargo-contract generate-metadata &&
         popd;
       done
