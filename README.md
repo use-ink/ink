@@ -37,7 +37,7 @@ Use the scripts provided under `scripts` directory in order to run checks on eit
 
 ## Examples
 
-For building the example smart contracts found under `examples` you will need to have `cargo-contract` installed.
+For building the example smart contracts found under `examples` you will need to have [`cargo-contract`](https://github.com/paritytech/cargo-contract) installed.
 
 ```
 cargo install --git https://github.com/paritytech/cargo-contract cargo-contract --force
