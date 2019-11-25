@@ -1,6 +1,6 @@
 [package]
 name = "cargo-contract"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 build = "build.rs"
 edition = "2018"
@@ -29,7 +29,7 @@ pwasm-utils = "0.12"
 parity-wasm = "0.41"
 cargo_metadata = "0.9"
 substrate-primitives = { git = "https://github.com/paritytech/substrate/", package = "substrate-primitives" }
-subxt = { git = "https://github.com/paritytech/substrate-subxt/", branch = "v0.2", package = "substrate-subxt" }
+subxt = { git = "https://github.com/paritytech/substrate-subxt/", branch = "v0.3", package = "substrate-subxt" }
 tokio = "0.1.21"
 url = "1.7"
 
