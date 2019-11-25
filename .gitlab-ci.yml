@@ -87,14 +87,15 @@ build-cli:
     # - popd
     # - ./target/release/cargo-contract -V
     - which cargo-contract
-    - cp $(which cargo-contract) /artifacts/
+    - mkdir -p ./artifacts/
+    - cp $(which cargo-contract) ./artifacts/
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
     paths:
       # - ./target/release/cargo-contract
       # - /usr/local/cargo/bin/cargo-contract
-      - /artifacts/cargo-contract
+      - artifacts/
 
 
 #### stage:                        workspace
@@ -199,7 +200,7 @@ examples-contract-build:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - cp /artifacts/cargo-contract /usr/local/cargo/bin/
+    - cp artifacts/cargo-contract /usr/local/cargo/bin/
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
@@ -216,7 +217,7 @@ examples-generate-metadata:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - cp /artifacts/cargo-contract /usr/local/cargo/bin/
+    - cp artifacts/cargo-contract /usr/local/cargo/bin/
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
