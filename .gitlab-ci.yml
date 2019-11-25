@@ -180,10 +180,11 @@ examples-contract-build:
   needs:
     - build-cli
   script:
-    - ./target/release/cargo-contract -V
+    - cp target/release/cargo-contract ~/.cargo/bin/
+    - cargo contract -V
     - for example in examples/lang2/*; do
-        pushd $example && pwd && echo ${CI_BUILDS_DIR} &&
-        ${CI_PROJECT_DIR}/target/release/cargo-contract build &&
+        pushd $example &&
+        cargo contract build &&
         popd;
       done
 
@@ -195,9 +196,10 @@ examples-generate-metadata:
   needs:
     - build-cli
   script:
-    - ./target/release/cargo-contract -V
+    - cp target/release/cargo-contract ~/.cargo/bin/
+    - cargo contract -V
     - for example in examples/lang2/*; do
-        pushd $example && pwd && echo ${CI_BUILDS_DIR} &&
-        ${CI_PROJECT_DIR}/target/release/cargo-contract generate-metadata &&
+        pushd $example &&
+        cargo contract generate-metadata &&
         popd;
       done
