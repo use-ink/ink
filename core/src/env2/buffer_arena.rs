@@ -95,8 +95,8 @@ impl BufferArena {
     /// - [`core::convert::AsRef`]`<[u8]>`: Returns a shared view into the byte buffer.
     /// - [`core::convert::AsMut`]`<[u8]>`: Returns an exclusive view into the byte buffer.
     pub fn get_buffer(&self) -> BufferRef {
-        let in_use = self.in_use.update(|x| x + 1);
-        if in_use > IN_USE_LIMIT {
+        self.in_use.set(self.in_use.get() + 1);
+        if self.in_use() > IN_USE_LIMIT {
             panic!("too many concurrent byte buffers")
         }
         self.free
@@ -111,7 +111,7 @@ impl BufferArena {
     /// This is only called from the `Drop` implementation of `BufferRef`
     /// to return the wrapped buffer back to the global buffer arena instance.
     pub(self) fn return_buffer(&self, buffer: Buffer) {
-        self.in_use.update(|x| x - 1);
+        self.in_use.set(self.in_use.get() - 1);
         self.free.borrow_mut().push(buffer)
     }
 

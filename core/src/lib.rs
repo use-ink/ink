@@ -41,7 +41,6 @@
     trivial_numeric_casts,
     unused_extern_crates
 )]
-#![feature(cell_update)]
 
 // This extern crate definition is required since otherwise rustc
 // is not recognizing its allocator and panic handler definitions.
