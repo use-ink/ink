@@ -25,7 +25,7 @@ use substrate_primitives::{
     H256,
 };
 use subxt::{
-    contracts::ContractsXt,
+    contracts,
     system::System,
     DefaultNodeRuntime,
 };
@@ -91,8 +91,7 @@ pub(crate) fn execute_deploy(
         .build()
         .and_then(|cli| cli.xt(signer, None))
         .and_then(move |xt| {
-            xt.contracts(|call| call.put_code(gas, code))
-                .submit_and_watch()
+            xt.submit_and_watch(contracts::put_code(gas, code))
         });
 
     let mut rt = tokio::runtime::Runtime::new()?;
