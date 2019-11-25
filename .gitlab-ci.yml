@@ -79,7 +79,6 @@ build-cli:
   stage:                           check
   <<:                              *docker-env
   script:
-    # - cargo build --manifest-path cli/Cargo.toml --release
     - cargo install --git https://github.com/paritytech/cargo-contract --force
     # - git clone --depth 1 https://github.com/paritytech/cargo-contract
     # - pushd cargo-contract
@@ -94,7 +93,6 @@ build-cli:
     expire_in:                     24 hrs
     paths:
       # - ./target/release/cargo-contract
-      # - /usr/local/cargo/bin/cargo-contract
       - artifacts/
 
 
@@ -200,8 +198,6 @@ examples-contract-build:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - which cargo-contract
-    - stat $(which cargo-contract)
     - cp artifacts/cargo-contract /usr/local/cargo/bin/
     - which cargo-contract
     - stat $(which cargo-contract)
@@ -221,8 +217,6 @@ examples-generate-metadata:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - which cargo-contract
-    - stat $(which cargo-contract)
     - cp artifacts/cargo-contract /usr/local/cargo/bin/
     - which cargo-contract
     - stat $(which cargo-contract)
