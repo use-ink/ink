@@ -22,7 +22,7 @@ Follow the instructions below to understand how to migrate your ink! 1.0 contrac
 Install the latest ink! CLI using the following command:
 
 ```bash
-cargo install --git https://github.com/paritytech/ink cargo-contract --force
+cargo install --git https://github.com/paritytech/cargo-contract cargo-contract --force
 ```
 
 There is a new contract metadata format you need to use. You can generate the metadata using:
