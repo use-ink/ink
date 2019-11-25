@@ -148,7 +148,7 @@ impl BufferArena {
         self.free
             .borrow_mut()
             .pop()
-            .unwrap_or(Buffer::new())
+            .unwrap_or_else(Buffer::new)
             .into_ref()
     }
 
