@@ -58,7 +58,7 @@ cfg_if! {
             pub static BUFFER_ARENA: BufferArena = BufferArena::new();
         }
     } else {
-        pub static BUFFER_ARENA: BufferArena = LocalKey::new(BufferArena::new());
+        pub static BUFFER_ARENA: LocalKey = LocalKey::new(BufferArena::new());
 
         /// Wrapper around `BufferArena` to provide similar interface
         /// as `std::thread::LocalKey` provided by `thread_local` does.
@@ -91,7 +91,7 @@ cfg_if! {
             /// Runs the given closure for the wrapped `BufferArena`.
             ///
             /// This way no references may escape the closure.
-            pub fn with<F>(f: F)
+            pub fn with<F>(&self, f: F)
             where
                 F: FnOnce(&BufferArena),
             {
