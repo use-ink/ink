@@ -141,7 +141,7 @@ impl BufferArena {
     /// - [`core::convert::AsRef`]`<[u8]>`: Returns a shared view into the byte buffer.
     /// - [`core::convert::AsMut`]`<[u8]>`: Returns an exclusive view into the byte buffer.
     pub fn get_buffer(&self) -> BufferRef {
-        self.in_use.set(self.in_use.get() + 1);
+        self.in_use.set(self.in_use() + 1);
         if self.in_use() > IN_USE_LIMIT {
             panic!("too many concurrent byte buffers")
         }
