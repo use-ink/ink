@@ -78,16 +78,17 @@ check-wasm:
 build-cli:
   stage:                           check
   <<:                              *docker-env
+  variables:
+  GIT_STRATEGY:                    none
   script:
-    - cargo install --git https://github.com/paritytech/cargo-contract --force
-    # - git clone --depth 1 https://github.com/paritytech/cargo-contract
-    # - pushd cargo-contract
-    # - cargo build --manifest-path cli/Cargo.toml --release
-    # - popd
-    # - ./target/release/cargo-contract -V
-    - which cargo-contract
+    # - cargo install --git https://github.com/paritytech/cargo-contract --force
+    - git clone --depth 1 https://github.com/paritytech/cargo-contract.git .
+    - cargo build --manifest-path cli/Cargo.toml --release
+    - ./target/release/cargo-contract -V
+    # - cargo contract -V
+    # - which cargo-contract
     - mkdir -p ./artifacts/
-    - cp $(which cargo-contract) ./artifacts/
+    - cp ./target/release/cargo-contract ./artifacts/
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
@@ -199,8 +200,8 @@ examples-contract-build:
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
     - cp artifacts/cargo-contract /usr/local/cargo/bin/
-    - which cargo-contract
-    - stat $(which cargo-contract)
+    # - which cargo-contract
+    # - stat $(which cargo-contract)
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
@@ -218,8 +219,8 @@ examples-generate-metadata:
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
     - cp artifacts/cargo-contract /usr/local/cargo/bin/
-    - which cargo-contract
-    - stat $(which cargo-contract)
+    # - which cargo-contract
+    # - stat $(which cargo-contract)
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
