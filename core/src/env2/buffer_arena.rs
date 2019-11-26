@@ -46,26 +46,41 @@ const IN_USE_LIMIT: usize = 1000;
 cfg_if! {
     if #[cfg(feature = "std")] {
         thread_local! {
-            /// Global buffer arena that provides shared buffers to avoid
-            /// constantly allocating and deallocating heap memory during
-            /// contract execution.
+            /// Global buffer arena that provides shared recycled buffers to avoid
+            /// constantly allocating and deallocating heap memory during contract execution.
+            ///
+            /// # Note
             ///
             /// This is mainly useful to interact with the environment because
             /// it requires intermediate buffers for its encoding and decoding.
             ///
-            /// Provides a single API `get_buffer` that can be used to get
-            /// a freshly recycled buffer.
+            /// # API
+            ///
+            /// - Can be accessed through [`std::thread::LocalKey::with`].
+            /// - Provides recycled buffers through the `get_buffer` call.
             pub static BUFFER_ARENA: BufferArena = BufferArena::new();
         }
     } else {
-        pub static BUFFER_ARENA: LocalKey = LocalKey::new(BufferArena::new());
+        /// Global buffer arena that provides shared recycled buffers to avoid
+        /// constantly allocating and deallocating heap memory during contract execution.
+        ///
+        /// # Note
+        ///
+        /// This is mainly useful to interact with the environment because
+        /// it requires intermediate buffers for its encoding and decoding.
+        ///
+        /// # API
+        ///
+        /// - Can be accessed through [`std::thread::LocalKey::with`].
+        /// - Provides recycled buffers through the `get_buffer` call.
+        pub static BUFFER_ARENA: GlobalBufferArena = GlobalBufferArena::new(BufferArena::new());
 
         /// Wrapper around `BufferArena` to provide similar interface
         /// as `std::thread::LocalKey` provided by `thread_local` does.
         ///
         /// Also acts as safety guard to prevent references to `BufferRef`
-        /// escape the closure using the [`LocalKey::with`] API.
-        pub struct LocalKey {
+        /// escape the closure using the [`GlobalBufferArena::with`] API.
+        pub struct GlobalBufferArena {
             /// The wrapped buffer arena.
             arena: BufferArena,
         }
@@ -79,10 +94,10 @@ cfg_if! {
         /// threaded we can allow for this unsafe `Sync` implementation to allow
         /// for having the global static `BUFFER_ARENA` variable and as long as we
         /// are only operating single threaded this shouldn't be unsafe.
-        unsafe impl Sync for LocalKey {}
+        unsafe impl Sync for GlobalBufferArena {}
 
-        impl LocalKey {
-            /// Creates a new `LocalKey` from the given `BufferArena`.
+        impl GlobalBufferArena {
+            /// Creates a new `GlobalBufferArena` from the given `BufferArena`.
             pub const fn new(arena: BufferArena) -> Self {
                 Self { arena }
             }

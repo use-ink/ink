@@ -89,6 +89,7 @@ cfg_if! {
 
 pub use self::{
     buffer_arena::{
+        GlobalBufferArena,
         BufferArena,
         BufferRef,
         BUFFER_ARENA,
