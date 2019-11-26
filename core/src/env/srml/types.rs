@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{
+    env::EnvTypes,
+    ink_core,
+    storage::Flush,
+};
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
@@ -19,11 +24,6 @@ use core::{
 use scale::{
     Decode,
     Encode,
-};
-use crate::{
-    ink_core,
-    env::EnvTypes,
-    storage::Flush,
 };
 
 #[cfg(feature = "ink-generate-abi")]
