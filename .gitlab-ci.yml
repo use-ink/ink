@@ -79,7 +79,7 @@ build-cli:
   stage:                           check
   <<:                              *docker-env
   variables:
-  GIT_STRATEGY:                    none
+    GIT_STRATEGY:                    none
   script:
     # - cargo install --git https://github.com/paritytech/cargo-contract --force
     - git clone --depth 1 https://github.com/paritytech/cargo-contract.git .
