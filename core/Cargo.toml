@@ -28,6 +28,9 @@ cfg-if = "0.1"
 
 [features]
 default = ["test-env"]
+derive = [
+    "ink_core_derive",
+]
 test-env = [
     "std",
 ]
