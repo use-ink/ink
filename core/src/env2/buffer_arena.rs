@@ -75,7 +75,7 @@ cfg_if! {
         ///
         /// The wrapped `BufferArena` type itself is __NOT__ `Sync` since it is using
         /// `Cell` and `RefCell` internally instead of the thread-safe alternatives.
-        /// However, since Wasm smart contracts are guaranteed to operated single
+        /// However, since Wasm smart contracts are guaranteed to operate single
         /// threaded we can allow for this unsafe `Sync` implementation to allow
         /// for having the global static `BUFFER_ARENA` variable and as long as we
         /// are only operating single threaded this shouldn't be unsafe.
