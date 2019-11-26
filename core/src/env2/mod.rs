@@ -87,9 +87,11 @@ cfg_if! {
     }
 }
 
+#[cfg(not(feature = "std"))]
+pub use self::buffer_arena::GlobalBufferArena;
+
 pub use self::{
     buffer_arena::{
-        GlobalBufferArena,
         BufferArena,
         BufferRef,
         BUFFER_ARENA,
