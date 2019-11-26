@@ -81,17 +81,11 @@ build-cli:
     GIT_STRATEGY:                    none
   script:
     - cargo install --git https://github.com/paritytech/cargo-contract --root ./artifacts
-    # - git clone --depth 1 https://github.com/paritytech/cargo-contract.git
-    # - cargo build --manifest-path cargo-contract/Cargo.toml --release
     - ./artifacts/bin/cargo-contract -V
-    # - which cargo-contract
-    # - mkdir -p /artifacts/
-    # - cp ./cargo-contract/target/release/cargo-contract /artifacts/
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
     paths:
-      # - ./target/release/cargo-contract
       - ./artifacts/bin/cargo-contract
 
 
@@ -196,10 +190,7 @@ examples-contract-build:
   needs:
     - build-cli
   script:
-    # - cp target/release/cargo-contract /usr/local/cargo/bin/
     - cp ./artifacts/bin/cargo-contract /usr/local/cargo/bin/
-    # - which cargo-contract
-    # - stat $(which cargo-contract)
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
@@ -215,10 +206,7 @@ examples-generate-metadata:
   needs:
     - build-cli
   script:
-    # - cp target/release/cargo-contract /usr/local/cargo/bin/
     - cp ./artifacts/bin/cargo-contract /usr/local/cargo/bin/
-    # - which cargo-contract
-    # - stat $(which cargo-contract)
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
