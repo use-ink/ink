@@ -82,13 +82,13 @@ build-cli:
     GIT_STRATEGY:                    none
   script:
     # - cargo install --git https://github.com/paritytech/cargo-contract --force
-    - git clone --depth 1 https://github.com/paritytech/cargo-contract.git .
-    - cargo build --manifest-path cli/Cargo.toml --release
-    - ./target/release/cargo-contract -V
+    - git clone --depth 1 https://github.com/paritytech/cargo-contract.git
+    - cargo build --manifest-path cargo-contract/Cargo.toml --release
+    - ./cargo-contract/target/release/cargo-contract -V
     # - cargo contract -V
     # - which cargo-contract
     - mkdir -p ./artifacts/
-    - cp ./target/release/cargo-contract ./artifacts/
+    - cp ./cargo-contract/target/release/cargo-contract ./artifacts/
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
