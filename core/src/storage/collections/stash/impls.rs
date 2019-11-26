@@ -94,16 +94,8 @@ struct StashHeader {
     max_len: u32,
 }
 
-const _: () = {
-    impl ink_core::storage::Flush for StashHeader {
-        #[inline]
-        fn flush(&mut self) {
-            self.next_vacant.flush();
-            self.len.flush();
-            self.max_len.flush();
-        }
-    }
-};
+/// No need to forward flush to fields.
+impl ink_core::storage::Flush for StashHeader {}
 
 /// Iterator over the values of a stash.
 #[derive(Debug)]
