@@ -83,7 +83,7 @@ build-cli:
     - cargo install --git https://github.com/paritytech/cargo-contract --root /artifacts
     # - git clone --depth 1 https://github.com/paritytech/cargo-contract.git
     # - cargo build --manifest-path cargo-contract/Cargo.toml --release
-    - /artifacts/cargo contract -V
+    - /artifacts/bin/cargo-contract -V
     # - which cargo-contract
     # - mkdir -p /artifacts/
     # - cp ./cargo-contract/target/release/cargo-contract /artifacts/
@@ -197,7 +197,7 @@ examples-contract-build:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - cp /artifacts/cargo-contract /usr/local/cargo/bin/
+    - cp /artifacts/bin/cargo-contract /usr/local/cargo/bin/
     # - which cargo-contract
     # - stat $(which cargo-contract)
     - cargo contract -V
@@ -216,7 +216,7 @@ examples-generate-metadata:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - cp /artifacts/cargo-contract /usr/local/cargo/bin/
+    - cp /artifacts/bin/cargo-contract /usr/local/cargo/bin/
     # - which cargo-contract
     # - stat $(which cargo-contract)
     - cargo contract -V
