@@ -79,7 +79,6 @@ cfg_if! {
         /// threaded we can allow for this unsafe `Sync` implementation to allow
         /// for having the global static `BUFFER_ARENA` variable and as long as we
         /// are only operating single threaded this shouldn't be unsafe.
-        // #[cfg(not(feature = "std"))]
         unsafe impl Sync for LocalKey {}
 
         impl LocalKey {
@@ -157,7 +156,7 @@ impl BufferArena {
     /// This is only called from the `Drop` implementation of `BufferRef`
     /// to return the wrapped buffer back to the global buffer arena instance.
     pub(self) fn return_buffer(&self, buffer: Buffer) {
-        self.in_use.set(self.in_use.get() - 1);
+        self.in_use.set(self.in_use() - 1);
         self.free.borrow_mut().push(buffer)
     }
 
