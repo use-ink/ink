@@ -92,7 +92,7 @@ build-cli:
     expire_in:                     24 hrs
     paths:
       # - ./target/release/cargo-contract
-      - /artifacts/
+      - /artifacts/bin/cargo-contract
 
 
 #### stage:                        workspace
