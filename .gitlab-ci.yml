@@ -80,10 +80,10 @@ build-cli:
   variables:
     GIT_STRATEGY:                    none
   script:
-    - cargo install --git https://github.com/paritytech/cargo-contract --root /artifacts
+    - cargo install --git https://github.com/paritytech/cargo-contract --root ./artifacts
     # - git clone --depth 1 https://github.com/paritytech/cargo-contract.git
     # - cargo build --manifest-path cargo-contract/Cargo.toml --release
-    - /artifacts/bin/cargo-contract -V
+    - ./artifacts/bin/cargo-contract -V
     # - which cargo-contract
     # - mkdir -p /artifacts/
     # - cp ./cargo-contract/target/release/cargo-contract /artifacts/
@@ -92,7 +92,7 @@ build-cli:
     expire_in:                     24 hrs
     paths:
       # - ./target/release/cargo-contract
-      - /artifacts/bin/cargo-contract
+      - ./artifacts/bin/cargo-contract
 
 
 #### stage:                        workspace
@@ -197,7 +197,7 @@ examples-contract-build:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - cp /artifacts/bin/cargo-contract /usr/local/cargo/bin/
+    - cp ./artifacts/bin/cargo-contract /usr/local/cargo/bin/
     # - which cargo-contract
     # - stat $(which cargo-contract)
     - cargo contract -V
@@ -216,7 +216,7 @@ examples-generate-metadata:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - cp /artifacts/bin/cargo-contract /usr/local/cargo/bin/
+    - cp ./artifacts/bin/cargo-contract /usr/local/cargo/bin/
     # - which cargo-contract
     # - stat $(which cargo-contract)
     - cargo contract -V
