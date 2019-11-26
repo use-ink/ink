@@ -14,7 +14,6 @@ variables:
   GIT_STRATEGY:                    fetch
   GIT_DEPTH:                       "3"
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
-  SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
@@ -81,20 +80,19 @@ build-cli:
   variables:
     GIT_STRATEGY:                    none
   script:
-    # - cargo install --git https://github.com/paritytech/cargo-contract --force
-    - git clone --depth 1 https://github.com/paritytech/cargo-contract.git
-    - cargo build --manifest-path cargo-contract/Cargo.toml --release
-    - ./cargo-contract/target/release/cargo-contract -V
-    # - cargo contract -V
+    - cargo install --git https://github.com/paritytech/cargo-contract --root /artifacts
+    # - git clone --depth 1 https://github.com/paritytech/cargo-contract.git
+    # - cargo build --manifest-path cargo-contract/Cargo.toml --release
+    - /artifacts/cargo contract -V
     # - which cargo-contract
-    - mkdir -p ./artifacts/
-    - cp ./cargo-contract/target/release/cargo-contract ./artifacts/
+    # - mkdir -p /artifacts/
+    # - cp ./cargo-contract/target/release/cargo-contract /artifacts/
   artifacts:
     name:                          cli_${CI_COMMIT_SHORT_SHA}
     expire_in:                     24 hrs
     paths:
       # - ./target/release/cargo-contract
-      - artifacts/
+      - /artifacts/
 
 
 #### stage:                        workspace
@@ -199,7 +197,7 @@ examples-contract-build:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - cp artifacts/cargo-contract /usr/local/cargo/bin/
+    - cp /artifacts/cargo-contract /usr/local/cargo/bin/
     # - which cargo-contract
     # - stat $(which cargo-contract)
     - cargo contract -V
@@ -218,7 +216,7 @@ examples-generate-metadata:
     - build-cli
   script:
     # - cp target/release/cargo-contract /usr/local/cargo/bin/
-    - cp artifacts/cargo-contract /usr/local/cargo/bin/
+    - cp /artifacts/cargo-contract /usr/local/cargo/bin/
     # - which cargo-contract
     # - stat $(which cargo-contract)
     - cargo contract -V
