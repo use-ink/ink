@@ -12,25 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Facilities to allocate and deallocate contract storage dynamically.
-
-mod bump_alloc;
-mod dyn_alloc;
-mod traits;
-
-#[cfg(all(test, feature = "test-env"))]
-mod tests;
-
-pub use self::{
-    bump_alloc::BumpAlloc,
-    dyn_alloc::DynAlloc,
-    traits::{
-        Allocate,
-        AllocateUsing,
-        Allocator,
-        Initialize,
-    },
-};
-
-#[cfg(feature = "derive")]
-pub use ink_core_derive::AllocateUsing;
+#[test]
+fn compile_tests() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/ui/pass/flush.rs");
+    t.pass("tests/ui/pass/allocate_using.rs");
+    t.compile_fail("tests/ui/fail/flush_empty_enum.rs");
+    t.compile_fail("tests/ui/fail/allocate_using_enum.rs");
+}
