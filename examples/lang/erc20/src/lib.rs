@@ -16,11 +16,11 @@
 
 use ink_core::{
     env::DefaultSrmlTypes,
-    memory::format,
     storage,
 };
 use ink_lang::contract;
 use ink_model::EnvHandler;
+use ink_prelude::format;
 
 contract! {
     #![env = DefaultSrmlTypes]
