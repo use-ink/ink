@@ -23,18 +23,16 @@
 //! Users and systems are advised to share a common set of allocated buffers
 //! provided by the global buffer arena.
 
-use crate::{
-    env2::utils::{
-        EnlargeTo,
-        Reset,
-    },
+use crate::env2::utils::{
+    EnlargeTo,
+    Reset,
 };
-use ink_prelude::vec::Vec;
 use cfg_if::cfg_if;
 use core::cell::{
     Cell,
     RefCell,
 };
+use ink_prelude::vec::Vec;
 
 /// The maximum amount of used byte buffers at the same time.
 ///
