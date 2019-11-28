@@ -116,7 +116,7 @@ where
 
     /// Returns a builder for a cross-contract call that cannot return data.
     ///
-    /// Prefer this over [`eval`] if possible since it is the more efficient operation.
+    /// Prefer this over [`CallParams::eval`] if possible since it is the more efficient operation.
     pub fn invoke(
         callee: E::AccountId,
         selector: Selector,
@@ -177,7 +177,7 @@ where
     ///
     /// # Note
     ///
-    /// Prefer using the [`fire_using`] method whenever possible
+    /// Prefer using the [`CallBuilder::fire_using`] method whenever possible
     /// since it is more efficient.
     pub fn fire(self) -> Result<R, CallError>
     where
@@ -193,7 +193,7 @@ where
     ///
     /// Uses the provided environmental access in order to
     /// dispatch the call which is more efficient than the
-    /// [`fire`] method.
+    /// [`CallBuilder::fire`] method.
     pub fn fire_using(self, env: &mut EnvAccessMut<E>) -> Result<R, CallError>
     where
         R: scale::Decode,
@@ -210,7 +210,7 @@ where
     ///
     /// # Note
     ///
-    /// Prefer using the [`fire_using`] method whenever possible
+    /// Prefer using the [`CallBuilder::fire_using`] method whenever possible
     /// since it is more efficient.
     pub fn fire(self) -> Result<(), CallError> {
         E::invoke_contract(&mut Vec::new(), &self.params).map_err(|_| CallError)
@@ -222,7 +222,7 @@ where
     ///
     /// Uses the provided environmental access in order to
     /// dispatch the call which is more efficient than the
-    /// [`fire`] method.
+    /// [`CallBuilder::fire`] method.
     pub fn fire_using(self, env: &mut EnvAccessMut<E>) -> Result<(), CallError> {
         env.invoke_contract(&self.params).map_err(|_| CallError)
     }
