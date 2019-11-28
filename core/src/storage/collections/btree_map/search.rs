@@ -17,35 +17,33 @@ use core::{
     borrow::Borrow,
 };
 use scale::Codec;
-use crate::storage::btree_map::impls::{KVHandle, Node, Tree};
+use crate::storage::btree_map::impls::{HandleType, KVHandle, Node, BTreeMap};
 
+/// ToDo
 pub enum SearchResult {
+    /// ToDo
     Found(KVHandle),
+    /// ToDo
     GoDown(KVHandle)
-}
-
-enum HandleType {
-    Leaf(KVHandle),
-    Internal(KVHandle),
 }
 
 /// Searches the tree for `key`.
 pub(crate) fn search_tree<K, V, Q>(
-    tree: &Tree<K, V>,
+    tree: &BTreeMap<K, V>,
     key: &Q
 ) -> SearchResult
 where
     Q: Ord,
-    K: Ord + Borrow<Q> + core::fmt::Debug + Codec,
-    V: core::fmt::Debug + Codec,
+    K: Ord + Borrow<Q> + Codec,
+    V: Codec,
 {
     let current_root = tree.root();
-
-    if tree.len() == 0 {
-        return SearchResult::GoDown(KVHandle::new(current_root, 0))
+    if tree.len() == 0 || current_root.is_none() {
+        // ToDo!
+        return SearchResult::GoDown(KVHandle::new(0, 0))
     }
 
-    let mut cur = current_root;
+    let mut cur = current_root.expect("46");
     loop {
         let node = tree.get_node(&cur.into())
             .expect(
@@ -55,13 +53,13 @@ where
         match search_node(&node, cur, key) {
             SearchResult::Found(handle) => return SearchResult::Found(handle),
             SearchResult::GoDown(handle) => {
-                match get_handle_type(tree, handle) {
+                match tree.get_handle_type(handle.into()) {
                     HandleType::Leaf(leaf) => return SearchResult::GoDown(leaf),
                     HandleType::Internal(internal) => {
                         cur = tree
                             .descend(&internal)
                             .expect("an internal node always has a child; qed")
-                            .0;
+                            .node();
                         continue;
                     }
                 }
@@ -114,19 +112,4 @@ where
     }
     // ToDo maybe return KVHandle instead of u32
     (node.len, false)
-}
-
-/// Returns the `HandleType` of `handle`. Either `Leaf` or `Internal`.
-fn get_handle_type<K, V>(tree: &Tree<K, V>, handle: KVHandle) -> HandleType
-where
-    K: Ord + core::fmt::Debug + Codec,
-    V: core::fmt::Debug + Codec,
-{
-    let node = tree.get_node(&handle.into()).expect("must exist");
-    let children = node.edges();
-    if children == 0 {
-        HandleType::Leaf(handle)
-    } else {
-        HandleType::Internal(handle)
-    }
 }

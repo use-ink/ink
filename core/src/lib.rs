@@ -53,6 +53,10 @@ extern crate alloc;
 #[cfg(all(test, feature = "std"))]
 mod test_utils;
 
+#[cfg(test)]
+#[macro_use(quickcheck)]
+extern crate quickcheck_macros;
+
 mod byte_utils;
 pub mod env;
 pub mod env2;
