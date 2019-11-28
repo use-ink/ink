@@ -40,6 +40,9 @@ pub trait Flush {
     fn flush(&mut self);
 }
 
+#[cfg(feature = "derive")]
+pub use ink_core_derive::Flush;
+
 macro_rules! impl_empty_flush_for {
 	( $($ty:ty),* ) => {
 		$(

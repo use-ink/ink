@@ -18,6 +18,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 ink_abi = { path = "../abi/", default-features = false, features = ["derive"], optional = true }
 ink_alloc = { path = "../alloc/", default-features = false }
 ink_utils = { path = "../utils/" }
+ink_core_derive = { version = "0.1.0", path = "derive", default-features = false, optional = true }
 
 scale = { package = "parity-scale-codec", version = "1.1", default-features = false, features = ["derive", "full"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
@@ -27,6 +28,9 @@ cfg-if = "0.1"
 
 [features]
 default = ["test-env"]
+derive = [
+    "ink_core_derive",
+]
 test-env = [
     "std",
 ]
