@@ -15,7 +15,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(proc_macro_hygiene)]
 
-use ink_core::storage;
+use ink_core::storage::{
+    self,
+    Flush,
+};
 use ink_lang2 as ink;
 
 use accumulator::Accumulator;
