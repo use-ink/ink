@@ -74,20 +74,6 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
-build-cli:
-  stage:                           check
-  <<:                              *docker-env
-  variables:
-    GIT_STRATEGY:                    none
-  script:
-    - cargo install --git https://github.com/paritytech/cargo-contract --root ./artifacts
-    - ./artifacts/bin/cargo-contract -V
-  artifacts:
-    name:                          cli_${CI_COMMIT_SHORT_SHA}
-    expire_in:                     24 hrs
-    paths:
-      - ./artifacts/bin/cargo-contract
-
 
 #### stage:                        workspace
 
@@ -185,12 +171,8 @@ examples-clippy-wasm:
 examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
-  dependencies:
-    - build-cli
-  needs:
-    - build-cli
   script:
-    - cp ./artifacts/bin/cargo-contract /usr/local/cargo/bin/
+    - cargo install --git https://github.com/paritytech/cargo-contract
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
@@ -201,12 +183,8 @@ examples-contract-build:
 examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
-  dependencies:
-    - build-cli
-  needs:
-    - build-cli
   script:
-    - cp ./artifacts/bin/cargo-contract /usr/local/cargo/bin/
+    - cargo install --git https://github.com/paritytech/cargo-contract
     - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
