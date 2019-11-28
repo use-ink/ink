@@ -139,6 +139,7 @@ fmt:
 .update-cargo-contract:            &update-cargo-contract
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
   - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
+  - cargo contract -V
 
 examples-test:
   stage:                           examples
@@ -177,7 +178,6 @@ examples-contract-build:
   <<:                              *docker-env
   script:
     - *update-cargo-contract
-    - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
         cargo contract build &&
@@ -189,7 +189,6 @@ examples-generate-metadata:
   <<:                              *docker-env
   script:
     - *update-cargo-contract
-    - cargo contract -V
     - for example in examples/lang2/*; do
         pushd $example &&
         cargo contract generate-metadata &&
