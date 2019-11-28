@@ -151,6 +151,68 @@ where
         }
     }
 
+    pub fn insert<'a>(&'a mut self, handle: KVHandle, key: K, val: V) -> &'a mut V {
+        if self.len() == 0 {
+            let mut node = Node::<K, V>::new();
+            node.keys[0] = Some(key);
+            node.vals[0] = Some(val);
+            node.len = 1;
+
+            let index = self.put(node);
+            self.inc_len();
+
+            let node = self.get_node_mut(&index.into())
+                .expect("index was just put; qed");
+            let val: *mut V = node.vals[0].as_mut()
+                .expect("value was just inserted; qed");
+            return unsafe { &mut *val };
+        }
+
+        let mut ins_k;
+        let mut ins_v;
+        let mut ins_edge;
+        let out_ptr;
+
+        let mut cur_parent = match self.insert_into_node(handle, key, val) {
+            (InsertResult::Fit(_), ptr) => {
+                return unsafe { &mut *ptr };
+            }
+            (InsertResult::Split(left, k, v, right), ptr) => {
+                ins_k = k;
+                ins_v = v;
+                ins_edge = right;
+                out_ptr = ptr;
+                self.ascend(&NodeHandle(left.node))
+            }
+        };
+
+        loop {
+            match cur_parent {
+                Some(handle) => {
+                    let parent = handle;
+                    match self.insert_into_parent(parent, ins_k, ins_v, ins_edge) {
+                        InsertResult::Fit(_) => {
+                            self.inc_len();
+                            return unsafe { &mut *out_ptr };
+                        },
+                        InsertResult::Split(left, k, v, right) => {
+                            ins_k = k;
+                            ins_v = v;
+                            ins_edge = right;
+                            cur_parent = self.ascend(&NodeHandle(left.node));
+                        }
+                    }
+                }
+                None => {
+                    let new_root = self.root_push_level();
+                    self.push(new_root, ins_k, ins_v, ins_edge);
+                    return unsafe { &mut *out_ptr };
+                }
+            }
+        }
+
+    }
+
     /// Finds the node pointed to by this edge.
     ///
     /// `edge.descend().ascend().unwrap()` and `node.ascend().unwrap().descend()` should
@@ -904,68 +966,9 @@ where
     /// assert_eq!(count["a"], 3);
     /// ```
     pub fn insert(mut self, val: V) -> &'a mut V {
-        if self.tree.len() == 0 {
-            let mut node = Node::<K, V>::new();
-            let k = self.key.take()
-                .expect("key is only taken when inserting, so must be there; qed");
-            node.keys[0] = Some(k);
-            node.vals[0] = Some(val);
-            node.len = 1;
-
-            let index = self.tree.put(node);
-            self.tree.inc_len();
-
-            let node = self.tree.get_node_mut(&index.into())
-                .expect("index was just put; qed");
-            let val: *mut V = node.vals[0].as_mut()
-                .expect("value was just inserted; qed");
-            return unsafe { &mut *val };
-        }
-
-        let mut ins_k;
-        let mut ins_v;
-        let mut ins_edge;
-        let out_ptr;
-
         let key = self.key.take()
             .expect("key is only taken when inserting, so must be there; qed");
-        let mut cur_parent = match self.tree.insert_into_node(self.handle, key, val) {
-            (InsertResult::Fit(_), ptr) => {
-                return unsafe { &mut *ptr };
-            }
-            (InsertResult::Split(left, k, v, right), ptr) => {
-                ins_k = k;
-                ins_v = v;
-                ins_edge = right;
-                out_ptr = ptr;
-                self.tree.ascend(&NodeHandle(left.node))
-            }
-        };
-
-        loop {
-            match cur_parent {
-                Some(handle) => {
-                    let parent = handle;
-                    match self.tree.insert_into_parent(parent, ins_k, ins_v, ins_edge) {
-                        InsertResult::Fit(_) => {
-                            self.tree.inc_len();
-                            return unsafe { &mut *out_ptr };
-                        },
-                        InsertResult::Split(left, k, v, right) => {
-                            ins_k = k;
-                            ins_v = v;
-                            ins_edge = right;
-                            cur_parent = self.tree.ascend(&NodeHandle(left.node));
-                        }
-                    }
-                }
-                None => {
-                    let new_root = self.tree.root_push_level();
-                    self.tree.push(new_root, ins_k, ins_v, ins_edge);
-                    return unsafe { &mut *out_ptr };
-                }
-            }
-        }
+        self.tree.insert(self.handle, key, val)
     }
 }
 
