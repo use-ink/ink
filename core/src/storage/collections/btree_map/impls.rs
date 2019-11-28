@@ -123,11 +123,6 @@ impl<K, V> Tree<K, V>
         self.header.len
     }
 
-    /// Returns the number of elements stored in the map.
-    pub fn inc_len(&mut self) {
-        self.header.len += 1;
-    }
-
     /// Returns the index of the current root.
     pub fn root(&self) -> u32 {
         self.header.root
@@ -159,7 +154,7 @@ where
             node.len = 1;
 
             let index = self.put(node);
-            self.inc_len();
+            self.header.len += 1;
 
             let node = self.get_node_mut(&index.into())
                 .expect("index was just put; qed");
@@ -192,7 +187,7 @@ where
                     let parent = handle;
                     match self.insert_into_parent(parent, ins_k, ins_v, ins_edge) {
                         InsertResult::Fit(_) => {
-                            self.inc_len();
+                            self.header.len += 1;
                             return unsafe { &mut *out_ptr };
                         },
                         InsertResult::Split(left, k, v, right) => {
@@ -293,7 +288,7 @@ where
 
     /// Adds a key/value pair and an edge to go to the right of that pair to
     /// the end of the node.
-    pub fn push(&mut self, dst: NodeHandle, key: K, val: V, edge: NodeHandle) {
+    fn push(&mut self, dst: NodeHandle, key: K, val: V, edge: NodeHandle) {
         self.header.len += 1;
         let mut node = self.get_node_mut(&dst)
             .expect("destination node to push to must exist");
@@ -407,7 +402,7 @@ where
         NodeHandle(index)
     }
 
-    pub fn insert_into_node(&mut self, handle: KVHandle, key: K, val: V) -> (InsertResult<K, V>, *mut V) {
+    fn insert_into_node(&mut self, handle: KVHandle, key: K, val: V) -> (InsertResult<K, V>, *mut V) {
         let node = self.get_node(&handle.into())
             .expect("node to insert into must exist");
         let len = node.len();
