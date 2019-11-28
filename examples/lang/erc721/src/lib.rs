@@ -17,11 +17,11 @@
 use core::result::Result;
 use ink_core::{
     env::DefaultSrmlTypes,
-    memory::format,
     storage,
 };
 use ink_lang::contract;
 use ink_model;
+use ink_prelude::format;
 use scale::{
     Decode,
     Encode,

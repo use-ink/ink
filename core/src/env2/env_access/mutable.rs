@@ -30,7 +30,6 @@ use crate::{
         SetProperty,
         Topics,
     },
-    memory::vec::Vec,
     storage::{
         alloc::{
             Allocate,
@@ -41,6 +40,7 @@ use crate::{
         Key,
     },
 };
+use ink_prelude::vec::Vec;
 
 #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
 #[derive(Debug)]
@@ -74,10 +74,7 @@ impl<E> AllocateUsing for EnvAccessMut<E> {
     }
 }
 
-impl<E> Flush for EnvAccessMut<E> {
-    #[inline]
-    fn flush(&mut self) {}
-}
+impl<E> Flush for EnvAccessMut<E> {}
 
 impl<E> Initialize for EnvAccessMut<E> {
     type Args = ();
@@ -320,5 +317,18 @@ where
     /// Prints the given contents to the environmental log.
     pub fn println(&mut self, content: &str) {
         T::println(content)
+    }
+
+    /// Returns the value from the *runtime* storage at the position of the key.
+    ///
+    /// # Errors
+    ///
+    /// - If the key's entry is empty
+    /// - If the decoding of the typed value failed
+    pub fn get_runtime_storage<R>(&mut self, key: &[u8]) -> Result<R>
+    where
+        R: scale::Decode,
+    {
+        T::get_runtime_storage(&mut self.buffer, key)
     }
 }

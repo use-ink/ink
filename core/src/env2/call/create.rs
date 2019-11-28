@@ -14,19 +14,17 @@
 
 use core::marker::PhantomData;
 
-use crate::{
-    env2::{
-        call::{
-            CallData,
-            Selector,
-        },
-        errors::CreateError,
-        Env,
-        EnvAccessMut,
-        EnvTypes,
+use crate::env2::{
+    call::{
+        CallData,
+        Selector,
     },
-    memory::vec::Vec,
+    errors::CreateError,
+    Env,
+    EnvAccessMut,
+    EnvTypes,
 };
+use ink_prelude::vec::Vec;
 
 pub mod state {
     pub use crate::env2::call::state::{
@@ -201,7 +199,7 @@ where
     ///
     /// # Note
     ///
-    /// Prefer using [`create_using`] whenever possible because it is more efficient.
+    /// Prefer using [`CreateBuilder::create_using`] whenever possible because it is more efficient.
     pub fn create(self) -> Result<C, CreateError> {
         E::create_contract(&mut Vec::new(), &self.params)
             .map(FromAccountId::from_account_id)
@@ -212,7 +210,7 @@ where
     ///
     /// # Note
     ///
-    /// Prefer using this over [`create`] whenever possible because it is more efficient.
+    /// Prefer using this over [`CreateBuilder::create`] whenever possible because it is more efficient.
     pub fn create_using(
         self,
         env_access: &mut EnvAccessMut<E>,

@@ -15,7 +15,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(proc_macro_hygiene)]
 
-use ink_core::storage;
+use ink_core::storage::{
+    self,
+    Flush,
+};
 use ink_lang2 as ink;
 
 use accumulator::Accumulator;
@@ -30,15 +33,11 @@ mod delegator {
     /// and in `Subber` state will delegate to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode, Flush)]
     #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
     pub enum Which {
         Adder,
         Subber,
-    }
-
-    impl ink_core::storage::Flush for Which {
-        fn flush(&mut self) {}
     }
 
     /// Delegates calls to an adder or subber contract to mutate

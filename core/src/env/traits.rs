@@ -17,10 +17,8 @@ use scale::{
     Decode,
 };
 
-use crate::{
-    memory::vec::Vec,
-    storage::Key,
-};
+use crate::storage::Key;
+use ink_prelude::vec::Vec;
 
 /// Error encountered by calling a remote contract.
 ///

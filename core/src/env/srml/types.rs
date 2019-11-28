@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{
+    env::EnvTypes,
+    ink_core,
+    storage::Flush,
+};
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
 };
-
 use scale::{
     Decode,
     Encode,
-};
-
-use crate::{
-    env::EnvTypes,
-    storage::Flush,
 };
 
 #[cfg(feature = "ink-generate-abi")]
@@ -66,7 +65,7 @@ impl EnvTypes for DefaultSrmlTypes {
 }
 
 /// The default SRML address type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, Flush)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct AccountId([u8; 32]);
 
@@ -89,7 +88,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
 pub type Balance = u128;
 
 /// The default SRML hash type.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, Flush)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Hash([u8; 32]);
 
@@ -119,11 +118,3 @@ pub type Moment = u64;
 
 /// The default SRML blocknumber type.
 pub type BlockNumber = u64;
-
-impl Flush for AccountId {
-    fn flush(&mut self) {}
-}
-
-impl Flush for Hash {
-    fn flush(&mut self) {}
-}

@@ -15,9 +15,10 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_core = { version = "0.1", path = "../core", default-features = false }
-ink_abi = { version = "0.1", path = "../abi", default-features = false, optional = true }
-ink_lang2_macro = { version = "0.1.0", path = "macro", default-features = false }
+ink_core = { path = "../core", default-features = false }
+ink_abi = { path = "../abi", default-features = false, optional = true }
+ink_prelude = { path = "../prelude/", default-features = false }
+ink_lang2_macro = { path = "macro", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.1", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99.2", default-features = false, features = ["from"] }
@@ -31,6 +32,7 @@ test-env = [
 ]
 std = [
     "ink_abi/std",
+    "ink_prelude/std",
     "ink_core/std",
     "ink_lang2_macro/std",
     "scale/std",

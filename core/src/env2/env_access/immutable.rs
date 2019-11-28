@@ -122,10 +122,7 @@ impl<E> AllocateUsing for EnvAccess<E> {
     }
 }
 
-impl<E> Flush for EnvAccess<E> {
-    #[inline(always)]
-    fn flush(&mut self) {}
-}
+impl<E> Flush for EnvAccess<E> {}
 
 impl<E> Initialize for EnvAccess<E> {
     type Args = ();
@@ -322,5 +319,15 @@ where
 
         /// Prints the given contents to the environmental log.
         fn println(&self, content: &str);
+
+        /// Returns the value from the *runtime* storage at the position of the key.
+        ///
+        /// # Errors
+        ///
+        /// - If the key's entry is empty
+        /// - If the decoding of the typed value failed
+        fn get_runtime_storage<R>(&self, key: &[u8]) -> Result<R>
+        where
+            R: scale::Decode;
     }
 }

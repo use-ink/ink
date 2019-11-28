@@ -14,10 +14,8 @@
 
 use core::marker::PhantomData;
 
-use ink_core::{
-    env,
-    memory::vec::Vec,
-};
+use ink_core::env;
+use ink_prelude::vec::Vec;
 
 use crate::{
     exec_env::ExecutionEnv,

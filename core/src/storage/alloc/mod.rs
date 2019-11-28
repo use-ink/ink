@@ -31,3 +31,5 @@ pub use self::{
         Initialize,
     },
 };
+
+pub use ink_core_derive::AllocateUsing;

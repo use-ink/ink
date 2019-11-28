@@ -17,10 +17,8 @@ use core::{
     result::Result as CoreResult,
 };
 
-use ink_core::{
-    env,
-    memory::vec::Vec,
-};
+use ink_core::env;
+use ink_prelude::vec::Vec;
 use scale::Decode;
 
 use crate::{

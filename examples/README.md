@@ -6,7 +6,7 @@ Have a look at the different examples to better understand how to use ink! to bu
 
 ## Preparation
 
-For building the example smart contracts found in this folder you will need to have `cargo-contract` installed.
+For building the example smart contracts found in this folder you will need to have [`cargo-contract`](https://github.com/paritytech/cargo-contract) installed.
 
 ```
 cargo install --force --git https://github.com/paritytech/ink cargo-contract

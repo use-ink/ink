@@ -413,4 +413,22 @@ where
     fn println(content: &str) {
         ext::println(content)
     }
+
+    fn get_runtime_storage<I, R>(buffer: &mut I, key: &[u8]) -> Result<R>
+    where
+        I: AsMut<[u8]> + EnlargeTo,
+        R: scale::Decode,
+    {
+        let ret = ext::get_runtime_storage(key);
+        if !ret.is_success() {
+            return Err(Error::InvalidStorageKey)
+        }
+        let req_len = ext::scratch_size();
+        buffer.enlarge_to(req_len);
+        let ret = ext::scratch_read(&mut buffer.as_mut()[0..req_len], 0);
+        if !ret.is_success() {
+            return Err(Error::InvalidStorageRead)
+        }
+        Decode::decode(&mut &buffer.as_mut()[0..req_len]).map_err(Into::into)
+    }
 }

@@ -23,14 +23,12 @@
 
 use core::borrow::Borrow;
 
-use crate::{
-    env2::test::{
-        storage::Storage,
-        types::*,
-        TypedEncoded,
-    },
-    memory::collections::btree_map::BTreeMap,
+use crate::env2::test::{
+    storage::Storage,
+    types::*,
+    TypedEncoded,
 };
+use ink_prelude::collections::btree_map::BTreeMap;
 
 /// The on-chain registered accounts.
 ///

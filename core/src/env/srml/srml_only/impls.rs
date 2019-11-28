@@ -28,9 +28,9 @@ use crate::{
         EnvStorage,
         EnvTypes,
     },
-    memory::vec::Vec,
     storage::Key,
 };
+use ink_prelude::vec::Vec;
 
 /// Load the contents of the scratch buffer
 fn read_scratch_buffer() -> Vec<u8> {

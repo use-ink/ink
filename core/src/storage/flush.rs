@@ -37,17 +37,18 @@ pub trait Flush {
     /// Needs to take `self` by `&mut` since `SyncChunk` and `SyncCell`
     /// and potentially other abstraction facilities are required to
     /// write back their cached values which is a mutable operation.
-    fn flush(&mut self);
+    #[inline(always)]
+    fn flush(&mut self) {}
 }
 
+pub use ink_core_derive::Flush;
+
 macro_rules! impl_empty_flush_for {
-	( $($ty:ty),* ) => {
-		$(
-			impl Flush for $ty {
-				fn flush(&mut self) {}
-			}
-		)*
-	};
+    ( $($ty:ty),* ) => {
+        $(
+            impl Flush for $ty {}
+        )*
+    };
 }
 
 impl_empty_flush_for! {
@@ -57,20 +58,20 @@ impl_empty_flush_for! {
 }
 
 macro_rules! impl_tuple_flush_for {
-	( $(($n:tt, $name:ident)),* ) => {
-		impl< $($name),* > Flush for ($($name,)*)
-		where
-			$(
-				$name: Flush,
-			)*
-		{
-			fn flush(&mut self) {
-				$(
-					self.$n.flush();
-				)*
-			}
-		}
-	}
+    ( $(($n:tt, $name:ident)),* ) => {
+        impl< $($name),* > Flush for ($($name,)*)
+        where
+            $(
+                $name: Flush,
+            )*
+        {
+            fn flush(&mut self) {
+                $(
+                    self.$n.flush();
+                )*
+            }
+        }
+    }
 }
 
 impl_tuple_flush_for!();
@@ -153,7 +154,7 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::vec::Vec<T>
+impl<T> Flush for ink_prelude::vec::Vec<T>
 where
     T: Flush,
 {
@@ -164,13 +165,9 @@ where
     }
 }
 
-impl Flush for crate::memory::string::String {
-    fn flush(&mut self) {
-        // Note: Strings contain only characters that need no flushing.
-    }
-}
+impl Flush for ink_prelude::string::String {}
 
-impl<K, V> Flush for crate::memory::collections::btree_map::BTreeMap<K, V>
+impl<K, V> Flush for ink_prelude::collections::btree_map::BTreeMap<K, V>
 where
     V: Flush,
 {
@@ -182,13 +179,9 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::collections::btree_set::BTreeSet<T> {
-    fn flush(&mut self) {
-        // Note: Values within a `BTreeSet` are immutable and thus need not be flushed.
-    }
-}
+impl<T> Flush for ink_prelude::collections::btree_set::BTreeSet<T> {}
 
-impl<T> Flush for crate::memory::collections::linked_list::LinkedList<T>
+impl<T> Flush for ink_prelude::collections::linked_list::LinkedList<T>
 where
     T: Flush,
 {
@@ -199,7 +192,7 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::collections::vec_deque::VecDeque<T>
+impl<T> Flush for ink_prelude::collections::vec_deque::VecDeque<T>
 where
     T: Flush,
 {
@@ -210,11 +203,4 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::collections::binary_heap::BinaryHeap<T>
-where
-    T: Flush,
-{
-    fn flush(&mut self) {
-        // Note: Values within a `BinaryHeap` are immutable and thus need not be flushed.
-    }
-}
+impl<T> Flush for ink_prelude::collections::binary_heap::BinaryHeap<T> {}
