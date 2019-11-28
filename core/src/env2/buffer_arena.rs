@@ -28,8 +28,8 @@ use crate::{
         EnlargeTo,
         Reset,
     },
-    memory::vec::Vec,
 };
+use ink_prelude::vec::Vec;
 use cfg_if::cfg_if;
 use core::cell::{
     Cell,
