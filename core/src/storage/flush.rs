@@ -154,7 +154,7 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::vec::Vec<T>
+impl<T> Flush for ink_prelude::vec::Vec<T>
 where
     T: Flush,
 {
@@ -165,9 +165,9 @@ where
     }
 }
 
-impl Flush for crate::memory::string::String {}
+impl Flush for ink_prelude::string::String {}
 
-impl<K, V> Flush for crate::memory::collections::btree_map::BTreeMap<K, V>
+impl<K, V> Flush for ink_prelude::collections::btree_map::BTreeMap<K, V>
 where
     V: Flush,
 {
@@ -179,9 +179,9 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::collections::btree_set::BTreeSet<T> {}
+impl<T> Flush for ink_prelude::collections::btree_set::BTreeSet<T> {}
 
-impl<T> Flush for crate::memory::collections::linked_list::LinkedList<T>
+impl<T> Flush for ink_prelude::collections::linked_list::LinkedList<T>
 where
     T: Flush,
 {
@@ -192,7 +192,7 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::collections::vec_deque::VecDeque<T>
+impl<T> Flush for ink_prelude::collections::vec_deque::VecDeque<T>
 where
     T: Flush,
 {
@@ -203,4 +203,4 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::collections::binary_heap::BinaryHeap<T> {}
+impl<T> Flush for ink_prelude::collections::binary_heap::BinaryHeap<T> {}

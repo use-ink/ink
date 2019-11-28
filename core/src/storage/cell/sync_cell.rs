@@ -30,18 +30,16 @@ use type_metadata::{
     TypeId,
 };
 
-use crate::{
-    memory::boxed::Box,
-    storage::{
-        alloc::{
-            Allocate,
-            AllocateUsing,
-        },
-        cell::TypedCell,
-        Flush,
-        Key,
+use crate::storage::{
+    alloc::{
+        Allocate,
+        AllocateUsing,
     },
+    cell::TypedCell,
+    Flush,
+    Key,
 };
+use ink_prelude::boxed::Box;
 
 /// A synchronized cell.
 ///

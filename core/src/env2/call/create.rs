@@ -14,19 +14,17 @@
 
 use core::marker::PhantomData;
 
-use crate::{
-    env2::{
-        call::{
-            CallData,
-            Selector,
-        },
-        errors::CreateError,
-        Env,
-        EnvAccessMut,
-        EnvTypes,
+use crate::env2::{
+    call::{
+        CallData,
+        Selector,
     },
-    memory::vec::Vec,
+    errors::CreateError,
+    Env,
+    EnvAccessMut,
+    EnvTypes,
 };
+use ink_prelude::vec::Vec;
 
 pub mod state {
     pub use crate::env2::call::state::{

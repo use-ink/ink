@@ -35,9 +35,9 @@ use type_metadata::Metadata;
 
 use crate::{
     env2::EnvTypes,
-    memory::vec::Vec,
     storage::Flush,
 };
+use ink_prelude::vec::Vec;
 
 /// The fundamental types of the SRML default configuration.
 #[cfg_attr(feature = "test-env", derive(Debug, Clone, PartialEq, Eq))]

@@ -13,8 +13,7 @@
 // limitations under the License.
 
 use derive_more::From;
-
-use crate::memory::{
+use ink_prelude::{
     vec,
     vec::Vec,
 };

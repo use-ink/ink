@@ -13,8 +13,7 @@
 // limitations under the License.
 
 use core::cell::RefCell;
-
-use crate::memory::collections::btree_map::{
+use ink_prelude::collections::btree_map::{
     BTreeMap,
     Entry,
 };

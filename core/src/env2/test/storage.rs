@@ -20,12 +20,10 @@
 
 use core::cell::Cell;
 
-use crate::{
-    memory::collections::btree_map::{
-        self,
-        BTreeMap,
-    },
-    storage::Key,
+use crate::storage::Key;
+use ink_prelude::collections::btree_map::{
+    self,
+    BTreeMap,
 };
 
 /// An entry in the storage of the test environment.

@@ -20,6 +20,8 @@
 //!
 //! The `ink_prelude` crate guarantees a stable interface between `std` and `no_std` mode.
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 

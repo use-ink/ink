@@ -39,9 +39,9 @@ use crate::{
         EnvTypes,
         Topics,
     },
-    memory::vec::Vec,
     storage::Key,
 };
+use ink_prelude::vec::Vec;
 
 /// A record of an event happening on the off-chain test environment.
 ///

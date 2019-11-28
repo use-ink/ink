@@ -28,9 +28,9 @@ use crate::{
         CreateError,
         EnvStorage as _,
     },
-    memory::vec::Vec,
     storage::Key,
 };
+use ink_prelude::vec::Vec;
 
 /// Stores the given value under the specified key in the contract storage.
 ///
