@@ -16,18 +16,16 @@ use core::marker::PhantomData;
 
 use scale::Decode;
 
-use crate::{
-    env::{
-        self,
-        CallError,
-        CreateError,
-        Env,
-        EnvTypes,
-    },
-    memory::{
-        vec,
-        vec::Vec,
-    },
+use crate::env::{
+    self,
+    CallError,
+    CreateError,
+    Env,
+    EnvTypes,
+};
+use ink_prelude::{
+    vec,
+    vec::Vec,
 };
 
 /// Consists of the input data to a call.

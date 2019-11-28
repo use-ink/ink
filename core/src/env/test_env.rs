@@ -29,11 +29,11 @@ use crate::{
         CallError,
         EnvTypes,
     },
-    memory::collections::hash_map::{
-        Entry,
-        HashMap,
-    },
     storage::Key,
+};
+use ink_prelude::collections::hash_map::{
+    Entry,
+    HashMap,
 };
 
 /// A wrapper for the generic bytearray used for data in contract events.

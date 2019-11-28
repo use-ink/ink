@@ -29,9 +29,7 @@ pub struct Access {
     pub end: Option<u32>,
 }
 
-impl Flush for Access {
-	fn flush(&mut self) {}
-}
+impl Flush for Access {}
 
 impl Access {
     /// Creates unlimited access rights.

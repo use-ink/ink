@@ -122,10 +122,7 @@ impl<E> AllocateUsing for EnvAccess<E> {
     }
 }
 
-impl<E> Flush for EnvAccess<E> {
-    #[inline(always)]
-    fn flush(&mut self) {}
-}
+impl<E> Flush for EnvAccess<E> {}
 
 impl<E> Initialize for EnvAccess<E> {
     type Args = ();
