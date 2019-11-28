@@ -1,12 +1,13 @@
 [workspace]
 
 members = [
-    "utils",
+    "abi",
     "core",
-    "model",
     "lang",
     "lang2",
-    "abi",
+    "model",
+    "prelude",
+    "utils",
 ]
 exclude = [
     "examples/",
