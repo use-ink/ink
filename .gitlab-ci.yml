@@ -12,8 +12,8 @@ stages:
 
 variables:
   GIT_STRATEGY:                    fetch
+  GIT_DEPTH:                       "3"
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
-  SCCACHE_DIR:                     "/ci-cache/${CI_PROJECT_NAME}/sccache"
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
@@ -44,6 +44,8 @@ variables:
     - schedules
     - web
     - /^[0-9]+$/                   # PRs
+  dependencies:                    []
+  interruptible:                   true
   retry:
     max: 2
     when:
@@ -72,12 +74,13 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
+
 #### stage:                        workspace
 
 build-std:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  needs:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
@@ -87,7 +90,7 @@ build-std:
 build-wasm:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  needs:
     - check-wasm
   script:
     - for crate in ${ALL_CRATES}; do
@@ -97,7 +100,7 @@ build-wasm:
 test:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  needs:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
@@ -107,7 +110,7 @@ test:
 clippy-std:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  needs:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
@@ -117,7 +120,7 @@ clippy-std:
 clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
-  dependencies:
+  needs:
     - check-wasm
   script:
     - for crate in ${ALL_CRATES}; do
@@ -132,6 +135,11 @@ fmt:
 
 
 #### stage:                        examples
+
+.update-cargo-contract:            &update-cargo-contract
+  # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
+  - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
+  - cargo contract -V
 
 examples-test:
   stage:                           examples
@@ -169,6 +177,7 @@ examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   script:
+    - *update-cargo-contract
     - for example in examples/lang2/*; do
         pushd $example &&
         cargo contract build &&
@@ -179,6 +188,7 @@ examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
   script:
+    - *update-cargo-contract
     - for example in examples/lang2/*; do
         pushd $example &&
         cargo contract generate-metadata &&
