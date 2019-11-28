@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage::BTreeMap;
 use core::{
     cmp::{Ord, Ordering},
     borrow::Borrow,
 };
 use scale::Codec;
-use crate::storage::btree_map::impls::{
-    KVHandle,
-    Node,
-};
+use crate::storage::btree_map::impls::{KVHandle, Node, Tree};
 
 pub enum SearchResult {
     Found(KVHandle),
@@ -29,17 +25,13 @@ pub enum SearchResult {
 }
 
 enum HandleType {
-    /// ToDo
     Leaf(KVHandle),
-    /// ToDo
     Internal(KVHandle),
 }
 
-
 /// Searches the tree for `key`.
-pub fn search_tree<K, V, Q>(
-    btree: &BTreeMap<K, V>,
-    current_root: u32,
+pub(crate) fn search_tree<K, V, Q>(
+    tree: &Tree<K, V>,
     key: &Q
 ) -> SearchResult
 where
@@ -47,13 +39,15 @@ where
     K: Ord + Borrow<Q> + core::fmt::Debug + Codec,
     V: core::fmt::Debug + Codec,
 {
-    if btree.len() == 0 {
+    let current_root = tree.root();
+
+    if tree.len() == 0 {
         return SearchResult::GoDown(KVHandle::new(current_root, 0))
     }
 
     let mut cur = current_root;
     loop {
-        let node = btree.get_node_by_handle(&cur.into())
+        let node = tree.get_node(&cur.into())
             .expect(
                 "node which is iterated over is either root or child node, \
                 but always exists; qed"
@@ -61,11 +55,11 @@ where
         match search_node(&node, cur, key) {
             SearchResult::Found(handle) => return SearchResult::Found(handle),
             SearchResult::GoDown(handle) => {
-                match get_handle_type(btree, handle) {
+                match get_handle_type(tree, handle) {
                     HandleType::Leaf(leaf) => return SearchResult::GoDown(leaf),
                     HandleType::Internal(internal) => {
-                        cur = btree
-                            .descend(internal)
+                        cur = tree
+                            .descend(&internal)
                             .expect("an internal node always has a child; qed")
                             .0;
                         continue;
@@ -83,8 +77,8 @@ fn search_node<K, V, Q>(
     key: &Q,
 ) -> SearchResult
 where
-      Q: Ord,
-      K: Borrow<Q>,
+    Q: Ord,
+    K: Borrow<Q>,
 {
     match search_linear(node, key) {
         (idx, true) => SearchResult::Found(
@@ -102,8 +96,8 @@ pub fn search_linear<K, V, Q>(
     key: &Q
 ) -> (u32, bool)
 where
-      Q: Ord,
-      K: Borrow<Q>,
+    Q: Ord,
+    K: Borrow<Q>,
 {
     let iter = node.keys.iter().enumerate();
     for (i, k) in iter {
@@ -123,12 +117,12 @@ where
 }
 
 /// Returns the `HandleType` of `handle`. Either `Leaf` or `Internal`.
-fn get_handle_type<K, V>(btree: &BTreeMap<K, V>, handle: KVHandle) -> HandleType
+fn get_handle_type<K, V>(tree: &Tree<K, V>, handle: KVHandle) -> HandleType
 where
     K: Ord + core::fmt::Debug + Codec,
     V: core::fmt::Debug + Codec,
 {
-    let node = btree.get_node_by_handle(&handle.into()).expect("must exist");
+    let node = tree.get_node(&handle.into()).expect("must exist");
     let children = node.edges();
     if children == 0 {
         HandleType::Leaf(handle)
