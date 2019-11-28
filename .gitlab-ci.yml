@@ -17,7 +17,7 @@ variables:
   CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
-  ALL_CRATES:                      "core alloc utils lang2 lang2/macro"
+  ALL_CRATES:                      "core alloc prelude utils lang2 lang2/macro"
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
