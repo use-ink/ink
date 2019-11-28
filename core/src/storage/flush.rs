@@ -37,20 +37,18 @@ pub trait Flush {
     /// Needs to take `self` by `&mut` since `SyncChunk` and `SyncCell`
     /// and potentially other abstraction facilities are required to
     /// write back their cached values which is a mutable operation.
-    fn flush(&mut self);
+    #[inline(always)]
+    fn flush(&mut self) {}
 }
 
-#[cfg(feature = "derive")]
 pub use ink_core_derive::Flush;
 
 macro_rules! impl_empty_flush_for {
-	( $($ty:ty),* ) => {
-		$(
-			impl Flush for $ty {
-				fn flush(&mut self) {}
-			}
-		)*
-	};
+    ( $($ty:ty),* ) => {
+        $(
+            impl Flush for $ty {}
+        )*
+    };
 }
 
 impl_empty_flush_for! {
@@ -60,20 +58,20 @@ impl_empty_flush_for! {
 }
 
 macro_rules! impl_tuple_flush_for {
-	( $(($n:tt, $name:ident)),* ) => {
-		impl< $($name),* > Flush for ($($name,)*)
-		where
-			$(
-				$name: Flush,
-			)*
-		{
-			fn flush(&mut self) {
-				$(
-					self.$n.flush();
-				)*
-			}
-		}
-	}
+    ( $(($n:tt, $name:ident)),* ) => {
+        impl< $($name),* > Flush for ($($name,)*)
+        where
+            $(
+                $name: Flush,
+            )*
+        {
+            fn flush(&mut self) {
+                $(
+                    self.$n.flush();
+                )*
+            }
+        }
+    }
 }
 
 impl_tuple_flush_for!();
@@ -167,11 +165,7 @@ where
     }
 }
 
-impl Flush for crate::memory::string::String {
-    fn flush(&mut self) {
-        // Note: Strings contain only characters that need no flushing.
-    }
-}
+impl Flush for crate::memory::string::String {}
 
 impl<K, V> Flush for crate::memory::collections::btree_map::BTreeMap<K, V>
 where
@@ -185,11 +179,7 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::collections::btree_set::BTreeSet<T> {
-    fn flush(&mut self) {
-        // Note: Values within a `BTreeSet` are immutable and thus need not be flushed.
-    }
-}
+impl<T> Flush for crate::memory::collections::btree_set::BTreeSet<T> {}
 
 impl<T> Flush for crate::memory::collections::linked_list::LinkedList<T>
 where
@@ -213,11 +203,4 @@ where
     }
 }
 
-impl<T> Flush for crate::memory::collections::binary_heap::BinaryHeap<T>
-where
-    T: Flush,
-{
-    fn flush(&mut self) {
-        // Note: Values within a `BinaryHeap` are immutable and thus need not be flushed.
-    }
-}
+impl<T> Flush for crate::memory::collections::binary_heap::BinaryHeap<T> {}

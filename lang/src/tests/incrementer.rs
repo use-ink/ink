@@ -333,9 +333,7 @@ fn contract_compiles() {
                     account_id: AccountId,
                 }
 
-                impl ink_core::storage::Flush for Incrementer {
-                    fn flush(&mut self) {}
-                }
+                impl ink_core::storage::Flush for Incrementer {}
 
                 /// Allows to enhance calls to `&self` contract messages.
                 pub struct CallEnhancer<'a> {
