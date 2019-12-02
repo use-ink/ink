@@ -29,7 +29,7 @@ mod erc721 {
         /// Mapping from owner to number of owned token.
         owned_tokens_count: storage::HashMap<AccountId, u128>,
         /// Mapping from owner to operator approvals
-        operator_approvals: storage::HashMap<AccountId, storage::HashMap<AccountId, bool>>,
+        operator_approvals: storage::HashMap<(AccountId, AccountId), bool>
         /// None Account to validate account
         none_account: storage::Value<AccountId>,
     }
@@ -119,28 +119,14 @@ mod erc721 {
         #[ink(message)]
         fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> bool {
             let caller = self.env().caller();
-            let hashmap = self.operator_approvals.get_mut(&caller);
-            match hashmap {
-                Some(hashmap) => {
-                    hashmap.insert(to, approved);
-                },
-                None => {
-                    unsafe {
-                        use ink_core::storage::alloc::AllocateUsing;
-                        use ink_core::storage::alloc::Initialize;
-                        use ink_core::storage::alloc::BumpAlloc;
-                        use ink_core::storage::Key;
-                        let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                        let mut default_hashmap: storage::HashMap<AccountId, bool> = storage::HashMap::allocate_using(&mut alloc).initialize_into(());
-                        default_hashmap.insert(to, approved);
-                        self.operator_approvals.insert(caller, default_hashmap);
-                    }
-                },
+            if to == caller {
+                return false
             }
+            self.operator_approvals.insert((caller, to), approved);
             self.env().emit_event(ApprovalForAll {
-                owner: caller,
-                operator: to,
-                approved: approved,
+                from: caller,
+                to,
+                approved
             });
             true
         }
@@ -222,11 +208,7 @@ mod erc721 {
         }
 
         fn is_approved_for_all_impl(&self, owner: AccountId, operator: AccountId) -> bool {
-            let hashmap = self.operator_approvals.get(&owner);
-            match hashmap {
-                Some(hashmap) => return *hashmap.get(&operator).unwrap_or(&false),
-                None => return false
-            }
+            *self.operator_approvals.get(&(owner, operator)).unwrap_or(&false)
         }
 
         fn transfer_from_impl(&mut self, from: AccountId, to: AccountId, id: Hash) -> bool {
