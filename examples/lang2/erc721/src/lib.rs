@@ -30,8 +30,6 @@ mod erc721 {
         owned_tokens_count: storage::HashMap<AccountId, u128>,
         /// Mapping from owner to operator approvals
         operator_approvals: storage::HashMap<(AccountId, AccountId), bool>
-        /// None Account to validate account
-        none_account: storage::Value<AccountId>,
     }
 
     /// Event emitted when a token transfer occurs
@@ -70,7 +68,7 @@ mod erc721 {
     impl Erc721 {
         #[ink(constructor)]
         fn new(&mut self) {
-            self.none_account.set(AccountId::from([0x0; 32]));
+
         }
 
         /// ===========================
@@ -79,19 +77,21 @@ mod erc721 {
         #[ink(message)]
         fn mint(&mut self, id: Hash) -> bool {
             let caller = self.env().caller();
-            let owner = self.owner_of_or_none(id);
-            if owner != *self.none_account {
-                return false;
+            let owner = self.owner_of(id);
+            match owner {
+                None => false,
+                Some(_owner) => {
+                    self.token_owner.insert(id, caller);
+                    let balance = self.balance_of_or_zero(caller);
+                    self.owned_tokens_count.insert(caller, balance + 1);
+                    self.env().emit_event(Transfer {
+                        from: None,
+                        to: caller,
+                        id: id,
+                    });
+                    true
+                }
             }
-            self.token_owner.insert(id, caller);
-            let balance = self.balance_of_or_zero(caller);
-            self.owned_tokens_count.insert(caller, balance + 1);
-            self.env().emit_event(Transfer {
-                from: None,
-                to: caller,
-                id: id,
-            });
-            true
         }
 
         /// Get token balance of specific account.
@@ -103,16 +103,14 @@ mod erc721 {
 
         /// Get owner for specific token.
         #[ink(message)]
-        fn owner_of(&self, id: Hash) -> AccountId {
-            let owner = self.owner_of_or_none(id);
-            owner
+        fn owner_of(&self, id: Hash) -> Option<AccountId> {
+            self.token_owner.get(&id).cloned()
         }
 
         /// The approved address for this token, or the none address if there is none
         #[ink(message)]
-        fn get_approved(&self, id: Hash) -> AccountId {
-            let account = self.approved_of_or_none(id);
-            account
+        fn get_approved(&self, id: Hash) -> Option<AccountId> {
+            self.approved_of_or_none(id)
         }
 
         /// Sets or unsets the approval of a given operator to transfer all tokens of caller
@@ -124,8 +122,8 @@ mod erc721 {
             }
             self.operator_approvals.insert((caller, to), approved);
             self.env().emit_event(ApprovalForAll {
-                from: caller,
-                to,
+                owner: caller,
+                operator: to,
                 approved
             });
             true
@@ -140,16 +138,6 @@ mod erc721 {
         /// Transfer token from owner to another address
         #[ink(message)]
         fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Hash) -> bool {
-            let owner = self.owner_of_or_none(id);
-            if owner == *self.none_account {
-                return false;
-            }
-            if owner != from {
-                return false;
-            }
-            if to == *self.none_account {
-                return false;
-            }
             let caller = self.env().caller();
             if self.is_approved_or_owner(caller, id) {
                 return self.transfer_from_impl(from, to, id);
@@ -161,20 +149,25 @@ mod erc721 {
         #[ink(message)]
         fn approve(&mut self, to: AccountId, id: Hash) -> bool {
             let caller = self.env().caller();
-            let owner = self.owner_of_or_none(id);
-            if caller != owner {
-                return false;
+            let owner = self.owner_of(id);
+            match owner {
+                None => false,
+                Some(owner) => {
+                    if caller != owner {
+                        return false;
+                    }
+                    if owner == to {
+                        return false;
+                    }
+                    self.token_approvals.insert(id, to);
+                    self.env().emit_event(Approval {
+                        from: owner,
+                        to: to,
+                        id: id,
+                    });
+                    true
+                }
             }
-            if owner == to {
-                return false;
-            }
-            self.token_approvals.insert(id, to);
-            self.env().emit_event(Approval {
-                from: owner,
-                to: to,
-                id: id,
-            });
-            true
         }
 
         // Private functions
@@ -183,26 +176,32 @@ mod erc721 {
             *self.owned_tokens_count.get(&of).unwrap_or(&0)
         }
 
-        fn owner_of_or_none(&self, id: Hash) -> AccountId {
-            let owner = self.token_owner.get(&id).unwrap_or(&self.none_account);
-            *owner
-        }
-
-        fn approved_of_or_none(&self, id: Hash) -> AccountId {
-            let owner = self.token_approvals.get(&id).unwrap_or(&self.none_account);
-            *owner
+        fn approved_of_or_none(&self, id: Hash) -> Option<AccountId> {
+            self.token_approvals.get(&id).cloned()
         }
 
         fn is_approved_or_owner(&self, spender: AccountId, id: Hash) -> bool {
-            let owner = self.owner_of_or_none(id);
-            if owner == spender {
-                return true;
+            let owner = self.owner_of(id);
+            match owner {
+                None => return false,
+                Some(owner) => {
+                    if spender == owner {
+                        return true
+                    } else {
+                        if self.is_approved_for_all_impl(owner, spender) {
+                            return true
+                        }
+                    }
+                }
             }
-            if spender == self.approved_of_or_none(id) {
-                return true;
-            }
-            if self.is_approved_for_all_impl(owner, spender) {
-                return true;
+            let approved_account = self.approved_of_or_none(id);
+            match approved_account {
+                None => {},
+                Some(account) => {
+                    if spender == account {
+                        return true;
+                    }
+                }
             }
             false
         }
@@ -226,10 +225,7 @@ mod erc721 {
         }
 
         fn clear_approval(&mut self, id: Hash) {
-            if *self.none_account != self.approved_of_or_none(id) {
-                let none_account = *self.none_account;
-                self.token_approvals.insert(id, none_account);
-            }
+            self.token_approvals.remove(&id);
         }
     }
 }
