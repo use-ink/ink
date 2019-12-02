@@ -16,10 +16,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang2 as ink;
-use ink_core::{
-    memory::format,
-    storage,
-};
+use ink_core::storage;
 
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
@@ -84,7 +81,6 @@ mod erc721 {
             let caller = self.env().caller();
             let owner = self.owner_of_or_none(id);
             if owner != *self.none_account {
-                self.env().println(&format!("Erc721::mint::token is exist"));
                 return false;
             }
             self.token_owner.insert(id, caller);
@@ -102,7 +98,6 @@ mod erc721 {
         #[ink(message)]
         fn balance_of(&self, owner: AccountId) -> Balance {
             let balance = self.balance_of_or_zero(owner);
-            self.env().println(&format!("Erc721::balance_of(owner = {:?}) = {:?}", owner, balance));
             balance
         }
 
@@ -110,7 +105,6 @@ mod erc721 {
         #[ink(message)]
         fn owner_of(&self, id: Hash) -> AccountId {
             let owner = self.owner_of_or_none(id);
-            self.env().println(&format!("Erc721::owner_of(token = {:?}) = {:?}", id, owner));
             owner
         }
 
@@ -161,17 +155,13 @@ mod erc721 {
         #[ink(message)]
         fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Hash) -> bool {
             let owner = self.owner_of_or_none(id);
-            self.env().println(&format!("Erc721::transfer_from::(owner={:?}, from={:?}, to={:?}", owner, from , to));
             if owner == *self.none_account {
-                self.env().println(&format!("Erc721::transfer_from::owner is None"));
                 return false;
             }
             if owner != from {
-                self.env().println(&format!("Erc721::transfer_from::from is not owner"));
                 return false;
             }
             if to == *self.none_account {
-                self.env().println(&format!("Erc721::transfer_from::spender is None"));
                 return false;
             }
             let caller = self.env().caller();
@@ -187,11 +177,9 @@ mod erc721 {
             let caller = self.env().caller();
             let owner = self.owner_of_or_none(id);
             if caller != owner {
-                self.env().println(&format!("Erc721::approve::caller is not owner"));
                 return false;
             }
             if owner == to {
-                self.env().println(&format!("Erc721::approve::approve to current owner"));
                 return false;
             }
             self.token_approvals.insert(id, to);
@@ -222,15 +210,12 @@ mod erc721 {
         fn is_approved_or_owner(&self, spender: AccountId, id: Hash) -> bool {
             let owner = self.owner_of_or_none(id);
             if owner == spender {
-                self.env().println(&format!("Erc721::is_approved_or_owner::spender is owner"));
                 return true;
             }
             if spender == self.approved_of_or_none(id) {
-                self.env().println(&format!("Erc721::is_approved_or_owner::spender is not approved"));
                 return true;
             }
             if self.is_approved_for_all_impl(owner, spender) {
-                self.env().println(&format!("Erc721::is_approved_or_owner::spender is not approved for all"));
                 return true;
             }
             false
