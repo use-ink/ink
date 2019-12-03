@@ -27,7 +27,7 @@ mod erc721 {
         /// Mapping from token to approvals users.
         token_approvals: storage::HashMap<Hash, AccountId>,
         /// Mapping from owner to number of owned token.
-        owned_tokens_count: storage::HashMap<AccountId, u128>,
+        owned_tokens_count: storage::HashMap<AccountId, u32>,
         /// Mapping from owner to operator approvals
         operator_approvals: storage::HashMap<(AccountId, AccountId), bool>
     }
@@ -96,7 +96,7 @@ mod erc721 {
 
         /// Get token balance of specific account.
         #[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> Balance {
+        fn balance_of(&self, owner: AccountId) -> u32 {
             let balance = self.balance_of_or_zero(owner);
             balance
         }
@@ -172,7 +172,7 @@ mod erc721 {
 
         // Private functions
 
-        fn balance_of_or_zero(&self, of: AccountId) -> u128 {
+        fn balance_of_or_zero(&self, of: AccountId) -> u32 {
             *self.owned_tokens_count.get(&of).unwrap_or(&0)
         }
 
