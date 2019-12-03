@@ -33,26 +33,34 @@ mod dns {
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
     struct Register {
-        #[ink(topic)] name: Hash,
-        #[ink(topic)] from: AccountId,
+        #[ink(topic)]
+        name: Hash,
+        #[ink(topic)]
+        from: AccountId,
     }
 
     /// Emitted whenever an address changes.
     #[ink(event)]
     struct SetAddress {
-        #[ink(topic)] name: Hash,
+        #[ink(topic)]
+        name: Hash,
         from: AccountId,
-        #[ink(topic)] old_address: Option<AccountId>,
-        #[ink(topic)] new_address: AccountId,
+        #[ink(topic)]
+        old_address: Option<AccountId>,
+        #[ink(topic)]
+        new_address: AccountId,
     }
 
     /// Emitted whenver a name is being transferred.
     #[ink(event)]
     struct Transfer {
-        #[ink(topic)] name: Hash,
+        #[ink(topic)]
+        name: Hash,
         from: AccountId,
-        #[ink(topic)] old_owner: Option<AccountId>,
-        #[ink(topic)] new_owner: AccountId,
+        #[ink(topic)]
+        old_owner: Option<AccountId>,
+        #[ink(topic)]
+        new_owner: AccountId,
     }
 
     impl DomainNameService {
@@ -70,10 +78,7 @@ mod dns {
                 return false
             }
             self.name_to_owner.insert(name, caller);
-            self.env().emit_event(Register {
-                name,
-                from: caller,
-            });
+            self.env().emit_event(Register { name, from: caller });
             true
         }
 
@@ -133,17 +138,22 @@ mod dns {
         }
 
         fn get_owner_or_default(&self, name: Hash) -> AccountId {
-            *self.name_to_owner.get(&name).unwrap_or(&*self.default_address)
+            *self
+                .name_to_owner
+                .get(&name)
+                .unwrap_or(&*self.default_address)
         }
 
         fn get_address_or_default(&self, name: Hash) -> AccountId {
-            *self.name_to_address.get(&name).unwrap_or(&*self.default_address)
+            *self
+                .name_to_address
+                .get(&name)
+                .unwrap_or(&*self.default_address)
         }
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
-
     }
 }
