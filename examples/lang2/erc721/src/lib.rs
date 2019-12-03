@@ -20,12 +20,15 @@ use ink_core::storage;
 
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
+    /// A token ID.
+    pub type TokenId = u32;
+
     #[ink(storage)]
     struct Erc721 {
         /// Mapping from token to owner.
-        token_owner: storage::HashMap<Hash, AccountId>,
+        token_owner: storage::HashMap<TokenId, AccountId>,
         /// Mapping from token to approvals users.
-        token_approvals: storage::HashMap<Hash, AccountId>,
+        token_approvals: storage::HashMap<TokenId, AccountId>,
         /// Mapping from owner to number of owned token.
         owned_tokens_count: storage::HashMap<AccountId, u32>,
         /// Mapping from owner to operator approvals
@@ -40,7 +43,7 @@ mod erc721 {
         #[ink(topic)]
         to: AccountId,
         #[ink(topic)]
-        id: Hash,
+        id: TokenId,
     }
 
     /// Event emited when a token approve occurs
@@ -51,7 +54,7 @@ mod erc721 {
         #[ink(topic)]
         to: AccountId,
         #[ink(topic)]
-        id: Hash,
+        id: TokenId,
     }
 
     /// Event emitted when an operator is enabled or disabled for an owner.
@@ -75,7 +78,7 @@ mod erc721 {
         /// NOT REQUIRED, JUST FOR TEST
         /// ===========================
         #[ink(message)]
-        fn mint(&mut self, id: Hash) -> bool {
+        fn mint(&mut self, id: TokenId) -> bool {
             let caller = self.env().caller();
             let owner = self.owner_of(id);
             match owner {
@@ -103,13 +106,13 @@ mod erc721 {
 
         /// Get owner for specific token.
         #[ink(message)]
-        fn owner_of(&self, id: Hash) -> Option<AccountId> {
+        fn owner_of(&self, id: TokenId) -> Option<AccountId> {
             self.token_owner.get(&id).cloned()
         }
 
         /// The approved address for this token, or the none address if there is none
         #[ink(message)]
-        fn get_approved(&self, id: Hash) -> Option<AccountId> {
+        fn get_approved(&self, id: TokenId) -> Option<AccountId> {
             self.approved_of_or_none(id)
         }
 
@@ -137,7 +140,7 @@ mod erc721 {
 
         /// Transfer token from owner to another address
         #[ink(message)]
-        fn transfer_from(&mut self, from: AccountId, to: AccountId, id: Hash) -> bool {
+        fn transfer_from(&mut self, from: AccountId, to: AccountId, id: TokenId) -> bool {
             let caller = self.env().caller();
             if self.is_approved_or_owner(caller, id) {
                 return self.transfer_from_impl(from, to, id);
@@ -147,7 +150,7 @@ mod erc721 {
 
         /// Approve another account to operate the given token
         #[ink(message)]
-        fn approve(&mut self, to: AccountId, id: Hash) -> bool {
+        fn approve(&mut self, to: AccountId, id: TokenId) -> bool {
             let caller = self.env().caller();
             let owner = self.owner_of(id);
             match owner {
@@ -176,11 +179,11 @@ mod erc721 {
             *self.owned_tokens_count.get(&of).unwrap_or(&0)
         }
 
-        fn approved_of_or_none(&self, id: Hash) -> Option<AccountId> {
+        fn approved_of_or_none(&self, id: TokenId) -> Option<AccountId> {
             self.token_approvals.get(&id).cloned()
         }
 
-        fn is_approved_or_owner(&self, spender: AccountId, id: Hash) -> bool {
+        fn is_approved_or_owner(&self, spender: AccountId, id: TokenId) -> bool {
             let owner = self.owner_of(id);
             match owner {
                 None => return false,
@@ -210,7 +213,7 @@ mod erc721 {
             *self.operator_approvals.get(&(owner, operator)).unwrap_or(&false)
         }
 
-        fn transfer_from_impl(&mut self, from: AccountId, to: AccountId, id: Hash) -> bool {
+        fn transfer_from_impl(&mut self, from: AccountId, to: AccountId, id: TokenId) -> bool {
 
             self.clear_approval(id);
 
@@ -224,7 +227,7 @@ mod erc721 {
             true
         }
 
-        fn clear_approval(&mut self, id: Hash) {
+        fn clear_approval(&mut self, id: TokenId) {
             self.token_approvals.remove(&id);
         }
     }
