@@ -126,7 +126,7 @@ mod dns {
         }
 
         fn name_exists(&self, name: Hash) -> bool {
-            if let Some(_) = self.name_to_owner.get(&name) {
+            if self.name_to_owner.get(&name).is_some() {
                 return true
             }
             false
