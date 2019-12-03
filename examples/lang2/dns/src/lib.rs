@@ -58,7 +58,7 @@ mod dns {
     impl DomainNameService {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
-        fn new(&mut self, init_value: bool) {
+        fn new(&mut self) {
             self.default_address.set(AccountId::from([0x00; 32]));
         }
 
