@@ -1,4 +1,4 @@
-# Version 2.0 Syntax (2019-11-11)
+# Version 2.0 Syntax (2019-12-03)
 
 The ink! version 2.0 syntax has one major philosophy:
 
@@ -92,7 +92,7 @@ We used to define types using a special `#![env = DefaultSrmlTypes]` tag.
 Now we simply include the type definition in the `#[ink::contract(...)]` tag:
 
 ```rust
-#[ink::contract(version = "0.1.0", types = MyCustomTypes)]
+#[ink::contract(version = "0.1.0", env = MyCustomTypes)]
 ```
 
 By default, we use `DefaultSrmlTypes`, so you don't need to define anything unless you plan to use
