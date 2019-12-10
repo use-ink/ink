@@ -835,9 +835,5 @@ fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    let hex = format!(
-        r#"["0x{:02X}","0x{:02X}","0x{:02X}","0x{:02X}"]"#,
-        s[0], s[1], s[2], s[3]
-    );
-    serializer.serialize_str(&hex)
+    super::hex_encode(&s[..], serializer)
 }

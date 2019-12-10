@@ -17,7 +17,6 @@ use alloc::{
     string::String,
     vec::Vec,
 };
-use core::fmt::Write;
 
 use derive_more::From;
 use serde::{
@@ -215,14 +214,7 @@ fn serialize_key<S>(key: &LayoutKey, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    let bytes = key.0;
-    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
-    write!(hex, "0x").expect("failed writing to string");
-    for byte in &bytes {
-        write!(hex, "{:02x}", byte).expect("failed writing to string");
-    }
-
-    serializer.serialize_str(&hex)
+    super::hex_encode(&key.0[..], serializer)
 }
 
 #[cfg(test)]

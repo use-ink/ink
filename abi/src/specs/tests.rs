@@ -34,7 +34,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
         json,
         json!({
             "name": 1,
-            "selector": "[\"0x07\",\"0x5B\",\"0xCD\",\"0x15\"]",
+            "selector": "0x075bcd15",
             "args": [],
             "docs": []
         })
@@ -111,13 +111,13 @@ fn contract_spec_json() {
                     ],
                     "docs": [],
                     "name": 2,
-                    "selector": "[\"0x5E\",\"0xBD\",\"0x88\",\"0xD6\"]"
+                    "selector": "0x5ebd88d6"
                 },
                 {
                     "args": [],
                     "docs": [],
                     "name": 5,
-                    "selector": "[\"0x02\",\"0x22\",\"0xFF\",\"0x18\"]"
+                    "selector": "0x0222ff18"
                 }
             ],
             "docs": [],
@@ -139,7 +139,7 @@ fn contract_spec_json() {
                     "mutates": true,
                     "name": 6,
                     "returnType": null,
-                    "selector": "[\"0xE7\",\"0xD0\",\"0x59\",\"0x0F\"]"
+                    "selector": "0xe7d0590f"
                 },
                 {
                     "args": [],
@@ -152,7 +152,7 @@ fn contract_spec_json() {
                         ],
                         "ty": 1
                     },
-                    "selector": "[\"0x25\",\"0x44\",\"0x4A\",\"0xFE\"]"
+                    "selector": "0x25444afe"
                 }
             ],
             "name": 1
