@@ -92,12 +92,6 @@ fn contract_spec_json() {
     // when
     let json = serde_json::to_value(&contract.into_compact(&mut registry)).unwrap();
 
-//    let buf = Vec::new();
-//    let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
-//    let mut ser = serde_json::Serializer::with_formatter(buf, formatter);
-//    json.serialize(&mut ser).unwrap();
-//    println!("{}", String::from_utf8(ser.into_inner()).unwrap());
-
     // then
     assert_json_eq!(
         json,
@@ -108,7 +102,7 @@ fn contract_spec_json() {
                         {
                             "name": 3,
                             "type": {
-                                "display_name": [
+                                "displayName": [
                                     4
                                 ],
                                 "ty": 1
@@ -134,7 +128,7 @@ fn contract_spec_json() {
                         {
                             "name": 7,
                             "type": {
-                                "display_name": [
+                                "displayName": [
                                     4
                                 ],
                                 "ty": 1
@@ -144,7 +138,7 @@ fn contract_spec_json() {
                     "docs": [],
                     "mutates": true,
                     "name": 6,
-                    "return_type": null,
+                    "returnType": null,
                     "selector": "[\"0xE7\",\"0xD0\",\"0x59\",\"0x0F\"]"
                 },
                 {
@@ -152,8 +146,8 @@ fn contract_spec_json() {
                     "docs": [],
                     "mutates": false,
                     "name": 8,
-                    "return_type": {
-                        "display_name": [
+                    "returnType": {
+                        "displayName": [
                             4
                         ],
                         "ty": 1

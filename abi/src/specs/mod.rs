@@ -298,6 +298,7 @@ impl ConstructorSpecBuilder<state::Selector> {
 /// Describes a contract message.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
+#[serde(rename_all = "camelCase")]
 pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
@@ -574,6 +575,7 @@ pub type DisplayName<F> = type_metadata::Namespace<F>;
 /// simply be a type alias to `fn(i32, i32) -> Ordering`.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
+#[serde(rename_all = "camelCase")]
 pub struct TypeSpec<F: Form = MetaForm> {
     /// The actual type.
     ty: F::TypeId,
