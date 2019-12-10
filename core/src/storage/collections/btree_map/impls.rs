@@ -39,7 +39,7 @@ use core::{cmp::Ord, ptr};
 use super::search::{self, SearchResult};
 
 /// Each node in the tree has 2 * B children.
-pub(crate) const B: usize = 6;
+pub(in super) const B: usize = 6;
 
 /// Number of elements which can be stored in one node of the tree.
 pub const CAPACITY: usize = 2 * B - 1;
@@ -117,24 +117,13 @@ where
     }
 
     /// Returns the `HandleType` of `handle`. Either `Leaf` or `Internal`.
-    pub(crate) fn get_handle_type(&self, handle: KVHandle) -> HandleType {
-        let node = self.get_node(&handle.into()).expect("node must exist");
-        let children = node.edges();
-        if children == 0 {
-            HandleType::Leaf(handle)
-        } else {
-            HandleType::Internal(handle)
-        }
-    }
-
-    /// Returns the `HandleType` of `handle`. Either `Leaf` or `Internal`.
-    pub(crate) fn get_handle_type2(&self, handle: &NodeHandle) -> HandleType2 {
+    pub(in super) fn get_handle_type(&self, handle: &NodeHandle) -> HandleType {
         let node = self.get_node(handle).expect("node must exist");
         let children = node.edges();
         if children == 0 {
-            HandleType2::Leaf
+            HandleType::Leaf
         } else {
-            HandleType2::Internal
+            HandleType::Internal
         }
     }
 
@@ -150,9 +139,9 @@ where
 
     fn first_leaf_edge(&self, mut handle: NodeHandle) -> KVHandle {
         loop {
-            match self.get_handle_type2(&handle) {
-                HandleType2::Leaf => return self.first_edge(&handle),
-                HandleType2::Internal => {
+            match self.get_handle_type(&handle) {
+                HandleType::Leaf => return self.first_edge(&handle),
+                HandleType::Internal => {
                     let first_edge = self.first_edge(&handle);
                     handle = self.descend(&first_edge).expect("must exist");
                 }
@@ -191,12 +180,11 @@ where
     pub fn remove_kv(&mut self, handle: KVHandle) -> (K, V) {
         self.header.len -= 1;
 
-        let (small_leaf, old_key, old_val, mut new_len) = match self.get_handle_type(handle) {
-            HandleType::Leaf(leaf) => self.remove_handle(&leaf),
-            HandleType::Internal(internal) => {
-                let idx = internal.idx as usize;
+        let (small_leaf, old_key, old_val, mut new_len) = match self.get_handle_type(&handle.into()) {
+            HandleType::Leaf => self.remove_handle(&handle),
+            HandleType::Internal => {
                 let to_remove = {
-                    let right = self.right_edge(&internal);
+                    let right = self.right_edge(&handle);
                     let child = self.descend(&right)
                         .expect("every internal node has children; qed");
                     let first_leaf = self.first_leaf_edge(child);
@@ -208,6 +196,7 @@ where
                 let (hole, key, val, nl) = self.remove_handle(&to_remove);
                 let node = self.get_node_mut(&handle.into())
                     .expect("node must exist");
+                let idx = handle.idx as usize;
                 let old_key = node.keys[idx].replace(key).expect("handle must be valid");
                 let old_val = node.vals[idx].replace(val).expect("handle must be valid");
                 (hole, old_key, old_val, nl)
@@ -282,13 +271,8 @@ where
     /// a node to hold the combination of the nodes to the left and right of this handle along
     /// with the key/value pair at this handle.
     pub fn can_merge(&self, handle: &KVHandle) -> bool {
-        let left_child = self.left_edge(handle);
-        let child = self.descend(&left_child).expect("left");
-        let len_left = self.get_node(&child).expect("300").len();
-
-        let right_child = self.right_edge(handle);
-        let child = self.descend(&right_child).expect("285");
-        let len_right = self.get_node(&child).expect("304").len();
+        let len_left = self.left_child_node(handle).expect("left child must exist").len();
+        let len_right = self.right_child_node(handle).expect("right child must exist").len();
 
         len_left + len_right + 1 <= CAPACITY
     }
@@ -299,16 +283,12 @@ where
     ///
     /// Assumes that this edge `.can_merge()`.
     pub fn merge(&mut self, handle: &KVHandle) -> KVHandle {
-        let left_handle = self.left_edge(handle);
-        let left_handle = self.descend(&left_handle).expect("311");
-        let right_handle2 = self.right_edge(handle);
-        let right_handle = self.descend(&right_handle2).expect("311");
-
-        let right_node = self.get_node(&right_handle).expect("313");
-        let right_len = right_node.len() as u32;
+        let right_child = self.right_child(&handle).expect("right child must exist");
+        let right_node = self.get_node(&right_child).expect("right child must exist");
         let right_edges = right_node.edges.as_ptr();
         let right_keys = right_node.keys.as_ptr();
         let right_vals = right_node.vals.as_ptr();
+        let right_len = right_node.len();
 
         let node = self.get_node_mut(&handle.into())
             .expect("node must exist");
@@ -323,21 +303,23 @@ where
         };
         let node_len = node.len();
 
-        let left_node = self.get_node_mut(&left_handle).expect("313");
+        let left_child = self.left_child(handle).expect("left child must exist");
+        let left_node = self.get_node_mut(&left_child).expect("left child must exist");
         let left_len = left_node.len();
-        debug_assert!(left_len + right_len as usize + 1 <= CAPACITY);
+        debug_assert!(left_len + right_len + 1 <= CAPACITY);
+
         unsafe {
             ptr::write(left_node.keys.get_unchecked_mut(left_len), removed_key);
             ptr::copy_nonoverlapping(
                 right_keys,
                 left_node.keys.as_mut_ptr().add(left_len + 1),
-                right_len as usize
+                right_len
             );
             ptr::write(left_node.vals.get_unchecked_mut(left_len), removed_val);
             ptr::copy_nonoverlapping(
                 right_vals,
                 left_node.vals.as_mut_ptr().add(left_len + 1),
-                right_len as usize
+                right_len
             );
         }
 
@@ -349,12 +331,12 @@ where
         let node = self.get_node_mut(&handle.into()).expect("merge 308");
         node.len -= 1;
 
-        let left_node = self.get_node_mut(&left_handle).expect("313");
-        left_node.len += right_len + 1;
+        let left_node = self.get_node_mut(&left_child).expect("left child must exist");
+        left_node.len += right_len as u32 + 1;
 
         // if the direct children have more children we need to take care of those
-        if self.has_children(&left_handle) || self.has_children(&right_handle) {
-            let left_node = self.get_node_mut(&left_handle).expect("313");
+        if self.has_children(&left_child) || self.has_children(&right_child) {
+            let left_node = self.get_node_mut(&left_child).expect("313");
             unsafe {
                 ptr::copy_nonoverlapping(
                     right_edges,
@@ -362,20 +344,20 @@ where
                         .edges
                         .as_mut_ptr()
                         .add(left_len + 1),
-                    right_len as usize + 1
+                    right_len + 1
                 );
             }
 
-            for i in left_len+1..left_len+right_len as usize+2 {
+            for i in left_len+1..left_len+right_len+2 {
                 let h = KVHandle::new(
-                    left_handle.node,
+                    left_child.node,
                     i as u32
                 );
                 self.correct_parent_link(h);
             }
         }
 
-        self.remove_node(right_handle);
+        self.remove_node(right_child);
         KVHandle::new(handle.node, handle.idx)
     }
 
@@ -383,7 +365,7 @@ where
     /// also removes the edge that was to the right of that pair.
     pub fn pop(&mut self, handle: NodeHandle) -> (K, V, Option<NodeHandle>) {
         let typ = {
-            self.get_handle_type2(&handle)
+            self.get_handle_type(&handle)
         };
         let (key, val, idx) = {
             let node = self.get_node_mut(&handle).expect("node must exist");
@@ -396,8 +378,8 @@ where
             (key, val, idx)
         };
         let edge = match typ {
-            HandleType2::Leaf => None,
-            HandleType2::Internal => {
+            HandleType::Leaf => None,
+            HandleType::Internal => {
                 let edge = {
                     let node = self.get_node_mut(&handle).expect("node must exist");
                     node.edges[idx + 1].take().expect("edge must exist")
@@ -414,9 +396,8 @@ where
     /// pointed to by this handle while pushing the old key/value pair of this handle into the right
     /// child.
     pub fn steal_left(&mut self, handle: &KVHandle) {
-        let left = self.left_edge(handle);
-        let child = self.descend(&left).expect("422");
-        let (k, v, edge) = self.pop(child);
+        let left_child = self.left_child(handle).expect("left child must exist");
+        let (k, v, edge) = self.pop(left_child);
 
         let node = self.get_node_mut(&handle.into()).expect("417");
         let k = node.keys[handle.idx as usize].replace(k).expect("477");
@@ -424,16 +405,16 @@ where
 
         let right = self.right_edge(handle);
         let child = self.descend(&right).expect("457");
-        match self.get_handle_type2(&child) {
-            HandleType2::Leaf => self.push_front_leaf(&child, k, v),
-            HandleType2::Internal => self.push_front_internal(&child, k, v, edge.unwrap())
+        match self.get_handle_type(&child) {
+            HandleType::Leaf => self.push_front_leaf(&child, k, v),
+            HandleType::Internal => self.push_front_internal(&child, k, v, edge.unwrap())
         }
     }
 
     /// Removes a key/value pair from the beginning of this node. If this is an internal node,
     /// also removes the edge that was to the left of that pair.
     pub fn pop_front(&mut self, handle: &NodeHandle) -> (K, V, Option<NodeHandle>) {
-        let typ = self.get_handle_type2(handle);
+        let typ = self.get_handle_type(handle);
         let node = self.get_node_mut(handle).expect("417");
 
         // Necessary for correctness, but this is an internal module
@@ -444,8 +425,8 @@ where
         let val = unsafe { slice_remove(&mut node.vals, 0).expect("val must exist") };
 
         let edge = match typ {
-            HandleType2::Leaf => None,
-            HandleType2::Internal => {
+            HandleType::Leaf => None,
+            HandleType::Internal => {
                 let edge = unsafe {
                     slice_remove(&mut node.edges, 0).expect("edge must exist")
                 };
@@ -515,12 +496,11 @@ where
             (k, v)
         };
 
-        let left = self.left_edge(handle);
-        let child = self.descend(&left).expect("515");
-        match self.get_handle_type2(&child) {
-            HandleType2::Leaf => self.push_leaf(&child, k, v),
-            HandleType2::Internal => {
-                self.push_internal(child, k, v, edge.unwrap())
+        let left_child = self.left_child(handle).expect("left child must exist");
+        match self.get_handle_type(&left_child) {
+            HandleType::Leaf => self.push_leaf(&left_child, k, v),
+            HandleType::Internal => {
+                self.push_internal(left_child, k, v, edge.unwrap())
             }
         }
     }
@@ -665,7 +645,7 @@ where
     }
 
     /// Fetches a reference to the node behind the supplied handle.
-    pub(crate) fn get_node(&self, handle: &NodeHandle) -> Option<&Node<K, V>> {
+    pub(in super) fn get_node(&self, handle: &NodeHandle) -> Option<&Node<K, V>> {
         let entry = self.entries.get(handle.node)?;
         match entry {
             InternalEntry::Occupied(occupied) => Some(occupied),
@@ -958,6 +938,26 @@ where
         }
     }
 
+    fn left_child_node(&self, handle: &KVHandle) -> Option<&Node<K, V>> {
+        let child = self.left_child(handle)?;
+        self.get_node(&child)
+    }
+
+    fn right_child_node(&self, handle: &KVHandle) -> Option<&Node<K, V>> {
+        let child = self.right_child(handle)?;
+        self.get_node(&child)
+    }
+
+    fn left_child(&self, handle: &KVHandle) -> Option<NodeHandle> {
+        let left = self.left_edge(handle);
+        self.descend(&left)
+    }
+
+    fn right_child(&self, handle: &KVHandle) -> Option<NodeHandle> {
+        let right = self.right_edge(handle);
+        self.descend(&right)
+    }
+
     /// Fixes the parent pointer and index in the child node below this edge. This is useful
     /// when the ordering of edges has been changed, such as in the various `insert` methods.
     fn correct_parent_link(&mut self, handle: KVHandle) {
@@ -995,7 +995,7 @@ where
 /// and writes to the underlying contract storage.
 #[derive(Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
-pub(crate) struct BTreeMapHeader {
+pub(in super) struct BTreeMapHeader {
     /// The latest vacant index.
     next_vacant: Option<u32>,
     /// The index of the root node.
@@ -1009,7 +1009,7 @@ pub(crate) struct BTreeMapHeader {
     len: u32,
     /// Number of nodes the BTree contains. This is not the number
     /// of elements!
-    pub(crate) node_count: u32,
+    pub(in super) node_count: u32,
 }
 
 impl Flush for BTreeMapHeader {
@@ -1177,7 +1177,8 @@ impl<K: Ord, V> BTreeMap<K, V> {
     }
     */
 
-    pub(crate) fn header(&self) -> &BTreeMapHeader {
+    #[cfg(test)]
+    pub(in super) fn header(&self) -> &BTreeMapHeader {
         &*self.header
     }
 
@@ -1202,7 +1203,7 @@ where
     /// Basic usage:
     ///
     /// ```
-    /// use std::collections::BTreeMap;
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut map = BTreeMap::new();
     /// map.insert(1, "a");
@@ -1241,7 +1242,7 @@ where
     /// Basic usage:
     ///
     /// ```
-    /// use std::collections::BTreeMap;
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut map = BTreeMap::new();
     /// assert_eq!(map.insert(37, "a"), None);
@@ -1274,7 +1275,7 @@ where
     /// Basic usage:
     ///
     /// ```
-    /// use std::collections::BTreeMap;
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut map = BTreeMap::new();
     /// map.insert(1, "a");
@@ -1304,7 +1305,7 @@ where
     /// Basic usage:
     ///
     /// ```
-    /// use std::collections::BTreeMap;
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut count: BTreeMap<&str, usize> = BTreeMap::new();
     ///
@@ -1341,7 +1342,7 @@ impl<'a, K: Ord + Decode + Encode, V: Decode + Encode> Entry<'a, K, V> {
     /// # Examples
     ///
     /// ```
-    /// use std::collections::BTreeMap;
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
     /// map.entry("poneyland").or_insert(12);
@@ -1360,7 +1361,7 @@ impl<'a, K: Ord + Decode + Encode, V: Decode + Encode> Entry<'a, K, V> {
     /// # Examples
     ///
     /// ```
-    /// use std::collections::BTreeMap;
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
     /// assert_eq!(map.entry("poneyland").key(), &"poneyland");
@@ -1391,7 +1392,7 @@ where
     }
 }
 
-pub(crate) enum InsertResult<K, V> {
+pub(in super) enum InsertResult<K, V> {
     Fit(KVHandle),
     Split(KVHandle, K, V, NodeHandle)
 }
@@ -1404,14 +1405,9 @@ enum UnderflowResult {
 }
 
 // ToDo rename
-pub(crate) enum HandleType2 {
+pub(in super) enum HandleType {
     Leaf,
     Internal,
-}
-
-pub(crate) enum HandleType {
-    Leaf(KVHandle),
-    Internal(KVHandle),
 }
 
 /// An entry within a BTreeMap collection.
@@ -1459,7 +1455,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// use std::collections::BTreeMap;
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
     /// assert_eq!(map.entry("poneyland").key(), &"poneyland");
@@ -1473,8 +1469,8 @@ where
     ///
     /// # Examples
     ///
-    /// ```
-    /// use std::collections::BTreeMap;
+    /// ```no_run
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut count: BTreeMap<&str, usize> = BTreeMap::new();
     ///
@@ -1502,7 +1498,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// use std::collections::BTreeMap;
+    /// use ink_core::storage::BTreeMap;
     ///
     /// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
     /// map.entry("poneyland").or_insert(12);
@@ -1517,8 +1513,8 @@ where
     /// # Examples
     ///
     /// ```
-    /// use std::collections::BTreeMap;
-    /// use std::collections::btree_map::Entry;
+    /// use ink_core::storage::BTreeMap;
+    /// use ink_core::storage::btree_map::Entry;
     ///
     /// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
     /// map.entry("poneyland").or_insert(12);
@@ -1536,8 +1532,8 @@ where
     /// # Examples
     ///
     /// ```
-    /// use std::collections::BTreeMap;
-    /// use std::collections::btree_map::Entry;
+    /// use ink_core::storage::BTreeMap;
+    /// use ink_core::storage::btree_map::Entry;
     ///
     /// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
     /// map.entry("poneyland").or_insert(12);
@@ -1565,8 +1561,8 @@ where
     /// # Examples
     ///
     /// ```
-    /// use std::collections::BTreeMap;
-    /// use std::collections::btree_map::Entry;
+    /// use ink_core::storage::BTreeMap;
+    /// use ink_core::storage::btree_map::Entry;
     ///
     /// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
     /// map.entry("poneyland").or_insert(12);
@@ -1586,8 +1582,8 @@ where
     /// # Examples
     ///
     /// ```
-    /// use std::collections::BTreeMap;
-    /// use std::collections::btree_map::Entry;
+    /// use ink_core::storage::BTreeMap;
+    /// use ink_core::storage::btree_map::Entry;
     ///
     /// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
     /// map.entry("poneyland").or_insert(12);

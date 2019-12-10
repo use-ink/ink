@@ -53,11 +53,11 @@ where
         match search_node(&node, cur, key) {
             SearchResult::Found(handle) => return SearchResult::Found(handle),
             SearchResult::GoDown(handle) => {
-                match tree.get_handle_type(handle.into()) {
-                    HandleType::Leaf(leaf) => return SearchResult::GoDown(leaf),
-                    HandleType::Internal(internal) => {
+                match tree.get_handle_type(&handle.into()) {
+                    HandleType::Leaf => return SearchResult::GoDown(handle),
+                    HandleType::Internal => {
                         cur = tree
-                            .descend(&internal)
+                            .descend(&handle)
                             .expect("an internal node always has a child; qed")
                             .node();
                         continue;
