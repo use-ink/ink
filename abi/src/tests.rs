@@ -50,23 +50,47 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 }
 
 #[test]
-fn layout_key_must_serialize_to_hex() {
+fn layout_range_json() {
     // given
     let type_id = <MetaForm as Form>::TypeId::new::<u32>();
     let offset = LayoutKey([1; 32]);
-    let cs: LayoutRange<MetaForm> = LayoutRange::cell(offset, type_id);
+    let layout = StorageLayout::Range(LayoutRange::cell(offset, type_id));
     let mut registry = Registry::new();
 
     // when
-    let json = serde_json::to_value(&cs.into_compact(&mut registry)).unwrap();
+    let json = serde_json::to_value(&layout.into_compact(&mut registry)).unwrap();
 
     // then
     assert_json_eq!(
         json,
         json!({
-            "range.offset": "0x0101010101010101010101010101010101010101010101010101010101010101",
-            "range.len": 1,
-            "range.elem_type": 1
+            "range": {
+                "offset": "0x0101010101010101010101010101010101010101010101010101010101010101",
+                "len": 1,
+                "elemType": 1
+            }
+        })
+    );
+}
+
+#[test]
+fn layout_struct_json() {
+    // given
+    let type_id = <MetaForm as Form>::TypeId::new::<u32>();
+    let layout = StorageLayout::Struct(LayoutStruct::new(type_id, Vec::new()));
+    let mut registry = Registry::new();
+
+    // when
+    let json = serde_json::to_value(&layout.into_compact(&mut registry)).unwrap();
+
+    // then
+    assert_json_eq!(
+        json,
+        json!({
+            "struct": {
+                "type": 1,
+                "fields": [],
+            }
         })
     );
 }
