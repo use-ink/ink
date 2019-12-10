@@ -17,6 +17,9 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
+#[cfg(test)]
+mod tests;
+
 mod layout;
 mod specs;
 

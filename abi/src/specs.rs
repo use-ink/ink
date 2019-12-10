@@ -14,9 +14,6 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-#[cfg(test)]
-mod tests;
-
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
@@ -98,8 +95,8 @@ pub struct ContractSpecBuilder<S = Invalid> {
 impl ContractSpecBuilder<Invalid> {
     /// Sets the constructors of the contract specification.
     pub fn constructors<C>(self, constructors: C) -> ContractSpecBuilder<Valid>
-    where
-        C: IntoIterator<Item = ConstructorSpec>,
+        where
+            C: IntoIterator<Item = ConstructorSpec>,
     {
         debug_assert!(self.spec.constructors.is_empty());
         ContractSpecBuilder {
@@ -115,8 +112,8 @@ impl ContractSpecBuilder<Invalid> {
 impl<S> ContractSpecBuilder<S> {
     /// Sets the messages of the contract specification.
     pub fn messages<M>(self, messages: M) -> Self
-    where
-        M: IntoIterator<Item = MessageSpec>,
+        where
+            M: IntoIterator<Item = MessageSpec>,
     {
         debug_assert!(self.spec.messages.is_empty());
         Self {
@@ -130,8 +127,8 @@ impl<S> ContractSpecBuilder<S> {
 
     /// Sets the events of the contract specification.
     pub fn events<E>(self, events: E) -> Self
-    where
-        E: IntoIterator<Item = EventSpec>,
+        where
+            E: IntoIterator<Item = EventSpec>,
     {
         debug_assert!(self.spec.events.is_empty());
         Self {
@@ -145,8 +142,8 @@ impl<S> ContractSpecBuilder<S> {
 
     /// Sets the documentation of the contract specification.
     pub fn docs<D>(self, docs: D) -> Self
-    where
-        D: IntoIterator<Item = &'static str>,
+        where
+            D: IntoIterator<Item = &'static str>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
@@ -267,8 +264,8 @@ impl ConstructorSpecBuilder<Missing<state::Selector>> {
 impl<S> ConstructorSpecBuilder<S> {
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
-    where
-        A: IntoIterator<Item = MessageParamSpec>,
+        where
+            A: IntoIterator<Item = MessageParamSpec>,
     {
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
@@ -278,8 +275,8 @@ impl<S> ConstructorSpecBuilder<S> {
 
     /// Sets the documentation of the message specification.
     pub fn docs<D>(self, docs: D) -> Self
-    where
-        D: IntoIterator<Item = &'static str>,
+        where
+            D: IntoIterator<Item = &'static str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
@@ -415,8 +412,8 @@ impl<M, S> MessageSpecBuilder<S, M, Missing<state::Returns>> {
 impl<S, M, R> MessageSpecBuilder<S, M, R> {
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
-    where
-        A: IntoIterator<Item = MessageParamSpec>,
+        where
+            A: IntoIterator<Item = MessageParamSpec>,
     {
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
@@ -426,8 +423,8 @@ impl<S, M, R> MessageSpecBuilder<S, M, R> {
 
     /// Sets the documentation of the message specification.
     pub fn docs<D>(self, docs: D) -> Self
-    where
-        D: IntoIterator<Item = &'static str>,
+        where
+            D: IntoIterator<Item = &'static str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
@@ -482,8 +479,8 @@ pub struct EventSpecBuilder {
 impl EventSpecBuilder {
     /// Sets the input arguments of the event specification.
     pub fn args<A>(self, args: A) -> Self
-    where
-        A: IntoIterator<Item = EventParamSpec>,
+        where
+            A: IntoIterator<Item = EventParamSpec>,
     {
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
@@ -493,8 +490,8 @@ impl EventSpecBuilder {
 
     /// Sets the input arguments of the event specification.
     pub fn docs<D>(self, docs: D) -> Self
-    where
-        D: IntoIterator<Item = &'static str>,
+        where
+            D: IntoIterator<Item = &'static str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
@@ -607,8 +604,8 @@ impl TypeSpec {
     ///
     /// Panics if the given display name is invalid.
     pub fn with_name_str<T>(display_name: &'static str) -> Self
-    where
-        T: Metadata,
+        where
+            T: Metadata,
     {
         Self::with_name_segs::<T, _>(display_name.split("::"))
     }
@@ -626,9 +623,9 @@ impl TypeSpec {
     ///
     /// Panics if the given display name is invalid.
     pub fn with_name_segs<T, S>(segments: S) -> Self
-    where
-        T: Metadata,
-        S: IntoIterator<Item = <MetaForm as Form>::String>,
+        where
+            T: Metadata,
+            S: IntoIterator<Item = <MetaForm as Form>::String>,
     {
         Self {
             ty: T::meta_type(),
@@ -638,8 +635,8 @@ impl TypeSpec {
 
     /// Creates a new type specification without a display name.
     pub fn new<T>() -> Self
-    where
-        T: Metadata,
+        where
+            T: Metadata,
     {
         Self {
             ty: T::meta_type(),
@@ -716,8 +713,8 @@ impl EventParamSpecBuilder {
 
     /// Sets the documentation of the event parameter.
     pub fn docs<D>(self, docs: D) -> Self
-    where
-        D: IntoIterator<Item = &'static str>,
+        where
+            D: IntoIterator<Item = &'static str>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
@@ -766,8 +763,8 @@ impl ReturnTypeSpec {
     /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
     /// ```
     pub fn new<T>(ty: T) -> Self
-    where
-        T: Into<Option<TypeSpec>>,
+        where
+            T: Into<Option<TypeSpec>>,
     {
         Self {
             opt_type: ty.into(),
@@ -832,8 +829,8 @@ impl MessageParamSpecBuilder {
 
 #[allow(clippy::trivially_copy_pass_by_ref)]
 fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
+    where
+        S: Serializer,
 {
     super::hex_encode(&s[..], serializer)
 }
