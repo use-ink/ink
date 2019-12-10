@@ -12,14 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use scale::{
-    Decode,
-    Encode,
-};
-
 use crate::{
     env,
-    memory::vec::Vec,
     storage::{
         alloc::{
             Allocate,
@@ -28,6 +22,11 @@ use crate::{
         Key,
         NonCloneMarker,
     },
+};
+use ink_prelude::vec::Vec;
+use scale::{
+    Decode,
+    Encode,
 };
 
 /// A raw cell.

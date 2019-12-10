@@ -14,7 +14,6 @@
 
 use crate::{
     env,
-    memory::vec::Vec,
     storage::{
         alloc::{
             Allocate,
@@ -24,6 +23,7 @@ use crate::{
         NonCloneMarker,
     },
 };
+use ink_prelude::vec::Vec;
 
 /// A chunk of raw cells.
 ///

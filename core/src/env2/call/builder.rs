@@ -14,20 +14,18 @@
 
 use core::marker::PhantomData;
 
-use crate::{
-    env2::{
-        call::{
-            state,
-            CallData,
-            Selector,
-        },
-        errors::CallError,
-        Env,
-        EnvAccessMut,
-        EnvTypes,
+use crate::env2::{
+    call::{
+        state,
+        CallData,
+        Selector,
     },
-    memory::vec::Vec,
+    errors::CallError,
+    Env,
+    EnvAccessMut,
+    EnvTypes,
 };
+use ink_prelude::vec::Vec;
 
 /// Represents a return type.
 ///

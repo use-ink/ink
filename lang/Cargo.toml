@@ -17,6 +17,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 [dependencies]
 ink_utils = { path = "../utils/" }
 ink_model = { path = "../model/", default-features = false }
+ink_prelude = { path = "../prelude/", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.1", default-features = false, features = ["derive"] }
 
 quote = "1.0"
@@ -43,6 +44,7 @@ test-env = [
 ]
 std = [
     "ink_model/std",
+    "ink_prelude/std",
     "scale/std",
     "itertools/use_std",
     "either/use_std",

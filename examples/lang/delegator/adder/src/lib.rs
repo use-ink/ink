@@ -14,11 +14,9 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_core::{
-    memory::format,
-    storage,
-};
+use ink_core::storage;
 use ink_lang::contract;
+use ink_prelude::format;
 
 contract! {
     #![env = ink_core::env::DefaultSrmlTypes]

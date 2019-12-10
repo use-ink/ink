@@ -30,7 +30,6 @@ use crate::{
         SetProperty,
         Topics,
     },
-    memory::vec::Vec,
     storage::{
         alloc::{
             Allocate,
@@ -41,6 +40,7 @@ use crate::{
         Key,
     },
 };
+use ink_prelude::vec::Vec;
 
 #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
 #[derive(Debug)]
@@ -74,10 +74,7 @@ impl<E> AllocateUsing for EnvAccessMut<E> {
     }
 }
 
-impl<E> Flush for EnvAccessMut<E> {
-    #[inline]
-    fn flush(&mut self) {}
-}
+impl<E> Flush for EnvAccessMut<E> {}
 
 impl<E> Initialize for EnvAccessMut<E> {
     type Args = ();
