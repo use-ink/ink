@@ -23,6 +23,7 @@ type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", de
 
 [dev-dependencies]
 serde_json = "1.0"
+assert-json-diff = "1.0.1"
 
 [features]
 default = [

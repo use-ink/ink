@@ -14,6 +14,9 @@
 
 #![allow(clippy::new_ret_no_self)]
 
+#[cfg(test)]
+mod tests;
+
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
@@ -835,31 +838,4 @@ where
         s[0], s[1], s[2], s[3]
     );
     serializer.serialize_str(&hex)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn construct_selector_must_serialize_to_hex() {
-        // given
-        let name = "foo";
-        let cs: ConstructorSpec<MetaForm> = ConstructorSpec {
-            name,
-            selector: 123_456_789u32.to_be_bytes(),
-            args: Vec::new(),
-            docs: Vec::new(),
-        };
-        let mut registry = Registry::new();
-
-        // when
-        let json = serde_json::to_string(&cs.into_compact(&mut registry)).unwrap();
-
-        // then
-        assert_eq!(
-            json,
-            r#"{"name":1,"selector":"[\"0x07\",\"0x5B\",\"0xCD\",\"0x15\"]","args":[],"docs":[]}"#
-        );
-    }
 }
