@@ -15,6 +15,14 @@
 use super::*;
 use assert_json_diff::assert_json_eq;
 use serde_json::json;
+use type_metadata::{
+    form::{
+        Form,
+        MetaForm,
+    },
+    IntoCompact,
+    Registry,
+};
 
 #[test]
 fn spec_constructor_selector_must_serialize_to_hex() {
@@ -42,7 +50,29 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 }
 
 #[test]
-fn contract_spec_json() {
+fn layout_key_must_serialize_to_hex() {
+    // given
+    let type_id = <MetaForm as Form>::TypeId::new::<u32>();
+    let offset = LayoutKey([1; 32]);
+    let cs: LayoutRange<MetaForm> = LayoutRange::cell(offset, type_id);
+    let mut registry = Registry::new();
+
+    // when
+    let json = serde_json::to_value(&cs.into_compact(&mut registry)).unwrap();
+
+    // then
+    assert_json_eq!(
+        json,
+        json!({
+            "range.offset": "0x0101010101010101010101010101010101010101010101010101010101010101",
+            "range.len": 1,
+            "range.elem_type": 1
+        })
+    );
+}
+
+#[test]
+fn spec_contract_json() {
     // given
     let contract: ContractSpec = ContractSpec::new("incrementer")
         .constructors(vec![

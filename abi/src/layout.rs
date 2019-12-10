@@ -216,38 +216,3 @@ where
 {
     super::hex_encode(&key.0[..], serializer)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use type_metadata::{
-        form::{
-            Form,
-            MetaForm,
-        },
-        IntoCompact,
-        Registry,
-    };
-
-    #[test]
-    fn key_must_serialize_to_hex() {
-        // given
-        let type_id = <MetaForm as Form>::TypeId::new::<u32>();
-        let offset = LayoutKey([1; 32]);
-        let cs: LayoutRange<MetaForm> = LayoutRange {
-            offset,
-            len: 1337,
-            elem_ty: type_id,
-        };
-        let mut registry = Registry::new();
-
-        // when
-        let json = serde_json::to_string(&cs.into_compact(&mut registry)).unwrap();
-
-        // then
-        assert_eq!(
-            json,
-            "{\"range.offset\":\"0x0101010101010101010101010101010101010101010101010101010101010101\",\"range.len\":1337,\"range.elem_type\":1}"
-        );
-    }
-}
