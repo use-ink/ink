@@ -14,8 +14,8 @@
 
 use self::{
     HandleType::{
-        Leaf,
         Internal,
+        Leaf,
     },
     InsertResult::{
         Fit,
