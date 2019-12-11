@@ -13,14 +13,14 @@
 // limitations under the License.
 
 use self::{
+    HandleType::{
+        Leaf,
+        Internal,
+    },
     InsertResult::{
         Fit,
         Split,
     },
-    HandleType::{
-        Leaf,
-        Internal,
-    }
 };
 use super::search::{
     self,
@@ -330,11 +330,11 @@ where
         let (small_leaf, old_key, old_val, mut new_len) = match handle_type {
             Leaf => self.remove_handle(handle),
             Internal => {
-                let child = self.right_child(handle)
+                let child = self
+                    .right_child(handle)
                     .expect("every internal node has children; qed");
                 let first_leaf = self.first_leaf_edge(child);
-                let to_remove =
-                    self.right_kv(first_leaf).expect("right_kv must exist");
+                let to_remove = self.right_kv(first_leaf).expect("right_kv must exist");
                 let (hole, key, val, nl) = self.remove_handle(to_remove);
 
                 let node = self.get_node_mut(&handle.into()).expect("node must exist");
@@ -351,7 +351,8 @@ where
                 UnderflowResult::AtRoot => break,
                 UnderflowResult::EmptyParent(_) => unreachable!(),
                 UnderflowResult::Merged(parent) => {
-                    let parent_node = self.get_node(&parent).expect("parent node must exist");
+                    let parent_node =
+                        self.get_node(&parent).expect("parent node must exist");
                     if parent_node.len() == 0 {
                         self.root_pop_level();
                         break
