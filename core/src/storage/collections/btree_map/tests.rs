@@ -332,12 +332,15 @@ fn sorted_insert_and_removal() {
         let mut xs = xs.clone();
         xs.sort_by(|a, b| a.cmp(b));
         xs = xs.into_iter().unique().collect();
+        let mut max_node_count = 0;
 
         // first insert in sorted order
         xs.iter().for_each(|i| {
             assert_eq!(map.insert(*i, i * 10), None);
             len += 1;
+            max_node_count += map.header().node_count;
             assert_eq!(map.len(), len);
+            assert!(every_edge_only_once(&map));
         });
 
         // when
@@ -347,11 +350,15 @@ fn sorted_insert_and_removal() {
             assert_eq!(map.remove(&i), Some(i * 10));
             len -= 1;
             assert_eq!(map.len(), len);
+            assert!(every_edge_only_once(&map));
         });
 
         // then
-        // ToDo maybe add more checks here
+        assert_eq!(map.len(), 0);
         assert_eq!(map.header().node_count, 0);
+        for i in 0..max_node_count {
+            assert!(map.get_node(&NodeHandle::new(i)).is_none());
+        }
     })
 }
 

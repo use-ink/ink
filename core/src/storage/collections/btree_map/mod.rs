@@ -14,7 +14,10 @@
 
 //! A BTreeMap collection.
 //!
-//! ToDo add more comments
+//! This implementation follows the algorithm used by the Rust
+//! BTreeMap stdlib implementation. The Rust implementation is
+//! in-memory, whereas this implementation uses the ink! storage
+//! primitives (`SyncChunk`, etc.).
 
 #[cfg(all(test, feature = "test-env"))]
 mod tests;

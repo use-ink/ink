@@ -144,6 +144,15 @@ where
         }
     }
 
+    /// Fetches a reference to the node behind the supplied handle.
+    pub(super) fn get_node(&self, handle: &NodeHandle) -> Option<&Node<K, V>> {
+        let entry = self.entries.get(handle.node)?;
+        match entry {
+            InternalEntry::Occupied(occupied) => Some(occupied),
+            InternalEntry::Vacant(_) => None,
+        }
+    }
+
     /// Finds the node pointed to by this edge.
     ///
     /// `edge.descend().ascend().unwrap()` and `node.ascend().unwrap().descend()` should
@@ -159,7 +168,7 @@ where
     ///
     /// `edge.descend().ascend().unwrap()` and `node.ascend().unwrap().descend()` should
     /// both, upon success, do nothing.
-    pub(super) fn ascend(&self, handle: NodeHandle) -> Option<KVHandle> {
+    fn ascend(&self, handle: NodeHandle) -> Option<KVHandle> {
         let node = self
             .get_node(&handle)
             .expect("node to ascend from must exist");
@@ -172,16 +181,7 @@ where
         })
     }
 
-    /// Fetches a reference to the node behind the supplied handle.
-    pub(super) fn get_node(&self, handle: &NodeHandle) -> Option<&Node<K, V>> {
-        let entry = self.entries.get(handle.node)?;
-        match entry {
-            InternalEntry::Occupied(occupied) => Some(occupied),
-            InternalEntry::Vacant(_) => None,
-        }
-    }
-
-    pub(super) fn get_kv(&self, handle: KVHandle) -> (&K, &V) {
+    fn get_kv(&self, handle: KVHandle) -> (&K, &V) {
         let node = self
             .get_node(&handle.into())
             .expect("node on OccupiedEntry must exist");
@@ -190,8 +190,7 @@ where
         (k, v)
     }
 
-    /// ToDo
-    pub(super) fn insert_kv(&mut self, handle: KVHandle, key: K, val: V) -> &mut V {
+    fn insert_kv(&mut self, handle: KVHandle, key: K, val: V) -> &mut V {
         if self.is_empty() && self.root().is_none() {
             let mut node = Node::<K, V>::new();
             node.keys[0] = Some(key);
@@ -345,7 +344,7 @@ where
         }
 
         if new_len == 0 {
-            // ToDo maybe check if there are edges? and if so pop root?
+            debug_assert_eq!(self.get_node(&handle).expect("node must exist").edges(), 0);
             self.remove_node(handle);
             self.header.root = None;
             self.header.next_vacant = None;
@@ -1731,7 +1730,7 @@ where
     #[inline]
     fn flush(&mut self) {
         match self {
-            InternalEntry::Vacant(_) => (), // ToDo why not flushing?
+            InternalEntry::Vacant(vacant) => vacant.flush(),
             InternalEntry::Occupied(occupied) => occupied.flush(),
         }
     }
