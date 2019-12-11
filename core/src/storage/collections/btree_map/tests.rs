@@ -401,8 +401,11 @@ fn simple_insert_and_removal() {
 
         xs
             .iter()
-            .for_each(|i| {
-                assert_eq!(map.get(i), Some(&(*i * 10)));
+            .for_each(|k| {
+                let v = *k * 10;
+                assert_eq!(map.get(k), Some(&v));
+                assert_eq!(map.contains_key(k), true);
+                assert_eq!(map.get_key_value(k), Some((k, &v)));
             });
 
         // when

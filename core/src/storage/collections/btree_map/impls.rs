@@ -37,6 +37,7 @@ use scale::{
 use type_metadata::Metadata;
 use core::{cmp::Ord, ptr};
 use super::search::{self, SearchResult};
+use std::borrow::Borrow;
 
 /// Each node in the tree has 2 * B children.
 pub(in super) const B: usize = 6;
@@ -518,15 +519,14 @@ where
                          we already asserted that the entry at `n` exists",
                     ) {
                     InternalEntry::Occupied(val) => {
-                        // when removing node set next_vacant to this node
+                        // When removing a node set `next_vacant` to this node index
                         self.header.next_vacant = Some(n);
-                        //debug_assert!(!self.is_empty()); // ToDo why?
                         self.header.node_count -= 1;
                         Some(val)
                     }
                     InternalEntry::Vacant(_) => {
                         unreachable!(
-                            "[ink_core::Stash::take] Error: \
+                            "[ink_core::BTreeMap::take] Error: \
                              we already asserted that the entry is occupied"
                         )
                     }
@@ -651,6 +651,14 @@ where
             InternalEntry::Occupied(occupied) => Some(occupied),
             InternalEntry::Vacant(_) => None,
         }
+    }
+
+    pub(in super) fn into_kv(&self, handle: &KVHandle) -> (&K, &V) {
+        let node = self.get_node(&handle.into())
+            .expect("node on OccupiedEntry must exist");
+        let k = node.keys[handle.idx()].as_ref().expect("key must exist");
+        let v = node.vals[handle.idx()].as_ref().expect("value must exist");
+        (k, v)
     }
 
     /// Fetches a mutable reference to the node behind the supplied handle.
@@ -1210,20 +1218,64 @@ where
     /// assert_eq!(map.get(&1), Some(&"a"));
     /// assert_eq!(map.get(&2), None);
     /// ```
-    pub fn get(&self, key: &K) -> Option<&V> {
-        match search::search_tree(&self, &key) {
-            SearchResult::Found(handle) => {
-                let idx = handle.idx();
-                let node = self.get_node(&handle.into())
-                    .expect("found node always exists; qed");
-                let v = node.vals[idx].as_ref()
-                    .expect("value must exist in found node; qed");
-                Some(v)
-            },
-            SearchResult::GoDown(_) => {
-                None
-            },
+    pub fn get<Q>(&self, key: &Q) -> Option<&V>
+    where
+        Q: Ord,
+        K: Borrow<Q>,
+    {
+        match search::search_tree(&self, key) {
+            SearchResult::Found(handle) => Some(self.into_kv(&handle).1),
+            SearchResult::NotFound(_) => None,
         }
+    }
+
+    /// Returns the key-value pair corresponding to the supplied key.
+    ///
+    /// The supplied key may be any borrowed form of the map's key type, but the ordering
+    /// on the borrowed form *must* match the ordering on the key type.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ink_core::collections::BTreeMap;
+    ///
+    /// let mut map = BTreeMap::new();
+    /// map.insert(1, "a");
+    /// assert_eq!(map.get_key_value(&1), Some((&1, &"a")));
+    /// assert_eq!(map.get_key_value(&2), None);
+    /// ```
+    pub fn get_key_value<Q>(&self, key: &Q) -> Option<(&K, &V)>
+    where K: Borrow<Q>,
+          Q: Ord
+    {
+        match search::search_tree(&self, key) {
+            SearchResult::Found(handle) => Some(self.into_kv(&handle)),
+            SearchResult::NotFound(_) => None,
+        }
+    }
+
+    /// Returns `true` if the map contains a value for the specified key.
+    ///
+    /// The key may be any borrowed form of the map's key type, but the ordering
+    /// on the borrowed form *must* match the ordering on the key type.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```no_run
+    /// use ink_core::collections::BTreeMap;
+    ///
+    /// let mut map = BTreeMap::new();
+    /// map.insert(1, "a");
+    /// assert_eq!(map.contains_key(&1), true);
+    /// assert_eq!(map.contains_key(&2), false);
+    /// ```
+    pub fn contains_key<Q>(&self, key: &Q) -> bool
+    where K: Borrow<Q>,
+          Q: Ord
+    {
+        self.get(key).is_some()
     }
 
     /// Inserts a key-value pair into the map.
@@ -1282,9 +1334,10 @@ where
     /// assert_eq!(map.remove(&1), Some("a"));
     /// assert_eq!(map.remove(&1), None);
     /// ```
-    pub fn remove(&mut self, key: &K) -> Option<V>
-        //where //K: Borrow<Q>,
-              //Q: Ord
+    pub fn remove<Q>(&mut self, key: &Q) -> Option<V>
+    where
+        Q: Ord,
+        K: Borrow<Q>,
     {
         match search::search_tree(&self, key) {
             SearchResult::Found(handle) => {
@@ -1294,7 +1347,7 @@ where
                 };
                 Some(o.remove())
             }
-            SearchResult::GoDown(_) => None,
+            SearchResult::NotFound(_) => None,
         }
     }
 
@@ -1324,7 +1377,7 @@ where
                     handle,
                 })
             }
-            SearchResult::GoDown(handle) => {
+            SearchResult::NotFound(handle) => {
                 Entry::Vacant(VacantEntry {
                     key: Some(key),
                     tree: self,
@@ -1404,7 +1457,8 @@ enum UnderflowResult {
     Stole(NodeHandle),
 }
 
-// ToDo rename
+/// The node type, either a `Leaf` (a node without children) or
+/// `Internal` (a node with children).
 pub(in super) enum HandleType {
     Leaf,
     Internal,
@@ -1610,12 +1664,7 @@ where
     }
 
     fn kv(&self) -> (&K, &V) {
-        let node = self.tree.get_node(&self.handle.into())
-            .expect("node on OccupiedEntry must exist");
-        let idx = self.handle.idx();
-        let k = node.keys[idx].as_ref().expect("key must exist");
-        let v = node.vals[idx].as_ref().expect("value must exist");
-        (k, v)
+        self.tree.into_kv(&self.handle)
     }
 
     fn kv_mut(&mut self) -> (&mut K, &mut V) {

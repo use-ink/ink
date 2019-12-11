@@ -21,10 +21,10 @@ use crate::storage::btree_map::impls::{HandleType, KVHandle, Node, BTreeMap};
 
 /// ToDo
 pub enum SearchResult {
-    /// ToDo
+    /// Found the to-be-searched entry at the supplied position.
     Found(KVHandle),
-    /// ToDo
-    GoDown(KVHandle)
+    /// No search result, contains the position where an insert could be made.
+    NotFound(KVHandle),
 }
 
 /// Searches the tree for `key`.
@@ -39,8 +39,7 @@ where
 {
     let current_root = tree.root();
     if tree.len() == 0 || current_root.is_none() {
-        // ToDo!
-        return SearchResult::GoDown(KVHandle::new(0, 0))
+        return SearchResult::NotFound(KVHandle::new(0, 0))
     }
 
     let mut cur = current_root.expect("46");
@@ -52,10 +51,11 @@ where
             );
         match search_node(&node, cur, key) {
             SearchResult::Found(handle) => return SearchResult::Found(handle),
-            SearchResult::GoDown(handle) => {
+            SearchResult::NotFound(handle) => {
                 match tree.get_handle_type(&handle.into()) {
-                    HandleType::Leaf => return SearchResult::GoDown(handle),
+                    HandleType::Leaf => return SearchResult::NotFound(handle),
                     HandleType::Internal => {
+                        // Go down then
                         cur = tree
                             .descend(&handle)
                             .expect("an internal node always has a child; qed")
@@ -82,7 +82,7 @@ where
         (idx, true) => SearchResult::Found(
             KVHandle::new(node_index, idx)
         ),
-        (idx, false) => SearchResult::GoDown(
+        (idx, false) => SearchResult::NotFound(
             KVHandle::new(node_index, idx)
         )
     }
