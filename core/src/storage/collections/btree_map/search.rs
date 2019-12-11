@@ -68,7 +68,7 @@ where
                     Internal => {
                         // Go down then
                         cur = tree
-                            .descend(&handle)
+                            .descend(handle)
                             .expect("an internal node always has a child; qed")
                             .node();
                         continue

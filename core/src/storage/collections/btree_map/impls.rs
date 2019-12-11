@@ -148,20 +148,20 @@ where
     ///
     /// `edge.descend().ascend().unwrap()` and `node.ascend().unwrap().descend()` should
     /// both, upon success, do nothing.
-    pub(super) fn descend(&self, handle: &KVHandle) -> Option<NodeHandle> {
+    pub(super) fn descend(&self, handle: KVHandle) -> Option<NodeHandle> {
         let node = self
             .get_node(&handle.into())
             .expect("node to descend from must exist; qed");
-        node.edges[handle.idx()].map(|e| NodeHandle::new(e))
+        node.edges[handle.idx()].map(NodeHandle::new)
     }
 
     /// Finds the node pointed to by this edge.
     ///
     /// `edge.descend().ascend().unwrap()` and `node.ascend().unwrap().descend()` should
     /// both, upon success, do nothing.
-    pub(super) fn ascend(&self, handle: &NodeHandle) -> Option<KVHandle> {
+    pub(super) fn ascend(&self, handle: NodeHandle) -> Option<KVHandle> {
         let node = self
-            .get_node(handle)
+            .get_node(&handle)
             .expect("node to ascend from must exist");
 
         node.parent.map(|parent| {
@@ -181,7 +181,7 @@ where
         }
     }
 
-    pub(super) fn into_kv(&self, handle: &KVHandle) -> (&K, &V) {
+    pub(super) fn get_kv(&self, handle: KVHandle) -> (&K, &V) {
         let node = self
             .get_node(&handle.into())
             .expect("node on OccupiedEntry must exist");
@@ -191,12 +191,7 @@ where
     }
 
     /// ToDo
-    pub(super) fn insert_kv<'a>(
-        &'a mut self,
-        handle: KVHandle,
-        key: K,
-        val: V,
-    ) -> &'a mut V {
+    pub(super) fn insert_kv(&mut self, handle: KVHandle, key: K, val: V) -> &mut V {
         if self.is_empty() && self.root().is_none() {
             let mut node = Node::<K, V>::new();
             node.keys[0] = Some(key);
@@ -227,7 +222,7 @@ where
                 ins_v = v;
                 ins_edge = right;
                 out_ptr = ptr;
-                self.ascend(&NodeHandle::new(left.node))
+                self.ascend(NodeHandle::new(left.node))
             }
         };
 
@@ -244,7 +239,7 @@ where
                             ins_k = k;
                             ins_v = v;
                             ins_edge = right;
-                            cur_parent = self.ascend(&NodeHandle::new(left.node));
+                            cur_parent = self.ascend(NodeHandle::new(left.node));
                         }
                     }
                 }
@@ -268,19 +263,19 @@ where
                 HandleType::Leaf => return self.first_edge(&handle),
                 HandleType::Internal => {
                     let first_edge = self.first_edge(&handle);
-                    handle = self.descend(&first_edge).expect("must exist");
+                    handle = self.descend(first_edge).expect("must exist");
                 }
             }
         }
     }
 
     /// Left edge from this node.
-    fn left_edge(&self, handle: &KVHandle) -> KVHandle {
+    fn left_edge(&self, handle: KVHandle) -> KVHandle {
         KVHandle::new(handle.node, handle.idx)
     }
 
     /// Right edge from this node.
-    fn right_edge(&self, handle: &KVHandle) -> KVHandle {
+    fn right_edge(&self, handle: KVHandle) -> KVHandle {
         KVHandle::new(handle.node, handle.idx + 1)
     }
 
@@ -309,18 +304,18 @@ where
         let (small_leaf, old_key, old_val, mut new_len) = match self
             .get_handle_type(&handle.into())
         {
-            HandleType::Leaf => self.remove_handle(&handle),
+            HandleType::Leaf => self.remove_handle(handle),
             HandleType::Internal => {
                 let to_remove = {
-                    let right = self.right_edge(&handle);
+                    let right = self.right_edge(handle);
                     let child = self
-                        .descend(&right)
+                        .descend(right)
                         .expect("every internal node has children; qed");
                     let first_leaf = self.first_leaf_edge(child);
                     self.right_kv(first_leaf).ok().expect("right_kv must exist")
                 };
 
-                let (hole, key, val, nl) = self.remove_handle(&to_remove);
+                let (hole, key, val, nl) = self.remove_handle(to_remove);
                 let node = self.get_node_mut(&handle.into()).expect("node must exist");
                 let idx = handle.idx as usize;
                 let old_key = node.keys[idx].replace(key).expect("handle must be valid");
@@ -330,9 +325,9 @@ where
         };
 
         // Handle underflow
-        let mut handle = small_leaf.into();
+        let mut handle: NodeHandle = small_leaf.into();
         while new_len < CAPACITY / 2 {
-            match self.handle_underfull_node(&handle) {
+            match self.handle_underfull_node(NodeHandle::new(handle.node)) {
                 UnderflowResult::AtRoot => break,
                 UnderflowResult::EmptyParent(_) => unreachable!(),
                 UnderflowResult::Merged(parent) => {
@@ -359,7 +354,7 @@ where
         (old_key, old_val)
     }
 
-    fn handle_underfull_node(&mut self, node: &NodeHandle) -> UnderflowResult {
+    fn handle_underfull_node(&mut self, node: NodeHandle) -> UnderflowResult {
         let parent = if let Some(parent) = self.ascend(node) {
             parent
         } else {
@@ -376,13 +371,13 @@ where
             }
         };
 
-        if self.can_merge(&handle) {
-            UnderflowResult::Merged(self.merge(&handle).into())
+        if self.can_merge(handle) {
+            UnderflowResult::Merged(self.merge(handle).into())
         } else {
             if is_left {
-                self.steal_left(&handle);
+                self.steal_left(handle);
             } else {
-                self.steal_right(&handle);
+                self.steal_right(handle);
             }
             UnderflowResult::Stole(handle.into())
         }
@@ -391,7 +386,7 @@ where
     /// Returns `true` if it is valid to call `.merge()`, i.e., whether there is enough room in
     /// a node to hold the combination of the nodes to the left and right of this handle along
     /// with the key/value pair at this handle.
-    fn can_merge(&self, handle: &KVHandle) -> bool {
+    fn can_merge(&self, handle: KVHandle) -> bool {
         let len_left = self
             .left_child_node(handle)
             .expect("left child must exist")
@@ -409,8 +404,8 @@ where
     /// child of the underlying node, returning an edge referencing that new child.
     ///
     /// Assumes that this edge `.can_merge()`.
-    fn merge(&mut self, handle: &KVHandle) -> KVHandle {
-        let right_child = self.right_child(&handle).expect("right child must exist");
+    fn merge(&mut self, handle: KVHandle) -> KVHandle {
+        let right_child = self.right_child(handle).expect("right child must exist");
         let right_node = self.get_node(&right_child).expect("right child must exist");
         let right_edges = right_node.edges.as_ptr();
         let right_keys = right_node.keys.as_ptr();
@@ -513,7 +508,7 @@ where
     /// This removes a key/value pair from the left child and replaces it with the key/value pair
     /// pointed to by this handle while pushing the old key/value pair of this handle into the right
     /// child.
-    fn steal_left(&mut self, handle: &KVHandle) {
+    fn steal_left(&mut self, handle: KVHandle) {
         let left_child = self.left_child(handle).expect("left child must exist");
         let (k, v, edge) = self.pop(left_child);
 
@@ -522,7 +517,7 @@ where
         let v = node.vals[handle.idx as usize].replace(v).expect("478");
 
         let right = self.right_edge(handle);
-        let child = self.descend(&right).expect("457");
+        let child = self.descend(right).expect("457");
         match self.get_handle_type(&child) {
             HandleType::Leaf => self.push_front_leaf(&child, k, v),
             HandleType::Internal => self.push_front_internal(&child, k, v, edge.unwrap()),
@@ -607,9 +602,9 @@ where
     /// This removes a key/value pair from the right child and replaces it with the key/value pair
     /// pointed to by this handle while pushing the old key/value pair of this handle into the left
     /// child.
-    fn steal_right(&mut self, handle: &KVHandle) {
+    fn steal_right(&mut self, handle: KVHandle) {
         let right = self.right_edge(handle);
-        let child = self.descend(&right).expect("515");
+        let child = self.descend(right).expect("515");
         let (k, v, edge) = self.pop_front(&child);
 
         let (k, v) = {
@@ -657,7 +652,7 @@ where
 
     /// Removes the key/value pair pointed to by this handle, returning the edge between the
     /// now adjacent key/value pairs to the left and right of this handle.
-    fn remove_handle(&mut self, handle: &KVHandle) -> (KVHandle, K, V, usize) {
+    fn remove_handle(&mut self, handle: KVHandle) -> (KVHandle, K, V, usize) {
         let node = self.get_node_mut(&handle.into()).expect("node must exist");
         let k = unsafe {
             slice_remove(&mut node.keys, handle.idx as usize).expect("key must exist")
@@ -822,14 +817,14 @@ where
                 right.len += 1;
             }
         }
-        for a in 0..new_len + 1 {
+        for a in 0..=new_len {
             let i = from + a;
             right.edges[a] = node.edges[i].take();
         }
 
         let right_index = self.put(right);
         let right_handle = NodeHandle::new(right_index);
-        for i in 0..(new_len + 1) {
+        for i in 0..=new_len {
             let handle = KVHandle::new(right_index, i as u32);
             self.correct_parent_link(handle);
         }
@@ -866,7 +861,7 @@ where
         let handle = NodeHandle::new(self.header.root.expect("879"));
         let edge = self.first_edge(&handle);
 
-        let child = self.descend(&edge).expect("680");
+        let child = self.descend(edge).expect("680");
         self.set_parent(&child, None, None);
 
         self.header.root = Some(child.node);
@@ -898,7 +893,7 @@ where
 
         if len < CAPACITY {
             let h = KVHandle::new(handle.node, search::search_linear(node, &key).0);
-            let res = self.insert_fit(&h, key, val);
+            let res = self.insert_fit(h, key, val);
             self.header.len += 1;
             (Fit(handle), res)
         } else {
@@ -906,10 +901,10 @@ where
 
             let ptr = if handle.idx as usize <= B {
                 // handle is left side
-                self.insert_fit(&handle, key, val)
+                self.insert_fit(handle, key, val)
             } else {
                 let h = KVHandle::new(right.node, handle.idx - (B as u32 + 1));
-                self.insert_fit(&h, key, val)
+                self.insert_fit(h, key, val)
             };
 
             (Split(handle, k, v, right), ptr)
@@ -931,16 +926,16 @@ where
 
         if len < CAPACITY {
             let h = KVHandle::new(handle.node, search::search_linear(node, &key).0);
-            self.insert_fit_edge(&h, key, val, edge);
+            self.insert_fit_edge(h, key, val, edge);
             Fit(h)
         } else {
             let (k, v, right) = self.split_internal(handle.node, B);
             if handle.idx as usize <= B {
                 // handle is left side
-                self.insert_fit_edge(&handle, key, val, edge);
+                self.insert_fit_edge(handle, key, val, edge);
             } else {
                 let h = KVHandle::new(right.node, handle.idx - (B as u32 + 1));
-                self.insert_fit_edge(&h, key, val, edge);
+                self.insert_fit_edge(h, key, val, edge);
             }
 
             Split(handle, k, v, right)
@@ -952,7 +947,7 @@ where
     /// pair to fit.
     ///
     /// The returned pointer points to the inserted value.
-    fn insert_fit(&mut self, handle: &KVHandle, key: K, val: V) -> *mut V {
+    fn insert_fit(&mut self, handle: KVHandle, key: K, val: V) -> *mut V {
         let mut node = self
             .get_node_mut(&handle.into())
             .expect("node to insert_fit into must exist");
@@ -973,7 +968,7 @@ where
     /// Inserts a new key/value pair and an edge that will go to the right of that new pair
     /// between this edge and the key/value pair to the right of this edge. This method assumes
     /// that there is enough space in the node for the new pair to fit.
-    fn insert_fit_edge(&mut self, handle: &KVHandle, key: K, val: V, edge: NodeHandle) {
+    fn insert_fit_edge(&mut self, handle: KVHandle, key: K, val: V, edge: NodeHandle) {
         self.insert_fit(handle, key, val);
 
         let node = self
@@ -984,37 +979,37 @@ where
             slice_insert(&mut node.edges, handle.idx() + 1, Some(edge.node));
         }
 
-        for idx in (handle.idx + 1)..(node.len() as u32 + 1) {
+        for idx in (handle.idx + 1)..=node.len() as u32 {
             let handle = KVHandle::new(handle.node, idx);
             self.correct_parent_link(handle);
         }
     }
 
-    fn left_child_node(&self, handle: &KVHandle) -> Option<&Node<K, V>> {
+    fn left_child_node(&self, handle: KVHandle) -> Option<&Node<K, V>> {
         let child = self.left_child(handle)?;
         self.get_node(&child)
     }
 
-    fn right_child_node(&self, handle: &KVHandle) -> Option<&Node<K, V>> {
+    fn right_child_node(&self, handle: KVHandle) -> Option<&Node<K, V>> {
         let child = self.right_child(handle)?;
         self.get_node(&child)
     }
 
-    fn left_child(&self, handle: &KVHandle) -> Option<NodeHandle> {
+    fn left_child(&self, handle: KVHandle) -> Option<NodeHandle> {
         let left = self.left_edge(handle);
-        self.descend(&left)
+        self.descend(left)
     }
 
-    fn right_child(&self, handle: &KVHandle) -> Option<NodeHandle> {
+    fn right_child(&self, handle: KVHandle) -> Option<NodeHandle> {
         let right = self.right_edge(handle);
-        self.descend(&right)
+        self.descend(right)
     }
 
     /// Fixes the parent pointer and index in the child node below this edge. This is useful
     /// when the ordering of edges has been changed, such as in the various `insert` methods.
     fn correct_parent_link(&mut self, handle: KVHandle) {
         let child = self
-            .descend(&handle)
+            .descend(handle)
             .expect("child in which to correct parent link must exist");
         self.set_parent(&child, Some(handle.node), Some(handle.idx));
     }
@@ -1190,7 +1185,7 @@ impl KVHandle {
         Self { node, idx }
     }
 
-    fn idx(&self) -> usize {
+    fn idx(self) -> usize {
         self.idx as usize
     }
 }
@@ -1259,7 +1254,7 @@ where
         K: Borrow<Q>,
     {
         match search::search_tree(&self, key) {
-            Found(handle) => Some(self.into_kv(&handle).1),
+            Found(handle) => Some(self.get_kv(handle).1),
             NotFound(_) => None,
         }
     }
@@ -1285,7 +1280,7 @@ where
         Q: Ord,
     {
         match search::search_tree(&self, key) {
-            Found(handle) => Some(self.into_kv(&handle)),
+            Found(handle) => Some(self.get_kv(handle)),
             NotFound(_) => None,
         }
     }
@@ -1694,7 +1689,7 @@ where
     }
 
     fn kv(&self) -> (&K, &V) {
-        self.tree.into_kv(&self.handle)
+        self.tree.get_kv(self.handle)
     }
 
     fn kv_mut(&mut self) -> (&mut K, &mut V) {
