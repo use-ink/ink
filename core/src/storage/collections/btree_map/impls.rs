@@ -655,12 +655,9 @@ where
         self.correct_all_childrens_parent_links(handle);
     }
 
-    /// Removes a node by replacing it's storage entity with a pointer to the currently
-    /// vacant storage entry.
-    ///
-    /// Using this mechanism we build a linked list of vacant storage entries. On each
-    /// insert we replace the top entry (`header.next_vacant`) of this vacant list with
-    /// an `OccupiedEntry` and set `header.next_vacant` to the next element in the list.
+    /// Removes a node by replacing its storage entity with a pointer to the current
+    /// top element in the linked list of vacant storage entries and setting
+    /// `header.next_vacant` to the new top element -- `handle`.
     fn remove_node(&mut self, handle: NodeHandle) {
         let n = handle.node;
         let _ = match self.entries.get(n) {
@@ -1119,7 +1116,7 @@ impl Flush for BTreeMapHeader {
 /// which children nodes can be linked. Each child has a link to its parent.
 ///
 /// Each node is stored as one storage entity. This reduces storage access,
-/// since with each fetch the entire content of a node (all it's elements, etc.)
+/// since with each fetch the entire content of a node (all its elements, etc.)
 /// are fetched.
 #[derive(PartialEq, Eq, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
@@ -1522,7 +1519,7 @@ where
 
 /// The result of an insert operation.
 pub(super) enum InsertResult<K, V> {
-    /// The element fitted into the node.
+    /// The element did fit into the node.
     Fit(KVHandle),
     /// The element didn't fit into the node and the node was split.
     /// `K` and `V` were extracted during this split and now need
@@ -1546,24 +1543,31 @@ pub(super) enum HandleType {
     Internal,
 }
 
-/// An entry within a BTreeMap collection.
-///
-/// This represents either an occupied entry with its associated value
+/// A storage entity which contains either an occupied entry with a tree node
 /// or a vacant entry pointing to the next vacant entry.
+///
+/// Using this mechanism we build a linked list of vacant storage entries. On each
+/// insert we replace the top entry (`header.next_vacant`) of this vacant list with
+/// an `OccupiedEntry` and set `header.next_vacant` to the next element in the list.
+///
+/// In our implementation we distinguish between `InternalEntry` and `Entry`.
+///   - `Entry` is the public facing enum which is used in conjunction with the
+///     `.entry()` API. It contains a key/value pair.
+///   - `InternalEntry` is used internally in our implementation. It is a storage
+///     entity and contains a tree node with many key/value pairs.
 #[derive(Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 enum InternalEntry<K, V> {
     /// A vacant entry pointing to the next vacant index.
     Vacant(Option<u32>),
-    /// An occupied entry containing the value.
+    /// An occupied entry contains a tree node with its elements.
     Occupied(Node<K, V>),
 }
 
 /// An entry of a storage map.
 ///
-/// This can either store the entries key and value
-/// or represent an entry that was removed after it
-/// has been occupied with key and value.
+/// This can either store the entries key/value pair or represent an entry that was
+/// removed after it has been occupied with key and value.
 #[derive(Encode, Decode)]
 pub enum Entry<'a, K, V> {
     /// A vacant entry pointing to the next vacant index.
