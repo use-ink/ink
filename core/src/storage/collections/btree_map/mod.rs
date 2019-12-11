@@ -23,7 +23,6 @@ mod impls;
 mod search;
 
 pub use self::impls::{
-    // Iter,
     BTreeMap,
-    // Values,
+    Entry,
 };

@@ -12,55 +12,66 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use self::SearchResult::{
+    Found,
+    NotFound,
+};
+use crate::storage::btree_map::impls::{
+    BTreeMap,
+    HandleType::{
+        Internal,
+        Leaf,
+    },
+    KVHandle,
+    Node,
+};
 use core::{
-    cmp::{Ord, Ordering},
     borrow::Borrow,
+    cmp::{
+        Ord,
+        Ordering,
+    },
 };
 use scale::Codec;
-use crate::storage::btree_map::impls::{HandleType, KVHandle, Node, BTreeMap};
 
-/// ToDo
-pub enum SearchResult {
-    /// Found the to-be-searched entry at the supplied position.
+/// Result of a tree search.
+pub(super) enum SearchResult {
+    /// Found the entry at the supplied position.
     Found(KVHandle),
     /// No search result, contains the position where an insert could be made.
     NotFound(KVHandle),
 }
 
 /// Searches the tree for `key`.
-pub(crate) fn search_tree<K, V, Q>(
-    tree: &BTreeMap<K, V>,
-    key: &Q
-) -> SearchResult
+pub(super) fn search_tree<K, V, Q>(tree: &BTreeMap<K, V>, key: &Q) -> SearchResult
 where
     Q: Ord,
     K: Ord + Borrow<Q> + Codec,
     V: Codec,
 {
     let current_root = tree.root();
-    if tree.len() == 0 || current_root.is_none() {
-        return SearchResult::NotFound(KVHandle::new(0, 0))
+    if tree.is_empty() || current_root.is_none() {
+        return NotFound(KVHandle::new(0, 0))
     }
 
     let mut cur = current_root.expect("46");
     loop {
-        let node = tree.get_node(&cur.into())
-            .expect(
-                "node which is iterated over is either root or child node, \
-                but always exists; qed"
-            );
+        let node = tree.get_node(&cur.into()).expect(
+            "node which is iterated over is either root or child node, \
+             but always exists; qed",
+        );
         match search_node(&node, cur, key) {
-            SearchResult::Found(handle) => return SearchResult::Found(handle),
-            SearchResult::NotFound(handle) => {
+            Found(handle) => return Found(handle),
+            NotFound(handle) => {
                 match tree.get_handle_type(&handle.into()) {
-                    HandleType::Leaf => return SearchResult::NotFound(handle),
-                    HandleType::Internal => {
+                    Leaf => return NotFound(handle),
+                    Internal => {
                         // Go down then
                         cur = tree
                             .descend(&handle)
                             .expect("an internal node always has a child; qed")
                             .node();
-                        continue;
+                        continue
                     }
                 }
             }
@@ -69,30 +80,19 @@ where
 }
 
 /// Searches for `key` in the elements contained in a particular node .
-fn search_node<K, V, Q>(
-    node: &Node<K, V>,
-    node_index: u32,
-    key: &Q,
-) -> SearchResult
+fn search_node<K, V, Q>(node: &Node<K, V>, node_index: u32, key: &Q) -> SearchResult
 where
     Q: Ord,
     K: Borrow<Q>,
 {
     match search_linear(node, key) {
-        (idx, true) => SearchResult::Found(
-            KVHandle::new(node_index, idx)
-        ),
-        (idx, false) => SearchResult::NotFound(
-            KVHandle::new(node_index, idx)
-        )
+        (idx, true) => Found(KVHandle::new(node_index, idx)),
+        (idx, false) => NotFound(KVHandle::new(node_index, idx)),
     }
 }
 
 /// Conducts a linear search for `key` in the elements contained in a node.
-pub fn search_linear<K, V, Q>(
-    node: &Node<K, V>,
-    key: &Q
-) -> (u32, bool)
+pub fn search_linear<K, V, Q>(node: &Node<K, V>, key: &Q) -> (u32, bool)
 where
     Q: Ord,
     K: Borrow<Q>,
@@ -103,13 +103,12 @@ where
             None => return (i as u32, false),
             Some(node_key) => {
                 match key.cmp(node_key.borrow()) {
-                    Ordering::Greater => {},
+                    Ordering::Greater => {}
                     Ordering::Equal => return (i as u32, true),
-                    Ordering::Less => return (i as u32, false)
+                    Ordering::Less => return (i as u32, false),
                 }
             }
         }
     }
-    // ToDo maybe return KVHandle instead of u32
     (node.len, false)
 }

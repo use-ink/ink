@@ -19,14 +19,14 @@ use crate::{
             BumpAlloc,
             Initialize,
         },
-        Key,
+        btree_map::impls::Entry,
+        collections::btree_map::impls::NodeHandle,
         BTreeMap,
+        Key,
     },
     test_utils::run_test,
 };
-use crate::storage::btree_map::impls::Entry;
 use itertools::Itertools;
-use crate::storage::collections::btree_map::impls::NodeHandle;
 
 fn empty_map() -> BTreeMap<i32, i32> {
     unsafe {
@@ -52,19 +52,17 @@ pub fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
     let mut cnt = 0;
     loop {
         if i == map.header().node_count {
-            break;
+            break
         }
         let nd = NodeHandle::new(cnt);
         let node = map.get_node(&nd);
         if let None = node {
             cnt += 1;
-            continue;
+            continue
         }
         let node = node.expect("some node");
-        let foo = node.edges.to_vec();
-        let mut bar = foo
-            .into_iter().filter_map(|x| x).collect();
-        v.append(&mut bar);
+        let mut edges = node.edges.to_vec().into_iter().filter_map(|x| x).collect();
+        v.append(&mut edges);
 
         i += 1;
         cnt += 1;
@@ -94,32 +92,30 @@ fn insert_and_remove(xs: Vec<i32>) {
     let mut len = map.len();
     let mut previous_i = None;
 
-    xs
-        .iter()
-        .for_each(|x| {
-            let i = *x;
-            if i % 2 == 0 {
-                // on even numbers we insert
-                for a in i..i + 3 {
-                    if let None = map.insert(a, a * 10) {
-                        len += 1;
-                    }
-                    assert_eq!(map.len(), len);
+    xs.iter().for_each(|x| {
+        let i = *x;
+        if i % 2 == 0 {
+            // on even numbers we insert
+            for a in i..i + 3 {
+                if let None = map.insert(a, a * 10) {
+                    len += 1;
                 }
-                previous_i = Some(i);
-            } else if i % 2 == 1 && previous_i.is_some() {
-                let p = previous_i.unwrap();
-                for a in p..p + 3 {
-                    assert_eq!(map.get(&a), Some(&(a * 10)));
-                    assert_eq!(map.remove(&a), Some(a * 10));
-                    assert_eq!(map.get(&a), None);
-                    len -= 1;
-                    assert_eq!(map.len(), len);
-                }
-                previous_i = None;
+                assert_eq!(map.len(), len);
             }
-            assert!(every_edge_only_once(&map));
-        });
+            previous_i = Some(i);
+        } else if i % 2 == 1 && previous_i.is_some() {
+            let p = previous_i.unwrap();
+            for a in p..p + 3 {
+                assert_eq!(map.get(&a), Some(&(a * 10)));
+                assert_eq!(map.remove(&a), Some(a * 10));
+                assert_eq!(map.get(&a), None);
+                len -= 1;
+                assert_eq!(map.len(), len);
+            }
+            previous_i = None;
+        }
+        assert!(every_edge_only_once(&map));
+    });
 }
 
 #[test]
@@ -130,7 +126,6 @@ fn empty_map_works() {
         // Initial invariant.
         assert_eq!(map.len(), 0);
         assert!(map.is_empty());
-        //assert_eq!(stash.iter().next(), None);
     })
 }
 
@@ -172,7 +167,6 @@ fn first_put_filled() {
     })
 }
 
-
 #[test]
 fn entry_api_works() {
     run_test(|| {
@@ -202,7 +196,7 @@ fn entry_api_works_with_strings_and_multiple_calls() {
 
                 *o.get_mut() += 2;
             }
-            _ => unreachable!("oh no")
+            _ => unreachable!("oh no"),
         };
 
         // then
@@ -252,7 +246,7 @@ fn putting_and_removing_many_items_works() {
     run_test(|| {
         // given
         let mut map = empty_map();
-        let mut len  = map.len();
+        let mut len = map.len();
         for i in 1..200 {
             assert_eq!(map.insert(i, i * 10), None);
             len += 1;
@@ -293,31 +287,28 @@ fn alternating_inserts_and_remove_works() {
         let mut max_node_count = 0;
 
         // when
-        ops
-            .iter()
-            .enumerate()
-            .for_each(|(p, n)| {
-                if p % 2 == 0 {
-                    for i in 1..*n {
-                        assert_eq!(map.insert(i, i * 10), None);
-                        len += 1;
-                        assert_eq!(map.len(), len);
+        ops.iter().enumerate().for_each(|(p, n)| {
+            if p % 2 == 0 {
+                for i in 1..*n {
+                    assert_eq!(map.insert(i, i * 10), None);
+                    len += 1;
+                    assert_eq!(map.len(), len);
 
-                        let nodes = map.header().node_count;
-                        if nodes > max_node_count {
-                            max_node_count = nodes;
-                        }
-                    }
-                } else {
-                    for i in 1..*n {
-                        assert_eq!(map.get(&i), Some(&(i * 10)));
-                        assert_eq!(map.remove(&i), Some(i * 10));
-                        assert_eq!(map.get(&i), None);
-                        len -= 1;
-                        assert_eq!(map.len(), len);
+                    let nodes = map.header().node_count;
+                    if nodes > max_node_count {
+                        max_node_count = nodes;
                     }
                 }
-            });
+            } else {
+                for i in 1..*n {
+                    assert_eq!(map.get(&i), Some(&(i * 10)));
+                    assert_eq!(map.remove(&i), Some(i * 10));
+                    assert_eq!(map.get(&i), None);
+                    len -= 1;
+                    assert_eq!(map.len(), len);
+                }
+            }
+        });
 
         // then
         assert_eq!(map.len(), 0);
@@ -335,30 +326,28 @@ fn sorted_insert_and_removal() {
         let mut map = empty_map();
         let mut len = map.len();
 
-        let xs = vec![-95, -89, -86, -67, -54, -13, -6, -1, 4, 13, 15, 21, 31, 40, 65];
-        let mut xs= xs.clone();
+        let xs = vec![
+            -95, -89, -86, -67, -54, -13, -6, -1, 4, 13, 15, 21, 31, 40, 65,
+        ];
+        let mut xs = xs.clone();
         xs.sort_by(|a, b| a.cmp(b));
         xs = xs.into_iter().unique().collect();
 
         // first insert in sorted order
-        xs
-            .iter()
-            .for_each(|i| {
-                assert_eq!(map.insert(*i, i * 10), None);
-                len += 1;
-                assert_eq!(map.len(), len);
-            });
+        xs.iter().for_each(|i| {
+            assert_eq!(map.insert(*i, i * 10), None);
+            len += 1;
+            assert_eq!(map.len(), len);
+        });
 
         // when
         // remove from the back
         xs.sort_by(|a, b| b.cmp(a));
-        xs
-            .iter()
-            .for_each(|i| {
-                assert_eq!(map.remove(&i), Some(i * 10));
-                len -= 1;
-                assert_eq!(map.len(), len);
-            });
+        xs.iter().for_each(|i| {
+            assert_eq!(map.remove(&i), Some(i * 10));
+            len -= 1;
+            assert_eq!(map.len(), len);
+        });
 
         // then
         // ToDo maybe add more checks here
@@ -371,10 +360,16 @@ fn sorted_insert_and_removal() {
 #[test]
 fn complex_trees_work() {
     run_test(|| {
-        let xs = [-72, -68, 36, -30, 0, -38, -74, -60, 4, -2, 28, -34, 60, -42, -14, 32, -48, 18, -6, 24, -10, 40, 62, -64, 48, -56, 14, 3];
+        let xs = [
+            -72, -68, 36, -30, 0, -38, -74, -60, 4, -2, 28, -34, 60, -42, -14, 32, -48,
+            18, -6, 24, -10, 40, 62, -64, 48, -56, 14, 3,
+        ];
         insert_and_remove(xs.to_vec());
 
-        let xs = [2, -30, -26, 0, -34, -4, -38, -42, -8, -56, 66, 34, 16, 36, -62, -12, -20, 38, 30, -50, -66, 6, 70, 62, -16, 12, -70, 42, 31];
+        let xs = [
+            2, -30, -26, 0, -34, -4, -38, -42, -8, -56, 66, 34, 16, 36, -62, -12, -20,
+            38, 30, -50, -66, 6, 70, 62, -16, 12, -70, 42, 31,
+        ];
         insert_and_remove(xs.to_vec());
 
         let xs = [-2, -66, -44, 34, -6, 62, 2, 6, -30, -70, 30, -62, 7, -44, 7];
@@ -389,35 +384,29 @@ fn simple_insert_and_removal() {
         let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10];
         let mut map = empty_map();
         let mut len = map.len();
-        xs
-            .iter()
-            .for_each(|i| {
-                if let None = map.insert(*i, i * 10) {
-                    len += 1;
-                }
-                assert_eq!(map.len(), len);
-            });
+        xs.iter().for_each(|i| {
+            if let None = map.insert(*i, i * 10) {
+                len += 1;
+            }
+            assert_eq!(map.len(), len);
+        });
         let max_node_count = map.header().node_count;
 
-        xs
-            .iter()
-            .for_each(|k| {
-                let v = *k * 10;
-                assert_eq!(map.get(k), Some(&v));
-                assert_eq!(map.contains_key(k), true);
-                assert_eq!(map.get_key_value(k), Some((k, &v)));
-            });
+        xs.iter().for_each(|k| {
+            let v = *k * 10;
+            assert_eq!(map.get(k), Some(&v));
+            assert_eq!(map.contains_key(k), true);
+            assert_eq!(map.get_key_value(k), Some((k, &v)));
+        });
 
         // when
-        xs
-            .iter()
-            .for_each(|i| {
-                if let Some(v) = map.remove(&i) {
-                    assert_eq!(v, i * 10);
-                    len -= 1;
-                };
-                assert_eq!(map.len(), len);
-            });
+        xs.iter().for_each(|i| {
+            if let Some(v) = map.remove(&i) {
+                assert_eq!(v, i * 10);
+                len -= 1;
+            };
+            assert_eq!(map.len(), len);
+        });
 
         // then
         assert_eq!(map.len(), 0);
@@ -442,31 +431,25 @@ fn randomized_insert_and_remove(xs: Vec<i32>) {
         // given
         let mut map = empty_map();
         let mut len = map.len();
-        xs
-            .iter()
-            .for_each(|i| {
-                if let None = map.insert(*i, i * 10) {
-                    len += 1;
-                }
-                assert_eq!(map.len(), len);
-            });
+        xs.iter().for_each(|i| {
+            if let None = map.insert(*i, i * 10) {
+                len += 1;
+            }
+            assert_eq!(map.len(), len);
+        });
         let max_node_count = map.header().node_count;
-        xs
-            .iter()
-            .for_each(|i| {
-                assert_eq!(map.get(i), Some(&(*i * 10)));
-            });
+        xs.iter().for_each(|i| {
+            assert_eq!(map.get(i), Some(&(*i * 10)));
+        });
 
         // when
-        xs
-            .iter()
-            .for_each(|i| {
-                if let Some(v) = map.remove(&i) {
-                    assert_eq!(v, i * 10);
-                    len -= 1;
-                };
-                assert_eq!(map.len(), len);
-            });
+        xs.iter().for_each(|i| {
+            if let Some(v) = map.remove(&i) {
+                assert_eq!(v, i * 10);
+                len -= 1;
+            };
+            assert_eq!(map.len(), len);
+        });
 
         // then
         assert_eq!(map.len(), 0);
@@ -493,34 +476,26 @@ fn randomized_removes(xs: Vec<i32>, xth: usize) {
         let xs: Vec<i32> = xs.into_iter().unique().collect();
 
         // first insert all
-        xs
-            .iter()
-            .for_each(|i| {
-                assert_eq!(map.insert(*i, i * 10), None);
-                len += 1;
-                assert_eq!(map.len(), len);
-            });
+        xs.iter().for_each(|i| {
+            assert_eq!(map.insert(*i, i * 10), None);
+            len += 1;
+            assert_eq!(map.len(), len);
+        });
 
         // then remove every x'th
-        xs
-            .iter()
-            .enumerate()
-            .for_each(|(x, i)| {
-                if x % xth == 0 {
-                    assert_eq!(map.remove(&i), Some(i * 10));
-                    len -= 1;
-                }
-                assert_eq!(map.len(), len);
-            });
+        xs.iter().enumerate().for_each(|(x, i)| {
+            if x % xth == 0 {
+                assert_eq!(map.remove(&i), Some(i * 10));
+                len -= 1;
+            }
+            assert_eq!(map.len(), len);
+        });
 
         // then everything else must still be get-able
-        xs
-            .iter()
-            .enumerate()
-            .for_each(|(x, i)| {
-                if x % xth != 0 {
-                    assert_eq!(map.get(&i), Some(&(i * 10)));
-                }
-            });
+        xs.iter().enumerate().for_each(|(x, i)| {
+            if x % xth != 0 {
+                assert_eq!(map.get(&i), Some(&(i * 10)));
+            }
+        });
     })
 }
