@@ -92,6 +92,7 @@ where
 }
 
 /// Conducts a linear search for `key` in the elements contained in a node.
+/// Returns `(last_position_searched, true_if_found)`.
 pub fn search_linear<K, V, Q>(node: &Node<K, V>, key: &Q) -> (u32, bool)
 where
     Q: Ord,
@@ -99,13 +100,14 @@ where
 {
     let iter = node.keys.iter().enumerate();
     for (i, k) in iter {
+        let i = i as u32;
         match k {
-            None => return (i as u32, false),
+            None => return (i, false),
             Some(node_key) => {
                 match key.cmp(node_key.borrow()) {
                     Ordering::Greater => {}
-                    Ordering::Equal => return (i as u32, true),
-                    Ordering::Less => return (i as u32, false),
+                    Ordering::Equal => return (i, true),
+                    Ordering::Less => return (i, false),
                 }
             }
         }
