@@ -12,9 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use self::InsertResult::{
-    Fit,
-    Split,
+use self::{
+    InsertResult::{
+        Fit,
+        Split,
+    },
+    HandleType::{
+        Leaf,
+        Internal,
+    }
 };
 use super::search::{
     self,
@@ -63,8 +69,8 @@ pub(super) const B: usize = 6;
 /// ```no_compile
 /// const B: usize = 2;
 /// const CAPACITY: usize = 2 * B - 1;
-/// keys  = [    a,    b,   c   ];
-/// edges = [ 1,    2,   3,   4 ];
+/// keys  = [    a,    b,    c    ];
+/// edges = [ 1,    2,    3,    4 ];
 /// ```
 pub const CAPACITY: usize = 2 * B - 1;
 
@@ -138,9 +144,9 @@ where
     pub(super) fn get_handle_type(&self, handle: &NodeHandle) -> HandleType {
         let children = self.get_node(handle).expect("node must exist").edges();
         if children == 0 {
-            HandleType::Leaf
+            Leaf
         } else {
-            HandleType::Internal
+            Internal
         }
     }
 
@@ -260,8 +266,8 @@ where
     fn first_leaf_edge(&self, mut handle: NodeHandle) -> KVHandle {
         loop {
             match self.get_handle_type(&handle) {
-                HandleType::Leaf => return self.first_edge(&handle),
-                HandleType::Internal => {
+                Leaf => return self.first_edge(&handle),
+                Internal => {
                     let first_edge = self.first_edge(&handle);
                     handle = self.descend(first_edge).expect("child must exist");
                 }
@@ -313,24 +319,24 @@ where
         }
     }
 
+    /// Removes the key/value pair pointed to by `handle`.
+    ///
+    /// If through this removal an underfull node was created, appropriate strategies
+    /// will be deployed (`.handle_underfull_node`).
     fn remove_kv(&mut self, handle: KVHandle) -> (K, V) {
         self.header.len -= 1;
 
-        let (small_leaf, old_key, old_val, mut new_len) = match self
-            .get_handle_type(&handle.into())
-        {
-            HandleType::Leaf => self.remove_handle(handle),
-            HandleType::Internal => {
-                let to_remove = {
-                    let right = self.right_edge(handle);
-                    let child = self
-                        .descend(right)
-                        .expect("every internal node has children; qed");
-                    let first_leaf = self.first_leaf_edge(child);
-                    self.right_kv(first_leaf).expect("right_kv must exist")
-                };
-
+        let handle_type = self.get_handle_type(&handle.into());
+        let (small_leaf, old_key, old_val, mut new_len) = match handle_type {
+            Leaf => self.remove_handle(handle),
+            Internal => {
+                let child = self.right_child(handle)
+                    .expect("every internal node has children; qed");
+                let first_leaf = self.first_leaf_edge(child);
+                let to_remove =
+                    self.right_kv(first_leaf).expect("right_kv must exist");
                 let (hole, key, val, nl) = self.remove_handle(to_remove);
+
                 let node = self.get_node_mut(&handle.into()).expect("node must exist");
                 let idx = handle.idx as usize;
                 let old_key = node.keys[idx].replace(key).expect("handle must be valid");
@@ -339,20 +345,19 @@ where
             }
         };
 
-        // Handle underflow
         let mut handle: NodeHandle = small_leaf.into();
         while new_len < CAPACITY / 2 {
             match self.handle_underfull_node(NodeHandle::new(handle.node)) {
                 UnderflowResult::AtRoot => break,
                 UnderflowResult::EmptyParent(_) => unreachable!(),
                 UnderflowResult::Merged(parent) => {
-                    let parentn = self.get_node(&parent).expect("parent node must exist");
-                    if parentn.len() == 0 {
+                    let parent_node = self.get_node(&parent).expect("parent node must exist");
+                    if parent_node.len() == 0 {
                         self.root_pop_level();
                         break
                     } else {
                         handle = parent;
-                        new_len = parentn.len();
+                        new_len = parent_node.len();
                     }
                 }
                 UnderflowResult::Stole(_) => break,
@@ -517,8 +522,8 @@ where
             (key, val, idx)
         };
         let edge = match typ {
-            HandleType::Leaf => None,
-            HandleType::Internal => {
+            Leaf => None,
+            Internal => {
                 let edge = {
                     let node = self.get_node_mut(&handle).expect("node must exist");
                     node.edges[idx + 1].take().expect("edge must exist")
@@ -549,8 +554,8 @@ where
         let right = self.right_edge(handle);
         let child = self.descend(right).expect("child must exist");
         match self.get_handle_type(&child) {
-            HandleType::Leaf => self.push_front_leaf(&child, k, v),
-            HandleType::Internal => self.push_front_internal(&child, k, v, edge.unwrap()),
+            Leaf => self.push_front_leaf(&child, k, v),
+            Internal => self.push_front_internal(&child, k, v, edge.unwrap()),
         }
     }
 
@@ -572,8 +577,8 @@ where
 
         let left_child = self.left_child(handle).expect("left child must exist");
         match self.get_handle_type(&left_child) {
-            HandleType::Leaf => self.push_leaf(&left_child, k, v),
-            HandleType::Internal => self.push_internal(left_child, k, v, edge.unwrap()),
+            Leaf => self.push_leaf(&left_child, k, v),
+            Internal => self.push_internal(left_child, k, v, edge.unwrap()),
         }
     }
 
@@ -591,8 +596,8 @@ where
         let val = unsafe { slice_remove(&mut node.vals, 0).expect("val must exist") };
 
         let edge = match typ {
-            HandleType::Leaf => None,
-            HandleType::Internal => {
+            Leaf => None,
+            Internal => {
                 let edge =
                     unsafe { slice_remove(&mut node.edges, 0).expect("edge must exist") };
 
