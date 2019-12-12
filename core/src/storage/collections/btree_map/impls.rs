@@ -899,9 +899,8 @@ where
     /// has only one edge, no cleanup is done on any of the other children are elements of the root.
     /// This decreases the height by 1 and is the opposite of `push_level`.
     fn root_pop_level(&mut self) {
-        // debug_assert!(node.edges() == 1);
-
         let handle = NodeHandle::new(self.header.root.expect("root must exist"));
+        debug_assert!(self.get_node(&handle).expect("root must exist").edges() == 1);
         let edge = self.first_edge(&handle);
 
         let child = self.descend(edge).expect("child must exist");
