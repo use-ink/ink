@@ -74,6 +74,13 @@ pub(super) const B: usize = 6;
 /// ```
 pub const CAPACITY: usize = 2 * B - 1;
 
+/// The node type, either a `Leaf` (a node without children) or
+/// `Internal` (a node with children).
+pub(super) enum HandleType {
+    Leaf,
+    Internal,
+}
+
 /// Mapping stored in the contract storage.
 ///
 /// This implementation follows the algorithm used by the Rust
@@ -159,11 +166,19 @@ where
         }
     }
 
+    /// Returns the key/value pair behind `handle`.
+    pub(super) fn get_kv(&self, handle: KVHandle) -> Option<(&K, &V)> {
+        let node = self.get_node(&handle.into())?;
+        let k = node.keys[handle.idx()].as_ref()?;
+        let v = node.vals[handle.idx()].as_ref()?;
+        Some((k, v))
+    }
+
     /// Returns the child node pointed to by this edge, if available.
     pub(super) fn descend(&self, handle: KVHandle) -> Option<NodeHandle> {
         let node = self
             .get_node(&handle.into())
-            .expect("node to descend from must exist; qed");
+            .expect("node to descend from must exist");
         node.edges[handle.idx()].map(NodeHandle::new)
     }
 
@@ -179,16 +194,6 @@ where
                 .expect("if parent exists, parent_idx always exist as well; qed");
             KVHandle::new(parent, idx)
         })
-    }
-
-    /// Returns the key/value pair behind `handle`.
-    fn get_kv(&self, handle: KVHandle) -> (&K, &V) {
-        let node = self
-            .get_node(&handle.into())
-            .expect("node on OccupiedEntry must exist");
-        let k = node.keys[handle.idx()].as_ref().expect("key must exist");
-        let v = node.vals[handle.idx()].as_ref().expect("val must exist");
-        (k, v)
     }
 
     /// Creates a root node with `key` and `val`.
@@ -269,7 +274,7 @@ where
                 Leaf => return self.first_edge(&handle),
                 Internal => {
                     let first_edge = self.first_edge(&handle);
-                    handle = self.descend(first_edge).expect("child must exist");
+                    handle = self.descend(first_edge).expect("every internal node has children; qed");
                 }
             }
         }
@@ -311,7 +316,7 @@ where
     fn right_kv(&self, handle: KVHandle) -> Option<KVHandle> {
         let node = self
             .get_node(&handle.into())
-            .expect("node to descend from must exist; qed");
+            .expect("node to descend from must exist");
         if handle.idx < node.len() as u32 {
             Some(KVHandle::new(handle.node, handle.idx))
         } else {
@@ -894,10 +899,10 @@ where
     fn root_pop_level(&mut self) {
         // debug_assert!(node.edges() == 1);
 
-        let handle = NodeHandle::new(self.header.root.expect("879"));
+        let handle = NodeHandle::new(self.header.root.expect("root must exist"));
         let edge = self.first_edge(&handle);
 
-        let child = self.descend(edge).expect("680");
+        let child = self.descend(edge).expect("child must exist");
         self.set_parent(&child, None, None);
 
         self.header.root = Some(child.node);
@@ -1306,7 +1311,13 @@ where
         K: Borrow<Q>,
     {
         match search::search_tree(&self, key) {
-            Found(handle) => Some(self.get_kv(handle).1),
+            Found(handle) => {
+                let k = self
+                    .get_kv(handle)
+                    .expect("if found there is always a key; qed")
+                    .1;
+                Some(k)
+            }
             NotFound(_) => None,
         }
     }
@@ -1332,7 +1343,7 @@ where
         Q: Ord,
     {
         match search::search_tree(&self, key) {
-            Found(handle) => Some(self.get_kv(handle)),
+            Found(handle) => self.get_kv(handle),
             NotFound(_) => None,
         }
     }
@@ -1542,13 +1553,6 @@ enum UnderflowResult {
     Stole(NodeHandle),
 }
 
-/// The node type, either a `Leaf` (a node without children) or
-/// `Internal` (a node with children).
-pub(super) enum HandleType {
-    Leaf,
-    Internal,
-}
-
 /// A storage entity which contains either an occupied entry with a tree node
 /// or a vacant entry pointing to the next vacant entry.
 ///
@@ -1657,7 +1661,10 @@ where
     /// assert_eq!(map.entry("poneyland").key(), &"poneyland");
     /// ```
     pub fn key(&self) -> &K {
-        self.kv().0
+        self.tree
+            .get_kv(self.handle)
+            .expect("each occupied entry always has a key/value pair; qed")
+            .0
     }
 
     /// Gets a reference to the value in the entry.
@@ -1676,7 +1683,10 @@ where
     /// }
     /// ```
     pub fn get(&self) -> &V {
-        self.kv().1
+        self.tree
+            .get_kv(self.handle)
+            .expect("each occupied entry always has a key/value pair; qed")
+            .1
     }
 
     /// Gets a mutable reference to the value in the entry.
@@ -1759,16 +1769,12 @@ where
         node.vals[self.handle.idx()].replace(value)
     }
 
-    fn kv(&self) -> (&K, &V) {
-        self.tree.get_kv(self.handle)
-    }
-
     fn kv_mut(&mut self) -> (&mut K, &mut V) {
         let idx = self.handle.idx();
         let node = self
             .tree
             .get_node_mut(&self.handle.into())
-            .expect("node on OccupiedEntry must exist");
+            .expect("node on occupied entry must exist");
         let k = node.keys[idx].as_mut().expect("key must exist");
         let v = node.vals[idx].as_mut().expect("val must exist");
         (k, v)
