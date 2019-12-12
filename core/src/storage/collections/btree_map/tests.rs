@@ -82,32 +82,39 @@ fn every_edge_exists_only_once(map: &BTreeMap<i32, i32>) -> bool {
     only_unique_edges
 }
 
+/// Conducts repeated insert and remove operations into the map by iterating
+/// over `xs`. For each odd number a defined number of insert operations
+/// are executed. For each even number it's asserted that the previously
+/// inserted elements are in the map and they are removed subsequently.
 fn insert_and_remove(xs: Vec<i32>) {
     let mut map = empty_map();
-    let mut len = map.len();
-    let mut previous_i = None;
+    let mut cnt_inserts = 0;
+    let mut previous_even_x = None;
+    let number_inserts = 3;
 
     xs.iter().for_each(|x| {
-        let i = *x;
-        if i % 2 == 0 {
+        let x = *x;
+        if x % 2 == 0 {
             // on even numbers we insert
-            for a in i..i + 3 {
+            for a in x..x + number_inserts {
                 if let None = map.insert(a, a * 10) {
-                    len += 1;
+                    cnt_inserts += 1;
                 }
-                assert_eq!(map.len(), len);
+                assert_eq!(map.len(), cnt_inserts);
             }
-            previous_i = Some(i);
-        } else if i % 2 == 1 && previous_i.is_some() {
-            let p = previous_i.unwrap();
-            for a in p..p + 3 {
+            previous_even_x = Some(x);
+        } else if x % 2 == 1 && previous_even_x.is_some() {
+            // if it's an odd number and we inserted in the previous run we assert
+            // that the insert worked correctly and remove the elements again.
+            let x = previous_even_x.unwrap();
+            for a in x..x + number_inserts {
                 assert_eq!(map.get(&a), Some(&(a * 10)));
                 assert_eq!(map.remove(&a), Some(a * 10));
                 assert_eq!(map.get(&a), None);
-                len -= 1;
-                assert_eq!(map.len(), len);
+                cnt_inserts -= 1;
+                assert_eq!(map.len(), cnt_inserts);
             }
-            previous_i = None;
+            previous_even_x = None;
         }
         assert!(every_edge_exists_only_once(&map));
     });
@@ -191,7 +198,7 @@ fn entry_api_works_with_strings_and_multiple_calls() {
 
                 *o.get_mut() += 2;
             }
-            _ => unreachable!("oh no"),
+            _ => unreachable!(),
         };
 
         // then
@@ -268,6 +275,50 @@ fn putting_and_removing_many_items_works() {
 }
 
 #[test]
+fn simple_insert_and_removal() {
+    run_test(|| {
+        // given
+        let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10];
+        let mut map = empty_map();
+        let mut len = 0;
+        xs.iter().for_each(|i| {
+            if let Some(_) = map.insert(*i, i * 10) {
+                unreachable!("no element must already exist there");
+            }
+            len += 1;
+            assert_eq!(map.len(), len);
+        });
+        let max_node_count = map.header().node_count;
+
+        xs.iter().for_each(|k| {
+            let v = *k * 10;
+            assert_eq!(map.get(k), Some(&v));
+            assert_eq!(map.contains_key(k), true);
+            assert_eq!(map.get_key_value(k), Some((k, &v)));
+        });
+
+        // when
+        xs.iter().for_each(|i| {
+            match map.remove(&i) {
+                Some(v) => {
+                    assert_eq!(v, i * 10);
+                    len -= 1;
+                }
+                None => unreachable!(),
+            };
+            assert_eq!(map.len(), len);
+        });
+
+        // then
+        assert_eq!(map.len(), 0);
+        assert_eq!(map.header().node_count, 0);
+        for i in 0..max_node_count {
+            assert!(map.get_node(&NodeHandle::new(i)).is_none());
+        }
+    })
+}
+
+#[test]
 fn alternating_inserts_and_remove_works() {
     run_test(|| {
         // given
@@ -284,6 +335,7 @@ fn alternating_inserts_and_remove_works() {
         // when
         ops.iter().enumerate().for_each(|(p, n)| {
             if p % 2 == 0 {
+                // if it's an even array index we insert `n` elements
                 for i in 1..*n {
                     assert_eq!(map.insert(i, i * 10), None);
                     len += 1;
@@ -295,6 +347,7 @@ fn alternating_inserts_and_remove_works() {
                     }
                 }
             } else {
+                // on odd indices we remove `n` elements
                 for i in 1..*n {
                     assert_eq!(map.get(&i), Some(&(i * 10)));
                     assert_eq!(map.remove(&i), Some(i * 10));
@@ -376,46 +429,6 @@ fn complex_trees_work() {
 
         let xs = [-2, -66, -44, 34, -6, 62, 2, 6, -30, -70, 30, -62, 7, -44, 7];
         insert_and_remove(xs.to_vec());
-    })
-}
-
-#[test]
-fn simple_insert_and_removal() {
-    run_test(|| {
-        // given
-        let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10];
-        let mut map = empty_map();
-        let mut len = map.len();
-        xs.iter().for_each(|i| {
-            if let None = map.insert(*i, i * 10) {
-                len += 1;
-            }
-            assert_eq!(map.len(), len);
-        });
-        let max_node_count = map.header().node_count;
-
-        xs.iter().for_each(|k| {
-            let v = *k * 10;
-            assert_eq!(map.get(k), Some(&v));
-            assert_eq!(map.contains_key(k), true);
-            assert_eq!(map.get_key_value(k), Some((k, &v)));
-        });
-
-        // when
-        xs.iter().for_each(|i| {
-            if let Some(v) = map.remove(&i) {
-                assert_eq!(v, i * 10);
-                len -= 1;
-            };
-            assert_eq!(map.len(), len);
-        });
-
-        // then
-        assert_eq!(map.len(), 0);
-        assert_eq!(map.header().node_count, 0);
-        for i in 0..max_node_count {
-            assert!(map.get_node(&NodeHandle::new(i)).is_none());
-        }
     })
 }
 
