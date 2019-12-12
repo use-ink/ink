@@ -274,7 +274,9 @@ where
                 Leaf => return self.first_edge(&handle),
                 Internal => {
                     let first_edge = self.first_edge(&handle);
-                    handle = self.descend(first_edge).expect("every internal node has children; qed");
+                    handle = self
+                        .descend(first_edge)
+                        .expect("every internal node has children; qed");
                 }
             }
         }
