@@ -1665,7 +1665,7 @@ where
     pub fn key(&self) -> &K {
         self.tree
             .get_kv(self.handle)
-            .expect("each occupied entry always has a key/value pair; qed")
+            .expect("every occupied entry always has a key/value pair; qed")
             .0
     }
 
@@ -1687,7 +1687,7 @@ where
     pub fn get(&self) -> &V {
         self.tree
             .get_kv(self.handle)
-            .expect("each occupied entry always has a key/value pair; qed")
+            .expect("every occupied entry always has a key/value pair; qed")
             .1
     }
 
@@ -1713,7 +1713,10 @@ where
     /// assert_eq!(map["poneyland"], 24);
     /// ```
     pub fn get_mut(&mut self) -> &mut V {
-        self.kv_mut().1
+        self
+            .kv_mut()
+            .expect("every occupied entry always has a key/value pair; qed")
+            .1
     }
 
     /// Converts the entry into a mutable reference to its value.
@@ -1738,7 +1741,10 @@ where
     /// assert_eq!(map["poneyland"], 22);
     /// ```
     pub fn into_mut(self) -> &'a mut V {
-        self.into_kv_mut().1
+        self
+            .into_kv_mut()
+            .expect("every occupied entry always has a key/value pair; qed")
+            .1
     }
 
     /// Takes the value of the entry out of the map, and returns it.
@@ -1764,33 +1770,31 @@ where
 
     /// Inserts a value into this entry.
     fn insert(&mut self, value: V) -> Option<V> {
-        let node = self.tree.get_node_mut(&self.handle.into()).expect(
-            "[ink_core::BTreeMap::take] Error: \
-             we already asserted that the entry at `n` exists",
-        );
+        let node = self
+            .tree
+            .get_node_mut(&self.handle.into())
+            .expect("every occupied entry always belongs to a node; qed");
         node.vals[self.handle.idx()].replace(value)
     }
 
-    fn kv_mut(&mut self) -> (&mut K, &mut V) {
+    fn kv_mut(&mut self) -> Option<(&mut K, &mut V)> {
         let idx = self.handle.idx();
         let node = self
             .tree
-            .get_node_mut(&self.handle.into())
-            .expect("node on occupied entry must exist");
-        let k = node.keys[idx].as_mut().expect("key must exist");
-        let v = node.vals[idx].as_mut().expect("val must exist");
-        (k, v)
+            .get_node_mut(&self.handle.into())?;
+        let k = node.keys[idx].as_mut()?;
+        let v = node.vals[idx].as_mut()?;
+        Some((k, v))
     }
 
-    fn into_kv_mut(self) -> (&'a mut K, &'a mut V) {
+    fn into_kv_mut(self) -> Option<(&'a mut K, &'a mut V)> {
         let idx = self.handle.idx();
         let node = self
             .tree
-            .get_node_mut(&self.handle.into())
-            .expect("node to get kv pairs from must exist");
-        let k = node.keys[idx].as_mut().expect("key must exist");
-        let v = node.vals[idx].as_mut().expect("val must exist");
-        (k, v)
+            .get_node_mut(&self.handle.into())?;
+        let k = node.keys[idx].as_mut()?;
+        let v = node.vals[idx].as_mut()?;
+        Some((k, v))
     }
 }
 
