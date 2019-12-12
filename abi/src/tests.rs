@@ -159,7 +159,7 @@ fn spec_contract_json() {
                                 "displayName": [
                                     4
                                 ],
-                                "ty": 1
+                                "id": 1
                             }
                         }
                     ],
@@ -185,7 +185,7 @@ fn spec_contract_json() {
                                 "displayName": [
                                     4
                                 ],
-                                "ty": 1
+                                "id": 1
                             }
                         }
                     ],
@@ -204,7 +204,7 @@ fn spec_contract_json() {
                         "displayName": [
                             4
                         ],
-                        "ty": 1
+                        "id": 1
                     },
                     "selector": "0x25444afe"
                 }

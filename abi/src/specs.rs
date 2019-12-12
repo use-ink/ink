@@ -575,7 +575,7 @@ pub type DisplayName<F> = type_metadata::Namespace<F>;
 #[serde(rename_all = "camelCase")]
 pub struct TypeSpec<F: Form = MetaForm> {
     /// The actual type.
-    ty: F::TypeId,
+    id: F::TypeId,
     /// The compile-time known displayed representation of the type.
     display_name: DisplayName<F>,
 }
@@ -585,7 +585,7 @@ impl IntoCompact for TypeSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         TypeSpec {
-            ty: registry.register_type(&self.ty),
+            id: registry.register_type(&self.id),
             display_name: self.display_name.into_compact(registry),
         }
     }
@@ -628,7 +628,7 @@ impl TypeSpec {
         S: IntoIterator<Item = <MetaForm as Form>::String>,
     {
         Self {
-            ty: T::meta_type(),
+            id: T::meta_type(),
             display_name: DisplayName::new(segments).expect("display name is invalid"),
         }
     }
@@ -639,7 +639,7 @@ impl TypeSpec {
         T: Metadata,
     {
         Self {
-            ty: T::meta_type(),
+            id: T::meta_type(),
             display_name: DisplayName::prelude(),
         }
     }
