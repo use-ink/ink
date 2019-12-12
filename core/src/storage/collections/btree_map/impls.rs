@@ -928,7 +928,10 @@ where
         let len = node.len();
 
         if len < CAPACITY {
-            let h = KVHandle::new(handle.node, search::search_linear(node, &key).0);
+            let h = match search::search_node(node, handle.node, &key) {
+                Found(h) => h,
+                NotFound(h) => h,
+            };
             let res = self.insert_fit(h, key, val);
             self.header.len += 1;
             (Fit(handle), res)
@@ -961,7 +964,10 @@ where
         let len = node.len();
 
         if len < CAPACITY {
-            let h = KVHandle::new(handle.node, search::search_linear(node, &key).0);
+            let h = match search::search_node(node, handle.node, &key) {
+                Found(h) => h,
+                NotFound(h) => h,
+            };
             self.insert_fit_edge(h, key, val, edge);
             Fit(h)
         } else {

@@ -45,8 +45,8 @@ fn filled_map() -> BTreeMap<i32, i32> {
     map
 }
 
-/// Just for debugging purposes.
-pub fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
+/// Returns all edges in the tree as one Vec.
+fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
     let mut v = Vec::new();
     let mut i = 0;
     let mut cnt = 0;
@@ -54,37 +54,32 @@ pub fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
         if i == map.header().node_count {
             break
         }
-        let nd = NodeHandle::new(cnt);
-        let node = map.get_node(&nd);
-        if let None = node {
-            cnt += 1;
-            continue
-        }
-        let node = node.expect("some node");
-        let mut edges = node.edges.to_vec().into_iter().filter_map(|x| x).collect();
-        v.append(&mut edges);
 
-        i += 1;
+        // We iterate over all storage entities of the tree and skip vacant entities.
+        let handle = NodeHandle::new(cnt);
+        if let Some(node) = map.get_node(&handle) {
+            let mut edges = node.edges.to_vec().into_iter().filter_map(|x| x).collect();
+            v.append(&mut edges);
+            i += 1;
+        }
         cnt += 1;
     }
     v
 }
 
-fn every_edge_only_once(map: &BTreeMap<i32, i32>) -> bool {
-    let ed = all_edges(map);
+fn every_edge_exists_only_once(map: &BTreeMap<i32, i32>) -> bool {
+    let all_edges = all_edges(map);
+    let uniqued: Vec<u32> = all_edges.clone().into_iter().unique().collect();
 
-    let ed1 = ed.clone();
-    let uniqued: Vec<u32> = ed1.into_iter().unique().collect();
-    let res = ed.len() == uniqued.len();
-    if res == false {
+    let only_unique_edges = all_edges.len() == uniqued.len();
+    if only_unique_edges == false {
         uniqued.iter().for_each(|x| {
-            let cnt = ed.iter().filter(|a| *a == x).count();
-            if cnt > 1 {
+            if all_edges.iter().any(|a| *a == *x) {
                 eprintln!("duplicate {:?}", x);
             }
         });
     }
-    res
+    only_unique_edges
 }
 
 fn insert_and_remove(xs: Vec<i32>) {
@@ -114,7 +109,7 @@ fn insert_and_remove(xs: Vec<i32>) {
             }
             previous_i = None;
         }
-        assert!(every_edge_only_once(&map));
+        assert!(every_edge_exists_only_once(&map));
     });
 }
 
@@ -340,7 +335,7 @@ fn sorted_insert_and_removal() {
             len += 1;
             max_node_count += map.header().node_count;
             assert_eq!(map.len(), len);
-            assert!(every_edge_only_once(&map));
+            assert!(every_edge_exists_only_once(&map));
         });
 
         // when
@@ -350,7 +345,7 @@ fn sorted_insert_and_removal() {
             assert_eq!(map.remove(&i), Some(i * 10));
             len -= 1;
             assert_eq!(map.len(), len);
-            assert!(every_edge_only_once(&map));
+            assert!(every_edge_exists_only_once(&map));
         });
 
         // then

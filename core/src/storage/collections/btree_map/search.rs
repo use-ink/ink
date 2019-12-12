@@ -54,11 +54,12 @@ where
         return NotFound(KVHandle::new(0, 0))
     }
 
-    let mut cur = current_root.expect("46");
+    let mut cur =
+        current_root.expect("we would already have returned if no root exists; qed");
     loop {
         let node = tree.get_node(&cur.into()).expect(
             "node which is iterated over is either root or child node, \
-             but always exists; qed",
+             but it always exists; qed",
         );
         match search_node(&node, cur, key) {
             Found(handle) => return Found(handle),
@@ -79,21 +80,15 @@ where
     }
 }
 
-/// Searches for `key` in the elements contained in a particular node .
-fn search_node<K, V, Q>(node: &Node<K, V>, node_index: u32, key: &Q) -> SearchResult
-where
-    Q: Ord,
-    K: Borrow<Q>,
-{
-    match search_linear(node, key) {
-        (idx, true) => Found(KVHandle::new(node_index, idx)),
-        (idx, false) => NotFound(KVHandle::new(node_index, idx)),
-    }
-}
-
-/// Conducts a linear search for `key` in the elements contained in a node.
-/// Returns `(last_position_searched, true_if_found)`.
-pub fn search_linear<K, V, Q>(node: &Node<K, V>, key: &Q) -> (u32, bool)
+/// Conducts a linear search for `key` in the elements contained in `node`.
+///
+/// If found returns `Found(pos)`
+/// If not found returns `NotFound(last_pos_searched)`.
+pub(super) fn search_node<K, V, Q>(
+    node: &Node<K, V>,
+    node_index: u32,
+    key: &Q,
+) -> SearchResult
 where
     Q: Ord,
     K: Borrow<Q>,
@@ -102,15 +97,15 @@ where
     for (i, k) in iter {
         let i = i as u32;
         match k {
-            None => return (i, false),
+            None => return NotFound(KVHandle::new(node_index, i)),
             Some(node_key) => {
                 match key.cmp(node_key.borrow()) {
                     Ordering::Greater => {}
-                    Ordering::Equal => return (i, true),
-                    Ordering::Less => return (i, false),
+                    Ordering::Equal => return Found(KVHandle::new(node_index, i)),
+                    Ordering::Less => return NotFound(KVHandle::new(node_index, i)),
                 }
             }
         }
     }
-    (node.len, false)
+    NotFound(KVHandle::new(node_index, node.len))
 }
