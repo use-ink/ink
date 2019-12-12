@@ -1713,8 +1713,7 @@ where
     /// assert_eq!(map["poneyland"], 24);
     /// ```
     pub fn get_mut(&mut self) -> &mut V {
-        self
-            .kv_mut()
+        self.kv_mut()
             .expect("every occupied entry always has a key/value pair; qed")
             .1
     }
@@ -1741,8 +1740,7 @@ where
     /// assert_eq!(map["poneyland"], 22);
     /// ```
     pub fn into_mut(self) -> &'a mut V {
-        self
-            .into_kv_mut()
+        self.into_kv_mut()
             .expect("every occupied entry always has a key/value pair; qed")
             .1
     }
@@ -1779,9 +1777,7 @@ where
 
     fn kv_mut(&mut self) -> Option<(&mut K, &mut V)> {
         let idx = self.handle.idx();
-        let node = self
-            .tree
-            .get_node_mut(&self.handle.into())?;
+        let node = self.tree.get_node_mut(&self.handle.into())?;
         let k = node.keys[idx].as_mut()?;
         let v = node.vals[idx].as_mut()?;
         Some((k, v))
@@ -1789,9 +1785,7 @@ where
 
     fn into_kv_mut(self) -> Option<(&'a mut K, &'a mut V)> {
         let idx = self.handle.idx();
-        let node = self
-            .tree
-            .get_node_mut(&self.handle.into())?;
+        let node = self.tree.get_node_mut(&self.handle.into())?;
         let k = node.keys[idx].as_mut()?;
         let v = node.vals[idx].as_mut()?;
         Some((k, v))
