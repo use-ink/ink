@@ -31,6 +31,15 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 | ------------- | ------------- | ------------- |
 | [![][h1]][h2] | [![][f1]][f2] | [![][g1]][g2] |
 
+### Interaction with Substrate
+
+Susbtrate contains the `frame-contracts` module, which provides a generic
+smart contract interface for Wasm blobs. It takes care of e.g. state rent,
+storage, costs, etc..
+
+ink! is a smart contract language which targets the interface exposed by
+`frame-contracts`. As such, ink! smart contracts are compiled to Wasm.
+
 ### Scripts
 
 Use the scripts provided under `scripts` directory in order to run checks on either the workspace or all examples. Please do this before pushing work in a PR.
