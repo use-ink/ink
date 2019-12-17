@@ -83,6 +83,8 @@ control-trigger:
   variables:
     SUBSTRATE_VERSION:             tbd
     SUBSTRATE_COMMIT:              $CI_COMMIT_SHA
+    SUBSTRATE_JOB_ID:              $CI_JOB_ID
+    SUBSTRATE_JOB_URL:             $CI_JOB_URL
   trigger:
     project:                       parity/srml-contracts-waterfall
     branch:                        "26"
