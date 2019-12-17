@@ -88,7 +88,7 @@ control-trigger:
   stage:                           workspace
   trigger:
     project: parity/srml-contracts-waterfall
-    branch: "240"
+    branch: "26"
 
 build-std:
   stage:                           workspace
