@@ -81,6 +81,7 @@ check-wasm:
 control-trigger:
   stage:                           workspace
   variables:
+    CARGO_TARGET_DIR:              ""
     SUBSTRATE_VERSION:             tbdn
     SUBSTRATE_COMMIT:              $CI_COMMIT_SHA
     SUBSTRATE_JOB_ID:              $CI_JOB_ID
