@@ -14,9 +14,7 @@ variables:
   GIT_STRATEGY:                    fetch
   GIT_DEPTH:                       "3"
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
-  # CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/target/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
-  # CARGO_INCREMENTAL:               0
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
   ALL_CRATES:                      "core alloc utils lang2 lang2/macro"
@@ -65,10 +63,6 @@ check-std:
   stage:                           check
   <<:                              *docker-env
   script:
-    # debug
-    - echo $CARGO_TARGET_DIR
-    # - du -sh /ci-cache/${CI_PROJECT_NAME}/target/*
-    - du -sh /ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/*
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
@@ -86,9 +80,13 @@ check-wasm:
 
 control-trigger:
   stage:                           workspace
+  variables:
+    SUBSTRATE_VERSION:             tbd
+    SUBSTRATE_COMMIT:              $CI_COMMIT_SHA
   trigger:
-    project: parity/srml-contracts-waterfall
-    branch: "26"
+    project:                       parity/srml-contracts-waterfall
+    branch:                        "26"
+    strategy:                      depend
 
 build-std:
   stage:                           workspace
