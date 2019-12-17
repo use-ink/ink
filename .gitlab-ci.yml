@@ -62,7 +62,7 @@ variables:
 #### stage:                        check
 
 control-trigger:
-  stage: deploy
+  stage:                           check
   trigger:
     project: parity/srml-contracts-waterfall
     branch: master
