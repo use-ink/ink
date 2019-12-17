@@ -61,12 +61,6 @@ variables:
 
 #### stage:                        check
 
-control-trigger:
-  stage:                           check
-  trigger:
-    project: parity/srml-contracts-waterfall
-    # branch: master
-
 check-std:
   stage:                           check
   <<:                              *docker-env
@@ -89,6 +83,12 @@ check-wasm:
 
 
 #### stage:                        workspace
+
+control-trigger:
+  stage:                           workspace
+  trigger:
+    project: parity/srml-contracts-waterfall
+    branch: 240
 
 build-std:
   stage:                           workspace
