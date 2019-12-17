@@ -61,6 +61,12 @@ variables:
 
 #### stage:                        check
 
+control-trigger:
+  stage: deploy
+  trigger:
+    project: parity/srml-contracts-waterfall
+    branch: master
+
 check-std:
   stage:                           check
   <<:                              *docker-env
