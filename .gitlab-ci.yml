@@ -17,7 +17,7 @@ variables:
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
-  ALL_CRATES:                      "core alloc utils lang2 lang2/macro"
+  ALL_CRATES:                      "core alloc prelude utils lang2 lang2/macro"
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
