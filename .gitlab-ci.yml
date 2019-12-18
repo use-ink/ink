@@ -78,19 +78,6 @@ check-wasm:
 
 #### stage:                        workspace
 
-control-trigger:
-  stage:                           workspace
-  variables:
-    CARGO_TARGET_DIR:              ""
-    SUBSTRATE_VERSION:             tbdn
-    SUBSTRATE_COMMIT:              $CI_COMMIT_SHA
-    SUBSTRATE_JOB_ID:              $CI_JOB_ID
-    SUBSTRATE_JOB_URL:             $CI_JOB_URL
-  trigger:
-    project:                       parity/srml-contracts-waterfall
-    branch:                        "26"
-    strategy:                      depend
-
 build-std:
   stage:                           workspace
   <<:                              *docker-env
@@ -144,8 +131,6 @@ clippy-wasm:
 fmt:
   stage:                           workspace
   <<:                              *docker-env
-  needs:
-    - check-std
   script:
     - cargo fmt --verbose --all -- --check
 
@@ -160,8 +145,6 @@ fmt:
 examples-test:
   stage:                           examples
   <<:                              *docker-env
-  needs:
-    - build-std
   script:
     - for example in examples/lang2/*; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
@@ -170,8 +153,6 @@ examples-test:
 examples-fmt:
   stage:                           examples
   <<:                              *docker-env
-  needs:
-    - build-std
   script:
     - for example in examples/lang2/*; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
@@ -180,8 +161,6 @@ examples-fmt:
 examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
-  needs:
-    - build-std
   script:
     - for example in examples/lang2/*; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
@@ -190,8 +169,6 @@ examples-clippy-std:
 examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
-  needs:
-    - build-wasm
   script:
     - for example in examples/lang2/*; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
