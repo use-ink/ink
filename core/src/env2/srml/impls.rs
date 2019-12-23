@@ -22,6 +22,7 @@ use scale::{
 use crate::{
     env2::{
         call::{
+            CallData,
             CallParams,
             CreateParams,
             ReturnType,
@@ -349,10 +350,9 @@ where
         ext::deposit_event(topics, data);
     }
 
-    fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
+    fn invoke_runtime<O>(buffer: &mut O, call_data: &CallData)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        V: scale::Encode,
     {
         buffer.reset();
         call_data.encode_to(buffer);

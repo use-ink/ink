@@ -17,6 +17,7 @@ use scale::Codec;
 use crate::{
     env2::{
         call::{
+            CallData,
             CallParams,
             CreateParams,
             ReturnType,
@@ -147,10 +148,9 @@ pub trait Env:
         Event: Topics<Self> + scale::Encode;
 
     /// Invokes a runtime dispatchable function with the given call data.
-    fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
+    fn invoke_runtime<O>(buffer: &mut O, call_data: &CallData)
     where
-        O: scale::Output + AsRef<[u8]> + Reset,
-        V: scale::Encode;
+        O: scale::Output + AsRef<[u8]> + Reset;
 
     /// Restores the contract to the given address.
     ///
