@@ -421,10 +421,9 @@ where
         })
     }
 
-    fn invoke_runtime<O, V>(_buffer: &mut O, call_data: V)
+    fn invoke_runtime<O>(_buffer: &mut O, call_data: &<Self as EnvTypes>::Call)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        V: Into<<Self as EnvTypes>::Call>,
     {
         // With the off-chain test environment we have no means
         // to emit an event on the chain since there is no chain.
@@ -436,9 +435,7 @@ where
             instance
                 .borrow_mut()
                 .records
-                .push(Record::from(InvokeRuntimeRecord::new(
-                    call_data.into().encode(),
-                )));
+                .push(Record::from(InvokeRuntimeRecord::new(call_data.encode())));
         })
     }
 
