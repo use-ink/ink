@@ -349,13 +349,13 @@ where
         ext::deposit_event(topics, data);
     }
 
-    fn invoke_runtime<O, V>(buffer: &mut O, call_data: &V)
+    fn invoke_runtime<O, V>(buffer: &mut O, call_data: V)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        V: scale::Encode,
+        V: Into<<Self as EnvTypes>::Call>,
     {
         buffer.reset();
-        call_data.encode_to(buffer);
+        call_data.into().encode_to(buffer);
         ext::dispatch_call(buffer.as_ref());
     }
 
