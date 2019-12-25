@@ -349,7 +349,7 @@ where
         ext::deposit_event(topics, data);
     }
 
-    fn invoke_runtime<O, V>(buffer: &mut O, call_data: &<Self as EnvTypes>::Call)
+    fn invoke_runtime<O>(buffer: &mut O, call_data: &<Self as EnvTypes>::Call)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
     {
