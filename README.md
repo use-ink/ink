@@ -33,12 +33,10 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 
 ### Interaction with Substrate
 
-Susbtrate contains the `frame-contracts` module, which provides a generic
-smart contract interface for Wasm blobs. It takes care of e.g. state rent,
-storage, costs, etc..
+Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/next/conceptual/runtime/frame) contains the `contracts` pallet, which provides a generic smart contract interface for Wasm blobs. It takes care of e.g. state rent, storage, costs, etc..
 
 ink! is a smart contract language which targets the interface exposed by
-`frame-contracts`. As such, ink! smart contracts are compiled to Wasm.
+`contracts`. As such, ink! smart contracts are compiled to Wasm.
 
 ### Scripts
 
