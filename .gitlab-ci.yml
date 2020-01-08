@@ -37,13 +37,11 @@ variables:
     - ./scripts/pre_cache.sh
     - sccache -s
   only:
-    # - master
-    # - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
-    # - schedules
-    # - web
-    # - /^[0-9]+$/                   # PRs
-    - staging
-    - trying
+    - master
+    - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+    - schedules
+    - web
+    - /^[0-9]+$/                   # PRs
   dependencies:                    []
   interruptible:                   true
   retry:
@@ -181,7 +179,7 @@ examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in examples/*/; do
+    - for example in examples/*/; do  
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
 
