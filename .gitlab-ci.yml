@@ -65,17 +65,9 @@ check-std:
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-      done
-
-
 #### stage:                        workspace
 
+<<<<<<< HEAD
 build-std:
   stage:                           workspace
   <<:                              *docker-env
@@ -131,6 +123,8 @@ codecov:
     # however this job seems to be more tricky than we hoped.
     - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
 
+=======
+>>>>>>> less tests
 clippy-std:
   stage:                           workspace
   <<:                              *docker-env
@@ -141,6 +135,7 @@ clippy-std:
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
 
+<<<<<<< HEAD
 clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
@@ -161,6 +156,8 @@ fmt:
 <<<<<<< HEAD
 .update-cargo-contract:            &update-cargo-contract
 =======
+=======
+>>>>>>> less tests
 #### stage:                        examples
 
 .update-cargo-contract:            &update-cargo-contract 
@@ -180,12 +177,13 @@ examples-test:
       done 
 
 examples-fmt:
-  stage:                           examples
+  stage:                           examples 
   <<:                              *docker-env
   script:
     - for example in examples/lang2/*; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
+<<<<<<< HEAD
 
 examples-clippy-std:
   stage:                           examples
@@ -275,3 +273,5 @@ publish-docs:
     - git push origin gh-pages --force
   after_script:
     - rm -rf .git/ ./*
+=======
+>>>>>>> less tests
