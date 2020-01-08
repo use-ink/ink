@@ -78,46 +78,7 @@ check-std:
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-      done
-
-
 #### stage:                        workspace
-
-build-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-std
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
-      done
-
-build-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-wasm
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-      done
-
-test:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-std
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
-      done
 
 clippy-std:
   stage:                           workspace
@@ -129,37 +90,7 @@ clippy-std:
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
 
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-wasm
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  script:
-    - cargo fmt --verbose --all -- --check
-
-
 #### stage:                        examples
-
-.update-cargo-contract:            &update-cargo-contract
-  # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
-  - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
-  - cargo contract -V
-
-examples-test:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/*/; do
-        cargo test --verbose --manifest-path ${example}/Cargo.toml;
-      done
 
 examples-fmt:
   stage:                           examples
@@ -168,82 +99,3 @@ examples-fmt:
     - for example in examples/*/; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
-
-examples-clippy-std:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
-      done
-
-examples-clippy-wasm:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-examples-contract-build:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - *update-cargo-contract
-    - for example in examples/*/; do
-        pushd $example &&
-        cargo contract build &&
-        popd;
-      done
-
-examples-generate-metadata:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - *update-cargo-contract
-    - for example in examples/*/; do
-        pushd $example &&
-        cargo contract generate-metadata &&
-        popd;
-      done
-
-#### stage:                        publish
-
-publish-docs:
-  stage:                           publish
-  <<:                              *docker-env
-  variables:
-    GIT_DEPTH:                     0
-  only:
-    - master
-    - schedules
-    - tags
-  script:
-    - rm -rf /tmp/*
-    - unset CARGO_TARGET_DIR
-    # Set git config
-    - rm .git/config
-    - git config user.email "devops-team@parity.io"
-    - git config user.name "${GITHUB_USER}"
-    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
-    - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    - git fetch origin gh-pages
-    # Generating Docs
-    - time cargo doc --no-deps --all-features
-        -p type-metadata -p ink_abi -p ink_abi_derive -p ink_core -p ink_core_derive
-        -p ink_primitives -p ink_prelude -p ink_lang -p ink_lang_macro
-    # saving README and docs
-    - mv target/doc/ /tmp/
-    - cp README.md /tmp/doc/
-    - git checkout gh-pages
-    - mv _config.yml /tmp/doc/
-    # remove everything and restore generated docs, README and Jekyll config
-    - rm -rf ./*
-    - mv /tmp/doc/* .
-    # Upload files
-    - git add --all --force
-    - git status
-    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
-    - git push origin gh-pages --force
-  after_script:
-    - rm -rf .git/ ./*
