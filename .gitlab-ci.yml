@@ -66,15 +66,6 @@ check-std:
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-      done
-
-
 #### stage:                        workspace
 
 build-std:
@@ -141,23 +132,6 @@ clippy-std:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
-
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-wasm
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  script:
-    - cargo fmt --verbose --all -- --check
-
 
 #### stage:                        examples
 
