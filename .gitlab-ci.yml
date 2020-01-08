@@ -131,8 +131,6 @@ clippy-std:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
- 
-#### stage:                        examples
 
 clippy-wasm:
   stage:                           workspace
