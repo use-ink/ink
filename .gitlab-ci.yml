@@ -9,7 +9,6 @@ stages:
   - check
   - workspace
   - examples
-  - publish
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -17,7 +16,7 @@ variables:
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
-  ALL_CRATES:                      "core alloc prelude primitives lang lang/macro"
+  ALL_CRATES:                      "core alloc prelude utils lang2 lang2/macro"
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
@@ -37,11 +36,13 @@ variables:
     - ./scripts/pre_cache.sh
     - sccache -s
   only:
-    - master
-    - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
-    - schedules
-    - web
-    - /^[0-9]+$/                   # PRs
+    # - master
+    # - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+    # - schedules
+    # - web
+    # - /^[0-9]+$/                   # PRs
+    - staging
+    - trying
   dependencies:                    []
   interruptible:                   true
   retry:
@@ -63,15 +64,6 @@ check-std:
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
-
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-      done
-
 
 #### stage:                        workspace
 
@@ -134,7 +126,7 @@ clippy-std:
   stage:                           workspace
   <<:                              *docker-env
   needs:
-    - check-std2
+    - check-std
   script:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
@@ -179,7 +171,7 @@ examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in examples/*/; do  
+    - for example in examples/lang2/*; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
 
