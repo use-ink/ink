@@ -80,7 +80,7 @@ check-std:
 
 #### stage:                        workspace
 
-clippy-std2:
+clippy-std:
   stage:                           workspace
   <<:                              *docker-env
   needs:
@@ -89,15 +89,10 @@ clippy-std2:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
- 
+
 #### stage:                        examples
 
-.update-cargo-contract:            &update-cargo-contract
-  # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
-  - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
-  - cargo contract -V
-
-examples-fmt2:
+examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   script:
