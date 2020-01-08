@@ -49,13 +49,11 @@ variables:
       fi
     - sccache -s
   only:
-    # - master
-    # - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
-    # - schedules
-    # - web
-    # - /^[0-9]+$/                   # PRs
-    - staging
-    - trying
+    - master
+    - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+    - schedules
+    - web
+    - /^[0-9]+$/                   # PRs
   dependencies:                    []
   interruptible:                   true
   retry:
@@ -89,9 +87,6 @@ check-wasm:
 
 #### stage:                        workspace
 
-<<<<<<< HEAD
-clippy-std2:
-=======
 build-std:
   stage:                           workspace
   <<:                              *docker-env
@@ -123,7 +118,6 @@ test:
       done
 
 clippy-std:
->>>>>>> fetch gitlabciyml from upstream
   stage:                           workspace
   <<:                              *docker-env
   needs:
@@ -132,16 +126,8 @@ clippy-std:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
-<<<<<<< HEAD
-<<<<<<< HEAD
- 
-#### stage:                        examples
-
-=======
 
 #### stage:                        examples
-
-=======
 
 clippy-wasm:
   stage:                           workspace
@@ -162,20 +148,11 @@ fmt:
 
 #### stage:                        examples
 
->>>>>>> fetch gitlabciyml from upstream
 .update-cargo-contract:            &update-cargo-contract
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
   - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
   - cargo contract -V
 
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> conflicting changes
-examples-fmt:
-=======
-examples-fmt2:
->>>>>>> adding another conflict
-=======
 examples-test:
   stage:                           examples
   <<:                              *docker-env
@@ -185,11 +162,10 @@ examples-test:
       done
 
 examples-fmt:
->>>>>>> fetch gitlabciyml from upstream
   stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in examples/*/; do
+    - for example in examples/*/; do  
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
 
