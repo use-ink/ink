@@ -55,7 +55,7 @@ variables:
 
 #### stage:                        check
 
-check-std:
+check-std2:
   stage:                           check
   <<:                              *docker-env
   script:
