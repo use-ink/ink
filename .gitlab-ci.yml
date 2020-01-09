@@ -89,8 +89,8 @@ clippy-std:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
-
-#### stage:                        examples
+ 
+#### stage:                        examples 
 
 .update-cargo-contract:            &update-cargo-contract
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
