@@ -156,7 +156,13 @@ fmt:
     - cargo fmt --verbose --all -- --check
 
 
+<<<<<<< HEAD
 .update-cargo-contract:            &update-cargo-contract
+=======
+#### stage:                        examples
+
+.update-cargo-contract:            &update-cargo-contract 
+>>>>>>> trigger CI
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
   - cargo install cargo-contract || echo $?
   - cargo contract -V
