@@ -57,7 +57,7 @@ variables:
 
 #### stage:                        check
 
-check-std:
+check-std2:
   stage:                           check
   <<:                              *docker-env
   script:
@@ -67,6 +67,7 @@ check-std:
 
 #### stage:                        workspace
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 build-std:
   stage:                           workspace
@@ -126,6 +127,9 @@ codecov:
 =======
 >>>>>>> less tests
 clippy-std:
+=======
+clippy-std2:
+>>>>>>> adding another conflict
   stage:                           workspace
   <<:                              *docker-env
   needs:
@@ -179,7 +183,16 @@ fmt:
   - cargo contract -V 
 >>>>>>> conflicting changes
 
+<<<<<<< HEAD
 examples-test:
+=======
+<<<<<<< HEAD
+>>>>>>> conflicting changes
+examples-fmt:
+=======
+examples-fmt2:
+>>>>>>> adding another conflict
+>>>>>>> adding another conflict
   stage:                           examples
   <<:                              *docker-env
   needs:
