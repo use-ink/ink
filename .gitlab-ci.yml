@@ -61,7 +61,7 @@ variables:
 
 #### stage:                        check
 
-check-std:
+check-std2:
   stage:                           check
   <<:                              *docker-env
   script:
@@ -80,11 +80,11 @@ check-wasm:
 
 #### stage:                        workspace
 
-clippy-std:
+clippy-std2:
   stage:                           workspace
   <<:                              *docker-env
   needs:
-    - check-std
+    - check-std2
   script:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
@@ -97,7 +97,7 @@ clippy-std:
   - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
   - cargo contract -V
 
-examples-fmt:
+examples-fmt2:
   stage:                           examples
   <<:                              *docker-env
   script:
