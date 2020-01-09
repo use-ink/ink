@@ -161,8 +161,12 @@ fmt:
 >>>>>>> less tests
 =======
  
+<<<<<<< HEAD
 >>>>>>> trigger pipeline
 #### stage:                        examples
+=======
+#### stage:                        examples 
+>>>>>>> triggering a merge conflict
 
 .update-cargo-contract:            &update-cargo-contract 
 >>>>>>> trigger CI
