@@ -94,4 +94,4 @@ examples-fmt:
   script:
     - for example in examples/lang2/*; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-      done
+      done 
