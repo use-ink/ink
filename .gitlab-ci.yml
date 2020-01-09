@@ -126,7 +126,7 @@ clippy-std:
   stage:                           workspace
   <<:                              *docker-env
   needs:
-    - check-std
+    - check-std2
   script:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
