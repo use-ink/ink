@@ -61,7 +61,7 @@ variables:
 
 #### stage:                        check
 
-check-std2:
+check-std:
   stage:                           check
   <<:                              *docker-env
   script:
@@ -69,35 +69,21 @@ check-std2:
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-      done
-
-
 #### stage:                        workspace
 
-clippy-std2:
+clippy-std:
   stage:                           workspace
   <<:                              *docker-env
   needs:
-    - check-std2
+    - check-std
   script:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
-
+ 
 #### stage:                        examples
 
-.update-cargo-contract:            &update-cargo-contract
-  # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
-  - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
-  - cargo contract -V
-
-examples-fmt2:
+examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   script:
