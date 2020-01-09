@@ -148,6 +148,9 @@ examples-test:
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
 
+
+#### stage:                        examples
+
 examples-fmt:
   stage:                           examples
   <<:                              *docker-env
