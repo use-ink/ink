@@ -148,7 +148,7 @@ examples-test:
   script:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
-      done
+      done 
 
 examples-fmt:
   stage:                           examples
