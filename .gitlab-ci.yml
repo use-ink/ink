@@ -40,11 +40,11 @@ variables:
     - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
     - sccache -s
   only:
-    # - master
-    # - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
-    # - schedules
-    # - web
-    # - /^[0-9]+$/                   # PRs
+    - master
+    - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
+    - schedules
+    - web
+    - /^[0-9]+$/                   # PRs
     - staging
     - trying
   dependencies:                    []
@@ -80,36 +80,6 @@ check-wasm:
 
 #### stage:                        workspace
 
-build-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-std
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
-      done
-
-build-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-wasm
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-      done
-
-test:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-std
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
-      done
-
 clippy-std:
   stage:                           workspace
   <<:                              *docker-env
@@ -120,23 +90,6 @@ clippy-std:
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
 
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-wasm
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  script:
-    - cargo fmt --verbose --all -- --check
-
-
 #### stage:                        examples
 
 .update-cargo-contract:            &update-cargo-contract
@@ -144,56 +97,10 @@ fmt:
   - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
   - cargo contract -V
 
-examples-test:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/lang2/*; do
-        cargo test --verbose --manifest-path ${example}/Cargo.toml;
-      done
-
 examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   script:
     - for example in examples/lang2/*; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-      done
-
-examples-clippy-std:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/lang2/*; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
-      done
-
-examples-clippy-wasm:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/lang2/*; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-examples-contract-build:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - *update-cargo-contract
-    - for example in examples/lang2/*; do
-        pushd $example &&
-        cargo contract build &&
-        popd;
-      done
-
-examples-generate-metadata:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - *update-cargo-contract
-    - for example in examples/lang2/*; do
-        pushd $example &&
-        cargo contract generate-metadata &&
-        popd;
       done
