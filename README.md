@@ -4,7 +4,7 @@
 | :----------------: | :------------------: | :--------------------: | :--------------: |
 | [![linux][a1]][a2] | [![codecov][c1]][c2] | [![coveralls][d1]][d2] | [![loc][e1]][e2] |
 
-[a1]: https://gitlab.parity.io/parity/ink/badges/master/build.svg
+[a1]: https://gitlab.parity.io/parity/ink/badges/master/pipeline.svg
 [a2]: https://gitlab.parity.io/parity/ink/pipelines
 [c1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
 [c2]: https://codecov.io/gh/paritytech/ink/branch/master
