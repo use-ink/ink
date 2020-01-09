@@ -61,7 +61,7 @@ variables:
 
 #### stage:                        check
 
-check-std:
+check-std2:
   stage:                           check
   <<:                              *docker-env
   script:
@@ -71,7 +71,7 @@ check-std:
 
 #### stage:                        workspace
 
-clippy-std:
+clippy-std2:
   stage:                           workspace
   <<:                              *docker-env
   needs:
