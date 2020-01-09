@@ -137,7 +137,7 @@ fmt:
 
 #### stage:                        examples
 
-.update-cargo-contract:            &update-cargo-contract
+.update-cargo-contract:            &update-cargo-contract 
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
   - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
   - cargo contract -V
