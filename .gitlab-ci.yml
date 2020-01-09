@@ -167,8 +167,13 @@ fmt:
 .update-cargo-contract:            &update-cargo-contract 
 >>>>>>> trigger CI
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
+<<<<<<< HEAD
   - cargo install cargo-contract || echo $?
   - cargo contract -V
+=======
+  - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
+  - cargo contract -V 
+>>>>>>> conflicting changes
 
 examples-test:
   stage:                           examples
