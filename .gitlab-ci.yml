@@ -61,7 +61,7 @@ variables:
 
 #### stage:                        check
 
-check-std:
+check-std2:
   stage:                           check
   <<:                              *docker-env
   script:
@@ -71,7 +71,7 @@ check-std:
 
 #### stage:                        workspace
 
-clippy-std:
+clippy-std2:
   stage:                           workspace
   <<:                              *docker-env
   needs:
@@ -88,7 +88,16 @@ clippy-std:
   - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
   - cargo contract -V 
 
+<<<<<<< HEAD
 examples-test:
+=======
+<<<<<<< HEAD
+>>>>>>> conflicting changes
+examples-fmt:
+=======
+examples-fmt2:
+>>>>>>> adding another conflict
+>>>>>>> adding another conflict
   stage:                           examples
   <<:                              *docker-env
   script:
