@@ -81,7 +81,7 @@ clippy-std:
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
  
-#### stage:                        examples 
+#### stage:                        examples
 
 examples-fmt:
   stage:                           examples
