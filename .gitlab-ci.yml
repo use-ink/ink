@@ -74,7 +74,7 @@ publish-docs:
     - git checkout -b tst-pages
     - git add -f target/docs/*
     # git add .
-    - git commit -m "Update docs to ${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}"
+    - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
     # - git tag -a -f "${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}" -m "Update RPC and config docs to ${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}"
     - echo "__________Upload files__________"
     # this version of git (2.7.4) will dump the token on failure
