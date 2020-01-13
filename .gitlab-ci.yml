@@ -72,7 +72,7 @@ publish-docs:
     # - git push origin 
     - echo "__________Commit files__________"
     - git checkout -b tst-pages
-    - git add -f target/docs/*
+    - git add -f ${CARGO_TARGET_DIR}/docs/*
     # git add .
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
     # - git tag -a -f "${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}" -m "Update RPC and config docs to ${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}"
