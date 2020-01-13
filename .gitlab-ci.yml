@@ -71,7 +71,7 @@ publish-docs:
     - cargo doc --no-deps --all
     # - git push origin 
     - echo "__________Commit files__________"
-    - git checkout -b tst-pages
+    - git checkout tst-pages
     - git add -f ${CARGO_TARGET_DIR}/docs/*
     # git add .
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
