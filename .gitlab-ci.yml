@@ -62,35 +62,21 @@ variables:
 publish-docs:
   stage:                           check
   <<:                              *docker-env
-  # variables:
-  #   GIT_STRATEGY:                  none
   script:
     - echo "__________Set github__________"
     - git config --global user.email "devops-team@parity.io"
     - git config --global user.name "${GITHUB_USER}"
-    - pwd && ls -la
-    # - git clone https://github.com/paritytech/ink.git .
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
-    - git remote -v
     - echo "__________Generating Docs__________"
     - cargo doc --no-deps --all
     - echo "__________Commit files__________"
-    # - git remote add origin https://drgroot:$GITHUB@github.com/drgroot/arange.git
-    - git fetch
-    # - git checkout --track origin/tst-pages
-    # - git checkout -B origin/gh-pages
+    # - git fetch
     - git checkout -b gh-pages
     - mkdir -p target/doc
     - ln -s ${CARGO_TARGET_DIR}/doc/ target/doc
     - git add -f target/doc/
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
-    # - git tag -a -f "${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}" -m "Update RPC and config docs to ${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}"
     - echo "__________Upload files__________"
-    # this version of git (2.7.4) will dump the token on failure
-    # - git push -q origin HEAD 2>&1 \
-    #     sed -r "s|(${GITHUB_USER}):[a-f0-9]+@|\1:REDACTED@|g"
-    # - git push -q -f --tags 2>&1 \
-    #     sed -r "s|(${GITHUB_USER}):[a-f0-9]+@|\1:REDACTED@|g"
     - git push origin gh-pages --force
 
 # check-std:
