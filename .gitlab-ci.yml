@@ -90,7 +90,7 @@ publish-docs:
     #     sed -r "s|(${GITHUB_USER}):[a-f0-9]+@|\1:REDACTED@|g"
     # - git push -q -f --tags 2>&1 \
     #     sed -r "s|(${GITHUB_USER}):[a-f0-9]+@|\1:REDACTED@|g"
-    - git push origin tst-pages # --force
+    - git push origin tst-pages --force
 
 # check-std:
 #   stage:                           check
