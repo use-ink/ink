@@ -70,7 +70,7 @@ publish-docs:
     - git config --global user.name "${GITHUB_USER}"
     - pwd && ls -la
     # - git clone https://github.com/paritytech/ink.git .
-    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/wiki.git"
+    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     - git remote -v
     - echo "__________Generating Docs__________"
     - cargo doc --no-deps --all
