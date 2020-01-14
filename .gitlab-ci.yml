@@ -69,14 +69,13 @@ publish-docs:
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     - echo "__________Generating Docs__________"
     - cargo doc --no-deps --all
-    - echo "__________Commit files__________"
-    # - git fetch
     - git checkout -b gh-pages
+    - echo "__________Symbolic link because these files live in cache__________"
     - mkdir -p target/doc
-    - ln -s ${CARGO_TARGET_DIR}/doc/ target/doc
+    - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc
+    - echo "__________Upload files__________"
     - git add -f target/doc/
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
-    - echo "__________Upload files__________"
     - git push origin gh-pages --force
 
 # check-std:
