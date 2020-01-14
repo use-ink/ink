@@ -69,7 +69,7 @@ publish-docs:
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     - echo "__________Generating Docs__________"
     - cargo doc --no-deps --all
-    - git checkout -b gh-pages
+    - git checkout -b gh-pages || git checkout gh-pages
     - echo "__________Symbolic link because these files live in cache__________"
     - mkdir -p target/doc
     - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc
