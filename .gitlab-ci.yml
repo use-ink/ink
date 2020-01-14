@@ -62,19 +62,21 @@ variables:
 publish-docs:
   stage:                           check
   <<:                              *docker-env
+  variables:
+    GIT_STRATEGY:                  none
   script:
     - echo "__________Set github__________"
     - git config --global user.email "devops-team@parity.io"
-    - git config --global user.name "Devops Team Parity"
-    # git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/wiki.git"
+    - git config --global user.name "${GITHUB_USER}"
+    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/wiki.git"
+    - git pull https://github.com/paritytech/ink.git .
     - echo "__________Generating Docs__________"
     - cargo doc --no-deps --all
-    # - git push origin 
     - echo "__________Commit files__________"
+    # - git remote add origin https://drgroot:$GITHUB@github.com/drgroot/arange.git
     - git fetch
     - git checkout --track origin/tst-pages
     - git add -f ${CARGO_TARGET_DIR}/docs/*
-    # git add .
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
     # - git tag -a -f "${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}" -m "Update RPC and config docs to ${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}"
     - echo "__________Upload files__________"
@@ -83,7 +85,7 @@ publish-docs:
     #     sed -r "s|(${GITHUB_USER}):[a-f0-9]+@|\1:REDACTED@|g"
     # - git push -q -f --tags 2>&1 \
     #     sed -r "s|(${GITHUB_USER}):[a-f0-9]+@|\1:REDACTED@|g"
-    - git push origin gh-pages # --force
+    - git push origin tst-pages # --force
 
 # check-std:
 #   stage:                           check
