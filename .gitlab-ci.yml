@@ -78,7 +78,8 @@ publish-docs:
     # - git remote add origin https://drgroot:$GITHUB@github.com/drgroot/arange.git
     - git fetch
     # - git checkout --track origin/tst-pages
-    - git checkout -B origin/gh-pages
+    # - git checkout -B origin/gh-pages
+    - git checkout -b gh-pages
     - mkdir -p target/doc
     - ln -s ${CARGO_TARGET_DIR}/doc/ target/doc
     - git add -f target/doc/
