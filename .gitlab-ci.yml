@@ -79,7 +79,7 @@ publish-docs:
     - git fetch
     # - git checkout --track origin/tst-pages
     - git checkout -B origin/tst-pages
-    - git add -f ${CARGO_TARGET_DIR}/docs/*
+    - git add -f ${CARGO_TARGET_DIR}/doc/*
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
     # - git tag -a -f "${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}" -m "Update RPC and config docs to ${SCHEDULE_TAG:-${CI_COMMIT_REF_NAME}}"
     - echo "__________Upload files__________"
