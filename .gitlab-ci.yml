@@ -72,7 +72,7 @@ publish-docs:
     - git checkout -b gh-pages || git checkout gh-pages
     - echo "__________Symbolic link because these files live in cache__________"
     - mkdir -p target/doc
-    - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc
+    - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
     - echo "__________Upload files__________"
     - git add -f target/doc/
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
