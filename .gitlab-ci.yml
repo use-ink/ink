@@ -78,7 +78,7 @@ publish-docs:
     # - git remote add origin https://drgroot:$GITHUB@github.com/drgroot/arange.git
     - git fetch
     # - git checkout --track origin/tst-pages
-    - git checkout -B origin/tst-pages
+    - git checkout -B origin/gh-pages
     - mkdir -p target/doc
     - ln -s ${CARGO_TARGET_DIR}/doc/ target/doc
     - git add -f target/doc/
@@ -90,7 +90,7 @@ publish-docs:
     #     sed -r "s|(${GITHUB_USER}):[a-f0-9]+@|\1:REDACTED@|g"
     # - git push -q -f --tags 2>&1 \
     #     sed -r "s|(${GITHUB_USER}):[a-f0-9]+@|\1:REDACTED@|g"
-    - git push origin tst-pages #--force
+    - git push origin gh-pages #--force
 
 # check-std:
 #   stage:                           check
