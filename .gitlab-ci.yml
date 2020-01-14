@@ -69,6 +69,7 @@ publish-docs:
     - git config --global user.email "devops-team@parity.io"
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/wiki.git"
+    - pwd && ls -la
     - git clone https://github.com/paritytech/ink.git .
     - echo "__________Generating Docs__________"
     - cargo doc --no-deps --all
