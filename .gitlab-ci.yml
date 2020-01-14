@@ -62,15 +62,16 @@ variables:
 publish-docs:
   stage:                           check
   <<:                              *docker-env
-  variables:
-    GIT_STRATEGY:                  none
+  # variables:
+  #   GIT_STRATEGY:                  none
   script:
     - echo "__________Set github__________"
     - git config --global user.email "devops-team@parity.io"
     - git config --global user.name "${GITHUB_USER}"
     - pwd && ls -la
-    - git clone https://github.com/paritytech/ink.git .
+    # - git clone https://github.com/paritytech/ink.git .
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/wiki.git"
+    - git remote -v
     - echo "__________Generating Docs__________"
     - cargo doc --no-deps --all
     - echo "__________Commit files__________"
