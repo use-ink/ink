@@ -126,6 +126,11 @@ pub trait TypedEnv: Env {
     where
         T: EnvTypes;
 
+    /// Invokes a call of the runtime.
+    fn invoke_runtime<T>(&mut self, call: &T::Call) -> Result<()>
+    where
+        T: EnvTypes;
+
     /// Invokes a contract message.
     ///
     /// # Errors

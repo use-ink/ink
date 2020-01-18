@@ -233,6 +233,15 @@ impl TypedEnv for WasmEnv {
         ext::set_rent_allowance(&self.buffer)
     }
 
+    fn invoke_runtime<T>(&mut self, call: &T::Call) -> Result<()>
+    where
+        T: EnvTypes
+    {
+        self.encode_into_buffer(call);
+        ext::dispatch_call(&self.buffer);
+        Ok(())
+    }
+
     fn invoke_contract<T>(&mut self, call_params: &CallParams<T, ()>) -> Result<()>
     where
         T: EnvTypes,

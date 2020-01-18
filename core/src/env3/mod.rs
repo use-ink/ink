@@ -21,13 +21,17 @@ mod api;
 mod backend;
 mod buffer;
 pub mod call;
-mod error;
 mod engine;
-pub(self) mod property;
+mod error;
+mod property;
 #[cfg(any(test, rustdoc))]
 pub mod test;
 mod types;
 
+use self::backend::{
+    Env,
+    TypedEnv,
+};
 pub use self::{
     api::*,
     error::{
@@ -39,9 +43,4 @@ pub use self::{
         EnvTypes,
         Topics,
     },
-};
-
-pub(crate) use self::backend::{
-    Env,
-    TypedEnv,
 };
