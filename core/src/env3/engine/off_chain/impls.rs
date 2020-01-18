@@ -21,8 +21,6 @@ use crate::{
             CreateParams,
             ReturnType,
         },
-        property,
-        property::ReadProperty,
         Env,
         EnvTypes,
         Result,
@@ -74,7 +72,7 @@ impl Env for TestEnv {
     }
 }
 
-impl TypedEnv for WasmEnv {
+impl TypedEnv for TestEnv {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
         todo!()
     }
@@ -131,6 +129,13 @@ impl TypedEnv for WasmEnv {
     }
 
     fn invoke_contract<T>(&mut self, call_params: &CallParams<T, ()>) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        todo!()
+    }
+
+    fn invoke_runtime<T>(&mut self, params: &T::Call) -> Result<()>
     where
         T: EnvTypes,
     {

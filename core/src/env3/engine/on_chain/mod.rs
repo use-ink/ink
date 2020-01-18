@@ -16,6 +16,7 @@ mod ext;
 mod impls;
 mod retcode;
 
+use ink_prelude::vec::Vec;
 use super::Instance;
 
 pub(crate) use self::retcode::RetCode;
@@ -26,8 +27,6 @@ pub struct WasmEnv {
     buffer: Vec<u8>,
 }
 
-static mut INSTANCE: WasmEnv = WasmEnv { buffer: Vec::new() };
-
 pub enum Accessor {}
 
 impl Instance for Accessor {
@@ -37,6 +36,7 @@ impl Instance for Accessor {
     where
         F: FnOnce(&mut Self::Engine) -> R
     {
+        static mut INSTANCE: WasmEnv = WasmEnv { buffer: Vec::new() };
         f(unsafe { &mut INSTANCE })
     }
 }

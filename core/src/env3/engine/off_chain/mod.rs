@@ -14,6 +14,9 @@
 
 mod impls;
 
+use super::Instance;
+use core::cell::RefCell;
+
 pub enum Accessor {}
 
 pub struct TestEnv {}
@@ -23,8 +26,15 @@ impl Instance for Accessor {
 
     fn run<F, R>(f: F) -> R
     where
-        F: FnOnce(&mut Self::Engine) -> R
+        F: FnOnce(&mut Self::Engine) -> R,
     {
-        todo!()
+        thread_local!(
+            static INSTANCE: RefCell<TestEnv> = RefCell::new(
+                TestEnv {}
+            )
+        );
+        INSTANCE.with(|instance| {
+            f(&mut instance.borrow_mut())
+        })
     }
 }

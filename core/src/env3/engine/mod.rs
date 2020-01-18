@@ -24,12 +24,12 @@ pub trait Instance {
 }
 
 cfg_if! {
-    if #[cfg(all(not(feature = "std"), target_arch = "wasm32-unknown"))] {
-        mod off_chain;
-        pub use self::off_chain::Accessor;
-    } else if #[cfg(feature = "std")] {
+    if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
         mod on_chain;
         pub use self::on_chain::Accessor;
+    } else if #[cfg(feature = "std")] {
+        mod off_chain;
+        pub use self::off_chain::Accessor;
     } else {
         compile_error! {
             "ink! only support compilation as `std` or `no_std` + `wasm32-unknown`"
