@@ -277,15 +277,15 @@ where
     })
 }
 
-/// Restores a smart contract tombstone.
+/// Restores a smart contract in tombstone state.
 ///
 /// # Params
 ///
-/// - `account_id`: Encoded bytes of the `AccountId` of the to-be-restored contract.
-/// - `code_hash`: Encoded code hash of the to-be-restored contract.
-/// - `rent_allowance`: The encoded rent allowance of the restored contract
+/// - `account_id`: Account ID of the to-be-restored contract.
+/// - `code_hash`: Code hash of the to-be-restored contract.
+/// - `rent_allowance`: Rent allowance of the restored contract
 ///                     upon successful restoration.
-/// - `filtered_keys`: Storage keys that will be ignored for the tombstone hash
+/// - `filtered_keys`: Storage keys that will be removed for the tombstone hash
 ///                    match calculation that decide whether the original contract
 ///                    storage and the storage of the restorer contract is equal.
 ///
