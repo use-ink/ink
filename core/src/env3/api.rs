@@ -9,11 +9,19 @@
 
 use crate::{
     env3::{
+        backend::{
+            Env,
+            TypedEnv,
+        },
         call::{
             CallData,
             CallParams,
             CreateParams,
             ReturnType,
+        },
+        engine::{
+            Accessor,
+            Instance,
         },
         EnvTypes,
         Result,
@@ -31,7 +39,7 @@ pub fn caller<T>() -> Result<T::AccountId>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::caller::<T>(instance))
 }
 
 /// Returns the transferred balance for the contract execution.
@@ -43,7 +51,7 @@ pub fn transferred_balance<T>() -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::transferred_balance::<T>(instance))
 }
 
 /// Returns the current price for gas.
@@ -55,7 +63,7 @@ pub fn gas_price<T>() -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::gas_price::<T>(instance))
 }
 
 /// Returns the amount of gas left for the contract execution.
@@ -67,7 +75,7 @@ pub fn gas_left<T>() -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::gas_left::<T>(instance))
 }
 
 /// Returns the current block time in milliseconds.
@@ -79,7 +87,7 @@ pub fn now_in_ms<T>() -> Result<T::Moment>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::now_in_ms::<T>(instance))
 }
 
 /// Returns the address of the executed contract.
@@ -91,7 +99,7 @@ pub fn address<T>() -> Result<T::AccountId>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::address::<T>(instance))
 }
 
 /// Returns the balance of the executed contract.
@@ -103,7 +111,7 @@ pub fn balance<T>() -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::balance::<T>(instance))
 }
 
 /// Returns the current rent allowance for the executed contract.
@@ -115,7 +123,7 @@ pub fn rent_allowance<T>() -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::rent_allowance::<T>(instance))
 }
 
 /// Returns the current block number.
@@ -127,7 +135,7 @@ pub fn block_number<T>() -> Result<T::BlockNumber>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::block_number::<T>(instance))
 }
 
 /// Returns the minimum balance of the executed contract.
@@ -139,7 +147,7 @@ pub fn minimum_balance<T>() -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| TypedEnv::minimum_balance::<T>(instance))
 }
 
 /// Emits an event with the given event data.
@@ -148,7 +156,9 @@ where
     T: EnvTypes,
     Event: Topics<T> + scale::Encode,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        TypedEnv::emit_event::<T, Event>(instance, event)
+    })
 }
 
 /// Sets the rent allowance of the executed contract to the new value.
@@ -156,7 +166,9 @@ pub fn set_rent_allowance<T>(new_value: T::Balance)
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        TypedEnv::set_rent_allowance::<T>(instance, new_value)
+    })
 }
 
 /// Writes the value to the contract storage under the given key.
@@ -164,7 +176,9 @@ pub fn set_contract_storage<V>(key: Key, value: &V)
 where
     V: scale::Encode,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        Env::set_contract_storage::<V>(instance, key, value)
+    })
 }
 
 /// Returns the value stored under the given key in the contract's storage.
@@ -177,12 +191,12 @@ pub fn get_contract_storage<R>(key: Key) -> Result<R>
 where
     R: scale::Decode,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| Env::get_contract_storage::<R>(instance, key))
 }
 
 /// Clears the contract's storage key entry.
 pub fn clear_contract_storage(key: Key) {
-    todo!()
+    <Accessor as Instance>::run(|instance| Env::clear_contract_storage(instance, key))
 }
 
 /// Invokes a contract message.
@@ -195,11 +209,13 @@ pub fn clear_contract_storage(key: Key) {
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If given too few endowment.
-pub fn invoke_contract<T>(call_data: &CallParams<T, ()>) -> Result<()>
+pub fn invoke_contract<T>(params: &CallParams<T, ()>) -> Result<()>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        TypedEnv::invoke_contract::<T>(instance, params)
+    })
 }
 
 /// Evaluates a contract message and returns its result.
@@ -213,12 +229,14 @@ where
 /// - If the called contract ran out of gas upon execution.
 /// - If given too few endowment.
 /// - If the returned value failed to decode properly.
-pub fn eval_contract<T, R>(call_data: &CallParams<T, ReturnType<R>>) -> Result<R>
+pub fn eval_contract<T, R>(params: &CallParams<T, ReturnType<R>>) -> Result<R>
 where
     T: EnvTypes,
     R: scale::Decode,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        TypedEnv::eval_contract::<T, R>(instance, params)
+    })
 }
 
 /// Instantiates another contract.
@@ -235,7 +253,9 @@ pub fn create_contract<T, C>(params: &CreateParams<T, C>) -> Result<T::AccountId
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        TypedEnv::create_contract::<T, C>(instance, params)
+    })
 }
 
 /// Restores a smart contract tombstone.
@@ -286,9 +306,17 @@ pub fn restore_contract<T>(
     rent_allowance: T::Balance,
     filtered_keys: &[Key],
 ) where
-    T: EnvTypes
+    T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        TypedEnv::restore_contract::<T>(
+            instance,
+            account_id,
+            code_hash,
+            rent_allowance,
+            filtered_keys,
+        )
+    })
 }
 
 /// Returns the input to the executed contract.
@@ -308,7 +336,9 @@ pub fn restore_contract<T>(
 ///     - This happens only if the host runtime provides less than 4 bytes for
 ///       the function selector upon this query.
 pub fn input() -> Result<CallData> {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        Env::input(instance)
+    })
 }
 
 /// Returns the value back to the caller of the executed contract.
@@ -321,7 +351,9 @@ pub fn output<R>(return_value: &R)
 where
     R: scale::Encode,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        Env::output::<R>(instance, return_value)
+    })
 }
 
 /// Returns a random hash.
@@ -337,12 +369,16 @@ pub fn random<T>(subject: &[u8]) -> Result<T::Hash>
 where
     T: EnvTypes,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        TypedEnv::random::<T>(instance, subject)
+    })
 }
 
 /// Prints the given contents to the environmental log.
 pub fn println(content: &str) {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        Env::println(instance, content)
+    })
 }
 
 /// Returns the value from the *runtime* storage at the position of the key.
@@ -355,5 +391,7 @@ pub fn get_runtime_storage<R>(runtime_key: &[u8]) -> Result<R>
 where
     R: scale::Decode,
 {
-    todo!()
+    <Accessor as Instance>::run(|instance| {
+        Env::get_runtime_storage::<R>(instance, runtime_key)
+    })
 }

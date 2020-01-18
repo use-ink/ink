@@ -12,36 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Environmental interface. (version 3)
-//!
-//! This is the interface with which a smart contract is able to communicate
-//! with the outside world through its sandbox boundaries.
+use cfg_if::cfg_if;
+use crate::env3::backend::{TypedEnv, Env};
 
-mod api;
-mod backend;
-mod buffer;
-pub mod call;
-mod error;
-mod engine;
-pub(self) mod property;
-#[cfg(any(test, rustdoc))]
-pub mod test;
-mod types;
+pub trait Instance {
+    type Engine: Env + TypedEnv;
 
-pub use self::{
-    api::*,
-    error::{
-        EnvError,
-        Result,
-    },
-    types::{
-        DefaultEnvTypes,
-        EnvTypes,
-        Topics,
-    },
-};
+    fn run<F, R>(f: F) -> R
+    where
+        F: FnOnce(&mut Self::Engine) -> R;
+}
 
-pub(crate) use self::backend::{
-    Env,
-    TypedEnv,
-};
+cfg_if! {
+    if #[cfg(all(not(feature = "std"), target_arch = "wasm32-unknown"))] {
+        mod off_chain;
+        pub use self::off_chain::Accessor;
+    } else if #[cfg(feature = "std")] {
+        mod on_chain;
+        pub use self::on_chain::Accessor;
+    } else {
+        compile_error! {
+            "ink! only support compilation as `std` or `no_std` + `wasm32-unknown`"
+        }
+    }
+}

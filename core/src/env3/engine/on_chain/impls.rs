@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::WasmEnv;
+use super::{
+    ext,
+    WasmEnv,
+};
 use crate::{
     env3::{
         call::{
@@ -21,7 +24,6 @@ use crate::{
             CreateParams,
             ReturnType,
         },
-        on_chain::ext,
         property,
         property::ReadProperty,
         Env,
@@ -287,7 +289,7 @@ impl TypedEnv for WasmEnv {
         rent_allowance: T::Balance,
         filtered_keys: &[Key],
     ) where
-        T: EnvTypes
+        T: EnvTypes,
     {
         // Reset the contract-side buffer to append onto clean slate.
         self.buffer.clear();

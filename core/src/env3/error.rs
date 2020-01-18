@@ -17,7 +17,7 @@ use derive_more::{From, Display};
 /// Errors that can be encountered upon environmental interaction.
 #[derive(From, Display)]
 pub enum EnvError {
-    #[display(msg = "error upon decoding: {:?}", self.0)]
+    #[display(msg = "error upon decoding")]
     Decode(scale::Error),
 }
 

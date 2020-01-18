@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod ext;
 mod impls;
-mod retcode;
 
-pub(crate) use self::retcode::RetCode;
+pub enum Accessor {}
 
-/// The on-chain environment.
-pub struct WasmEnv {
-    /// Encode & decode buffer for potentially reusing required dynamic allocations.
-    buffer: Vec<u8>,
+pub struct TestEnv {}
+
+impl Instance for Accessor {
+    type Engine = TestEnv;
+
+    fn run<F, R>(f: F) -> R
+    where
+        F: FnOnce(&mut Self::Engine) -> R
+    {
+        todo!()
+    }
 }

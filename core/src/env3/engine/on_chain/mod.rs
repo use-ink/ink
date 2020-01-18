@@ -11,3 +11,32 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+mod ext;
+mod impls;
+mod retcode;
+
+use super::Instance;
+
+pub(crate) use self::retcode::RetCode;
+
+/// The on-chain environment.
+pub struct WasmEnv {
+    /// Encode & decode buffer for potentially reusing required dynamic allocations.
+    buffer: Vec<u8>,
+}
+
+static mut INSTANCE: WasmEnv = WasmEnv { buffer: Vec::new() };
+
+pub enum Accessor {}
+
+impl Instance for Accessor {
+    type Engine = WasmEnv;
+
+    fn run<F, R>(f: F) -> R
+    where
+        F: FnOnce(&mut Self::Engine) -> R
+    {
+        f(unsafe { &mut INSTANCE })
+    }
+}
