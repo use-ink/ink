@@ -199,6 +199,25 @@ pub fn clear_contract_storage(key: Key) {
     <Accessor as Instance>::run(|instance| Env::clear_contract_storage(instance, key))
 }
 
+/// Invokes a call to the runtime.
+///
+/// # Note
+///
+/// The call is not guaranteed to execute immediately but might be deferred
+/// to the end of the contract execution.
+///
+/// # Errors
+///
+/// - If the called runtime function does not exist.
+pub fn invoke_runtime<T>(params: &T::Call) -> Result<()>
+where
+    T: EnvTypes,
+{
+    <Accessor as Instance>::run(|instance| {
+        TypedEnv::invoke_runtime::<T>(instance, params)
+    })
+}
+
 /// Invokes a contract message.
 ///
 /// # Errors
