@@ -59,7 +59,7 @@ where
     fn topics(&self) -> &'static [<T as EnvTypes>::Hash];
 }
 
-/// The fundamental types of the SRML default configuration.
+/// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub enum DefaultEnvTypes {}
@@ -106,16 +106,21 @@ impl Encode for Call {
     }
 }
 
-/// This implementation is only to satisfy the Decode constraint in the
-/// test environment. Since Call cannot be constructed then just return
-/// None, but this should never be called.
 impl scale::Decode for Call {
     fn decode<I: scale::Input>(_value: &mut I) -> Result<Self, scale::Error> {
+        // This implementation is only to satisfy the Decode constraint in the
+        // test environment. Since Call cannot be constructed then just return
+        // None, but this should never be called.
         Err("The default SRML `Call` type cannot be used for runtime calls".into())
     }
 }
 
-/// The default SRML `AccountId` type.
+/// The default environment `AccountId` type.
+///
+/// # Note
+///
+/// This is a mirror of the `AccountId` type used in the default configuration
+/// of PALLET contracts.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, From, Default)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct AccountId([u8; 32]);
@@ -131,7 +136,12 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
 
 impl Flush for AccountId {}
 
-/// The default SRML `Hash` type.
+/// The default environment `Hash` type.
+///
+/// # Note
+///
+/// This is a mirror of the `Hash` type used in the default configuration
+/// of PALLET contracts.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, From, Default)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Hash([u8; 32]);

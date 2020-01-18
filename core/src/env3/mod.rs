@@ -39,8 +39,10 @@ pub use self::{
         Result,
     },
     types::{
+        AccountId,
         DefaultEnvTypes,
         EnvTypes,
+        Hash,
         Topics,
     },
 };
