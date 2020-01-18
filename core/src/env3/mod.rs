@@ -1,0 +1,48 @@
+// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//! Environmental interface. (version 3)
+//!
+//! This is the interface with which a smart contract is able to communicate
+//! with the outside world through its sandbox boundaries.
+
+mod api;
+mod backend;
+mod buffer;
+pub mod call;
+mod error;
+mod off_chain;
+mod on_chain;
+pub(self) mod property;
+#[cfg(test)]
+pub mod test;
+mod types;
+
+pub use self::{
+    api::*,
+    error::{
+        EnvError,
+        Result,
+    },
+    types::{
+        DefaultEnvTypes,
+        EnvTypes,
+        Topics,
+    },
+};
+
+pub(crate) use self::backend::{
+    Env,
+    TypedEnv,
+};
