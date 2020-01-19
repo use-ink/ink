@@ -36,6 +36,16 @@ use crate::{
 };
 
 impl WasmEnv {
+    /// Empties the contract-side scratch buffer.
+    ///
+    /// # Note
+    ///
+    /// This is useful to perform before invoking a series of
+    /// [`WasmEnv::append_encode_into_buffer`].
+    fn reset_buffer(&mut self) {
+        self.buffer.clear()
+    }
+
     /// Reads the current scratch buffer into the contract-side buffer.
     ///
     /// Returns the amount of bytes read.
@@ -88,6 +98,7 @@ impl WasmEnv {
         self.decode_scratch_buffer().map_err(Into::into)
     }
 
+    /// Reusable implementation for invoking another contract message.
     fn invoke_contract_impl<T, RetType>(
         &mut self,
         call_params: &CallParams<T, RetType>,
@@ -96,7 +107,7 @@ impl WasmEnv {
         T: EnvTypes,
     {
         // Reset the contract-side buffer to append onto clean slate.
-        self.buffer.clear();
+        self.reset_buffer();
         // Append the encoded `call_data`, `endowment` and `call_data`
         // in order and remember their encoded regions within the buffer.
         let callee = self.append_encode_into_buffer(call_params.callee());
@@ -213,7 +224,7 @@ impl TypedEnv for WasmEnv {
         Event: Topics<T> + scale::Encode,
     {
         // Reset the contract-side buffer to append onto clean slate.
-        self.buffer.clear();
+        self.reset_buffer();
         // Append the encoded `topics` and the raw encoded `data`
         // in order and remember their encoded regions within the buffer.
         let topics = self.append_encode_into_buffer(event.topics());
@@ -269,7 +280,7 @@ impl TypedEnv for WasmEnv {
         T: EnvTypes,
     {
         // Reset the contract-side buffer to append onto clean slate.
-        self.buffer.clear();
+        self.reset_buffer();
         // Append the encoded `code_hash`, `endowment` and `create_data`
         // in order and remember their encoded regions within the buffer.
         let code_hash = self.append_encode_into_buffer(params.code_hash());
@@ -301,7 +312,7 @@ impl TypedEnv for WasmEnv {
         T: EnvTypes,
     {
         // Reset the contract-side buffer to append onto clean slate.
-        self.buffer.clear();
+        self.reset_buffer();
         // Append the encoded `account_id`, `code_hash` and `rent_allowance`
         // and `filtered_keys` in order and remember their encoded regions
         // within the buffer.
