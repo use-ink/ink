@@ -24,7 +24,7 @@ pub mod call;
 mod engine;
 mod error;
 mod property;
-#[cfg(any(test, rustdoc))]
+#[cfg(any(test, doc))]
 pub mod test;
 mod types;
 
