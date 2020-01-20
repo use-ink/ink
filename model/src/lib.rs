@@ -24,7 +24,6 @@
     overflowing_literals,
     path_statements,
     patterns_in_fns_without_body,
-    plugin_as_library,
     private_in_public,
     unconditional_recursion,
     unused,
