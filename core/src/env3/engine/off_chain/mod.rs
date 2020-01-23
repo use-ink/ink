@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod db;
+mod db;
 mod impls;
-pub mod typed_encoded;
-pub mod types;
+mod typed_encoded;
+mod types;
+pub mod test_api;
 
 use self::{
     db::{

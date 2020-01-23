@@ -21,12 +21,14 @@ mod api;
 mod backend;
 mod buffer;
 pub mod call;
-pub mod engine;
+mod engine;
 mod error;
 mod property;
-#[cfg(any(test, doc))]
-pub mod test;
 mod types;
+
+#[cfg(any(test, doc))]
+#[doc(inline)]
+pub use self::engine::off_chain::test_api as test;
 
 use self::backend::{
     Env,
