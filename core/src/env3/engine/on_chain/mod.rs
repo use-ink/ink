@@ -16,23 +16,107 @@ mod ext;
 mod impls;
 mod retcode;
 
-use ink_prelude::vec::Vec;
 use super::OnInstance;
 
 pub(crate) use self::retcode::RetCode;
 
+/// A static buffer with 16kB of capacity.
+pub struct StaticBuffer {
+    /// The static buffer with a total capacity of 16kB.
+    buffer: [u8; Self::CAPACITY],
+    /// The number of elements currently in use by the buffer
+    /// counting from the start.
+    len: usize,
+}
+
+impl StaticBuffer {
+    /// The capacity of the static buffer.
+    const CAPACITY: usize = 1 << 14; // 16kB
+
+    /// Creates a new static buffer.
+    pub const fn new() -> Self {
+        Self { buffer: [0; Self::CAPACITY], len: 0 }
+    }
+
+    /// Returns the current length of the static buffer.
+    pub fn len(&self) -> usize {
+        self.len
+    }
+
+    /// Resizes the static buffer to the given length.
+    ///
+    /// # Panics
+    ///
+    /// Panics for lengths greater than its capacity.
+    pub fn resize(&mut self, new_len: usize) {
+        if new_len > Self::CAPACITY {
+            panic!("static buffer overflowed")
+        }
+        self.len = new_len;
+    }
+
+    /// Resets the length of the buffer to 0.
+    pub fn clear(&mut self) {
+        self.len = 0;
+    }
+}
+
+impl scale::Output for StaticBuffer {
+    fn write(&mut self, bytes: &[u8]) {
+        if self.len + bytes.len() > Self::CAPACITY {
+            panic!("static buffer overflowed")
+        }
+        let start = self.len;
+        let len_bytes = bytes.len();
+        self.buffer[start..(start + len_bytes)].copy_from_slice(bytes);
+        self.len += len_bytes;
+    }
+
+    fn push_byte(&mut self, byte: u8) {
+        if self.len == Self::CAPACITY {
+            panic!("static buffer overflowed")
+        }
+        self.buffer[self.len] = byte;
+        self.len += 1;
+    }
+}
+
+impl<I: core::slice::SliceIndex<[u8]>> core::ops::Index<I> for StaticBuffer {
+    type Output = I::Output;
+
+    fn index(&self, index: I) -> &Self::Output {
+        core::ops::Index::index(&self.buffer[..self.len], index)
+    }
+}
+
+impl<I: core::slice::SliceIndex<[u8]>> core::ops::IndexMut<I> for StaticBuffer {
+    fn index_mut(&mut self, index: I) -> &mut Self::Output {
+        core::ops::IndexMut::index_mut(&mut self.buffer[..self.len], index)
+    }
+}
+
 /// The on-chain environment.
 pub struct EnvInstance {
-    /// Encode & decode buffer for potentially reusing required dynamic allocations.
-    buffer: Vec<u8>,
+    /// Encode & decode buffer with static size of 16kB.
+    ///
+    /// If operations require more than that they will fail.
+    /// This limit was chosen after benchmarking Substrate storage
+    /// storage and load performance and was found to be a sweet spot.
+    ///
+    /// Please note that this is still an implementation detail and
+    /// might change. Users should generally avoid storing too big values
+    /// into single storage entries.
+    buffer: StaticBuffer,
 }
 
 impl OnInstance for EnvInstance {
     fn on_instance<F, R>(f: F) -> R
     where
-        F: FnOnce(&mut Self) -> R
+        F: FnOnce(&mut Self) -> R,
     {
-        static mut INSTANCE: EnvInstance = EnvInstance { buffer: Vec::new() };
+        static mut INSTANCE: EnvInstance = EnvInstance {
+            buffer: StaticBuffer::new(),
+        };
         f(unsafe { &mut INSTANCE })
     }
 }

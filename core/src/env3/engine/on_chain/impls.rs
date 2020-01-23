@@ -41,7 +41,12 @@ impl EnvInstance {
     /// This is useful to perform before invoking a series of
     /// [`WasmEnv::append_encode_into_buffer`].
     fn reset_buffer(&mut self) {
-        self.buffer.clear()
+        self.buffer.clear();
+    }
+
+    /// Resizes the amount of used bytes of the internal buffer.
+    fn resize_buffer(&mut self, new_len: usize) {
+        self.buffer.resize(new_len);
     }
 
     /// Reads the current scratch buffer into the contract-side buffer.
@@ -49,7 +54,7 @@ impl EnvInstance {
     /// Returns the amount of bytes read.
     fn read_scratch_buffer(&mut self) -> usize {
         let req_len = ext::scratch_size();
-        self.buffer.resize(req_len, Default::default());
+        self.resize_buffer(req_len);
         ext::scratch_read(&mut self.buffer[0..req_len], 0);
         req_len
     }
@@ -72,6 +77,7 @@ impl EnvInstance {
     where
         T: scale::Encode,
     {
+        self.reset_buffer();
         scale::Encode::encode_to(&value, &mut self.buffer);
     }
 
@@ -131,7 +137,7 @@ impl Env for EnvInstance {
         V: scale::Encode,
     {
         self.encode_into_buffer(value);
-        ext::set_storage(key.as_bytes(), &self.buffer);
+        ext::set_storage(key.as_bytes(), &self.buffer[..]);
     }
 
     fn get_contract_storage<R>(&mut self, key: Key) -> Result<R>
@@ -167,7 +173,7 @@ impl Env for EnvInstance {
         R: scale::Encode,
     {
         self.encode_into_buffer(return_value);
-        ext::scratch_write(&self.buffer);
+        ext::scratch_write(&self.buffer[..]);
     }
 
     fn println(&mut self, content: &str) {
@@ -243,7 +249,7 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
     {
         self.encode_into_buffer(&new_value);
-        ext::set_rent_allowance(&self.buffer)
+        ext::set_rent_allowance(&self.buffer[..])
     }
 
     fn invoke_runtime<T>(&mut self, call: &T::Call) -> Result<()>
@@ -251,7 +257,7 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes
     {
         self.encode_into_buffer(call);
-        ext::dispatch_call(&self.buffer);
+        ext::dispatch_call(&self.buffer[..]);
         Ok(())
     }
 
