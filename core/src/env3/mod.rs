@@ -19,7 +19,6 @@
 
 mod api;
 mod backend;
-mod buffer;
 pub mod call;
 mod engine;
 mod error;
