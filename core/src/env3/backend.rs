@@ -112,8 +112,11 @@ pub trait TypedEnv: Env {
     /// Returns the current block number.
     fn block_number<T: EnvTypes>(&mut self) -> Result<T::BlockNumber>;
 
-    /// Returns the minimum balance of the executed contract.
+    /// Returns the minimum balance of the contracts chain.
     fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance>;
+
+    /// Returns the tombstone deposit of the contract chain.
+    fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Emits an event with the given event data.
     fn emit_event<T, Event>(&mut self, event: Event)

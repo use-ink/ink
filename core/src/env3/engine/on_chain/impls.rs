@@ -218,6 +218,10 @@ impl TypedEnv for EnvInstance {
         self.get_property::<property::MinimumBalance<T>>(ext::minimum_balance)
     }
 
+    fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+        self.get_property::<property::TombstoneDeposit<T>>(ext::tombstone_deposit)
+    }
+
     fn emit_event<T, Event>(&mut self, event: Event)
     where
         T: EnvTypes,

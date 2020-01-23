@@ -85,6 +85,7 @@ mod sys {
         pub fn ext_now();
         pub fn ext_rent_allowance();
         pub fn ext_minimum_balance();
+        pub fn ext_tombstone_deposit();
 
         pub fn ext_set_rent_allowance(value_ptr: u32, value_len: u32);
 
@@ -239,6 +240,7 @@ impl_ext_wrapper_for! {
     (now => ext_now),
     (rent_allowance => ext_rent_allowance),
     (minimum_balance => ext_minimum_balance),
+    (tombstone_deposit => ext_tombstone_deposit),
 }
 
 pub fn set_rent_allowance(value: &[u8]) {

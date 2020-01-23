@@ -148,7 +148,7 @@ where
     })
 }
 
-/// Returns the minimum balance of the executed contract.
+/// Returns the minimum balance for the contracts chain.
 ///
 /// # Errors
 ///
@@ -159,6 +159,20 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnv::minimum_balance::<T>(instance)
+    })
+}
+
+/// Returns the tombstone deposit for the contracts chain.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn tombstone_deposit<T>() -> Result<T::Balance>
+where
+    T: EnvTypes,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnv::tombstone_deposit::<T>(instance)
     })
 }
 

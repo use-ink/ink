@@ -188,8 +188,15 @@ impl TypedEnv for EnvInstance {
 
     fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
         self.chain_spec
-            .existential_balance::<T>()
-            .map_err(|_| scale::Error::from("could not decode existential balance"))
+            .minimum_balance::<T>()
+            .map_err(|_| scale::Error::from("could not decode minimum balance"))
+            .map_err(Into::into)
+    }
+
+    fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+        self.chain_spec
+            .tombstone_deposit::<T>()
+            .map_err(|_| scale::Error::from("could not decode tombstone deposit"))
             .map_err(Into::into)
     }
 

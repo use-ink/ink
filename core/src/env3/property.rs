@@ -96,8 +96,10 @@ impl_read_property_for! {
     struct Balance { read: Some<E::Balance> },
     /// The current block number.
     struct BlockNumber { read: Some<E::BlockNumber> },
-    /// The minimum possible balance for a contract.
+    /// The minimum possible balance for an account on the chain.
     struct MinimumBalance { read: Some<E::Balance> },
+    /// The tombstone deposit on the contract chain.
+    struct TombstoneDeposit { read: Some<E::Balance> },
 }
 
 /// The input data for this contract execution.

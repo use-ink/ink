@@ -20,8 +20,10 @@ use super::super::Result;
 pub struct ChainSpec {
     /// The current gas price.
     gas_price: OffBalance,
-    /// The existential balance needed to create a tombstone upon contract eviction.
-    existential_balance: OffBalance,
+    /// The minimum value an account of the chain may have.
+    minimum_balance: OffBalance,
+    /// The tombstone deposit.
+    tombstone_deposit: OffBalance,
 }
 
 impl ChainSpec {
@@ -29,7 +31,8 @@ impl ChainSpec {
     pub fn uninitialized() -> Self {
         Self {
             gas_price: OffBalance::uninitialized(),
-            existential_balance: OffBalance::uninitialized(),
+            minimum_balance: OffBalance::uninitialized(),
+            tombstone_deposit: OffBalance::uninitialized(),
         }
     }
 
@@ -41,11 +44,19 @@ impl ChainSpec {
         self.gas_price.decode().map_err(Into::into)
     }
 
-    /// Returns the existential balance for the chain.
-    pub fn existential_balance<T>(&self) -> Result<T::Balance>
+    /// Returns the minimum balance for an account on the chain.
+    pub fn minimum_balance<T>(&self) -> Result<T::Balance>
     where
         T: EnvTypes,
     {
-        self.existential_balance.decode().map_err(Into::into)
+        self.minimum_balance.decode().map_err(Into::into)
+    }
+
+    /// Returns the tombstone deposit for the chain.
+    pub fn tombstone_deposit<T>(&self) -> Result<T::Balance>
+    where
+        T: EnvTypes,
+    {
+        self.tombstone_deposit.decode().map_err(Into::into)
     }
 }
