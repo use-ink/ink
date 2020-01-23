@@ -135,7 +135,7 @@ impl<T, C, Seal, CodeHash> CreateBuilder<T, C, Seal, CodeHash>
 where
     T: EnvTypes,
 {
-    /// Sets the maximumly allowed gas costs for the call.
+    /// Sets the maximum allowed gas costs for the call.
     pub fn gas_limit(mut self, gas_limit: u64) -> Self {
         self.params.gas_limit = gas_limit;
         self
