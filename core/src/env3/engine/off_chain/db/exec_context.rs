@@ -19,8 +19,6 @@ use super::{
     },
     OffAccountId,
     OffBalance,
-    OffHash,
-    OffMoment,
 };
 use crate::env3::{
     call::CallData,
@@ -35,21 +33,21 @@ pub struct ExecContext {
     /// The caller of the contract execution.
     ///
     /// Might be user or another contract.
-    caller: OffAccountId,
+    pub caller: OffAccountId,
     /// The callee of the contract execution.
-    callee: OffAccountId,
+    pub callee: OffAccountId,
     /// The transferred value from caller to callee.
-    transferred_value: OffBalance,
+    pub transferred_value: OffBalance,
     /// The gas provided for the whole execution.
-    gas: OffBalance,
+    pub gas: OffBalance,
     /// The inputs provided for the whole execution.
     ///
     /// # Note
     ///
     /// This includes selector and encoded arguments.
-    call_data: CallData,
+    pub call_data: CallData,
     /// The output of the contract execution.
-    output: Option<Bytes>,
+    pub output: Option<Bytes>,
 }
 
 impl ExecContext {

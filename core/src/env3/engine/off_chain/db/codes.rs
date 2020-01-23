@@ -12,21 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    OffAccountId,
-    OffBalance,
-    OffBlockNumber,
-    OffCall,
-    OffHash,
-    OffMoment,
-};
+use super::OffHash;
 use crate::env3::EnvTypes;
 use ink_prelude::collections::BTreeMap;
 
 /// The Wasm codes data base.
 pub struct CodeDb {
     /// Mapping from (code)hash to Wasm blob.
-    codes: BTreeMap<OffHash, WasmBlob>,
+    codes: BTreeMap<OffHash, Code>,
 }
 
 impl CodeDb {
@@ -38,28 +31,55 @@ impl CodeDb {
     }
 
     /// Puts the wasm code (as bytes) onto the chain and returns its code hash.
-    pub fn put_code<T>(wasm_bytes: &[u8]) -> T::Hash
+    pub fn put_code<T>(&mut self, code_hash: T::Hash, wasm_bytes: &[u8])
     where
         T: EnvTypes,
     {
-        todo!()
+        self.codes
+            .insert(OffHash::new(&code_hash), Code::new(wasm_bytes.to_vec()));
+    }
+
+    /// Gets the wasm code blob associated with the given code hash if any.
+    pub fn get_code<T>(&self, code_hash: T::Hash) -> Option<&Code>
+    where
+        T: EnvTypes,
+    {
+        self.codes.get(&OffHash::new(&code_hash))
+    }
+
+    /// Gets the wasm code blob associated with the given code hash if any.
+    pub fn get_code_mut<T>(&mut self, code_hash: T::Hash) -> Option<&mut Code>
+    where
+        T: EnvTypes,
+    {
+        self.codes.get_mut(&OffHash::new(&code_hash))
     }
 }
 
 /// A Wasm blob on the chain.
-pub struct WasmBlob {
+pub struct Code {
     /// The bytes of the Wasm blob.
     wasm_bytes: Vec<u8>,
     /// The references to this Wasm blob to count usages.
-    references: usize,
+    pub references: usize,
 }
 
-impl WasmBlob {
-    /// Creates a new empty Wasm blob with no usage references.
+impl Code {
+    /// Creates a new empty code.
     pub fn empty() -> Self {
+        Self::new(Vec::new())
+    }
+
+    /// Creates a new code from the given Wasm bytes.
+    pub fn new(wasm_bytes: Vec<u8>) -> Self {
         Self {
-            wasm_bytes: Vec::new(),
+            wasm_bytes,
             references: 0,
         }
+    }
+
+    /// Returns the Wasm bytes.
+    pub fn wasm_bytes(&self) -> &[u8] {
+        &self.wasm_bytes
     }
 }

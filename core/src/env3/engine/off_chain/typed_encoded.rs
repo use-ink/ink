@@ -28,7 +28,7 @@ use derive_more::From;
 /// # Note
 ///
 /// Checks are implemented at runtime.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TypedEncoded<T> {
     /// The bytes of the encoded representation of the type.
     encoded: Vec<u8>,

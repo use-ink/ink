@@ -31,17 +31,17 @@ use super::TypedEncoded;
 #[rustfmt::skip]
 mod type_marker {
     /// Type marker representing an environmental `AccountId`.
-    #[derive(Debug)] pub enum AccountId {}
+    #[derive(Debug, Clone)] pub enum AccountId {}
     /// Type marker representing an environmental `Balance`.
-    #[derive(Debug)] pub enum Balance {}
+    #[derive(Debug, Clone)] pub enum Balance {}
     /// Type marker representing an environmental `Hash`.
-    #[derive(Debug)] pub enum Hash {}
+    #[derive(Debug, Clone)] pub enum Hash {}
     /// Type marker representing an environmental `Moment`.
-    #[derive(Debug)] pub enum Moment {}
+    #[derive(Debug, Clone)] pub enum Moment {}
     /// Type marker representing an environmental `BlockNumber`.
-    #[derive(Debug)] pub enum BlockNumber {}
+    #[derive(Debug, Clone)] pub enum BlockNumber {}
     /// Type marker representing an environmental `Call`.
-    #[derive(Debug)] pub enum Call {}
+    #[derive(Debug, Clone)] pub enum Call {}
 }
 
 /// Off-chain environment account ID type.

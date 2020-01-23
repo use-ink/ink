@@ -17,7 +17,6 @@ use super::{
     OffAccountId,
     OffBalance,
     OffHash,
-    OffMoment,
 };
 use crate::{
     env3::EnvTypes,
@@ -62,7 +61,17 @@ impl AccountsDb {
     where
         T: EnvTypes,
     {
-        self.accounts.get(&OffAccountId::new(&at))
+        self.get_account_off(&OffAccountId::new(&at))
+    }
+
+    /// Returns the account for the given off-account ID if any.
+    pub fn get_account_off(&self, at: &OffAccountId) -> Option<&Account> {
+        self.accounts.get(at)
+    }
+
+    /// Returns the account for the given off-account ID if any.
+    pub fn get_account_off_mut(&mut self, at: &OffAccountId) -> Option<&mut Account> {
+        self.accounts.get_mut(at)
     }
 
     /// Creates a new user account.
@@ -140,7 +149,7 @@ impl Account {
     /// Sets the contract storage of key to the new value.
     pub fn set_storage<T>(&mut self, at: Key, new_value: &T) -> Result<()>
     where
-        T: scale::Encode + 'static,
+        T: scale::Encode,
     {
         self.contract_or_err_mut()
             .map(|contract| contract.storage.set_storage::<T>(at, new_value))
@@ -155,7 +164,7 @@ impl Account {
     /// Clears the contract storage at key.
     pub fn get_storage<T>(&self, at: Key) -> Result<Option<T>>
     where
-        T: scale::Decode + 'static,
+        T: scale::Decode,
     {
         self.contract_or_err()
             .and_then(|contract| contract.storage.get_storage::<T>(at))
@@ -190,7 +199,7 @@ impl ContractStorage {
     /// Returns the decoded storage at the key if any.
     pub fn get_storage<T>(&self, at: Key) -> Result<Option<T>>
     where
-        T: scale::Decode + 'static,
+        T: scale::Decode,
     {
         self.entries
             .get(&at)
@@ -202,7 +211,7 @@ impl ContractStorage {
     /// Writes the encoded value into the contract storage at the given key.
     pub fn set_storage<T>(&mut self, at: Key, new_value: &T)
     where
-        T: scale::Encode + 'static,
+        T: scale::Encode,
     {
         self.entries.insert(at, new_value.encode());
     }

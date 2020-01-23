@@ -35,6 +35,6 @@ impl ChainSpec {
     where
         T: EnvTypes,
     {
-        self.gas_price.decode()
+        self.gas_price.decode().map_err(Into::into)
     }
 }

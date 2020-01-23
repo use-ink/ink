@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::EnvInstance;
+use super::{
+    Account,
+    EnvInstance,
+};
 use crate::{
     env3::{
         call::{
@@ -30,23 +33,57 @@ use crate::{
     storage::Key,
 };
 
+impl EnvInstance {
+    /// Returns the callee account.
+    fn callee_account(&self) -> &Account {
+        let callee = self
+            .exec_context()
+            .expect("uninitialized execution context")
+            .callee
+            .clone();
+        self.accounts
+            .get_account_off(&callee)
+            .expect("callee account does not exist")
+    }
+
+    /// Returns the callee account as mutable reference.
+    fn callee_account_mut(&mut self) -> &mut Account {
+        let callee = self
+            .exec_context()
+            .expect("uninitialized execution context")
+            .callee
+            .clone();
+        self.accounts
+            .get_account_off_mut(&callee)
+            .expect("callee account does not exist")
+    }
+}
+
 impl Env for EnvInstance {
     fn set_contract_storage<V>(&mut self, key: Key, value: &V)
     where
         V: scale::Encode,
     {
-        todo!()
+        self.callee_account_mut()
+            .set_storage(key, value)
+            .expect("callee account is not a smart contract");
     }
 
     fn get_contract_storage<R>(&mut self, key: Key) -> Result<R>
     where
         R: scale::Decode,
     {
-        todo!()
+        self.callee_account()
+            .get_storage(key)
+            .expect("callee account is not a smart contract")
+            .ok_or(scale::Error::from("could not decode contract storage"))
+            .map_err(Into::into)
     }
 
     fn clear_contract_storage(&mut self, key: Key) {
-        todo!()
+        self.callee_account_mut()
+            .clear_storage(key)
+            .expect("callee account is not a smart contract");
     }
 
     fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Result<R>
@@ -57,14 +94,21 @@ impl Env for EnvInstance {
     }
 
     fn input(&mut self) -> Result<CallData> {
-        todo!()
+        self.exec_context()
+            .map(|exec_ctx| &exec_ctx.call_data)
+            .map(Clone::clone)
+            .map_err(|_| scale::Error::from("could not decode input call data"))
+            .map_err(Into::into)
     }
 
     fn output<R>(&mut self, return_value: &R)
     where
         R: scale::Encode,
     {
-        todo!()
+        let ctx = self
+            .exec_context_mut()
+            .expect("uninitialized execution context");
+        ctx.output = Some(return_value.encode());
     }
 
     fn println(&mut self, content: &str) {

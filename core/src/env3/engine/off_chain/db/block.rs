@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::super::{
-    types::{
-        OffBlockNumber,
-        OffMoment,
+use super::{
+    super::{
+        Result,
+        TypedEncoded,
     },
-    TypedEncoded,
-    Result,
+    OffBlockNumber,
+    OffMoment,
 };
 use crate::env3::EnvTypes;
 

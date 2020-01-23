@@ -19,24 +19,41 @@ pub mod types;
 
 use self::{
     db::{
-        AccountsDb,
         AccountError,
+        AccountsDb,
+        Account,
+        Block,
+        ChainSpec,
         CodeDb,
         ExecContext,
-        ChainSpec,
     },
-    typed_encoded::{TypedEncoded, TypedEncodedError, Result},
+    typed_encoded::{
+        TypedEncoded,
+        TypedEncodedError,
+    },
     types::{
         OffAccountId,
         OffBalance,
+        OffBlockNumber,
         OffHash,
         OffMoment,
-        OffBlockNumber,
-        OffCall,
     },
 };
 use super::OnInstance;
 use core::cell::RefCell;
+use derive_more::From;
+
+#[derive(Debug, From)]
+pub enum InstanceError {
+    Account(AccountError),
+    TypedEncoded(TypedEncodedError),
+    #[from(ignore)]
+    UninitializedBlocks,
+    #[from(ignore)]
+    UninitializedExecutionContext,
+}
+
+pub type Result<T> = core::result::Result<T, InstanceError>;
 
 /// The off-chain environment.
 ///
@@ -47,9 +64,11 @@ pub struct EnvInstance {
     /// Uploaded Wasm contract codes.
     codes: CodeDb,
     /// Current execution context and context.
-    session: Option<ExecContext>,
+    exec_context: Option<ExecContext>,
     /// The general chain spec.
     chain_spec: ChainSpec,
+    /// The blocks of the chain.
+    blocks: Vec<Block>,
 }
 
 impl EnvInstance {
@@ -58,9 +77,25 @@ impl EnvInstance {
         Self {
             accounts: AccountsDb::new(),
             codes: CodeDb::new(),
-            session: None,
+            exec_context: None,
             chain_spec: ChainSpec::uninitialized(),
+            blocks: Vec::new(),
         }
+    }
+
+    /// Returns the current execution context.
+    fn exec_context(&self) -> Result<&ExecContext> {
+        self.exec_context.as_ref().ok_or(InstanceError::UninitializedExecutionContext)
+    }
+
+    /// Returns the current execution context.
+    fn exec_context_mut(&mut self) -> Result<&mut ExecContext> {
+        self.exec_context.as_mut().ok_or(InstanceError::UninitializedExecutionContext)
+    }
+
+    /// Returns the current block of the chain.
+    fn current_block(&self) -> Result<&Block> {
+        self.blocks.last().ok_or(InstanceError::UninitializedBlocks)
     }
 }
 
