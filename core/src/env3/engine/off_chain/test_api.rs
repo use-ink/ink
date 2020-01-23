@@ -14,7 +14,14 @@
 
 //! Operations on the off-chain testing environment.
 
+use super::{
+    db::ExecContext,
+    EnvInstance,
+};
 use crate::env3::{
+    call::CallData,
+    engine::OnInstance,
+    EnvError,
     EnvTypes,
     Result,
 };
@@ -32,11 +39,21 @@ pub fn push_execution_context<T>(
     callee: T::AccountId,
     gas_limit: T::Balance,
     endowment: T::Balance,
-) -> Result<()>
-where
+    call_data: CallData,
+) where
     T: EnvTypes,
 {
-    todo!()
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.exec_context.push(
+            ExecContext::build::<T>()
+                .caller(caller)
+                .callee(callee)
+                .gas(gas_limit)
+                .transferred_value(endowment)
+                .call_data(call_data)
+                .finish(),
+        )
+    })
 }
 
 /// Pops the top contract execution context.
@@ -46,7 +63,9 @@ where
 /// Together with [`push_execution_context`] this can be used to emulated
 /// nested calls.
 pub fn pop_execution_context() {
-    todo!()
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.exec_context.pop();
+    })
 }
 
 /// Sets the balance of the account to the given balance.
@@ -61,11 +80,19 @@ pub fn pop_execution_context() {
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
-pub fn set_balance<T>(account: T::AccountId, new_balance: T::Balance) -> Result<()>
+pub fn set_balance<T>(account_id: T::AccountId, new_balance: T::Balance) -> Result<()>
 where
     T: EnvTypes,
 {
-    todo!()
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .accounts
+            .get_account_mut::<T>(account_id)
+            .ok_or(EnvError::OffChain)
+            .and_then(|account| {
+                account.set_balance::<T>(new_balance).map_err(|_| EnvError::OffChain)
+            })
+    })
 }
 
 /// Returns the balance of the account.
@@ -80,11 +107,19 @@ where
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-pub fn get_balance<T>(account: T::AccountId) -> T::Balance
+pub fn get_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    todo!()
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .accounts
+            .get_account::<T>(account_id)
+            .ok_or(EnvError::OffChain)
+            .and_then(|account| {
+                account.balance::<T>().map_err(|_| EnvError::OffChain)
+            })
+    })
 }
 
 /// Sets the rent allowance of the contract account to the given rent allowance.

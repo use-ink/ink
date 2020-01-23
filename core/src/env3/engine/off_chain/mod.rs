@@ -66,7 +66,7 @@ pub struct EnvInstance {
     /// Uploaded Wasm contract codes.
     codes: CodeDb,
     /// Current execution context and context.
-    exec_context: Option<ExecContext>,
+    exec_context: Vec<ExecContext>,
     /// The general chain spec.
     chain_spec: ChainSpec,
     /// The blocks of the chain.
@@ -81,7 +81,7 @@ impl EnvInstance {
         Self {
             accounts: AccountsDb::new(),
             codes: CodeDb::new(),
-            exec_context: None,
+            exec_context: Vec::new(),
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
             console: Console::new(),
@@ -90,12 +90,12 @@ impl EnvInstance {
 
     /// Returns the current execution context.
     fn exec_context(&self) -> Result<&ExecContext> {
-        self.exec_context.as_ref().ok_or(InstanceError::UninitializedExecutionContext)
+        self.exec_context.last().ok_or(InstanceError::UninitializedExecutionContext)
     }
 
     /// Returns the current execution context.
     fn exec_context_mut(&mut self) -> Result<&mut ExecContext> {
-        self.exec_context.as_mut().ok_or(InstanceError::UninitializedExecutionContext)
+        self.exec_context.last_mut().ok_or(InstanceError::UninitializedExecutionContext)
     }
 
     /// Returns the current block of the chain.

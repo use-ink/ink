@@ -19,6 +19,8 @@ use derive_more::{From, Display};
 pub enum EnvError {
     #[display(msg = "error upon decoding")]
     Decode(scale::Error),
+    #[cfg(any(feature = "std", test, doc))]
+    OffChain,
 }
 
 /// A result of environmental operations.

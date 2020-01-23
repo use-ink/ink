@@ -64,6 +64,14 @@ impl AccountsDb {
         self.get_account_off(&OffAccountId::new(&at))
     }
 
+    /// Returns the account for the given account ID if any.
+    pub fn get_account_mut<T>(&mut self, at: T::AccountId) -> Option<&mut Account>
+    where
+        T: EnvTypes,
+    {
+        self.get_account_off_mut(&OffAccountId::new(&at))
+    }
+
     /// Returns the account for the given off-account ID if any.
     pub fn get_account_off(&self, at: &OffAccountId) -> Option<&Account> {
         self.accounts.get(at)
@@ -106,6 +114,16 @@ impl Account {
         T: EnvTypes,
     {
         self.balance.decode().map_err(Into::into)
+    }
+
+    /// Sets the balance of the account.
+    pub fn set_balance<T>(&mut self, new_balance: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        self.balance
+            .assign::<T::Balance>(&OffBalance::new(&new_balance))
+            .map_err(Into::into)
     }
 
     /// Returns the contract account or an error if it is a user account.
