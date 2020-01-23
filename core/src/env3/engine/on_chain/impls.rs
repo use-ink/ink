@@ -24,8 +24,6 @@ use crate::{
             CreateParams,
             ReturnType,
         },
-        property,
-        property::ReadProperty,
         Env,
         EnvTypes,
         Result,
@@ -90,9 +88,9 @@ impl EnvInstance {
     }
 
     /// Returns the contract property value.
-    fn get_property<P>(&mut self, ext_fn: fn()) -> Result<P::In>
+    fn get_property<T>(&mut self, ext_fn: fn()) -> Result<T>
     where
-        P: ReadProperty,
+        T: scale::Decode,
     {
         ext_fn();
         self.decode_scratch_buffer().map_err(Into::into)
@@ -161,7 +159,7 @@ impl Env for EnvInstance {
     }
 
     fn input(&mut self) -> Result<CallData> {
-        self.get_property::<property::Input>(|| ())
+        self.get_property::<CallData>(|| ())
     }
 
     fn output<R>(&mut self, return_value: &R)
@@ -179,47 +177,47 @@ impl Env for EnvInstance {
 
 impl TypedEnv for EnvInstance {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<property::Caller<T>>(ext::caller)
+        self.get_property::<T::AccountId>(ext::caller)
     }
 
     fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<property::TransferredBalance<T>>(ext::value_transferred)
+        self.get_property::<T::Balance>(ext::value_transferred)
     }
 
     fn gas_price<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<property::GasPrice<T>>(ext::gas_price)
+        self.get_property::<T::Balance>(ext::gas_price)
     }
 
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<property::GasLeft<T>>(ext::gas_left)
+        self.get_property::<T::Balance>(ext::gas_left)
     }
 
     fn now_in_ms<T: EnvTypes>(&mut self) -> Result<T::Moment> {
-        self.get_property::<property::NowInMs<T>>(ext::now)
+        self.get_property::<T::Moment>(ext::now)
     }
 
     fn address<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<property::Address<T>>(ext::address)
+        self.get_property::<T::AccountId>(ext::address)
     }
 
     fn balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<property::Balance<T>>(ext::balance)
+        self.get_property::<T::Balance>(ext::balance)
     }
 
     fn rent_allowance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<property::RentAllowance<T>>(ext::rent_allowance)
+        self.get_property::<T::Balance>(ext::rent_allowance)
     }
 
     fn block_number<T: EnvTypes>(&mut self) -> Result<T::BlockNumber> {
-        self.get_property::<property::BlockNumber<T>>(ext::block_number)
+        self.get_property::<T::BlockNumber>(ext::block_number)
     }
 
     fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<property::MinimumBalance<T>>(ext::minimum_balance)
+        self.get_property::<T::Balance>(ext::minimum_balance)
     }
 
     fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<property::TombstoneDeposit<T>>(ext::tombstone_deposit)
+        self.get_property::<T::Balance>(ext::tombstone_deposit)
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
