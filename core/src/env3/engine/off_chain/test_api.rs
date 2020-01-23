@@ -130,13 +130,21 @@ where
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_rent_allowance` type does not match.
 pub fn set_rent_allowance<T>(
-    account: T::AccountId,
+    account_id: T::AccountId,
     new_rent_allowance: T::Balance,
 ) -> Result<()>
 where
     T: EnvTypes,
 {
-    todo!()
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .accounts
+            .get_account_mut::<T>(account_id)
+            .ok_or(EnvError::OffChain)
+            .and_then(|account| {
+                account.set_rent_allowance::<T>(new_rent_allowance).map_err(|_| EnvError::OffChain)
+            })
+    })
 }
 
 /// Returns the rent allowance of the contract account.
@@ -146,11 +154,19 @@ where
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the returned rent allowance cannot be properly decoded.
-pub fn get_rent_allowance<T>(account: T::AccountId) -> Result<T::Balance>
+pub fn get_rent_allowance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    todo!()
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .accounts
+            .get_account::<T>(account_id)
+            .ok_or(EnvError::OffChain)
+            .and_then(|account| {
+                account.rent_allowance::<T>().map_err(|_| EnvError::OffChain)
+            })
+    })
 }
 
 /// Creates a new user account and returns its account ID.
