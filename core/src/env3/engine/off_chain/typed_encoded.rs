@@ -106,6 +106,15 @@ impl<M> Default for TypedEncoded<M> {
 }
 
 impl<M> TypedEncoded<M> {
+    /// Creates a new uninitialized instance.
+    pub fn uninitialized() -> Self {
+        Self {
+            encoded: Vec::new(),
+            type_id: None,
+            marker: Default::default(),
+        }
+    }
+
     /// Creates a new typed-encoded ininitialized by `value` of type `T`.
     pub fn new<T>(value: &T) -> Self
     where

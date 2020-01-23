@@ -27,6 +27,7 @@ pub use self::{
         ContractAccount,
         ContractStorage,
     },
+    chain_spec::ChainSpec,
     block::Block,
     codes::CodeDb,
     exec_context::ExecContext,

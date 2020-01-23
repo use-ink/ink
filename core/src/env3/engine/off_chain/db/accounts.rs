@@ -1,9 +1,21 @@
+// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 use super::{
     super::TypedEncodedError,
     OffAccountId,
     OffBalance,
-    OffBlockNumber,
-    OffCall,
     OffHash,
     OffMoment,
 };
@@ -11,8 +23,8 @@ use crate::{
     env3::EnvTypes,
     storage::Key,
 };
-use ink_prelude::collections::BTreeMap;
 use derive_more::From;
+use ink_prelude::collections::BTreeMap;
 
 /// Errors encountered upon interacting with the accounts database.
 #[derive(Debug, From)]
@@ -20,6 +32,12 @@ pub enum AccountError {
     TypedEncoded(TypedEncodedError),
     #[from(ignore)]
     UnexpectedUserAccount,
+}
+
+impl From<scale::Error> for AccountError {
+    fn from(err: scale::Error) -> Self {
+        AccountError::TypedEncoded(err.into())
+    }
 }
 
 /// Result type encountered while operating on accounts.
@@ -37,6 +55,30 @@ impl AccountsDb {
         Self {
             accounts: BTreeMap::new(),
         }
+    }
+
+    /// Returns the account for the given account ID if any.
+    pub fn get_account<T>(&self, at: T::AccountId) -> Option<&Account>
+    where
+        T: EnvTypes,
+    {
+        self.accounts.get(&OffAccountId::new(&at))
+    }
+
+    /// Creates a new user account.
+    pub fn new_user_account<T>(&mut self) -> T::AccountId
+    where
+        T: EnvTypes,
+    {
+        todo!()
+    }
+
+    /// Creates a new contract account.
+    pub fn new_contract_account<T>(&mut self) -> T::AccountId
+    where
+        T: EnvTypes,
+    {
+        todo!()
     }
 }
 
@@ -60,7 +102,9 @@ impl Account {
     /// Returns the contract account or an error if it is a user account.
     fn contract_or_err(&self) -> Result<&ContractAccount> {
         match &self.kind {
-            AccountKind::User => Err(AccountError::UnexpectedUserAccount).map_err(Into::into),
+            AccountKind::User => {
+                Err(AccountError::UnexpectedUserAccount).map_err(Into::into)
+            }
             AccountKind::Contract(contract_account) => Ok(contract_account),
         }
     }
@@ -68,7 +112,9 @@ impl Account {
     /// Returns the contract account or an error if it is a user account.
     fn contract_or_err_mut(&mut self) -> Result<&mut ContractAccount> {
         match &mut self.kind {
-            AccountKind::User => Err(AccountError::UnexpectedUserAccount).map_err(Into::into),
+            AccountKind::User => {
+                Err(AccountError::UnexpectedUserAccount).map_err(Into::into)
+            }
             AccountKind::Contract(contract_account) => Ok(contract_account),
         }
     }
@@ -78,9 +124,8 @@ impl Account {
     where
         T: EnvTypes,
     {
-        self.contract_or_err().and_then(|contract| {
-            contract.rent_allowance.decode().map_err(Into::into)
-        })
+        self.contract_or_err()
+            .and_then(|contract| contract.rent_allowance.decode().map_err(Into::into))
     }
 
     /// Returns the code hash of the contract account of an error.
@@ -88,36 +133,32 @@ impl Account {
     where
         T: EnvTypes,
     {
-        self.contract_or_err().and_then(|contract| {
-            contract.code_hash.decode().map_err(Into::into)
-        })
+        self.contract_or_err()
+            .and_then(|contract| contract.code_hash.decode().map_err(Into::into))
     }
 
     /// Sets the contract storage of key to the new value.
-    pub fn set_storage<T>(&mut self, key: Key, new_value: &T) -> Result<()>
+    pub fn set_storage<T>(&mut self, at: Key, new_value: &T) -> Result<()>
     where
         T: scale::Encode + 'static,
     {
-        self.contract_or_err_mut().and_then(|contract| {
-            todo!()
-        })
+        self.contract_or_err_mut()
+            .map(|contract| contract.storage.set_storage::<T>(at, new_value))
     }
 
     /// Clears the contract storage at key.
-    pub fn clear_storage(&mut self, key: Key) -> Result<()> {
-        self.contract_or_err_mut().and_then(|contract| {
-            todo!()
-        })
+    pub fn clear_storage(&mut self, at: Key) -> Result<()> {
+        self.contract_or_err_mut()
+            .map(|contract| contract.storage.clear_storage(at))
     }
 
     /// Clears the contract storage at key.
-    pub fn get_storage<T>(&self, key: Key) -> Result<T>
+    pub fn get_storage<T>(&self, at: Key) -> Result<Option<T>>
     where
         T: scale::Decode + 'static,
     {
-        self.contract_or_err().and_then(|contract| {
-            todo!()
-        })
+        self.contract_or_err()
+            .and_then(|contract| contract.storage.get_storage::<T>(at))
     }
 }
 
@@ -136,11 +177,38 @@ pub struct ContractAccount {
     /// The contract's code hash.
     code_hash: OffHash,
     /// The contract storage.
-    storage: ContractStorage,
+    pub storage: ContractStorage,
 }
 
 /// The storage of a contract instance.
 pub struct ContractStorage {
     /// The entries within the contract storage.
     entries: BTreeMap<Key, Vec<u8>>,
+}
+
+impl ContractStorage {
+    /// Returns the decoded storage at the key if any.
+    pub fn get_storage<T>(&self, at: Key) -> Result<Option<T>>
+    where
+        T: scale::Decode + 'static,
+    {
+        self.entries
+            .get(&at)
+            .map(|encoded| T::decode(&mut &encoded[..]))
+            .transpose()
+            .map_err(Into::into)
+    }
+
+    /// Writes the encoded value into the contract storage at the given key.
+    pub fn set_storage<T>(&mut self, at: Key, new_value: &T)
+    where
+        T: scale::Encode + 'static,
+    {
+        self.entries.insert(at, new_value.encode());
+    }
+
+    /// Removes the value from storage entries at the given key.
+    pub fn clear_storage(&mut self, at: Key) {
+        self.entries.remove(&at);
+    }
 }

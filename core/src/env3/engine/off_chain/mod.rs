@@ -23,6 +23,7 @@ use self::{
         AccountError,
         CodeDb,
         ExecContext,
+        ChainSpec,
     },
     typed_encoded::{TypedEncoded, TypedEncodedError, Result},
     types::{
@@ -47,6 +48,8 @@ pub struct EnvInstance {
     codes: CodeDb,
     /// Current execution context and context.
     session: Option<ExecContext>,
+    /// The general chain spec.
+    chain_spec: ChainSpec,
 }
 
 impl EnvInstance {
@@ -56,6 +59,7 @@ impl EnvInstance {
             accounts: AccountsDb::new(),
             codes: CodeDb::new(),
             session: None,
+            chain_spec: ChainSpec::uninitialized(),
         }
     }
 }
