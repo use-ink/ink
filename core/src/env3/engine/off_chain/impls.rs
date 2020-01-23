@@ -217,11 +217,11 @@ impl TypedEnv for EnvInstance {
             .expect("could not encode rent allowance")
     }
 
-    fn invoke_contract<T>(&mut self, call_params: &CallParams<T, ()>) -> Result<()>
+    fn invoke_contract<T>(&mut self, _call_params: &CallParams<T, ()>) -> Result<()>
     where
         T: EnvTypes,
     {
-        todo!()
+        unimplemented!("in off-chain environment contracts call each other directly")
     }
 
     fn invoke_runtime<T>(&mut self, params: &T::Call) -> Result<()>
@@ -233,23 +233,23 @@ impl TypedEnv for EnvInstance {
 
     fn eval_contract<T, R>(
         &mut self,
-        call_params: &CallParams<T, ReturnType<R>>,
+        _call_params: &CallParams<T, ReturnType<R>>,
     ) -> Result<R>
     where
         T: EnvTypes,
         R: scale::Decode,
     {
-        todo!()
+        unimplemented!("in off-chain environment contracts call each other directly")
     }
 
     fn create_contract<T, C>(
         &mut self,
-        params: &CreateParams<T, C>,
+        _params: &CreateParams<T, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
     {
-        todo!()
+        unimplemented!("in off-chain environment contracts create each other directly")
     }
 
     fn restore_contract<T>(
