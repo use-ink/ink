@@ -16,20 +16,25 @@ mod accounts;
 mod block;
 mod chain_spec;
 mod codes;
+mod console;
 mod exec_context;
 
 pub use self::{
     accounts::{
         Account,
-        AccountKind,
         AccountError,
+        AccountKind,
         AccountsDb,
         ContractAccount,
         ContractStorage,
     },
-    chain_spec::ChainSpec,
     block::Block,
+    chain_spec::ChainSpec,
     codes::CodeDb,
+    console::{
+        Console,
+        PastPrints,
+    },
     exec_context::ExecContext,
 };
 use super::{

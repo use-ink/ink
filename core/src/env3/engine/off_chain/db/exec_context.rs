@@ -76,7 +76,7 @@ impl ExecContext {
     }
 
     /// Returns the transferred value.
-    pub fn transferred_value<T>(&self) -> Result<T::AccountId>
+    pub fn transferred_value<T>(&self) -> Result<T::Balance>
     where
         T: EnvTypes,
     {
@@ -84,7 +84,7 @@ impl ExecContext {
     }
 
     /// Returns the gas.
-    pub fn gas<T>(&self) -> Result<T::AccountId>
+    pub fn gas<T>(&self) -> Result<T::Balance>
     where
         T: EnvTypes,
     {

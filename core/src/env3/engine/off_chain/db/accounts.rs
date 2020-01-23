@@ -128,13 +128,26 @@ impl Account {
         }
     }
 
-    /// Returns the rent allowance of the contract account of an error.
+    /// Returns the rent allowance of the contract account or an error.
     pub fn rent_allowance<T>(&self) -> Result<T::Balance>
     where
         T: EnvTypes,
     {
         self.contract_or_err()
             .and_then(|contract| contract.rent_allowance.decode().map_err(Into::into))
+    }
+
+    /// Sets the rent allowance for the contract account or returns an error.
+    pub fn set_rent_allowance<T>(&mut self, new_rent_allowance: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        self.contract_or_err_mut().and_then(|contract| {
+            contract
+                .rent_allowance
+                .assign::<T::Balance>(&OffBalance::new(&new_rent_allowance))
+                .map_err(Into::into)
+        })
     }
 
     /// Returns the code hash of the contract account of an error.

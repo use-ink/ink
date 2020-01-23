@@ -112,49 +112,85 @@ impl Env for EnvInstance {
     }
 
     fn println(&mut self, content: &str) {
-        println!("{}", content)
+        self.console.println(content)
     }
 }
 
 impl TypedEnv for EnvInstance {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
-        todo!()
+        self.exec_context()
+            .expect("uninitialized execution context")
+            .caller::<T>()
+            .map_err(|_| scale::Error::from("could not decode caller"))
+            .map_err(Into::into)
     }
 
     fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        todo!()
+        self.exec_context()
+            .expect("uninitialized execution context")
+            .transferred_value::<T>()
+            .map_err(|_| scale::Error::from("could not decode transferred balance"))
+            .map_err(Into::into)
     }
 
     fn gas_price<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        todo!()
+        self.chain_spec
+            .gas_price::<T>()
+            .map_err(|_| scale::Error::from("could not decode gas price"))
+            .map_err(Into::into)
     }
 
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        todo!()
+        self.exec_context()
+            .expect("uninitialized execution context")
+            .gas::<T>()
+            .map_err(|_| scale::Error::from("could not decode gas left"))
+            .map_err(Into::into)
     }
 
     fn now_in_ms<T: EnvTypes>(&mut self) -> Result<T::Moment> {
-        todo!()
+        self.current_block()
+            .expect("uninitialized execution context")
+            .moment::<T>()
+            .map_err(|_| scale::Error::from("could not decode block time"))
+            .map_err(Into::into)
     }
 
     fn address<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
-        todo!()
+        self.exec_context()
+            .expect("uninitialized execution context")
+            .callee::<T>()
+            .map_err(|_| scale::Error::from("could not decode callee"))
+            .map_err(Into::into)
     }
 
     fn balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        todo!()
+        self.callee_account()
+            .balance::<T>()
+            .map_err(|_| scale::Error::from("could not decode callee balance"))
+            .map_err(Into::into)
     }
 
     fn rent_allowance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        todo!()
+        self.callee_account()
+            .rent_allowance::<T>()
+            .map_err(|_| scale::Error::from("could not decode callee rent allowance"))
+            .map_err(Into::into)
     }
 
     fn block_number<T: EnvTypes>(&mut self) -> Result<T::BlockNumber> {
-        todo!()
+        self.current_block()
+            .expect("uninitialized execution context")
+            .number::<T>()
+            .map_err(|_| scale::Error::from("could not decode block number"))
+            .map_err(Into::into)
     }
 
     fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        todo!()
+        self.chain_spec
+            .existential_balance::<T>()
+            .map_err(|_| scale::Error::from("could not decode existential balance"))
+            .map_err(Into::into)
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
@@ -165,11 +201,13 @@ impl TypedEnv for EnvInstance {
         todo!()
     }
 
-    fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
+    fn set_rent_allowance<T>(&mut self, new_rent_allowance: T::Balance)
     where
         T: EnvTypes,
     {
-        todo!()
+        self.callee_account_mut()
+            .set_rent_allowance::<T>(new_rent_allowance)
+            .expect("could not encode rent allowance")
     }
 
     fn invoke_contract<T>(&mut self, call_params: &CallParams<T, ()>) -> Result<()>

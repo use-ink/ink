@@ -26,6 +26,7 @@ use self::{
         ChainSpec,
         CodeDb,
         ExecContext,
+        Console,
     },
     typed_encoded::{
         TypedEncoded,
@@ -69,6 +70,8 @@ pub struct EnvInstance {
     chain_spec: ChainSpec,
     /// The blocks of the chain.
     blocks: Vec<Block>,
+    /// The console to print debug contents.
+    console: Console,
 }
 
 impl EnvInstance {
@@ -80,6 +83,7 @@ impl EnvInstance {
             exec_context: None,
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
+            console: Console::new(),
         }
     }
 

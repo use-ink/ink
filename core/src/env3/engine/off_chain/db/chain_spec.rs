@@ -20,6 +20,8 @@ use super::super::Result;
 pub struct ChainSpec {
     /// The current gas price.
     gas_price: OffBalance,
+    /// The existential balance needed to create a tombstone upon contract eviction.
+    existential_balance: OffBalance,
 }
 
 impl ChainSpec {
@@ -27,6 +29,7 @@ impl ChainSpec {
     pub fn uninitialized() -> Self {
         Self {
             gas_price: OffBalance::uninitialized(),
+            existential_balance: OffBalance::uninitialized(),
         }
     }
 
@@ -36,5 +39,13 @@ impl ChainSpec {
         T: EnvTypes,
     {
         self.gas_price.decode().map_err(Into::into)
+    }
+
+    /// Returns the existential balance for the chain.
+    pub fn existential_balance<T>(&self) -> Result<T::Balance>
+    where
+        T: EnvTypes,
+    {
+        self.existential_balance.decode().map_err(Into::into)
     }
 }
