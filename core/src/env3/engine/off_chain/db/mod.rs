@@ -12,27 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod ext;
-mod impls;
-mod retcode;
+mod accounts;
+mod block;
+mod chain_spec;
+mod codes;
+mod exec_context;
 
-use ink_prelude::vec::Vec;
-use super::OnInstance;
-
-pub(crate) use self::retcode::RetCode;
-
-/// The on-chain environment.
-pub struct EnvInstance {
-    /// Encode & decode buffer for potentially reusing required dynamic allocations.
-    buffer: Vec<u8>,
-}
-
-impl OnInstance for EnvInstance {
-    fn on_instance<F, R>(f: F) -> R
-    where
-        F: FnOnce(&mut Self) -> R
-    {
-        static mut INSTANCE: EnvInstance = EnvInstance { buffer: Vec::new() };
-        f(unsafe { &mut INSTANCE })
-    }
-}
+pub use self::{
+    accounts::{
+        Account,
+        AccountKind,
+        AccountError,
+        AccountsDb,
+        ContractAccount,
+        ContractStorage,
+    },
+    block::Block,
+    codes::CodeDb,
+    exec_context::ExecContext,
+};
+use super::{
+    OffAccountId,
+    OffBalance,
+    OffBlockNumber,
+    OffCall,
+    OffHash,
+    OffMoment,
+};

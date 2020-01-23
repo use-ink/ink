@@ -14,7 +14,7 @@
 
 use super::{
     ext,
-    WasmEnv,
+    EnvInstance,
 };
 use crate::{
     env3::{
@@ -35,7 +35,7 @@ use crate::{
     storage::Key,
 };
 
-impl WasmEnv {
+impl EnvInstance {
     /// Empties the contract-side scratch buffer.
     ///
     /// # Note
@@ -127,7 +127,7 @@ impl WasmEnv {
     }
 }
 
-impl Env for WasmEnv {
+impl Env for EnvInstance {
     fn set_contract_storage<V>(&mut self, key: Key, value: &V)
     where
         V: scale::Encode,
@@ -177,7 +177,7 @@ impl Env for WasmEnv {
     }
 }
 
-impl TypedEnv for WasmEnv {
+impl TypedEnv for EnvInstance {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
         self.get_property::<property::Caller<T>>(ext::caller)
     }

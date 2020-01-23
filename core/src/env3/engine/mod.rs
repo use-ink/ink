@@ -15,21 +15,19 @@
 use cfg_if::cfg_if;
 use crate::env3::backend::{TypedEnv, Env};
 
-pub trait Instance {
-    type Engine: Env + TypedEnv;
-
-    fn run<F, R>(f: F) -> R
+pub trait OnInstance: Env + TypedEnv {
+    fn on_instance<F, R>(f: F) -> R
     where
-        F: FnOnce(&mut Self::Engine) -> R;
+        F: FnOnce(&mut Self) -> R;
 }
 
 cfg_if! {
     if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
         mod on_chain;
-        pub use self::on_chain::Accessor;
+        pub use self::on_chain::EnvInstance;
     } else if #[cfg(feature = "std")] {
-        mod off_chain;
-        pub use self::off_chain::Accessor;
+        pub mod off_chain;
+        pub use self::off_chain::EnvInstance;
     } else {
         compile_error! {
             "ink! only support compilation as `std` or `no_std` + `wasm32-unknown`"

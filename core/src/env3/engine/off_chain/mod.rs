@@ -12,29 +12,64 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod db;
 mod impls;
+pub mod typed_encoded;
+pub mod types;
 
-use super::Instance;
+use self::{
+    db::{
+        AccountsDb,
+        AccountError,
+        CodeDb,
+        ExecContext,
+    },
+    typed_encoded::{TypedEncoded, TypedEncodedError, Result},
+    types::{
+        OffAccountId,
+        OffBalance,
+        OffHash,
+        OffMoment,
+        OffBlockNumber,
+        OffCall,
+    },
+};
+use super::OnInstance;
 use core::cell::RefCell;
 
-pub enum Accessor {}
+/// The off-chain environment.
+///
+/// Mainly used for off-chain testing.
+pub struct EnvInstance {
+    /// The accounts database of the environment.
+    accounts: AccountsDb,
+    /// Uploaded Wasm contract codes.
+    codes: CodeDb,
+    /// Current execution context and context.
+    session: Option<ExecContext>,
+}
 
-pub struct TestEnv {}
+impl EnvInstance {
+    /// Creates a new uninitialized off-chain environment.
+    pub fn uninitialized() -> Self {
+        Self {
+            accounts: AccountsDb::new(),
+            codes: CodeDb::new(),
+            session: None,
+        }
+    }
+}
 
-impl Instance for Accessor {
-    type Engine = TestEnv;
-
-    fn run<F, R>(f: F) -> R
+impl OnInstance for EnvInstance {
+    fn on_instance<F, R>(f: F) -> R
     where
-        F: FnOnce(&mut Self::Engine) -> R,
+        F: FnOnce(&mut Self) -> R,
     {
         thread_local!(
-            static INSTANCE: RefCell<TestEnv> = RefCell::new(
-                TestEnv {}
+            static INSTANCE: RefCell<EnvInstance> = RefCell::new(
+                EnvInstance::uninitialized()
             )
         );
-        INSTANCE.with(|instance| {
-            f(&mut instance.borrow_mut())
-        })
+        INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
     }
 }

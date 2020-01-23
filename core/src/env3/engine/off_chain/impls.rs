@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::TestEnv;
+use super::EnvInstance;
 use crate::{
     env3::{
         call::{
@@ -30,7 +30,7 @@ use crate::{
     storage::Key,
 };
 
-impl Env for TestEnv {
+impl Env for EnvInstance {
     fn set_contract_storage<V>(&mut self, key: Key, value: &V)
     where
         V: scale::Encode,
@@ -72,7 +72,7 @@ impl Env for TestEnv {
     }
 }
 
-impl TypedEnv for TestEnv {
+impl TypedEnv for EnvInstance {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
         todo!()
     }

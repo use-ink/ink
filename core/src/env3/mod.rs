@@ -21,7 +21,7 @@ mod api;
 mod backend;
 mod buffer;
 pub mod call;
-mod engine;
+pub mod engine;
 mod error;
 mod property;
 #[cfg(any(test, doc))]
