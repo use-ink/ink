@@ -13,13 +13,6 @@
 // limitations under the License.
 
 //! The public raw interface towards the host Wasm engine.
-//!
-//! # Note
-//!
-//! Prefer using the dedicated `EnvAccess` and `EnvAccessMut` types in order
-//! to interoperate with the environment as they already have their associated
-//! environemntal types associated to them and provide additional safety in some
-//! scenarios.
 
 use crate::{
     env3::{
