@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod buffer;
 mod ext;
 mod impls;
 mod retcode;
@@ -19,81 +20,7 @@ mod retcode;
 use super::OnInstance;
 
 pub(crate) use self::retcode::RetCode;
-
-/// A static buffer with 16kB of capacity.
-pub struct StaticBuffer {
-    /// The static buffer with a total capacity of 16kB.
-    buffer: [u8; Self::CAPACITY],
-    /// The number of elements currently in use by the buffer
-    /// counting from the start.
-    len: usize,
-}
-
-impl StaticBuffer {
-    /// The capacity of the static buffer.
-    const CAPACITY: usize = 1 << 14; // 16kB
-
-    /// Creates a new static buffer.
-    pub const fn new() -> Self {
-        Self { buffer: [0; Self::CAPACITY], len: 0 }
-    }
-
-    /// Returns the current length of the static buffer.
-    pub fn len(&self) -> usize {
-        self.len
-    }
-
-    /// Resizes the static buffer to the given length.
-    ///
-    /// # Panics
-    ///
-    /// Panics for lengths greater than its capacity.
-    pub fn resize(&mut self, new_len: usize) {
-        if new_len > Self::CAPACITY {
-            panic!("static buffer overflowed")
-        }
-        self.len = new_len;
-    }
-
-    /// Resets the length of the buffer to 0.
-    pub fn clear(&mut self) {
-        self.len = 0;
-    }
-}
-
-impl scale::Output for StaticBuffer {
-    fn write(&mut self, bytes: &[u8]) {
-        if self.len + bytes.len() > Self::CAPACITY {
-            panic!("static buffer overflowed")
-        }
-        let start = self.len;
-        let len_bytes = bytes.len();
-        self.buffer[start..(start + len_bytes)].copy_from_slice(bytes);
-        self.len += len_bytes;
-    }
-
-    fn push_byte(&mut self, byte: u8) {
-        if self.len == Self::CAPACITY {
-            panic!("static buffer overflowed")
-        }
-        self.buffer[self.len] = byte;
-        self.len += 1;
-    }
-}
-
-impl<I: core::slice::SliceIndex<[u8]>> core::ops::Index<I> for StaticBuffer {
-    type Output = I::Output;
-
-    fn index(&self, index: I) -> &Self::Output {
-        core::ops::Index::index(&self.buffer[..self.len], index)
-    }
-}
-
-impl<I: core::slice::SliceIndex<[u8]>> core::ops::IndexMut<I> for StaticBuffer {
-    fn index_mut(&mut self, index: I) -> &mut Self::Output {
-        core::ops::IndexMut::index_mut(&mut self.buffer[..self.len], index)
-    }
-}
+use self::buffer::StaticBuffer;
 
 /// The on-chain environment.
 pub struct EnvInstance {
