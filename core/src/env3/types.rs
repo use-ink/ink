@@ -47,7 +47,7 @@ pub trait EnvTypes {
     /// The type of block number.
     type BlockNumber: 'static + scale::Codec + Clone + PartialEq + Eq;
     /// The type of a call into the runtime
-    type Call: 'static + scale::Encode;
+    type Call: 'static + scale::Codec;
 }
 
 /// Implemented by event types to communicate their topic hashes.

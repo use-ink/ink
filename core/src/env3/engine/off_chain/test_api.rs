@@ -190,3 +190,14 @@ where
         instance.runtime_storage.store(key.to_vec(), value)
     })
 }
+
+/// Sets the call handler for runtime calls.
+pub fn set_runtime_call_handler<T, F>(f: F)
+where
+    T: EnvTypes,
+    F: FnMut(<T as EnvTypes>::Call) + 'static,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.runtime_call_handler.register::<T, F>(f)
+    })
+}

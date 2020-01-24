@@ -228,7 +228,7 @@ impl TypedEnv for EnvInstance {
     where
         T: EnvTypes,
     {
-        todo!()
+        self.runtime_call_handler.invoke::<T>(params)
     }
 
     fn eval_contract<T, R>(

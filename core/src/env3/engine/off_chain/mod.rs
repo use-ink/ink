@@ -14,6 +14,7 @@
 
 mod db;
 mod impls;
+mod runtime_calls;
 mod runtime_storage;
 pub mod test_api;
 mod typed_encoded;
@@ -31,6 +32,7 @@ use self::{
         ExecContext,
     },
     runtime_storage::RuntimeStorage,
+    runtime_calls::RuntimeCallHandler,
     typed_encoded::{
         TypedEncoded,
         TypedEncodedError,
@@ -41,6 +43,7 @@ use self::{
         OffBlockNumber,
         OffHash,
         OffMoment,
+        OffCall,
     },
 };
 use super::OnInstance;
@@ -77,6 +80,8 @@ pub struct EnvInstance {
     console: Console,
     /// The emulated runtime storage.
     runtime_storage: RuntimeStorage,
+    /// The runtime calls handler.
+    runtime_call_handler: RuntimeCallHandler,
 }
 
 impl EnvInstance {
@@ -90,6 +95,7 @@ impl EnvInstance {
             blocks: Vec::new(),
             console: Console::new(),
             runtime_storage: RuntimeStorage::new(),
+            runtime_call_handler: RuntimeCallHandler::new(),
         }
     }
 
