@@ -86,11 +86,11 @@ impl Env for EnvInstance {
             .expect("callee account is not a smart contract");
     }
 
-    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Result<R>
+    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
     where
         R: scale::Decode,
     {
-        todo!()
+        self.runtime_storage.load::<R>(runtime_key)
     }
 
     fn input(&mut self) -> Result<CallData> {

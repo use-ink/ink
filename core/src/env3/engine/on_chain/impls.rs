@@ -154,14 +154,14 @@ impl Env for EnvInstance {
         ext::clear_storage(key.as_bytes())
     }
 
-    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Result<R>
+    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
     where
         R: scale::Decode,
     {
         if !ext::get_runtime_storage(runtime_key).is_success() {
-            todo!()
+            return None
         }
-        self.decode_scratch_buffer().map_err(Into::into)
+        Some(self.decode_scratch_buffer().map_err(Into::into))
     }
 
     fn input(&mut self) -> Result<CallData> {

@@ -53,7 +53,7 @@ pub trait Env {
     ///
     /// - If the key's entry is empty
     /// - If the decoding of the typed value failed
-    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Result<R>
+    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
     where
         R: scale::Decode;
 

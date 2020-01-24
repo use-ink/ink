@@ -180,3 +180,13 @@ where
 {
     todo!()
 }
+
+/// Sets the runtime storage to value for the given key.
+pub fn set_runtime_storage<T>(key: &[u8], value: T)
+where
+    T: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.runtime_storage.store(key.to_vec(), value)
+    })
+}

@@ -433,13 +433,13 @@ pub fn println(content: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| Env::println(instance, content))
 }
 
-/// Returns the value from the *runtime* storage at the position of the key.
+/// Returns the value from the *runtime* storage at the position of the key if any.
 ///
 /// # Errors
 ///
 /// - If the key's entry is empty
 /// - If the decoding of the typed value failed
-pub fn get_runtime_storage<R>(runtime_key: &[u8]) -> Result<R>
+pub fn get_runtime_storage<R>(runtime_key: &[u8]) -> Option<Result<R>>
 where
     R: scale::Decode,
 {

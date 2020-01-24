@@ -14,21 +14,23 @@
 
 mod db;
 mod impls;
+mod runtime_storage;
+pub mod test_api;
 mod typed_encoded;
 mod types;
-pub mod test_api;
 
 use self::{
     db::{
+        Account,
         AccountError,
         AccountsDb,
-        Account,
         Block,
         ChainSpec,
         CodeDb,
-        ExecContext,
         Console,
+        ExecContext,
     },
+    runtime_storage::RuntimeStorage,
     typed_encoded::{
         TypedEncoded,
         TypedEncodedError,
@@ -73,6 +75,8 @@ pub struct EnvInstance {
     blocks: Vec<Block>,
     /// The console to print debug contents.
     console: Console,
+    /// The emulated runtime storage.
+    runtime_storage: RuntimeStorage,
 }
 
 impl EnvInstance {
@@ -85,17 +89,22 @@ impl EnvInstance {
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
             console: Console::new(),
+            runtime_storage: RuntimeStorage::new(),
         }
     }
 
     /// Returns the current execution context.
     fn exec_context(&self) -> Result<&ExecContext> {
-        self.exec_context.last().ok_or(InstanceError::UninitializedExecutionContext)
+        self.exec_context
+            .last()
+            .ok_or(InstanceError::UninitializedExecutionContext)
     }
 
     /// Returns the current execution context.
     fn exec_context_mut(&mut self) -> Result<&mut ExecContext> {
-        self.exec_context.last_mut().ok_or(InstanceError::UninitializedExecutionContext)
+        self.exec_context
+            .last_mut()
+            .ok_or(InstanceError::UninitializedExecutionContext)
     }
 
     /// Returns the current block of the chain.
