@@ -17,7 +17,6 @@ use super::{
     OffChainError,
 };
 use crate::env3::{
-    EnvError,
     EnvTypes,
     Result,
 };

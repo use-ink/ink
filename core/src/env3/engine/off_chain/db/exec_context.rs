@@ -92,11 +92,21 @@ impl ExecContext {
     }
 
     /// Returns the call data.
+    #[allow(
+        dead_code,
+        // Needed as soon as we support to execute contracts
+        // directly through the off-chain environment.
+    )]
     pub fn call_data(&self) -> &CallData {
         &self.call_data
     }
 
     /// Returns the contract execution output.
+    #[allow(
+        dead_code,
+        // Needed as soon as we support to execute contracts
+        // directly through the off-chain environment.
+    )]
     pub fn output(&self) -> Option<&Bytes> {
         self.output.as_ref()
     }

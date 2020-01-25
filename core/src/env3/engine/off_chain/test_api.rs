@@ -18,12 +18,10 @@ use super::{
     db::ExecContext,
     AccountError,
     EnvInstance,
-    OffChainError,
     OnInstance,
 };
 use crate::env3::{
     call::CallData,
-    EnvError,
     EnvTypes,
     Result,
 };
@@ -167,11 +165,7 @@ where
             .get_account::<T>(&account_id)
             .ok_or(AccountError::no_account_for_id::<T>(&account_id))
             .map_err(Into::into)
-            .and_then(|account| {
-                account
-                    .rent_allowance::<T>()
-                    .map_err(Into::into)
-            })
+            .and_then(|account| account.rent_allowance::<T>().map_err(Into::into))
     })
 }
 
