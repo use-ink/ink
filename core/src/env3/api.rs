@@ -414,7 +414,8 @@ where
 ///
 /// # Note
 ///
-/// The subject buffer can be used to further randomize the hash.
+/// - The subject buffer can be used to further randomize the hash.
+/// - Within the same execution returns the same random hash for the same subject.
 ///
 /// # Errors
 ///
