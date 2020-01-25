@@ -119,6 +119,11 @@ impl EnvInstance {
     fn current_block(&self) -> Result<&Block> {
         self.blocks.last().ok_or(OffChainError::UninitializedBlocks)
     }
+
+    /// Returns a mutable reference to the current block of the chain.
+    fn current_block_mut(&mut self) -> Result<&mut Block> {
+        self.blocks.last_mut().ok_or(OffChainError::UninitializedBlocks)
+    }
 }
 
 impl OnInstance for EnvInstance {

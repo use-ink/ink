@@ -164,7 +164,19 @@ impl<M> TypedEncoded<M> {
         if self.type_id.is_none() {
             return Err(TypedEncodedError::StillUninitialized)
         }
-        Ok(&self.encoded)
+        Ok(&self.encoded[..])
+    }
+
+    /// Returns a mutable reference to the encoded bytes representation.
+    ///
+    /// # Errors
+    ///
+    /// If the instance is still uninitialized.
+    pub fn encoded_bytes_mut(&mut self) -> Result<&mut [u8]> {
+        if self.type_id.is_none() {
+            return Err(TypedEncodedError::StillUninitialized)
+        }
+        Ok(&mut self.encoded[..])
     }
 
     /// Returns the type ID if the instance has already been initialized.

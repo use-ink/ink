@@ -264,10 +264,13 @@ impl TypedEnv for EnvInstance {
         unimplemented!("off-chain environment does not support contract restoration")
     }
 
-    fn random<T>(&mut self, _subject: &[u8]) -> Result<T::Hash>
+    fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: EnvTypes,
     {
-        todo!()
+        self.current_block()
+            .expect("uninitialized execution context")
+            .random::<T>(subject)
+            .map_err(Into::into)
     }
 }

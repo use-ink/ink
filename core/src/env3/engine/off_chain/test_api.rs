@@ -209,3 +209,18 @@ where
         instance.runtime_call_handler.register::<T, F>(f)
     })
 }
+
+/// Set the entropy hash of the current block.
+///
+/// # Note
+///
+/// This allows to control what [`crate::env3::random`] returns.
+pub fn set_entropy<T>(entropy: T::Hash) -> Result<()>
+where
+    T: EnvTypes,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.current_block_mut()?.set_entropy::<T>(entropy)
+    })
+    .map_err(Into::into)
+}
