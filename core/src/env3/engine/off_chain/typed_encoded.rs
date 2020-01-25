@@ -21,6 +21,8 @@ use core::{
     },
     marker::PhantomData,
 };
+use super::OffChainError;
+use crate::env3::EnvError;
 use derive_more::From;
 
 /// A wrapper around an encoded entity that only allows type safe accesses.
@@ -84,6 +86,12 @@ pub enum TypedEncodedError {
     /// When operating on still uninitialized types.
     #[from(ignore)]
     StillUninitialized,
+}
+
+impl From<TypedEncodedError> for EnvError {
+    fn from(typed_encoded_error: TypedEncodedError) -> Self {
+        EnvError::OffChain(OffChainError::TypedEncoded(typed_encoded_error))
+    }
 }
 
 /// The result type for typed encoded operations.

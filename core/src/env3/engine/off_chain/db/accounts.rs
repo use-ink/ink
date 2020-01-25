@@ -13,13 +13,19 @@
 // limitations under the License.
 
 use super::{
-    super::TypedEncodedError,
+    super::{
+        OffChainError,
+        TypedEncodedError,
+    },
     OffAccountId,
     OffBalance,
     OffHash,
 };
 use crate::{
-    env3::EnvTypes,
+    env3::{
+        EnvError,
+        EnvTypes,
+    },
     storage::Key,
 };
 use derive_more::From;
@@ -31,6 +37,24 @@ pub enum AccountError {
     TypedEncoded(TypedEncodedError),
     #[from(ignore)]
     UnexpectedUserAccount,
+    #[from(ignore)]
+    NoAccountForId(OffAccountId),
+}
+
+impl From<AccountError> for EnvError {
+    fn from(account_error: AccountError) -> Self {
+        EnvError::OffChain(OffChainError::Account(account_error))
+    }
+}
+
+impl AccountError {
+    /// Creates a new error to indicate a missing account.
+    pub fn no_account_for_id<T>(account_id: &T::AccountId) -> Self
+    where
+        T: EnvTypes,
+    {
+        Self::NoAccountForId(OffAccountId::new(account_id))
+    }
 }
 
 impl From<scale::Error> for AccountError {
@@ -57,23 +81,23 @@ impl AccountsDb {
     }
 
     /// Returns the account for the given account ID if any.
-    pub fn get_account<T>(&self, at: T::AccountId) -> Option<&Account>
+    pub fn get_account<T>(&self, at: &T::AccountId) -> Option<&Account>
     where
         T: EnvTypes,
     {
-        self.get_account_off(&OffAccountId::new(&at))
+        self.accounts.get(&OffAccountId::new(at))
     }
 
     /// Returns the account for the given account ID if any.
-    pub fn get_account_mut<T>(&mut self, at: T::AccountId) -> Option<&mut Account>
+    pub fn get_account_mut<T>(&mut self, at: &T::AccountId) -> Option<&mut Account>
     where
         T: EnvTypes,
     {
-        self.get_account_off_mut(&OffAccountId::new(&at))
+        self.accounts.get_mut(&OffAccountId::new(at))
     }
 
     /// Returns the account for the given off-account ID if any.
-    pub fn get_account_off(&self, at: &OffAccountId) -> Option<&Account> {
+    pub fn get_account_off<'a>(&'a self, at: &OffAccountId) -> Option<&'a Account> {
         self.accounts.get(at)
     }
 
@@ -83,7 +107,7 @@ impl AccountsDb {
     }
 
     /// Creates a new user account.
-    pub fn new_user_account<T>(&mut self) -> T::AccountId
+    pub fn new_user_account<T>(&mut self, initial_balance: T::Balance) -> T::AccountId
     where
         T: EnvTypes,
     {

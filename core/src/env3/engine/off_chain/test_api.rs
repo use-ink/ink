@@ -16,11 +16,13 @@
 
 use super::{
     db::ExecContext,
+    AccountError,
     EnvInstance,
+    OffChainError,
+    OnInstance,
 };
 use crate::env3::{
     call::CallData,
-    engine::OnInstance,
     EnvError,
     EnvTypes,
     Result,
@@ -87,11 +89,10 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .accounts
-            .get_account_mut::<T>(account_id)
-            .ok_or(EnvError::OffChain)
-            .and_then(|account| {
-                account.set_balance::<T>(new_balance).map_err(|_| EnvError::OffChain)
-            })
+            .get_account_mut::<T>(&account_id)
+            .ok_or(AccountError::no_account_for_id::<T>(&account_id))
+            .map_err(Into::into)
+            .and_then(|account| account.set_balance::<T>(new_balance).map_err(Into::into))
     })
 }
 
@@ -114,11 +115,10 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .accounts
-            .get_account::<T>(account_id)
-            .ok_or(EnvError::OffChain)
-            .and_then(|account| {
-                account.balance::<T>().map_err(|_| EnvError::OffChain)
-            })
+            .get_account::<T>(&account_id)
+            .ok_or(AccountError::no_account_for_id::<T>(&account_id))
+            .map_err(Into::into)
+            .and_then(|account| account.balance::<T>().map_err(Into::into))
     })
 }
 
@@ -139,10 +139,13 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .accounts
-            .get_account_mut::<T>(account_id)
-            .ok_or(EnvError::OffChain)
+            .get_account_mut::<T>(&account_id)
+            .ok_or(AccountError::no_account_for_id::<T>(&account_id))
+            .map_err(Into::into)
             .and_then(|account| {
-                account.set_rent_allowance::<T>(new_rent_allowance).map_err(|_| EnvError::OffChain)
+                account
+                    .set_rent_allowance::<T>(new_rent_allowance)
+                    .map_err(Into::into)
             })
     })
 }
@@ -161,10 +164,13 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .accounts
-            .get_account::<T>(account_id)
-            .ok_or(EnvError::OffChain)
+            .get_account::<T>(&account_id)
+            .ok_or(AccountError::no_account_for_id::<T>(&account_id))
+            .map_err(Into::into)
             .and_then(|account| {
-                account.rent_allowance::<T>().map_err(|_| EnvError::OffChain)
+                account
+                    .rent_allowance::<T>()
+                    .map_err(Into::into)
             })
     })
 }
@@ -178,7 +184,9 @@ pub fn create_user_account<T>(initial_balance: T::Balance) -> Result<T::AccountI
 where
     T: EnvTypes,
 {
-    todo!()
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        Ok(instance.accounts.new_user_account::<T>(initial_balance))
+    })
 }
 
 /// Sets the runtime storage to value for the given key.

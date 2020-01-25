@@ -14,13 +14,16 @@
 
 use derive_more::{From, Display};
 
+#[cfg(any(feature = "std", test, doc))]
+use crate::env3::engine::off_chain::OffChainError;
+
 /// Errors that can be encountered upon environmental interaction.
-#[derive(From, Display)]
+#[derive(From)]
 pub enum EnvError {
-    #[display(msg = "error upon decoding")]
+    // #[display(msg = "error upon decoding")]
     Decode(scale::Error),
     #[cfg(any(feature = "std", test, doc))]
-    OffChain,
+    OffChain(OffChainError),
 }
 
 /// A result of environmental operations.

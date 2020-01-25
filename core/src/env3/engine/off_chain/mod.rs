@@ -20,10 +20,13 @@ pub mod test_api;
 mod typed_encoded;
 mod types;
 
+pub use self::{
+    db::AccountError,
+    typed_encoded::TypedEncodedError,
+};
 use self::{
     db::{
         Account,
-        AccountError,
         AccountsDb,
         Block,
         ChainSpec,
@@ -31,19 +34,16 @@ use self::{
         Console,
         ExecContext,
     },
-    runtime_storage::RuntimeStorage,
     runtime_calls::RuntimeCallHandler,
-    typed_encoded::{
-        TypedEncoded,
-        TypedEncodedError,
-    },
+    runtime_storage::RuntimeStorage,
+    typed_encoded::TypedEncoded,
     types::{
         OffAccountId,
         OffBalance,
         OffBlockNumber,
+        OffCall,
         OffHash,
         OffMoment,
-        OffCall,
     },
 };
 use super::OnInstance;
@@ -51,16 +51,18 @@ use core::cell::RefCell;
 use derive_more::From;
 
 #[derive(Debug, From)]
-pub enum InstanceError {
+pub enum OffChainError {
     Account(AccountError),
     TypedEncoded(TypedEncodedError),
     #[from(ignore)]
     UninitializedBlocks,
     #[from(ignore)]
     UninitializedExecutionContext,
+    #[from(ignore)]
+    UnregisteredRuntimeCallHandler,
 }
 
-pub type Result<T> = core::result::Result<T, InstanceError>;
+pub type Result<T> = core::result::Result<T, OffChainError>;
 
 /// The off-chain environment.
 ///
@@ -103,19 +105,19 @@ impl EnvInstance {
     fn exec_context(&self) -> Result<&ExecContext> {
         self.exec_context
             .last()
-            .ok_or(InstanceError::UninitializedExecutionContext)
+            .ok_or(OffChainError::UninitializedExecutionContext)
     }
 
     /// Returns the current execution context.
     fn exec_context_mut(&mut self) -> Result<&mut ExecContext> {
         self.exec_context
             .last_mut()
-            .ok_or(InstanceError::UninitializedExecutionContext)
+            .ok_or(OffChainError::UninitializedExecutionContext)
     }
 
     /// Returns the current block of the chain.
     fn current_block(&self) -> Result<&Block> {
-        self.blocks.last().ok_or(InstanceError::UninitializedBlocks)
+        self.blocks.last().ok_or(OffChainError::UninitializedBlocks)
     }
 }
 

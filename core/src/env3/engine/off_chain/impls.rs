@@ -200,7 +200,7 @@ impl TypedEnv for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn emit_event<T, Event>(&mut self, event: Event)
+    fn emit_event<T, Event>(&mut self, _event: Event)
     where
         T: EnvTypes,
         Event: Topics<T> + scale::Encode,
@@ -221,7 +221,7 @@ impl TypedEnv for EnvInstance {
     where
         T: EnvTypes,
     {
-        unimplemented!("in off-chain environment contracts call each other directly")
+        unimplemented!("off-chain environment does not support contract invokation")
     }
 
     fn invoke_runtime<T>(&mut self, params: &T::Call) -> Result<()>
@@ -239,7 +239,7 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         R: scale::Decode,
     {
-        unimplemented!("in off-chain environment contracts call each other directly")
+        unimplemented!("off-chain environment does not support contract evaluation")
     }
 
     fn create_contract<T, C>(
@@ -249,22 +249,22 @@ impl TypedEnv for EnvInstance {
     where
         T: EnvTypes,
     {
-        unimplemented!("in off-chain environment contracts create each other directly")
+        unimplemented!("off-chain environment does not support contract instantiation")
     }
 
     fn restore_contract<T>(
         &mut self,
-        account_id: T::AccountId,
-        code_hash: T::Hash,
-        rent_allowance: T::Balance,
-        filtered_keys: &[Key],
+        _account_id: T::AccountId,
+        _code_hash: T::Hash,
+        _rent_allowance: T::Balance,
+        _filtered_keys: &[Key],
     ) where
         T: EnvTypes,
     {
-        todo!()
+        unimplemented!("off-chain environment does not support contract restoration")
     }
 
-    fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
+    fn random<T>(&mut self, _subject: &[u8]) -> Result<T::Hash>
     where
         T: EnvTypes,
     {

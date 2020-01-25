@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::env3::backend::{
+    Env,
+    TypedEnv,
+};
 use cfg_if::cfg_if;
-use crate::env3::backend::{TypedEnv, Env};
 
 pub trait OnInstance: Env + TypedEnv {
     fn on_instance<F, R>(f: F) -> R
@@ -28,6 +31,10 @@ cfg_if! {
     } else if #[cfg(feature = "std")] {
         pub mod off_chain;
         pub use self::off_chain::EnvInstance;
+        pub use self::off_chain::{
+            AccountError,
+            TypedEncodedError,
+        };
     } else {
         compile_error! {
             "ink! only support compilation as `std` or `no_std` + `wasm32-unknown`"

@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::OffCall;
+use super::{
+    OffCall,
+    OffChainError,
+};
 use crate::env3::{
+    EnvError,
     EnvTypes,
     Result,
-    EnvError,
 };
 
 /// Runtime call handler.
@@ -58,7 +61,7 @@ impl RuntimeCallHandler {
                 handler(OffCall::new(params));
                 Ok(())
             }
-            None => Err(EnvError::OffChain),
+            None => Err(OffChainError::UnregisteredRuntimeCallHandler)?,
         }
     }
 }
