@@ -16,7 +16,6 @@
 //!
 //! Refer to substrate SRML contract module for more documentation.
 
-use super::RetCode;
 use crate::{
     env3::{
         EnvError,
@@ -174,8 +173,13 @@ pub fn clear_storage(key: &[u8]) {
     unsafe { sys::ext_set_storage(key.as_ptr() as u32, 0, 0, 0) }
 }
 
-pub fn get_storage(key: &[u8]) -> RetCode {
-    unsafe { sys::ext_get_storage(key.as_ptr() as u32) }.into()
+pub fn get_storage(key: &[u8]) -> Result<()> {
+    let ret_code = unsafe { sys::ext_get_storage(key.as_ptr() as u32) };
+    match ret_code {
+        0 => Ok(()),
+        1 => Err(EnvError::MissingContractStorageEntry),
+        _unknown => panic!("encountered unexpected return code"),
+    }
 }
 
 pub fn get_runtime_storage(runtime_key: &[u8]) -> Result<()> {
@@ -231,14 +235,12 @@ pub fn scratch_size() -> usize {
     (unsafe { sys::ext_scratch_size() }) as usize
 }
 
-pub fn scratch_read(dest: &mut [u8], offset: u32) -> RetCode {
-    unsafe { sys::ext_scratch_read(dest.as_mut_ptr() as u32, offset, dest.len() as u32) };
-    RetCode::success()
+pub fn scratch_read(dest: &mut [u8], offset: u32) {
+    unsafe { sys::ext_scratch_read(dest.as_mut_ptr() as u32, offset, dest.len() as u32) }
 }
 
-pub fn scratch_write(src: &[u8]) -> RetCode {
-    unsafe { sys::ext_scratch_write(src.as_ptr() as u32, src.len() as u32) };
-    RetCode::success()
+pub fn scratch_write(src: &[u8]) {
+    unsafe { sys::ext_scratch_write(src.as_ptr() as u32, src.len() as u32) }
 }
 
 macro_rules! impl_ext_wrapper_for {

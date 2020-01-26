@@ -15,12 +15,10 @@
 mod buffer;
 mod ext;
 mod impls;
-mod retcode;
 
 use super::OnInstance;
 
 use self::buffer::StaticBuffer;
-pub(crate) use self::retcode::RetCode;
 
 /// The on-chain environment.
 pub struct EnvInstance {

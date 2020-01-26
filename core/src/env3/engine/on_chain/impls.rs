@@ -139,9 +139,7 @@ impl Env for EnvInstance {
     where
         R: scale::Decode,
     {
-        if !ext::get_storage(key.as_bytes()).is_success() {
-            todo!()
-        }
+        ext::get_storage(key.as_bytes())?;
         self.decode_scratch_buffer().map_err(Into::into)
     }
 
