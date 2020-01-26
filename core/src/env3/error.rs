@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use derive_more::{
-    Display,
-    From,
-};
+use derive_more::From;
 
 #[cfg(any(feature = "std", test, doc))]
 use crate::env3::engine::off_chain::OffChainError;
@@ -23,7 +20,6 @@ use crate::env3::engine::off_chain::OffChainError;
 /// Errors that can be encountered upon environmental interaction.
 #[derive(From)]
 pub enum EnvError {
-    // #[display(msg = "error upon decoding")]
     Decode(scale::Error),
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),

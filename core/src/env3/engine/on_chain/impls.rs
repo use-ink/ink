@@ -64,12 +64,12 @@ impl EnvInstance {
     /// # Errors
     ///
     /// If the decoding into a value of `T` failed.
-    fn decode_scratch_buffer<T>(&mut self) -> core::result::Result<T, scale::Error>
+    fn decode_scratch_buffer<T>(&mut self) -> Result<T>
     where
         T: scale::Decode,
     {
         let req_len = self.read_scratch_buffer();
-        scale::Decode::decode(&mut &self.buffer[0..req_len])
+        scale::Decode::decode(&mut &self.buffer[0..req_len]).map_err(Into::into)
     }
 
     /// Encodes the value into the contract-side scratch buffer.
