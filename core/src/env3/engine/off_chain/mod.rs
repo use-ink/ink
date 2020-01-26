@@ -130,7 +130,9 @@ impl EnvInstance {
 
     /// Returns a mutable reference to the current block of the chain.
     fn current_block_mut(&mut self) -> Result<&mut Block> {
-        self.blocks.last_mut().ok_or(OffChainError::UninitializedBlocks)
+        self.blocks
+            .last_mut()
+            .ok_or_else(|| OffChainError::UninitializedBlocks)
     }
 }
 
