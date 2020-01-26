@@ -88,7 +88,7 @@ where
         instance
             .accounts
             .get_account_mut::<T>(&account_id)
-            .ok_or(AccountError::no_account_for_id::<T>(&account_id))
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
             .map_err(Into::into)
             .and_then(|account| account.set_balance::<T>(new_balance).map_err(Into::into))
     })
@@ -114,7 +114,7 @@ where
         instance
             .accounts
             .get_account::<T>(&account_id)
-            .ok_or(AccountError::no_account_for_id::<T>(&account_id))
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
             .map_err(Into::into)
             .and_then(|account| account.balance::<T>().map_err(Into::into))
     })
@@ -138,7 +138,7 @@ where
         instance
             .accounts
             .get_account_mut::<T>(&account_id)
-            .ok_or(AccountError::no_account_for_id::<T>(&account_id))
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
             .map_err(Into::into)
             .and_then(|account| {
                 account
@@ -163,7 +163,7 @@ where
         instance
             .accounts
             .get_account::<T>(&account_id)
-            .ok_or(AccountError::no_account_for_id::<T>(&account_id))
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
             .map_err(Into::into)
             .and_then(|account| account.rent_allowance::<T>().map_err(Into::into))
     })

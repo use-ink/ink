@@ -76,7 +76,7 @@ impl Env for EnvInstance {
         self.callee_account()
             .get_storage(key)
             .expect("callee account is not a smart contract")
-            .ok_or(scale::Error::from("could not decode contract storage"))
+            .ok_or_else(|| scale::Error::from("could not decode contract storage"))
             .map_err(Into::into)
     }
 

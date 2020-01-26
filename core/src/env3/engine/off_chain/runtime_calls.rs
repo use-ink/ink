@@ -60,7 +60,7 @@ impl RuntimeCallHandler {
                 handler(OffCall::new(params));
                 Ok(())
             }
-            None => Err(OffChainError::UnregisteredRuntimeCallHandler)?,
+            None => Err(OffChainError::UnregisteredRuntimeCallHandler.into()),
         }
     }
 }
