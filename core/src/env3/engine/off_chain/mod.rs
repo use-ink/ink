@@ -20,10 +20,6 @@ pub mod test_api;
 mod typed_encoded;
 mod types;
 
-pub use self::{
-    db::AccountError,
-    typed_encoded::TypedEncodedError,
-};
 use self::{
     db::{
         Account,
@@ -45,6 +41,13 @@ use self::{
         OffHash,
         OffMoment,
     },
+};
+pub use self::{
+    db::{
+        AccountError,
+        PastPrints,
+    },
+    typed_encoded::TypedEncodedError,
 };
 use super::OnInstance;
 use core::cell::RefCell;

@@ -19,12 +19,14 @@ use super::{
     AccountError,
     EnvInstance,
     OnInstance,
+    PastPrints,
 };
 use crate::env3::{
     call::CallData,
     EnvTypes,
     Result,
 };
+use ink_prelude::string::String;
 
 /// Pushes a contract execution context.
 ///
@@ -217,4 +219,20 @@ where
         instance.current_block_mut()?.set_entropy::<T>(entropy)
     })
     .map_err(Into::into)
+}
+
+pub fn past_printlns() -> impl Iterator<Item = String> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        // We return a clone of the recorded strings instead of
+        // references to them since this would require the whole `on_instance`
+        // API to operate on `'static` environmental instances which would
+        // ultimately allow leaking those `'static` references to the outside
+        // and potentially lead to terrible bugs such as iterator invalidation.
+        instance
+            .console
+            .past_prints()
+            .map(ToOwned::to_owned)
+            .collect::<Vec<_>>()
+            .into_iter()
+    })
 }
