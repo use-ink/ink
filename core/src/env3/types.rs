@@ -41,7 +41,14 @@ pub trait EnvTypes {
     /// The type of balances.
     type Balance: 'static + scale::Codec + Clone + PartialEq + Eq;
     /// The type of hash.
-    type Hash: 'static + scale::Codec + Clone + PartialEq + Eq;
+    type Hash: 'static
+        + scale::Codec
+        + Clone
+        + Clear
+        + PartialEq
+        + Eq
+        + AsRef<[u8]>
+        + AsMut<[u8]>;
     /// The type of timestamps.
     type Moment: 'static + scale::Codec + Clone + PartialEq + Eq;
     /// The type of block number.
@@ -152,6 +159,39 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
     fn try_from(bytes: &'a [u8]) -> Result<Self, TryFromSliceError> {
         let address = <[u8; 32]>::try_from(bytes)?;
         Ok(Self(address))
+    }
+}
+
+impl AsRef<[u8]> for Hash {
+    fn as_ref(&self) -> &[u8] {
+        &self.0[..]
+    }
+}
+
+impl AsMut<[u8]> for Hash {
+    fn as_mut(&mut self) -> &mut [u8] {
+        &mut self.0[..]
+    }
+}
+
+/// The equivalent of `Zero` for hashes.
+///
+/// A hash that consists only of 0 bits is clear.
+pub trait Clear {
+    /// Returns `true` if the hash is clear.
+    fn is_clear(&self) -> bool;
+
+    /// Returns a clear hash.
+    fn clear() -> Self;
+}
+
+impl Clear for Hash {
+    fn is_clear(&self) -> bool {
+        self.as_ref().iter().all(|&byte| byte == 0x00)
+    }
+
+    fn clear() -> Self {
+        Self([0x00; 32])
     }
 }
 

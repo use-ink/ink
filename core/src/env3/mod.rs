@@ -44,5 +44,6 @@ pub use self::{
         EnvTypes,
         Hash,
         Topics,
+        Clear,
     },
 };
