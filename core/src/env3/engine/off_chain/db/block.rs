@@ -99,8 +99,8 @@ impl Block {
         T: EnvTypes,
     {
         let mut entropy = self.entropy.clone();
-        let mut entropy_bytes = entropy.encoded_bytes_mut()?;
-        let mut len_entropy = entropy_bytes.len();
+        let entropy_bytes = entropy.encoded_bytes_mut()?;
+        let len_entropy = entropy_bytes.len();
         for (n, subject) in subject.iter().enumerate() {
             let id = n % len_entropy;
             entropy_bytes[id] = entropy_bytes[id] ^ subject ^ (n as u8);
