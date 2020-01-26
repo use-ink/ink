@@ -19,7 +19,6 @@ use super::{
     AccountError,
     EnvInstance,
     OnInstance,
-    PastPrints,
 };
 use crate::env3::{
     call::CallData,
