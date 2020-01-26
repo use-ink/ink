@@ -20,16 +20,24 @@ use crate::env3::engine::off_chain::OffChainError;
 /// Errors that can be encountered upon environmental interaction.
 #[derive(From)]
 pub enum EnvError {
+    /// Error upon decoding an encoded value.
     Decode(scale::Error),
+    /// An error that can only occure in the off-chain environment.
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),
+    /// The call to another contract has trapped.
     ContractCallTrapped,
+    /// A called contract returned a custom error code.
     #[from(ignore)]
     ContractCallFailState(u8),
+    /// The instantiation of another contract has trapped.
     ContractInstantiationTrapped,
+    /// The instantiated contract returned a custom error code.
     #[from(ignore)]
     ContractInstantiationFailState(u8),
+    /// The queried runtime storage entry is missing.
     MissingRuntimeStorageEntry,
+    /// The queried contract storage entry is missing.
     MissingContractStorageEntry,
 }
 
