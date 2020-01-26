@@ -18,8 +18,8 @@ use super::{
         TypedEncoded,
     },
     OffBlockNumber,
-    OffMoment,
     OffHash,
+    OffMoment,
 };
 use crate::env3::EnvTypes;
 
@@ -77,8 +77,7 @@ impl Block {
     where
         T: EnvTypes,
     {
-        self.entropy.assign(&new_entropy)
-            .map_err(Into::into)
+        self.entropy.assign(&new_entropy).map_err(Into::into)
     }
 
     /// Returns a randomized hash.

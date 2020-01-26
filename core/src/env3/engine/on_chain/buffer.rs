@@ -27,7 +27,10 @@ impl StaticBuffer {
 
     /// Creates a new static buffer.
     pub const fn new() -> Self {
-        Self { buffer: [0; Self::CAPACITY], len: 0 }
+        Self {
+            buffer: [0; Self::CAPACITY],
+            len: 0,
+        }
     }
 
     /// Returns the current length of the static buffer.

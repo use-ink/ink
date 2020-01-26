@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::OffBalance;
+use super::{
+    super::Result,
+    OffBalance,
+};
 use crate::env3::EnvTypes;
-use super::super::Result;
 
 /// The chain specification.
 pub struct ChainSpec {

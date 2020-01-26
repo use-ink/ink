@@ -49,7 +49,9 @@ pub struct PastPrints<'a> {
 impl<'a> PastPrints<'a> {
     /// Creates a new iterator over the past console prints.
     fn new(console: &'a Console) -> Self {
-        Self { iter: console.past_prints.iter() }
+        Self {
+            iter: console.past_prints.iter(),
+        }
     }
 }
 

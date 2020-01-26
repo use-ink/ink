@@ -213,10 +213,10 @@ pub trait TypedEnv: Env {
     ///
     /// - The `filtered_keys` can be used to ignore certain storage regions
     ///   in the restorer contract to not influence the hash calculations.
-	/// - Does *not* perform restoration right away but defers it to the end of
-	///   the contract execution.
-	/// - Restoration is cancelled if there is no tombstone in the destination
-	///   address or if the hashes don't match. No changes are made in this case.
+    /// - Does *not* perform restoration right away but defers it to the end of
+    ///   the contract execution.
+    /// - Restoration is cancelled if there is no tombstone in the destination
+    ///   address or if the hashes don't match. No changes are made in this case.
     fn restore_contract<T>(
         &mut self,
         account_id: T::AccountId,

@@ -145,9 +145,7 @@ impl Account {
     where
         T: EnvTypes,
     {
-        self.balance
-            .assign(&new_balance)
-            .map_err(Into::into)
+        self.balance.assign(&new_balance).map_err(Into::into)
     }
 
     /// Returns the contract account or an error if it is a user account.

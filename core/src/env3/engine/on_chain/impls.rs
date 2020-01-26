@@ -254,7 +254,7 @@ impl TypedEnv for EnvInstance {
 
     fn invoke_runtime<T>(&mut self, call: &T::Call) -> Result<()>
     where
-        T: EnvTypes
+        T: EnvTypes,
     {
         self.encode_into_buffer(call);
         ext::dispatch_call(&self.buffer[..]);

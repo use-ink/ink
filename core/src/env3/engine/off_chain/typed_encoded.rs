@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::OffChainError;
+use crate::env3::EnvError;
 use core::{
     any::TypeId,
     cmp::Ordering,
@@ -21,8 +23,6 @@ use core::{
     },
     marker::PhantomData,
 };
-use super::OffChainError;
-use crate::env3::EnvError;
 use derive_more::From;
 
 /// A wrapper around an encoded entity that only allows type safe accesses.

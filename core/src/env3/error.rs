@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use derive_more::{From, Display};
+use derive_more::{
+    Display,
+    From,
+};
 
 #[cfg(any(feature = "std", test, doc))]
 use crate::env3::engine::off_chain::OffChainError;
