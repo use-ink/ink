@@ -173,8 +173,7 @@ where
     where
         R: scale::Decode,
     {
-        // E::eval_contract(&mut Vec::new(), &self.params)
-        todo!()
+        crate::env3::eval_contract(&self.params)
     }
 }
 
@@ -184,7 +183,6 @@ where
 {
     /// Fires the cross-call to the smart contract.
     pub fn fire(self) -> Result<()> {
-        // E::invoke_contract(&mut Vec::new(), &self.params)
-        todo!()
+        crate::env3::invoke_contract(&self.params)
     }
 }
