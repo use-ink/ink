@@ -153,7 +153,7 @@ impl Env for EnvInstance {
     where
         R: scale::Decode,
     {
-        if !ext::get_runtime_storage(runtime_key).is_success() {
+        if ext::get_runtime_storage(runtime_key).is_err() {
             return None
         }
         Some(self.decode_scratch_buffer().map_err(Into::into))

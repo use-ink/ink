@@ -33,6 +33,7 @@ pub enum EnvError {
     ContractInstantiationTrapped,
     #[from(ignore)]
     ContractInstantiationFailState(u8),
+    MissingRuntimeStorageEntry,
 }
 
 /// A result of environmental operations.

@@ -178,14 +178,18 @@ pub fn get_storage(key: &[u8]) -> RetCode {
     unsafe { sys::ext_get_storage(key.as_ptr() as u32) }.into()
 }
 
-pub fn get_runtime_storage(runtime_key: &[u8]) -> RetCode {
-    unsafe {
+pub fn get_runtime_storage(runtime_key: &[u8]) -> Result<()> {
+    let ret_code = unsafe {
         sys::ext_get_runtime_storage(
             runtime_key.as_ptr() as u32,
             runtime_key.len() as u32,
         )
+    };
+    match ret_code {
+        0 => Ok(()),
+        1 => Err(EnvError::MissingRuntimeStorageEntry),
+        _unknown => panic!("encountered unsupported return code"),
     }
-    .into()
 }
 
 /// Restores a tombstone to the original smart contract.
