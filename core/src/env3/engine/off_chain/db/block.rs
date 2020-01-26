@@ -77,7 +77,7 @@ impl Block {
     where
         T: EnvTypes,
     {
-        self.entropy.assign::<T::Hash>(&OffHash::new(&new_entropy))
+        self.entropy.assign(&new_entropy)
             .map_err(Into::into)
     }
 

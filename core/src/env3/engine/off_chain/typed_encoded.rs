@@ -233,14 +233,14 @@ impl<M> TypedEncoded<M> {
         <T as scale::Decode>::decode(&mut &self.encoded[..]).map_err(Into::into)
     }
 
-    /// Assigns `other` to `self`
-    pub fn assign<'a, T>(&mut self, other: &'a Self) -> Result<()>
+    /// Assigns the given `T` to `self`.
+    pub fn assign<T>(&mut self, value: &T) -> Result<()>
     where
-        T: scale::Decode + scale::Encode + 'static,
+        T: scale::Encode + 'static,
     {
-        Self::check_matching_types(self, other)?;
+        self.check_enforced_type::<T>()?;
         self.encoded.clear();
-        self.encoded.extend(&other.encoded);
+        value.encode_to(&mut self.encoded);
         Ok(())
     }
 

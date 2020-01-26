@@ -146,7 +146,7 @@ impl Account {
         T: EnvTypes,
     {
         self.balance
-            .assign::<T::Balance>(&OffBalance::new(&new_balance))
+            .assign(&new_balance)
             .map_err(Into::into)
     }
 
@@ -187,7 +187,7 @@ impl Account {
         self.contract_or_err_mut().and_then(|contract| {
             contract
                 .rent_allowance
-                .assign::<T::Balance>(&OffBalance::new(&new_rent_allowance))
+                .assign(&new_rent_allowance)
                 .map_err(Into::into)
         })
     }
