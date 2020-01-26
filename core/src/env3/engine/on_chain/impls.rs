@@ -122,12 +122,7 @@ impl EnvInstance {
         let endowment = &self.buffer[endowment];
         let call_data = &self.buffer[call_data];
         // Perform the actual contract call.
-        let ret = ext::call(callee, call_params.gas_limit(), endowment, call_data);
-        if !ret.is_success() {
-            // Return an error if `ret` refers to an error code.
-            todo!()
-        }
-        Ok(())
+        ext::call(callee, call_params.gas_limit(), endowment, call_data)
     }
 }
 
@@ -299,11 +294,7 @@ impl TypedEnv for EnvInstance {
         let endowment = &self.buffer[endowment];
         let create_data = &self.buffer[create_data];
         // Do the actual contract instantiation.
-        let ret = ext::create(code_hash, params.gas_limit(), endowment, create_data);
-        if !ret.is_success() {
-            // Return an error if `ret` refers to an error code.
-            todo!()
-        }
+        ext::create(code_hash, params.gas_limit(), endowment, create_data)?;
         // At this point our contract instantiation was successful
         // and we can now fetch the returned data and decode it for
         // the result value.

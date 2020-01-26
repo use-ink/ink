@@ -27,6 +27,12 @@ pub enum EnvError {
     Decode(scale::Error),
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),
+    ContractCallTrapped,
+    #[from(ignore)]
+    ContractCallFailState(u8),
+    ContractInstantiationTrapped,
+    #[from(ignore)]
+    ContractInstantiationFailState(u8),
 }
 
 /// A result of environmental operations.

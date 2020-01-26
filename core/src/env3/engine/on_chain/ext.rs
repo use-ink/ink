@@ -17,7 +17,16 @@
 //! Refer to substrate SRML contract module for more documentation.
 
 use super::RetCode;
-use crate::storage::Key;
+use crate::{
+    env3::{
+        EnvError,
+        Result,
+    },
+    storage::Key,
+};
+
+/// Returned by the host environment if a contract call trapped.
+const TRAP_RETURN_CODE: u32 = 0x0100;
 
 mod sys {
     extern "C" {
@@ -99,8 +108,8 @@ pub fn create(
     gas_limit: u64,
     value: &[u8],
     create_data: &[u8],
-) -> RetCode {
-    unsafe {
+) -> Result<()> {
+    let ret_code = unsafe {
         sys::ext_instantiate(
             code_hash.as_ptr() as u32,
             code_hash.len() as u32,
@@ -110,12 +119,17 @@ pub fn create(
             create_data.as_ptr() as u32,
             create_data.len() as u32,
         )
+    };
+    match ret_code {
+        0 => Ok(()),
+        c if c == TRAP_RETURN_CODE => Err(EnvError::ContractInstantiationTrapped),
+        err if err <= 0xFF => Err(EnvError::ContractInstantiationFailState(err as u8)),
+        _unknown => panic!("encountered unknown error code upon contract call"),
     }
-    .into()
 }
 
-pub fn call(callee: &[u8], gas_limit: u64, value: &[u8], call_data: &[u8]) -> RetCode {
-    unsafe {
+pub fn call(callee: &[u8], gas_limit: u64, value: &[u8], call_data: &[u8]) -> Result<()> {
+    let ret_code = unsafe {
         sys::ext_call(
             callee.as_ptr() as u32,
             callee.len() as u32,
@@ -125,8 +139,13 @@ pub fn call(callee: &[u8], gas_limit: u64, value: &[u8], call_data: &[u8]) -> Re
             call_data.as_ptr() as u32,
             call_data.len() as u32,
         )
+    };
+    match ret_code {
+        0 => Ok(()),
+        c if c == TRAP_RETURN_CODE => Err(EnvError::ContractInstantiationTrapped),
+        err if err <= 0xFF => Err(EnvError::ContractInstantiationFailState(err as u8)),
+        _unknown => panic!("encountered unknown error code upon contract call"),
     }
-    .into()
 }
 
 pub fn deposit_event(topics: &[u8], data: &[u8]) {
