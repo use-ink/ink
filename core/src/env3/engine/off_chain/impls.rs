@@ -151,7 +151,7 @@ impl TypedEnv for EnvInstance {
     fn now_in_ms<T: EnvTypes>(&mut self) -> Result<T::Moment> {
         self.current_block()
             .expect("uninitialized execution context")
-            .moment::<T>()
+            .time_stamp::<T>()
             .map_err(|_| scale::Error::from("could not decode block time"))
             .map_err(Into::into)
     }

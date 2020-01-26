@@ -27,8 +27,8 @@ use crate::env3::EnvTypes;
 pub struct Block {
     /// The current block number.
     number: OffBlockNumber,
-    /// The current moment of block creation.
-    moment: OffMoment,
+    /// The time stamp of the block.
+    time_stamp: OffMoment,
     /// The randomization entropy for a block.
     ///
     /// # Note
@@ -40,13 +40,13 @@ pub struct Block {
 
 impl Block {
     /// Creates a new block for the given number and moment.
-    pub fn new<T>(number: T::BlockNumber, moment: T::Moment, entropy: T::Hash) -> Self
+    pub fn new<T>(number: T::BlockNumber, time_stamp: T::Moment, entropy: T::Hash) -> Self
     where
         T: EnvTypes,
     {
         Self {
             number: TypedEncoded::new(&number),
-            moment: TypedEncoded::new(&moment),
+            time_stamp: TypedEncoded::new(&time_stamp),
             entropy: TypedEncoded::new(&entropy),
         }
     }
@@ -59,12 +59,12 @@ impl Block {
         self.number.decode().map_err(Into::into)
     }
 
-    /// Returns the moment of the block.
-    pub fn moment<T>(&self) -> Result<T::Moment>
+    /// Returns the time stamp of the block.
+    pub fn time_stamp<T>(&self) -> Result<T::Moment>
     where
         T: EnvTypes,
     {
-        self.moment.decode().map_err(Into::into)
+        self.time_stamp.decode().map_err(Into::into)
     }
 
     /// Sets the entropy of this block to the given entropy.
