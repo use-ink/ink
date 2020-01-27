@@ -205,8 +205,7 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         Event: Topics<T> + scale::Encode,
     {
-        self.emitted_events
-            .record::<T, Event>(new_event)
+        self.emitted_events.record::<T, Event>(new_event)
     }
 
     fn set_rent_allowance<T>(&mut self, new_rent_allowance: T::Balance)
