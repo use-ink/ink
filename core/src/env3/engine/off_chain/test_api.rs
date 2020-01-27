@@ -82,7 +82,7 @@ pub fn pop_execution_context() {
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
-pub fn set_balance<T>(account_id: T::AccountId, new_balance: T::Balance) -> Result<()>
+pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance) -> Result<()>
 where
     T: EnvTypes,
 {
@@ -108,7 +108,7 @@ where
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-pub fn get_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
+pub fn get_account_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
     T: EnvTypes,
 {
@@ -129,7 +129,7 @@ where
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_rent_allowance` type does not match.
-pub fn set_rent_allowance<T>(
+pub fn set_contract_rent_allowance<T>(
     account_id: T::AccountId,
     new_rent_allowance: T::Balance,
 ) -> Result<()>
@@ -157,7 +157,7 @@ where
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the returned rent allowance cannot be properly decoded.
-pub fn get_rent_allowance<T>(account_id: T::AccountId) -> Result<T::Balance>
+pub fn get_contract_rent_allowance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
     T: EnvTypes,
 {
@@ -211,7 +211,7 @@ where
 /// # Note
 ///
 /// This allows to control what [`crate::env3::random`] returns.
-pub fn set_entropy<T>(entropy: T::Hash) -> Result<()>
+pub fn set_block_entropy<T>(entropy: T::Hash) -> Result<()>
 where
     T: EnvTypes,
 {
