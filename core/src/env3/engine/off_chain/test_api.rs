@@ -220,6 +220,7 @@ where
     .map_err(Into::into)
 }
 
+/// Returns the contents of the past performed environmental `println` in order.
 pub fn past_printlns() -> impl Iterator<Item = String> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         // We return a clone of the recorded strings instead of
