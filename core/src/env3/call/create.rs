@@ -194,7 +194,6 @@ where
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     pub fn create(self) -> Result<C> {
-        crate::env3::create_contract(&self.params)
-            .map(FromAccountId::from_account_id)
+        crate::env3::create_contract(&self.params).map(FromAccountId::from_account_id)
     }
 }

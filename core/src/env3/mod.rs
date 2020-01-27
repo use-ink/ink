@@ -40,10 +40,10 @@ pub use self::{
     },
     types::{
         AccountId,
+        Clear,
         DefaultEnvTypes,
         EnvTypes,
         Hash,
         Topics,
-        Clear,
     },
 };
