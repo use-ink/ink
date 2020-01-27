@@ -114,6 +114,11 @@ impl EnvInstance {
         }
     }
 
+    /// Advances the chain by a single block.
+    pub fn advance_block(&mut self) {
+        todo!()
+    }
+
     /// Returns the current execution context.
     fn exec_context(&self) -> Result<&ExecContext> {
         self.exec_context
