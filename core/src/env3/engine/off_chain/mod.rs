@@ -29,6 +29,8 @@ use self::{
         CodeDb,
         Console,
         ExecContext,
+        EmittedEventsRecorder,
+        EmittedEvent,
     },
     runtime_calls::RuntimeCallHandler,
     runtime_storage::RuntimeStorage,
@@ -92,6 +94,8 @@ pub struct EnvInstance {
     runtime_storage: RuntimeStorage,
     /// The runtime calls handler.
     runtime_call_handler: RuntimeCallHandler,
+    /// Emitted events recorder.
+    emitted_events: EmittedEventsRecorder,
 }
 
 impl EnvInstance {
@@ -106,6 +110,7 @@ impl EnvInstance {
             console: Console::new(),
             runtime_storage: RuntimeStorage::new(),
             runtime_call_handler: RuntimeCallHandler::new(),
+            emitted_events: EmittedEventsRecorder::new(),
         }
     }
 

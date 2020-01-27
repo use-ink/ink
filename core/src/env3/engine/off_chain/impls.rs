@@ -200,12 +200,13 @@ impl TypedEnv for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn emit_event<T, Event>(&mut self, _event: Event)
+    fn emit_event<T, Event>(&mut self, new_event: Event)
     where
         T: EnvTypes,
         Event: Topics<T> + scale::Encode,
     {
-        todo!()
+        self.emitted_events
+            .record::<T, Event>(new_event)
     }
 
     fn set_rent_allowance<T>(&mut self, new_rent_allowance: T::Balance)

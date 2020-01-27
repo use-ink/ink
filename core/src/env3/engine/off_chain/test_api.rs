@@ -17,6 +17,7 @@
 use super::{
     db::ExecContext,
     AccountError,
+    EmittedEvent,
     EnvInstance,
     OnInstance,
 };
@@ -232,6 +233,22 @@ pub fn past_printlns() -> impl Iterator<Item = String> {
             .console
             .past_prints()
             .map(ToOwned::to_owned)
+            .collect::<Vec<_>>()
+            .into_iter()
+    })
+}
+
+pub fn emitted_events() -> impl Iterator<Item = EmittedEvent> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        // We return a clone of the recorded emitted events instead of
+        // references to them since this would require the whole `on_instance`
+        // API to operate on `'static` environmental instances which would
+        // ultimately allow leaking those `'static` references to the outside
+        // and potentially lead to terrible bugs such as iterator invalidation.
+        instance
+            .emitted_events
+            .emitted_events()
+            .map(Clone::clone)
             .collect::<Vec<_>>()
             .into_iter()
     })

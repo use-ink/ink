@@ -17,6 +17,7 @@ mod block;
 mod chain_spec;
 mod codes;
 mod console;
+mod events;
 mod exec_context;
 
 pub use self::{
@@ -34,6 +35,10 @@ pub use self::{
     console::{
         Console,
         PastPrints,
+    },
+    events::{
+        EmittedEvent,
+        EmittedEventsRecorder,
     },
     exec_context::ExecContext,
 };
