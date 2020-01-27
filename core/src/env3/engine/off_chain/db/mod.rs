@@ -15,7 +15,6 @@
 mod accounts;
 mod block;
 mod chain_spec;
-mod codes;
 mod console;
 mod events;
 mod exec_context;
@@ -31,7 +30,6 @@ pub use self::{
     },
     block::Block,
     chain_spec::ChainSpec,
-    codes::CodeDb,
     console::{
         Console,
         PastPrints,

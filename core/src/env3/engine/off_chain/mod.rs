@@ -26,7 +26,6 @@ use self::{
         AccountsDb,
         Block,
         ChainSpec,
-        CodeDb,
         Console,
         EmittedEvent,
         EmittedEventsRecorder,
@@ -75,13 +74,6 @@ pub type Result<T> = core::result::Result<T, OffChainError>;
 pub struct EnvInstance {
     /// The accounts database of the environment.
     accounts: AccountsDb,
-    /// Uploaded Wasm contract codes.
-    #[allow(
-        dead_code,
-        // Needed as soon as we support to execute contracts
-        // directly through the off-chain environment.
-    )]
-    codes: CodeDb,
     /// Current execution context and context.
     exec_context: Vec<ExecContext>,
     /// The general chain spec.
@@ -103,7 +95,6 @@ impl EnvInstance {
     pub fn uninitialized() -> Self {
         Self {
             accounts: AccountsDb::new(),
-            codes: CodeDb::new(),
             exec_context: Vec::new(),
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
