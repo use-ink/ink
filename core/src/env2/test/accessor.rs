@@ -65,6 +65,7 @@ use crate::{
     },
     storage::Key,
 };
+use scale::Encode;
 
 thread_local! {
     /// The single thread-local test environment instance.
@@ -420,10 +421,9 @@ where
         })
     }
 
-    fn invoke_runtime<O, V>(_buffer: &mut O, call_data: &V)
+    fn invoke_runtime<O>(_buffer: &mut O, call_data: &<Self as EnvTypes>::Call)
     where
         O: scale::Output + AsRef<[u8]> + Reset,
-        V: scale::Encode,
     {
         // With the off-chain test environment we have no means
         // to emit an event on the chain since there is no chain.
