@@ -27,6 +27,12 @@ derive_more = { version = "0.99.2", default-features = false, features = ["from"
 smallvec = { version = "1.0", default-features = false, features = ["union"] }
 cfg-if = "0.1"
 
+# Only used in the off-chain environment.
+#
+# Sadly couldn't be marked as dev-dependency.
+# Never use this crate outside of the off-chain environment!
+rand = { version = "0.7", default-features = false, features = ["alloc"] }
+
 [features]
 default = ["test-env"]
 test-env = [
@@ -38,6 +44,7 @@ std = [
     "ink_prelude/std",
     "scale/std",
     "type-metadata/std",
+    "rand/std",
 ]
 ink-generate-abi = [
     "ink_abi",

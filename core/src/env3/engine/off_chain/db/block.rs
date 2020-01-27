@@ -40,10 +40,14 @@ pub struct Block {
 
 impl Block {
     /// Creates a new block for the given number and moment.
-    pub fn new<T>(number: T::BlockNumber, time_stamp: T::Moment, entropy: T::Hash) -> Self
+    pub fn new<T>(number: T::BlockNumber, time_stamp: T::Moment) -> Self
     where
         T: EnvTypes,
     {
+        use crate::env3::Clear;
+        use rand::Rng as _;
+        let mut entropy = <T as EnvTypes>::Hash::clear();
+        rand::thread_rng().fill(entropy.as_mut());
         Self {
             number: TypedEncoded::new(&number),
             time_stamp: TypedEncoded::new(&time_stamp),
