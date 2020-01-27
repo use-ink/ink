@@ -42,6 +42,19 @@ impl ChainSpec {
         }
     }
 
+    /// Default initialization for the off-chain specification.
+    pub fn initialize_as_default<T>(&mut self) -> crate::env3::Result<()>
+    where
+        T: EnvTypes,
+        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    {
+        self.gas_price.assign::<T::Balance>(&T::Balance::from(100))?;
+        self.minimum_balance.assign::<T::Balance>(&T::Balance::from(42))?;
+        self.tombstone_deposit.assign::<T::Balance>(&T::Balance::from(16))?;
+        self.block_time.assign::<T::TimeStamp>(&T::TimeStamp::from(5))?;
+        Ok(())
+    }
+
     /// Returns the gas price for the chain.
     pub fn gas_price<T>(&self) -> Result<T::Balance>
     where

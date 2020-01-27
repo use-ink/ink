@@ -106,6 +106,80 @@ impl EnvInstance {
         }
     }
 
+    /// Initializes the whole off-chain environment.
+    ///
+    /// # Note
+    ///
+    /// This is needed since we operate on a static instance that cannot be
+    /// made generic over all environmental types and thus we are required to
+    /// initialize it upon program start uninitialized which is why we have
+    /// `TypedEncoded` wrappers.
+    ///
+    /// The off-chain environment requires to be initialized before every usage.
+    ///
+    /// This routine implements a default initialization that should be fine
+    /// for most use cases.
+    pub fn initialize_as_default<T>(&mut self) -> crate::env3::Result<()>
+    where
+        T: EnvTypes,
+        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    {
+        use core::ops::Div as _;
+        use num_traits::{
+            Bounded as _,
+            Zero as _,
+        };
+        let default_accounts = test_api::default_accounts::<T>()?;
+        // Alice has half of the maximum possible amount.
+        self.accounts.add_user_account::<T>(
+            default_accounts.alice.clone(),
+            T::Balance::max_value().div(T::Balance::from(2)),
+        );
+        // Bob has half the balance that alice got.
+        self.accounts.add_user_account::<T>(
+            default_accounts.bob,
+            T::Balance::max_value().div(T::Balance::from(4)),
+        );
+        // All other default accounts have zero balance.
+        self.accounts
+            .add_user_account::<T>(default_accounts.charlie, T::Balance::zero());
+        self.accounts
+            .add_user_account::<T>(default_accounts.django, T::Balance::zero());
+        self.accounts
+            .add_user_account::<T>(default_accounts.eve, T::Balance::zero());
+        self.accounts
+            .add_user_account::<T>(default_accounts.frank, T::Balance::zero());
+        // Initialize our first block.
+        self.blocks.push(Block::new::<T>(
+            T::BlockNumber::from(0),
+            T::TimeStamp::from(0),
+        ));
+        // Initialize chain specification.
+        self.chain_spec.initialize_as_default::<T>()?;
+        // Initialize the called contract account.
+        let contract_account_id = T::AccountId::from([0x07; 32]);
+        self.accounts.add_contract_account::<T>(
+            contract_account_id.clone(),
+            T::Balance::from(0),
+            T::Balance::from(20),
+        );
+        // Initialize the execution context for the first contract execution.
+        use crate::env3::call::{
+            CallData,
+            Selector,
+        };
+        self.exec_context.push(
+            ExecContext::build::<T>()
+                .caller(default_accounts.alice)
+                .callee(contract_account_id)
+                .gas(T::Balance::from(500_000))
+                .transferred_value(T::Balance::from(500))
+                .call_data(CallData::new(Selector::from_str("call")))
+                .finish(),
+        );
+        Ok(())
+    }
+
     /// Advances the chain by a single block.
     pub fn advance_block<T>(&mut self) -> crate::env3::Result<()>
     where
@@ -114,7 +188,8 @@ impl EnvInstance {
         let new_block_number = T::BlockNumber::from(self.blocks.len() as u32);
         let new_time_stamp = self.current_block()?.time_stamp::<T>()?
             + self.chain_spec.block_time::<T>()?;
-        self.blocks.push(Block::new::<T>(new_block_number, new_time_stamp));
+        self.blocks
+            .push(Block::new::<T>(new_block_number, new_time_stamp));
         Ok(())
     }
 

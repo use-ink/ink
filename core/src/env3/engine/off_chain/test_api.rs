@@ -265,3 +265,50 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.advance_block::<T>())
 }
+
+/// The default accounts.
+pub struct DefaultAccounts<T>
+where
+    T: EnvTypes,
+{
+    pub alice: T::AccountId,
+    pub bob: T::AccountId,
+    pub charlie: T::AccountId,
+    pub django: T::AccountId,
+    pub eve: T::AccountId,
+    pub frank: T::AccountId,
+}
+
+/// Returns the default accounts for testing purposes:
+/// Alice, Bob, Charlie, Django, Eve and Frank.
+pub fn default_accounts<T>() -> Result<DefaultAccounts<T>>
+where
+    T: EnvTypes,
+    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+{
+    Ok(DefaultAccounts {
+        alice: T::AccountId::from([0x01; 32]),
+        bob: T::AccountId::from([0x02; 32]),
+        charlie: T::AccountId::from([0x03; 32]),
+        django: T::AccountId::from([0x04; 32]),
+        eve: T::AccountId::from([0x05; 32]),
+        frank: T::AccountId::from([0x06; 32]),
+    })
+}
+
+/// Initializes the whole off-chain environment.
+///
+/// # Note
+///
+/// - Initializes the off-chain environment with default values that fit most
+/// uses cases.
+/// - The off-chain environment _must_ be initialized before use.
+pub fn initialize_as_default<T>() -> Result<()>
+where
+    T: EnvTypes,
+    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.initialize_as_default::<T>()
+    })
+}

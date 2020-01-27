@@ -19,7 +19,6 @@ use super::{
     },
     OffAccountId,
     OffBalance,
-    OffHash,
 };
 use crate::{
     env3::{
@@ -106,20 +105,39 @@ impl AccountsDb {
         self.accounts.get_mut(at)
     }
 
-    /// Creates a new user account.
-    pub fn new_user_account<T>(&mut self, initial_balance: T::Balance) -> T::AccountId
-    where
+    /// Adds the given user account with the initial balance.
+    pub fn add_user_account<T>(
+        &mut self,
+        account_id: T::AccountId,
+        initial_balance: T::Balance,
+    ) where
         T: EnvTypes,
     {
-        todo!()
+        self.accounts.insert(
+            OffAccountId::new(&account_id),
+            Account {
+                balance: OffBalance::new(&initial_balance),
+                kind: AccountKind::User,
+            },
+        );
     }
 
     /// Creates a new contract account.
-    pub fn new_contract_account<T>(&mut self) -> T::AccountId
-    where
+    pub fn add_contract_account<T>(
+        &mut self,
+        account_id: T::AccountId,
+        initial_balance: T::Balance,
+        rent_allowance: T::Balance,
+    ) where
         T: EnvTypes,
     {
-        todo!()
+        self.accounts.insert(
+            OffAccountId::new(&account_id),
+            Account {
+                balance: OffBalance::new(&initial_balance),
+                kind: AccountKind::Contract(ContractAccount::new::<T>(rent_allowance)),
+            },
+        );
     }
 }
 
@@ -190,15 +208,6 @@ impl Account {
         })
     }
 
-    /// Returns the code hash of the contract account of an error.
-    pub fn code_hash<T>(&self) -> Result<T::Hash>
-    where
-        T: EnvTypes,
-    {
-        self.contract_or_err()
-            .and_then(|contract| contract.code_hash.decode().map_err(Into::into))
-    }
-
     /// Sets the contract storage of key to the new value.
     pub fn set_storage<T>(&mut self, at: Key, new_value: &T) -> Result<()>
     where
@@ -236,10 +245,21 @@ pub enum AccountKind {
 pub struct ContractAccount {
     /// The contract's rent allowance.
     rent_allowance: OffBalance,
-    /// The contract's code hash.
-    code_hash: OffHash,
     /// The contract storage.
     pub storage: ContractStorage,
+}
+
+impl ContractAccount {
+    /// Creates a new contract account with the given initial rent allowance.
+    pub fn new<T>(rent_allowance: T::Balance) -> Self
+    where
+        T: EnvTypes,
+    {
+        Self {
+            rent_allowance: OffBalance::new(&rent_allowance),
+            storage: ContractStorage::new(),
+        }
+    }
 }
 
 /// The storage of a contract instance.
@@ -249,6 +269,13 @@ pub struct ContractStorage {
 }
 
 impl ContractStorage {
+    /// Creates a new empty contract storage.
+    pub fn new() -> Self {
+        Self {
+            entries: BTreeMap::new(),
+        }
+    }
+
     /// Returns the decoded storage at the key if any.
     pub fn get_storage<T>(&self, at: Key) -> Result<Option<T>>
     where
