@@ -18,6 +18,7 @@ use self::SearchResult::{
 };
 use crate::storage::btree_map::impls::{
     BTreeMap,
+    CAPACITY,
     HandleType::{
         Internal,
         Leaf,
@@ -44,6 +45,9 @@ pub(super) enum SearchResult {
 }
 
 /// Searches the tree for `key`.
+///
+/// If found returns `Found(pos)`
+/// If not found returns `NotFound(last_pos_searched)`.
 pub(super) fn search_tree<K, V, Q>(tree: &BTreeMap<K, V>, key: &Q) -> SearchResult
 where
     Q: Ord,
@@ -62,10 +66,10 @@ where
             "node which is iterated over is either root or child node, \
              but it always exists; qed",
         );
-        match search_node(&node, cur, key) {
+        match search_node(&node, tree.keys_in_node(cur), cur, key) {
             Found(handle) => return Found(handle),
             NotFound(handle) => {
-                match tree.get_handle_type(&handle.into()) {
+                match tree.get_handle_type(&handle.node()) {
                     Leaf => return NotFound(handle),
                     Internal => {
                         // Go down then
@@ -86,6 +90,7 @@ where
 /// If not found returns `NotFound(last_pos_searched)`.
 pub(super) fn search_node<K, V, Q>(
     node: &Node<K, V>,
+    keys_in_node: [Option<&K>; CAPACITY],
     node_handle: NodeHandle,
     key: &Q,
 ) -> SearchResult
@@ -93,13 +98,12 @@ where
     Q: Ord,
     K: Borrow<Q>,
 {
-    let iter = node.keys.iter().enumerate();
+    let iter = keys_in_node.iter().enumerate();
     for (i, k) in iter {
-        let i = i as u32;
         match k {
             None => return NotFound(KVHandle::new(node_handle, i)),
             Some(node_key) => {
-                match key.cmp(node_key.borrow()) {
+                match key.cmp((**node_key).borrow()) {
                     Ordering::Greater => {}
                     Ordering::Equal => return Found(KVHandle::new(node_handle, i)),
                     Ordering::Less => return NotFound(KVHandle::new(node_handle, i)),
@@ -107,5 +111,5 @@ where
             }
         }
     }
-    NotFound(KVHandle::new(node_handle, node.len))
+    NotFound(KVHandle::new(node_handle, node.len()))
 }
