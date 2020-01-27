@@ -259,8 +259,9 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 }
 
 /// Advances the chain by a single block.
-pub fn advance_block() {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.advance_block()
-    })
+pub fn advance_block<T>() -> Result<()>
+where
+    T: EnvTypes,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.advance_block::<T>())
 }

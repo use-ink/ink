@@ -51,6 +51,7 @@ pub use self::{
     typed_encoded::TypedEncodedError,
 };
 use super::OnInstance;
+use crate::env3::EnvTypes;
 use core::cell::RefCell;
 use derive_more::From;
 
@@ -106,8 +107,15 @@ impl EnvInstance {
     }
 
     /// Advances the chain by a single block.
-    pub fn advance_block(&mut self) {
-        todo!()
+    pub fn advance_block<T>(&mut self) -> crate::env3::Result<()>
+    where
+        T: EnvTypes,
+    {
+        let new_block_number = T::BlockNumber::from(self.blocks.len() as u32 + 1);
+        let new_time_stamp = self.current_block()?.time_stamp::<T>()?
+            + self.chain_spec.block_time::<T>()?;
+        self.blocks.push(Block::new::<T>(new_block_number, new_time_stamp));
+        Ok(())
     }
 
     /// Returns the current execution context.
