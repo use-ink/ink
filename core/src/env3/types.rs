@@ -64,14 +64,14 @@ pub trait SimpleArithmetic:
     + Zero
     + One
     + Bounded
-    + Add
-    + AddAssign
-    + Sub
-    + SubAssign
-    + Mul
-    + MulAssign
-    + Div
-    + DivAssign
+    + Add<Self>
+    + AddAssign<Self>
+    + Sub<Self>
+    + SubAssign<Self>
+    + Mul<Self>
+    + MulAssign<Self>
+    + Div<Self>
+    + DivAssign<Self>
 {
 }
 
@@ -84,14 +84,14 @@ impl<T> SimpleArithmetic for T where
         + Zero
         + One
         + Bounded
-        + Add
-        + AddAssign
-        + Sub
-        + SubAssign
-        + Mul
-        + MulAssign
-        + Div
-        + DivAssign
+        + Add<Self>
+        + AddAssign<Self>
+        + Sub<Self>
+        + SubAssign<Self>
+        + Mul<Self>
+        + MulAssign<Self>
+        + Div<Self>
+        + DivAssign<Self>
 {
 }
 
