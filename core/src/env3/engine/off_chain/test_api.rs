@@ -174,20 +174,6 @@ where
     })
 }
 
-/// Creates a new user account and returns its account ID.
-///
-/// # Errors
-///
-/// - If `initial_balance` cannot be properly encoded.
-pub fn create_user_account<T>(initial_balance: T::Balance) -> Result<T::AccountId>
-where
-    T: EnvTypes,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        Ok(instance.accounts.new_user_account::<T>(initial_balance))
-    })
-}
-
 /// Sets the runtime storage to value for the given key.
 pub fn set_runtime_storage<T>(key: &[u8], value: T)
 where
