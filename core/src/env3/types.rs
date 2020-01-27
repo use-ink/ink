@@ -72,38 +72,38 @@ pub trait SimpleArithmetic:
     + MulAssign<Self>
     + Div<Self>
     + DivAssign<Self>
-    // Further trait bounds from the original SimpleArithmetic trait
-    // that we could use to extend ink!'s SimpleArithmetic trait.
-    //
-    // From<u8> +
-    // From<u16> +
-    // From<u32> +
-    // TryFrom<u64> +
-    // TryFrom<u128> +
-    // TryFrom<usize> +
-    // TryInto<u8> +
-    // TryInto<u16> +
-    // TryInto<u32> +
-    // TryInto<u64> +
-    // TryInto<u128> +
-    // TryInto<usize> +
-    // UniqueSaturatedInto<u8> +
-    // UniqueSaturatedInto<u16> +
-    // UniqueSaturatedInto<u32> +
-    // UniqueSaturatedInto<u64> +
-    // UniqueSaturatedInto<u128> +
-    // UniqueSaturatedFrom<u64> +
-    // UniqueSaturatedFrom<u128> +
-    // Shl<u32, Output = Self> +
-    // Shr<u32, Output = Self> +
-    // CheckedAdd +
-    // CheckedSub +
-    // CheckedMul +
-    // CheckedDiv +
-    // CheckedShl +
-    // CheckedShr +
-    // IntegerSquareRoot +
-    // Saturating +
+// Further trait bounds from the original SimpleArithmetic trait
+// that we could use to extend ink!'s SimpleArithmetic trait.
+//
+// From<u8> +
+// From<u16> +
+// From<u32> +
+// TryFrom<u64> +
+// TryFrom<u128> +
+// TryFrom<usize> +
+// TryInto<u8> +
+// TryInto<u16> +
+// TryInto<u32> +
+// TryInto<u64> +
+// TryInto<u128> +
+// TryInto<usize> +
+// UniqueSaturatedInto<u8> +
+// UniqueSaturatedInto<u16> +
+// UniqueSaturatedInto<u32> +
+// UniqueSaturatedInto<u64> +
+// UniqueSaturatedInto<u128> +
+// UniqueSaturatedFrom<u64> +
+// UniqueSaturatedFrom<u128> +
+// Shl<u32, Output = Self> +
+// Shr<u32, Output = Self> +
+// CheckedAdd +
+// CheckedSub +
+// CheckedMul +
+// CheckedDiv +
+// CheckedShl +
+// CheckedShr +
+// IntegerSquareRoot +
+// Saturating +
 {
 }
 
@@ -151,7 +151,13 @@ pub trait EnvTypes {
         + AsRef<[u8]>
         + AsMut<[u8]>;
     /// The type of timestamps.
-    type TimeStamp: 'static + scale::Codec + Copy + Clone + PartialEq + Eq + SimpleArithmetic;
+    type TimeStamp: 'static
+        + scale::Codec
+        + Copy
+        + Clone
+        + PartialEq
+        + Eq
+        + SimpleArithmetic;
     /// The type of block number.
     type BlockNumber: 'static
         + scale::Codec

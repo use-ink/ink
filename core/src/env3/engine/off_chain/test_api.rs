@@ -82,7 +82,10 @@ pub fn pop_execution_context() {
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
-pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance) -> Result<()>
+pub fn set_account_balance<T>(
+    account_id: T::AccountId,
+    new_balance: T::Balance,
+) -> Result<()>
 where
     T: EnvTypes,
 {
