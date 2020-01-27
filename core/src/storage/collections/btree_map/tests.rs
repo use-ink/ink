@@ -48,32 +48,34 @@ fn filled_map() -> BTreeMap<i32, i32> {
 /// Returns all edges in the tree as one Vec.
 fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
     let mut v = Vec::new();
-    let mut i = 0;
-    let mut cnt = 0;
+    let mut processed_nodes = 0;
+    let mut node_index = 0;
     loop {
-        if i == map.header().node_count {
+        if processed_nodes == map.header().node_count {
             break
         }
 
         // We iterate over all storage entities of the tree and skip vacant entities.
-        let handle = NodeHandle::new(cnt);
+        let handle = NodeHandle::new(node_index);
         if let Some(node) = map.get_node(&handle) {
             let mut edges = node.edges.to_vec().into_iter().filter_map(|x| x).collect();
             v.append(&mut edges);
-            i += 1;
+            processed_nodes += 1;
         }
-        cnt += 1;
+        node_index += 1;
     }
     v
 }
 
+/// Returns `true` if every edge exists only once in the tree.
+/// If duplicate edges are found each duplicate is printed to the console.
 fn every_edge_exists_only_once(map: &BTreeMap<i32, i32>) -> bool {
     let all_edges = all_edges(map);
-    let uniqued: Vec<u32> = all_edges.clone().into_iter().unique().collect();
+    let unique_edges: Vec<u32> = all_edges.clone().into_iter().unique().collect();
 
-    let only_unique_edges = all_edges.len() == uniqued.len();
-    if only_unique_edges == false {
-        uniqued.iter().for_each(|x| {
+    let only_unique_edges = all_edges.len() == unique_edges.len();
+    if !only_unique_edges {
+        unique_edges.iter().for_each(|x| {
             if all_edges.iter().any(|a| *a == *x) {
                 eprintln!("duplicate {:?}", x);
             }
@@ -88,19 +90,19 @@ fn every_edge_exists_only_once(map: &BTreeMap<i32, i32>) -> bool {
 /// inserted elements are in the map and they are removed subsequently.
 fn insert_and_remove(xs: Vec<i32>) {
     let mut map = empty_map();
-    let mut cnt_inserts = 0;
+    let mut count_inserts = 0;
     let mut previous_even_x = None;
     let number_inserts = 3;
 
     xs.iter().for_each(|x| {
         let x = *x;
         if x % 2 == 0 {
-            // on even numbers we insert
+            // On even numbers we insert new nodes.
             for a in x..x + number_inserts {
                 if let None = map.insert(a, a * 10) {
-                    cnt_inserts += 1;
+                    count_inserts += 1;
                 }
-                assert_eq!(map.len(), cnt_inserts);
+                assert_eq!(map.len(), count_inserts);
             }
             previous_even_x = Some(x);
         } else if x % 2 == 1 && previous_even_x.is_some() {
@@ -111,8 +113,8 @@ fn insert_and_remove(xs: Vec<i32>) {
                 assert_eq!(map.get(&a), Some(&(a * 10)));
                 assert_eq!(map.remove(&a), Some(a * 10));
                 assert_eq!(map.get(&a), None);
-                cnt_inserts -= 1;
-                assert_eq!(map.len(), cnt_inserts);
+                count_inserts -= 1;
+                assert_eq!(map.len(), count_inserts);
             }
             previous_even_x = None;
         }

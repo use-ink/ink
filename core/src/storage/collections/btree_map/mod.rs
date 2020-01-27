@@ -14,10 +14,13 @@
 
 //! A BTreeMap collection.
 //!
-//! This implementation follows the algorithm used by the Rust BTreeMap stdlib
-//! implementation. The Rust implementation was in general the blueprint for
-//! this implementation. The major difference is that the Rust implementation
-//! is in-memory, whereas this implementation uses the ink! primitives for storage.
+//! This implementation follows the algorithm used by the Rust `BTreeMap` standard
+//! library implementation. The Rust implementation was in general the blueprint for
+//! this implementation. The major difference is that the Rust implementation is
+//! in-memory, whereas this implementation uses the ink! primitives for storage.
+//!
+//! See https://github.com/rust-lang/rust/blob/master/src/liballoc/collections/btree
+//! for the Rust implementation.
 //!
 //! The idea of a BTreeMap is to store many elements (i.e. key/value pairs)
 //! in one tree node. Each of these elements can have a left and right child.

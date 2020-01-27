@@ -76,6 +76,8 @@ pub const CAPACITY: usize = 2 * B - 1;
 
 /// The node type, either a `Leaf` (a node without children) or
 /// `Internal` (a node with children).
+/// This distinction makes it easier to handle e.g. cases where nodes
+/// are merged or implementing recursion.
 pub(super) enum HandleType {
     Leaf,
     Internal,
@@ -84,8 +86,8 @@ pub(super) enum HandleType {
 /// Mapping stored in the contract storage.
 ///
 /// This implementation follows the algorithm used by the Rust
-/// BTreeMap stdlib implementation. The Rust implementation is
-/// in-memory, whereas this implementation uses the ink! storage
+/// `BTreeMap` standard library implementation. The Rust implementation
+/// is in-memory, whereas this implementation uses the ink! storage
 /// primitives (`SyncChunk`, etc.).
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct BTreeMap<K, V> {
@@ -659,7 +661,7 @@ where
 
         node.len += 1;
 
-        self.correct_all_childrens_parent_links(handle);
+        self.correct_all_children_parent_links(handle);
     }
 
     /// Removes a node by replacing its storage entity with a pointer to the current
@@ -1054,6 +1056,8 @@ where
 
     /// Fixes the parent pointer and index in the child node below this edge. This is useful
     /// when the ordering of edges has been changed, such as in the various `insert` methods.
+    /// Then the parent pointer in the child nodes has to be updated, otherwise they would
+    /// point to some entry in `edges` which is no longer correct.
     fn correct_parent_link(&mut self, handle: KVHandle) {
         let child = self
             .descend(handle)
@@ -1061,24 +1065,21 @@ where
         self.set_parent(&child, Some(handle.node), Some(handle.idx));
     }
 
-    fn correct_childrens_parent_links(
-        &mut self,
-        handle: &NodeHandle,
-        first: usize,
-        after_last: usize,
-    ) {
-        for i in first..after_last {
+    /// Iterates through all children of a node and fixes the parent pointer in the child.
+    /// Each child contains a pointer to a position in the `edges` array. Sometimes (e.g. for
+    /// `insert` operations) the order in the `edges` array changes and the child pointers
+    /// have to be corrected.
+    fn correct_all_children_parent_links(&mut self, handle: &NodeHandle) {
+        let node = self.get_node(handle).expect("node must exist");
+        let len = node.len();
+
+        for i in 0..len+1 {
             let h = KVHandle::new(handle.node, i as u32);
             self.correct_parent_link(h);
         }
     }
 
-    fn correct_all_childrens_parent_links(&mut self, handle: &NodeHandle) {
-        let node = self.get_node(handle).expect("node must exist");
-        let len = node.len();
-        self.correct_childrens_parent_links(handle, 0, len + 1);
-    }
-
+    /// Returns `true` if a node has children.
     fn has_children(&mut self, handle: &NodeHandle) -> bool {
         let node = self.get_node(handle).expect("node must exist");
         node.edges() > 0
