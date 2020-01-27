@@ -222,7 +222,7 @@ where
 }
 
 /// Returns the contents of the past performed environmental `println` in order.
-pub fn past_printlns() -> impl Iterator<Item = String> {
+pub fn recorded_printlns() -> impl Iterator<Item = String> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         // We return a clone of the recorded strings instead of
         // references to them since this would require the whole `on_instance`
@@ -239,7 +239,7 @@ pub fn past_printlns() -> impl Iterator<Item = String> {
 }
 
 /// Returns the recorded emitted events in order.
-pub fn emitted_events() -> impl Iterator<Item = EmittedEvent> {
+pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         // We return a clone of the recorded emitted events instead of
         // references to them since this would require the whole `on_instance`
