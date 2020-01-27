@@ -57,6 +57,7 @@ use num_traits::{
 /// if needed.
 pub trait SimpleArithmetic:
     Sized
+    + From<u32>
     + Bounded
     + Ord
     + PartialOrd<Self>
@@ -76,6 +77,7 @@ pub trait SimpleArithmetic:
 
 impl<T> SimpleArithmetic for T where
     T: Sized
+        + From<u32>
         + Bounded
         + Ord
         + PartialOrd<Self>
