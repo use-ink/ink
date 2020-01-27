@@ -34,25 +34,93 @@ use scale::{
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 
+use core::ops::{
+    Add,
+    AddAssign,
+    Div,
+    DivAssign,
+    Mul,
+    MulAssign,
+    Sub,
+    SubAssign,
+};
+use num_traits::{
+    Bounded,
+    One,
+    Zero,
+};
+
+pub trait SimpleArithmetic:
+    Sized
+    + Bounded
+    + Ord
+    + PartialOrd<Self>
+    + Zero
+    + One
+    + Bounded
+    + Add
+    + AddAssign
+    + Sub
+    + SubAssign
+    + Mul
+    + MulAssign
+    + Div
+    + DivAssign
+{
+}
+
+impl<T> SimpleArithmetic for T where
+    T: Sized
+        + Bounded
+        + Ord
+        + PartialOrd<Self>
+        + Zero
+        + One
+        + Bounded
+        + Add
+        + AddAssign
+        + Sub
+        + SubAssign
+        + Mul
+        + MulAssign
+        + Div
+        + DivAssign
+{
+}
+
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
     /// The type of an address.
-    type AccountId: 'static + scale::Codec + Clone + PartialEq + Eq;
+    type AccountId: 'static + scale::Codec + Clone + PartialEq + Eq + Ord;
     /// The type of balances.
-    type Balance: 'static + scale::Codec + Clone + PartialEq + Eq;
+    type Balance: 'static
+        + scale::Codec
+        + Copy
+        + Clone
+        + PartialEq
+        + Eq
+        + SimpleArithmetic;
     /// The type of hash.
     type Hash: 'static
         + scale::Codec
+        + Copy
         + Clone
         + Clear
         + PartialEq
         + Eq
+        + Ord
         + AsRef<[u8]>
         + AsMut<[u8]>;
     /// The type of timestamps.
-    type Moment: 'static + scale::Codec + Clone + PartialEq + Eq;
+    type Moment: 'static + scale::Codec + Copy + Clone + PartialEq + Eq + SimpleArithmetic;
     /// The type of block number.
-    type BlockNumber: 'static + scale::Codec + Clone + PartialEq + Eq;
+    type BlockNumber: 'static
+        + scale::Codec
+        + Copy
+        + Clone
+        + PartialEq
+        + Eq
+        + SimpleArithmetic;
     /// The type of a call into the runtime
     type Call: 'static + scale::Codec;
 }
@@ -100,7 +168,7 @@ pub type BlockNumber = u64;
 ///
 /// A user defined `Call` type is required for calling into the runtime.
 /// For more info visit: https://github.com/paritytech/ink-types-node-runtime
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug)]
 pub enum Call {}
 
 impl Encode for Call {
@@ -128,7 +196,20 @@ impl scale::Decode for Call {
 ///
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, From, Default)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Encode,
+    Decode,
+    From,
+    Default,
+)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct AccountId([u8; 32]);
 
@@ -149,7 +230,20 @@ impl Flush for AccountId {}
 ///
 /// This is a mirror of the `Hash` type used in the default configuration
 /// of PALLET contracts.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Encode, Decode, From, Default)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Encode,
+    Decode,
+    From,
+    Default,
+)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Hash([u8; 32]);
 

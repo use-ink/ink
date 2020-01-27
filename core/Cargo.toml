@@ -26,6 +26,7 @@ type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", de
 derive_more = { version = "0.99.2", default-features = false, features = ["from", "display"] }
 smallvec = { version = "1.0", default-features = false, features = ["union"] }
 cfg-if = "0.1"
+num-traits = { version = "0.2.1", default-features = false, feature = ["i128"] }
 
 # Only used in the off-chain environment.
 #
@@ -45,6 +46,7 @@ std = [
     "scale/std",
     "type-metadata/std",
     "rand/std",
+    "num-traits/std",
 ]
 ink-generate-abi = [
     "ink_abi",
