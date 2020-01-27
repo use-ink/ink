@@ -64,13 +64,13 @@ pub trait SimpleArithmetic:
     + Zero
     + One
     + Bounded
-    + Add<Self>
+    + Add<Self, Output = Self>
     + AddAssign<Self>
-    + Sub<Self>
+    + Sub<Self, Output = Self>
     + SubAssign<Self>
-    + Mul<Self>
+    + Mul<Self, Output = Self>
     + MulAssign<Self>
-    + Div<Self>
+    + Div<Self, Output = Self>
     + DivAssign<Self>
 // Further trait bounds from the original SimpleArithmetic trait
 // that we could use to extend ink!'s SimpleArithmetic trait.
@@ -115,14 +115,13 @@ impl<T> SimpleArithmetic for T where
         + PartialOrd<Self>
         + Zero
         + One
-        + Bounded
-        + Add<Self>
+        + Add<Self, Output = Self>
         + AddAssign<Self>
-        + Sub<Self>
+        + Sub<Self, Output = Self>
         + SubAssign<Self>
-        + Mul<Self>
+        + Mul<Self, Output = Self>
         + MulAssign<Self>
-        + Div<Self>
+        + Div<Self, Output = Self>
         + DivAssign<Self>
 {
 }
