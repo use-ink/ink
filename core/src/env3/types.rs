@@ -50,6 +50,11 @@ use num_traits::{
     Zero,
 };
 
+/// Types that allow for simple arithmetic operations.
+///
+/// Subset of all trait bounds copied over from what Substrate defines
+/// for its `SimpleArithmetic` types. We can extend this in the future
+/// if needed.
 pub trait SimpleArithmetic:
     Sized
     + Bounded
