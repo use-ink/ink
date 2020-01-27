@@ -238,6 +238,7 @@ pub fn past_printlns() -> impl Iterator<Item = String> {
     })
 }
 
+/// Returns the recorded emitted events in order.
 pub fn emitted_events() -> impl Iterator<Item = EmittedEvent> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         // We return a clone of the recorded emitted events instead of
