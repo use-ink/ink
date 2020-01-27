@@ -94,7 +94,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn now_in_ms<T>() -> Result<T::Moment>
+pub fn now_in_ms<T>() -> Result<T::TimeStamp>
 where
     T: EnvTypes,
 {

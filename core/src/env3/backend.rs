@@ -98,7 +98,7 @@ pub trait TypedEnv: Env {
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Returns the current block time in milliseconds.
-    fn now_in_ms<T: EnvTypes>(&mut self) -> Result<T::Moment>;
+    fn now_in_ms<T: EnvTypes>(&mut self) -> Result<T::TimeStamp>;
 
     /// Returns the address of the executed contract.
     fn address<T: EnvTypes>(&mut self) -> Result<T::AccountId>;

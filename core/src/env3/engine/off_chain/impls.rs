@@ -148,7 +148,7 @@ impl TypedEnv for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn now_in_ms<T: EnvTypes>(&mut self) -> Result<T::Moment> {
+    fn now_in_ms<T: EnvTypes>(&mut self) -> Result<T::TimeStamp> {
         self.current_block()
             .expect("uninitialized execution context")
             .time_stamp::<T>()

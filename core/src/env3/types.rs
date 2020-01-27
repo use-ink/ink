@@ -151,7 +151,7 @@ pub trait EnvTypes {
         + AsRef<[u8]>
         + AsMut<[u8]>;
     /// The type of timestamps.
-    type Moment: 'static + scale::Codec + Copy + Clone + PartialEq + Eq + SimpleArithmetic;
+    type TimeStamp: 'static + scale::Codec + Copy + Clone + PartialEq + Eq + SimpleArithmetic;
     /// The type of block number.
     type BlockNumber: 'static
         + scale::Codec
@@ -182,7 +182,7 @@ impl EnvTypes for DefaultEnvTypes {
     type AccountId = AccountId;
     type Balance = Balance;
     type Hash = Hash;
-    type Moment = Moment;
+    type TimeStamp = TimeStamp;
     type BlockNumber = BlockNumber;
     type Call = Call;
 }
@@ -190,8 +190,8 @@ impl EnvTypes for DefaultEnvTypes {
 /// The default balance type.
 pub type Balance = u128;
 
-/// The default moment type.
-pub type Moment = u64;
+/// The default time stamp type.
+pub type TimeStamp = u64;
 
 /// The default block number type.
 pub type BlockNumber = u64;

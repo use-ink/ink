@@ -36,8 +36,8 @@ mod type_marker {
     #[derive(Debug, Clone)] pub enum Balance {}
     /// Type marker representing an environmental `Hash`.
     #[derive(Debug, Clone)] pub enum Hash {}
-    /// Type marker representing an environmental `Moment`.
-    #[derive(Debug, Clone)] pub enum Moment {}
+    /// Type marker representing an environmental `TimeStamp`.
+    #[derive(Debug, Clone)] pub enum OffTimeStamp {}
     /// Type marker representing an environmental `BlockNumber`.
     #[derive(Debug, Clone)] pub enum BlockNumber {}
     /// Type marker representing an environmental `Call`.
@@ -51,7 +51,7 @@ pub type OffBalance = TypedEncoded<type_marker::Balance>;
 /// Off-chain environment hash type.
 pub type OffHash = TypedEncoded<type_marker::Hash>;
 /// Off-chain environment moment (block time) type.
-pub type OffMoment = TypedEncoded<type_marker::Moment>;
+pub type OffTimeStamp = TypedEncoded<type_marker::OffTimeStamp>;
 /// Off-chain environment block number type.
 pub type OffBlockNumber = TypedEncoded<type_marker::BlockNumber>;
 /// Off-chain environment call (runtime dispatch) type.

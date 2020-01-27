@@ -19,7 +19,7 @@ use super::{
     },
     OffBlockNumber,
     OffHash,
-    OffMoment,
+    OffTimeStamp,
 };
 use crate::env3::EnvTypes;
 
@@ -28,7 +28,7 @@ pub struct Block {
     /// The current block number.
     number: OffBlockNumber,
     /// The time stamp of the block.
-    time_stamp: OffMoment,
+    time_stamp: OffTimeStamp,
     /// The randomization entropy for a block.
     ///
     /// # Note
@@ -39,8 +39,8 @@ pub struct Block {
 }
 
 impl Block {
-    /// Creates a new block for the given number and moment.
-    pub fn new<T>(number: T::BlockNumber, time_stamp: T::Moment) -> Self
+    /// Creates a new block for the given number and time stamp.
+    pub fn new<T>(number: T::BlockNumber, time_stamp: T::TimeStamp) -> Self
     where
         T: EnvTypes,
     {
@@ -64,7 +64,7 @@ impl Block {
     }
 
     /// Returns the time stamp of the block.
-    pub fn time_stamp<T>(&self) -> Result<T::Moment>
+    pub fn time_stamp<T>(&self) -> Result<T::TimeStamp>
     where
         T: EnvTypes,
     {
