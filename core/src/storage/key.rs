@@ -230,66 +230,93 @@ mod tests {
     use super::*;
 
     use crate::{
-        env,
+        env3 as env,
+        env3::{
+            EnvError,
+            Result,
+        },
         test_utils::run_test,
     };
 
     #[test]
-    fn store_load_clear() {
-        run_test(|| {
+    fn store_load_clear() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let key = Key([0x42; 32]);
-            assert_eq!(unsafe { env::load(key) }, None);
-            unsafe {
-                env::store(key, &[0x5]);
-            }
-            assert_eq!(unsafe { env::load(key) }, Some(vec![0x5]));
-            unsafe {
-                env::clear(key);
-            }
-            assert_eq!(unsafe { env::load(key) }, None);
+            assert_eq!(
+                env::get_contract_storage::<()>(key),
+                Err(EnvError::MissingContractStorageEntry),
+            );
+            env::set_contract_storage(key, &[0x05_u8; 5]);
+            assert_eq!(env::get_contract_storage::<[i8; 5]>(key), Ok([0x05; 5]),);
+            env::clear_contract_storage(key);
+            assert_eq!(
+                env::get_contract_storage::<[u8; 5]>(key),
+                Err(EnvError::MissingContractStorageEntry),
+            );
+            Ok(())
+            // unsafe {
+            //     env::store(key, &[0x5]);
+            // }
+            // assert_eq!(unsafe { env::load(key) }, Some(vec![0x5]));
+            // unsafe {
+            //     env::clear(key);
+            // }
+            // assert_eq!(unsafe { env::load(key) }, None);
         })
     }
 
     #[test]
-    fn key_add() {
-        run_test(|| {
+    fn key_add() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let key00 = Key([0x0; 32]);
-            let key05 = key00 + 5_u32; // -> 5
+            let key05 = key00 + 05_u32; // -> 5
             let key10 = key00 + 10_u32; // -> 10         | same as key55
-            let key55 = key05 + 5_u32; // -> 5 + 5 = 10 | same as key10
-            unsafe {
-                env::store(key55, &[42]);
-            }
-            assert_eq!(unsafe { env::load(key10) }, Some(vec![42]));
-            unsafe {
-                env::store(key10, &[13, 37]);
-            }
-            assert_eq!(unsafe { env::load(key55) }, Some(vec![13, 37]));
+            let key55 = key05 + 05_u32; // -> 5 + 5 = 10 | same as key10
+            env::set_contract_storage(key55, &42);
+            assert_eq!(env::get_contract_storage::<i32>(key10), Ok(42));
+            env::set_contract_storage(key10, &1337);
+            assert_eq!(env::get_contract_storage::<i32>(key55), Ok(1337));
+            Ok(())
+            // unsafe {
+            //     env::store(key55, &[42]);
+            // }
+            // assert_eq!(unsafe { env::load(key10) }, Some(vec![42]));
+            // unsafe {
+            //     env::store(key10, &[13, 37]);
+            // }
+            // assert_eq!(unsafe { env::load(key55) }, Some(vec![13, 37]));
         })
     }
 
     #[test]
-    fn key_add_sub() {
-        run_test(|| {
+    fn key_add_sub() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let key0a = Key([0x0; 32]);
-            unsafe {
-                env::store(key0a, &[0x01]);
-            }
             let key1a = key0a + 1337_u32;
-            unsafe {
-                env::store(key1a, &[0x02]);
-            }
             let key2a = key0a + 42_u32;
-            unsafe {
-                env::store(key2a, &[0x03]);
-            }
             let key3a = key0a + 52_u32;
             let key2b = key3a - 10_u32;
-            assert_eq!(unsafe { env::load(key2b) }, Some(vec![0x03]));
             let key1b = key2b - 42_u32;
-            assert_eq!(unsafe { env::load(key1b) }, Some(vec![0x01]));
-            let key0b = key1b + 2000_u32 - 663_u32;
-            assert_eq!(unsafe { env::load(key0b) }, Some(vec![0x02]));
+            let key0b = key1b + 2000_u32 - 663_u32; // same as key1a
+            env::set_contract_storage(key0a, &1);
+            env::set_contract_storage(key1a, &2);
+            env::set_contract_storage(key2a, &3);
+            assert_eq!(env::get_contract_storage::<i32>(key2b), Ok(3));
+            assert_eq!(env::get_contract_storage::<i32>(key1b), Ok(1));
+            assert_eq!(env::get_contract_storage::<i32>(key0b), Ok(2));
+            Ok(())
+            // unsafe {
+            //     env::store(key0a, &[0x01]);
+            // }
+            // unsafe {
+            //     env::store(key1a, &[0x02]);
+            // }
+            // unsafe {
+            //     env::store(key2a, &[0x03]);
+            // }
+            // assert_eq!(unsafe { env::load(key2b) }, Some(vec![0x03]));
+            // assert_eq!(unsafe { env::load(key1b) }, Some(vec![0x01]));
+            // assert_eq!(unsafe { env::load(key0b) }, Some(vec![0x02]));
         })
     }
 
