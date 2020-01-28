@@ -311,3 +311,16 @@ where
     let default_accounts = default_accounts::<T>()?;
     f(default_accounts)
 }
+
+/// Returns the total number of reads and writes of the contract's storage.
+pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> Result<(usize, usize)>
+where
+    T: EnvTypes,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.accounts.get_account::<T>(account_id)
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
+            .map_err(Into::into)
+            .and_then(|account| account.get_storage_rw().map_err(Into::into))
+    })
+}

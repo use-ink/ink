@@ -27,6 +27,7 @@ use crate::{
     },
     storage::Key,
 };
+use core::cell::Cell;
 use derive_more::From;
 use ink_prelude::collections::BTreeMap;
 
@@ -231,6 +232,11 @@ impl Account {
         self.contract_or_err()
             .and_then(|contract| contract.storage.get_storage::<T>(at))
     }
+
+    /// Returns the total number of reads and write from and to the contract's storage.
+    pub fn get_storage_rw(&self) -> Result<(usize, usize)> {
+        self.contract_or_err().map(|contract| contract.get_rw())
+    }
 }
 
 /// The kind of the account.
@@ -260,12 +266,21 @@ impl ContractAccount {
             storage: ContractStorage::new(),
         }
     }
+
+    /// Returns the number of reads and writes from and to the contract storage.
+    pub fn get_rw(&self) -> (usize, usize) {
+        self.storage.get_rw()
+    }
 }
 
 /// The storage of a contract instance.
 pub struct ContractStorage {
     /// The entries within the contract storage.
     entries: BTreeMap<Key, Vec<u8>>,
+    /// The total number of reads to the storage.
+    count_reads: Cell<usize>,
+    /// The total number of writes to the storage.
+    count_writes: usize,
 }
 
 impl ContractStorage {
@@ -273,7 +288,14 @@ impl ContractStorage {
     pub fn new() -> Self {
         Self {
             entries: BTreeMap::new(),
+            count_reads: Cell::new(0),
+            count_writes: 0,
         }
+    }
+
+    /// Returns the number of reads and writes from and to the contract storage.
+    pub fn get_rw(&self) -> (usize, usize) {
+        (self.count_reads.get(), self.count_writes)
     }
 
     /// Returns the decoded storage at the key if any.
@@ -281,6 +303,7 @@ impl ContractStorage {
     where
         T: scale::Decode,
     {
+        self.count_reads.set(self.count_reads.get() + 1);
         self.entries
             .get(&at)
             .map(|encoded| T::decode(&mut &encoded[..]))
@@ -293,11 +316,13 @@ impl ContractStorage {
     where
         T: scale::Encode,
     {
+        self.count_writes += 1;
         self.entries.insert(at, new_value.encode());
     }
 
     /// Removes the value from storage entries at the given key.
     pub fn clear_storage(&mut self, at: Key) {
+        self.count_writes += 1;
         self.entries.remove(&at);
     }
 }
