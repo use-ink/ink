@@ -18,7 +18,7 @@ use derive_more::From;
 use crate::env3::engine::off_chain::OffChainError;
 
 /// Errors that can be encountered upon environmental interaction.
-#[derive(From)]
+#[derive(Debug, From, PartialEq, Eq)]
 pub enum EnvError {
     /// Error upon decoding an encoded value.
     Decode(scale::Error),

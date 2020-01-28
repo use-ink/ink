@@ -67,7 +67,7 @@ pub struct TypedEncoded<T> {
 }
 
 /// Errors that may be encountered upon operating on typed encoded instances.
-#[derive(Debug, From)]
+#[derive(Debug, From, PartialEq, Eq)]
 pub enum TypedEncodedError {
     /// Error upon decoding.
     Decode(scale::Error),
@@ -241,6 +241,7 @@ impl<M> TypedEncoded<M> {
         self.check_enforced_type::<T>()?;
         self.encoded.clear();
         value.encode_to(&mut self.encoded);
+        self.type_id = Some(core::any::TypeId::of::<T>());
         Ok(())
     }
 

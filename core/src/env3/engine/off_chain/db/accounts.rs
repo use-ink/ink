@@ -31,7 +31,7 @@ use derive_more::From;
 use ink_prelude::collections::BTreeMap;
 
 /// Errors encountered upon interacting with the accounts database.
-#[derive(Debug, From)]
+#[derive(Debug, From, PartialEq, Eq)]
 pub enum AccountError {
     TypedEncoded(TypedEncodedError),
     #[from(ignore)]

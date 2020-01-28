@@ -55,7 +55,7 @@ use crate::env3::EnvTypes;
 use core::cell::RefCell;
 use derive_more::From;
 
-#[derive(Debug, From)]
+#[derive(Debug, From, PartialEq, Eq)]
 pub enum OffChainError {
     Account(AccountError),
     TypedEncoded(TypedEncodedError),
