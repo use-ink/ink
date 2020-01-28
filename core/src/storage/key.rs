@@ -254,14 +254,6 @@ mod tests {
                 Err(EnvError::MissingContractStorageEntry),
             );
             Ok(())
-            // unsafe {
-            //     env::store(key, &[0x5]);
-            // }
-            // assert_eq!(unsafe { env::load(key) }, Some(vec![0x5]));
-            // unsafe {
-            //     env::clear(key);
-            // }
-            // assert_eq!(unsafe { env::load(key) }, None);
         })
     }
 
@@ -277,14 +269,6 @@ mod tests {
             env::set_contract_storage(key10, &1337);
             assert_eq!(env::get_contract_storage::<i32>(key55), Ok(1337));
             Ok(())
-            // unsafe {
-            //     env::store(key55, &[42]);
-            // }
-            // assert_eq!(unsafe { env::load(key10) }, Some(vec![42]));
-            // unsafe {
-            //     env::store(key10, &[13, 37]);
-            // }
-            // assert_eq!(unsafe { env::load(key55) }, Some(vec![13, 37]));
         })
     }
 
@@ -305,18 +289,6 @@ mod tests {
             assert_eq!(env::get_contract_storage::<i32>(key1b), Ok(1));
             assert_eq!(env::get_contract_storage::<i32>(key0b), Ok(2));
             Ok(())
-            // unsafe {
-            //     env::store(key0a, &[0x01]);
-            // }
-            // unsafe {
-            //     env::store(key1a, &[0x02]);
-            // }
-            // unsafe {
-            //     env::store(key2a, &[0x03]);
-            // }
-            // assert_eq!(unsafe { env::load(key2b) }, Some(vec![0x03]));
-            // assert_eq!(unsafe { env::load(key1b) }, Some(vec![0x01]));
-            // assert_eq!(unsafe { env::load(key0b) }, Some(vec![0x02]));
         })
     }
 
