@@ -176,7 +176,7 @@ where
     ///
     /// If there has already been set provided gas.
     pub fn gas(mut self, gas: T::Balance) -> Self {
-        if self.callee.is_some() {
+        if self.gas.is_some() {
             panic!("already has provided gas");
         }
         self.gas = Some(gas);
