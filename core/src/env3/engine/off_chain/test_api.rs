@@ -298,3 +298,16 @@ where
         instance.initialize_as_default::<T>()
     })
 }
+
+/// Runs the given closure test function with the default configuartion
+/// for the off-chain environment.
+pub fn run_test<T, F>(f: F) -> Result<()>
+where
+    T: EnvTypes,
+    F: FnOnce(DefaultAccounts<T>) -> Result<()>,
+    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+{
+    initialize_as_default::<T>()?;
+    let default_accounts = default_accounts::<T>()?;
+    f(default_accounts)
+}
