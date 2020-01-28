@@ -375,7 +375,7 @@ impl<T> SyncCell<T> {
 
     /// Returns the associated, internal raw key.
     pub fn raw_key(&self) -> Key {
-        self.cell.raw_key()
+        self.cell.key()
     }
 }
 
@@ -437,14 +437,13 @@ where
 #[cfg(all(test, feature = "test-env"))]
 mod tests {
     use super::*;
-    use crate::env;
-
     use crate::{
+        env3 as env,
+        env3::Result,
         storage::{
             alloc::BumpAlloc,
             Key,
         },
-        test_utils::run_test,
     };
 
     fn dummy_cell() -> SyncCell<i32> {
@@ -455,8 +454,8 @@ mod tests {
     }
 
     #[test]
-    fn simple() {
-        run_test(|| {
+    fn simple() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let mut cell = dummy_cell();
             assert_eq!(cell.get(), None);
             cell.set(5);
@@ -465,119 +464,187 @@ mod tests {
             assert_eq!(cell.get(), Some(&15));
             cell.clear();
             assert_eq!(cell.get(), None);
+            Ok(())
         })
     }
 
     #[test]
-    fn multi_session_simulation() {
-        let mut cell1 = dummy_cell();
-        cell1.set(42);
-        assert_eq!(cell1.get(), Some(&42));
-        // Using same key as `cell1`
-        // -> overlapping access but different caches
-        // Cache has not yet been synced:
-        assert_eq!(dummy_cell().get(), None);
-        // Sync cache now!
-        cell1.flush();
-        // Using same key as `cell1`
-        // -> overlapping access but different caches
-        // Cache has been flushed before:
-        assert_eq!(dummy_cell().get(), Some(&42));
+    fn multi_session_simulation() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            let mut cell1 = dummy_cell();
+            cell1.set(42);
+            assert_eq!(cell1.get(), Some(&42));
+            // Using same key as `cell1`
+            // -> overlapping access but different caches
+            // Cache has not yet been synced:
+            assert_eq!(dummy_cell().get(), None);
+            // Sync cache now!
+            cell1.flush();
+            // Using same key as `cell1`
+            // -> overlapping access but different caches
+            // Cache has been flushed before:
+            assert_eq!(dummy_cell().get(), Some(&42));
+            Ok(())
+        })
     }
 
     #[test]
-    fn count_rw_get() {
-        // Repetitions performed.
-        const N: u32 = 5;
+    fn count_rw_get() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            // Repetitions performed.
+            const N: u32 = 5;
 
-        let mut cell = dummy_cell();
+            let mut cell = dummy_cell();
+            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
 
-        // Asserts initial reads and writes are zero.
-        assert_eq!(env::test::total_reads(), 0);
-        assert_eq!(env::test::total_writes(), 0);
+            // Asserts initial reads and writes are zero.
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 0)
+            );
 
-        // Repeated reads on the same cell.
-        for _i in 0..N {
-            cell.get();
-            assert_eq!(env::test::total_reads(), 1);
-            assert_eq!(env::test::total_writes(), 0);
-        }
+            // Repeated reads on the same cell.
+            for _i in 0..N {
+                cell.get();
+                assert_eq!(
+                    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                        &contract_account_id
+                    )?,
+                    (1, 0)
+                );
+            }
 
-        // Flush the cell and assert reads and writes.
-        cell.flush();
-        assert_eq!(env::test::total_reads(), 1);
-        assert_eq!(env::test::total_writes(), 0);
+            // Flush the cell and assert reads and writes.
+            cell.flush();
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (1, 0)
+            );
+            Ok(())
+        })
     }
 
     #[test]
-    fn count_rw_get_mut() {
-        // Repetitions performed.
-        const N: u32 = 5;
+    fn count_rw_get_mut() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            // Repetitions performed.
+            const N: u32 = 5;
 
-        let mut cell = dummy_cell();
+            let mut cell = dummy_cell();
+            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
 
-        // Asserts initial reads and writes are zero.
-        assert_eq!(env::test::total_reads(), 0);
-        assert_eq!(env::test::total_writes(), 0);
+            // Asserts initial reads and writes are zero.
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 0)
+            );
 
-        // Repeated mutable reads on the same cell.
-        for _i in 0..N {
-            cell.get_mut();
-            assert_eq!(env::test::total_reads(), 1);
-            assert_eq!(env::test::total_writes(), 0);
-        }
+            // Repeated mutable reads on the same cell.
+            for _i in 0..N {
+                cell.get_mut();
+                assert_eq!(
+                    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                        &contract_account_id
+                    )?,
+                    (1, 0)
+                );
+            }
 
-        // Flush the cell and assert reads and writes.
-        cell.flush();
-        assert_eq!(env::test::total_reads(), 1);
-        assert_eq!(env::test::total_writes(), 1);
+            // Flush the cell and assert reads and writes.
+            cell.flush();
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (1, 1)
+            );
+            Ok(())
+        })
     }
 
     #[test]
-    fn count_rw_set() {
-        // Repetitions performed.
-        const N: u32 = 5;
+    fn count_rw_set() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            // Repetitions performed.
+            const N: u32 = 5;
 
-        let mut cell = dummy_cell();
+            let mut cell = dummy_cell();
+            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
 
-        // Asserts initial reads and writes are zero.
-        assert_eq!(env::test::total_reads(), 0);
-        assert_eq!(env::test::total_writes(), 0);
+            // Asserts initial reads and writes are zero.
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 0)
+            );
 
-        // Repeated writes to the same cell.
-        for _i in 0..N {
-            cell.set(42);
-            assert_eq!(env::test::total_reads(), 0);
-            assert_eq!(env::test::total_writes(), 0);
-        }
+            // Repeated writes to the same cell.
+            for _i in 0..N {
+                cell.set(42);
+                assert_eq!(
+                    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                        &contract_account_id
+                    )?,
+                    (0, 0)
+                );
+            }
 
-        // Flush the cell and assert reads and writes.
-        cell.flush();
-        assert_eq!(env::test::total_reads(), 0);
-        assert_eq!(env::test::total_writes(), 1);
+            // Flush the cell and assert reads and writes.
+            cell.flush();
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 1)
+            );
+            Ok(())
+        })
     }
 
     #[test]
-    fn count_rw_clear() {
-        // Repetitions performed.
-        const N: u32 = 5;
+    fn count_rw_clear() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            // Repetitions performed.
+            const N: u32 = 5;
 
-        let mut cell = dummy_cell();
+            let mut cell = dummy_cell();
+            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
 
-        // Asserts initial reads and writes are zero.
-        assert_eq!(env::test::total_reads(), 0);
-        assert_eq!(env::test::total_writes(), 0);
+            // Asserts initial reads and writes are zero.
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 0)
+            );
 
-        // Repeated writes to the same cell.
-        for _i in 0..N {
-            cell.clear();
-            assert_eq!(env::test::total_reads(), 0);
-            assert_eq!(env::test::total_writes(), 0);
-        }
+            // Repeated writes to the same cell.
+            for _i in 0..N {
+                cell.clear();
+                assert_eq!(
+                    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                        &contract_account_id
+                    )?,
+                    (0, 0)
+                );
+            }
 
-        // Flush the cell and assert reads and writes.
-        cell.flush();
-        assert_eq!(env::test::total_reads(), 0);
-        assert_eq!(env::test::total_writes(), 1);
+            // Flush the cell and assert reads and writes.
+            cell.flush();
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 1)
+            );
+            Ok(())
+        })
     }
 }
