@@ -225,35 +225,35 @@ mod tests {
         })
     }
 
+    /// Returns the current number of total contract storage reads and writes.
+    fn get_contract_storage_rw() -> (usize, usize) {
+        let contract_account_id = env::address::<env::DefaultEnvTypes>().unwrap();
+        env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(&contract_account_id)
+            .unwrap()
+    }
+
     #[test]
     fn count_reads_writes() -> Result<()> {
         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             const TEST_LEN: u32 = 5;
             let mut chunk = create_typed_chunk();
-            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
 
             // Reads and writes after init.
             assert_eq!(
-                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                    &contract_account_id
-                )?,
-                (0, 0)
+                get_contract_storage_rw(),
+                (0, 0),
             );
 
             // Loading from all cells.
             for i in 0..TEST_LEN {
                 chunk.load(i);
                 assert_eq!(
-                    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                        &contract_account_id
-                    )?,
+                    get_contract_storage_rw(),
                     (i as usize + 1, 0)
                 );
             }
             assert_eq!(
-                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                    &contract_account_id
-                )?,
+                get_contract_storage_rw(),
                 (TEST_LEN as usize, 0)
             );
 
@@ -261,16 +261,12 @@ mod tests {
             for i in 0..TEST_LEN {
                 chunk.store(i, &i);
                 assert_eq!(
-                    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                        &contract_account_id
-                    )?,
+                    get_contract_storage_rw(),
                     (TEST_LEN as usize, i as usize + 1)
                 );
             }
             assert_eq!(
-                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                    &contract_account_id
-                )?,
+                get_contract_storage_rw(),
                 (TEST_LEN as usize, TEST_LEN as usize)
             );
 
@@ -279,9 +275,7 @@ mod tests {
             for n in 0..LOAD_REPEATS {
                 chunk.load(0);
                 assert_eq!(
-                    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                        &contract_account_id
-                    )?,
+                    get_contract_storage_rw(),
                     (
                         TEST_LEN as usize + n + 1,
                         TEST_LEN as usize,
@@ -289,9 +283,7 @@ mod tests {
                 );
             }
             assert_eq!(
-                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                    &contract_account_id
-                )?,
+                get_contract_storage_rw(),
                 (
                     TEST_LEN as usize + LOAD_REPEATS,
                     TEST_LEN as usize,
@@ -303,9 +295,7 @@ mod tests {
             for n in 0..STORE_REPEATS {
                 chunk.store(0, &10);
                 assert_eq!(
-                    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                        &contract_account_id
-                    )?,
+                    get_contract_storage_rw(),
                     (
                         TEST_LEN as usize + LOAD_REPEATS,
                         TEST_LEN as usize + n + 1,
@@ -313,9 +303,7 @@ mod tests {
                 );
             }
             assert_eq!(
-                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
-                    &contract_account_id
-                )?,
+                get_contract_storage_rw(),
                 (
                     TEST_LEN as usize + LOAD_REPEATS,
                     TEST_LEN as usize + STORE_REPEATS,
