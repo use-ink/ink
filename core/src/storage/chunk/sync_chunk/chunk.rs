@@ -139,7 +139,7 @@ impl<T> SyncChunk<T> {
     /// This is a low-level utility getter and should
     /// normally not be required by users.
     pub fn cells_key(&self) -> Key {
-        self.chunk.cells_key()
+        self.chunk.key()
     }
 }
 
