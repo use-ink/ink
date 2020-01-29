@@ -4,7 +4,6 @@ members = [
     "abi",
     "core",
     "lang2",
-    "model",
     "prelude",
     "utils",
 ]
