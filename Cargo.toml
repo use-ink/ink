@@ -3,7 +3,6 @@
 members = [
     "abi",
     "core",
-    "lang",
     "lang2",
     "model",
     "prelude",
