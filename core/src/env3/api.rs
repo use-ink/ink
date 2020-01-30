@@ -322,7 +322,7 @@ where
 ///                     upon successful restoration.
 /// - `filtered_keys`: Storage keys that will be removed for the tombstone hash
 ///                    match calculation that decide whether the original contract
-///                    storage and the storage of the restorer contract is equal.
+///                    storage and the storage of the restorer contract are equal.
 ///
 /// # Usage
 ///
