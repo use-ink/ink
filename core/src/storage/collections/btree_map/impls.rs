@@ -107,7 +107,7 @@ struct KVPair<K, V> {
 
 impl<K, V> KVPair<K, V> {
     /// Creates a new `KVPair` from a `key` and a `value`.
-    pub(super) fn new(key: K, value: V) -> Self {
+    pub fn new(key: K, value: V) -> Self {
         Self { key, value: value }
     }
 }
@@ -234,6 +234,19 @@ where
         }
     }
 
+    /// Returns the number of nodes which this tree consists of.
+    pub(super) fn node_count(&self) -> u32 {
+        self.header.node_count
+    }
+
+    /// Returns the child node pointed to by this edge, if available.
+    pub(super) fn descend(&self, handle: KVHandle) -> Option<NodeHandle> {
+        let node = self
+            .get_node(&handle.node())
+            .expect("node to descend from must exist");
+        node.edges[handle.idx()].map(NodeHandle::new)
+    }
+
     /// Returns a reference to the node behind `handle`, if existent.
     pub(super) fn get_node(&self, handle: &NodeHandle) -> Option<&Node<K, V>> {
         let entry = self.entries.get(handle.node)?;
@@ -241,11 +254,6 @@ where
             InternalEntry::Occupied(occupied) => Some(occupied),
             InternalEntry::Vacant(_) => None,
         }
-    }
-
-    /// Returns a reference to the value behind `storage_pointer`, if existent.
-    pub(super) fn get_v(&self, ptr: KVStoragePointer) -> Option<&V> {
-        self.get_kv_pair(ptr).map(|pair| &pair.value)
     }
 
     /// Returns the keys stored in this node.
@@ -267,6 +275,11 @@ where
         ks
     }
 
+    /// Returns a reference to the value behind `storage_pointer`, if existent.
+    pub fn get_v(&self, ptr: KVStoragePointer) -> Option<&V> {
+        self.get_kv_pair(ptr).map(|pair| &pair.value)
+    }
+
     /// Returns a reference to the storage entry behind `storage_pointer`, if existent.
     fn get_kv_pair(&self, storage_pointer: KVStoragePointer) -> Option<&KVPair<K, V>> {
         let entry = self.kv_pairs.get(storage_pointer)?;
@@ -282,25 +295,12 @@ where
     }
 
     /// Returns a mutable reference to the storage entry behind `storage_pointer`, if existent.
-    pub fn get_v_mut(&mut self, storage_pointer: KVStoragePointer) -> Option<&mut V> {
+    fn get_v_mut(&mut self, storage_pointer: KVStoragePointer) -> Option<&mut V> {
         let entry = self.kv_pairs.get_mut(storage_pointer)?;
         match entry {
             InternalKVEntry::Occupied(occupied) => Some(&mut occupied.value),
             InternalKVEntry::Vacant(_) => None,
         }
-    }
-
-    /// Returns the number of nodes which this tree consists of.
-    pub(super) fn node_count(&self) -> u32 {
-        self.header.node_count
-    }
-
-    /// Returns the child node pointed to by this edge, if available.
-    pub(super) fn descend(&self, handle: KVHandle) -> Option<NodeHandle> {
-        let node = self
-            .get_node(&handle.node())
-            .expect("node to descend from must exist");
-        node.edges[handle.idx()].map(NodeHandle::new)
     }
 
     /// If a parent node is set for the node referenced by `handle`, a handle to
@@ -2086,7 +2086,9 @@ pub struct VacantEntry<'a, K, V> {
     // The `key` needs to be moved for putting, hence we have to use `Option<K`>
     // to prevent running into partial move errors.
     key: Option<K>,
+    /// A reference to the `BTreeMap`.
     tree: &'a mut BTreeMap<K, V>,
+    /// A reference to a specific point in the tree.
     handle: KVHandle,
 }
 
