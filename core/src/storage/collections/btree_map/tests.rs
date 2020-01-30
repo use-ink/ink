@@ -519,7 +519,7 @@ fn complex_trees_work() {
     })
 }
 
-// fails for [0, 3, 0, 3]
+#[cfg(feature = "ink-fuzz")]
 #[quickcheck]
 fn randomized_inserts_and_removes(xs: Vec<i32>) {
     run_test(|| {
@@ -528,6 +528,7 @@ fn randomized_inserts_and_removes(xs: Vec<i32>) {
 }
 
 /// Insert all items from `xs` and afterwards remove them again.
+#[cfg(feature = "ink-fuzz")]
 #[quickcheck]
 fn randomized_insert_and_remove(xs: Vec<i32>) {
     run_test(|| {
@@ -563,6 +564,7 @@ fn randomized_insert_and_remove(xs: Vec<i32>) {
     })
 }
 
+#[cfg(feature = "ink-fuzz")]
 #[quickcheck]
 fn randomized_removes(xs: Vec<i32>, xth: usize) {
     run_test(|| {

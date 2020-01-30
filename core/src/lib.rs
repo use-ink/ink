@@ -49,7 +49,7 @@ extern crate ink_alloc;
 #[cfg(all(test, feature = "std"))]
 mod test_utils;
 
-#[cfg(all(test, feature = "std"))]
+#[cfg(all(test, feature = "std", feature = "ink-fuzz"))]
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 

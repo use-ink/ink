@@ -1216,7 +1216,6 @@ where
     /// pair to fit.
     ///
     /// The returned pointer points to the inserted value.
-    //fn insert_fit(&mut self, handle: KVHandle, pair_ptr: KVStoragePointer) -> KVHandle {
     fn insert_fit(&mut self, handle: KVHandle, pair_ptr: KVStoragePointer) -> KVStoragePointer {
         let mut node = self
             .get_node_mut(&handle.node())
