@@ -108,7 +108,7 @@ struct KVPair<K, V> {
 impl<K, V> KVPair<K, V> {
     /// Creates a new `KVPair` from a `key` and a `value`.
     pub fn new(key: K, value: V) -> Self {
-        Self { key, value: value }
+        Self { key, value }
     }
 }
 
@@ -266,10 +266,7 @@ where
         node.pairs.iter().enumerate().for_each(|(n, ptr)| {
             ks[n] = match ptr {
                 None => None,
-                Some(p) => {
-                    let k = self.get_k(*p);
-                    k
-                },
+                Some(p) => self.get_k(*p),
             };
         });
         ks
@@ -872,8 +869,7 @@ where
             if node.len > 0 {
                 node.len -= 1;
             }
-            let new_len = node.len();
-            new_len
+            node.len()
         };
         (self.left_edge(handle), pair_ptr, new_len)
     }
@@ -928,7 +924,7 @@ where
     ///
     /// Returns the storage pointer index that the element was put into.
     fn put_pair(&mut self, pair: KVPair<K, V>) -> KVStoragePointer {
-        let ptr = match self.header.next_vacant_pair {
+        match self.header.next_vacant_pair {
             None => {
                 // then there is no vacant entry which we can reuse
                 self.kv_pairs
@@ -956,8 +952,7 @@ where
                 self.header.next_vacant_pair = next_vacant;
                 current_vacant
             }
-        };
-        ptr
+        }
     }
 
     /// Adds a key/value pair and an edge to go to the right of that pair to
@@ -1435,6 +1430,7 @@ impl<K, V> Node<K, V> {
 
 /// Points to a node in the tree.
 #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub(super) struct NodeHandle {
     node: u32,
 }
@@ -2067,7 +2063,7 @@ where
 
                 let new_pair = KVPair::<K, V>::new(key, value);
                 let _ = self.tree.kv_pairs.set(ptr, InternalKVEntry::Occupied(new_pair));
-                return Some(old_value);
+                Some(old_value)
             },
         }
     }

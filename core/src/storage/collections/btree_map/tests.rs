@@ -103,27 +103,19 @@ fn insert_and_remove(xs: Vec<i32>) {
         if x % 2 == 0 {
             // On even numbers we insert new nodes.
             for a in x..x + number_inserts {
-                eprintln!("---- maybe inserting {:?}", a);
                 if let None = map.insert(a, a * 10) {
-                    eprintln!("---- test that {:?} was inserted", a);
-                    assert_eq!(map.get(&a), Some(&(a * 10)));
                     count_inserts += 1;
                 }
                 assert_eq!(map.len(), count_inserts);
             }
             previous_even_x = Some(x);
         } else if x % 2 == 1 && previous_even_x.is_some() {
-            eprintln!("");
             // if it's an odd number and we inserted in the previous run we assert
             // that the insert worked correctly and remove the elements again.
             let x = previous_even_x.unwrap();
             for a in x..x + number_inserts {
-                eprintln!("\n---- now getting key {:?}", a);
                 assert_eq!(map.get(&a), Some(&(a * 10)));
-
-                eprintln!("---- now removing {:?}", a);
                 assert_eq!(map.remove(&a), Some(a * 10));
-                eprintln!("---- now getting {:?} again", a);
                 assert_eq!(map.get(&a), None);
                 count_inserts -= 1;
                 assert_eq!(map.len(), count_inserts);
@@ -301,9 +293,7 @@ fn multiple_inserts_for_same_key_work() {
         assert_eq!(map.len(), 1);
 
         // then
-        eprintln!("about to remove");
         assert_eq!(map.remove(&0), Some(20));
-        eprintln!("remove succeeded");
         assert_eq!(map.get(&0), None);
         assert_eq!(map.len(), 0);
     })
@@ -349,7 +339,6 @@ fn simple_insert_and_removal() {
         let mut map = empty_map();
         let mut len = 0;
         xs.iter().for_each(|i| {
-            eprintln!("\nabout to insert {:?}", i);
             if let Some(_) = map.insert(*i, i * 10) {
                 unreachable!("no element must already exist there");
             }
@@ -360,7 +349,6 @@ fn simple_insert_and_removal() {
         let max_node_count = map.node_count();
 
         xs.iter().for_each(|k| {
-            eprintln!("\ntrying to get {:?}", k);
             let v = *k * 10;
             assert_eq!(map.get(k), Some(&v));
             assert_eq!(map.contains_key(k), true);
@@ -369,7 +357,6 @@ fn simple_insert_and_removal() {
 
         // when
         xs.iter().for_each(|i| {
-            eprintln!("\nabout to remove {:?}", i);
             match map.remove(&i) {
                 Some(v) => {
                     assert_eq!(v, i * 10);
@@ -409,7 +396,6 @@ fn alternating_inserts_and_remove_works() {
                 // if it's an even array index we insert `n` elements
                 for i in 1..*n {
                     assert_eq!(map.insert(i, i * 10), None);
-                    eprintln!("abc inserting {:?}", i);
                     assert_eq!(map.get(&i), Some(&(i * 10)));
                     len += 1;
                     assert_eq!(map.len(), len);
@@ -422,22 +408,7 @@ fn alternating_inserts_and_remove_works() {
             } else {
                 // on odd indices we remove `n` elements
                 for i in 1..*n {
-                    if i == 6 {
-                        eprintln!("\n\n");
-                    }
-                    eprintln!("abc trying to get {:?}", i);
-                    assert_eq!(map.get(&i), Some(&(i * 10)));
-
-                    if i == 6 {
-                        eprintln!("abc trying to get before remove {:?}", i+1);
-                        assert_eq!(map.get(&(i+1)), Some(&((i+1) * 10)));
-                    }
-                    eprintln!("abc removing {:?}", i);
                     assert_eq!(map.remove(&i), Some(i * 10));
-                    if i == 6 {
-                        eprintln!("abc trying to get {:?} after remove of {:?}", i+1, i);
-                        assert_eq!(map.get(&(i+1)), Some(&((i+1) * 10)));
-                    }
                     assert_eq!(map.get(&i), None);
                     len -= 1;
                     assert_eq!(map.len(), len);
