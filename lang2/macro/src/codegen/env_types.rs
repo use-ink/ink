@@ -33,13 +33,13 @@ impl GenerateCode for EnvTypes<'_> {
         let env_types = &self.contract.meta_info.env_types.ty;
 
         quote! {
-            type Env = ink_core::env2::EnvImpl<#env_types>;
+            type EnvTypes = #env_types;
 
-            type AccountId = <#env_types as ink_core::env2::EnvTypes>::AccountId;
-            type Balance = <#env_types as ink_core::env2::EnvTypes>::Balance;
-            type Hash = <#env_types as ink_core::env2::EnvTypes>::Hash;
-            type Moment = <#env_types as ink_core::env2::EnvTypes>::Moment;
-            type BlockNumber = <#env_types as ink_core::env2::EnvTypes>::BlockNumber;
+            type AccountId = <#env_types as ink_core::env3::EnvTypes>::AccountId;
+            type Balance = <#env_types as ink_core::env3::EnvTypes>::Balance;
+            type Hash = <#env_types as ink_core::env3::EnvTypes>::Hash;
+            type TimeStamp = <#env_types as ink_core::env3::EnvTypes>::TimeStamp;
+            type BlockNumber = <#env_types as ink_core::env3::EnvTypes>::BlockNumber;
         }
     }
 }

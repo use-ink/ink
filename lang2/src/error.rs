@@ -25,20 +25,15 @@ pub enum DispatchError {
     InvalidParameters,
     InvalidInstantiateParameters,
     InvalidCallParameters,
+
+    CouldNotReadInput,
 }
 
 impl DispatchError {
     /// Converts `self` into an associated `u32` that SRML contracts can handle.
     #[inline]
     pub fn to_u32(self) -> u32 {
-        match self {
-            DispatchError::UnknownSelector => 0x01,
-            DispatchError::UnknownInstantiateSelector => 0x02,
-            DispatchError::UnknownCallSelector => 0x03,
-            DispatchError::InvalidParameters => 0x04,
-            DispatchError::InvalidInstantiateParameters => 0x05,
-            DispatchError::InvalidCallParameters => 0x06,
-        }
+        DispatchRetCode::from(self).to_u32()
     }
 }
 
@@ -74,6 +69,7 @@ impl From<DispatchError> for DispatchRetCode {
             DispatchError::InvalidParameters => Self(0x04),
             DispatchError::InvalidInstantiateParameters => Self(0x05),
             DispatchError::InvalidCallParameters => Self(0x06),
+            DispatchError::CouldNotReadInput => Self(0x07),
         }
     }
 }

@@ -24,6 +24,7 @@ mod abi;
 mod contract;
 mod cross_calling;
 mod dispatcher;
+mod env_access;
 mod error;
 mod testable;
 mod traits;
@@ -55,6 +56,10 @@ pub use self::{
         EmptyDispatchList,
         PushDispatcher,
         UnreachableDispatcher,
+    },
+    env_access::{
+        Env,
+        EnvAccess,
     },
     error::{
         DispatchError,

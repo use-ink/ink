@@ -71,8 +71,6 @@ impl GenerateCode for ContractModule<'_> {
 
         quote! {
             mod #ident {
-                use super::*;
-
                 #env_types
 
                 // Private struct and other type definitions.
@@ -93,7 +91,7 @@ impl GenerateCode for ContractModule<'_> {
 
                 #[cfg(not(all(test, feature = "test-env")))]
                 #conflic_depedency_cfg
-                pub type #storage_ident = self::__ink_private::StorageAndEnv;
+                pub type #storage_ident = self::__ink_private::Storage;
 
                 #[cfg(feature = "ink-as-dependency")]
                 pub type #storage_ident = self::__ink_private::StorageAsDependency;

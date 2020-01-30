@@ -13,9 +13,8 @@
 // limitations under the License.
 
 use ink_core::{
-    env2::{
+    env3::{
         call::Selector,
-        EnvAccess,
     },
     storage::{
         alloc::{
@@ -25,6 +24,7 @@ use ink_core::{
         Flush,
     },
 };
+use crate::EnvAccess;
 
 /// Dispatchable functions that have inputs.
 pub trait FnInput {

@@ -113,7 +113,7 @@ impl Dispatch<'_> {
         );
         let fn_selector = quote_spanned!(span =>
             impl ink_lang2::FnSelector for #namespace<[(); #selector_id]> {
-                const SELECTOR: ink_core::env2::call::Selector = ink_core::env2::call::Selector::from_bytes([
+                const SELECTOR: ink_core::env3::call::Selector = ink_core::env3::call::Selector::new([
                     #( #selector_bytes ),*
                 ]);
             }
@@ -223,17 +223,17 @@ impl Dispatch<'_> {
             .map(|fun| self.generate_dispatch_using_mode_fragment(fun));
 
         quote! {
-            impl ink_lang2::DispatchUsingMode for StorageAndEnv {
+            impl ink_lang2::DispatchUsingMode for Storage {
                 #[allow(unused_parens)]
                 fn dispatch_using_mode(
                     mode: ink_lang2::DispatchMode
                 ) -> core::result::Result<(), ink_lang2::DispatchError> {
-                    ink_lang2::Contract::with_storage::<StorageAndEnv>()
+                    ink_lang2::Contract::with_storage::<Storage>()
                         #(
                             #fragments
                         )*
                         .done()
-                        .dispatch_using_mode(mode)
+                        .dispatch_using_mode::<EnvTypes>(mode)
                 }
             }
         }
@@ -245,7 +245,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             fn deploy() -> u32 {
                 ink_lang2::DispatchRetCode::from(
-                    <StorageAndEnv as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                    <Storage as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
                         ink_lang2::DispatchMode::Instantiate,
                     ),
                 )
@@ -256,7 +256,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             fn call() -> u32 {
                 ink_lang2::DispatchRetCode::from(
-                    <StorageAndEnv as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
+                    <Storage as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
                         ink_lang2::DispatchMode::Call,
                     ),
                 )

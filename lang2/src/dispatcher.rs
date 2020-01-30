@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::any::TypeId;
-
-use ink_core::{
-    env2::call::{
-        CallData,
-        Selector,
-    },
-    storage::Flush,
-};
-
 use crate::{
-    AccessEnv,
     DispatchError,
     FnInput,
     FnOutput,
     FnSelector,
     Message,
+};
+use core::any::TypeId;
+use ink_core::{
+    env3::{
+        call::{
+            CallData,
+            Selector,
+        },
+        EnvTypes,
+    },
+    storage::Flush,
 };
 
 /// Results of message handling operations.
@@ -37,10 +37,9 @@ pub type Result<T> = core::result::Result<T, DispatchError>;
 /// Types implementing this trait can handle contract calls.
 pub trait Dispatch<S> {
     /// Dispatches the call and returns the call result.
-    fn dispatch<Env>(&self, storage: &mut S, input: &CallData) -> Result<()>
+    fn dispatch<T>(&self, storage: &mut S, input: &CallData) -> Result<()>
     where
-        S: AccessEnv<Env>,
-        Env: ink_core::env2::Env;
+        T: EnvTypes;
 }
 
 /// A dispatcher that shall never dispatch.
@@ -53,10 +52,9 @@ pub trait Dispatch<S> {
 pub struct UnreachableDispatcher;
 
 impl<S> Dispatch<S> for UnreachableDispatcher {
-    fn dispatch<Env>(&self, _storage: &mut S, _data: &CallData) -> Result<()>
+    fn dispatch<T>(&self, _storage: &mut S, _data: &CallData) -> Result<()>
     where
-        S: AccessEnv<Env>,
-        Env: ink_core::env2::Env,
+        T: EnvTypes,
     {
         Err(DispatchError::UnknownSelector)
     }
@@ -110,15 +108,14 @@ where
     D: Dispatch<S> + FnSelector,
     Rest: Dispatch<S>,
 {
-    fn dispatch<Env>(&self, storage: &mut S, data: &CallData) -> Result<()>
+    fn dispatch<T>(&self, storage: &mut S, data: &CallData) -> Result<()>
     where
-        S: AccessEnv<Env>,
-        Env: ink_core::env2::Env,
+        T: EnvTypes,
     {
         if <D as FnSelector>::SELECTOR == data.selector() {
-            self.dispatcher.dispatch(storage, data)
+            self.dispatcher.dispatch::<T>(storage, data)
         } else {
-            self.rest.dispatch(storage, data)
+            self.rest.dispatch::<T>(storage, data)
         }
     }
 }
@@ -207,17 +204,16 @@ macro_rules! impl_dispatcher_for {
             <Msg as FnOutput>::Output: scale::Encode,
             S: Flush,
         {
-            fn dispatch<Env>(&self, storage: &mut S, data: &CallData) -> Result<()>
+            fn dispatch<T>(&self, storage: &mut S, data: &CallData) -> Result<()>
             where
-                S: AccessEnv<Env>,
-                Env: ink_core::env2::Env,
+                T: EnvTypes,
             {
                 use scale::Decode as _;
                 let args = <Msg as FnInput>::Input::decode(&mut &data.params()[..])
                     .map_err(|_| DispatchError::InvalidParameters)?;
                 let result = self.eval(storage, args);
                 if TypeId::of::<<Msg as FnOutput>::Output>() != TypeId::of::<()>() {
-                    AccessEnv::access_env(storage).output(&result)
+                    ink_core::env3::output::<<Msg as FnOutput>::Output>(&result)
                 }
                 if <Msg as Message>::IS_MUT {
                     // Flush the storage since the message might have mutated it.

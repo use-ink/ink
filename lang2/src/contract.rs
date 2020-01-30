@@ -16,9 +16,8 @@ use core::{
     marker::PhantomData,
     mem::ManuallyDrop,
 };
-
+use ink_core::env3::EnvTypes;
 use crate::{
-    AccessEnv,
     Dispatch,
     DispatchError,
     DispatchList,
@@ -198,25 +197,25 @@ where
     DispatchList<ConstrsHead, ConstrsRest>: Dispatch<Storage>,
     DispatchList<MsgsHead, MsgsRest>: Dispatch<Storage>,
 {
-    pub fn dispatch_using_mode<Env>(
+    pub fn dispatch_using_mode<T>(
         mut self,
         mode: DispatchMode,
     ) -> Result<(), DispatchError>
     where
-        Storage: AccessEnv<Env>,
-        Env: ink_core::env2::Env,
+        T: EnvTypes,
     {
         // Initialize storage if we instantiate the contract.
         if mode == DispatchMode::Instantiate {
             self.storage.try_default_initialize();
         }
         // Dispatch using the contract execution input.
-        let call_data = self.storage.access_env().input();
+        let call_data = ink_core::env3::input()
+            .map_err(|_| DispatchError::CouldNotReadInput)?;
         match mode {
             DispatchMode::Instantiate => {
-                self.constructors.dispatch(&mut self.storage, &call_data)
+                self.constructors.dispatch::<T>(&mut self.storage, &call_data)
             }
-            DispatchMode::Call => self.messages.dispatch(&mut self.storage, &call_data),
+            DispatchMode::Call => self.messages.dispatch::<T>(&mut self.storage, &call_data),
         }
     }
 }

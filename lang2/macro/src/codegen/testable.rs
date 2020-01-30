@@ -65,7 +65,7 @@ impl GenerateCode for TestWrapper<'_> {
                                 &mut alloc,
                             )
                         };
-                        ink_core::env2::test::TestEnv::<ink_core::env2::DefaultSrmlTypes>::try_initialize()
+                        ink_core::env2::test::TestEnv::<ink_core::env3::DefaultEnvTypes>::try_initialize()
                             .expect("encountered already initialized test environment");
                         ink_core::storage::alloc::Initialize::try_default_initialize(
                             &mut contract,

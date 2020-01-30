@@ -41,7 +41,7 @@ use crate::ir::MetaVersion;
 /// # Example
 ///
 /// ```no_compile
-/// #[ink::contract(env = DefaultSrmlTypes, version = 0.1.0)]
+/// #[ink::contract(env = DefaultEnvTypes, version = 0.1.0)]
 /// ```
 pub struct Params {
     /// The delimited meta information parameters.
@@ -71,7 +71,7 @@ impl Spanned for Params {
 ///
 /// ```no_compile
 /// #[ink::contract(
-///     env = DefaultSrmlTypes, // The used chain types.
+///     env = DefaultEnvTypes,  // The used chain types.
 ///     version = 0.1.0,        // The used ink! version.
 /// )]
 /// mod my_contract { ... }
@@ -84,7 +84,7 @@ impl Spanned for Params {
 #[derive(Debug, Clone, From)]
 #[allow(clippy::large_enum_variant)] // We should benchmark this somehow.
 pub enum MetaParam {
-    /// Environmental types definition: `#[ink(env = DefaultSrmlTypes)]`
+    /// Environmental types definition: `#[ink(env = DefaultEnvTypes)]`
     Types(ParamTypes),
     /// Information about the ink! version: `#[ink(version = x.y.z)]`
     Version(ParamVersion),
@@ -103,7 +103,7 @@ impl MetaParam {
     ///
     /// # Examples
     ///
-    /// - for `types = DefaultSrmlTypes` this is `types`
+    /// - for `types = DefaultEnvTypes` this is `types`
     /// - for `version = [0, 1, 0]` this is `version`
     pub fn ident(&self) -> &Ident {
         match self {
@@ -168,7 +168,7 @@ impl ParamDynamicAllocations {
     }
 }
 
-/// The environment types definition: `#[ink(env = DefaultSrmlTypes)]`
+/// The environment types definition: `#[ink(env = DefaultEnvTypes)]`
 #[derive(Debug, Clone)]
 pub struct ParamTypes {
     /// The `env` identifier.
