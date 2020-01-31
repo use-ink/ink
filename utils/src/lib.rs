@@ -23,4 +23,8 @@
 
 #![no_std]
 
+mod byte_utils;
 pub mod hash;
+mod key;
+
+pub use self::key::Key;
