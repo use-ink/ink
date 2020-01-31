@@ -40,7 +40,7 @@ where
     /// The maximum gas costs allowed for the call.
     gas_limit: u64,
     /// The transferred value for the call.
-    value: E::Balance,
+    transferred_value: E::Balance,
     /// The expected return type.
     return_type: PhantomData<ReturnType<R>>,
     /// The already encoded call data respecting the ABI.
@@ -71,9 +71,9 @@ where
     pub fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
-    /// The endowment for the instantiated contract.
-    pub fn endowment(&self) -> &E::Balance {
-        &self.value
+    /// The transferred value for the called contract.
+    pub fn transferred_value(&self) -> &E::Balance {
+        &self.transferred_value
     }
 
     /// The raw encoded input data.
@@ -92,7 +92,7 @@ where
         Self {
             callee,
             gas_limit: 0,
-            value: E::Balance::default(),
+            transferred_value: E::Balance::default(),
             return_type: PhantomData,
             call_data: CallData::new(selector),
         }
@@ -134,8 +134,8 @@ where
     }
 
     /// Sets the value transferred upon the execution of the call.
-    pub fn value(mut self, value: E::Balance) -> Self {
-        self.params.value = value;
+    pub fn transferred_value(mut self, value: E::Balance) -> Self {
+        self.params.transferred_value = value;
         self
     }
 }
