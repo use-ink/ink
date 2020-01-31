@@ -5,7 +5,7 @@ members = [
     "core",
     "lang2",
     "prelude",
-    "utils",
+    "primitives",
 ]
 exclude = [
     "examples/",
