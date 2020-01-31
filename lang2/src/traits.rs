@@ -24,7 +24,6 @@ use ink_core::{
         Flush,
     },
 };
-use crate::EnvAccess;
 
 /// Dispatchable functions that have inputs.
 pub trait FnInput {

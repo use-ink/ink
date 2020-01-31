@@ -1,10 +1,11 @@
 #![feature(proc_macro_hygiene)]
 
-use ink_core::storage;
 use ink_lang2 as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod flipper {
+    use ink_core::storage;
+
     #[ink(storage)]
     struct Flipper {
         value: storage::Value<bool>,

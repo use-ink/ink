@@ -1,6 +1,5 @@
 #![feature(proc_macro_hygiene)]
 
-use ink_core::storage;
 use ink_lang2 as ink;
 
 #[ink::contract(
@@ -8,6 +7,8 @@ use ink_lang2 as ink;
     compile_as_dependency = true,
 )]
 mod flipper {
+    use ink_core::storage;
+
     #[ink(storage)]
     struct Flipper {
         value: storage::Value<bool>,

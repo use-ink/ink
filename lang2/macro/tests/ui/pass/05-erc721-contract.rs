@@ -1,10 +1,11 @@
 #![feature(proc_macro_hygiene)]
 
-use ink_core::storage;
 use ink_lang2 as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
+    use ink_core::storage;
+
     /// A token ID.
     pub type TokenId = u32;
 
