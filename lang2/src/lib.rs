@@ -68,7 +68,6 @@ pub use self::{
     },
     testable::InstantiateTestable,
     traits::{
-        AccessEnv,
         FnInput,
         FnOutput,
         FnSelector,

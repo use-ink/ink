@@ -49,17 +49,5 @@ pub trait Message: FnInput + FnOutput + FnSelector {
     const IS_MUT: bool;
 }
 
-/// Allows to directly access the environment mutably.
-///
-/// # Note
-///
-/// This is generally implemented for storage structs that include
-/// their environment in order to allow the different dispatch functions
-/// to use it for returning the contract's output.
-pub trait AccessEnv<Env> {
-    /// Returns a mutable access to the environment.
-    fn access_env(&mut self) -> &mut EnvAccess<Env>;
-}
-
 /// Types implementing this trait are storage structs.
 pub trait Storage: AllocateUsing + Initialize + Flush {}
