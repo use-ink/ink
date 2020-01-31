@@ -21,7 +21,7 @@ use crate::{
         call::{
             CallData,
             CallParams,
-            CreateParams,
+            InstantiateParams,
             ReturnType,
         },
         Env,
@@ -115,7 +115,7 @@ impl EnvInstance {
         // Append the encoded `call_data`, `endowment` and `call_data`
         // in order and remember their encoded regions within the buffer.
         let callee = self.append_encode_into_buffer(call_params.callee());
-        let endowment = self.append_encode_into_buffer(call_params.endowment());
+        let endowment = self.append_encode_into_buffer(call_params.transferred_value());
         let call_data = self.append_encode_into_buffer(call_params.input_data());
         // Resolve the encoded regions into actual byte slices.
         let callee = &self.buffer[callee];
@@ -191,7 +191,7 @@ impl TypedEnv for EnvInstance {
         self.get_property::<T::Balance>(ext::gas_left)
     }
 
-    fn now_in_ms<T: EnvTypes>(&mut self) -> Result<T::TimeStamp> {
+    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::TimeStamp> {
         self.get_property::<T::TimeStamp>(ext::now)
     }
 
@@ -275,7 +275,7 @@ impl TypedEnv for EnvInstance {
 
     fn create_contract<T, C>(
         &mut self,
-        params: &CreateParams<T, C>,
+        params: &InstantiateParams<T, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
