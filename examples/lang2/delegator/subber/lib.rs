@@ -15,14 +15,14 @@
 #![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(not(feature = "ink-as-dependency"))]
-use ink_core::storage;
-
-use accumulator::Accumulator;
 use ink_lang2 as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod subber {
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_core::storage;
+    use accumulator::Accumulator;
+
     /// Decreases the underlying accumulator's value.
     #[ink(storage)]
     struct Subber {
