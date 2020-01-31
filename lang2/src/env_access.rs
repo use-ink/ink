@@ -106,13 +106,13 @@ where
         env::gas_left::<T>().expect("couldn't decode gas left")
     }
 
-    /// Returns the current block time in milliseconds.
+    /// Returns the timstamp of the current block.
     ///
     /// # Panics
     ///
     /// If the returned value cannot be properly decoded.
-    pub fn now_in_ms(self) -> T::TimeStamp {
-        env::now_in_ms::<T>().expect("couldn't decode block time stamp")
+    pub fn block_timestamp(self) -> T::TimeStamp {
+        env::block_timestamp::<T>().expect("couldn't decode block time stamp")
     }
 
     /// Returns the address of the executed contract.
