@@ -95,12 +95,12 @@ impl EventHelpers<'_> {
                     E: Into<Event>;
             }
 
-            impl<'a> EmitEvent for &'a mut ink_core::env2::EnvAccessMut<Env> {
+            impl<'a> EmitEvent for ink_lang2::EnvAccess<'a, EnvTypes> {
                 fn emit_event<E>(self, event: E)
                 where
                     E: Into<Event>,
                 {
-                    ink_core::env2::EmitEvent::emit_event(self, event.into())
+                    ink_lang2::EnvAccess::<EnvTypes>::emit_event(self, event.into())
                 }
             }
         }
@@ -128,7 +128,7 @@ impl EventHelpers<'_> {
                 }
             )*
 
-            impl ink_core::env2::Topics<Env> for Event {
+            impl ink_core::env3::Topics<EnvTypes> for Event {
                 fn topics(&self) -> &'static [Hash] {
                     match self {
                         #(
@@ -146,7 +146,7 @@ impl EventHelpers<'_> {
             let ident = &item_event.ident;
 
             quote_spanned!(span =>
-                impl ink_core::env2::Topics<Env> for #ident {
+                impl ink_core::env3::Topics<EnvTypes> for #ident {
                     fn topics(&self) -> &'static [Hash] {
                         &[]
                     }

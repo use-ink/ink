@@ -55,11 +55,11 @@ impl GenerateCode for EnvTypesImports<'_> {
     fn generate_code(&self) -> TokenStream2 {
         quote! {
             use super::{
-                Env,
+                EnvTypes,
                 AccountId,
                 Balance,
                 Hash,
-                Moment,
+                TimeStamp,
                 BlockNumber,
             };
         }
