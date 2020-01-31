@@ -264,7 +264,6 @@ where
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
-/// - If given too few endowment.
 pub fn invoke_contract<T>(params: &CallParams<T, ()>) -> Result<()>
 where
     T: EnvTypes,
@@ -283,7 +282,6 @@ where
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
-/// - If given too few endowment.
 /// - If the returned value failed to decode properly.
 pub fn eval_contract<T, R>(params: &CallParams<T, ReturnType<R>>) -> Result<R>
 where
@@ -324,7 +322,7 @@ where
 ///                     upon successful restoration.
 /// - `filtered_keys`: Storage keys that will be removed for the tombstone hash
 ///                    match calculation that decide whether the original contract
-///                    storage and the storage of the restorer contract is equal.
+///                    storage and the storage of the restorer contract are equal.
 ///
 /// # Usage
 ///
