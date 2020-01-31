@@ -46,14 +46,14 @@ impl GenerateCode for TestWrapper<'_> {
 
         quote! {
             #[cfg(all(test, feature = "test-env"))]
-            pub use self::__ink_testable::TestableStorageAndEnv;
+            pub use self::__ink_testable::TestableStorage;
 
             #[cfg(all(test, feature = "test-env"))]
             mod __ink_testable {
                 use super::*;
 
-                impl ink_lang2::InstantiateTestable for StorageAndEnv {
-                    type Wrapped = TestableStorageAndEnv;
+                impl ink_lang2::InstantiateTestable for Storage {
+                    type Wrapped = TestableStorage;
 
                     fn instantiate() -> Self::Wrapped {
                         let mut contract: Self = unsafe {
@@ -65,8 +65,8 @@ impl GenerateCode for TestWrapper<'_> {
                                 &mut alloc,
                             )
                         };
-                        ink_core::env2::test::TestEnv::<ink_core::env3::DefaultEnvTypes>::try_initialize()
-                            .expect("encountered already initialized test environment");
+                        ink_core::env3::test::initialize_as_default::<ink_core::env3::DefaultEnvTypes>()
+                            .expect("encountered already initialized off-chain environment");
                         ink_core::storage::alloc::Initialize::try_default_initialize(
                             &mut contract,
                         );
@@ -74,14 +74,14 @@ impl GenerateCode for TestWrapper<'_> {
                     }
                 }
 
-                pub use self::__ink_private::TestableStorageAndEnv;
+                pub use self::__ink_private::TestableStorage;
                 mod __ink_private {
                     use super::*;
 
                     #testable_storage_and_env
                 }
 
-                impl TestableStorageAndEnv {
+                impl TestableStorage {
                     #(
                         #wrapped_constructors
                     )*
@@ -106,8 +106,8 @@ impl TestWrapper<'_> {
             quote_spanned!(span=>
                 pub fn #ident(
                     #(#fn_args),*
-                ) -> <StorageAndEnv as ink_lang2::InstantiateTestable>::Wrapped {
-                    let mut contract = <StorageAndEnv as ink_lang2::InstantiateTestable>::instantiate();
+                ) -> <Storage as ink_lang2::InstantiateTestable>::Wrapped {
+                    let mut contract = <Storage as ink_lang2::InstantiateTestable>::instantiate();
                     contract.#ident(
                         #(
                             #arg_idents
@@ -125,25 +125,25 @@ impl TestWrapper<'_> {
         quote! {
             #( #attrs )*
             #[derive(Debug)]
-            pub struct TestableStorageAndEnv {
-                contract: StorageAndEnv,
+            pub struct TestableStorage {
+                contract: Storage,
             }
 
-            impl From<StorageAndEnv> for TestableStorageAndEnv {
-                fn from(contract: StorageAndEnv) -> Self {
+            impl From<Storage> for TestableStorage {
+                fn from(contract: Storage) -> Self {
                     Self { contract }
                 }
             }
 
-            impl core::ops::Deref for TestableStorageAndEnv {
-                type Target = StorageAndEnv;
+            impl core::ops::Deref for TestableStorage {
+                type Target = Storage;
 
                 fn deref(&self) -> &Self::Target {
                     &self.contract
                 }
             }
 
-            impl core::ops::DerefMut for TestableStorageAndEnv {
+            impl core::ops::DerefMut for TestableStorage {
                 fn deref_mut(&mut self) -> &mut Self::Target {
                     &mut self.contract
                 }

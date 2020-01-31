@@ -87,7 +87,7 @@ impl GenerateCode for ContractModule<'_> {
                 }
 
                 #[cfg(all(test, feature = "test-env"))]
-                pub type #storage_ident = self::__ink_private::TestableStorageAndEnv;
+                pub type #storage_ident = self::__ink_private::TestableStorage;
 
                 #[cfg(not(all(test, feature = "test-env")))]
                 #conflic_depedency_cfg
