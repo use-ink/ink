@@ -40,7 +40,7 @@ impl<'a> From<&'a [u8]> for Selector {
     ///
     /// Normally this is invoked through `Selector::from_str`.
     fn from(input: &'a [u8]) -> Self {
-        let keccak = ink_utils::hash::keccak256(input);
+        let keccak = ink_primitives::hash::keccak256(input);
         Self {
             bytes: [keccak[0], keccak[1], keccak[2], keccak[3]],
         }

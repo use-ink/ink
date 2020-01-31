@@ -18,7 +18,7 @@
 //! The main problem is that today Cargo manages crate features on a per-crate basis instead of
 //! a per-crate-target basis thus making dependencies from `ink_lang` (or others) to `ink_core` impossible.
 //!
-//! By introducing `ink_utils` we have a way to share utility components between `ink_core` and
+//! By introducing `ink_primitives` we have a way to share utility components between `ink_core` and
 //! other parts of the framework, like `ink_lang`.
 
 #![no_std]
