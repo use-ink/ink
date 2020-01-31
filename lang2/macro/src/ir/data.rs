@@ -69,6 +69,7 @@ pub struct MetaInfo {
 
 impl MetaInfo {
     /// Returns `true` if the user enabled dynamic storage allocation.
+    #[allow(unused)] // We might need this again in the future! If not, remove.
     pub fn is_dynamic_allocation_enabled(&self) -> bool {
         self.dynamic_allocations_enabled
     }
