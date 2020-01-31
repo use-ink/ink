@@ -24,6 +24,8 @@ use scale::{
 };
 
 use crate::{
+    env3 as env,
+    env3::Result,
     storage::{
         alloc::{
             AllocateUsing,
@@ -33,8 +35,6 @@ use crate::{
         BinaryHeap,
         Key,
     },
-    env3 as env,
-    env3::Result,
 };
 
 fn empty_heap() -> BinaryHeap<i32> {

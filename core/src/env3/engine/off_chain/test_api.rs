@@ -318,7 +318,9 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.accounts.get_account::<T>(account_id)
+        instance
+            .accounts
+            .get_account::<T>(account_id)
             .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
             .map_err(Into::into)
             .and_then(|account| account.get_storage_rw().map_err(Into::into))

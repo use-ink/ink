@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::{
-    marker::PhantomData,
-    mem::ManuallyDrop,
-};
-use ink_core::env3::EnvTypes;
 use crate::{
     Dispatch,
     DispatchError,
@@ -30,6 +25,11 @@ use crate::{
     FnOutput,
     PushDispatcher,
 };
+use core::{
+    marker::PhantomData,
+    mem::ManuallyDrop,
+};
+use ink_core::env3::EnvTypes;
 
 /// The contract definition.
 pub struct Contract<Storage, Constrs, Msgs> {
@@ -209,13 +209,16 @@ where
             self.storage.try_default_initialize();
         }
         // Dispatch using the contract execution input.
-        let call_data = ink_core::env3::input()
-            .map_err(|_| DispatchError::CouldNotReadInput)?;
+        let call_data =
+            ink_core::env3::input().map_err(|_| DispatchError::CouldNotReadInput)?;
         match mode {
             DispatchMode::Instantiate => {
-                self.constructors.dispatch::<T>(&mut self.storage, &call_data)
+                self.constructors
+                    .dispatch::<T>(&mut self.storage, &call_data)
             }
-            DispatchMode::Call => self.messages.dispatch::<T>(&mut self.storage, &call_data),
+            DispatchMode::Call => {
+                self.messages.dispatch::<T>(&mut self.storage, &call_data)
+            }
         }
     }
 }

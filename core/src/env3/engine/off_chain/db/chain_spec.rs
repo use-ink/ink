@@ -48,10 +48,14 @@ impl ChainSpec {
         T: EnvTypes,
         <T as EnvTypes>::AccountId: From<[u8; 32]>,
     {
-        self.gas_price.try_initialize::<T::Balance>(&T::Balance::from(100))?;
-        self.minimum_balance.try_initialize::<T::Balance>(&T::Balance::from(42))?;
-        self.tombstone_deposit.try_initialize::<T::Balance>(&T::Balance::from(16))?;
-        self.block_time.try_initialize::<T::TimeStamp>(&T::TimeStamp::from(5))?;
+        self.gas_price
+            .try_initialize::<T::Balance>(&T::Balance::from(100))?;
+        self.minimum_balance
+            .try_initialize::<T::Balance>(&T::Balance::from(42))?;
+        self.tombstone_deposit
+            .try_initialize::<T::Balance>(&T::Balance::from(16))?;
+        self.block_time
+            .try_initialize::<T::TimeStamp>(&T::TimeStamp::from(5))?;
         Ok(())
     }
 

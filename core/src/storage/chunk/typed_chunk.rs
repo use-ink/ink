@@ -162,14 +162,6 @@ where
     /// If decoding of the loaded bytes fails.
     pub fn load(&self, index: u32) -> Option<T> {
         self.cell_at(index).load()
-        // self.chunk.load(n).map(|loaded| {
-        //     T::decode(&mut &loaded[..])
-		// 			// Maybe we should return an error instead of panicking.
-		// 			.expect(
-		// 				"[ink_core::TypedChunkCell::load] Error: \
-		// 				 failed upon decoding"
-		// 			)
-        // })
     }
 }
 
@@ -239,23 +231,14 @@ mod tests {
             let mut chunk = create_typed_chunk();
 
             // Reads and writes after init.
-            assert_eq!(
-                get_contract_storage_rw(),
-                (0, 0),
-            );
+            assert_eq!(get_contract_storage_rw(), (0, 0),);
 
             // Loading from all cells.
             for i in 0..TEST_LEN {
                 chunk.load(i);
-                assert_eq!(
-                    get_contract_storage_rw(),
-                    (i as usize + 1, 0)
-                );
+                assert_eq!(get_contract_storage_rw(), (i as usize + 1, 0));
             }
-            assert_eq!(
-                get_contract_storage_rw(),
-                (TEST_LEN as usize, 0)
-            );
+            assert_eq!(get_contract_storage_rw(), (TEST_LEN as usize, 0));
 
             // Writing to all cells.
             for i in 0..TEST_LEN {
@@ -276,18 +259,12 @@ mod tests {
                 chunk.load(0);
                 assert_eq!(
                     get_contract_storage_rw(),
-                    (
-                        TEST_LEN as usize + n + 1,
-                        TEST_LEN as usize,
-                    )
+                    (TEST_LEN as usize + n + 1, TEST_LEN as usize,)
                 );
             }
             assert_eq!(
                 get_contract_storage_rw(),
-                (
-                    TEST_LEN as usize + LOAD_REPEATS,
-                    TEST_LEN as usize,
-                )
+                (TEST_LEN as usize + LOAD_REPEATS, TEST_LEN as usize,)
             );
 
             // Storing multiple times to a single cell.
@@ -296,10 +273,7 @@ mod tests {
                 chunk.store(0, &10);
                 assert_eq!(
                     get_contract_storage_rw(),
-                    (
-                        TEST_LEN as usize + LOAD_REPEATS,
-                        TEST_LEN as usize + n + 1,
-                    )
+                    (TEST_LEN as usize + LOAD_REPEATS, TEST_LEN as usize + n + 1,)
                 );
             }
             assert_eq!(

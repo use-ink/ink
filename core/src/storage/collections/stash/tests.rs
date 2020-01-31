@@ -13,6 +13,8 @@
 // limitations under the License.
 
 use crate::{
+    env3 as env,
+    env3::Result,
     storage::{
         alloc::{
             AllocateUsing,
@@ -22,8 +24,6 @@ use crate::{
         Key,
         Stash,
     },
-    env3 as env,
-    env3::Result,
 };
 
 fn empty_stash() -> Stash<i32> {

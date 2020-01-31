@@ -208,7 +208,9 @@ impl CrossCalling<'_> {
                 let attrs = utils::filter_non_ink_attributes(&function.attrs);
                 let fn_args = function.sig.inputs();
                 let arg_idents = function.sig.inputs().map(|fn_arg| &fn_arg.ident);
-                let selector = function.selector().expect("constructors always have selectors");
+                let selector = function
+                    .selector()
+                    .expect("constructors always have selectors");
                 let selector_bytes = selector.as_bytes();
 
                 quote_spanned!(span=>
