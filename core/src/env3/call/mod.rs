@@ -15,12 +15,12 @@
 //! Utilities to call or instantiate contracts on the chain.
 
 mod builder;
-mod create;
+mod instantiate;
 mod utils;
 
 pub mod state {
     pub use crate::env3::call::{
-        create::state::{
+        instantiate::state::{
             CodeHashAssigned,
             CodeHashUnassigned,
         },
@@ -37,9 +37,9 @@ pub use self::{
         CallParams,
         ReturnType,
     },
-    create::{
-        CreateBuilder,
-        CreateParams,
+    instantiate::{
+        InstantiateBuilder,
+        InstantiateParams,
         FromAccountId,
     },
     utils::{

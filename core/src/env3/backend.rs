@@ -17,7 +17,7 @@ use crate::{
         call::{
             CallData,
             CallParams,
-            CreateParams,
+            InstantiateParams,
             ReturnType,
         },
         EnvTypes,
@@ -170,7 +170,7 @@ pub trait TypedEnv: Env {
     /// - If the instantiation process runs out of gas.
     fn create_contract<T, C>(
         &mut self,
-        params: &CreateParams<T, C>,
+        params: &InstantiateParams<T, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes;

@@ -18,7 +18,7 @@ use ink_core::{
     env3::{
         call::{
             CallParams,
-            CreateParams,
+            InstantiateParams,
             ReturnType,
         },
         EnvTypes,
@@ -253,7 +253,7 @@ where
     /// - If the instantiation process runs out of gas.
     /// - If given too few endowment.
     /// - If the returned account ID failed to decode properly.
-    pub fn create_contract<C>(self, params: &CreateParams<T, C>) -> Result<T::AccountId> {
+    pub fn create_contract<C>(self, params: &InstantiateParams<T, C>) -> Result<T::AccountId> {
         env::create_contract::<T, C>(params)
     }
 

@@ -23,7 +23,7 @@ use crate::{
         call::{
             CallData,
             CallParams,
-            CreateParams,
+            InstantiateParams,
             ReturnType,
         },
         engine::{
@@ -303,7 +303,7 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given too few endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn create_contract<T, C>(params: &CreateParams<T, C>) -> Result<T::AccountId>
+pub fn create_contract<T, C>(params: &InstantiateParams<T, C>) -> Result<T::AccountId>
 where
     T: EnvTypes,
 {

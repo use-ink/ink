@@ -52,7 +52,7 @@ where
 }
 
 /// Builds up contract instantiations.
-pub struct CreateParams<T, C>
+pub struct InstantiateParams<T, C>
 where
     T: EnvTypes,
 {
@@ -60,8 +60,8 @@ where
     code_hash: T::Hash,
     /// The maximum gas costs allowed for the instantiation.
     gas_limit: u64,
-    /// The transferred value for the newly created contract.
-    value: T::Balance,
+    /// The endowment for the instantiated contract.
+    endowment: T::Balance,
     /// The input data for the instantation.
     call_data: CallData,
     /// The type of the instantiated contract.
@@ -69,17 +69,17 @@ where
 }
 
 /// Builds up contract instantiations.
-pub struct CreateBuilder<T, C, Seal, CodeHash>
+pub struct InstantiateBuilder<T, C, Seal, CodeHash>
 where
     T: EnvTypes,
 {
     /// The parameters of the cross-contract instantiation.
-    params: CreateParams<T, C>,
+    params: InstantiateParams<T, C>,
     /// Seal state.
     state: PhantomData<fn() -> (Seal, CodeHash)>,
 }
 
-impl<T, C> CreateParams<T, C>
+impl<T, C> InstantiateParams<T, C>
 where
     T: EnvTypes,
 {
@@ -94,7 +94,7 @@ where
     }
     /// The endowment for the instantiated contract.
     pub fn endowment(&self) -> &T::Balance {
-        &self.value
+        &self.endowment
     }
 
     /// The raw encoded input data.
@@ -103,7 +103,7 @@ where
     }
 }
 
-impl<T, C> CreateParams<T, C>
+impl<T, C> InstantiateParams<T, C>
 where
     T: EnvTypes,
     T::Hash: Default,
@@ -114,7 +114,7 @@ where
         Self {
             code_hash: Default::default(),
             gas_limit: 0,
-            value: Default::default(),
+            endowment: Default::default(),
             call_data: CallData::new(selector),
             contract_marker: Default::default(),
         }
@@ -123,15 +123,15 @@ where
     /// Creates a new create builder without setting any presets.
     pub fn build(
         selector: Selector,
-    ) -> CreateBuilder<T, C, state::Unsealed, state::CodeHashUnassigned> {
-        CreateBuilder {
-            params: CreateParams::new(selector),
+    ) -> InstantiateBuilder<T, C, state::Unsealed, state::CodeHashUnassigned> {
+        InstantiateBuilder {
+            params: InstantiateParams::new(selector),
             state: Default::default(),
         }
     }
 }
 
-impl<T, C, Seal, CodeHash> CreateBuilder<T, C, Seal, CodeHash>
+impl<T, C, Seal, CodeHash> InstantiateBuilder<T, C, Seal, CodeHash>
 where
     T: EnvTypes,
 {
@@ -142,13 +142,13 @@ where
     }
 
     /// Sets the value transferred upon the execution of the call.
-    pub fn value(mut self, value: T::Balance) -> Self {
-        self.params.value = value;
+    pub fn endowment(mut self, value: T::Balance) -> Self {
+        self.params.endowment = value;
         self
     }
 }
 
-impl<T, C, Seal> CreateBuilder<T, C, Seal, state::CodeHashUnassigned>
+impl<T, C, Seal> InstantiateBuilder<T, C, Seal, state::CodeHashUnassigned>
 where
     T: EnvTypes,
 {
@@ -156,16 +156,16 @@ where
     pub fn using_code(
         mut self,
         code_hash: T::Hash,
-    ) -> CreateBuilder<T, C, Seal, state::CodeHashAssigned> {
+    ) -> InstantiateBuilder<T, C, Seal, state::CodeHashAssigned> {
         self.params.code_hash = code_hash;
-        CreateBuilder {
+        InstantiateBuilder {
             params: self.params,
             state: Default::default(),
         }
     }
 }
 
-impl<T, C, CodeHash> CreateBuilder<T, C, state::Unsealed, CodeHash>
+impl<T, C, CodeHash> InstantiateBuilder<T, C, state::Unsealed, CodeHash>
 where
     T: EnvTypes,
 {
@@ -179,21 +179,21 @@ where
     }
 
     /// Seals the create builder to prevent further arguments.
-    pub fn seal(self) -> CreateBuilder<T, C, state::Sealed, CodeHash> {
-        CreateBuilder {
+    pub fn seal(self) -> InstantiateBuilder<T, C, state::Sealed, CodeHash> {
+        InstantiateBuilder {
             params: self.params,
             state: Default::default(),
         }
     }
 }
 
-impl<T, C, Seal> CreateBuilder<T, C, Seal, state::CodeHashAssigned>
+impl<T, C, Seal> InstantiateBuilder<T, C, Seal, state::CodeHashAssigned>
 where
     T: EnvTypes,
     C: FromAccountId<T>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
-    pub fn create(self) -> Result<C> {
+    pub fn instantiate(self) -> Result<C> {
         crate::env3::create_contract(&self.params).map(FromAccountId::from_account_id)
     }
 }
