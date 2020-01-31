@@ -156,13 +156,11 @@ impl<Storage, ConstrsHead, ConstrsRest, MsgsHead, MsgsRest>
     where
         Storage: crate::Storage,
     {
-        use ink_core::storage::{
-            alloc::{
-                AllocateUsing,
-                BumpAlloc,
-            },
-            Key,
+        use ink_core::storage::alloc::{
+            AllocateUsing,
+            BumpAlloc,
         };
+        use ink_primitives::Key;
         let storage = ManuallyDrop::new(unsafe {
             let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
             AllocateUsing::allocate_using(&mut alloc)

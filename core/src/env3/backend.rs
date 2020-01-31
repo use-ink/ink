@@ -12,20 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    env3::{
-        call::{
-            CallData,
-            CallParams,
-            InstantiateParams,
-            ReturnType,
-        },
-        EnvTypes,
-        Result,
-        Topics,
+use crate::env3::{
+    call::{
+        CallData,
+        CallParams,
+        InstantiateParams,
+        ReturnType,
     },
-    storage::Key,
+    EnvTypes,
+    Result,
+    Topics,
 };
+use ink_primitives::Key;
 
 /// Environmental contract functionality that does not require `EnvTypes`.
 pub trait Env {

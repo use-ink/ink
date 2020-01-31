@@ -25,8 +25,8 @@ use ink_core::{
         Result,
         Topics,
     },
-    storage::Key,
 };
+use ink_primitives::Key;
 
 /// Allows to directly access the environment mutably.
 ///
@@ -253,7 +253,10 @@ where
     /// - If the instantiation process runs out of gas.
     /// - If given too few endowment.
     /// - If the returned account ID failed to decode properly.
-    pub fn create_contract<C>(self, params: &InstantiateParams<T, C>) -> Result<T::AccountId> {
+    pub fn create_contract<C>(
+        self,
+        params: &InstantiateParams<T, C>,
+    ) -> Result<T::AccountId> {
         env::create_contract::<T, C>(params)
     }
 

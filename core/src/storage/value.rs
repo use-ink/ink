@@ -389,16 +389,14 @@ where
 mod tests {
     use super::*;
     use crate::{
-        storage::{
-            alloc::{
-                AllocateUsing,
-                BumpAlloc,
-                Initialize,
-            },
-            Key,
+        storage::alloc::{
+            AllocateUsing,
+            BumpAlloc,
+            Initialize,
         },
         test_utils::run_test,
     };
+    use ink_primitives::Key;
 
     macro_rules! test_ops_impl {
 		( $test_name:ident, $tok:tt; $test_name_assign:ident, $tok_eq:tt) => {

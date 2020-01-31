@@ -13,10 +13,8 @@
 // limitations under the License.
 
 use super::*;
-use crate::{
-    storage::Key,
-    test_utils::run_test,
-};
+use crate::test_utils::run_test;
+use ink_primitives::Key;
 
 #[test]
 fn dyn_simple() {

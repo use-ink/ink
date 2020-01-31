@@ -14,28 +14,26 @@
 
 //! The public raw interface towards the host Wasm engine.
 
-use crate::{
-    env3::{
-        backend::{
-            Env,
-            TypedEnv,
-        },
-        call::{
-            CallData,
-            CallParams,
-            InstantiateParams,
-            ReturnType,
-        },
-        engine::{
-            EnvInstance,
-            OnInstance,
-        },
-        EnvTypes,
-        Result,
-        Topics,
+use crate::env3::{
+    backend::{
+        Env,
+        TypedEnv,
     },
-    storage::Key,
+    call::{
+        CallData,
+        CallParams,
+        InstantiateParams,
+        ReturnType,
+    },
+    engine::{
+        EnvInstance,
+        OnInstance,
+    },
+    EnvTypes,
+    Result,
+    Topics,
 };
+use ink_primitives::Key;
 
 /// Returns the address of the caller of the executed contract.
 ///

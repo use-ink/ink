@@ -16,13 +16,11 @@
 //!
 //! Refer to substrate SRML contract module for more documentation.
 
-use crate::{
-    env3::{
-        EnvError,
-        Result,
-    },
-    storage::Key,
+use crate::env3::{
+    EnvError,
+    Result,
 };
+use ink_primitives::Key;
 
 /// Returned by the host environment if a contract call trapped.
 const TRAP_RETURN_CODE: u32 = 0x0100;

@@ -19,8 +19,8 @@ use crate::storage::{
         BumpAlloc,
         Initialize,
     },
-    Key,
 };
+use ink_primitives::Key;
 
 /// Returns an empty storage bit vector.
 fn new_empty_bitvec() -> storage::BitVec {

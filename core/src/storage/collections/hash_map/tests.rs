@@ -22,9 +22,9 @@ use crate::{
             BumpAlloc,
             Initialize,
         },
-        Key,
     },
 };
+use ink_primitives::Key;
 
 fn new_empty<K, V>() -> storage::HashMap<K, V> {
     unsafe {

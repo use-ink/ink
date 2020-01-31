@@ -12,20 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-generate-abi")]
-use ink_abi::{
-    HasLayout,
-    LayoutField,
-    LayoutStruct,
-    StorageLayout,
-};
-use scale::{
-    Decode,
-    Encode,
-};
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
-
 use crate::{
     ink_core,
     storage::{
@@ -37,9 +23,22 @@ use crate::{
         },
         chunk::SyncChunk,
         Flush,
-        Key,
     },
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+use ink_primitives::Key;
+use scale::{
+    Decode,
+    Encode,
+};
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// A stash collection.
 ///

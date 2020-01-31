@@ -38,9 +38,9 @@ pub use self::{
         ReturnType,
     },
     instantiate::{
+        FromAccountId,
         InstantiateBuilder,
         InstantiateParams,
-        FromAccountId,
     },
     utils::{
         CallData,

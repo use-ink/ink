@@ -16,23 +16,21 @@ use super::{
     Account,
     EnvInstance,
 };
-use crate::{
-    env3::{
-        call::{
-            CallData,
-            CallParams,
-            InstantiateParams,
-            ReturnType,
-        },
-        Env,
-        EnvError,
-        EnvTypes,
-        Result,
-        Topics,
-        TypedEnv,
+use crate::env3::{
+    call::{
+        CallData,
+        CallParams,
+        InstantiateParams,
+        ReturnType,
     },
-    storage::Key,
+    Env,
+    EnvError,
+    EnvTypes,
+    Result,
+    Topics,
+    TypedEnv,
 };
+use ink_primitives::Key;
 
 impl EnvInstance {
     /// Returns the callee account.

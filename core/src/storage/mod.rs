@@ -70,8 +70,6 @@
 //! - `SyncChunk`
 
 pub mod alloc;
-mod key;
-
 pub mod cell;
 pub mod chunk;
 mod collections;
@@ -102,10 +100,6 @@ pub use self::{
         },
     },
     flush::Flush,
-    key::{
-        Key,
-        KeyDiff,
-    },
 };
 
 #[doc(inline)]

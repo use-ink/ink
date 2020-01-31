@@ -20,16 +20,14 @@ use super::{
     OffAccountId,
     OffBalance,
 };
-use crate::{
-    env3::{
-        EnvError,
-        EnvTypes,
-    },
-    storage::Key,
+use crate::env3::{
+    EnvError,
+    EnvTypes,
 };
 use core::cell::Cell;
 use derive_more::From;
 use ink_prelude::collections::BTreeMap;
+use ink_primitives::Key;
 
 /// Errors encountered upon interacting with the accounts database.
 #[derive(Debug, From, PartialEq, Eq)]

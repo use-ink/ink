@@ -12,17 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::{
-    cmp::Ord,
-    fmt::Debug,
-};
-
-use scale::{
-    Codec,
-    Decode,
-    Encode,
-};
-
 use crate::{
     env3 as env,
     env3::Result,
@@ -33,8 +22,17 @@ use crate::{
             Initialize,
         },
         BinaryHeap,
-        Key,
     },
+};
+use core::{
+    cmp::Ord,
+    fmt::Debug,
+};
+use ink_primitives::Key;
+use scale::{
+    Codec,
+    Decode,
+    Encode,
 };
 
 fn empty_heap() -> BinaryHeap<i32> {

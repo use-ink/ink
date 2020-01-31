@@ -22,9 +22,9 @@ use crate::{
             BumpAlloc,
         },
         Flush,
-        Key,
     },
 };
+use ink_primitives::Key;
 
 fn dummy_chunk() -> SyncChunk<u32> {
     unsafe {

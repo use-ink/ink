@@ -16,22 +16,20 @@ use super::{
     ext,
     EnvInstance,
 };
-use crate::{
-    env3::{
-        call::{
-            CallData,
-            CallParams,
-            InstantiateParams,
-            ReturnType,
-        },
-        Env,
-        EnvTypes,
-        Result,
-        Topics,
-        TypedEnv,
+use crate::env3::{
+    call::{
+        CallData,
+        CallParams,
+        InstantiateParams,
+        ReturnType,
     },
-    storage::Key,
+    Env,
+    EnvTypes,
+    Result,
+    Topics,
+    TypedEnv,
 };
+use ink_primitives::Key;
 
 impl EnvInstance {
     /// Empties the contract-side scratch buffer.

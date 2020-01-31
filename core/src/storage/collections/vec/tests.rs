@@ -21,10 +21,10 @@ use crate::{
             BumpAlloc,
             Initialize,
         },
-        Key,
     },
     test_utils::run_test,
 };
+use ink_primitives::Key;
 
 /// Returns an empty storage vector at address `0x42`.
 fn new_empty_vec<T>() -> storage::Vec<T> {

@@ -14,12 +14,22 @@
 
 use core::cell::RefCell;
 
+use crate::storage::{
+    alloc::{
+        Allocate,
+        AllocateUsing,
+    },
+    cell::TypedCell,
+    Flush,
+};
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
     LayoutRange,
     StorageLayout,
 };
+use ink_prelude::boxed::Box;
+use ink_primitives::Key;
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::{
     HasTypeDef,
@@ -29,17 +39,6 @@ use type_metadata::{
     TypeDefStruct,
     TypeId,
 };
-
-use crate::storage::{
-    alloc::{
-        Allocate,
-        AllocateUsing,
-    },
-    cell::TypedCell,
-    Flush,
-    Key,
-};
-use ink_prelude::boxed::Box;
 
 /// A synchronized cell.
 ///
@@ -440,11 +439,9 @@ mod tests {
     use crate::{
         env3 as env,
         env3::Result,
-        storage::{
-            alloc::BumpAlloc,
-            Key,
-        },
+        storage::alloc::BumpAlloc,
     };
+    use ink_primitives::Key;
 
     fn dummy_cell() -> SyncCell<i32> {
         unsafe {

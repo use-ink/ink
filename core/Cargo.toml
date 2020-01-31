@@ -17,7 +17,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 [dependencies]
 ink_abi = { path = "../abi/", default-features = false, features = ["derive"], optional = true }
 ink_alloc = { path = "../alloc/", default-features = false }
-ink_primitives = { path = "../primitives/" }
+ink_primitives = { path = "../primitives/", default-features = false }
 ink_core_derive = { path = "derive", default-features = false }
 ink_prelude = { path = "../prelude/", default-features = false }
 
@@ -50,6 +50,7 @@ std = [
 ]
 ink-generate-abi = [
     "ink_abi",
+    "ink_primitives/ink-generate-abi",
     "type-metadata",
     "std",
 ]

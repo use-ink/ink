@@ -12,16 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-generate-abi")]
-use ink_abi::{
-    HasLayout,
-    LayoutField,
-    LayoutStruct,
-    StorageLayout,
-};
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
-
 use super::*;
 use crate::storage::{
     self,
@@ -31,8 +21,17 @@ use crate::storage::{
     },
     Allocator,
     Flush,
-    Key,
 };
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutField,
+    LayoutStruct,
+    StorageLayout,
+};
+use ink_primitives::Key;
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// Allocator for dynamic contract storage.
 ///

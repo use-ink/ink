@@ -21,10 +21,10 @@ use crate::{
             BumpAlloc,
             Initialize,
         },
-        Key,
         Stash,
     },
 };
+use ink_primitives::Key;
 
 fn empty_stash() -> Stash<i32> {
     unsafe {

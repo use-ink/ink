@@ -14,15 +14,13 @@
 
 use crate::{
     env3 as env,
-    storage::{
-        alloc::{
-            Allocate,
-            AllocateUsing,
-        },
-        Key,
+    storage::alloc::{
+        Allocate,
+        AllocateUsing,
     },
 };
 use core::marker::PhantomData;
+use ink_primitives::Key;
 
 /// A chunk of typed cells.
 ///
