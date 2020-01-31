@@ -94,12 +94,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn now_in_ms<T>() -> Result<T::TimeStamp>
+pub fn block_timestamp<T>() -> Result<T::TimeStamp>
 where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::now_in_ms::<T>(instance)
+        TypedEnv::block_timestamp::<T>(instance)
     })
 }
 
