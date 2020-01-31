@@ -16,7 +16,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang2 as ink;
-use scale::KeyedVec as _;
 
 mod crypto {
     /// Do a Blake2 256-bit hash and place result in `dest`.
@@ -34,6 +33,9 @@ mod crypto {
 
 #[ink::contract(version = "0.1.0")]
 mod runtime {
+    use scale::KeyedVec as _;
+    use super::crypto;
+
     /// This simple contract reads a value from runtime storage
     #[ink(storage)]
     struct RuntimeStorage {}
@@ -48,7 +50,7 @@ mod runtime {
             const BALANCE_OF: &[u8] = b"Balances FreeBalance";
             let key = crypto::blake2_256(&account.to_keyed_vec(BALANCE_OF));
             let result = self.env().get_runtime_storage::<Balance>(&key[..]);
-            result.unwrap_or_default()
+            result.unwrap_or_else(|| Ok(0)).unwrap_or_default()
         }
     }
 
