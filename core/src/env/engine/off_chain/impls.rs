@@ -24,7 +24,6 @@ use crate::env::{
         ReturnType,
     },
     Env,
-    EnvError,
     EnvTypes,
     Result,
     Topics,
@@ -68,13 +67,13 @@ impl Env for EnvInstance {
             .expect("callee account is not a smart contract");
     }
 
-    fn get_contract_storage<R>(&mut self, key: Key) -> Result<R>
+    fn get_contract_storage<R>(&mut self, key: Key) -> Option<Result<R>>
     where
         R: scale::Decode,
     {
         self.callee_account()
-            .get_storage::<R>(key)?
-            .ok_or_else(|| EnvError::MissingContractStorageEntry)
+            .get_storage::<R>(key)
+            .map(|result| result.map_err(Into::into))
     }
 
     fn clear_contract_storage(&mut self, key: Key) {

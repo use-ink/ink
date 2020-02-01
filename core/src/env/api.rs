@@ -218,7 +218,7 @@ where
 ///
 /// - If the key's entry is empty
 /// - If the decoding of the typed value failed
-pub fn get_contract_storage<R>(key: Key) -> Result<R>
+pub fn get_contract_storage<R>(key: Key) -> Option<Result<R>>
 where
     R: scale::Decode,
 {

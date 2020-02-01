@@ -96,7 +96,8 @@ where
 {
     /// Loads the value from the storage into the cell.
     pub fn load(self) -> Option<T> {
-        env::get_contract_storage(self.key).ok()
+        env::get_contract_storage(self.key)
+            .map(|result| result.expect("could not decode T from storage chunk"))
     }
 }
 

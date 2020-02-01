@@ -222,13 +222,14 @@ impl Account {
             .map(|contract| contract.storage.clear_storage(at))
     }
 
-    /// Clears the contract storage at key.
-    pub fn get_storage<T>(&self, at: Key) -> Result<Option<T>>
+    /// Returns the value stored in the contract storage at the given key.
+    pub fn get_storage<T>(&self, at: Key) -> Option<Result<T>>
     where
         T: scale::Decode,
     {
         self.contract_or_err()
             .and_then(|contract| contract.storage.get_storage::<T>(at))
+            .transpose()
     }
 
     /// Returns the total number of reads and write from and to the contract's storage.

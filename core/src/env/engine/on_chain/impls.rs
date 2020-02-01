@@ -133,12 +133,14 @@ impl Env for EnvInstance {
         ext::set_storage(key.as_bytes(), &self.buffer[..]);
     }
 
-    fn get_contract_storage<R>(&mut self, key: Key) -> Result<R>
+    fn get_contract_storage<R>(&mut self, key: Key) -> Option<Result<R>>
     where
         R: scale::Decode,
     {
-        ext::get_storage(key.as_bytes())?;
-        self.decode_scratch_buffer().map_err(Into::into)
+        if let Err(_) = ext::get_storage(key.as_bytes()) {
+            return None
+        }
+        Some(self.decode_scratch_buffer().map_err(Into::into))
     }
 
     fn clear_contract_storage(&mut self, key: Key) {

@@ -71,7 +71,8 @@ where
 {
     /// Loads the value stored in the cell if any.
     pub fn load(&self) -> Option<T> {
-        env::get_contract_storage::<T>(self.key).ok()
+        env::get_contract_storage::<T>(self.key)
+            .map(|result| result.expect("could not decode T from storage cell"))
     }
 }
 

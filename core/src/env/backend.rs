@@ -32,24 +32,22 @@ pub trait Env {
     where
         V: scale::Encode;
 
-    /// Returns the value stored under the given key in the contract's storage.
+    /// Returns the value stored under the given key in the contract's storage if any.
     ///
     /// # Errors
     ///
-    /// - If the key's entry is empty
     /// - If the decoding of the typed value failed
-    fn get_contract_storage<R>(&mut self, key: Key) -> Result<R>
+    fn get_contract_storage<R>(&mut self, key: Key) -> Option<Result<R>>
     where
         R: scale::Decode;
 
     /// Clears the contract's storage key entry.
     fn clear_contract_storage(&mut self, key: Key);
 
-    /// Returns the value from the *runtime* storage at the position of the key.
+    /// Returns the value from the *runtime* storage at the position of the key if any.
     ///
     /// # Errors
     ///
-    /// - If the key's entry is empty
     /// - If the decoding of the typed value failed
     fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
     where
