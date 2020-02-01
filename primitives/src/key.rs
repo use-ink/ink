@@ -40,7 +40,6 @@ pub struct Key(pub [u8; 32]);
 #[cfg(feature = "std")]
 impl type_metadata::HasTypeId for Key {
     fn type_id() -> type_metadata::TypeId {
-        use ink_prelude::vec::Vec;
         type_metadata::TypeIdCustom::new(
             "Key",
             type_metadata::Namespace::from_module_path("ink_primitives")
