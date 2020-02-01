@@ -292,7 +292,7 @@ impl GenerateAbi<'_> {
                 // execution.
                 core::mem::ManuallyDrop::new(
                     #contract_ident::allocate_using(&mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
-                        ink_core::storage::Key([0x0; 32]),
+                        ink_primitives::Key([0x0; 32]),
                     ))
                 )
                 .layout()

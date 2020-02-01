@@ -43,6 +43,7 @@ std = [
     "ink_abi/std",
     "ink_alloc/std",
     "ink_prelude/std",
+    "ink_primitives/std",
     "scale/std",
     "type-metadata/std",
     "rand/std",
@@ -50,7 +51,6 @@ std = [
 ]
 ink-generate-abi = [
     "ink_abi",
-    "ink_primitives/ink-generate-abi",
     "type-metadata",
     "std",
 ]

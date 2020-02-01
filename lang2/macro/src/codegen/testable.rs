@@ -59,7 +59,7 @@ impl GenerateCode for TestWrapper<'_> {
                         let mut contract: Self = unsafe {
                             let mut alloc =
                                 ink_core::storage::alloc::BumpAlloc::from_raw_parts(
-                                    ink_core::storage::Key([0x00; 32]),
+                                    ink_primitives::Key([0x00; 32]),
                                 );
                             ink_core::storage::alloc::AllocateUsing::allocate_using(
                                 &mut alloc,
