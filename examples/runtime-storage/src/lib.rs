@@ -32,8 +32,8 @@ mod crypto {
 
 #[ink::contract(version = "0.1.0")]
 mod runtime {
-    use scale::KeyedVec as _;
     use super::crypto;
+    use scale::KeyedVec as _;
 
     /// This simple contract reads a value from runtime storage
     #[ink(storage)]
