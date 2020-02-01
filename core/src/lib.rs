@@ -46,9 +46,6 @@
 #[cfg(not(feature = "std"))]
 extern crate ink_alloc;
 
-#[cfg(all(test, feature = "std"))]
-mod test_utils;
-
 pub mod env3;
 pub mod storage;
 
