@@ -12,21 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-generate-abi")]
-use ink_abi::{
-    HasLayout,
-    LayoutKey,
-    LayoutRange,
-    StorageLayout,
-};
+use crate::byte_utils;
 use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
-
-use crate::byte_utils;
+use ink_prelude::{vec, vec::Vec};
 
 /// Typeless generic key into contract storage.
 ///
@@ -45,13 +36,25 @@ use crate::byte_utils;
 ///
 /// Prefer using types found in `collections` or `Synced` type.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct Key(pub [u8; 32]);
 
-#[cfg(feature = "ink-generate-abi")]
-impl HasLayout for Key {
-    fn layout(&self) -> StorageLayout {
-        LayoutRange::cell(*self, <[u8]>::meta_type()).into()
+impl type_metadata::HasTypeId for Key {
+    fn type_id() -> type_metadata::TypeId {
+        type_metadata::TypeIdCustom::new(
+            "Key",
+            type_metadata::Namespace::from_module_path("ink_primitives")
+                .expect("non-empty Rust identifier namespaces cannot fail"),
+            Vec::new(),
+        )
+        .into()
+    }
+}
+
+impl type_metadata::HasTypeDef for Key {
+    fn type_def() -> type_metadata::TypeDef {
+        type_metadata::TypeDefTupleStruct::new(vec![
+            type_metadata::UnnamedField::of::<[u8; 32]>()
+        ]).into()
     }
 }
 
@@ -90,13 +93,6 @@ impl core::fmt::Display for Key {
             }
         }
         Ok(())
-    }
-}
-
-#[cfg(feature = "ink-generate-abi")]
-impl From<Key> for LayoutKey {
-    fn from(key: Key) -> Self {
-        LayoutKey(key.0)
     }
 }
 
