@@ -217,13 +217,13 @@ impl CrossCalling<'_> {
                     #( #attrs )*
                     pub fn #ident(
                         #( #fn_args ),*
-                    ) -> ink_core::env3::call::CreateBuilder<
+                    ) -> ink_core::env3::call::InstantiateBuilder<
                         EnvTypes,
                         Self,
                         ink_core::env3::call::state::Sealed,
                         ink_core::env3::call::state::CodeHashUnassigned,
                     > {
-                        ink_core::env3::call::CreateParams::<EnvTypes, Self>::build(
+                        ink_core::env3::call::InstantiateParams::<EnvTypes, Self>::build(
                             ink_core::env3::call::Selector::new([#( #selector_bytes ),*])
                         )
                         #(
