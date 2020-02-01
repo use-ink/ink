@@ -20,6 +20,9 @@ pub mod test_api;
 mod typed_encoded;
 mod types;
 
+#[cfg(test)]
+mod tests;
+
 use self::{
     db::{
         Account,
