@@ -9,6 +9,7 @@ stages:
   - check
   - workspace
   - examples
+  - publish
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -195,3 +196,28 @@ examples-generate-metadata:
         cargo contract generate-metadata &&
         popd;
       done
+
+#### stage:                        publish
+
+publish-docs:
+  stage:                           publish
+  <<:                              *docker-env
+  only:
+    - master
+    - schedules
+    - tags
+  script:
+    # Set github
+    - git config --global user.email "devops-team@parity.io"
+    - git config --global user.name "${GITHUB_USER}"
+    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
+    # Generating Docs
+    - cargo doc --no-deps --all
+    - git checkout -b gh-pages || git checkout gh-pages
+    # Symbolic link because these files live in cache
+    - mkdir -p target/doc
+    - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
+    # Upload files
+    - git add -f target/doc/
+    - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
+    - git push origin gh-pages --force
