@@ -79,7 +79,7 @@ impl GenerateCode for Storage<'_> {
             const _: () = {
                 // Used to make `self.env()` available in message code.
                 #[allow(unused_imports)]
-                use ink_lang2::Env as _;
+                use ink_lang::Env as _;
 
                 #use_emit_event
                 #message_impls
@@ -91,8 +91,8 @@ impl GenerateCode for Storage<'_> {
 impl Storage<'_> {
     fn generate_access_env_trait_impls(&self) -> TokenStream2 {
         quote! {
-            impl<'a> ink_lang2::Env for &'a Storage {
-                type EnvAccess = ink_lang2::EnvAccess<'a, EnvTypes>;
+            impl<'a> ink_lang::Env for &'a Storage {
+                type EnvAccess = ink_lang::EnvAccess<'a, EnvTypes>;
 
                 fn env(self) -> Self::EnvAccess {
                     Default::default()
@@ -171,7 +171,7 @@ impl Storage<'_> {
             pub struct Storage
                 #fields
 
-            impl ink_lang2::Storage for Storage {}
+            impl ink_lang::Storage for Storage {}
         )
     }
 

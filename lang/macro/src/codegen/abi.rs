@@ -42,7 +42,7 @@ impl GenerateCode for GenerateAbi<'_> {
         quote! {
             #[cfg(feature = "ink-generate-abi")]
             const _: () = {
-                impl ink_lang2::GenerateAbi for #storage_ident {
+                impl ink_lang::GenerateAbi for #storage_ident {
                     fn generate_abi() -> ink_abi::InkProject {
                         let contract: ink_abi::ContractSpec = {
                             #contract

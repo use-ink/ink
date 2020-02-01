@@ -3,7 +3,7 @@
 members = [
     "abi",
     "core",
-    "lang2",
+    "lang",
     "prelude",
     "primitives",
 ]

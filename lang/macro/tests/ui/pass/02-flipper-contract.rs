@@ -1,4 +1,4 @@
-use ink_lang2 as ink;
+use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod flipper {

@@ -186,7 +186,7 @@ impl CrossCalling<'_> {
                 }
             }
 
-            impl ink_lang2::ToAccountId<EnvTypes> for StorageAsDependency {
+            impl ink_lang::ToAccountId<EnvTypes> for StorageAsDependency {
                 #[inline]
                 fn to_account_id(&self) -> AccountId {
                     self.account_id
@@ -285,7 +285,7 @@ impl CrossCalling<'_> {
                             #fn_args
                         ),*
                     ) #output {
-                        ink_lang2::#call_path(self)
+                        ink_lang::#call_path(self)
                             .#ident( #( #arg_idents ),* )
                             .fire()
                             .expect(#failure_msg)
@@ -355,7 +355,7 @@ impl CrossCalling<'_> {
                         EnvTypes, #ret_ty_sig, ink_core::env::call::state::Sealed
                     > {
                         ink_core::env::call::CallParams::<EnvTypes, #ret_ty_param>::#instantiate_fn(
-                            ink_lang2::ToAccountId::to_account_id(self.contract),
+                            ink_lang::ToAccountId::to_account_id(self.contract),
                             ink_core::env::call::Selector::new([ #( #selector_bytes ),* ]),
                         )
                         #(
@@ -372,7 +372,7 @@ impl CrossCalling<'_> {
             self.generate_forwarding_messages(|function| !function.sig.is_mut());
 
         quote! {
-            impl<'a> ink_lang2::ForwardCall for &'a StorageAsDependency {
+            impl<'a> ink_lang::ForwardCall for &'a StorageAsDependency {
                 type Forwarder = CallForwarder<'a>;
 
                 #[inline]
@@ -398,7 +398,7 @@ impl CrossCalling<'_> {
             self.generate_forwarding_messages(|function| function.sig.is_mut());
 
         quote! {
-            impl<'a> ink_lang2::ForwardCallMut for &'a mut StorageAsDependency {
+            impl<'a> ink_lang::ForwardCallMut for &'a mut StorageAsDependency {
                 type Forwarder = CallForwarderMut<'a>;
 
                 #[inline]

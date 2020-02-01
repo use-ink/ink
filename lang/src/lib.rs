@@ -29,7 +29,7 @@ mod error;
 mod testable;
 mod traits;
 
-pub use ink_lang2_macro::contract;
+pub use ink_lang_macro::contract;
 
 #[cfg(feature = "ink-generate-abi")]
 pub use self::abi::GenerateAbi;

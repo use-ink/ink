@@ -8,7 +8,7 @@ edition = "2018"
 ink_primitives = { path = "../../primitives", default-features = false }
 ink_abi = { path = "../../abi", default-features = false, features = ["derive"], optional = true }
 ink_core = { path = "../../core", default-features = false }
-ink_lang2 = { path = "../../lang2", default-features = false }
+ink_lang = { path = "../../lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.1", default-features = false, features = ["derive"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
@@ -33,14 +33,14 @@ std = [
 ]
 test-env = [
     "std",
-    "ink_lang2/test-env",
+    "ink_lang/test-env",
 ]
 ink-generate-abi = [
     "std",
     "ink_abi",
     "type-metadata",
     "ink_core/ink-generate-abi",
-    "ink_lang2/ink-generate-abi",
+    "ink_lang/ink-generate-abi",
 ]
 ink-as-dependency = []
 

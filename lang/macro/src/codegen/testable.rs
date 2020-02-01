@@ -52,7 +52,7 @@ impl GenerateCode for TestWrapper<'_> {
             mod __ink_testable {
                 use super::*;
 
-                impl ink_lang2::InstantiateTestable for Storage {
+                impl ink_lang::InstantiateTestable for Storage {
                     type Wrapped = TestableStorage;
 
                     fn instantiate() -> Self::Wrapped {
@@ -106,8 +106,8 @@ impl TestWrapper<'_> {
             quote_spanned!(span=>
                 pub fn #ident(
                     #(#fn_args),*
-                ) -> <Storage as ink_lang2::InstantiateTestable>::Wrapped {
-                    let mut contract = <Storage as ink_lang2::InstantiateTestable>::instantiate();
+                ) -> <Storage as ink_lang::InstantiateTestable>::Wrapped {
+                    let mut contract = <Storage as ink_lang::InstantiateTestable>::instantiate();
                     contract.#ident(
                         #(
                             #arg_idents

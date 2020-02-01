@@ -100,26 +100,26 @@ impl Dispatch<'_> {
         };
 
         let fn_input = quote_spanned!(sig.inputs.span() =>
-            impl ink_lang2::FnInput for #namespace<[(); #selector_id]> {
+            impl ink_lang::FnInput for #namespace<[(); #selector_id]> {
                 #[allow(unused_parens)]
                 type Input = (#inputs_punct);
             }
         );
         let fn_output = quote_spanned!(sig.output.span() =>
-            impl ink_lang2::FnOutput for #namespace<[(); #selector_id]> {
+            impl ink_lang::FnOutput for #namespace<[(); #selector_id]> {
                 #[allow(unused_parens)]
                 type Output = (#output_type);
             }
         );
         let fn_selector = quote_spanned!(span =>
-            impl ink_lang2::FnSelector for #namespace<[(); #selector_id]> {
+            impl ink_lang::FnSelector for #namespace<[(); #selector_id]> {
                 const SELECTOR: ink_core::env::call::Selector = ink_core::env::call::Selector::new([
                     #( #selector_bytes ),*
                 ]);
             }
         );
         let message_impl = quote_spanned!(span =>
-            impl ink_lang2::Message for #namespace<[(); #selector_id]> {
+            impl ink_lang::Message for #namespace<[(); #selector_id]> {
                 const IS_MUT: bool = #is_mut;
             }
         );
@@ -223,12 +223,12 @@ impl Dispatch<'_> {
             .map(|fun| self.generate_dispatch_using_mode_fragment(fun));
 
         quote! {
-            impl ink_lang2::DispatchUsingMode for Storage {
+            impl ink_lang::DispatchUsingMode for Storage {
                 #[allow(unused_parens)]
                 fn dispatch_using_mode(
-                    mode: ink_lang2::DispatchMode
-                ) -> core::result::Result<(), ink_lang2::DispatchError> {
-                    ink_lang2::Contract::with_storage::<Storage>()
+                    mode: ink_lang::DispatchMode
+                ) -> core::result::Result<(), ink_lang::DispatchError> {
+                    ink_lang::Contract::with_storage::<Storage>()
                         #(
                             #fragments
                         )*
@@ -244,9 +244,9 @@ impl Dispatch<'_> {
             #[cfg(not(test))]
             #[no_mangle]
             fn deploy() -> u32 {
-                ink_lang2::DispatchRetCode::from(
-                    <Storage as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
-                        ink_lang2::DispatchMode::Instantiate,
+                ink_lang::DispatchRetCode::from(
+                    <Storage as ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                        ink_lang::DispatchMode::Instantiate,
                     ),
                 )
                 .to_u32()
@@ -255,9 +255,9 @@ impl Dispatch<'_> {
             #[cfg(not(test))]
             #[no_mangle]
             fn call() -> u32 {
-                ink_lang2::DispatchRetCode::from(
-                    <Storage as ink_lang2::DispatchUsingMode>::dispatch_using_mode(
-                        ink_lang2::DispatchMode::Call,
+                ink_lang::DispatchRetCode::from(
+                    <Storage as ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                        ink_lang::DispatchMode::Call,
                     ),
                 )
                 .to_u32()

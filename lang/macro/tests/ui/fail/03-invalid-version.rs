@@ -1,4 +1,4 @@
-use ink_lang2 as ink;
+use ink_lang as ink;
 
 #[ink::contract(version = "foo")]
 mod invalid_version {

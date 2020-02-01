@@ -95,12 +95,12 @@ impl EventHelpers<'_> {
                     E: Into<Event>;
             }
 
-            impl<'a> EmitEvent for ink_lang2::EnvAccess<'a, EnvTypes> {
+            impl<'a> EmitEvent for ink_lang::EnvAccess<'a, EnvTypes> {
                 fn emit_event<E>(self, event: E)
                 where
                     E: Into<Event>,
                 {
-                    ink_lang2::EnvAccess::<EnvTypes>::emit_event(self, event.into())
+                    ink_lang::EnvAccess::<EnvTypes>::emit_event(self, event.into())
                 }
             }
         }

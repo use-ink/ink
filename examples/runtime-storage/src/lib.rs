@@ -14,7 +14,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang2 as ink;
+use ink_lang as ink;
 
 mod crypto {
     /// Do a Blake2 256-bit hash and place result in `dest`.
