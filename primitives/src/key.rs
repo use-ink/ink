@@ -13,10 +13,6 @@
 // limitations under the License.
 
 use crate::byte_utils;
-use ink_prelude::{
-    vec,
-    vec::Vec,
-};
 use scale::{
     Decode,
     Encode,
@@ -41,8 +37,10 @@ use scale::{
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
 pub struct Key(pub [u8; 32]);
 
+#[cfg(feature = "std")]
 impl type_metadata::HasTypeId for Key {
     fn type_id() -> type_metadata::TypeId {
+        use ink_prelude::vec::Vec;
         type_metadata::TypeIdCustom::new(
             "Key",
             type_metadata::Namespace::from_module_path("ink_primitives")
@@ -53,8 +51,10 @@ impl type_metadata::HasTypeId for Key {
     }
 }
 
+#[cfg(feature = "std")]
 impl type_metadata::HasTypeDef for Key {
     fn type_def() -> type_metadata::TypeDef {
+        use ink_prelude::vec;
         type_metadata::TypeDefTupleStruct::new(vec![type_metadata::UnnamedField::of::<
             [u8; 32],
         >()])
