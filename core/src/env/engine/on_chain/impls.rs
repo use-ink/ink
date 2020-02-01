@@ -137,7 +137,7 @@ impl Env for EnvInstance {
     where
         R: scale::Decode,
     {
-        if let Err(_) = ext::get_storage(key.as_bytes()) {
+        if ext::get_storage(key.as_bytes()).is_err() {
             return None
         }
         Some(self.decode_scratch_buffer().map_err(Into::into))
