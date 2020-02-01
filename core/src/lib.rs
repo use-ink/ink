@@ -46,7 +46,7 @@
 #[cfg(not(feature = "std"))]
 extern crate ink_alloc;
 
-pub mod env3;
+pub mod env;
 pub mod storage;
 
 // Needed for derive macros of `core/derive` sub crate.
