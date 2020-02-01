@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(proc_macro_hygiene)]
 
 use ink_lang2 as ink;
 

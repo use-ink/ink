@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(proc_macro_hygiene)]
 
 #[cfg(not(feature = "ink-as-dependency"))]
 use ink_core::storage;
