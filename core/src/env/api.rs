@@ -14,7 +14,7 @@
 
 //! The public raw interface towards the host Wasm engine.
 
-use crate::env3::{
+use crate::env::{
     backend::{
         Env,
         TypedEnv,

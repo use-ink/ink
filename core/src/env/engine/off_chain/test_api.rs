@@ -21,7 +21,7 @@ use super::{
     EnvInstance,
     OnInstance,
 };
-use crate::env3::{
+use crate::env::{
     call::CallData,
     EnvTypes,
     Result,
@@ -199,7 +199,7 @@ where
 ///
 /// # Note
 ///
-/// This allows to control what [`crate::env3::random`] returns.
+/// This allows to control what [`crate::env::random`] returns.
 pub fn set_block_entropy<T>(entropy: T::Hash) -> Result<()>
 where
     T: EnvTypes,

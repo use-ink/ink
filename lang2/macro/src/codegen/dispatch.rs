@@ -113,7 +113,7 @@ impl Dispatch<'_> {
         );
         let fn_selector = quote_spanned!(span =>
             impl ink_lang2::FnSelector for #namespace<[(); #selector_id]> {
-                const SELECTOR: ink_core::env3::call::Selector = ink_core::env3::call::Selector::new([
+                const SELECTOR: ink_core::env::call::Selector = ink_core::env::call::Selector::new([
                     #( #selector_bytes ),*
                 ]);
             }

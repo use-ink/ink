@@ -14,8 +14,8 @@
 
 use core::marker::PhantomData;
 use ink_core::{
-    env3 as env,
-    env3::{
+    env,
+    env::{
         call::{
             CallParams,
             InstantiateParams,

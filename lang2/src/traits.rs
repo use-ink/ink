@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use ink_core::{
-    env3::call::Selector,
+    env::call::Selector,
     storage::{
         alloc::{
             AllocateUsing,

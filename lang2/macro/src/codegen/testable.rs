@@ -65,7 +65,7 @@ impl GenerateCode for TestWrapper<'_> {
                                 &mut alloc,
                             )
                         };
-                        ink_core::env3::test::initialize_as_default::<ink_core::env3::DefaultEnvTypes>()
+                        ink_core::env::test::initialize_as_default::<ink_core::env::DefaultEnvTypes>()
                             .expect("encountered already initialized off-chain environment");
                         ink_core::storage::alloc::Initialize::try_default_initialize(
                             &mut contract,

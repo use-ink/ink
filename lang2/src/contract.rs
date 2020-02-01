@@ -29,7 +29,7 @@ use core::{
     marker::PhantomData,
     mem::ManuallyDrop,
 };
-use ink_core::env3::EnvTypes;
+use ink_core::env::EnvTypes;
 
 /// The contract definition.
 pub struct Contract<Storage, Constrs, Msgs> {
@@ -208,7 +208,7 @@ where
         }
         // Dispatch using the contract execution input.
         let call_data =
-            ink_core::env3::input().map_err(|_| DispatchError::CouldNotReadInput)?;
+            ink_core::env::input().map_err(|_| DispatchError::CouldNotReadInput)?;
         match mode {
             DispatchMode::Instantiate => {
                 self.constructors

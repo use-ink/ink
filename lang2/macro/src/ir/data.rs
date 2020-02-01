@@ -89,7 +89,7 @@ pub struct MetaTypes {
 impl Default for MetaTypes {
     fn default() -> Self {
         Self {
-            ty: syn::parse_quote! { ink_core::env3::DefaultEnvTypes },
+            ty: syn::parse_quote! { ink_core::env::DefaultEnvTypes },
         }
     }
 }

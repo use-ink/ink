@@ -17,7 +17,7 @@ use super::{
     OffBalance,
     OffTimeStamp,
 };
-use crate::env3::EnvTypes;
+use crate::env::EnvTypes;
 
 /// The chain specification.
 pub struct ChainSpec {
@@ -43,7 +43,7 @@ impl ChainSpec {
     }
 
     /// Default initialization for the off-chain specification.
-    pub fn initialize_as_default<T>(&mut self) -> crate::env3::Result<()>
+    pub fn initialize_as_default<T>(&mut self) -> crate::env::Result<()>
     where
         T: EnvTypes,
         <T as EnvTypes>::AccountId: From<[u8; 32]>,

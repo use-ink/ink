@@ -19,7 +19,7 @@ mod instantiate;
 mod utils;
 
 pub mod state {
-    pub use crate::env3::call::{
+    pub use crate::env::call::{
         instantiate::state::{
             CodeHashAssigned,
             CodeHashUnassigned,

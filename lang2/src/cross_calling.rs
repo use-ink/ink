@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_core::env3::EnvTypes;
+use ink_core::env::EnvTypes;
 
 /// Implemented by contracts that are compiled as dependencies.
 ///

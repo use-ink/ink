@@ -15,7 +15,7 @@
 use derive_more::From;
 
 #[cfg(any(feature = "std", test, doc))]
-use crate::env3::engine::off_chain::OffChainError;
+use crate::env::engine::off_chain::OffChainError;
 
 /// Errors that can be encountered upon environmental interaction.
 #[derive(Debug, From, PartialEq, Eq)]

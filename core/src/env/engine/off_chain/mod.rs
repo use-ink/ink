@@ -51,7 +51,7 @@ pub use self::{
     typed_encoded::TypedEncodedError,
 };
 use super::OnInstance;
-use crate::env3::EnvTypes;
+use crate::env::EnvTypes;
 use core::cell::RefCell;
 use derive_more::From;
 
@@ -119,7 +119,7 @@ impl EnvInstance {
     ///
     /// This routine implements a default initialization that should be fine
     /// for most use cases.
-    pub fn initialize_as_default<T>(&mut self) -> crate::env3::Result<()>
+    pub fn initialize_as_default<T>(&mut self) -> crate::env::Result<()>
     where
         T: EnvTypes,
         <T as EnvTypes>::AccountId: From<[u8; 32]>,
@@ -164,7 +164,7 @@ impl EnvInstance {
             T::Balance::from(20),
         );
         // Initialize the execution context for the first contract execution.
-        use crate::env3::call::{
+        use crate::env::call::{
             CallData,
             Selector,
         };
@@ -181,7 +181,7 @@ impl EnvInstance {
     }
 
     /// Advances the chain by a single block.
-    pub fn advance_block<T>(&mut self) -> crate::env3::Result<()>
+    pub fn advance_block<T>(&mut self) -> crate::env::Result<()>
     where
         T: EnvTypes,
     {

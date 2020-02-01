@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::env3::Result;
+use crate::env::Result;
 use ink_prelude::{
     collections::btree_map::BTreeMap,
     vec::Vec,

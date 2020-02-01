@@ -13,8 +13,8 @@
 // limitations under the License.
 
 use crate::{
-    env3 as env,
-    env3::Result,
+    env,
+    env::Result,
     storage::{
         self,
         alloc::{

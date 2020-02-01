@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{
-    env3 as env,
+    env,
     storage::alloc::{
         Allocate,
         AllocateUsing,
@@ -177,8 +177,8 @@ where
 mod tests {
     use super::*;
     use crate::{
-        env3 as env,
-        env3::Result,
+        env,
+        env::Result,
     };
 
     fn create_typed_chunk() -> TypedChunk<u32> {

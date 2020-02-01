@@ -128,7 +128,7 @@ impl EventHelpers<'_> {
                 }
             )*
 
-            impl ink_core::env3::Topics<EnvTypes> for Event {
+            impl ink_core::env::Topics<EnvTypes> for Event {
                 fn topics(&self) -> &'static [Hash] {
                     match self {
                         #(
@@ -146,7 +146,7 @@ impl EventHelpers<'_> {
             let ident = &item_event.ident;
 
             quote_spanned!(span =>
-                impl ink_core::env3::Topics<EnvTypes> for #ident {
+                impl ink_core::env::Topics<EnvTypes> for #ident {
                     fn topics(&self) -> &'static [Hash] {
                         &[]
                     }

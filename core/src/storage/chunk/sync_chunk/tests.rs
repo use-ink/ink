@@ -14,8 +14,8 @@
 
 use super::*;
 use crate::{
-    env3 as env,
-    env3::Result,
+    env,
+    env::Result,
     storage::{
         alloc::{
             AllocateUsing,

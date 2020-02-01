@@ -21,7 +21,7 @@ use crate::{
 };
 use core::any::TypeId;
 use ink_core::{
-    env3::{
+    env::{
         call::{
             CallData,
             Selector,
@@ -213,7 +213,7 @@ macro_rules! impl_dispatcher_for {
                     .map_err(|_| DispatchError::InvalidParameters)?;
                 let result = self.eval(storage, args);
                 if TypeId::of::<<Msg as FnOutput>::Output>() != TypeId::of::<()>() {
-                    ink_core::env3::output::<<Msg as FnOutput>::Output>(&result)
+                    ink_core::env::output::<<Msg as FnOutput>::Output>(&result)
                 }
                 if <Msg as Message>::IS_MUT {
                     // Flush the storage since the message might have mutated it.

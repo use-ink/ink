@@ -14,7 +14,7 @@
 
 use core::marker::PhantomData;
 
-use crate::env3::{
+use crate::env::{
     call::{
         CallData,
         Selector,
@@ -24,7 +24,7 @@ use crate::env3::{
 };
 
 pub mod state {
-    pub use crate::env3::call::state::{
+    pub use crate::env::call::state::{
         Sealed,
         Unsealed,
     };
@@ -194,6 +194,6 @@ where
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     pub fn instantiate(self) -> Result<C> {
-        crate::env3::create_contract(&self.params).map(FromAccountId::from_account_id)
+        crate::env::create_contract(&self.params).map(FromAccountId::from_account_id)
     }
 }

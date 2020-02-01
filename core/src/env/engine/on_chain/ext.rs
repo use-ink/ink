@@ -16,7 +16,7 @@
 //!
 //! Refer to substrate SRML contract module for more documentation.
 
-use crate::env3::{
+use crate::env::{
     EnvError,
     Result,
 };

@@ -14,7 +14,7 @@
 
 use core::marker::PhantomData;
 
-use crate::env3::{
+use crate::env::{
     call::{
         state,
         CallData,
@@ -173,7 +173,7 @@ where
     where
         R: scale::Decode,
     {
-        crate::env3::eval_contract(&self.params)
+        crate::env::eval_contract(&self.params)
     }
 }
 
@@ -183,6 +183,6 @@ where
 {
     /// Fires the cross-call to the smart contract.
     pub fn fire(self) -> Result<()> {
-        crate::env3::invoke_contract(&self.params)
+        crate::env::invoke_contract(&self.params)
     }
 }

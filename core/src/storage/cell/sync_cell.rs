@@ -437,8 +437,8 @@ where
 mod tests {
     use super::*;
     use crate::{
-        env3 as env,
-        env3::Result,
+        env,
+        env::Result,
         storage::alloc::BumpAlloc,
     };
     use ink_primitives::Key;

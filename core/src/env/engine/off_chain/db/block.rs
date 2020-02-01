@@ -21,7 +21,7 @@ use super::{
     OffHash,
     OffTimeStamp,
 };
-use crate::env3::EnvTypes;
+use crate::env::EnvTypes;
 
 /// An emulated block in the chain.
 pub struct Block {
@@ -34,7 +34,7 @@ pub struct Block {
     /// # Note
     ///
     /// - Can optionally be set for more control via
-    ///   [`crate::env3::set_block_randomization_hash`].
+    ///   [`crate::env::set_block_randomization_hash`].
     entropy: OffHash,
 }
 
@@ -44,7 +44,7 @@ impl Block {
     where
         T: EnvTypes,
     {
-        use crate::env3::Clear;
+        use crate::env::Clear;
         use rand::Rng as _;
         let mut entropy = <T as EnvTypes>::Hash::clear();
         rand::thread_rng().fill(entropy.as_mut());
@@ -75,7 +75,7 @@ impl Block {
     ///
     /// # Note
     ///
-    /// This is mainly used to control what [`crate::env3::random`] returns
+    /// This is mainly used to control what [`crate::env::random`] returns
     /// in the off-chain environment.
     pub fn set_entropy<T>(&mut self, new_entropy: T::Hash) -> Result<()>
     where
@@ -89,7 +89,7 @@ impl Block {
     /// # Note
     ///
     /// - This is the off-chain environment implementation of
-    /// [`crate::env3::random`]. It provides the same behaviour in that it
+    /// [`crate::env::random`]. It provides the same behaviour in that it
     /// will likely yield the same hash for the same subjects within the same
     /// block (or execution context).
     ///

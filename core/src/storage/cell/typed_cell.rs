@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{
-    env3 as env,
+    env,
     storage::alloc::{
         Allocate,
         AllocateUsing,
@@ -90,7 +90,7 @@ mod tests {
     use super::*;
 
     use crate::{
-        env3::Result,
+        env::Result,
         storage::alloc::{
             AllocateUsing,
             BumpAlloc,

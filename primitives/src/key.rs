@@ -230,8 +230,8 @@ mod tests {
     use super::*;
 
     use crate::{
-        env3 as env,
-        env3::{
+        env,
+        env::{
             EnvError,
             Result,
         },

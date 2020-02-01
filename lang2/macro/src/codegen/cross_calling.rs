@@ -179,7 +179,7 @@ impl CrossCalling<'_> {
                 }
             }
 
-            impl ink_core::env3::call::FromAccountId<EnvTypes> for StorageAsDependency {
+            impl ink_core::env::call::FromAccountId<EnvTypes> for StorageAsDependency {
                 #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { account_id }
@@ -217,14 +217,14 @@ impl CrossCalling<'_> {
                     #( #attrs )*
                     pub fn #ident(
                         #( #fn_args ),*
-                    ) -> ink_core::env3::call::InstantiateBuilder<
+                    ) -> ink_core::env::call::InstantiateBuilder<
                         EnvTypes,
                         Self,
-                        ink_core::env3::call::state::Sealed,
-                        ink_core::env3::call::state::CodeHashUnassigned,
+                        ink_core::env::call::state::Sealed,
+                        ink_core::env::call::state::CodeHashUnassigned,
                     > {
-                        ink_core::env3::call::InstantiateParams::<EnvTypes, Self>::build(
-                            ink_core::env3::call::Selector::new([#( #selector_bytes ),*])
+                        ink_core::env::call::InstantiateParams::<EnvTypes, Self>::build(
+                            ink_core::env::call::Selector::new([#( #selector_bytes ),*])
                         )
                         #(
                             .push_arg(&#arg_idents)
@@ -331,7 +331,7 @@ impl CrossCalling<'_> {
                     syn::ReturnType::Type(_, ty) => Some((&**ty).clone()),
                 };
                 let ret_ty_sig = if ret_ty.is_some() {
-                    quote! { ink_core::env3::call::ReturnType<#ret_ty> }
+                    quote! { ink_core::env::call::ReturnType<#ret_ty> }
                 } else {
                     quote! { () }
                 };
@@ -351,12 +351,12 @@ impl CrossCalling<'_> {
                     pub fn #ident(
                         self,
                         #( #fn_args ),*
-                    ) -> ink_core::env3::call::CallBuilder<
-                        EnvTypes, #ret_ty_sig, ink_core::env3::call::state::Sealed
+                    ) -> ink_core::env::call::CallBuilder<
+                        EnvTypes, #ret_ty_sig, ink_core::env::call::state::Sealed
                     > {
-                        ink_core::env3::call::CallParams::<EnvTypes, #ret_ty_param>::#instantiate_fn(
+                        ink_core::env::call::CallParams::<EnvTypes, #ret_ty_param>::#instantiate_fn(
                             ink_lang2::ToAccountId::to_account_id(self.contract),
-                            ink_core::env3::call::Selector::new([ #( #selector_bytes ),* ]),
+                            ink_core::env::call::Selector::new([ #( #selector_bytes ),* ]),
                         )
                         #(
                             .push_arg(&#arg_idents)
