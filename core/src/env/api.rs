@@ -212,11 +212,10 @@ where
     })
 }
 
-/// Returns the value stored under the given key in the contract's storage.
+/// Returns the value stored under the given key in the contract's storage if any.
 ///
 /// # Errors
 ///
-/// - If the key's entry is empty
 /// - If the decoding of the typed value failed
 pub fn get_contract_storage<R>(key: Key) -> Option<Result<R>>
 where
@@ -434,7 +433,6 @@ pub fn println(content: &str) {
 ///
 /// # Errors
 ///
-/// - If the key's entry is empty
 /// - If the decoding of the typed value failed
 pub fn get_runtime_storage<R>(runtime_key: &[u8]) -> Option<Result<R>>
 where
