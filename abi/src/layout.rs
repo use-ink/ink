@@ -49,7 +49,8 @@ impl From<ink_primitives::Key> for LayoutKey {
 
 impl HasLayout for ink_primitives::Key {
     fn layout(&self) -> StorageLayout {
-        LayoutRange::cell(*self, <[u8; 32] as type_metadata::Metadata>::meta_type()).into()
+        LayoutRange::cell(*self, <[u8; 32] as type_metadata::Metadata>::meta_type())
+            .into()
     }
 }
 

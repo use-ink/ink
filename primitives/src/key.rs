@@ -13,11 +13,14 @@
 // limitations under the License.
 
 use crate::byte_utils;
+use ink_prelude::{
+    vec,
+    vec::Vec,
+};
 use scale::{
     Decode,
     Encode,
 };
-use ink_prelude::{vec, vec::Vec};
 
 /// Typeless generic key into contract storage.
 ///
@@ -52,9 +55,10 @@ impl type_metadata::HasTypeId for Key {
 
 impl type_metadata::HasTypeDef for Key {
     fn type_def() -> type_metadata::TypeDef {
-        type_metadata::TypeDefTupleStruct::new(vec![
-            type_metadata::UnnamedField::of::<[u8; 32]>()
-        ]).into()
+        type_metadata::TypeDefTupleStruct::new(vec![type_metadata::UnnamedField::of::<
+            [u8; 32],
+        >()])
+        .into()
     }
 }
 

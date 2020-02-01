@@ -180,7 +180,7 @@ pub fn bytes_sub_bytes(lhs: &mut [u8], rhs: &[u8]) -> bool {
 #[cfg(all(test, feature = "std"))]
 mod tests {
     use super::*;
-    use ink_prelude::{vec::Vec};
+    use ink_prelude::vec::Vec;
 
     #[test]
     fn test_negate_bytes() {
