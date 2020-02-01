@@ -224,7 +224,7 @@ impl_add_sub_for_key!(u32);
 impl_add_sub_for_key!(u64);
 impl_add_sub_for_key!(u128);
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 

@@ -15,7 +15,7 @@
 mod cache;
 mod chunk;
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests;
 
 pub(crate) use self::cache::CacheGuard;

@@ -101,7 +101,7 @@ impl Flush for DynAlloc {
     }
 }
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 impl DynAlloc {
     pub(crate) fn cells_origin(&self) -> Key {
         self.cells_origin

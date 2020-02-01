@@ -86,7 +86,7 @@ where
     }
 }
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 

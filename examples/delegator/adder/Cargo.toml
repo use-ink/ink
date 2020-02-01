@@ -39,7 +39,6 @@ std = [
 ]
 test-env = [
 	"std",
-    "ink_core/test-env",
     "ink_lang2/test-env",
 ]
 ink-generate-abi = [

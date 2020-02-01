@@ -19,7 +19,7 @@
 //!
 //! Provides `O(log(n))` push and pop operations.
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests;
 
 mod duplex_sync_chunk;
