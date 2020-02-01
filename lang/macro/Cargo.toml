@@ -15,7 +15,7 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_primitives = { path = "../../primitives/" }
+ink_primitives = { path = "../../primitives/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.1", default-features = false, features = ["derive"] }
 quote = "1"
@@ -51,6 +51,7 @@ std = [
     "scale/std",
     "itertools/use_std",
     "either/use_std",
+    "ink_primitives/std",
     "serde/std",
 ]
 ink-generate-abi = [
