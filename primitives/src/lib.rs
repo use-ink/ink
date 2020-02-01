@@ -21,7 +21,7 @@
 //! By introducing `ink_primitives` we have a way to share utility components between `ink_core` and
 //! other parts of the framework, like `ink_lang`.
 
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 mod byte_utils;
 pub mod hash;
