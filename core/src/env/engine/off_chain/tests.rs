@@ -22,17 +22,14 @@ use ink_primitives::Key;
 fn store_load_clear() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let key = Key([0x42; 32]);
-        assert_eq!(
-            env::get_contract_storage::<()>(key),
-            None,
-        );
+        assert_eq!(env::get_contract_storage::<()>(key), None,);
         env::set_contract_storage(key, &[0x05_u8; 5]);
-        assert_eq!(env::get_contract_storage::<[i8; 5]>(key), Some(Ok([0x05; 5])),);
-        env::clear_contract_storage(key);
         assert_eq!(
-            env::get_contract_storage::<[u8; 5]>(key),
-            None,
+            env::get_contract_storage::<[i8; 5]>(key),
+            Some(Ok([0x05; 5])),
         );
+        env::clear_contract_storage(key);
+        assert_eq!(env::get_contract_storage::<[u8; 5]>(key), None,);
         Ok(())
     })
 }
