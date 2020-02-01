@@ -1,5 +1,5 @@
 error: `async fn` is not supported for ink! functions
-  --> $DIR/10-async-constructor.rs:12:9
+  --> $DIR/10-async-constructor.rs:10:9
    |
-12 |         async fn invalid_return(&mut self) {}
+10 |         async fn invalid_return(&mut self) {}
    |         ^^^^^
