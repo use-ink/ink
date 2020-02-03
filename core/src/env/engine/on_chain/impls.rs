@@ -195,7 +195,7 @@ impl TypedEnv for EnvInstance {
         self.get_property::<T::Timestamp>(ext::now)
     }
 
-    fn address<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
+    fn account_id<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
         self.get_property::<T::AccountId>(ext::address)
     }
 

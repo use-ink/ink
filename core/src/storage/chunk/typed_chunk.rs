@@ -218,7 +218,7 @@ mod tests {
 
     /// Returns the current number of total contract storage reads and writes.
     fn get_contract_storage_rw() -> (usize, usize) {
-        let contract_account_id = env::address::<env::DefaultEnvTypes>().unwrap();
+        let contract_account_id = env::account_id::<env::DefaultEnvTypes>().unwrap();
         env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(&contract_account_id)
             .unwrap()
     }

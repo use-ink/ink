@@ -152,7 +152,7 @@ impl TypedEnv for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn address<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
+    fn account_id<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
         self.exec_context()
             .expect("uninitialized execution context")
             .callee::<T>()

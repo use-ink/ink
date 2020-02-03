@@ -122,7 +122,7 @@ mod tests {
     fn count_reads() -> Result<()> {
         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let cell = dummy_cell();
-            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
+            let contract_account_id = env::account_id::<env::DefaultEnvTypes>()?;
             assert_eq!(
                 env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
                     &contract_account_id
@@ -152,7 +152,7 @@ mod tests {
     fn count_writes() -> Result<()> {
         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let mut cell = dummy_cell();
-            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
+            let contract_account_id = env::account_id::<env::DefaultEnvTypes>()?;
             assert_eq!(
                 env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
                     &contract_account_id

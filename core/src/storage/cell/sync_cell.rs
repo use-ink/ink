@@ -492,7 +492,7 @@ mod tests {
             const N: u32 = 5;
 
             let mut cell = dummy_cell();
-            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
+            let contract_account_id = env::account_id::<env::DefaultEnvTypes>()?;
 
             // Asserts initial reads and writes are zero.
             assert_eq!(
@@ -532,7 +532,7 @@ mod tests {
             const N: u32 = 5;
 
             let mut cell = dummy_cell();
-            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
+            let contract_account_id = env::account_id::<env::DefaultEnvTypes>()?;
 
             // Asserts initial reads and writes are zero.
             assert_eq!(
@@ -572,7 +572,7 @@ mod tests {
             const N: u32 = 5;
 
             let mut cell = dummy_cell();
-            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
+            let contract_account_id = env::account_id::<env::DefaultEnvTypes>()?;
 
             // Asserts initial reads and writes are zero.
             assert_eq!(
@@ -612,7 +612,7 @@ mod tests {
             const N: u32 = 5;
 
             let mut cell = dummy_cell();
-            let contract_account_id = env::address::<env::DefaultEnvTypes>()?;
+            let contract_account_id = env::account_id::<env::DefaultEnvTypes>()?;
 
             // Asserts initial reads and writes are zero.
             assert_eq!(

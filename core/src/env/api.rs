@@ -101,16 +101,22 @@ where
     })
 }
 
-/// Returns the address of the executed contract.
+/// Returns the account ID of the executed contract.
+///
+/// # Note
+///
+/// This method was formerly known as `address`.
 ///
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn address<T>() -> Result<T::AccountId>
+pub fn account_id<T>() -> Result<T::AccountId>
 where
     T: EnvTypes,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnv::address::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnv::account_id::<T>(instance)
+    })
 }
 
 /// Returns the balance of the executed contract.
