@@ -289,7 +289,7 @@ where
     ///
     /// # Usage
     ///
-    /// A smart contract that has too few funds to pay for its storage fees
+    /// A smart contract that has insufficient funds to pay for its storage fees
     /// can eventually be evicted. An evicted smart contract `C` leaves behind
     /// a tombstone associated with a hash that has been computed partially
     /// by its storage contents.
