@@ -220,7 +220,7 @@ impl Encode for Call {
         // The implementation enforces at runtime that `Encode` is not called
         // for the default SRML `Call` type but for performance reasons this check
         // is removed for the on-chain (release mode) version.
-        debug_assert!(false, "cannot encode default SRML `Call` type");
+        debug_assert!(false, "cannot encode default `Call` type");
         Vec::new()
     }
 }
