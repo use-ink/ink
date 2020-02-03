@@ -244,7 +244,6 @@ where
     /// - If arguments passed to the called contract message are invalid.
     /// - If the called contract execution has trapped.
     /// - If the called contract ran out of gas upon execution.
-    /// - If given too few endowment.
     /// - If the returned value failed to decode properly.
     pub fn eval_contract<R>(self, params: &CallParams<T, ReturnType<R>>) -> Result<R>
     where
