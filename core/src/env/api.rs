@@ -87,7 +87,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| TypedEnv::gas_left::<T>(instance))
 }
 
-/// Returns the current block time in milliseconds.
+/// Returns the current block timestamp.
 ///
 /// # Errors
 ///
