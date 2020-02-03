@@ -17,7 +17,7 @@
 //! Stores its elements in the contract's storage
 //! and operates directly on it.
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests;
 
 mod impls;

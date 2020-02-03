@@ -41,7 +41,7 @@
 //! Besides that a [`BitVec`](struct.BitVec.html) more or less works very similar to a
 //! [`Vec`](struct.Vec.html) of `bool`s.
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests;
 
 mod block;

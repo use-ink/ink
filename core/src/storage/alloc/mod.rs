@@ -18,7 +18,7 @@ mod bump_alloc;
 mod dyn_alloc;
 mod traits;
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests;
 
 pub use self::{

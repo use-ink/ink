@@ -16,7 +16,7 @@ mod utils;
 
 use utils::*;
 
-use ink_core::storage::Key;
+use ink_primitives::Key;
 use ink_core_derive::AllocateUsing;
 
 #[derive(Default)]

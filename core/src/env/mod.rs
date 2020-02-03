@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2019-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,68 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Contract environments.
+//! Environmental interface. (version 3)
 //!
-//! A contract is able to operate on different environments.
-//!
-//! Currently the SRML environment operating directly on the
-//! substrate runtime module library (SRML) and the test
-//! environment for testing and inspecting contracts are
-//! provided.
-//!
-//! By default the SRML environment is used.
-//! To enable the test environment the `test-env` crate feature
-//! has to be enabled.
+//! This is the interface with which a smart contract is able to communicate
+//! with the outside world through its sandbox boundaries.
 
 mod api;
-mod calls;
-mod srml;
-mod traits;
+mod backend;
+pub mod call;
+mod engine;
+mod error;
+mod types;
 
-#[cfg(feature = "test-env")]
-pub mod test;
+#[cfg(any(feature = "std", test, doc))]
+#[doc(inline)]
+pub use self::engine::off_chain::test_api as test;
 
-#[cfg(feature = "test-env")]
-mod test_env;
-
-pub use api::*;
-pub use traits::*;
-
+use self::backend::{
+    Env,
+    TypedEnv,
+};
 pub use self::{
-    calls::{
-        CallBuilder,
-        CreateBuilder,
-        FromAccountId,
-        ReturnType,
+    api::*,
+    error::{
+        EnvError,
+        Result,
     },
-    srml::DefaultSrmlTypes,
-    traits::{
-        CallError,
-        CreateError,
+    types::{
+        AccountId,
+        Clear,
+        DefaultEnvTypes,
+        EnvTypes,
+        Hash,
+        Topics,
     },
 };
-
-/// The storage environment implementation that is currently being used.
-///
-/// This may be either
-/// - `SrmlEnvStorage` for real contract storage
-///   manipulation that may happen on-chain.
-/// - `TestEnvStorage` for emulating a contract environment
-///   that can be inspected by the user and used
-///   for testing contracts off-chain.
-#[cfg(not(feature = "test-env"))]
-pub(self) type ContractEnvStorage = self::srml::SrmlEnvStorage;
-
-/// The storage environment implementation for the test environment.
-#[cfg(feature = "test-env")]
-pub(self) type ContractEnvStorage = self::test_env::TestEnvStorage;
-
-/// The contract environment implementation that is currently being used
-///
-/// Generic over user supplied EnvTypes for different runtimes
-#[cfg(not(feature = "test-env"))]
-pub type ContractEnv<T> = self::srml::SrmlEnv<T>;
-
-/// The contract environment implementation for the test environment
-#[cfg(feature = "test-env")]
-pub type ContractEnv<T> = self::test_env::TestEnv<T>;

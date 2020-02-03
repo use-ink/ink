@@ -1,5 +1,0 @@
-error: no #[ink(storage)] struct found but expected exactly 1
- --> $DIR/14-missing-storage-struct.rs:5:1
-  |
-5 | #[ink::contract(version = "0.1.0")]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
