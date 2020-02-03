@@ -145,7 +145,6 @@ pub trait TypedEnv: Env {
     ///
     /// - If the called contract traps.
     /// - If the account ID is invalid.
-    /// - If given too few endowment.
     /// - If arguments passed to the called contract are invalid.
     /// - If the called contract runs out of gas.
     fn eval_contract<T, R>(
