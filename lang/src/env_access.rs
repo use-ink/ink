@@ -225,7 +225,6 @@ where
     /// - If arguments passed to the called contract message are invalid.
     /// - If the called contract execution has trapped.
     /// - If the called contract ran out of gas upon execution.
-    /// - If given too few endowment.
     pub fn invoke_contract(self, params: &CallParams<T, ()>) -> Result<()> {
         env::invoke_contract::<T>(params)
     }
@@ -244,7 +243,6 @@ where
     /// - If arguments passed to the called contract message are invalid.
     /// - If the called contract execution has trapped.
     /// - If the called contract ran out of gas upon execution.
-    /// - If given too few endowment.
     /// - If the returned value failed to decode properly.
     pub fn eval_contract<R>(self, params: &CallParams<T, ReturnType<R>>) -> Result<R>
     where
@@ -266,9 +264,9 @@ where
     /// - If the arguments passed to the instantiation process are invalid.
     /// - If the instantiation process traps.
     /// - If the instantiation process runs out of gas.
-    /// - If given too few endowment.
+    /// - If given insufficient endowment.
     /// - If the returned account ID failed to decode properly.
-    pub fn create_contract<C>(
+    pub fn instantiate_contract<C>(
         self,
         params: &InstantiateParams<T, C>,
     ) -> Result<T::AccountId> {
@@ -289,7 +287,7 @@ where
     ///
     /// # Usage
     ///
-    /// A smart contract that has too few funds to pay for its storage fees
+    /// A smart contract that has insufficient funds to pay for its storage fees
     /// can eventually be evicted. An evicted smart contract `C` leaves behind
     /// a tombstone associated with a hash that has been computed partially
     /// by its storage contents.

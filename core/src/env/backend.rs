@@ -145,7 +145,6 @@ pub trait TypedEnv: Env {
     ///
     /// - If the called contract traps.
     /// - If the account ID is invalid.
-    /// - If given too few endowment.
     /// - If arguments passed to the called contract are invalid.
     /// - If the called contract runs out of gas.
     fn eval_contract<T, R>(
@@ -162,9 +161,9 @@ pub trait TypedEnv: Env {
     ///
     /// - If the instantiation process traps.
     /// - If the code hash is invalid.
-    /// - If given too few endowment.
+    /// - If given insufficient endowment.
     /// - If the instantiation process runs out of gas.
-    fn create_contract<T, C>(
+    fn instantiate_contract<T, C>(
         &mut self,
         params: &InstantiateParams<T, C>,
     ) -> Result<T::AccountId>

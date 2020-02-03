@@ -195,7 +195,7 @@ impl EnvTypes for DefaultEnvTypes {
 /// The default balance type.
 pub type Balance = u128;
 
-/// The default time stamp type.
+/// The default timestamp type.
 pub type Timestamp = u64;
 
 /// The default block number type.
@@ -203,7 +203,7 @@ pub type BlockNumber = u64;
 
 /// This call type guarantees to never be constructed.
 ///
-/// This has the effect that users of the default SRML types are
+/// This has the effect that users of the default env types are
 /// not able to call back into the runtime.
 /// This operation is generally unsupported because of the currently
 /// implied additional overhead.
@@ -220,7 +220,7 @@ impl Encode for Call {
         // The implementation enforces at runtime that `Encode` is not called
         // for the default SRML `Call` type but for performance reasons this check
         // is removed for the on-chain (release mode) version.
-        debug_assert!(false, "cannot encode default SRML `Call` type");
+        debug_assert!(false, "cannot encode default `Call` type");
         Vec::new()
     }
 }
@@ -230,7 +230,7 @@ impl scale::Decode for Call {
         // This implementation is only to satisfy the Decode constraint in the
         // test environment. Since Call cannot be constructed then just return
         // None, but this should never be called.
-        Err("The default SRML `Call` type cannot be used for runtime calls".into())
+        Err("The default `Call` type cannot be used for runtime calls".into())
     }
 }
 
