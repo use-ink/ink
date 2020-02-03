@@ -306,7 +306,9 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given too few endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<T, C>(params: &InstantiateParams<T, C>) -> Result<T::AccountId>
+pub fn instantiate_contract<T, C>(
+    params: &InstantiateParams<T, C>,
+) -> Result<T::AccountId>
 where
     T: EnvTypes,
 {

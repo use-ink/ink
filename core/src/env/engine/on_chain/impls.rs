@@ -113,14 +113,20 @@ impl EnvInstance {
         // Append the encoded `call_data`, `endowment` and `call_data`
         // in order and remember their encoded regions within the buffer.
         let callee = self.append_encode_into_buffer(call_params.callee());
-        let transferred_value = self.append_encode_into_buffer(call_params.transferred_value());
+        let transferred_value =
+            self.append_encode_into_buffer(call_params.transferred_value());
         let call_data = self.append_encode_into_buffer(call_params.input_data());
         // Resolve the encoded regions into actual byte slices.
         let callee = &self.buffer[callee];
         let transferred_value = &self.buffer[transferred_value];
         let call_data = &self.buffer[call_data];
         // Perform the actual contract call.
-        ext::call(callee, call_params.gas_limit(), transferred_value, call_data)
+        ext::call(
+            callee,
+            call_params.gas_limit(),
+            transferred_value,
+            call_data,
+        )
     }
 }
 
