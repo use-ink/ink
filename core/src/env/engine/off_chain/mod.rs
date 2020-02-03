@@ -189,10 +189,10 @@ impl EnvInstance {
         T: EnvTypes,
     {
         let new_block_number = T::BlockNumber::from(self.blocks.len() as u32);
-        let new_time_stamp = self.current_block()?.timestamp::<T>()?
+        let new_timestamp = self.current_block()?.timestamp::<T>()?
             + self.chain_spec.block_time::<T>()?;
         self.blocks
-            .push(Block::new::<T>(new_block_number, new_time_stamp));
+            .push(Block::new::<T>(new_block_number, new_timestamp));
         Ok(())
     }
 
