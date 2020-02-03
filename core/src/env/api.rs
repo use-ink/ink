@@ -311,7 +311,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::create_contract::<T, C>(instance, params)
+        TypedEnv::instantiate_contract::<T, C>(instance, params)
     })
 }
 
