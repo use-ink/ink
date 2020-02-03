@@ -150,7 +150,7 @@ pub trait EnvTypes {
         + AsRef<[u8]>
         + AsMut<[u8]>;
     /// The type of timestamps.
-    type TimeStamp: 'static
+    type Timestamp: 'static
         + scale::Codec
         + Copy
         + Clone
@@ -187,7 +187,7 @@ impl EnvTypes for DefaultEnvTypes {
     type AccountId = AccountId;
     type Balance = Balance;
     type Hash = Hash;
-    type TimeStamp = TimeStamp;
+    type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
     type Call = Call;
 }
@@ -196,7 +196,7 @@ impl EnvTypes for DefaultEnvTypes {
 pub type Balance = u128;
 
 /// The default time stamp type.
-pub type TimeStamp = u64;
+pub type Timestamp = u64;
 
 /// The default block number type.
 pub type BlockNumber = u64;

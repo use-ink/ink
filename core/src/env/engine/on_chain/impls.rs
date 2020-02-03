@@ -191,8 +191,8 @@ impl TypedEnv for EnvInstance {
         self.get_property::<T::Balance>(ext::gas_left)
     }
 
-    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::TimeStamp> {
-        self.get_property::<T::TimeStamp>(ext::now)
+    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::Timestamp> {
+        self.get_property::<T::Timestamp>(ext::now)
     }
 
     fn address<T: EnvTypes>(&mut self) -> Result<T::AccountId> {

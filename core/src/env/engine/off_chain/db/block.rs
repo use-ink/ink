@@ -19,7 +19,7 @@ use super::{
     },
     OffBlockNumber,
     OffHash,
-    OffTimeStamp,
+    OffTimestamp,
 };
 use crate::env::EnvTypes;
 
@@ -27,8 +27,8 @@ use crate::env::EnvTypes;
 pub struct Block {
     /// The current block number.
     number: OffBlockNumber,
-    /// The time stamp of the block.
-    time_stamp: OffTimeStamp,
+    /// The timestamp of the block.
+    timestamp: OffTimestamp,
     /// The randomization entropy for a block.
     ///
     /// # Note
@@ -40,7 +40,7 @@ pub struct Block {
 
 impl Block {
     /// Creates a new block for the given number and time stamp.
-    pub fn new<T>(number: T::BlockNumber, time_stamp: T::TimeStamp) -> Self
+    pub fn new<T>(number: T::BlockNumber, timestamp: T::Timestamp) -> Self
     where
         T: EnvTypes,
     {
@@ -50,7 +50,7 @@ impl Block {
         rand::thread_rng().fill(entropy.as_mut());
         Self {
             number: TypedEncoded::new(&number),
-            time_stamp: TypedEncoded::new(&time_stamp),
+            timestamp: TypedEncoded::new(&timestamp),
             entropy: TypedEncoded::new(&entropy),
         }
     }
@@ -63,12 +63,12 @@ impl Block {
         self.number.decode().map_err(Into::into)
     }
 
-    /// Returns the time stamp of the block.
-    pub fn time_stamp<T>(&self) -> Result<T::TimeStamp>
+    /// Returns the timestamp of the block.
+    pub fn timestamp<T>(&self) -> Result<T::Timestamp>
     where
         T: EnvTypes,
     {
-        self.time_stamp.decode().map_err(Into::into)
+        self.timestamp.decode().map_err(Into::into)
     }
 
     /// Sets the entropy of this block to the given entropy.

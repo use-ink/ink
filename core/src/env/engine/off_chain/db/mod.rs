@@ -45,5 +45,5 @@ use super::{
     OffBalance,
     OffBlockNumber,
     OffHash,
-    OffTimeStamp,
+    OffTimestamp,
 };

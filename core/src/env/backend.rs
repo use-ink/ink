@@ -94,7 +94,7 @@ pub trait TypedEnv: Env {
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Returns the timestamp of the current block.
-    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::TimeStamp>;
+    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::Timestamp>;
 
     /// Returns the address of the executed contract.
     fn address<T: EnvTypes>(&mut self) -> Result<T::AccountId>;

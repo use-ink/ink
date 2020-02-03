@@ -15,7 +15,7 @@
 use super::{
     super::Result,
     OffBalance,
-    OffTimeStamp,
+    OffTimestamp,
 };
 use crate::env::EnvTypes;
 
@@ -28,7 +28,7 @@ pub struct ChainSpec {
     /// The tombstone deposit.
     tombstone_deposit: OffBalance,
     /// The targeted block time.
-    block_time: OffTimeStamp,
+    block_time: OffTimestamp,
 }
 
 impl ChainSpec {
@@ -38,7 +38,7 @@ impl ChainSpec {
             gas_price: OffBalance::uninitialized(),
             minimum_balance: OffBalance::uninitialized(),
             tombstone_deposit: OffBalance::uninitialized(),
-            block_time: OffTimeStamp::uninitialized(),
+            block_time: OffTimestamp::uninitialized(),
         }
     }
 
@@ -55,7 +55,7 @@ impl ChainSpec {
         self.tombstone_deposit
             .try_initialize::<T::Balance>(&T::Balance::from(16))?;
         self.block_time
-            .try_initialize::<T::TimeStamp>(&T::TimeStamp::from(5))?;
+            .try_initialize::<T::Timestamp>(&T::Timestamp::from(5))?;
         Ok(())
     }
 
@@ -84,7 +84,7 @@ impl ChainSpec {
     }
 
     /// Returns the targeted block time for the chain.
-    pub fn block_time<T>(&self) -> Result<T::TimeStamp>
+    pub fn block_time<T>(&self) -> Result<T::Timestamp>
     where
         T: EnvTypes,
     {

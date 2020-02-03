@@ -92,7 +92,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn block_timestamp<T>() -> Result<T::TimeStamp>
+pub fn block_timestamp<T>() -> Result<T::Timestamp>
 where
     T: EnvTypes,
 {

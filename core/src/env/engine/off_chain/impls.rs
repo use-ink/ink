@@ -144,10 +144,10 @@ impl TypedEnv for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::TimeStamp> {
+    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::Timestamp> {
         self.current_block()
             .expect("uninitialized execution context")
-            .time_stamp::<T>()
+            .timestamp::<T>()
             .map_err(|_| scale::Error::from("could not decode block time"))
             .map_err(Into::into)
     }

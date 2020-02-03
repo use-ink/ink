@@ -43,7 +43,7 @@ use self::{
         OffBlockNumber,
         OffCall,
         OffHash,
-        OffTimeStamp,
+        OffTimestamp,
     },
 };
 pub use self::{
@@ -155,7 +155,7 @@ impl EnvInstance {
         // Initialize our first block.
         self.blocks.push(Block::new::<T>(
             T::BlockNumber::from(0),
-            T::TimeStamp::from(0),
+            T::Timestamp::from(0),
         ));
         // Initialize chain specification.
         self.chain_spec.initialize_as_default::<T>()?;
@@ -189,7 +189,7 @@ impl EnvInstance {
         T: EnvTypes,
     {
         let new_block_number = T::BlockNumber::from(self.blocks.len() as u32);
-        let new_time_stamp = self.current_block()?.time_stamp::<T>()?
+        let new_time_stamp = self.current_block()?.timestamp::<T>()?
             + self.chain_spec.block_time::<T>()?;
         self.blocks
             .push(Block::new::<T>(new_block_number, new_time_stamp));
