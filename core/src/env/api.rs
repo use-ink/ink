@@ -260,6 +260,13 @@ where
 
 /// Invokes a contract message.
 ///
+/// # Note
+///
+/// - Prefer using this over [`eval_contract`] if possible. [`invoke_contract`]
+///   will generally have a better performance since it won't try to fetch any results.
+/// - This is a low level way to invoke another smart contract.
+///   Prefer to use the ink! guided and type safe approach to using this.
+///
 /// # Errors
 ///
 /// - If the called contract does not exist.
@@ -276,7 +283,13 @@ where
     })
 }
 
+
 /// Evaluates a contract message and returns its result.
+///
+/// # Note
+///
+/// This is a low level way to evaluate another smart contract.
+/// Prefer to use the ink! guided and type safe approach to using this.
 ///
 /// # Errors
 ///
@@ -298,13 +311,18 @@ where
 
 /// Instantiates another contract.
 ///
+/// # Note
+///
+/// This is a low level way to instantiate another smart contract.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
 /// # Errors
 ///
 /// - If the code hash is invalid.
 /// - If the arguments passed to the instantiation process are invalid.
 /// - If the instantiation process traps.
 /// - If the instantiation process runs out of gas.
-/// - If given too few endowment.
+/// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<T, C>(
     params: &InstantiateParams<T, C>,
@@ -413,7 +431,7 @@ where
     })
 }
 
-/// Returns a random hash.
+/// Returns a random hash seed.
 ///
 /// # Note
 ///
