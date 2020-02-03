@@ -34,7 +34,7 @@ Following these will ensure that your pull request is going to be accepted.
 
 1. Run `rustfmt` automatically.
 1. Run `clippy` on your changes.
-1. Run tests in `debug` and `release` mode using `--features test-env` for off-chain testing.
+1. Run tests via `cargo test --release` for off-chain testing.
 1. For critical parts perform some manual on-chain tests.
 1. Build the code and run tests also for the `wasm32` target.
 1. Try to run some examples and see if they are still working correctly.

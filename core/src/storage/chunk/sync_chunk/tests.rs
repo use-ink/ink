@@ -15,16 +15,16 @@
 use super::*;
 use crate::{
     env,
+    env::Result,
     storage::{
         alloc::{
             AllocateUsing,
             BumpAlloc,
         },
         Flush,
-        Key,
     },
-    test_utils::run_test,
 };
+use ink_primitives::Key;
 
 fn dummy_chunk() -> SyncChunk<u32> {
     unsafe {
@@ -34,8 +34,8 @@ fn dummy_chunk() -> SyncChunk<u32> {
 }
 
 #[test]
-fn simple() {
-    run_test(|| {
+fn simple() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         const TEST_LEN: u32 = 5;
 
         let mut chunk = dummy_chunk();
@@ -56,12 +56,13 @@ fn simple() {
             chunk.clear(i);
             assert_eq!(chunk.get(i), None);
         }
+        Ok(())
     })
 }
 
 #[test]
-fn take_put() {
-    run_test(|| {
+fn take_put() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut chunk = dummy_chunk();
 
         // Take empty cell yields `None`
@@ -70,12 +71,13 @@ fn take_put() {
         assert_eq!(chunk.put(5, 42), None);
         // Taking now should yield the inserted value
         assert_eq!(chunk.take(5), Some(42));
+        Ok(())
     })
 }
 
 #[test]
-fn replace() {
-    run_test(|| {
+fn replace() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut chunk = dummy_chunk();
 
         // Replace some with none.
@@ -86,12 +88,13 @@ fn replace() {
         // After clearing it will be none again.
         chunk.clear(0);
         assert_eq!(chunk.put(0, 42), None);
+        Ok(())
     })
 }
 
 #[test]
-fn take() {
-    run_test(|| {
+fn take() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut chunk = dummy_chunk();
 
         // Remove at none.
@@ -109,227 +112,203 @@ fn take() {
         assert_eq!(chunk.take(0), Some(1337));
         // After take returns none again.
         assert_eq!(chunk.get(0), None);
+        Ok(())
+    })
+}
+
+/// Returns the current number of total contract storage reads and writes.
+fn get_contract_storage_rw() -> (usize, usize) {
+    let contract_account_id = env::account_id::<env::DefaultEnvTypes>().unwrap();
+    env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(&contract_account_id)
+        .unwrap()
+}
+
+#[test]
+fn count_rw_get() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // How many times we read or write from or to cells.
+        const N: u32 = 5;
+        let mut chunk = dummy_chunk();
+
+        // Assert clean read writes.
+        assert_eq!(get_contract_storage_rw(), (0, 0));
+
+        // Loading from all cells.
+        for i in 0..N {
+            let _ = chunk.get(i);
+            assert_eq!(get_contract_storage_rw(), (i as usize + 1, 0));
+        }
+        assert_eq!(get_contract_storage_rw(), (N as usize, 0));
+
+        // Flush and check reads and writes.
+        chunk.flush();
+        assert_eq!(get_contract_storage_rw(), (N as usize, 0));
+        Ok(())
     })
 }
 
 #[test]
-fn count_rw_get() {
-    // How many times we read or write from or to cells.
-    const N: u32 = 5;
+fn count_rw_get_repeat() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // How many times we repeat to read from the same cell.
+        const N: u32 = 5;
+        let mut chunk = dummy_chunk();
 
-    let mut chunk = dummy_chunk();
+        // Assert clean read writes.
+        assert_eq!(get_contract_storage_rw(), (0, 0));
 
-    // Assert clean read writes.
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Loading from all cells.
-    for i in 0..N {
-        #[allow(unused_must_use)]
-        {
-            chunk.get(i);
+        // Loading from all cells.
+        for _i in 0..N {
+            let _ = chunk.get(0);
+            assert_eq!(get_contract_storage_rw(), (1, 0));
         }
-        assert_eq!(env::test::total_reads(), i as u64 + 1);
-        assert_eq!(env::test::total_writes(), 0);
-    }
-    assert_eq!(env::test::total_reads(), N as u64);
-    assert_eq!(env::test::total_writes(), 0);
+        assert_eq!(get_contract_storage_rw(), (1, 0));
 
-    // Flush and check reads and writes.
-    chunk.flush();
-    assert_eq!(env::test::total_reads(), N as u64);
-    assert_eq!(env::test::total_writes(), 0);
+        // Flush and check reads and writes.
+        chunk.flush();
+        assert_eq!(get_contract_storage_rw(), (1, 0));
+        Ok(())
+    })
 }
 
 #[test]
-fn count_rw_get_repeat() {
-    // How many times we repeat to read from the same cell.
-    const N: u32 = 5;
+fn count_rw_set() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // How many times we read or write from or to cells.
+        const N: u32 = 5;
+        let mut chunk = dummy_chunk();
 
-    let mut chunk = dummy_chunk();
+        // Assert clean read writes.
+        assert_eq!(get_contract_storage_rw(), (0, 0));
 
-    // Assert clean read writes.
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Loading from all cells.
-    for _i in 0..N {
-        #[allow(unused_must_use)]
-        {
-            chunk.get(0);
+        // Writing to all cells.
+        for i in 0..N {
+            chunk.set(i, 42);
         }
-        assert_eq!(env::test::total_reads(), 1);
-        assert_eq!(env::test::total_writes(), 0);
-    }
-    assert_eq!(env::test::total_reads(), 1);
-    assert_eq!(env::test::total_writes(), 0);
+        assert_eq!(get_contract_storage_rw(), (0, 0));
 
-    // Flush and check reads and writes.
-    chunk.flush();
-    assert_eq!(env::test::total_reads(), 1);
-    assert_eq!(env::test::total_writes(), 0);
+        // Flush and check reads and writes.
+        chunk.flush();
+        assert_eq!(get_contract_storage_rw(), (0, N as usize));
+        Ok(())
+    })
 }
 
 #[test]
-fn count_rw_set() {
-    // How many times we read or write from or to cells.
-    const N: u32 = 5;
+fn count_rw_set_repeat() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // How many times we write to the same cell.
+        const N: u32 = 5;
+        let mut chunk = dummy_chunk();
 
-    let mut chunk = dummy_chunk();
+        // Assert clean read writes.
+        assert_eq!(get_contract_storage_rw(), (0, 0));
 
-    // Assert clean read writes.
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Writing to all cells.
-    for i in 0..N {
-        chunk.set(i, 42);
-    }
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Flush and check reads and writes.
-    chunk.flush();
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), N as u64);
-}
-
-#[test]
-fn count_rw_set_repeat() {
-    // How many times we write to the same cell.
-    const N: u32 = 5;
-
-    let mut chunk = dummy_chunk();
-
-    // Assert clean read writes.
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Writing to all cells.
-    for _i in 0..N {
-        chunk.set(0, 42);
-    }
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Flush and check reads and writes.
-    chunk.flush();
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 1);
-}
-
-#[test]
-fn count_rw_put() {
-    // How many times we read or write from or to cells.
-    const N: u32 = 5;
-
-    let mut chunk = dummy_chunk();
-
-    // Assert clean read writes.
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Writing to all cells.
-    for i in 0..N {
-        #[allow(unused_must_use)]
-        {
-            chunk.put(i, 42);
+        // Writing to all cells.
+        for _i in 0..N {
+            chunk.set(0, 42);
         }
-        assert_eq!(env::test::total_reads(), i as u64 + 1);
-        assert_eq!(env::test::total_writes(), 0);
-    }
-    assert_eq!(env::test::total_reads(), N as u64);
-    assert_eq!(env::test::total_writes(), 0);
+        assert_eq!(get_contract_storage_rw(), (0, 0));
 
-    // Flush and check reads and writes.
-    chunk.flush();
-    assert_eq!(env::test::total_reads(), N as u64);
-    assert_eq!(env::test::total_writes(), N as u64);
+        // Flush and check reads and writes.
+        chunk.flush();
+        assert_eq!(get_contract_storage_rw(), (0, 1));
+        Ok(())
+    })
 }
 
 #[test]
-fn count_rw_put_repeat() {
-    // How many times we put into the same cell.
-    const N: u32 = 5;
+fn count_rw_put() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // How many times we read or write from or to cells.
+        const N: u32 = 5;
+        let mut chunk = dummy_chunk();
 
-    let mut chunk = dummy_chunk();
+        // Assert clean read writes.
+        assert_eq!(get_contract_storage_rw(), (0, 0));
 
-    // Assert clean read writes.
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Writing to all cells.
-    for _i in 0..N {
-        #[allow(unused_must_use)]
-        {
-            chunk.put(0, 42);
+        // Writing to all cells.
+        for i in 0..N {
+            let _ = chunk.put(i, 42);
+            assert_eq!(get_contract_storage_rw(), (i as usize + 1, 0));
         }
-        assert_eq!(env::test::total_reads(), 1);
-        assert_eq!(env::test::total_writes(), 0);
-    }
-    assert_eq!(env::test::total_reads(), 1);
-    assert_eq!(env::test::total_writes(), 0);
+        assert_eq!(get_contract_storage_rw(), (N as usize, 0));
 
-    // Flush and check reads and writes.
-    chunk.flush();
-    assert_eq!(env::test::total_reads(), 1);
-    assert_eq!(env::test::total_writes(), 1);
+        // Flush and check reads and writes.
+        chunk.flush();
+        assert_eq!(get_contract_storage_rw(), (N as usize, N as usize));
+        Ok(())
+    })
 }
 
 #[test]
-fn count_rw_take() {
-    // How many times we take from cells.
-    const N: u32 = 5;
+fn count_rw_put_repeat() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // How many times we put into the same cell.
+        const N: u32 = 5;
+        let mut chunk = dummy_chunk();
 
-    let mut chunk = dummy_chunk();
+        // Assert clean read writes.
+        assert_eq!(get_contract_storage_rw(), (0, 0));
 
-    // Assert clean read writes.
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Writing to all cells.
-    for i in 0..N {
-        #[allow(unused_must_use)]
-        {
-            chunk.take(i);
+        // Writing to all cells.
+        for _i in 0..N {
+            let _ = chunk.put(0, 42);
+            assert_eq!(get_contract_storage_rw(), (1, 0));
         }
-        assert_eq!(env::test::total_reads(), i as u64 + 1);
-        assert_eq!(env::test::total_writes(), 0);
-    }
-    assert_eq!(env::test::total_reads(), N as u64);
-    assert_eq!(env::test::total_writes(), 0);
+        assert_eq!(get_contract_storage_rw(), (1, 0));
 
-    // Flush and check reads and writes.
-    chunk.flush();
-    assert_eq!(env::test::total_reads(), N as u64);
-    assert_eq!(env::test::total_writes(), N as u64);
+        // Flush and check reads and writes.
+        chunk.flush();
+        assert_eq!(get_contract_storage_rw(), (1, 1));
+        Ok(())
+    })
 }
 
 #[test]
-fn count_rw_take_repeat() {
-    // How many times we take from the same cell.
-    const N: u32 = 5;
+fn count_rw_take() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // How many times we take from cells.
+        const N: u32 = 5;
+        let mut chunk = dummy_chunk();
 
-    let mut chunk = dummy_chunk();
+        // Assert clean read writes.
+        assert_eq!(get_contract_storage_rw(), (0, 0));
 
-    // Assert clean read writes.
-    assert_eq!(env::test::total_reads(), 0);
-    assert_eq!(env::test::total_writes(), 0);
-
-    // Writing to all cells.
-    for _i in 0..N {
-        #[allow(unused_must_use)]
-        {
-            chunk.take(0);
+        // Writing to all cells.
+        for i in 0..N {
+            let _ = chunk.take(i);
+            assert_eq!(get_contract_storage_rw(), (i as usize + 1, 0));
         }
-        assert_eq!(env::test::total_reads(), 1);
-        assert_eq!(env::test::total_writes(), 0);
-    }
-    assert_eq!(env::test::total_reads(), 1);
-    assert_eq!(env::test::total_writes(), 0);
+        assert_eq!(get_contract_storage_rw(), (N as usize, 0));
 
-    // Flush and check reads and writes.
-    chunk.flush();
-    assert_eq!(env::test::total_reads(), 1);
-    assert_eq!(env::test::total_writes(), 1);
+        // Flush and check reads and writes.
+        chunk.flush();
+        assert_eq!(get_contract_storage_rw(), (N as usize, N as usize));
+        Ok(())
+    })
+}
+
+#[test]
+fn count_rw_take_repeat() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // How many times we take from the same cell.
+        const N: u32 = 5;
+        let mut chunk = dummy_chunk();
+
+        // Assert clean read writes.
+        assert_eq!(get_contract_storage_rw(), (0, 0));
+
+        // Writing to all cells.
+        for _i in 0..N {
+            let _ = chunk.take(0);
+            assert_eq!(get_contract_storage_rw(), (1, 0));
+        }
+        assert_eq!(get_contract_storage_rw(), (1, 0));
+
+        // Flush and check reads and writes.
+        chunk.flush();
+        assert_eq!(get_contract_storage_rw(), (1, 1));
+        Ok(())
+    })
 }

@@ -55,7 +55,6 @@ extern crate quickcheck_macros;
 
 mod byte_utils;
 pub mod env;
-pub mod env2;
 pub mod storage;
 
 // Needed for derive macros of `core/derive` sub crate.
