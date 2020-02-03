@@ -225,7 +225,6 @@ where
     /// - If arguments passed to the called contract message are invalid.
     /// - If the called contract execution has trapped.
     /// - If the called contract ran out of gas upon execution.
-    /// - If given too few endowment.
     pub fn invoke_contract(self, params: &CallParams<T, ()>) -> Result<()> {
         env::invoke_contract::<T>(params)
     }
