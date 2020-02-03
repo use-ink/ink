@@ -161,7 +161,7 @@ pub trait TypedEnv: Env {
     ///
     /// - If the instantiation process traps.
     /// - If the code hash is invalid.
-    /// - If given too few endowment.
+    /// - If given insufficient endowment.
     /// - If the instantiation process runs out of gas.
     fn instantiate_contract<T, C>(
         &mut self,
