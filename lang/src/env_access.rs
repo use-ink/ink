@@ -270,7 +270,7 @@ where
         self,
         params: &InstantiateParams<T, C>,
     ) -> Result<T::AccountId> {
-        env::create_contract::<T, C>(params)
+        env::instantiate_contract::<T, C>(params)
     }
 
     /// Restores a smart contract in tombstone state.
