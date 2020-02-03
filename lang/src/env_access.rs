@@ -111,17 +111,32 @@ where
     /// # Panics
     ///
     /// If the returned value cannot be properly decoded.
-    pub fn block_timestamp(self) -> T::TimeStamp {
+    pub fn block_timestamp(self) -> T::Timestamp {
         env::block_timestamp::<T>().expect("couldn't decode block time stamp")
     }
 
-    /// Returns the address of the executed contract.
+    /// Returns the account ID of the executed contract.
     ///
     /// # Panics
     ///
     /// If the returned value cannot be properly decoded.
+    pub fn account_id(self) -> T::AccountId {
+        env::account_id::<T>().expect("couldn't decode contract account ID")
+    }
+
+    /// Returns the account ID of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// This functionality is deprecated. Please use [`EnvAccess::account_id`]
+    /// instead.
+    ///
+    /// # Panics
+    ///
+    /// If the returned value cannot be properly decoded.
+    #[deprecated(note = "please use self.env().account_id")]
     pub fn address(self) -> T::AccountId {
-        env::address::<T>().expect("couldn't decode contract address")
+        env::account_id::<T>().expect("couldn't decode contract account ID")
     }
 
     /// Returns the balance of the executed contract.
