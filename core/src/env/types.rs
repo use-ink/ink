@@ -203,7 +203,7 @@ pub type BlockNumber = u64;
 
 /// This call type guarantees to never be constructed.
 ///
-/// This has the effect that users of the default SRML types are
+/// This has the effect that users of the default env types are
 /// not able to call back into the runtime.
 /// This operation is generally unsupported because of the currently
 /// implied additional overhead.
