@@ -266,7 +266,7 @@ where
     /// - If the arguments passed to the instantiation process are invalid.
     /// - If the instantiation process traps.
     /// - If the instantiation process runs out of gas.
-    /// - If given too few endowment.
+    /// - If given insufficient endowment.
     /// - If the returned account ID failed to decode properly.
     pub fn create_contract<C>(
         self,
