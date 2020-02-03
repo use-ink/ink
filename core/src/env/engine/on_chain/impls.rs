@@ -273,7 +273,7 @@ impl TypedEnv for EnvInstance {
         self.decode_scratch_buffer().map_err(Into::into)
     }
 
-    fn create_contract<T, C>(
+    fn instantiate_contract<T, C>(
         &mut self,
         params: &InstantiateParams<T, C>,
     ) -> Result<T::AccountId>
