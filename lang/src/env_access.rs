@@ -283,9 +283,9 @@ where
     /// - `code_hash`: Code hash of the to-be-restored contract.
     /// - `rent_allowance`: Rent allowance of the restored contract
     ///                     upon successful restoration.
-    /// - `filtered_keys`: Storage keys that will be removed for the tombstone hash
-    ///                    match calculation that decide whether the original contract
-    ///                    storage and the storage of the restorer contract is equal.
+    /// - `filtered_keys`: Storage keys to be excluded when calculating the tombstone hash,
+    ///                    which is used to decide whether the original contract and the
+    ///                    to-be-restored contract have matching storage.
     ///
     /// # Usage
     ///
