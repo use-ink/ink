@@ -13,6 +13,8 @@
 // limitations under the License.
 
 use crate::{
+    env,
+    env::Result,
     storage::{
         alloc::{
             AllocateUsing,
@@ -22,10 +24,9 @@ use crate::{
         btree_map::impls::Entry,
         collections::btree_map::impls::NodeHandle,
         BTreeMap,
-        Key,
     },
-    test_utils::run_test,
 };
+use ink_primitives::Key;
 use itertools::Itertools;
 
 /// Creates an empty map.
@@ -127,27 +128,29 @@ fn insert_and_remove(xs: Vec<i32>) {
 }
 
 #[test]
-fn empty_map_works() {
-    run_test(|| {
+fn empty_map_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let map = empty_map();
 
         // Initial invariant.
         assert_eq!(map.len(), 0);
         assert!(map.is_empty());
+        Ok(())
     })
 }
 
 #[test]
-fn remove_element_from_empty_map() {
-    run_test(|| {
+fn remove_element_from_empty_map() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut map = empty_map();
         assert_eq!(map.remove(&4), None);
+        Ok(())
     })
 }
 
 #[test]
-fn insert_into_empty_map_works() {
-    run_test(|| {
+fn insert_into_empty_map_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
 
@@ -158,12 +161,13 @@ fn insert_into_empty_map_works() {
         assert_eq!(map.get(&0), Some(&10));
         assert_eq!(map.contains_key(&0), true);
         assert_eq!(map.get_key_value(&0), Some((&0, &10)));
+        Ok(())
     })
 }
 
 #[test]
-fn putting_on_same_key_works() {
-    run_test(|| {
+fn putting_on_same_key_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
 
@@ -175,12 +179,13 @@ fn putting_on_same_key_works() {
         // then
         assert_eq!(map.len(), 1);
         assert_eq!(map.get(&42), Some(&520));
+        Ok(())
     })
 }
 
 #[test]
-fn first_put_filled() {
-    run_test(|| {
+fn first_put_filled() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = filled_map();
         assert_eq!(map.get(&5), Some(&50));
@@ -196,12 +201,13 @@ fn first_put_filled() {
         // then
         assert_eq!(map.get(&4), Some(&40));
         assert_eq!(map.len(), 5);
+        Ok(())
     })
 }
 
 #[test]
-fn entry_api_works_with_empty_map() {
-    run_test(|| {
+fn entry_api_works_with_empty_map() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
         let key = 5;
@@ -222,22 +228,24 @@ fn entry_api_works_with_empty_map() {
         assert_eq!(map.get(&key), Some(&val));
         assert_eq!(map.contains_key(&key), true);
         assert_eq!(map.get_key_value(&key), Some((&key, &val)));
-    });
+        Ok(())
+    })
 }
 
 #[test]
-fn entry_api_works_with_filled_map() {
-    run_test(|| {
+fn entry_api_works_with_filled_map() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut map = filled_map();
         assert_eq!(map.entry(5).key(), &5);
         assert_eq!(map.entry(-1).key(), &-1);
         assert_eq!(map.entry(997).or_insert(9970), &9970);
-    });
+        Ok(())
+    })
 }
 
 #[test]
-fn entry_api_works_with_strings_and_multiple_calls() {
-    run_test(|| {
+fn entry_api_works_with_strings_and_multiple_calls() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = unsafe {
             let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
@@ -259,12 +267,13 @@ fn entry_api_works_with_strings_and_multiple_calls() {
 
         // then
         assert_eq!(map.get(&k).expect("must be there"), &24);
-    });
+        Ok(())
+    })
 }
 
 #[test]
-fn remove_works() {
-    run_test(|| {
+fn remove_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
 
@@ -277,12 +286,13 @@ fn remove_works() {
         assert_eq!(map.remove(&4), Some(40));
         assert_eq!(map.get(&4), None);
         assert_eq!(map.len(), 0);
+        Ok(())
     })
 }
 
 #[test]
-fn multiple_inserts_for_same_key_work() {
-    run_test(|| {
+fn multiple_inserts_for_same_key_work() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
         assert_eq!(map.insert(0, 10), None);
@@ -296,12 +306,13 @@ fn multiple_inserts_for_same_key_work() {
         assert_eq!(map.remove(&0), Some(20));
         assert_eq!(map.get(&0), None);
         assert_eq!(map.len(), 0);
+        Ok(())
     })
 }
 
 #[test]
-fn putting_and_removing_many_items_works() {
-    run_test(|| {
+fn putting_and_removing_many_items_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
         let mut len = map.len();
@@ -327,12 +338,13 @@ fn putting_and_removing_many_items_works() {
         for i in 0..max_node_count {
             assert!(map.get_node(&NodeHandle::new(i)).is_none());
         }
+        Ok(())
     })
 }
 
 #[test]
-fn simple_insert_and_removal() {
-    run_test(|| {
+fn simple_insert_and_removal() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         //let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10];
         let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -373,12 +385,13 @@ fn simple_insert_and_removal() {
         for i in 0..max_node_count {
             assert!(map.get_node(&NodeHandle::new(i)).is_none());
         }
+        Ok(())
     })
 }
 
 #[test]
-fn alternating_inserts_and_remove_works() {
-    run_test(|| {
+fn alternating_inserts_and_remove_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
         let mut len = map.len();
@@ -422,12 +435,13 @@ fn alternating_inserts_and_remove_works() {
         for i in 0..max_node_count {
             assert!(map.get_node(&NodeHandle::new(i)).is_none());
         }
+        Ok(())
     })
 }
 
 #[test]
-fn sorted_insert_and_removal() {
-    run_test(|| {
+fn sorted_insert_and_removal() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
         let mut len = map.len();
@@ -465,14 +479,15 @@ fn sorted_insert_and_removal() {
         for i in 0..max_node_count {
             assert!(map.get_node(&NodeHandle::new(i)).is_none());
         }
+        Ok(())
     })
 }
 
 /// These are some cases which in the past have shown to generate complex trees
 /// for which the removal/insert operations touch all kinds of corner cases.
 #[test]
-fn complex_trees_work() {
-    run_test(|| {
+fn complex_trees_work() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let xs = [
             -72, -68, 36, -30, 0, -38, -74, -60, 4, -2, 28, -34, 60, -42, -14, 32, -48,
             18, -6, 24, -10, 40, 62, -64, 48, -56, 14, 3,
@@ -487,22 +502,24 @@ fn complex_trees_work() {
 
         let xs = [-2, -66, -44, 34, -6, 62, 2, 6, -30, -70, 30, -62, 7, -44, 7];
         insert_and_remove(xs.to_vec());
+        Ok(())
     })
 }
 
 #[cfg(feature = "ink-fuzz")]
 #[quickcheck]
-fn randomized_inserts_and_removes(xs: Vec<i32>) {
-    run_test(|| {
+fn randomized_inserts_and_removes(xs: Vec<i32>) -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         insert_and_remove(xs);
+        Ok(())
     })
 }
 
 /// Insert all items from `xs` and afterwards remove them again.
 #[cfg(feature = "ink-fuzz")]
 #[quickcheck]
-fn randomized_insert_and_remove(xs: Vec<i32>) {
-    run_test(|| {
+fn randomized_insert_and_remove(xs: Vec<i32>) -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
         let mut len = map.len();
@@ -532,13 +549,14 @@ fn randomized_insert_and_remove(xs: Vec<i32>) {
         for i in 0..max_node_count {
             assert!(map.get_node(&NodeHandle::new(i)).is_none());
         }
+        Ok(())
     })
 }
 
 #[cfg(feature = "ink-fuzz")]
 #[quickcheck]
-fn randomized_removes(xs: Vec<i32>, xth: usize) {
-    run_test(|| {
+fn randomized_removes(xs: Vec<i32>, xth: usize) -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut map = empty_map();
         let mut len = map.len();
 
@@ -573,5 +591,6 @@ fn randomized_removes(xs: Vec<i32>, xth: usize) {
                 assert_eq!(map.get(&i), Some(&(i * 10)));
             }
         });
+        Ok(())
     })
 }

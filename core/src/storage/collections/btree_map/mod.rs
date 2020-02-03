@@ -42,7 +42,7 @@
 //! method comments. A notable thing is that the algorithm will merge nodes if it's
 //! possible to reduce storage space (see `handle_underfull_nodes()` for more info).
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests;
 
 mod impls;
