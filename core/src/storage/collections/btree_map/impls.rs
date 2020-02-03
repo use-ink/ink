@@ -1459,7 +1459,7 @@ impl NodeHandle {
 /// Points to a specific key/value pair within a node in the tree.
 #[derive(Clone, Copy)]
 pub(super) struct KVHandle {
-    /// Index of the node in the `entries` storage.
+    /// Index of the node in the `entries` storage, where all nodes are stored.
     node: NodeHandle,
     /// Index of the key/value pair within the node. This is a pointer
     /// to the position in the `keys`/`vals` array.
