@@ -16,7 +16,7 @@
 use type_metadata::Metadata;
 
 use super::*;
-use crate::storage::Key;
+use ink_primitives::Key;
 
 /// An allocator that is meant to allocate contract storage at
 /// compile-time by simply bumping its current allocation key.
@@ -67,7 +67,7 @@ impl Allocate for BumpAlloc {
     }
 }
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 

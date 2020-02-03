@@ -30,7 +30,6 @@
     overflowing_literals,
     path_statements,
     patterns_in_fns_without_body,
-    plugin_as_library,
     private_in_public,
     unconditional_recursion,
     unused_allocation,
@@ -47,12 +46,7 @@
 #[cfg(not(feature = "std"))]
 extern crate ink_alloc;
 
-#[cfg(all(test, feature = "std"))]
-mod test_utils;
-
-mod byte_utils;
 pub mod env;
-pub mod env2;
 pub mod storage;
 
 // Needed for derive macros of `core/derive` sub crate.

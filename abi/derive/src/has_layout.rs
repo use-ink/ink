@@ -60,7 +60,7 @@ pub fn generate_impl(input: TokenStream2) -> Result<TokenStream2> {
         }
     };
 
-    Ok(wrap(ident, "HAS_LAYOUT", has_layout_impl))
+    Ok(wrap(has_layout_impl))
 }
 
 fn generate_fields_layout<'a>(
@@ -97,8 +97,7 @@ fn generate_struct_layout(data_struct: &DataStruct) -> TokenStream2 {
         Fields::Unnamed(ref fs) => generate_struct_fields_layout(&fs.unnamed),
         Fields::Unit => {
             quote! {
-                use type_metadata::Metadata as _;
-                _ink_abi::LayoutStruct::new(Self::meta_type(), __core::vec![])
+                _ink_abi::LayoutStruct::new(<Self as type_metadata::Metadata>::meta_type(), Vec::new())
             }
         }
     }

@@ -28,7 +28,7 @@ use ink_abi::{
     LayoutStruct,
     StorageLayout,
 };
-use ink_utils::hash;
+use ink_primitives::hash;
 #[cfg(feature = "ink-generate-abi")]
 use type_metadata::Metadata;
 

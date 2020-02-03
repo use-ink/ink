@@ -29,7 +29,7 @@
 //! 3. Except the guarantees noted above, you can assume nothing about key
 //!    assignment or iteration order. They can change at any time.
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests;
 
 mod impls;

@@ -6,7 +6,7 @@
 # and runs the most important actions performed on an ink! smart contract:
 #
 # - compile to a Wasm blob using `no_std` environment
-# - run offchain tests `test-env`
+# - run offchain tests
 # - generate ABI file using `ink-generate-abi`
 #
 # Afterwards the script prints out a summary report.
