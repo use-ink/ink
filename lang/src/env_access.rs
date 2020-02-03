@@ -266,7 +266,7 @@ where
     /// - If the instantiation process runs out of gas.
     /// - If given insufficient endowment.
     /// - If the returned account ID failed to decode properly.
-    pub fn create_contract<C>(
+    pub fn instantiate_contract<C>(
         self,
         params: &InstantiateParams<T, C>,
     ) -> Result<T::AccountId> {
