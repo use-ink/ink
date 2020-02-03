@@ -195,7 +195,7 @@ impl EnvTypes for DefaultEnvTypes {
 /// The default balance type.
 pub type Balance = u128;
 
-/// The default time stamp type.
+/// The default timestamp type.
 pub type Timestamp = u64;
 
 /// The default block number type.
