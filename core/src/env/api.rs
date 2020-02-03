@@ -283,7 +283,6 @@ where
     })
 }
 
-
 /// Evaluates a contract message and returns its result.
 ///
 /// # Note
