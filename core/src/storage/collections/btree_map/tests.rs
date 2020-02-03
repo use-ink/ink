@@ -60,8 +60,8 @@ fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
         // We iterate over all storage entities of the tree and skip vacant entities.
         let handle = NodeHandle::new(node_index);
         if let Some(node) = map.get_node(&handle) {
-            let mut edges = node.edges().to_vec().into_iter().filter_map(|x| x).collect();
-            v.append(&mut edges);
+            let edges = node.edges().to_vec().into_iter().filter_map(|x| x);
+            v.extend(edges);
             processed_nodes += 1;
         }
         node_index += 1;
