@@ -230,7 +230,7 @@ impl scale::Decode for Call {
         // This implementation is only to satisfy the Decode constraint in the
         // test environment. Since Call cannot be constructed then just return
         // None, but this should never be called.
-        Err("The default SRML `Call` type cannot be used for runtime calls".into())
+        Err("The default `Call` type cannot be used for runtime calls".into())
     }
 }
 
