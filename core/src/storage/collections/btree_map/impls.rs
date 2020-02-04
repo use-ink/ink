@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -871,20 +871,19 @@ where
             }
             Some(current_vacant) => {
                 // then there is a vacant entry which we can reuse
-                let next_vacant =
-                    match self
-                        .entries
-                        .put(current_vacant.node(), InternalEntry::Occupied(node))
-                        .expect(
-                            "[ink_core::BTreeMap::put] Error: \
-                             expected a vacant entry here, but no entry was found",
-                        ) {
-                        InternalEntry::Vacant(next_vacant) => next_vacant,
-                        InternalEntry::Occupied(_) => unreachable!(
-                            "[ink_core::BTreeMap::put] Error: \
-                             a next_vacant index can never point to an occupied entry"
-                        ),
-                    };
+                let next_vacant = match self
+                    .entries
+                    .put(current_vacant.node(), InternalEntry::Occupied(node))
+                    .expect(
+                        "[ink_core::BTreeMap::put] Error: \
+                         expected a vacant entry here, but no entry was found",
+                    ) {
+                    InternalEntry::Vacant(next_vacant) => next_vacant,
+                    InternalEntry::Occupied(_) => unreachable!(
+                        "[ink_core::BTreeMap::put] Error: \
+                         a next_vacant index can never point to an occupied entry"
+                    ),
+                };
                 // when putting node set next_vacant to the next_vacant which was found here
                 self.header.next_vacant = next_vacant;
                 current_vacant
@@ -907,20 +906,19 @@ where
             }
             Some(current_vacant) => {
                 // then there is a vacant entry which we can reuse
-                let next_vacant =
-                    match self
-                        .kv_pairs
-                        .put(current_vacant, InternalKVEntry::Occupied(pair))
-                        .expect(
-                            "[ink_core::BTreeMap::put_pair] Error: \
-                             expected a vacant entry here, but no entry was found",
-                        ) {
-                        InternalKVEntry::Vacant(next_vacant) => next_vacant,
-                        InternalKVEntry::Occupied(_) => unreachable!(
-                            "[ink_core::BTreeMap::put_pair] Error: \
-                             a next_vacant index can never point to an occupied entry"
-                        ),
-                    };
+                let next_vacant = match self
+                    .kv_pairs
+                    .put(current_vacant, InternalKVEntry::Occupied(pair))
+                    .expect(
+                        "[ink_core::BTreeMap::put_pair] Error: \
+                         expected a vacant entry here, but no entry was found",
+                    ) {
+                    InternalKVEntry::Vacant(next_vacant) => next_vacant,
+                    InternalKVEntry::Occupied(_) => unreachable!(
+                        "[ink_core::BTreeMap::put_pair] Error: \
+                         a next_vacant index can never point to an occupied entry"
+                    ),
+                };
                 // when putting node set next_vacant to the next_vacant which was found here
                 self.header.next_vacant_pair = next_vacant;
                 current_vacant
