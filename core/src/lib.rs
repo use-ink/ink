@@ -46,10 +46,6 @@
 #[cfg(not(feature = "std"))]
 extern crate ink_alloc;
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz"))]
-#[macro_use(quickcheck)]
-extern crate quickcheck_macros;
-
 pub mod env;
 pub mod storage;
 
