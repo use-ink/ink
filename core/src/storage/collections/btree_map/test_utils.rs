@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! A number of utilities for testing the BTreeMap.
-
 use crate::storage::{
     alloc::{
         AllocateUsing,

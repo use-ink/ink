@@ -126,9 +126,17 @@ enum UnderflowResult {
 pub struct BTreeMap<K, V> {
     /// Stores densely packed general BTreeMap information.
     header: storage::Value<BTreeMapHeader>,
-    /// The nodes of the tree.
+
+    /// Contains the nodes of the tree.
     entries: SyncChunk<InternalEntry<K, V>>,
+
     /// The key/value pairs stored in the tree.
+    /// We don't store this in `entries` for performance reasons. Instead each
+    /// node of the tree merely stores a pointer to the storage index where
+    /// the key/value pair is store.
+    /// This way it's more effective to balance the tree, since we only ever
+    /// have to move the `u32` index, instead of the whole `K`/`V` (which
+    /// would imply decoding, encoding, etc.).
     kv_pairs: SyncChunk<InternalKVEntry<K, V>>,
 }
 
@@ -193,6 +201,7 @@ where
     V: Codec,
 {
     /// Returns the `HandleType` of `handle`. Either `Leaf` or `Internal`.
+    /// A internal node always has children, whereas a leaf doesn't.
     pub(super) fn get_handle_type(&self, handle: NodeHandle) -> HandleType {
         let children = self
             .get_node(handle)
@@ -210,7 +219,7 @@ where
         self.header.node_count
     }
 
-    /// Returns the child node pointed to by this edge, if available.
+    /// Descends to the child node pointed to by this `handle`, if one is available.
     pub(super) fn descend(&self, handle: KVHandle) -> Option<NodeHandle> {
         let node = self
             .get_node(handle.node())
@@ -219,6 +228,11 @@ where
     }
 
     /// Returns a reference to the node behind `handle`, if existent.
+    ///
+    /// *Note*
+    /// In practice this should never return `None` (except for tests which
+    /// explicitly test this). The calling side should apply an `.expect()`
+    /// to the return value and proof why this can never happen.
     pub(super) fn get_node(&self, handle: NodeHandle) -> Option<&Node<K, V>> {
         let entry = self.entries.get(handle.node())?;
         match entry {
