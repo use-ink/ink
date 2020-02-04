@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// This file contains logic for each node in the tree.
+//! This file contains logic for each node in the tree.
+
 use crate::storage::{
     btree_map::impls::{
         KVStoragePointer,
@@ -29,6 +30,8 @@ use scale::{
     Decode,
     Encode,
 };
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::Metadata;
 
 /// Number of edges each node has.
 ///
