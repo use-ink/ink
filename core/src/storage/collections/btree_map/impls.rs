@@ -503,7 +503,6 @@ where
     /// The returned `UnderflowResult` contains the result of handling the
     /// underfull node.
     fn handle_underfull_node(&mut self, node: NodeHandle) -> UnderflowResult {
-        eprintln!("handle underfull");
         let parent = if let Some(parent) = self.ascend(node) {
             parent
         } else {
@@ -1172,7 +1171,6 @@ where
             .expect("parent to insert into must exist");
 
         if node.len() < CAPACITY {
-            eprintln!("node.len() < CAPACITY {:?} < {:?}", node.len(), CAPACITY);
             let kv_handle = match search::search_node(
                 node,
                 self.keys_in_node(handle.node()),

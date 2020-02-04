@@ -43,6 +43,9 @@
 //! possible to reduce storage space (see `handle_underfull_nodes()` for more info).
 
 #[cfg(test)]
+mod test_utils;
+
+#[cfg(test)]
 mod tests;
 
 mod impls;

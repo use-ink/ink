@@ -24,124 +24,26 @@ use crate::{
             Initialize,
         },
         btree_map::impls::{
+            Entry,
             CAPACITY,
-            Entry
         },
-        collections::btree_map::node::NodeHandle,
+        collections::btree_map::{
+            node::NodeHandle,
+            test_utils::*,
+        },
         BTreeMap,
     },
 };
 use ink_primitives::Key;
 use itertools::Itertools;
 
-/// Creates an empty map.
-fn empty_map() -> BTreeMap<i32, i32> {
-    unsafe {
-        let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-        BTreeMap::allocate_using(&mut alloc).initialize_into(())
-    }
-}
-
-/// Creates a map prefilled with some key/value pairs.
-fn filled_map() -> BTreeMap<i32, i32> {
-    let mut map = empty_map();
-    map.insert(5, 50);
-    map.insert(42, 420);
-    map.insert(1337, 13370);
-    map.insert(77, 770);
-    assert_eq!(map.len(), 4);
-    map
-}
-
-/// Returns all edges in the tree as one Vec.
-fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
-    let mut v = Vec::new();
-    let mut processed_nodes = 0;
-    let mut node_index = 0;
-    loop {
-        if processed_nodes == map.node_count() {
-            break
-        }
-
-        // We iterate over all storage entities of the tree and skip vacant entities.
-        let handle = NodeHandle::new(node_index);
-        if let Some(node) = map.get_node(handle) {
-            let edges = node
-                .edges()
-                .to_vec()
-                .into_iter()
-                .filter_map(|x| x.map(|v| v.node()));
-            v.extend(edges);
-            processed_nodes += 1;
-        }
-        node_index += 1;
-    }
-    v
-}
-
-/// Returns `true` if every edge exists only once in the tree.
-/// If duplicate edges are found each duplicate is printed to the console.
-fn every_edge_exists_only_once(map: &BTreeMap<i32, i32>) -> bool {
-    let all_edges = all_edges(map);
-    let unique_edges: Vec<u32> = all_edges.clone().into_iter().unique().collect();
-
-    let only_unique_edges = all_edges.len() == unique_edges.len();
-    if !only_unique_edges {
-        unique_edges.iter().for_each(|x| {
-            if all_edges.iter().any(|a| *a == *x) {
-                eprintln!("duplicate {:?}", x);
-            }
-        });
-    }
-    only_unique_edges
-}
-
-/// Conducts repeated insert and remove operations into the map by iterating
-/// over `xs`. For each odd number a defined number of insert operations
-/// are executed. For each even number it's asserted that the previously
-/// inserted elements are in the map and they are removed subsequently.
-///
-/// Using this scheme we get a sequence of insert and remove operations.
-fn insert_and_remove(xs: Vec<i32>) {
-    let mut map = empty_map();
-    let mut count_inserts = 0;
-    let mut previous_even_x = None;
-    let number_inserts = 3;
-
-    xs.iter().for_each(|x| {
-        let x = *x;
-        if x % 2 == 0 {
-            // On even numbers we insert new nodes.
-            for a in x..x + number_inserts {
-                if let None = map.insert(a, a * 10) {
-                    count_inserts += 1;
-                }
-                assert_eq!(map.len(), count_inserts);
-            }
-            previous_even_x = Some(x);
-        } else if x % 2 == 1 && previous_even_x.is_some() {
-            // if it's an odd number and we inserted in the previous run we assert
-            // that the insert worked correctly and remove the elements again.
-            let x = previous_even_x.unwrap();
-            for a in x..x + number_inserts {
-                assert_eq!(map.get(&a), Some(&(a * 10)));
-                assert_eq!(map.remove(&a), Some(a * 10));
-                assert_eq!(map.get(&a), None);
-                count_inserts -= 1;
-                assert_eq!(map.len(), count_inserts);
-            }
-            previous_even_x = None;
-        }
-        assert!(every_edge_exists_only_once(&map));
-    });
-}
-
 #[test]
 fn empty_map_works() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // given
         let map = empty_map();
 
-        // Initial invariant.
+        // then
         assert_eq!(map.len(), 0);
         assert!(map.is_empty());
         Ok(())
@@ -175,6 +77,45 @@ fn insert_into_empty_map_works() -> Result<()> {
 }
 
 #[test]
+fn remove_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // given
+        let mut map = empty_map();
+
+        // when
+        assert_eq!(map.insert(4, 40), None);
+        assert_eq!(map.get(&4), Some(&40));
+        assert_eq!(map.len(), 1);
+
+        // then
+        assert_eq!(map.remove(&4), Some(40));
+        assert_eq!(map.get(&4), None);
+        assert_eq!(map.len(), 0);
+        Ok(())
+    })
+}
+
+#[test]
+fn multiple_inserts_for_same_key_work() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // given
+        let mut map = empty_map();
+        assert_eq!(map.insert(0, 10), None);
+
+        // when
+        assert_eq!(map.insert(0, 20), Some(10));
+        assert_eq!(map.get(&0), Some(&20));
+        assert_eq!(map.len(), 1);
+
+        // then
+        assert_eq!(map.remove(&0), Some(20));
+        assert_eq!(map.get(&0), None);
+        assert_eq!(map.len(), 0);
+        Ok(())
+    })
+}
+
+#[test]
 fn putting_on_same_key_works() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
@@ -193,7 +134,7 @@ fn putting_on_same_key_works() -> Result<()> {
 }
 
 #[test]
-fn first_put_filled() -> Result<()> {
+fn filled_map_must_work() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = filled_map();
@@ -315,51 +256,13 @@ fn entry_api_works_with_strings_and_multiple_calls() -> Result<()> {
 }
 
 #[test]
-fn remove_works() -> Result<()> {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        // given
-        let mut map = empty_map();
-
-        // when
-        assert_eq!(map.insert(4, 40), None);
-        assert_eq!(map.get(&4), Some(&40));
-        assert_eq!(map.len(), 1);
-
-        // then
-        assert_eq!(map.remove(&4), Some(40));
-        assert_eq!(map.get(&4), None);
-        assert_eq!(map.len(), 0);
-        Ok(())
-    })
-}
-
-#[test]
-fn multiple_inserts_for_same_key_work() -> Result<()> {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        // given
-        let mut map = empty_map();
-        assert_eq!(map.insert(0, 10), None);
-
-        // when
-        assert_eq!(map.insert(0, 20), Some(10));
-        assert_eq!(map.get(&0), Some(&20));
-        assert_eq!(map.len(), 1);
-
-        // then
-        assert_eq!(map.remove(&0), Some(20));
-        assert_eq!(map.get(&0), None);
-        assert_eq!(map.len(), 0);
-        Ok(())
-    })
-}
-
-#[test]
 fn putting_and_removing_many_items_works() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
+        let count = CAPACITY as i32 * 100;
         let mut map = empty_map();
         let mut len = map.len();
-        for i in 1..200 {
+        for i in 0..count {
             assert_eq!(map.insert(i, i * 10), None);
             len += 1;
             assert_eq!(map.len(), len);
@@ -367,7 +270,7 @@ fn putting_and_removing_many_items_works() -> Result<()> {
         let max_node_count = map.node_count();
 
         // when
-        for i in 1..200 {
+        for i in 0..count {
             assert_eq!(map.get(&i), Some(&(i * 10)));
             assert_eq!(map.remove(&i), Some(i * 10));
             assert_eq!(map.get(&i), None);
@@ -378,9 +281,7 @@ fn putting_and_removing_many_items_works() -> Result<()> {
         // then
         assert_eq!(map.len(), 0);
         assert_eq!(map.node_count(), 0);
-        for i in 0..max_node_count {
-            assert!(map.get_node(NodeHandle::new(i)).is_none());
-        }
+        assert!(storage_empty(&map, max_node_count));
         Ok(())
     })
 }
@@ -389,8 +290,8 @@ fn putting_and_removing_many_items_works() -> Result<()> {
 fn simple_insert_and_removal() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
-        let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         let mut map = empty_map();
+        let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         let mut len = 0;
         xs.iter().for_each(|i| {
             if let Some(_) = map.insert(*i, i * 10) {
@@ -400,16 +301,16 @@ fn simple_insert_and_removal() -> Result<()> {
             len += 1;
             assert_eq!(map.len(), len);
         });
-        let max_node_count = map.node_count();
-
         xs.iter().for_each(|k| {
             let v = *k * 10;
             assert_eq!(map.get(k), Some(&v));
             assert_eq!(map.contains_key(k), true);
             assert_eq!(map.get_key_value(k), Some((k, &v)));
         });
+        let max_node_count = map.node_count();
 
         // when
+        // remove all
         xs.iter().for_each(|i| {
             match map.remove(&i) {
                 Some(v) => {
@@ -424,9 +325,7 @@ fn simple_insert_and_removal() -> Result<()> {
         // then
         assert_eq!(map.len(), 0);
         assert_eq!(map.node_count(), 0);
-        for i in 0..max_node_count {
-            assert!(map.get_node(NodeHandle::new(i)).is_none());
-        }
+        assert!(storage_empty(&map, max_node_count));
         Ok(())
     })
 }
@@ -474,9 +373,7 @@ fn alternating_inserts_and_remove_works() -> Result<()> {
         // then
         assert_eq!(map.len(), 0);
         assert_eq!(map.node_count(), 0);
-        for i in 0..max_node_count {
-            assert!(map.get_node(NodeHandle::new(i)).is_none());
-        }
+        assert!(storage_empty(&map, max_node_count));
         Ok(())
     })
 }
@@ -487,7 +384,6 @@ fn sorted_insert_and_removal() -> Result<()> {
         // given
         let mut map = empty_map();
         let mut len = map.len();
-
         let xs = vec![
             -95, -89, -86, -67, -54, -13, -6, -1, 4, 13, 15, 21, 31, 40, 65,
         ];
@@ -518,9 +414,7 @@ fn sorted_insert_and_removal() -> Result<()> {
         // then
         assert_eq!(map.len(), 0);
         assert_eq!(map.node_count(), 0);
-        for i in 0..max_node_count {
-            assert!(map.get_node(NodeHandle::new(i)).is_none());
-        }
+        assert!(storage_empty(&map, max_node_count));
         Ok(())
     })
 }
