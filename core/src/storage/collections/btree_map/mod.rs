@@ -46,6 +46,7 @@
 mod tests;
 
 mod impls;
+mod node;
 mod search;
 
 pub use self::impls::{

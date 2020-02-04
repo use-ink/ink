@@ -13,8 +13,10 @@
 // limitations under the License.
 
 use crate::{
-    env,
-    env::Result,
+    env::{
+        self,
+        Result,
+    },
     storage::{
         alloc::{
             AllocateUsing,
@@ -22,7 +24,7 @@ use crate::{
             Initialize,
         },
         btree_map::impls::Entry,
-        collections::btree_map::impls::NodeHandle,
+        collections::btree_map::node::NodeHandle,
         BTreeMap,
     },
 };
@@ -61,7 +63,11 @@ fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
         // We iterate over all storage entities of the tree and skip vacant entities.
         let handle = NodeHandle::new(node_index);
         if let Some(node) = map.get_node(&handle) {
-            let edges = node.edges().to_vec().into_iter().filter_map(|x| x);
+            let edges = node
+                .edges()
+                .to_vec()
+                .into_iter()
+                .filter_map(|x| x.map(|v| v.node()));
             v.extend(edges);
             processed_nodes += 1;
         }
@@ -218,10 +224,10 @@ fn entry_api_works_with_empty_map() -> Result<()> {
         match entry {
             Entry::Vacant(v) => {
                 v.insert(val);
-            },
+            }
             Entry::Occupied(_) => {
                 unreachable!("map is created as empty");
-            },
+            }
         }
 
         // then
@@ -346,7 +352,7 @@ fn putting_and_removing_many_items_works() -> Result<()> {
 fn simple_insert_and_removal() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
-        //let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10];
+        // let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10];
         let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         let mut map = empty_map();
         let mut len = 0;

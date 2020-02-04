@@ -16,6 +16,11 @@ use self::SearchResult::{
     Found,
     NotFound,
 };
+use crate::storage::btree_map::node::{
+    KVHandle,
+    Node,
+    NodeHandle,
+};
 use crate::storage::btree_map::impls::{
     BTreeMap,
     CAPACITY,
@@ -23,9 +28,6 @@ use crate::storage::btree_map::impls::{
         Internal,
         Leaf,
     },
-    KVHandle,
-    Node,
-    NodeHandle,
 };
 use core::{
     borrow::Borrow,
