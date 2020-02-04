@@ -503,6 +503,7 @@ where
     /// The returned `UnderflowResult` contains the result of handling the
     /// underfull node.
     fn handle_underfull_node(&mut self, node: NodeHandle) -> UnderflowResult {
+        eprintln!("handle underfull");
         let parent = if let Some(parent) = self.ascend(node) {
             parent
         } else {
@@ -787,9 +788,7 @@ where
                     InternalEntry::Occupied(val) => {
                         // When removing a node set `next_vacant` to this node index
                         self.header.next_vacant = Some(NodeHandle::new(n));
-                        // if self.header.node_count > 0 {
                         self.header.node_count -= 1;
-                        //}
                         Some(val)
                     }
                     InternalEntry::Vacant(_) => {
@@ -1173,7 +1172,8 @@ where
             .expect("parent to insert into must exist");
 
         if node.len() < CAPACITY {
-            let h = match search::search_node(
+            eprintln!("node.len() < CAPACITY {:?} < {:?}", node.len(), CAPACITY);
+            let kv_handle = match search::search_node(
                 node,
                 self.keys_in_node(handle.node()),
                 handle.node(),
@@ -1182,8 +1182,8 @@ where
                 Found(h) => h,
                 NotFound(h) => h,
             };
-            self.insert_fit_edge(h, pair_ptr, edge);
-            Fit(h)
+            self.insert_fit_edge(kv_handle, pair_ptr, edge);
+            Fit(kv_handle)
         } else {
             let (ptr, right) = self.split_internal(handle.node(), B);
             if handle.idx() <= B {

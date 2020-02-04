@@ -23,7 +23,10 @@ use crate::{
             BumpAlloc,
             Initialize,
         },
-        btree_map::impls::Entry,
+        btree_map::impls::{
+            CAPACITY,
+            Entry
+        },
         collections::btree_map::node::NodeHandle,
         BTreeMap,
     },
@@ -212,6 +215,40 @@ fn first_put_filled() -> Result<()> {
 }
 
 #[test]
+fn tree_depth_must_remain_balanced() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // given
+        let mut map = empty_map();
+        for i in 0..CAPACITY {
+            let i = i as i32;
+            map.insert(i, i * 10);
+        }
+        assert_eq!(map.len(), CAPACITY as u32);
+        assert_eq!(map.node_count(), 1);
+
+        // when
+        // when one element more is inserted
+        let one_more = CAPACITY as i32;
+        assert_eq!(map.insert(one_more, one_more * 10), None);
+
+        // then
+        // the node count has to jump to three, since we then must
+        // have two children and a parent node.
+        assert_eq!(map.len(), CAPACITY as u32 + 1);
+        assert_eq!(map.node_count(), 3);
+
+        // when
+        // when the element is removed again the node count has
+        // to go back to one since the nodes should have been merged.
+        assert_eq!(map.remove(&one_more), Some(one_more * 10));
+        assert_eq!(map.len(), 11);
+        assert_eq!(map.node_count(), 1);
+        assert!(map.get_node(NodeHandle::new(0)).is_some());
+        Ok(())
+    })
+}
+
+#[test]
 fn entry_api_works_with_empty_map() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
@@ -352,7 +389,6 @@ fn putting_and_removing_many_items_works() -> Result<()> {
 fn simple_insert_and_removal() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
-        // let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10];
         let xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         let mut map = empty_map();
         let mut len = 0;
