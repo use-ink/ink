@@ -74,6 +74,7 @@ pub mod cell;
 pub mod chunk;
 mod collections;
 mod flush;
+mod traits;
 mod value;
 
 pub use self::{
@@ -100,6 +101,12 @@ pub use self::{
         },
     },
     flush::Flush,
+    traits::{
+        KeyPtr,
+        Pull,
+        Push,
+        StorageSize,
+    },
 };
 
 #[doc(inline)]
