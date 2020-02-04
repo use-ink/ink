@@ -337,10 +337,10 @@ fn alternating_inserts_and_remove_works() -> Result<()> {
         let mut map = empty_map();
         let mut len = map.len();
         let ops = vec![
-            200, // insert
-            100, // remove
-            100, // insert
-            200, // remove
+            CAPACITY as i32 * 20, // insert
+            CAPACITY as i32 * 10, // remove
+            CAPACITY as i32 * 10, // insert
+            CAPACITY as i32 * 20, // remove
         ];
         let mut max_node_count = 0;
 
