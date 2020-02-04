@@ -156,12 +156,11 @@ fn filled_map_must_work() -> Result<()> {
 }
 
 #[test]
-fn tree_depth_must_remain_balanced() -> Result<()> {
+fn tree_must_remain_balanced() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut map = empty_map();
-        for i in 0..CAPACITY {
-            let i = i as i32;
+        for i in 0..CAPACITY as i32 {
             map.insert(i, i * 10);
         }
         assert_eq!(map.len(), CAPACITY as u32);
