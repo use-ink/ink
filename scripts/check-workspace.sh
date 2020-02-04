@@ -17,8 +17,8 @@
 
 declare -A results
 
-all_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro" "cli")
-wasm_crates=("core" "alloc" "utils" "model" "lang" "lang2" "lang2/macro")
+all_crates=("core" "alloc" "utils" "model" "lang" "lang" "lang/macro" "cli")
+wasm_crates=("core" "alloc" "utils" "model" "lang" "lang" "lang/macro")
 
 results["check_all_features"]=true
 for crate in "${all_crates[@]}"; do

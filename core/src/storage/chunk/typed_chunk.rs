@@ -12,18 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage::{
-    alloc::{
+use crate::{
+    env,
+    storage::alloc::{
         Allocate,
         AllocateUsing,
     },
-    chunk::{
-        RawChunk,
-        RawChunkCell,
-    },
-    Key,
-    NonCloneMarker,
 };
+use core::marker::PhantomData;
+use ink_primitives::Key;
 
 /// A chunk of typed cells.
 ///
@@ -37,19 +34,71 @@ use crate::storage::{
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug, PartialEq, Eq)]
 pub struct TypedChunk<T> {
-    /// The underlying chunk of cells.
-    chunk: RawChunk,
-    /// Marker that prevents this type from being `Copy` or `Clone` by accident.
-    non_clone: NonCloneMarker<T>,
+    /// The underlying key into the contract storage.
+    key: Key,
+    /// Marker to trick the Rust compiler into thinking that we actually make use of `T`.
+    marker: PhantomData<fn() -> T>,
 }
 
 /// A single cell within a chunk of typed cells.
-#[derive(Debug, PartialEq, Eq)]
-pub struct TypedChunkCell<'a, T> {
-    /// The underlying cell within the chunk of cells.
-    cell: RawChunkCell<'a>,
-    /// Marker that prevents this type from being `Copy` or `Clone` by accident.
-    non_clone: NonCloneMarker<T>,
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+pub struct TypedChunkCell<'a, T, M> {
+    /// The underlying key that points to the typed cell.
+    key: Key,
+    /// Marker to trick the Rust compiler into thinking that we actually
+    /// make use of `T` and `'a`.
+    marker: PhantomData<fn() -> &'a (T, M)>,
+}
+
+/// Markers for a shared referenced typed chunk cell.
+pub enum SharedTypedChunkCell {}
+/// Markers for a exclusive referenced typed chunk cell.
+pub enum ExclusiveTypedChunkCell {}
+
+impl<'a, T> TypedChunkCell<'a, T, SharedTypedChunkCell> {
+    /// Creates a new shared typed chunk cell from the given key.
+    fn shared(key: Key) -> Self {
+        Self {
+            key,
+            marker: Default::default(),
+        }
+    }
+}
+
+impl<'a, T> TypedChunkCell<'a, T, ExclusiveTypedChunkCell> {
+    /// Creates a new exclusive typed chunk cell from the given key.
+    fn exclusive(key: Key) -> Self {
+        Self {
+            key,
+            marker: Default::default(),
+        }
+    }
+
+    /// Removes the value stored in this cell.
+    pub fn clear(self) {
+        env::clear_contract_storage(self.key)
+    }
+}
+
+impl<'a, T> TypedChunkCell<'a, T, ExclusiveTypedChunkCell>
+where
+    T: scale::Encode,
+{
+    /// Stores the value from the cell into the contract storage.
+    pub fn store(self, new_value: &T) {
+        env::set_contract_storage(self.key, new_value)
+    }
+}
+
+impl<'a, T, M> TypedChunkCell<'a, T, M>
+where
+    T: scale::Decode,
+{
+    /// Loads the value from the storage into the cell.
+    pub fn load(self) -> Option<T> {
+        env::get_contract_storage(self.key)
+            .map(|result| result.expect("could not decode T from storage chunk"))
+    }
 }
 
 impl<T> AllocateUsing for TypedChunk<T> {
@@ -58,77 +107,46 @@ impl<T> AllocateUsing for TypedChunk<T> {
         A: Allocate,
     {
         Self {
-            chunk: RawChunk::allocate_using(alloc),
-            non_clone: Default::default(),
+            key: alloc.alloc(u32::max_value().into()),
+            marker: Default::default(),
         }
-    }
-}
-
-impl<'a, T> TypedChunkCell<'a, T> {
-    /// Creates a new raw chunk cell from the given key.
-    ///
-    /// # Safety
-    ///
-    /// This is unsafe since it doesn't check aliasing of cells.
-    pub(self) unsafe fn new_unchecked(cell: RawChunkCell<'a>) -> Self {
-        Self {
-            cell,
-            non_clone: NonCloneMarker::default(),
-        }
-    }
-
-    /// Removes the value stored in this cell.
-    pub fn clear(&mut self) {
-        self.cell.clear()
-    }
-}
-
-impl<'a, T> TypedChunkCell<'a, T>
-where
-    T: scale::Encode,
-{
-    /// Stores the value into the cell.
-    pub fn store(&mut self, val: &T) {
-        self.cell.store(&T::encode(val))
     }
 }
 
 impl<T> scale::Encode for TypedChunk<T> {
     fn encode_to<W: scale::Output>(&self, dest: &mut W) {
-        self.chunk.encode_to(dest)
+        self.key.encode_to(dest)
     }
 }
 
 impl<T> scale::Decode for TypedChunk<T> {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
-        RawChunk::decode(input).map(|raw_chunk| {
-            Self {
-                chunk: raw_chunk,
-                non_clone: NonCloneMarker::default(),
-            }
+        Ok(Self {
+            key: Key::decode(input)?,
+            marker: Default::default(),
         })
     }
 }
 
 impl<T> TypedChunk<T> {
-    /// Returns the underlying key to the cells.
-    ///
-    /// # Note
-    ///
-    /// This is a low-level utility getter and should
-    /// normally not be required by users.
-    pub fn cells_key(&self) -> Key {
-        self.chunk.cells_key()
+    /// Returns the underlying key.
+    pub fn key(&self) -> Key {
+        self.key
     }
 
-    /// Returns an accessor to the `n`-th cell.
-    pub(crate) fn cell_at(&mut self, n: u32) -> TypedChunkCell<T> {
-        unsafe { TypedChunkCell::new_unchecked(self.chunk.cell_at(n)) }
+    /// Returns a shared accessor the cell at the given index.
+    fn cell_at(&self, index: u32) -> TypedChunkCell<T, SharedTypedChunkCell> {
+        TypedChunkCell::shared(self.key + index)
+    }
+
+    /// Returns an exclusive accessor the cell at the given index.
+    fn cell_at_mut(&mut self, index: u32) -> TypedChunkCell<T, ExclusiveTypedChunkCell> {
+        TypedChunkCell::exclusive(self.key + index)
     }
 
     /// Removes the value stored in the `n`-th cell.
-    pub fn clear(&mut self, n: u32) {
-        self.cell_at(n).clear()
+    pub fn clear(&mut self, index: u32) {
+        self.cell_at_mut(index).clear()
     }
 }
 
@@ -136,20 +154,13 @@ impl<T> TypedChunk<T>
 where
     T: scale::Decode,
 {
-    /// Loads the value stored in the `n`-th cell if any.
+    /// Loads the value stored in the storage at the given index if any.
     ///
     /// # Panics
     ///
     /// If decoding of the loaded bytes fails.
-    pub fn load(&self, n: u32) -> Option<T> {
-        self.chunk.load(n).map(|loaded| {
-            T::decode(&mut &loaded[..])
-					// Maybe we should return an error instead of panicking.
-					.expect(
-						"[ink_core::TypedChunkCell::load] Error: \
-						 failed upon decoding"
-					)
-        })
+    pub fn load(&self, index: u32) -> Option<T> {
+        self.cell_at(index).load()
     }
 }
 
@@ -157,31 +168,33 @@ impl<T> TypedChunk<T>
 where
     T: scale::Encode,
 {
-    /// Stores the value into the `n`-th cell.
-    pub fn store(&mut self, n: u32, val: &T) {
-        self.cell_at(n).store(val)
+    /// Stores the value into the cell at the given index.
+    pub fn store(&mut self, index: u32, new_value: &T) {
+        self.cell_at_mut(index).store(new_value)
     }
 }
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests {
     use super::*;
-
     use crate::{
         env,
-        test_utils::run_test,
+        env::Result,
     };
 
-    #[test]
-    fn simple() {
-        run_test(|| {
-            const TEST_LEN: u32 = 5;
+    fn create_typed_chunk() -> TypedChunk<u32> {
+        unsafe {
+            let mut alloc =
+                crate::storage::alloc::BumpAlloc::from_raw_parts(Key([0x0; 32]));
+            TypedChunk::allocate_using(&mut alloc)
+        }
+    }
 
-            let mut chunk = unsafe {
-                let mut alloc =
-                    crate::storage::alloc::BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                TypedChunk::allocate_using(&mut alloc)
-            };
+    #[test]
+    fn simple() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            const TEST_LEN: u32 = 5;
+            let mut chunk = create_typed_chunk();
 
             // Invariants after initialization
             for i in 0..TEST_LEN {
@@ -199,73 +212,77 @@ mod tests {
                 chunk.clear(i);
                 assert_eq!(chunk.load(i), None);
             }
+            Ok(())
         })
     }
 
-    #[test]
-    fn count_reads_writes() {
-        run_test(|| {
-            const TEST_LEN: u32 = 5;
+    /// Returns the current number of total contract storage reads and writes.
+    fn get_contract_storage_rw() -> (usize, usize) {
+        let contract_account_id = env::account_id::<env::DefaultEnvTypes>().unwrap();
+        env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(&contract_account_id)
+            .unwrap()
+    }
 
-            let mut chunk = unsafe {
-                let mut alloc =
-                    crate::storage::alloc::BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                TypedChunk::allocate_using(&mut alloc)
-            };
+    #[test]
+    fn count_reads_writes() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            const TEST_LEN: u32 = 5;
+            let mut chunk = create_typed_chunk();
 
             // Reads and writes after init.
-            assert_eq!(env::test::total_reads(), 0);
-            assert_eq!(env::test::total_writes(), 0);
+            assert_eq!(get_contract_storage_rw(), (0, 0),);
 
             // Loading from all cells.
             for i in 0..TEST_LEN {
                 chunk.load(i);
-                assert_eq!(env::test::total_reads(), i as u64 + 1);
-                assert_eq!(env::test::total_writes(), 0);
+                assert_eq!(get_contract_storage_rw(), (i as usize + 1, 0));
             }
-            assert_eq!(env::test::total_reads(), TEST_LEN as u64);
-            assert_eq!(env::test::total_writes(), 0);
+            assert_eq!(get_contract_storage_rw(), (TEST_LEN as usize, 0));
 
             // Writing to all cells.
             for i in 0..TEST_LEN {
                 chunk.store(i, &i);
-                assert_eq!(env::test::total_reads(), TEST_LEN as u64);
-                assert_eq!(env::test::total_writes(), i as u64 + 1);
+                assert_eq!(
+                    get_contract_storage_rw(),
+                    (TEST_LEN as usize, i as usize + 1)
+                );
             }
-            assert_eq!(env::test::total_reads(), TEST_LEN as u64);
-            assert_eq!(env::test::total_writes(), TEST_LEN as u64);
+            assert_eq!(
+                get_contract_storage_rw(),
+                (TEST_LEN as usize, TEST_LEN as usize)
+            );
 
             // Loading multiple times from a single cell.
             const LOAD_REPEATS: usize = 3;
             for n in 0..LOAD_REPEATS {
                 chunk.load(0);
-                assert_eq!(env::test::total_reads(), TEST_LEN as u64 + n as u64 + 1);
-                assert_eq!(env::test::total_writes(), TEST_LEN as u64);
+                assert_eq!(
+                    get_contract_storage_rw(),
+                    (TEST_LEN as usize + n + 1, TEST_LEN as usize,)
+                );
             }
             assert_eq!(
-                env::test::total_reads(),
-                TEST_LEN as u64 + LOAD_REPEATS as u64
+                get_contract_storage_rw(),
+                (TEST_LEN as usize + LOAD_REPEATS, TEST_LEN as usize,)
             );
-            assert_eq!(env::test::total_writes(), TEST_LEN as u64);
 
             // Storing multiple times to a single cell.
             const STORE_REPEATS: usize = 3;
             for n in 0..STORE_REPEATS {
                 chunk.store(0, &10);
                 assert_eq!(
-                    env::test::total_reads(),
-                    TEST_LEN as u64 + LOAD_REPEATS as u64
+                    get_contract_storage_rw(),
+                    (TEST_LEN as usize + LOAD_REPEATS, TEST_LEN as usize + n + 1,)
                 );
-                assert_eq!(env::test::total_writes(), TEST_LEN as u64 + n as u64 + 1);
             }
             assert_eq!(
-                env::test::total_reads(),
-                TEST_LEN as u64 + LOAD_REPEATS as u64
+                get_contract_storage_rw(),
+                (
+                    TEST_LEN as usize + LOAD_REPEATS,
+                    TEST_LEN as usize + STORE_REPEATS,
+                )
             );
-            assert_eq!(
-                env::test::total_writes(),
-                TEST_LEN as u64 + STORE_REPEATS as u64
-            );
+            Ok(())
         })
     }
 }

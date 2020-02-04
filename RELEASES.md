@@ -64,7 +64,7 @@ contract! {
 <td>
 
 ```rust
-use ink_lang2 as ink;
+use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod erc20 {
@@ -78,7 +78,7 @@ mod erc20 {
 
 > Note: we now require a mandatory ink! version in the header. You're welcome.
 
-See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
 ## ink! Contract Tag
 
@@ -146,7 +146,7 @@ struct Erc20 {
 </tr>
 </table>
 
-See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
 ## Declaring Events
 
@@ -193,7 +193,7 @@ struct Transfer {
 </tr>
 </table>
 
-See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
 ## Environment Handler
 
@@ -275,7 +275,7 @@ fn total_supply(&self) -> Balance {
 </tr>
 </table>
 
-See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
 ## Defining a Constructor
 
@@ -335,7 +335,7 @@ impl Erc20 {
 </tr>
 </table>
 
-See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/lang2/erc20/src/lib.rs).
+See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
 ## Cross Contract Calls
 
@@ -355,7 +355,7 @@ struct Delegator {
 let result = self.adder.inc(by);
 ```
 
-See the [delegator example](https://github.com/paritytech/ink/blob/master/examples/lang2/delegator/lib.rs).
+See the [delegator example](https://github.com/paritytech/ink/blob/master/examples/delegator/lib.rs).
 
 ## Factory Contracts
 
@@ -406,7 +406,7 @@ let accumulator = Accumulator::new(init_value)
 </tr>
 </table>
 
-See the [delegator example](https://github.com/paritytech/ink/blob/master/examples/lang2/delegator/lib.rs).
+See the [delegator example](https://github.com/paritytech/ink/blob/master/examples/delegator/lib.rs).
 
 ## Contract Tests
 
@@ -432,7 +432,7 @@ let contract = MyContract::my_constructor(a, b);
 Messages can simply be called on the returned instance as if `MyContract::my_constructor` returns a
 `Self` instance.
 
-See the [flipper example](https://github.com/paritytech/ink/blob/master/examples/lang2/flipper/src/lib.rs).
+See the [flipper example](https://github.com/paritytech/ink/blob/master/examples/flipper/src/lib.rs).
 
 **The off-chain test environment has lost a bit of power compared to the old ink! language.**
 

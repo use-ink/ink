@@ -12,18 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::{
-    cmp::Ord,
-    fmt::Debug,
-};
-
-use scale::{
-    Codec,
-    Decode,
-    Encode,
-};
-
 use crate::{
+    env,
+    env::Result,
     storage::{
         alloc::{
             AllocateUsing,
@@ -31,9 +22,17 @@ use crate::{
             Initialize,
         },
         BinaryHeap,
-        Key,
     },
-    test_utils::run_test,
+};
+use core::{
+    cmp::Ord,
+    fmt::Debug,
+};
+use ink_primitives::Key;
+use scale::{
+    Codec,
+    Decode,
+    Encode,
 };
 
 fn empty_heap() -> BinaryHeap<i32> {
@@ -80,8 +79,8 @@ fn assert_push_equals_sorted_pop<T: Ord + Codec + Debug>(
 }
 
 #[test]
-fn new_unchecked() {
-    run_test(|| {
+fn new_unchecked() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let heap = empty_heap();
 
@@ -89,12 +88,13 @@ fn new_unchecked() {
         assert_eq!(heap.len(), 0);
         assert!(heap.is_empty());
         assert_eq!(heap.iter().next(), None);
+        Ok(())
     })
 }
 
 #[test]
-fn push_on_empty_heap() {
-    run_test(|| {
+fn push_on_empty_heap() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut heap = empty_heap();
         assert_eq!(heap.pop(), None);
@@ -105,12 +105,13 @@ fn push_on_empty_heap() {
         // then
         assert_eq!(heap.len(), 1);
         assert_eq!(heap.pop(), Some(42));
+        Ok(())
     })
 }
 
 #[test]
-fn push_duplicates_max() {
-    run_test(|| {
+fn push_duplicates_max() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut heap = empty_heap();
 
@@ -125,12 +126,13 @@ fn push_duplicates_max() {
         assert_eq!(heap.pop(), Some(20));
         assert_eq!(heap.pop(), Some(10));
         assert_eq!(heap.pop(), Some(10));
+        Ok(())
     })
 }
 
 #[test]
-fn peek() {
-    run_test(|| {
+fn peek() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut heap = empty_heap();
         assert_eq!(heap.peek(), None);
@@ -140,12 +142,13 @@ fn peek() {
 
         // then
         assert_eq!(heap.peek(), Some(&42));
+        Ok(())
     })
 }
 
 #[test]
-fn peek_mut() {
-    run_test(|| {
+fn peek_mut() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut heap = empty_heap();
         heap.push(42);
@@ -157,12 +160,13 @@ fn peek_mut() {
 
         // then
         assert_eq!(heap.peek(), Some(&1337));
+        Ok(())
     })
 }
 
 #[test]
-fn pop_empty_and_refill() {
-    run_test(|| {
+fn pop_empty_and_refill() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut heap = filled_heap();
         for _ in 0..heap.len() {
@@ -176,12 +180,13 @@ fn pop_empty_and_refill() {
         // then
         assert_eq!(heap.pop(), Some(123));
         assert_eq!(heap.len(), 0);
+        Ok(())
     })
 }
 
 #[test]
-fn take_empty() {
-    run_test(|| {
+fn take_empty() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut heap = empty_heap();
 
@@ -189,12 +194,13 @@ fn take_empty() {
         assert_eq!(heap.pop(), None);
         assert_eq!(heap.peek(), None);
         assert_eq!(heap.peek_mut(), None);
+        Ok(())
     })
 }
 
 #[test]
-fn push_negative_positive_range_min() {
-    run_test(|| {
+fn push_negative_positive_range_min() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut heap = empty_heap();
 
@@ -208,12 +214,13 @@ fn push_negative_positive_range_min() {
         assert_eq!(heap.pop(), Some(1));
         assert_eq!(heap.pop(), Some(0));
         assert_eq!(heap.pop(), Some(-1));
+        Ok(())
     })
 }
 
 #[test]
-fn push_negative_positive_range_max() {
-    run_test(|| {
+fn push_negative_positive_range_max() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut heap = empty_heap();
 
@@ -227,12 +234,13 @@ fn push_negative_positive_range_max() {
         assert_eq!(heap.pop(), Some(1));
         assert_eq!(heap.pop(), Some(0));
         assert_eq!(heap.pop(), Some(-1));
+        Ok(())
     })
 }
 
 #[test]
-fn iter() {
-    run_test(|| {
+fn iter() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let heap = filled_heap();
 
@@ -246,12 +254,13 @@ fn iter() {
         assert_eq!(iter.next(), Some((2, &42)));
         assert_eq!(iter.next(), Some((3, &5)));
         assert_eq!(iter.next(), None);
+        Ok(())
     })
 }
 
 #[test]
-fn iter_back() {
-    run_test(|| {
+fn iter_back() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let heap = filled_heap();
 
@@ -264,12 +273,13 @@ fn iter_back() {
         assert_eq!(iter.next_back(), Some((1, &77)));
         assert_eq!(iter.next_back(), Some((0, &1337)));
         assert_eq!(iter.next_back(), None);
+        Ok(())
     })
 }
 
 #[test]
-fn iter_size_hint() {
-    run_test(|| {
+fn iter_size_hint() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let heap = filled_heap();
 
@@ -280,24 +290,27 @@ fn iter_size_hint() {
         // then
         iter.next();
         assert_eq!(iter.size_hint(), (3, Some(3)));
+        Ok(())
     })
 }
 
 #[test]
-fn unordered_push_results_in_ordered_pop() {
-    run_test(|| {
+fn unordered_push_results_in_ordered_pop() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut heap = empty_heap();
         let vec = vec![5, 42, 1337, 77, -1, 0, 9999, 3, 65, 90, 1_000_000, -32];
         assert_push_equals_sorted_pop(&mut heap, vec);
+        Ok(())
     })
 }
 
 #[test]
-fn max_heap_with_multiple_levels() {
-    run_test(|| {
+fn max_heap_with_multiple_levels() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut heap = empty_heap();
         let vec = vec![100, 10, 20, 30, 7, 8, 9, 17, 18, 29, 27, 28, 30];
         assert_push_equals_sorted_pop(&mut heap, vec);
+        Ok(())
     })
 }
 
@@ -308,8 +321,8 @@ fn max_heap_with_multiple_levels() {
 struct V(u32);
 
 #[test]
-fn min_heap_with_multiple_levels() {
-    run_test(|| {
+fn min_heap_with_multiple_levels() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut heap: BinaryHeap<V> = unsafe {
             let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
             BinaryHeap::allocate_using(&mut alloc).initialize_into(())
@@ -330,5 +343,6 @@ fn min_heap_with_multiple_levels() {
             V(30),
         ];
         assert_push_equals_sorted_pop(&mut heap, vec);
+        Ok(())
     })
 }
