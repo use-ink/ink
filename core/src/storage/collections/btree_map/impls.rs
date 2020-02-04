@@ -86,7 +86,6 @@ pub(super) const B: usize = 6;
 pub(super) const CAPACITY: usize = 2 * B - 1;
 
 /// Pointer to the index where a key/value pair is stored in `kv_pairs`.
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub(super) type KVStoragePointer = u32;
 
 /// The node type, either a `Leaf` (a node without children) or `Internal`
