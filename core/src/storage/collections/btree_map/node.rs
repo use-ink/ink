@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// This file contains logic for each node in the tree.
 use crate::storage::{
     btree_map::impls::{
         KVStoragePointer,
         B,
         CAPACITY,
-        EDGES,
     },
     Flush,
 };
@@ -30,7 +30,93 @@ use scale::{
     Encode,
 };
 
-/// This file contains logic for each node in the tree.
+/// Number of edges each node has.
+///
+/// Note: `CAPACITY + 1 == EDGES` must always be true!
+const EDGES: usize = 2 * B;
+
+/// Reference to a key/value pair in the tree.
+#[derive(Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+pub(super) struct KVPair<K, V> {
+    /// A key.
+    key: K,
+    /// A value.
+    value: V,
+}
+
+impl<K, V> KVPair<K, V> {
+    /// Creates a new `KVPair` from a `key` and a `value`.
+    pub fn new(key: K, value: V) -> Self {
+        Self { key, value }
+    }
+
+    /// Returns a tuple of (`key`, `value`) stored in this key/value pair.
+    pub(super) fn kv(self) -> (K, V) {
+        (self.key, self.value)
+    }
+
+    /// Returns a reference to the `key` stored in this key/value pair.
+    pub(super) fn key_ref(&self) -> &K {
+        &self.key
+    }
+
+    /// Returns the `value` stored in this key/value pair.
+    pub(super) fn value(self) -> V {
+        self.value
+    }
+
+    /// Returns a mutable reference to the `value` stored in this key/value pair.
+    pub(super) fn value_ref_mut(&mut self) -> &mut V {
+        &mut self.value
+    }
+
+    /// Returns a reference to the `value` stored in this key/value pair.
+    pub(super) fn value_ref(&self) -> &V {
+        &self.value
+    }
+}
+
+impl<K, V> Flush for KVPair<K, V>
+where
+    K: Encode + Flush,
+    V: Encode + Flush,
+{
+    #[inline]
+    fn flush(&mut self) {
+        self.key.flush();
+        self.value.flush();
+    }
+}
+
+/// Reference to a key/value pair in the tree.
+pub(super) struct KVRef<'a, K, V> {
+    /// Reference to the key.
+    key: &'a K,
+    /// Reference to the value.
+    value: &'a V,
+}
+
+impl<'a, K, V> KVRef<'a, K, V> {
+    /// Creates a `KVRef` from a `KVPair`.
+    pub(super) fn new(pair: &'a KVPair<K, V>) -> Self {
+        Self {
+            key: pair.key_ref(),
+            value: pair.value_ref(),
+        }
+    }
+
+    /// Returns a tuple with references to the `key` and `value`
+    /// stored in this key/value pair..
+    pub(super) fn kv(self) -> (&'a K, &'a V) {
+        (self.key, self.value)
+    }
+
+    /// Returns a reference to the `key` stored in this key/value pair.
+    pub(super) fn key(self) -> &'a K {
+        self.key
+    }
+}
 
 /// A node in the tree.
 ///
@@ -235,6 +321,7 @@ impl<K, V> Node<K, V> {
 
 /// Points to a node in the tree.
 #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub(super) struct NodeHandle {
     node: u32,
 }

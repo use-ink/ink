@@ -38,6 +38,8 @@ use crate::storage::{
     },
     btree_map::node::{
         KVHandle,
+        KVPair,
+        KVRef,
         Node,
         NodeHandle,
     },
@@ -83,12 +85,8 @@ pub(super) const B: usize = 6;
 /// ```
 pub(super) const CAPACITY: usize = 2 * B - 1;
 
-/// Number of edges each node has.
-///
-/// Note: `CAPACITY + 1 == EDGES` must always be true!
-pub(super) const EDGES: usize = 2 * B;
-
 /// Pointer to the index where a key/value pair is stored in `kv_pairs`.
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub(super) type KVStoragePointer = u32;
 
 /// The node type, either a `Leaf` (a node without children) or `Internal`
@@ -97,43 +95,6 @@ pub(super) type KVStoragePointer = u32;
 pub(super) enum HandleType {
     Leaf,
     Internal,
-}
-
-/// Reference to a key/value pair in the tree.
-#[derive(Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
-struct KVPair<K, V> {
-    /// A key.
-    key: K,
-    /// A value.
-    value: V,
-}
-
-impl<K, V> KVPair<K, V> {
-    /// Creates a new `KVPair` from a `key` and a `value`.
-    pub fn new(key: K, value: V) -> Self {
-        Self { key, value }
-    }
-}
-
-impl<K, V> Flush for KVPair<K, V>
-where
-    K: Encode + Flush,
-    V: Encode + Flush,
-{
-    #[inline]
-    fn flush(&mut self) {
-        self.key.flush();
-        self.value.flush();
-    }
-}
-
-/// Reference to a key/value pair in the tree.
-struct KVRef<'a, K, V> {
-    /// Reference to the key.
-    key: &'a K,
-    /// Reference to the value.
-    value: &'a V,
 }
 
 /// This enum is used when recursively processing an underfull node (i.e. a node has so
@@ -283,7 +244,7 @@ where
 
     /// Returns a reference to the value behind `storage_pointer`, if existent.
     pub fn get_v(&self, ptr: KVStoragePointer) -> Option<&V> {
-        self.get_kv_pair(ptr).map(|pair| &pair.value)
+        self.get_kv_pair(ptr).map(|pair| pair.value_ref())
     }
 
     /// Returns a reference to the storage entry behind `storage_pointer`, if existent.
@@ -297,14 +258,14 @@ where
 
     /// Returns a reference to the storage entry behind `storage_pointer`, if existent.
     fn get_k(&self, ptr: KVStoragePointer) -> Option<&K> {
-        self.get_kv_pair(ptr).map(|pair| &pair.key)
+        self.get_kv_pair(ptr).map(|pair| pair.key_ref())
     }
 
     /// Returns a mutable reference to the storage entry behind `storage_pointer`, if existent.
     fn get_v_mut(&mut self, storage_pointer: KVStoragePointer) -> Option<&mut V> {
         let entry = self.kv_pairs.get_mut(storage_pointer)?;
         match entry {
-            InternalKVEntry::Occupied(occupied) => Some(&mut occupied.value),
+            InternalKVEntry::Occupied(occupied) => Some(occupied.value_ref_mut()),
             InternalKVEntry::Vacant(_) => None,
         }
     }
@@ -329,10 +290,7 @@ where
         let node = self.get_node(&handle.node())?;
         let key_ptr = node.pair(handle.idx()).as_ref()?;
         let pair = self.get_kv_pair(*key_ptr)?;
-        Some(KVRef {
-            key: &pair.key,
-            value: &pair.value,
-        })
+        Some(KVRef::new(pair))
     }
 
     /// Returns the value referenced by `handle`.
@@ -476,9 +434,8 @@ where
     ///
     /// Returns the removed value.
     fn remove_kv(&mut self, handle: KVHandle) -> V {
-        if self.header.len > 0 {
-            self.header.len -= 1;
-        }
+        debug_assert!(self.header.len > 0);
+        self.header.len -= 1;
 
         let handle_type = self.get_handle_type(&handle.node());
         let (small_leaf, old_pair_ptr, mut new_len) = match handle_type {
@@ -522,7 +479,7 @@ where
             }
         }
 
-        let old = self.remove_pair(old_pair_ptr).value;
+        let old = self.remove_pair(old_pair_ptr).value();
         if new_len == 0 {
             debug_assert_eq!(
                 self.get_node(&handle)
@@ -1171,7 +1128,7 @@ where
         let pair = self
             .get_kv_pair(pair_ptr)
             .expect("requested pair must always exist");
-        let k = &pair.key;
+        let k = &pair.key_ref();
 
         if len < CAPACITY {
             let h = match search::search_node(
@@ -1214,7 +1171,7 @@ where
         let pair = self
             .get_kv_pair(pair_ptr)
             .expect("requested pair must always exist");
-        let k = &pair.key;
+        let k = &pair.key_ref();
 
         let node = self
             .get_node(&handle.node())
@@ -1477,7 +1434,7 @@ where
         Q: Ord,
     {
         match search::search_tree(&self, key) {
-            Found(handle) => self.get_kv(handle).map(|kv| (kv.key, kv.value)),
+            Found(handle) => self.get_kv(handle).map(|kv| kv.kv()),
             NotFound(_) => None,
         }
     }
@@ -1846,7 +1803,7 @@ where
         self.tree
             .get_kv(self.handle)
             .expect("every occupied entry always has a key/value pair; qed")
-            .key
+            .key()
     }
 
     /// Gets a reference to the value in the entry.
@@ -1971,9 +1928,7 @@ where
         match entry {
             InternalKVEntry::Vacant(_) => unreachable!("must be occupied"),
             InternalKVEntry::Occupied(occupied) => {
-                let key = occupied.key;
-                let old_value = occupied.value;
-
+                let (key, old_value) = occupied.kv();
                 let new_pair = KVPair::<K, V>::new(key, value);
                 let _ = self
                     .tree
