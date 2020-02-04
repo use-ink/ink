@@ -246,22 +246,18 @@ where
         let node = self.get_node(node).expect("node must exist");
         let mut ks: [Option<&K>; CAPACITY] = Default::default();
 
-        node.pairs().iter().enumerate().for_each(|(n, ptr)| {
-            ks[n] = match ptr {
+        node.pairs().iter().enumerate().for_each(|(n, maybe_kv_storage_ptr)| {
+            ks[n] = match maybe_kv_storage_ptr {
                 None => None,
-                Some(p) => self.get_k(*p),
+                Some(kv_storage_ptr) =>
+                    self.get_kv_ref(*kv_storage_ptr).map(|pair| pair.key_ref()),
             };
         });
         ks
     }
 
-    /// Returns a reference to the value behind `storage_pointer`, if existent.
-    pub fn get_v(&self, ptr: KVStoragePointer) -> Option<&V> {
-        self.get_kv_pair(ptr).map(|pair| pair.value_ref())
-    }
-
     /// Returns a reference to the storage entry behind `storage_pointer`, if existent.
-    fn get_kv_pair(&self, storage_pointer: KVStoragePointer) -> Option<&KVPair<K, V>> {
+    fn get_kv_ref(&self, storage_pointer: KVStoragePointer) -> Option<&KVPair<K, V>> {
         let entry = self.kv_pairs.get(storage_pointer)?;
         match entry {
             InternalKVEntry::Occupied(occupied) => Some(occupied),
@@ -269,18 +265,28 @@ where
         }
     }
 
-    /// Returns a reference to the storage entry behind `storage_pointer`, if existent.
-    fn get_k(&self, ptr: KVStoragePointer) -> Option<&K> {
-        self.get_kv_pair(ptr).map(|pair| pair.key_ref())
-    }
-
     /// Returns a mutable reference to the storage entry behind `storage_pointer`, if existent.
-    fn get_v_mut(&mut self, storage_pointer: KVStoragePointer) -> Option<&mut V> {
+    fn get_value_mut_ref(&mut self, storage_pointer: KVStoragePointer) -> Option<&mut V> {
         let entry = self.kv_pairs.get_mut(storage_pointer)?;
         match entry {
             InternalKVEntry::Occupied(occupied) => Some(occupied.value_ref_mut()),
             InternalKVEntry::Vacant(_) => None,
         }
+    }
+
+    /// Returns a reference to the key/value pair referenced by `handle`, if available.
+    fn get_kv(&self, handle: KVHandle) -> Option<KVRef<K, V>> {
+        let node = self.get_node(handle.node()).expect("node must exist");
+        let key_ptr = node.pair(handle.idx()).as_ref()?;
+        let pair = self.get_kv_ref(*key_ptr)?;
+        Some(KVRef::new(pair))
+    }
+
+    /// Returns the value referenced by `handle`, if available.
+    fn get_value(&self, handle: KVHandle) -> Option<&V> {
+        let node = self.get_node(handle.node()).expect("node must exist");
+        let ptr = node.pair(handle.idx()).as_ref()?;
+        self.get_kv_ref(*ptr).map(|pair| pair.value_ref())
     }
 
     /// If a parent node is set for the node referenced by `handle`, a handle to
@@ -296,21 +302,6 @@ where
                 .expect("if parent exists, parent_idx always exist as well; qed");
             KVHandle::new(parent, idx)
         })
-    }
-
-    /// Returns the key/value pair referenced by `handle`.
-    fn get_kv(&self, handle: KVHandle) -> Option<KVRef<K, V>> {
-        let node = self.get_node(handle.node()).expect("node must exist");
-        let key_ptr = node.pair(handle.idx()).as_ref()?;
-        let pair = self.get_kv_pair(*key_ptr)?;
-        Some(KVRef::new(pair))
-    }
-
-    /// Returns the value referenced by `handle`.
-    fn get_value(&self, handle: KVHandle) -> Option<&V> {
-        let node = self.get_node(handle.node()).expect("node must exist");
-        let ptr = node.pair(handle.idx()).as_ref()?;
-        self.get_v(*ptr)
     }
 
     /// Creates a root node with `key` and `val`.
@@ -1131,7 +1122,7 @@ where
         let len = node.len();
 
         let pair = self
-            .get_kv_pair(pair_ptr)
+            .get_kv_ref(pair_ptr)
             .expect("requested pair must always exist");
         let k = &pair.key_ref();
 
@@ -1174,7 +1165,7 @@ where
         edge: NodeHandle,
     ) -> InsertResult {
         let pair = self
-            .get_kv_pair(pair_ptr)
+            .get_kv_ref(pair_ptr)
             .expect("requested pair must always exist");
         let k = &pair.key_ref();
 
@@ -1782,7 +1773,7 @@ where
             self.tree.insert_kv(self.handle, key, val)
         };
         self.tree
-            .get_v_mut(pair_ptr)
+            .get_value_mut_ref(pair_ptr)
             .expect("value was just inserted; qed")
     }
 }
@@ -1862,7 +1853,7 @@ where
             .pair(idx)
             .expect("every occupied entry always has a pair stored in it; qed");
         self.tree
-            .get_v_mut(ptr)
+            .get_value_mut_ref(ptr)
             .expect("every pair always has a value; qed")
     }
 
@@ -1950,7 +1941,7 @@ where
             let ptr = node.pair(idx).as_ref()?;
             *ptr
         };
-        self.tree.get_v_mut(ptr)
+        self.tree.get_value_mut_ref(ptr)
     }
 }
 
