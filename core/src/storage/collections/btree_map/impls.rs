@@ -140,6 +140,79 @@ pub struct BTreeMap<K, V> {
     kv_pairs: SyncChunk<InternalKVEntry<K, V>>,
 }
 
+/// Densely stored general information required by a map.
+///
+/// # Note
+///
+/// Separation of these fields into a sub structure has been made
+/// for performance reasons so that they all reside in the same
+/// storage entity. This allows implementations to perform less reads
+/// and writes to the underlying contract storage.
+#[derive(Encode, Decode)]
+#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+struct BTreeMapHeader {
+    /// The latest vacant node index.
+    next_vacant: Option<NodeHandle>,
+    /// The latest vacant pair index.
+    next_vacant_pair: Option<KVStoragePointer>,
+    /// The index of the root node.
+    root: Option<NodeHandle>,
+    /// The number of elements stored in the map.
+    ///
+    /// # Note
+    ///
+    /// We cannot simply use the underlying length of the vector
+    /// since it would include vacant slots as well.
+    len: u32,
+    /// Number of nodes the tree contains. This is not the number
+    /// of elements, since each node contains multiple elements
+    /// (i.e. key/value pairs)!
+    node_count: u32,
+}
+
+impl Flush for BTreeMapHeader {
+    #[inline]
+    fn flush(&mut self) {
+        self.next_vacant.flush();
+        self.next_vacant_pair.flush();
+        self.root.flush();
+        self.len.flush();
+        self.node_count.flush();
+    }
+}
+
+impl<K, V> Initialize for BTreeMap<K, V> {
+    type Args = ();
+
+    #[inline(always)]
+    fn default_value() -> Option<Self::Args> {
+        Some(())
+    }
+
+    #[inline]
+    fn initialize(&mut self, _args: Self::Args) {
+        self.header.set(BTreeMapHeader {
+            next_vacant: None,
+            next_vacant_pair: None,
+            len: 0,
+            node_count: 0,
+            root: None,
+        });
+    }
+}
+
+impl<K: Ord, V> BTreeMap<K, V> {
+    /// Returns the number of elements stored in the map.
+    pub fn len(&self) -> u32 {
+        self.header.len
+    }
+
+    /// Returns `true` if the map contains no elements.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+}
+
 impl<K, V> Flush for BTreeMap<K, V>
 where
     K: Encode + Flush,
@@ -454,8 +527,6 @@ where
                 let (hole, pair_ptr, nl) = self.extract_handle(to_remove);
 
                 let node = self.get_node_mut(handle.node()).expect("node must exist");
-
-                // let old_pair_ptr = node.pairs[handle.idx()].replace(pair_ptr).expect("handle must be valid");
                 let old_pair_ptr = node
                     .set_pair(handle.idx(), Some(pair_ptr))
                     .expect("handle must be valid");
@@ -625,7 +696,7 @@ where
     ///
     /// Returns `(removed_pair_ptr, Option<removed_edge>)`.
     fn pop(&mut self, handle: NodeHandle) -> (KVStoragePointer, Option<NodeHandle>) {
-        let typ = { self.get_handle_type(handle) };
+        let handle_type = self.get_handle_type(handle);
         let (pair_ptr, idx) = {
             let node = self.get_node_mut(handle).expect("node must exist");
             debug_assert!(node.len() > 0);
@@ -634,7 +705,7 @@ where
             node.set_len(node.len() - 1);
             (pair_ptr, idx)
         };
-        let edge = match typ {
+        let edge = match handle_type {
             Leaf => None,
             Internal => {
                 // If `handle` is a reference to an internal node we also remove the edge right
@@ -1295,79 +1366,6 @@ where
     fn has_children(&mut self, handle: NodeHandle) -> bool {
         let node = self.get_node(handle).expect("node must exist");
         node.edges_count() > 0
-    }
-}
-
-/// Densely stored general information required by a map.
-///
-/// # Note
-///
-/// Separation of these fields into a sub structure has been made
-/// for performance reasons so that they all reside in the same
-/// storage entity. This allows implementations to perform less reads
-/// and writes to the underlying contract storage.
-#[derive(Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
-struct BTreeMapHeader {
-    /// The latest vacant node index.
-    next_vacant: Option<NodeHandle>,
-    /// The latest vacant pair index.
-    next_vacant_pair: Option<KVStoragePointer>,
-    /// The index of the root node.
-    root: Option<NodeHandle>,
-    /// The number of elements stored in the map.
-    ///
-    /// # Note
-    ///
-    /// We cannot simply use the underlying length of the vector
-    /// since it would include vacant slots as well.
-    len: u32,
-    /// Number of nodes the tree contains. This is not the number
-    /// of elements, since each node contains multiple elements
-    /// (i.e. key/value pairs)!
-    node_count: u32,
-}
-
-impl Flush for BTreeMapHeader {
-    #[inline]
-    fn flush(&mut self) {
-        self.next_vacant.flush();
-        self.next_vacant_pair.flush();
-        self.root.flush();
-        self.len.flush();
-        self.node_count.flush();
-    }
-}
-
-impl<K, V> Initialize for BTreeMap<K, V> {
-    type Args = ();
-
-    #[inline(always)]
-    fn default_value() -> Option<Self::Args> {
-        Some(())
-    }
-
-    #[inline]
-    fn initialize(&mut self, _args: Self::Args) {
-        self.header.set(BTreeMapHeader {
-            next_vacant: None,
-            next_vacant_pair: None,
-            len: 0,
-            node_count: 0,
-            root: None,
-        });
-    }
-}
-
-impl<K: Ord, V> BTreeMap<K, V> {
-    /// Returns the number of elements stored in the map.
-    pub fn len(&self) -> u32 {
-        self.header.len
-    }
-
-    /// Returns `true` if the map contains no elements.
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
     }
 }
 
