@@ -319,13 +319,17 @@ where
         let node = self.get_node(node).expect("node must exist");
         let mut ks: [Option<&K>; CAPACITY] = Default::default();
 
-        node.pairs().iter().enumerate().for_each(|(n, maybe_kv_storage_ptr)| {
-            ks[n] = match maybe_kv_storage_ptr {
-                None => None,
-                Some(kv_storage_ptr) =>
-                    self.get_kv_ref(*kv_storage_ptr).map(|pair| pair.key_ref()),
-            };
-        });
+        node.pairs()
+            .iter()
+            .enumerate()
+            .for_each(|(n, maybe_kv_storage_ptr)| {
+                ks[n] = match maybe_kv_storage_ptr {
+                    None => None,
+                    Some(kv_storage_ptr) => {
+                        self.get_kv_ref(*kv_storage_ptr).map(|pair| pair.key_ref())
+                    }
+                };
+            });
         ks
     }
 
@@ -955,10 +959,12 @@ where
                          expected a vacant entry here, but no entry was found",
                     ) {
                     InternalEntry::Vacant(next_vacant) => next_vacant,
-                    InternalEntry::Occupied(_) => unreachable!(
-                        "[ink_core::BTreeMap::put] Error: \
-                         a next_vacant index can never point to an occupied entry"
-                    ),
+                    InternalEntry::Occupied(_) => {
+                        unreachable!(
+                            "[ink_core::BTreeMap::put] Error: \
+                             a next_vacant index can never point to an occupied entry"
+                        )
+                    }
                 };
                 // when putting node set next_vacant to the next_vacant which was found here
                 self.header.next_vacant = next_vacant;
@@ -990,10 +996,12 @@ where
                          expected a vacant entry here, but no entry was found",
                     ) {
                     InternalKVEntry::Vacant(next_vacant) => next_vacant,
-                    InternalKVEntry::Occupied(_) => unreachable!(
-                        "[ink_core::BTreeMap::put_pair] Error: \
-                         a next_vacant index can never point to an occupied entry"
-                    ),
+                    InternalKVEntry::Occupied(_) => {
+                        unreachable!(
+                            "[ink_core::BTreeMap::put_pair] Error: \
+                             a next_vacant index can never point to an occupied entry"
+                        )
+                    }
                 };
                 // when putting node set next_vacant to the next_vacant which was found here
                 self.header.next_vacant_pair = next_vacant;
