@@ -16,17 +16,19 @@ use self::SearchResult::{
     Found,
     NotFound,
 };
-use crate::storage::btree_map::node::{
-    KVHandle,
-    Node,
-    NodeHandle,
-};
-use crate::storage::btree_map::impls::{
-    BTreeMap,
-    CAPACITY,
-    HandleType::{
-        Internal,
-        Leaf,
+use crate::storage::btree_map::{
+    impls::{
+        BTreeMap,
+        HandleType::{
+            Internal,
+            Leaf,
+        },
+        CAPACITY,
+    },
+    node::{
+        KVHandle,
+        Node,
+        NodeHandle,
     },
 };
 use core::{
@@ -64,14 +66,14 @@ where
     let mut cur =
         current_root.expect("we would already have returned if no root exists; qed");
     loop {
-        let node = tree.get_node(&cur).expect(
+        let node = tree.get_node(cur).expect(
             "node which is iterated over is either root or child node, \
              but it always exists; qed",
         );
         match search_node(&node, tree.keys_in_node(cur), cur, key) {
             Found(handle) => return Found(handle),
             NotFound(handle) => {
-                match tree.get_handle_type(&handle.node()) {
+                match tree.get_handle_type(handle.node()) {
                     Leaf => return NotFound(handle),
                     Internal => {
                         // Go down then

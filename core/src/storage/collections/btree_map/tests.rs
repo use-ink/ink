@@ -62,7 +62,7 @@ fn all_edges(map: &BTreeMap<i32, i32>) -> Vec<u32> {
 
         // We iterate over all storage entities of the tree and skip vacant entities.
         let handle = NodeHandle::new(node_index);
-        if let Some(node) = map.get_node(&handle) {
+        if let Some(node) = map.get_node(handle) {
             let edges = node
                 .edges()
                 .to_vec()
@@ -342,7 +342,7 @@ fn putting_and_removing_many_items_works() -> Result<()> {
         assert_eq!(map.len(), 0);
         assert_eq!(map.node_count(), 0);
         for i in 0..max_node_count {
-            assert!(map.get_node(&NodeHandle::new(i)).is_none());
+            assert!(map.get_node(NodeHandle::new(i)).is_none());
         }
         Ok(())
     })
@@ -389,7 +389,7 @@ fn simple_insert_and_removal() -> Result<()> {
         assert_eq!(map.len(), 0);
         assert_eq!(map.node_count(), 0);
         for i in 0..max_node_count {
-            assert!(map.get_node(&NodeHandle::new(i)).is_none());
+            assert!(map.get_node(NodeHandle::new(i)).is_none());
         }
         Ok(())
     })
@@ -439,7 +439,7 @@ fn alternating_inserts_and_remove_works() -> Result<()> {
         assert_eq!(map.len(), 0);
         assert_eq!(map.node_count(), 0);
         for i in 0..max_node_count {
-            assert!(map.get_node(&NodeHandle::new(i)).is_none());
+            assert!(map.get_node(NodeHandle::new(i)).is_none());
         }
         Ok(())
     })
@@ -483,7 +483,7 @@ fn sorted_insert_and_removal() -> Result<()> {
         assert_eq!(map.len(), 0);
         assert_eq!(map.node_count(), 0);
         for i in 0..max_node_count {
-            assert!(map.get_node(&NodeHandle::new(i)).is_none());
+            assert!(map.get_node(NodeHandle::new(i)).is_none());
         }
         Ok(())
     })

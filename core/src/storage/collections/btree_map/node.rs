@@ -342,7 +342,7 @@ impl NodeHandle {
 
     /// Returns the node index for this node.
     /// The index must point to the nodes position in the `entries` storage.
-    pub(super) fn node(&self) -> u32 {
+    pub(super) fn node(self) -> u32 {
         self.node
     }
 }
@@ -369,7 +369,7 @@ impl KVHandle {
 
     /// Returns the `NodeHandle` for this node.
     /// The index should point to the nodes position in the `entries` storage.
-    pub(super) fn node(&self) -> NodeHandle {
+    pub(super) fn node(self) -> NodeHandle {
         self.node
     }
 
