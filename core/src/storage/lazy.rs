@@ -81,12 +81,18 @@ impl<T> Lazy<T> {
     /// Returns a shared reference to the inner lazy kind.
     #[must_use]
     fn kind(&self) -> &LazyKind<T> {
+        // SAFETY: We just return a shared reference while the method receiver
+        //         is a shared reference (&self) itself. So we respect normal
+        //         Rust rules.
         unsafe { &*self.kind.get() }
     }
 
     /// Returns an exclusive reference to the inner lazy kind.
     #[must_use]
     fn kind_mut(&mut self) -> &mut LazyKind<T> {
+        // SAFETY: We just return an exclusive reference while the method receiver
+        //         is an exclusive reference (&mut self) itself. So we respect normal
+        //         Rust rules.
         unsafe { &mut *self.kind.get() }
     }
 
@@ -101,6 +107,11 @@ impl<T> Lazy<T> {
     where
         F: FnOnce(&mut LazyKind<T>) -> R,
     {
+        // SAFETY: We operate on an exclusive reference on `LazyKind` within the
+        //         given closure while our method receiver is only a shared reference.
+        //         However, due to encapsulation of the exclusive reference within
+        //         the given closure we cannot leak the exclusive reference outside
+        //         of the closure. So the below action is safe in this regard.
         f(unsafe { &mut *self.kind.get() })
     }
 }
