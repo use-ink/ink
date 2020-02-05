@@ -28,7 +28,7 @@ pub struct Lazy<T> {
 
 impl<T> Lazy<T> {
     /// Creates an eagerly populated lazy storage value.
-    pub fn eager(value: T) -> Self {
+    pub fn new(value: T) -> Self {
         Self {
             kind: UnsafeCell::new(LazyKind::Occupied(OccupiedLazy::new(value))),
         }
