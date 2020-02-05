@@ -57,6 +57,7 @@ where
 
 impl<T> Lazy<T> {
     /// Creates an eagerly populated lazy storage value.
+    #[must_use]
     pub fn new(value: T) -> Self {
         Self {
             kind: UnsafeCell::new(LazyKind::Occupied(OccupiedLazy::new(value))),
@@ -64,6 +65,7 @@ impl<T> Lazy<T> {
     }
 
     /// Creates a true lazy storage value for the given key.
+    #[must_use]
     pub fn lazy(key: Key) -> Self {
         Self {
             kind: UnsafeCell::new(LazyKind::Vacant(VacantLazy::new(key))),
@@ -71,11 +73,13 @@ impl<T> Lazy<T> {
     }
 
     /// Returns a shared reference to the inner lazy kind.
+    #[must_use]
     fn kind(&self) -> &LazyKind<T> {
         unsafe { &*self.kind.get() }
     }
 
     /// Returns an exclusive reference to the inner lazy kind.
+    #[must_use]
     fn kind_mut(&mut self) -> &mut LazyKind<T> {
         unsafe { &mut *self.kind.get() }
     }
@@ -122,6 +126,7 @@ where
     /// # Panics
     ///
     /// If loading from contract storage failed.
+    #[must_use]
     pub fn get(&self) -> &T {
         self.load_value_lazily();
         match self.kind() {
@@ -139,6 +144,7 @@ where
     /// # Panics
     ///
     /// If loading from contract storage failed.
+    #[must_use]
     pub fn get_mut(&mut self) -> &mut T {
         self.load_value_lazily();
         match self.kind_mut() {
