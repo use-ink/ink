@@ -14,6 +14,7 @@
 
 use ink_primitives::Key;
 use core::cell::UnsafeCell;
+use super::{KeyPtr, StorageSize, Pull, Push};
 
 /// A lazy storage entity.
 ///
@@ -24,6 +25,34 @@ use core::cell::UnsafeCell;
 /// Use this if the storage field doesn't need to be loaded in some or most cases.
 pub struct Lazy<T> {
     kind: UnsafeCell<LazyKind<T>>,
+}
+
+impl<T> StorageSize for Lazy<T>
+where
+    T: StorageSize,
+{
+    const SIZE: u64 = <T as StorageSize>::SIZE;
+}
+
+impl<T> Pull for Lazy<T>
+where
+    T: StorageSize + scale::Decode,
+{
+    fn pull(key_ptr: &mut KeyPtr) -> Self {
+        Self::lazy(key_ptr.next_for::<T>())
+    }
+}
+
+impl<T> Push for Lazy<T>
+where
+    T: Push,
+{
+    fn push(&self, key_ptr: &mut KeyPtr) {
+        // We skip pushing to contract storage if we are still in unloaded form.
+        if let LazyKind::Occupied(occupied) = self.kind() {
+            occupied.value.push(key_ptr)
+        }
+    }
 }
 
 impl<T> Lazy<T> {
