@@ -76,6 +76,7 @@ mod collections;
 mod flush;
 mod traits;
 mod value;
+mod lazy;
 
 pub use self::{
     collections::{
@@ -107,6 +108,7 @@ pub use self::{
         Push,
         StorageSize,
     },
+    lazy::Lazy,
 };
 
 #[doc(inline)]
