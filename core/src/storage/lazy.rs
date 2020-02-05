@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_primitives::Key;
+use super::{
+    KeyPtr,
+    Pull,
+    Push,
+    StorageSize,
+};
 use core::cell::UnsafeCell;
-use super::{KeyPtr, StorageSize, Pull, Push};
+use ink_primitives::Key;
 
 /// A lazy storage entity.
 ///
@@ -23,6 +28,7 @@ use super::{KeyPtr, StorageSize, Pull, Push};
 /// # Note
 ///
 /// Use this if the storage field doesn't need to be loaded in some or most cases.
+#[derive(Debug)]
 pub struct Lazy<T> {
     kind: UnsafeCell<LazyKind<T>>,
 }
@@ -154,6 +160,120 @@ where
     }
 }
 
+impl<T> From<T> for Lazy<T> {
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+impl<T> Default for Lazy<T>
+where
+    T: Default,
+{
+    fn default() -> Self {
+        Self::new(Default::default())
+    }
+}
+
+impl<T> core::cmp::PartialEq for Lazy<T>
+where
+    T: PartialEq + scale::Decode,
+{
+    fn eq(&self, other: &Self) -> bool {
+        PartialEq::eq(self.get(), other.get())
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        PartialEq::ne(self.get(), other.get())
+    }
+}
+
+impl<T> core::cmp::Eq for Lazy<T> where T: Eq + scale::Decode {}
+
+impl<T> core::cmp::PartialOrd for Lazy<T>
+where
+    T: PartialOrd + scale::Decode,
+{
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+        PartialOrd::partial_cmp(self.get(), other.get())
+    }
+    fn lt(&self, other: &Self) -> bool {
+        PartialOrd::lt(self.get(), other.get())
+    }
+    fn le(&self, other: &Self) -> bool {
+        PartialOrd::le(self.get(), other.get())
+    }
+    fn ge(&self, other: &Self) -> bool {
+        PartialOrd::ge(self.get(), other.get())
+    }
+    fn gt(&self, other: &Self) -> bool {
+        PartialOrd::gt(self.get(), other.get())
+    }
+}
+
+impl<T> core::cmp::Ord for Lazy<T>
+where
+    T: core::cmp::Ord + scale::Decode,
+{
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
+        Ord::cmp(self.get(), other.get())
+    }
+}
+
+impl<T> core::fmt::Display for Lazy<T>
+where
+    T: scale::Decode + core::fmt::Display,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        core::fmt::Display::fmt(self.get(), f)
+    }
+}
+
+impl<T> core::hash::Hash for Lazy<T>
+where
+    T: core::hash::Hash + scale::Decode,
+{
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.get().hash(state);
+    }
+}
+
+impl<T> core::convert::AsRef<T> for Lazy<T>
+where
+    T: scale::Decode,
+{
+    fn as_ref(&self) -> &T {
+        self.get()
+    }
+}
+
+impl<T> core::convert::AsMut<T> for Lazy<T>
+where
+    T: scale::Decode,
+{
+    fn as_mut(&mut self) -> &mut T {
+        self.get_mut()
+    }
+}
+
+impl<T> ink_prelude::borrow::Borrow<T> for Lazy<T>
+where
+    T: scale::Decode,
+{
+    fn borrow(&self) -> &T {
+        self.get()
+    }
+}
+
+impl<T> ink_prelude::borrow::BorrowMut<T> for Lazy<T>
+where
+    T: scale::Decode,
+{
+    fn borrow_mut(&mut self) -> &mut T {
+        self.get_mut()
+    }
+}
+
 impl<T> core::ops::Deref for Lazy<T>
 where
     T: scale::Decode,
@@ -180,6 +300,7 @@ where
 ///    waits until it is used for the first time in order to load its value
 ///    from the contract storage.
 /// 2. It is actually an already occupied eager lazy.
+#[derive(Debug)]
 pub enum LazyKind<T> {
     /// A true lazy storage entity that loads its contract storage value upon first use.
     Vacant(VacantLazy),
@@ -188,6 +309,7 @@ pub enum LazyKind<T> {
 }
 
 /// The lazy storage entity is in a lazy state.
+#[derive(Debug)]
 pub struct VacantLazy {
     /// The key to load the value from contract storage upon first use.
     pub key: Key,
@@ -201,6 +323,7 @@ impl VacantLazy {
 }
 
 /// An already loaded or otherwise occupied eager lazy storage entity.
+#[derive(Debug)]
 pub struct OccupiedLazy<T> {
     /// The loaded value.
     pub value: T,
