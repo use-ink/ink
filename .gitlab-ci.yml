@@ -212,22 +212,10 @@ publish-docs:
   script:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
-    - rm -vrf ${HOME}/.gitconfig
     # Set github
-    - |
-      cat > ${HOME}/.gitconfig <<EOC
-      [user]
-      name = "${GITHUB_USER}"
-      email = "${GITHUB_EMAIL}"
-      remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
-      [url "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/"]
-      insteadOf = "https://github.com/"
-      EOC
-    # - git config --global user.email "devops-team@parity.io"
-    # - git config --global user.name "${GITHUB_USER}"
-    # - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
-    - git config -l
-    - cat ${HOME}/.gitconfig
+    - git config --global user.email "devops-team@parity.io"
+    - git config --global user.name "${GITHUB_USER}"
+    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
     - time cargo doc --release --no-deps --all --verbose
     # saving README and docs
