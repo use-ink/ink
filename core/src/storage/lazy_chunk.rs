@@ -274,7 +274,8 @@ where
     ///
     /// # Panics
     ///
-    /// If the lazy chunk is not in a state that allows lazy loading.
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the lazy chunk is not in a state that allows lazy loading.
     fn lazily_load(&self, index: Index) -> *mut Entry<T>
     where
         T: Unpin,
@@ -322,7 +323,8 @@ where
     ///
     /// # Panics
     ///
-    /// If the lazy chunk is not in a state that allows lazy loading.
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the lazy chunk is not in a state that allows lazy loading.
     fn lazily_load_mut(&mut self, index: Index) -> &mut Entry<T>
     where
         T: Unpin,
@@ -336,7 +338,8 @@ where
     ///
     /// # Panics
     ///
-    /// If the decoding of the element at the given index failed.
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the decoding of the element at the given index failed.
     pub fn get(&self, index: Index) -> Option<&T>
     where
         T: Unpin,
@@ -352,7 +355,8 @@ where
     ///
     /// # Panics
     ///
-    /// If the decoding of the element at the given index failed.
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the decoding of the element at the given index failed.
     pub fn get_mut(&mut self, index: Index) -> Option<&mut T>
     where
         T: Unpin,
@@ -368,7 +372,8 @@ where
     ///
     /// # Panics
     ///
-    /// If the decoding of the element at the given index failed.
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the decoding of the element at the given index failed.
     pub fn take(&mut self, index: Index) -> Option<T>
     where
         T: Unpin,
@@ -391,7 +396,8 @@ where
     ///
     /// # Panics
     ///
-    /// If the decoding of the old element at the given index failed.
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the decoding of the old element at the given index failed.
     pub fn put(&mut self, _index: Index, _new_value: Option<T>) {
         todo!()
     }
@@ -410,7 +416,8 @@ where
     ///
     /// # Panics
     ///
-    /// If the decoding of the old element at the given index failed.
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the decoding of the old element at the given index failed.
     pub fn put_get(&mut self, index: Index, new_value: Option<T>) -> Option<T> {
         self.lazily_load_mut(index).put(new_value)
     }
