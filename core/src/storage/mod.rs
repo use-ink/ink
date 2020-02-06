@@ -74,9 +74,10 @@ pub mod cell;
 pub mod chunk;
 mod collections;
 mod flush;
+mod lazy;
+mod lazy_chunk;
 mod traits;
 mod value;
-mod lazy;
 
 pub use self::{
     collections::{
@@ -102,13 +103,14 @@ pub use self::{
         },
     },
     flush::Flush,
+    lazy::Lazy,
+    lazy_chunk::LazyChunk,
     traits::{
         KeyPtr,
         Pull,
         Push,
         StorageSize,
     },
-    lazy::Lazy,
 };
 
 #[doc(inline)]
