@@ -217,6 +217,7 @@ publish-docs:
     # Symbolic link because these files live in cache
     - mkdir -p target/doc
     - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
+    - ls target/doc
     # Upload files
     - git add -f target/doc/
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
