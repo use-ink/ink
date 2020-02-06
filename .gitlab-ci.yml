@@ -58,7 +58,7 @@ variables:
     - linux-docker
 
 
-# #### stage:                        check
+#### stage:                        check
 
 check-std:
   stage:                           check
