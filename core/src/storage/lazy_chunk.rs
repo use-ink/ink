@@ -59,7 +59,7 @@ pub struct LazyChunk<T> {
 }
 
 /// The map for the contract storage entries.
-pub type EntryMap<T> = BTreeMap<Index, Entry<T>>;
+pub type EntryMap<T> = BTreeMap<Index, Pin<Box<Entry<T>>>>;
 
 /// An entry within the lazy chunk
 #[derive(Debug)]
@@ -69,7 +69,7 @@ pub struct Entry<T> {
     /// We keep the value in a `Pin<Box<T>>` in order to prevent pointer
     /// invalidation upon updating the cache through `&self` methods as in
     /// [`LazyChunk::get`].
-    value: Option<Pin<Box<T>>>,
+    value: Option<T>,
     /// This is `true` if the `value` has been mutated and is potentially
     /// out-of-sync with the contract storage.
     mutated: bool,
@@ -78,10 +78,7 @@ pub struct Entry<T> {
 impl<T> Entry<T> {
     /// Returns a shared reference to the value of the entry.
     pub fn value(&self) -> Option<&T> {
-        match &self.value {
-            Some(value) => Some(value.as_ref().get_ref()),
-            None => None,
-        }
+        self.value.as_ref()
     }
 
     /// Returns an exclusive reference to the value of the entry.
@@ -90,17 +87,9 @@ impl<T> Entry<T> {
     ///
     /// This changes the `mutate` state of the entry if the entry was occupied
     /// since the caller could potentially change the returned value.
-    pub fn value_mut(&mut self) -> Option<&mut T>
-    where
-        T: Unpin,
-    {
-        match &mut self.value {
-            Some(value) => {
-                self.mutated = true;
-                Some(value.as_mut().get_mut())
-            }
-            None => None,
-        }
+    pub fn value_mut(&mut self) -> Option<&mut T> {
+        self.mutated = self.value.is_some();
+        self.value.as_mut()
     }
 
     /// Takes the value from the entry and returns it.
@@ -108,14 +97,9 @@ impl<T> Entry<T> {
     /// # Note
     ///
     /// This changes the `mutate` state of the entry if the entry was occupied.
-    pub fn take_value(&mut self) -> Option<T>
-    where
-        T: Unpin,
-    {
-        if self.value.is_some() {
-            self.mutated = true;
-        }
-        self.value.take().map(|pin| *Pin::into_inner(pin))
+    pub fn take_value(&mut self) -> Option<T> {
+        self.mutated = self.value.is_some();
+        self.value.take()
     }
 
     /// Puts the new value into the entry and returns the old value.
@@ -124,49 +108,13 @@ impl<T> Entry<T> {
     ///
     /// This changes the `mutate` state of the entry to `true` as long as at
     /// least one of `old_value` and `new_value` is `Some`.
-    pub fn put(&mut self, new_value: Option<T>) -> Option<T>
-    where
-        T: Unpin,
-    {
-        if self.value.is_some() || new_value.is_some() {
-            self.mutated = true;
-        }
-        // Note: This implementation is a bit more complex than it could be
-        //       because we want to re-use the eventually already heap allocated
-        //       `Pin<Box<T>>`.
-        match &mut self.value {
-            old_value @ Some(_) => {
-                match new_value {
-                    Some(new_value) => {
-                        // Re-use the heap allocation.
-                        let old_value = old_value
-                            .as_mut()
-                            .expect("we asserted to have a value")
-                            .as_mut()
-                            .get_mut();
-                        Some(core::mem::replace::<T>(old_value, new_value))
-                    }
-                    None => {
-                        // Throw-away the heap allocation.
-                        let old_value =
-                            old_value.take().expect("we asserted to have a value");
-                        Some(*Pin::into_inner(old_value))
-                    }
-                }
+    pub fn put(&mut self, new_value: Option<T>) -> Option<T> {
+        match new_value {
+            Some(new_value) => {
+                self.mutated = true;
+                self.value.replace(new_value)
             }
-            old_value @ None => {
-                match new_value {
-                    Some(new_value) => {
-                        // Create a new heap allocation.
-                        old_value.replace(Box::pin(new_value));
-                        None
-                    }
-                    None => {
-                        // We do nothing.
-                        None
-                    }
-                }
-            }
+            None => self.take_value(),
         }
     }
 }
@@ -218,46 +166,35 @@ where
 
 impl<T> Push for LazyChunk<T>
 where
-    T: Push + scale::Encode,
+    T: Unpin + Push + scale::Encode,
 {
     fn push(&self, key_ptr: &mut KeyPtr) {
-        // Simply increment `key_ptr` for the next storage entities.
-        let next_key = key_ptr.next_for::<Self>();
-        match self.key {
-            None => (),
-            Some(key) => {
-                assert_eq!(
-                    key, next_key,
-                    // Panic if we would push to some other place than we'd pull from.
-                    // This is just us being overly assertive.
-                    "pull and push keys do not match"
-                );
-                self.for_cached_entries(|entries| {
-                    for (&index, entry) in entries.iter_mut().filter(|(_, entry)| entry.mutated) {
-                        let offset: Key = key + index;
-                        let mut ptr = KeyPtr::from(offset);
-                        match &entry.value {
-                            Some(value) => {
-                                // Forward push to the inner value on the computed key.
-                                Push::push(&**value, &mut ptr);
-                            }
-                            None => {
-                                // Clear the storage at the given index.
-                                crate::env::clear_contract_storage(offset);
-                            }
-                        }
-                        // Reset the mutated entry flag because we just synced.
-                        entry.mutated = false;
+        let key = key_ptr.next_for::<Self>();
+        assert_eq!(self.key, Some(key));
+        self.for_cached_entries(|entries| {
+            for (&index, entry) in entries.iter_mut().filter(|(_, entry)| entry.mutated) {
+                let offset: Key = key + index;
+                let mut ptr = KeyPtr::from(offset);
+                match entry.value() {
+                    Some(value) => {
+                        // Forward push to the inner value on the computed key.
+                        Push::push(value, &mut ptr);
                     }
-                });
+                    None => {
+                        // Clear the storage at the given index.
+                        crate::env::clear_contract_storage(offset);
+                    }
+                }
+                // Reset the mutated entry flag because we just synced.
+                entry.mutated = false;
             }
-        }
+        });
     }
 }
 
 impl<T> LazyChunk<T>
 where
-    T: scale::Decode,
+    T: Unpin + scale::Decode,
 {
     /// Lazily loads the value at the given index.
     ///
@@ -276,10 +213,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the lazy chunk is not in a state that allows lazy loading.
-    fn lazily_load(&self, index: Index) -> *mut Entry<T>
-    where
-        T: Unpin,
-    {
+    fn lazily_load(&self, index: Index) -> *mut Entry<T> {
         let key = match self.key {
             Some(key) => key,
             None => panic!("cannot load lazily in this state"),
@@ -296,20 +230,18 @@ where
         let cached_entries = unsafe { &mut *self.cached_entries.get() };
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         match cached_entries.entry(index) {
-            BTreeMapEntry::Occupied(occupied) => occupied.into_mut(),
+            BTreeMapEntry::Occupied(occupied) => &mut **occupied.into_mut(),
             BTreeMapEntry::Vacant(vacant) => {
-                let loaded_value =
-                    match crate::env::get_contract_storage::<T>(key + index) {
-                        Some(new_value) => {
-                            Some(new_value.expect("could not decode lazily loaded value"))
-                        }
-                        None => None,
-                    };
-                let value = loaded_value.map(|value| Box::pin(value));
-                vacant.insert(Entry {
+                let value = match crate::env::get_contract_storage::<T>(key + index) {
+                    Some(new_value) => {
+                        Some(new_value.expect("could not decode lazily loaded value"))
+                    }
+                    None => None,
+                };
+                &mut **vacant.insert(Box::pin(Entry {
                     value,
                     mutated: false,
-                })
+                }))
             }
         }
     }
@@ -325,10 +257,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the lazy chunk is not in a state that allows lazy loading.
-    fn lazily_load_mut(&mut self, index: Index) -> &mut Entry<T>
-    where
-        T: Unpin,
-    {
+    fn lazily_load_mut(&mut self, index: Index) -> &mut Entry<T> {
         // SAFETY: Dereferencing the raw-pointer here is safe since we
         //         encapsulated this whole call with a `&mut self` receiver.
         unsafe { &mut *self.lazily_load(index) }
@@ -340,10 +269,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn get(&self, index: Index) -> Option<&T>
-    where
-        T: Unpin,
-    {
+    pub fn get(&self, index: Index) -> Option<&T> {
         // SAFETY: Dereferencing the `*mut T` pointer into a `&T` is safe
         //         since this method's receiver is `&self` so we do not
         //         leak non-shared references to the outside.
@@ -357,10 +283,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn get_mut(&mut self, index: Index) -> Option<&mut T>
-    where
-        T: Unpin,
-    {
+    pub fn get_mut(&mut self, index: Index) -> Option<&mut T> {
         self.lazily_load_mut(index).value_mut()
     }
 
@@ -374,10 +297,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn take(&mut self, index: Index) -> Option<T>
-    where
-        T: Unpin,
-    {
+    pub fn take(&mut self, index: Index) -> Option<T> {
         self.lazily_load_mut(index).take_value()
     }
 }
