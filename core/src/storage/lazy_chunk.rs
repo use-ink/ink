@@ -197,7 +197,8 @@ where
         let key = key_ptr.next_for::<Self>();
         assert_eq!(self.key, Some(key));
         self.for_cached_entries(|entries| {
-            for (&index, entry) in entries.iter_mut().filter(|(_, entry)| entry.mutated()) {
+            for (&index, entry) in entries.iter_mut().filter(|(_, entry)| entry.mutated())
+            {
                 let offset: Key = key + index;
                 let mut ptr = KeyPtr::from(offset);
                 Push::push(&**entry, &mut ptr);

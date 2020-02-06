@@ -80,7 +80,10 @@ mod traits;
 mod value;
 
 pub mod storage_size {
-    pub use super::traits::{Cell, Chunk};
+    pub use super::traits::{
+        Cell,
+        Chunk,
+    };
 }
 
 pub use self::{
