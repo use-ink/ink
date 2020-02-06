@@ -219,10 +219,12 @@ publish-docs:
     - time cargo +nightly doc --release --no-deps --all --verbose
     # saving README from the current branch
     - cp README.md /tmp/
+    - mv * /tmp/
+    - ls -la
+    - ls -la /tmp/
     # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
     - ls -la
-    - mv * /tmp
     - mv /tmp/target/doc/* .
     - mv /tmp/README.md .
     - ls -la
