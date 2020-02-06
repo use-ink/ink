@@ -216,14 +216,15 @@ publish-docs:
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
-    # - RUSTDOCFLAGS="--html-in-header target/doc/ink_core/index.html" 
     - time cargo +nightly doc --release --no-deps --all --verbose
+    # saving README from the current branch
+    - cp README.md /tmp/
+    # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
+    - ls -la
     - mv * /tmp
     - mv /tmp/target/doc/* .
-    - rm -f doc
-    - git checkout origin/master README.md
-    - git status
+    - mv /tmp/README.md .
     - ls -la
     # Upload files
     - git add --all --force
