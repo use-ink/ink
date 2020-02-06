@@ -222,7 +222,9 @@ publish-docs:
     - git checkout -b gh-pages || git checkout gh-pages
     - git status
     # Symbolic link because these files live in cache
-    - mkdir -p target/doc
+    # - mkdir -p target/doc
+    - ls target/doc/*
+    - rm -f target/doc/doc
     # - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
     - ls target/doc/*
     # Upload files
