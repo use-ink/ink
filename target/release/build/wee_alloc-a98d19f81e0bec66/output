@@ -1,5 +1,0 @@
-cargo:rerun-if-env-changed=WEE_ALLOC_STATIC_ARRAY_BACKEND_BYTES
-cargo:rerun-if-changed=./Cargo.toml
-cargo:rerun-if-changed=./build.rs
-cargo:rerun-if-changed=./src/lib.rs
-cargo:rerun-if-changed=./src/imp_static_array.rs

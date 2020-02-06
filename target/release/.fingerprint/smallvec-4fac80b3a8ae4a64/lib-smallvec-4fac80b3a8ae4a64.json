@@ -1,1 +1,0 @@
-{"rustc":2853189784112762954,"features":"[\"union\"]","target":11680772787092534394,"profile":2662816111450293140,"path":9409064197531126600,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/smallvec-4fac80b3a8ae4a64/dep-lib-smallvec-4fac80b3a8ae4a64"}}],"rustflags":["-C","link-dead-code"],"metadata":11511323240339246835}

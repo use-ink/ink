@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["HashMap","Mapping stored in the contract storage."]]});

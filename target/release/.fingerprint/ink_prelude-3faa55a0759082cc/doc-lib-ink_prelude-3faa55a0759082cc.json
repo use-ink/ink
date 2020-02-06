@@ -1,1 +1,0 @@
-{"rustc":2853189784112762954,"features":"[\"default\", \"std\"]","target":4238754368238878340,"profile":10611312675881659497,"path":9388081926387287937,"deps":[[13837234849270857574,"cfg_if",false,12676205999351248555]],"local":[{"Precalculated":"1581019680.871437166s (/builds/parity/ink/prelude/Cargo.toml)"}],"rustflags":[],"metadata":15749819508002297412}

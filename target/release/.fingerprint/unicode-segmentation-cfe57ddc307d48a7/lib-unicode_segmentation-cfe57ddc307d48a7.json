@@ -1,1 +1,0 @@
-{"rustc":2853189784112762954,"features":"[]","target":14857823067553163917,"profile":1405300175956473297,"path":16870470566676134146,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/unicode-segmentation-cfe57ddc307d48a7/dep-lib-unicode_segmentation-cfe57ddc307d48a7"}}],"rustflags":["-C","link-dead-code"],"metadata":11806978865797999234}

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["BitVec","A space-efficient contiguous growable bit array type."],["Iter","Iterator over the bits of a bit vector."]]});
