@@ -179,22 +179,6 @@ impl<T> LazyChunk<T> {
         }
     }
 
-    /// Returns a shared reference to the cached entries.
-    fn cached_entries(&self) -> &EntryMap<T> {
-        // SAFETY: We just return a shared reference while the method receiver
-        //         is a shared reference (&self) itself. So we respect normal
-        //         Rust rules.
-        unsafe { &*self.cached_entries.get() }
-    }
-
-    /// Returns a shared reference to the cached entries.
-    fn cached_entries_mut(&mut self) -> &mut EntryMap<T> {
-        // SAFETY: We just return an exclusive reference while the method receiver
-        //         is an exclusive reference (&mut self) itself. So we respect normal
-        //         Rust rules.
-        unsafe { &mut *self.cached_entries.get() }
-    }
-
     /// Performs the given closure on the mutable cached entries.
     ///
     /// # Note
