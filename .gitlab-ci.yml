@@ -221,7 +221,7 @@ publish-docs:
     - git checkout -b gh-pages || git checkout gh-pages
     - mv * /tmp
     - mv /tmp/target/doc/* .
-    - cp ink_core/index.html .
+    - mv /tmp/README.md .
     - git status
     - ls -la
     # Upload files
