@@ -47,6 +47,12 @@ pub struct KeyPtr {
     key: Key,
 }
 
+impl From<Key> for KeyPtr {
+    fn from(key: Key) -> Self {
+        Self { key }
+    }
+}
+
 impl KeyPtr {
     /// Advances the key by the given amount derive by `T` and its `StorageSize`
     /// and returns the next `Key` for usage by the storage element.
