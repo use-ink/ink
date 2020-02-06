@@ -225,7 +225,7 @@ publish-docs:
     # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
     - mv -f * /tmp/
-    - mv -f /tmp/target/doc/* .
+    - mv -f /tmp/doc/* .
     - mv -f /tmp/README.md .
     # Upload files
     - git add --all --force
