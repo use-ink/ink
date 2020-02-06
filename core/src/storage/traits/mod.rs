@@ -26,16 +26,20 @@ macro_rules! forward_supported_array_lens {
     };
 }
 
-mod push;
 mod pull;
+mod push;
 mod storage_size;
 
 use ink_primitives::Key;
 
 pub use self::{
-    storage_size::StorageSize,
-    push::Push,
     pull::Pull,
+    push::Push,
+    storage_size::{
+        Cell,
+        Chunk,
+        StorageSize,
+    },
 };
 
 /// A key pointer.

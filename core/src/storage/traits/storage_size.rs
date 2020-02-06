@@ -21,10 +21,26 @@ pub trait StorageSize {
     const SIZE: u64;
 }
 
+/// A single cell.
+pub enum Cell {}
+
+impl StorageSize for Cell {
+    const SIZE: u64 = 1;
+}
+
+/// A chunk of cells.
+pub enum Chunk {}
+
+impl StorageSize for Chunk {
+    const SIZE: u64 = core::u32::MAX as u64;
+}
+
 macro_rules! impl_storage_size_1 {
     ( $($ty:ty),* ) => {
         $(
-            impl StorageSize for $ty { const SIZE: u64 = 1; }
+            impl StorageSize for $ty {
+                const SIZE: u64 = <Cell as StorageSize>::SIZE;
+            }
         )*
     };
 }
@@ -33,7 +49,9 @@ impl_storage_size_1!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
 macro_rules! impl_storage_size_array {
     ( $($n:literal),* $(,)? ) => {
         $(
-            impl<T> StorageSize for [T; $n] { const SIZE: u64 = 1; }
+            impl<T> StorageSize for [T; $n] {
+                const SIZE: u64 = <Cell as StorageSize>::SIZE;
+            }
         )*
     };
 }
@@ -42,7 +60,9 @@ forward_supported_array_lens!(impl_storage_size_array);
 macro_rules! impl_storage_size_tuple {
     ( $($frag:ident),* $(,)? ) => {
         #[allow(unused_parens)]
-        impl<$($frag),*> StorageSize for ($($frag),* ,) { const SIZE: u64 = 1; }
+        impl<$($frag),*> StorageSize for ($($frag),* ,) {
+            const SIZE: u64 = <Cell as StorageSize>::SIZE;
+        }
     }
 }
 impl_storage_size_tuple!(A);
@@ -63,33 +83,33 @@ impl<T> StorageSize for core::marker::PhantomData<T> {
     const SIZE: u64 = 0;
 }
 impl<T> StorageSize for Option<T> {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }
 impl<T, E> StorageSize for Result<T, E> {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }
 impl<T> StorageSize for ink_prelude::vec::Vec<T> {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }
 impl StorageSize for ink_prelude::string::String {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }
 impl<T> StorageSize for ink_prelude::boxed::Box<T> {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }
 
 impl<T> StorageSize for ink_prelude::collections::BTreeSet<T> {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }
 
 impl<T> StorageSize for ink_prelude::collections::BinaryHeap<T> {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }
 
 impl<T> StorageSize for ink_prelude::collections::LinkedList<T> {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }
 
 impl<T> StorageSize for ink_prelude::collections::VecDeque<T> {
-    const SIZE: u64 = 1;
+    const SIZE: u64 = <Cell as StorageSize>::SIZE;
 }

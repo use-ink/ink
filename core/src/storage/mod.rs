@@ -79,6 +79,10 @@ mod lazy_chunk;
 mod traits;
 mod value;
 
+pub mod storage_size {
+    pub use super::traits::{Cell, Chunk};
+}
+
 pub use self::{
     collections::{
         binary_heap::{

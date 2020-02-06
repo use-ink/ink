@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    storage_size::Chunk,
     KeyPtr,
     Pull,
     Push,
@@ -200,7 +201,7 @@ impl<T> LazyChunk<T> {
 }
 
 impl<T> StorageSize for LazyChunk<T> {
-    const SIZE: u64 = core::u32::MAX as u64;
+    const SIZE: u64 = <Chunk as StorageSize>::SIZE;
 }
 
 impl<T> Pull for LazyChunk<T>
