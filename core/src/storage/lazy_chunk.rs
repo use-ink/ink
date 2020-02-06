@@ -351,6 +351,25 @@ where
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of one of the elements failed.
     pub fn swap(&mut self, x: Index, y: Index) {
-        todo!()
+        if x == y {
+            // Bail out early if both indices are the same.
+            return
+        }
+        let (loaded_x, loaded_y) =
+            // SAFETY: The loaded `x` and `y` entries are distinct from each
+            //         other guaranteed by the previous check. Also `lazily_load`
+            //         guarantees to return a pointer to a pinned entity
+            //         so that the returned references do not conflict with
+            //         each other.
+            unsafe { (&mut *self.lazily_load(x), &mut *self.lazily_load(y)) };
+        if loaded_x.value.is_none() && loaded_y.value.is_none() {
+            // Bail out since nothing has to be swapped if both values are `None`.
+            return
+        }
+        // Set the `mutate` flag since at this point at least one of the loaded
+        // values is guaranteed to be `Some`.
+        loaded_x.mutated = true;
+        loaded_y.mutated = true;
+        core::mem::swap(&mut loaded_x.value, &mut loaded_y.value);
     }
 }
