@@ -1,0 +1,1 @@
+{"rustc":2853189784112762954,"features":"[]","target":4305255212375831529,"profile":1405300175956473297,"path":13724601170874189025,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/lazy_static-58ea37bfbcc3dbc8/dep-lib-lazy_static-58ea37bfbcc3dbc8"}}],"rustflags":["-C","link-dead-code"],"metadata":111743654650316589}

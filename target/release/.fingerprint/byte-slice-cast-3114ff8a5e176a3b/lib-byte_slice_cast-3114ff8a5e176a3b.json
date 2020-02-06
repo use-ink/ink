@@ -1,0 +1,1 @@
+{"rustc":2853189784112762954,"features":"[\"alloc\", \"std\"]","target":2843773729277386115,"profile":1405300175956473297,"path":1154578319192197353,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/byte-slice-cast-3114ff8a5e176a3b/dep-lib-byte_slice_cast-3114ff8a5e176a3b"}}],"rustflags":["-C","link-dead-code"],"metadata":4028636240650239297}

@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["ink_core"] = [{"text":"impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"ink_core/storage/struct.Value.html\" title=\"struct ink_core::storage::Value\">Value</a>&lt;T&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: Codec,&nbsp;</span>","synthetic":false,"types":["ink_core::storage::value::Value"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

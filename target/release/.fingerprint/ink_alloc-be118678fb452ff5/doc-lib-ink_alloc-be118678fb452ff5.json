@@ -1,0 +1,1 @@
+{"rustc":2853189784112762954,"features":"[\"default\", \"std\"]","target":14912126442951584953,"profile":10611312675881659497,"path":4426875648296392344,"deps":[[2330583982131338277,"wee_alloc",false,6463615266803567794]],"local":[{"Precalculated":"1581019680.847436656s (/builds/parity/ink/alloc/Cargo.toml)"}],"rustflags":[],"metadata":7039540692772249456}
