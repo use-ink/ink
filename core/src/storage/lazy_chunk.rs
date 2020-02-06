@@ -274,6 +274,9 @@ where
     fn lazily_load_mut(&mut self, index: Index) -> &mut Entry<T> {
         // SAFETY: Dereferencing the raw-pointer here is safe since we
         //         encapsulated this whole call with a `&mut self` receiver.
+        //         Also `Entry` instances are all pinned, so mutating the
+        //         `BTreeMap` that stores tham won't invalidate references
+        //         to them.
         unsafe { &mut *self.lazily_load(index) }
     }
 
