@@ -105,7 +105,7 @@ impl<T> Lazy<T> {
     /// since the `for_kind` method itself operates only on `&self`.
     fn for_kind<F, R>(&self, f: F) -> R
     where
-        F: FnOnce(&mut LazyKind<T>) -> R,
+        F: for<'a> FnOnce(&'a mut LazyKind<T>) -> R,
     {
         // SAFETY: We operate on an exclusive reference on `LazyKind` within the
         //         given closure while our method receiver is only a shared reference.
