@@ -216,7 +216,7 @@ publish-docs:
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
-    - RUSTDOCFLAGS="--html-in-header $(pwd)/target/doc/ink_core/index.html" time cargo +nightly doc --release --no-deps --all --verbose
+    - RUSTDOCFLAGS="--html-in-header target/doc/ink_core/index.html" time cargo +nightly doc --release --no-deps --all --verbose
     - git checkout -b gh-pages || git checkout gh-pages
     - mv * /tmp
     - mv /tmp/target/doc/* .
@@ -224,5 +224,5 @@ publish-docs:
     - ls -la
     # Upload files
     - git add --all --force
-    - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
+    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
     - git push origin gh-pages --force
