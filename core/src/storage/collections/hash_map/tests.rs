@@ -26,11 +26,68 @@ use crate::{
 };
 use ink_primitives::Key;
 
+#[cfg(feature = "ink-fuzz")]
+use itertools::Itertools;
+
 fn new_empty<K, V>() -> storage::HashMap<K, V> {
     unsafe {
         let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
         storage::HashMap::allocate_using(&mut alloc).initialize_into(())
     }
+}
+
+/// Conducts repeated insert and remove operations into the map by iterating
+/// over `xs`. For each odd `x` in `xs` a defined number of insert operations
+/// (`inserts_each`) is executed. For each even `x` it's asserted that the
+/// previously inserted elements are in the map and they are removed subsequently.
+///
+/// The reasoning behind this even/odd sequence is to introduce some
+/// randomness into when elements are inserted/removed.
+///
+/// `inserts_each` was chosen as `u8` to keep the number of inserts per `x` in
+/// a reasonable range.
+#[cfg(feature = "ink-fuzz")]
+fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
+    let mut map = new_empty();
+    let mut cnt_inserts = 0;
+    let mut previous_even_x = None;
+    let inserts_each = inserts_each as i32;
+
+    xs.into_iter().for_each(|x| {
+        if x % 2 == 0 {
+            // On even numbers we insert
+            for key in x..x + inserts_each {
+                let val = key * 10;
+                if let None = map.insert(key, val) {
+                    assert_eq!(map.get(&key), Some(&val));
+                    cnt_inserts += 1;
+                }
+                assert_eq!(map.len(), cnt_inserts);
+            }
+            if let None = previous_even_x {
+                previous_even_x = Some(x);
+            }
+        } else if x % 2 == 1 && previous_even_x.is_some() {
+            // If it's an odd number and we inserted in a previous run we assert
+            // that the last insert worked correctly and remove the elements again.
+            //
+            // It can happen that after one insert run there are many more
+            // insert runs (i.e. even `x` in `xs`) before we remove the numbers
+            // of the last run again. This is intentional, as to include testing
+            // if subsequent insert operations have an effect on already inserted
+            // items.
+            let x = previous_even_x.unwrap();
+            for key in x..x + inserts_each {
+                let val = key * 10;
+                assert_eq!(map.get(&key), Some(&val));
+                assert_eq!(map.remove(&key), Some(val));
+                assert_eq!(map.get(&key), None);
+                cnt_inserts -= 1;
+                assert_eq!(map.len(), cnt_inserts);
+            }
+            previous_even_x = None;
+        }
+    });
 }
 
 #[test]
@@ -185,6 +242,55 @@ fn mutate_with() -> Result<()> {
             map.mutate_with("Bird Breed", |breed| *breed = "Parrot".into()),
             None
         );
+        Ok(())
+    })
+}
+
+#[cfg(feature = "ink-fuzz")]
+#[quickcheck]
+fn randomized_inserts_and_removes_hm(xs: Vec<i32>, inserts_each: u8) -> Result<()> {
+    env::test::run_multiple_tests_in_thread::<env::DefaultEnvTypes, _>(|_| {
+        insert_and_remove(xs, inserts_each);
+        Ok(())
+    })
+}
+
+/// Inserts all elements from `xs`. Then removes each `xth` element from the map
+/// and asserts that all non-`xth` elements are still in the map.
+#[cfg(feature = "ink-fuzz")]
+#[quickcheck]
+fn randomized_removes(xs: Vec<i32>, xth: usize) -> Result<()> {
+    env::test::run_multiple_tests_in_thread::<env::DefaultEnvTypes, _>(|_| {
+        // given
+        let xs: Vec<i32> = xs.into_iter().unique().collect();
+        let xth = xth.max(1);
+        let mut map = new_empty();
+        let mut len = map.len();
+
+        // when
+        // 1) insert all
+        xs.iter().for_each(|i| {
+            assert_eq!(map.insert(*i, i * 10), None);
+            len += 1;
+            assert_eq!(map.len(), len);
+        });
+
+        // 2) remove every `xth` element of `xs` from the map
+        xs.iter().enumerate().for_each(|(x, i)| {
+            if x % xth == 0 {
+                assert_eq!(map.remove(&i), Some(i * 10));
+                len -= 1;
+            }
+            assert_eq!(map.len(), len);
+        });
+
+        // then
+        // everything else must still be get-able
+        xs.iter().enumerate().for_each(|(x, i)| {
+            if x % xth != 0 {
+                assert_eq!(map.get(&i), Some(&(i * 10)));
+            }
+        });
         Ok(())
     })
 }
