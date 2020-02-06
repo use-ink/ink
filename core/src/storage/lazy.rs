@@ -95,25 +95,6 @@ impl<T> Lazy<T> {
         //         Rust rules.
         unsafe { &mut *self.kind.get() }
     }
-
-    /// Performs the given closure on the mutable lazy kind.
-    ///
-    /// # Note
-    ///
-    /// Actions on the mutable lazy kind are performed within the closure
-    /// to not leak exclusive references to it to the outside. This is important
-    /// since the `for_kind` method itself operates only on `&self`.
-    fn for_kind<F, R>(&self, f: F) -> R
-    where
-        F: for<'a> FnOnce(&'a mut LazyKind<T>) -> R,
-    {
-        // SAFETY: We operate on an exclusive reference on `LazyKind` within the
-        //         given closure while our method receiver is only a shared reference.
-        //         However, due to encapsulation of the exclusive reference within
-        //         the given closure we cannot leak the exclusive reference outside
-        //         of the closure. So the below action is safe in this regard.
-        f(unsafe { &mut *self.kind.get() })
-    }
 }
 
 impl<T> Lazy<T>
@@ -124,14 +105,16 @@ where
     ///
     /// Does nothing if value has already been loaded.
     fn load_value_lazily(&self) {
-        self.for_kind(|kind| {
-            if let LazyKind::Vacant(vacant) = kind {
-                let value = crate::env::get_contract_storage::<T>(vacant.key)
-                    .expect("couldn't find contract storage entry")
-                    .expect("couldn't properly decode contract storage entry");
-                *kind = LazyKind::Occupied(OccupiedLazy::new(value));
-            }
-        });
+        // SAFETY: We mutate the kind only if it is vacant.
+        //         So if there is an actual value (Occupied) we leave the
+        //         entire entity as it is not to invalidate references to it.
+        let kind = unsafe { &mut *self.kind.get() };
+        if let LazyKind::Vacant(vacant) = kind {
+            let value = crate::env::get_contract_storage::<T>(vacant.key)
+                .expect("couldn't find contract storage entry")
+                .expect("couldn't properly decode contract storage entry");
+            *kind = LazyKind::Occupied(OccupiedLazy::new(value));
+        }
     }
 
     /// Returns a shared reference to the lazily loaded value.
