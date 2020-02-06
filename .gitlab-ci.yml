@@ -216,10 +216,12 @@ publish-docs:
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
-    - RUSTDOCFLAGS="--html-in-header target/doc/ink_core/index.html" time cargo +nightly doc --release --no-deps --all --verbose
+    # - RUSTDOCFLAGS="--html-in-header target/doc/ink_core/index.html" 
+    - time cargo +nightly doc --release --no-deps --all --verbose
     - git checkout -b gh-pages || git checkout gh-pages
     - mv * /tmp
     - mv /tmp/target/doc/* .
+    - cp ink_core/index.html .
     - git status
     - ls -la
     # Upload files
