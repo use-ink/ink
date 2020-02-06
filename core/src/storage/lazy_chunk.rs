@@ -421,4 +421,16 @@ where
     pub fn put_get(&mut self, index: Index, new_value: Option<T>) -> Option<T> {
         self.lazily_load_mut(index).put(new_value)
     }
+
+    /// Swaps the values at indices `x` and `y`.
+    ///
+    /// This operation tries to be as efficient as possible and reuse allocations.
+    ///
+    /// # Panics
+    ///
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the decoding of one of the elements failed.
+    pub fn swap(&mut self, x: Index, y: Index) {
+        todo!()
+    }
 }
