@@ -203,18 +203,21 @@ publish-docs:
   # stage:                           publish
   stage:                           check
   <<:                              *docker-env
+  variables:
+    GIT_DEPTH:                     0
   # only:
   #   - master
   #   - schedules
   #   - tags
   script:
     # Set github
-    - git fetch --unshallow
+    # - git fetch --unshallow
     - git config --global user.email "devops-team@parity.io"
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
     # - unset CARGO_TARGET_DIR
+    - rm -rf target/doc
     - cargo doc --no-deps --all
     - git checkout -b gh-pages || git checkout gh-pages
     - git status
