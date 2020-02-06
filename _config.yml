@@ -1,2 +1,2 @@
 theme: jekyll-theme-midnight
-source: target/doc
+source: ./target/doc
