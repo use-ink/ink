@@ -59,23 +59,48 @@ pub struct LazyChunk<T> {
 }
 
 /// The map for the contract storage entries.
+///
+/// We keep the whole entry in a `Pin<Box<T>>` in order to prevent pointer
+/// invalidation upon updating the cache through `&self` methods as in
+/// [`LazyChunk::get`].
 pub type EntryMap<T> = BTreeMap<Index, Pin<Box<Entry<T>>>>;
 
 /// An entry within the lazy chunk
 #[derive(Debug)]
 pub struct Entry<T> {
     /// The current value of the entry.
-    ///
-    /// We keep the value in a `Pin<Box<T>>` in order to prevent pointer
-    /// invalidation upon updating the cache through `&self` methods as in
-    /// [`LazyChunk::get`].
     value: Option<T>,
     /// This is `true` if the `value` has been mutated and is potentially
     /// out-of-sync with the contract storage.
-    mutated: bool,
+    mutated: core::cell::Cell<bool>,
+}
+
+impl<T> Push for Entry<T>
+where
+    T: Push + StorageSize,
+{
+    fn push(&self, key_ptr: &mut KeyPtr) {
+        // Reset the mutated entry flag because we just synced.
+        self.mutated.set(false);
+        match self.value() {
+            Some(value) => {
+                // Forward push to the inner value on the computed key.
+                Push::push(value, key_ptr);
+            }
+            None => {
+                // Clear the storage at the given index.
+                crate::env::clear_contract_storage(key_ptr.next_for::<T>());
+            }
+        }
+    }
 }
 
 impl<T> Entry<T> {
+    /// Returns `true` if the cached value of the entry has potentially been mutated.
+    pub fn mutated(&self) -> bool {
+        self.mutated.get()
+    }
+
     /// Returns a shared reference to the value of the entry.
     pub fn value(&self) -> Option<&T> {
         self.value.as_ref()
@@ -88,7 +113,7 @@ impl<T> Entry<T> {
     /// This changes the `mutate` state of the entry if the entry was occupied
     /// since the caller could potentially change the returned value.
     pub fn value_mut(&mut self) -> Option<&mut T> {
-        self.mutated = self.value.is_some();
+        self.mutated.set(self.value.is_some());
         self.value.as_mut()
     }
 
@@ -98,7 +123,7 @@ impl<T> Entry<T> {
     ///
     /// This changes the `mutate` state of the entry if the entry was occupied.
     pub fn take_value(&mut self) -> Option<T> {
-        self.mutated = self.value.is_some();
+        self.mutated.set(self.value.is_some());
         self.value.take()
     }
 
@@ -111,7 +136,7 @@ impl<T> Entry<T> {
     pub fn put(&mut self, new_value: Option<T>) -> Option<T> {
         match new_value {
             Some(new_value) => {
-                self.mutated = true;
+                self.mutated.set(true);
                 self.value.replace(new_value)
             }
             None => self.take_value(),
@@ -166,27 +191,16 @@ where
 
 impl<T> Push for LazyChunk<T>
 where
-    T: Unpin + Push + scale::Encode,
+    T: Unpin + Push + StorageSize + scale::Encode,
 {
     fn push(&self, key_ptr: &mut KeyPtr) {
         let key = key_ptr.next_for::<Self>();
         assert_eq!(self.key, Some(key));
         self.for_cached_entries(|entries| {
-            for (&index, entry) in entries.iter_mut().filter(|(_, entry)| entry.mutated) {
+            for (&index, entry) in entries.iter_mut().filter(|(_, entry)| entry.mutated()) {
                 let offset: Key = key + index;
                 let mut ptr = KeyPtr::from(offset);
-                match entry.value() {
-                    Some(value) => {
-                        // Forward push to the inner value on the computed key.
-                        Push::push(value, &mut ptr);
-                    }
-                    None => {
-                        // Clear the storage at the given index.
-                        crate::env::clear_contract_storage(offset);
-                    }
-                }
-                // Reset the mutated entry flag because we just synced.
-                entry.mutated = false;
+                Push::push(&**entry, &mut ptr);
             }
         });
     }
@@ -240,7 +254,7 @@ where
                 };
                 &mut **vacant.insert(Box::pin(Entry {
                     value,
-                    mutated: false,
+                    mutated: core::cell::Cell::new(false),
                 }))
             }
         }
@@ -368,8 +382,8 @@ where
         }
         // Set the `mutate` flag since at this point at least one of the loaded
         // values is guaranteed to be `Some`.
-        loaded_x.mutated = true;
-        loaded_y.mutated = true;
+        loaded_x.mutated.set(true);
+        loaded_y.mutated.set(true);
         core::mem::swap(&mut loaded_x.value, &mut loaded_y.value);
     }
 }
