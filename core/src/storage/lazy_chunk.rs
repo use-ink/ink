@@ -312,6 +312,25 @@ where
         }
     }
 
+    /// Lazily loads the value at the given index.
+    ///
+    /// # Note
+    ///
+    /// Only loads a value if `key` is set and if the value has not been loaded yet.
+    /// Returns the freshly loaded or already loaded entry of the value.
+    ///
+    /// # Panics
+    ///
+    /// If the lazy chunk is not in a state that allows lazy loading.
+    fn lazily_load_mut(&mut self, index: Index) -> &mut Entry<T>
+    where
+        T: Unpin,
+    {
+        // SAFETY: Dereferencing the raw-pointer here is safe since we
+        //         encapsulated this whole call with a `&mut self` receiver.
+        unsafe { &mut *self.lazily_load(index) }
+    }
+
     /// Returns a shared reference to the element at the given index if any.
     ///
     /// # Panics
@@ -337,11 +356,7 @@ where
     where
         T: Unpin,
     {
-        // SAFETY: Dereferencing the `*mut T` pointer into a `&mut T` is
-        //         safe since this method's receiver is `&mut self` so we
-        //         are allowed to return `&mut T` references to internals.
-        let entry: &mut Entry<T> = unsafe { &mut *self.lazily_load(index) };
-        entry.value_mut()
+        self.lazily_load_mut(index).value_mut()
     }
 
     /// Takes and returns the element at the given index if any.
@@ -357,11 +372,7 @@ where
     where
         T: Unpin,
     {
-        // SAFETY: Dereferencing the `*mut T` pointer into a `&mut T` is
-        //         safe since this method's receiver is `&mut self` so we
-        //         are allowed to return `&mut T` references to internals.
-        let entry: &mut Entry<T> = unsafe { &mut *self.lazily_load(index) };
-        entry.take_value()
+        self.lazily_load_mut(index).take_value()
     }
 }
 
@@ -400,10 +411,6 @@ where
     ///
     /// If the decoding of the old element at the given index failed.
     pub fn put_get(&mut self, index: Index, new_value: Option<T>) -> Option<T> {
-        // SAFETY: Dereferencing the `*mut T` pointer into a `&mut T` is
-        //         safe since this method's receiver is `&mut self` so we
-        //         are allowed to return `&mut T` references to internals.
-        let entry: &mut Entry<T> = unsafe { &mut *self.lazily_load(index) };
-        entry.put(new_value)
+        self.lazily_load_mut(index).put(new_value)
     }
 }
