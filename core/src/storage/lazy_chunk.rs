@@ -153,23 +153,12 @@ impl<T> LazyChunk<T> {
         }
     }
 
-    /// Performs the given closure on the mutable cached entries.
-    ///
-    /// # Note
-    ///
-    /// Actions on the mutable lazy entries are performed within the closure
-    /// to not leak exclusive references to it to the outside. This is important
-    /// since the `for_entries` method itself operates only on `&self`.
-    fn for_cached_entries<F, R>(&self, f: F) -> R
-    where
-        F: FnOnce(&mut EntryMap<T>) -> R,
-    {
-        // SAFETY: We operate on an exclusive reference on `BTreeMap` within the
-        //         given closure while our method receiver is only a shared reference.
-        //         However, due to encapsulation of the exclusive reference within
-        //         the given closure we cannot leak the exclusive reference outside
-        //         of the closure. So the below action is safe in this regard.
-        f(unsafe { &mut *self.cached_entries.get() })
+    /// Returns a shared reference to the entries.
+    fn entries(&self) -> &EntryMap<T> {
+        // SAFETY: We return a shared reference while `entries` is a method
+        //         with a `&self` receiver so we don't break lifetime or borrow
+        //         rules in isolation.
+        unsafe { &*self.cached_entries.get() }
     }
 }
 
@@ -196,14 +185,12 @@ where
     fn push(&self, key_ptr: &mut KeyPtr) {
         let key = key_ptr.next_for::<Self>();
         assert_eq!(self.key, Some(key));
-        self.for_cached_entries(|entries| {
-            for (&index, entry) in entries.iter_mut().filter(|(_, entry)| entry.mutated())
-            {
-                let offset: Key = key + index;
-                let mut ptr = KeyPtr::from(offset);
-                Push::push(&**entry, &mut ptr);
-            }
-        });
+        for (&index, entry) in self.entries().iter().filter(|(_, entry)| entry.mutated())
+        {
+            let offset: Key = key + index;
+            let mut ptr = KeyPtr::from(offset);
+            Push::push(&**entry, &mut ptr);
+        }
     }
 }
 
