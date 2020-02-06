@@ -75,6 +75,8 @@ pub struct Entry<T> {
     mutated: core::cell::Cell<bool>,
 }
 
+impl<T> Unpin for Entry<T> {}
+
 impl<T> Push for Entry<T>
 where
     T: Push + StorageSize,
@@ -180,7 +182,7 @@ where
 
 impl<T> Push for LazyChunk<T>
 where
-    T: Unpin + Push + StorageSize + scale::Encode,
+    T: Push + StorageSize + scale::Encode,
 {
     fn push(&self, key_ptr: &mut KeyPtr) {
         let key = key_ptr.next_for::<Self>();
@@ -196,7 +198,7 @@ where
 
 impl<T> LazyChunk<T>
 where
-    T: Unpin + scale::Decode,
+    T: scale::Decode,
 {
     /// Lazily loads the value at the given index.
     ///
@@ -330,7 +332,7 @@ where
 
 impl<T> LazyChunk<T>
 where
-    T: Unpin + scale::Codec,
+    T: scale::Codec,
 {
     /// Puts the new value at the given index and returns the old value if any.
     ///
