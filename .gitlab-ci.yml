@@ -212,6 +212,7 @@ publish-docs:
   script:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
+    - rm -vrf ${HOME}/.gitconfig
     # Set github
     - git config --global user.email "devops-team@parity.io"
     - git config --global user.name "${GITHUB_USER}"
@@ -226,7 +227,7 @@ publish-docs:
     - git checkout -b gh-pages || git checkout gh-pages
     - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
-    - rm -rf ./*
+    - rm -vrf ./*
     - mv /tmp/doc/* .
     # Upload files
     - git add --all --force
