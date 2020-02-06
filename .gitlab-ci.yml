@@ -13,7 +13,7 @@ stages:
 
 variables:
   GIT_STRATEGY:                    fetch
-  GIT_DEPTH:                       "3"
+  GIT_DEPTH:                       3
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CI_SERVER_NAME:                  "GitLab CI"
@@ -209,18 +209,20 @@ publish-docs:
   #   - tags
   script:
     # Set github
+    - git fetch --unshallow
     - git config --global user.email "devops-team@parity.io"
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
-    - unset CARGO_TARGET_DIR
+    # - unset CARGO_TARGET_DIR
     - cargo doc --no-deps --all
     - git checkout -b gh-pages || git checkout gh-pages
+    - git status
     # Symbolic link because these files live in cache
     - mkdir -p target/doc
-    # - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
+    - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
     - ls target/doc/*
     # Upload files
-    - git add -f target/doc/
+    - git add -f target/doc/*
     - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
     - git push origin gh-pages --force
