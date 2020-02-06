@@ -56,3 +56,4 @@ ink-generate-abi = [
     "type-metadata",
     "std",
 ]
+ink-fuzz = []
