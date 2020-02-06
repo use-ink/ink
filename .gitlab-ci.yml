@@ -217,16 +217,16 @@ publish-docs:
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
-    - time cargo +nightly doc --release --no-deps --all --verbose
+    - time cargo doc --release --no-deps --all --verbose
     # saving README and docs
-    - cp README.md /tmp/
     - mv target/doc/ /tmp/
-    - ls -la /tmp/
+    - cp README.md /tmp/doc/
     # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
-    - mv -f * /tmp/
-    - mv -f /tmp/doc/* .
-    - mv -f /tmp/README.md .
+    - mv _config.yml /tmp/doc/
+    # remove everything and restore generated docs, README and Jekyll config
+    - mv ./* /tmp/
+    - mv /tmp/doc/* .
     # Upload files
     - git add --all --force
     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
