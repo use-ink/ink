@@ -216,14 +216,15 @@ publish-docs:
     - git config --global user.email "devops-team@parity.io"
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
+    - git config -l
     # Generating Docs
     - time cargo doc --release --no-deps --all --verbose
     # saving README and docs
     - mv target/doc/ /tmp/
     - cp README.md /tmp/doc/
-    - cp _config.yml /tmp/doc/
     # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
+    - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
     - rm -rf ./*
     - mv /tmp/doc/* .
