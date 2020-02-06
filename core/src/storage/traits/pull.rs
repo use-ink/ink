@@ -84,9 +84,7 @@ impl_pull_tuple!(A, B, C, D, E, F, G, H, I);
 impl_pull_tuple!(A, B, C, D, E, F, G, H, I, J);
 
 impl Pull for () {
-    fn pull(_key_ptr: &mut KeyPtr) -> Self {
-        ()
-    }
+    fn pull(_key_ptr: &mut KeyPtr) -> Self {}
 }
 
 impl<T> Pull for core::marker::PhantomData<T> {

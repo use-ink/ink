@@ -193,10 +193,6 @@ where
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(self.get(), other.get())
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        PartialEq::ne(self.get(), other.get())
-    }
 }
 
 impl<T> core::cmp::Eq for Lazy<T> where T: Eq + scale::Decode {}
