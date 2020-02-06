@@ -221,6 +221,7 @@ publish-docs:
     # saving README and docs
     - cp README.md /tmp/
     - mv target/doc/ /tmp/
+    - ls -la /tmp/
     # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
     - mv -f * /tmp/
