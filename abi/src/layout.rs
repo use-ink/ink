@@ -41,6 +41,19 @@ pub trait HasLayout {
     fn layout(&self) -> StorageLayout;
 }
 
+impl From<ink_primitives::Key> for LayoutKey {
+    fn from(key: ink_primitives::Key) -> Self {
+        LayoutKey(key.0)
+    }
+}
+
+impl HasLayout for ink_primitives::Key {
+    fn layout(&self) -> StorageLayout {
+        LayoutRange::cell(*self, <[u8; 32] as type_metadata::Metadata>::meta_type())
+            .into()
+    }
+}
+
 /// Either a concrete layout bound or another layout sub-struct.
 #[derive(Debug, PartialEq, Eq, Serialize, From)]
 #[serde(bound = "F::TypeId: Serialize")]
@@ -73,7 +86,7 @@ impl IntoCompact for StorageLayout {
 #[derive(Debug, PartialEq, Eq, From, Serialize)]
 #[serde(transparent)]
 pub struct LayoutKey(
-    /// Internals must be compatible with `ink_core::storage::Key`.
+    /// Internals must be compatible with `ink_primitives::Key`.
     pub [u8; 32],
 );
 

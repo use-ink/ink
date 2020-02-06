@@ -13,17 +13,18 @@
 // limitations under the License.
 
 use crate::{
+    env,
+    env::Result,
     storage::{
         alloc::{
             AllocateUsing,
             BumpAlloc,
             Initialize,
         },
-        Key,
         Stash,
     },
-    test_utils::run_test,
 };
+use ink_primitives::Key;
 
 fn empty_stash() -> Stash<i32> {
     unsafe {
@@ -43,30 +44,32 @@ fn filled_stash() -> Stash<i32> {
 }
 
 #[test]
-fn new_unchecked() {
-    run_test(|| {
+fn new_unchecked() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let stash = empty_stash();
         // Initial invariant.
         assert_eq!(stash.len(), 0);
         assert!(stash.is_empty());
         assert_eq!(stash.iter().next(), None);
+        Ok(())
     })
 }
 
 #[test]
-fn put_empty() {
-    run_test(|| {
+fn put_empty() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut stash = empty_stash();
         // Before and after first put.
         assert_eq!(stash.get(0), None);
         assert_eq!(stash.put(42), 0);
         assert_eq!(stash.get(0), Some(&42));
+        Ok(())
     })
 }
 
 #[test]
-fn put_filled() {
-    run_test(|| {
+fn put_filled() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut stash = filled_stash();
         // Before and next put.
         assert_eq!(stash.get(0), Some(&5));
@@ -79,21 +82,23 @@ fn put_filled() {
         assert_eq!(stash.put(123), 4);
         assert_eq!(stash.get(4), Some(&123));
         assert_eq!(stash.len(), 5);
+        Ok(())
     })
 }
 
 #[test]
-fn take_empty() {
-    run_test(|| {
+fn take_empty() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut stash = empty_stash();
         assert_eq!(stash.take(0), None);
         assert_eq!(stash.take(1000), None);
+        Ok(())
     })
 }
 
 #[test]
-fn take_filled() {
-    run_test(|| {
+fn take_filled() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut stash = filled_stash();
         // Take and check len
         assert_eq!(stash.len(), 4);
@@ -107,12 +112,13 @@ fn take_filled() {
         assert_eq!(stash.len(), 0);
         assert_eq!(stash.take(4), None);
         assert_eq!(stash.len(), 0);
+        Ok(())
     })
 }
 
 #[test]
-fn put_take() {
-    run_test(|| {
+fn put_take() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut stash = filled_stash();
         // Take and put "randomly"
         //
@@ -198,12 +204,13 @@ fn put_take() {
         // Vacant   |      |    3 |      |    5 |      |      |
         //          |------------------------------------------
         // next_vacant = 1
+        Ok(())
     })
 }
 
 #[test]
-fn iter() {
-    run_test(|| {
+fn iter() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let stash = filled_stash();
         let mut iter = stash.iter();
         assert_eq!(iter.next(), Some((0, &5)));
@@ -211,6 +218,7 @@ fn iter() {
         assert_eq!(iter.next(), Some((2, &1337)));
         assert_eq!(iter.next(), Some((3, &77)));
         assert_eq!(iter.next(), None);
+        Ok(())
     })
 }
 
@@ -223,20 +231,21 @@ fn holey_stash() -> Stash<i32> {
 }
 
 #[test]
-fn iter_holey() {
-    run_test(|| {
+fn iter_holey() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let stash = holey_stash();
         let mut iter = stash.iter();
         assert_eq!(iter.next(), Some((0, &5)));
         assert_eq!(iter.next(), Some((2, &1337)));
         assert_eq!(iter.next(), Some((4, &123)));
         assert_eq!(iter.next(), None);
+        Ok(())
     })
 }
 
 #[test]
-fn iter_back() {
-    run_test(|| {
+fn iter_back() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let stash = filled_stash();
         let mut iter = stash.iter();
         assert_eq!(iter.next_back(), Some((3, &77)));
@@ -244,28 +253,31 @@ fn iter_back() {
         assert_eq!(iter.next_back(), Some((1, &42)));
         assert_eq!(iter.next_back(), Some((0, &5)));
         assert_eq!(iter.next_back(), None);
+        Ok(())
     })
 }
 
 #[test]
-fn iter_back_holey() {
-    run_test(|| {
+fn iter_back_holey() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let stash = holey_stash();
         let mut iter = stash.iter();
         assert_eq!(iter.next_back(), Some((4, &123)));
         assert_eq!(iter.next_back(), Some((2, &1337)));
         assert_eq!(iter.next_back(), Some((0, &5)));
         assert_eq!(iter.next_back(), None);
+        Ok(())
     })
 }
 
 #[test]
-fn iter_size_hint() {
-    run_test(|| {
+fn iter_size_hint() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let stash = filled_stash();
         let mut iter = stash.iter();
         assert_eq!(iter.size_hint(), (4, Some(4)));
         iter.next();
         assert_eq!(iter.size_hint(), (3, Some(3)));
+        Ok(())
     })
 }

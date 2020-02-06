@@ -17,27 +17,35 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 [dependencies]
 ink_abi = { path = "../abi/", default-features = false, features = ["derive"], optional = true }
 ink_alloc = { path = "../alloc/", default-features = false }
-ink_utils = { path = "../utils/" }
+ink_primitives = { path = "../primitives/", default-features = false }
 ink_core_derive = { path = "derive", default-features = false }
 ink_prelude = { path = "../prelude/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.1", default-features = false, features = ["derive", "full"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
-derive_more = { version = "0.99.2", default-features = false, features = ["from"] }
+derive_more = { version = "0.99.2", default-features = false, features = ["from", "display"] }
 smallvec = { version = "1.0", default-features = false, features = ["union"] }
 cfg-if = "0.1"
+num-traits = { version = "0.2.1", default-features = false, features = ["i128"] }
+
+# Only used in the off-chain environment.
+#
+# Sadly couldn't be marked as dev-dependency.
+# Never use this crate outside of the off-chain environment!
+rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
 
 [features]
-default = ["test-env"]
-test-env = [
-    "std",
-]
+default = ["std"]
 std = [
     "ink_abi/std",
     "ink_alloc/std",
     "ink_prelude/std",
+    "ink_primitives/std",
     "scale/std",
     "type-metadata/std",
+    "rand",
+    "rand/std",
+    "num-traits/std",
 ]
 ink-generate-abi = [
     "ink_abi",

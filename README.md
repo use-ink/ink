@@ -14,8 +14,6 @@
 [e2]: https://github.com/Aaronepower/tokei#badges
 [f1]: https://img.shields.io/badge/docs-core-blue.svg
 [f2]: https://paritytech.github.io/ink/ink_core
-[g1]: https://img.shields.io/badge/docs-model-blue.svg
-[g2]: https://paritytech.github.io/ink/ink_model
 [h1]: https://img.shields.io/badge/docs-abi-blue.svg
 [h2]: https://paritytech.github.io/ink/ink_abi
 
@@ -27,9 +25,9 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 
 ## Developer Documentation
 
-| `ink_abi`     | `ink_core`    | `ink_model`   |
-| ------------- | ------------- | ------------- |
-| [![][h1]][h2] | [![][f1]][f2] | [![][g1]][g2] |
+| `ink_abi`     | `ink_core`    |
+| ------------- | ------------- |
+| [![][h1]][h2] | [![][f1]][f2] |
 
 ### Interaction with Substrate
 
@@ -81,14 +79,15 @@ To create your own version of the flipper contract, you first need to initialize
 cargo contract new flipper
 ```
 
-Below you can see the code using the `ink_lang2` version of ink!.
+Below you can see the code using the `ink_lang` version of ink!.
 
 ```rust
-use ink_core::storage;
-use ink_lang2 as ink;
+use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod flipper {
+    use ink_core::storage;
+
     /// The storage of the flipper contract.
     #[ink(storage)]
     struct Flipper {

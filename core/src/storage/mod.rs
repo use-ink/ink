@@ -55,7 +55,6 @@
 //! | Primitive   | Owned | Typed | Opt. Reads | Mutable | Safe Load |
 //! |:-----------:|:-----:|:-----:|:----------:|:-------:|:---------:|
 //! | `Key`       | No    | No    | No         | No      | No        |
-//! | `RawCell`   | Yes   | No    | No         | No      | No        |
 //! | `TypedCell` | Yes   | Yes   | No         | No      | No        |
 //! | `SyncCell`  | Yes   | Yes   | Yes        | Yes     | No        |
 //!
@@ -67,21 +66,15 @@
 //!
 //! ### Kinds
 //!
-//! - `RawChunk`
 //! - `TypedChunk`
 //! - `SyncChunk`
 
 pub mod alloc;
-mod key;
-mod non_clone;
-
 pub mod cell;
 pub mod chunk;
 mod collections;
 mod flush;
 mod value;
-
-use self::non_clone::NonCloneMarker;
 
 pub use self::{
     collections::{
@@ -107,10 +100,6 @@ pub use self::{
         },
     },
     flush::Flush,
-    key::{
-        Key,
-        KeyDiff,
-    },
 };
 
 #[doc(inline)]

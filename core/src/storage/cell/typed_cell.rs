@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage::{
-    alloc::{
+use crate::{
+    env,
+    storage::alloc::{
         Allocate,
         AllocateUsing,
     },
-    cell::RawCell,
-    Key,
-    NonCloneMarker,
 };
+use core::marker::PhantomData;
+use ink_primitives::Key;
 
 /// A typed cell.
 ///
@@ -32,29 +32,12 @@ use crate::storage::{
 /// - `Typed`
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, scale::Encode, scale::Decode)]
 pub struct TypedCell<T> {
-    /// The associated raw cell.
-    cell: RawCell,
-    /// Marker that prevents this type from being `Copy` or `Clone` by accident.
-    non_clone: NonCloneMarker<T>,
-}
-
-impl<T> scale::Encode for TypedCell<T> {
-    fn encode_to<W: scale::Output>(&self, dest: &mut W) {
-        self.cell.encode_to(dest)
-    }
-}
-
-impl<T> scale::Decode for TypedCell<T> {
-    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
-        RawCell::decode(input).map(|raw_cell| {
-            Self {
-                cell: raw_cell,
-                non_clone: NonCloneMarker::default(),
-            }
-        })
-    }
+    /// The associated storage key.
+    key: Key,
+    /// Marker to trick the Rust compiler.
+    marker: PhantomData<fn() -> T>,
 }
 
 impl<T> AllocateUsing for TypedCell<T> {
@@ -64,8 +47,8 @@ impl<T> AllocateUsing for TypedCell<T> {
         A: Allocate,
     {
         Self {
-            cell: RawCell::allocate_using(alloc),
-            non_clone: Default::default(),
+            key: alloc.alloc(1),
+            marker: Default::default(),
         }
     }
 }
@@ -73,12 +56,12 @@ impl<T> AllocateUsing for TypedCell<T> {
 impl<T> TypedCell<T> {
     /// Removes the value stored in the cell.
     pub fn clear(&mut self) {
-        self.cell.clear()
+        env::clear_contract_storage(self.key);
     }
 
     /// Returns the associated, internal raw key.
-    pub fn raw_key(&self) -> Key {
-        self.cell.raw_key()
+    pub fn key(&self) -> Key {
+        self.key
     }
 }
 
@@ -88,12 +71,8 @@ where
 {
     /// Loads the value stored in the cell if any.
     pub fn load(&self) -> Option<T> {
-        self.cell.load().map(|bytes| {
-            T::decode(&mut &bytes[..]).expect(
-                "[ink_core::TypedCell::load] Error: \
-                 failed upon decoding",
-            )
-        })
+        env::get_contract_storage::<T>(self.key)
+            .map(|result| result.expect("could not decode T from storage cell"))
     }
 }
 
@@ -102,25 +81,21 @@ where
     T: scale::Encode,
 {
     /// Stores the value into the cell.
-    pub fn store(&mut self, val: &T) {
-        self.cell.store(&T::encode(&val))
+    pub fn store(&mut self, new_value: &T) {
+        env::set_contract_storage::<T>(self.key, &new_value)
     }
 }
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        env,
-        storage::Key,
-    };
 
     use crate::{
+        env::Result,
         storage::alloc::{
             AllocateUsing,
             BumpAlloc,
         },
-        test_utils::run_test,
     };
 
     fn dummy_cell() -> TypedCell<i32> {
@@ -131,40 +106,75 @@ mod tests {
     }
 
     #[test]
-    fn simple() {
-        run_test(|| {
+    fn simple() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let mut cell = dummy_cell();
             assert_eq!(cell.load(), None);
             cell.store(&5);
             assert_eq!(cell.load(), Some(5));
             cell.clear();
             assert_eq!(cell.load(), None);
+            Ok(())
         })
     }
 
     #[test]
-    fn count_reads() {
-        run_test(|| {
+    fn count_reads() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let cell = dummy_cell();
-            assert_eq!(env::test::total_reads(), 0);
+            let contract_account_id = env::account_id::<env::DefaultEnvTypes>()?;
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 0)
+            );
             cell.load();
-            assert_eq!(env::test::total_reads(), 1);
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (1, 0)
+            );
             cell.load();
             cell.load();
-            assert_eq!(env::test::total_reads(), 3);
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (3, 0)
+            );
+            Ok(())
         })
     }
 
     #[test]
-    fn count_writes() {
-        run_test(|| {
+    fn count_writes() -> Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let mut cell = dummy_cell();
-            assert_eq!(env::test::total_writes(), 0);
+            let contract_account_id = env::account_id::<env::DefaultEnvTypes>()?;
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 0)
+            );
             cell.store(&1);
-            assert_eq!(env::test::total_writes(), 1);
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 1)
+            );
             cell.store(&2);
             cell.store(&3);
-            assert_eq!(env::test::total_writes(), 3);
+            assert_eq!(
+                env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+                    &contract_account_id
+                )?,
+                (0, 3)
+            );
+            Ok(())
         })
     }
 }

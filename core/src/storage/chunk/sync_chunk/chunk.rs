@@ -12,22 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-generate-abi")]
-use ink_abi::{
-    HasLayout,
-    LayoutRange,
-    StorageLayout,
-};
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::{
-    HasTypeDef,
-    Metadata,
-    NamedField,
-    TypeDef,
-    TypeDefStruct,
-    TypeId,
-};
-
 use super::CacheGuard;
 use crate::storage::{
     alloc::{
@@ -36,7 +20,22 @@ use crate::storage::{
     },
     chunk::TypedChunk,
     Flush,
-    Key,
+};
+#[cfg(feature = "ink-generate-abi")]
+use ink_abi::{
+    HasLayout,
+    LayoutRange,
+    StorageLayout,
+};
+use ink_primitives::Key;
+#[cfg(feature = "ink-generate-abi")]
+use type_metadata::{
+    HasTypeDef,
+    Metadata,
+    NamedField,
+    TypeDef,
+    TypeDefStruct,
+    TypeId,
 };
 
 /// A chunk of synchronized cells.
@@ -139,7 +138,7 @@ impl<T> SyncChunk<T> {
     /// This is a low-level utility getter and should
     /// normally not be required by users.
     pub fn cells_key(&self) -> Key {
-        self.chunk.cells_key()
+        self.chunk.key()
     }
 }
 

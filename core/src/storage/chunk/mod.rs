@@ -14,14 +14,10 @@
 
 //! Provides low-level primitives to operate on chunks of cells.
 
-mod raw_chunk;
 mod sync_chunk;
 mod typed_chunk;
 
-pub(crate) use self::raw_chunk::RawChunkCell;
-
 pub use self::{
-    raw_chunk::RawChunk,
     sync_chunk::SyncChunk,
     typed_chunk::TypedChunk,
 };
