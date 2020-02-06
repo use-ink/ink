@@ -213,11 +213,12 @@ publish-docs:
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
+    - unset CARGO_TARGET_DIR
     - cargo doc --no-deps --all
     - git checkout -b gh-pages || git checkout gh-pages
     # Symbolic link because these files live in cache
     - mkdir -p target/doc
-    - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
+    # - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
     - ls target/doc/*
     # Upload files
     - git add -f target/doc/
