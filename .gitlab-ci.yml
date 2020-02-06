@@ -221,10 +221,9 @@ publish-docs:
     # saving README and docs
     - mv target/doc/ /tmp/
     - cp README.md /tmp/doc/
+    - cp _config.yml /tmp/doc/
     # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
-    - git fetch;  ls -la
-    - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
     - rm -rf ./*
     - mv /tmp/doc/* .
