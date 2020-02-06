@@ -221,6 +221,7 @@ publish-docs:
     - git checkout -b gh-pages || git checkout gh-pages
     - mv * /tmp
     - mv /tmp/target/doc/* .
+    - rm -f doc
     - git checkout origin/master README.md
     - git status
     - ls -la
