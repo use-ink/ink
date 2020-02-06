@@ -1,5 +1,0 @@
-error: ink! impl blocks need to be implemented for the #[ink(storage)] struct
-  --> $DIR/16-storage-impl-ident-conflict.rs:26:10
-   |
-26 |     impl NonStorageStruct {
-   |          ^^^^^^^^^^^^^^^^
