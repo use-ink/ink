@@ -299,6 +299,24 @@ where
     })
 }
 
+/// Initializes the whole off-chain environment.
+/// Uses a fresh off-chain environment instance!
+///
+/// # Note
+///
+/// - Initializes the off-chain environment with default values that fit most
+/// uses cases.
+/// - The off-chain environment _must_ be initialized before use.
+pub fn recreate_and_initialize_as_default<T>() -> Result<()>
+    where
+        T: EnvTypes,
+        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+{
+    <EnvInstance as OnInstance>::on_uninitialized_instance(|instance| {
+        instance.initialize_as_default::<T>()
+    })
+}
+
 /// Runs the given closure test function with the default configuartion
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
@@ -308,6 +326,22 @@ where
     <T as EnvTypes>::AccountId: From<[u8; 32]>,
 {
     initialize_as_default::<T>()?;
+    let default_accounts = default_accounts::<T>()?;
+    f(default_accounts)
+}
+
+/// Runs the given closure test function with the default configuration
+/// for the off-chain environment.
+///
+/// Doesn't reuse an off-chain environment which might already exist in
+/// this thread, but instead uses a new off-chain environment instance.
+pub fn run_multiple_tests_in_thread<T, F>(f: F) -> Result<()>
+    where
+        T: EnvTypes,
+        F: FnOnce(DefaultAccounts<T>) -> Result<()>,
+        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+{
+    recreate_and_initialize_as_default::<T>()?;
     let default_accounts = default_accounts::<T>()?;
     f(default_accounts)
 }
