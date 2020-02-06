@@ -225,6 +225,7 @@ publish-docs:
     # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
     - ls -la
+    - rm *
     - mv -f /tmp/target/doc/* .
     - mv -f /tmp/README.md .
     - ls -la
