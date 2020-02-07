@@ -12,33 +12,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![recursion_limit = "256"]
-
-extern crate proc_macro;
-
-#[macro_use]
-mod error;
-
-mod ast;
-mod gen;
-mod hir;
-mod ident_ext;
-mod parser;
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(const_fn)]
 
 #[cfg(feature = "ink-generate-abi")]
-mod old_abi;
-
-#[cfg(test)]
-mod tests;
+mod abi;
 
 mod contract;
+mod cross_calling;
+mod dispatcher;
+mod env_access;
+mod error;
+mod testable;
+mod traits;
 
-use proc_macro::TokenStream;
+pub use ink_lang_macro::contract;
 
-#[proc_macro]
-pub fn contract(input: TokenStream) -> TokenStream {
-    contract::generate(input.into()).into()
-}
+#[cfg(feature = "ink-generate-abi")]
+pub use self::abi::GenerateAbi;
 
-#[cfg(test)]
-pub use contract::generate_or_err;
+pub use self::{
+    contract::{
+        Contract,
+        ContractBuilder,
+        DispatchMode,
+        DispatchUsingMode,
+    },
+    cross_calling::{
+        ForwardCall,
+        ForwardCallMut,
+        ToAccountId,
+    },
+    dispatcher::{
+        Dispatch,
+        DispatchList,
+        DispatchableFn,
+        DispatchableFnMut,
+        Dispatcher,
+        DispatcherMut,
+        EmptyDispatchList,
+        PushDispatcher,
+        UnreachableDispatcher,
+    },
+    env_access::{
+        Env,
+        EnvAccess,
+    },
+    error::{
+        DispatchError,
+        DispatchResult,
+        DispatchRetCode,
+    },
+    testable::InstantiateTestable,
+    traits::{
+        FnInput,
+        FnOutput,
+        FnSelector,
+        Message,
+        Storage,
+    },
+};

@@ -385,82 +385,73 @@ where
     }
 }
 
-#[cfg(all(test, feature = "test-env"))]
+#[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        storage::{
-            alloc::{
-                AllocateUsing,
-                BumpAlloc,
-                Initialize,
-            },
-            Key,
-        },
-        test_utils::run_test,
+    use crate::storage::alloc::{
+        AllocateUsing,
+        BumpAlloc,
+        Initialize,
     };
+    use ink_primitives::Key;
 
     macro_rules! test_ops_impl {
-		( $test_name:ident, $tok:tt; $test_name_assign:ident, $tok_eq:tt) => {
-			#[test]
-			fn $test_name() {
-				run_test(|| {
-					let (val1, val2, val3) = unsafe {
-						let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-						let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
-						let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
-						let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
-						val1.initialize(42);
-						val2.initialize(5);
-						val3.initialize(&val1 $tok &val2);
-						(val1, val2, val3)
-					};
-					// Check init values
-					assert_eq!(val1.get(), &42);
-					assert_eq!(val2.get(), &5);
-					assert_eq!(val3.get(), &(42 $tok 5));
-					// Operations with primitives
-					assert_eq!(&val1 $tok 5, 42 $tok 5);
-					// Operations with `Value<T>`
-					assert_eq!(&val1 $tok &val2, 42 $tok 5);
-				})
-			}
+        ( $test_name:ident, $tok:tt; $test_name_assign:ident, $tok_eq:tt) => {
+            #[test]
+            fn $test_name() {
+                let (val1, val2, val3) = unsafe {
+                    let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+                    let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
+                    let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
+                    let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
+                    val1.initialize(42);
+                    val2.initialize(5);
+                    val3.initialize(&val1 $tok &val2);
+                    (val1, val2, val3)
+                };
+                // Check init values
+                assert_eq!(val1.get(), &42);
+                assert_eq!(val2.get(), &5);
+                assert_eq!(val3.get(), &(42 $tok 5));
+                // Operations with primitives
+                assert_eq!(&val1 $tok 5, 42 $tok 5);
+                // Operations with `Value<T>`
+                assert_eq!(&val1 $tok &val2, 42 $tok 5);
+            }
 
-			#[test]
-			fn $test_name_assign() {
-				run_test(|| {
-					let (mut val1, mut copy, val2, val3) = unsafe {
-						let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-						let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
-						let mut copy: Value<i32> = Value::allocate_using(&mut alloc);
-						let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
-						let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
-						val1.initialize(42);
-						copy.initialize(42);
-						val2.initialize(13);
-						val3.initialize(42 $tok 13);
-						(val1, copy, val2, val3)
-					};
-					// Check init values
-					assert_eq!(val1.get(), &42);
-					assert_eq!(val2.get(), &13);
-					assert_eq!(val3.get(), &(42 $tok 13));
-					// Operation with primitives
-					{
-						val1 $tok_eq 13;
-						assert_eq!(val1.get(), &(42 $tok 13));
-						assert_eq!(val1, val3);
-					}
-					// Operation between `Value<T>`
-					{
-						copy $tok_eq &val2;
-						assert_eq!(copy.get(), &(42 $tok 13));
-						assert_eq!(copy, val3);
-					}
-				})
-			}
-		};
-	}
+            #[test]
+            fn $test_name_assign() {
+                let (mut val1, mut copy, val2, val3) = unsafe {
+                    let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+                    let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
+                    let mut copy: Value<i32> = Value::allocate_using(&mut alloc);
+                    let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
+                    let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
+                    val1.initialize(42);
+                    copy.initialize(42);
+                    val2.initialize(13);
+                    val3.initialize(42 $tok 13);
+                    (val1, copy, val2, val3)
+                };
+                // Check init values
+                assert_eq!(val1.get(), &42);
+                assert_eq!(val2.get(), &13);
+                assert_eq!(val3.get(), &(42 $tok 13));
+                // Operation with primitives
+                {
+                    val1 $tok_eq 13;
+                    assert_eq!(val1.get(), &(42 $tok 13));
+                    assert_eq!(val1, val3);
+                }
+                // Operation between `Value<T>`
+                {
+                    copy $tok_eq &val2;
+                    assert_eq!(copy.get(), &(42 $tok 13));
+                    assert_eq!(copy, val3);
+                }
+            }
+        };
+    }
 
     test_ops_impl!(test_add   , +; test_add_assign   , +=);
     test_ops_impl!(test_sub   , -; test_sub_assign   , -=);
@@ -472,97 +463,89 @@ mod tests {
     test_ops_impl!(test_bitxor, ^; test_bitxor_assign, ^=);
 
     macro_rules! test_unary_ops_impl {
-		( $test_name:ident, $trait_name:ident, $fn_name:ident, $tok:tt ) => {
-			#[test]
-			fn $test_name() {
-				run_test(|| {
-					let (val1, val2) = unsafe {
-						let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-						let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
-						let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
-						val1.initialize(42);
-						val2.initialize($tok 42);
-						(val1, val2)
-					};
-					// Check init values
-					assert_eq!(val1.get(), &42);
-					assert_eq!(val2.get(), &($tok 42));
-					// Simple test
-					assert_eq!($tok &val1, $tok 42);
-					use core::ops::$trait_name;
-					assert_eq!(val1.$fn_name(), $tok 42);
-				})
-			}
-		};
-	}
+        ( $test_name:ident, $trait_name:ident, $fn_name:ident, $tok:tt ) => {
+            #[test]
+            fn $test_name() {
+                let (val1, val2) = unsafe {
+                    let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+                    let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
+                    let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
+                    val1.initialize(42);
+                    val2.initialize($tok 42);
+                    (val1, val2)
+                };
+                // Check init values
+                assert_eq!(val1.get(), &42);
+                assert_eq!(val2.get(), &($tok 42));
+                // Simple test
+                assert_eq!($tok &val1, $tok 42);
+                use core::ops::$trait_name;
+                assert_eq!(val1.$fn_name(), $tok 42);
+            }
+        };
+    }
 
     test_unary_ops_impl!(test_neg, Neg, neg, -);
     test_unary_ops_impl!(test_not, Not, not, !);
 
     #[test]
     fn test_shift() {
-        run_test(|| {
-            let (mut value, result) = unsafe {
-                let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                let mut value: Value<i32> = Value::allocate_using(&mut alloc);
-                let mut result: Value<i32> = Value::allocate_using(&mut alloc);
-                value.initialize(10);
-                result.initialize(10 << 5);
-                (value, result)
-            };
-            // Check init values
-            assert_eq!(value.get(), &10);
-            assert_eq!(result.get(), &(10 << 5));
-            // Simple tests
-            assert_eq!(&value << 5, 10 << 5);
-            // Assign test
-            value <<= 5;
-            assert_eq!(&value, &result);
-        })
+        let (mut value, result) = unsafe {
+            let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+            let mut value: Value<i32> = Value::allocate_using(&mut alloc);
+            let mut result: Value<i32> = Value::allocate_using(&mut alloc);
+            value.initialize(10);
+            result.initialize(10 << 5);
+            (value, result)
+        };
+        // Check init values
+        assert_eq!(value.get(), &10);
+        assert_eq!(result.get(), &(10 << 5));
+        // Simple tests
+        assert_eq!(&value << 5, 10 << 5);
+        // Assign test
+        value <<= 5;
+        assert_eq!(&value, &result);
     }
 
     #[test]
     fn test_eq_ord() {
-        run_test(|| {
-            let (val1, val2, val3) = unsafe {
-                let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
-                let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
-                let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
-                val1.initialize(42);
-                val2.initialize(42);
-                val3.initialize(1337);
-                (val1, val2, val3)
-            };
-            // Eq & Ne
-            assert!(val1 == val2);
-            assert!(val2 != val3);
-            // Less-Than
-            assert!(!(val1 < val2));
-            assert!(val2 < val3);
-            assert!(val1 < val3);
-            // Less-Than or Eq
-            assert!(val1 <= val2);
-            assert!(val2 <= val3);
-            assert!(val1 <= val3);
-        })
+        let (val1, val2, val3) = unsafe {
+            let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+            let mut val1: Value<i32> = Value::allocate_using(&mut alloc);
+            let mut val2: Value<i32> = Value::allocate_using(&mut alloc);
+            let mut val3: Value<i32> = Value::allocate_using(&mut alloc);
+            val1.initialize(42);
+            val2.initialize(42);
+            val3.initialize(1337);
+            (val1, val2, val3)
+        };
+        // Eq & Ne
+        assert!(val1 == val2);
+        assert!(val2 != val3);
+        // Less-Than
+        assert!(!(val1 < val2));
+        assert!(val2 < val3);
+        assert!(val1 < val3);
+        // Less-Than or Eq
+        assert!(val1 <= val2);
+        assert!(val2 <= val3);
+        assert!(val1 <= val3);
     }
 
     #[test]
     fn test_index() {
-        run_test(|| {
-            let val1 = unsafe {
-                let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-                let mut val1: Value<Vec<i32>> = Value::allocate_using(&mut alloc);
-                val1.initialize(vec![2, 3, 5, 7, 11, 13]);
-                val1
-            };
-            assert_eq!(val1[0], 2);
-            assert_eq!(val1[1], 3);
-            assert_eq!(val1[2], 5);
-            assert_eq!(val1[3], 7);
-            assert_eq!(val1[4], 11);
-            assert_eq!(val1[5], 13);
-        })
+        let val1 = unsafe {
+            let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
+            let mut val1: Value<Vec<i32>> = Value::allocate_using(&mut alloc);
+            val1.initialize(vec![2, 3, 5, 7, 11, 13]);
+            val1
+        };
+        assert_eq!(val1[0], 2);
+        assert_eq!(val1[1], 3);
+        assert_eq!(val1[2], 5);
+        assert_eq!(val1[3], 7);
+        assert_eq!(val1[4], 11);
+        assert_eq!(val1[5], 13);
     }
 }

@@ -30,9 +30,7 @@ pub struct BitBlock {
     packs: [BitPack; Self::PACKS as usize],
 }
 
-impl Flush for BitBlock {
-    fn flush(&mut self) {}
-}
+impl Flush for BitBlock {}
 
 /// Error indicating an invalid bit pack index.
 #[derive(Debug, Copy, Clone)]

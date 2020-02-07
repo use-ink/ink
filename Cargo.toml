@@ -1,17 +1,14 @@
 [workspace]
 
 members = [
-    "utils",
-    "core",
-    "model",
-    "lang",
-    "lang2",
-    "cli",
     "abi",
+    "core",
+    "lang",
+    "prelude",
+    "primitives",
 ]
 exclude = [
     "examples/",
-    "cli/template/",
 ]
 
 [profile.release]
