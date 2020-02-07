@@ -94,7 +94,7 @@ codecov:
       done
     - apt update && apt install -y zip
     - zip -0 ccov.zip `find ${CARGO_TARGET_DIR} \( -iname "*ink*.gc*" \) -print`;
-    - grcov ccov.zip -t coveralls --token ${CODECOV_TOKEN} --commit-sha ${CI_COMMIT_SHA} > ccov.json
+    - grcov ccov.zip -t coveralls+ --llvm --token ${CODECOV_TOKEN} --commit-sha ${CI_COMMIT_SHA} > ccov.json
     - cat ccov.json
     - curl -X POST --data-binary ccov.json "https://codecov.io/upload/v2?commit=${CI_COMMIT_SHORT_SHA}&token=${CODECOV_TOKEN}&build_url=${CI_JOB_URL}&service=gitlab&pr=${CI_COMMIT_REF_NAME}"
 
