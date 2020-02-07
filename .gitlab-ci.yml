@@ -89,21 +89,20 @@ codecov:
     #     cargo test --verbose --all-features --no-fail-fast --release --manifest-path ${crate}/Cargo.toml;
     #   done
     - cargo clean
-    - for crate in core alloc prelude primitives lang lang/macro; do
+    - for crate in ${ALL_CRATES}; do
         cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
       done
-    - apt install zip
-    - zip -0 ccov.zip `find /ci-cache/ \( -iname "*ink*.gc*" \) -print`;
-    - grcov ccov.zip -t coveralls --token ${CODECOV_TOKEN} --commit-sha $(git rev-parse HEAD) > ccov.json
+    - apt update && apt install -y zip
+    - zip -0 ccov.zip `find ${CARGO_TARGET_DIR} \( -iname "*ink*.gc*" \) -print`;
+    - grcov ccov.zip -t coveralls --token ${CODECOV_TOKEN} --commit-sha ${CI_COMMIT_SHA} > ccov.json
     - curl -X POST \
       --data-binary ccov.json \
       "https://codecov.io/upload/v2? \
-        commit=$(git rev-parse HEAD)& \
+        commit=${CI_COMMIT_SHORT_SHA}& \
         token=${CODECOV_TOKEN}& \
-        build_url=https://example.com \
-        &name=hui \
+        build_url=${CI_JOB_URL} \
         &service=gitlab \
-        &pr=1"
+        &pr=${CI_COMMIT_REF_NAME}"
 
 # #### stage:                        workspace
 
