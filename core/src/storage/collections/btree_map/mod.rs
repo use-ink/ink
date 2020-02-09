@@ -27,9 +27,9 @@
 //! A simple node with three elements thus can look like this:
 //!
 //! ```no_compile
-//! keys  = [    a,    b,    c    ];
-//! vals  = [    a,    b,    c    ];
-//! edges = [ 1,    2,    3,    4 ];
+//! keys  = [      key(a),      key(b),      key(c)    ];
+//! vals  = [    value(a),    value(b),    value(c)    ];
+//! edges = [        1,           2,           3,           4 ];
 //! ```
 //!
 //! Here the left child of element `a` would be the node with the index `1`, its
