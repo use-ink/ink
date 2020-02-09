@@ -17,19 +17,9 @@ use crate::env::backend::{
     TypedEnv,
 };
 use cfg_if::cfg_if;
-use core::cell::RefCell;
-
-#[cfg(feature = "std")]
-use std::thread::LocalKey;
 
 pub trait OnInstance: Env + TypedEnv {
-    const INSTANCE: LocalKey<RefCell<EnvInstance>>;
-
     fn on_instance<F, R>(f: F) -> R
-    where
-        F: FnOnce(&mut Self) -> R;
-
-    fn on_uninitialized_instance<F, R>(f: F) -> R
     where
         F: FnOnce(&mut Self) -> R;
 }

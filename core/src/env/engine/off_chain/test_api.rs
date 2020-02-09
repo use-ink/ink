@@ -312,7 +312,8 @@ pub fn recreate_and_initialize_as_default<T>() -> Result<()>
         T: EnvTypes,
         <T as EnvTypes>::AccountId: From<[u8; 32]>,
 {
-    <EnvInstance as OnInstance>::on_uninitialized_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        *instance = EnvInstance::uninitialized();
         instance.initialize_as_default::<T>()
     })
 }

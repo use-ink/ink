@@ -224,27 +224,15 @@ impl EnvInstance {
 }
 
 impl OnInstance for EnvInstance {
-    thread_local!(
-        static INSTANCE: RefCell<EnvInstance> = RefCell::new(
-            EnvInstance::uninitialized()
-        );
-    );
-
     fn on_instance<F, R>(f: F) -> R
     where
         F: FnOnce(&mut Self) -> R,
     {
-        Self::INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
-    }
-
-    fn on_uninitialized_instance<F, R>(f: F) -> R
-        where
-            F: FnOnce(&mut Self) -> R,
-    {
-        Self::INSTANCE.with(|instance| {
-            let inst = EnvInstance::uninitialized();
-            instance.replace(inst);
-            f(&mut instance.borrow_mut())
-        })
+        thread_local!(
+            static INSTANCE: RefCell<EnvInstance> = RefCell::new(
+                EnvInstance::uninitialized()
+            )
+        );
+        INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
     }
 }
