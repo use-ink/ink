@@ -20,7 +20,7 @@ use crate::storage::btree_map::{
     impls::{
         BTreeMap,
         HandleType::{
-            Internal,
+            Branch,
             Leaf,
         },
         CAPACITY,
@@ -75,11 +75,11 @@ where
             NotFound(handle) => {
                 match tree.get_handle_type(handle.node()) {
                     Leaf => return NotFound(handle),
-                    Internal => {
+                    Branch => {
                         // Go down then
                         cur = tree
                             .descend(handle)
-                            .expect("an internal node always has a child; qed");
+                            .expect("a branch node always has a child; qed");
                         continue
                     }
                 }

@@ -14,7 +14,7 @@
 
 use self::{
     HandleType::{
-        Internal,
+        Branch,
         Leaf,
     },
     InsertResult::{
@@ -88,12 +88,12 @@ pub(super) const CAPACITY: usize = 2 * B - 1;
 /// The index where a key/value pair is stored in `kv_pairs`.
 pub(super) type KVStorageIndex = u32;
 
-/// The node type, either a `Leaf` (a node without children) or `Internal`
+/// The node type, either a `Leaf` (a node without children) or `Branch`
 /// (a node with children). This distinction makes it easier to handle e.g.
 /// cases where nodes are merged or implementing recursion.
 pub(super) enum HandleType {
     Leaf,
-    Internal,
+    Branch,
 }
 
 /// This enum is used when recursively processing an underfull node (i.e. a node has so
@@ -273,8 +273,8 @@ where
     K: Codec + Ord,
     V: Codec,
 {
-    /// Returns the `HandleType` of `handle`. Either `Leaf` or `Internal`.
-    /// A internal node always has children, whereas a leaf doesn't.
+    /// Returns the `HandleType` of `handle`. Either `Leaf` or `Branch`.
+    /// A branch node always has children, whereas a leaf doesn't.
     pub(super) fn get_handle_type(&self, handle: NodeHandle) -> HandleType {
         let children = self
             .get_node(handle)
@@ -283,7 +283,7 @@ where
         if children == 0 {
             Leaf
         } else {
-            Internal
+            Branch
         }
     }
 
@@ -426,7 +426,7 @@ where
         loop {
             match cur_parent {
                 Some(parent) => {
-                    match self.insert_into_internal_node(parent, ins_pair_index, ins_edge) {
+                    match self.insert_into_branch_node(parent, ins_pair_index, ins_edge) {
                         Fit(_) => {
                             self.header.len += 1;
                             return out_storage_index
@@ -441,7 +441,7 @@ where
                 None => {
                     let new_root = self.root_push_level();
                     self.header.len += 1;
-                    self.push_internal(new_root, ins_pair_index, ins_edge);
+                    self.push_branch(new_root, ins_pair_index, ins_edge);
                     return out_storage_index
                 }
             }
@@ -454,11 +454,11 @@ where
         loop {
             match self.get_handle_type(handle) {
                 Leaf => return self.first_edge(handle),
-                Internal => {
+                Branch => {
                     let first_edge = self.first_edge(handle);
                     handle = self
                         .descend(first_edge)
-                        .expect("every internal node has children; qed");
+                        .expect("every branch node has children; qed");
                 }
             }
         }
@@ -521,10 +521,10 @@ where
         let handle_type = self.get_handle_type(handle.node());
         let (small_leaf, old_pair_index, mut new_len) = match handle_type {
             Leaf => self.extract_handle(handle),
-            Internal => {
+            Branch => {
                 let child = self
                     .right_child(handle)
-                    .expect("every internal node has children; qed");
+                    .expect("every branch node has children; qed");
                 let first_leaf = self.first_leaf_edge(child);
 
                 let to_remove = self.right_kv(first_leaf).expect("right_kv must exist");
@@ -697,7 +697,7 @@ where
     }
 
     /// Removes a key/value pair from the end of the node referenced by `handle`. If this
-    /// is an internal node the edge that was to the right of that pair is also removed.
+    /// is a branch node the edge that was to the right of that pair is also removed.
     ///
     /// Returns `(removed_pair_storage_index, Option<removed_edge>)`.
     fn pop(&mut self, handle: NodeHandle) -> (KVStorageIndex, Option<NodeHandle>) {
@@ -712,8 +712,8 @@ where
         };
         let edge = match handle_type {
             Leaf => None,
-            Internal => {
-                // If `handle` is a reference to an internal node we also remove the edge right
+            Branch => {
+                // If `handle` is a reference to a branch node we also remove the edge right
                 // of it.
                 let edge = {
                     let node = self.get_node_mut(handle).expect("node must exist");
@@ -744,11 +744,11 @@ where
         let child = self.descend(right).expect("child must exist");
         match self.get_handle_type(child) {
             Leaf => self.push_front_leaf(child, pair_storage_index),
-            Internal => {
-                self.push_front_internal(
+            Branch => {
+                self.push_front_branch(
                     child,
                     pair_storage_index,
-                    edge.expect("edge always exists for internal nodes"),
+                    edge.expect("edge always exists for branch nodes"),
                 )
             }
         }
@@ -770,18 +770,18 @@ where
         let left_child = self.left_child(handle).expect("left child must exist");
         match self.get_handle_type(left_child) {
             Leaf => self.push_leaf(left_child, pair_storage_index),
-            Internal => {
-                self.push_internal(
+            Branch => {
+                self.push_branch(
                     left_child,
                     pair_storage_index,
-                    edge.expect("edge always exists for internal node"),
+                    edge.expect("edge always exists for branch node"),
                 )
             }
         }
     }
 
     /// Removes the storage index of a key/value pair from the beginning of this node.
-    /// If this is an internal node, also removes the edge that was to the left of that pair.
+    /// If this is a branch node, also removes the edge that was to the left of that pair.
     ///
     /// *Note:* This method does not actually remove the storage entry! Just the pointer
     /// to the index of it!
@@ -794,7 +794,6 @@ where
         let typ = self.get_handle_type(handle);
         let node = self.get_node_mut(handle).expect("node must exist");
 
-        // Necessary for correctness, but this is an internal module
         debug_assert!(node.len() > 0);
         let old_len = node.len();
 
@@ -802,7 +801,7 @@ where
 
         let edge = match typ {
             Leaf => None,
-            Internal => {
+            Branch => {
                 let edge = node.remove_edge_with_shift(0).expect("edge must exist");
 
                 // Create a new `NodeHandle` to the new root
@@ -835,7 +834,7 @@ where
 
     /// Adds a key/value pair and an edge to go to the left of that pair to
     /// the beginning of the node.
-    fn push_front_internal(
+    fn push_front_branch(
         &mut self,
         handle: NodeHandle,
         pair_storage_index: KVStorageIndex,
@@ -1014,7 +1013,7 @@ where
 
     /// Adds a key/value pair and an edge to go to the right of that pair to
     /// the end of the node.
-    fn push_internal(
+    fn push_branch(
         &mut self,
         dst: NodeHandle,
         pair_storage_index: KVStorageIndex,
@@ -1091,7 +1090,7 @@ where
     ///   a newly allocated node.
     ///
     /// Returns a tuple of `(extracted_key, extracted_value, handle_to_new_node)`.
-    fn split_internal(
+    fn split_branch(
         &mut self,
         parent: NodeHandle,
         idx: usize,
@@ -1133,7 +1132,7 @@ where
         (pair_storage_index, right_handle)
     }
 
-    /// Adds a new internal node with a single edge, pointing to the previous root, and make that
+    /// Adds a new branch node with a single edge, pointing to the previous root, and make that
     /// new node the root. This increases the height by 1 and is the opposite of `pop_level`.
     ///
     /// Returns a handle to the new root node.
@@ -1239,7 +1238,7 @@ where
     /// referenced by `handle` is split.
     ///
     /// Returns the result of the insert operation.
-    fn insert_into_internal_node(
+    fn insert_into_branch_node(
         &mut self,
         handle: KVHandle,
         pair_storage_index: KVStorageIndex,
@@ -1267,7 +1266,7 @@ where
             self.insert_fit_edge(kv_handle, pair_storage_index, edge);
             Fit(kv_handle)
         } else {
-            let (extracted_pair_index, right) = self.split_internal(handle.node(), B);
+            let (extracted_pair_index, right) = self.split_branch(handle.node(), B);
             if handle.idx() <= B {
                 // Handle is left side.
                 self.insert_fit_edge(handle, pair_storage_index, edge);
