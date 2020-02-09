@@ -182,6 +182,8 @@ fn tree_must_remain_balanced() -> Result<()> {
         // to go back to one since the nodes should have been merged.
         assert_eq!(map.remove(&one_more), Some(one_more * 10));
         assert_eq!(map.len(), 11);
+
+        // then
         assert_eq!(map.node_count(), 1);
         assert!(map.get_node(NodeHandle::new(0)).is_some());
         Ok(())
