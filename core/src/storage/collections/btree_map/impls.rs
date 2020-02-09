@@ -553,7 +553,12 @@ where
         while new_len < CAPACITY / 2 {
             match self.handle_underfull_node(handle) {
                 UnderflowResult::AtRoot => break,
-                UnderflowResult::EmptyParent(_) => unreachable!(),
+                UnderflowResult::EmptyParent(_) => unreachable!(
+                    "[ink_core::BTreeMap::remove_kv] Error: \
+                     while handling an underfull node it was found that its parent \
+                     node is empty. This can never happen since we always re-balance the tree \
+                     when an element is removed."
+                ),
                 UnderflowResult::Merged(parent) => {
                     let parent_node =
                         self.get_node(parent).expect("parent node must exist");
@@ -1939,7 +1944,10 @@ where
             .take(storage_index)
             .expect("each occupied entry must already have a pair");
         match entry {
-            InternalKVEntry::Vacant(_) => unreachable!("must be occupied"),
+            InternalKVEntry::Vacant(_) => unreachable!(
+                "[ink_core::BTreeMap::insert] Error: \
+                 we already asserted that the entry is occupied"
+            ),
             InternalKVEntry::Occupied(occupied) => {
                 let (key, old_value) = occupied.kv();
                 let new_pair = KVPair::<K, V>::new(key, value);
