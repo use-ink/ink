@@ -128,7 +128,7 @@ pub struct BTreeMap<K, V> {
     header: storage::Value<BTreeMapHeader>,
 
     /// Contains the nodes of the tree.
-    entries: SyncChunk<InternalEntry<K, V>>,
+    nodes: SyncChunk<InternalEntry<K, V>>,
 
     /// The key/value pairs stored in the tree.
     /// We don't store this in `entries` for performance reasons. Instead each
@@ -221,7 +221,7 @@ where
     #[inline]
     fn flush(&mut self) {
         self.header.flush();
-        self.entries.flush();
+        self.nodes.flush();
         self.kv_pairs.flush();
     }
 }
@@ -229,7 +229,7 @@ where
 impl<K, V> Encode for BTreeMap<K, V> {
     fn encode_to<W: scale::Output>(&self, dest: &mut W) {
         self.header.encode_to(dest);
-        self.entries.encode_to(dest);
+        self.nodes.encode_to(dest);
         self.kv_pairs.encode_to(dest);
     }
 }
@@ -241,7 +241,7 @@ impl<K, V> Decode for BTreeMap<K, V> {
         let kv_pairs = SyncChunk::decode(input)?;
         Ok(Self {
             header,
-            entries,
+            nodes: entries,
             kv_pairs,
         })
     }
@@ -255,7 +255,7 @@ impl<K, V> AllocateUsing for BTreeMap<K, V> {
     {
         Self {
             header: storage::Value::allocate_using(alloc),
-            entries: SyncChunk::allocate_using(alloc),
+            nodes: SyncChunk::allocate_using(alloc),
             kv_pairs: SyncChunk::allocate_using(alloc),
         }
     }
@@ -307,7 +307,7 @@ where
     /// explicitly test this). The calling side should apply an `.expect()`
     /// to the return value and proof why this can never happen.
     pub(super) fn get_node(&self, handle: NodeHandle) -> Option<&Node<K, V>> {
-        let entry = self.entries.get(handle.node())?;
+        let entry = self.nodes.get(handle.node())?;
         match entry {
             InternalEntry::Occupied(occupied) => Some(occupied),
             InternalEntry::Vacant(_) => None,
@@ -855,11 +855,11 @@ where
     /// `header.next_vacant` to the new top element -- `handle`.
     fn remove_node(&mut self, handle: NodeHandle) {
         let n = handle.node();
-        let _ = match self.entries.get(n) {
+        let _ = match self.nodes.get(n) {
             None | Some(InternalEntry::Vacant(_)) => None,
             Some(InternalEntry::Occupied(_)) => {
                 match self
-                    .entries
+                    .nodes
                     .put(n, InternalEntry::Vacant(self.header.next_vacant))
                     .expect(
                         "[ink_core::BTreeMap::remove_node] Error: \
@@ -932,7 +932,7 @@ where
 
     /// Returns a mutable reference to the node referenced by `handle`.
     fn get_node_mut(&mut self, handle: NodeHandle) -> Option<&mut Node<K, V>> {
-        let entry = self.entries.get_mut(handle.node())?;
+        let entry = self.nodes.get_mut(handle.node())?;
         match entry {
             InternalEntry::Occupied(occupied) => Some(occupied),
             InternalEntry::Vacant(_) => None,
@@ -946,14 +946,14 @@ where
         let node_handle = match self.header.next_vacant {
             None => {
                 // then there is no vacant entry which we can reuse
-                self.entries
+                self.nodes
                     .set(self.node_count(), InternalEntry::Occupied(node));
                 NodeHandle::new(self.node_count())
             }
             Some(current_vacant) => {
                 // then there is a vacant entry which we can reuse
                 let next_vacant = match self
-                    .entries
+                    .nodes
                     .put(current_vacant.node(), InternalEntry::Occupied(node))
                     .expect(
                         "[ink_core::BTreeMap::put] Error: \
@@ -1621,7 +1621,7 @@ where
             Self::meta_type(),
             vec![
                 LayoutField::of("header", &self.header),
-                LayoutField::of("entries", &self.entries),
+                LayoutField::of("entries", &self.nodes),
                 LayoutField::of("kv_pairs", &self.kv_pairs),
             ],
         )
