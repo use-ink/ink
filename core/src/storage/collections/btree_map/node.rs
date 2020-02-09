@@ -15,7 +15,7 @@
 /// This file contains the logic and model for each node in the tree.
 use crate::storage::{
     btree_map::impls::{
-        KVStoragePointer,
+        KVStorageIndex,
         B,
         CAPACITY,
     },
@@ -139,12 +139,12 @@ pub(super) struct Node<K, V> {
     /// second position in the `edges` array of its parent node.
     parent_idx: Option<u32>,
 
-    /// The array storing a pointer to the key/value pairs in a node.
-    /// For performance reasons each node contains only a pointer to the index where
-    /// the key/value pair is stored in `kv_pairs`. Otherwise re-balancing the tree
+    /// The array storing the storage index of the key/value pairs in a node.
+    /// For performance reasons each node contains only the index where the
+    /// key/value pair is stored in `kv_pairs`. Otherwise re-balancing the tree
     /// or moving entries would be very expensive. With this indirection we only
     /// have to move the `u32` index.
-    pub(super) pairs: [Option<KVStoragePointer>; CAPACITY],
+    pub(super) pairs: [Option<KVStorageIndex>; CAPACITY],
 
     /// The pointers to the children of this node.
     pub(super) edges: [Option<NodeHandle>; EDGES],
@@ -215,15 +215,15 @@ impl<K, V> Node<K, V> {
     }
 
     /// Returns a reference to the key/value `pairs` stored in this node.
-    pub(super) fn pairs(&self) -> &[Option<KVStoragePointer>; CAPACITY] {
+    pub(super) fn pairs(&self) -> &[Option<KVStorageIndex>; CAPACITY] {
         &self.pairs
     }
 
-    /// Pushes a pointer to a key/value pair into the `pairs` array of this node
-    /// while shifting all subsequent items to the right by one. The last element
+    /// Pushes the storage index of a key/value pair into the `pairs` array of this
+    /// node while shifting all subsequent items to the right by one. The last element
     /// of the slice will fall out.
-    pub(super) fn push_pair_to(&mut self, idx: usize, pair_ptr: KVStoragePointer) {
-        slice_insert(&mut self.pairs, idx, Some(pair_ptr));
+    pub(super) fn push_pair_to(&mut self, idx: usize, pair_index: KVStorageIndex) {
+        slice_insert(&mut self.pairs, idx, Some(pair_index));
     }
 
     /// Removes the element at `idx` from `pairs` while shifting all subsequent items to
@@ -233,12 +233,12 @@ impl<K, V> Node<K, V> {
     pub(super) fn remove_pair_with_shift(
         &mut self,
         idx: usize,
-    ) -> Option<KVStoragePointer> {
+    ) -> Option<KVStorageIndex> {
         slice_remove(&mut self.pairs, idx)
     }
     /// Returns a reference to the key/value pair stored at `idx` in this node.
     /// `idx` refers to the position of the pair within the `pairs` array.
-    pub(super) fn pair(&self, idx: usize) -> &Option<KVStoragePointer> {
+    pub(super) fn pair(&self, idx: usize) -> &Option<KVStorageIndex> {
         &self.pairs[idx]
     }
 
@@ -254,27 +254,27 @@ impl<K, V> Node<K, V> {
         self.parent_idx = parent_idx.map(|p| p as u32);
     }
 
-    /// Sets a new `pair_ptr` at `idx`. Returns the old one at this `idx`, if existent.
+    /// Sets a new `pair_storage_index` at `idx`. Returns the old one at this `idx`, if existent.
     pub(super) fn set_pair(
         &mut self,
         idx: usize,
-        pair_ptr: Option<KVStoragePointer>,
-    ) -> Option<KVStoragePointer> {
-        match pair_ptr {
-            Some(ptr) => self.pairs[idx].replace(ptr),
+        pair_storage_index: Option<KVStorageIndex>,
+    ) -> Option<KVStorageIndex> {
+        match pair_storage_index {
+            Some(pair_index) => self.pairs[idx].replace(pair_index),
             None => self.pairs[idx].take(),
         }
     }
 
     /// Takes the pair at `idx` and returns it. Puts `None` at `idx` instead then.
-    pub(super) fn take_pair(&mut self, idx: usize) -> Option<KVStoragePointer> {
+    pub(super) fn take_pair(&mut self, idx: usize) -> Option<KVStorageIndex> {
         self.pairs[idx].take()
     }
 
     /// Sets a supplied range of `pairs` to the ones from the supplied `src` slice.
     pub(super) fn set_pair_range(
         &mut self,
-        src: &[Option<KVStoragePointer>],
+        src: &[Option<KVStorageIndex>],
         range: Range<usize>,
     ) {
         self.pairs[range].copy_from_slice(src);
@@ -355,7 +355,7 @@ pub(super) struct KVHandle {
     /// Index of the node in the `entries` storage.
     node: NodeHandle,
     /// Index of the key/value pair within the node. This is a pointer
-    /// to the position in the `keys`/`vals` array.
+    /// to the position in the `kv_pairs` array.
     idx: u32,
 }
 
