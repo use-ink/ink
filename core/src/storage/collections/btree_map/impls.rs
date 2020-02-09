@@ -653,8 +653,9 @@ where
 
         left_node.set_pair(left_len, removed_pair_ptr);
         let src = &right_pairs[..right_len];
-        let range = left_len + 1..left_len + 1 + right_len;
-        left_node.set_pair_range(src, range);
+        let start = left_len + 1;
+        let end = left_len + 1 + right_len;
+        left_node.set_pair_range(src, start..end);
         left_node.set_len(left_len + right_len + 1);
 
         for i in handle.idx() + 1..old_node_len {
