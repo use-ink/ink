@@ -980,10 +980,12 @@ where
                          expected a vacant entry here, but no entry was found",
                     ) {
                     InternalEntry::Vacant(next_vacant) => next_vacant,
-                    InternalEntry::Occupied(_) => unreachable!(
-                        "[ink_core::BTreeMap::put] Error: \
-                         a next_vacant index can never point to an occupied entry"
-                    ),
+                    InternalEntry::Occupied(_) => {
+                        unreachable!(
+                            "[ink_core::BTreeMap::put] Error: \
+                             a next_vacant index can never point to an occupied entry"
+                        )
+                    }
                 };
                 // when putting node set next_vacant to the next_vacant which was found here
                 self.header.next_vacant = next_vacant;
@@ -1015,10 +1017,12 @@ where
                          expected a vacant entry here, but no entry was found",
                     ) {
                     InternalKVEntry::Vacant(next_vacant) => next_vacant,
-                    InternalKVEntry::Occupied(_) => unreachable!(
-                        "[ink_core::BTreeMap::put_pair] Error: \
-                         a next_vacant index can never point to an occupied entry"
-                    ),
+                    InternalKVEntry::Occupied(_) => {
+                        unreachable!(
+                            "[ink_core::BTreeMap::put_pair] Error: \
+                             a next_vacant index can never point to an occupied entry"
+                        )
+                    }
                 };
                 // when putting node set next_vacant to the next_vacant which was found here
                 self.header.next_vacant_pair = next_vacant;
