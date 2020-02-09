@@ -32,7 +32,7 @@ pub fn empty_map() -> BTreeMap<i32, i32> {
     }
 }
 
-/// Creates a map prefilled with some key/value pairs.
+/// Creates a map pre-filled with some key/value pairs.
 pub fn filled_map() -> BTreeMap<i32, i32> {
     let mut map = empty_map();
     map.insert(5, 50);

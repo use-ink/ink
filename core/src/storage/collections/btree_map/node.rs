@@ -226,18 +226,20 @@ impl<K, V> Node<K, V> {
         slice_insert(&mut self.pairs, idx, Some(pair_index));
     }
 
-    /// Removes the element at `idx` from `pairs` while shifting all subsequent items to
+    /// Removes the storage index at `idx` from `pairs` while shifting all subsequent items to
     /// the left by one.
     ///
-    /// Returns the removed element.
+    /// Returns the removed storage index.
     pub(super) fn remove_pair_with_shift(
         &mut self,
         idx: usize,
     ) -> Option<KVStorageIndex> {
         slice_remove(&mut self.pairs, idx)
     }
-    /// Returns a reference to the key/value pair stored at `idx` in this node.
-    /// `idx` refers to the position of the pair within the `pairs` array.
+
+    /// Returns a reference to the storage index of the key/value pair stored
+    /// at `idx` in this node. `idx` refers to the position of the pair within
+    /// the `pairs` array.
     pub(super) fn pair(&self, idx: usize) -> &Option<KVStorageIndex> {
         &self.pairs[idx]
     }
