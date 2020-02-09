@@ -423,6 +423,17 @@ where
             }
         };
 
+        // This loop is run when the insert operation above resulted in a split node and
+        // we now have an element `ins_pair_index` which needs to be inserted at another
+        // place in the tree.
+        //
+        // The loop tries to recursively insert the element up the tree. This might well
+        // result in more split nodes with other `ins_pair_index` which then need to be
+        // inserted further up.
+        //
+        // The loop always breaks because if the root is reached and we still have an
+        // element to insert, we just create a new root with the old root as a child and
+        // insert the element into the new root then.
         loop {
             match cur_parent {
                 Some(parent) => {
@@ -1011,8 +1022,8 @@ where
         }
     }
 
-    /// Adds a key/value pair and an edge to go to the right of that pair to
-    /// the end of the node.
+    /// Adds the storage index of a key/value pair to the end of the `dst` node.
+    /// Furthermore an `edge` is added right of that pair, at the end of the node.
     fn push_branch(
         &mut self,
         dst: NodeHandle,
@@ -1028,10 +1039,10 @@ where
         self.correct_parent_link(handle);
     }
 
-    /// Adds a key/value pair the end of the node.
-    fn push_leaf(&mut self, handle: NodeHandle, pair_storage_index: KVStorageIndex) {
+    /// Adds the storage index of a key/value pair to the end of the `dst` node.
+    fn push_leaf(&mut self, dst: NodeHandle, pair_storage_index: KVStorageIndex) {
         let node = self
-            .get_node_mut(handle)
+            .get_node_mut(dst)
             .expect("destination node must exist");
 
         debug_assert!(node.len() < CAPACITY);
