@@ -30,6 +30,14 @@ use ink_primitives::Key;
 /// Use this if the storage field doesn't need to be loaded in some or most cases.
 #[derive(Debug)]
 pub struct Lazy<T> {
+    // SAFETY: We use `UnsafeCell` instead of `RefCell` because
+    //         the intended use-case is to hand out references (`&` and `&mut`)
+    //         to the callers of `Lazy`. This cannot be done without `unsafe`
+    //         code even with `RefCell`. Also `RefCell` has a larger footprint
+    //         and has additional overhead that we can avoid by the interface
+    //         and the fact that ink! code is always run single-threaded.
+    //         Being efficient is important here because this is intended to be
+    //         a low-level primitive with lots of dependencies.
     kind: UnsafeCell<LazyKind<T>>,
 }
 
