@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
+use super::super::{
     KeyPtr,
+    LazyCell,
     Pull,
     Push,
     StorageSize,
 };
-use core::cell::UnsafeCell;
 use ink_primitives::Key;
 
 /// A lazy storage entity.
@@ -30,22 +30,14 @@ use ink_primitives::Key;
 /// Use this if the storage field doesn't need to be loaded in some or most cases.
 #[derive(Debug)]
 pub struct Lazy<T> {
-    // SAFETY: We use `UnsafeCell` instead of `RefCell` because
-    //         the intended use-case is to hand out references (`&` and `&mut`)
-    //         to the callers of `Lazy`. This cannot be done without `unsafe`
-    //         code even with `RefCell`. Also `RefCell` has a larger footprint
-    //         and has additional overhead that we can avoid by the interface
-    //         and the fact that ink! code is always run single-threaded.
-    //         Being efficient is important here because this is intended to be
-    //         a low-level primitive with lots of dependencies.
-    kind: UnsafeCell<LazyKind<T>>,
+    cell: LazyCell<T>,
 }
 
 impl<T> StorageSize for Lazy<T>
 where
     T: StorageSize,
 {
-    const SIZE: u64 = <T as StorageSize>::SIZE;
+    const SIZE: u64 = <LazyCell<T> as StorageSize>::SIZE;
 }
 
 impl<T> Pull for Lazy<T>
@@ -53,7 +45,9 @@ where
     T: StorageSize + scale::Decode,
 {
     fn pull(key_ptr: &mut KeyPtr) -> Self {
-        Self::lazy(key_ptr.next_for::<T>())
+        Self {
+            cell: <LazyCell<T> as Pull>::pull(key_ptr),
+        }
     }
 }
 
@@ -62,10 +56,7 @@ where
     T: Push,
 {
     fn push(&self, key_ptr: &mut KeyPtr) {
-        // We skip pushing to contract storage if we are still in unloaded form.
-        if let LazyKind::Occupied(occupied) = self.kind() {
-            occupied.value.push(key_ptr)
-        }
+        Push::push(&self.cell, key_ptr)
     }
 }
 
@@ -74,7 +65,7 @@ impl<T> Lazy<T> {
     #[must_use]
     pub fn new(value: T) -> Self {
         Self {
-            kind: UnsafeCell::new(LazyKind::Occupied(OccupiedLazy::new(value))),
+            cell: LazyCell::new(Some(value)),
         }
     }
 
@@ -82,26 +73,8 @@ impl<T> Lazy<T> {
     #[must_use]
     pub fn lazy(key: Key) -> Self {
         Self {
-            kind: UnsafeCell::new(LazyKind::Vacant(VacantLazy::new(key))),
+            cell: LazyCell::lazy(key),
         }
-    }
-
-    /// Returns a shared reference to the inner lazy kind.
-    #[must_use]
-    fn kind(&self) -> &LazyKind<T> {
-        // SAFETY: We just return a shared reference while the method receiver
-        //         is a shared reference (&self) itself. So we respect normal
-        //         Rust rules.
-        unsafe { &*self.kind.get() }
-    }
-
-    /// Returns an exclusive reference to the inner lazy kind.
-    #[must_use]
-    fn kind_mut(&mut self) -> &mut LazyKind<T> {
-        // SAFETY: We just return an exclusive reference while the method receiver
-        //         is an exclusive reference (&mut self) itself. So we respect normal
-        //         Rust rules.
-        unsafe { &mut *self.kind.get() }
     }
 }
 
@@ -109,22 +82,6 @@ impl<T> Lazy<T>
 where
     T: scale::Decode,
 {
-    /// Loads the value lazily from contract storage.
-    ///
-    /// Does nothing if value has already been loaded.
-    fn load_value_lazily(&self) {
-        // SAFETY: We mutate the kind only if it is vacant.
-        //         So if there is an actual value (Occupied) we leave the
-        //         entire entity as it is not to invalidate references to it.
-        let kind = unsafe { &mut *self.kind.get() };
-        if let LazyKind::Vacant(vacant) = kind {
-            let value = crate::env::get_contract_storage::<T>(vacant.key)
-                .expect("couldn't find contract storage entry")
-                .expect("couldn't properly decode contract storage entry");
-            *kind = LazyKind::Occupied(OccupiedLazy::new(value));
-        }
-    }
-
     /// Returns a shared reference to the lazily loaded value.
     ///
     /// # Note
@@ -136,11 +93,7 @@ where
     /// If loading from contract storage failed.
     #[must_use]
     pub fn get(&self) -> &T {
-        self.load_value_lazily();
-        match self.kind() {
-            LazyKind::Vacant(_) => panic!("expect occupied lazy here"),
-            LazyKind::Occupied(occupied) => &occupied.value,
-        }
+        self.cell.get().expect("expected Some value")
     }
 
     /// Returns an exclusive reference to the lazily loaded value.
@@ -154,11 +107,7 @@ where
     /// If loading from contract storage failed.
     #[must_use]
     pub fn get_mut(&mut self) -> &mut T {
-        self.load_value_lazily();
-        match self.kind_mut() {
-            LazyKind::Vacant(_) => panic!("expect occupied lazy here"),
-            LazyKind::Occupied(occupied) => &mut occupied.value,
-        }
+        self.cell.get_mut().expect("expected Some value")
     }
 }
 
@@ -289,47 +238,5 @@ where
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.get_mut()
-    }
-}
-
-/// The lazy storage entity can be in either of two states.
-///
-/// 1. It either is vacant and thus a real lazy storage entity that
-///    waits until it is used for the first time in order to load its value
-///    from the contract storage.
-/// 2. It is actually an already occupied eager lazy.
-#[derive(Debug)]
-pub enum LazyKind<T> {
-    /// A true lazy storage entity that loads its contract storage value upon first use.
-    Vacant(VacantLazy),
-    /// An already loaded eager lazy storage entity.
-    Occupied(OccupiedLazy<T>),
-}
-
-/// The lazy storage entity is in a lazy state.
-#[derive(Debug)]
-pub struct VacantLazy {
-    /// The key to load the value from contract storage upon first use.
-    pub key: Key,
-}
-
-impl VacantLazy {
-    /// Creates a new truly lazy storage entity for the given key.
-    pub fn new(key: Key) -> Self {
-        Self { key }
-    }
-}
-
-/// An already loaded or otherwise occupied eager lazy storage entity.
-#[derive(Debug)]
-pub struct OccupiedLazy<T> {
-    /// The loaded value.
-    pub value: T,
-}
-
-impl<T> OccupiedLazy<T> {
-    /// Creates a new eager lazy storage entity with the given value.
-    pub fn new(value: T) -> Self {
-        Self { value }
     }
 }
