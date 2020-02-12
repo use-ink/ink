@@ -19,10 +19,7 @@ use super::super::{
     Push,
     StorageSize,
 };
-use core::{
-    cell::UnsafeCell,
-    pin::Pin,
-};
+use core::cell::UnsafeCell;
 use ink_primitives::Key;
 
 use ink_prelude::{
@@ -63,7 +60,7 @@ pub struct LazyChunk<T> {
 /// We keep the whole entry in a `Pin<Box<T>>` in order to prevent pointer
 /// invalidation upon updating the cache through `&self` methods as in
 /// [`LazyChunk::get`].
-pub type EntryMap<T> = BTreeMap<Index, Pin<Box<Entry<T>>>>;
+pub type EntryMap<T> = BTreeMap<Index, Box<Entry<T>>>;
 
 /// An entry within the lazy chunk
 #[derive(Debug)]
@@ -74,8 +71,6 @@ pub struct Entry<T> {
     /// out-of-sync with the contract storage.
     mutated: core::cell::Cell<bool>,
 }
-
-impl<T> Unpin for Entry<T> {}
 
 impl<T> Push for Entry<T>
 where
@@ -224,7 +219,7 @@ where
         };
         // SAFETY: We have put the whole `cached_entries` mapping into an
         //         `UnsafeCell` because of this caching functionality. The
-        //         trick here is that due to using `Pin<Box<T>>` internally
+        //         trick here is that due to using `Box<T>` internally
         //         we are able to return references to the cached entries
         //         while maintaining the invariant that mutating the caching
         //         `BTreeMap` will never invalidate those references.
@@ -242,7 +237,7 @@ where
                     }
                     None => None,
                 };
-                &mut **vacant.insert(Box::pin(Entry {
+                &mut **vacant.insert(Box::new(Entry {
                     value,
                     mutated: core::cell::Cell::new(false),
                 }))
