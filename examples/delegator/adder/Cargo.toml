@@ -51,3 +51,6 @@ ink-generate-abi = [
     "accumulator/ink-generate-abi",
 ]
 ink-as-dependency = []
+
+[package.metadata.cargo-xbuild]
+panic_immediate_abort = true
