@@ -13,7 +13,7 @@ stages:
 
 variables:
   GIT_STRATEGY:                    fetch
-  GIT_DEPTH:                       "3"
+  GIT_DEPTH:                       3
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CI_SERVER_NAME:                  "GitLab CI"
@@ -202,22 +202,31 @@ examples-generate-metadata:
 publish-docs:
   stage:                           publish
   <<:                              *docker-env
+  variables:
+    GIT_DEPTH:                     0
   only:
     - master
     - schedules
     - tags
   script:
+    - rm -rf /tmp/*
+    - unset CARGO_TARGET_DIR
     # Set github
     - git config --global user.email "devops-team@parity.io"
     - git config --global user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     # Generating Docs
-    - cargo doc --no-deps --all
+    - time cargo doc --release --no-deps --all --verbose
+    # saving README and docs
+    - mv target/doc/ /tmp/
+    - cp README.md /tmp/doc/
+    # on gh-pages branch the contents of target/doc should be in root dir
     - git checkout -b gh-pages || git checkout gh-pages
-    # Symbolic link because these files live in cache
-    - mkdir -p target/doc
-    - ln -s "${CARGO_TARGET_DIR}"/doc/ target/doc/
+    - mv _config.yml /tmp/doc/
+    # remove everything and restore generated docs, README and Jekyll config
+    - rm -vrf ./*
+    - mv /tmp/doc/* .
     # Upload files
-    - git add -f target/doc/
-    - git commit -m "Update docs to ${CI_COMMIT_REF_NAME}"
+    - git add --all --force
+    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
     - git push origin gh-pages --force
