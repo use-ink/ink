@@ -234,5 +234,5 @@ publish-docs:
     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
     - git push origin gh-pages --force
   after_script:
-    - pwd
+    - pwd && ls -la
     - find $(pwd) -delete
