@@ -34,6 +34,9 @@ num-traits = { version = "0.2.1", default-features = false, features = ["i128"] 
 # Never use this crate outside of the off-chain environment!
 rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
 
+[dev-dependencies]
+itertools = "0.8.2"
+
 [features]
 default = ["std"]
 std = [
