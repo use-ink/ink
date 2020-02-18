@@ -219,22 +219,27 @@ publish-docs:
   script:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
-    # Set github
-    - git config --global user.email "devops-team@parity.io"
-    - git config --global user.name "${GITHUB_USER}"
+    # Set git config
+    - rm .git/config
+    - git config user.email "devops-team@parity.io"
+    - git config user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
+    - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    - git fetch origin gh-pages
     # Generating Docs
     - time cargo doc --release --no-deps --all --verbose
     # saving README and docs
     - mv target/doc/ /tmp/
     - cp README.md /tmp/doc/
-    # on gh-pages branch the contents of target/doc should be in root dir
-    - git checkout -b gh-pages || git checkout gh-pages
+    - git checkout gh-pages
     - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
-    - rm -vrf ./*
+    - rm -rf ./*
     - mv /tmp/doc/* .
     # Upload files
     - git add --all --force
+    - git status
     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
     - git push origin gh-pages --force
+  after_script:
+    - rm -rf .git/ ./*
