@@ -14,6 +14,7 @@
 
 pub mod binary_heap;
 pub mod bitvec;
+pub mod btree_map;
 pub mod hash_map;
 pub mod stash;
 pub mod vec;
