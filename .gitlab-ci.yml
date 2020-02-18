@@ -235,4 +235,4 @@ publish-docs:
     - git push origin gh-pages --force
   after_script:
     - pwd && ls -la
-    - find $(pwd) -delete
+    - rf -rf $(pwd)
