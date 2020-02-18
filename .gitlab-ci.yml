@@ -218,6 +218,7 @@ publish-docs:
     - git config user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    - git fetch origin gh-pages
     # Generating Docs
     - time cargo doc --release --no-deps --all --verbose
     # saving README and docs
@@ -233,4 +234,4 @@ publish-docs:
     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
     - git push origin gh-pages --force
   after_script:
-    - rm -rf .git
+    - rm -rf .git/
