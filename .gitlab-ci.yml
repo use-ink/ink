@@ -60,155 +60,154 @@ variables:
 
 # #### stage:                        check
 
-# check-std:
-#   stage:                           check
-#   <<:                              *docker-env
-#   script:
-#     - for crate in ${ALL_CRATES}; do
-#         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
-#       done
+check-std:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
+      done
 
-# check-wasm:
-#   stage:                           check
-#   <<:                              *docker-env
-#   script:
-#     - for crate in ${ALL_CRATES}; do
-#         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-#       done
-
-
-# #### stage:                        workspace
-
-# build-std:
-#   stage:                           workspace
-#   <<:                              *docker-env
-#   needs:
-#     - check-std
-#   script:
-#     - for crate in ${ALL_CRATES}; do
-#         cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
-#       done
-
-# build-wasm:
-#   stage:                           workspace
-#   <<:                              *docker-env
-#   needs:
-#     - check-wasm
-#   script:
-#     - for crate in ${ALL_CRATES}; do
-#         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-#       done
-
-# test:
-#   stage:                           workspace
-#   <<:                              *docker-env
-#   needs:
-#     - check-std
-#   script:
-#     - for crate in ${ALL_CRATES}; do
-#         cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
-#       done
-
-# clippy-std:
-#   stage:                           workspace
-#   <<:                              *docker-env
-#   needs:
-#     - check-std
-#   script:
-#     - for crate in ${ALL_CRATES}; do
-#         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
-#       done
-
-# clippy-wasm:
-#   stage:                           workspace
-#   <<:                              *docker-env
-#   needs:
-#     - check-wasm
-#   script:
-#     - for crate in ${ALL_CRATES}; do
-#         cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-#       done
-
-# fmt:
-#   stage:                           workspace
-#   <<:                              *docker-env
-#   script:
-#     - cargo fmt --verbose --all -- --check
+check-wasm:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+      done
 
 
-# #### stage:                        examples
+#### stage:                        workspace
 
-# .update-cargo-contract:            &update-cargo-contract
-#   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
-#   - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
-#   - cargo contract -V
+build-std:
+  stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - check-std
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+      done
 
-# examples-test:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in examples/*/; do
-#         cargo test --verbose --manifest-path ${example}/Cargo.toml;
-#       done
+build-wasm:
+  stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - check-wasm
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+      done
 
-# examples-fmt:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in examples/*/; do
-#         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-#       done
+test:
+  stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - check-std
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+      done
 
-# examples-clippy-std:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in examples/*/; do
-#         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
-#       done
+clippy-std:
+  stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - check-std
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
+      done
 
-# examples-clippy-wasm:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in examples/*/; do
-#         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-#       done
+clippy-wasm:
+  stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - check-wasm
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+      done
 
-# examples-contract-build:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - *update-cargo-contract
-#     - for example in examples/*/; do
-#         pushd $example &&
-#         cargo contract build &&
-#         popd;
-#       done
+fmt:
+  stage:                           workspace
+  <<:                              *docker-env
+  script:
+    - cargo fmt --verbose --all -- --check
 
-# examples-generate-metadata:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - *update-cargo-contract
-#     - for example in examples/*/; do
-#         pushd $example &&
-#         cargo contract generate-metadata &&
-#         popd;
-#       done
+
+#### stage:                        examples
+
+.update-cargo-contract:            &update-cargo-contract
+  # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
+  - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
+  - cargo contract -V
+
+examples-test:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/*/; do
+        cargo test --verbose --manifest-path ${example}/Cargo.toml;
+      done
+
+examples-fmt:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/*/; do
+        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
+      done
+
+examples-clippy-std:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/*/; do
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+      done
+
+examples-clippy-wasm:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/*/; do
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      done
+
+examples-contract-build:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - *update-cargo-contract
+    - for example in examples/*/; do
+        pushd $example &&
+        cargo contract build &&
+        popd;
+      done
+
+examples-generate-metadata:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - *update-cargo-contract
+    - for example in examples/*/; do
+        pushd $example &&
+        cargo contract generate-metadata &&
+        popd;
+      done
 
 #### stage:                        publish
 
 publish-docs:
-  # stage:                           publish
-  stage:                           check
+  stage:                           publish
   <<:                              *docker-env
   variables:
     GIT_DEPTH:                     0
   # only:
-  #   - master
-  #   - schedules
-  #   - tags
+    # - master
+    # - schedules
+    # - tags
   script:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
