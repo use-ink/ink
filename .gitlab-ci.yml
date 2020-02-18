@@ -213,7 +213,6 @@ publish-docs:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
     # Set git config
-    - pwd
     - rm .git/config
     - git config user.email "devops-team@parity.io"
     - git config user.name "${GITHUB_USER}"
@@ -234,5 +233,4 @@ publish-docs:
     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
     - git push origin gh-pages --force
   after_script:
-    - pwd && ls -la
-    - find . -delete
+    - rm -rf .git
