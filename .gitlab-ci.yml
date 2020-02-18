@@ -224,7 +224,8 @@ publish-docs:
     # saving README and docs
     - mv target/doc/ /tmp/
     - cp README.md /tmp/doc/
-    - git checkout gh-pages || git checkout -b gh-pages
+    - git checkout gh-pages || echo "Github misses gh-pages branch"; exit 1
+    - ls -la
     - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
     - rm -rf ./*
@@ -234,4 +235,4 @@ publish-docs:
     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
     - git push origin gh-pages --force
   after_script:
-    - rm -rf .git/
+    - rm -rf .git/ ./*
