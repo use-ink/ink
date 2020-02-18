@@ -85,13 +85,15 @@ codecov:
     CARGO_INCREMENTAL:             0
     RUSTFLAGS:                     '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads'
   script:
-    # - for crate in ${ALL_CRATES}; do 
-    #     cargo test --verbose --all-features --no-fail-fast --release --manifest-path ${crate}/Cargo.toml;
-    #   done
     - cargo clean
     - for crate in ${ALL_CRATES}; do
-        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+        cargo +nightly test --verbose --all-features --no-fail-fast --release --manifest-path ${crate}/Cargo.toml;
       done
+    # OR
+    # - cargo +nightly test --verbose --all-features --no-fail-fast --release --workspace
+    # OR with default members in manifest
+    # OR as in travis 
+    # - cargo test --all-features --all
     - apt update && apt install -y zip
     - zip -0 ccov.zip `find ${CARGO_TARGET_DIR} \( -iname "*.gc*" \) -print`;
     - grcov ccov.zip -t coveralls+ --llvm --token ${CODECOV_TOKEN} --commit-sha ${CI_COMMIT_SHA} > ccov.json
