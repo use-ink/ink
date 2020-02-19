@@ -86,7 +86,7 @@ impl<T> Lazy<T> {
 
 impl<T> Lazy<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     /// Returns a shared reference to the lazily loaded value.
     ///
@@ -134,18 +134,18 @@ where
 
 impl<T> core::cmp::PartialEq for Lazy<T>
 where
-    T: PartialEq + scale::Decode,
+    T: PartialEq + StorageSize + PullForward,
 {
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(self.get(), other.get())
     }
 }
 
-impl<T> core::cmp::Eq for Lazy<T> where T: Eq + scale::Decode {}
+impl<T> core::cmp::Eq for Lazy<T> where T: Eq + StorageSize + PullForward {}
 
 impl<T> core::cmp::PartialOrd for Lazy<T>
 where
-    T: PartialOrd + scale::Decode,
+    T: PartialOrd + StorageSize + PullForward,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         PartialOrd::partial_cmp(self.get(), other.get())
@@ -166,7 +166,7 @@ where
 
 impl<T> core::cmp::Ord for Lazy<T>
 where
-    T: core::cmp::Ord + scale::Decode,
+    T: core::cmp::Ord + StorageSize + PullForward,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         Ord::cmp(self.get(), other.get())
@@ -175,7 +175,7 @@ where
 
 impl<T> core::fmt::Display for Lazy<T>
 where
-    T: scale::Decode + core::fmt::Display,
+    T: core::fmt::Display + StorageSize + PullForward,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         core::fmt::Display::fmt(self.get(), f)
@@ -184,7 +184,7 @@ where
 
 impl<T> core::hash::Hash for Lazy<T>
 where
-    T: core::hash::Hash + scale::Decode,
+    T: core::hash::Hash + StorageSize + PullForward,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.get().hash(state);
@@ -193,7 +193,7 @@ where
 
 impl<T> core::convert::AsRef<T> for Lazy<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     fn as_ref(&self) -> &T {
         self.get()
@@ -202,7 +202,7 @@ where
 
 impl<T> core::convert::AsMut<T> for Lazy<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     fn as_mut(&mut self) -> &mut T {
         self.get_mut()
@@ -211,7 +211,7 @@ where
 
 impl<T> ink_prelude::borrow::Borrow<T> for Lazy<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     fn borrow(&self) -> &T {
         self.get()
@@ -220,7 +220,7 @@ where
 
 impl<T> ink_prelude::borrow::BorrowMut<T> for Lazy<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     fn borrow_mut(&mut self) -> &mut T {
         self.get_mut()
@@ -229,7 +229,7 @@ where
 
 impl<T> core::ops::Deref for Lazy<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     type Target = T;
 
@@ -240,7 +240,7 @@ where
 
 impl<T> core::ops::DerefMut for Lazy<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.get_mut()

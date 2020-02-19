@@ -166,7 +166,7 @@ impl<T> LazyCell<T> {
 
 impl<T> LazyCell<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     /// Loads the value lazily from contract storage.
     ///
@@ -185,9 +185,8 @@ where
         //         This way we do not invalidate pointers to this value.
         let kind = unsafe { &mut *self.kind.get() };
         if let LazyCellEntry::Vacant(vacant) = kind {
-            let value = crate::env::get_contract_storage::<T>(vacant.key).map(|some| {
-                some.expect("couldn't properly decode contract storage entry")
-            });
+            let value =
+                <Option<T> as PullForward>::pull_forward(&mut KeyPtr::from(vacant.key));
             *kind = LazyCellEntry::Occupied(OccupiedEntry::new(value));
         }
     }
