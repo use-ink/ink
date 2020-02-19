@@ -60,7 +60,7 @@ pub use self::{
 
 /// A key pointer.
 ///
-/// Mainly used by [`Pull`] and [`Push`] traits in order to provide
+/// Mainly used by [`PullForward`] and [`PushForward`] traits in order to provide
 /// a streamlined interface for accessing the underlying [`Key`].
 pub struct KeyPtr {
     /// The underlying key.
