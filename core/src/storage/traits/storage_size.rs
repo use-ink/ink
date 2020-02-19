@@ -113,3 +113,27 @@ where
 impl StorageSize for ink_prelude::string::String {
     const SIZE: u64 = 1;
 }
+
+impl<T> StorageSize for ink_prelude::vec::Vec<T> {
+    const SIZE: u64 = 1;
+}
+
+impl<T> StorageSize for ink_prelude::collections::BinaryHeap<T> {
+    const SIZE: u64 = 1;
+}
+
+impl<T> StorageSize for ink_prelude::collections::BTreeSet<T> {
+    const SIZE: u64 = 1;
+}
+
+impl<K, V> StorageSize for ink_prelude::collections::BTreeMap<K, V> {
+    const SIZE: u64 = 1;
+}
+
+impl<T> StorageSize for ink_prelude::collections::VecDeque<T> {
+    const SIZE: u64 = 1;
+}
+
+impl<T> StorageSize for ink_prelude::collections::LinkedList<T> {
+    const SIZE: u64 = 1;
+}
