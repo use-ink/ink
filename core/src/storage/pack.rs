@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    storage::{
-        KeyPtr,
-        PullAt,
-        PullForward,
-        PushAt,
-        PushForward,
-        StorageSize,
-    },
+use crate::storage::{
+    KeyPtr,
+    PullAt,
+    PullForward,
+    PushAt,
+    PushForward,
+    StorageSize,
 };
 use ink_primitives::Key;
 

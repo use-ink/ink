@@ -59,9 +59,7 @@ pub struct OccupiedEntry<T> {
 impl<T> OccupiedEntry<T> {
     /// Creates a new eager lazy storage entity with the given value.
     pub fn new(value: Option<T>) -> Self {
-        Self {
-            value,
-        }
+        Self { value }
     }
 }
 

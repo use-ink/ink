@@ -238,13 +238,11 @@ where
 }
 
 const _: () = {
-    use ink_prelude::{
-        collections::{
-            BTreeSet,
-            BinaryHeap,
-            LinkedList,
-            VecDeque,
-        },
+    use ink_prelude::collections::{
+        BTreeSet,
+        BinaryHeap,
+        LinkedList,
+        VecDeque,
     };
     #[cfg(not(feature = "std"))]
     use ink_prelude::vec::Vec;
@@ -263,13 +261,7 @@ const _: () = {
             )*
         };
     }
-    impl_pull_at_for_collection!(
-        Vec,
-        BTreeSet,
-        BinaryHeap,
-        LinkedList,
-        VecDeque,
-    );
+    impl_pull_at_for_collection!(Vec, BTreeSet, BinaryHeap, LinkedList, VecDeque,);
 };
 
 impl<K, V> PullAt for ink_prelude::collections::BTreeMap<K, V>
