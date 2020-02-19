@@ -123,8 +123,9 @@ clippy-std:
   needs:
     - check-std
   script:
+    - rustup default nightly-2020-02-01
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
+        cargo +nightly-2020-02-01 clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -133,8 +134,9 @@ clippy-wasm:
   needs:
     - check-wasm
   script:
+    - rustup default nightly-2020-02-01
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo +nightly-2020-02-01 clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:
@@ -171,16 +173,18 @@ examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
   script:
+    - rustup default nightly-2020-02-01
     - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+        cargo +nightly-2020-02-01 clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
 
 examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
   script:
+    - rustup default nightly-2020-02-01
     - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo +nightly-2020-02-01 clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
 examples-contract-build:
