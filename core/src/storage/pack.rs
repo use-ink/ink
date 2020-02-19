@@ -49,6 +49,9 @@ use ink_primitives::Key;
 /// - Packs can be packed. So for example a
 ///   `Pack<(Pack<(i32, i32)>, Pack<[u8; 8]>)` uses just one cell instead of
 ///   two cells which is the case for `(Pack<(i32, i32)>, Pack<[u8; 8]>)`.
+/// - Not all `storage` types can be packed. Only those that are implementing
+///   `PullAt` and `PushAt`. For example `storage::Vec<T>` does not implement
+///   those trait and thus cannot be packed.
 ///
 /// As a general advice pack values together that are frequently used together.
 /// Also pack many very small elements (e.g. `u8`, `bool`, `u16`) together.
