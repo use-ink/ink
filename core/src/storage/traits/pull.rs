@@ -141,15 +141,11 @@ impl_pull_tuple!(A, B, C, D, E, F, G, H, I);
 impl_pull_tuple!(A, B, C, D, E, F, G, H, I, J);
 
 impl PullForward for () {
-    fn pull_forward(_ptr: &mut KeyPtr) -> Self {
-        ()
-    }
+    fn pull_forward(_ptr: &mut KeyPtr) -> Self {}
 }
 
 impl PullAt for () {
-    fn pull_at(_at: Key) -> Self {
-        ()
-    }
+    fn pull_at(_at: Key) -> Self {}
 }
 
 impl<T> PullForward for PhantomData<T> {
