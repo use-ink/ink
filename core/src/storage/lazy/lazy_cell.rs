@@ -14,8 +14,8 @@
 
 use super::super::{
     KeyPtr,
-    Pull,
-    Push,
+    PullForward,
+    PushForward,
     StorageSize,
 };
 use core::cell::UnsafeCell;
@@ -92,24 +92,24 @@ where
     const SIZE: u64 = <T as StorageSize>::SIZE;
 }
 
-impl<T> Pull for LazyCell<T>
+impl<T> PullForward for LazyCell<T>
 where
-    T: StorageSize + scale::Decode,
+    T: StorageSize,
 {
-    fn pull(key_ptr: &mut KeyPtr) -> Self {
-        Self::lazy(key_ptr.next_for::<T>())
+    fn pull_forward(ptr: &mut KeyPtr) -> Self {
+        Self::lazy(ptr.next_for::<T>())
     }
 }
 
-impl<T> Push for LazyCell<T>
+impl<T> PushForward for LazyCell<T>
 where
-    T: Push,
+    T: PushForward,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
+    fn push_forward(&self, ptr: &mut KeyPtr) {
         // We skip pushing to contract storage if we are still in unloaded form.
         if let LazyCellEntry::Occupied(occupied) = self.kind() {
             if let Some(value) = &occupied.value {
-                Push::push(value, key_ptr)
+                <T as PushForward>::push_forward(value, ptr)
             }
         }
     }

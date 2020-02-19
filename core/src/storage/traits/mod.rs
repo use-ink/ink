@@ -26,6 +26,20 @@ macro_rules! forward_supported_array_lens {
     };
 }
 
+/// Implemented by array of sizes of up to 32.
+pub trait ArrayLenLessEquals32 {}
+macro_rules! impl_array_len_less_equals_32_for {
+    ( $($n:literal),* $(,)? ) => {
+        $(
+            impl<T> ArrayLenLessEquals32 for [T; $n] {}
+        )*
+    }
+}
+impl_array_len_less_equals_32_for!(
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+    24, 25, 26, 27, 28, 29, 30, 31, 32,
+);
+
 mod pull;
 mod push;
 mod storage_size;
@@ -33,13 +47,15 @@ mod storage_size;
 use ink_primitives::Key;
 
 pub use self::{
-    pull::Pull,
-    push::Push,
-    storage_size::{
-        Cell,
-        Chunk,
-        StorageSize,
+    pull::{
+        PullAt,
+        PullForward,
     },
+    push::{
+        PushAt,
+        PushForward,
+    },
+    storage_size::StorageSize,
 };
 
 /// A key pointer.
@@ -58,6 +74,11 @@ impl From<Key> for KeyPtr {
 }
 
 impl KeyPtr {
+    /// Returns the current `Key`.
+    fn current(&self) -> Key {
+        self.key
+    }
+
     /// Advances the key by the given amount derive by `T` and its `StorageSize`
     /// and returns the next `Key` for usage by the storage element.
     pub fn next_for<T>(&mut self) -> Key

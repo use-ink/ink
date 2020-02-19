@@ -78,13 +78,6 @@ mod lazy;
 mod traits;
 mod value;
 
-pub mod storage_size {
-    pub use super::traits::{
-        Cell,
-        Chunk,
-    };
-}
-
 pub use self::{
     collections::{
         binary_heap::{
@@ -116,8 +109,10 @@ pub use self::{
     },
     traits::{
         KeyPtr,
-        Pull,
-        Push,
+        PullAt,
+        PullForward,
+        PushAt,
+        PushForward,
         StorageSize,
     },
 };

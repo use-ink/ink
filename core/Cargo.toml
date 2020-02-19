@@ -27,6 +27,7 @@ derive_more = { version = "0.99.2", default-features = false, features = ["from"
 smallvec = { version = "1.0", default-features = false, features = ["union"] }
 cfg-if = "0.1"
 num-traits = { version = "0.2.1", default-features = false, features = ["i128"] }
+array-init = "0.1"
 
 # Only used in the off-chain environment.
 #

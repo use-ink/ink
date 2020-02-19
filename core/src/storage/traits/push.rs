@@ -13,28 +13,50 @@
 // limitations under the License.
 
 use super::{
+    ArrayLenLessEquals32,
     KeyPtr,
     StorageSize,
 };
+use crate::env;
+use core::marker::PhantomData;
+use ink_primitives::Key;
 
-/// Pushes the associated key values of `Self` to the contract storage.
-pub trait Push {
-    fn push(&self, key_ptr: &mut KeyPtr);
+/// Types that implement this trait can push their fields to the associated
+/// contract storage in a distributive manner.
+///
+/// # Note
+///
+/// This tries to distribute all separate fields of an entity into distinct
+/// storage cells.
+pub trait PushForward {
+    /// Pushes `self` distributed to the associated contract storage.
+    fn push_forward(&self, ptr: &mut KeyPtr);
 }
 
-fn push_single_cell<T>(value: &T, key_ptr: &mut KeyPtr)
-where
-    T: StorageSize + scale::Encode,
-{
-    crate::env::set_contract_storage::<T>(key_ptr.next_for::<T>(), value)
+/// Types that implement this trait can push their fields to an associated
+/// contract storage cell.
+///
+/// # Note
+///
+/// This tries to compactly store the entire entity's fields into a single
+/// contract storage cell.
+pub trait PushAt {
+    /// Pushes `self` packed to the contract storage cell determined by `at`.
+    fn push_at(&self, at: Key);
 }
 
 macro_rules! impl_push_for_primitive {
     ( $($ty:ty),* $(,)? ) => {
         $(
-            impl Push for $ty {
-                fn push(&self, key_ptr: &mut KeyPtr) {
-                    push_single_cell(self, key_ptr)
+            impl PushForward for $ty {
+                fn push_forward(&self, ptr: &mut KeyPtr) {
+                    <$ty as PushAt>::push_at(self, ptr.next_for::<$ty>())
+                }
+            }
+
+            impl PushAt for $ty {
+                fn push_at(&self, at: Key) {
+                    env::set_contract_storage::<$ty>(at, self)
                 }
             }
         )*
@@ -45,12 +67,28 @@ impl_push_for_primitive!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
 macro_rules! impl_push_for_array {
     ( $($len:literal),* $(,)? ) => {
         $(
-            impl<T> Push for [T; $len]
+            impl<T> PushForward for [T; $len]
+            where
+                Self: ArrayLenLessEquals32,
+                T: PushForward,
+            {
+                fn push_forward(&self, ptr: &mut KeyPtr) {
+                    // TODO: Insert check to assert that the array length is
+                    //       32 or smaller since otherwise this is a rather
+                    //       expensive operation that it shouldn't be.
+                    //       Arrays should generally be used in packed form.
+                    for elem in self.iter() {
+                        PushForward::push_forward(elem, ptr)
+                    }
+                }
+            }
+
+            impl<T> PushAt for [T; $len]
             where
                 [T; $len]: scale::Encode,
             {
-                fn push(&self, key_ptr: &mut KeyPtr) {
-                    push_single_cell(self, key_ptr)
+                fn push_at(&self, at: Key) {
+                    env::set_contract_storage::<[T; $len]>(at, self)
                 }
             }
         )*
@@ -60,12 +98,27 @@ forward_supported_array_lens!(impl_push_for_array);
 
 macro_rules! impl_push_tuple {
     ( $($frag:ident),* $(,)? ) => {
-        impl<$($frag),*> Push for ($($frag),* ,)
+        impl<$($frag),*> PushForward for ($($frag),* ,)
         where
-            ( $($frag),* ,): scale::Encode,
+            $(
+                $frag: PushForward,
+            )*
         {
-            fn push(&self, key_ptr: &mut KeyPtr) {
-                push_single_cell(self, key_ptr)
+            fn push_forward(&self, ptr: &mut KeyPtr) {
+                #[allow(non_snake_case)]
+                let ($($frag),*,) = self;
+                $(
+                    PushForward::push_forward($frag, ptr);
+                )*
+            }
+        }
+
+        impl<$($frag),*> PushAt for ($($frag),* ,)
+        where
+            Self: scale::Encode,
+        {
+            fn push_at(&self, at: Key) {
+                env::set_contract_storage::<Self>(at, self)
             }
         }
     }
@@ -81,91 +134,179 @@ impl_push_tuple!(A, B, C, D, E, F, G, H);
 impl_push_tuple!(A, B, C, D, E, F, G, H, I);
 impl_push_tuple!(A, B, C, D, E, F, G, H, I, J);
 
-impl Push for () {
-    fn push(&self, _key_ptr: &mut KeyPtr) {}
+impl PushForward for () {
+    fn push_forward(&self, _ptr: &mut KeyPtr) {}
 }
 
-impl<T> Push for core::marker::PhantomData<T> {
-    fn push(&self, _key_ptr: &mut KeyPtr) {}
+impl PushAt for () {
+    fn push_at(&self, _at: Key) {}
 }
 
-impl<T> Push for Option<T>
+impl<T> PushForward for PhantomData<T> {
+    fn push_forward(&self, _ptr: &mut KeyPtr) {}
+}
+
+impl<T> PushAt for PhantomData<T> {
+    fn push_at(&self, _at: Key) {}
+}
+
+impl<T> PushForward for Option<T>
 where
-    Self: scale::Encode,
+    T: PushForward + StorageSize,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+    /// We implement `PushForward` for `Option<T>` in an optimized fashion
+    /// leaving behind a cleared contract storage cell area in case of `None`.
+    ///
+    /// This can be tricky and a performance hazard for types that occupy
+    /// a large amount of storage cells (i.e. their `StorageSize::SIZE` is
+    /// big.). This implementation needs protection against this sort of hazard.
+    fn push_forward(&self, ptr: &mut KeyPtr) {
+        match self {
+            Some(val) => <T as PushForward>::push_forward(val, ptr),
+            None => {
+                // We still need to advance the key pointer.
+                let pos0 = ptr.next_for::<T>();
+                // Bail out early if `StorageSize` is too big and the method
+                // is used even though we have tried to prevent this at compile
+                // time.
+                if <T as StorageSize>::SIZE > 32 {
+                    return
+                }
+                // In theory we'd need to clear all subfields of the `Option<T>`
+                // which are technically `<T as StorageSize>::SIZE` many.
+                // However, this could be a performance hazard so we should
+                // really not do that. We should add a check to disable this
+                // implementation for `StorageSize` of more than 32. (TODO)
+                for n in 0..<T as StorageSize>::SIZE {
+                    env::clear_contract_storage(pos0 + n);
+                }
+            }
+        }
     }
 }
 
-impl<T, E> Push for Result<T, E>
+impl<T> PushAt for Option<T>
 where
-    Self: scale::Encode,
+    T: PushAt,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+    fn push_at(&self, at: Key) {
+        match self {
+            Some(val) => <T as PushAt>::push_at(val, at),
+            None => env::clear_contract_storage(at),
+        }
     }
 }
 
-impl<T> Push for ink_prelude::vec::Vec<T>
+impl<T, E> PushForward for Result<T, E>
 where
-    Self: scale::Encode,
+    T: PushForward,
+    E: PushForward,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+    fn push_forward(&self, ptr: &mut KeyPtr) {
+        match self {
+            Ok(val) => {
+                PushForward::push_forward(&0u8, ptr);
+                <T as PushForward>::push_forward(val, ptr);
+            }
+            Err(err) => {
+                PushForward::push_forward(&1u8, ptr);
+                <E as PushForward>::push_forward(err, ptr);
+            }
+        }
     }
 }
 
-impl Push for ink_prelude::string::String
+impl<T, E> PushAt for Result<T, E>
 where
     Self: scale::Encode,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+    fn push_at(&self, at: Key) {
+        env::set_contract_storage::<Self>(at, self)
     }
 }
 
-impl<T> Push for ink_prelude::boxed::Box<T>
-where
-    Self: scale::Encode,
-{
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+// The `PushForward` and `PullForward` traits are not implemented for
+//
+// - `ink_prelude::vec::Vec<T>`
+// - `ink_prelude::collections::BTreeSet<T>`
+// - `ink_prelude::collections::BinaryHeap<T>`
+// - `ink_prelude::collections::LinkedList<T>`
+// - `ink_prelude::collections::VecDeque<T>`
+//
+// since their storage sizes cannot be determined during compilation time as
+// every element in them would potentially occupy its own storage cell and there
+// can be arbitrary many elements at runtime.
+
+impl PushForward for ink_prelude::string::String {
+    fn push_forward(&self, ptr: &mut KeyPtr) {
+        <Self as PushAt>::push_at(self, ptr.next_for::<Self>())
     }
 }
 
-impl<T> Push for ink_prelude::collections::BTreeSet<T>
-where
-    Self: scale::Encode,
-{
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+impl PushAt for ink_prelude::string::String {
+    fn push_at(&self, at: Key) {
+        env::set_contract_storage::<Self>(at, self)
     }
 }
 
-impl<T> Push for ink_prelude::collections::BinaryHeap<T>
+impl<T> PushForward for ink_prelude::boxed::Box<T>
 where
-    Self: scale::Encode,
+    T: PushForward,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+    fn push_forward(&self, ptr: &mut KeyPtr) {
+        <T as PushForward>::push_forward(&*self, ptr)
     }
 }
 
-impl<T> Push for ink_prelude::collections::LinkedList<T>
+impl<T> PushAt for ink_prelude::boxed::Box<T>
 where
-    Self: scale::Encode,
+    T: PushAt,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+    fn push_at(&self, at: Key) {
+        <T as PushAt>::push_at(&*self, at)
     }
 }
 
-impl<T> Push for ink_prelude::collections::VecDeque<T>
+const _: () = {
+    use ink_prelude::{
+        collections::{
+            BTreeSet,
+            BinaryHeap,
+            LinkedList,
+            VecDeque,
+        },
+    };
+    #[cfg(not(feature = "std"))]
+    use ink_prelude::vec::Vec;
+
+    macro_rules! impl_push_at_for_collection {
+        ( $($collection:ident),* $(,)? ) => {
+            $(
+                impl<T> PushAt for $collection<T>
+                where
+                    Self: scale::Encode,
+                {
+                    fn push_at(&self, at: Key) {
+                        env::set_contract_storage::<Self>(at, self)
+                    }
+                }
+            )*
+        };
+    }
+    impl_push_at_for_collection!(
+        Vec,
+        BTreeSet,
+        BinaryHeap,
+        LinkedList,
+        VecDeque,
+    );
+};
+
+impl<K, V> PushAt for ink_prelude::collections::BTreeMap<K, V>
 where
     Self: scale::Encode,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        push_single_cell(self, key_ptr)
+    fn push_at(&self, at: Key) {
+        env::set_contract_storage::<Self>(at, self)
     }
 }

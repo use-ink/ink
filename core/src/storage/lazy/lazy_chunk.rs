@@ -13,10 +13,9 @@
 // limitations under the License.
 
 use super::super::{
-    storage_size::Chunk,
     KeyPtr,
-    Pull,
-    Push,
+    PullForward,
+    PushForward,
     StorageSize,
 };
 use core::cell::UnsafeCell;
@@ -72,21 +71,25 @@ pub struct Entry<T> {
     mutated: core::cell::Cell<bool>,
 }
 
-impl<T> Push for Entry<T>
+impl<T> PushForward for Entry<T>
 where
-    T: Push + StorageSize,
+    T: PushForward + StorageSize,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
+    fn push_forward(&self, ptr: &mut KeyPtr) {
         // Reset the mutated entry flag because we just synced.
         self.mutated.set(false);
         match self.value() {
             Some(value) => {
                 // Forward push to the inner value on the computed key.
-                Push::push(value, key_ptr);
+                <T as PushForward>::push_forward(value, ptr);
             }
             None => {
-                // Clear the storage at the given index.
-                crate::env::clear_contract_storage(key_ptr.next_for::<T>());
+                let mut offset = ptr.next_for::<T>();
+                for _ in 0..<T as StorageSize>::SIZE {
+                    // Clear the storage at the given index.
+                    crate::env::clear_contract_storage(offset);
+                    offset += 1u64;
+                }
             }
         }
     }
@@ -159,34 +162,38 @@ impl<T> LazyChunk<T> {
     }
 }
 
-impl<T> StorageSize for LazyChunk<T> {
-    const SIZE: u64 = <Chunk as StorageSize>::SIZE;
+impl<T> StorageSize for LazyChunk<T>
+where
+    T: StorageSize,
+{
+    const SIZE: u64 = <T as StorageSize>::SIZE * (core::u32::MAX as u64);
 }
 
-impl<T> Pull for LazyChunk<T>
+impl<T> PullForward for LazyChunk<T>
 where
-    Self: StorageSize,
+    T: StorageSize,
 {
-    fn pull(key_ptr: &mut KeyPtr) -> Self {
+    fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
-            key: Some(key_ptr.next_for::<Self>()),
+            key: Some(ptr.next_for::<Self>()),
             cached_entries: UnsafeCell::new(BTreeMap::new()),
         }
     }
 }
 
-impl<T> Push for LazyChunk<T>
+impl<T> PushForward for LazyChunk<T>
 where
-    T: Push + StorageSize + scale::Encode,
+    T: PushForward + StorageSize,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        let key = key_ptr.next_for::<Self>();
+    fn push_forward(&self, ptr: &mut KeyPtr) {
+        let key = ptr.next_for::<Self>();
+        let elem_size = <T as StorageSize>::SIZE;
         assert_eq!(self.key, Some(key));
         for (&index, entry) in self.entries().iter().filter(|(_, entry)| entry.mutated())
         {
-            let offset: Key = key + index;
+            let offset: Key = key + (index as u64 * elem_size);
             let mut ptr = KeyPtr::from(offset);
-            Push::push(&**entry, &mut ptr);
+            PushForward::push_forward(&**entry, &mut ptr);
         }
     }
 }

@@ -15,8 +15,8 @@
 use super::super::{
     KeyPtr,
     LazyCell,
-    Pull,
-    Push,
+    PullForward,
+    PushForward,
     StorageSize,
 };
 use ink_primitives::Key;
@@ -40,23 +40,23 @@ where
     const SIZE: u64 = <LazyCell<T> as StorageSize>::SIZE;
 }
 
-impl<T> Pull for Lazy<T>
+impl<T> PullForward for Lazy<T>
 where
-    T: StorageSize + scale::Decode,
+    T: StorageSize,
 {
-    fn pull(key_ptr: &mut KeyPtr) -> Self {
+    fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
-            cell: <LazyCell<T> as Pull>::pull(key_ptr),
+            cell: <LazyCell<T> as PullForward>::pull_forward(ptr)
         }
     }
 }
 
-impl<T> Push for Lazy<T>
+impl<T> PushForward for Lazy<T>
 where
-    T: Push,
+    T: PushForward,
 {
-    fn push(&self, key_ptr: &mut KeyPtr) {
-        Push::push(&self.cell, key_ptr)
+    fn push_forward(&self, ptr: &mut KeyPtr) {
+        <LazyCell<T> as PushForward>::push_forward(&self.cell, ptr)
     }
 }
 
