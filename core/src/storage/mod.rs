@@ -75,6 +75,7 @@ pub mod chunk;
 mod collections;
 mod flush;
 mod lazy;
+mod pack;
 mod traits;
 mod value;
 
@@ -107,6 +108,7 @@ pub use self::{
         LazyCell,
         LazyChunk,
     },
+    pack::Pack,
     traits::{
         KeyPtr,
         PullAt,
