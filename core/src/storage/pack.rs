@@ -55,7 +55,7 @@ use ink_primitives::Key;
 ///
 /// As a general advice pack values together that are frequently used together.
 /// Also pack many very small elements (e.g. `u8`, `bool`, `u16`) together.
-#[derive(Debug, scale::Encode, scale::Decode)]
+#[derive(Debug, Copy, Clone, scale::Encode, scale::Decode)]
 pub struct Pack<T> {
     /// The packed `T` value.
     inner: T,
