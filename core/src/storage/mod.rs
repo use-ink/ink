@@ -73,6 +73,7 @@ pub mod alloc;
 pub mod cell;
 pub mod chunk;
 mod collections;
+mod collections2;
 mod flush;
 mod lazy;
 mod pack;
@@ -101,6 +102,9 @@ pub use self::{
             self,
             Vec,
         },
+    },
+    collections2::{
+        vec::Vec as Vec2,
     },
     flush::Flush,
     lazy::{
