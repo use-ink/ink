@@ -103,7 +103,7 @@ mod erc20 {
             let caller = self.env().caller();
             let allowance = self.allowance_of_or_zero(&from, &caller);
             if allowance < value {
-                return false
+                return false;
             }
             self.allowances.insert((from, caller), allowance - value);
             self.transfer_from_to(from, to, value)
@@ -117,7 +117,7 @@ mod erc20 {
         ) -> bool {
             let from_balance = self.balance_of_or_zero(&from);
             if from_balance < value {
-                return false
+                return false;
             }
             self.balances.insert(from.clone(), from_balance - value);
             let to_balance = self.balance_of_or_zero(&to);
@@ -140,6 +140,69 @@ mod erc20 {
             spender: &AccountId,
         ) -> Balance {
             *self.allowances.get(&(*owner, *spender)).unwrap_or(&0)
+        }
+    }
+
+    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
+    #[cfg(test)]
+    mod tests {
+        /// Imports all the definitions from the outer scope so we can use them here.
+        use super::*;
+        use ink_core::env;
+
+        /// We test if the default constructor does its job.
+        #[test]
+        fn new_works() {
+            let _erc20 = Erc20::new(100);
+            assert_eq!(1, env::test::recorded_events().count());
+        }
+
+        #[test]
+        fn total_supply_works() {
+            let erc20 = Erc20::new(100);
+            assert_eq!(1, env::test::recorded_events().count());
+            assert_eq!(erc20.total_supply(), 100);
+        }
+
+        #[test]
+        fn balance_of_works() {
+            let erc20 = Erc20::new(100);
+            assert_eq!(1, env::test::recorded_events().count());
+            let default_account =
+                env::test::default_accounts::<env::DefaultEnvTypes>().unwrap();
+            assert_eq!(erc20.balance_of(default_account.alice), 100);
+            assert_eq!(erc20.balance_of(default_account.bob), 0);
+        }
+
+        #[test]
+        fn transfer_works() {
+            let mut erc20 = Erc20::new(100);
+            assert_eq!(1, env::test::recorded_events().count());
+            let default_account =
+                env::test::default_accounts::<env::DefaultEnvTypes>().unwrap();
+
+            let callee =
+                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            let data = env::call::CallData::new(env::call::Selector::from_str(""));
+
+            assert_eq!(
+                env::test::push_execution_context::<env::DefaultEnvTypes>(
+                    default_account.bob,
+                    callee,
+                    0,
+                    0,
+                    data
+                ),
+                ()
+            );
+
+            assert_eq!(erc20.transfer(default_account.eve, 10), false);
+            assert_eq!(erc20.balance_of(default_account.bob), 0);
+            env::test::pop_execution_context();
+            assert_eq!(erc20.balance_of(default_account.bob), 0);
+            assert_eq!(erc20.transfer(default_account.bob, 10), true);
+            assert_eq!(2, env::test::recorded_events().count());
+            assert_eq!(erc20.balance_of(default_account.bob), 10);
         }
     }
 }
