@@ -219,7 +219,14 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the lazy chunk is not in a state that allows lazy loading.
-    fn lazily_load(&self, index: Index) -> *mut Entry<T> {
+    ///
+    /// # Safety
+    ///
+    /// This is an `unsafe` operation because it has a `&self` receiver but returns
+    /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
+    /// within internal use only and should never be given outside of the lazy
+    /// entity for public `&self` methods.
+    unsafe fn lazily_load(&self, index: Index) -> *mut Entry<T> {
         let key = match self.key {
             Some(key) => key,
             None => panic!("cannot load lazily in this state"),
@@ -233,6 +240,7 @@ where
         //         By returning a raw pointer we enforce an `unsafe` block at
         //         the caller site to underline that guarantees are given by the
         //         caller.
+        #[allow(unused_unsafe)]
         let cached_entries = unsafe { &mut *self.cached_entries.get() };
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         match cached_entries.entry(index) {
