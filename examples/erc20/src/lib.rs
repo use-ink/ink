@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2019-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -143,48 +143,92 @@ mod erc20 {
         }
     }
 
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
+    /// Unit tests
     #[cfg(test)]
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
         use ink_core::env;
 
-        /// We test if the default constructor does its job.
+        /// The default constructor does its job
         #[test]
         fn new_works() {
+            // Constructor works
             let _erc20 = Erc20::new(100);
+            // Transfer event triggered during initial contruction
             assert_eq!(1, env::test::recorded_events().count());
         }
 
+        /// The total supply was applied
         #[test]
         fn total_supply_works() {
+            // Constructor works
             let erc20 = Erc20::new(100);
+            // Transfer event triggered during initial contruction
             assert_eq!(1, env::test::recorded_events().count());
+            // Get the token total supply
             assert_eq!(erc20.total_supply(), 100);
         }
 
+        /// Get the actual balance of an account
         #[test]
         fn balance_of_works() {
+            // Constructor works
             let erc20 = Erc20::new(100);
+            // Transfer event triggered during initial contruction
             assert_eq!(1, env::test::recorded_events().count());
             let default_account =
                 env::test::default_accounts::<env::DefaultEnvTypes>().unwrap();
+            // Alice owns all the tokens on deployment
             assert_eq!(erc20.balance_of(default_account.alice), 100);
+            // Bob does not owns tokens
             assert_eq!(erc20.balance_of(default_account.bob), 0);
         }
 
         #[test]
         fn transfer_works() {
+            // Constructor works
             let mut erc20 = Erc20::new(100);
+            // Transfer event triggered during initial contruction
             assert_eq!(1, env::test::recorded_events().count());
             let default_account =
                 env::test::default_accounts::<env::DefaultEnvTypes>().unwrap();
 
+            assert_eq!(erc20.balance_of(default_account.bob), 0);
+            // Alice transfers 10 tokens to Bob
+            assert_eq!(erc20.transfer(default_account.bob, 10), true);
+            // The second Transfer event takes place
+            assert_eq!(2, env::test::recorded_events().count());
+            // Bob owns 10 tokens
+            assert_eq!(erc20.balance_of(default_account.bob), 10);
+        }
+
+        #[test]
+        fn transfer_from_works() {
+            // Constructor works
+            let mut erc20 = Erc20::new(100);
+            // Transfer event triggered during initial contruction
+            assert_eq!(1, env::test::recorded_events().count());
+            let default_account =
+                env::test::default_accounts::<env::DefaultEnvTypes>().unwrap();
+
+            // Bob fails to transfer tokens owned by Alice
+            assert_eq!(
+                erc20.transfer_from(default_account.alice, default_account.eve, 10),
+                false
+            );
+            // Alice approves Bob for token transfers on her behalf
+            assert_eq!(erc20.approve(default_account.bob, 10), true);
+
+            // The approve event takes place
+            assert_eq!(2, env::test::recorded_events().count());
+
+            // Get contract address
             let callee =
                 env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            // Create empty call
             let data = env::call::CallData::new(env::call::Selector::from_str(""));
-
+            // Push the new execution context to set Bob as caller
             assert_eq!(
                 env::test::push_execution_context::<env::DefaultEnvTypes>(
                     default_account.bob,
@@ -196,13 +240,15 @@ mod erc20 {
                 ()
             );
 
-            assert_eq!(erc20.transfer(default_account.eve, 10), false);
-            assert_eq!(erc20.balance_of(default_account.bob), 0);
-            env::test::pop_execution_context();
-            assert_eq!(erc20.balance_of(default_account.bob), 0);
-            assert_eq!(erc20.transfer(default_account.bob, 10), true);
-            assert_eq!(2, env::test::recorded_events().count());
-            assert_eq!(erc20.balance_of(default_account.bob), 10);
+            // Bob transfers tokens from Alice to Eve
+            assert_eq!(
+                erc20.transfer_from(default_account.alice, default_account.eve, 10),
+                true
+            );
+            // The third event takes place
+            assert_eq!(3, env::test::recorded_events().count());
+            // Eve owns tokens
+            assert_eq!(erc20.balance_of(default_account.eve), 10);
         }
     }
 }
