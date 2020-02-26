@@ -97,7 +97,7 @@ mod multisig_plain {
         }
 
         #[ink(message)]
-        fn add_owner(&mut self, owner: AccountId) {
+        fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&owner);
             ensure_requirement(self.owners.len() + 1, *self.requirement);
