@@ -87,7 +87,7 @@ mod multisig_plain {
     impl MultisigPlain {
         #[ink(constructor)]
         fn new(&mut self, owners: Vec<AccountId>, requirement: u32) {
-            for owner in owners.iter() {
+            for owner in &owners {
                 self.is_owner.insert(*owner, ());
                 self.owners.push(*owner);
             }
