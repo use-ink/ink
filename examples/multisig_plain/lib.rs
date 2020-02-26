@@ -230,7 +230,7 @@ mod multisig_plain {
             self.transactions.get(id).unwrap();
         }
 
-        fn ensure_from_owner(&self) {
+        fn ensure_caller_is_owner(&self) {
             assert!(self.is_owner.contains_key(&self.env().caller()));
         }
 
