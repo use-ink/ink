@@ -1,3 +1,44 @@
+//! # Plain Multisig Wallet
+//!
+//! This implements a plain multi owner wallet.
+//!
+//! ## Overview
+//!
+//! Each instantiation of this contract has a set of `owners` and a `requirement` of
+//! how many of them need to agree on a `Transaction` for it to be able to be executed.
+//! Every owner can submit a transaction and when enough of the other owners confirm
+//! it will be able to be executed.
+//!
+//! ## Error Handling
+//!
+//! With the exeception of `execute_transaction` no error conditions are signalled
+//! through return types. Any error or invariant violation triggers a panic and therefore
+//! rolls back the transaction.
+//!
+//! ## Interface
+//!
+//! The interface is modelled after the popular gnosis multisig wallet. However, there
+//! are subtle variations from the interface. For example the `confirm_transaction`
+//! will never trigger the execution of a `Transaction` even if the treshold is reached.
+//! A call of `execute_transaction` is always required. This can be called by anyone.
+//!
+//! ### Owner Management
+//!
+//! The messages `add_owner`, `remove_owner`, and `replace_owner` can be used to manage
+//! the owner set after instantiation.
+//!
+//! ### Changing the Requirement
+//!
+//! `change_requirement` can be used to tighten or relax the `requirement` of how many
+//! owner signatures are needed to execute a `Transaction`.
+//!
+//! ### Transaction Management
+//!
+//! `submit_transaction`, `cancel_transaction`, `confirm_transaction`,
+//! `revoke_confirmation` and `execute_transaction` are the bread and butter messages
+//! of this contract. Use them to dispatch arbitrary messages to other contracts
+//! with the wallet as a sender.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
@@ -40,26 +81,26 @@ mod multisig_plain {
         transactions: storage::Stash<Transaction>,
         owners: storage::Vec<AccountId>,
         is_owner: storage::HashMap<AccountId, ()>,
-        required: storage::Value<u32>,
+        requirement: storage::Value<u32>,
     }
 
     impl MultisigPlain {
         #[ink(constructor)]
-        fn new(&mut self, owners: Vec<AccountId>, required: u32) {
+        fn new(&mut self, owners: Vec<AccountId>, requirement: u32) {
             for owner in owners.iter() {
                 self.is_owner.insert(*owner, ());
                 self.owners.push(*owner);
             }
-            ensure_requirement(self.owners.len(), required);
+            ensure_requirement(self.owners.len(), requirement);
             assert!(self.is_owner.len() == self.owners.len());
-            self.required.set(required);
+            self.requirement.set(requirement);
         }
 
         #[ink(message)]
         fn add_owner(&mut self, owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&owner);
-            ensure_requirement(self.owners.len() + 1, *self.required);
+            ensure_requirement(self.owners.len() + 1, *self.requirement);
             self.is_owner.insert(owner, ());
             self.owners.push(owner);
         }
@@ -69,11 +110,11 @@ mod multisig_plain {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
             let len = self.owners.len() - 1;
-            let required = u32::min(len, *self.required.get());
-            ensure_requirement(len, required);
+            let requirement = u32::min(len, *self.requirement.get());
+            ensure_requirement(len, requirement);
             self.owners.swap_remove(self.owner_index(&owner));
             self.is_owner.remove(&owner);
-            self.required.set(required);
+            self.requirement.set(requirement);
             self.clean_owner_confirmations(&owner);
         }
 
@@ -92,7 +133,7 @@ mod multisig_plain {
         fn change_requirement(&mut self, requirement: u32) {
             self.ensure_from_wallet();
             ensure_requirement(self.owners.len(), requirement);
-            self.required.set(requirement);
+            self.requirement.set(requirement);
         }
 
         #[ink(message)]
@@ -182,7 +223,7 @@ mod multisig_plain {
         }
 
         fn ensure_confirmed(&self, id: TransactionId) {
-            assert!(self.confirmation_count.get(&id).unwrap() >= self.required.get());
+            assert!(self.confirmation_count.get(&id).unwrap() >= self.requirement.get());
         }
 
         fn ensure_transaction_exists(&self, id: TransactionId) {
@@ -206,8 +247,8 @@ mod multisig_plain {
         }
     }
 
-    fn ensure_requirement(owners: u32, required: u32) {
-        assert!(0 < required && required <= owners && owners <= MAX_OWNERS);
+    fn ensure_requirement(owners: u32, requirement: u32) {
+        assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
     }
 
     #[cfg(test)]
