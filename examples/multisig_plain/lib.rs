@@ -119,7 +119,7 @@ mod multisig_plain {
         }
 
         #[ink(message)]
-        fn replace_owner(&mut self, owner: AccountId, new_owner: AccountId) {
+        fn replace_owner(&mut self, old_owner: AccountId, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
             self.ensure_no_owner(&new_owner);
