@@ -130,7 +130,7 @@ mod multisig_plain {
         }
 
         #[ink(message)]
-        fn change_requirement(&mut self, requirement: u32) {
+        fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
             ensure_requirement(self.owners.len(), requirement);
             self.requirement.set(requirement);
