@@ -258,11 +258,10 @@ where
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the lazy chunk is not in a state that allows lazy loading.
     fn lazily_load_mut(&mut self, index: Index) -> &mut Entry<T> {
-        // SAFETY: Dereferencing the raw-pointer here is safe since we
-        //         encapsulated this whole call with a `&mut self` receiver.
-        //         Also `Entry` instances are all pinned, so mutating the
-        //         `BTreeMap` that stores them won't invalidate references
-        //         to them.
+        // SAFETY:
+        // - Returning a `&mut Entry<T>` is safe because entities inside the
+        //   cache are stored within a `Box` to not invalidate references into
+        //   them upon operating on the outer cache.
         unsafe { &mut *self.lazily_load(index) }
     }
 
