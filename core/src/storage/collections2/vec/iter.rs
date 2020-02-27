@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage;
+use crate::{
+    storage,
+    storage::{
+        PullForward,
+        StorageSize,
+    },
+};
 
 /// An iterator over the values of a storage `Vec`.
 #[derive(Debug)]
@@ -38,7 +44,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: scale::Codec,
+    T: StorageSize + PullForward,
 {
     type Item = &'a T;
 
@@ -58,11 +64,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Codec {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: StorageSize + PullForward {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: scale::Codec,
+    T: StorageSize + PullForward,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);

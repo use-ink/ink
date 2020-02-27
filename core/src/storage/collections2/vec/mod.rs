@@ -16,7 +16,13 @@ mod iter;
 mod traits;
 
 pub use self::iter::Iter;
-use crate::storage;
+use crate::{
+    storage,
+    storage::{
+        PullForward,
+        StorageSize,
+    },
+};
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.
 ///
@@ -62,7 +68,7 @@ impl<T> Vec<T> {
 
 impl<T> Vec<T>
 where
-    T: scale::Codec,
+    T: StorageSize + PullForward,
 {
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {

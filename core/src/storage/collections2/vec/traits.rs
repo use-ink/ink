@@ -24,7 +24,7 @@ use crate::{
 
 impl<T> core::ops::Index<u32> for storage::Vec2<T>
 where
-    T: scale::Codec,
+    T: StorageSize + PullForward,
 {
     type Output = T;
 
@@ -36,7 +36,7 @@ where
 
 impl<T> core::ops::IndexMut<u32> for storage::Vec2<T>
 where
-    T: scale::Codec,
+    T: StorageSize + PullForward,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index)
