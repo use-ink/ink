@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::Key;
+
 /// Implemented by types that can be stored on contract storage.
 ///
 /// Tells the amount of storage cells the type requires to be stored.
@@ -30,7 +32,7 @@ macro_rules! impl_storage_size_for_primitive {
         )*
     };
 }
-impl_storage_size_for_primitive!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_storage_size_for_primitive!(Key, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
 
 macro_rules! impl_storage_size_for_array {
     ( $($n:literal),* $(,)? ) => {

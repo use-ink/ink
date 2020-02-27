@@ -62,7 +62,7 @@ macro_rules! impl_push_for_primitive {
         )*
     };
 }
-impl_push_for_primitive!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_push_for_primitive!(Key, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
 
 macro_rules! impl_push_for_array {
     ( $($len:literal),* $(,)? ) => {
