@@ -99,10 +99,10 @@ mod multisig_plain {
         #[ink(message)]
         fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
-            self.ensure_no_owner(&owner);
+            self.ensure_no_owner(&new_owner);
             ensure_requirement(self.owners.len() + 1, *self.requirement);
-            self.is_owner.insert(owner, ());
-            self.owners.push(owner);
+            self.is_owner.insert(new_owner, ());
+            self.owners.push(new_owner);
         }
 
         #[ink(message)]
@@ -121,24 +121,25 @@ mod multisig_plain {
         #[ink(message)]
         fn replace_owner(&mut self, old_owner: AccountId, new_owner: AccountId) {
             self.ensure_from_wallet();
-            self.ensure_owner(&owner);
+            self.ensure_owner(&old_owner);
             self.ensure_no_owner(&new_owner);
-            self.owners.replace(self.owner_index(&owner), || new_owner);
-            self.is_owner.remove(&owner);
+            self.owners
+                .replace(self.owner_index(&old_owner), || new_owner);
+            self.is_owner.remove(&old_owner);
             self.is_owner.insert(new_owner, ());
-            self.clean_owner_confirmations(&owner);
+            self.clean_owner_confirmations(&old_owner);
         }
 
         #[ink(message)]
         fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
-            ensure_requirement(self.owners.len(), requirement);
-            self.requirement.set(requirement);
+            ensure_requirement(self.owners.len(), new_requirement);
+            self.requirement.set(new_requirement);
         }
 
         #[ink(message)]
         fn submit_transaction(&mut self, transaction: Transaction) {
-            self.ensure_from_owner();
+            self.ensure_caller_is_owner();
             let id = self.transactions.put(transaction);
             self.confirmation_count.insert(id, 0);
             self.internal_confirm(id);
@@ -152,14 +153,14 @@ mod multisig_plain {
 
         #[ink(message)]
         fn confirm_transaction(&mut self, id: TransactionId) {
-            self.ensure_from_owner();
+            self.ensure_caller_is_owner();
             self.ensure_transaction_exists(id);
             self.internal_confirm(id);
         }
 
         #[ink(message)]
         fn revoke_confirmation(&mut self, id: TransactionId) {
-            self.ensure_from_owner();
+            self.ensure_caller_is_owner();
             if self
                 .confirmations
                 .remove(&(id, self.env().caller()))
