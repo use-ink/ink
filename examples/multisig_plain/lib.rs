@@ -140,41 +140,41 @@ mod multisig_plain {
         #[ink(message)]
         fn submit_transaction(&mut self, transaction: Transaction) {
             self.ensure_caller_is_owner();
-            let id = self.transactions.put(transaction);
-            self.confirmation_count.insert(id, 0);
-            self.add_confirmer(self.env().caller(), id);
+            let trans_id = self.transactions.put(transaction);
+            self.confirmation_count.insert(trans_id, 0);
+            self.add_confirmer(self.env().caller(), trans_id);
         }
 
         #[ink(message)]
-        fn cancel_transaction(&mut self, id: TransactionId) {
+        fn cancel_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_from_wallet();
-            self.take_transaction(id);
+            self.take_transaction(trans_id);
         }
 
         #[ink(message)]
-        fn confirm_transaction(&mut self, id: TransactionId) {
+        fn confirm_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
-            self.ensure_transaction_exists(id);
-            self.add_confirmer(self.env().caller(), id);
+            self.ensure_transaction_exists(trans_id);
+            self.add_confirmer(self.env().caller(), trans_id);
         }
 
         #[ink(message)]
-        fn revoke_confirmation(&mut self, id: TransactionId) {
+        fn revoke_confirmation(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
             if self
                 .confirmations
-                .remove(&(id, self.env().caller()))
+                .remove(&(trans_id, self.env().caller()))
                 .is_some()
             {
                 self.confirmation_count
-                    .mutate_with(&id, |count| *count -= 1);
+                    .mutate_with(&trans_id, |count| *count -= 1);
             }
         }
 
         #[ink(message)]
-        fn execute_transaction(&mut self, id: TransactionId) -> Result<(), ()> {
-            self.ensure_confirmed(id);
-            let t = self.take_transaction(id).unwrap();
+        fn execute_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
+            self.ensure_confirmed(trans_id);
+            let t = self.take_transaction(trans_id).unwrap();
             env::call::CallParams::<MyEnv, ()>::invoke(t.callee, t.selector.into())
                 .gas_limit(t.gas_limit)
                 .transferred_value(t.transferred_value)
@@ -199,19 +199,19 @@ mod multisig_plain {
             self.owners.iter().position(|x| *x == *owner).unwrap() as u32
         }
 
-        fn take_transaction(&mut self, id: TransactionId) -> Option<Transaction> {
-            let transaction = self.transactions.take(id);
+        fn take_transaction(&mut self, trans_id: TransactionId) -> Option<Transaction> {
+            let transaction = self.transactions.take(trans_id);
             if transaction.is_some() {
-                self.clean_transaction_confirmations(id);
+                self.clean_transaction_confirmations(trans_id);
             }
             transaction
         }
 
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
-            for (id, _) in self.transactions.iter() {
-                if self.confirmations.remove(&(id, *owner)).is_some() {
+            for (trans_id, _) in self.transactions.iter() {
+                if self.confirmations.remove(&(trans_id, *owner)).is_some() {
                     self.confirmation_count
-                        .mutate_with(&id, |count| *count -= 1);
+                        .mutate_with(&trans_id, |count| *count -= 1);
                 }
             }
         }
@@ -223,12 +223,14 @@ mod multisig_plain {
             self.confirmation_count.remove(&transaction);
         }
 
-        fn ensure_confirmed(&self, id: TransactionId) {
-            assert!(self.confirmation_count.get(&id).unwrap() >= self.requirement.get());
+        fn ensure_confirmed(&self, trans_id: TransactionId) {
+            assert!(
+                self.confirmation_count.get(&trans_id).unwrap() >= self.requirement.get()
+            );
         }
 
-        fn ensure_transaction_exists(&self, id: TransactionId) {
-            self.transactions.get(id).unwrap();
+        fn ensure_transaction_exists(&self, trans_id: TransactionId) {
+            self.transactions.get(trans_id).unwrap();
         }
 
         fn ensure_caller_is_owner(&self) {
