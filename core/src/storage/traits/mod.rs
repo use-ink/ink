@@ -40,6 +40,7 @@ impl_array_len_less_equals_32_for!(
     24, 25, 26, 27, 28, 29, 30, 31, 32,
 );
 
+mod clear;
 mod pull;
 mod push;
 mod storage_size;
@@ -47,6 +48,10 @@ mod storage_size;
 use ink_primitives::Key;
 
 pub use self::{
+    clear::{
+        ClearAt,
+        ClearForward,
+    },
     pull::{
         PullAt,
         PullForward,
