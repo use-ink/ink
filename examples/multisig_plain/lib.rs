@@ -91,7 +91,7 @@ mod multisig_plain {
                 self.is_owner.insert(*owner, ());
                 self.owners.push(*owner);
             }
-            ensure_requirement(self.owners.len(), requirement);
+            ensure_requirement_is_valid(self.owners.len(), requirement);
             assert!(self.is_owner.len() == self.owners.len());
             self.requirement.set(requirement);
         }
@@ -100,7 +100,7 @@ mod multisig_plain {
         fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
-            ensure_requirement(self.owners.len() + 1, *self.requirement);
+            ensure_requirement_is_valid(self.owners.len() + 1, *self.requirement);
             self.is_owner.insert(new_owner, ());
             self.owners.push(new_owner);
         }
@@ -111,7 +111,7 @@ mod multisig_plain {
             self.ensure_owner(&owner);
             let len = self.owners.len() - 1;
             let requirement = u32::min(len, *self.requirement.get());
-            ensure_requirement(len, requirement);
+            ensure_requirement_is_valid(len, requirement);
             self.owners.swap_remove(self.owner_index(&owner));
             self.is_owner.remove(&owner);
             self.requirement.set(requirement);
@@ -133,7 +133,7 @@ mod multisig_plain {
         #[ink(message)]
         fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
-            ensure_requirement(self.owners.len(), new_requirement);
+            ensure_requirement_is_valid(self.owners.len(), new_requirement);
             self.requirement.set(new_requirement);
         }
 
@@ -250,7 +250,7 @@ mod multisig_plain {
         }
     }
 
-    fn ensure_requirement(owners: u32, requirement: u32) {
+    fn ensure_requirement_is_valid(owners: u32, requirement: u32) {
         assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
     }
 
