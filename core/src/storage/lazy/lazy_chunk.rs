@@ -335,8 +335,14 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the old element at the given index failed.
-    pub fn put(&mut self, _index: Index, _new_value: Option<T>) {
-        todo!()
+    pub fn put(&mut self, index: Index, new_value: Option<T>) {
+        self.entries_mut().insert(
+            index,
+            Box::new(Entry {
+                value: new_value,
+                mutated: core::cell::Cell::new(true),
+            }),
+        );
     }
 }
 
