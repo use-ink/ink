@@ -7,7 +7,9 @@
 //! Each instantiation of this contract has a set of `owners` and a `requirement` of
 //! how many of them need to agree on a `Transaction` for it to be able to be executed.
 //! Every owner can submit a transaction and when enough of the other owners confirm
-//! it will be able to be executed.
+//! it will be able to be executed. The following invariant is enforced by the contract:
+//!
+//! ```0 < requirement && requirement <= owners && owners <= MAX_OWNERS```
 //!
 //! ## Error Handling
 //!
@@ -52,12 +54,16 @@ mod multisig_plain {
     use ink_prelude::vec::Vec;
     use scale::Output;
 
-    type TransactionId = u32;
+    /// When using custom types in your runtime. Here is the place to declare them.
     type MyEnv = env::DefaultEnvTypes;
+    /// Tune this to your liking but be that many owners will not perform well.
     const MAX_OWNERS: u32 = 50;
+
+    type TransactionId = u32;
     const WRONG_TRANSACTION_ID: &str =
         "The user specified an invalid transaction id. Abort.";
 
+    /// A wrapper that allows us to pass untyped parameters as blob to a `CallBuilder`
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {
@@ -66,27 +72,48 @@ mod multisig_plain {
         }
     }
 
+    /// A Transaction is what every `owner` can submit for confirmation by other owners.
+    /// If enough owners agree it will be executed by the contract.
     #[derive(scale::Encode, scale::Decode, storage::Flush)]
     #[cfg_attr(feature = "std", derive(Debug))]
     pub struct Transaction {
+        /// The AccountId of the contract that is called in this transaction.
         callee: AccountId,
+        /// The raw selector which is the function name of the `callee`that is called.
         selector: [u8; 4],
+        /// The raw parameters that are passed to the called function.
         input: Vec<u8>,
+        /// The amount of chain balance that is transferred to the callee.
         transferred_value: Balance,
+        /// Gas limit for the transation.
         gas_limit: u64,
     }
 
     #[ink(storage)]
     struct MultisigPlain {
+        /// Every entry in this map represents the confirmation of an owner for a
+        /// transaction. This is effecively a set rather than a map.
         confirmations: storage::HashMap<(TransactionId, AccountId), ()>,
+        /// The amount of confirmations for every transaction. This is a redundant
+        /// information this kept in order to prevent iterating through the
+        /// confirmation set to check if a transaction is confirmed.
         confirmation_count: storage::HashMap<TransactionId, u32>,
+        /// Just the list of transactions. It is a stash as stable ids are necessary
+        /// for referencing them in confirmation calls.
         transactions: storage::Stash<Transaction>,
+        /// The list is a vector because iterating over it is necessary when cleaning
+        /// up the confirmation set.
         owners: storage::Vec<AccountId>,
+        /// Redundent information to speed up the check whether a caller is an owner.
         is_owner: storage::HashMap<AccountId, ()>,
+        /// Minimum number of owners that have to confirm a transaction to be executed.
         requirement: storage::Value<u32>,
     }
 
     impl MultisigPlain {
+        /// The only constructor the the contract. A list of owners must be supplied
+        /// and a number of how many of them must confirm a transaction. Duplicate
+        /// owners are silently dropped.
         #[ink(constructor)]
         fn new(&mut self, owners: Vec<AccountId>, requirement: u32) {
             for owner in &owners {
@@ -98,6 +125,8 @@ mod multisig_plain {
             self.requirement.set(requirement);
         }
 
+        /// Add a new owner to the contract. Fails is the owner already exists.
+        /// Only callable by the wallet itself.
         #[ink(message)]
         fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
@@ -107,6 +136,10 @@ mod multisig_plain {
             self.owners.push(new_owner);
         }
 
+        /// Remove an owner from the contract.
+        /// Only callable by the wallet itself. If by doing this the amount of owners
+        /// would be smaller than the requirement it is adjusted to be exactly the
+        /// number of owners.
         #[ink(message)]
         fn remove_owner(&mut self, owner: AccountId) {
             self.ensure_from_wallet();
@@ -120,6 +153,8 @@ mod multisig_plain {
             self.clean_owner_confirmations(&owner);
         }
 
+        /// Replace an owner from the contract with a new one.
+        /// Only callable by the wallet itself.
         #[ink(message)]
         fn replace_owner(&mut self, old_owner: AccountId, new_owner: AccountId) {
             self.ensure_from_wallet();
@@ -132,6 +167,8 @@ mod multisig_plain {
             self.clean_owner_confirmations(&old_owner);
         }
 
+        /// Change the requirement to a new value.
+        /// Only callable by the wallet itself.
         #[ink(message)]
         fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
@@ -139,6 +176,9 @@ mod multisig_plain {
             self.requirement.set(new_requirement);
         }
 
+        /// Add a new transaction candiate to the contract.
+        /// This also confirms the transaction for the caller.
+        /// This can be called by any owner.
         #[ink(message)]
         fn submit_transaction(&mut self, transaction: Transaction) {
             self.ensure_caller_is_owner();
@@ -147,12 +187,16 @@ mod multisig_plain {
             self.confirm_by_caller(self.env().caller(), trans_id);
         }
 
+        /// Remove a transaction from the contract.
+        /// Only callable by the wallet itself.
         #[ink(message)]
         fn cancel_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_from_wallet();
             self.take_transaction(trans_id);
         }
 
+        /// Confirm a transaction for the sender that was submitted by any owner.
+        /// This can be called by any owner.
         #[ink(message)]
         fn confirm_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
@@ -160,6 +204,8 @@ mod multisig_plain {
             self.confirm_by_caller(self.env().caller(), trans_id);
         }
 
+        /// Revoke the senders confirmation.
+        /// This can be called by any owner.
         #[ink(message)]
         fn revoke_confirmation(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
@@ -173,6 +219,9 @@ mod multisig_plain {
             }
         }
 
+        /// Execute a already confirmed execution. Its return type indicates whether
+        /// the called transaction was succesful.
+        /// This can be called by anyone.
         #[ink(message)]
         fn execute_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
             self.ensure_confirmed(trans_id);
