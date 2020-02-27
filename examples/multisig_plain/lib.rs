@@ -142,7 +142,7 @@ mod multisig_plain {
             self.ensure_caller_is_owner();
             let trans_id = self.transactions.put(transaction);
             self.confirmation_count.insert(trans_id, 0);
-            self.add_confirmer(self.env().caller(), trans_id);
+            self.confirm_by_caller(self.env().caller(), trans_id);
         }
 
         #[ink(message)]
@@ -155,7 +155,7 @@ mod multisig_plain {
         fn confirm_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
             self.ensure_transaction_exists(trans_id);
-            self.add_confirmer(self.env().caller(), trans_id);
+            self.confirm_by_caller(self.env().caller(), trans_id);
         }
 
         #[ink(message)]
@@ -184,7 +184,7 @@ mod multisig_plain {
                 .map_err(|_| ())
         }
 
-        fn add_confirmer(&mut self, confirmer: AccountId, transaction: TransactionId) {
+        fn confirm_by_caller(&mut self, confirmer: AccountId, transaction: TransactionId) {
             if self
                 .confirmations
                 .insert((transaction, confirmer), ())
