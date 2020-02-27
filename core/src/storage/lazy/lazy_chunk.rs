@@ -56,7 +56,9 @@ pub struct LazyChunk<T> {
 
 /// The map for the contract storage entries.
 ///
-/// We keep the whole entry in a `Pin<Box<T>>` in order to prevent pointer
+/// # Note
+///
+/// We keep the whole entry in a `Box<T>` in order to prevent pointer
 /// invalidation upon updating the cache through `&self` methods as in
 /// [`LazyChunk::get`].
 pub type EntryMap<T> = BTreeMap<Index, Box<Entry<T>>>;
@@ -78,20 +80,9 @@ where
     fn push_forward(&self, ptr: &mut KeyPtr) {
         // Reset the mutated entry flag because we just synced.
         self.mutated.set(false);
-        match self.value() {
-            Some(value) => {
-                // Forward push to the inner value on the computed key.
-                <T as PushForward>::push_forward(value, ptr);
-            }
-            None => {
-                let mut offset = ptr.next_for::<T>();
-                for _ in 0..<T as StorageSize>::SIZE {
-                    // Clear the storage at the given index.
-                    crate::env::clear_contract_storage(offset);
-                    offset += 1u64;
-                }
-            }
-        }
+        // Since `self.value` is of type `Option` this will eventually
+        // clear the underlying storage entry if `self.value` is `None`.
+        self.value.push_forward(ptr);
     }
 }
 
@@ -200,7 +191,7 @@ where
 
 impl<T> LazyChunk<T>
 where
-    T: scale::Decode,
+    T: StorageSize + PullForward,
 {
     /// Lazily loads the value at the given index.
     ///
@@ -246,16 +237,11 @@ where
         match cached_entries.entry(index) {
             BTreeMapEntry::Occupied(occupied) => &mut **occupied.into_mut(),
             BTreeMapEntry::Vacant(vacant) => {
-                let value = match crate::env::get_contract_storage::<T>(key + index) {
-                    Some(new_value) => {
-                        Some(new_value.expect("could not decode lazily loaded value"))
-                    }
-                    None => None,
-                };
-                &mut **vacant.insert(Box::new(Entry {
-                    value,
-                    mutated: core::cell::Cell::new(false),
-                }))
+                let value = <Option<T> as PullForward>::pull_forward(&mut KeyPtr::from(
+                    key + index,
+                ));
+                let mutated = core::cell::Cell::new(false);
+                &mut **vacant.insert(Box::new(Entry { value, mutated }))
             }
         }
     }
@@ -319,11 +305,14 @@ where
     }
 }
 
-impl<T> LazyChunk<T>
-where
-    T: scale::Encode,
-{
-    /// Puts the new value at the given index and returns the old value if any.
+impl<T> LazyChunk<T> {
+    /// Returns an exclusive reference to the cached entry map.
+    pub fn entries_mut(&mut self) -> &mut EntryMap<T> {
+        // SAFETY: It is safe to return a `&mut` reference from a `&mut` receiver method.
+        unsafe { &mut *self.cached_entries.get() }
+    }
+
+    /// Puts the new value at the given index.
     ///
     /// # Note
     ///
@@ -348,7 +337,7 @@ where
 
 impl<T> LazyChunk<T>
 where
-    T: scale::Codec,
+    T: StorageSize + PullForward,
 {
     /// Puts the new value at the given index and returns the old value if any.
     ///
