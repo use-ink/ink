@@ -172,11 +172,11 @@ where
                 if <T as StorageSize>::SIZE > 32 {
                     return
                 }
-                // In theory we'd need to clear all subfields of the `Option<T>`
-                // which are technically `<T as StorageSize>::SIZE` many.
-                // However, this could be a performance hazard so we should
-                // really not do that. We should add a check to disable this
-                // implementation for `StorageSize` of more than 32. (TODO)
+                // # ToDo
+                //
+                // Create a trait bound onto something like
+                // `ClearForward` and `ClearAt` that have a sole purpose of
+                // clearing the underlying storage of a storage entity.
                 for n in 0..<T as StorageSize>::SIZE {
                     env::clear_contract_storage(pos0 + n);
                 }
