@@ -123,6 +123,8 @@ pub use self::{
         PullForward,
         PushAt,
         PushForward,
+        ClearAt,
+        ClearForward,
         StorageSize,
     },
 };

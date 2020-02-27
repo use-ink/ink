@@ -16,6 +16,7 @@ use super::super::{
     KeyPtr,
     PullForward,
     PushForward,
+    ClearForward,
     StorageSize,
 };
 use core::cell::UnsafeCell;
@@ -108,6 +109,20 @@ where
         if let LazyCellEntry::Occupied(occupied) = self.kind() {
             if let Some(value) = &occupied.value {
                 <T as PushForward>::push_forward(value, ptr)
+            }
+        }
+    }
+}
+
+impl<T> ClearForward for LazyCell<T>
+where
+    T: ClearForward,
+{
+    fn clear_forward(&self, ptr: &mut KeyPtr) {
+        // We skip clear contract storage if we are still in unloaded form.
+        if let LazyCellEntry::Occupied(occupied) = self.kind() {
+            if let Some(value) = &occupied.value {
+                <T as ClearForward>::clear_forward(value, ptr)
             }
         }
     }

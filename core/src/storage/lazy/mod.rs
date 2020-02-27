@@ -23,6 +23,7 @@ use super::{
     KeyPtr,
     PullForward,
     PushForward,
+    ClearForward,
     StorageSize,
 };
 use ink_primitives::Key;
@@ -63,6 +64,15 @@ where
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         <LazyCell<T> as PushForward>::push_forward(&self.cell, ptr)
+    }
+}
+
+impl<T> ClearForward for Lazy<T>
+where
+    T: ClearForward,
+{
+    fn clear_forward(&self, ptr: &mut KeyPtr) {
+        <LazyCell<T> as ClearForward>::clear_forward(&self.cell, ptr)
     }
 }
 
