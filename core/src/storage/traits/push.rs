@@ -78,7 +78,7 @@ macro_rules! impl_push_for_array {
                     //       expensive operation that it shouldn't be.
                     //       Arrays should generally be used in packed form.
                     for elem in self.iter() {
-                        PushForward::push_forward(elem, ptr)
+                        <T as PushForward>::push_forward(elem, ptr)
                     }
                 }
             }
@@ -108,7 +108,7 @@ macro_rules! impl_push_tuple {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;
                 $(
-                    PushForward::push_forward($frag, ptr);
+                    <$frag as PushForward>::push_forward($frag, ptr);
                 )*
             }
         }
