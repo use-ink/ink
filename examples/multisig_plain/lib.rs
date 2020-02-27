@@ -55,6 +55,8 @@ mod multisig_plain {
     type TransactionId = u32;
     type MyEnv = env::DefaultEnvTypes;
     const MAX_OWNERS: u32 = 50;
+    const WRONG_TRANSACTION_ID: &str =
+        "The user specified an invalid transaction id. Abort.";
 
     struct CallInput<'a>(&'a [u8]);
 
@@ -174,7 +176,7 @@ mod multisig_plain {
         #[ink(message)]
         fn execute_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
             self.ensure_confirmed(trans_id);
-            let t = self.take_transaction(trans_id).unwrap();
+            let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             env::call::CallParams::<MyEnv, ()>::invoke(t.callee, t.selector.into())
                 .gas_limit(t.gas_limit)
                 .transferred_value(t.transferred_value)
@@ -200,7 +202,10 @@ mod multisig_plain {
         }
 
         fn owner_index(&self, owner: &AccountId) -> u32 {
-            self.owners.iter().position(|x| *x == *owner).unwrap() as u32
+            self.owners.iter().position(|x| *x == *owner).expect(
+                "This is only called after it was already verified that the id is
+                actually an owner.",
+            ) as u32
         }
 
         fn take_transaction(&mut self, trans_id: TransactionId) -> Option<Transaction> {
@@ -229,12 +234,15 @@ mod multisig_plain {
 
         fn ensure_confirmed(&self, trans_id: TransactionId) {
             assert!(
-                self.confirmation_count.get(&trans_id).unwrap() >= self.requirement.get()
+                self.confirmation_count
+                    .get(&trans_id)
+                    .expect(WRONG_TRANSACTION_ID)
+                    >= self.requirement.get()
             );
         }
 
         fn ensure_transaction_exists(&self, trans_id: TransactionId) {
-            self.transactions.get(trans_id).unwrap();
+            self.transactions.get(trans_id).expect(WRONG_TRANSACTION_ID);
         }
 
         fn ensure_caller_is_owner(&self) {
