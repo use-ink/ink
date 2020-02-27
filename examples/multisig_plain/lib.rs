@@ -184,7 +184,11 @@ mod multisig_plain {
                 .map_err(|_| ())
         }
 
-        fn confirm_by_caller(&mut self, confirmer: AccountId, transaction: TransactionId) {
+        fn confirm_by_caller(
+            &mut self,
+            confirmer: AccountId,
+            transaction: TransactionId,
+        ) {
             if self
                 .confirmations
                 .insert((transaction, confirmer), ())
