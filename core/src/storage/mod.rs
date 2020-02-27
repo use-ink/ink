@@ -90,6 +90,10 @@ pub use self::{
             self,
             BitVec,
         },
+        btree_map::{
+            self,
+            BTreeMap,
+        },
         hash_map::{
             self,
             HashMap,
