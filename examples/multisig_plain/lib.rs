@@ -66,7 +66,7 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0", env = MyEnv)]
+#[ink::contract(version = "0.1.0", env = ink_core::env::DefaultEnvTypes)]
 mod multisig_plain {
     use ink_core::{
         env,
@@ -75,8 +75,6 @@ mod multisig_plain {
     use ink_prelude::vec::Vec;
     use scale::Output;
 
-    /// When using custom types in your runtime. Here is the place to declare them.
-    type MyEnv = env::DefaultEnvTypes;
     /// Tune this to your liking but be that many owners will not perform well.
     const MAX_OWNERS: u32 = 50;
 
@@ -252,7 +250,7 @@ mod multisig_plain {
         fn execute_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            env::call::CallParams::<MyEnv, ()>::invoke(t.callee, t.selector.into())
+            env::call::CallParams::<EnvTypes, ()>::invoke(t.callee, t.selector.into())
                 .gas_limit(t.gas_limit)
                 .transferred_value(t.transferred_value)
                 .push_arg(&CallInput(&t.input))
@@ -363,7 +361,7 @@ mod multisig_plain {
     mod tests {
         use super::*;
         use ink_core::env::test;
-        type Accounts = test::DefaultAccounts<MyEnv>;
+        type Accounts = test::DefaultAccounts<EnvTypes>;
 
         fn default_accounts() -> Accounts {
             test::default_accounts()
