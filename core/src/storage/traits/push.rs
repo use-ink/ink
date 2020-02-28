@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::{
-    ArrayLenLessEquals32,
     KeyPtr,
     StorageSize,
 };
@@ -69,7 +68,6 @@ macro_rules! impl_push_for_array {
         $(
             impl<T> PushForward for [T; $len]
             where
-                Self: ArrayLenLessEquals32,
                 T: PushForward,
             {
                 fn push_forward(&self, ptr: &mut KeyPtr) {

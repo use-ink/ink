@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::{
-    ArrayLenLessEquals32,
     KeyPtr,
     StorageSize,
 };
@@ -81,7 +80,7 @@ macro_rules! impl_pull_for_array {
         $(
             impl<T> PullForward for [T; $len]
             where
-                Self: IsArray + ArrayLenLessEquals32,
+                Self: IsArray,
                 <Self as IsArray>::Item: PullForward,
             {
                 fn pull_forward(ptr: &mut KeyPtr) -> Self {
