@@ -141,7 +141,7 @@ mod multisig_plain {
             self.requirement.set(requirement);
         }
 
-        /// Add a new owner to the contract. Fails is the owner already exists.
+        /// Add a new owner to the contract. Panics is the owner already exists.
         /// Only callable by the wallet itself.
         #[ink(message)]
         fn add_owner(&mut self, new_owner: AccountId) {
@@ -155,7 +155,7 @@ mod multisig_plain {
         /// Remove an owner from the contract.
         /// Only callable by the wallet itself. If by doing this the amount of owners
         /// would be smaller than the requirement it is adjusted to be exactly the
-        /// number of owners.
+        /// number of owners. Panics if `owner` is no owner of the wallet.
         #[ink(message)]
         fn remove_owner(&mut self, owner: AccountId) {
             self.ensure_from_wallet();
@@ -169,7 +169,8 @@ mod multisig_plain {
             self.clean_owner_confirmations(&owner);
         }
 
-        /// Replace an owner from the contract with a new one.
+        /// Replace an owner from the contract with a new one. Panics if `old_owner`
+        /// is no owner or if `new_owner` already is one.
         /// Only callable by the wallet itself.
         #[ink(message)]
         fn replace_owner(&mut self, old_owner: AccountId, new_owner: AccountId) {
@@ -205,6 +206,7 @@ mod multisig_plain {
 
         /// Remove a transaction from the contract.
         /// Only callable by the wallet itself.
+        /// Panics if `trans_id` is no valid transaction id.
         #[ink(message)]
         fn cancel_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_from_wallet();
@@ -213,6 +215,7 @@ mod multisig_plain {
 
         /// Confirm a transaction for the sender that was submitted by any owner.
         /// This can be called by any owner.
+        /// Panics if `trans_id` is no valid transaction id.
         #[ink(message)]
         fn confirm_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
@@ -222,6 +225,7 @@ mod multisig_plain {
 
         /// Revoke the senders confirmation.
         /// This can be called by any owner.
+        /// Panics if `trans_id` is no valid transaction id.
         #[ink(message)]
         fn revoke_confirmation(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
@@ -251,6 +255,8 @@ mod multisig_plain {
                 .map_err(|_| ())
         }
 
+        /// Set the `transaction` as confirmed by `confirmer`. Idempotent operation
+        /// regarding an already confirmed `transaction` by `confirmer`.
         fn confirm_by_caller(
             &mut self,
             confirmer: AccountId,
@@ -266,6 +272,8 @@ mod multisig_plain {
             }
         }
 
+        /// Get the index of `owner` in `self.owners`. Panics if `owner` is not found
+        /// in `self.owners`.
         fn owner_index(&self, owner: &AccountId) -> u32 {
             self.owners.iter().position(|x| *x == *owner).expect(
                 "This is only called after it was already verified that the id is
@@ -273,6 +281,8 @@ mod multisig_plain {
             ) as u32
         }
 
+        /// Remove the transaction identified by `trans_id` from `self.transactions` and
+        /// removes all confirmation state associated with it.
         fn take_transaction(&mut self, trans_id: TransactionId) -> Option<Transaction> {
             let transaction = self.transactions.take(trans_id);
             if transaction.is_some() {
@@ -281,6 +291,8 @@ mod multisig_plain {
             transaction
         }
 
+        /// Remove all confirmation state associated with `owner` and adjust the
+        /// `self.confirmation_count` variable.
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
             for (trans_id, _) in self.transactions.iter() {
                 if self.confirmations.remove(&(trans_id, *owner)).is_some() {
@@ -290,6 +302,7 @@ mod multisig_plain {
             }
         }
 
+        /// This removes all confirmation state associated with `transaction`.
         fn clean_transaction_confirmations(&mut self, transaction: TransactionId) {
             for owner in self.owners.iter() {
                 self.confirmations.remove(&(transaction, *owner));
@@ -297,6 +310,8 @@ mod multisig_plain {
             self.confirmation_count.remove(&transaction);
         }
 
+        /// Panic if transaction `trans_id` is not confirmed by at least
+        /// `self.requirement` owners.
         fn ensure_confirmed(&self, trans_id: TransactionId) {
             assert!(
                 self.confirmation_count
@@ -306,17 +321,21 @@ mod multisig_plain {
             );
         }
 
+        /// Panic of the transaction `trans_id` does not exit.
         fn ensure_transaction_exists(&self, trans_id: TransactionId) {
             self.transactions.get(trans_id).expect(WRONG_TRANSACTION_ID);
         }
 
+        /// Panic if the sender is no owner of the wallet.
         fn ensure_caller_is_owner(&self) {
-            assert!(self.is_owner.contains_key(&self.env().caller()));
+            self.ensure_owner(&self.env().caller());
         }
 
+        /// Panic if the sender is not this wallet.
         fn ensure_from_wallet(&self) {
             assert!(self.env().caller() == self.env().account_id());
         }
+
 
         fn ensure_owner(&self, owner: &AccountId) {
             assert!(self.is_owner.contains_key(owner));
