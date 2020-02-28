@@ -46,6 +46,15 @@ pub struct Vec<T> {
     elems: storage::LazyChunk<T>,
 }
 
+impl<T> Default for Vec<T> {
+    fn default() -> Self {
+        Self {
+            len: storage::Lazy::new(0),
+            elems: storage::LazyChunk::default(),
+        }
+    }
+}
+
 impl<T> Vec<T> {
     /// Creates a new empty storage vector.
     pub fn new() -> Self {
