@@ -13,11 +13,11 @@
 // limitations under the License.
 
 mod lazy_cell;
-mod lazy_chunk;
+mod lazy_map;
 
 pub use self::{
     lazy_cell::LazyCell,
-    lazy_chunk::LazyChunk,
+    lazy_map::{LazyChunk, LazyMapping},
 };
 use super::{
     KeyPtr,

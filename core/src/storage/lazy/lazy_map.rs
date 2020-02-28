@@ -18,16 +18,71 @@ use super::super::{
     PushForward,
     StorageSize,
 };
-use core::cell::UnsafeCell;
-use ink_primitives::Key;
-
+use core::{
+    cell::{Cell, UnsafeCell},
+    cmp::{
+        Eq,
+        Ord,
+    },
+};
 use ink_prelude::{
     boxed::Box,
     collections::BTreeMap,
 };
+use ink_primitives::Key;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
+
+/// Types implementing this trait can use the `LazyMap` in order to
+/// convert themselves into an actual storage Key.
+///
+/// # Note
+///
+/// By default implemented by `u32` as index for [`ink_core::storage::LazyChunk`]
+/// and by `Key` itself as identify function in order to eventually support
+/// Solidity-like storage mappings.
+pub trait KeyMapping<Value> {
+    /// Converts `self` into a storage key using the lazy map parameter.
+    fn to_storage_key(&self, offset: &Key) -> Key;
+}
+
+impl<Value> KeyMapping<Value> for Index
+where
+    Value: StorageSize,
+{
+    fn to_storage_key(&self, offset: &Key) -> Key {
+        *offset + (*self as u64 * <Value as StorageSize>::SIZE)
+    }
+}
+
+impl<Value> KeyMapping<Value> for Key {
+    fn to_storage_key(&self, _offset: &Key) -> Key {
+        // TODO: Actually implement this correctly similar to how Solidity
+        //       handles these cases.
+        *self
+    }
+}
+
+/// A chunk of contiguously stored storage entities indexed by integers.
+///
+/// # Note
+///
+/// - Loads each values within the chunk lazily.
+/// - This is a low-level storage primitive used by some high-level
+///   storage primitives in order to manage the contract storage for a whole
+///   chunk of storage cells.
+pub type LazyChunk<T> = LazyMap<Index, T>;
+
+/// A Solidity-like mapping of storage entities indexed by key hashes.
+///
+/// # Note
+///
+/// - Loads each values within the chunk lazily.
+/// - This is a low-level storage primitive used by some high-level
+///   storage primitives in order to manage the contract storage similar
+///   as to how Solidity mappings distribute their storage entries.
+pub type LazyMapping<T> = LazyMap<Key, T>;
 
 /// A lazy storage chunk that spans over a whole chunk of storage cells.
 ///
@@ -38,8 +93,8 @@ pub type Index = u32;
 /// chunk of storage cells.
 ///
 /// A chunk of storage cells is a contiguous range of 2^32 storage cells.
-#[derive(Debug, Default)]
-pub struct LazyChunk<T> {
+#[derive(Debug)]
+pub struct LazyMap<K, V> {
     /// The offset key for the chunk of cells.
     ///
     /// If the lazy chunk has been initialized during contract initialization
@@ -51,7 +106,19 @@ pub struct LazyChunk<T> {
     /// The subset of currently cached entries of the lazy storage chunk.
     ///
     /// An entry is cached as soon as it is loaded or written.
-    cached_entries: UnsafeCell<EntryMap<T>>,
+    cached_entries: UnsafeCell<EntryMap<K, V>>,
+}
+
+impl<K, V> Default for LazyMap<K, V>
+where
+    K: Ord,
+{
+    fn default() -> Self {
+        Self {
+            key: None,
+            cached_entries: UnsafeCell::new(EntryMap::default()),
+        }
+    }
 }
 
 /// The map for the contract storage entries.
@@ -60,8 +127,8 @@ pub struct LazyChunk<T> {
 ///
 /// We keep the whole entry in a `Box<T>` in order to prevent pointer
 /// invalidation upon updating the cache through `&self` methods as in
-/// [`LazyChunk::get`].
-pub type EntryMap<T> = BTreeMap<Index, Box<Entry<T>>>;
+/// [`LazyMap::get`].
+pub type EntryMap<K, V> = BTreeMap<K, Box<Entry<V>>>;
 
 /// An entry within the lazy chunk
 #[derive(Debug)]
@@ -70,7 +137,7 @@ pub struct Entry<T> {
     value: Option<T>,
     /// This is `true` if the `value` has been mutated and is potentially
     /// out-of-sync with the contract storage.
-    mutated: core::cell::Cell<bool>,
+    mutated: Cell<bool>,
 }
 
 impl<T> PushForward for Entry<T>
@@ -135,7 +202,10 @@ impl<T> Entry<T> {
     }
 }
 
-impl<T> LazyChunk<T> {
+impl<K, V> LazyMap<K, V>
+where
+    K: Ord,
+{
     /// Creates a new empty lazy chunk that cannot be mutated.
     pub fn new() -> Self {
         Self {
@@ -144,12 +214,38 @@ impl<T> LazyChunk<T> {
         }
     }
 
-    /// Returns a shared reference to the entries.
-    fn entries(&self) -> &EntryMap<T> {
-        // SAFETY: We return a shared reference while `entries` is a method
-        //         with a `&self` receiver so we don't break lifetime or borrow
-        //         rules in isolation.
+    /// Returns a shared reference to the underlying entries.
+    fn entries(&self) -> &EntryMap<K, V> {
+        // SAFETY: It is safe to return a `&` reference from a `&self` receiver.
         unsafe { &*self.cached_entries.get() }
+    }
+
+    /// Returns an exclusive reference to the underlying entries.
+    fn entries_mut(&mut self) -> &mut EntryMap<K, V> {
+        // SAFETY: It is safe to return a `&mut` reference from a `&mut self` receiver.
+        unsafe { &mut *self.cached_entries.get() }
+    }
+
+    /// Puts the new value at the given index.
+    ///
+    /// # Note
+    ///
+    /// - Use [`LazyMap::put`]`(None)` in order to remove an element.
+    /// - Prefer this method over [`LazyMap::put_get`] if you are not interested
+    ///   in the old value of the same cell index.
+    ///
+    /// # Panics
+    ///
+    /// - If the lazy chunk is in an invalid state that forbids interaction.
+    /// - If the decoding of the old element at the given index failed.
+    pub fn put(&mut self, index: K, new_value: Option<V>) {
+        self.entries_mut().insert(
+            index,
+            Box::new(Entry {
+                value: new_value,
+                mutated: Cell::new(true),
+            }),
+        );
     }
 }
 
@@ -157,12 +253,25 @@ impl<T> StorageSize for LazyChunk<T>
 where
     T: StorageSize,
 {
+    /// A lazy chunk is contiguous and its size can be determined by the
+    /// total number of elements it could theoretically hold.
     const SIZE: u64 = <T as StorageSize>::SIZE * (core::u32::MAX as u64);
 }
 
-impl<T> PullForward for LazyChunk<T>
+impl<T> StorageSize for LazyMapping<T>
 where
     T: StorageSize,
+{
+    /// A lazy mapping is similar to a Solidity mapping that distributes its
+    /// stored entities across the entire contract storage so its inplace size
+    /// is actually just 1.
+    const SIZE: u64 = 1;
+}
+
+impl<K, V> PullForward for LazyMap<K, V>
+where
+    K: Ord,
+    Self: StorageSize,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -172,26 +281,27 @@ where
     }
 }
 
-impl<T> PushForward for LazyChunk<T>
+impl<K, V> PushForward for LazyMap<K, V>
 where
-    T: PushForward + StorageSize,
+    Self: StorageSize,
+    K: KeyMapping<V> + Ord,
+    V: PushForward + StorageSize,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         let key = ptr.next_for::<Self>();
-        let elem_size = <T as StorageSize>::SIZE;
         assert_eq!(self.key, Some(key));
-        for (&index, entry) in self.entries().iter().filter(|(_, entry)| entry.mutated())
-        {
-            let offset: Key = key + (index as u64 * elem_size);
+        for (index, entry) in self.entries().iter().filter(|(_, entry)| entry.mutated()) {
+            let offset: Key = <K as KeyMapping<V>>::to_storage_key(index, &key);
             let mut ptr = KeyPtr::from(offset);
             PushForward::push_forward(&**entry, &mut ptr);
         }
     }
 }
 
-impl<T> LazyChunk<T>
+impl<K, V> LazyMap<K, V>
 where
-    T: StorageSize + PullForward,
+    K: KeyMapping<V> + Ord + Eq,
+    V: StorageSize + PullForward,
 {
     /// Lazily loads the value at the given index.
     ///
@@ -217,7 +327,7 @@ where
     /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
     /// within internal use only and should never be given outside of the lazy
     /// entity for public `&self` methods.
-    unsafe fn lazily_load(&self, index: Index) -> *mut Entry<T> {
+    unsafe fn lazily_load(&self, index: K) -> *mut Entry<V> {
         let key = match self.key {
             Some(key) => key,
             None => panic!("cannot load lazily in this state"),
@@ -234,13 +344,13 @@ where
         #[allow(unused_unsafe)]
         let cached_entries = unsafe { &mut *self.cached_entries.get() };
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
+        let off_key = <K as KeyMapping<V>>::to_storage_key(&index, &key);
         match cached_entries.entry(index) {
             BTreeMapEntry::Occupied(occupied) => &mut **occupied.into_mut(),
             BTreeMapEntry::Vacant(vacant) => {
-                let value = <Option<T> as PullForward>::pull_forward(&mut KeyPtr::from(
-                    key + index,
-                ));
-                let mutated = core::cell::Cell::new(false);
+                let value =
+                    <Option<V> as PullForward>::pull_forward(&mut KeyPtr::from(off_key));
+                let mutated = Cell::new(false);
                 &mut **vacant.insert(Box::new(Entry { value, mutated }))
             }
         }
@@ -257,7 +367,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the lazy chunk is not in a state that allows lazy loading.
-    fn lazily_load_mut(&mut self, index: Index) -> &mut Entry<T> {
+    fn lazily_load_mut(&mut self, index: K) -> &mut Entry<V> {
         // SAFETY:
         // - Returning a `&mut Entry<T>` is safe because entities inside the
         //   cache are stored within a `Box` to not invalidate references into
@@ -271,11 +381,11 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn get(&self, index: Index) -> Option<&T> {
+    pub fn get(&self, index: K) -> Option<&V> {
         // SAFETY: Dereferencing the `*mut T` pointer into a `&T` is safe
         //         since this method's receiver is `&self` so we do not
         //         leak non-shared references to the outside.
-        let entry: &Entry<T> = unsafe { &*self.lazily_load(index) };
+        let entry: &Entry<V> = unsafe { &*self.lazily_load(index) };
         entry.value()
     }
 
@@ -285,7 +395,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn get_mut(&mut self, index: Index) -> Option<&mut T> {
+    pub fn get_mut(&mut self, index: K) -> Option<&mut V> {
         self.lazily_load_mut(index).value_mut()
     }
 
@@ -299,57 +409,28 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn take(&mut self, index: Index) -> Option<T> {
+    pub fn take(&mut self, index: K) -> Option<V> {
         self.lazily_load_mut(index).take_value()
     }
 }
 
-impl<T> LazyChunk<T> {
-    /// Returns an exclusive reference to the cached entry map.
-    pub fn entries_mut(&mut self) -> &mut EntryMap<T> {
-        // SAFETY: It is safe to return a `&mut` reference from a `&mut` receiver method.
-        unsafe { &mut *self.cached_entries.get() }
-    }
-
-    /// Puts the new value at the given index.
-    ///
-    /// # Note
-    ///
-    /// - Use [`LazyChunk::put`]`(None)` in order to remove an element.
-    /// - Prefer this method over [`LazyChunk::put_get`] if you are not interested
-    ///   in the old value of the same cell index.
-    ///
-    /// # Panics
-    ///
-    /// - If the lazy chunk is in an invalid state that forbids interaction.
-    /// - If the decoding of the old element at the given index failed.
-    pub fn put(&mut self, index: Index, new_value: Option<T>) {
-        self.entries_mut().insert(
-            index,
-            Box::new(Entry {
-                value: new_value,
-                mutated: core::cell::Cell::new(true),
-            }),
-        );
-    }
-}
-
-impl<T> LazyChunk<T>
+impl<K, V> LazyMap<K, V>
 where
-    T: StorageSize + PullForward,
+    K: KeyMapping<V> + Ord + Eq,
+    V: StorageSize + PullForward,
 {
     /// Puts the new value at the given index and returns the old value if any.
     ///
     /// # Note
     ///
-    /// - Use [`LazyChunk::put_get`]`(None)` in order to remove an element
+    /// - Use [`LazyMap::put_get`]`(None)` in order to remove an element
     ///   and retrieve the old element back.
     ///
     /// # Panics
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the old element at the given index failed.
-    pub fn put_get(&mut self, index: Index, new_value: Option<T>) -> Option<T> {
+    pub fn put_get(&mut self, index: K, new_value: Option<V>) -> Option<V> {
         self.lazily_load_mut(index).put(new_value)
     }
 
@@ -361,7 +442,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of one of the elements failed.
-    pub fn swap(&mut self, x: Index, y: Index) {
+    pub fn swap(&mut self, x: K, y: K) {
         if x == y {
             // Bail out early if both indices are the same.
             return
