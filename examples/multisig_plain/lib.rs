@@ -23,7 +23,9 @@
 //! Every owner can submit a transaction and when enough of the other owners confirm
 //! it will be able to be executed. The following invariant is enforced by the contract:
 //!
-//! ```0 < requirement && requirement <= owners && owners <= MAX_OWNERS```
+//! ```
+//! 0 < requirement && requirement <= owners && owners <= MAX_OWNERS
+//! ```
 //!
 //! ## Error Handling
 //!
