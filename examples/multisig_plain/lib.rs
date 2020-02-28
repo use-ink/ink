@@ -16,6 +16,11 @@
 //!
 //! This implements a plain multi owner wallet.
 //!
+//! ## Warning
+//!
+//! This contract is an *example*. It is neither audited nor endorsed for production use.
+//! Do **not** rely on it to keep anything of value secure.
+//!
 //! ## Overview
 //!
 //! Each instantiation of this contract has a set of `owners` and a `requirement` of
@@ -336,16 +341,19 @@ mod multisig_plain {
             assert!(self.env().caller() == self.env().account_id());
         }
 
-
+        /// Panic if `owner` is not an owner,
         fn ensure_owner(&self, owner: &AccountId) {
             assert!(self.is_owner.contains_key(owner));
         }
 
+        /// Panic if `owner` is an owner.
         fn ensure_no_owner(&self, owner: &AccountId) {
             assert!(!self.is_owner.contains_key(owner));
         }
     }
 
+    /// Panic if the number of `owners` under a `requirement` vialates our
+    /// requirement invariant.
     fn ensure_requirement_is_valid(owners: u32, requirement: u32) {
         assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
     }
