@@ -13,10 +13,10 @@
 // limitations under the License.
 
 use super::super::{
+    ClearForward,
     KeyPtr,
     PullForward,
     PushForward,
-    ClearForward,
     StorageSize,
 };
 use core::cell::UnsafeCell;

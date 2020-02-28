@@ -17,13 +17,16 @@ mod lazy_map;
 
 pub use self::{
     lazy_cell::LazyCell,
-    lazy_map::{LazyChunk, LazyMapping},
+    lazy_map::{
+        LazyChunk,
+        LazyMapping,
+    },
 };
 use super::{
+    ClearForward,
     KeyPtr,
     PullForward,
     PushForward,
-    ClearForward,
     StorageSize,
 };
 use ink_primitives::Key;

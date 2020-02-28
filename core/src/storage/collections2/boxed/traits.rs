@@ -89,7 +89,10 @@ where
     }
 }
 
-impl<T> core::cmp::Eq for StorageBox<T> where T: Eq + ClearForward + StorageSize + PullForward {}
+impl<T> core::cmp::Eq for StorageBox<T> where
+    T: Eq + ClearForward + StorageSize + PullForward
+{
+}
 
 impl<T> core::cmp::PartialOrd for StorageBox<T>
 where

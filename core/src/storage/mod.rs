@@ -108,8 +108,8 @@ pub use self::{
         },
     },
     collections2::{
-        vec::Vec as Vec2,
         boxed::Box,
+        vec::Vec as Vec2,
     },
     flush::Flush,
     lazy::{
@@ -120,13 +120,13 @@ pub use self::{
     },
     pack::Pack,
     traits::{
+        ClearAt,
+        ClearForward,
         KeyPtr,
         PullAt,
         PullForward,
         PushAt,
         PushForward,
-        ClearAt,
-        ClearForward,
         StorageSize,
     },
 };

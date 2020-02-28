@@ -29,8 +29,7 @@ where
     type Output = T;
 
     fn index(&self, index: u32) -> &Self::Output {
-        self.get(index)
-            .expect("index out of bounds")
+        self.get(index).expect("index out of bounds")
     }
 }
 
@@ -39,8 +38,7 @@ where
     T: StorageSize + PullForward,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
-        self.get_mut(index)
-            .expect("index out of bounds")
+        self.get_mut(index).expect("index out of bounds")
     }
 }
 

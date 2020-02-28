@@ -14,13 +14,11 @@
 
 mod traits;
 
-use crate::{
-    storage::{
-        Lazy,
-        PullForward,
-        ClearForward,
-        StorageSize,
-    },
+use crate::storage::{
+    ClearForward,
+    Lazy,
+    PullForward,
+    StorageSize,
 };
 use ink_primitives::Key;
 

@@ -117,7 +117,8 @@ impl ClearForward for () {
 }
 
 impl ClearAt for () {
-    fn clear_at(&self, _at: Key) { /* literally do nothing here */ }
+    fn clear_at(&self, _at: Key) { // literally do nothing here
+    }
 }
 
 impl<T> ClearForward for PhantomData<T> {
@@ -125,7 +126,8 @@ impl<T> ClearForward for PhantomData<T> {
 }
 
 impl<T> ClearAt for PhantomData<T> {
-    fn clear_at(&self, _at: Key) { /* literally do nothing here */ }
+    fn clear_at(&self, _at: Key) { // literally do nothing here
+    }
 }
 
 impl<T> ClearForward for Option<T>

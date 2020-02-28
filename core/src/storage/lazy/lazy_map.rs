@@ -19,7 +19,10 @@ use super::super::{
     StorageSize,
 };
 use core::{
-    cell::{Cell, UnsafeCell},
+    cell::{
+        Cell,
+        UnsafeCell,
+    },
     cmp::{
         Eq,
         Ord,
