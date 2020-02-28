@@ -28,7 +28,7 @@
 //! Every owner can submit a transaction and when enough of the other owners confirm
 //! it will be able to be executed. The following invariant is enforced by the contract:
 //!
-//! ```
+//! ```ignore
 //! 0 < requirement && requirement <= owners && owners <= MAX_OWNERS
 //! ```
 //!
@@ -141,7 +141,7 @@ mod multisig_plain {
                 self.is_owner.insert(*owner, ());
                 self.owners.push(*owner);
             }
-            ensure_requirement_is_valid(self.owners.len(), requirement);
+            self.ensure_requirement_is_valid(self.owners.len(), requirement);
             assert!(self.is_owner.len() == self.owners.len());
             self.requirement.set(requirement);
         }
@@ -152,7 +152,7 @@ mod multisig_plain {
         fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
-            ensure_requirement_is_valid(self.owners.len() + 1, *self.requirement);
+            self.ensure_requirement_is_valid(self.owners.len() + 1, *self.requirement);
             self.is_owner.insert(new_owner, ());
             self.owners.push(new_owner);
         }
@@ -167,7 +167,7 @@ mod multisig_plain {
             self.ensure_owner(&owner);
             let len = self.owners.len() - 1;
             let requirement = u32::min(len, *self.requirement.get());
-            ensure_requirement_is_valid(len, requirement);
+            self.ensure_requirement_is_valid(len, requirement);
             self.owners.swap_remove(self.owner_index(&owner));
             self.is_owner.remove(&owner);
             self.requirement.set(requirement);
@@ -194,7 +194,7 @@ mod multisig_plain {
         #[ink(message)]
         fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
-            ensure_requirement_is_valid(self.owners.len(), new_requirement);
+            self.ensure_requirement_is_valid(self.owners.len(), new_requirement);
             self.requirement.set(new_requirement);
         }
 
@@ -350,12 +350,12 @@ mod multisig_plain {
         fn ensure_no_owner(&self, owner: &AccountId) {
             assert!(!self.is_owner.contains_key(owner));
         }
-    }
 
-    /// Panic if the number of `owners` under a `requirement` vialates our
-    /// requirement invariant.
-    fn ensure_requirement_is_valid(owners: u32, requirement: u32) {
-        assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
+        /// Panic if the number of `owners` under a `requirement` violates our
+        /// requirement invariant.
+        fn ensure_requirement_is_valid(&self, owners: u32, requirement: u32) {
+            assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
+        }
     }
 
     #[cfg(test)]
@@ -364,16 +364,18 @@ mod multisig_plain {
         use ink_core::env::test;
         type Accounts = test::DefaultAccounts<MyEnv>;
 
+        fn default_accounts() -> Accounts {
+            test::default_accounts()
+                .expect("Test environment is expected to be initialized.")
+        }
+
         #[test]
         fn construction_works() {
-            test::run_test(|accounts: Accounts| {
-                MultisigPlain::new(
-                    ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve],
-                    2,
-                );
-                Ok(())
-            })
-            .unwrap();
+            let accounts = default_accounts();
+            MultisigPlain::new(
+                ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve],
+                2,
+            );
         }
     }
 }
