@@ -117,6 +117,7 @@ pub use self::{
         LazyCell,
         LazyChunk,
         LazyMapping,
+        LazyMap,
     },
     pack::Pack,
     traits::{

@@ -20,6 +20,7 @@ pub use self::{
     lazy_map::{
         LazyChunk,
         LazyMapping,
+        LazyMap,
     },
 };
 use super::{
