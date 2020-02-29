@@ -43,6 +43,18 @@ where
     }
 }
 
+impl<'a, T: 'a> IntoIterator for &'a StorageVec<T>
+where
+    T: StorageSize + PullForward,
+{
+    type Item = &'a T;
+    type IntoIter = super::Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
 impl<T> StorageSize for StorageVec<T>
 where
     T: StorageSize,
