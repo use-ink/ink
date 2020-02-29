@@ -217,6 +217,11 @@ where
         }
     }
 
+    /// Returns the offset key of the lazy map if any.
+    pub fn key(&self) -> Option<&Key> {
+        self.key.as_ref()
+    }
+
     /// Returns a shared reference to the underlying entries.
     fn entries(&self) -> &EntryMap<K, V> {
         // SAFETY: It is safe to return a `&` reference from a `&self` receiver.
