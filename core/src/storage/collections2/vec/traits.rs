@@ -16,6 +16,7 @@ use super::Vec as StorageVec;
 use crate::{
     storage,
     storage::{
+        ClearForward,
         KeyPtr,
         PullForward,
         PushForward,
@@ -82,5 +83,22 @@ where
     fn push_forward(&self, ptr: &mut KeyPtr) {
         PushForward::push_forward(&self.len(), ptr);
         PushForward::push_forward(&self.elems, ptr);
+    }
+}
+
+impl<T> ClearForward for StorageVec<T>
+where
+    T: StorageSize + ClearForward + PullForward,
+{
+    fn clear_forward(&self, ptr: &mut KeyPtr) {
+        ClearForward::clear_forward(&self.len(), ptr);
+        if let Some(key) = self.elems.key() {
+            for (index, elem) in self.iter().enumerate() {
+                <T as ClearForward>::clear_forward(
+                    elem,
+                    &mut KeyPtr::from(*key + index as u32),
+                )
+            }
+        }
     }
 }
