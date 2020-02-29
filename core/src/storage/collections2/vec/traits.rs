@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::Vec as StorageVec;
 use crate::{
     storage,
     storage::{
@@ -22,7 +23,7 @@ use crate::{
     },
 };
 
-impl<T> core::ops::Index<u32> for storage::Vec2<T>
+impl<T> core::ops::Index<u32> for StorageVec<T>
 where
     T: StorageSize + PullForward,
 {
@@ -33,7 +34,7 @@ where
     }
 }
 
-impl<T> core::ops::IndexMut<u32> for storage::Vec2<T>
+impl<T> core::ops::IndexMut<u32> for StorageVec<T>
 where
     T: StorageSize + PullForward,
 {
@@ -42,7 +43,7 @@ where
     }
 }
 
-impl<T> StorageSize for storage::Vec2<T>
+impl<T> StorageSize for StorageVec<T>
 where
     T: StorageSize,
 {
@@ -50,7 +51,7 @@ where
         <u32 as StorageSize>::SIZE + <storage::LazyChunk<T> as StorageSize>::SIZE;
 }
 
-impl<T> PullForward for storage::Vec2<T>
+impl<T> PullForward for StorageVec<T>
 where
     T: StorageSize,
 {
@@ -62,7 +63,7 @@ where
     }
 }
 
-impl<T> PushForward for storage::Vec2<T>
+impl<T> PushForward for StorageVec<T>
 where
     storage::LazyChunk<T>: PushForward,
 {
