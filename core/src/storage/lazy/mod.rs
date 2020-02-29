@@ -19,8 +19,8 @@ pub use self::{
     lazy_cell::LazyCell,
     lazy_map::{
         LazyChunk,
-        LazyMapping,
         LazyMap,
+        LazyMapping,
     },
 };
 use super::{

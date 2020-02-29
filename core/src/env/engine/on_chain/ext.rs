@@ -60,6 +60,7 @@ mod sys {
             value_ptr: u32,
             value_len: u32,
         );
+
         pub fn ext_get_storage(key_ptr: u32) -> u32;
 
         pub fn ext_get_runtime_storage(key_ptr: u32, key_len: u32) -> u32;
