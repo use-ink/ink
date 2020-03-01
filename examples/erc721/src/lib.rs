@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2019-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![feature(proc_macro_hygiene)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang2 as ink;
-use ink_core::storage;
+use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
+    use ink_core::storage;
+    use scale::{Decode, Encode};
+
     /// A token ID.
     pub type TokenId = u32;
 
@@ -32,7 +33,20 @@ mod erc721 {
         /// Mapping from owner to number of owned token.
         owned_tokens_count: storage::HashMap<AccountId, u32>,
         /// Mapping from owner to operator approvals
-        operator_approvals: storage::HashMap<(AccountId, AccountId), bool>
+        operator_approvals: storage::HashMap<(AccountId, AccountId), bool>,
+    }
+
+    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
+    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+    pub enum Error {
+        NotOwner,
+        NotApproved,
+        TokenExists,
+        TokenNotFound,
+        CanNotInsert,
+        CanNotRemove,
+        CanNotGetCounter,
+        ZeroAccountNotAllowed,
     }
 
     /// Event emitted when a token transfer occurs
@@ -41,7 +55,7 @@ mod erc721 {
         #[ink(topic)]
         from: Option<AccountId>,
         #[ink(topic)]
-        to: AccountId,
+        to: Option<AccountId>,
         #[ink(topic)]
         id: TokenId,
     }
@@ -65,46 +79,20 @@ mod erc721 {
         owner: AccountId,
         #[ink(topic)]
         operator: AccountId,
-        approved: bool
+        approved: bool,
     }
 
     impl Erc721 {
         #[ink(constructor)]
-        fn new(&mut self) {
-
-        }
-
-        /// ===========================
-        /// NOT REQUIRED, JUST FOR TEST
-        /// ===========================
-        #[ink(message)]
-        fn mint(&mut self, id: TokenId) -> bool {
-            let caller = self.env().caller();
-            let owner = self.owner_of(id);
-            match owner {
-                None => false,
-                Some(_owner) => {
-                    self.token_owner.insert(id, caller);
-                    let balance = self.balance_of_or_zero(caller);
-                    self.owned_tokens_count.insert(caller, balance + 1);
-                    self.env().emit_event(Transfer {
-                        from: None,
-                        to: caller,
-                        id: id,
-                    });
-                    true
-                }
-            }
-        }
+        fn new(&mut self) {}
 
         /// Get token balance of specific account.
         #[ink(message)]
         fn balance_of(&self, owner: AccountId) -> u32 {
-            let balance = self.balance_of_or_zero(owner);
-            balance
+            self.balance_of_or_zero(&owner)
         }
 
-        /// Get owner for specific token.
+        /// Get token owner.
         #[ink(message)]
         fn owner_of(&self, id: TokenId) -> Option<AccountId> {
             self.token_owner.get(&id).cloned()
@@ -112,8 +100,57 @@ mod erc721 {
 
         /// The approved address for this token, or the none address if there is none
         #[ink(message)]
-        fn get_approved(&self, id: TokenId) -> Option<AccountId> {
-            self.approved_of_or_none(id)
+        fn approved_for(&self, id: TokenId) -> Option<AccountId> {
+            self.token_approvals.get(&id).cloned()
+        }
+
+        /// Mints a new token.
+        #[ink(message)]
+        fn mint(&mut self, id: u32) -> Result<(), Error> {
+            let caller = self.env().caller();
+            self.add_token_to(&caller, &id)?;
+            self.env().emit_event(Transfer {
+                from: Some(AccountId::from([0x0; 32])),
+                to: Some(caller),
+                id,
+            });
+            Ok(())
+        }
+
+        /// Burns an existing token. Only the owner can burn the token.
+        #[ink(message)]
+        fn burn(&mut self, id: u32) -> Result<(), Error> {
+            let caller = self.env().caller();
+            if self.token_owner.get(&id) != Some(&caller) {
+                return Err(Error::NotOwner);
+            };
+            self.remove_token_from(&caller, &id)?;
+            self.env().emit_event(Transfer {
+                from: Some(caller),
+                to: Some(AccountId::from([0x0; 32])),
+                id,
+            });
+            Ok(())
+        }
+
+        /// Transfer token from caller.
+        #[ink(message)]
+        fn transfer(&mut self, to: AccountId, id: u32) -> Result<(), Error> {
+            let caller = self.env().caller();
+            self.transfer_token_from(&caller, &to, &id)?;
+            Ok(())
+        }
+
+        /// Transfer approved or owned token.
+        #[ink(message)]
+        fn transfer_from(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            id: u32,
+        ) -> Result<(), Error> {
+            self.transfer_token_from(&from, &to, &id)?;
+            Ok(())
         }
 
         /// Sets or unsets the approval of a given operator to transfer all tokens of caller
@@ -121,115 +158,165 @@ mod erc721 {
         fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> bool {
             let caller = self.env().caller();
             if to == caller {
-                return false
+                return false;
             }
             self.operator_approvals.insert((caller, to), approved);
             self.env().emit_event(ApprovalForAll {
                 owner: caller,
                 operator: to,
-                approved
+                approved,
             });
             true
         }
 
         /// Get whether an operator is approved by a given owner
         #[ink(message)]
+        fn approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
+            self.is_approved_for_all(owner, operator)
+        }
+
         fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self.is_approved_for_all_impl(owner, operator)
-        }
-
-        /// Transfer token from owner to another address
-        #[ink(message)]
-        fn transfer_from(&mut self, from: AccountId, to: AccountId, id: TokenId) -> bool {
-            let caller = self.env().caller();
-            if self.is_approved_or_owner(caller, id) {
-                return self.transfer_from_impl(from, to, id);
-            }
-            false
-        }
-
-        /// Approve another account to operate the given token
-        #[ink(message)]
-        fn approve(&mut self, to: AccountId, id: TokenId) -> bool {
-            let caller = self.env().caller();
-            let owner = self.owner_of(id);
-            match owner {
-                None => false,
-                Some(owner) => {
-                    if caller != owner {
-                        return false;
-                    }
-                    if owner == to {
-                        return false;
-                    }
-                    self.token_approvals.insert(id, to);
-                    self.env().emit_event(Approval {
-                        from: owner,
-                        to: to,
-                        id: id,
-                    });
-                    true
-                }
-            }
+            *self
+                .operator_approvals
+                .get(&(owner, operator))
+                .unwrap_or(&false)
         }
 
         // Private functions
 
-        fn balance_of_or_zero(&self, of: AccountId) -> u32 {
-            *self.owned_tokens_count.get(&of).unwrap_or(&0)
+        /// Transfers token `id` `from` the sender to the `to` AccountId.
+        fn transfer_token_from(
+            &mut self,
+            from: &AccountId,
+            to: &AccountId,
+            id: &TokenId,
+        ) -> Result<(), Error> {
+            let caller = self.env().caller();
+            if !self.exists(id) {
+                return Err(Error::TokenNotFound);
+            };
+            if !self.approved_or_owner(Some(caller), *id) {
+                return Err(Error::NotApproved);
+            };
+
+            self.clear_approval(id)?;
+            self.remove_token_from(from, id)?;
+            self.add_token_to(to, id)?;
+            self.env().emit_event(Transfer {
+                from: Some(*from),
+                to: Some(*to),
+                id: *id,
+            });
+            Ok(())
         }
 
-        fn approved_of_or_none(&self, id: TokenId) -> Option<AccountId> {
-            self.token_approvals.get(&id).cloned()
+        /// Removes token `id` from the owner.
+        fn remove_token_from(
+            &mut self,
+            from: &AccountId,
+            id: &TokenId,
+        ) -> Result<(), Error> {
+            if !self.exists(id) {
+                return Err(Error::TokenNotFound);
+            };
+
+            self.decrease_counter_of(from)?;
+            self.token_owner.remove(id).ok_or(Error::CanNotRemove)?;
+            Ok(())
         }
 
-        fn is_approved_or_owner(&self, spender: AccountId, id: TokenId) -> bool {
-            let owner = self.owner_of(id);
-            match owner {
-                None => return false,
-                Some(owner) => {
-                    if spender == owner {
-                        return true
-                    } else {
-                        if self.is_approved_for_all_impl(owner, spender) {
-                            return true
-                        }
-                    }
+        /// Adds the token `id` to the `to` AccountID.
+        fn add_token_to(&mut self, to: &AccountId, id: &TokenId) -> Result<(), Error> {
+            if self.exists(id) {
+                return Err(Error::TokenExists);
+            };
+            if *to == AccountId::from([0x0; 32]) {
+                return Err(Error::ZeroAccountNotAllowed);
+            };
+
+            self.increase_counter_of(to)?;
+            if !self.token_owner.insert(*id, *to).is_none() {
+                return Err(Error::CanNotInsert);
+            }
+            Ok(())
+        }
+
+        /// Approve the passed AccountId to transfer the specified token
+        /// on behalf of the message's sender.
+        fn approve(&mut self, to: &AccountId, id: &TokenId) -> Result<(), Error> {
+            let caller = self.env().caller();
+            if self.owner_of(*id) != Some(caller) {
+                return Err(Error::NotOwner);
+            };
+            if *to == AccountId::from([0x0; 32]) {
+                return Err(Error::ZeroAccountNotAllowed);
+            };
+
+            if !self.token_approvals.insert(*id, *to).is_none() {
+                return Err(Error::CanNotInsert);
+            };
+            self.env().emit_event(Approval {
+                from: caller,
+                to: *to,
+                id: *id,
+            });
+            Ok(())
+        }
+
+        /// Increase token counter from the `of` AccountId.
+        fn increase_counter_of(&mut self, of: &AccountId) -> Result<(), Error> {
+            if self.balance_of_or_zero(of) > 0 {
+                let count = self
+                    .owned_tokens_count
+                    .get_mut(of)
+                    .ok_or(Error::CanNotGetCounter)?;
+                *count += 1;
+                return Ok(());
+            } else {
+                match self.owned_tokens_count.insert(*of, 1) {
+                    Some(_) => Err(Error::CanNotInsert),
+                    None => Ok(()),
                 }
             }
-            let approved_account = self.approved_of_or_none(id);
-            match approved_account {
-                None => {},
-                Some(account) => {
-                    if spender == account {
-                        return true;
-                    }
-                }
+        }
+
+        /// Decrease token counter from the `of` AccountId.
+        fn decrease_counter_of(&mut self, of: &AccountId) -> Result<(), Error> {
+            let count = self
+                .owned_tokens_count
+                .get_mut(of)
+                .ok_or(Error::CanNotGetCounter)?;
+            *count -= 1;
+            Ok(())
+        }
+
+        /// Removes existing approval from token `id`.
+        fn clear_approval(&mut self, id: &TokenId) -> Result<(), Error> {
+            if !self.token_approvals.contains_key(id) {
+                return Ok(());
+            };
+
+            match self.token_approvals.remove(id) {
+                Some(_res) => Ok(()),
+                None => Err(Error::CanNotRemove),
             }
-            false
         }
 
-        fn is_approved_for_all_impl(&self, owner: AccountId, operator: AccountId) -> bool {
-            *self.operator_approvals.get(&(owner, operator)).unwrap_or(&false)
+        // Returns the total number of tokens from an account.
+        fn balance_of_or_zero(&self, of: &AccountId) -> u32 {
+            *self.owned_tokens_count.get(of).unwrap_or(&0)
         }
 
-        fn transfer_from_impl(&mut self, from: AccountId, to: AccountId, id: TokenId) -> bool {
-
-            self.clear_approval(id);
-
-            let from_balance = self.balance_of_or_zero(from);
-            let to_balance = self.balance_of_or_zero(to);
-
-            self.owned_tokens_count.insert(from, from_balance - 1);
-            self.owned_tokens_count.insert(to, to_balance + 1);
-            self.token_owner.insert(id, to);
-
-            true
+        /// Returns true if the AccountId `from` is the owner of token `id`
+        /// or it has been approved on behalf of the token `id` owner.
+        fn approved_or_owner(&self, from: Option<AccountId>, id: TokenId) -> bool {
+            from != Some(AccountId::from([0x0; 32]))
+                && (from == self.owner_of(id) || from == self.approved_for(id))
         }
 
-        fn clear_approval(&mut self, id: TokenId) {
-            self.token_approvals.remove(&id);
+        /// Returns true if token `id` exists or false if it does not.
+        fn exists(&self, id: &TokenId) -> bool {
+            self.token_owner.get(id).is_some() && self.token_owner.contains_key(id)
         }
     }
 }
-
