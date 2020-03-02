@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -130,6 +130,78 @@ mod multisig_plain {
         requirement: storage::Value<u32>,
     }
 
+    /// Emitted when an owner confirms a transaction.
+    #[ink(event)]
+    struct Confirmation {
+        /// The transaction that was confirmed.
+        #[ink(topic)]
+        transaction: TransactionId,
+        /// The owner that sent the confirmation.
+        #[ink(topic)]
+        from: AccountId,
+    }
+
+    /// Emitted when an owner revoked a confirmation.
+    #[ink(event)]
+    struct Revokation {
+        /// The transaction that was revoked.
+        #[ink(topic)]
+        transaction: TransactionId,
+        /// The owner that sent the revokation.
+        #[ink(topic)]
+        from: AccountId,
+    }
+
+    /// Emitted when an owner submits a transaction.
+    #[ink(event)]
+    struct Submission {
+        /// The transaction that was submitted.
+        #[ink(topic)]
+        transaction: TransactionId,
+    }
+
+    /// Emitted when a transaction was canceled.
+    #[ink(event)]
+    struct Cancelation {
+        /// The transaction that was canceled.
+        #[ink(topic)]
+        transaction: TransactionId,
+    }
+
+    /// Emitted when a transaction was executed.
+    #[ink(event)]
+    struct Execution {
+        /// The transaction that was executed.
+        #[ink(topic)]
+        transaction: TransactionId,
+        /// Indicates whether the transaction executed successfully.
+        #[ink(topic)]
+        result: Result<(), ()>,
+    }
+
+    /// Emitted when an owner is added to the wallet.
+    #[ink(event)]
+    struct OwnerAddition {
+        /// The owner that was added.
+        #[ink(topic)]
+        owner: AccountId,
+    }
+
+    /// Emitted when an owner is removed from the wallet.
+    #[ink(event)]
+    struct OwnerRemoval {
+        /// The owner that was removed.
+        #[ink(topic)]
+        owner: AccountId,
+    }
+
+    /// Emitted when the requirement changed.
+    #[ink(event)]
+    struct RequirementChange {
+        /// The new requirement value.
+        new_requirement: u32,
+    }
+
     impl MultisigPlain {
         /// The only constructor the the contract. A list of owners must be supplied
         /// and a number of how many of them must confirm a transaction. Duplicate
@@ -154,6 +226,7 @@ mod multisig_plain {
             self.ensure_requirement_is_valid(self.owners.len() + 1, *self.requirement);
             self.is_owner.insert(new_owner, ());
             self.owners.push(new_owner);
+            self.env().emit_event(OwnerAddition { owner: new_owner });
         }
 
         /// Remove an owner from the contract.
@@ -171,6 +244,7 @@ mod multisig_plain {
             self.is_owner.remove(&owner);
             self.requirement.set(requirement);
             self.clean_owner_confirmations(&owner);
+            self.env().emit_event(OwnerRemoval { owner });
         }
 
         /// Replace an owner from the contract with a new one. Panics if `old_owner`
@@ -186,6 +260,8 @@ mod multisig_plain {
             self.is_owner.remove(&old_owner);
             self.is_owner.insert(new_owner, ());
             self.clean_owner_confirmations(&old_owner);
+            self.env().emit_event(OwnerRemoval { owner: old_owner });
+            self.env().emit_event(OwnerAddition { owner: new_owner });
         }
 
         /// Change the requirement to a new value.
@@ -195,6 +271,7 @@ mod multisig_plain {
             self.ensure_from_wallet();
             self.ensure_requirement_is_valid(self.owners.len(), new_requirement);
             self.requirement.set(new_requirement);
+            self.env().emit_event(RequirementChange { new_requirement });
         }
 
         /// Add a new transaction candiate to the contract.
@@ -205,6 +282,9 @@ mod multisig_plain {
             self.ensure_caller_is_owner();
             let trans_id = self.transactions.put(transaction);
             self.confirmation_count.insert(trans_id, 0);
+            self.env().emit_event(Submission {
+                transaction: trans_id,
+            });
             self.confirm_by_caller(self.env().caller(), trans_id);
         }
 
@@ -214,7 +294,11 @@ mod multisig_plain {
         #[ink(message)]
         fn cancel_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_from_wallet();
-            self.take_transaction(trans_id);
+            if self.take_transaction(trans_id).is_some() {
+                self.env().emit_event(Cancelation {
+                    transaction: trans_id,
+                });
+            }
         }
 
         /// Confirm a transaction for the sender that was submitted by any owner.
@@ -233,13 +317,14 @@ mod multisig_plain {
         #[ink(message)]
         fn revoke_confirmation(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
-            if self
-                .confirmations
-                .remove(&(trans_id, self.env().caller()))
-                .is_some()
-            {
+            let caller = self.env().caller();
+            if self.confirmations.remove(&(trans_id, caller)).is_some() {
                 self.confirmation_count
                     .mutate_with(&trans_id, |count| *count -= 1);
+                self.env().emit_event(Revokation {
+                    transaction: trans_id,
+                    from: caller,
+                });
             }
         }
 
@@ -250,13 +335,21 @@ mod multisig_plain {
         fn execute_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            env::call::CallParams::<EnvTypes, ()>::invoke(t.callee, t.selector.into())
-                .gas_limit(t.gas_limit)
-                .transferred_value(t.transferred_value)
-                .push_arg(&CallInput(&t.input))
-                .fire()
-                .map(|_| ())
-                .map_err(|_| ())
+            let result = env::call::CallParams::<EnvTypes, ()>::invoke(
+                t.callee,
+                t.selector.into(),
+            )
+            .gas_limit(t.gas_limit)
+            .transferred_value(t.transferred_value)
+            .push_arg(&CallInput(&t.input))
+            .fire()
+            .map(|_| ())
+            .map_err(|_| ());
+            self.env().emit_event(Execution {
+                transaction: trans_id,
+                result,
+            });
+            result
         }
 
         /// Set the `transaction` as confirmed by `confirmer`. Idempotent operation
@@ -273,6 +366,10 @@ mod multisig_plain {
             {
                 self.confirmation_count
                     .mutate_with(&transaction, |count| *count += 1);
+                self.env().emit_event(Confirmation {
+                    transaction,
+                    from: confirmer,
+                });
             }
         }
 
