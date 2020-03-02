@@ -467,11 +467,17 @@ mod multisig_plain {
                 .expect("Test environment is expected to be initialized.")
         }
 
+        fn build_contract() -> MultisigPlain {
+            let accounts = default_accounts();
+            let owners = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
+            MultisigPlain::new(owners, 2)
+        }
+
         #[test]
         fn construction_works() {
             let accounts = default_accounts();
             let owners = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
-            let contract = MultisigPlain::new(owners.clone(), 2);
+            let contract = build_contract();
 
             assert_eq!(contract.owners.len(), 3);
             assert_eq!(*contract.requirement.get(), 2);
@@ -485,6 +491,36 @@ mod multisig_plain {
             assert_eq!(contract.confirmations.len(), 0);
             assert_eq!(contract.confirmation_count.len(), 0);
             assert_eq!(contract.transactions.len(), 0);
+        }
+
+        #[test]
+        #[should_panic]
+        fn empty_owner_construction_fails() {
+            MultisigPlain::new(vec![], 0);
+        }
+
+        #[test]
+        #[should_panic]
+        fn zero_requirement_construction_fails() {
+            let accounts = default_accounts();
+            MultisigPlain::new(vec![accounts.alice, accounts.bob], 0);
+        }
+
+        #[test]
+        #[should_panic]
+        fn too_large_requirement_construction_fails() {
+            let accounts = default_accounts();
+            MultisigPlain::new(vec![accounts.alice, accounts.bob], 3);
+        }
+
+        #[test]
+        fn add_owner_works() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            let owners = contract.owners.len();
+            contract.add_owner(accounts.frank);
+            assert_eq!(contract.owners.len(), owners + 1);
+            assert!(contract.is_owner.get(&accounts.frank).is_some());
         }
     }
 }
