@@ -203,9 +203,9 @@ mod multisig_plain {
     }
 
     impl MultisigPlain {
-        /// The only constructor the the contract. A list of owners must be supplied
-        /// and a number of how many of them must confirm a transaction. Duplicate
-        /// owners are silently dropped.
+        /// The only constructor of the contract.
+        /// A list of owners must be supplied and a number of how many of them must
+        ///confirm a transaction. Duplicate owners are silently dropped.
         #[ink(constructor)]
         fn new(&mut self, owners: Vec<AccountId>, requirement: u32) {
             for owner in &owners {
@@ -217,7 +217,8 @@ mod multisig_plain {
             self.requirement.set(requirement);
         }
 
-        /// Add a new owner to the contract. Panics is the owner already exists.
+        /// Add a new owner to the contract.
+        /// Panics if the owner already exists.
         /// Only callable by the wallet itself.
         #[ink(message)]
         fn add_owner(&mut self, new_owner: AccountId) {
@@ -247,8 +248,8 @@ mod multisig_plain {
             self.env().emit_event(OwnerRemoval { owner });
         }
 
-        /// Replace an owner from the contract with a new one. Panics if `old_owner`
-        /// is no owner or if `new_owner` already is one.
+        /// Replace an owner from the contract with a new one.
+        /// Panics if `old_owner` is no owner or if `new_owner` already is one.
         /// Only callable by the wallet itself.
         #[ink(message)]
         fn replace_owner(&mut self, old_owner: AccountId, new_owner: AccountId) {
@@ -328,8 +329,8 @@ mod multisig_plain {
             }
         }
 
-        /// Execute a already confirmed execution. Its return type indicates whether
-        /// the called transaction was succesful.
+        /// Execute a confirmed execution.
+        /// Its return type indicates whether the called transaction was succesful.
         /// This can be called by anyone.
         #[ink(message)]
         fn execute_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
@@ -352,8 +353,9 @@ mod multisig_plain {
             result
         }
 
-        /// Set the `transaction` as confirmed by `confirmer`. Idempotent operation
-        /// regarding an already confirmed `transaction` by `confirmer`.
+        /// Set the `transaction` as confirmed by `confirmer`.
+        /// Idempotent operation regarding an already confirmed `transaction`
+        /// by `confirmer`.
         fn confirm_by_caller(
             &mut self,
             confirmer: AccountId,
@@ -373,8 +375,8 @@ mod multisig_plain {
             }
         }
 
-        /// Get the index of `owner` in `self.owners`. Panics if `owner` is not found
-        /// in `self.owners`.
+        /// Get the index of `owner` in `self.owners`.
+        /// Panics if `owner` is not found in `self.owners`.
         fn owner_index(&self, owner: &AccountId) -> u32 {
             self.owners.iter().position(|x| *x == *owner).expect(
                 "This is only called after it was already verified that the id is
@@ -382,8 +384,8 @@ mod multisig_plain {
             ) as u32
         }
 
-        /// Remove the transaction identified by `trans_id` from `self.transactions` and
-        /// removes all confirmation state associated with it.
+        /// Remove the transaction identified by `trans_id` from `self.transactions`.
+        /// Also removes all confirmation state associated with it.
         fn take_transaction(&mut self, trans_id: TransactionId) -> Option<Transaction> {
             let transaction = self.transactions.take(trans_id);
             if transaction.is_some() {
@@ -392,8 +394,8 @@ mod multisig_plain {
             transaction
         }
 
-        /// Remove all confirmation state associated with `owner` and adjust the
-        /// `self.confirmation_count` variable.
+        /// Remove all confirmation state associated with `owner`.
+        /// Also adjusts the `self.confirmation_count` variable.
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
             for (trans_id, _) in self.transactions.iter() {
                 if self.confirmations.remove(&(trans_id, *owner)).is_some() {
