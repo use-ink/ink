@@ -107,18 +107,7 @@ mod erc721 {
         /// Sets or unsets the approval of a given operator to transfer all tokens of caller
         #[ink(message)]
         fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), Error> {
-            let caller = self.env().caller();
-            if to == caller {
-                return Err(Error::NotAllowed);
-            }
-            if !self.operator_approvals.insert((caller, to), approved).is_none() {
-                return Err(Error::CanNotInsert);
-            };
-            self.env().emit_event(ApprovalForAll {
-                owner: caller,
-                operator: to,
-                approved,
-            });
+            self.approve_for_all(to, approved)?;
             Ok(())
         }
 
@@ -233,6 +222,24 @@ mod erc721 {
             if !self.token_owner.insert(*id, *to).is_none() {
                 return Err(Error::CanNotInsert);
             }
+            Ok(())
+        }
+
+        /// Sets or unsets the approval of a given operator to transfer all tokens of caller
+        #[ink(message)]
+        fn approve_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), Error> {
+            let caller = self.env().caller();
+            if to == caller {
+                return Err(Error::NotAllowed);
+            }
+            if !self.operator_approvals.insert((caller, to), approved).is_none() {
+                return Err(Error::CanNotInsert);
+            };
+            self.env().emit_event(ApprovalForAll {
+                owner: caller,
+                operator: to,
+                approved,
+            });
             Ok(())
         }
 
