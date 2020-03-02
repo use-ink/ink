@@ -46,7 +46,7 @@ mod erc721 {
         CanNotInsert,
         CanNotRemove,
         CanNotGetCounter,
-        ZeroAccountNotAllowed,
+        NotAllowed,
     }
 
     /// Event emitted when a token transfer occurs
@@ -100,8 +100,52 @@ mod erc721 {
 
         /// The approved address for this token, or the none address if there is none
         #[ink(message)]
-        fn approved_for(&self, id: TokenId) -> Option<AccountId> {
+        fn get_approved(&self, id: TokenId) -> Option<AccountId> {
             self.token_approvals.get(&id).cloned()
+        }
+
+        /// Sets or unsets the approval of a given operator to transfer all tokens of caller
+        #[ink(message)]
+        fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<(), Error> {
+            let caller = self.env().caller();
+            if to == caller {
+                return Err(Error::NotAllowed);
+            }
+            if !self.operator_approvals.insert((caller, to), approved).is_none() {
+                return Err(Error::CanNotInsert);
+            };
+            self.env().emit_event(ApprovalForAll {
+                owner: caller,
+                operator: to,
+                approved,
+            });
+            Ok(())
+        }
+
+        /// Transfer token from caller.
+        #[ink(message)]
+        fn transfer(&mut self, to: AccountId, id: u32) -> Result<(), Error> {
+            let caller = self.env().caller();
+            self.transfer_token_from(&caller, &to, &id)?;
+            Ok(())
+        }
+
+        /// Transfer approved or owned token.
+        #[ink(message)]
+        fn transfer_from(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            id: u32,
+        ) -> Result<(), Error> {
+            self.transfer_token_from(&from, &to, &id)?;
+            Ok(())
+        }
+
+        /// Get whether an operator is approved by a given owner
+        #[ink(message)]
+        fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
+            self.approved_for_all(owner, operator)
         }
 
         /// Mints a new token.
@@ -131,55 +175,6 @@ mod erc721 {
                 id,
             });
             Ok(())
-        }
-
-        /// Transfer token from caller.
-        #[ink(message)]
-        fn transfer(&mut self, to: AccountId, id: u32) -> Result<(), Error> {
-            let caller = self.env().caller();
-            self.transfer_token_from(&caller, &to, &id)?;
-            Ok(())
-        }
-
-        /// Transfer approved or owned token.
-        #[ink(message)]
-        fn transfer_from(
-            &mut self,
-            from: AccountId,
-            to: AccountId,
-            id: u32,
-        ) -> Result<(), Error> {
-            self.transfer_token_from(&from, &to, &id)?;
-            Ok(())
-        }
-
-        /// Sets or unsets the approval of a given operator to transfer all tokens of caller
-        #[ink(message)]
-        fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> bool {
-            let caller = self.env().caller();
-            if to == caller {
-                return false;
-            }
-            self.operator_approvals.insert((caller, to), approved);
-            self.env().emit_event(ApprovalForAll {
-                owner: caller,
-                operator: to,
-                approved,
-            });
-            true
-        }
-
-        /// Get whether an operator is approved by a given owner
-        #[ink(message)]
-        fn approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self.is_approved_for_all(owner, operator)
-        }
-
-        fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            *self
-                .operator_approvals
-                .get(&(owner, operator))
-                .unwrap_or(&false)
         }
 
         // Private functions
@@ -231,7 +226,7 @@ mod erc721 {
                 return Err(Error::TokenExists);
             };
             if *to == AccountId::from([0x0; 32]) {
-                return Err(Error::ZeroAccountNotAllowed);
+                return Err(Error::NotAllowed);
             };
 
             self.increase_counter_of(to)?;
@@ -245,11 +240,15 @@ mod erc721 {
         /// on behalf of the message's sender.
         fn approve(&mut self, to: &AccountId, id: &TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
-            if self.owner_of(*id) != Some(caller) {
+            let zero_account = AccountId::from([0x0; 32]);
+            let owner = self.owner_of(*id);
+            if owner != Some(caller)
+                || self.approved_for_all(owner.unwrap_or(zero_account), caller)
+            {
                 return Err(Error::NotOwner);
             };
-            if *to == AccountId::from([0x0; 32]) {
-                return Err(Error::ZeroAccountNotAllowed);
+            if *to == zero_account {
+                return Err(Error::NotAllowed);
             };
 
             if !self.token_approvals.insert(*id, *to).is_none() {
@@ -302,6 +301,14 @@ mod erc721 {
             }
         }
 
+        /// Set an operator to manage tokens on other Account's behalf.
+        fn approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
+            *self
+                .operator_approvals
+                .get(&(owner, operator))
+                .unwrap_or(&false)
+        }
+
         // Returns the total number of tokens from an account.
         fn balance_of_or_zero(&self, of: &AccountId) -> u32 {
             *self.owned_tokens_count.get(of).unwrap_or(&0)
@@ -310,8 +317,15 @@ mod erc721 {
         /// Returns true if the AccountId `from` is the owner of token `id`
         /// or it has been approved on behalf of the token `id` owner.
         fn approved_or_owner(&self, from: Option<AccountId>, id: TokenId) -> bool {
-            from != Some(AccountId::from([0x0; 32]))
-                && (from == self.owner_of(id) || from == self.approved_for(id))
+            let owner = self.owner_of(id);
+            let zero_account = AccountId::from([0x0; 32]);
+            from != Some(zero_account)
+                && (from == owner
+                    || from == self.token_approvals.get(&id).cloned()
+                    || self.approved_for_all(
+                        owner.unwrap_or(zero_account),
+                        from.unwrap_or(zero_account),
+                    ))
         }
 
         /// Returns true if token `id` exists or false if it does not.
