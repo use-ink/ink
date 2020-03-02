@@ -205,7 +205,7 @@ mod multisig_plain {
     impl MultisigPlain {
         /// The only constructor of the contract.
         /// A list of owners must be supplied and a number of how many of them must
-        ///confirm a transaction. Duplicate owners are silently dropped.
+        /// confirm a transaction. Duplicate owners are silently dropped.
         #[ink(constructor)]
         fn new(&mut self, owners: Vec<AccountId>, requirement: u32) {
             for owner in &owners {
@@ -470,10 +470,21 @@ mod multisig_plain {
         #[test]
         fn construction_works() {
             let accounts = default_accounts();
-            MultisigPlain::new(
-                ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve],
-                2,
-            );
+            let owners = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
+            let contract = MultisigPlain::new(owners.clone(), 2);
+
+            assert_eq!(contract.owners.len(), 3);
+            assert_eq!(*contract.requirement.get(), 2);
+            assert!(contract.owners.iter().eq(owners.iter()));
+            assert!(contract.is_owner.get(&accounts.alice).is_some());
+            assert!(contract.is_owner.get(&accounts.bob).is_some());
+            assert!(contract.is_owner.get(&accounts.eve).is_some());
+            assert!(contract.is_owner.get(&accounts.charlie).is_none());
+            assert!(contract.is_owner.get(&accounts.django).is_none());
+            assert!(contract.is_owner.get(&accounts.frank).is_none());
+            assert_eq!(contract.confirmations.len(), 0);
+            assert_eq!(contract.confirmation_count.len(), 0);
+            assert_eq!(contract.transactions.len(), 0);
         }
     }
 }
