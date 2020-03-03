@@ -261,10 +261,10 @@ mod erc721 {
         fn approve_for(&mut self, to: &AccountId, id: &TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             let owner = self.owner_of(*id);
-            if owner != Some(caller)
-                || self.approved_for_all(owner.expect("Error with AccountId"), caller)
+            if !(owner == Some(caller)
+                || self.approved_for_all(owner.expect("Error with AccountId"), caller))
             {
-                return Err(Error::NotOwner);
+                return Err(Error::NotAllowed);
             };
             if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::NotAllowed);
