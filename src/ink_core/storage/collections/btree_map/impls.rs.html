@@ -1987,6 +1987,7 @@
 <span id="1987">1987</span>
 <span id="1988">1988</span>
 <span id="1989">1989</span>
+<span id="1990">1990</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -2112,6 +2113,7 @@
 <span class="doccomment">/// `BTreeMap` standard library implementation. The Rust implementation</span>
 <span class="doccomment">/// is in-memory, whereas this implementation uses the ink! storage</span>
 <span class="doccomment">/// primitives (`SyncChunk`, etc.).</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Stores densely packed general BTreeMap information.</span>
@@ -2138,7 +2140,7 @@
 <span class="doccomment">/// for performance reasons so that they all reside in the same</span>
 <span class="doccomment">/// storage entity. This allows implementations to perform less reads</span>
 <span class="doccomment">/// and writes to the underlying contract storage.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">struct</span> <span class="ident">BTreeMapHeader</span> {
     <span class="doccomment">/// The latest vacant node index.</span>
@@ -3663,7 +3665,7 @@
 <span class="doccomment">///     `.entry()` API. It contains a key/value pair.</span>
 <span class="doccomment">///   - `InternalEntry` is used internally in our implementation. It is a storage</span>
 <span class="doccomment">///     entity and contains a tree node with many key/value pair storage indices.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">enum</span> <span class="ident">InternalEntry</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A vacant entry pointing to the next vacant index.</span>
@@ -3698,7 +3700,7 @@
 <span class="doccomment">///     `.entry()` API. It contains a key/value pair.</span>
 <span class="doccomment">///   - `InternalEntry` is used internally in our implementation. It is a storage</span>
 <span class="doccomment">///     entity and contains a tree node with many key/value pairs.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">enum</span> <span class="ident">InternalKVEntry</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A vacant entry pointing to the next vacant index.</span>
