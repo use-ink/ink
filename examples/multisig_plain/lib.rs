@@ -113,11 +113,11 @@ mod multisig_plain {
     struct MultisigPlain {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effecively a set rather than a map.
-        confirmations: storage::HashMap<(TransactionId, AccountId), ()>,
+        confirmations: storage::BTreeMap<(TransactionId, AccountId), ()>,
         /// The amount of confirmations for every transaction. This is a redundant
         /// information this kept in order to prevent iterating through the
         /// confirmation set to check if a transaction is confirmed.
-        confirmation_count: storage::HashMap<TransactionId, u32>,
+        confirmation_count: storage::BTreeMap<TransactionId, u32>,
         /// Just the list of transactions. It is a stash as stable ids are necessary
         /// for referencing them in confirmation calls.
         transactions: storage::Stash<Transaction>,
@@ -125,7 +125,7 @@ mod multisig_plain {
         /// up the confirmation set.
         owners: storage::Vec<AccountId>,
         /// Redundent information to speed up the check whether a caller is an owner.
-        is_owner: storage::HashMap<AccountId, ()>,
+        is_owner: storage::BTreeMap<AccountId, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
         requirement: storage::Value<u32>,
     }
@@ -320,8 +320,7 @@ mod multisig_plain {
             self.ensure_caller_is_owner();
             let caller = self.env().caller();
             if self.confirmations.remove(&(trans_id, caller)).is_some() {
-                self.confirmation_count
-                    .mutate_with(&trans_id, |count| *count -= 1);
+                mutate_map(&mut self.confirmation_count, &trans_id, |count| *count -= 1);
                 self.env().emit_event(Revokation {
                     transaction: trans_id,
                     from: caller,
@@ -366,8 +365,9 @@ mod multisig_plain {
                 .insert((transaction, confirmer), ())
                 .is_none()
             {
-                self.confirmation_count
-                    .mutate_with(&transaction, |count| *count += 1);
+                mutate_map(&mut self.confirmation_count, &transaction, |count| {
+                    *count += 1
+                });
                 self.env().emit_event(Confirmation {
                     transaction,
                     from: confirmer,
@@ -399,8 +399,9 @@ mod multisig_plain {
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
             for (trans_id, _) in self.transactions.iter() {
                 if self.confirmations.remove(&(trans_id, *owner)).is_some() {
-                    self.confirmation_count
-                        .mutate_with(&trans_id, |count| *count -= 1);
+                    mutate_map(&mut self.confirmation_count, &trans_id, |count| {
+                        *count += 1
+                    });
                 }
             }
         }
@@ -454,6 +455,20 @@ mod multisig_plain {
         fn ensure_requirement_is_valid(&self, owners: u32, requirement: u32) {
             assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
         }
+    }
+
+    /// Change a stored value by reinserting it.
+    fn mutate_map<K, V, F>(map: &mut storage::BTreeMap<K, V>, key: &K, f: F)
+    where
+        K: Eq + Ord + scale::Codec + Copy,
+        V: scale::Codec + Copy,
+        F: FnOnce(&mut V),
+    {
+        let mut count = *map
+            .get(key)
+            .expect("User is responsible for only supplying existing keys.");
+        f(&mut count);
+        map.insert(*key, count);
     }
 
     #[cfg(test)]
