@@ -207,6 +207,23 @@ impl<T> Entry<T> {
 
 impl<K, V> LazyMap<K, V>
 where
+    K: KeyMapping<V> + Ord,
+{
+    /// Returns the storage key associated with the given index.
+    pub fn key_at<Q>(&self, at: &Q) -> Option<Key>
+    where
+        Q: core::borrow::Borrow<K>,
+        K: Ord,
+    {
+        self.key()
+            .map(|key| {
+                <K as KeyMapping<V>>::to_storage_key(at.borrow(), &key)
+            })
+    }
+}
+
+impl<K, V> LazyMap<K, V>
+where
     K: Ord,
 {
     /// Creates a new empty lazy chunk that cannot be mutated.
