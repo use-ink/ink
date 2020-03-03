@@ -122,6 +122,7 @@ enum UnderflowResult {
 /// `BTreeMap` standard library implementation. The Rust implementation
 /// is in-memory, whereas this implementation uses the ink! storage
 /// primitives (`SyncChunk`, etc.).
+#[derive(Debug)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct BTreeMap<K, V> {
     /// Stores densely packed general BTreeMap information.
@@ -148,7 +149,7 @@ pub struct BTreeMap<K, V> {
 /// for performance reasons so that they all reside in the same
 /// storage entity. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
-#[derive(Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 struct BTreeMapHeader {
     /// The latest vacant node index.
@@ -1673,7 +1674,7 @@ enum InsertResult {
 ///     `.entry()` API. It contains a key/value pair.
 ///   - `InternalEntry` is used internally in our implementation. It is a storage
 ///     entity and contains a tree node with many key/value pair storage indices.
-#[derive(Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 enum InternalEntry<K, V> {
     /// A vacant entry pointing to the next vacant index.
@@ -1708,7 +1709,7 @@ where
 ///     `.entry()` API. It contains a key/value pair.
 ///   - `InternalEntry` is used internally in our implementation. It is a storage
 ///     entity and contains a tree node with many key/value pairs.
-#[derive(Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 enum InternalKVEntry<K, V> {
     /// A vacant entry pointing to the next vacant index.
