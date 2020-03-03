@@ -92,13 +92,18 @@ where
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
         ClearForward::clear_forward(&self.len(), ptr);
-        if let Some(key) = self.elems.key() {
-            for (index, elem) in self.iter().enumerate() {
-                <T as ClearForward>::clear_forward(
-                    elem,
-                    &mut KeyPtr::from(*key + index as u32),
-                )
-            }
+        if self.elems.key().is_none() {
+            return
+        }
+        for (index, elem) in self.iter().enumerate() {
+            <T as ClearForward>::clear_forward(
+                elem,
+                &mut KeyPtr::from(
+                    self.elems
+                        .key_at(&(index as u32))
+                        .expect("expected a key mapping since self.elems.key() is some"),
+                ),
+            )
         }
     }
 }
