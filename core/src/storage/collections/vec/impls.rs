@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::iter::{
-    DoubleEndedIterator,
-    ExactSizeIterator,
-    Extend,
-};
-
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
