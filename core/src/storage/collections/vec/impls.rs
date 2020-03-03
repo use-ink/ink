@@ -15,6 +15,7 @@
 use core::iter::{
     DoubleEndedIterator,
     ExactSizeIterator,
+    Extend,
 };
 
 #[cfg(feature = "ink-generate-abi")]
@@ -146,6 +147,32 @@ where
         debug_assert_ne!(self.end, 0);
         self.end -= 1;
         self.vec.get(self.end)
+    }
+}
+
+impl<T> Extend<T> for Vec<T>
+where
+    T: scale::Codec,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = T>,
+    {
+        for i in iter {
+            self.push(i)
+        }
+    }
+}
+
+impl<'a, T: 'a + Copy> Extend<&'a T> for Vec<T>
+where
+    T: scale::Codec,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = &'a T>,
+    {
+        self.extend(iter.into_iter().cloned())
     }
 }
 
