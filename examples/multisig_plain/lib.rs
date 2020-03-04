@@ -131,7 +131,7 @@ mod multisig_plain {
         /// The list is a vector because iterating over it is necessary when cleaning
         /// up the confirmation set.
         owners: storage::Vec<AccountId>,
-        /// Redundent information to speed up the check whether a caller is an owner.
+        /// Redundant information to speed up the check whether a caller is an owner.
         is_owner: storage::BTreeMap<AccountId, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
         requirement: storage::Value<u32>,
