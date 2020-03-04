@@ -113,7 +113,7 @@ mod multisig_plain {
         /// The amount of chain balance that is transferred to the callee.
         transferred_value: Balance,
         /// Gas limit for the execution of the call.
-        gas_limit: Balance,
+        gas_limit: u64,
     }
 
     #[ink(storage)]
