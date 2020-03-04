@@ -118,7 +118,7 @@ impl Drop for BitVec {
 }
 
 impl Extend<bool> for BitVec {
-    fn extend<T: IntoIterator<Item=bool>>(&mut self, iter: T) {
+    fn extend<T: IntoIterator<Item = bool>>(&mut self, iter: T) {
         for b in iter {
             self.push(b)
         }
@@ -126,7 +126,7 @@ impl Extend<bool> for BitVec {
 }
 
 impl<'a> Extend<&'a bool> for BitVec {
-    fn extend<T: IntoIterator<Item=&'a bool>>(&mut self, iter: T) {
+    fn extend<T: IntoIterator<Item = &'a bool>>(&mut self, iter: T) {
         self.extend(iter.into_iter().cloned())
     }
 }
