@@ -262,6 +262,38 @@ impl<K, V> AllocateUsing for BTreeMap<K, V> {
     }
 }
 
+impl<K, V> Extend<(K, V)> for BTreeMap<K, V>
+where
+    K: Codec + Ord,
+    V: Codec,
+{
+    fn extend<T: IntoIterator<Item = (K, V)>>(&mut self, iter: T) {
+        for (k, v) in iter {
+            self.insert(k, v);
+        }
+    }
+}
+
+impl<'a, K, V> Extend<(&'a K, &'a V)> for BTreeMap<K, V>
+where
+    K: Codec + Ord + Copy,
+    V: Codec + Copy,
+{
+    fn extend<I: IntoIterator<Item = (&'a K, &'a V)>>(&mut self, iter: I) {
+        self.extend(iter.into_iter().map(|(&key, &value)| (key, value)));
+    }
+}
+
+impl<'a, K, V> Extend<&'a (K, V)> for BTreeMap<K, V>
+where
+    K: Codec + Ord + Copy + 'a,
+    V: Codec + Copy + 'a,
+{
+    fn extend<I: IntoIterator<Item = &'a (K, V)>>(&mut self, iter: I) {
+        self.extend(iter.into_iter().copied());
+    }
+}
+
 impl<K, V> BTreeMap<K, V> {
     /// Returns the index of the root node.
     pub(super) fn root(&self) -> &Option<NodeHandle> {

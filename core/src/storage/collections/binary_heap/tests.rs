@@ -28,6 +28,7 @@ use core::{
     cmp::Ord,
     fmt::Debug,
 };
+use ink_prelude::collections::HashSet;
 use ink_primitives::Key;
 use scale::{
     Codec,
@@ -343,6 +344,29 @@ fn min_heap_with_multiple_levels() -> Result<()> {
             V(30),
         ];
         assert_push_equals_sorted_pop(&mut heap, vec);
+        Ok(())
+    })
+}
+
+#[test]
+fn extend() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // given
+        let mut heap = filled_heap();
+        let arr = [1, 2, 3];
+
+        // when
+        heap.extend(&arr);
+
+        // then
+        let mut expected = HashSet::new();
+        expected.extend(heap.values());
+        expected.extend(arr.iter());
+
+        let actual = heap.values().collect::<HashSet<_>>();
+
+        assert_eq!(actual, expected);
+
         Ok(())
     })
 }
