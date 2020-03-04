@@ -216,10 +216,10 @@ where
     }
 }
 
-impl<'a, K: 'a, V: 'a> Extend<&'a (K, V)> for HashMap<K, V>
+impl<'a, K, V> Extend<&'a (K, V)> for HashMap<K, V>
 where
-    K: scale::Codec + Hash + Eq + Copy,
-    V: scale::Codec + Copy,
+    K: scale::Codec + Hash + Eq + Copy + 'a,
+    V: scale::Codec + Copy + 'a,
 {
     fn extend<I: IntoIterator<Item = &'a (K, V)>>(&mut self, iter: I) {
         self.extend(iter.into_iter().copied());

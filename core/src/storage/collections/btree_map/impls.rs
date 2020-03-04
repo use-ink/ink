@@ -284,10 +284,10 @@ where
     }
 }
 
-impl<'a, K: 'a, V: 'a> Extend<&'a (K, V)> for BTreeMap<K, V>
+impl<'a, K, V> Extend<&'a (K, V)> for BTreeMap<K, V>
 where
-    K: Codec + Ord + Copy,
-    V: Codec + Copy,
+    K: Codec + Ord + Copy + 'a,
+    V: Codec + Copy + 'a,
 {
     fn extend<I: IntoIterator<Item = &'a (K, V)>>(&mut self, iter: I) {
         self.extend(iter.into_iter().copied());

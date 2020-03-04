@@ -158,9 +158,9 @@ where
     }
 }
 
-impl<'a, T: 'a + Copy> Extend<&'a T> for Vec<T>
+impl<'a, T> Extend<&'a T> for Vec<T>
 where
-    T: scale::Codec,
+    T: scale::Codec + Copy + 'a,
 {
     fn extend<I>(&mut self, iter: I)
     where
