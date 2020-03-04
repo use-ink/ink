@@ -43,9 +43,9 @@ mod erc721 {
         NotApproved,
         TokenExists,
         TokenNotFound,
-        CanNotInsert,
-        CanNotRemove,
-        CanNotGetCounter,
+        CannotInsert,
+        CannotRemove,
+        CannotFetchValue,
         NotAllowed,
     }
 
@@ -217,7 +217,7 @@ mod erc721 {
             };
 
             self.decrease_counter_of(from)?;
-            self.token_owner.remove(id).ok_or(Error::CanNotRemove)?;
+            self.token_owner.remove(id).ok_or(Error::CannotRemove)?;
             Ok(())
         }
 
@@ -232,7 +232,7 @@ mod erc721 {
 
             self.increase_counter_of(to)?;
             if !self.token_owner.insert(*id, *to).is_none() {
-                return Err(Error::CanNotInsert);
+                return Err(Error::CannotInsert);
             }
             Ok(())
         }
@@ -247,13 +247,24 @@ mod erc721 {
             if to == caller {
                 return Err(Error::NotAllowed);
             }
-            self.operator_approvals.insert((caller, to), approved);
             self.env().emit_event(ApprovalForAll {
                 owner: caller,
                 operator: to,
                 approved,
             });
-            Ok(())
+            if self.approved_for_all(caller, to) {
+                let status = self
+                    .operator_approvals
+                    .get_mut(&(caller, to))
+                    .ok_or(Error::CannotFetchValue)?;
+                *status = approved;
+                return Ok(());
+            } else {
+                match self.operator_approvals.insert((caller, to), approved) {
+                    Some(_) => Err(Error::CannotInsert),
+                    None => Ok(()),
+                }
+            }
         }
 
         /// Approve the passed AccountId to transfer the specified token
@@ -271,7 +282,7 @@ mod erc721 {
             };
 
             if !self.token_approvals.insert(*id, *to).is_none() {
-                return Err(Error::CanNotInsert);
+                return Err(Error::CannotInsert);
             };
             self.env().emit_event(Approval {
                 from: caller,
@@ -287,12 +298,12 @@ mod erc721 {
                 let count = self
                     .owned_tokens_count
                     .get_mut(of)
-                    .ok_or(Error::CanNotGetCounter)?;
+                    .ok_or(Error::CannotFetchValue)?;
                 *count += 1;
                 return Ok(());
             } else {
                 match self.owned_tokens_count.insert(*of, 1) {
-                    Some(_) => Err(Error::CanNotInsert),
+                    Some(_) => Err(Error::CannotInsert),
                     None => Ok(()),
                 }
             }
@@ -303,7 +314,7 @@ mod erc721 {
             let count = self
                 .owned_tokens_count
                 .get_mut(of)
-                .ok_or(Error::CanNotGetCounter)?;
+                .ok_or(Error::CannotFetchValue)?;
             *count -= 1;
             Ok(())
         }
@@ -316,8 +327,13 @@ mod erc721 {
 
             match self.token_approvals.remove(id) {
                 Some(_res) => Ok(()),
-                None => Err(Error::CanNotRemove),
+                None => Err(Error::CannotRemove),
             }
+        }
+
+        // Returns the total number of tokens from an account.
+        fn balance_of_or_zero(&self, of: &AccountId) -> u32 {
+            *self.owned_tokens_count.get(of).unwrap_or(&0)
         }
 
         /// Set an operator to manage tokens on other Account's behalf.
@@ -326,11 +342,6 @@ mod erc721 {
                 .operator_approvals
                 .get(&(owner, operator))
                 .unwrap_or(&false)
-        }
-
-        // Returns the total number of tokens from an account.
-        fn balance_of_or_zero(&self, of: &AccountId) -> u32 {
-            *self.owned_tokens_count.get(of).unwrap_or(&0)
         }
 
         /// Returns true if the AccountId `from` is the owner of token `id`
