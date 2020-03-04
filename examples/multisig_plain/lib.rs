@@ -71,7 +71,7 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0", env = ink_core::env::DefaultEnvTypes)]
+#[ink::contract(version = "0.1.0")]
 mod multisig_plain {
     use ink_core::{
         env,
@@ -112,8 +112,8 @@ mod multisig_plain {
         input: Vec<u8>,
         /// The amount of chain balance that is transferred to the callee.
         transferred_value: Balance,
-        /// Gas limit for the transation.
-        gas_limit: u64,
+        /// Gas limit for the execution of the call.
+        gas_limit: Balance,
     }
 
     #[ink(storage)]
@@ -122,7 +122,7 @@ mod multisig_plain {
         /// transaction. This is effecively a set rather than a map.
         confirmations: storage::BTreeMap<(TransactionId, AccountId), ()>,
         /// The amount of confirmations for every transaction. This is a redundant
-        /// information this kept in order to prevent iterating through the
+        /// information and is kept in order to prevent iterating through the
         /// confirmation set to check if a transaction is confirmed.
         confirmation_count: storage::BTreeMap<TransactionId, u32>,
         /// Just the list of transactions. It is a stash as stable ids are necessary
@@ -246,7 +246,7 @@ mod multisig_plain {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
             let len = self.owners.len() - 1;
-            let requirement = u32::min(len, *self.requirement.get());
+            let requirement = u32::min(len, *self.requirement);
             self.ensure_requirement_is_valid(len, requirement);
             self.owners.swap_remove(self.owner_index(&owner));
             self.is_owner.remove(&owner);
@@ -387,7 +387,7 @@ mod multisig_plain {
         fn owner_index(&self, owner: &AccountId) -> u32 {
             self.owners.iter().position(|x| *x == *owner).expect(
                 "This is only called after it was already verified that the id is
-                actually an owner.",
+                 actually an owner.",
             ) as u32
         }
 
@@ -432,7 +432,7 @@ mod multisig_plain {
             );
         }
 
-        /// Panic of the transaction `trans_id` does not exit.
+        /// Panic if the transaction `trans_id` does not exit.
         fn ensure_transaction_exists(&self, trans_id: TransactionId) {
             self.transactions.get(trans_id).expect(WRONG_TRANSACTION_ID);
         }
@@ -607,7 +607,7 @@ mod multisig_plain {
 
         #[test]
         #[should_panic]
-        fn add_owner_existing_fails() {
+        fn add_existing_owner_fails() {
             let accounts = default_accounts();
             let mut contract = build_contract();
             set_from_wallet();
