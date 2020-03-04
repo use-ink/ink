@@ -106,7 +106,7 @@ mod multisig_plain {
     pub struct Transaction {
         /// The AccountId of the contract that is called in this transaction.
         callee: AccountId,
-        /// The raw selector which is the function name of the `callee`that is called.
+        /// The selector bytes that identifies the function of the callee that should be called.
         selector: [u8; 4],
         /// The raw parameters that are passed to the called function.
         input: Vec<u8>,
