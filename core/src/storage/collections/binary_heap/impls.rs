@@ -463,6 +463,6 @@ where
     where
         I: IntoIterator<Item = &'a T>,
     {
-        self.extend(iter.into_iter().cloned())
+        self.extend(iter.into_iter().copied())
     }
 }

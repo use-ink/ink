@@ -127,7 +127,7 @@ impl Extend<bool> for BitVec {
 
 impl<'a> Extend<&'a bool> for BitVec {
     fn extend<T: IntoIterator<Item = &'a bool>>(&mut self, iter: T) {
-        self.extend(iter.into_iter().cloned())
+        self.extend(iter.into_iter().copied())
     }
 }
 

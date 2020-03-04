@@ -222,7 +222,7 @@ where
     V: scale::Codec + Copy,
 {
     fn extend<I: IntoIterator<Item = &'a (K, V)>>(&mut self, iter: I) {
-        self.extend(iter.into_iter().cloned());
+        self.extend(iter.into_iter().copied());
     }
 }
 
