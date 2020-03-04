@@ -455,9 +455,9 @@ where
     }
 }
 
-impl<'a, T: 'a + Copy> Extend<&'a T> for BinaryHeap<T>
+impl<'a, T> Extend<&'a T> for BinaryHeap<T>
 where
-    T: Codec + Ord,
+    T: Codec + Ord + Copy + 'a,
 {
     fn extend<I>(&mut self, iter: I)
     where
