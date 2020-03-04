@@ -38,7 +38,7 @@ use type_metadata::Metadata;
 const EDGES: usize = 2 * B;
 
 /// Reference to a key/value pair in the tree.
-#[derive(Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub(super) struct KVPair<K, V> {
     /// A key.
@@ -128,7 +128,7 @@ impl<'a, K, V> KVRef<'a, K, V> {
 /// Each node is stored as one storage entity. This reduces storage access,
 /// since with each fetch the entire content of a node (all its elements, etc.)
 /// are fetched.
-#[derive(PartialEq, Eq, Encode, Decode)]
+#[derive(Debug, PartialEq, Eq, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub(super) struct Node<K, V> {
     /// A reference to this node's parent node.
@@ -324,7 +324,7 @@ impl<K, V> Node<K, V> {
 }
 
 /// Points to a node in the tree.
-#[derive(Clone, Copy, Encode, Decode, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Encode, Decode, PartialEq, Eq)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub(super) struct NodeHandle {
     node: u32,
