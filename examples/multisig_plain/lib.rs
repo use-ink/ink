@@ -108,7 +108,7 @@ mod multisig_plain {
         callee: AccountId,
         /// The selector bytes that identifies the function of the callee that should be called.
         selector: [u8; 4],
-        /// The raw parameters that are passed to the called function.
+        /// The SCALE encoded parameters that are passed to the called function.
         input: Vec<u8>,
         /// The amount of chain balance that is transferred to the callee.
         transferred_value: Balance,
