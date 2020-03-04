@@ -80,7 +80,7 @@ mod multisig_plain {
     use ink_prelude::vec::Vec;
     use scale::Output;
 
-    /// Tune this to your liking but be wary that many owners will not perform well.
+    /// Tune this to your liking but be wary that allowing too many owners will not perform well.
     const MAX_OWNERS: u32 = 50;
 
     type TransactionId = u32;
