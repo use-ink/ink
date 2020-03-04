@@ -195,9 +195,9 @@ impl<K, V> Initialize for HashMap<K, V> {
 }
 
 impl<K, V> Extend<(K, V)> for HashMap<K, V>
-    where
-        K: scale::Codec + Hash + Eq,
-        V: scale::Codec,
+where
+    K: scale::Codec + Hash + Eq,
+    V: scale::Codec,
 {
     fn extend<T: IntoIterator<Item = (K, V)>>(&mut self, iter: T) {
         for (k, v) in iter {
@@ -207,9 +207,9 @@ impl<K, V> Extend<(K, V)> for HashMap<K, V>
 }
 
 impl<'a, K, V> Extend<(&'a K, &'a V)> for HashMap<K, V>
-    where
-        K: scale::Codec + Hash + Eq + Copy,
-        V: scale::Codec + Copy,
+where
+    K: scale::Codec + Hash + Eq + Copy,
+    V: scale::Codec + Copy,
 {
     fn extend<I: IntoIterator<Item = (&'a K, &'a V)>>(&mut self, iter: I) {
         self.extend(iter.into_iter().map(|(&key, &value)| (key, value)));
@@ -217,9 +217,9 @@ impl<'a, K, V> Extend<(&'a K, &'a V)> for HashMap<K, V>
 }
 
 impl<'a, K: 'a, V: 'a> Extend<&'a (K, V)> for HashMap<K, V>
-    where
-        K: scale::Codec + Hash + Eq + Copy,
-        V: scale::Codec + Copy,
+where
+    K: scale::Codec + Hash + Eq + Copy,
+    V: scale::Codec + Copy,
 {
     fn extend<I: IntoIterator<Item = &'a (K, V)>>(&mut self, iter: I) {
         self.extend(iter.into_iter().cloned());
