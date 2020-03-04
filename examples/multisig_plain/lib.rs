@@ -87,7 +87,9 @@ mod multisig_plain {
     const WRONG_TRANSACTION_ID: &str =
         "The user specified an invalid transaction id. Abort.";
 
-    /// A wrapper that allows us to pass untyped parameters as blob to a `CallBuilder`
+    /// A wrapper that allows us to encode a blob of bytes.
+    ///
+    /// We use this to pass the set of untyped (bytes) parameters to the `CallBuilder`.
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {
