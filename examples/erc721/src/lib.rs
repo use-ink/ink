@@ -12,6 +12,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! # ERC721
+//!
+//! This is a ERC721 Token implementation
+//!
+//! ## Warning
+//!
+//! This contract is an *example*. It is neither audited nor endorsed for production use.
+//! Do **not** rely on it to keep anything of value secure.
+//!
+//! ## Overview
+//! 
+//! This contract shows how to build non-fungible or unique tokens on ink!
+//!
+//! ## Error Handling
+//!
+//! Any function that modifies the state returns a Result type and rolls back the state
+//! if the Error occurs.
+//! The errors are defined as an Enum type. Any other error or invariant violation 
+//! triggers a panic and therefore rolls back the transaction.
+//!
+//! ## Token Management
+//!
+//! After creating a new token, the function caller becomes the owner.
+//! A token can be created, transferred, or destroyed.
+//!
+//! Token owners can assign other accounts for transferring specific tokens on their behalf.
+//! It is also possible to authorize an operator (higher rights) for another account to handle tokens.
+//! 
+//! ### Token Creation
+//!
+//! Token creation start by calling the `mint(&mut self, id: u32)` function.
+//! The token owner becomes the function caller. The Token ID needs to be specified
+//! as the argument on this function call.
+//! ```ignore
+//! mint(777)
+//! ```
+//!
+//! ### Token Transfer
+//! 
+//! Transfers may be initiated by:
+//! The owner of a token
+//! The approved address of a token
+//! An authorized operator of the current owner of a token
+//! 
+//! The token owner can transfer a token by calling the `transfer` or `transfer_from` functions.
+//! An approved address can make a token transfer by calling the `transfer_from` funtion.
+//! Operators can transfer tokens on another account's behalf or can approve a token transfer 
+//! for a different account.
+//!
+//! ### Token Removal
+//!
+//! Tokens can be destroyed by burning them. Only the token owner is allowed to burn a token.
+//!
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
@@ -336,7 +390,7 @@ mod erc721 {
             *self.owned_tokens_count.get(of).unwrap_or(&0)
         }
 
-        /// Set an operator to manage tokens on other Account's behalf.
+        /// Gets an operator on other Account's behalf.
         fn approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
             *self
                 .operator_approvals
@@ -497,7 +551,7 @@ mod erc721 {
                 ),
                 ()
             );
-            // Transfer token Id 1 from Alice to Eve.
+            // Bob transfers token Id 1 from Alice to Eve.
             assert_eq!(
                 erc721.transfer_from(accounts.alice, accounts.eve, 1),
                 Ok(())
@@ -548,23 +602,23 @@ mod erc721 {
                 ),
                 ()
             );
-            // Transfer token Id 1 from Alice to Eve.
+            // Bob transfers token Id 1 from Alice to Eve.
             assert_eq!(
                 erc721.transfer_from(accounts.alice, accounts.eve, 1),
                 Ok(())
             );
-            // TokenId 3 is owned by Eve.
+            // TokenId 1 is owned by Eve.
             assert_eq!(erc721.owner_of(1), Some(accounts.eve));
-            // Alice does not owns tokens.
+            // Alice owns 1 token.
             assert_eq!(erc721.balance_of(accounts.alice), 1);
-            // Transfer token Id 1 from Alice to Eve.
+            // Bob transfers token Id 2 from Alice to Eve.
             assert_eq!(
                 erc721.transfer_from(accounts.alice, accounts.eve, 2),
                 Ok(())
             );
             // Bob does not owns tokens.
             assert_eq!(erc721.balance_of(accounts.bob), 0);
-            // Eve owns 1 token.
+            // Eve owns 2 tokens.
             assert_eq!(erc721.balance_of(accounts.eve), 2);
             // Get back to the parent execution context.
             env::test::pop_execution_context();
@@ -608,9 +662,9 @@ mod erc721 {
                 ),
                 ()
             );
-            // Eve is not approved by Alice.
+            // Eve is not an approved operator by Alice.
             assert_eq!(
-                erc721.transfer_from(accounts.alice, accounts.eve, 1),
+                erc721.transfer_from(accounts.alice, accounts.frank, 1),
                 Err(Error::NotApproved)
             );
             // Alice owns 1 token.
