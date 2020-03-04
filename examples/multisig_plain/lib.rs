@@ -100,7 +100,7 @@ mod multisig_plain {
     /// If enough owners agree it will be executed by the contract.
     #[derive(scale::Encode, scale::Decode, storage::Flush)]
     #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
-    #[cfg_attr(feature = "std", derive(Debug))]
+    #[cfg_attr(feature = "std", derive(Debug, PartialEq, Eq))]
     pub struct Transaction {
         /// The AccountId of the contract that is called in this transaction.
         callee: AccountId,
@@ -442,7 +442,7 @@ mod multisig_plain {
 
         /// Panic if the sender is not this wallet.
         fn ensure_from_wallet(&self) {
-            assert!(self.env().caller() == self.env().account_id());
+            assert_eq!(self.env().caller(), self.env().account_id());
         }
 
         /// Panic if `owner` is not an owner,
@@ -479,8 +479,51 @@ mod multisig_plain {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_core::env::test;
+        use ink_core::env::{
+            call,
+            test,
+        };
         type Accounts = test::DefaultAccounts<EnvTypes>;
+        const WALLET: [u8; 32] = [7; 32];
+
+        impl Transaction {
+            fn change_requirement(requirement: u32) -> Self {
+                let mut call =
+                    call::CallData::new(call::Selector::from_str("change_requirement"));
+                call.push_arg(&requirement);
+                Self {
+                    callee: WALLET.into(),
+                    selector: call.selector().to_bytes(),
+                    input: call.params().to_owned(),
+                    transferred_value: 0,
+                    gas_limit: 1000000,
+                }
+            }
+        }
+
+        fn set_sender(sender: AccountId) {
+            test::push_execution_context::<EnvTypes>(
+                sender,
+                WALLET.into(),
+                1000000,
+                1000000,
+                call::CallData::new(call::Selector::from_str("dummy")),
+            );
+        }
+
+        fn set_from_wallet() {
+            set_sender(WALLET.into());
+        }
+
+        fn set_from_owner() {
+            let accounts = default_accounts();
+            set_sender(accounts.alice);
+        }
+
+        fn set_from_noowner() {
+            let accounts = default_accounts();
+            set_sender(accounts.django);
+        }
 
         fn default_accounts() -> Accounts {
             test::default_accounts()
@@ -491,6 +534,21 @@ mod multisig_plain {
             let accounts = default_accounts();
             let owners = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
             MultisigPlain::new(owners, 2)
+        }
+
+        fn submit_transaction() -> MultisigPlain {
+            let mut contract = build_contract();
+            let accounts = default_accounts();
+            set_from_owner();
+            contract.submit_transaction(Transaction::change_requirement(1));
+            assert_eq!(contract.transactions.len(), 1);
+            assert_eq!(test::recorded_events().count(), 2);
+            let transaction = contract.transactions.get(0).unwrap();
+            assert_eq!(*transaction, Transaction::change_requirement(1));
+            contract.confirmations.get(&(0, accounts.alice)).unwrap();
+            assert_eq!(contract.confirmations.len(), 1);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
+            contract
         }
 
         #[test]
@@ -537,10 +595,243 @@ mod multisig_plain {
         fn add_owner_works() {
             let accounts = default_accounts();
             let mut contract = build_contract();
+            set_from_wallet();
             let owners = contract.owners.len();
             contract.add_owner(accounts.frank);
             assert_eq!(contract.owners.len(), owners + 1);
             assert!(contract.is_owner.get(&accounts.frank).is_some());
+            assert_eq!(test::recorded_events().count(), 1);
+        }
+
+        #[test]
+        #[should_panic]
+        fn add_owner_existing_fails() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_wallet();
+            contract.add_owner(accounts.bob);
+        }
+
+        #[test]
+        #[should_panic]
+        fn add_owner_permission_denied() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_owner();
+            contract.add_owner(accounts.frank);
+        }
+
+        #[test]
+        fn remove_owner_works() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_wallet();
+            let owners = contract.owners.len();
+            contract.remove_owner(accounts.alice);
+            assert_eq!(contract.owners.len(), owners - 1);
+            assert!(contract.is_owner.get(&accounts.alice).is_none());
+            assert_eq!(test::recorded_events().count(), 1);
+        }
+
+        #[test]
+        #[should_panic]
+        fn remove_owner_nonexisting_fails() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_wallet();
+            contract.remove_owner(accounts.django);
+        }
+
+        #[test]
+        #[should_panic]
+        fn remove_owner_permission_denied() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_owner();
+            contract.remove_owner(accounts.alice);
+        }
+
+        #[test]
+        fn replace_owner_works() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_wallet();
+            let owners = contract.owners.len();
+            contract.replace_owner(accounts.alice, accounts.django);
+            assert_eq!(contract.owners.len(), owners);
+            assert!(contract.is_owner.get(&accounts.alice).is_none());
+            assert!(contract.is_owner.get(&accounts.django).is_some());
+            assert_eq!(test::recorded_events().count(), 2);
+        }
+
+        #[test]
+        #[should_panic]
+        fn replace_owner_existing_fails() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_wallet();
+            contract.replace_owner(accounts.alice, accounts.bob);
+        }
+
+        #[test]
+        #[should_panic]
+        fn replace_owner_nonexisting_fails() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_wallet();
+            contract.replace_owner(accounts.django, accounts.frank);
+        }
+
+        #[test]
+        #[should_panic]
+        fn replace_owner_permission_denied() {
+            let accounts = default_accounts();
+            let mut contract = build_contract();
+            set_from_owner();
+            contract.replace_owner(accounts.alice, accounts.django);
+        }
+
+        #[test]
+        fn change_requirement_works() {
+            let mut contract = build_contract();
+            assert_eq!(*contract.requirement.get(), 2);
+            set_from_wallet();
+            contract.change_requirement(3);
+            assert_eq!(*contract.requirement.get(), 3);
+            assert_eq!(test::recorded_events().count(), 1);
+        }
+
+        #[test]
+        #[should_panic]
+        fn change_requirement_too_high() {
+            let mut contract = build_contract();
+            set_from_wallet();
+            contract.change_requirement(4);
+        }
+
+        #[test]
+        #[should_panic]
+        fn change_requirement_zero_fails() {
+            let mut contract = build_contract();
+            set_from_wallet();
+            contract.change_requirement(0);
+        }
+
+        #[test]
+        fn submit_transaction_works() {
+            submit_transaction();
+        }
+
+        #[test]
+        #[should_panic]
+        fn submit_transaction_noowner_fails() {
+            let mut contract = build_contract();
+            set_from_noowner();
+            contract.submit_transaction(Transaction::change_requirement(1));
+        }
+
+        #[test]
+        #[should_panic]
+        fn submit_transaction_wallet_fails() {
+            let mut contract = build_contract();
+            set_from_wallet();
+            contract.submit_transaction(Transaction::change_requirement(1));
+        }
+
+        #[test]
+        fn cancel_transaction_works() {
+            let mut contract = submit_transaction();
+            set_from_wallet();
+            contract.cancel_transaction(0);
+            assert_eq!(contract.transactions.len(), 0);
+            assert_eq!(test::recorded_events().count(), 3);
+        }
+
+        #[test]
+        fn cancel_transaction_nonexisting() {
+            let mut contract = submit_transaction();
+            set_from_wallet();
+            contract.cancel_transaction(1);
+            assert_eq!(contract.transactions.len(), 1);
+            assert_eq!(test::recorded_events().count(), 2);
+        }
+
+        #[test]
+        #[should_panic]
+        fn cancel_transaction_no_permission() {
+            let mut contract = submit_transaction();
+            contract.cancel_transaction(0);
+        }
+
+        #[test]
+        fn confirm_transaction_works() {
+            let mut contract = submit_transaction();
+            let accounts = default_accounts();
+            set_sender(accounts.bob);
+            contract.confirm_transaction(0);
+            assert_eq!(test::recorded_events().count(), 3);
+            contract.confirmations.get(&(0, accounts.bob)).unwrap();
+            assert_eq!(contract.confirmations.len(), 2);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 2);
+        }
+
+        #[test]
+        fn confirm_transaction_already_confirmed() {
+            let mut contract = submit_transaction();
+            let accounts = default_accounts();
+            set_sender(accounts.alice);
+            contract.confirm_transaction(0);
+            assert_eq!(test::recorded_events().count(), 2);
+            contract.confirmations.get(&(0, accounts.alice)).unwrap();
+            assert_eq!(contract.confirmations.len(), 1);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
+        }
+
+        #[test]
+        #[should_panic]
+        fn confirm_transaction_noowner_fail() {
+            let mut contract = submit_transaction();
+            set_from_noowner();
+            contract.confirm_transaction(0);
+        }
+
+        #[test]
+        fn revoke_transaction_works() {
+            let mut contract = submit_transaction();
+            let accounts = default_accounts();
+            set_sender(accounts.alice);
+            contract.revoke_confirmation(0);
+            assert_eq!(test::recorded_events().count(), 3);
+            assert!(contract.confirmations.get(&(0, accounts.alice)).is_none());
+            assert_eq!(contract.confirmations.len(), 0);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 0);
+        }
+
+        #[test]
+        fn revoke_transaction_no_confirmer() {
+            let mut contract = submit_transaction();
+            let accounts = default_accounts();
+            set_sender(accounts.bob);
+            contract.revoke_confirmation(0);
+            assert_eq!(test::recorded_events().count(), 2);
+            assert!(contract.confirmations.get(&(0, accounts.alice)).is_some());
+            assert_eq!(contract.confirmations.len(), 1);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
+        }
+
+        #[test]
+        #[should_panic]
+        fn revoke_transaction_noowner_fail() {
+            let mut contract = submit_transaction();
+            let accounts = default_accounts();
+            set_sender(accounts.django);
+            contract.revoke_confirmation(0);
+        }
+
+        #[test]
+        fn execute_transaction_works() {
+            // Execution of calls is currently unsupported in off-chain test.
+            // Calling execute_transaction panics in any case.
         }
     }
 }
