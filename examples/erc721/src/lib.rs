@@ -268,7 +268,7 @@ mod erc721 {
         ) -> Result<(), Error> {
             if !self.exists(id) {
                 return Err(Error::TokenNotFound);
-            };
+            }
 
             self.decrease_counter_of(from)?;
             self.token_owner.remove(id).ok_or(Error::CannotRemove)?;
