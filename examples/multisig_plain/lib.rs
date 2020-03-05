@@ -262,24 +262,33 @@ mod multisig_plain {
         ///
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
-        /// ```ignore
-        /// use ink_core::env::call{CallData, Selector};
-        /// // first create the transaction that add `alice` through `add_owner`
+        /// ```
+        /// use ink_core::env::call{CallData, CallParams, Selector};
+        ///
+        /// // address of an existing MultiSigPlain contract
+        /// let wallet_id: AccountId = [7u8; 32].into();
+        ///
+        /// // first create the transaction that adds `alice` through `add_owner`
         /// let alice: AccountId = [1u8; 32].into();
         /// let mut call = CallData::new(Selector::from_str("add_owner"));
         /// call.push_arg(&alice);
         /// let transaction = Transaction {
-        ///     callee: THIS_WALLET,
+        ///     callee: wallet_id,
         ///     selector: call.selector().to_bytes(),
         ///     input: call.params().to_owned(),
         ///     transferred_value: 0,
-        ///     gas_limit: 5000
+        ///     gas_limit: 0
         /// };
         ///
         /// // submit the transaction for confirmation
-        /// let (id, _) = submit_transaction(transaction);
+        /// let mut submit = CallParams::eval(wallet_id, Selector::from_str("submit_transaction"));
+        /// let (id, _)  = submit.push_arg(&transaction)
+        ///     .fire()
+        ///     .expect("submit_transaction won't panic.");
+        ///
         /// // wait until all required owners have confirmed and then execute the transaction
-        /// invoke_transaction(id);
+        /// let mut invoke = CallParams::eval(wallet_id, Selector::from_str("invoke_transaction"));
+        /// invoke.push_arg(&id).fire();
         /// ```
         #[ink(message)]
         fn add_owner(&mut self, new_owner: AccountId) {
