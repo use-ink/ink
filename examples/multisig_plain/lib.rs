@@ -399,6 +399,7 @@ mod multisig_plain {
         /// This can be called by any owner.
         ///
         /// # Panics
+        ///
         /// If `trans_id` is no valid transaction id.
         #[ink(message)]
         fn confirm_transaction(&mut self, trans_id: TransactionId) -> ConfirmationStatus {
