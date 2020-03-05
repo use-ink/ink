@@ -194,26 +194,17 @@ mod multisig_plain {
         transaction: TransactionId,
     }
 
-    /// Emitted when a transaction was executed without evaluating its output.
+    /// Emitted when a transaction was executed.
     #[ink(event)]
-    struct Invokation {
+    struct Execution {
         /// The transaction that was executed.
         #[ink(topic)]
         transaction: TransactionId,
-        /// Indicates whether the transaction executed successfully.
+        /// Indicates whether the transaction executed successfully. If so the `Ok` value holds
+        /// the output in bytes. The Option is `None` when the transaction was executed through
+        /// `invoke_transaction` rather than `evaluate_transaction`.
         #[ink(topic)]
-        result: Result<(), ()>,
-    }
-
-    /// Emitted when a transaction was executed and its output is evaluated.
-    #[ink(event)]
-    struct Evaluation {
-        /// The transaction that was executed.
-        #[ink(topic)]
-        transaction: TransactionId,
-        /// The output of the transaction as bytes.
-        #[ink(topic)]
-        result: Result<Vec<u8>, ()>,
+        result: Result<Option<Vec<u8>>, ()>,
     }
 
     /// Emitted when an owner is added to the wallet.
@@ -442,9 +433,9 @@ mod multisig_plain {
             )
             .fire()
             .map_err(|_| ());
-            self.env().emit_event(Invokation {
+            self.env().emit_event(Execution {
                 transaction: trans_id,
-                result,
+                result: result.map(|_| None),
             });
             result
         }
@@ -464,9 +455,9 @@ mod multisig_plain {
             )
             .fire()
             .map_err(|_| ());
-            self.env().emit_event(Evaluation {
+            self.env().emit_event(Execution {
                 transaction: trans_id,
-                result: result.clone(),
+                result: result.clone().map(|val| Some(val)),
             });
             result
         }
