@@ -105,6 +105,15 @@ mod multisig_plain {
         }
     }
 
+    /// Indicates whether a transaction is already confirmed or needs further confirmations.
+    #[derive(scale::Encode, scale::Decode, Clone, Copy)]
+    pub enum ConfirmationStatus {
+        /// The transaction is already confirmed.
+        Confirmed,
+        /// Indicates how many confirmations are remaining.
+        ConfirmationsNeeded(u32),
+    }
+
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
     #[derive(scale::Encode, scale::Decode, storage::Flush)]
@@ -153,6 +162,9 @@ mod multisig_plain {
         /// The owner that sent the confirmation.
         #[ink(topic)]
         from: AccountId,
+        /// The confirmation status after this confirmation was applied.
+        #[ink(topic)]
+        status: ConfirmationStatus,
     }
 
     /// Emitted when an owner revoked a confirmation.
@@ -304,14 +316,14 @@ mod multisig_plain {
         /// This also confirms the transaction for the caller.
         /// This can be called by any owner.
         #[ink(message)]
-        fn submit_transaction(&mut self, transaction: Transaction) {
+        fn submit_transaction(&mut self, transaction: Transaction) -> ConfirmationStatus {
             self.ensure_caller_is_owner();
             let trans_id = self.transactions.put(transaction);
             self.confirmation_count.insert(trans_id, 0);
             self.env().emit_event(Submission {
                 transaction: trans_id,
             });
-            self.confirm_by_caller(self.env().caller(), trans_id);
+            self.confirm_by_caller(self.env().caller(), trans_id)
         }
 
         /// Remove a transaction from the contract.
@@ -331,10 +343,10 @@ mod multisig_plain {
         /// This can be called by any owner.
         /// Panics if `trans_id` is no valid transaction id.
         #[ink(message)]
-        fn confirm_transaction(&mut self, trans_id: TransactionId) {
+        fn confirm_transaction(&mut self, trans_id: TransactionId) -> ConfirmationStatus {
             self.ensure_caller_is_owner();
             self.ensure_transaction_exists(trans_id);
-            self.confirm_by_caller(self.env().caller(), trans_id);
+            self.confirm_by_caller(self.env().caller(), trans_id)
         }
 
         /// Revoke the senders confirmation.
@@ -400,18 +412,30 @@ mod multisig_plain {
             &mut self,
             confirmer: AccountId,
             transaction: TransactionId,
-        ) {
-            if self
+        ) -> ConfirmationStatus {
+            let count = self.confirmation_count.entry(transaction).or_insert(0);
+            let new_confirmation = self
                 .confirmations
                 .insert((transaction, confirmer), ())
-                .is_none()
-            {
-                *self.confirmation_count.entry(transaction).or_insert(0) += 1;
+                .is_none();
+            if new_confirmation {
+                *count += 1;
+            }
+            let status = {
+                if *count >= *self.requirement {
+                    ConfirmationStatus::Confirmed
+                } else {
+                    ConfirmationStatus::ConfirmationsNeeded(*self.requirement - *count)
+                }
+            };
+            if new_confirmation {
                 self.env().emit_event(Confirmation {
                     transaction,
                     from: confirmer,
+                    status,
                 });
             }
+            status
         }
 
         /// Get the index of `owner` in `self.owners`.
