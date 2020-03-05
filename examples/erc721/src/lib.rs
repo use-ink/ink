@@ -291,7 +291,7 @@ mod erc721 {
             Ok(())
         }
 
-        /// Sets or unsets the approval of a given operator to transfer all tokens of caller
+        /// Approves or disapproves the operator to transfer all tokens of the caller.
         fn approve_for_all(
             &mut self,
             to: AccountId,
