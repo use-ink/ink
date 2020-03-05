@@ -327,7 +327,7 @@ mod multisig_plain {
             self.ensure_caller_is_owner();
             let caller = self.env().caller();
             if self.confirmations.remove(&(trans_id, caller)).is_some() {
-                mutate_map(&mut self.confirmation_count, &trans_id, |count| *count -= 1);
+                *self.confirmation_count.entry(trans_id).or_insert(1) -= 1;
                 self.env().emit_event(Revokation {
                     transaction: trans_id,
                     from: caller,
@@ -372,9 +372,7 @@ mod multisig_plain {
                 .insert((transaction, confirmer), ())
                 .is_none()
             {
-                mutate_map(&mut self.confirmation_count, &transaction, |count| {
-                    *count += 1
-                });
+                *self.confirmation_count.entry(transaction).or_insert(0) += 1;
                 self.env().emit_event(Confirmation {
                     transaction,
                     from: confirmer,
@@ -406,9 +404,7 @@ mod multisig_plain {
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
             for (trans_id, _) in self.transactions.iter() {
                 if self.confirmations.remove(&(trans_id, *owner)).is_some() {
-                    mutate_map(&mut self.confirmation_count, &trans_id, |count| {
-                        *count += 1
-                    });
+                    *self.confirmation_count.entry(trans_id).or_insert(0) += 1;
                 }
             }
         }
@@ -462,20 +458,6 @@ mod multisig_plain {
         fn ensure_requirement_is_valid(&self, owners: u32, requirement: u32) {
             assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
         }
-    }
-
-    /// Change a stored value by reinserting it.
-    fn mutate_map<K, V, F>(map: &mut storage::BTreeMap<K, V>, key: &K, f: F)
-    where
-        K: Eq + Ord + scale::Codec + Copy,
-        V: scale::Codec + Copy,
-        F: FnOnce(&mut V),
-    {
-        let mut count = *map
-            .get(key)
-            .expect("User is responsible for only supplying existing keys.");
-        f(&mut count);
-        map.insert(*key, count);
     }
 
     #[cfg(test)]
