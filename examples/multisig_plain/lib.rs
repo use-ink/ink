@@ -237,7 +237,7 @@ mod multisig_plain {
                 self.is_owner.insert(*owner, ());
                 self.owners.push(*owner);
             }
-            self.ensure_requirement_is_valid(self.owners.len(), requirement);
+            ensure_requirement_is_valid(self.owners.len(), requirement);
             assert!(self.is_owner.len() == self.owners.len());
             self.requirement.set(requirement);
         }
@@ -249,7 +249,7 @@ mod multisig_plain {
         fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
-            self.ensure_requirement_is_valid(self.owners.len() + 1, *self.requirement);
+            ensure_requirement_is_valid(self.owners.len() + 1, *self.requirement);
             self.is_owner.insert(new_owner, ());
             self.owners.push(new_owner);
             self.env().emit_event(OwnerAddition { owner: new_owner });
@@ -265,7 +265,7 @@ mod multisig_plain {
             self.ensure_owner(&owner);
             let len = self.owners.len() - 1;
             let requirement = u32::min(len, *self.requirement);
-            self.ensure_requirement_is_valid(len, requirement);
+            ensure_requirement_is_valid(len, requirement);
             self.owners.swap_remove(self.owner_index(&owner));
             self.is_owner.remove(&owner);
             self.requirement.set(requirement);
@@ -295,7 +295,7 @@ mod multisig_plain {
         #[ink(message)]
         fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
-            self.ensure_requirement_is_valid(self.owners.len(), new_requirement);
+            ensure_requirement_is_valid(self.owners.len(), new_requirement);
             self.requirement.set(new_requirement);
             self.env().emit_event(RequirementChange { new_requirement });
         }
@@ -486,12 +486,6 @@ mod multisig_plain {
         fn ensure_no_owner(&self, owner: &AccountId) {
             assert!(!self.is_owner.contains_key(owner));
         }
-
-        /// Panic if the number of `owners` under a `requirement` violates our
-        /// requirement invariant.
-        fn ensure_requirement_is_valid(&self, owners: u32, requirement: u32) {
-            assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
-        }
     }
 
     /// Parameterize a call with the arguments stored inside a transaction.
@@ -504,6 +498,12 @@ mod multisig_plain {
             .transferred_value(t.transferred_value)
             .push_arg(&CallInput(&t.input))
             .seal()
+    }
+
+    /// Panic if the number of `owners` under a `requirement` violates our
+    /// requirement invariant.
+    fn ensure_requirement_is_valid(owners: u32, requirement: u32) {
+        assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
     }
 
     #[cfg(test)]
