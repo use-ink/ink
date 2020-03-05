@@ -21,8 +21,11 @@ use crate::{
         PullForward,
         PushForward,
         StorageSize,
+        StorageFootprint,
     },
 };
+use typenum::Add1;
+use core::ops::Add;
 
 impl<T> core::ops::Index<u32> for StorageVec<T>
 where
@@ -62,6 +65,16 @@ where
 {
     const SIZE: u64 =
         <u32 as StorageSize>::SIZE + <storage::LazyChunk<T> as StorageSize>::SIZE;
+}
+
+impl<T> StorageFootprint for StorageVec<T>
+where
+    T: StorageFootprint,
+    storage::LazyChunk<T>: StorageFootprint,
+    <storage::LazyChunk<T> as StorageFootprint>::Value: Add<typenum::B1>,
+{
+    type Value =
+        Add1<<storage::LazyChunk<T> as StorageFootprint>::Value>;
 }
 
 impl<T> PullForward for StorageVec<T>

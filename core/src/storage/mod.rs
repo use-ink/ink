@@ -129,6 +129,8 @@ pub use self::{
         PushAt,
         PushForward,
         StorageSize,
+        StorageFootprint,
+        SaturatingStorage,
     },
 };
 

@@ -17,6 +17,7 @@ use super::super::{
     PullForward,
     PushForward,
     StorageSize,
+    StorageFootprint,
 };
 use core::{
     cell::{
@@ -33,6 +34,7 @@ use ink_prelude::{
     collections::BTreeMap,
 };
 use ink_primitives::Key;
+use typenum::Prod;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -281,6 +283,14 @@ where
     /// A lazy chunk is contiguous and its size can be determined by the
     /// total number of elements it could theoretically hold.
     const SIZE: u64 = <T as StorageSize>::SIZE * (core::u32::MAX as u64);
+}
+
+impl<T> StorageFootprint for LazyChunk<T>
+where
+    T: StorageFootprint,
+    <T as StorageFootprint>::Value: core::ops::Mul<typenum::P4294967296>,
+{
+    type Value = Prod<<T as StorageFootprint>::Value, typenum::P4294967296>;
 }
 
 impl<T> StorageSize for LazyMapping<T>

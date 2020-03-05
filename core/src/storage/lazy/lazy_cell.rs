@@ -18,6 +18,7 @@ use super::super::{
     PullForward,
     PushForward,
     StorageSize,
+    StorageFootprint,
 };
 use core::cell::UnsafeCell;
 use ink_primitives::Key;
@@ -89,6 +90,13 @@ where
     T: StorageSize,
 {
     const SIZE: u64 = <T as StorageSize>::SIZE;
+}
+
+impl<T> StorageFootprint for LazyCell<T>
+where
+    T: StorageFootprint,
+{
+    type Value = <T as StorageFootprint>::Value;
 }
 
 impl<T> PullForward for LazyCell<T>

@@ -21,19 +21,41 @@ use crate::{
         PullForward,
         PushForward,
         StorageSize,
+        StorageFootprint,
+        SaturatingStorage,
     },
 };
 use ink_primitives::Key;
 
 impl<T> StorageSize for StorageBox<T>
 where
-    T: ClearForward + StorageSize,
+    T: ClearForward,
 {
     /// A boxed entity always uses exactly 1 cell for the key.
     ///
     /// The indirectly stored storage entity is not considered because the
     /// `StorageSize` is only concerned with inplace storage usage.
     const SIZE: u64 = 1;
+}
+
+impl<T> StorageFootprint for StorageBox<T>
+where
+    T: ClearForward,
+{
+    /// A boxed entity always uses exactly 1 cell for its storage.
+    ///
+    /// The indirectly stored storage entity is not considered because the
+    /// `StorageSize` is only concerned with inplace storage usage.
+    type Value = typenum::P1;
+}
+
+impl<T> SaturatingStorage for StorageBox<T>
+where
+    T: ClearForward,
+{
+    // A boxed entity always uses exactly 1 cell for its storage.
+    //
+    // Therefore the associated storage region is always saturated.
 }
 
 impl<T> PullForward for StorageBox<T>
