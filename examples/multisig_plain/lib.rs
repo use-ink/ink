@@ -241,8 +241,13 @@ mod multisig_plain {
 
     impl MultisigPlain {
         /// The only constructor of the contract.
+        ///
         /// A list of owners must be supplied and a number of how many of them must
         /// confirm a transaction. Duplicate owners are silently dropped.
+        ///
+        /// # Panics
+        ///
+        /// If `requirement` violates our invariant.
         #[ink(constructor)]
         fn new(&mut self, requirement: u32, owners: Vec<AccountId>) {
             for owner in &owners {
@@ -255,8 +260,36 @@ mod multisig_plain {
         }
 
         /// Add a new owner to the contract.
-        /// Panics if the owner already exists.
+        ///
         /// Only callable by the wallet itself.
+        ///
+        /// # Panics
+        ///
+        /// If the owner already exists.
+        ///
+        /// # Examples
+        ///
+        /// Since this message must be send by the wallet itself it has to be build as a
+        /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
+        /// ```ignore
+        /// use ink_core::env::call{CallData, Selector};
+        /// // first create the transaction that add `alice` through `add_owner`
+        /// let alice: AccountId = [1u8; 32].into();
+        /// let mut call = CallData::new(Selector::from_str("add_owner"));
+        /// call.push_arg(&alice);
+        /// let transaction = Transaction {
+        ///     callee: THIS_WALLET,
+        ///     selector: call.selector().to_bytes(),
+        ///     input: call.params().to_owned(),
+        ///     transferred_value: 0,
+        ///     gas_limit: 5000
+        /// };
+        ///
+        /// // submit the transaction for confirmation
+        /// let (id, _) = submit_transaction(transaction);
+        /// // wait until all required owners have confirmed and then execute the transaction
+        /// invoke_transaction(id);
+        /// ```
         #[ink(message)]
         fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
@@ -268,9 +301,14 @@ mod multisig_plain {
         }
 
         /// Remove an owner from the contract.
+        ///
         /// Only callable by the wallet itself. If by doing this the amount of owners
         /// would be smaller than the requirement it is adjusted to be exactly the
-        /// number of owners. Panics if `owner` is no owner of the wallet.
+        /// number of owners.
+        ///
+        /// # Panics
+        ///
+        /// If `owner` is no owner of the wallet.
         #[ink(message)]
         fn remove_owner(&mut self, owner: AccountId) {
             self.ensure_from_wallet();
@@ -286,8 +324,12 @@ mod multisig_plain {
         }
 
         /// Replace an owner from the contract with a new one.
-        /// Panics if `old_owner` is no owner or if `new_owner` already is one.
+        ///
         /// Only callable by the wallet itself.
+        ///
+        /// # Panics
+        ///
+        /// If `old_owner` is no owner or if `new_owner` already is one.
         #[ink(message)]
         fn replace_owner(&mut self, old_owner: AccountId, new_owner: AccountId) {
             self.ensure_from_wallet();
@@ -303,7 +345,12 @@ mod multisig_plain {
         }
 
         /// Change the requirement to a new value.
+        ///
         /// Only callable by the wallet itself.
+        ///
+        /// # Panics
+        ///
+        /// If the `new_requirement` violates our invariant.
         #[ink(message)]
         fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
@@ -313,21 +360,30 @@ mod multisig_plain {
         }
 
         /// Add a new transaction candiate to the contract.
-        /// This also confirms the transaction for the caller.
-        /// This can be called by any owner.
+        ///
+        /// This also confirms the transaction for the caller. This can be called by any owner.
         #[ink(message)]
-        fn submit_transaction(&mut self, transaction: Transaction) -> ConfirmationStatus {
+        fn submit_transaction(
+            &mut self,
+            transaction: Transaction,
+        ) -> (TransactionId, ConfirmationStatus) {
             self.ensure_caller_is_owner();
             let trans_id = self.transactions.put(transaction);
             self.env().emit_event(Submission {
                 transaction: trans_id,
             });
-            self.confirm_by_caller(self.env().caller(), trans_id)
+            (
+                trans_id,
+                self.confirm_by_caller(self.env().caller(), trans_id),
+            )
         }
 
         /// Remove a transaction from the contract.
         /// Only callable by the wallet itself.
-        /// Panics if `trans_id` is no valid transaction id.
+        ///
+        /// # Panics
+        ///
+        /// If `trans_id` is no valid transaction id.
         #[ink(message)]
         fn cancel_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_from_wallet();
@@ -339,8 +395,11 @@ mod multisig_plain {
         }
 
         /// Confirm a transaction for the sender that was submitted by any owner.
+        ///
         /// This can be called by any owner.
-        /// Panics if `trans_id` is no valid transaction id.
+        ///
+        /// # Panics
+        /// If `trans_id` is no valid transaction id.
         #[ink(message)]
         fn confirm_transaction(&mut self, trans_id: TransactionId) -> ConfirmationStatus {
             self.ensure_caller_is_owner();
@@ -349,8 +408,12 @@ mod multisig_plain {
         }
 
         /// Revoke the senders confirmation.
+        ///
         /// This can be called by any owner.
-        /// Panics if `trans_id` is no valid transaction id.
+        ///
+        /// # Panics
+        ///
+        /// If `trans_id` is no valid transaction id.
         #[ink(message)]
         fn revoke_confirmation(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
@@ -365,7 +428,8 @@ mod multisig_plain {
         }
 
         /// Invoke a confirmed execution without getting its output.
-        /// Its return type indicates whether the called transaction was succesful.
+        ///
+        /// Its return value indicates whether the called transaction was successful.
         /// This can be called by anyone.
         #[ink(message)]
         fn invoke_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
@@ -385,8 +449,10 @@ mod multisig_plain {
         }
 
         /// Evaluate a confirmed execution and return its output as bytes.
-        /// Its return type indicates whether the called transaction was succesful.
-        /// This can be called by anyone
+        ///
+        /// Its return value indicates whether the called transaction was successful and contains
+        /// its output when sucesful.
+        /// This can be called by anyone.
         #[ink(message)]
         fn eval_transaction(&mut self, trans_id: TransactionId) -> Result<Vec<u8>, ()> {
             self.ensure_confirmed(trans_id);
