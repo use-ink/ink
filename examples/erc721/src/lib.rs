@@ -14,7 +14,7 @@
 
 //! # ERC721
 //!
-//! This is a ERC721 Token implementation
+//! This is an ERC721 Token implementation.
 //!
 //! ## Warning
 //!
