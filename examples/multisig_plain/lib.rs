@@ -214,7 +214,7 @@ mod multisig_plain {
         /// A list of owners must be supplied and a number of how many of them must
         /// confirm a transaction. Duplicate owners are silently dropped.
         #[ink(constructor)]
-        fn new(&mut self, owners: Vec<AccountId>, requirement: u32) {
+        fn new(&mut self, requirement: u32, owners: Vec<AccountId>) {
             for owner in &owners {
                 self.is_owner.insert(*owner, ());
                 self.owners.push(*owner);
@@ -535,7 +535,7 @@ mod multisig_plain {
         fn build_contract() -> MultisigPlain {
             let accounts = default_accounts();
             let owners = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
-            MultisigPlain::new(owners, 2)
+            MultisigPlain::new(2, owners)
         }
 
         fn submit_transaction() -> MultisigPlain {
@@ -576,21 +576,21 @@ mod multisig_plain {
         #[test]
         #[should_panic]
         fn empty_owner_construction_fails() {
-            MultisigPlain::new(vec![], 0);
+            MultisigPlain::new(0, vec![]);
         }
 
         #[test]
         #[should_panic]
         fn zero_requirement_construction_fails() {
             let accounts = default_accounts();
-            MultisigPlain::new(vec![accounts.alice, accounts.bob], 0);
+            MultisigPlain::new(0, vec![accounts.alice, accounts.bob]);
         }
 
         #[test]
         #[should_panic]
         fn too_large_requirement_construction_fails() {
             let accounts = default_accounts();
-            MultisigPlain::new(vec![accounts.alice, accounts.bob], 3);
+            MultisigPlain::new(3, vec![accounts.alice, accounts.bob]);
         }
 
         #[test]
