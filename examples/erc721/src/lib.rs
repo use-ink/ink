@@ -378,7 +378,6 @@ mod erc721 {
             if !self.token_approvals.contains_key(id) {
                 return Ok(());
             };
-
             match self.token_approvals.remove(id) {
                 Some(_res) => Ok(()),
                 None => Err(Error::CannotRemove),
