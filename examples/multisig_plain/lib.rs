@@ -74,7 +74,14 @@ use ink_lang as ink;
 #[ink::contract(version = "0.1.0")]
 mod multisig_plain {
     use ink_core::{
-        env,
+        env::call::{
+            state::{
+                Sealed,
+                Unsealed,
+            },
+            CallBuilder,
+            CallParams,
+        },
         storage,
     };
     use ink_prelude::vec::Vec;
@@ -175,15 +182,26 @@ mod multisig_plain {
         transaction: TransactionId,
     }
 
-    /// Emitted when a transaction was executed.
+    /// Emitted when a transaction was executed without evaluating its output.
     #[ink(event)]
-    struct Execution {
+    struct Invokation {
         /// The transaction that was executed.
         #[ink(topic)]
         transaction: TransactionId,
         /// Indicates whether the transaction executed successfully.
         #[ink(topic)]
         result: Result<(), ()>,
+    }
+
+    /// Emitted when a transaction was executed and its output is evaluated.
+    #[ink(event)]
+    struct Evaluation {
+        /// The transaction that was executed.
+        #[ink(topic)]
+        transaction: TransactionId,
+        /// The output of the transaction as bytes.
+        #[ink(topic)]
+        result: Result<Vec<u8>, ()>,
     }
 
     /// Emitted when an owner is added to the wallet.
@@ -335,26 +353,42 @@ mod multisig_plain {
             }
         }
 
-        /// Execute a confirmed execution.
+        /// Invoke a confirmed execution without getting its output.
         /// Its return type indicates whether the called transaction was succesful.
         /// This can be called by anyone.
         #[ink(message)]
-        fn execute_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
+        fn invoke_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = env::call::CallParams::<EnvTypes, ()>::invoke(
-                t.callee,
-                t.selector.into(),
+            let result = parameterize_call(
+                CallParams::<EnvTypes, ()>::invoke(t.callee, t.selector.into()),
+                t,
             )
-            .gas_limit(t.gas_limit)
-            .transferred_value(t.transferred_value)
-            .push_arg(&CallInput(&t.input))
             .fire()
-            .map(|_| ())
             .map_err(|_| ());
-            self.env().emit_event(Execution {
+            self.env().emit_event(Invokation {
                 transaction: trans_id,
                 result,
+            });
+            result
+        }
+
+        /// Evaluate a confirmed execution and return its output as bytes.
+        /// Its return type indicates whether the called transaction was succesful.
+        /// This can be called by anyone
+        #[ink(message)]
+        fn eval_transaction(&mut self, trans_id: TransactionId) -> Result<Vec<u8>, ()> {
+            self.ensure_confirmed(trans_id);
+            let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
+            let result = parameterize_call(
+                CallParams::<EnvTypes, Vec<u8>>::eval(t.callee, t.selector.into()),
+                t,
+            )
+            .fire()
+            .map_err(|_| ());
+            self.env().emit_event(Evaluation {
+                transaction: trans_id,
+                result: result.clone(),
             });
             result
         }
@@ -458,6 +492,18 @@ mod multisig_plain {
         fn ensure_requirement_is_valid(&self, owners: u32, requirement: u32) {
             assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
         }
+    }
+
+    /// Parameterize a call with the arguments stored inside a transaction.
+    fn parameterize_call<R>(
+        builder: CallBuilder<EnvTypes, R, Unsealed>,
+        t: Transaction,
+    ) -> CallBuilder<EnvTypes, R, Sealed> {
+        builder
+            .gas_limit(t.gas_limit)
+            .transferred_value(t.transferred_value)
+            .push_arg(&CallInput(&t.input))
+            .seal()
     }
 
     #[cfg(test)]
