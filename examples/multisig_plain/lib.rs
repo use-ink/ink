@@ -319,7 +319,6 @@ mod multisig_plain {
         fn submit_transaction(&mut self, transaction: Transaction) -> ConfirmationStatus {
             self.ensure_caller_is_owner();
             let trans_id = self.transactions.put(transaction);
-            self.confirmation_count.insert(trans_id, 0);
             self.env().emit_event(Submission {
                 transaction: trans_id,
             });
