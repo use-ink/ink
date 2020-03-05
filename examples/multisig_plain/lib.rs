@@ -361,8 +361,8 @@ mod multisig_plain {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = parameterize_call(
+                &t,
                 CallParams::<EnvTypes, ()>::invoke(t.callee, t.selector.into()),
-                t,
             )
             .fire()
             .map_err(|_| ());
@@ -381,8 +381,8 @@ mod multisig_plain {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = parameterize_call(
+                &t,
                 CallParams::<EnvTypes, Vec<u8>>::eval(t.callee, t.selector.into()),
-                t,
             )
             .fire()
             .map_err(|_| ());
@@ -490,8 +490,8 @@ mod multisig_plain {
 
     /// Parameterize a call with the arguments stored inside a transaction.
     fn parameterize_call<R>(
+        t: &Transaction,
         builder: CallBuilder<EnvTypes, R, Unsealed>,
-        t: Transaction,
     ) -> CallBuilder<EnvTypes, R, Sealed> {
         builder
             .gas_limit(t.gas_limit)
