@@ -52,9 +52,9 @@
 //! ### Token Transfer
 //! 
 //! Transfers may be initiated by:
-//! The owner of a token
-//! The approved address of a token
-//! An authorized operator of the current owner of a token
+//! - The owner of a token
+//! - The approved address of a token
+//! - An authorized operator of the current owner of a token
 //! 
 //! The token owner can transfer a token by calling the `transfer` or `transfer_from` functions.
 //! An approved address can make a token transfer by calling the `transfer_from` funtion.
