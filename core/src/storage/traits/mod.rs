@@ -51,7 +51,7 @@ macro_rules! forward_supported_array_lens_ty {
 mod clear;
 mod pull;
 mod push;
-mod storage_size;
+mod footprint;
 
 use ink_primitives::Key;
 
