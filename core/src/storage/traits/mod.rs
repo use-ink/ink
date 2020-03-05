@@ -68,7 +68,11 @@ pub use self::{
         PushAt,
         PushForward,
     },
-    storage_size::StorageSize,
+    footprint::{
+        StorageSize,
+        StorageFootprint,
+        SaturatingStorage,
+    },
 };
 
 /// A key pointer.
