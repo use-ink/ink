@@ -23,7 +23,7 @@
 //!
 //! ## Overview
 //! 
-//! This contract shows how to build non-fungible or unique tokens on ink!
+//! This contract demonstrates how to build non-fungible or unique tokens using ink!.
 //!
 //! ## Error Handling
 //!
