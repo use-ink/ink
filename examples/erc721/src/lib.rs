@@ -198,7 +198,7 @@ mod erc721 {
             &mut self,
             from: AccountId,
             to: AccountId,
-            id: u32,
+            id: TokenId,
         ) -> Result<(), Error> {
             self.transfer_token_from(&from, &to, &id)?;
             Ok(())
