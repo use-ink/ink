@@ -22,6 +22,7 @@ use crate::{
         PushForward,
         StorageSize,
         StorageFootprint,
+        SaturatingStorage,
     },
 };
 use typenum::Add1;
@@ -40,7 +41,7 @@ where
 
 impl<T> core::ops::IndexMut<u32> for StorageVec<T>
 where
-    T: StorageSize + PullForward,
+    T: SaturatingStorage + StorageFootprint + StorageSize + PullForward,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index).expect("index out of bounds")
