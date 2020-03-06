@@ -24,6 +24,8 @@ use crate::{
     storage::{
         PullForward,
         StorageSize,
+        StorageFootprint,
+        SaturatingStorage,
     },
 };
 
@@ -82,6 +84,49 @@ impl<T> Vec<T>
 where
     T: StorageSize + PullForward,
 {
+    /// Returns an iterator over the references of all elements stored in the vector.
+    ///
+    /// # Note
+    ///
+    /// - It is **not** recommended to iterate over all elements of a storage vector.
+    /// - Try to avoid this if possible or iterate only over a minimal subset of
+    ///   all elements using e.g. `Iterator::take(n)`.
+    pub fn iter(&self) -> Iter<T> {
+        Iter::new(self)
+    }
+
+    /// Returns the index if it is witihn bounds or `None` otherwise.
+    fn within_bounds(&self, index: u32) -> Option<u32> {
+        if index < self.len() {
+            return Some(index)
+        }
+        None
+    }
+
+    /// Returns a shared reference to the first element if any.
+    pub fn first(&self) -> Option<&T> {
+        self.get(0)
+    }
+
+    /// Returns a shared reference to the last element if any.
+    pub fn last(&self) -> Option<&T> {
+        let last_index = self.len() - 1;
+        self.get(last_index)
+    }
+
+    /// Returns a shared reference to the indexed element.
+    ///
+    /// Returns `None` if `index` is out of bounds.
+    pub fn get(&self, index: u32) -> Option<&T> {
+        self.within_bounds(index)
+            .and_then(|index| self.elems.get(index))
+    }
+}
+
+impl<T> Vec<T>
+where
+    T: StorageFootprint + SaturatingStorage + StorageSize + PullForward,
+{
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {
         assert!(
@@ -105,31 +150,15 @@ where
         self.elems.take(last_index)
     }
 
-    /// Returns an iterator over the references of all elements stored in the vector.
-    ///
-    /// # Note
-    ///
-    /// - It is **not** recommended to iterate over all elements of a storage vector.
-    /// - Try to avoid this if possible or iterate only over a minimal subset of
-    ///   all elements using e.g. `Iterator::take(n)`.
-    pub fn iter(&self) -> Iter<T> {
-        Iter::new(self)
+    /// Returns an exclusive reference to the first element if any.
+    pub fn first_mut(&mut self) -> Option<&mut T> {
+        self.get_mut(0)
     }
 
-    /// Returns the index if it is witihn bounds or `None` otherwise.
-    fn within_bounds(&self, index: u32) -> Option<u32> {
-        if index < self.len() {
-            return Some(index)
-        }
-        None
-    }
-
-    /// Returns a shared reference to the indexed element.
-    ///
-    /// Returns `None` if `index` is out of bounds.
-    pub fn get(&self, index: u32) -> Option<&T> {
-        self.within_bounds(index)
-            .and_then(|index| self.elems.get(index))
+    /// Returns an exclusive reference to the last element if any.
+    pub fn last_mut(&mut self) -> Option<&mut T> {
+        let last_index = self.len() - 1;
+        self.get_mut(last_index)
     }
 
     /// Returns an exclusive reference to the indexed element.
