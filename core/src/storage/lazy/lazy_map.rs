@@ -449,6 +449,12 @@ where
     }
 
     /// Removes the element at the given index if any.
+    ///
+    /// # Note
+    ///
+    /// This method should be preferred over [`Self::take`] in cases where the
+    /// caller is not interested in the taken (removed) value since it is more
+    /// efficient for some use cases.
     pub fn remove(&mut self, index: K) {
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         match self.entries_mut().entry(index) {
