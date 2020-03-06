@@ -246,7 +246,6 @@ mod erc721 {
             if !self.approved_or_owner(Some(caller), *id) {
                 return Err(Error::NotApproved);
             };
-
             self.clear_approval(id)?;
             self.remove_token_from(from, id)?;
             self.add_token_to(to, id)?;
