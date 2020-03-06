@@ -122,6 +122,7 @@ enum UnderflowResult {
 /// `BTreeMap` standard library implementation. The Rust implementation
 /// is in-memory, whereas this implementation uses the ink! storage
 /// primitives (`SyncChunk`, etc.).
+#[derive(Debug)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 pub struct BTreeMap<K, V> {
     /// Stores densely packed general BTreeMap information.
@@ -148,7 +149,7 @@ pub struct BTreeMap<K, V> {
 /// for performance reasons so that they all reside in the same
 /// storage entity. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
-#[derive(Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 struct BTreeMapHeader {
     /// The latest vacant node index.
@@ -258,6 +259,38 @@ impl<K, V> AllocateUsing for BTreeMap<K, V> {
             nodes: SyncChunk::allocate_using(alloc),
             kv_pairs: SyncChunk::allocate_using(alloc),
         }
+    }
+}
+
+impl<K, V> Extend<(K, V)> for BTreeMap<K, V>
+where
+    K: Codec + Ord,
+    V: Codec,
+{
+    fn extend<T: IntoIterator<Item = (K, V)>>(&mut self, iter: T) {
+        for (k, v) in iter {
+            self.insert(k, v);
+        }
+    }
+}
+
+impl<'a, K, V> Extend<(&'a K, &'a V)> for BTreeMap<K, V>
+where
+    K: Codec + Ord + Copy,
+    V: Codec + Copy,
+{
+    fn extend<I: IntoIterator<Item = (&'a K, &'a V)>>(&mut self, iter: I) {
+        self.extend(iter.into_iter().map(|(&key, &value)| (key, value)));
+    }
+}
+
+impl<'a, K, V> Extend<&'a (K, V)> for BTreeMap<K, V>
+where
+    K: Codec + Ord + Copy + 'a,
+    V: Codec + Copy + 'a,
+{
+    fn extend<I: IntoIterator<Item = &'a (K, V)>>(&mut self, iter: I) {
+        self.extend(iter.into_iter().copied());
     }
 }
 
@@ -1673,7 +1706,7 @@ enum InsertResult {
 ///     `.entry()` API. It contains a key/value pair.
 ///   - `InternalEntry` is used internally in our implementation. It is a storage
 ///     entity and contains a tree node with many key/value pair storage indices.
-#[derive(Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 enum InternalEntry<K, V> {
     /// A vacant entry pointing to the next vacant index.
@@ -1708,7 +1741,7 @@ where
 ///     `.entry()` API. It contains a key/value pair.
 ///   - `InternalEntry` is used internally in our implementation. It is a storage
 ///     entity and contains a tree node with many key/value pairs.
-#[derive(Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 #[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
 enum InternalKVEntry<K, V> {
     /// A vacant entry pointing to the next vacant index.

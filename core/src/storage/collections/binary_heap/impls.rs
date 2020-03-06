@@ -440,3 +440,29 @@ where
         Iter::new(self)
     }
 }
+
+impl<T> Extend<T> for BinaryHeap<T>
+where
+    T: Codec + Ord,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = T>,
+    {
+        for i in iter {
+            self.push(i)
+        }
+    }
+}
+
+impl<'a, T> Extend<&'a T> for BinaryHeap<T>
+where
+    T: Codec + Ord + Copy + 'a,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = &'a T>,
+    {
+        self.extend(iter.into_iter().copied())
+    }
+}
