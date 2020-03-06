@@ -281,7 +281,6 @@ mod erc721 {
             if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::NotAllowed);
             };
-
             self.increase_counter_of(to)?;
             if !self.token_owner.insert(*id, *to).is_none() {
                 return Err(Error::CannotInsert);
