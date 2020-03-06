@@ -229,6 +229,7 @@ mod erc721 {
             });
             Ok(())
         }
+
         /// Transfers token `id` `from` the sender to the `to` AccountId.
         fn transfer_token_from(
             &mut self,
