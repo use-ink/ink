@@ -139,7 +139,9 @@ mod erc721 {
         #[ink(constructor)]
         fn new(&mut self) {}
 
-        /// Get token balance of specific account.
+        /// Returns the balance of the owner.
+        ///
+        /// This represents the amount of unique tokens the owner has.
         #[ink(message)]
         fn balance_of(&self, owner: AccountId) -> u32 {
             self.balance_of_or_zero(&owner)
