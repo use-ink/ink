@@ -177,8 +177,7 @@ mod erc721 {
             Ok(())
         }
 
-        /// Approve the passed AccountId to transfer the specified token
-        /// on behalf of the message's sender.
+        /// Approves the account to transfer the specified token on behalf of the caller.
         #[ink(message)]
         fn approve(&mut self, to: AccountId, id: TokenId) -> Result<(), Error> {
             self.approve_for(&to, &id)?;
