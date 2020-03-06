@@ -154,7 +154,7 @@ mod erc721 {
             self.token_owner.get(&id).cloned()
         }
 
-        /// The approved address for this token, or the none address if there is none
+        /// Returns the approved account ID for this token if any.
         #[ink(message)]
         fn get_approved(&self, id: TokenId) -> Option<AccountId> {
             self.token_approvals.get(&id).cloned()
