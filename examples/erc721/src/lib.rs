@@ -148,7 +148,7 @@ mod erc721 {
             self.balance_of_or_zero(&owner)
         }
 
-        /// Get token owner.
+        /// Returns the owner of the token.
         #[ink(message)]
         fn owner_of(&self, id: TokenId) -> Option<AccountId> {
             self.token_owner.get(&id).cloned()
