@@ -85,7 +85,7 @@ mod erc721 {
         token_approvals: storage::HashMap<TokenId, AccountId>,
         /// Mapping from owner to number of owned token.
         owned_tokens_count: storage::HashMap<AccountId, u32>,
-        /// Mapping from owner to operator approvals
+        /// Mapping from owner to operator approvals.
         operator_approvals: storage::HashMap<(AccountId, AccountId), bool>,
     }
 
