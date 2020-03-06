@@ -240,7 +240,7 @@ mod erc721 {
             &mut self,
             from: &AccountId,
             to: &AccountId,
-            id: &TokenId,
+            id: TokenId,
         ) -> Result<(), Error> {
             let caller = self.env().caller();
             if !self.exists(id) {
