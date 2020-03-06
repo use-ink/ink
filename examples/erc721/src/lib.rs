@@ -27,7 +27,7 @@
 //!
 //! ## Error Handling
 //!
-//! Any function that modifies the state returns a Result type and does not change the state
+//! Any function that modifies the state returns a Result type and does not changes the state
 //! if the Error occurs.
 //! The errors are defined as an Enum type. Any other error or invariant violation
 //! triggers a panic and therefore rolls back the transaction.
@@ -45,9 +45,6 @@
 //! Token creation start by calling the `mint(&mut self, id: u32)` function.
 //! The token owner becomes the function caller. The Token ID needs to be specified
 //! as the argument on this function call.
-//! ```ignore
-//! mint(777)
-//! ```
 //!
 //! ### Token Transfer
 //!
@@ -422,6 +419,7 @@ mod erc721 {
         fn mint_works() {
             let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
+            // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Token 1 does not exists.
             assert_eq!(erc721.owner_of(1), None);
@@ -437,6 +435,7 @@ mod erc721 {
         fn mint_existing_should_fail() {
             let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
+            // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
             assert_eq!(erc721.mint(1), Ok(()));
@@ -455,6 +454,7 @@ mod erc721 {
         fn transfer_works() {
             let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
+            // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
             assert_eq!(erc721.mint(1), Ok(()));
@@ -476,6 +476,7 @@ mod erc721 {
         fn invalid_transfer_should_fail() {
             let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
+            // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Transfer token fails if it does not exists.
             assert_eq!(erc721.transfer(accounts.bob, 2), Err(Error::TokenNotFound));
@@ -513,6 +514,7 @@ mod erc721 {
         fn approved_transfer_works() {
             let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
+            // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
             assert_eq!(erc721.mint(1), Ok(()));
@@ -557,6 +559,7 @@ mod erc721 {
         fn approved_for_all_works() {
             let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
+            // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
             assert_eq!(erc721.mint(1), Ok(()));
@@ -622,6 +625,7 @@ mod erc721 {
         fn not_approved_transfer_should_fail() {
             let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
+            // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
             assert_eq!(erc721.mint(1), Ok(()));
@@ -666,6 +670,7 @@ mod erc721 {
         fn burn_works() {
             let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
+            // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
             assert_eq!(erc721.mint(1), Ok(()));
