@@ -219,7 +219,7 @@ mod erc721 {
 
         /// Deletes an existing token. Only the owner can burn the token.
         #[ink(message)]
-        fn burn(&mut self, id: u32) -> Result<(), Error> {
+        fn burn(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             if self.token_owner.get(&id) != Some(&caller) {
                 return Err(Error::NotOwner);
