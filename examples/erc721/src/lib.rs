@@ -22,14 +22,14 @@
 //! Do **not** rely on it to keep anything of value secure.
 //!
 //! ## Overview
-//! 
+//!
 //! This contract demonstrates how to build non-fungible or unique tokens using ink!.
 //!
 //! ## Error Handling
 //!
-//! Any function that modifies the state returns a Result type and rolls back the state
+//! Any function that modifies the state returns a Result type and does not change the state
 //! if the Error occurs.
-//! The errors are defined as an Enum type. Any other error or invariant violation 
+//! The errors are defined as an Enum type. Any other error or invariant violation
 //! triggers a panic and therefore rolls back the transaction.
 //!
 //! ## Token Management
@@ -39,7 +39,7 @@
 //!
 //! Token owners can assign other accounts for transferring specific tokens on their behalf.
 //! It is also possible to authorize an operator (higher rights) for another account to handle tokens.
-//! 
+//!
 //! ### Token Creation
 //!
 //! Token creation start by calling the `mint(&mut self, id: u32)` function.
@@ -50,15 +50,15 @@
 //! ```
 //!
 //! ### Token Transfer
-//! 
+//!
 //! Transfers may be initiated by:
 //! - The owner of a token
 //! - The approved address of a token
 //! - An authorized operator of the current owner of a token
-//! 
+//!
 //! The token owner can transfer a token by calling the `transfer` or `transfer_from` functions.
 //! An approved address can make a token transfer by calling the `transfer_from` funtion.
-//! Operators can transfer tokens on another account's behalf or can approve a token transfer 
+//! Operators can transfer tokens on another account's behalf or can approve a token transfer
 //! for a different account.
 //!
 //! ### Token Removal
@@ -422,13 +422,6 @@ mod erc721 {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
         use ink_core::env;
-
-        /// The default constructor does its job
-        #[test]
-        fn new_works() {
-            // Constructor works
-            let _erc721 = Erc721::new();
-        }
 
         #[test]
         fn mint_works() {
