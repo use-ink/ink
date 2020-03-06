@@ -160,7 +160,7 @@ mod erc721 {
             self.token_approvals.get(&id).cloned()
         }
 
-        /// Get whether an operator is approved by a given owner
+        /// Returns `true` if the operator is approved by the owner.
         #[ink(message)]
         fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
             self.approved_for_all(owner, operator)
