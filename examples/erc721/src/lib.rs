@@ -262,7 +262,7 @@ mod erc721 {
         fn remove_token_from(
             &mut self,
             from: &AccountId,
-            id: &TokenId,
+            id: TokenId,
         ) -> Result<(), Error> {
             if !self.exists(id) {
                 return Err(Error::TokenNotFound);
