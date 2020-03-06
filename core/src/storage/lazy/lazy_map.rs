@@ -228,7 +228,12 @@ impl<K, V> LazyMap<K, V>
 where
     K: Ord,
 {
-    /// Creates a new empty lazy chunk that cannot be mutated.
+    /// Creates a new empty lazy map.
+    ///
+    /// # Note
+    ///
+    /// A lazy map created this way cannot be used to load from the contract storage.
+    /// All operations that directly or indirectly load from storage will panic.
     pub fn new() -> Self {
         Self {
             key: None,
