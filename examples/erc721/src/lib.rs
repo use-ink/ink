@@ -166,7 +166,7 @@ mod erc721 {
             self.approved_for_all(owner, operator)
         }
 
-        /// Sets or unsets the approval of a given operator to transfer all tokens of caller
+        /// Approves or disapproves the operator for all tokens of the caller.
         #[ink(message)]
         fn set_approval_for_all(
             &mut self,
