@@ -15,6 +15,9 @@
 mod iter;
 mod traits;
 
+#[cfg(test)]
+mod tests;
+
 pub use self::iter::Iter;
 use crate::{
     storage,
