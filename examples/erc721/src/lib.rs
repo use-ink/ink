@@ -180,7 +180,7 @@ mod erc721 {
         /// Approves the account to transfer the specified token on behalf of the caller.
         #[ink(message)]
         fn approve(&mut self, to: AccountId, id: TokenId) -> Result<(), Error> {
-            self.approve_for(&to, &id)?;
+            self.approve_for(&to, id)?;
             Ok(())
         }
 
@@ -188,7 +188,7 @@ mod erc721 {
         #[ink(message)]
         fn transfer(&mut self, destination: AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
-            self.transfer_token_from(&caller, &destination, &id)?;
+            self.transfer_token_from(&caller, &destination, id)?;
             Ok(())
         }
 
@@ -200,7 +200,7 @@ mod erc721 {
             to: AccountId,
             id: TokenId,
         ) -> Result<(), Error> {
-            self.transfer_token_from(&from, &to, &id)?;
+            self.transfer_token_from(&from, &to, id)?;
             Ok(())
         }
 
@@ -208,7 +208,7 @@ mod erc721 {
         #[ink(message)]
         fn mint(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
-            self.add_token_to(&caller, &id)?;
+            self.add_token_to(&caller, id)?;
             self.env().emit_event(Transfer {
                 from: Some(AccountId::from([0x0; 32])),
                 to: Some(caller),
@@ -224,7 +224,7 @@ mod erc721 {
             if self.token_owner.get(&id) != Some(&caller) {
                 return Err(Error::NotOwner);
             };
-            self.remove_token_from(&caller, &id)?;
+            self.remove_token_from(&caller, id)?;
             self.env().emit_event(Transfer {
                 from: Some(caller),
                 to: Some(AccountId::from([0x0; 32])),
@@ -243,7 +243,7 @@ mod erc721 {
             if !self.exists(id) {
                 return Err(Error::TokenNotFound);
             };
-            if !self.approved_or_owner(Some(caller), *id) {
+            if !self.approved_or_owner(Some(caller), id) {
                 return Err(Error::NotApproved);
             };
             self.clear_approval(id)?;
@@ -252,7 +252,7 @@ mod erc721 {
             self.env().emit_event(Transfer {
                 from: Some(*from),
                 to: Some(*to),
-                id: *id,
+                id: id,
             });
             Ok(())
         }
@@ -267,12 +267,12 @@ mod erc721 {
                 return Err(Error::TokenNotFound);
             }
             self.decrease_counter_of(from)?;
-            self.token_owner.remove(id).ok_or(Error::CannotRemove)?;
+            self.token_owner.remove(&id).ok_or(Error::CannotRemove)?;
             Ok(())
         }
 
         /// Adds the token `id` to the `to` AccountID.
-        fn add_token_to(&mut self, to: &AccountId, id: &TokenId) -> Result<(), Error> {
+        fn add_token_to(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             if self.exists(id) {
                 return Err(Error::TokenExists);
             };
@@ -280,7 +280,7 @@ mod erc721 {
                 return Err(Error::NotAllowed);
             };
             self.increase_counter_of(to)?;
-            if !self.token_owner.insert(*id, *to).is_none() {
+            if !self.token_owner.insert(id, *to).is_none() {
                 return Err(Error::CannotInsert);
             }
             Ok(())
@@ -320,7 +320,7 @@ mod erc721 {
         /// on behalf of the message's sender.
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
-            let owner = self.owner_of(*id);
+            let owner = self.owner_of(id);
             if !(owner == Some(caller)
                 || self.approved_for_all(owner.expect("Error with AccountId"), caller))
             {
@@ -330,13 +330,13 @@ mod erc721 {
                 return Err(Error::NotAllowed);
             };
 
-            if !self.token_approvals.insert(*id, *to).is_none() {
+            if !self.token_approvals.insert(id, *to).is_none() {
                 return Err(Error::CannotInsert);
             };
             self.env().emit_event(Approval {
                 from: caller,
                 to: *to,
-                id: *id,
+                id: id,
             });
             Ok(())
         }
@@ -369,11 +369,11 @@ mod erc721 {
         }
 
         /// Removes existing approval from token `id`.
-        fn clear_approval(&mut self, id: &TokenId) -> Result<(), Error> {
-            if !self.token_approvals.contains_key(id) {
+        fn clear_approval(&mut self, id: TokenId) -> Result<(), Error> {
+            if !self.token_approvals.contains_key(&id) {
                 return Ok(());
             };
-            match self.token_approvals.remove(id) {
+            match self.token_approvals.remove(&id) {
                 Some(_res) => Ok(()),
                 None => Err(Error::CannotRemove),
             }
@@ -406,8 +406,8 @@ mod erc721 {
         }
 
         /// Returns true if token `id` exists or false if it does not.
-        fn exists(&self, id: &TokenId) -> bool {
-            self.token_owner.get(id).is_some() && self.token_owner.contains_key(id)
+        fn exists(&self, id: TokenId) -> bool {
+            self.token_owner.get(&id).is_some() && self.token_owner.contains_key(&id)
         }
     }
 
