@@ -186,7 +186,7 @@ mod erc721 {
 
         /// Transfer token from caller.
         #[ink(message)]
-        fn transfer(&mut self, to: AccountId, id: u32) -> Result<(), Error> {
+        fn transfer(&mut self, destination: AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.transfer_token_from(&caller, &to, &id)?;
             Ok(())
