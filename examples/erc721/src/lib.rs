@@ -136,6 +136,7 @@ mod erc721 {
     }
 
     impl Erc721 {
+        /// Creates a new ERC721 token contract.
         #[ink(constructor)]
         fn new(&mut self) {}
 
