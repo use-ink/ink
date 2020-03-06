@@ -102,7 +102,7 @@ mod erc721 {
         NotAllowed,
     }
 
-    /// Event emitted when a token transfer occurs
+    /// Event emitted when a token transfer occurs.
     #[ink(event)]
     struct Transfer {
         #[ink(topic)]
