@@ -150,6 +150,22 @@ where
         self.elems.take(last_index)
     }
 
+    /// Pops the last element from the vector and immediately drops it.
+    ///
+    /// Does nothing if the vector is empty.
+    ///
+    /// # Note
+    ///
+    /// This operation is a bit more efficient than [`Self::pop`] for some use cases.
+    pub fn pop_drop(&mut self) {
+        if self.is_empty() {
+            return
+        }
+        let last_index = self.len() - 1;
+        *self.len = last_index;
+        self.elems.remove(last_index);
+    }
+
     /// Returns an exclusive reference to the first element if any.
     pub fn first_mut(&mut self) -> Option<&mut T> {
         self.get_mut(0)
