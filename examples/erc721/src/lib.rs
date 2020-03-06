@@ -206,7 +206,7 @@ mod erc721 {
 
         /// Creates a new token.
         #[ink(message)]
-        fn mint(&mut self, id: u32) -> Result<(), Error> {
+        fn mint(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.add_token_to(&caller, &id)?;
             self.env().emit_event(Transfer {
