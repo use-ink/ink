@@ -64,7 +64,6 @@
 //! ### Token Removal
 //!
 //! Tokens can be destroyed by burning them. Only the token owner is allowed to burn a token.
-//!
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
