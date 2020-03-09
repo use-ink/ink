@@ -246,6 +246,32 @@ fn mutate_with() -> Result<()> {
     })
 }
 
+#[test]
+fn extend_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // given
+        let arr1 = [(1i32, 2i32), (3, 4), (5, 6)];
+        let arr2 = [(7i32, 8i32), (9, 10)];
+        let mut map = new_empty::<i32, i32>();
+
+        let mut expected = ink_prelude::collections::HashMap::new();
+
+        expected.extend(arr1.iter().cloned());
+        expected.extend(arr2.iter().cloned());
+
+        // when
+        map.extend(arr1.iter());
+        map.extend(arr2.iter());
+
+        // then
+        assert_eq!(map.len() as usize, expected.len());
+        for (k, v) in &expected {
+            assert_eq!(Some(v), map.get(k))
+        }
+        Ok(())
+    })
+}
+
 #[cfg(feature = "ink-fuzz")]
 #[quickcheck]
 fn randomized_inserts_and_removes_hm(xs: Vec<i32>, inserts_each: u8) -> Result<()> {
@@ -291,6 +317,7 @@ fn randomized_removes(xs: Vec<i32>, xth: usize) -> Result<()> {
                 assert_eq!(map.get(&i), Some(&(i * 10)));
             }
         });
+
         Ok(())
     })
 }
