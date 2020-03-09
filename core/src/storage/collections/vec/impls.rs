@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::iter::{
-    DoubleEndedIterator,
-    ExactSizeIterator,
-};
-
 #[cfg(feature = "ink-generate-abi")]
 use ink_abi::{
     HasLayout,
@@ -146,6 +141,32 @@ where
         debug_assert_ne!(self.end, 0);
         self.end -= 1;
         self.vec.get(self.end)
+    }
+}
+
+impl<T> Extend<T> for Vec<T>
+where
+    T: scale::Codec,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = T>,
+    {
+        for i in iter {
+            self.push(i)
+        }
+    }
+}
+
+impl<'a, T> Extend<&'a T> for Vec<T>
+where
+    T: scale::Codec + Copy + 'a,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = &'a T>,
+    {
+        self.extend(iter.into_iter().copied())
     }
 }
 
