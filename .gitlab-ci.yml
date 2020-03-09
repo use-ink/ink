@@ -212,10 +212,10 @@ publish-docs:
   <<:                              *docker-env
   variables:
     GIT_DEPTH:                     0
-  # only:
-  #   - master
-  #   - schedules
-  #   - tags
+  only:
+    - master
+    - schedules
+    - tags
   script:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
