@@ -466,7 +466,7 @@ mod multisig_plain {
             .map_err(|_| ());
             self.env().emit_event(Execution {
                 transaction: trans_id,
-                result: result.clone().map(|val| Some(val)),
+                result: result.clone().map(Some),
             });
             result
         }
