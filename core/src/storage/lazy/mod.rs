@@ -13,11 +13,13 @@
 // limitations under the License.
 
 mod entry;
+mod lazy_array;
 mod lazy_cell;
 mod lazy_map;
 
 use self::entry::{Entry, EntryState};
 pub use self::{
+    lazy_array::LazyArray,
     lazy_cell::LazyCell,
     lazy_map::{
         LazyChunk,

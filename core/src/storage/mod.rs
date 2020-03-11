@@ -118,6 +118,7 @@ pub use self::{
         LazyChunk,
         LazyMap,
         LazyMapping,
+        LazyArray,
     },
     pack::Pack,
     traits::{
