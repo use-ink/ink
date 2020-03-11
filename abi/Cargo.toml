@@ -15,15 +15,15 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-serde = { version = "1.0.104", default-features = false, features = ["derive", "alloc"] }
-derive_more = { version = "0.99.3", default-features = false, features = ["from"] }
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+derive_more = { version = "0.99", default-features = false, features = ["from"] }
 ink_abi_derive = { path = "derive", default-features = false, optional = true }
 ink_prelude = { path = "../prelude/", default-features = false }
 ink_primitives = { path = "../primitives/", default-features = false }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"] }
 
 [dev-dependencies]
-serde_json = "1.0.48"
+serde_json = "1.0"
 
 [features]
 default = [
