@@ -35,7 +35,7 @@ ink_core = { path = "../../core/" }
 ink_lang = { path = "..", default-features = false, features = ["ink-generate-abi"] }
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"] }
 
-trybuild = "1.0"
+trybuild = "1.0.24"
 pretty_assertions = "0.6.1"
 
 [lib]
