@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod entry;
 mod lazy_cell;
 mod lazy_map;
 
+use self::entry::{Entry, EntryState};
 pub use self::{
     lazy_cell::LazyCell,
     lazy_map::{
