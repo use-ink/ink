@@ -35,6 +35,7 @@ variables:
     - rustc -vV
     - rustup show
     - bash --version
+    - rm -r ${CARGO_HOME} # TROUBLESHOOTING: remove
     - mkdir -p ${CARGO_HOME}; touch ${CARGO_HOME}/config
     # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
     - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
