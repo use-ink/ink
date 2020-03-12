@@ -47,7 +47,7 @@ const SIZE: usize = 32;
 ///
 /// Computes operations on the underlying 32 storage cells in a lazy fashion.
 /// Due to the size constraints the `LazyArray` is generally more efficient
-/// than the [`super::LazyMap`] for most use cases with limited elements.
+/// than the [`LazyMap`](`super::LazyMap`) for most use cases with limited elements.
 ///
 /// This is mainly used as low-level storage primitives by other high-level
 /// storage primitives in order to manage the contract storage for a whole
@@ -76,6 +76,7 @@ pub struct EntryArray<T> {
 }
 
 impl<T> EntryArray<T> {
+    /// Creates a new entry array cache.
     pub fn new() -> Self {
         Self {
             entries: Default::default(),
@@ -161,7 +162,7 @@ impl<T> LazyArray<T> {
     ///
     /// # Note
     ///
-    /// Use [`Self::put_get`]`(None)` to remove an element.
+    /// Use [`LazyArray::put_get`]`(None)` to remove an element.
     pub fn put(&mut self, at: Index, new_value: Option<T>) {
         self.cached_entries_mut().put(at, new_value);
     }
@@ -272,8 +273,8 @@ where
     /// # Note
     ///
     /// - This operation eventually loads from contract storage.
-    /// - Prefer [`Self::put`] if you are not interested in the old value.
-    /// - Use [`Self::put_get`]`(None)` to remove an element.
+    /// - Prefer [`LazyArray::put`] if you are not interested in the old value.
+    /// - Use [`LazyArray::put_get`]`(None)` to remove an element.
     pub fn put_get(&mut self, at: Index, new_value: Option<T>) -> Option<T> {
         todo!()
     }

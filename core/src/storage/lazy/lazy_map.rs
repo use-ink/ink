@@ -457,7 +457,7 @@ where
     ///
     /// # Note
     ///
-    /// This method should be preferred over [`Self::take`] in cases where the
+    /// This method should be preferred over [`LazyMap::take`] in cases where the
     /// caller is not interested in the taken (removed) value since it is more
     /// efficient for some use cases.
     pub fn remove(&mut self, index: K) {

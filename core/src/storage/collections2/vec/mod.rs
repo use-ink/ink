@@ -156,7 +156,7 @@ where
     ///
     /// # Note
     ///
-    /// This operation is a bit more efficient than [`Self::pop`] for some use cases.
+    /// This operation is a bit more efficient than [`Vec::pop`] for some use cases.
     pub fn pop_drop(&mut self) {
         if self.is_empty() {
             return
