@@ -15,6 +15,7 @@ type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", de
 
 [lib]
 name = "dns"
+path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
 	"cdylib",
