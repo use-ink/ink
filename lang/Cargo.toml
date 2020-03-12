@@ -22,7 +22,7 @@ ink_prelude = { path = "../prelude/", default-features = false }
 ink_lang_macro = { path = "macro", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive", "full"] }
-derive_more = { version = "0.99.3", default-features = false, features = ["from"] }
+derive_more = { version = "0.99", default-features = false, features = ["from"] }
 
 [features]
 default = ["test-env"]
