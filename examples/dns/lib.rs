@@ -80,7 +80,7 @@ mod dns {
     }
 
     /// Errors that can occure upon calling this contract.
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     pub enum Error {
         /// Returned if the name already exists upon registration.
         NameAlreadyExists,
