@@ -60,9 +60,6 @@ impl<T> Entry<T> {
         }
     }
 
-    /// Returns `true` if the cached value of the entry has potentially been mutated.
-    pub fn mutated(&self) -> bool {
-        self.state.get() == EntryState::Mutated
     }
 
     /// Returns `true` if the cached value of the entry has potentially been mutated.
