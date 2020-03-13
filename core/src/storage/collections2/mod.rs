@@ -14,3 +14,4 @@
 
 pub mod boxed;
 pub mod vec;
+pub mod smallvec;

@@ -110,6 +110,7 @@ pub use self::{
     collections2::{
         boxed::Box,
         vec::Vec as Vec2,
+        smallvec::SmallVec,
     },
     flush::Flush,
     lazy::{
