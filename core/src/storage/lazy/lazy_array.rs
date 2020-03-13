@@ -30,24 +30,33 @@ use core::{
     ops::Mul,
     ptr::NonNull,
 };
+use generic_array::{
+    ArrayLength,
+    GenericArray,
+};
 use ink_primitives::Key;
 use typenum::{
     Integer,
     Prod,
-    P32,
 };
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
 
-/// The capacity of a lazy array.
-const CAPACITY: usize = 32;
+/// Utility trait for helping with lazy array construction.
+pub trait EntryArrayLength<T>: ArrayLength<Option<Entry<T>>> + Integer {}
+impl<T> EntryArrayLength<T> for T
+where
+    T: ArrayLength<Option<Entry<T>>> + Integer,
+{}
 
-/// A lazy storage array that spans over 32 storage cells.
+/// A lazy storage array that spans over N storage cells.
+///
+/// Storage data structure to emulate storage arrays: `[T; N]`.
 ///
 /// # Note
 ///
-/// Computes operations on the underlying 32 storage cells in a lazy fashion.
+/// Computes operations on the underlying N storage cells in a lazy fashion.
 /// Due to the size constraints the `LazyArray` is generally more efficient
 /// than the [`LazyMap`](`super::LazyMap`) for most use cases with limited elements.
 ///
@@ -55,8 +64,11 @@ const CAPACITY: usize = 32;
 /// storage primitives in order to manage the contract storage for a whole
 /// chunk of storage cells.
 #[derive(Debug)]
-pub struct LazyArray<T> {
-    /// The offset key for the 32 cells.
+pub struct LazyArray<T, N>
+where
+    N: EntryArrayLength<T>,
+{
+    /// The offset key for the N cells.
     ///
     /// If the lazy chunk has been initialized during contract initialization
     /// the key will be `None` since there won't be a storage region associated
@@ -67,17 +79,31 @@ pub struct LazyArray<T> {
     /// The subset of currently cached entries of the lazy storage chunk.
     ///
     /// An entry is cached as soon as it is loaded or written.
-    cached_entries: UnsafeCell<EntryArray<T>>,
+    cached_entries: UnsafeCell<EntryArray<T, N>>,
+}
+
+/// Returns the capacity for an array with the given array length.
+fn array_capacity<T, N>() -> u32
+where
+    N: EntryArrayLength<T>,
+{
+    <N as Integer>::I32 as u32
 }
 
 /// The underlying array cache for the [`LazyArray`].
 #[derive(Debug)]
-pub struct EntryArray<T> {
+pub struct EntryArray<T, N>
+where
+    N: EntryArrayLength<T>,
+{
     /// The cache entries of the entry array.
-    entries: [Option<Entry<T>>; CAPACITY],
+    entries: GenericArray<Option<Entry<T>>, N>,
 }
 
-impl<T> EntryArray<T> {
+impl<T, N> EntryArray<T, N>
+where
+    N: EntryArrayLength<T>,
+{
     /// Creates a new entry array cache.
     pub fn new() -> Self {
         Self {
@@ -86,18 +112,30 @@ impl<T> EntryArray<T> {
     }
 }
 
-impl<T> Default for EntryArray<T> {
+impl<T, N> Default for EntryArray<T, N>
+where
+    N: EntryArrayLength<T>,
+{
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> EntryArray<T> {
+impl<T, N> EntryArray<T, N>
+where
+    N: EntryArrayLength<T>,
+{
+    /// Returns the constant capacity of the lazy array.
+    #[inline]
+    pub fn capacity() -> u32 {
+        array_capacity::<T, N>()
+    }
+
     /// Puts the the new value into the indexed slot and
     /// returns the old value if any.
     fn put(&mut self, at: Index, new_value: Option<T>) -> Option<T> {
         mem::replace(
-            &mut self.entries[at as usize],
+            &mut self.entries.as_mut_slice()[at as usize],
             Some(Entry::new(new_value, EntryState::Mutated)),
         )
         .map(Entry::into_value)
@@ -113,14 +151,17 @@ impl<T> EntryArray<T> {
 
     /// Returns an exclusive reference to the entry at the given index if any.
     fn get_entry_mut(&mut self, at: Index) -> Option<&mut Entry<T>> {
-        if at as usize >= CAPACITY {
+        if at >= Self::capacity() {
             return None
         }
         self.entries[at as usize].as_mut()
     }
 }
 
-impl<T> LazyArray<T> {
+impl<T, N> LazyArray<T, N>
+where
+    N: EntryArrayLength<T>,
+{
     /// Creates a new empty lazy array.
     ///
     /// # Note
@@ -135,8 +176,9 @@ impl<T> LazyArray<T> {
     }
 
     /// Returns the constant capacity of the lazy array.
-    pub const fn capacity() -> u32 {
-        CAPACITY as u32
+    #[inline]
+    pub fn capacity() -> u32 {
+        array_capacity::<T, N>()
     }
 
     /// Returns the offset key of the lazy array if any.
@@ -150,7 +192,7 @@ impl<T> LazyArray<T> {
     ///
     /// This operation is safe since it returns a shared reference from
     /// a `&self` which is viable in safe Rust.
-    fn cached_entries(&self) -> &EntryArray<T> {
+    fn cached_entries(&self) -> &EntryArray<T, N> {
         unsafe { &*self.cached_entries.get() }
     }
 
@@ -160,7 +202,7 @@ impl<T> LazyArray<T> {
     ///
     /// This operation is safe since it returns an exclusive reference from
     /// a `&mut self` which is viable in safe Rust.
-    fn cached_entries_mut(&mut self) -> &mut EntryArray<T> {
+    fn cached_entries_mut(&mut self) -> &mut EntryArray<T, N> {
         unsafe { &mut *self.cached_entries.get() }
     }
 
@@ -174,20 +216,35 @@ impl<T> LazyArray<T> {
     }
 }
 
-impl<T> StorageFootprint for LazyArray<T>
+impl<T, N> StorageFootprint for LazyArray<T, N>
 where
     T: StorageFootprint,
-    <T as StorageFootprint>::Value: Mul<P32>,
+    N: EntryArrayLength<T>,
+    <T as StorageFootprint>::Value: Mul<N>,
 {
-    type Value = Prod<<T as StorageFootprint>::Value, P32>;
+    type Value = Prod<<T as StorageFootprint>::Value, N>;
 }
 
-impl<T> PushForward for LazyArray<T>
+impl<T, N> PullForward for LazyArray<T, N>
+where
+    Self: StorageFootprint + StorageSize,
+    N: EntryArrayLength<T>,
+{
+    fn pull_forward(ptr: &mut KeyPtr) -> Self {
+        Self {
+            key: Some(ptr.next_for::<Self>()),
+            cached_entries: UnsafeCell::new(EntryArray::new()),
+        }
+    }
+}
+
+impl<T, N> PushForward for LazyArray<T, N>
 where
     Self: StorageFootprint,
     <Self as StorageFootprint>::Value: Integer,
     T: StorageFootprint + SaturatingStorage + PushForward,
     <T as StorageFootprint>::Value: Integer,
+    N: EntryArrayLength<T>,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for2::<Self>();
@@ -226,10 +283,11 @@ where
     }
 }
 
-impl<T> LazyArray<T>
+impl<T, N> LazyArray<T, N>
 where
     T: StorageFootprint,
     <T as StorageFootprint>::Value: Integer,
+    N: EntryArrayLength<T>,
 {
     /// Returns the offset key for the given index if not out of bounds.
     pub fn key_at(&self, at: Index) -> Option<Key> {
@@ -243,10 +301,11 @@ where
     }
 }
 
-impl<T> LazyArray<T>
+impl<T, N> LazyArray<T, N>
 where
     T: StorageFootprint + StorageSize + PullForward,
     <T as StorageFootprint>::Value: Integer,
+    N: EntryArrayLength<T>,
 {
     /// Loads the entry at the given index.
     ///
