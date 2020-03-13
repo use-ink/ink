@@ -413,7 +413,7 @@ where
         // - Returning a `&mut Entry<T>` is safe because entities inside the
         //   cache are stored within a `Box` to not invalidate references into
         //   them upon operating on the outer cache.
-        unsafe { self.lazily_load(index).as_mut() }
+        unsafe { &mut *self.lazily_load(index).as_ptr() }
     }
 
     /// Returns a shared reference to the element at the given index if any.
@@ -426,8 +426,7 @@ where
         // SAFETY: Dereferencing the `*mut T` pointer into a `&T` is safe
         //         since this method's receiver is `&self` so we do not
         //         leak non-shared references to the outside.
-        let entry: &Entry<V> = unsafe { self.lazily_load(index).as_ref() };
-        entry.value()
+        unsafe { &*self.lazily_load(index).as_ptr() }.value()
     }
 
     /// Returns an exclusive reference to the element at the given index if any.
@@ -518,7 +517,10 @@ where
             //         guarantees to return a pointer to a pinned entity
             //         so that the returned references do not conflict with
             //         each other.
-            unsafe { (self.lazily_load(x).as_mut(), self.lazily_load(y).as_mut()) };
+            unsafe { (
+                &mut *self.lazily_load(x).as_ptr(),
+                &mut *self.lazily_load(y).as_ptr(),
+            ) };
         if loaded_x.value.is_none() && loaded_y.value.is_none() {
             // Bail out since nothing has to be swapped if both values are `None`.
             return
