@@ -53,10 +53,7 @@ pub struct Vec<T> {
 
 impl<T> Default for Vec<T> {
     fn default() -> Self {
-        Self {
-            len: storage::Lazy::new(0),
-            elems: storage::LazyChunk::default(),
-        }
+        Self::new()
     }
 }
 
