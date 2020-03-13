@@ -16,8 +16,8 @@ use super::super::{
     KeyPtr,
     PullForward,
     PushForward,
-    StorageSize,
     StorageFootprint,
+    StorageSize,
 };
 use core::{
     cell::{
@@ -28,6 +28,7 @@ use core::{
         Eq,
         Ord,
     },
+    ptr::NonNull,
 };
 use ink_prelude::{
     boxed::Box,
@@ -218,9 +219,7 @@ where
         K: Ord,
     {
         self.key()
-            .map(|key| {
-                <K as KeyMapping<V>>::to_storage_key(at.borrow(), &key)
-            })
+            .map(|key| <K as KeyMapping<V>>::to_storage_key(at.borrow(), &key))
     }
 }
 
@@ -367,7 +366,7 @@ where
     /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
     /// within internal use only and should never be given outside of the lazy
     /// entity for public `&self` methods.
-    unsafe fn lazily_load(&self, index: K) -> *mut Entry<V> {
+    unsafe fn lazily_load(&self, index: K) -> NonNull<Entry<V>> {
         let key = match self.key {
             Some(key) => key,
             None => panic!("cannot load lazily in this state"),
@@ -386,12 +385,14 @@ where
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         let off_key = <K as KeyMapping<V>>::to_storage_key(&index, &key);
         match cached_entries.entry(index) {
-            BTreeMapEntry::Occupied(occupied) => &mut **occupied.into_mut(),
+            BTreeMapEntry::Occupied(occupied) => {
+                NonNull::from(&mut **occupied.into_mut())
+            }
             BTreeMapEntry::Vacant(vacant) => {
                 let value =
                     <Option<V> as PullForward>::pull_forward(&mut KeyPtr::from(off_key));
                 let mutated = Cell::new(false);
-                &mut **vacant.insert(Box::new(Entry { value, mutated }))
+                NonNull::from(&mut **vacant.insert(Box::new(Entry { value, mutated })))
             }
         }
     }
@@ -412,7 +413,7 @@ where
         // - Returning a `&mut Entry<T>` is safe because entities inside the
         //   cache are stored within a `Box` to not invalidate references into
         //   them upon operating on the outer cache.
-        unsafe { &mut *self.lazily_load(index) }
+        unsafe { self.lazily_load(index).as_mut() }
     }
 
     /// Returns a shared reference to the element at the given index if any.
@@ -425,7 +426,7 @@ where
         // SAFETY: Dereferencing the `*mut T` pointer into a `&T` is safe
         //         since this method's receiver is `&self` so we do not
         //         leak non-shared references to the outside.
-        let entry: &Entry<V> = unsafe { &*self.lazily_load(index) };
+        let entry: &Entry<V> = unsafe { self.lazily_load(index).as_ref() };
         entry.value()
     }
 
@@ -517,7 +518,7 @@ where
             //         guarantees to return a pointer to a pinned entity
             //         so that the returned references do not conflict with
             //         each other.
-            unsafe { (&mut *self.lazily_load(x), &mut *self.lazily_load(y)) };
+            unsafe { (self.lazily_load(x).as_mut(), self.lazily_load(y).as_mut()) };
         if loaded_x.value.is_none() && loaded_y.value.is_none() {
             // Bail out since nothing has to be swapped if both values are `None`.
             return
