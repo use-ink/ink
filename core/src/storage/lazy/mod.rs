@@ -17,7 +17,10 @@ mod lazy_array;
 mod lazy_cell;
 mod lazy_map;
 
-use self::entry::{Entry, EntryState};
+use self::entry::{
+    Entry,
+    EntryState,
+};
 pub use self::{
     lazy_array::LazyArray,
     lazy_cell::LazyCell,

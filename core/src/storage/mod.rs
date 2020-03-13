@@ -114,11 +114,11 @@ pub use self::{
     flush::Flush,
     lazy::{
         Lazy,
+        LazyArray,
         LazyCell,
         LazyChunk,
         LazyMap,
         LazyMapping,
-        LazyArray,
     },
     pack::Pack,
     traits::{
@@ -129,9 +129,9 @@ pub use self::{
         PullForward,
         PushAt,
         PushForward,
-        StorageSize,
-        StorageFootprint,
         SaturatingStorage,
+        StorageFootprint,
+        StorageSize,
     },
 };
 
