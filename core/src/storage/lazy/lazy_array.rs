@@ -44,11 +44,8 @@ use typenum::{
 pub type Index = u32;
 
 /// Utility trait for helping with lazy array construction.
-pub trait EntryArrayLength<T>: ArrayLength<Option<Entry<T>>> + Integer {}
-impl<T> EntryArrayLength<T> for T
-where
-    T: ArrayLength<Option<Entry<T>>> + Integer,
-{}
+pub trait LazyArrayLength<T>: ArrayLength<Option<Entry<T>>> + Integer {}
+impl<T> LazyArrayLength<T> for T where T: ArrayLength<Option<Entry<T>>> + Integer {}
 
 /// A lazy storage array that spans over N storage cells.
 ///
@@ -66,7 +63,7 @@ where
 #[derive(Debug)]
 pub struct LazyArray<T, N>
 where
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     /// The offset key for the N cells.
     ///
@@ -85,7 +82,7 @@ where
 /// Returns the capacity for an array with the given array length.
 fn array_capacity<T, N>() -> u32
 where
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     <N as Integer>::I32 as u32
 }
@@ -94,7 +91,7 @@ where
 #[derive(Debug)]
 pub struct EntryArray<T, N>
 where
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     /// The cache entries of the entry array.
     entries: GenericArray<Option<Entry<T>>, N>,
@@ -102,7 +99,7 @@ where
 
 impl<T, N> EntryArray<T, N>
 where
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     /// Creates a new entry array cache.
     pub fn new() -> Self {
@@ -114,7 +111,7 @@ where
 
 impl<T, N> Default for EntryArray<T, N>
 where
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     fn default() -> Self {
         Self::new()
@@ -123,7 +120,7 @@ where
 
 impl<T, N> EntryArray<T, N>
 where
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     /// Returns the constant capacity of the lazy array.
     #[inline]
@@ -158,9 +155,18 @@ where
     }
 }
 
+impl<T, N> Default for LazyArray<T, N>
+where
+    N: LazyArrayLength<T>,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T, N> LazyArray<T, N>
 where
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     /// Creates a new empty lazy array.
     ///
@@ -219,7 +225,7 @@ where
 impl<T, N> StorageFootprint for LazyArray<T, N>
 where
     T: StorageFootprint,
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
     <T as StorageFootprint>::Value: Mul<N>,
 {
     type Value = Prod<<T as StorageFootprint>::Value, N>;
@@ -228,7 +234,7 @@ where
 impl<T, N> PullForward for LazyArray<T, N>
 where
     Self: StorageFootprint + StorageSize,
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -240,11 +246,11 @@ where
 
 impl<T, N> PushForward for LazyArray<T, N>
 where
+    T: StorageFootprint + SaturatingStorage + PushForward,
+    N: LazyArrayLength<T>,
     Self: StorageFootprint,
     <Self as StorageFootprint>::Value: Integer,
-    T: StorageFootprint + SaturatingStorage + PushForward,
     <T as StorageFootprint>::Value: Integer,
-    N: EntryArrayLength<T>,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for2::<Self>();
@@ -287,7 +293,7 @@ impl<T, N> LazyArray<T, N>
 where
     T: StorageFootprint,
     <T as StorageFootprint>::Value: Integer,
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     /// Returns the offset key for the given index if not out of bounds.
     pub fn key_at(&self, at: Index) -> Option<Key> {
@@ -305,7 +311,7 @@ impl<T, N> LazyArray<T, N>
 where
     T: StorageFootprint + StorageSize + PullForward,
     <T as StorageFootprint>::Value: Integer,
-    N: EntryArrayLength<T>,
+    N: LazyArrayLength<T>,
 {
     /// Loads the entry at the given index.
     ///

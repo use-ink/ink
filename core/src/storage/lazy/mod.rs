@@ -22,7 +22,10 @@ use self::entry::{
     EntryState,
 };
 pub use self::{
-    lazy_array::LazyArray,
+    lazy_array::{
+        LazyArray,
+        LazyArrayLength,
+    },
     lazy_cell::LazyCell,
     lazy_map::{
         LazyChunk,

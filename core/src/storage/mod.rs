@@ -115,6 +115,7 @@ pub use self::{
     lazy::{
         Lazy,
         LazyArray,
+        LazyArrayLength,
         LazyCell,
         LazyChunk,
         LazyMap,
