@@ -339,7 +339,7 @@ where
 
 impl<K, V> LazyMap<K, V>
 where
-    K: KeyMapping<V> + Ord + Eq,
+    K: KeyMapping<V> + Ord + Eq + Clone,
     V: StorageSize + PullForward,
 {
     /// Lazily loads the value at the given index.
@@ -367,10 +367,6 @@ where
     /// within internal use only and should never be given outside of the lazy
     /// entity for public `&self` methods.
     unsafe fn lazily_load(&self, index: K) -> NonNull<Entry<V>> {
-        let key = match self.key {
-            Some(key) => key,
-            None => panic!("cannot load lazily in this state"),
-        };
         // SAFETY: We have put the whole `cached_entries` mapping into an
         //         `UnsafeCell` because of this caching functionality. The
         //         trick here is that due to using `Box<T>` internally
@@ -383,12 +379,14 @@ where
         #[allow(unused_unsafe)]
         let cached_entries = unsafe { &mut *self.cached_entries.get() };
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
-        let off_key = <K as KeyMapping<V>>::to_storage_key(&index, &key);
+        let index_copy = index.clone();
         match cached_entries.entry(index) {
             BTreeMapEntry::Occupied(occupied) => {
                 NonNull::from(&mut **occupied.into_mut())
             }
             BTreeMapEntry::Vacant(vacant) => {
+                let key = self.key.expect("cannot load lazily in this state");
+                let off_key = <K as KeyMapping<V>>::to_storage_key(&index_copy, &key);
                 let value =
                     <Option<V> as PullForward>::pull_forward(&mut KeyPtr::from(off_key));
                 let mutated = Cell::new(false);
@@ -480,7 +478,7 @@ where
 
 impl<K, V> LazyMap<K, V>
 where
-    K: KeyMapping<V> + Ord + Eq,
+    K: KeyMapping<V> + Ord + Eq + Clone,
     V: StorageSize + PullForward,
 {
     /// Puts the new value at the given index and returns the old value if any.
