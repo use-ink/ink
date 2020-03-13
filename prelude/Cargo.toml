@@ -22,7 +22,7 @@ name = "ink_prelude"
 path = "lib.rs"
 
 [dependencies]
-cfg-if = "0.1.10"
+cfg-if = "0.1"
 
 [features]
 default = ["std"]
