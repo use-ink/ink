@@ -233,7 +233,7 @@ where
 {
     /// Returns the offset key for the given index if not out of bounds.
     pub fn key_at(&self, at: Index) -> Option<Key> {
-        if at as usize >= CAPACITY {
+        if at >= Self::capacity() {
             return None
         }
         self.key.map(|key| {
@@ -258,7 +258,7 @@ where
     /// - If the lazy array is in a state that forbids lazy loading.
     /// - If the given index is out of bounds.
     fn load_through_cache(&self, at: Index) -> NonNull<Entry<T>> {
-        assert!((at as usize) < CAPACITY, "index is out of bounds");
+        assert!(at < Self::capacity(), "index is out of bounds");
         let cached_entries = unsafe { &mut *self.cached_entries.get() };
         match cached_entries.get_entry_mut(at) {
             Some(entry) => {
@@ -357,8 +357,8 @@ where
     ///
     /// If any of the given indices is out of bounds.
     pub fn swap(&mut self, a: Index, b: Index) {
-        assert!((a as usize) < CAPACITY, "a is out of bounds");
-        assert!((b as usize) < CAPACITY, "b is out of bounds");
+        assert!(a < Self::capacity(), "a is out of bounds");
+        assert!(b < Self::capacity(), "b is out of bounds");
         if a == b {
             // Bail out if both indices are equal.
             return
