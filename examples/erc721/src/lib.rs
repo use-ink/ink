@@ -69,7 +69,10 @@ use ink_lang as ink;
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
     use ink_core::storage;
-    use scale::{Decode, Encode};
+    use scale::{
+        Decode,
+        Encode,
+    };
 
     /// A token ID.
     pub type TokenId = u32;
