@@ -22,11 +22,13 @@ use crate::storage::{
     PushForward,
     SaturatingStorage,
     StorageFootprint,
+    StorageSize,
 };
 use core::{
     cell::UnsafeCell,
     mem,
     ops::Mul,
+    ptr::NonNull,
 };
 use ink_primitives::Key;
 use typenum::{
@@ -38,8 +40,8 @@ use typenum::{
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
 
-/// The number of cached elements a lazy array holds.
-const SIZE: usize = 32;
+/// The capacity of a lazy array.
+const CAPACITY: usize = 32;
 
 /// A lazy storage array that spans over 32 storage cells.
 ///
@@ -72,7 +74,7 @@ pub struct LazyArray<T> {
 #[derive(Debug)]
 pub struct EntryArray<T> {
     /// The cache entries of the entry array.
-    entries: [Option<Entry<T>>; SIZE],
+    entries: [Option<Entry<T>>; CAPACITY],
 }
 
 impl<T> EntryArray<T> {
@@ -102,20 +104,19 @@ impl<T> EntryArray<T> {
         .flatten()
     }
 
-    /// Returns a shared reference to the value at the given index if any.
-    fn get(&self, at: Index) -> Option<&T> {
-        self.entries[at as usize]
-            .as_ref()
-            .map(Entry::value)
-            .flatten()
+    /// Inserts a new entry into the cache and returns an exclusive reference to it.
+    fn insert_entry(&mut self, at: Index, entry: Entry<T>) -> &mut Entry<T> {
+        *&mut self.entries[at as usize] = Some(entry);
+        let entry: Option<&mut Entry<T>> = (&mut self.entries[at as usize]).into();
+        entry.expect("just inserted the entry")
     }
 
-    /// Returns a shared reference to the value at the given index if any.
-    fn get_mut(&mut self, at: Index) -> Option<&mut T> {
-        self.entries[at as usize]
-            .as_mut()
-            .map(Entry::value_mut)
-            .flatten()
+    /// Returns an exclusive reference to the entry at the given index if any.
+    fn get_entry_mut(&mut self, at: Index) -> Option<&mut Entry<T>> {
+        if at as usize >= CAPACITY {
+            return None
+        }
+        self.entries[at as usize].as_mut()
     }
 }
 
@@ -131,6 +132,11 @@ impl<T> LazyArray<T> {
             key: None,
             cached_entries: UnsafeCell::new(Default::default()),
         }
+    }
+
+    /// Returns the constant capacity of the lazy array.
+    pub const fn capacity() -> u32 {
+        CAPACITY as u32
     }
 
     /// Returns the offset key of the lazy array if any.
@@ -227,7 +233,7 @@ where
 {
     /// Returns the offset key for the given index if not out of bounds.
     pub fn key_at(&self, at: Index) -> Option<Key> {
-        if at as usize >= SIZE {
+        if at as usize >= CAPACITY {
             return None
         }
         self.key.map(|key| {
@@ -239,15 +245,65 @@ where
 
 impl<T> LazyArray<T>
 where
-    T: StorageFootprint + PullForward,
+    T: StorageFootprint + StorageSize + PullForward,
+    <T as StorageFootprint>::Value: Integer,
 {
+    /// Loads the entry at the given index.
+    ///
+    /// Tries to load the entry from cache and falls back to lazily load the
+    /// entry from the contract storage.
+    ///
+    /// # Panics
+    ///
+    /// - If the lazy array is in a state that forbids lazy loading.
+    /// - If the given index is out of bounds.
+    fn load_through_cache(&self, at: Index) -> NonNull<Entry<T>> {
+        assert!((at as usize) < CAPACITY, "index is out of bounds");
+        let cached_entries = unsafe { &mut *self.cached_entries.get() };
+        match cached_entries.get_entry_mut(at) {
+            Some(entry) => {
+                // Load value from cache.
+                NonNull::from(entry)
+            }
+            None => {
+                // Load value from storage and put into cache.
+                // Then load value from cache.
+                let key = self.key_at(at).expect("cannot load lazily in this state");
+                let value =
+                    <Option<T> as PullForward>::pull_forward(&mut KeyPtr::from(key));
+                let entry = Entry::new(value, EntryState::Preserved);
+                NonNull::from(cached_entries.insert_entry(at, entry))
+            }
+        }
+    }
+
+    /// Loads the entry at the given index.
+    ///
+    /// Tries to load the entry from cache and falls back to lazily load the
+    /// entry from the contract storage.
+    ///
+    /// # Panics
+    ///
+    /// - If the lazy array is in a state that forbids lazy loading.
+    /// - If the given index is out of bounds.
+    fn load_through_cache_mut(&mut self, index: Index) -> &mut Entry<T> {
+        // SAFETY:
+        // Returning a `&mut Entry<T>` from within a `&mut self` function
+        // won't allow creating aliasing between exclusive references.
+        unsafe { &mut *self.load_through_cache(index).as_ptr() }
+    }
+
     /// Returns a shared reference to the element at the given index if any.
     ///
     /// # Note
     ///
     /// This operation eventually loads from contract storage.
+    ///
+    /// # Panics
+    ///
+    /// If the given index is out of bounds.
     pub fn get(&self, at: Index) -> Option<&T> {
-        todo!()
+        unsafe { &*self.load_through_cache(at).as_ptr() }.value()
     }
 
     /// Returns an exclusive reference to the element at the given index if any.
@@ -255,8 +311,12 @@ where
     /// # Note
     ///
     /// This operation eventually loads from contract storage.
+    ///
+    /// # Panics
+    ///
+    /// If the given index is out of bounds.
     pub fn get_mut(&mut self, at: Index) -> Option<&mut T> {
-        todo!()
+        self.load_through_cache_mut(at).value_mut()
     }
 
     /// Removes the element at the given index and returns it if any.
@@ -264,8 +324,12 @@ where
     /// # Note
     ///
     /// This operation eventually loads from contract storage.
+    ///
+    /// # Panics
+    ///
+    /// If the given index is out of bounds.
     pub fn take(&mut self, at: Index) -> Option<T> {
-        todo!()
+        self.load_through_cache_mut(at).take_value()
     }
 
     /// Puts the new value into the indexed slot and returns the old value if any.
@@ -275,8 +339,12 @@ where
     /// - This operation eventually loads from contract storage.
     /// - Prefer [`LazyArray::put`] if you are not interested in the old value.
     /// - Use [`LazyArray::put_get`]`(None)` to remove an element.
+    ///
+    /// # Panics
+    ///
+    /// If the given index is out of bounds.
     pub fn put_get(&mut self, at: Index, new_value: Option<T>) -> Option<T> {
-        todo!()
+        self.load_through_cache_mut(at).put(new_value)
     }
 
     /// Swaps the values at indices x and y.
@@ -284,7 +352,33 @@ where
     /// # Note
     ///
     /// This operation eventually loads from contract storage.
+    ///
+    /// # Panics
+    ///
+    /// If any of the given indices is out of bounds.
     pub fn swap(&mut self, a: Index, b: Index) {
-        todo!()
+        assert!((a as usize) < CAPACITY, "a is out of bounds");
+        assert!((b as usize) < CAPACITY, "b is out of bounds");
+        if a == b {
+            // Bail out if both indices are equal.
+            return
+        }
+        let (loaded_a, loaded_b) =
+            // SAFETY: The loaded `x` and `y` entries are distinct from each
+            //         other guaranteed by the previous checks so they cannot
+            //         alias.
+            unsafe { (
+                &mut *self.load_through_cache(a).as_ptr(),
+                &mut *self.load_through_cache(b).as_ptr(),
+            ) };
+        if loaded_a.value().is_none() && loaded_b.value().is_none() {
+            // Bail out since nothing has to be swapped if both values are `None`.
+            return
+        }
+        // At this point at least one of the values is `Some` so we have to
+        // perform the swap and set both entry states to mutated.
+        loaded_a.set_state(EntryState::Mutated);
+        loaded_b.set_state(EntryState::Mutated);
+        core::mem::swap(&mut loaded_a.value_mut(), &mut loaded_b.value_mut());
     }
 }
