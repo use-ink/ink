@@ -281,7 +281,7 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
             self.increase_counter_of(to)?;
-            if !self.token_owner.insert(id, *to).is_none() {
+            if self.token_owner.insert(id, *to).is_some() {
                 return Err(Error::CannotInsert)
             }
             Ok(())
@@ -330,7 +330,7 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
 
-            if !self.token_approvals.insert(id, *to).is_none() {
+            if self.token_approvals.insert(id, *to).is_some() {
                 return Err(Error::CannotInsert)
             };
             self.env().emit_event(Approval {
