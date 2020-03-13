@@ -60,6 +60,9 @@ impl<T> Entry<T> {
         }
     }
 
+    /// Sets the entry state to the new state.
+    pub fn set_state(&mut self, new_state: EntryState) {
+        self.state.set(new_state);
     }
 
     /// Returns `true` if the cached value of the entry has potentially been mutated.
