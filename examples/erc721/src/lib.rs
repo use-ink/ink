@@ -219,7 +219,7 @@ mod erc721 {
         fn burn(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             if self.token_owner.get(&id) != Some(&caller) {
-                return Err(Error::NotOwner);
+                return Err(Error::NotOwner)
             };
             self.remove_token_from(&caller, id)?;
             self.env().emit_event(Transfer {
@@ -239,10 +239,10 @@ mod erc721 {
         ) -> Result<(), Error> {
             let caller = self.env().caller();
             if !self.exists(id) {
-                return Err(Error::TokenNotFound);
+                return Err(Error::TokenNotFound)
             };
             if !self.approved_or_owner(Some(caller), id) {
-                return Err(Error::NotApproved);
+                return Err(Error::NotApproved)
             };
             self.clear_approval(id)?;
             self.remove_token_from(from, id)?;
@@ -250,7 +250,7 @@ mod erc721 {
             self.env().emit_event(Transfer {
                 from: Some(*from),
                 to: Some(*to),
-                id: id,
+                id,
             });
             Ok(())
         }
@@ -262,7 +262,7 @@ mod erc721 {
             id: TokenId,
         ) -> Result<(), Error> {
             if !self.exists(id) {
-                return Err(Error::TokenNotFound);
+                return Err(Error::TokenNotFound)
             }
             self.decrease_counter_of(from)?;
             self.token_owner.remove(&id).ok_or(Error::CannotRemove)?;
@@ -272,14 +272,14 @@ mod erc721 {
         /// Adds the token `id` to the `to` AccountID.
         fn add_token_to(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             if self.exists(id) {
-                return Err(Error::TokenExists);
+                return Err(Error::TokenExists)
             };
             if *to == AccountId::from([0x0; 32]) {
-                return Err(Error::NotAllowed);
+                return Err(Error::NotAllowed)
             };
             self.increase_counter_of(to)?;
             if !self.token_owner.insert(id, *to).is_none() {
-                return Err(Error::CannotInsert);
+                return Err(Error::CannotInsert)
             }
             Ok(())
         }
@@ -292,7 +292,7 @@ mod erc721 {
         ) -> Result<(), Error> {
             let caller = self.env().caller();
             if to == caller {
-                return Err(Error::NotAllowed);
+                return Err(Error::NotAllowed)
             }
             self.env().emit_event(ApprovalForAll {
                 owner: caller,
@@ -305,7 +305,7 @@ mod erc721 {
                     .get_mut(&(caller, to))
                     .ok_or(Error::CannotFetchValue)?;
                 *status = approved;
-                return Ok(());
+                Ok(())
             } else {
                 match self.operator_approvals.insert((caller, to), approved) {
                     Some(_) => Err(Error::CannotInsert),
@@ -321,19 +321,19 @@ mod erc721 {
             if !(owner == Some(caller)
                 || self.approved_for_all(owner.expect("Error with AccountId"), caller))
             {
-                return Err(Error::NotAllowed);
+                return Err(Error::NotAllowed)
             };
             if *to == AccountId::from([0x0; 32]) {
-                return Err(Error::NotAllowed);
+                return Err(Error::NotAllowed)
             };
 
             if !self.token_approvals.insert(id, *to).is_none() {
-                return Err(Error::CannotInsert);
+                return Err(Error::CannotInsert)
             };
             self.env().emit_event(Approval {
                 from: caller,
                 to: *to,
-                id: id,
+                id,
             });
             Ok(())
         }
@@ -346,7 +346,7 @@ mod erc721 {
                     .get_mut(of)
                     .ok_or(Error::CannotFetchValue)?;
                 *count += 1;
-                return Ok(());
+                Ok(())
             } else {
                 match self.owned_tokens_count.insert(*of, 1) {
                     Some(_) => Err(Error::CannotInsert),
@@ -368,7 +368,7 @@ mod erc721 {
         /// Removes existing approval from token `id`.
         fn clear_approval(&mut self, id: TokenId) -> Result<(), Error> {
             if !self.token_approvals.contains_key(&id) {
-                return Ok(());
+                return Ok(())
             };
             match self.token_approvals.remove(&id) {
                 Some(_res) => Ok(()),
