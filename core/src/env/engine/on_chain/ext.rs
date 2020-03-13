@@ -54,12 +54,8 @@ mod sys {
             data_len: u32,
         );
 
-        pub fn ext_set_storage(
-            key_ptr: u32,
-            value_non_null: u32,
-            value_ptr: u32,
-            value_len: u32,
-        );
+        pub fn ext_set_storage(key_ptr: u32, value_ptr: u32, value_len: u32);
+        pub fn ext_clear_storage(key_ptr: u32);
         pub fn ext_get_storage(key_ptr: u32) -> u32;
 
         pub fn ext_get_runtime_storage(key_ptr: u32, key_len: u32) -> u32;
@@ -160,7 +156,6 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
     unsafe {
         sys::ext_set_storage(
             key.as_ptr() as u32,
-            1,
             encoded_value.as_ptr() as u32,
             encoded_value.len() as u32,
         )
@@ -168,7 +163,7 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
 }
 
 pub fn clear_storage(key: &[u8]) {
-    unsafe { sys::ext_set_storage(key.as_ptr() as u32, 0, 0, 0) }
+    unsafe { sys::ext_clear_storage(key.as_ptr() as u32) }
 }
 
 pub fn get_storage(key: &[u8]) -> Result<()> {

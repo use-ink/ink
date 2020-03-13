@@ -194,6 +194,38 @@ impl<K, V> Initialize for HashMap<K, V> {
     }
 }
 
+impl<K, V> Extend<(K, V)> for HashMap<K, V>
+where
+    K: scale::Codec + Hash + Eq,
+    V: scale::Codec,
+{
+    fn extend<T: IntoIterator<Item = (K, V)>>(&mut self, iter: T) {
+        for (k, v) in iter {
+            self.insert(k, v);
+        }
+    }
+}
+
+impl<'a, K, V> Extend<(&'a K, &'a V)> for HashMap<K, V>
+where
+    K: scale::Codec + Hash + Eq + Copy,
+    V: scale::Codec + Copy,
+{
+    fn extend<I: IntoIterator<Item = (&'a K, &'a V)>>(&mut self, iter: I) {
+        self.extend(iter.into_iter().map(|(&key, &value)| (key, value)));
+    }
+}
+
+impl<'a, K, V> Extend<&'a (K, V)> for HashMap<K, V>
+where
+    K: scale::Codec + Hash + Eq + Copy + 'a,
+    V: scale::Codec + Copy + 'a,
+{
+    fn extend<I: IntoIterator<Item = &'a (K, V)>>(&mut self, iter: I) {
+        self.extend(iter.into_iter().copied());
+    }
+}
+
 impl<K, V> HashMap<K, V> {
     /// Returns the number of key-value pairs in the map.
     pub fn len(&self) -> u32 {
