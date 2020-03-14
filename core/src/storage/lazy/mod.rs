@@ -38,7 +38,8 @@ use super::{
     KeyPtr,
     PullForward,
     PushForward,
-    StorageSize,
+    StorageFootprint,
+    StorageFootprintOf,
 };
 use ink_primitives::Key;
 
@@ -54,16 +55,16 @@ pub struct Lazy<T> {
     cell: LazyCell<T>,
 }
 
-impl<T> StorageSize for Lazy<T>
+impl<T> StorageFootprint for Lazy<T>
 where
-    T: StorageSize,
+    T: StorageFootprint,
 {
-    const SIZE: u64 = <LazyCell<T> as StorageSize>::SIZE;
+    type Value = StorageFootprintOf<T>;
 }
 
 impl<T> PullForward for Lazy<T>
 where
-    T: StorageSize,
+    T: StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -110,7 +111,7 @@ impl<T> Lazy<T> {
 
 impl<T> Lazy<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     /// Returns a shared reference to the lazily loaded value.
     ///
@@ -158,18 +159,18 @@ where
 
 impl<T> core::cmp::PartialEq for Lazy<T>
 where
-    T: PartialEq + StorageSize + PullForward,
+    T: PartialEq + StorageFootprint + PullForward,
 {
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(self.get(), other.get())
     }
 }
 
-impl<T> core::cmp::Eq for Lazy<T> where T: Eq + StorageSize + PullForward {}
+impl<T> core::cmp::Eq for Lazy<T> where T: Eq + StorageFootprint + PullForward {}
 
 impl<T> core::cmp::PartialOrd for Lazy<T>
 where
-    T: PartialOrd + StorageSize + PullForward,
+    T: PartialOrd + StorageFootprint + PullForward,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         PartialOrd::partial_cmp(self.get(), other.get())
@@ -190,7 +191,7 @@ where
 
 impl<T> core::cmp::Ord for Lazy<T>
 where
-    T: core::cmp::Ord + StorageSize + PullForward,
+    T: core::cmp::Ord + StorageFootprint + PullForward,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         Ord::cmp(self.get(), other.get())
@@ -199,7 +200,7 @@ where
 
 impl<T> core::fmt::Display for Lazy<T>
 where
-    T: core::fmt::Display + StorageSize + PullForward,
+    T: core::fmt::Display + StorageFootprint + PullForward,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         core::fmt::Display::fmt(self.get(), f)
@@ -208,7 +209,7 @@ where
 
 impl<T> core::hash::Hash for Lazy<T>
 where
-    T: core::hash::Hash + StorageSize + PullForward,
+    T: core::hash::Hash + StorageFootprint + PullForward,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.get().hash(state);
@@ -217,7 +218,7 @@ where
 
 impl<T> core::convert::AsRef<T> for Lazy<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn as_ref(&self) -> &T {
         self.get()
@@ -226,7 +227,7 @@ where
 
 impl<T> core::convert::AsMut<T> for Lazy<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn as_mut(&mut self) -> &mut T {
         self.get_mut()
@@ -235,7 +236,7 @@ where
 
 impl<T> ink_prelude::borrow::Borrow<T> for Lazy<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn borrow(&self) -> &T {
         self.get()
@@ -244,7 +245,7 @@ where
 
 impl<T> ink_prelude::borrow::BorrowMut<T> for Lazy<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn borrow_mut(&mut self) -> &mut T {
         self.get_mut()
@@ -253,7 +254,7 @@ where
 
 impl<T> core::ops::Deref for Lazy<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     type Target = T;
 
@@ -264,7 +265,7 @@ where
 
 impl<T> core::ops::DerefMut for Lazy<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.get_mut()

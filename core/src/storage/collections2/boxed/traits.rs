@@ -20,23 +20,11 @@ use crate::{
         KeyPtr,
         PullForward,
         PushForward,
-        StorageSize,
-        StorageFootprint,
         SaturatingStorage,
+        StorageFootprint,
     },
 };
 use ink_primitives::Key;
-
-impl<T> StorageSize for StorageBox<T>
-where
-    T: ClearForward,
-{
-    /// A boxed entity always uses exactly 1 cell for the key.
-    ///
-    /// The indirectly stored storage entity is not considered because the
-    /// `StorageSize` is only concerned with inplace storage usage.
-    const SIZE: u64 = 1;
-}
 
 impl<T> StorageFootprint for StorageBox<T>
 where
@@ -104,7 +92,7 @@ where
 
 impl<T> core::cmp::PartialEq for StorageBox<T>
 where
-    T: PartialEq + ClearForward + StorageSize + PullForward,
+    T: PartialEq + ClearForward + StorageFootprint + PullForward,
 {
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(self.get(), other.get())
@@ -112,13 +100,13 @@ where
 }
 
 impl<T> core::cmp::Eq for StorageBox<T> where
-    T: Eq + ClearForward + StorageSize + PullForward
+    T: Eq + ClearForward + StorageFootprint + PullForward
 {
 }
 
 impl<T> core::cmp::PartialOrd for StorageBox<T>
 where
-    T: PartialOrd + ClearForward + StorageSize + PullForward,
+    T: PartialOrd + ClearForward + StorageFootprint + PullForward,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         PartialOrd::partial_cmp(self.get(), other.get())
@@ -139,7 +127,7 @@ where
 
 impl<T> core::cmp::Ord for StorageBox<T>
 where
-    T: core::cmp::Ord + ClearForward + StorageSize + PullForward,
+    T: core::cmp::Ord + ClearForward + StorageFootprint + PullForward,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         Ord::cmp(self.get(), other.get())
@@ -148,7 +136,7 @@ where
 
 impl<T> core::fmt::Display for StorageBox<T>
 where
-    T: core::fmt::Display + ClearForward + StorageSize + PullForward,
+    T: core::fmt::Display + ClearForward + StorageFootprint + PullForward,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         core::fmt::Display::fmt(self.get(), f)
@@ -157,7 +145,7 @@ where
 
 impl<T> core::hash::Hash for StorageBox<T>
 where
-    T: core::hash::Hash + ClearForward + StorageSize + PullForward,
+    T: core::hash::Hash + ClearForward + StorageFootprint + PullForward,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.get().hash(state);
@@ -166,7 +154,7 @@ where
 
 impl<T> core::convert::AsRef<T> for StorageBox<T>
 where
-    T: StorageSize + ClearForward + PullForward,
+    T: StorageFootprint + ClearForward + PullForward,
 {
     fn as_ref(&self) -> &T {
         self.get()
@@ -175,7 +163,7 @@ where
 
 impl<T> core::convert::AsMut<T> for StorageBox<T>
 where
-    T: StorageSize + ClearForward + PullForward,
+    T: StorageFootprint + ClearForward + PullForward,
 {
     fn as_mut(&mut self) -> &mut T {
         self.get_mut()
@@ -184,7 +172,7 @@ where
 
 impl<T> ink_prelude::borrow::Borrow<T> for StorageBox<T>
 where
-    T: StorageSize + ClearForward + PullForward,
+    T: StorageFootprint + ClearForward + PullForward,
 {
     fn borrow(&self) -> &T {
         self.get()
@@ -193,7 +181,7 @@ where
 
 impl<T> ink_prelude::borrow::BorrowMut<T> for StorageBox<T>
 where
-    T: StorageSize + ClearForward + PullForward,
+    T: StorageFootprint + ClearForward + PullForward,
 {
     fn borrow_mut(&mut self) -> &mut T {
         self.get_mut()
@@ -202,7 +190,7 @@ where
 
 impl<T> core::ops::Deref for StorageBox<T>
 where
-    T: StorageSize + ClearForward + PullForward,
+    T: StorageFootprint + ClearForward + PullForward,
 {
     type Target = T;
 
@@ -213,7 +201,7 @@ where
 
 impl<T> core::ops::DerefMut for StorageBox<T>
 where
-    T: StorageSize + ClearForward + PullForward,
+    T: StorageFootprint + ClearForward + PullForward,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.get_mut()

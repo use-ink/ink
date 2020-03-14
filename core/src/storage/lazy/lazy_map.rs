@@ -17,7 +17,7 @@ use super::super::{
     PullForward,
     PushForward,
     StorageFootprint,
-    StorageSize,
+    StorageFootprintOf,
 };
 use core::{
     cell::{
@@ -35,7 +35,10 @@ use ink_prelude::{
     collections::BTreeMap,
 };
 use ink_primitives::Key;
-use typenum::Prod;
+use typenum::{
+    Integer,
+    Prod,
+};
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -55,10 +58,12 @@ pub trait KeyMapping<Value> {
 
 impl<Value> KeyMapping<Value> for Index
 where
-    Value: StorageSize,
+    Value: StorageFootprint,
+    <Value as StorageFootprint>::Value: Integer,
 {
     fn to_storage_key(&self, offset: &Key) -> Key {
-        *offset + (*self as u64 * <Value as StorageSize>::SIZE)
+        *offset
+            + (*self as u64 * <<Value as StorageFootprint>::Value as Integer>::I64 as u64)
     }
 }
 
@@ -148,7 +153,7 @@ pub struct Entry<T> {
 
 impl<T> PushForward for Entry<T>
 where
-    T: PushForward + StorageSize,
+    T: PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         // Reset the mutated entry flag because we just synced.
@@ -280,41 +285,38 @@ where
     }
 }
 
-impl<T> StorageSize for LazyChunk<T>
-where
-    T: StorageSize,
-{
-    /// A lazy chunk is contiguous and its size can be determined by the
-    /// total number of elements it could theoretically hold.
-    const SIZE: u64 = <T as StorageSize>::SIZE * (core::u32::MAX as u64);
-}
+use core::ops::Mul;
+use typenum::P4294967296;
 
 impl<T> StorageFootprint for LazyChunk<T>
 where
     T: StorageFootprint,
-    <T as StorageFootprint>::Value: core::ops::Mul<typenum::P4294967296>,
+    StorageFootprintOf<T>: Mul<P4294967296>,
+    Prod<StorageFootprintOf<T>, P4294967296>: Integer,
 {
-    type Value = Prod<<T as StorageFootprint>::Value, typenum::P4294967296>;
+    /// A lazy chunk is contiguous and its size can be determined by the
+    /// total number of elements it could theoretically hold.
+    type Value = Prod<StorageFootprintOf<T>, P4294967296>;
 }
 
-impl<T> StorageSize for LazyMapping<T>
+impl<T> StorageFootprint for LazyMapping<T>
 where
-    T: StorageSize,
+    T: StorageFootprint,
 {
     /// A lazy mapping is similar to a Solidity mapping that distributes its
     /// stored entities across the entire contract storage so its inplace size
     /// is actually just 1.
-    const SIZE: u64 = 1;
+    type Value = typenum::P1;
 }
 
 impl<K, V> PullForward for LazyMap<K, V>
 where
     K: Ord,
-    Self: StorageSize,
+    Self: StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
-            key: Some(ptr.next_for::<Self>()),
+            key: Some(ptr.next_for2::<Self>()),
             cached_entries: UnsafeCell::new(BTreeMap::new()),
         }
     }
@@ -322,12 +324,12 @@ where
 
 impl<K, V> PushForward for LazyMap<K, V>
 where
-    Self: StorageSize,
+    Self: StorageFootprint,
     K: KeyMapping<V> + Ord,
-    V: PushForward + StorageSize,
+    V: PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        let key = ptr.next_for::<Self>();
+        let key = ptr.next_for2::<Self>();
         assert_eq!(self.key, Some(key));
         for (index, entry) in self.entries().iter().filter(|(_, entry)| entry.mutated()) {
             let offset: Key = <K as KeyMapping<V>>::to_storage_key(index, &key);
@@ -340,7 +342,7 @@ where
 impl<K, V> LazyMap<K, V>
 where
     K: KeyMapping<V> + Ord + Eq + Clone,
-    V: StorageSize + PullForward,
+    V: StorageFootprint + PullForward,
 {
     /// Lazily loads the value at the given index.
     ///
@@ -479,7 +481,7 @@ where
 impl<K, V> LazyMap<K, V>
 where
     K: KeyMapping<V> + Ord + Eq + Clone,
-    V: StorageSize + PullForward,
+    V: StorageFootprint + PullForward,
 {
     /// Puts the new value at the given index and returns the old value if any.
     ///

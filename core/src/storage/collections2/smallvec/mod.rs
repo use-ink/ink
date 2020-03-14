@@ -19,12 +19,11 @@ pub use self::iter::Iter;
 use crate::{
     storage,
     storage::{
-        PullForward,
-        StorageFootprint,
-        StorageSize,
-        SaturatingStorage,
-        LazyArrayLength,
         LazyArray,
+        LazyArrayLength,
+        PullForward,
+        SaturatingStorage,
+        StorageFootprint,
     },
 };
 
@@ -94,8 +93,6 @@ where
 impl<T, N> SmallVec<T, N>
 where
     T: StorageFootprint + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
 {
     /// Returns an iterator over the references of all elements stored in the vector.
@@ -140,8 +137,6 @@ where
 impl<T, N> SmallVec<T, N>
 where
     T: StorageFootprint + SaturatingStorage + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
 {
     /// Appends an element to the back of the vector.

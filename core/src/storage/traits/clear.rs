@@ -14,7 +14,7 @@
 
 use super::{
     KeyPtr,
-    StorageSize,
+    StorageFootprint,
 };
 use crate::env;
 use core::marker::PhantomData;
@@ -51,7 +51,7 @@ macro_rules! impl_clear_for_primitive {
         $(
             impl ClearForward for $ty {
                 fn clear_forward(&self, ptr: &mut KeyPtr) {
-                    <$ty as ClearAt>::clear_at(self, ptr.next_for::<$ty>())
+                    <$ty as ClearAt>::clear_at(self, ptr.next_for2::<$ty>())
                 }
             }
 
@@ -132,7 +132,7 @@ impl<T> ClearAt for PhantomData<T> {
 
 impl<T> ClearForward for Option<T>
 where
-    T: ClearForward + StorageSize,
+    T: ClearForward + StorageFootprint,
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
         match self {
@@ -177,7 +177,7 @@ impl<T, E> ClearAt for Result<T, E> {}
 
 impl ClearForward for ink_prelude::string::String {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
-        <Self as ClearAt>::clear_at(self, ptr.next_for::<Self>())
+        <Self as ClearAt>::clear_at(self, ptr.next_for2::<Self>())
     }
 }
 

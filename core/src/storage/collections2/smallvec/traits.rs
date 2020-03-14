@@ -24,16 +24,17 @@ use crate::storage::{
     PushForward,
     SaturatingStorage,
     StorageFootprint,
-    StorageSize,
+    StorageFootprintOf,
 };
 use core::ops::Add;
-use typenum::Add1;
+use typenum::{
+    Add1,
+    Integer,
+};
 
 impl<T, N> core::ops::Index<u32> for SmallVec<T, N>
 where
     T: StorageFootprint + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
 {
     type Output = T;
@@ -46,8 +47,6 @@ where
 impl<T, N> core::ops::IndexMut<u32> for SmallVec<T, N>
 where
     T: StorageFootprint + SaturatingStorage + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
@@ -58,8 +57,6 @@ where
 impl<'a, T: 'a, N> IntoIterator for &'a SmallVec<T, N>
 where
     T: StorageFootprint + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
 {
     type Item = &'a T;
@@ -73,18 +70,16 @@ where
 impl<T, N> StorageFootprint for SmallVec<T, N>
 where
     T: StorageFootprint + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
     LazyArray<T, N>: StorageFootprint,
-    <LazyArray<T, N> as StorageFootprint>::Value: Add<typenum::B1>,
+    StorageFootprintOf<LazyArray<T, N>>: Add<typenum::B1>,
+    Add1<StorageFootprintOf<LazyArray<T, N>>>: Integer,
 {
-    type Value = Add1<<LazyArray<T, N> as StorageFootprint>::Value>;
+    type Value = Add1<StorageFootprintOf<LazyArray<T, N>>>;
 }
 
 impl<T, N> PullForward for SmallVec<T, N>
 where
-    T: StorageSize,
     N: LazyArrayLength<T>,
     LazyArray<T, N>: PullForward,
 {

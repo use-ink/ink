@@ -17,7 +17,6 @@ use crate::storage::{
     LazyArrayLength,
     PullForward,
     StorageFootprint,
-    StorageSize,
 };
 
 /// An iterator over the values of a storage `SmallVec`.
@@ -51,8 +50,6 @@ where
 impl<'a, T, N> Iterator for Iter<'a, T, N>
 where
     T: StorageFootprint + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
 {
     type Item = &'a T;
@@ -76,8 +73,6 @@ where
 impl<'a, T, N> ExactSizeIterator for Iter<'a, T, N>
 where
     T: StorageFootprint + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
 {
 }
@@ -85,8 +80,6 @@ where
 impl<'a, T, N> DoubleEndedIterator for Iter<'a, T, N>
 where
     T: StorageFootprint + PullForward,
-    T: StorageSize,
-    <T as StorageFootprint>::Value: typenum::marker_traits::Integer,
     N: LazyArrayLength<T>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {

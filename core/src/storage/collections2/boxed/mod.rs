@@ -18,14 +18,14 @@ use crate::storage::{
     ClearForward,
     Lazy,
     PullForward,
-    StorageSize,
+    StorageFootprint,
 };
 use ink_primitives::Key;
 
 /// Allocates a new storage key for the given `T` dynamically on the storage.
 fn allocate_dynamically<T>() -> Key
 where
-    T: StorageSize,
+    T: StorageFootprint,
 {
     // TODO: Actual implementation is still missing!
     Key([0x42; 32])
@@ -44,7 +44,7 @@ where
 
 impl<T> Box<T>
 where
-    T: ClearForward + StorageSize,
+    T: ClearForward + StorageFootprint,
 {
     /// Creates a new boxed entity.
     pub fn new(value: T) -> Self {
@@ -57,7 +57,7 @@ where
 
 impl<T> Box<T>
 where
-    T: ClearForward + StorageSize + PullForward,
+    T: ClearForward + StorageFootprint + PullForward,
 {
     /// Returns a shared reference to the boxed value.
     ///

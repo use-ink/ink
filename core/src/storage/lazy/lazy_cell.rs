@@ -17,7 +17,6 @@ use super::super::{
     KeyPtr,
     PullForward,
     PushForward,
-    StorageSize,
     StorageFootprint,
 };
 use core::cell::UnsafeCell;
@@ -85,13 +84,6 @@ pub struct LazyCell<T> {
     kind: UnsafeCell<LazyCellEntry<T>>,
 }
 
-impl<T> StorageSize for LazyCell<T>
-where
-    T: StorageSize,
-{
-    const SIZE: u64 = <T as StorageSize>::SIZE;
-}
-
 impl<T> StorageFootprint for LazyCell<T>
 where
     T: StorageFootprint,
@@ -101,10 +93,10 @@ where
 
 impl<T> PullForward for LazyCell<T>
 where
-    T: StorageSize,
+    T: StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<T>())
+        Self::lazy(ptr.next_for2::<T>())
     }
 }
 
@@ -189,7 +181,7 @@ impl<T> LazyCell<T> {
 
 impl<T> LazyCell<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     /// Loads the value lazily from contract storage.
     ///

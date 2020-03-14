@@ -14,7 +14,7 @@
 
 use super::{
     KeyPtr,
-    StorageSize,
+    StorageFootprint,
 };
 use crate::env;
 use core::marker::PhantomData;
@@ -49,7 +49,7 @@ macro_rules! impl_push_for_primitive {
         $(
             impl PushForward for $ty {
                 fn push_forward(&self, ptr: &mut KeyPtr) {
-                    <$ty as PushAt>::push_at(self, ptr.next_for::<$ty>())
+                    <$ty as PushAt>::push_at(self, ptr.next_for2::<$ty>())
                 }
             }
 
@@ -148,9 +148,12 @@ impl<T> PushAt for PhantomData<T> {
     fn push_at(&self, _at: Key) {}
 }
 
+use typenum::Integer;
+
 impl<T> PushForward for Option<T>
 where
-    T: PushForward + StorageSize,
+    T: PushForward + StorageFootprint,
+    <T as StorageFootprint>::Value: Integer,
 {
     /// We implement `PushForward` for `Option<T>` in an optimized fashion
     /// leaving behind a cleared contract storage cell area in case of `None`.
@@ -163,11 +166,11 @@ where
             Some(val) => <T as PushForward>::push_forward(val, ptr),
             None => {
                 // We still need to advance the key pointer.
-                let pos0 = ptr.next_for::<T>();
+                let pos0 = ptr.next_for2::<T>();
                 // Bail out early if `StorageSize` is too big and the method
                 // is used even though we have tried to prevent this at compile
                 // time.
-                if <T as StorageSize>::SIZE > 32 {
+                if <T as StorageFootprint>::Value::I64 as u64 > 32 {
                     return
                 }
                 // # ToDo
@@ -175,7 +178,7 @@ where
                 // Create a trait bound onto something like
                 // `ClearForward` and `ClearAt` that have a sole purpose of
                 // clearing the underlying storage of a storage entity.
-                for n in 0..<T as StorageSize>::SIZE {
+                for n in 0..<<T as StorageFootprint>::Value as Integer>::I64 as u64 {
                     env::clear_contract_storage(pos0 + n);
                 }
             }
@@ -237,7 +240,7 @@ where
 
 impl PushForward for ink_prelude::string::String {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        <Self as PushAt>::push_at(self, ptr.next_for::<Self>())
+        <Self as PushAt>::push_at(self, ptr.next_for2::<Self>())
     }
 }
 

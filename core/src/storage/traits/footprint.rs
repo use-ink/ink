@@ -14,20 +14,12 @@
 
 use ink_primitives::Key;
 
-/// Implemented by types that can be stored on contract storage.
-///
-/// Tells the amount of storage cells the type requires to be stored.
-pub trait StorageSize {
-    /// The number of storage cells required by `Self` to be stored
-    /// on the contract storage.
-    const SIZE: u64;
-}
-
 use core::ops::{
     Add,
     Mul,
 };
 use typenum::{
+    Integer,
     IsEqual,
     Max,
     Maximum,
@@ -55,48 +47,52 @@ pub trait StorageFootprint {
     ///
     /// We should switch back to associated constants once the Rust compiler
     /// is more mature at handling them in generics.
-    type Value;
+    type Value: Integer;
+}
+
+/// Helper type alias for better readability.
+pub type StorageFootprintOf<T> = <T as StorageFootprint>::Value;
+
+/// Returns the `u64` representation of the storage footprint of `T`.
+pub const fn storage_footprint_u64<T>() -> u64
+where
+    T: StorageFootprint,
+{
+    <StorageFootprintOf<T> as Integer>::I64 as u64
+}
+
+/// Returns the `u128` representation of the storage footprint of `T`.
+pub const fn storage_footprint_u128<T>() -> u128
+where
+    T: StorageFootprint,
+{
+    <StorageFootprintOf<T> as Integer>::I128 as u128
 }
 
 /// Types implementing this trait are guaranteed to always use the same amount
-/// of storage cells as described by the [`StorageSize`] trait.
+/// of storage cells as described by the [`StorageFootprint`] trait.
 ///
 /// It is a bug to implement this trait for a type that does not respect this
 /// behaviour.
-pub trait SaturatingStorage: StorageSize {}
+pub trait SaturatingStorage: StorageFootprint {}
+
+/// Helper trait that should be implemented for types instead of implementing
+/// [`SaturatingStorage`] trait directly since it decouples the trait bounds
+/// of its super trait [`StorageFootprint`].
+pub trait SaturatingStorageMarker {}
+impl<T> SaturatingStorage for T where T: StorageFootprint + SaturatingStorageMarker {}
 
 macro_rules! impl_storage_size_for_primitive {
     ( $($ty:ty),* ) => {
         $(
-            impl StorageSize for $ty {
-                const SIZE: u64 = 1;
-            }
             impl StorageFootprint for $ty {
                 type Value = P1;
             }
-            impl SaturatingStorage for $ty {}
+            impl SaturatingStorageMarker for $ty {}
         )*
     };
 }
 impl_storage_size_for_primitive!(Key, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
-
-macro_rules! impl_storage_size_for_array {
-    ( $($n:literal),* $(,)? ) => {
-        $(
-            impl<T> StorageSize for [T; $n]
-            where
-                T: StorageSize,
-            {
-                const SIZE: u64 = <T as StorageSize>::SIZE * $n;
-            }
-            impl<T> SaturatingStorage for [T; $n]
-            where
-                T: SaturatingStorage,
-            {}
-        )*
-    };
-}
-forward_supported_array_lens!(impl_storage_size_for_array);
 
 macro_rules! impl_storage_size_for_array2 {
     ( $(($n:literal, $t:ty)),* $(,)? ) => {
@@ -104,58 +100,39 @@ macro_rules! impl_storage_size_for_array2 {
             impl<T> StorageFootprint for [T; $n]
             where
                 T: StorageFootprint,
-                <T as StorageFootprint>::Value: Mul<$t>,
+                StorageFootprintOf<T>: Mul<$t>,
+                Prod<StorageFootprintOf<T>, $t>: Integer,
             {
-                type Value = Prod<<T as StorageFootprint>::Value, $t>;
+                type Value = Prod<StorageFootprintOf<T>, $t>;
             }
+            impl<T> SaturatingStorageMarker for [T; $n]
+            where
+                T: SaturatingStorage,
+            {}
         )*
     };
 }
 forward_supported_array_lens_ty!(impl_storage_size_for_array2);
 
 macro_rules! impl_storage_size_tuple {
-    ( $($frag:ident),* $(,)? ) => {
-        #[allow(unused_parens)]
-        impl<$($frag),*> StorageSize for ($($frag),* ,)
+    ( $($frag:ident),* ) => {
+        impl<T1 $(, $frag)*> SaturatingStorageMarker for (T1 $(, $frag)* ,)
         where
-            $(
-                $frag: StorageSize,
-            )*
-        {
-            const SIZE: u64 = 0
-                $(
-                    + <$frag as StorageSize>::SIZE
-                )*
-            ;
-        }
-        impl<$($frag),*> SaturatingStorage for ($($frag),* ,)
-        where
+            T1: SaturatingStorage,
             $(
                 $frag: SaturatingStorage,
             )*
         {}
-    }
-}
-impl_storage_size_tuple!(A);
-impl_storage_size_tuple!(A, B);
-impl_storage_size_tuple!(A, B, C);
-impl_storage_size_tuple!(A, B, C, D);
-impl_storage_size_tuple!(A, B, C, D, E);
-impl_storage_size_tuple!(A, B, C, D, E, F);
-impl_storage_size_tuple!(A, B, C, D, E, F, G);
-impl_storage_size_tuple!(A, B, C, D, E, F, G, H);
-impl_storage_size_tuple!(A, B, C, D, E, F, G, H, I);
-impl_storage_size_tuple!(A, B, C, D, E, F, G, H, I, J);
 
-macro_rules! impl_storage_size_tuple {
-    ( $($frag:ident),* ) => {
         impl<T1 $(, $frag)*> StorageFootprint for (T1 $(, $frag)* ,)
         where
             T1: StorageFootprint,
             ($($frag ,)*): StorageFootprint,
-            <T1 as StorageFootprint>::Value: Add<<($($frag ,)*) as StorageFootprint>::Value>,
+            StorageFootprintOf<T1>: Add<Z0>, // Not sure why we need this trait bound for T1 ...
+            StorageFootprintOf<T1>: Add<StorageFootprintOf<($($frag ,)*)>>,
+            Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>: Integer,
         {
-            type Value = Sum<<T1 as StorageFootprint>::Value, <($($frag ,)*) as StorageFootprint>::Value>;
+            type Value = Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>;
         }
     }
 }
@@ -170,28 +147,16 @@ impl_storage_size_tuple!(T2, T3, T4, T5, T6, T7, T8);
 impl_storage_size_tuple!(T2, T3, T4, T5, T6, T7, T8, T9);
 impl_storage_size_tuple!(T2, T3, T4, T5, T6, T7, T8, T9, T10);
 
-impl StorageSize for () {
-    const SIZE: u64 = 0;
-}
 impl StorageFootprint for () {
     type Value = Z0;
 }
 impl SaturatingStorage for () {}
 
-impl<T> StorageSize for core::marker::PhantomData<T> {
-    const SIZE: u64 = 0;
-}
 impl<T> StorageFootprint for core::marker::PhantomData<T> {
     type Value = Z0;
 }
 impl<T> SaturatingStorage for core::marker::PhantomData<T> {}
 
-impl<T> StorageSize for Option<T>
-where
-    T: StorageSize,
-{
-    const SIZE: u64 = <T as StorageSize>::SIZE;
-}
 impl<T> StorageFootprint for Option<T>
 where
     T: StorageFootprint,
@@ -211,57 +176,32 @@ where
     // determined by `T` it should be okay to implement.
 }
 
-impl<T, E> StorageSize for Result<T, E>
-where
-    T: StorageSize,
-    E: StorageSize,
-{
-    const SIZE: u64 = {
-        // The following returns the maximum value from the storage
-        // sizes of type `T` and `E` in a way that enables it to be used
-        // at compile-time.
-        [<T as StorageSize>::SIZE, <E as StorageSize>::SIZE]
-            [(<T as StorageSize>::SIZE < <E as StorageSize>::SIZE) as usize]
-    };
-}
-
 impl<T, E> StorageFootprint for Result<T, E>
 where
     T: StorageFootprint,
     E: StorageFootprint,
-    <T as StorageFootprint>::Value: Max<<E as StorageFootprint>::Value>,
+    StorageFootprintOf<T>: Max<StorageFootprintOf<E>>,
+    Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>: Integer,
 {
-    type Value = Maximum<<T as StorageFootprint>::Value, <E as StorageFootprint>::Value>;
+    type Value = Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>;
 }
 
-impl<T, E> SaturatingStorage for Result<T, E>
+impl<T, E> SaturatingStorageMarker for Result<T, E>
 where
     T: StorageFootprint + SaturatingStorage,
     E: StorageFootprint + SaturatingStorage,
-    <T as StorageFootprint>::Value:
-        IsEqual<<E as StorageFootprint>::Value, Output = True>,
+    StorageFootprintOf<T>: IsEqual<StorageFootprintOf<E>, Output = True>,
 {
-}
-
-impl<T> StorageSize for ink_prelude::boxed::Box<T>
-where
-    T: StorageSize,
-{
-    const SIZE: u64 = <T as StorageSize>::SIZE;
 }
 
 impl<T> StorageFootprint for ink_prelude::boxed::Box<T>
 where
     T: StorageFootprint,
 {
-    type Value = <T as StorageFootprint>::Value;
+    type Value = StorageFootprintOf<T>;
 }
 
-impl<T> SaturatingStorage for Box<T> where T: SaturatingStorage {}
-
-impl StorageSize for ink_prelude::string::String {
-    const SIZE: u64 = 1;
-}
+impl<T> SaturatingStorageMarker for Box<T> where T: SaturatingStorage {}
 
 impl StorageFootprint for ink_prelude::string::String {
     type Value = P1;
@@ -269,19 +209,11 @@ impl StorageFootprint for ink_prelude::string::String {
 
 impl SaturatingStorage for String {}
 
-impl<T> StorageSize for ink_prelude::vec::Vec<T> {
-    const SIZE: u64 = 1;
-}
-
 impl<T> StorageFootprint for ink_prelude::vec::Vec<T> {
     type Value = P1;
 }
 
 impl<T> SaturatingStorage for ink_prelude::vec::Vec<T> {}
-
-impl<K, V> StorageSize for ink_prelude::collections::BTreeMap<K, V> {
-    const SIZE: u64 = 1;
-}
 
 impl<K, V> StorageFootprint for ink_prelude::collections::BTreeMap<K, V> {
     type Value = P1;
@@ -292,10 +224,6 @@ impl<K, V> SaturatingStorage for ink_prelude::collections::BTreeMap<K, V> {}
 macro_rules! impl_storage_size_for_collection {
     ( $($name:ident),* $(,)? ) => {
         $(
-            impl<T> StorageSize for ink_prelude::collections::$name<T> {
-                const SIZE: u64 = 1;
-            }
-
             impl<T> StorageFootprint for ink_prelude::collections::$name<T> {
                 type Value = P1;
             }

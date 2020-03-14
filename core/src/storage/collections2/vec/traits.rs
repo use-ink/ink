@@ -20,17 +20,20 @@ use crate::{
         KeyPtr,
         PullForward,
         PushForward,
-        StorageSize,
-        StorageFootprint,
         SaturatingStorage,
+        StorageFootprint,
+        StorageFootprintOf,
     },
 };
-use typenum::Add1;
 use core::ops::Add;
+use typenum::{
+    Add1,
+    Integer,
+};
 
 impl<T> core::ops::Index<u32> for StorageVec<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     type Output = T;
 
@@ -41,7 +44,7 @@ where
 
 impl<T> core::ops::IndexMut<u32> for StorageVec<T>
 where
-    T: SaturatingStorage + StorageFootprint + StorageSize + PullForward,
+    T: SaturatingStorage + StorageFootprint + PullForward,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index).expect("index out of bounds")
@@ -50,7 +53,7 @@ where
 
 impl<'a, T: 'a> IntoIterator for &'a StorageVec<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     type Item = &'a T;
     type IntoIter = super::Iter<'a, T>;
@@ -60,27 +63,20 @@ where
     }
 }
 
-impl<T> StorageSize for StorageVec<T>
-where
-    T: StorageSize,
-{
-    const SIZE: u64 =
-        <u32 as StorageSize>::SIZE + <storage::LazyChunk<T> as StorageSize>::SIZE;
-}
-
 impl<T> StorageFootprint for StorageVec<T>
 where
     T: StorageFootprint,
     storage::LazyChunk<T>: StorageFootprint,
-    <storage::LazyChunk<T> as StorageFootprint>::Value: Add<typenum::B1>,
+    StorageFootprintOf<storage::LazyChunk<T>>: Add<typenum::B1>,
+    Add1<StorageFootprintOf<storage::LazyChunk<T>>>: Integer,
 {
-    type Value =
-        Add1<<storage::LazyChunk<T> as StorageFootprint>::Value>;
+    type Value = Add1<StorageFootprintOf<storage::LazyChunk<T>>>;
 }
 
 impl<T> PullForward for StorageVec<T>
 where
-    T: StorageSize,
+    T: StorageFootprint,
+    storage::LazyChunk<T>: PullForward,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -102,7 +98,7 @@ where
 
 impl<T> ClearForward for StorageVec<T>
 where
-    T: StorageSize + ClearForward + PullForward,
+    T: StorageFootprint + ClearForward + PullForward,
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
         ClearForward::clear_forward(&self.len(), ptr);

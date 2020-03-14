@@ -109,8 +109,8 @@ pub use self::{
     },
     collections2::{
         boxed::Box,
-        vec::Vec as Vec2,
         smallvec::SmallVec,
+        vec::Vec as Vec2,
     },
     flush::Flush,
     lazy::{
@@ -124,6 +124,8 @@ pub use self::{
     },
     pack::Pack,
     traits::{
+        storage_footprint_u128,
+        storage_footprint_u64,
         ClearAt,
         ClearForward,
         KeyPtr,
@@ -133,7 +135,7 @@ pub use self::{
         PushForward,
         SaturatingStorage,
         StorageFootprint,
-        StorageSize,
+        StorageFootprintOf,
     },
 };
 

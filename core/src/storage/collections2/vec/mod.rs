@@ -23,9 +23,8 @@ use crate::{
     storage,
     storage::{
         PullForward,
-        StorageSize,
-        StorageFootprint,
         SaturatingStorage,
+        StorageFootprint,
     },
 };
 
@@ -79,7 +78,7 @@ impl<T> Vec<T> {
 
 impl<T> Vec<T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     /// Returns an iterator over the references of all elements stored in the vector.
     ///
@@ -122,7 +121,7 @@ where
 
 impl<T> Vec<T>
 where
-    T: StorageFootprint + SaturatingStorage + StorageSize + PullForward,
+    T: StorageFootprint + SaturatingStorage + PullForward,
 {
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {

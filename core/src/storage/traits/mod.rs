@@ -49,9 +49,9 @@ macro_rules! forward_supported_array_lens_ty {
 }
 
 mod clear;
+mod footprint;
 mod pull;
 mod push;
-mod footprint;
 
 use ink_primitives::Key;
 
@@ -60,6 +60,13 @@ pub use self::{
         ClearAt,
         ClearForward,
     },
+    footprint::{
+        storage_footprint_u128,
+        storage_footprint_u64,
+        SaturatingStorage,
+        StorageFootprint,
+        StorageFootprintOf,
+    },
     pull::{
         PullAt,
         PullForward,
@@ -67,11 +74,6 @@ pub use self::{
     push::{
         PushAt,
         PushForward,
-    },
-    footprint::{
-        StorageSize,
-        StorageFootprint,
-        SaturatingStorage,
     },
 };
 
@@ -94,17 +96,6 @@ impl KeyPtr {
     /// Returns the current `Key`.
     fn current(&self) -> Key {
         self.key
-    }
-
-    /// Advances the key by the given amount derive by `T` and its `StorageSize`
-    /// and returns the next `Key` for usage by the storage element.
-    pub fn next_for<T>(&mut self) -> Key
-    where
-        T: StorageSize,
-    {
-        let copy = self.key;
-        self.key += <T as StorageSize>::SIZE;
-        copy
     }
 
     /// Advances the key by the given amount derive by `T` and its `StorageSize`

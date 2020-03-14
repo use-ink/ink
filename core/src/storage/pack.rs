@@ -18,7 +18,8 @@ use crate::storage::{
     PullForward,
     PushAt,
     PushForward,
-    StorageSize,
+    SaturatingStorage,
+    StorageFootprint,
 };
 use ink_primitives::Key;
 
@@ -76,16 +77,18 @@ impl<T> Pack<T> {
     }
 }
 
-impl<T> StorageSize for Pack<T> {
-    const SIZE: u64 = 1;
+impl<T> StorageFootprint for Pack<T> {
+    type Value = typenum::P1;
 }
+
+impl<T> SaturatingStorage for Pack<T> {}
 
 impl<T> PullForward for Pack<T>
 where
     T: PullAt,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        <Self as PullAt>::pull_at(ptr.next_for::<Self>())
+        <Self as PullAt>::pull_at(ptr.next_for2::<Self>())
     }
 }
 
@@ -105,7 +108,7 @@ where
     T: PushAt,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        <Self as PushAt>::push_at(self, ptr.next_for::<Self>())
+        <Self as PushAt>::push_at(self, ptr.next_for2::<Self>())
     }
 }
 

@@ -14,7 +14,7 @@
 
 use super::{
     KeyPtr,
-    StorageSize,
+    StorageFootprint,
 };
 use crate::env;
 use array_init::{
@@ -62,7 +62,7 @@ macro_rules! impl_pull_for_primitive {
         $(
             impl PullForward for $ty {
                 fn pull_forward(ptr: &mut KeyPtr) -> Self {
-                    <Self as PullAt>::pull_at(ptr.next_for::<Self>())
+                    <Self as PullAt>::pull_at(ptr.next_for2::<Self>())
                 }
             }
             impl PullAt for $ty {
@@ -161,7 +161,7 @@ impl<T> PullAt for PhantomData<T> {
 
 impl<T> PullForward for Option<T>
 where
-    T: PullForward + StorageSize,
+    T: PullForward + StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         // We decode as `()` because at this point we are not interested
@@ -189,7 +189,7 @@ where
     E: PullForward,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        match pull_single_cell::<u8>(ptr.next_for::<u8>()) {
+        match pull_single_cell::<u8>(ptr.next_for2::<u8>()) {
             0 => Ok(<T as PullForward>::pull_forward(ptr)),
             1 => Err(<E as PullForward>::pull_forward(ptr)),
             _ => unreachable!("found invalid Result discriminator"),
@@ -208,7 +208,7 @@ where
 
 impl PullForward for ink_prelude::string::String {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        <Self as PullAt>::pull_at(ptr.next_for::<Self>())
+        <Self as PullAt>::pull_at(ptr.next_for2::<Self>())
     }
 }
 

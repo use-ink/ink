@@ -16,7 +16,7 @@ use crate::{
     storage,
     storage::{
         PullForward,
-        StorageSize,
+        StorageFootprint,
     },
 };
 
@@ -44,7 +44,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     type Item = &'a T;
 
@@ -64,11 +64,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: StorageSize + PullForward {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: StorageFootprint + PullForward {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);

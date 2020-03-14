@@ -15,7 +15,7 @@
 use crate::storage::{
     KeyPtr,
     PushForward,
-    StorageSize,
+    StorageFootprint,
 };
 use core::cell::Cell;
 
@@ -40,7 +40,7 @@ pub enum EntryState {
 
 impl<T> PushForward for Entry<T>
 where
-    T: PushForward + StorageSize,
+    T: PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         // Reset the state because we just synced.

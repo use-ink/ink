@@ -22,7 +22,7 @@ use crate::storage::{
     PushForward,
     SaturatingStorage,
     StorageFootprint,
-    StorageSize,
+    StorageFootprintOf,
 };
 use core::{
     cell::UnsafeCell,
@@ -226,19 +226,20 @@ impl<T, N> StorageFootprint for LazyArray<T, N>
 where
     T: StorageFootprint,
     N: LazyArrayLength<T>,
-    <T as StorageFootprint>::Value: Mul<N>,
+    StorageFootprintOf<T>: Mul<N>,
+    Prod<StorageFootprintOf<T>, N>: Integer,
 {
-    type Value = Prod<<T as StorageFootprint>::Value, N>;
+    type Value = Prod<StorageFootprintOf<T>, N>;
 }
 
 impl<T, N> PullForward for LazyArray<T, N>
 where
-    Self: StorageFootprint + StorageSize,
+    Self: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
-            key: Some(ptr.next_for::<Self>()),
+            key: Some(ptr.next_for2::<Self>()),
             cached_entries: UnsafeCell::new(EntryArray::new()),
         }
     }
@@ -309,7 +310,7 @@ where
 
 impl<T, N> LazyArray<T, N>
 where
-    T: StorageFootprint + StorageSize + PullForward,
+    T: StorageFootprint + PullForward,
     <T as StorageFootprint>::Value: Integer,
     N: LazyArrayLength<T>,
 {
