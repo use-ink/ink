@@ -25,7 +25,10 @@ use crate::{
         StorageFootprintOf,
     },
 };
-use core::ops::Add;
+use core::{
+    iter::FromIterator,
+    ops::Add,
+};
 use typenum::{
     Add1,
     Integer,
@@ -60,6 +63,22 @@ where
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
+    }
+}
+
+impl<T> FromIterator<T> for StorageVec<T>
+where
+    T: StorageFootprint + SaturatingStorage,
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+    {
+        let mut vec = StorageVec::new();
+        for item in iter {
+            vec.push(item)
+        }
+        vec
     }
 }
 

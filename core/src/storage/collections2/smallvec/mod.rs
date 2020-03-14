@@ -136,7 +136,7 @@ where
 
 impl<T, N> SmallVec<T, N>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + SaturatingStorage,
     N: LazyArrayLength<T>,
 {
     /// Appends an element to the back of the vector.
@@ -149,7 +149,13 @@ where
         *self.len += 1;
         self.elems.put(last_index, Some(value));
     }
+}
 
+impl<T, N> SmallVec<T, N>
+where
+    T: StorageFootprint + SaturatingStorage + PullForward,
+    N: LazyArrayLength<T>,
+{
     /// Pops the last element from the vector and returns it.
     //
     /// Returns `None` if the vector is empty.

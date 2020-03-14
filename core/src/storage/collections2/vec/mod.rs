@@ -121,7 +121,7 @@ where
 
 impl<T> Vec<T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + SaturatingStorage,
 {
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {
@@ -133,7 +133,12 @@ where
         *self.len += 1;
         self.elems.put(last_index, Some(value));
     }
+}
 
+impl<T> Vec<T>
+where
+    T: StorageFootprint + SaturatingStorage + PullForward,
+{
     /// Pops the last element from the vector and returns it.
     //
     /// Returns `None` if the vector is empty.

@@ -26,7 +26,10 @@ use crate::storage::{
     StorageFootprint,
     StorageFootprintOf,
 };
-use core::ops::Add;
+use core::{
+    iter::FromIterator,
+    ops::Add,
+};
 use typenum::{
     Add1,
     Integer,
@@ -64,6 +67,23 @@ where
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
+    }
+}
+
+impl<T, N> FromIterator<T> for SmallVec<T, N>
+where
+    T: StorageFootprint + SaturatingStorage,
+    N: LazyArrayLength<T>,
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+    {
+        let mut vec = SmallVec::new();
+        for item in iter {
+            vec.push(item)
+        }
+        vec
     }
 }
 
