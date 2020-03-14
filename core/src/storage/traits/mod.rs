@@ -24,6 +24,7 @@ macro_rules! forward_supported_array_lens {
     };
 }
 
+#[rustfmt::skip]
 macro_rules! forward_supported_array_lens_ty {
     ( $mac:ident ) => {
         const _: () = {
