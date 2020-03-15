@@ -31,7 +31,7 @@ use core::{
 };
 use typenum::{
     Add1,
-    Integer,
+    Unsigned,
 };
 
 impl<T> core::ops::Index<u32> for StorageVec<T>
@@ -99,7 +99,7 @@ where
     T: StorageFootprint,
     storage::LazyChunk<T>: StorageFootprint,
     StorageFootprintOf<storage::LazyChunk<T>>: Add<typenum::B1>,
-    Add1<StorageFootprintOf<storage::LazyChunk<T>>>: Integer,
+    Add1<StorageFootprintOf<storage::LazyChunk<T>>>: Unsigned,
 {
     type Value = Add1<StorageFootprintOf<storage::LazyChunk<T>>>;
 }

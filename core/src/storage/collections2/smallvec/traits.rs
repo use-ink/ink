@@ -32,7 +32,7 @@ use core::{
 };
 use typenum::{
     Add1,
-    Integer,
+    Unsigned,
 };
 
 impl<T, N> core::ops::Index<u32> for SmallVec<T, N>
@@ -106,7 +106,7 @@ where
     N: LazyArrayLength<T>,
     LazyArray<T, N>: StorageFootprint,
     StorageFootprintOf<LazyArray<T, N>>: Add<typenum::B1>,
-    Add1<StorageFootprintOf<LazyArray<T, N>>>: Integer,
+    Add1<StorageFootprintOf<LazyArray<T, N>>>: Unsigned,
 {
     type Value = Add1<StorageFootprintOf<LazyArray<T, N>>>;
 }

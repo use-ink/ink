@@ -36,8 +36,8 @@ use ink_prelude::{
 };
 use ink_primitives::Key;
 use typenum::{
-    Integer,
     Prod,
+    Unsigned,
 };
 
 /// The index type used in the lazy storage chunk.
@@ -59,11 +59,10 @@ pub trait KeyMapping<Value> {
 impl<Value> KeyMapping<Value> for Index
 where
     Value: StorageFootprint,
-    <Value as StorageFootprint>::Value: Integer,
+    <Value as StorageFootprint>::Value: Unsigned,
 {
     fn to_storage_key(&self, offset: &Key) -> Key {
-        *offset
-            + (*self as u64 * <<Value as StorageFootprint>::Value as Integer>::I64 as u64)
+        *offset + (*self as u64 * <<Value as StorageFootprint>::Value as Unsigned>::U64)
     }
 }
 
@@ -292,7 +291,7 @@ impl<T> StorageFootprint for LazyChunk<T>
 where
     T: StorageFootprint,
     StorageFootprintOf<T>: Mul<P4294967296>,
-    Prod<StorageFootprintOf<T>, P4294967296>: Integer,
+    Prod<StorageFootprintOf<T>, P4294967296>: Unsigned,
 {
     /// A lazy chunk is contiguous and its size can be determined by the
     /// total number of elements it could theoretically hold.
@@ -306,7 +305,7 @@ where
     /// A lazy mapping is similar to a Solidity mapping that distributes its
     /// stored entities across the entire contract storage so its inplace size
     /// is actually just 1.
-    type Value = typenum::P1;
+    type Value = typenum::U1;
 }
 
 impl<K, V> PullForward for LazyMap<K, V>

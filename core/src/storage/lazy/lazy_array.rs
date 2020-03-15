@@ -36,16 +36,16 @@ use generic_array::{
 };
 use ink_primitives::Key;
 use typenum::{
-    Integer,
     Prod,
+    Unsigned,
 };
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
 
 /// Utility trait for helping with lazy array construction.
-pub trait LazyArrayLength<T>: ArrayLength<Option<Entry<T>>> + Integer {}
-impl<T> LazyArrayLength<T> for T where T: ArrayLength<Option<Entry<T>>> + Integer {}
+pub trait LazyArrayLength<T>: ArrayLength<Option<Entry<T>>> + Unsigned {}
+impl<T> LazyArrayLength<T> for T where T: ArrayLength<Option<Entry<T>>> + Unsigned {}
 
 /// A lazy storage array that spans over N storage cells.
 ///
@@ -84,7 +84,7 @@ fn array_capacity<T, N>() -> u32
 where
     N: LazyArrayLength<T>,
 {
-    <N as Integer>::I32 as u32
+    <N as Unsigned>::U32
 }
 
 /// The underlying array cache for the [`LazyArray`].
@@ -227,7 +227,7 @@ where
     T: StorageFootprint,
     N: LazyArrayLength<T>,
     StorageFootprintOf<T>: Mul<N>,
-    Prod<StorageFootprintOf<T>, N>: Integer,
+    Prod<StorageFootprintOf<T>, N>: Unsigned,
 {
     type Value = Prod<StorageFootprintOf<T>, N>;
 }
@@ -250,8 +250,8 @@ where
     T: StorageFootprint + SaturatingStorage + PushForward,
     N: LazyArrayLength<T>,
     Self: StorageFootprint,
-    <Self as StorageFootprint>::Value: Integer,
-    <T as StorageFootprint>::Value: Integer,
+    <Self as StorageFootprint>::Value: Unsigned,
+    <T as StorageFootprint>::Value: Unsigned,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for2::<Self>();
@@ -260,8 +260,7 @@ where
                 if !entry.is_mutated() {
                     continue
                 }
-                let footprint =
-                    <<T as StorageFootprint>::Value as Integer>::to_i64() as u64;
+                let footprint = <<T as StorageFootprint>::Value as Unsigned>::to_u64();
                 let key = offset_key + (index as u64 * footprint);
                 match entry.value() {
                     Some(value) => {
@@ -293,7 +292,7 @@ where
 impl<T, N> LazyArray<T, N>
 where
     T: StorageFootprint,
-    <T as StorageFootprint>::Value: Integer,
+    <T as StorageFootprint>::Value: Unsigned,
     N: LazyArrayLength<T>,
 {
     /// Returns the offset key for the given index if not out of bounds.
@@ -302,8 +301,7 @@ where
             return None
         }
         self.key.map(|key| {
-            key + ((at as u64)
-                * <<T as StorageFootprint>::Value as Integer>::to_i64() as u64)
+            key + ((at as u64) * <<T as StorageFootprint>::Value as Unsigned>::to_u64())
         })
     }
 }
@@ -311,7 +309,7 @@ where
 impl<T, N> LazyArray<T, N>
 where
     T: StorageFootprint + PullForward,
-    <T as StorageFootprint>::Value: Integer,
+    <T as StorageFootprint>::Value: Unsigned,
     N: LazyArrayLength<T>,
 {
     /// Loads the entry at the given index.

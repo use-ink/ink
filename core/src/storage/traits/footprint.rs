@@ -19,15 +19,15 @@ use core::ops::{
     Mul,
 };
 use typenum::{
-    Integer,
     IsEqual,
     Max,
     Maximum,
     Prod,
     Sum,
+    Unsigned,
     B1 as True,
-    P1,
-    Z0,
+    U0,
+    U1,
 };
 
 /// Implemented by types that can be stored on contract storage.
@@ -47,7 +47,7 @@ pub trait StorageFootprint {
     ///
     /// We should switch back to associated constants once the Rust compiler
     /// is more mature at handling them in generics.
-    type Value: Integer;
+    type Value: Unsigned;
 }
 
 /// Helper type alias for better readability.
@@ -58,7 +58,7 @@ pub const fn storage_footprint_u64<T>() -> u64
 where
     T: StorageFootprint,
 {
-    <StorageFootprintOf<T> as Integer>::I64 as u64
+    <StorageFootprintOf<T> as Unsigned>::U64
 }
 
 /// Returns the `u128` representation of the storage footprint of `T`.
@@ -66,7 +66,7 @@ pub const fn storage_footprint_u128<T>() -> u128
 where
     T: StorageFootprint,
 {
-    <StorageFootprintOf<T> as Integer>::I128 as u128
+    <StorageFootprintOf<T> as Unsigned>::U128
 }
 
 /// Types implementing this trait are guaranteed to always use the same amount
@@ -86,7 +86,7 @@ macro_rules! impl_storage_size_for_primitive {
     ( $($ty:ty),* ) => {
         $(
             impl StorageFootprint for $ty {
-                type Value = P1;
+                type Value = U1;
             }
             impl SaturatingStorageMarker for $ty {}
         )*
@@ -101,7 +101,7 @@ macro_rules! impl_storage_size_for_array2 {
             where
                 T: StorageFootprint,
                 StorageFootprintOf<T>: Mul<$t>,
-                Prod<StorageFootprintOf<T>, $t>: Integer,
+                Prod<StorageFootprintOf<T>, $t>: Unsigned,
             {
                 type Value = Prod<StorageFootprintOf<T>, $t>;
             }
@@ -128,9 +128,9 @@ macro_rules! impl_storage_size_tuple {
         where
             T1: StorageFootprint,
             ($($frag ,)*): StorageFootprint,
-            StorageFootprintOf<T1>: Add<Z0>, // Not sure why we need this trait bound for T1 ...
+            StorageFootprintOf<T1>: Add<U0>, // Not sure why we need this trait bound for T1 ...
             StorageFootprintOf<T1>: Add<StorageFootprintOf<($($frag ,)*)>>,
-            Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>: Integer,
+            Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>: Unsigned,
         {
             type Value = Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>;
         }
@@ -148,12 +148,12 @@ impl_storage_size_tuple!(T2, T3, T4, T5, T6, T7, T8, T9);
 impl_storage_size_tuple!(T2, T3, T4, T5, T6, T7, T8, T9, T10);
 
 impl StorageFootprint for () {
-    type Value = Z0;
+    type Value = U0;
 }
 impl SaturatingStorage for () {}
 
 impl<T> StorageFootprint for core::marker::PhantomData<T> {
-    type Value = Z0;
+    type Value = U0;
 }
 impl<T> SaturatingStorage for core::marker::PhantomData<T> {}
 
@@ -181,7 +181,7 @@ where
     T: StorageFootprint,
     E: StorageFootprint,
     StorageFootprintOf<T>: Max<StorageFootprintOf<E>>,
-    Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>: Integer,
+    Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>: Unsigned,
 {
     type Value = Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>;
 }
@@ -204,19 +204,19 @@ where
 impl<T> SaturatingStorageMarker for Box<T> where T: SaturatingStorage {}
 
 impl StorageFootprint for ink_prelude::string::String {
-    type Value = P1;
+    type Value = U1;
 }
 
 impl SaturatingStorage for String {}
 
 impl<T> StorageFootprint for ink_prelude::vec::Vec<T> {
-    type Value = P1;
+    type Value = U1;
 }
 
 impl<T> SaturatingStorage for ink_prelude::vec::Vec<T> {}
 
 impl<K, V> StorageFootprint for ink_prelude::collections::BTreeMap<K, V> {
-    type Value = P1;
+    type Value = U1;
 }
 
 impl<K, V> SaturatingStorage for ink_prelude::collections::BTreeMap<K, V> {}
@@ -225,7 +225,7 @@ macro_rules! impl_storage_size_for_collection {
     ( $($name:ident),* $(,)? ) => {
         $(
             impl<T> StorageFootprint for ink_prelude::collections::$name<T> {
-                type Value = P1;
+                type Value = U1;
             }
 
             impl<T> SaturatingStorage for ink_prelude::collections::$name<T> {}

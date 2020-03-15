@@ -34,7 +34,7 @@ where
     ///
     /// The indirectly stored storage entity is not considered because the
     /// `StorageSize` is only concerned with inplace storage usage.
-    type Value = typenum::P1;
+    type Value = typenum::U1;
 }
 
 impl<T> SaturatingStorage for StorageBox<T>
