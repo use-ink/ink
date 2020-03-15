@@ -26,7 +26,10 @@ use crate::{
     },
 };
 use core::{
-    iter::{FromIterator, Extend},
+    iter::{
+        Extend,
+        FromIterator,
+    },
     ops::Add,
 };
 use typenum::{
