@@ -151,3 +151,21 @@ where
         }
     }
 }
+
+impl<T> core::cmp::PartialEq for StorageVec<T>
+where
+    T: PartialEq + StorageFootprint + PullForward,
+{
+    fn eq(&self, other: &Self) -> bool {
+        if self.len() != other.len() {
+            return false
+        }
+        self.iter().zip(other.iter()).all(|(lhs, rhs)| lhs == rhs)
+    }
+}
+
+impl<T> core::cmp::Eq for StorageVec<T>
+where
+    T: Eq + StorageFootprint + PullForward,
+{
+}

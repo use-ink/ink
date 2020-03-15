@@ -137,3 +137,23 @@ where
         PushForward::push_forward(&self.elems, ptr);
     }
 }
+
+impl<T, N> core::cmp::PartialEq for SmallVec<T, N>
+where
+    T: PartialEq + StorageFootprint + PullForward,
+    N: LazyArrayLength<T>,
+{
+    fn eq(&self, other: &Self) -> bool {
+        if self.len() != other.len() {
+            return false
+        }
+        self.iter().zip(other.iter()).all(|(lhs, rhs)| lhs == rhs)
+    }
+}
+
+impl<T, N> core::cmp::Eq for SmallVec<T, N>
+where
+    T: Eq + StorageFootprint + PullForward,
+    N: LazyArrayLength<T>,
+{
+}
