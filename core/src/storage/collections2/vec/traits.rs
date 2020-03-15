@@ -164,8 +164,4 @@ where
     }
 }
 
-impl<T> core::cmp::Eq for StorageVec<T>
-where
-    T: Eq + StorageFootprint + PullForward,
-{
-}
+impl<T> core::cmp::Eq for StorageVec<T> where T: Eq + StorageFootprint + PullForward {}

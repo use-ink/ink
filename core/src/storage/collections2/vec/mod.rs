@@ -195,9 +195,8 @@ where
     where
         F: FnOnce() -> T,
     {
-        self.get_mut(index).map(|value| {
-            core::mem::replace(value, f())
-        })
+        self.get_mut(index)
+            .map(|value| core::mem::replace(value, f()))
     }
 
     /// Swaps the elements at the given indices.
@@ -206,7 +205,10 @@ where
     ///
     /// If one or both indices are out of bounds.
     pub fn swap(&mut self, a: u32, b: u32) {
-        assert!(a < self.len() && b < self.len(), "indices are out of bounds");
+        assert!(
+            a < self.len() && b < self.len(),
+            "indices are out of bounds"
+        );
         self.elems.swap(a, b)
     }
 

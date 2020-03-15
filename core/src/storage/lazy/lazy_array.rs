@@ -37,9 +37,9 @@ use generic_array::{
 use ink_primitives::Key;
 use typenum::{
     Prod,
-    Unsigned,
-    UTerm,
     UInt,
+    UTerm,
+    Unsigned,
     B0,
     B1,
 };
