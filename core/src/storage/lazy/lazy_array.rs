@@ -147,7 +147,7 @@ where
 
     /// Inserts a new entry into the cache and returns an exclusive reference to it.
     fn insert_entry(&mut self, at: Index, entry: Entry<T>) -> &mut Entry<T> {
-        *&mut self.entries[at as usize] = Some(entry);
+        self.entries[at as usize] = Some(entry);
         let entry: Option<&mut Entry<T>> = (&mut self.entries[at as usize]).into();
         entry.expect("just inserted the entry")
     }
