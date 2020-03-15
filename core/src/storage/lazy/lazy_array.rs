@@ -38,6 +38,10 @@ use ink_primitives::Key;
 use typenum::{
     Prod,
     Unsigned,
+    UTerm,
+    UInt,
+    B0,
+    B1,
 };
 
 /// The index type used in the lazy storage chunk.
@@ -45,7 +49,9 @@ pub type Index = u32;
 
 /// Utility trait for helping with lazy array construction.
 pub trait LazyArrayLength<T>: ArrayLength<Option<Entry<T>>> + Unsigned {}
-impl<T> LazyArrayLength<T> for T where T: ArrayLength<Option<Entry<T>>> + Unsigned {}
+impl<T> LazyArrayLength<T> for UTerm {}
+impl<T, N: ArrayLength<Option<Entry<T>>>> LazyArrayLength<T> for UInt<N, B0> {}
+impl<T, N: ArrayLength<Option<Entry<T>>>> LazyArrayLength<T> for UInt<N, B1> {}
 
 /// A lazy storage array that spans over N storage cells.
 ///
