@@ -165,7 +165,7 @@ where
         }
         let last_index = self.len() - 1;
         *self.len = last_index;
-        self.elems.remove(last_index);
+        self.elems.put(last_index, None);
         Some(())
     }
 
@@ -231,7 +231,7 @@ where
         if self.is_empty() {
             return None
         }
-        self.elems.remove(n);
+        self.elems.put(n, None);
         let last_index = self.len() - 1;
         let last = self.elems.take(last_index);
         self.elems.put(n, last);

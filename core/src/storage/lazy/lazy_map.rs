@@ -451,30 +451,6 @@ where
     pub fn take(&mut self, index: K) -> Option<V> {
         self.lazily_load_mut(index).take_value()
     }
-
-    /// Removes the element at the given index if any.
-    ///
-    /// # Note
-    ///
-    /// This method should be preferred over [`LazyMap::take`] in cases where the
-    /// caller is not interested in the taken (removed) value since it is more
-    /// efficient for some use cases.
-    pub fn remove(&mut self, index: K) {
-        use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
-        match self.entries_mut().entry(index) {
-            BTreeMapEntry::Vacant(vacant) => {
-                vacant.insert(Box::new(Entry {
-                    value: None,
-                    mutated: Cell::new(true),
-                }));
-            }
-            BTreeMapEntry::Occupied(occupied) => {
-                let entry = occupied.into_mut();
-                entry.value = None;
-                entry.mutated = Cell::new(true);
-            }
-        }
-    }
 }
 
 impl<K, V> LazyMap<K, V>
