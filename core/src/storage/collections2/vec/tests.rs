@@ -137,6 +137,18 @@ fn iter_next_works() {
 }
 
 #[test]
+fn iter_mut_next_works() {
+    let elems = [b'a', b'b', b'c', b'd'];
+    let mut vec = vec_from_slice(&elems);
+    let mut iter = vec.iter_mut();
+    assert_eq!(iter.next(), Some(&mut b'a'));
+    assert_eq!(iter.next(), Some(&mut b'b'));
+    assert_eq!(iter.next(), Some(&mut b'c'));
+    assert_eq!(iter.next(), Some(&mut b'd'));
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
 fn iter_next_back_works() {
     let elems = [b'a', b'b', b'c', b'd'];
     let vec = vec_from_slice(&elems);
@@ -145,6 +157,18 @@ fn iter_next_back_works() {
     assert_eq!(iter.next(), Some(&b'c'));
     assert_eq!(iter.next(), Some(&b'b'));
     assert_eq!(iter.next(), Some(&b'a'));
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn iter_mut_next_back_works() {
+    let elems = [b'a', b'b', b'c', b'd'];
+    let mut vec = vec_from_slice(&elems);
+    let mut iter = vec.iter_mut().rev();
+    assert_eq!(iter.next(), Some(&mut b'd'));
+    assert_eq!(iter.next(), Some(&mut b'c'));
+    assert_eq!(iter.next(), Some(&mut b'b'));
+    assert_eq!(iter.next(), Some(&mut b'a'));
     assert_eq!(iter.next(), None);
 }
 
