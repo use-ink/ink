@@ -153,18 +153,20 @@ where
 
     /// Pops the last element from the vector and immediately drops it.
     ///
-    /// Does nothing if the vector is empty.
+    /// Returns `Some(())` if an element has been removed and `None` otherwise.
     ///
     /// # Note
     ///
-    /// This operation is a bit more efficient than [`Vec::pop`] for some use cases.
-    pub fn pop_drop(&mut self) {
+    /// This operation is a bit more efficient than [`Vec::pop`]
+    /// since it avoids reading from contract storage in some use cases.
+    pub fn pop_drop(&mut self) -> Option<()> {
         if self.is_empty() {
-            return
+            return None
         }
         let last_index = self.len() - 1;
         *self.len = last_index;
         self.elems.remove(last_index);
+        Some(())
     }
 
     /// Returns an exclusive reference to the first element if any.
