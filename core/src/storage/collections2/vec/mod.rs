@@ -206,6 +206,7 @@ where
     ///
     /// If one or both indices are out of bounds.
     pub fn swap(&mut self, a: u32, b: u32) {
+        assert!(a < self.len() && b < self.len(), "indices are out of bounds");
         self.elems.swap(a, b)
     }
 
