@@ -78,7 +78,7 @@ impl<T> Pack<T> {
 }
 
 impl<T> StorageFootprint for Pack<T> {
-    type Value = typenum::P1;
+    type Value = typenum::U1;
 }
 
 impl<T> SaturatingStorage for Pack<T> {}

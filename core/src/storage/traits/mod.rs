@@ -104,10 +104,10 @@ impl KeyPtr {
     pub fn next_for2<T>(&mut self) -> Key
     where
         T: StorageFootprint,
-        <T as StorageFootprint>::Value: typenum::Integer,
+        <T as StorageFootprint>::Value: typenum::Unsigned,
     {
         let copy = self.key;
-        self.key += <<T as StorageFootprint>::Value as typenum::Integer>::to_i64() as u64;
+        self.key += <<T as StorageFootprint>::Value as typenum::Unsigned>::U128;
         copy
     }
 }

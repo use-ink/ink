@@ -148,12 +148,12 @@ impl<T> PushAt for PhantomData<T> {
     fn push_at(&self, _at: Key) {}
 }
 
-use typenum::Integer;
+use typenum::Unsigned;
 
 impl<T> PushForward for Option<T>
 where
     T: PushForward + StorageFootprint,
-    <T as StorageFootprint>::Value: Integer,
+    <T as StorageFootprint>::Value: Unsigned,
 {
     /// We implement `PushForward` for `Option<T>` in an optimized fashion
     /// leaving behind a cleared contract storage cell area in case of `None`.
@@ -170,7 +170,7 @@ where
                 // Bail out early if `StorageSize` is too big and the method
                 // is used even though we have tried to prevent this at compile
                 // time.
-                if <T as StorageFootprint>::Value::I64 as u64 > 32 {
+                if <T as StorageFootprint>::Value::U64 > 32 {
                     return
                 }
                 // # ToDo
@@ -178,7 +178,7 @@ where
                 // Create a trait bound onto something like
                 // `ClearForward` and `ClearAt` that have a sole purpose of
                 // clearing the underlying storage of a storage entity.
-                for n in 0..<<T as StorageFootprint>::Value as Integer>::I64 as u64 {
+                for n in 0..<<T as StorageFootprint>::Value as Unsigned>::U64 {
                     env::clear_contract_storage(pos0 + n);
                 }
             }
