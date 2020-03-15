@@ -188,17 +188,6 @@ where
             .and_then(move |index| self.elems.get_mut(index))
     }
 
-    /// Replaces the element at the given index and returns the old value.
-    ///
-    /// Returns `None` if `n` is out of bounds.
-    pub fn replace<F>(&mut self, index: u32, f: F) -> Option<T>
-    where
-        F: FnOnce() -> T,
-    {
-        self.get_mut(index)
-            .map(|value| core::mem::replace(value, f()))
-    }
-
     /// Swaps the elements at the given indices.
     ///
     /// # Panics
