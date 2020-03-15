@@ -195,10 +195,8 @@ where
     where
         F: FnOnce() -> T,
     {
-        self.within_bounds(index).map(|index| {
-            self.elems
-                .put_get(index, Some(f()))
-                .expect("expected an actual element since access is within bounds")
+        self.get_mut(index).map(|value| {
+            core::mem::replace(value, f())
         })
     }
 
