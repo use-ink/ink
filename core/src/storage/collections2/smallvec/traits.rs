@@ -27,7 +27,7 @@ use crate::storage::{
     StorageFootprintOf,
 };
 use core::{
-    iter::FromIterator,
+    iter::{FromIterator, Extend},
     ops::Add,
 };
 use typenum::{
@@ -70,6 +70,21 @@ where
     }
 }
 
+impl<T, N> Extend<T> for SmallVec<T, N>
+where
+    T: StorageFootprint + SaturatingStorage,
+    N: LazyArrayLength<T>,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = T>,
+    {
+        for item in iter {
+            self.push(item)
+        }
+    }
+}
+
 impl<T, N> FromIterator<T> for SmallVec<T, N>
 where
     T: StorageFootprint + SaturatingStorage,
@@ -80,9 +95,7 @@ where
         I: IntoIterator<Item = T>,
     {
         let mut vec = SmallVec::new();
-        for item in iter {
-            vec.push(item)
-        }
+        vec.extend(iter);
         vec
     }
 }

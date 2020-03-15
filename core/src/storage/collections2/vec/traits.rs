@@ -26,7 +26,7 @@ use crate::{
     },
 };
 use core::{
-    iter::FromIterator,
+    iter::{FromIterator, Extend},
     ops::Add,
 };
 use typenum::{
@@ -66,6 +66,20 @@ where
     }
 }
 
+impl<T> Extend<T> for StorageVec<T>
+where
+    T: StorageFootprint + SaturatingStorage,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = T>,
+    {
+        for item in iter {
+            self.push(item)
+        }
+    }
+}
+
 impl<T> FromIterator<T> for StorageVec<T>
 where
     T: StorageFootprint + SaturatingStorage,
@@ -75,9 +89,7 @@ where
         I: IntoIterator<Item = T>,
     {
         let mut vec = StorageVec::new();
-        for item in iter {
-            vec.push(item)
-        }
+        vec.extend(iter);
         vec
     }
 }
