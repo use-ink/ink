@@ -216,4 +216,26 @@ where
         self.elems.swap(n, self.len() - 1);
         self.pop()
     }
+
+    /// Removes the indexed element from the vector.
+    ///
+    /// The last element of the vector is put into the indexed slot.
+    /// Returns `Some(())` if an element has been removed and `None` otherwise.
+    ///
+    /// # Note
+    ///
+    /// This operation should be preferred over [`Vec::swap_remove`] if there is
+    /// no need to return the removed element since it avoids a contract storage
+    /// read for some use cases.
+    pub fn swap_remove_drop(&mut self, n: u32) -> Option<()> {
+        if self.is_empty() {
+            return None
+        }
+        self.elems.remove(n);
+        let last_index = self.len() - 1;
+        let last = self.elems.take(last_index);
+        self.elems.put(n, last);
+        *self.len = last_index;
+        Some(())
+    }
 }

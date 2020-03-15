@@ -216,3 +216,24 @@ fn swap_remove_works() {
     assert_eq!(vec.swap_remove(0), None);
     assert_eq_slice(&vec, &[]);
 }
+
+#[test]
+fn swap_remove_drop_works() {
+    let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+
+    // Swap remove first element.
+    assert_eq!(vec.swap_remove_drop(0), Some(()));
+    assert_eq_slice(&vec, &[b'd', b'b', b'c']);
+    // Swap remove middle element.
+    assert_eq!(vec.swap_remove_drop(1), Some(()));
+    assert_eq_slice(&vec, &[b'd', b'c']);
+    // Swap remove last element.
+    assert_eq!(vec.swap_remove_drop(1), Some(()));
+    assert_eq_slice(&vec, &[b'd']);
+    // Swap remove only element.
+    assert_eq!(vec.swap_remove_drop(0), Some(()));
+    assert_eq_slice(&vec, &[]);
+    // Swap remove from empty vector.
+    assert_eq!(vec.swap_remove_drop(0), None);
+    assert_eq_slice(&vec, &[]);
+}
