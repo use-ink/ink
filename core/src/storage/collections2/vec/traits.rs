@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Vec as StorageVec;
+use super::{
+    Vec as StorageVec,
+    Iter,
+    IterMut,
+};
 use crate::{
     storage,
     storage::{
@@ -62,10 +66,22 @@ where
     T: StorageFootprint + PullForward,
 {
     type Item = &'a T;
-    type IntoIter = super::Iter<'a, T>;
+    type IntoIter = Iter<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
+    }
+}
+
+impl<'a, T: 'a> IntoIterator for &'a mut StorageVec<T>
+where
+    T: StorageFootprint + SaturatingStorage + PullForward,
+{
+    type Item = &'a mut T;
+    type IntoIter = IterMut<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
     }
 }
 
