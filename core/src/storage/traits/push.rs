@@ -49,7 +49,7 @@ macro_rules! impl_push_for_primitive {
         $(
             impl PushForward for $ty {
                 fn push_forward(&self, ptr: &mut KeyPtr) {
-                    <$ty as PushAt>::push_at(self, ptr.next_for2::<$ty>())
+                    <$ty as PushAt>::push_at(self, ptr.next_for::<$ty>())
                 }
             }
 

@@ -51,7 +51,7 @@ macro_rules! impl_clear_for_primitive {
         $(
             impl ClearForward for $ty {
                 fn clear_forward(&self, ptr: &mut KeyPtr) {
-                    <$ty as ClearAt>::clear_at(self, ptr.next_for2::<$ty>())
+                    <$ty as ClearAt>::clear_at(self, ptr.next_for::<$ty>())
                 }
             }
 

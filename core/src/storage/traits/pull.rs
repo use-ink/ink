@@ -62,7 +62,7 @@ macro_rules! impl_pull_for_primitive {
         $(
             impl PullForward for $ty {
                 fn pull_forward(ptr: &mut KeyPtr) -> Self {
-                    <Self as PullAt>::pull_at(ptr.next_for2::<Self>())
+                    <Self as PullAt>::pull_at(ptr.next_for::<Self>())
                 }
             }
             impl PullAt for $ty {
