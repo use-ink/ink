@@ -18,7 +18,10 @@ mod traits;
 #[cfg(test)]
 mod tests;
 
-pub use self::iter::Iter;
+pub use self::iter::{
+    Iter,
+    IterMut,
+};
 use crate::{
     storage,
     storage::{
@@ -98,15 +101,26 @@ where
     T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
-    /// Returns an iterator over the references of all elements stored in the vector.
+    /// Returns an iterator yielding shared references to all elements.
     ///
     /// # Note
     ///
-    /// - It is **not** recommended to iterate over all elements of a storage vector.
-    /// - Try to avoid this if possible or iterate only over a minimal subset of
-    ///   all elements using e.g. `Iterator::take(n)`.
+    /// - Avoid unbounded iteration over big storage vectors.
+    /// - Prefer using methods like `Iterator::take` in order to limit the number
+    ///   of yielded elements.
     pub fn iter(&self) -> Iter<T, N> {
         Iter::new(self)
+    }
+
+    /// Returns an iterator yielding exclusive references to all elements.
+    ///
+    /// # Note
+    ///
+    /// - Avoid unbounded iteration over big storage vectors.
+    /// - Prefer using methods like `Iterator::take` in order to limit the number
+    ///   of yielded elements.
+    pub fn iter_mut(&mut self) -> IterMut<T, N> {
+        IterMut::new(self)
     }
 
     /// Returns the index if it is witihn bounds or `None` otherwise.
