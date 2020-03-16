@@ -19,7 +19,7 @@ synstructure = "0.12"
 
 [dev-dependencies]
 ink_core = { path = ".." }
-trybuild = "1.0"
+trybuild = "1.0.24"
 
 [features]
 default = ["std"]
