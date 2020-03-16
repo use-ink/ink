@@ -15,6 +15,7 @@
 use crate::{
     storage,
     storage::{
+        collections2::extend_lifetime,
         PullForward,
         SaturatingStorage,
         StorageFootprint,
