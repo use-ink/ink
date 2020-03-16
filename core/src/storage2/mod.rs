@@ -22,7 +22,7 @@ pub use self::{
     collections::{
         boxed::Box,
         smallvec::SmallVec,
-        vec::Vec as Vec2,
+        vec::Vec,
     },
     lazy::{
         Lazy,

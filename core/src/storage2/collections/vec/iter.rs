@@ -26,7 +26,7 @@ use crate::{
 #[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T> {
     /// The storage vector to iterate over.
-    vec: &'a storage::Vec2<T>,
+    vec: &'a storage::Vec<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -35,7 +35,7 @@ pub struct Iter<'a, T> {
 
 impl<'a, T> Iter<'a, T> {
     /// Creates a new iterator for the given storage vector.
-    pub(crate) fn new(vec: &'a storage::Vec2<T>) -> Self {
+    pub(crate) fn new(vec: &'a storage::Vec<T>) -> Self {
         Self {
             vec,
             begin: 0,
@@ -87,7 +87,7 @@ where
 #[derive(Debug)]
 pub struct IterMut<'a, T> {
     /// The storage vector to iterate over.
-    vec: &'a mut storage::Vec2<T>,
+    vec: &'a mut storage::Vec<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -96,7 +96,7 @@ pub struct IterMut<'a, T> {
 
 impl<'a, T> IterMut<'a, T> {
     /// Creates a new iterator for the given storage vector.
-    pub(crate) fn new(vec: &'a mut storage::Vec2<T>) -> Self {
+    pub(crate) fn new(vec: &'a mut storage::Vec<T>) -> Self {
         let len = vec.len();
         Self {
             vec,
