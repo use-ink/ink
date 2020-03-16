@@ -34,6 +34,7 @@ use crate::{
         BTreeMap,
     },
 };
+use ink_prelude::collections::HashMap;
 use ink_primitives::Key;
 use itertools::Itertools;
 
@@ -439,6 +440,32 @@ fn complex_trees_work() -> Result<()> {
 
         let xs = [-2, -66, -44, 34, -6, 62, 2, 6, -30, -70, 30, -62, 7, -44, 7];
         insert_and_remove(xs.to_vec());
+        Ok(())
+    })
+}
+
+#[test]
+fn extend_works() -> Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // given
+        let arr1 = [(1i32, 2i32), (3, 4), (5, 6)];
+        let arr2 = [(7i32, 8i32), (9, 10)];
+        let mut map = empty_map();
+
+        let mut expected = HashMap::new();
+
+        expected.extend(arr1.iter().cloned());
+        expected.extend(arr2.iter().cloned());
+
+        // when
+        map.extend(arr1.iter());
+        map.extend(arr2.iter());
+
+        // then
+        assert_eq!(map.len() as usize, expected.len());
+        for (k, v) in &expected {
+            assert_eq!(Some(v), map.get(k))
+        }
         Ok(())
     })
 }

@@ -1,5 +1,5 @@
 [package]
-name = "flipper"
+name = "erc721"
 version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -14,7 +14,7 @@ scale = { package = "parity-scale-codec", version = "1.2", default-features = fa
 type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "flipper"
+name = "erc721"
 crate-type = [
 	# Used for normal contract Wasm blobs.
 	"cdylib",
