@@ -18,6 +18,7 @@ use crate::storage::{
     ClearForward,
     Lazy,
     PullForward,
+    SaturatingStorage,
     StorageFootprint,
 };
 use ink_primitives::Key;
@@ -34,7 +35,7 @@ where
 /// An indirection to some dynamically allocated storage entity.
 pub struct Box<T>
 where
-    T: ClearForward,
+    T: ClearForward + SaturatingStorage,
 {
     /// The storage area where the boxed storage entity is stored.
     key: Key,
@@ -44,7 +45,7 @@ where
 
 impl<T> Box<T>
 where
-    T: ClearForward + StorageFootprint,
+    T: ClearForward + StorageFootprint + SaturatingStorage,
 {
     /// Creates a new boxed entity.
     pub fn new(value: T) -> Self {
@@ -57,7 +58,7 @@ where
 
 impl<T> Box<T>
 where
-    T: ClearForward + StorageFootprint + PullForward,
+    T: ClearForward + StorageFootprint + PullForward + SaturatingStorage,
 {
     /// Returns a shared reference to the boxed value.
     ///

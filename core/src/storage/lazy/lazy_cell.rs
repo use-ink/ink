@@ -12,14 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::{
+    Entry,
+    EntryState,
+};
 use crate::storage::{
     ClearForward,
     KeyPtr,
     PullForward,
     PushForward,
+    SaturatingStorage,
     StorageFootprint,
 };
-use core::cell::UnsafeCell;
+use core::{
+    cell::UnsafeCell,
+    ptr::NonNull,
+};
 use ink_primitives::Key;
 
 /// The lazy storage entry can be in either of two states.
@@ -33,7 +41,7 @@ pub enum LazyCellEntry<T> {
     /// A true lazy storage entity that loads its contract storage value upon first use.
     Vacant(VacantEntry),
     /// An already loaded eager lazy storage entity.
-    Occupied(OccupiedEntry<T>),
+    Occupied(Entry<T>),
 }
 
 /// The lazy storage entity is in a lazy state.
@@ -47,20 +55,6 @@ impl VacantEntry {
     /// Creates a new truly lazy storage entity for the given key.
     pub fn new(key: Key) -> Self {
         Self { key }
-    }
-}
-
-/// An already loaded or otherwise occupied eager lazy storage entity.
-#[derive(Debug)]
-pub struct OccupiedEntry<T> {
-    /// The loaded value.
-    pub value: Option<T>,
-}
-
-impl<T> OccupiedEntry<T> {
-    /// Creates a new eager lazy storage entity with the given value.
-    pub fn new(value: Option<T>) -> Self {
-        Self { value }
     }
 }
 
@@ -102,13 +96,30 @@ where
 
 impl<T> PushForward for LazyCell<T>
 where
-    T: PushForward,
+    T: PushForward + SaturatingStorage,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         // We skip pushing to contract storage if we are still in unloaded form.
         if let LazyCellEntry::Occupied(occupied) = self.kind() {
-            if let Some(value) = &occupied.value {
-                <T as PushForward>::push_forward(value, ptr)
+            if !occupied.is_mutated() {
+                // Don't sync with storage if the value has not been mutated.
+                return
+            }
+            match occupied.value() {
+                Some(value) => <T as PushForward>::push_forward(value, ptr),
+                None => {
+                    // TODO: Find better and more general clean-up strategy with
+                    //       the help of the proposed subtrie API.
+                    let footprint = crate::storage::storage_footprint_u64::<T>();
+                    if footprint >= 32 {
+                        panic!("cannot clean up more than 32 cells at once")
+                    }
+                    let key = ptr.next_for::<T>();
+                    // Clean up storage associated with the value.
+                    for n in 0..footprint {
+                        crate::env::clear_contract_storage(key + n)
+                    }
+                }
             }
         }
     }
@@ -116,15 +127,27 @@ where
 
 impl<T> ClearForward for LazyCell<T>
 where
-    T: ClearForward,
+    T: ClearForward + SaturatingStorage,
 {
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        // We skip clear contract storage if we are still in unloaded form.
-        if let LazyCellEntry::Occupied(occupied) = self.kind() {
-            if let Some(value) = &occupied.value {
-                <T as ClearForward>::clear_forward(value, ptr)
-            }
-        }
+    fn clear_forward(&self, _ptr: &mut KeyPtr) {
+        // Not implemented because at this point we are unsure whether
+        // the whole clean-up traits are useful at all.
+        todo!()
+    }
+}
+
+impl<T> From<T> for LazyCell<T> {
+    fn from(value: T) -> Self {
+        Self::new(Some(value))
+    }
+}
+
+impl<T> Default for LazyCell<T>
+where
+    T: Default,
+{
+    fn default() -> Self {
+        Self::new(Some(Default::default()))
     }
 }
 
@@ -141,8 +164,9 @@ impl<T> LazyCell<T> {
         I: Into<Option<T>>,
     {
         Self {
-            kind: UnsafeCell::new(LazyCellEntry::Occupied(OccupiedEntry::new(
+            kind: UnsafeCell::new(LazyCellEntry::Occupied(Entry::new(
                 value.into(),
+                EntryState::Mutated,
             ))),
         }
     }
@@ -168,42 +192,69 @@ impl<T> LazyCell<T> {
         //         Rust rules.
         unsafe { &*self.kind.get() }
     }
-
-    /// Returns an exclusive reference to the inner lazy kind.
-    #[must_use]
-    fn kind_mut(&mut self) -> &mut LazyCellEntry<T> {
-        // SAFETY: We just return an exclusive reference while the method receiver
-        //         is an exclusive reference (&mut self) itself. So we respect normal
-        //         Rust rules.
-        unsafe { &mut *self.kind.get() }
-    }
 }
 
 impl<T> LazyCell<T>
 where
     T: StorageFootprint + PullForward,
 {
-    /// Loads the value lazily from contract storage.
+    /// Loads the storage entry.
     ///
-    /// # Note
-    ///
-    /// - After a successful call there will be an occupied value in the entry.
-    /// - Does nothing if value has already been loaded.
+    /// Tries to load the entry from cache and falls back to lazily load the
+    /// entry from the contract storage.
     ///
     /// # Panics
     ///
-    /// If a value has been loaded that failed to decode into `T`.
-    fn load_value_lazily(&self) {
+    /// Upon lazy loading if the lazy cell is in a state that forbids lazy loading.
+    unsafe fn load_through_cache(&self) -> NonNull<Entry<T>> {
         // SAFETY: This is critical because we mutably access the entry.
         //         However, we mutate the entry only if it is vacant.
         //         If the entry is occupied by a value we return early.
         //         This way we do not invalidate pointers to this value.
+        #[allow(unused_unsafe)]
         let kind = unsafe { &mut *self.kind.get() };
-        if let LazyCellEntry::Vacant(vacant) = kind {
-            let value =
-                <Option<T> as PullForward>::pull_forward(&mut KeyPtr::from(vacant.key));
-            *kind = LazyCellEntry::Occupied(OccupiedEntry::new(value));
+        match kind {
+            LazyCellEntry::Vacant(vacant) => {
+                // Load the value from contract storage lazily.
+                let mut key_ptr = KeyPtr::from(vacant.key);
+                let value = <Option<T> as PullForward>::pull_forward(&mut key_ptr);
+                let entry = Entry::new(value, EntryState::Mutated);
+                *kind = LazyCellEntry::Occupied(entry);
+                match kind {
+                    LazyCellEntry::Vacant(_) => {
+                        unreachable!("we just occupied the entry")
+                    }
+                    LazyCellEntry::Occupied(entry) => NonNull::from(entry),
+                }
+            }
+            LazyCellEntry::Occupied(entry) => NonNull::from(entry),
         }
+    }
+
+    /// Returns a shared reference to the entry.
+    fn get_entry(&self) -> &Entry<T> {
+        // SAFETY: We load the entry either from cache of from contract storage.
+        //
+        //         This is safe because we are just returning a shared reference
+        //         from within a `&self` method. This also cannot change the
+        //         loaded value and thus cannot change the `mutate` flag of the
+        //         entry. Aliases using this method are safe since ink! is
+        //         single-threaded.
+        unsafe { &*self.load_through_cache().as_ptr() }
+    }
+
+    /// Returns an exclusive reference to the entry.
+    fn get_entry_mut(&mut self) -> &mut Entry<T> {
+        // SAFETY: We load the entry either from cache of from contract storage.
+        //
+        //         This is safe because we are just returning a shared reference
+        //         from within a `&self` method. This also cannot change the
+        //         loaded value and thus cannot change the `mutate` flag of the
+        //         entry. Aliases using this method are safe since ink! is
+        //         single-threaded.
+        let entry = unsafe { &mut *self.load_through_cache().as_ptr() };
+        entry.set_state(EntryState::Mutated);
+        entry
     }
 
     /// Returns a shared reference to the value.
@@ -217,14 +268,10 @@ where
     /// If decoding the loaded value to `T` failed.
     #[must_use]
     pub fn get(&self) -> Option<&T> {
-        self.load_value_lazily();
-        match self.kind() {
-            LazyCellEntry::Vacant(_) => unreachable!("assumed occupied value here"),
-            LazyCellEntry::Occupied(occupied) => occupied.value.as_ref(),
-        }
+        self.get_entry().value()
     }
 
-    /// Returns an exclusive reference to the value.
+    /// Returns a shared reference to the value.
     ///
     /// # Note
     ///
@@ -235,25 +282,6 @@ where
     /// If decoding the loaded value to `T` failed.
     #[must_use]
     pub fn get_mut(&mut self) -> Option<&mut T> {
-        self.load_value_lazily();
-        match self.kind_mut() {
-            LazyCellEntry::Vacant(_) => unreachable!("assumed occupied value here"),
-            LazyCellEntry::Occupied(occupied) => occupied.value.as_mut(),
-        }
-    }
-}
-
-impl<T> From<T> for LazyCell<T> {
-    fn from(value: T) -> Self {
-        Self::new(Some(value))
-    }
-}
-
-impl<T> Default for LazyCell<T>
-where
-    T: Default,
-{
-    fn default() -> Self {
-        Self::new(Some(Default::default()))
+        self.get_entry_mut().value_mut()
     }
 }

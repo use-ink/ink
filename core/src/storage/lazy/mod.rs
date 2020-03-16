@@ -38,6 +38,7 @@ use super::{
     KeyPtr,
     PullForward,
     PushForward,
+    SaturatingStorage,
     StorageFootprint,
     StorageFootprintOf,
 };
@@ -75,7 +76,7 @@ where
 
 impl<T> PushForward for Lazy<T>
 where
-    T: PushForward,
+    T: PushForward + SaturatingStorage,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         <LazyCell<T> as PushForward>::push_forward(&self.cell, ptr)
@@ -84,7 +85,7 @@ where
 
 impl<T> ClearForward for Lazy<T>
 where
-    T: ClearForward,
+    T: ClearForward + SaturatingStorage,
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
         <LazyCell<T> as ClearForward>::clear_forward(&self.cell, ptr)
