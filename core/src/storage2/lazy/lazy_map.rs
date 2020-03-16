@@ -20,10 +20,7 @@ use crate::storage2::{
     StorageFootprintOf,
 };
 use core::{
-    cell::{
-        Cell,
-        UnsafeCell,
-    },
+    cell::UnsafeCell,
     cmp::{
         Eq,
         Ord,
@@ -142,77 +139,10 @@ where
 /// [`LazyMap::get`].
 pub type EntryMap<K, V> = BTreeMap<K, Box<Entry<V>>>;
 
-/// An entry within the lazy chunk
-#[derive(Debug)]
-pub struct Entry<T> {
-    /// The current value of the entry.
-    value: Option<T>,
-    /// This is `true` if the `value` has been mutated and is potentially
-    /// out-of-sync with the contract storage.
-    mutated: Cell<bool>,
-}
-
-impl<T> PushForward for Entry<T>
-where
-    T: PushForward + StorageFootprint,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        // Reset the mutated entry flag because we just synced.
-        self.mutated.set(false);
-        // Since `self.value` is of type `Option` this will eventually
-        // clear the underlying storage entry if `self.value` is `None`.
-        self.value.push_forward(ptr);
-    }
-}
-
-impl<T> Entry<T> {
-    /// Returns `true` if the cached value of the entry has potentially been mutated.
-    pub fn mutated(&self) -> bool {
-        self.mutated.get()
-    }
-
-    /// Returns a shared reference to the value of the entry.
-    pub fn value(&self) -> Option<&T> {
-        self.value.as_ref()
-    }
-
-    /// Returns an exclusive reference to the value of the entry.
-    ///
-    /// # Note
-    ///
-    /// This changes the `mutate` state of the entry if the entry was occupied
-    /// since the caller could potentially change the returned value.
-    pub fn value_mut(&mut self) -> Option<&mut T> {
-        self.mutated.set(self.value.is_some());
-        self.value.as_mut()
-    }
-
-    /// Takes the value from the entry and returns it.
-    ///
-    /// # Note
-    ///
-    /// This changes the `mutate` state of the entry if the entry was occupied.
-    pub fn take_value(&mut self) -> Option<T> {
-        self.mutated.set(self.value.is_some());
-        self.value.take()
-    }
-
-    /// Puts the new value into the entry and returns the old value.
-    ///
-    /// # Note
-    ///
-    /// This changes the `mutate` state of the entry to `true` as long as at
-    /// least one of `old_value` and `new_value` is `Some`.
-    pub fn put(&mut self, new_value: Option<T>) -> Option<T> {
-        match new_value {
-            Some(new_value) => {
-                self.mutated.set(true);
-                self.value.replace(new_value)
-            }
-            None => self.take_value(),
-        }
-    }
-}
+use super::{
+    Entry,
+    EntryState,
+};
 
 impl<K, V> LazyMap<K, V>
 where
@@ -276,13 +206,8 @@ where
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the old element at the given index failed.
     pub fn put(&mut self, index: K, new_value: Option<V>) {
-        self.entries_mut().insert(
-            index,
-            Box::new(Entry {
-                value: new_value,
-                mutated: Cell::new(true),
-            }),
-        );
+        self.entries_mut()
+            .insert(index, Box::new(Entry::new(new_value, EntryState::Mutated)));
     }
 }
 
@@ -329,7 +254,11 @@ where
     fn push_forward(&self, ptr: &mut KeyPtr) {
         let key = ptr.next_for::<Self>();
         assert_eq!(self.key, Some(key));
-        for (index, entry) in self.entries().iter().filter(|(_, entry)| entry.mutated()) {
+        for (index, entry) in self
+            .entries()
+            .iter()
+            .filter(|(_, entry)| entry.is_mutated())
+        {
             let offset: Key = <K as KeyMapping<V>>::to_storage_key(index, &key);
             let mut ptr = KeyPtr::from(offset);
             PushForward::push_forward(&**entry, &mut ptr);
@@ -389,8 +318,10 @@ where
                 let off_key = <K as KeyMapping<V>>::to_storage_key(&index_copy, &key);
                 let value =
                     <Option<V> as PullForward>::pull_forward(&mut KeyPtr::from(off_key));
-                let mutated = Cell::new(false);
-                NonNull::from(&mut **vacant.insert(Box::new(Entry { value, mutated })))
+                NonNull::from(
+                    &mut **vacant
+                        .insert(Box::new(Entry::new(value, EntryState::Preserved))),
+                )
             }
         }
     }
@@ -495,14 +426,14 @@ where
                 &mut *self.lazily_load(x).as_ptr(),
                 &mut *self.lazily_load(y).as_ptr(),
             ) };
-        if loaded_x.value.is_none() && loaded_y.value.is_none() {
+        if loaded_x.value().is_none() && loaded_y.value().is_none() {
             // Bail out since nothing has to be swapped if both values are `None`.
             return
         }
         // Set the `mutate` flag since at this point at least one of the loaded
         // values is guaranteed to be `Some`.
-        loaded_x.mutated.set(true);
-        loaded_y.mutated.set(true);
-        core::mem::swap(&mut loaded_x.value, &mut loaded_y.value);
+        loaded_x.set_state(EntryState::Mutated);
+        loaded_y.set_state(EntryState::Mutated);
+        core::mem::swap(loaded_x.value_as_mut_ref(), loaded_y.value_as_mut_ref());
     }
 }

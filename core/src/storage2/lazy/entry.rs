@@ -92,6 +92,23 @@ impl<T> Entry<T> {
         self.value.as_mut()
     }
 
+    /// Returns an exclusive reference to the entry value.
+    ///
+    /// # Note
+    ///
+    /// This changes the `mutate` state of the entry if the entry was occupied
+    /// since the caller could potentially change the returned value.
+    pub fn value_as_mut_ref(&mut self) -> &mut Option<T> {
+        self.state.set(
+            if self.value.is_some() {
+                EntryState::Mutated
+            } else {
+                EntryState::Preserved
+            },
+        );
+        &mut self.value
+    }
+
     /// Takes the value from the entry and returns it.
     ///
     /// # Note
