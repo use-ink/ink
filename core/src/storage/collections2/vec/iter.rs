@@ -109,7 +109,7 @@ impl<'a, T> IterMut<'a, T>
 where
     T: StorageFootprint + SaturatingStorage + PullForward,
 {
-    fn get_mut(&mut self, at: u32) -> Option<&'a mut T> {
+    fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
         self.vec.get_mut(at).map(|value| {
             // SAFETY: We extend the lifetime of the reference here.
             //
@@ -118,7 +118,7 @@ where
             //         just once and also there can be only one such iterator
             //         for the same vector at the same time which is
             //         guaranteed by the constructor of the iterator.
-            unsafe { core::mem::transmute::<&mut T, &'a mut T>(value) }
+            unsafe { extend_lifetime::<'b, 'a, T>(value) }
         })
     }
 }
