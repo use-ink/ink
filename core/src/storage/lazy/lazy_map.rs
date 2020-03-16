@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::super::{
+use crate::storage::{
     KeyPtr,
     PullForward,
     PushForward,
@@ -28,6 +28,7 @@ use core::{
         Eq,
         Ord,
     },
+    ops::Mul,
     ptr::NonNull,
 };
 use ink_prelude::{
@@ -38,6 +39,7 @@ use ink_primitives::Key;
 use typenum::{
     Prod,
     Unsigned,
+    P4294967296,
 };
 
 /// The index type used in the lazy storage chunk.
@@ -283,9 +285,6 @@ where
         );
     }
 }
-
-use core::ops::Mul;
-use typenum::P4294967296;
 
 impl<T> StorageFootprint for LazyChunk<T>
 where
