@@ -124,7 +124,7 @@ clippy-std:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo +nightly-2020-02-01 clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -134,7 +134,7 @@ clippy-wasm:
     - check-wasm
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo +nightly-2020-02-01 clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:
@@ -172,7 +172,7 @@ examples-clippy-std:
   <<:                              *docker-env
   script:
     - for example in examples/*/; do
-        cargo +nightly-2020-02-01 clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
 
 examples-clippy-wasm:
@@ -180,7 +180,7 @@ examples-clippy-wasm:
   <<:                              *docker-env
   script:
     - for example in examples/*/; do
-        cargo +nightly-2020-02-01 clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
 examples-contract-build:
@@ -227,7 +227,7 @@ publish-docs:
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     - git fetch origin gh-pages
     # Generating Docs
-    - time cargo +nightly doc --no-deps --all-features
+    - time cargo doc --no-deps --all-features
         -p type-metadata -p ink_abi -p ink_abi_derive -p ink_core -p ink_core_derive
         -p ink_primitives -p ink_prelude -p ink_lang -p ink_lang_macro
     # saving README and docs
