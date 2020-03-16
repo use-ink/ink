@@ -15,3 +15,23 @@
 pub mod boxed;
 pub mod smallvec;
 pub mod vec;
+
+/// Extends the lifetime 'a to the outliving lifetime 'b for the given reference.
+///
+/// # Note
+///
+/// This interface is a bit more constraint than a simple
+/// [transmut](`core::mem::transmute`) and therefore preferred
+/// for extending lifetimes only.
+///
+/// # Safety
+///
+/// This function is `unsafe` because lifetimes can be extended beyond the
+/// lifetimes of the objects they are referencing and thus potentially create
+/// dangling references if not used carefully.
+pub(crate) unsafe fn extend_lifetime<'a, 'b: 'a, T>(reference: &'a mut T) -> &'b mut T {
+    #[allow(unused_unsafe)]
+    unsafe {
+        core::mem::transmute::<&'a mut T, &'b mut T>(reference)
+    }
+}
