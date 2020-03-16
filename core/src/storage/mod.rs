@@ -73,11 +73,7 @@ pub mod alloc;
 pub mod cell;
 pub mod chunk;
 mod collections;
-mod collections2;
 mod flush;
-mod lazy;
-mod pack;
-mod traits;
 mod value;
 
 pub use self::{
@@ -107,36 +103,36 @@ pub use self::{
             Vec,
         },
     },
-    collections2::{
-        boxed::Box,
-        smallvec::SmallVec,
-        vec::Vec as Vec2,
-    },
     flush::Flush,
-    lazy::{
-        Lazy,
-        LazyArray,
-        LazyArrayLength,
-        LazyCell,
-        LazyChunk,
-        LazyMap,
-        LazyMapping,
-    },
-    pack::Pack,
-    traits::{
-        storage_footprint_u128,
-        storage_footprint_u64,
-        ClearAt,
-        ClearForward,
-        KeyPtr,
-        PullAt,
-        PullForward,
-        PushAt,
-        PushForward,
-        SaturatingStorage,
-        StorageFootprint,
-        StorageFootprintOf,
-    },
+    // collections2::{
+    //     boxed::Box,
+    //     smallvec::SmallVec,
+    //     vec::Vec as Vec2,
+    // },
+    // lazy::{
+    //     Lazy,
+    //     LazyArray,
+    //     LazyArrayLength,
+    //     LazyCell,
+    //     LazyChunk,
+    //     LazyMap,
+    //     LazyMapping,
+    // },
+    // pack::Pack,
+    // traits::{
+    //     storage_footprint_u128,
+    //     storage_footprint_u64,
+    //     ClearAt,
+    //     ClearForward,
+    //     KeyPtr,
+    //     PullAt,
+    //     PullForward,
+    //     PushAt,
+    //     PushForward,
+    //     SaturatingStorage,
+    //     StorageFootprint,
+    //     StorageFootprintOf,
+    // },
 };
 
 #[doc(inline)]
