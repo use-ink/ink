@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use super::{
-    Vec as StorageVec,
     Iter,
     IterMut,
+    Vec as StorageVec,
 };
 use crate::{
     storage,
