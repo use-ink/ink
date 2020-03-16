@@ -14,13 +14,13 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(not(feature = "ink-as-dependency"))]
-use ink_core::storage;
-
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod accumulator {
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_core::storage;
+    
     /// Holds a simple i32 value that can be incremented and decremented.
     #[ink(storage)]
     struct Accumulator {

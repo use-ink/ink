@@ -117,6 +117,20 @@ impl Drop for BitVec {
     }
 }
 
+impl Extend<bool> for BitVec {
+    fn extend<T: IntoIterator<Item = bool>>(&mut self, iter: T) {
+        for b in iter {
+            self.push(b)
+        }
+    }
+}
+
+impl<'a> Extend<&'a bool> for BitVec {
+    fn extend<T: IntoIterator<Item = &'a bool>>(&mut self, iter: T) {
+        self.extend(iter.into_iter().copied())
+    }
+}
+
 impl BitVec {
     /// Returns the number of bits.
     pub fn len(&self) -> u32 {
