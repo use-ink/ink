@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use crate::{
-    storage,
-    storage::{
-        collections2::extend_lifetime,
+    storage2 as storage,
+    storage2::{
+        collections::extend_lifetime,
         PullForward,
         SaturatingStorage,
         StorageFootprint,

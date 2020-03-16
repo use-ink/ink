@@ -16,7 +16,7 @@ use super::{
     Iter,
     SmallVec,
 };
-use crate::storage::{
+use crate::storage2::{
     KeyPtr,
     LazyArray,
     LazyArrayLength,

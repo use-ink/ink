@@ -49,6 +49,7 @@ extern crate ink_alloc;
 
 pub mod env;
 pub mod storage;
+pub mod storage2;
 
 // Needed for derive macros of `core/derive` sub crate.
 pub(crate) use crate as ink_core;

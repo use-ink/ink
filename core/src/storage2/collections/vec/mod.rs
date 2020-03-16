@@ -23,8 +23,8 @@ pub use self::iter::{
     IterMut,
 };
 use crate::{
-    storage,
-    storage::{
+    storage2 as storage,
+    storage2::{
         PullForward,
         SaturatingStorage,
         StorageFootprint,

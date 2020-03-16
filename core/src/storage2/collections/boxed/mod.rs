@@ -14,7 +14,7 @@
 
 mod traits;
 
-use crate::storage::{
+use crate::storage2::{
     ClearForward,
     Lazy,
     PullForward,

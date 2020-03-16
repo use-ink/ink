@@ -13,8 +13,8 @@
 // limitations under the License.
 
 use super::SmallVec;
-use crate::storage::{
-    collections2::extend_lifetime,
+use crate::storage2::{
+    collections::extend_lifetime,
     LazyArrayLength,
     PullForward,
     SaturatingStorage,

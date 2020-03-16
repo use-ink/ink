@@ -104,35 +104,6 @@ pub use self::{
         },
     },
     flush::Flush,
-    // collections2::{
-    //     boxed::Box,
-    //     smallvec::SmallVec,
-    //     vec::Vec as Vec2,
-    // },
-    // lazy::{
-    //     Lazy,
-    //     LazyArray,
-    //     LazyArrayLength,
-    //     LazyCell,
-    //     LazyChunk,
-    //     LazyMap,
-    //     LazyMapping,
-    // },
-    // pack::Pack,
-    // traits::{
-    //     storage_footprint_u128,
-    //     storage_footprint_u64,
-    //     ClearAt,
-    //     ClearForward,
-    //     KeyPtr,
-    //     PullAt,
-    //     PullForward,
-    //     PushAt,
-    //     PushForward,
-    //     SaturatingStorage,
-    //     StorageFootprint,
-    //     StorageFootprintOf,
-    // },
 };
 
 #[doc(inline)]

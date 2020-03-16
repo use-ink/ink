@@ -16,7 +16,7 @@ use super::{
     Entry,
     EntryState,
 };
-use crate::storage::{
+use crate::storage2::{
     KeyPtr,
     PullForward,
     PushForward,
