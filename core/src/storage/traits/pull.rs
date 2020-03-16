@@ -189,7 +189,7 @@ where
     E: PullForward,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        match pull_single_cell::<u8>(ptr.next_for2::<u8>()) {
+        match pull_single_cell::<u8>(ptr.next_for::<u8>()) {
             0 => Ok(<T as PullForward>::pull_forward(ptr)),
             1 => Err(<E as PullForward>::pull_forward(ptr)),
             _ => unreachable!("found invalid Result discriminator"),
@@ -208,7 +208,7 @@ where
 
 impl PullForward for ink_prelude::string::String {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        <Self as PullAt>::pull_at(ptr.next_for2::<Self>())
+        <Self as PullAt>::pull_at(ptr.next_for::<Self>())
     }
 }
 

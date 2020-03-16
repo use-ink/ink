@@ -315,7 +315,7 @@ where
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
-            key: Some(ptr.next_for2::<Self>()),
+            key: Some(ptr.next_for::<Self>()),
             cached_entries: UnsafeCell::new(BTreeMap::new()),
         }
     }
@@ -328,7 +328,7 @@ where
     V: PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        let key = ptr.next_for2::<Self>();
+        let key = ptr.next_for::<Self>();
         assert_eq!(self.key, Some(key));
         for (index, entry) in self.entries().iter().filter(|(_, entry)| entry.mutated()) {
             let offset: Key = <K as KeyMapping<V>>::to_storage_key(index, &key);

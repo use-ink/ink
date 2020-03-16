@@ -177,7 +177,7 @@ impl<T, E> ClearAt for Result<T, E> {}
 
 impl ClearForward for ink_prelude::string::String {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
-        <Self as ClearAt>::clear_at(self, ptr.next_for2::<Self>())
+        <Self as ClearAt>::clear_at(self, ptr.next_for::<Self>())
     }
 }
 

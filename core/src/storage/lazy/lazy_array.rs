@@ -245,7 +245,7 @@ where
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
-            key: Some(ptr.next_for2::<Self>()),
+            key: Some(ptr.next_for::<Self>()),
             cached_entries: UnsafeCell::new(EntryArray::new()),
         }
     }
@@ -260,7 +260,7 @@ where
     <T as StorageFootprint>::Value: Unsigned,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        let offset_key = ptr.next_for2::<Self>();
+        let offset_key = ptr.next_for::<Self>();
         for (index, entry) in self.cached_entries().entries.iter().enumerate() {
             if let Some(entry) = entry {
                 if !entry.is_mutated() {

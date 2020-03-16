@@ -88,7 +88,7 @@ where
     T: PullAt,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        <Self as PullAt>::pull_at(ptr.next_for2::<Self>())
+        <Self as PullAt>::pull_at(ptr.next_for::<Self>())
     }
 }
 
@@ -108,7 +108,7 @@ where
     T: PushAt,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        <Self as PushAt>::push_at(self, ptr.next_for2::<Self>())
+        <Self as PushAt>::push_at(self, ptr.next_for::<Self>())
     }
 }
 

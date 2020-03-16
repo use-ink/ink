@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::super::{
+use crate::storage::{
     ClearForward,
     KeyPtr,
     PullForward,
@@ -96,7 +96,7 @@ where
     T: StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for2::<T>())
+        Self::lazy(ptr.next_for::<T>())
     }
 }
 

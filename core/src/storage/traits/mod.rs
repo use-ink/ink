@@ -101,7 +101,7 @@ impl KeyPtr {
 
     /// Advances the key by the given amount derive by `T` and its `StorageSize`
     /// and returns the next `Key` for usage by the storage element.
-    pub fn next_for2<T>(&mut self) -> Key
+    pub fn next_for<T>(&mut self) -> Key
     where
         T: StorageFootprint,
         <T as StorageFootprint>::Value: typenum::Unsigned,

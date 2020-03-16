@@ -166,7 +166,7 @@ where
             Some(val) => <T as PushForward>::push_forward(val, ptr),
             None => {
                 // We still need to advance the key pointer.
-                let pos0 = ptr.next_for2::<T>();
+                let pos0 = ptr.next_for::<T>();
                 // Bail out early if `StorageSize` is too big and the method
                 // is used even though we have tried to prevent this at compile
                 // time.
@@ -240,7 +240,7 @@ where
 
 impl PushForward for ink_prelude::string::String {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        <Self as PushAt>::push_at(self, ptr.next_for2::<Self>())
+        <Self as PushAt>::push_at(self, ptr.next_for::<Self>())
     }
 }
 
