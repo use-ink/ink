@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Core abstractions for storage manipulation. (revision 2)
+
 pub mod collections;
 pub mod lazy;
 mod traits;
