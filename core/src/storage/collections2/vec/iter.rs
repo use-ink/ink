@@ -23,7 +23,7 @@ use crate::{
 };
 
 /// An iterator over shared references to the elements of a storage vector.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T> {
     /// The storage vector to iterate over.
     vec: &'a storage::Vec2<T>,
