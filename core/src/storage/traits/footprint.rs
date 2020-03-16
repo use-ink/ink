@@ -201,13 +201,13 @@ where
     type Value = StorageFootprintOf<T>;
 }
 
-impl<T> SaturatingStorageMarker for Box<T> where T: SaturatingStorage {}
+impl<T> SaturatingStorageMarker for ink_prelude::boxed::Box<T> where T: SaturatingStorage {}
 
 impl StorageFootprint for ink_prelude::string::String {
     type Value = U1;
 }
 
-impl SaturatingStorage for String {}
+impl SaturatingStorage for ink_prelude::string::String {}
 
 impl<T> StorageFootprint for ink_prelude::vec::Vec<T> {
     type Value = U1;
