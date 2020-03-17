@@ -12,7 +12,7 @@ ink_lang = { path = "../../lang", default-features = false }
 
 blake2-rfc = { version = "0.2.18", default-features = false }
 scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive"] }
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
+type-metadata = { git = "https://github.com/ascjones/type-metadata.git", branch = "aj-merge-type", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "runtime_storage"
