@@ -41,8 +41,6 @@ variables:
     - schedules
     - web
     - /^[0-9]+$/                   # PRs
-    - staging
-    - trying
   dependencies:                    []
   interruptible:                   true
   retry:
@@ -64,6 +62,15 @@ check-std:
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
+
+check-wasm:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+      done
+
 
 #### stage:                        workspace
 
@@ -164,7 +171,6 @@ examples-test:
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
 
-
 examples-fmt:
   stage:                           examples
   <<:                              *docker-env
@@ -176,8 +182,11 @@ examples-fmt:
 examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
+<<<<<<< HEAD
   needs:
     - clippy-std
+=======
+>>>>>>> fetch gitlabciyml from upstream
   script:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
@@ -205,8 +214,11 @@ examples-contract-build:
 examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
+<<<<<<< HEAD
   needs:
     - build-wasm
+=======
+>>>>>>> fetch gitlabciyml from upstream
   script:
     - *update-cargo-contract
     - for example in examples/*/; do
