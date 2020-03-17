@@ -338,6 +338,23 @@ impl TypedEnv for EnvInstance {
         ext::terminate(&self.buffer[..]);
     }
 
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        // Reset the contract-side buffer to append onto clean slate.
+        self.reset_buffer();
+        // Append the encoded `destination` and `value` in order and remember
+        // their encoded regions within the buffer.
+        let destination = self.append_encode_into_buffer(destination);
+        let value = self.append_encode_into_buffer(value);
+        // Resolve the encoded regions into actual byte slices.
+        let destination = &self.buffer[destination];
+        let value = &self.buffer[value];
+        // Perform the actual transfer call.
+        ext::transfer(destination, value)
+    }
+
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: EnvTypes,

@@ -275,6 +275,18 @@ where
         env::terminate_contract::<T>(beneficiary)
     }
 
+    /// Transfers value from the contract to the destination account ID.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::transfer`]
+    pub fn transfer(self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        env::transfer::<T>(destination, value)
+    }
+
     /// Returns a random hash seed.
     ///
     /// # Note
