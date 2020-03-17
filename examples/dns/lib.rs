@@ -19,7 +19,6 @@ use ink_lang as ink;
 #[ink::contract(version = "0.1.0")]
 mod dns {
     use ink_core::storage;
-    use scale;
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
