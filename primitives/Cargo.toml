@@ -27,6 +27,7 @@ git = "https://github.com/type-metadata/type-metadata.git"
 rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
 default-features = false
 features = ["derive"]
+optional = true
 
 [features]
 default = ["std"]

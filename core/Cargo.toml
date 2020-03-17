@@ -27,17 +27,18 @@ smallvec = { version = "1.2", default-features = false, features = ["union"] }
 cfg-if = "0.1"
 num-traits = { version = "0.2", default-features = false, features = ["i128"] }
 
-[dependencies.type-metadata]
-git = "https://github.com/type-metadata/type-metadata.git"
-rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
-default-features = false
-features = ["derive"]
-
 # Only used in the off-chain environment.
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside of the off-chain environment!
 rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
+
+[dependencies.type-metadata]
+git = "https://github.com/type-metadata/type-metadata.git"
+rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
+default-features = false
+features = ["derive"]
+optional = true
 
 [dev-dependencies]
 itertools = "0.9"
