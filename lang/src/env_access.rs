@@ -268,10 +268,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::terminate_contract`]
-    pub fn terminate_contract(
-        self,
-        beneficiary: T::AccountId,
-    ) -> !
+    pub fn terminate_contract(self, beneficiary: T::AccountId) -> !
     where
         T: EnvTypes,
     {
