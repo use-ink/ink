@@ -263,6 +263,21 @@ where
         env::restore_contract::<T>(account_id, code_hash, rent_allowance, filtered_keys)
     }
 
+    /// Terminates the existence of a smart contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::terminate_contract`]
+    pub fn terminate_contract(
+        self,
+        beneficiary: T::AccountId,
+    ) -> !
+    where
+        T: EnvTypes,
+    {
+        env::terminate_contract::<T>(beneficiary)
+    }
+
     /// Returns a random hash seed.
     ///
     /// # Note
