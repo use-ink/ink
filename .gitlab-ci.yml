@@ -51,7 +51,7 @@ variables:
       - unknown_failure
       - api_failure
   tags:
-    - linux-docker
+    - ci3
 
 
 #### stage:                        check
