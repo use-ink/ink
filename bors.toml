@@ -10,6 +10,10 @@ status = [
   "continuous-integration/gitlab-clippy-std",
   "continuous-integration/gitlab-clippy-wasm",
   "continuous-integration/gitlab-fmt",
+  # "ci/gitlab/gitlab.parity.io",
+  # "continuous-integration/gitlab-cargo-audit",
+  # "continuous-integration/gitlab-check_warnings",
+  # "continuous-integration/gitlab-test-linux-stable",
   "ci/gitlab/master ",
   "ci/gitlab/gitlab.parity.io"
 ]
