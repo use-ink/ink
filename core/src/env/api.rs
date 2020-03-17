@@ -400,7 +400,7 @@ pub fn restore_contract<T>(
 /// # Note
 ///
 /// This is more efficient and simpler than the alternative to make a no-op
-/// contract call or invoke a runtime function that has performs the
+/// contract call or invoke a runtime function that performs the
 /// transaction.
 ///
 /// # Errors
