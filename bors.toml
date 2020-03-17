@@ -1,4 +1,7 @@
 status = [
+  "ci/gitlab/gitlab-check-std",
+  "ci/gitlab/gitlab-build-std",
+  "ci/gitlab/gitlab-examples-test",
   "continuous-integration/gitlab-check-std",
   "continuous-integration/gitlab-check-wasm",
   "continuous-integration/gitlab-test",
@@ -6,10 +9,12 @@ status = [
   "continuous-integration/gitlab-build-wasm",
   "continuous-integration/gitlab-clippy-std",
   "continuous-integration/gitlab-clippy-wasm",
-  "continuous-integration/gitlab-fmt"
+  "continuous-integration/gitlab-fmt",
+  "ci/gitlab/master ",
+  "ci/gitlab/gitlab.parity.io"
 ]
 # Uncomment this to use a two hour timeout.
 # The default is one hour.
-#timeout_sec = 7200
+timeout_sec = 600
 
 #ci/gitlab/gitlab.parity.io
