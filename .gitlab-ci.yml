@@ -83,15 +83,6 @@ check-std:
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
-      done
-
-
 #### stage:                        workspace
 
 <<<<<<< HEAD
@@ -109,6 +100,7 @@ build-std:
         cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
       done
 
+<<<<<<< HEAD
 build-wasm:
   stage:                           workspace
   <<:                              *docker-env
@@ -218,9 +210,12 @@ fmt:
 =======
 =======
 >>>>>>> rebase on upstream [skip ci]
+=======
+>>>>>>> less~tests
 #### stage:                        examples
 >>>>>>> trigger CI
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 .update-cargo-contract:            &update-cargo-contract 
 >>>>>>> trigger CI
@@ -240,6 +235,8 @@ fmt:
   - cargo contract -V
 >>>>>>> rebase on upstream [skip ci]
 
+=======
+>>>>>>> less~tests
 examples-test:
   stage:                           examples
   <<:                              *docker-env
@@ -249,6 +246,7 @@ examples-test:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
+<<<<<<< HEAD
 
 examples-fmt:
   stage:                           examples
@@ -361,3 +359,5 @@ publish-docs:
 >>>>>>> less tests
 =======
 >>>>>>> rebase on upstream [skip ci]
+=======
+>>>>>>> less~tests
