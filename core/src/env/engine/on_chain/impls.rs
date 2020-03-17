@@ -330,6 +330,21 @@ impl TypedEnv for EnvInstance {
         ext::restore_to(account_id, code_hash, rent_allowance, filtered_keys);
     }
 
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        // Reset the contract-side buffer to append onto clean slate.
+        self.reset_buffer();
+        // Append the encoded `account_id`, `code_hash` and `rent_allowance`
+        // and `filtered_keys` in order and remember their encoded regions
+        // within the buffer.
+        let account_id = self.append_encode_into_buffer(account_id);
+        let value = self.append_encode_into_buffer(value);
+        // Perform the actual transfer call.
+        ext::transfer(account_id, value)
+    }
+
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: EnvTypes,
