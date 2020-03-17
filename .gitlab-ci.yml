@@ -14,10 +14,6 @@ stages:
 variables:
   GIT_STRATEGY:                    fetch
   GIT_DEPTH:                       100
-<<<<<<< HEAD
-=======
-  CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
->>>>>>> rebase on upstream [skip ci]
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
@@ -38,29 +34,14 @@ variables:
     - rustc -vV
     - rustup show
     - bash --version
-<<<<<<< HEAD
     - ./scripts/pre_cache.sh
-=======
-    - mkdir -p ${CARGO_HOME}; touch ${CARGO_HOME}/config
-    # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
-    - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
-    # if there is no directory for this $CI_COMMIT_REF_NAME/$CI_JOB_NAME
-    # create such directory and
-    # create hardlinks recursively of all the files from the master/$CI_JOB_NAME if it exists
-    - if [[ ! -d $CARGO_TARGET_DIR ]]; then
-        mkdir -p /ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME};
-        cp -al /ci-cache/${CI_PROJECT_NAME}/targets/${CI_DEFAULT_BRANCH}/${CI_JOB_NAME}
-          /ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME} ||
-          echo "_____No such target dir, proceeding from scratch_____";
-      fi
->>>>>>> rebase on upstream [skip ci]
     - sccache -s
   only:
     - master
     - /^v[0-9]+\.[0-9]+.*$/        # i.e. v1.0, v2.1rc1
     - schedules
     - web
-    - /^[0-9]+$/                   # PRs
+    - branches
   dependencies:                    []
   interruptible:                   true
   retry:
@@ -83,13 +64,17 @@ check-std:
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
+check-wasm:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+      done
+
+
 #### stage:                        workspace
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> rebase on upstream [skip ci]
 build-std:
   stage:                           workspace
   <<:                              *docker-env
@@ -100,7 +85,6 @@ build-std:
         cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
       done
 
-<<<<<<< HEAD
 build-wasm:
   stage:                           workspace
   <<:                              *docker-env
@@ -117,7 +101,6 @@ test:
   needs:
     - check-std
   script:
-<<<<<<< HEAD
     - cargo test --verbose --all-features --no-fail-fast --release --workspace
 
 codecov:
@@ -130,7 +113,8 @@ codecov:
     # we have to use these variables.
     CARGO_INCREMENTAL:             0
     # If `-Zno-landing-pads` is enabled some some tests start to fail.
-    RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
+    # RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
+    RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zmir-opt-level=0"
     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation
     # and thus produces better results for Rust codebases in general. However, unlike `grcov` it
     # requires running docker with `--security-opt seccomp=unconfined` which is why we use `grcov`
@@ -141,25 +125,16 @@ codecov:
     - cargo clean
     - cargo test --verbose --all-features --no-fail-fast --workspace
     - cargo build --verbose --all-features --workspace
-    - grcov ./target -s . -t coveralls+ --guess-directory-when-missing --llvm --branch --ignore-not-existing --ignore "/*"
-        --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" --output-file ccov.json
+    # - grcov ./target -s . -t coveralls+ --guess-directory-when-missing --llvm --branch --ignore-not-existing --ignore "/*"
+    #     --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" --output-file ccov.json
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
-
-=======
->>>>>>> less tests
-clippy-std:
-=======
-clippy-std2:
->>>>>>> adding another conflict
-=======
-    - for crate in ${ALL_CRATES}; do
-        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
-      done
+    - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov.info
+    - rust-covfix -o lcov_correct.info lcov.info
+    # - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
+    - bash <(curl -s https://codecov.io/bash) -f lcov.info
 
 clippy-std:
->>>>>>> rebase on upstream [skip ci]
   stage:                           workspace
   <<:                              *docker-env
   needs:
@@ -168,13 +143,7 @@ clippy-std:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-<<<<<<< HEAD
-=======
-
->>>>>>> rebase on upstream [skip ci]
 clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
@@ -192,51 +161,13 @@ fmt:
     - cargo fmt --verbose --all -- --check
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-.update-cargo-contract:            &update-cargo-contract
-=======
-=======
->>>>>>> less tests
-=======
- 
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> trigger pipeline
 #### stage:                        examples
-=======
-#### stage:                        examples 
->>>>>>> triggering a merge conflict
-=======
-=======
->>>>>>> rebase on upstream [skip ci]
-=======
->>>>>>> less~tests
-#### stage:                        examples
->>>>>>> trigger CI
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-.update-cargo-contract:            &update-cargo-contract 
->>>>>>> trigger CI
-=======
 .update-cargo-contract:            &update-cargo-contract
->>>>>>> rebase on upstream [skip ci]
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
-<<<<<<< HEAD
   - cargo install cargo-contract || echo $?
   - cargo contract -V
-=======
-  - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
-<<<<<<< HEAD
-  - cargo contract -V 
->>>>>>> conflicting changes
-=======
-  - cargo contract -V
->>>>>>> rebase on upstream [skip ci]
 
-=======
->>>>>>> less~tests
 examples-test:
   stage:                           examples
   <<:                              *docker-env
@@ -246,7 +177,6 @@ examples-test:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
-<<<<<<< HEAD
 
 examples-fmt:
   stage:                           examples
@@ -255,22 +185,12 @@ examples-fmt:
     - for example in examples/*/; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> rebase on upstream [skip ci]
 
 examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
-<<<<<<< HEAD
-<<<<<<< HEAD
   needs:
     - clippy-std
-=======
->>>>>>> fetch gitlabciyml from upstream
-=======
->>>>>>> rebase on upstream [skip ci]
   script:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
@@ -298,14 +218,8 @@ examples-contract-build:
 examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
-<<<<<<< HEAD
-<<<<<<< HEAD
   needs:
     - build-wasm
-=======
->>>>>>> fetch gitlabciyml from upstream
-=======
->>>>>>> rebase on upstream [skip ci]
   script:
     - *update-cargo-contract
     - for example in examples/*/; do
@@ -354,10 +268,3 @@ publish-docs:
     - git push origin gh-pages --force
   after_script:
     - rm -rf .git/ ./*
-<<<<<<< HEAD
-=======
->>>>>>> less tests
-=======
->>>>>>> rebase on upstream [skip ci]
-=======
->>>>>>> less~tests
