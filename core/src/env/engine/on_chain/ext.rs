@@ -160,7 +160,7 @@ pub fn transfer(account_id: &[u8], value: &[u8]) -> Result<()> {
     match ret_code {
         0 => Ok(()),
         1 => Err(EnvError::TransferCallFailed),
-        unknown => panic!("encountered unknown error code upon transfer"),
+        _unknown => panic!("encountered unknown error code upon transfer"),
     }
 }
 

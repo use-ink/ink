@@ -336,13 +336,15 @@ impl TypedEnv for EnvInstance {
     {
         // Reset the contract-side buffer to append onto clean slate.
         self.reset_buffer();
-        // Append the encoded `account_id`, `code_hash` and `rent_allowance`
-        // and `filtered_keys` in order and remember their encoded regions
-        // within the buffer.
-        let account_id = self.append_encode_into_buffer(account_id);
+        // Append the encoded `destination` and `value` in order and remember
+        // their encoded regions within the buffer.
+        let destination = self.append_encode_into_buffer(destination);
         let value = self.append_encode_into_buffer(value);
+        // Resolve the encoded regions into actual byte slices.
+        let destination = &self.buffer[destination];
+        let value = &self.buffer[value];
         // Perform the actual transfer call.
-        ext::transfer(account_id, value)
+        ext::transfer(destination, value)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
