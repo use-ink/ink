@@ -487,6 +487,25 @@
 <span id="487">487</span>
 <span id="488">488</span>
 <span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -882,6 +901,25 @@
             <span class="ident">rent_allowance</span>,
             <span class="ident">filtered_keys</span>,
         )
+    })
+}
+
+<span class="doccomment">/// Terminates the existence of the currently executed smart contract.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This removes the calling account and transfers all remaining balance</span>
+<span class="doccomment">/// to the given beneficiary.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This function never returns. Either the termination was successful and the</span>
+<span class="doccomment">/// execution of the destroyed contract is halted. Or it failed during the termination</span>
+<span class="doccomment">/// which is considered fatal and results in a trap + rollback.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">terminate_contract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">beneficiary</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">TypedEnv</span>::<span class="ident">terminate_contract</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">beneficiary</span>)
     })
 }
 
