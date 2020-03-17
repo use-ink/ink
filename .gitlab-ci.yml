@@ -42,8 +42,6 @@ variables:
     - schedules
     - web
     - /^[0-9]+$/                   # PRs
-    - staging
-    - trying
   dependencies:                    []
   interruptible:                   true
   retry:
@@ -65,6 +63,15 @@ check-std:
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
+
+check-wasm:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+      done
+
 
 #### stage:                        workspace
 
@@ -132,9 +139,25 @@ clippy-std:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
-
-      
+ 
 #### stage:                        examples
+
+clippy-wasm:
+  stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - check-wasm
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+      done
+
+fmt:
+  stage:                           workspace
+  <<:                              *docker-env
+  script:
+    - cargo fmt --verbose --all -- --check
+
 
 .update-cargo-contract:            &update-cargo-contract
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
@@ -151,8 +174,6 @@ examples-test:
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
 
-
-#### stage:                        examples
 
 examples-fmt:
   stage:                           examples
