@@ -9,20 +9,25 @@ stages:
   - check
   - workspace
   - examples
+  - publish
 
 variables:
   GIT_STRATEGY:                    fetch
   GIT_DEPTH:                       100
+<<<<<<< HEAD
+=======
+  CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
+>>>>>>> rebase on upstream [skip ci]
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CI_SERVER_NAME:                  "GitLab CI"
   REGISTRY:                        registry.parity.io/parity/infrastructure/scripts
-  ALL_CRATES:                      "core alloc prelude utils lang2 lang2/macro"
+  ALL_CRATES:                      "core alloc prelude primitives lang lang/macro"
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
     name:                          "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}"
     when:                          on_success
-    expire_in:                     7 days 
+    expire_in:                     7 days
     paths:
       - artifacts/
 
@@ -33,7 +38,22 @@ variables:
     - rustc -vV
     - rustup show
     - bash --version
+<<<<<<< HEAD
     - ./scripts/pre_cache.sh
+=======
+    - mkdir -p ${CARGO_HOME}; touch ${CARGO_HOME}/config
+    # global RUSTFLAGS overrides the linker args so this way is better to pass the flags
+    - printf '[build]\nrustflags = ["-C", "link-dead-code"]\n' | tee ${CARGO_HOME}/config
+    # if there is no directory for this $CI_COMMIT_REF_NAME/$CI_JOB_NAME
+    # create such directory and
+    # create hardlinks recursively of all the files from the master/$CI_JOB_NAME if it exists
+    - if [[ ! -d $CARGO_TARGET_DIR ]]; then
+        mkdir -p /ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME};
+        cp -al /ci-cache/${CI_PROJECT_NAME}/targets/${CI_DEFAULT_BRANCH}/${CI_JOB_NAME}
+          /ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME} ||
+          echo "_____No such target dir, proceeding from scratch_____";
+      fi
+>>>>>>> rebase on upstream [skip ci]
     - sccache -s
   only:
     - master
@@ -41,8 +61,6 @@ variables:
     - schedules
     - web
     - /^[0-9]+$/                   # PRs
-    - staging
-    - trying
   dependencies:                    []
   interruptible:                   true
   retry:
@@ -65,10 +83,22 @@ check-std:
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
+check-wasm:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+      done
+
+
 #### stage:                        workspace
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> rebase on upstream [skip ci]
 build-std:
   stage:                           workspace
   <<:                              *docker-env
@@ -95,6 +125,7 @@ test:
   needs:
     - check-std
   script:
+<<<<<<< HEAD
     - cargo test --verbose --all-features --no-fail-fast --release --workspace
 
 codecov:
@@ -130,17 +161,28 @@ clippy-std:
 =======
 clippy-std2:
 >>>>>>> adding another conflict
+=======
+    - for crate in ${ALL_CRATES}; do
+        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+      done
+
+clippy-std:
+>>>>>>> rebase on upstream [skip ci]
   stage:                           workspace
   <<:                              *docker-env
   needs:
-    - check-std2
+    - check-std
   script:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
+=======
+
+>>>>>>> rebase on upstream [skip ci]
 clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
@@ -159,6 +201,7 @@ fmt:
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 .update-cargo-contract:            &update-cargo-contract
 =======
 =======
@@ -173,30 +216,31 @@ fmt:
 #### stage:                        examples 
 >>>>>>> triggering a merge conflict
 =======
+=======
+>>>>>>> rebase on upstream [skip ci]
 #### stage:                        examples
 >>>>>>> trigger CI
 
+<<<<<<< HEAD
 .update-cargo-contract:            &update-cargo-contract 
 >>>>>>> trigger CI
+=======
+.update-cargo-contract:            &update-cargo-contract
+>>>>>>> rebase on upstream [skip ci]
   # `cargo install` returns an error if there is nothing to update, so have to supress it here temporarily
 <<<<<<< HEAD
   - cargo install cargo-contract || echo $?
   - cargo contract -V
 =======
   - cargo install --git https://github.com/paritytech/cargo-contract || echo $?
+<<<<<<< HEAD
   - cargo contract -V 
 >>>>>>> conflicting changes
+=======
+  - cargo contract -V
+>>>>>>> rebase on upstream [skip ci]
 
-<<<<<<< HEAD
 examples-test:
-=======
-<<<<<<< HEAD
->>>>>>> conflicting changes
-examples-fmt:
-=======
-examples-fmt2:
->>>>>>> adding another conflict
->>>>>>> adding another conflict
   stage:                           examples
   <<:                              *docker-env
   needs:
@@ -204,25 +248,31 @@ examples-fmt2:
   script:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
-      done 
+      done
 
 examples-fmt:
-  stage:                           examples 
+  stage:                           examples
   <<:                              *docker-env
   script:
-    - for example in examples/lang2/*; do
+    - for example in examples/*/; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> rebase on upstream [skip ci]
 
 examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
 <<<<<<< HEAD
+<<<<<<< HEAD
   needs:
     - clippy-std
 =======
 >>>>>>> fetch gitlabciyml from upstream
+=======
+>>>>>>> rebase on upstream [skip ci]
   script:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
@@ -251,10 +301,13 @@ examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
 <<<<<<< HEAD
+<<<<<<< HEAD
   needs:
     - build-wasm
 =======
 >>>>>>> fetch gitlabciyml from upstream
+=======
+>>>>>>> rebase on upstream [skip ci]
   script:
     - *update-cargo-contract
     - for example in examples/*/; do
@@ -303,5 +356,8 @@ publish-docs:
     - git push origin gh-pages --force
   after_script:
     - rm -rf .git/ ./*
+<<<<<<< HEAD
 =======
 >>>>>>> less tests
+=======
+>>>>>>> rebase on upstream [skip ci]
