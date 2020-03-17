@@ -406,19 +406,12 @@ pub fn restore_contract<T>(
 /// # Errors
 ///
 /// If the contract doesn't have sufficient funds.
-pub fn transfer<T>(
-    destination: T::AccountId,
-    value: T::Balance,
-) -> Result<()>
+pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
 where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::transfer::<T>(
-            instance,
-            destination,
-            value,
-        )
+        TypedEnv::transfer::<T>(instance, destination, value)
     })
 }
 
