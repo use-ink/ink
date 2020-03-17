@@ -47,6 +47,13 @@ mod sys {
             input_data_len: u32,
         ) -> u32;
 
+        pub fn ext_transfer(
+            account_id_ptr: u32,
+            account_id_len: u32,
+            value_ptr: u32,
+            value_len: u32,
+        ) -> u32;
+
         pub fn ext_deposit_event(
             topics_ptr: u32,
             topics_len: u32,
@@ -138,6 +145,22 @@ pub fn call(callee: &[u8], gas_limit: u64, value: &[u8], call_data: &[u8]) -> Re
         c if c == TRAP_RETURN_CODE => Err(EnvError::ContractInstantiationTrapped),
         err if err <= 0xFF => Err(EnvError::ContractInstantiationFailState(err as u8)),
         _unknown => panic!("encountered unknown error code upon contract call"),
+    }
+}
+
+pub fn transfer(account_id: &[u8], value: &[u8]) -> Result<()> {
+    let ret_code = unsafe {
+        sys::ext_transfer(
+            account_id.as_ptr() as u32,
+            account_id.len() as u32,
+            value.as_ptr() as u32,
+            value.len() as u32,
+        )
+    };
+    match ret_code {
+        0 => Ok(()),
+        1 => Err(EnvError::TransferCallFailed),
+        _unknown => panic!("encountered unknown error code upon transfer"),
     }
 }
 

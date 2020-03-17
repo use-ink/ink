@@ -395,6 +395,26 @@ pub fn restore_contract<T>(
     })
 }
 
+/// Transfers value from the contract to the destination account ID.
+///
+/// # Note
+///
+/// This is more efficient and simpler than the alternative to make a no-op
+/// contract call or invoke a runtime function that performs the
+/// transaction.
+///
+/// # Errors
+///
+/// If the contract doesn't have sufficient funds.
+pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
+where
+    T: EnvTypes,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnv::transfer::<T>(instance, destination, value)
+    })
+}
+
 /// Returns the input to the executed contract.
 ///
 /// # Note

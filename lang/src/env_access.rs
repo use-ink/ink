@@ -263,6 +263,18 @@ where
         env::restore_contract::<T>(account_id, code_hash, rent_allowance, filtered_keys)
     }
 
+    /// Transfers value from the contract to the destination account ID.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::transfer`]
+    pub fn transfer(self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        env::transfer::<T>(destination, value)
+    }
+
     /// Returns a random hash seed.
     ///
     /// # Note
