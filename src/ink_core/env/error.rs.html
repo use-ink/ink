@@ -43,6 +43,8 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -85,6 +87,8 @@
     <span class="ident">MissingRuntimeStorageEntry</span>,
     <span class="doccomment">/// The queried contract storage entry is missing.</span>
     <span class="ident">MissingContractStorageEntry</span>,
+    <span class="doccomment">/// A call to transfer value from the contract failed.</span>
+    <span class="ident">TransferCallFailed</span>,
 }
 
 <span class="doccomment">/// A result of environmental operations.</span>
