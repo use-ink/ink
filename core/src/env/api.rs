@@ -395,6 +395,25 @@ pub fn restore_contract<T>(
     })
 }
 
+/// Terminates the existence of the currently executed smart contract.
+///
+/// This removes the calling account and transfers all remaining balance
+/// to the given beneficiary.
+///
+/// # Note
+///
+/// This function never returns. Either the termination was successful and the
+/// execution of the destroyed contract is halted. Or it failed during the termination
+/// which is considered fatal and results in a trap + rollback.
+pub fn terminate_contract<T>(beneficiary: T::AccountId) -> !
+where
+    T: EnvTypes,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnv::terminate_contract::<T>(instance, beneficiary)
+    })
+}
+
 /// Transfers value from the contract to the destination account ID.
 ///
 /// # Note

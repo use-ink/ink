@@ -234,6 +234,15 @@ pub trait TypedEnv: Env {
     ) where
         T: EnvTypes;
 
+    /// Terminates a smart contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::terminate_contract`]
+    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
+    where
+        T: EnvTypes;
+
     /// Transfers value from the contract to the destination account ID.
     ///
     /// # Note

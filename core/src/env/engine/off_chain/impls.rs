@@ -249,6 +249,13 @@ impl TypedEnv for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
+    fn terminate_contract<T>(&mut self, _beneficiary: T::AccountId) -> !
+    where
+        T: EnvTypes,
+    {
+        unimplemented!("off-chain environment does not support contract termination")
+    }
+
     fn restore_contract<T>(
         &mut self,
         _account_id: T::AccountId,

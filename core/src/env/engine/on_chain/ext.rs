@@ -77,6 +77,7 @@ mod sys {
             delta_ptr: u32,
             delta_count: u32,
         );
+        pub fn ext_terminate(beneficiary_ptr: u32, beneficiary_len: u32) -> !;
 
         pub fn ext_dispatch_call(call_ptr: u32, call_len: u32);
 
@@ -241,6 +242,10 @@ pub fn restore_to(
             filtered_keys.len() as u32,
         )
     }
+}
+
+pub fn terminate(beneficiary: &[u8]) -> ! {
+    unsafe { sys::ext_terminate(beneficiary.as_ptr() as u32, beneficiary.len() as u32) }
 }
 
 pub fn dispatch_call(call: &[u8]) {

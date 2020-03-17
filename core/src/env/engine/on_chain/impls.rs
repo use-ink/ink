@@ -330,6 +330,14 @@ impl TypedEnv for EnvInstance {
         ext::restore_to(account_id, code_hash, rent_allowance, filtered_keys);
     }
 
+    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
+    where
+        T: EnvTypes,
+    {
+        self.encode_into_buffer(beneficiary);
+        ext::terminate(&self.buffer[..]);
+    }
+
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
         T: EnvTypes,
