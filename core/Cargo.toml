@@ -1,6 +1,6 @@
 [package]
 name = "ink_core"
-version = "0.1.0"
+version = "2.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
@@ -15,14 +15,13 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_abi = { path = "../abi/", default-features = false, features = ["derive"], optional = true }
-ink_alloc = { path = "../alloc/", default-features = false }
-ink_primitives = { path = "../primitives/", default-features = false }
-ink_core_derive = { path = "derive", default-features = false }
-ink_prelude = { path = "../prelude/", default-features = false }
+ink_abi = { version = "2.0.0", path = "../abi/", default-features = false, features = ["derive"], optional = true }
+ink_alloc = { version = "2.0.0", path = "../alloc/", default-features = false }
+ink_primitives = { version = "2.0.0", path = "../primitives/", default-features = false }
+ink_core_derive = { version = "2.0.0", path = "derive", default-features = false }
+ink_prelude = { version = "2.0.0", path = "../prelude/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive", "full"] }
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 smallvec = { version = "1.2", default-features = false, features = ["union"] }
 cfg-if = "0.1"
@@ -33,6 +32,13 @@ num-traits = { version = "0.2", default-features = false, features = ["i128"] }
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside of the off-chain environment!
 rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
+
+[dependencies.type-metadata]
+git = "https://github.com/type-metadata/type-metadata.git"
+rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
+default-features = false
+features = ["derive"]
+optional = true
 
 [dev-dependencies]
 itertools = "0.9"
