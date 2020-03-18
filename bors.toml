@@ -10,12 +10,13 @@ status = [
 timeout_sec = 600
 
 # Do not allow pull requests with these labels to be merged.
-# block_labels = [
-#     "status: blocked",
-#     "status: discussing",
-#     "status: in progress",
-#     "status: needs triage"
-# ]
+block_labels = [
+    "status: question",
+    "status: blocked",
+    "status: discussing",
+    "status: in progress",
+    "status: needs triage"
+]
 
 # "ci/gitlab/gitlab-check-std",
 #   "ci/gitlab/gitlab-build-std",
