@@ -1,4 +1,5 @@
 status = [
+  "ci/gitlab/gitlab.parity.io",
   "continuous-integration/gitlab-check-std",
   "continuous-integration/gitlab-build-std",
   "continuous-integration/gitlab-examples-test"
