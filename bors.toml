@@ -1,9 +1,9 @@
-status = [
-  "ci/gitlab/gitlab.parity.io",
-  "continuous-integration/gitlab-check-std",
-  "continuous-integration/gitlab-build-std",
-  "continuous-integration/gitlab-examples-test"
-]
+status = ['ci/gitlab/%']
+#   "ci/gitlab/gitlab.parity.io",
+#   "continuous-integration/gitlab-check-std",
+#   "continuous-integration/gitlab-build-std",
+#   "continuous-integration/gitlab-examples-test"
+# ]
 # Uncomment this to use a two hour timeout.
 # The default is one hour.
 timeout_sec = 600
