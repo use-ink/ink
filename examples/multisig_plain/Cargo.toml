@@ -1,18 +1,24 @@
 [package]
 name = "multisig_plain"
-version = "0.1.0"
+version = "2.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_abi = { path = "../../abi", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { path = "../../primitives", default-features = false }
-ink_core = { path = "../../core", default-features = false }
-ink_lang = { path = "../../lang", default-features = false }
-ink_prelude = { path = "../../prelude", default-features = false }
+ink_primitives = { version = "2.0.0", path = "../../primitives", default-features = false }
+ink_abi = { version = "2.0.0", path = "../../abi", default-features = false, features = ["derive"], optional = true }
+ink_core = { version = "2.0.0", path = "../../core", default-features = false }
+ink_lang = { version = "2.0.0", path = "../../lang", default-features = false }
+ink_prelude = { version = "2.0.0", path = "../../prelude", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive"] }
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
+
+[dependencies.type-metadata]
+git = "https://github.com/type-metadata/type-metadata.git"
+rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
+default-features = false
+features = ["derive"]
+optional = true
 
 [lib]
 name = "multisig_plain"

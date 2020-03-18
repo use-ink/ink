@@ -263,6 +263,30 @@ where
         env::restore_contract::<T>(account_id, code_hash, rent_allowance, filtered_keys)
     }
 
+    /// Terminates the existence of a smart contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::terminate_contract`]
+    pub fn terminate_contract(self, beneficiary: T::AccountId) -> !
+    where
+        T: EnvTypes,
+    {
+        env::terminate_contract::<T>(beneficiary)
+    }
+
+    /// Transfers value from the contract to the destination account ID.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::transfer`]
+    pub fn transfer(self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        env::transfer::<T>(destination, value)
+    }
+
     /// Returns a random hash seed.
     ///
     /// # Note
