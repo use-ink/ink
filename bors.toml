@@ -1,5 +1,7 @@
 status = [
-  "continuous-integration/gitlab-check-std"
+  "continuous-integration/gitlab-check-std",
+  "continuous-integration/gitlab-build-std",
+  "continuous-integration/gitlab-examples-test"
 ]
 # Uncomment this to use a two hour timeout.
 # The default is one hour.
