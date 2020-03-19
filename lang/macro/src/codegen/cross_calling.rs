@@ -146,7 +146,7 @@ impl CrossCalling<'_> {
             #[derive(Clone, Debug, scale::Encode, scale::Decode)]
             #[cfg_attr(
                 feature = "ink-generate-abi",
-                derive(type_metadata::Metadata)
+                derive(scale_info::Metadata)
             )]
             pub struct StorageAsDependency {
                 account_id: AccountId,
@@ -174,7 +174,7 @@ impl CrossCalling<'_> {
             impl ink_abi::HasLayout for StorageAsDependency {
                 fn layout(&self) -> ink_abi::StorageLayout {
                     ink_abi::LayoutStruct::new(
-                        <Self as type_metadata::Metadata>::meta_type(), vec![]
+                        <Self as scale_info::Metadata>::meta_type(), vec![]
                     ).into()
                 }
             }

@@ -15,7 +15,7 @@
 use super::*;
 use assert_json_diff::assert_json_eq;
 use serde_json::json;
-use type_metadata::{
+use scale_info::{
     form::{
         Form,
         MetaForm,

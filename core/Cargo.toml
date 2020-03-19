@@ -22,7 +22,7 @@ ink_core_derive = { path = "derive", default-features = false }
 ink_prelude = { path = "../prelude/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive", "full"] }
-type-metadata = { git = "https://github.com/ascjones/type-metadata.git", branch = "aj-merge-type", default-features = false, features = ["derive"], optional = true }
+scale-info = { git = "https://github.com/paritytech/scale-info.git", branch = "aj-merge-type", default-features = false, features = ["derive"], optional = true }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 smallvec = { version = "1.2", default-features = false, features = ["union"] }
 cfg-if = "0.1"
@@ -45,13 +45,13 @@ std = [
     "ink_prelude/std",
     "ink_primitives/std",
     "scale/std",
-    "type-metadata/std",
+    "scale-info/std",
     "rand",
     "rand/std",
     "num-traits/std",
 ]
 ink-generate-abi = [
     "ink_abi",
-    "type-metadata",
+    "scale-info",
     "std",
 ]

@@ -26,7 +26,7 @@ use serde::{
     Serialize,
     Serializer,
 };
-use type_metadata::{
+use scale_info::{
     form::{
         CompactForm,
         Form,
@@ -551,7 +551,7 @@ impl EventSpec {
 /// default setup. Even though it would be useful for third party tools
 /// such as the Polkadot UI to know that we are handling with `Balance`
 /// types, we currently cannot communicate this without display names.
-pub type DisplayName<F> = type_metadata::Namespace<F>;
+pub type DisplayName<F> = scale_info::Namespace<F>;
 
 /// A type specification.
 ///

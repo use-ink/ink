@@ -11,7 +11,7 @@ ink_core = { path = "../../core", default-features = false }
 ink_lang = { path = "../../lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive"] }
-type-metadata = { git = "https://github.com/ascjones/type-metadata.git", branch = "aj-merge-type", default-features = false, features = ["derive"], optional = true }
+scale-info = { git = "https://github.com/paritytech/scale-info.git", branch = "aj-merge-type", default-features = false, features = ["derive"], optional = true }
 
 adder = { path = "adder", default-features = false, features = ["ink-as-dependency"] }
 subber = { path = "subber", default-features = false, features = ["ink-as-dependency"] }
@@ -35,7 +35,7 @@ std = [
     "ink_core/std",
     "ink_lang/std",
     "scale/std",
-    "type-metadata/std",
+    "scale-info/std",
 
     "adder/std",
     "subber/std",
@@ -44,7 +44,7 @@ std = [
 test-env = [
 	"std",
     "ink_lang/test-env",
-    "type-metadata/std",
+    "scale-info/std",
 
     "adder/test-env",
     "subber/test-env",
@@ -53,7 +53,7 @@ test-env = [
 ink-generate-abi = [
     "std",
     "ink_abi",
-    "type-metadata",
+    "scale-info",
     "ink_core/ink-generate-abi",
 
     "adder/ink-generate-abi",

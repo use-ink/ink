@@ -63,7 +63,7 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 /// Each node in the tree has 2 * B children.
 ///

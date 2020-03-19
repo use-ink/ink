@@ -20,7 +20,7 @@ use ink_abi::{
     StorageLayout,
 };
 #[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 use crate::storage::{
     self,

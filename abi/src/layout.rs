@@ -23,7 +23,7 @@ use serde::{
     Serialize,
     Serializer,
 };
-use type_metadata::{
+use scale_info::{
     form::{
         CompactForm,
         Form,
@@ -48,7 +48,7 @@ impl From<ink_primitives::Key> for LayoutKey {
 
 impl HasLayout for ink_primitives::Key {
     fn layout(&self) -> StorageLayout {
-        LayoutRange::cell(*self, <[u8; 32] as type_metadata::Metadata>::meta_type())
+        LayoutRange::cell(*self, <[u8; 32] as scale_info::Metadata>::meta_type())
             .into()
     }
 }

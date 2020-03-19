@@ -21,13 +21,13 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 ink_prelude = { path = "../prelude/", default-features = false }
 tiny-keccak = { version = "2.0", features = ["keccak"] }
 scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive", "full"] }
-type-metadata = { git = "https://github.com/ascjones/type-metadata.git", branch = "aj-merge-type", default-features = false, features = ["derive"], optional = true }
+scale-info = { git = "https://github.com/paritytech/scale-info.git", branch = "aj-merge-type", default-features = false, features = ["derive"], optional = true }
 
 [features]
 default = ["std"]
 std = [
     "ink_prelude/std",
     "scale/std",
-    "type-metadata",
-    "type-metadata/std",
+    "scale-info",
+    "scale-info/std",
 ]

@@ -31,13 +31,8 @@ use ink_abi::{
 use ink_prelude::boxed::Box;
 use ink_primitives::Key;
 #[cfg(feature = "ink-generate-abi")]
-use type_metadata::{
-    HasTypeDef,
+use scale_info::{
     Metadata,
-    NamedField,
-    TypeDef,
-    TypeDefStruct,
-    TypeId,
 };
 
 /// A synchronized cell.

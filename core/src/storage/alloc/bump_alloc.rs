@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 use super::*;
 use ink_primitives::Key;

@@ -33,7 +33,7 @@ mod delegator {
     ///
     /// The initial state is `Adder`.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode, Flush)]
-    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+    #[cfg_attr(feature = "ink-generate-abi", derive(scale_info::Metadata))]
     pub enum Which {
         Adder,
         Subber,

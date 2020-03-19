@@ -59,7 +59,7 @@ use serde::{
     Serialize,
     Serializer,
 };
-use type_metadata::{
+use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
