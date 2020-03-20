@@ -1,21 +1,7 @@
 status = [
-    "ci/gitlab/gitlab.parity.io",
-    "continuous-integration/gitlab-check-std",
-    "continuous-integration/gitlab-check-wasm",
-    "continuous-integration/gitlab-build-std",
-    "continuous-integration/gitlab-build-wasm",
-    "continuous-integration/gitlab-test",
-    "continuous-integration/gitlab-clippy-std",
-    "continuous-integration/gitlab-clippy-wasm",
-    "continuous-integration/gitlab-fmt",
-    "continuous-integration/gitlab-examples-test",
-    "continuous-integration/gitlab-examples-clippy-std",
-    "continuous-integration/gitlab-examples-clippy-wasm",
-    "continuous-integration/gitlab-examples-fmt",
-    "continuous-integration/gitlab-examples-contract-build",
-    "continuous-integration/gitlab-examples-generate-metadata"
+    "ci/gitlab/gitlab.parity.io"
 ]
-# The default is one hour.
-timeout_sec = 600
+# The default is one hour (3600 sec).
+timeout_sec = 1800
 use_squash_merge = true
 required_approvals = 1
