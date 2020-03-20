@@ -114,7 +114,7 @@ test:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+        cargo test --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
 clippy-std:
@@ -154,6 +154,8 @@ fmt:
 examples-test:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - clippy-std
   script:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
@@ -170,6 +172,8 @@ examples-fmt:
 examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - clippy-std
   script:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
@@ -197,6 +201,8 @@ examples-contract-build:
 examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - build-wasm
   script:
     - *update-cargo-contract
     - for example in examples/*/; do
