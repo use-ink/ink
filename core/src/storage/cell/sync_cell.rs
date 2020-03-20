@@ -33,6 +33,11 @@ use ink_primitives::Key;
 #[cfg(feature = "ink-generate-abi")]
 use scale_info::{
     Metadata,
+    TypeInfo,
+    Type,
+    TypeComposite,
+    Fields,
+    Namespace,
 };
 
 /// A synchronized cell.
@@ -46,7 +51,6 @@ use scale_info::{
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(TypeId))]
 pub struct SyncCell<T> {
     /// The underlying typed cell.
     cell: TypedCell<T>,
@@ -55,9 +59,14 @@ pub struct SyncCell<T> {
 }
 
 #[cfg(feature = "ink-generate-abi")]
-impl<T> HasTypeDef for SyncCell<T> {
-    fn type_def() -> TypeDef {
-        TypeDefStruct::new(vec![NamedField::of::<Key>("cell")]).into()
+impl<T> TypeInfo for SyncCell<T> {
+    fn type_info() -> Type {
+        TypeComposite::new(
+            "SyncCell",
+            Namespace::from_module_path(module_path!()).expect("namespace from module path cannot fail")
+        )
+            .fields(Fields::named().field_of::<Key>("cell"))
+            .into()
     }
 }
 

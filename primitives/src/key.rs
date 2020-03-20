@@ -35,7 +35,7 @@ use scale::{
 ///
 /// Prefer using types found in `collections` or `Synced` type.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(scale_info::Metadata))]
 pub struct Key(pub [u8; 32]);
 
 impl core::fmt::Debug for Key {
