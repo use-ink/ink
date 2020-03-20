@@ -41,6 +41,7 @@ pub trait ClearForward {
 /// contract storage cell.
 pub trait ClearAt {
     /// Clears `self` packed at the contract storage cell determined by `at`.
+    #[inline]
     fn clear_at(&self, at: Key) {
         env::clear_contract_storage(at)
     }
@@ -50,6 +51,7 @@ macro_rules! impl_clear_for_primitive {
     ( $($ty:ty),* $(,)? ) => {
         $(
             impl ClearForward for $ty {
+                #[inline]
                 fn clear_forward(&self, ptr: &mut KeyPtr) {
                     <$ty as ClearAt>::clear_at(self, ptr.next_for::<$ty>())
                 }
