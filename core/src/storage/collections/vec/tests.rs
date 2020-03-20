@@ -242,6 +242,20 @@ fn iter_size_hint() {
 }
 
 #[test]
+fn extend() {
+    let mut vec1 = new_filled_vec();
+    let arr = [1, 2, 3];
+
+    let mut expected = ink_prelude::vec::Vec::new();
+    expected.extend(vec1.iter());
+    expected.extend(&arr);
+
+    vec1.extend(&arr);
+
+    assert!(vec1.iter().eq(expected.iter()));
+}
+
+#[test]
 fn regression_issue_193() {
     let mut vec = new_empty_vec();
     vec.push(5);

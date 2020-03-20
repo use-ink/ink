@@ -47,6 +47,13 @@ mod sys {
             input_data_len: u32,
         ) -> u32;
 
+        pub fn ext_transfer(
+            account_id_ptr: u32,
+            account_id_len: u32,
+            value_ptr: u32,
+            value_len: u32,
+        ) -> u32;
+
         pub fn ext_deposit_event(
             topics_ptr: u32,
             topics_len: u32,
@@ -54,12 +61,8 @@ mod sys {
             data_len: u32,
         );
 
-        pub fn ext_set_storage(
-            key_ptr: u32,
-            value_non_null: u32,
-            value_ptr: u32,
-            value_len: u32,
-        );
+        pub fn ext_set_storage(key_ptr: u32, value_ptr: u32, value_len: u32);
+        pub fn ext_clear_storage(key_ptr: u32);
         pub fn ext_get_storage(key_ptr: u32) -> u32;
 
         pub fn ext_get_runtime_storage(key_ptr: u32, key_len: u32) -> u32;
@@ -74,6 +77,7 @@ mod sys {
             delta_ptr: u32,
             delta_count: u32,
         );
+        pub fn ext_terminate(beneficiary_ptr: u32, beneficiary_len: u32) -> !;
 
         pub fn ext_dispatch_call(call_ptr: u32, call_len: u32);
 
@@ -145,6 +149,22 @@ pub fn call(callee: &[u8], gas_limit: u64, value: &[u8], call_data: &[u8]) -> Re
     }
 }
 
+pub fn transfer(account_id: &[u8], value: &[u8]) -> Result<()> {
+    let ret_code = unsafe {
+        sys::ext_transfer(
+            account_id.as_ptr() as u32,
+            account_id.len() as u32,
+            value.as_ptr() as u32,
+            value.len() as u32,
+        )
+    };
+    match ret_code {
+        0 => Ok(()),
+        1 => Err(EnvError::TransferCallFailed),
+        _unknown => panic!("encountered unknown error code upon transfer"),
+    }
+}
+
 pub fn deposit_event(topics: &[u8], data: &[u8]) {
     unsafe {
         sys::ext_deposit_event(
@@ -160,7 +180,6 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
     unsafe {
         sys::ext_set_storage(
             key.as_ptr() as u32,
-            1,
             encoded_value.as_ptr() as u32,
             encoded_value.len() as u32,
         )
@@ -168,7 +187,7 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
 }
 
 pub fn clear_storage(key: &[u8]) {
-    unsafe { sys::ext_set_storage(key.as_ptr() as u32, 0, 0, 0) }
+    unsafe { sys::ext_clear_storage(key.as_ptr() as u32) }
 }
 
 pub fn get_storage(key: &[u8]) -> Result<()> {
@@ -223,6 +242,10 @@ pub fn restore_to(
             filtered_keys.len() as u32,
         )
     }
+}
+
+pub fn terminate(beneficiary: &[u8]) -> ! {
+    unsafe { sys::ext_terminate(beneficiary.as_ptr() as u32, beneficiary.len() as u32) }
 }
 
 pub fn dispatch_call(call: &[u8]) {
