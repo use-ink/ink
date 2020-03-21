@@ -14,17 +14,6 @@
 
 //! Implementations of supported cryptographic hash functions.
 
-use blake2_rfc;
-use sha2::{
-    Digest,
-    Sha256,
-};
-use tiny_keccak::{
-    Hasher,
-    Keccak,
-};
-use twox_hash;
-
 /// Conduct the BLAKE2 256-bit hash and place the result into `output`.
 pub fn blake2_256_into(input: &[u8], output: &mut [u8; 32]) {
     output.copy_from_slice(blake2_rfc::blake2b::blake2b(32, &[], input).as_bytes());
@@ -127,6 +116,10 @@ pub fn twox_256(input: &[u8]) -> [u8; 32] {
 
 /// Return the KECCAK 256-bit hash for the given input.
 pub fn keccak_256(input: &[u8]) -> [u8; 32] {
+    use ::tiny_keccak::{
+        Hasher,
+        Keccak,
+    };
     let mut keccak = Keccak::v256();
     keccak.update(input);
     let mut output = [0u8; 32];
@@ -136,6 +129,10 @@ pub fn keccak_256(input: &[u8]) -> [u8; 32] {
 
 /// Return the SHA2 256-bit hash for the given input.
 pub fn sha2_256(input: &[u8]) -> [u8; 32] {
+    use ::sha2::{
+        Digest,
+        Sha256,
+    };
     let mut hasher = Sha256::new();
     hasher.input(input);
     let mut output = [0u8; 32];
