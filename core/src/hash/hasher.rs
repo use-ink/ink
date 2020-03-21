@@ -13,10 +13,12 @@
 // limitations under the License.
 
 use core::{
-    hash::Hasher,
+    hash::{
+        BuildHasherDefault,
+        Hasher,
+    },
     marker::PhantomData,
 };
-use core::hash::BuildHasherDefault;
 use ink_prelude::vec::Vec;
 
 mod markers {

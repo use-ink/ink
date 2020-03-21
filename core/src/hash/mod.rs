@@ -18,18 +18,16 @@ mod hasher;
 
 use core::hash::Hash;
 
-use self::hasher::{
-    FinishInto,
-};
+use self::hasher::FinishInto;
 pub use self::hasher::{
     Blake2x128Hasher,
     Blake2x256Hasher,
     CryptoBuildHasher,
     CryptoHasher,
+    InputBuffer,
     Keccakx256Hasher,
     Sha2x256Hasher,
     TwoxHasher,
-    InputBuffer,
 };
 
 #[doc(inline)]
