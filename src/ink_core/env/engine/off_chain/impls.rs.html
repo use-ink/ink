@@ -306,6 +306,35 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -322,6 +351,7 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">hashing</span>,
     <span class="ident">Account</span>,
     <span class="ident">EnvInstance</span>,
 };
@@ -419,6 +449,34 @@
 
     <span class="kw">fn</span> <span class="ident">println</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="self">self</span>.<span class="ident">console</span>.<span class="ident">println</span>(<span class="ident">content</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">hash_keccak_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
+        <span class="ident">hashing</span>::<span class="ident">keccak_256</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">hash_blake2_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
+        <span class="ident">hashing</span>::<span class="ident">blake2_256</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">hash_blake2_128</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">16</span>]) {
+        <span class="ident">hashing</span>::<span class="ident">blake2_128</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">hash_twox_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
+        <span class="ident">hashing</span>::<span class="ident">twox_256</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">hash_twox_128</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">16</span>]) {
+        <span class="ident">hashing</span>::<span class="ident">twox_128</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">hash_twox_64</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">8</span>]) {
+        <span class="ident">hashing</span>::<span class="ident">twox_64</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">hash_sha2_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
+        <span class="ident">hashing</span>::<span class="ident">sha2_256</span>(<span class="ident">input</span>, <span class="ident">output</span>)
     }
 }
 
