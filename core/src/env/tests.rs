@@ -18,8 +18,10 @@ static TEST_INPUT: &[u8] = b"DEAD_BEEF";
 
 #[test]
 fn test_hash_keccak_256() {
+    let mut output = [0x00_u8; 32];
+    env::hash_keccak_256(TEST_INPUT, &mut output);
     assert_eq!(
-        env::hash_keccak_256(TEST_INPUT),
+        output,
         [
             24, 230, 209, 59, 127, 30, 158, 244, 60, 177, 132, 150, 167, 244, 64, 69,
             184, 123, 185, 44, 211, 199, 208, 179, 14, 64, 126, 140, 217, 69, 36, 216
@@ -29,8 +31,10 @@ fn test_hash_keccak_256() {
 
 #[test]
 fn test_hash_sha2_256() {
+    let mut output = [0x00_u8; 32];
+    env::hash_sha2_256(TEST_INPUT, &mut output);
     assert_eq!(
-        env::hash_sha2_256(TEST_INPUT),
+        output,
         [
             136, 15, 25, 218, 88, 54, 49, 152, 115, 168, 147, 189, 207, 171, 243, 129,
             161, 76, 15, 141, 197, 106, 111, 213, 19, 197, 133, 219, 181, 233, 195, 120
@@ -40,8 +44,10 @@ fn test_hash_sha2_256() {
 
 #[test]
 fn test_hash_blake2_256() {
+    let mut output = [0x00_u8; 32];
+    env::hash_blake2_256(TEST_INPUT, &mut output);
     assert_eq!(
-        env::hash_blake2_256(TEST_INPUT),
+        output,
         [
             244, 247, 235, 182, 194, 161, 28, 69, 34, 106, 237, 7, 57, 87, 190, 12, 92,
             171, 91, 176, 135, 52, 247, 94, 8, 112, 94, 183, 140, 101, 208, 120
@@ -51,8 +57,10 @@ fn test_hash_blake2_256() {
 
 #[test]
 fn test_hash_blake2_128() {
+    let mut output = [0x00_u8; 16];
+    env::hash_blake2_128(TEST_INPUT, &mut output);
     assert_eq!(
-        env::hash_blake2_128(TEST_INPUT),
+        output,
         [180, 158, 48, 21, 171, 163, 217, 175, 145, 160, 25, 159, 213, 142, 103, 242]
     );
 }
@@ -64,24 +72,30 @@ const EXPECTED_TWOX_256_HASH: [u8; 32] = [
 
 #[test]
 fn test_hash_twox_256() {
+    let mut output = [0x00_u8; 32];
+    env::hash_twox_256(TEST_INPUT, &mut output);
     assert_eq!(
-        env::hash_twox_256(TEST_INPUT).as_ref(),
+        &output,
         &EXPECTED_TWOX_256_HASH[..],
     );
 }
 
 #[test]
 fn test_hash_twox_128() {
+    let mut output = [0x00_u8; 16];
+    env::hash_twox_128(TEST_INPUT, &mut output);
     assert_eq!(
-        env::hash_twox_128(TEST_INPUT).as_ref(),
+        &output,
         &EXPECTED_TWOX_256_HASH[..16],
     );
 }
 
 #[test]
 fn test_hash_twox_64() {
+    let mut output = [0x00_u8; 8];
+    env::hash_twox_64(TEST_INPUT, &mut output);
     assert_eq!(
-        env::hash_twox_64(TEST_INPUT).as_ref(),
+        &output,
         &EXPECTED_TWOX_256_HASH[..8],
     );
 }

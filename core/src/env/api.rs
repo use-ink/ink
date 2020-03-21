@@ -510,10 +510,10 @@ where
 macro_rules! impl_hash_fn {
     ( $(#[$doc:meta])* fn $name:ident($output_len:literal) ) => {
         $( #[$doc] )*
-        pub fn $name(input: &[u8]) -> [u8; $output_len] {
+        pub fn $name(input: &[u8], output: &mut [u8; $output_len]) {
             // No need to actually access the environmental instance
             // if we only call one of its inherent methods.
-            <EnvInstance as Env>::$name(input)
+            <EnvInstance as Env>::$name(input, output)
         }
     };
 }
