@@ -13,6 +13,7 @@
 // limitations under the License.
 
 mod db;
+mod hashing;
 mod impls;
 mod runtime_calls;
 mod runtime_storage;
