@@ -313,16 +313,14 @@ pub fn println(content: &str) {
 macro_rules! impl_hash_fn {
     ( $name:ident, $bytes_result:literal ) => {
         paste::item! {
-            pub fn [<hash_ $name>](input: &[u8]) -> [u8; $bytes_result] {
-                let mut output = [0x00_u8; $bytes_result];
+            pub fn [<hash_ $name>](input: &[u8], output: &mut [u8; $bytes_result]) {
                 unsafe {
                     sys::[<ext_hash_ $name>](
                         input.as_ptr() as u32,
                         input.len() as u32,
-                        output.as_mut().as_ptr() as u32,
+                        output.as_ptr() as u32,
                     )
                 }
-                output
             }
         }
     };
