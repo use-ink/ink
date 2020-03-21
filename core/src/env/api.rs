@@ -506,3 +506,42 @@ where
         Env::get_runtime_storage::<R>(instance, runtime_key)
     })
 }
+
+macro_rules! impl_hash_fn {
+    ( $(#[$doc:meta])* fn $name:ident($output_len:literal) ) => {
+        $( #[$doc] )*
+        pub fn $name(input: &[u8]) -> [u8; $output_len] {
+            // No need to actually access the environmental instance
+            // if we only call one of its inherent methods.
+            <EnvInstance as Env>::$name(input)
+        }
+    };
+}
+impl_hash_fn!(
+    /// Returns the SHA2 256-bit hash of the given input.
+    fn hash_sha2_256(32)
+);
+impl_hash_fn!(
+    /// Returns the KECCAK 256-bit hash of the given input.
+    fn hash_keccak_256(32)
+);
+impl_hash_fn!(
+    /// Returns the BLAKE2 256-bit hash of the given input.
+    fn hash_blake2_256(32)
+);
+impl_hash_fn!(
+    /// Returns the BLAKE2 128-bit hash of the given input.
+    fn hash_blake2_128(16)
+);
+impl_hash_fn!(
+    /// Returns the TWOX 256-bit hash of the given input.
+    fn hash_twox_256(32)
+);
+impl_hash_fn!(
+    /// Returns the TWOX 128-bit hash of the given input.
+    fn hash_twox_128(16)
+);
+impl_hash_fn!(
+    /// Returns the TWOX 64-bit hash of the given input.
+    fn hash_twox_64(8)
+);
