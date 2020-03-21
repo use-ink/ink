@@ -507,41 +507,55 @@ where
     })
 }
 
-macro_rules! impl_hash_fn {
-    ( $(#[$doc:meta])* fn $name:ident($output_len:literal) ) => {
-        $( #[$doc] )*
-        pub fn $name(input: &[u8], output: &mut [u8; $output_len]) {
-            // No need to actually access the environmental instance
-            // if we only call one of its inherent methods.
-            <EnvInstance as Env>::$name(input, output)
-        }
-    };
+/// Built-in efficient cryptographic hash functions.
+pub mod hash {
+    use super::*;
+
+    macro_rules! impl_hash_fn {
+        ( $(#[$doc:meta])* fn $name:ident($output_len:literal) ) => {
+            paste::item! {
+                $( #[$doc] )*
+                pub fn $name(input: &[u8], output: &mut [u8; $output_len]) {
+                    // No need to actually access the environmental instance
+                    // if we only call one of its inherent methods.
+                    <EnvInstance as Env>::[<hash_ $name>](input, output)
+                }
+            }
+        };
+    }
+    impl_hash_fn!(
+        /// Conducts the SHA2 256-bit hash of the input and
+        /// puts the result into the output buffer.
+        fn sha2_256(32)
+    );
+    impl_hash_fn!(
+        /// Conducts the KECCAK 256-bit hash of the input and
+        /// puts the result into the output buffer.
+        fn keccak_256(32)
+    );
+    impl_hash_fn!(
+        /// Conducts the BLAKE2 256-bit hash of the input and
+        /// puts the result into the output buffer.
+        fn blake2_256(32)
+    );
+    impl_hash_fn!(
+        /// Conducts the BLAKE2 128-bit hash of the input and
+        /// puts the result into the output buffer.
+        fn blake2_128(16)
+    );
+    impl_hash_fn!(
+        /// Conducts the TWOX 256-bit hash of the input and
+        /// puts the result into the output buffer.
+        fn twox_256(32)
+    );
+    impl_hash_fn!(
+        /// Conducts the TWOX 128-bit hash of the input and
+        /// puts the result into the output buffer.
+        fn twox_128(16)
+    );
+    impl_hash_fn!(
+        /// Conducts the TWOX 64-bit hash of the input and
+        /// puts the result into the output buffer.
+        fn twox_64(8)
+    );
 }
-impl_hash_fn!(
-    /// Returns the SHA2 256-bit hash of the given input.
-    fn hash_sha2_256(32)
-);
-impl_hash_fn!(
-    /// Returns the KECCAK 256-bit hash of the given input.
-    fn hash_keccak_256(32)
-);
-impl_hash_fn!(
-    /// Returns the BLAKE2 256-bit hash of the given input.
-    fn hash_blake2_256(32)
-);
-impl_hash_fn!(
-    /// Returns the BLAKE2 128-bit hash of the given input.
-    fn hash_blake2_128(16)
-);
-impl_hash_fn!(
-    /// Returns the TWOX 256-bit hash of the given input.
-    fn hash_twox_256(32)
-);
-impl_hash_fn!(
-    /// Returns the TWOX 128-bit hash of the given input.
-    fn hash_twox_128(16)
-);
-impl_hash_fn!(
-    /// Returns the TWOX 64-bit hash of the given input.
-    fn hash_twox_64(8)
-);

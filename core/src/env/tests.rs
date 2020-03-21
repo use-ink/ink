@@ -19,7 +19,7 @@ static TEST_INPUT: &[u8] = b"DEAD_BEEF";
 #[test]
 fn test_hash_keccak_256() {
     let mut output = [0x00_u8; 32];
-    env::hash_keccak_256(TEST_INPUT, &mut output);
+    env::hash::keccak_256(TEST_INPUT, &mut output);
     assert_eq!(
         output,
         [
@@ -32,7 +32,7 @@ fn test_hash_keccak_256() {
 #[test]
 fn test_hash_sha2_256() {
     let mut output = [0x00_u8; 32];
-    env::hash_sha2_256(TEST_INPUT, &mut output);
+    env::hash::sha2_256(TEST_INPUT, &mut output);
     assert_eq!(
         output,
         [
@@ -45,7 +45,7 @@ fn test_hash_sha2_256() {
 #[test]
 fn test_hash_blake2_256() {
     let mut output = [0x00_u8; 32];
-    env::hash_blake2_256(TEST_INPUT, &mut output);
+    env::hash::blake2_256(TEST_INPUT, &mut output);
     assert_eq!(
         output,
         [
@@ -58,7 +58,7 @@ fn test_hash_blake2_256() {
 #[test]
 fn test_hash_blake2_128() {
     let mut output = [0x00_u8; 16];
-    env::hash_blake2_128(TEST_INPUT, &mut output);
+    env::hash::blake2_128(TEST_INPUT, &mut output);
     assert_eq!(
         output,
         [180, 158, 48, 21, 171, 163, 217, 175, 145, 160, 25, 159, 213, 142, 103, 242]
@@ -73,7 +73,7 @@ const EXPECTED_TWOX_256_HASH: [u8; 32] = [
 #[test]
 fn test_hash_twox_256() {
     let mut output = [0x00_u8; 32];
-    env::hash_twox_256(TEST_INPUT, &mut output);
+    env::hash::twox_256(TEST_INPUT, &mut output);
     assert_eq!(
         &output,
         &EXPECTED_TWOX_256_HASH[..],
@@ -83,7 +83,7 @@ fn test_hash_twox_256() {
 #[test]
 fn test_hash_twox_128() {
     let mut output = [0x00_u8; 16];
-    env::hash_twox_128(TEST_INPUT, &mut output);
+    env::hash::twox_128(TEST_INPUT, &mut output);
     assert_eq!(
         &output,
         &EXPECTED_TWOX_256_HASH[..16],
@@ -93,7 +93,7 @@ fn test_hash_twox_128() {
 #[test]
 fn test_hash_twox_64() {
     let mut output = [0x00_u8; 8];
-    env::hash_twox_64(TEST_INPUT, &mut output);
+    env::hash::twox_64(TEST_INPUT, &mut output);
     assert_eq!(
         &output,
         &EXPECTED_TWOX_256_HASH[..8],
