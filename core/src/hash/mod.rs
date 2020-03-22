@@ -80,65 +80,309 @@ impl_hash_fn_raw! {
 
 macro_rules! impl_hash_fn_for {
     (
+        docs(*_into):
+        $( #[$doc_into:meta] )*
+        docs(*):
         $( #[$doc:meta] )*
         fn $name:ident(struct $ty:ident($output_len:literal));
     ) => {
         paste::item! {
-            $( #[$doc] )*
-            ///
-            /// Uses the given input buffer for accumulating the hash.
-            /// Stores the resulting hash into the given output buffer.
-            pub fn [< $name _into_using >]<I, T>(value: &T, input: I, output: &mut [u8; $output_len])
+            $( #[$doc_into] )*
+            pub fn [< $name _into >]<I, T>(input: &T, buffer: I, output: &mut [u8; $output_len])
             where
                 T: Hash,
                 I: InputBuffer,
             {
-                let mut hasher = <$ty<_> as From<I>>::from(input);
-                <T as Hash>::hash(&value, &mut hasher);
+                let mut hasher = <$ty<_> as From<I>>::from(buffer);
+                <T as Hash>::hash(&input, &mut hasher);
                 <$ty<_> as FinishInto<[u8; $output_len]>>::finish_into(&hasher, output)
             }
 
             $( #[$doc] )*
-            ///
-            /// Uses the given input buffer for accumulating the hash.
-            /// Returns the resulting hash.
-            pub fn [< $name _using >]<I, T>(value: &T, input: I) -> [u8; $output_len]
+            pub fn [< $name >]<I, T>(input: &T, buffer: I) -> [u8; $output_len]
             where
                 T: Hash,
                 I: InputBuffer,
             {
                 let mut output = [0x00_u8; $output_len];
-                [< $name _into_using >](value, input, &mut output);
+                [< $name _into >](input, buffer, &mut output);
                 output
             }
         }
     };
 }
 impl_hash_fn_for! {
-    /// Conducts the SHA2 256-bit hash for the given hashable value.
+    docs(*_into):
+    /// Conducts the SHA2 256-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Stores the resulting hash into the given output buffer.
+    ///
+    /// # Note
+    ///
+    /// Use [`sha2_256`] function if you do not need control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// ## 1. Using a new `Vec` as accumulating buffer.
+    ///
+    /// This is the simplest way to call this API but does not avoid heap
+    /// allocations.
+    ///
+    /// ```
+    /// # use ink_core::hash::sha_256_into;
+    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
+    /// let output = [0x00_u8; $output_len];
+    /// sha_256_into(&hashable, Vec::new(), &mut output);
+    /// // `output` now contains the hash of `hashable`.
+    /// ```
+    ///
+    /// ## 2. Using an existing `Vec` as accumulating buffer.
+    ///
+    /// This API is preferred if the call site already has an allocated buffer
+    /// that it can reuse. This will reset the existing buffer and might grow it.
+    ///
+    /// ```
+    /// # use ink_core::hash::sha_256_into;
+    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
+    /// let output = [0x00_u8; $output_len];
+    /// let mut buffer = Vec::with_capacity(32);
+    /// sha_256_into(&hashable, &mut buffer, &mut output);
+    /// // `output` now contains the hash of `hashable`.
+    /// ```
+    ///
+    /// ## 3. Using a wrapped static buffer as accumulating buffer.
+    ///
+    /// This API avoids heap allocation completely but might panic in cases
+    /// where the static buffer is too small.
+    ///
+    /// ```
+    /// # use ink_core::hash::{sha_256_into, Wrap};
+    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
+    /// let output = [0x00_u8; $output_len];
+    /// let mut buffer = [0x00_u8; 64];
+    /// sha_256_into(&hashable, Wrap::from(buffer), &mut output);
+    /// // `output` now contains the hash of `hashable`.
+    /// ```
+    docs(*):
+    /// Returns the SHA2 256-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Returns the resulting hash directly back to the caller.
+    ///
+    /// # Note
+    ///
+    /// Use [`sha2_256_into`] function if you need more control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// ## 1. Using a new `Vec` as accumulating buffer.
+    ///
+    /// This is the simplest way to call this API but does not avoid heap
+    /// allocations.
+    ///
+    /// ```
+    /// # use ink_core::hash::sha_256_into;
+    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
+    /// let hash = sha_256_into(&hashable, Vec::new());
+    /// ```
+    ///
+    /// ## 2. Using an existing `Vec` as accumulating buffer.
+    ///
+    /// This API is preferred if the call site already has an allocated buffer
+    /// that it can reuse. This will reset the existing buffer and might grow it.
+    ///
+    /// ```
+    /// # use ink_core::hash::sha_256_into;
+    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
+    /// let mut buffer = Vec::with_capacity(32);
+    /// let hash = sha_256_into(&hashable, &mut buffer);
+    /// ```
+    ///
+    /// ## 3. Using a wrapped static buffer as accumulating buffer.
+    ///
+    /// This API avoids heap allocation completely but might panic in cases
+    /// where the static buffer is too small.
+    ///
+    /// ```
+    /// # use ink_core::hash::{sha_256_into, Wrap};
+    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
+    /// let mut buffer = [0x00_u8; 64];
+    /// sha_256_into(&hashable, Wrap::from(buffer));
+    /// ```
     fn sha2_256(struct Sha2x256Hasher(32));
 }
 impl_hash_fn_for! {
-    /// Conducts the KECCAK 256-bit hash for the given hashable value.
+    docs(*_into):
+    /// Conducts the KECCAK 256-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Stores the resulting hash into the given output buffer.
+    ///
+    /// # Note
+    ///
+    /// Use [`keccak_256`] function if you do not need control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256_into`] can be reflected on this API.
+    docs(*):
+    /// Returns the KECCAK 256-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Returns the resulting hash directly back to the caller.
+    ///
+    /// # Note
+    ///
+    /// Use [`keccak_256_into`] function if you need more control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256`] can be reflected on this API.
     fn keccak_256(struct Keccakx256Hasher(32));
 }
 impl_hash_fn_for! {
-    /// Conducts the BLAKE2 256-bit hash for the given hashable value.
+    docs(*_into):
+    /// Conducts the BLAKE2 256-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Stores the resulting hash into the given output buffer.
+    ///
+    /// # Note
+    ///
+    /// Use [`blake2_256`] function if you do not need control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256_into`] can be reflected on this API.
+    docs(*):
+    /// Returns the BLAKE2 256-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Returns the resulting hash directly back to the caller.
+    ///
+    /// # Note
+    ///
+    /// Use [`blake2_256_into`] function if you need more control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256`] can be reflected on this API.
     fn blake2_256(struct Blake2x256Hasher(32));
 }
 impl_hash_fn_for! {
-    /// Conducts the BLAKE2 128-bit hash for the given hashable value.
+    docs(*_into):
+    /// Conducts the BLAKE2 128-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Stores the resulting hash into the given output buffer.
+    ///
+    /// # Note
+    ///
+    /// Use [`blake2_128`] function if you do not need control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256_into`] can be reflected on this API.
+    docs(*):
+    /// Returns the BLAKE2 128-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Returns the resulting hash directly back to the caller.
+    ///
+    /// # Note
+    ///
+    /// Use [`blake2_128_into`] function if you need more control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256`] can be reflected on this API.
     fn blake2_128(struct Blake2x128Hasher(16));
 }
 impl_hash_fn_for! {
-    /// Conducts the TWOX 256-bit hash for the given hashable value.
+    docs(*_into):
+    /// Conducts the TWOX 256-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Stores the resulting hash into the given output buffer.
+    ///
+    /// # Note
+    ///
+    /// Use [`twox_256`] function if you do not need control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256_into`] can be reflected on this API.
+    docs(*):
+    /// Returns the TWOX 256-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Returns the resulting hash directly back to the caller.
+    ///
+    /// # Note
+    ///
+    /// Use [`twox_256_into`] function if you need more control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256`] can be reflected on this API.
     fn twox_256(struct TwoxHasher(32));
 }
 impl_hash_fn_for! {
-    /// Conducts the TWOX 128-bit hash for the given hashable value.
+    docs(*_into):
+    /// Conducts the TWOX 128-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Stores the resulting hash into the given output buffer.
+    ///
+    /// # Note
+    ///
+    /// Use [`twox_128`] function if you do not need control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256_into`] can be reflected on this API.
+    docs(*):
+    /// Returns the TWOX 128-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Returns the resulting hash directly back to the caller.
+    ///
+    /// # Note
+    ///
+    /// Use [`twox_128_into`] function if you need more control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256`] can be reflected on this API.
     fn twox_128(struct TwoxHasher(16));
 }
 impl_hash_fn_for! {
-    /// Conducts the TWOX 64-bit hash for the given hashable value.
+    docs(*_into):
+    /// Conducts the TWOX 64-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Stores the resulting hash into the given output buffer.
+    ///
+    /// # Note
+    ///
+    /// Use [`twox_64`] function if you do not need control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256_into`] can be reflected on this API.
+    docs(*):
+    /// Returns the TWOX 64-bit hash for the given hashable input.
+    ///
+    /// Uses the given buffer for accumulating the hash.
+    /// Returns the resulting hash directly back to the caller.
+    ///
+    /// # Note
+    ///
+    /// Use [`twox_64_into`] function if you need more control over the `output` buffer.
+    ///
+    /// # Examples
+    ///
+    /// The examples demonstrated in [`sha2_256`] can be reflected on this API.
     fn twox_64(struct TwoxHasher(8));
 }
