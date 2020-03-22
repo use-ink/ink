@@ -95,6 +95,8 @@ impl<'a> InputBuffer for &'a mut Vec<u8> {
     }
 
     fn write(&mut self, bytes: &[u8]) {
+        // This could theoretically be speed-up by using `unsafe` `set_len`
+        // and `[u8]` `copy_from_slice` methods.
         <Vec<_>>::extend_from_slice(self, bytes)
     }
 
