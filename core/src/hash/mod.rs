@@ -62,19 +62,19 @@ macro_rules! impl_hash_fn_raw {
     };
 }
 impl_hash_fn_raw! {
-    /// Returns the SHA2 256-bit hash for the given input.
+    /// Returns the SHA2 256-bit hash for the given bytes.
     fn sha2_256_raw(32);
-    /// Returns the KECCAK 256-bit hash for the given input.
+    /// Returns the KECCAK 256-bit hash for the given bytes.
     fn keccak_256_raw(32);
-    /// Returns the BLAKE2 256-bit hash for the given input.
+    /// Returns the BLAKE2 256-bit hash for the given bytes.
     fn blake2_256_raw(32);
-    /// Returns the BLAKE2 128-bit hash for the given input.
+    /// Returns the BLAKE2 128-bit hash for the given bytes.
     fn blake2_128_raw(16);
-    /// Returns the TWOX 256-bit hash for the given input.
+    /// Returns the TWOX 256-bit hash for the given bytes.
     fn twox_256_raw(32);
-    /// Returns the TWOX 128-bit hash for the given input.
+    /// Returns the TWOX 128-bit hash for the given bytes.
     fn twox_128_raw(16);
-    /// Returns the TWOX 64-bit hash for the given input.
+    /// Returns the TWOX 64-bit hash for the given bytes.
     fn twox_64_raw(8);
 }
 
