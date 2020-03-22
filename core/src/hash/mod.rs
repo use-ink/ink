@@ -130,10 +130,10 @@ impl_hash_fn_for! {
     /// allocations.
     ///
     /// ```
-    /// # use ink_core::hash::sha_256_into;
-    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
-    /// let output = [0x00_u8; $output_len];
-    /// sha_256_into(&hashable, Vec::new(), &mut output);
+    /// # use ink_core::hash::sha2_256_into;
+    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
+    /// let mut output = [0x00_u8; 32]; // 256-bit buffer
+    /// sha2_256_into(&hashable, Vec::new(), &mut output);
     /// // `output` now contains the hash of `hashable`.
     /// ```
     ///
@@ -143,11 +143,11 @@ impl_hash_fn_for! {
     /// that it can reuse. This will reset the existing buffer and might grow it.
     ///
     /// ```
-    /// # use ink_core::hash::sha_256_into;
-    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
-    /// let output = [0x00_u8; $output_len];
+    /// # use ink_core::hash::sha2_256_into;
+    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
+    /// let mut output = [0x00_u8; 32]; // 256-bit buffer
     /// let mut buffer = Vec::with_capacity(32);
-    /// sha_256_into(&hashable, &mut buffer, &mut output);
+    /// sha2_256_into(&hashable, &mut buffer, &mut output);
     /// // `output` now contains the hash of `hashable`.
     /// ```
     ///
@@ -157,11 +157,11 @@ impl_hash_fn_for! {
     /// where the static buffer is too small.
     ///
     /// ```
-    /// # use ink_core::hash::{sha_256_into, Wrap};
-    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
-    /// let output = [0x00_u8; $output_len];
+    /// # use ink_core::hash::{sha2_256_into, Wrap};
+    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
+    /// let mut output = [0x00_u8; 32]; // 256-bit buffer
     /// let mut buffer = [0x00_u8; 64];
-    /// sha_256_into(&hashable, Wrap::from(buffer), &mut output);
+    /// sha2_256_into(&hashable, Wrap::from(buffer.as_mut()), &mut output);
     /// // `output` now contains the hash of `hashable`.
     /// ```
     docs(*):
@@ -182,9 +182,9 @@ impl_hash_fn_for! {
     /// allocations.
     ///
     /// ```
-    /// # use ink_core::hash::sha_256_into;
-    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
-    /// let hash = sha_256_into(&hashable, Vec::new());
+    /// # use ink_core::hash::sha2_256;
+    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
+    /// let hash = sha2_256(&hashable, Vec::new());
     /// ```
     ///
     /// ## 2. Using an existing `Vec` as accumulating buffer.
@@ -193,10 +193,10 @@ impl_hash_fn_for! {
     /// that it can reuse. This will reset the existing buffer and might grow it.
     ///
     /// ```
-    /// # use ink_core::hash::sha_256_into;
-    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
+    /// # use ink_core::hash::sha2_256;
+    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
     /// let mut buffer = Vec::with_capacity(32);
-    /// let hash = sha_256_into(&hashable, &mut buffer);
+    /// let hash = sha2_256(&hashable, &mut buffer);
     /// ```
     ///
     /// ## 3. Using a wrapped static buffer as accumulating buffer.
@@ -205,10 +205,10 @@ impl_hash_fn_for! {
     /// where the static buffer is too small.
     ///
     /// ```
-    /// # use ink_core::hash::{sha_256_into, Wrap};
-    /// let hashable = (42, "foo", 3.1415); // Implements `core::hash::Hash`
+    /// # use ink_core::hash::{sha2_256, Wrap};
+    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
     /// let mut buffer = [0x00_u8; 64];
-    /// sha_256_into(&hashable, Wrap::from(buffer));
+    /// sha2_256(&hashable, Wrap::from(buffer.as_mut()));
     /// ```
     fn sha2_256(struct Sha2x256Hasher(32));
 }
