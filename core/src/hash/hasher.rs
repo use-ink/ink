@@ -135,7 +135,8 @@ impl<'a> InputBuffer for Wrap<'a> {
     fn write(&mut self, bytes: &[u8]) {
         let len = self.len;
         let bytes_len = bytes.len();
-        <[u8]>::copy_from_slice(&mut self.buffer[len..(len + bytes_len)], bytes)
+        <[u8]>::copy_from_slice(&mut self.buffer[len..(len + bytes_len)], bytes);
+        self.len += bytes_len;
     }
 
     fn as_slice(&self) -> &[u8] {
