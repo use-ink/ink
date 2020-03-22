@@ -134,7 +134,11 @@ impl_hash_fn_for! {
     /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
     /// let mut output = [0x00_u8; 32]; // 256-bit buffer
     /// sha2_256_into(&hashable, Vec::new(), &mut output);
-    /// // `output` now contains the hash of `hashable`.
+    /// assert_eq!(output, [
+    ///     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    ///     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    ///     178, 200, 65, 118, 14, 253
+    /// ]);
     /// ```
     ///
     /// ## 2. Using an existing `Vec` as accumulating buffer.
@@ -148,7 +152,11 @@ impl_hash_fn_for! {
     /// let mut output = [0x00_u8; 32]; // 256-bit buffer
     /// let mut buffer = Vec::with_capacity(32);
     /// sha2_256_into(&hashable, &mut buffer, &mut output);
-    /// // `output` now contains the hash of `hashable`.
+    /// assert_eq!(output, [
+    ///     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    ///     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    ///     178, 200, 65, 118, 14, 253
+    /// ]);
     /// ```
     ///
     /// ## 3. Using a wrapped static buffer as accumulating buffer.
@@ -162,7 +170,11 @@ impl_hash_fn_for! {
     /// let mut output = [0x00_u8; 32]; // 256-bit buffer
     /// let mut buffer = [0x00_u8; 64];
     /// sha2_256_into(&hashable, Wrap::from(buffer.as_mut()), &mut output);
-    /// // `output` now contains the hash of `hashable`.
+    /// assert_eq!(output, [
+    ///     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    ///     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    ///     178, 200, 65, 118, 14, 253
+    /// ]);
     /// ```
     docs(*):
     /// Returns the SHA2 256-bit hash for the given hashable input.
