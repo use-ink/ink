@@ -124,6 +124,16 @@ impl_hash_fn_for! {
     ///
     /// # Examples
     ///
+    /// In the following examples the `EXPECTED` buffer is defined as:
+    ///
+    /// ```
+    /// const EXPECTED: [u8; 32] = [
+    ///     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    ///     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    ///     178, 200, 65, 118, 14, 253
+    /// ];
+    /// ```
+    ///
     /// ## 1. Using a new `Vec` as accumulating buffer.
     ///
     /// This is the simplest way to call this API but does not avoid heap
@@ -131,14 +141,15 @@ impl_hash_fn_for! {
     ///
     /// ```
     /// # use ink_core::hash::sha2_256_into;
+    /// # const EXPECTED: [u8; 32] = [
+    /// #     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    /// #     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    /// #     178, 200, 65, 118, 14, 253
+    /// # ];
     /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
     /// let mut output = [0x00_u8; 32]; // 256-bit buffer
     /// sha2_256_into(&hashable, Vec::new(), &mut output);
-    /// assert_eq!(output, [
-    ///     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
-    ///     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
-    ///     178, 200, 65, 118, 14, 253
-    /// ]);
+    /// assert_eq!(output, EXPECTED);
     /// ```
     ///
     /// ## 2. Using an existing `Vec` as accumulating buffer.
@@ -148,15 +159,16 @@ impl_hash_fn_for! {
     ///
     /// ```
     /// # use ink_core::hash::sha2_256_into;
+    /// # const EXPECTED: [u8; 32] = [
+    /// #     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    /// #     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    /// #     178, 200, 65, 118, 14, 253
+    /// # ];
     /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
     /// let mut output = [0x00_u8; 32]; // 256-bit buffer
     /// let mut buffer = Vec::with_capacity(32);
     /// sha2_256_into(&hashable, &mut buffer, &mut output);
-    /// assert_eq!(output, [
-    ///     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
-    ///     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
-    ///     178, 200, 65, 118, 14, 253
-    /// ]);
+    /// assert_eq!(output, EXPECTED);
     /// ```
     ///
     /// ## 3. Using a wrapped static buffer as accumulating buffer.
@@ -166,15 +178,16 @@ impl_hash_fn_for! {
     ///
     /// ```
     /// # use ink_core::hash::{sha2_256_into, Wrap};
+    /// # const EXPECTED: [u8; 32] = [
+    /// #     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    /// #     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    /// #     178, 200, 65, 118, 14, 253
+    /// # ];
     /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
     /// let mut output = [0x00_u8; 32]; // 256-bit buffer
     /// let mut buffer = [0x00_u8; 64];
     /// sha2_256_into(&hashable, Wrap::from(buffer.as_mut()), &mut output);
-    /// assert_eq!(output, [
-    ///     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
-    ///     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
-    ///     178, 200, 65, 118, 14, 253
-    /// ]);
+    /// assert_eq!(output, EXPECTED);
     /// ```
     docs(*):
     /// Returns the SHA2 256-bit hash for the given hashable input.
@@ -188,6 +201,16 @@ impl_hash_fn_for! {
     ///
     /// # Examples
     ///
+    /// In the following examples the `EXPECTED` buffer is defined as:
+    ///
+    /// ```
+    /// const EXPECTED: [u8; 32] = [
+    ///     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    ///     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    ///     178, 200, 65, 118, 14, 253
+    /// ];
+    /// ```
+    ///
     /// ## 1. Using a new `Vec` as accumulating buffer.
     ///
     /// This is the simplest way to call this API but does not avoid heap
@@ -195,8 +218,15 @@ impl_hash_fn_for! {
     ///
     /// ```
     /// # use ink_core::hash::sha2_256;
-    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
-    /// let hash = sha2_256(&hashable, Vec::new());
+    /// # const EXPECTED: [u8; 32] = [
+    /// #     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    /// #     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    /// #     178, 200, 65, 118, 14, 253
+    /// # ];
+    /// assert_eq!(
+    ///     sha2_256(&(42, "foo", true), Vec::new()),
+    ///     EXPECTED,
+    /// );
     /// ```
     ///
     /// ## 2. Using an existing `Vec` as accumulating buffer.
@@ -206,9 +236,16 @@ impl_hash_fn_for! {
     ///
     /// ```
     /// # use ink_core::hash::sha2_256;
-    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
+    /// # const EXPECTED: [u8; 32] = [
+    /// #     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    /// #     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    /// #     178, 200, 65, 118, 14, 253
+    /// # ];
     /// let mut buffer = Vec::with_capacity(32);
-    /// let hash = sha2_256(&hashable, &mut buffer);
+    /// assert_eq!(
+    ///     sha2_256(&(42, "foo", true), &mut buffer),
+    ///     EXPECTED,
+    /// );
     /// ```
     ///
     /// ## 3. Using a wrapped static buffer as accumulating buffer.
@@ -218,9 +255,16 @@ impl_hash_fn_for! {
     ///
     /// ```
     /// # use ink_core::hash::{sha2_256, Wrap};
-    /// let hashable = (42, "foo", true); // Implements `core::hash::Hash`
+    /// # const EXPECTED: [u8; 32] = [
+    /// #     123,  38, 102, 217, 176, 174, 109,  30, 100, 71, 85, 214, 203,
+    /// #     212,  16,  26,  88,   5, 194, 156, 138, 243, 34, 74,  67, 115,
+    /// #     178, 200, 65, 118, 14, 253
+    /// # ];
     /// let mut buffer = [0x00_u8; 64];
-    /// sha2_256(&hashable, Wrap::from(buffer.as_mut()));
+    /// assert_eq!(
+    ///     sha2_256(&(42, "foo", true), Wrap::from(buffer.as_mut())),
+    ///     EXPECTED,
+    /// );
     /// ```
     fn sha2_256(struct Sha2x256Hasher(32));
 }
