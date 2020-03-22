@@ -18,8 +18,9 @@ mod hasher;
 
 use core::hash::Hash;
 
-use self::hasher::{Wrap, FinishInto};
+use self::hasher::{FinishInto};
 pub use self::hasher::{
+    Wrap,
     Blake2x128Hasher,
     Blake2x256Hasher,
     CryptoBuildHasher,
