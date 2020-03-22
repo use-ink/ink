@@ -105,6 +105,41 @@ impl<'a> InputBuffer for &'a mut Vec<u8> {
     }
 }
 
+/// Wraps a bytes buffer and turns it into an input buffer.
+///
+/// # Panics
+///
+/// Upon hash calculation if the underlying buffer length does not suffice the
+/// needs of the accumulated hash buffer.
+pub struct Wrap<'a> {
+    /// The underlying wrapped buffer.
+    buffer: &'a mut [u8],
+    /// The current length of the filled area.
+    len: usize,
+}
+
+impl<'a> From<&'a mut [u8]> for Wrap<'a> {
+    fn from(buffer: &'a mut [u8]) -> Self {
+        Self { buffer, len: 0 }
+    }
+}
+
+impl<'a> InputBuffer for Wrap<'a> {
+    fn reset(&mut self) {
+        self.len = 0;
+    }
+
+    fn write(&mut self, bytes: &[u8]) {
+        let len = self.len;
+        let bytes_len = bytes.len();
+        <[u8]>::copy_from_slice(&mut self.buffer[len..(len + bytes_len)], bytes)
+    }
+
+    fn as_slice(&self) -> &[u8] {
+        &self.buffer[..self.len]
+    }
+}
+
 impl<T> Default for CryptoHasher<T, Vec<u8>>
 where
     T: markers::Sealed,
