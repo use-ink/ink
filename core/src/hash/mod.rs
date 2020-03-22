@@ -86,30 +86,6 @@ macro_rules! impl_hash_fn_for {
         paste::item! {
             $( #[$doc] )*
             ///
-            /// Stores the resulting hash into the given output buffer.
-            pub fn [< $name _into >]<T>(value: &T, output: &mut [u8; $output_len])
-            where
-                T: Hash,
-            {
-                let mut hasher = <$ty<_> as Default>::default();
-                <T as Hash>::hash(&value, &mut hasher);
-                <$ty<_> as FinishInto<[u8; $output_len]>>::finish_into(&hasher, output)
-            }
-
-            $( #[$doc] )*
-            ///
-            /// Returns the resulting hash.
-            pub fn $name<T>(value: &T) -> [u8; $output_len]
-            where
-                T: Hash,
-            {
-                let mut output = [0x00_u8; $output_len];
-                [< $name _into >](value, &mut output);
-                output
-            }
-
-            $( #[$doc] )*
-            ///
             /// Uses the given input buffer for accumulating the hash.
             /// Stores the resulting hash into the given output buffer.
             pub fn [< $name _into_using >]<I, T>(value: &T, input: I, output: &mut [u8; $output_len])
