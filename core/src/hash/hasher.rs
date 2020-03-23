@@ -85,17 +85,17 @@ pub trait Accumulator {
 
 impl Accumulator for Vec<u8> {
     fn reset(&mut self) {
-        <Vec<_>>::clear(self)
+        self.clear()
     }
 
     fn write(&mut self, bytes: &[u8]) {
         // This could theoretically be speed-up by using `unsafe` `set_len`
         // and `[u8]` `copy_from_slice` methods.
-        <Vec<_>>::extend_from_slice(self, bytes)
+        self.extend_from_slice(bytes)
     }
 
     fn as_slice(&self) -> &[u8] {
-        <Vec<_>>::as_slice(self)
+        self.as_slice()
     }
 }
 
@@ -143,7 +143,7 @@ impl<'a> Accumulator for Wrap<'a> {
     fn write(&mut self, bytes: &[u8]) {
         let len = self.len;
         let bytes_len = bytes.len();
-        <[u8]>::copy_from_slice(&mut self.buffer[len..(len + bytes_len)], bytes);
+        self.buffer[len..(len + bytes_len)].copy_from_slice(bytes);
         self.len += bytes_len;
     }
 
