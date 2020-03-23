@@ -39,14 +39,14 @@ mod markers {
 }
 
 /// Generic cryptographic hasher.
-pub struct CryptoHasher<T, I>
+pub struct CryptoHasher<T, A>
 where
     T: markers::Sealed,
 {
-    /// The input buffer.
+    /// The accumulator buffer.
     ///
-    /// This bytes buffer is used to accumulate a hashing state.
-    input: I,
+    /// A bytes buffer that is used to accumulate a hashing state.
+    accumulator: A,
     /// Tricks compiler into thinking that `Self` uses `T`.
     marker: PhantomData<T>,
 }
@@ -62,7 +62,7 @@ pub type Blake2x128Hasher<I> = CryptoHasher<markers::Blake2x128Marker, I>;
 /// TWOX 256, 128 or 64-bit hasher.
 pub type TwoxHasher<I> = CryptoHasher<markers::TwoxMarker, I>;
 
-/// Types that qualify as input buffer.
+/// Types that qualify as accumulator.
 ///
 /// # Examples
 ///
@@ -70,12 +70,12 @@ pub type TwoxHasher<I> = CryptoHasher<markers::TwoxMarker, I>;
 /// qualify as such. Users may implement this trait for other types. E.g. it
 /// could be useful to have a `SmallVec` or a static buffer implementation for
 /// this trait.
-pub trait InputBuffer {
+pub trait Accumulator {
     /// Resets the buffer which cleans all state from it.
     ///
     /// # Note
     ///
-    /// Useful when using `Vec` or similar as input buffer.
+    /// Useful when using `Vec` or similar as accumulator.
     fn reset(&mut self);
     /// Writes the given bytes into the buffer.
     fn write(&mut self, bytes: &[u8]);
@@ -83,7 +83,7 @@ pub trait InputBuffer {
     fn as_slice(&self) -> &[u8];
 }
 
-impl InputBuffer for Vec<u8> {
+impl Accumulator for Vec<u8> {
     fn reset(&mut self) {
         <Vec<_>>::clear(self)
     }
@@ -99,24 +99,24 @@ impl InputBuffer for Vec<u8> {
     }
 }
 
-impl<'a, T> InputBuffer for &'a mut T
+impl<'a, T> Accumulator for &'a mut T
 where
-    T: InputBuffer,
+    T: Accumulator,
 {
     fn reset(&mut self) {
-        <T as InputBuffer>::reset(self)
+        <T as Accumulator>::reset(self)
     }
 
     fn write(&mut self, bytes: &[u8]) {
-        <T as InputBuffer>::write(self, bytes)
+        <T as Accumulator>::write(self, bytes)
     }
 
     fn as_slice(&self) -> &[u8] {
-        <T as InputBuffer>::as_slice(self)
+        <T as Accumulator>::as_slice(self)
     }
 }
 
-/// Wraps a bytes buffer and turns it into an input buffer.
+/// Wraps a bytes buffer and turns it into an accumulator.
 ///
 /// # Panics
 ///
@@ -135,7 +135,7 @@ impl<'a> From<&'a mut [u8]> for Wrap<'a> {
     }
 }
 
-impl<'a> InputBuffer for Wrap<'a> {
+impl<'a> Accumulator for Wrap<'a> {
     fn reset(&mut self) {
         self.len = 0;
     }
@@ -161,15 +161,15 @@ where
     }
 }
 
-impl<T, I> From<I> for CryptoHasher<T, I>
+impl<T, A> From<A> for CryptoHasher<T, A>
 where
     T: markers::Sealed,
-    I: InputBuffer,
+    A: Accumulator,
 {
-    fn from(mut input: I) -> Self {
-        <I as InputBuffer>::reset(&mut input);
+    fn from(mut accumulator: A) -> Self {
+        <A as Accumulator>::reset(&mut accumulator);
         Self {
-            input,
+            accumulator,
             marker: PhantomData,
         }
     }
@@ -197,11 +197,11 @@ pub trait Finish<Output> {
     fn finish(&self) -> Output;
 }
 
-impl<T, I, O> Finish<O> for CryptoHasher<T, I>
+impl<T, A, O> Finish<O> for CryptoHasher<T, A>
 where
     Self: FinishInto<O>,
     T: markers::Sealed,
-    I: InputBuffer,
+    A: Accumulator,
     O: AsMut<[u8]> + Default,
 {
     fn finish(&self) -> O {
@@ -211,66 +211,66 @@ where
     }
 }
 
-impl<I> FinishInto<[u8; 32]> for Sha2x256Hasher<I>
+impl<A> FinishInto<[u8; 32]> for Sha2x256Hasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish_into(&self, output: &mut [u8; 32]) {
-        super::sha2_256_raw_into(self.input.as_slice(), output)
+        super::sha2_256_raw_into(self.accumulator.as_slice(), output)
     }
 }
 
-impl<I> FinishInto<[u8; 32]> for Keccakx256Hasher<I>
+impl<A> FinishInto<[u8; 32]> for Keccakx256Hasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish_into(&self, output: &mut [u8; 32]) {
-        super::keccak_256_raw_into(self.input.as_slice(), output)
+        super::keccak_256_raw_into(self.accumulator.as_slice(), output)
     }
 }
 
-impl<I> FinishInto<[u8; 32]> for Blake2x256Hasher<I>
+impl<A> FinishInto<[u8; 32]> for Blake2x256Hasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish_into(&self, output: &mut [u8; 32]) {
-        super::blake2_256_raw_into(self.input.as_slice(), output)
+        super::blake2_256_raw_into(self.accumulator.as_slice(), output)
     }
 }
 
-impl<I> FinishInto<[u8; 16]> for Blake2x128Hasher<I>
+impl<A> FinishInto<[u8; 16]> for Blake2x128Hasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish_into(&self, output: &mut [u8; 16]) {
-        super::blake2_128_raw_into(self.input.as_slice(), output)
+        super::blake2_128_raw_into(self.accumulator.as_slice(), output)
     }
 }
 
-impl<I> FinishInto<[u8; 32]> for TwoxHasher<I>
+impl<A> FinishInto<[u8; 32]> for TwoxHasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish_into(&self, output: &mut [u8; 32]) {
-        super::twox_256_raw_into(self.input.as_slice(), output)
+        super::twox_256_raw_into(self.accumulator.as_slice(), output)
     }
 }
 
-impl<I> FinishInto<[u8; 16]> for TwoxHasher<I>
+impl<A> FinishInto<[u8; 16]> for TwoxHasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish_into(&self, output: &mut [u8; 16]) {
-        super::twox_128_raw_into(self.input.as_slice(), output)
+        super::twox_128_raw_into(self.accumulator.as_slice(), output)
     }
 }
 
-impl<I> FinishInto<[u8; 8]> for TwoxHasher<I>
+impl<A> FinishInto<[u8; 8]> for TwoxHasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish_into(&self, output: &mut [u8; 8]) {
-        super::twox_64_raw_into(self.input.as_slice(), output)
+        super::twox_64_raw_into(self.accumulator.as_slice(), output)
     }
 }
 
@@ -286,9 +286,9 @@ pub trait FinishU64 {
     fn finish(&self) -> u64;
 }
 
-impl<I> FinishU64 for Sha2x256Hasher<I>
+impl<A> FinishU64 for Sha2x256Hasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish(&self) -> u64 {
         let [h0, h1, h2, h3, h4, h5, h6, h7, ..] =
@@ -297,9 +297,9 @@ where
     }
 }
 
-impl<I> FinishU64 for Keccakx256Hasher<I>
+impl<A> FinishU64 for Keccakx256Hasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish(&self) -> u64 {
         let [h0, h1, h2, h3, h4, h5, h6, h7, ..] =
@@ -308,9 +308,9 @@ where
     }
 }
 
-impl<I> FinishU64 for Blake2x256Hasher<I>
+impl<A> FinishU64 for Blake2x256Hasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish(&self) -> u64 {
         let [h0, h1, h2, h3, h4, h5, h6, h7, ..] =
@@ -319,9 +319,9 @@ where
     }
 }
 
-impl<I> FinishU64 for Blake2x128Hasher<I>
+impl<A> FinishU64 for Blake2x128Hasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish(&self) -> u64 {
         let [h0, h1, h2, h3, h4, h5, h6, h7, ..] =
@@ -330,20 +330,20 @@ where
     }
 }
 
-impl<I> FinishU64 for TwoxHasher<I>
+impl<A> FinishU64 for TwoxHasher<A>
 where
-    I: InputBuffer,
+    A: Accumulator,
 {
     fn finish(&self) -> u64 {
         u64::from_le_bytes(<Self as Finish<[u8; 8]>>::finish(self))
     }
 }
 
-impl<T, I> Hasher for CryptoHasher<T, I>
+impl<T, A> Hasher for CryptoHasher<T, A>
 where
     Self: FinishU64,
     T: markers::Sealed,
-    I: InputBuffer,
+    A: Accumulator,
 {
     #[inline]
     fn finish(&self) -> u64 {
@@ -352,9 +352,9 @@ where
 
     #[inline]
     fn write(&mut self, bytes: &[u8]) {
-        <I as InputBuffer>::write(&mut self.input, bytes)
+        <A as Accumulator>::write(&mut self.accumulator, bytes)
     }
 }
 
 /// Default build hasher for supported cryptographic hashers.
-pub type CryptoBuildHasher<T, I> = BuildHasherDefault<CryptoHasher<T, I>>;
+pub type CryptoBuildHasher<T, A> = BuildHasherDefault<CryptoHasher<T, A>>;

@@ -24,7 +24,7 @@ pub use self::hasher::{
     Blake2x256Hasher,
     CryptoBuildHasher,
     CryptoHasher,
-    InputBuffer,
+    Accumulator,
     Keccakx256Hasher,
     Sha2x256Hasher,
     TwoxHasher,
@@ -88,24 +88,24 @@ macro_rules! impl_hash_fn_for {
     ) => {
         paste::item! {
             $( #[$doc_into] )*
-            pub fn [< $name _into >]<I, T>(input: &T, buffer: I, output: &mut [u8; $output_len])
+            pub fn [< $name _into >]<A, T>(input: &T, accumulator: A, output: &mut [u8; $output_len])
             where
                 T: Hash,
-                I: InputBuffer,
+                A: Accumulator,
             {
-                let mut hasher = <$ty<_> as From<I>>::from(buffer);
+                let mut hasher = <$ty<_> as From<A>>::from(accumulator);
                 <T as Hash>::hash(&input, &mut hasher);
                 <$ty<_> as FinishInto<[u8; $output_len]>>::finish_into(&hasher, output)
             }
 
             $( #[$doc] )*
-            pub fn [< $name >]<I, T>(input: &T, buffer: I) -> [u8; $output_len]
+            pub fn [< $name >]<A, T>(input: &T, accumulator: A) -> [u8; $output_len]
             where
                 T: Hash,
-                I: InputBuffer,
+                A: Accumulator,
             {
                 let mut output = [0x00_u8; $output_len];
-                [< $name _into >](input, buffer, &mut output);
+                [< $name _into >](input, accumulator, &mut output);
                 output
             }
         }
