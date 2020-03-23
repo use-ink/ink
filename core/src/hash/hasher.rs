@@ -85,7 +85,7 @@ pub trait Accumulator {
 
 impl Accumulator for Vec<u8> {
     fn reset(&mut self) {
-        <Vec<_>>::clear(self)
+        self.clear()
     }
 
     fn write(&mut self, bytes: &[u8]) {
