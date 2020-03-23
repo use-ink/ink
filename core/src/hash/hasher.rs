@@ -143,7 +143,7 @@ impl<'a> Accumulator for Wrap<'a> {
     fn write(&mut self, bytes: &[u8]) {
         let len = self.len;
         let bytes_len = bytes.len();
-        <[u8]>::copy_from_slice(&mut self.buffer[len..(len + bytes_len)], bytes);
+        self.buffer[len..(len + bytes_len)].copy_from_slice(bytes);
         self.len += bytes_len;
     }
 
