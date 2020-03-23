@@ -78,6 +78,25 @@ impl AccountsDb {
         }
     }
 
+    /// Returns the account at the given account ID or creates it.
+    pub fn get_or_create_account<T>(&mut self, at: &T::AccountId) -> &mut Account
+    where
+        T: EnvTypes,
+    {
+        // Note: We cannot do a normal match for `Some(account)` here since
+        //       the borrow-checker somehow cannot make sense of it according
+        //       to its lifetime analysis. Consider this to be a hack until
+        //       the borrow-checker eventually let's us do this.
+        if self.get_account::<T>(&at).is_some() {
+            self.get_account_mut::<T>(at)
+                .expect("just checked that account exists")
+        } else {
+            self.add_user_account::<T>(at.clone(), 0.into());
+            self.get_account_mut::<T>(at)
+                .expect("just added the account so it must exist")
+        }
+    }
+
     /// Returns the account for the given account ID if any.
     pub fn get_account<T>(&self, at: &T::AccountId) -> Option<&Account>
     where
