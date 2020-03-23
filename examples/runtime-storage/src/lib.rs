@@ -16,24 +16,37 @@
 
 use ink_lang as ink;
 
-mod crypto {
-    /// Do a Blake2 256-bit hash and place result in `dest`.
-    pub fn blake2_256_into(data: &[u8], dest: &mut [u8; 32]) {
-        dest.copy_from_slice(blake2_rfc::blake2b::blake2b(32, &[], data).as_bytes());
-    }
-
-    /// Do a Blake2 256-bit hash and return result.
-    pub fn blake2_256(data: &[u8]) -> [u8; 32] {
-        let mut r = [0; 32];
-        blake2_256_into(data, &mut r);
-        r
-    }
-}
-
 #[ink::contract(version = "0.1.0")]
 mod runtime {
-    use super::crypto;
-    use scale::KeyedVec as _;
+    use ink_core::{
+        env,
+        hash::{
+            blake2_128_into,
+            twox_128,
+            twox_128_into,
+        },
+    };
+    use ink_prelude::*;
+    use scale::{Decode, Encode};
+
+    /// All balance information for an account, mirroring the structure defined in the runtime.
+    /// Copied from [substrate](https://github.com/paritytech/substrate/blob/2c87fe171bc341755a43a3b32d67560469f8daac/frame/system/src/lib.rs#L307)
+    #[derive(Decode)]
+    pub struct AccountData {
+        free: Balance,
+        _reserved: Balance,
+        _misc_frozen: Balance,
+        _fee_frozen: Balance,
+    }
+
+    /// Information of an account, mirroring the structure defined in the runtime
+    /// Copied from [substrate](https://github.com/paritytech/substrate/blob/2c87fe171bc341755a43a3b32d67560469f8daac/frame/system/src/lib.rs#L307)
+    #[derive(Decode)]
+    pub struct AccountInfo {
+        _nonce: u32,
+        _refcount: u8,
+        data: AccountData,
+    }
 
     /// This simple contract reads a value from runtime storage
     #[ink(storage)]
@@ -43,13 +56,33 @@ mod runtime {
         #[ink(constructor)]
         fn new(&mut self) {}
 
-        /// Returns the account balance, read directly from runtime storage
+        /// Returns an account's free balance, read directly from runtime storage
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
-            const BALANCE_OF: &[u8] = b"Balances FreeBalance";
-            let key = crypto::blake2_256(&account.to_keyed_vec(BALANCE_OF));
-            let result = self.env().get_runtime_storage::<Balance>(&key[..]);
-            result.unwrap_or_else(|| Ok(0)).unwrap_or_default()
+            // build the key
+            const MODULE_PREFIX: &[u8] = b"System";
+            const STORAGE_PREFIX: &[u8] = b"Account";
+            let mut buf = vec::Vec::new(); // todo: size?
+            let mut key = twox_128(&MODULE_PREFIX, &mut buf).to_vec();
+            twox_128_into(&STORAGE_PREFIX, &mut buf, &mut key);
+
+            let encoded_accound = &account.encode();
+            blake2_128_into(&encoded_accound, &mut buf, &mut key);
+            key.extend_with_slice(&encoded_accound);
+
+            // fetch from runtime storage
+            let result = self.env().get_runtime_storage::<AccountInfo>(&key[..]);
+            match result {
+                Some(Ok(account_info)) => account_info.data.free,
+                Some(Err(err)) => {
+                    env::println(&format!("Error reading AccountInfo {:?}", err));
+                    0
+                },
+                None => {
+                    env::println(&format!("No data at key {:?}", key));
+                    0
+                }
+            }
         }
     }
 
