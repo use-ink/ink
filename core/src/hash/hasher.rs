@@ -286,14 +286,22 @@ pub trait FinishU64 {
     fn finish(&self) -> u64;
 }
 
+fn truncate_u8x32_to_u64(bytes: [u8; 32]) -> u64 {
+    let [h0, h1, h2, h3, h4, h5, h6, h7, ..] = bytes;
+    u64::from_le_bytes([h0, h1, h2, h3, h4, h5, h6, h7])
+}
+
+fn truncate_u8x16_to_u64(bytes: [u8; 16]) -> u64 {
+    let [h0, h1, h2, h3, h4, h5, h6, h7, ..] = bytes;
+    u64::from_le_bytes([h0, h1, h2, h3, h4, h5, h6, h7])
+}
+
 impl<A> FinishU64 for Sha2x256Hasher<A>
 where
     A: Accumulator,
 {
     fn finish(&self) -> u64 {
-        let [h0, h1, h2, h3, h4, h5, h6, h7, ..] =
-            <Self as Finish<[u8; 32]>>::finish(self);
-        u64::from_le_bytes([h0, h1, h2, h3, h4, h5, h6, h7])
+        truncate_u8x32_to_u64(<Self as Finish<[u8; 32]>>::finish(self))
     }
 }
 
@@ -302,9 +310,7 @@ where
     A: Accumulator,
 {
     fn finish(&self) -> u64 {
-        let [h0, h1, h2, h3, h4, h5, h6, h7, ..] =
-            <Self as Finish<[u8; 32]>>::finish(self);
-        u64::from_le_bytes([h0, h1, h2, h3, h4, h5, h6, h7])
+        truncate_u8x32_to_u64(<Self as Finish<[u8; 32]>>::finish(self))
     }
 }
 
@@ -313,9 +319,7 @@ where
     A: Accumulator,
 {
     fn finish(&self) -> u64 {
-        let [h0, h1, h2, h3, h4, h5, h6, h7, ..] =
-            <Self as Finish<[u8; 32]>>::finish(self);
-        u64::from_le_bytes([h0, h1, h2, h3, h4, h5, h6, h7])
+        truncate_u8x32_to_u64(<Self as Finish<[u8; 32]>>::finish(self))
     }
 }
 
@@ -324,9 +328,7 @@ where
     A: Accumulator,
 {
     fn finish(&self) -> u64 {
-        let [h0, h1, h2, h3, h4, h5, h6, h7, ..] =
-            <Self as Finish<[u8; 16]>>::finish(self);
-        u64::from_le_bytes([h0, h1, h2, h3, h4, h5, h6, h7])
+        truncate_u8x16_to_u64(<Self as Finish<[u8; 16]>>::finish(self))
     }
 }
 
