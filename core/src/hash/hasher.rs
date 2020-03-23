@@ -22,6 +22,7 @@ use core::{
 use ink_prelude::vec::Vec;
 
 mod markers {
+    /// Prevents users from implementing certain traits or generic types.
     pub trait Sealed {}
 
     pub enum Sha2x256Marker {}
@@ -70,8 +71,15 @@ pub type TwoxHasher<I> = CryptoHasher<markers::TwoxMarker, I>;
 /// could be useful to have a `SmallVec` or a static buffer implementation for
 /// this trait.
 pub trait InputBuffer {
+    /// Resets the buffer which cleans all state from it.
+    ///
+    /// # Note
+    ///
+    /// Useful when using `Vec` or similar as input buffer.
     fn reset(&mut self);
+    /// Writes the given bytes into the buffer.
     fn write(&mut self, bytes: &[u8]);
+    /// Returns a shared reference to the slice of the current state of the buffer.
     fn as_slice(&self) -> &[u8];
 }
 
@@ -167,10 +175,24 @@ where
     }
 }
 
+/// Hash functions that can put their results into an output buffer
+/// described by the `Output` type.
+///
+/// # Note
+///
+/// This is an internal trait used to deduplicate some implementations.
 pub trait FinishInto<Output> {
     fn finish_into(&self, output: &mut Output);
 }
 
+/// Hash functions that can return their hash results as an output buffer
+/// described by the `Output` type.
+///
+/// # Note
+///
+/// - Do not manually implement this trait since it is automatically implemented
+///   as `Finish<O>` for all `T: FinishInto<O>`.
+/// - This is an internal trait used to deduplicate some implementations.
 pub trait Finish<Output> {
     fn finish(&self) -> Output;
 }
@@ -252,7 +274,15 @@ where
     }
 }
 
+/// Crypto hash functions that allow to return their hash as `u64`.
+///
+/// # Note
+///
+/// - This is an internal trait used to deduplicate some implementations.
+/// - This is a compatibility function for direct usage of the supported
+///   crypto hash functions via [`Hash`](`core::hash::Hash`) trait.
 pub trait FinishU64 {
+    /// Returns the `u64` result of the accumulated hash.
     fn finish(&self) -> u64;
 }
 
