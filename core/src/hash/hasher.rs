@@ -95,7 +95,7 @@ impl Accumulator for Vec<u8> {
     }
 
     fn as_slice(&self) -> &[u8] {
-        <Vec<_>>::as_slice(self)
+        self.as_slice()
     }
 }
 
