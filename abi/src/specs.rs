@@ -22,10 +22,6 @@ use alloc::{
 };
 use core::marker::PhantomData;
 
-use serde::{
-    Serialize,
-    Serializer,
-};
 use scale_info::{
     form::{
         CompactForm,
@@ -35,6 +31,10 @@ use scale_info::{
     IntoCompact,
     Metadata,
     Registry,
+};
+use serde::{
+    Serialize,
+    Serializer,
 };
 
 /// Describes a contract.

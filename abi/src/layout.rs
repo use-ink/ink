@@ -19,10 +19,6 @@ use alloc::{
 };
 
 use derive_more::From;
-use serde::{
-    Serialize,
-    Serializer,
-};
 use scale_info::{
     form::{
         CompactForm,
@@ -31,6 +27,10 @@ use scale_info::{
     },
     IntoCompact,
     Registry,
+};
+use serde::{
+    Serialize,
+    Serializer,
 };
 
 /// Implemented by types that have a storage layout.
@@ -48,8 +48,7 @@ impl From<ink_primitives::Key> for LayoutKey {
 
 impl HasLayout for ink_primitives::Key {
     fn layout(&self) -> StorageLayout {
-        LayoutRange::cell(*self, <[u8; 32] as scale_info::Metadata>::meta_type())
-            .into()
+        LayoutRange::cell(*self, <[u8; 32] as scale_info::Metadata>::meta_type()).into()
     }
 }
 

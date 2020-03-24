@@ -55,14 +55,14 @@ pub use self::{
 };
 
 use core::fmt::Write as _;
-use serde::{
-    Serialize,
-    Serializer,
-};
 use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
+};
+use serde::{
+    Serialize,
+    Serializer,
 };
 
 /// An entire ink! project for ABI file generation purposes.

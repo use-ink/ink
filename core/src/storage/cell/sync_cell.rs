@@ -32,12 +32,12 @@ use ink_prelude::boxed::Box;
 use ink_primitives::Key;
 #[cfg(feature = "ink-generate-abi")]
 use scale_info::{
+    Fields,
     Metadata,
-    TypeInfo,
+    Namespace,
     Type,
     TypeComposite,
-    Fields,
-    Namespace,
+    TypeInfo,
 };
 
 /// A synchronized cell.
@@ -63,10 +63,11 @@ impl<T> TypeInfo for SyncCell<T> {
     fn type_info() -> Type {
         TypeComposite::new(
             "SyncCell",
-            Namespace::from_module_path(module_path!()).expect("namespace from module path cannot fail")
+            Namespace::from_module_path(module_path!())
+                .expect("namespace from module path cannot fail"),
         )
-            .fields(Fields::named().field_of::<Key>("cell"))
-            .into()
+        .fields(Fields::named().field_of::<Key>("cell"))
+        .into()
     }
 }
 

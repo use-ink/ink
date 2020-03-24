@@ -14,7 +14,6 @@
 
 use super::*;
 use assert_json_diff::assert_json_eq;
-use serde_json::json;
 use scale_info::{
     form::{
         Form,
@@ -23,6 +22,7 @@ use scale_info::{
     IntoCompact,
     Registry,
 };
+use serde_json::json;
 
 #[test]
 fn spec_constructor_selector_must_serialize_to_hex() {
