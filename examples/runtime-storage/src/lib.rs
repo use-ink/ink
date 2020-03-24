@@ -22,7 +22,6 @@ mod runtime {
         env,
         hash::{
             blake2_128_into,
-            twox_128,
             twox_128_into,
         },
     };
@@ -62,13 +61,20 @@ mod runtime {
             // build the key
             const MODULE_PREFIX: &[u8] = b"System";
             const STORAGE_PREFIX: &[u8] = b"Account";
-            let mut buf = vec::Vec::new(); // todo: size?
-            let mut key = twox_128(&MODULE_PREFIX, &mut buf).to_vec();
-            twox_128_into(&STORAGE_PREFIX, &mut buf, &mut key);
 
-            let encoded_accound = &account.encode();
-            blake2_128_into(&encoded_accound, &mut buf, &mut key);
-            key.extend_with_slice(&encoded_accound);
+            let encoded_account = &account.encode();
+
+            let mut output = [0x00_u8; 16];
+            let mut buf = vec::Vec::with_capacity(16);
+            let mut key = vec::Vec::with_capacity(16 + 16 + 16 + encoded_account.len());
+
+            twox_128_into(&MODULE_PREFIX, &mut buf, &mut output);
+            key.extend_from_slice(&output);
+            twox_128_into(&STORAGE_PREFIX, &mut buf, &mut output);
+            key.extend_from_slice(&output);
+            blake2_128_into(&encoded_account, &mut buf, &mut output);
+            key.extend_from_slice(&output);
+            key.extend_from_slice(&encoded_account);
 
             // fetch from runtime storage
             let result = self.env().get_runtime_storage::<AccountInfo>(&key[..]);
