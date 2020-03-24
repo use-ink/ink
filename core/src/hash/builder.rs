@@ -34,9 +34,6 @@ use core::marker::PhantomData;
 /// - [`Keccak256`](`crate::hash::Keccak256`)
 /// - [`Blake2x256`](`crate::hash::Blake2x256`)
 /// - [`Blake2x128`](`crate::hash::Blake2x128`)
-/// - [`Twox256`](`crate::hash::Twox256`)
-/// - [`Twox128`](`crate::hash::Twox128`)
-/// - [`Twox64`](`crate::hash::Twox64`)
 pub struct HashBuilder<H, S> {
     /// The strategy used to build up the hash.
     strategy: S,

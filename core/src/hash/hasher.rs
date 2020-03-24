@@ -60,15 +60,3 @@ impl_hasher_for! {
     /// BLAKE2 128-bit hasher.
     struct Blake2x128Hasher(blake2_128, 16);
 }
-impl_hasher_for! {
-    /// TWOX 256-bit hasher.
-    struct Twox256Hasher(twox_256, 32);
-}
-impl_hasher_for! {
-    /// TWOX 128-bit hasher.
-    struct Twox128Hasher(twox_128, 16);
-}
-impl_hasher_for! {
-    /// TWOX 64-bit hasher.
-    struct Twox64Hasher(twox_64, 8);
-}

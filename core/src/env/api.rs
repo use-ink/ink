@@ -543,19 +543,4 @@ pub mod hash {
         /// puts the result into the output buffer.
         fn blake2_128(16)
     );
-    impl_hash_fn!(
-        /// Conducts the TWOX 256-bit hash of the given bytes and
-        /// puts the result into the output buffer.
-        fn twox_256(32)
-    );
-    impl_hash_fn!(
-        /// Conducts the TWOX 128-bit hash of the given bytes and
-        /// puts the result into the output buffer.
-        fn twox_128(16)
-    );
-    impl_hash_fn!(
-        /// Conducts the TWOX 64-bit hash of the given bytes and
-        /// puts the result into the output buffer.
-        fn twox_64(8)
-    );
 }

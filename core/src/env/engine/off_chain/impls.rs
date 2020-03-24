@@ -125,18 +125,6 @@ impl Env for EnvInstance {
         hashing::blake2_128(input, output)
     }
 
-    fn hash_twox_256(input: &[u8], output: &mut [u8; 32]) {
-        hashing::twox_256(input, output)
-    }
-
-    fn hash_twox_128(input: &[u8], output: &mut [u8; 16]) {
-        hashing::twox_128(input, output)
-    }
-
-    fn hash_twox_64(input: &[u8], output: &mut [u8; 8]) {
-        hashing::twox_64(input, output)
-    }
-
     fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
         hashing::sha2_256(input, output)
     }

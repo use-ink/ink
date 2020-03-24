@@ -34,9 +34,3 @@ pub type Keccak256<S> = HashBuilder<hasher::Keccak256Hasher, S>;
 pub type Blake2x256<S> = HashBuilder<hasher::Blake2x256Hasher, S>;
 /// BLAKE2 128-bit hash builer.
 pub type Blake2x128<S> = HashBuilder<hasher::Blake2x128Hasher, S>;
-/// TWOX 256-bit hash builer.
-pub type Twox256<S> = HashBuilder<hasher::Twox256Hasher, S>;
-/// TWOX 128-bit hash builer.
-pub type Twox128<S> = HashBuilder<hasher::Twox128Hasher, S>;
-/// TWOX 64-bit hash builer.
-pub type Twox64<S> = HashBuilder<hasher::Twox64Hasher, S>;
