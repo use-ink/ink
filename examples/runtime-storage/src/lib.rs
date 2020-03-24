@@ -26,7 +26,10 @@ mod runtime {
         },
     };
     use ink_prelude::*;
-    use scale::{Decode, Encode};
+    use scale::{
+        Decode,
+        Encode,
+    };
 
     /// All balance information for an account, mirroring the structure defined in the runtime.
     /// Copied from [substrate](https://github.com/paritytech/substrate/blob/2c87fe171bc341755a43a3b32d67560469f8daac/frame/system/src/lib.rs#L307)
@@ -83,7 +86,7 @@ mod runtime {
                 Some(Err(err)) => {
                     env::println(&format!("Error reading AccountInfo {:?}", err));
                     0
-                },
+                }
                 None => {
                     env::println(&format!("No data at key {:?}", key));
                     0
