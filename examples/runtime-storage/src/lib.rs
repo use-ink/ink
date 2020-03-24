@@ -21,8 +21,8 @@ mod runtime {
     use ink_core::{
         env,
         hash::{
-            blake2_128_into,
-            twox_128_into,
+            Blake2x128,
+            Twox128,
         },
     };
     use ink_prelude::*;
@@ -59,6 +59,18 @@ mod runtime {
         fn new(&mut self) {}
 
         /// Returns an account's free balance, read directly from runtime storage
+        ///
+        /// # Key Scheme
+        ///
+        /// A key for the [substrate storage map](https://github.com/paritytech/substrate/blob/dd97b1478b31a4715df7e88a5ebc6664425fb6c6/frame/support/src/storage/generator/map.rs#L28)
+        /// is constructed with:
+        ///
+        /// ```nocompile
+        /// Twox128(module_prefix) ++ Twox128(storage_prefix) ++ Hasher(encode(key))
+        /// ```
+        ///
+        /// For the `System` module's `Account` map, the [hasher implementation](https://github.com/paritytech/substrate/blob/2c87fe171bc341755a43a3b32d67560469f8daac/frame/system/src/lib.rs#L349)
+        /// is `blake2_128_concat`.
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
             // build the key
@@ -68,19 +80,22 @@ mod runtime {
             let encoded_account = &account.encode();
 
             let mut output = [0x00_u8; 16];
-            let mut buf = vec::Vec::with_capacity(16);
+            let mut accumulator = vec::Vec::with_capacity(16);
             let mut key = vec::Vec::with_capacity(16 + 16 + 16 + encoded_account.len());
 
-            twox_128_into(&MODULE_PREFIX, &mut buf, &mut output);
+            let mut twox_128 = Twox128::from(&mut accumulator);
+            twox_128.hash_raw_using(&MODULE_PREFIX, &mut output);
             key.extend_from_slice(&output);
-            twox_128_into(&STORAGE_PREFIX, &mut buf, &mut output);
+            twox_128.hash_raw_using(&STORAGE_PREFIX, &mut output);
             key.extend_from_slice(&output);
-            blake2_128_into(&encoded_account, &mut buf, &mut output);
+
+            let mut blake_128 = Blake2x128::from(&mut accumulator);
+            blake_128.hash_raw_using(&encoded_account, &mut output);
             key.extend_from_slice(&output);
             key.extend_from_slice(&encoded_account);
 
             // fetch from runtime storage
-            let result = self.env().get_runtime_storage::<AccountInfo>(&key[..]);
+            let result = self.env().get_runtime_storage::<AccountInfo>(&accumulator[..]);
             match result {
                 Some(Ok(account_info)) => account_info.data.free,
                 Some(Err(err)) => {
@@ -88,7 +103,7 @@ mod runtime {
                     0
                 }
                 None => {
-                    env::println(&format!("No data at key {:?}", key));
+                    env::println(&format!("No data at key {:?}", accumulator));
                     0
                 }
             }
