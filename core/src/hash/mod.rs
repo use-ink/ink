@@ -26,11 +26,11 @@ pub use self::{
     builder::HashBuilder,
 };
 
-/// SHA2 256-bit hash builer.
+/// SHA2 256-bit hash builder.
 pub type Sha2x256<S> = HashBuilder<hasher::Sha2x256Hasher, S>;
-/// KECCAK 256-bit hash builer.
+/// KECCAK 256-bit hash builder.
 pub type Keccak256<S> = HashBuilder<hasher::Keccak256Hasher, S>;
-/// BLAKE2 256-bit hash builer.
+/// BLAKE2 256-bit hash builder.
 pub type Blake2x256<S> = HashBuilder<hasher::Blake2x256Hasher, S>;
-/// BLAKE2 128-bit hash builer.
+/// BLAKE2 128-bit hash builder.
 pub type Blake2x128<S> = HashBuilder<hasher::Blake2x128Hasher, S>;
