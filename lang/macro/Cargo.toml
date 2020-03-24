@@ -42,7 +42,6 @@ git = "https://github.com/paritytech/scale-info.git"
 branch = "aj-merge-type"
 default-features = false
 features = ["derive"]
-optional = true
 
 [lib]
 name = "ink_lang_macro"
