@@ -33,6 +33,7 @@ macro_rules! impl_hasher_for {
         $( #[$doc:meta] )*
         struct $ty_name:ident($fn_name:ident, $output_len:literal);
     ) => {
+        $( #[$doc] )*
         pub enum $ty_name {}
 
         impl Hasher for $ty_name {
