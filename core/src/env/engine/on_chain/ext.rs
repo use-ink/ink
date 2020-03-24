@@ -101,6 +101,14 @@ mod sys {
 
         pub fn ext_random_seed(subject_ptr: u32, subject_len: u32);
         pub fn ext_println(str_ptr: u32, str_len: u32);
+
+        pub fn ext_hash_keccak_256(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn ext_hash_blake2_256(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn ext_hash_blake2_128(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn ext_hash_twox_256(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn ext_hash_twox_128(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn ext_hash_twox_64(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn ext_hash_sha2_256(input_ptr: u32, input_len: u32, output_ptr: u32);
     }
 }
 
@@ -301,3 +309,26 @@ pub fn println(content: &str) {
     let bytes = content.as_bytes();
     unsafe { sys::ext_println(bytes.as_ptr() as u32, bytes.len() as u32) }
 }
+
+macro_rules! impl_hash_fn {
+    ( $name:ident, $bytes_result:literal ) => {
+        paste::item! {
+            pub fn [<hash_ $name>](input: &[u8], output: &mut [u8; $bytes_result]) {
+                unsafe {
+                    sys::[<ext_hash_ $name>](
+                        input.as_ptr() as u32,
+                        input.len() as u32,
+                        output.as_ptr() as u32,
+                    )
+                }
+            }
+        }
+    };
+}
+impl_hash_fn!(sha2_256, 32);
+impl_hash_fn!(keccak_256, 32);
+impl_hash_fn!(blake2_256, 32);
+impl_hash_fn!(blake2_128, 16);
+impl_hash_fn!(twox_256, 32);
+impl_hash_fn!(twox_128, 16);
+impl_hash_fn!(twox_64, 8);

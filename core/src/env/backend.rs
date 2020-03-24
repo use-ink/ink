@@ -77,6 +77,34 @@ pub trait Env {
 
     /// Prints the given contents to the console log.
     fn println(&mut self, content: &str);
+
+    /// Conducts the SHA2 256-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]);
+
+    /// Conducts the KECCAK 256-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]);
+
+    /// Conducts the BLAKE2 256-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]);
+
+    /// Conducts the BLAKE2 128-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]);
+
+    /// Conducts the TWOX 256-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_twox_256(input: &[u8], output: &mut [u8; 32]);
+
+    /// Conducts the TWOX 128-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_twox_128(input: &[u8], output: &mut [u8; 16]);
+
+    /// Conducts the TWOX 64-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_twox_64(input: &[u8], output: &mut [u8; 8]);
 }
 
 /// Environmental contract functionality.

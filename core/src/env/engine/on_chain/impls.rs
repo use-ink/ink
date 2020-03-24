@@ -178,6 +178,34 @@ impl Env for EnvInstance {
     fn println(&mut self, content: &str) {
         ext::println(content)
     }
+
+    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]) {
+        ext::hash_keccak_256(input, output)
+    }
+
+    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
+        ext::hash_blake2_256(input, output)
+    }
+
+    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]) {
+        ext::hash_blake2_128(input, output)
+    }
+
+    fn hash_twox_256(input: &[u8], output: &mut [u8; 32]) {
+        ext::hash_twox_256(input, output)
+    }
+
+    fn hash_twox_128(input: &[u8], output: &mut [u8; 16]) {
+        ext::hash_twox_128(input, output)
+    }
+
+    fn hash_twox_64(input: &[u8], output: &mut [u8; 8]) {
+        ext::hash_twox_64(input, output)
+    }
+
+    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
+        ext::hash_sha2_256(input, output)
+    }
 }
 
 impl TypedEnv for EnvInstance {
