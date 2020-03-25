@@ -6,12 +6,12 @@ edition = "2018"
 
 [dependencies]
 ink_primitives = { version = "2.0.0", path = "../../primitives", default-features = false }
+ink_prelude = { version = "2.0.0", path = "../../prelude", default-features = false }
 ink_abi = { version = "2.0.0", path = "../../abi", default-features = false, features = ["derive"], optional = true }
 ink_core = { version = "2.0.0", path = "../../core", default-features = false }
 ink_lang = { version = "2.0.0", path = "../../lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive"] }
-blake2-rfc = { version = "0.2.18", default-features = false }
 
 [dependencies.type-metadata]
 git = "https://github.com/type-metadata/type-metadata.git"
@@ -33,7 +33,6 @@ crate-type = [
 default = ["test-env"]
 std = [
     "ink_primitives/std",
-    "blake2-rfc/std",
     "ink_abi/std",
     "ink_core/std",
     "scale/std",
