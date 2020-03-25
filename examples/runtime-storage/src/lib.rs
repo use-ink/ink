@@ -34,7 +34,7 @@ mod runtime {
 
     /// All balance information for an account, mirroring the structure defined in the runtime.
     /// Copied from [substrate](https://github.com/paritytech/substrate/blob/2c87fe171bc341755a43a3b32d67560469f8daac/frame/system/src/lib.rs#L307)
-    #[derive(Decode)]
+    #[derive(Encode, Decode)]
     pub struct AccountData {
         free: Balance,
         _reserved: Balance,
@@ -44,7 +44,7 @@ mod runtime {
 
     /// Information of an account, mirroring the structure defined in the runtime
     /// Copied from [substrate](https://github.com/paritytech/substrate/blob/2c87fe171bc341755a43a3b32d67560469f8daac/frame/system/src/lib.rs#L307)
-    #[derive(Decode)]
+    #[derive(Encode, Decode)]
     pub struct AccountInfo {
         _nonce: u32,
         _refcount: u8,
@@ -111,12 +111,49 @@ mod runtime {
     #[cfg(all(test))]
     mod tests {
         use super::*;
+        use ink_core::env;
 
         #[test]
         fn non_existent_account_returns_zero() {
             let contract = RuntimeStorage::new();
             let account: AccountId = [0u8; 32].into();
             assert_eq!(contract.get_balance(account), 0);
+        }
+
+        #[test]
+        fn returns_account_balance_from_storage() {
+            let contract = RuntimeStorage::new();
+            let account: AccountId = [0u8; 32].into();
+            let balance = 1_000_000;
+
+            let account_info = AccountInfo {
+                data: AccountData {
+                    free: balance,
+                    _reserved: 0,
+                    _fee_frozen: 0,
+                    _misc_frozen: 0,
+                },
+                _nonce: 0,
+                _refcount: 0,
+            };
+
+            let encoded_account = &account.encode();
+
+            let mut key = vec![
+                // Precomputed: Twox128("System")
+                38, 170, 57, 78, 234, 86, 48, 224, 124, 72, 174, 12, 149, 88, 206, 247,
+                // Precomputed: Twox128("Account")
+                185, 157, 136, 14, 198, 129, 121, 156, 12, 243, 14, 136, 134, 55, 29, 169,
+            ];
+
+            let mut blake2_128 = Blake2x128::from(Vec::new());
+            let hashed_account = blake2_128.hash_raw(&encoded_account);
+
+            key.extend_from_slice(&hashed_account);
+            key.extend_from_slice(&encoded_account);
+
+            env::test::set_runtime_storage(&key, account_info);
+            assert_eq!(contract.get_balance(account), balance);
         }
     }
 }
