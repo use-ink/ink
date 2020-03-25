@@ -66,6 +66,21 @@ impl<T> Pack<T> {
         Self { inner: value }
     }
 
+    /// Returns the packed value.
+    pub fn into_inner(pack: Self) -> T {
+        pack.inner
+    }
+
+    /// Returns a shared reference to the packed value.
+    pub fn as_inner(pack: &Pack<T>) -> &T {
+        pack.get()
+    }
+
+    /// Returns an exclusive reference to the packed value.
+    pub fn as_inner_mut(pack: &mut Pack<T>) -> &mut T {
+        pack.get_mut()
+    }
+
     /// Returns a shared reference to the packed value.
     fn get(&self) -> &T {
         &self.inner
