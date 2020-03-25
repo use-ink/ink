@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    hashing,
     Account,
     EnvInstance,
 };
@@ -110,6 +111,22 @@ impl Env for EnvInstance {
 
     fn println(&mut self, content: &str) {
         self.console.println(content)
+    }
+
+    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]) {
+        hashing::keccak_256(input, output)
+    }
+
+    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
+        hashing::blake2_256(input, output)
+    }
+
+    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]) {
+        hashing::blake2_128(input, output)
+    }
+
+    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
+        hashing::sha2_256(input, output)
     }
 }
 
