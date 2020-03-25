@@ -15,6 +15,7 @@
 pub mod boxed;
 pub mod smallvec;
 pub mod vec;
+pub mod stash;
 
 /// Extends the lifetime 'a to the outliving lifetime 'b for the given reference.
 ///
