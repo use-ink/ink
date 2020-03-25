@@ -72,16 +72,11 @@ mod runtime {
         /// is `blake2_128_concat`.
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
-            let key: [u8; 80] = [
+            let mut key = vec![
                 // Precomputed: Twox128("System")
                 38, 170, 57, 78, 234, 86, 48, 224, 124, 72, 174, 12, 149, 88, 206, 247,
                 // Precomputed: Twox128("Account")
                 185, 157, 136, 14, 198, 129, 121, 156, 12, 243, 14, 136, 134, 55, 29, 169,
-                // Space for `Blake128(account)`
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                // Space for `account` (assumes size [u8; 32])
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             ];
 
             let encoded_account = &account.encode();
@@ -95,7 +90,7 @@ mod runtime {
             key.extend_from_slice(&encoded_account);
 
             // fetch from runtime storage
-            let result = self.env().get_runtime_storage::<AccountInfo>(&accumulator[..]);
+            let result = self.env().get_runtime_storage::<AccountInfo>(&key[..]);
             match result {
                 Some(Ok(account_info)) => account_info.data.free,
                 Some(Err(err)) => {
@@ -103,7 +98,7 @@ mod runtime {
                     0
                 }
                 None => {
-                    env::println(&format!("No data at key {:?}", accumulator));
+                    env::println(&format!("No data at key {:?}", key));
                     0
                 }
             }
