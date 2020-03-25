@@ -59,14 +59,16 @@ mod runtime {
         ///
         /// # Key Scheme
         ///
-        /// A key for the [substrate storage map](https://github.com/paritytech/substrate/blob/dd97b1478b31a4715df7e88a5ebc6664425fb6c6/frame/support/src/storage/generator/map.rs#L28)
+        /// A key for the [substrate storage map]
+        /// (https://github.com/paritytech/substrate/blob/dd97b1478b31a4715df7e88a5ebc6664425fb6c6/frame/support/src/storage/generator/map.rs#L28)
         /// is constructed with:
         ///
         /// ```nocompile
         /// Twox128(module_prefix) ++ Twox128(storage_prefix) ++ Hasher(encode(key))
         /// ```
         ///
-        /// For the `System` module's `Account` map, the [hasher implementation](https://github.com/paritytech/substrate/blob/2c87fe171bc341755a43a3b32d67560469f8daac/frame/system/src/lib.rs#L349)
+        /// For the `System` module's `Account` map, the [hasher implementation]
+        /// (https://github.com/paritytech/substrate/blob/2c87fe171bc341755a43a3b32d67560469f8daac/frame/system/src/lib.rs#L349)
         /// is `blake2_128_concat`.
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
