@@ -544,21 +544,6 @@
 <span id="544">544</span>
 <span id="545">545</span>
 <span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -1086,39 +1071,24 @@
         };
     }
     <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the SHA2 256-bit hash of the input and</span>
+        <span class="doccomment">/// Conducts the SHA2 256-bit hash of the given bytes and</span>
         <span class="doccomment">/// puts the result into the output buffer.</span>
         <span class="kw">fn</span> <span class="ident">sha2_256</span>(<span class="number">32</span>)
     );
     <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the KECCAK 256-bit hash of the input and</span>
+        <span class="doccomment">/// Conducts the KECCAK 256-bit hash of the given bytes and</span>
         <span class="doccomment">/// puts the result into the output buffer.</span>
         <span class="kw">fn</span> <span class="ident">keccak_256</span>(<span class="number">32</span>)
     );
     <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the BLAKE2 256-bit hash of the input and</span>
+        <span class="doccomment">/// Conducts the BLAKE2 256-bit hash of the given bytes and</span>
         <span class="doccomment">/// puts the result into the output buffer.</span>
         <span class="kw">fn</span> <span class="ident">blake2_256</span>(<span class="number">32</span>)
     );
     <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the BLAKE2 128-bit hash of the input and</span>
+        <span class="doccomment">/// Conducts the BLAKE2 128-bit hash of the given bytes and</span>
         <span class="doccomment">/// puts the result into the output buffer.</span>
         <span class="kw">fn</span> <span class="ident">blake2_128</span>(<span class="number">16</span>)
-    );
-    <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the TWOX 256-bit hash of the input and</span>
-        <span class="doccomment">/// puts the result into the output buffer.</span>
-        <span class="kw">fn</span> <span class="ident">twox_256</span>(<span class="number">32</span>)
-    );
-    <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the TWOX 128-bit hash of the input and</span>
-        <span class="doccomment">/// puts the result into the output buffer.</span>
-        <span class="kw">fn</span> <span class="ident">twox_128</span>(<span class="number">16</span>)
-    );
-    <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the TWOX 64-bit hash of the input and</span>
-        <span class="doccomment">/// puts the result into the output buffer.</span>
-        <span class="kw">fn</span> <span class="ident">twox_64</span>(<span class="number">8</span>)
     );
 }
 </pre></div>
