@@ -79,12 +79,10 @@ mod runtime {
 
             let encoded_account = &account.encode();
 
-            let mut output = [0x00_u8; 16];
-            let mut accumulator = vec::Vec::with_capacity(16);
+            let mut blake_128 = Blake2x128::from(vec::Vec::new());
+            let hashed_account = blake_128.hash_raw(&encoded_account);
 
-            let mut blake_128 = Blake2x128::from(&mut accumulator);
-            blake_128.hash_raw_using(&encoded_account, &mut output);
-            key.extend_from_slice(&output);
+            key.extend_from_slice(&hashed_account);
             key.extend_from_slice(&encoded_account);
 
             // fetch from runtime storage
