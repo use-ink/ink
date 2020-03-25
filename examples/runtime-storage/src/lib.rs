@@ -79,8 +79,8 @@ mod runtime {
 
             let encoded_account = &account.encode();
 
-            let mut blake_128 = Blake2x128::from(vec::Vec::new());
-            let hashed_account = blake_128.hash_raw(&encoded_account);
+            let mut blake2_128 = Blake2x128::from(vec::Vec::new());
+            let hashed_account = blake2_128.hash_raw(&encoded_account);
 
             key.extend_from_slice(&hashed_account);
             key.extend_from_slice(&encoded_account);
