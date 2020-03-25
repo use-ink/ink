@@ -22,7 +22,11 @@ mod runtime {
         env,
         hash::Blake2x128,
     };
-    use ink_prelude::*;
+    use ink_prelude::{
+        format,
+        vec,
+        vec::Vec,
+    };
     use scale::{
         Decode,
         Encode,
@@ -81,7 +85,7 @@ mod runtime {
 
             let encoded_account = &account.encode();
 
-            let mut blake2_128 = Blake2x128::from(vec::Vec::new());
+            let mut blake2_128 = Blake2x128::from(Vec::new());
             let hashed_account = blake2_128.hash_raw(&encoded_account);
 
             // The hasher is `Blake2_128Concat` which appends the unhashed account to the hashed account
