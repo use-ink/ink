@@ -49,5 +49,6 @@ pub use self::{
         SaturatingStorage,
         StorageFootprint,
         StorageFootprintOf,
+        pull_single_cell,
     },
 };

@@ -48,7 +48,7 @@ pub trait PullAt {
     fn pull_at(at: Key) -> Self;
 }
 
-fn pull_single_cell<T>(at: Key) -> T
+pub fn pull_single_cell<T>(at: Key) -> T
 where
     T: scale::Decode,
 {

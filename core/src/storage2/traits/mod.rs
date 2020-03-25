@@ -71,6 +71,7 @@ pub use self::{
     pull::{
         PullAt,
         PullForward,
+        pull_single_cell,
     },
     push::{
         PushAt,
