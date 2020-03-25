@@ -22,7 +22,6 @@ mod runtime {
         env,
         hash::{
             Blake2x128,
-            Twox128,
         },
     };
     use ink_prelude::*;
@@ -73,21 +72,22 @@ mod runtime {
         /// is `blake2_128_concat`.
         #[ink(message)]
         fn get_balance(&self, account: AccountId) -> Balance {
-            // build the key
-            const MODULE_PREFIX: &[u8] = b"System";
-            const STORAGE_PREFIX: &[u8] = b"Account";
+            let key: [u8; 80] = [
+                // Precomputed: Twox128("System")
+                38, 170, 57, 78, 234, 86, 48, 224, 124, 72, 174, 12, 149, 88, 206, 247,
+                // Precomputed: Twox128("Account")
+                185, 157, 136, 14, 198, 129, 121, 156, 12, 243, 14, 136, 134, 55, 29, 169,
+                // Space for `Blake128(account)`
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                // Space for `account` (assumes size [u8; 32])
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ];
 
             let encoded_account = &account.encode();
 
             let mut output = [0x00_u8; 16];
             let mut accumulator = vec::Vec::with_capacity(16);
-            let mut key = vec::Vec::with_capacity(16 + 16 + 16 + encoded_account.len());
-
-            let mut twox_128 = Twox128::from(&mut accumulator);
-            twox_128.hash_raw_using(&MODULE_PREFIX, &mut output);
-            key.extend_from_slice(&output);
-            twox_128.hash_raw_using(&STORAGE_PREFIX, &mut output);
-            key.extend_from_slice(&output);
 
             let mut blake_128 = Blake2x128::from(&mut accumulator);
             blake_128.hash_raw_using(&encoded_account, &mut output);
