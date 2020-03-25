@@ -47,6 +47,7 @@
 extern crate ink_alloc;
 
 pub mod env;
+pub mod hash;
 pub mod storage;
 
 // Needed for derive macros of `core/derive` sub crate.

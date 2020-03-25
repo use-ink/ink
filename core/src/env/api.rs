@@ -524,38 +524,23 @@ pub mod hash {
         };
     }
     impl_hash_fn!(
-        /// Conducts the SHA2 256-bit hash of the input and
+        /// Conducts the SHA2 256-bit hash of the given bytes and
         /// puts the result into the output buffer.
         fn sha2_256(32)
     );
     impl_hash_fn!(
-        /// Conducts the KECCAK 256-bit hash of the input and
+        /// Conducts the KECCAK 256-bit hash of the given bytes and
         /// puts the result into the output buffer.
         fn keccak_256(32)
     );
     impl_hash_fn!(
-        /// Conducts the BLAKE2 256-bit hash of the input and
+        /// Conducts the BLAKE2 256-bit hash of the given bytes and
         /// puts the result into the output buffer.
         fn blake2_256(32)
     );
     impl_hash_fn!(
-        /// Conducts the BLAKE2 128-bit hash of the input and
+        /// Conducts the BLAKE2 128-bit hash of the given bytes and
         /// puts the result into the output buffer.
         fn blake2_128(16)
-    );
-    impl_hash_fn!(
-        /// Conducts the TWOX 256-bit hash of the input and
-        /// puts the result into the output buffer.
-        fn twox_256(32)
-    );
-    impl_hash_fn!(
-        /// Conducts the TWOX 128-bit hash of the input and
-        /// puts the result into the output buffer.
-        fn twox_128(16)
-    );
-    impl_hash_fn!(
-        /// Conducts the TWOX 64-bit hash of the input and
-        /// puts the result into the output buffer.
-        fn twox_64(8)
     );
 }

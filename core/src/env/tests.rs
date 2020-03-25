@@ -69,24 +69,3 @@ const EXPECTED_TWOX_256_HASH: [u8; 32] = [
     184, 90, 166, 82, 206, 121, 53, 220, 214, 51, 21, 244, 158, 99, 210, 59, 173, 79,
     253, 143, 224, 57, 69, 25, 254, 88, 31, 187, 27, 139, 238, 91,
 ];
-
-#[test]
-fn test_hash_twox_256() {
-    let mut output = [0x00_u8; 32];
-    env::hash::twox_256(TEST_INPUT, &mut output);
-    assert_eq!(&output, &EXPECTED_TWOX_256_HASH[..],);
-}
-
-#[test]
-fn test_hash_twox_128() {
-    let mut output = [0x00_u8; 16];
-    env::hash::twox_128(TEST_INPUT, &mut output);
-    assert_eq!(&output, &EXPECTED_TWOX_256_HASH[..16],);
-}
-
-#[test]
-fn test_hash_twox_64() {
-    let mut output = [0x00_u8; 8];
-    env::hash::twox_64(TEST_INPUT, &mut output);
-    assert_eq!(&output, &EXPECTED_TWOX_256_HASH[..8],);
-}
