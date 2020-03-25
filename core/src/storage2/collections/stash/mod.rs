@@ -21,6 +21,7 @@ use crate::storage2::{
     StorageFootprint,
 };
 use ink_primitives::Key;
+use core::mem::MaybeUninit;
 
 type Index = u32;
 
@@ -182,32 +183,27 @@ where
 
     /// Takes the element stored at the given index if any.
     pub fn take(&mut self, at: Index) -> Option<T> {
-        // match self.entries.get(at) {
-        //     None => return None,
-        //     Some(entry) if Pack::as_inner(entry).is_vacant() => {
-        //         return None
-        //         // if let Entry::Vacant(_) = Pack::as_inner(entry) {}
-        //         // match self
-        //         //     .entries
-        //         //     .put(at, Entry::Vacant(self.next_vacant()))
-        //         //     .expect("already asserted that the entry exists")
-        //         // {
-        //         //     Entry::Occupied(val) => {
-        //         //         self.header.next_vacant = n;
-        //         //         debug_assert!(!self.is_empty());
-        //         //         self.header.len -= 1;
-        //         //         Some(val)
-        //         //     }
-        //         //     Entry::Vacant(_) => {
-        //         //         unreachable!("already asserted that the entry is occupied")
-        //         //     }
-        //         // }
-        //     }
-        //     _ => (),
-        // }
-        // self
-        //     .entries
-        //     .put_get(at, Some(Entry::Vacant(self.next_vacant())))
-        todo!()
+        let next_vacant_index = self.next_vacant();
+        match self.entries.get_mut(at) {
+            None => None,
+            Some(packed) => {
+                let entry_mut = Pack::as_inner_mut(packed);
+                if entry_mut.is_vacant() {
+                    // Bail out of the taken entry is already vacant.
+                    return None
+                }
+                // At this point we know that the entry is occupied with a value.
+                let new_vacant_entry = Entry::Vacant(next_vacant_index);
+                let taken_entry = core::mem::replace(entry_mut, new_vacant_entry);
+                match taken_entry {
+                    Entry::Occupied(value) => {
+                        self.header.next_vacant = at;
+                        self.header.len -= 1;
+                        Some(value)
+                    }
+                    Entry::Vacant(_) => unreachable!("the entry must be occupied at this point"),
+                }
+            }
+        }
     }
 }
