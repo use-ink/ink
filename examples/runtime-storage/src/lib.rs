@@ -20,9 +20,7 @@ use ink_lang as ink;
 mod runtime {
     use ink_core::{
         env,
-        hash::{
-            Blake2x128,
-        },
+        hash::Blake2x128,
     };
     use ink_prelude::*;
     use scale::{
