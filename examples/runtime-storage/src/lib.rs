@@ -82,6 +82,7 @@ mod runtime {
             let mut blake2_128 = Blake2x128::from(vec::Vec::new());
             let hashed_account = blake2_128.hash_raw(&encoded_account);
 
+            // The hasher is `Blake2_128Concat` which appends the unhashed account to the hashed account
             key.extend_from_slice(&hashed_account);
             key.extend_from_slice(&encoded_account);
 
