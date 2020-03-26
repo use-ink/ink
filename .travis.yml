@@ -3,6 +3,10 @@ cache: cargo
 dist: trusty
 sudo: true
 
+branches:
+  only:
+  - master
+
 rust:
   - nightly-2019-11-17
 

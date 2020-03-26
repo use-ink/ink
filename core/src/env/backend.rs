@@ -77,6 +77,22 @@ pub trait Env {
 
     /// Prints the given contents to the console log.
     fn println(&mut self, content: &str);
+
+    /// Conducts the SHA2 256-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]);
+
+    /// Conducts the KECCAK 256-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]);
+
+    /// Conducts the BLAKE2 256-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]);
+
+    /// Conducts the BLAKE2 128-bit hash of the input
+    /// puts the result into the output buffer.
+    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]);
 }
 
 /// Environmental contract functionality.
@@ -232,6 +248,24 @@ pub trait TypedEnv: Env {
         rent_allowance: T::Balance,
         filtered_keys: &[Key],
     ) where
+        T: EnvTypes;
+
+    /// Terminates a smart contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::terminate_contract`]
+    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
+    where
+        T: EnvTypes;
+
+    /// Transfers value from the contract to the destination account ID.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::transfer`]
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
         T: EnvTypes;
 
     /// Returns a random hash seed.
