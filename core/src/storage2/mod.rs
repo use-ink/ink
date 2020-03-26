@@ -25,6 +25,7 @@ pub use self::{
         boxed::Box,
         smallvec::SmallVec,
         vec::Vec,
+        stash::Stash,
     },
     lazy::{
         Lazy,

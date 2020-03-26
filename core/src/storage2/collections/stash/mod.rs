@@ -12,6 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod iter;
+mod impls;
+
+#[cfg(test)]
+mod tests;
+
+pub use self::iter::{
+    Iter,
+    IterMut,
+};
 use crate::storage2::{
     LazyChunk,
     Pack,
@@ -21,10 +31,11 @@ use crate::storage2::{
     StorageFootprint,
 };
 use ink_primitives::Key;
-use core::mem::MaybeUninit;
 
+/// An index into the stash.
 type Index = u32;
 
+#[derive(Debug)]
 pub struct Stash<T> {
     /// The combined and commonly used header data.
     header: Pack<Header>,
@@ -32,6 +43,7 @@ pub struct Stash<T> {
     entries: LazyChunk<Pack<Entry<T>>>,
 }
 
+#[derive(Debug)]
 pub struct Header {
     /// The latest vacant index.
     next_vacant: Index,
@@ -46,9 +58,12 @@ pub struct Header {
     max_len: u32,
 }
 
+/// An entry within the stash.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub enum Entry<T> {
+    /// A vacant entry that holds the index to the next vacant entry.
     Vacant(Index),
+    /// An occupied entry that hold the value.
     Occupied(T),
 }
 
@@ -119,6 +134,28 @@ impl<T> Stash<T> {
     /// normally not be required by users.
     pub fn entries_key(&self) -> Option<&Key> {
         self.entries.key()
+    }
+
+    /// Returns an iterator yielding shared references to all elements of the stash.
+    ///
+    /// # Note
+    ///
+    /// Avoid unbounded iteration over big storage stashs.
+    /// Prefer using methods like `Iterator::take` in order to limit the number
+    /// of yielded elements.
+    pub fn iter(&self) -> Iter<T> {
+        Iter::new(self)
+    }
+
+    /// Returns an iterator yielding exclusive references to all elements of the stash.
+    ///
+    /// # Note
+    ///
+    /// Avoid unbounded iteration over big storage stashs.
+    /// Prefer using methods like `Iterator::take` in order to limit the number
+    /// of yielded elements.
+    pub fn iter_mut(&mut self) -> IterMut<T> {
+        IterMut::new(self)
     }
 }
 
@@ -201,7 +238,8 @@ where
                         self.header.len -= 1;
                         Some(value)
                     }
-                    Entry::Vacant(_) => unreachable!("the entry must be occupied at this point"),
+                    Entry::Vacant(_) => {
+                        unreachable!("the entry must be occupied at this point")
                 }
             }
         }
