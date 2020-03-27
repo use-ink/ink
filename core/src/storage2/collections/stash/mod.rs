@@ -54,8 +54,8 @@ pub struct Header {
     /// We cannot simply use the underlying length of the vector
     /// since it would include vacant slots as well.
     len: u32,
-    /// The maximum length the stash ever had.
-    max_len: u32,
+    /// The number of entries currently managed by the stash.
+    len_entries: u32,
 }
 
 /// An entry within the stash.
@@ -90,7 +90,7 @@ impl<T> Stash<T> {
             header: Pack::new(Header {
                 next_vacant: 0,
                 len: 0,
-                max_len: 0,
+                len_entries: 0,
             }),
             entries: LazyChunk::new(),
         }
@@ -106,10 +106,9 @@ impl<T> Stash<T> {
         self.len() == 0
     }
 
-    /// Returns the maximum number of element stored in the
-    /// stash at the same time.
-    pub fn max_len(&self) -> u32 {
-        self.header.max_len
+    /// Returns the number of entries currently managed by the storage stash.
+    fn len_entries(&self) -> u32 {
+        self.header.len_entries
     }
 
     /// Returns the next vacant index.
@@ -190,7 +189,7 @@ where
             // Push the new element to the end if all entries are occupied.
             self.entries.put(current_vacant, new_entry);
             self.header.next_vacant = current_vacant + 1;
-            self.header.max_len += 1;
+            self.header.len_entries += 1;
         } else {
             // Put the new element to the most recent vacant index if not all entries are occupied.
             let old_entry = self
