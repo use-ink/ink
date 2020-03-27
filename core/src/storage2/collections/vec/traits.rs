@@ -17,28 +17,14 @@ use super::{
     IterMut,
     Vec as StorageVec,
 };
-use crate::{
-    storage2 as storage,
-    storage2::{
-        ClearForward,
-        KeyPtr,
-        PullForward,
-        PushForward,
-        SaturatingStorage,
-        StorageFootprint,
-        StorageFootprintOf,
-    },
+use crate::storage2::{
+    PullForward,
+    SaturatingStorage,
+    StorageFootprint,
 };
-use core::{
-    iter::{
-        Extend,
-        FromIterator,
-    },
-    ops::Add,
-};
-use typenum::{
-    Add1,
-    Unsigned,
+use core::iter::{
+    Extend,
+    FromIterator,
 };
 
 impl<T> core::ops::Index<u32> for StorageVec<T>
@@ -110,61 +96,6 @@ where
         let mut vec = StorageVec::new();
         vec.extend(iter);
         vec
-    }
-}
-
-impl<T> StorageFootprint for StorageVec<T>
-where
-    T: StorageFootprint,
-    storage::LazyChunk<T>: StorageFootprint,
-    StorageFootprintOf<storage::LazyChunk<T>>: Add<typenum::B1>,
-    Add1<StorageFootprintOf<storage::LazyChunk<T>>>: Unsigned,
-{
-    type Value = Add1<StorageFootprintOf<storage::LazyChunk<T>>>;
-}
-
-impl<T> PullForward for StorageVec<T>
-where
-    T: StorageFootprint,
-    storage::LazyChunk<T>: PullForward,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self {
-            len: PullForward::pull_forward(ptr),
-            elems: PullForward::pull_forward(ptr),
-        }
-    }
-}
-
-impl<T> PushForward for StorageVec<T>
-where
-    storage::LazyChunk<T>: PushForward,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        PushForward::push_forward(&self.len(), ptr);
-        PushForward::push_forward(&self.elems, ptr);
-    }
-}
-
-impl<T> ClearForward for StorageVec<T>
-where
-    T: StorageFootprint + ClearForward + PullForward,
-{
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        ClearForward::clear_forward(&self.len(), ptr);
-        if self.elems.key().is_none() {
-            return
-        }
-        for (index, elem) in self.iter().enumerate() {
-            <T as ClearForward>::clear_forward(
-                elem,
-                &mut KeyPtr::from(
-                    self.elems
-                        .key_at(&(index as u32))
-                        .expect("expected a key mapping since self.elems.key() is some"),
-                ),
-            )
-        }
     }
 }
 

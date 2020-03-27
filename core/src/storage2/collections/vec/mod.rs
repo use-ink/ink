@@ -14,6 +14,7 @@
 
 mod iter;
 mod traits;
+mod storage;
 
 #[cfg(test)]
 mod tests;
@@ -23,8 +24,9 @@ pub use self::iter::{
     IterMut,
 };
 use crate::{
-    storage2 as storage,
     storage2::{
+        Lazy,
+        LazyChunk,
         PullForward,
         SaturatingStorage,
         StorageFootprint,
@@ -48,9 +50,9 @@ use crate::{
 #[derive(Debug)]
 pub struct Vec<T> {
     /// The length of the vector.
-    len: storage::Lazy<u32>,
+    len: Lazy<u32>,
     /// The synchronized cells to operate on the contract storage.
-    elems: storage::LazyChunk<T>,
+    elems: LazyChunk<T>,
 }
 
 impl<T> Default for Vec<T> {
@@ -63,8 +65,8 @@ impl<T> Vec<T> {
     /// Creates a new empty storage vector.
     pub fn new() -> Self {
         Self {
-            len: storage::Lazy::new(0),
-            elems: storage::LazyChunk::new(),
+            len: Lazy::new(0),
+            elems: LazyChunk::new(),
         }
     }
 
