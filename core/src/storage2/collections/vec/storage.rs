@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Implementation of ink! storage traits.
+
 use super::Vec as StorageVec;
 use crate::{
     storage2 as storage,
