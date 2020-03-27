@@ -14,6 +14,7 @@
 
 mod iter;
 mod impls;
+mod storage;
 
 #[cfg(test)]
 mod tests;
@@ -25,9 +26,7 @@ pub use self::iter::{
 use crate::storage2::{
     LazyChunk,
     Pack,
-    PullAt,
     PullForward,
-    PushForward,
     StorageFootprint,
 };
 use ink_primitives::Key;
@@ -43,7 +42,8 @@ pub struct Stash<T> {
     entries: LazyChunk<Pack<Entry<T>>>,
 }
 
-#[derive(Debug)]
+/// Stores general commonly required information about the storage stash.
+#[derive(Debug, scale::Encode, scale::Decode)]
 pub struct Header {
     /// The latest vacant index.
     next_vacant: Index,
@@ -80,15 +80,6 @@ impl<T> Entry<T> {
     /// Returns `true` if the entry is vacant.
     pub fn is_vacant(&self) -> bool {
         !self.is_occupied()
-    }
-}
-
-impl<T> PullAt for Entry<T>
-where
-    T: scale::Decode,
-{
-    fn pull_at(at: Key) -> Self {
-        crate::storage2::pull_single_cell(at)
     }
 }
 

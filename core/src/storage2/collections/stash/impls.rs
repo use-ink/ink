@@ -18,25 +18,16 @@ use super::{
     Stash as StorageStash,
 };
 use crate::{
-    storage2 as storage,
     storage2::{
-        ClearForward,
-        KeyPtr,
         PullForward,
-        PushForward,
         SaturatingStorage,
         StorageFootprint,
-        StorageFootprintOf,
     },
 };
 use core::iter::{
     Extend,
     FromIterator,
 };
-// use typenum::{
-//     Add1,
-//     Unsigned,
-// };
 
 impl<T> core::ops::Index<u32> for StorageStash<T>
 where
