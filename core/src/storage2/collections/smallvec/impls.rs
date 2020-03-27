@@ -17,25 +17,14 @@ use super::{
     SmallVec,
 };
 use crate::storage2::{
-    KeyPtr,
-    LazyArray,
     LazyArrayLength,
     PullForward,
-    PushForward,
     SaturatingStorage,
     StorageFootprint,
-    StorageFootprintOf,
 };
-use core::{
-    iter::{
-        Extend,
-        FromIterator,
-    },
-    ops::Add,
-};
-use typenum::{
-    Add1,
-    Unsigned,
+use core::iter::{
+    Extend,
+    FromIterator,
 };
 
 impl<T, N> core::ops::Index<u32> for SmallVec<T, N>
@@ -100,41 +89,6 @@ where
         let mut vec = SmallVec::new();
         vec.extend(iter);
         vec
-    }
-}
-
-impl<T, N> StorageFootprint for SmallVec<T, N>
-where
-    T: StorageFootprint + PullForward,
-    N: LazyArrayLength<T>,
-    LazyArray<T, N>: StorageFootprint,
-    StorageFootprintOf<LazyArray<T, N>>: Add<typenum::B1>,
-    Add1<StorageFootprintOf<LazyArray<T, N>>>: Unsigned,
-{
-    type Value = Add1<StorageFootprintOf<LazyArray<T, N>>>;
-}
-
-impl<T, N> PullForward for SmallVec<T, N>
-where
-    N: LazyArrayLength<T>,
-    LazyArray<T, N>: PullForward,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self {
-            len: PullForward::pull_forward(ptr),
-            elems: PullForward::pull_forward(ptr),
-        }
-    }
-}
-
-impl<T, N> PushForward for SmallVec<T, N>
-where
-    LazyArray<T, N>: PushForward,
-    N: LazyArrayLength<T>,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        PushForward::push_forward(&self.len(), ptr);
-        PushForward::push_forward(&self.elems, ptr);
     }
 }
 

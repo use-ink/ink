@@ -13,7 +13,8 @@
 // limitations under the License.
 
 mod iter;
-mod traits;
+mod storage;
+mod impls;
 
 #[cfg(test)]
 mod tests;
@@ -23,8 +24,8 @@ pub use self::iter::{
     IterMut,
 };
 use crate::{
-    storage2 as storage,
     storage2::{
+        Lazy,
         LazyArray,
         LazyArrayLength,
         PullForward,
@@ -54,7 +55,7 @@ where
     N: LazyArrayLength<T>,
 {
     /// The current length of the small vector.
-    len: storage::Lazy<u32>,
+    len: Lazy<u32>,
     /// The entries of the small vector.
     elems: LazyArray<T, N>,
 }
@@ -75,7 +76,7 @@ where
     /// Creates a new empty vector.
     pub fn new() -> Self {
         Self {
-            len: storage::Lazy::new(0),
+            len: Lazy::new(0),
             elems: Default::default(),
         }
     }
