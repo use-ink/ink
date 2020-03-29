@@ -31,3 +31,15 @@ fn new_works() {
     // `StorageVec::new` and `StorageVec::default` should be equal.
     assert_eq!(stash, default);
 }
+
+#[test]
+fn from_iterator_works() {
+    let some_primes = [b'A', b'B', b'C', b'D', b'E', b'F'];
+    assert_eq!(some_primes.iter().copied().collect::<StorageStash<_>>(), {
+        let mut vec = StorageStash::new();
+        for (index, prime) in some_primes.iter().enumerate() {
+            assert_eq!(index as u32, vec.put(*prime));
+        }
+        vec
+    });
+}
