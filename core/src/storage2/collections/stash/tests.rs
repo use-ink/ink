@@ -128,3 +128,50 @@ fn iter_rev_works() {
     assert_eq!(iter.next(), Some(&mut b'A'));
     assert_eq!(iter.next(), None);
 }
+
+#[test]
+fn defrag_works() {
+    let mut stash = [b'A', b'B', b'C', b'D', b'E', b'F']
+        .iter()
+        .copied()
+        .collect::<StorageStash<_>>();
+    assert_eq!(stash.len(), 6);
+    assert_eq!(stash.len_entries(), 6);
+    assert_eq!(stash.take(3), Some(b'D'));
+    assert_eq!(stash.take(1), Some(b'B'));
+    assert_eq!(stash.take(5), Some(b'F'));
+    assert_eq!(stash.take(4), Some(b'E'));
+    // Now stash looks like this:
+    //
+    //    i | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+    // next |   |   |   |   |   |   |   |
+    // prev |   |   |   |   |   |   |   |
+    //  val | A |   | C |   |   |   |   |
+    //
+    // After defrag the stash should look like this:
+    //
+    //    i | 0 | 1 |
+    // next |   |   |
+    // prev |   |   |
+    //  val | A | C |
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    struct EntryMove {
+        from: u32,
+        to: u32,
+        value: u8,
+    }
+    let mut entry_moves = Vec::new();
+    let callback = |from, to, value: &u8| {
+        entry_moves.push(EntryMove {
+            from,
+            to,
+            value: *value,
+        });
+    };
+    stash.defrag(None, callback);
+    assert_eq!(stash.len(), 2);
+    assert_eq!(stash.len_entries(), 2);
+    assert_eq!(stash.get(0), Some(&b'A'));
+    assert_eq!(stash.get(1), Some(&b'C'));
+    assert_eq!(&entry_moves, &[EntryMove { from: 2, to: 1, value: 67 }]);
+}
