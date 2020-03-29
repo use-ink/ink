@@ -19,6 +19,8 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
+#[cfg(test)]
+use self::iter::Entries;
 pub use self::iter::{
     Iter,
     IterMut,
@@ -174,6 +176,16 @@ impl<T> Stash<T> {
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
         IterMut::new(self)
+    }
+
+    /// Returns an iterator yielding shared references to all entries of the stash.
+    ///
+    /// # Note
+    ///
+    /// This is an internal API mainly used for testing the storage stash.
+    #[cfg(test)]
+    fn entries(&self) -> Entries<T> {
+        Entries::new(self)
     }
 
     /// Returns `true` if the storage stash has vacant entries.

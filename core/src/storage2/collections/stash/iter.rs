@@ -21,6 +21,10 @@ use crate::{
         StorageFootprint,
     },
 };
+#[cfg(test)]
+use super::Entry;
+#[cfg(test)]
+use crate::storage2::Pack;
 
 /// An iterator over shared references to the elements of a storage stash.
 #[derive(Debug, Clone, Copy)]
@@ -166,5 +170,86 @@ where
         debug_assert_ne!(self.end, 0);
         self.end -= 1;
         self.get_mut(self.end)
+    }
+}
+
+
+/// An iterator over shared references to the entries of a storage stash.
+///
+/// # Note
+///
+/// This is an internal API and mainly used for testing the storage stash.
+#[derive(Debug, Clone, Copy)]
+#[cfg(test)]
+pub struct Entries<'a, T> {
+    /// The storage stash to iterate over.
+    stash: &'a storage::Stash<T>,
+    /// The current begin of the iteration.
+    begin: u32,
+    /// The current end of the iteration.
+    end: u32,
+}
+
+#[cfg(test)]
+impl<'a, T> Entries<'a, T> {
+    /// Creates a new iterator for the given storage stash.
+    pub(crate) fn new(stash: &'a storage::Stash<T>) -> Self {
+        let len = stash.len_entries();
+        Self {
+            stash,
+            begin: 0,
+            end: len,
+        }
+    }
+}
+
+#[cfg(test)]
+impl<'a, T> Iterator for Entries<'a, T>
+where
+    T: StorageFootprint + PullForward + scale::Decode,
+{
+    type Item = &'a Entry<T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        if self.begin == self.end {
+            return None
+        }
+        let cur = self.begin;
+        self.begin += 1;
+        let entry = self.stash.entries.get(cur)
+            .map(|entry| Pack::as_inner(entry))
+            .expect("iterator indices are within bounds");
+        Some(entry)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = (self.end - self.begin) as usize;
+        (remaining, Some(remaining))
+    }
+}
+
+#[cfg(test)]
+impl<'a, T> ExactSizeIterator for Entries<'a, T> where
+    T: StorageFootprint + PullForward + scale::Decode
+{
+}
+
+#[cfg(test)]
+impl<'a, T> DoubleEndedIterator for Entries<'a, T>
+where
+    T: StorageFootprint + PullForward + scale::Decode,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        if self.begin == self.end {
+            return None
+        }
+        debug_assert_ne!(self.end, 0);
+        self.end -= 1;
+        let entry = self.stash.entries.get(self.end)
+            .map(|entry| Pack::as_inner(entry))
+            .expect("iterator indices are within bounds");
+        Some(entry)
     }
 }
