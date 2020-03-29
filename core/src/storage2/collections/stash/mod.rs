@@ -291,7 +291,9 @@ where
         // Bind the last vacant pointer to the vacant position with the lower index.
         // This has the effect that lower indices are refilled more quickly.
         use core::cmp::min;
-        self.header.last_vacant = min(self.header.last_vacant, min(prev_vacant, next_vacant));
+        if removed_index == self.header.last_vacant {
+            self.header.last_vacant = min(prev_vacant, next_vacant);
+        }
     }
 
     /// Put the element into the stash at the next vacant position.
@@ -469,7 +471,7 @@ where
                             unreachable!("next_vacant must point to a vacant entry")
                         }
                     };
-                    self.remove_vacant_entry(index, vacant_entry);
+                    self.remove_vacant_entry(vacant_index, vacant_entry);
                 }
             }
             self.header.len_entries -= 1;
