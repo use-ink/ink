@@ -190,7 +190,7 @@ impl<T> Stash<T> {
 
     /// Returns `true` if the storage stash has vacant entries.
     fn has_vacant_entries(&self) -> bool {
-        self.header.last_vacant != self.header.len_entries
+        self.header.len != self.header.len_entries
     }
 
     /// Returns the index of the last vacant entry if any.
@@ -262,6 +262,8 @@ where
                 .map(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing entry at this point")
                 .map(|entry| {
+                    debug_assert_eq!(entry.prev, removed_index);
+                    debug_assert_eq!(entry.next, removed_index);
                     entry.prev = prev_vacant;
                     entry.next = prev_vacant;
                 });
@@ -273,6 +275,7 @@ where
                 .map(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing entry at this point")
                 .map(|entry| {
+                    debug_assert_eq!(entry.next, removed_index);
                     entry.next = next_vacant;
                 });
             self.entries
@@ -281,12 +284,14 @@ where
                 .map(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing entry at this point")
                 .map(|entry| {
+                    debug_assert_eq!(entry.prev, removed_index);
                     entry.prev = prev_vacant;
                 });
         }
         // Bind the last vacant pointer to the vacant position with the lower index.
         // This has the effect that lower indices are refilled more quickly.
-        self.header.last_vacant = core::cmp::min(prev_vacant, next_vacant);
+        use core::cmp::min;
+        self.header.last_vacant = min(self.header.last_vacant, min(prev_vacant, next_vacant));
     }
 
     /// Put the element into the stash at the next vacant position.
@@ -325,19 +330,25 @@ where
         // Cases:
         // - There are vacant entries already.
         // - There are no vacant entries before.
-        if at >= self.len() {
+        if at >= self.len_entries() {
             // Early return since `at` index is out of bounds.
             return None
         }
         // Precompute prev and next vacant entires as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
         let (prev, next) = if let Some(index) = self.last_vacant_index() {
-            self.entries
+            let root_vacant = self.entries
                 .get(index)
                 .expect("last_vacant must point to an existing entry")
                 .try_to_vacant()
-                .map(|vacant_entry| (vacant_entry.prev, vacant_entry.next))
-                .expect("last_vacant must point to a vacant entry")
+                .expect("last_vacant must point to a vacant entry");
+            // Form the linked vacant entries in a way that makes it more likely
+            // for them to refill the stash from low indices.
+            if at < root_vacant.next {
+                (index, root_vacant.next)
+            } else {
+                (root_vacant.prev, index)
+            }
         } else {
             // Default prev and next to the given at index.
             // So the resulting vacant index is pointing to itself.
@@ -389,7 +400,7 @@ where
         match taken_entry {
             Entry::Occupied(value) => {
                 use core::cmp::min;
-                self.header.last_vacant = min(at, min(prev, next));
+                self.header.last_vacant = min(self.header.last_vacant, min(at, min(prev, next)));
                 self.header.len -= 1;
                 Some(value)
             }
@@ -444,8 +455,8 @@ where
                     // entries. We do not re-use the `put` method to not update
                     // the length and other header information.
                     let vacant_index = self
-                    .last_vacant_index()
-                    .expect("it has been asserted that there are vacant entries");
+                        .last_vacant_index()
+                        .expect("it has been asserted that there are vacant entries");
                     callback(index, vacant_index, &value);
                     let new_entry = Some(Pack::new(Entry::Occupied(value)));
                     let old_entry = self
