@@ -31,6 +31,12 @@ use core::iter::{
     FromIterator,
 };
 
+impl<T> Default for StorageStash<T> {
+    fn default() -> Self {
+        StorageStash::new()
+    }
+}
+
 impl<T> core::ops::Index<u32> for StorageStash<T>
 where
     T: StorageFootprint + PullForward + scale::Decode,
