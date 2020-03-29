@@ -34,12 +34,33 @@ fn new_works() {
 
 #[test]
 fn from_iterator_works() {
-    let some_primes = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    assert_eq!(some_primes.iter().copied().collect::<StorageStash<_>>(), {
+    let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
+    assert_eq!(test_values.iter().copied().collect::<StorageStash<_>>(), {
         let mut vec = StorageStash::new();
-        for (index, prime) in some_primes.iter().enumerate() {
-            assert_eq!(index as u32, vec.put(*prime));
+        for (index, value) in test_values.iter().enumerate() {
+            assert_eq!(index as u32, vec.put(*value));
         }
         vec
     });
+}
+
+#[test]
+fn from_empty_iterator_works() {
+    assert_eq!(
+        [].iter().copied().collect::<StorageStash<i32>>(),
+        StorageStash::new(),
+    );
+}
+
+#[test]
+fn take_of_filled_works() {
+    let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
+    let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
+    for (index, expected_value) in test_values.iter().enumerate() {
+        println!("\n\n{:?}", &stash);
+        for entry in stash.entries() {
+            println!("    {:?}", entry);
+        }
+        assert_eq!(stash.take(index as u32), Some(*expected_value));
+    }
 }
