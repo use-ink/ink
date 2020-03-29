@@ -197,6 +197,10 @@ where
 {
     /// Returns a shared reference to the element at the given index.
     pub fn get(&self, at: Index) -> Option<&T> {
+        if at >= self.len_entries() {
+            // Bail out early if the index is out of bounds.
+            return None
+        }
         self.entries.get(at).and_then(|entry| {
             match Pack::as_inner(entry) {
                 Entry::Occupied(val) => Some(val),
@@ -207,6 +211,10 @@ where
 
     /// Returns an exclusive reference to the element at the given index.
     pub fn get_mut(&mut self, at: Index) -> Option<&mut T> {
+        if at >= self.len_entries() {
+            // Bail out early if the index is out of bounds.
+            return None
+        }
         self.entries.get_mut(at).and_then(|entry| {
             match Pack::as_inner_mut(entry) {
                 Entry::Occupied(val) => Some(val),
