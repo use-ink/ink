@@ -298,10 +298,11 @@ where
             index
         } else {
             // Push the new element to the end if all entries are occupied.
-            self.entries.put(self.header.len_entries, new_entry);
+            let new_index = self.header.len_entries;
+            self.entries.put(new_index, new_entry);
             self.header.last_vacant += 1;
             self.header.len_entries += 1;
-            self.header.len_entries
+            new_index
         };
         self.header.len += 1;
         new_index
