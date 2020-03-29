@@ -35,13 +35,16 @@ fn new_works() {
 #[test]
 fn from_iterator_works() {
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    assert_eq!(test_values.iter().copied().collect::<StorageStash<_>>(), {
-        let mut vec = StorageStash::new();
+    let stash = test_values.iter().copied().collect::<StorageStash<_>>();
+    assert_eq!(stash, {
+        let mut stash = StorageStash::new();
         for (index, value) in test_values.iter().enumerate() {
-            assert_eq!(index as u32, vec.put(*value));
+            assert_eq!(index as u32, stash.put(*value));
         }
-        vec
+        stash
     });
+    assert_eq!(stash.len(), test_values.len() as u32);
+    assert_eq!(stash.is_empty(), false);
 }
 
 #[test]
@@ -53,14 +56,75 @@ fn from_empty_iterator_works() {
 }
 
 #[test]
-fn take_of_filled_works() {
+fn take_from_filled_works() {
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
     for (index, expected_value) in test_values.iter().enumerate() {
-        println!("\n\n{:?}", &stash);
-        for entry in stash.entries() {
-            println!("    {:?}", entry);
-        }
         assert_eq!(stash.take(index as u32), Some(*expected_value));
     }
+}
+
+#[test]
+fn get_works() {
+    let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
+    let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
+    for (index, expected_value) in test_values.iter().enumerate() {
+        assert_eq!(stash.get(index as u32), Some(expected_value));
+        assert_eq!(stash.get_mut(index as u32), Some(*expected_value).as_mut());
+    }
+}
+
+#[test]
+fn len_is_empty_works() {
+    let mut stash = StorageStash::new();
+    assert_eq!(stash.len(), 0);
+    assert!(stash.is_empty());
+    stash.put(b'A');
+    assert_eq!(stash.len(), 1);
+    assert!(!stash.is_empty());
+    stash.take(0);
+    assert_eq!(stash.len(), 0);
+    assert!(stash.is_empty());
+}
+
+#[test]
+fn iter_works() {
+    let stash = [b'A', b'B', b'C']
+        .iter()
+        .copied()
+        .collect::<StorageStash<_>>();
+    // Test iterator over shared references.
+    let mut iter = stash.iter();
+    assert_eq!(iter.next(), Some(&b'A'));
+    assert_eq!(iter.next(), Some(&b'B'));
+    assert_eq!(iter.next(), Some(&b'C'));
+    assert_eq!(iter.next(), None);
+    // Test iterator over exclusive references.
+    let mut stash = stash;
+    let mut iter = stash.iter_mut();
+    assert_eq!(iter.next(), Some(&mut b'A'));
+    assert_eq!(iter.next(), Some(&mut b'B'));
+    assert_eq!(iter.next(), Some(&mut b'C'));
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn iter_rev_works() {
+    let stash = [b'A', b'B', b'C']
+        .iter()
+        .copied()
+        .collect::<StorageStash<_>>();
+    // Test iterator over shared references.
+    let mut iter = stash.iter().rev();
+    assert_eq!(iter.next(), Some(&b'C'));
+    assert_eq!(iter.next(), Some(&b'B'));
+    assert_eq!(iter.next(), Some(&b'A'));
+    assert_eq!(iter.next(), None);
+    // Test iterator over exclusive references.
+    let mut stash = stash;
+    let mut iter = stash.iter_mut().rev();
+    assert_eq!(iter.next(), Some(&mut b'C'));
+    assert_eq!(iter.next(), Some(&mut b'B'));
+    assert_eq!(iter.next(), Some(&mut b'A'));
+    assert_eq!(iter.next(), None);
 }
