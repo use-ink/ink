@@ -13,7 +13,7 @@
 // limitations under the License.
 
 mod iter;
-mod traits;
+mod impls;
 mod storage;
 
 #[cfg(test)]
