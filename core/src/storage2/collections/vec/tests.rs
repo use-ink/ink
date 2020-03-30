@@ -53,6 +53,15 @@ fn from_empty_iterator_works() {
 }
 
 #[test]
+fn first_last_of_empty() {
+    let mut vec = <StorageVec<u8>>::new();
+    assert_eq!(vec.first(), None);
+    assert_eq!(vec.first_mut(), None);
+    assert_eq!(vec.last(), None);
+    assert_eq!(vec.last_mut(), None);
+}
+
+#[test]
 fn push_pop_first_last_works() {
     /// Asserts conditions are met for the given storage vector.
     fn assert_vec<F, L>(vec: &StorageVec<u8>, len: u32, first: F, last: L)
