@@ -70,3 +70,162 @@ fn pop_on_empty_works() {
     let mut vec = <SmallVec<u8, U4>>::new();
     assert_eq!(vec.pop(), None);
 }
+
+#[test]
+fn push_pop_first_last_works() {
+    /// Asserts conditions are met for the given storage vector.
+    fn assert_vec<F, L>(vec: &SmallVec<u8, U4>, len: u32, first: F, last: L)
+    where
+        F: Into<Option<u8>>,
+        L: Into<Option<u8>>,
+    {
+        assert_eq!(vec.is_empty(), len == 0);
+        assert_eq!(vec.len(), len);
+        assert_eq!(vec.first().copied(), first.into());
+        assert_eq!(vec.last().copied(), last.into());
+    }
+
+    let mut vec = SmallVec::new();
+    assert_vec(&vec, 0, None, None);
+
+    // Sequence of `push`
+    vec.push(b'A');
+    assert_vec(&vec, 1, b'A', b'A');
+    vec.push(b'B');
+    assert_vec(&vec, 2, b'A', b'B');
+    vec.push(b'C');
+    assert_vec(&vec, 3, b'A', b'C');
+    vec.push(b'D');
+    assert_vec(&vec, 4, b'A', b'D');
+
+    // Sequence of `pop`
+    assert_eq!(vec.pop(), Some(b'D'));
+    assert_vec(&vec, 3, b'A', b'C');
+    assert_eq!(vec.pop(), Some(b'C'));
+    assert_vec(&vec, 2, b'A', b'B');
+    assert_eq!(vec.pop(), Some(b'B'));
+    assert_vec(&vec, 1, b'A', b'A');
+    assert_eq!(vec.pop(), Some(b'A'));
+    assert_vec(&vec, 0, None, None);
+
+    // Pop from empty vector.
+    assert_eq!(vec.pop(), None);
+    assert_vec(&vec, 0, None, None);
+}
+
+#[test]
+#[should_panic]
+fn push_beyond_limits_fails() {
+    let mut vec = [b'A', b'B', b'C', b'D']
+        .iter()
+        .copied()
+        .collect::<SmallVec<_, U4>>();
+    vec.push(b'E');
+}
+
+/// Creates a storage vector from the given slice.
+fn vec_from_slice(slice: &[u8]) -> SmallVec<u8, U4> {
+    slice.iter().copied().collect::<SmallVec<u8, U4>>()
+}
+
+/// Asserts that the the given ordered storage vector elements are equal to the
+/// ordered elements of the given slice.
+fn assert_eq_slice(vec: &SmallVec<u8, U4>, slice: &[u8]) {
+    assert_eq!(vec.len() as usize, slice.len());
+    let vec_copy = vec.iter().copied().collect::<Vec<u8>>();
+    assert_eq!(vec_copy.as_slice(), slice);
+}
+
+#[test]
+fn pop_drop_works() {
+    let elems = [b'A', b'B', b'C', b'D'];
+    let mut vec = vec_from_slice(&elems);
+    assert_eq!(vec.pop_drop(), Some(()));
+    assert_eq_slice(&vec, &elems[0..3]);
+    assert_eq!(vec.pop_drop(), Some(()));
+    assert_eq_slice(&vec, &elems[0..2]);
+    assert_eq!(vec.pop_drop(), Some(()));
+    assert_eq_slice(&vec, &elems[0..1]);
+    assert_eq!(vec.pop_drop(), Some(()));
+    assert_eq_slice(&vec, &[]);
+    assert_eq!(vec.pop_drop(), None);
+    assert_eq_slice(&vec, &[]);
+}
+
+#[test]
+fn get_works() {
+    let elems = [b'A', b'B', b'C', b'D'];
+    let mut vec = vec_from_slice(&elems);
+    for (n, mut expected) in elems.iter().copied().enumerate() {
+        let n = n as u32;
+        assert_eq!(vec.get(n), Some(&expected));
+        assert_eq!(vec.get_mut(n), Some(&mut expected));
+    }
+    let len = vec.len();
+    assert_eq!(vec.get(len), None);
+    assert_eq!(vec.get_mut(len), None);
+}
+
+#[test]
+fn iter_works() {
+    let elems = [b'A', b'B', b'C', b'D'];
+    let vec = vec_from_slice(&elems);
+    // Test iterator over shared references.
+    let mut iter = vec.iter();
+    assert_eq!(iter.next(), Some(&b'A'));
+    assert_eq!(iter.next(), Some(&b'B'));
+    assert_eq!(iter.next(), Some(&b'C'));
+    assert_eq!(iter.next(), Some(&b'D'));
+    assert_eq!(iter.next(), None);
+    // Test iterator over exclusive references.
+    let mut vec = vec;
+    let mut iter = vec.iter_mut();
+    assert_eq!(iter.next(), Some(&mut b'A'));
+    assert_eq!(iter.next(), Some(&mut b'B'));
+    assert_eq!(iter.next(), Some(&mut b'C'));
+    assert_eq!(iter.next(), Some(&mut b'D'));
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn iter_rev_works() {
+    let elems = [b'A', b'B', b'C', b'D'];
+    let vec = vec_from_slice(&elems);
+    // Test iterator over shared references.
+    let mut iter = vec.iter().rev();
+    assert_eq!(iter.next(), Some(&b'D'));
+    assert_eq!(iter.next(), Some(&b'C'));
+    assert_eq!(iter.next(), Some(&b'B'));
+    assert_eq!(iter.next(), Some(&b'A'));
+    assert_eq!(iter.next(), None);
+    // Test iterator over exclusive references.
+    let mut vec = vec;
+    let mut iter = vec.iter_mut().rev();
+    assert_eq!(iter.next(), Some(&mut b'D'));
+    assert_eq!(iter.next(), Some(&mut b'C'));
+    assert_eq!(iter.next(), Some(&mut b'B'));
+    assert_eq!(iter.next(), Some(&mut b'A'));
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn swap_works() {
+    let elems = [b'A', b'B', b'C', b'D'];
+    let mut vec = vec_from_slice(&elems);
+
+    // Swap at same position is a no-op.
+    for index in 0..elems.len() as u32 {
+        vec.swap(index, index);
+        assert_eq_slice(&vec, &elems);
+    }
+
+    // Swap first and second
+    vec.swap(0, 1);
+    assert_eq_slice(&vec, &[b'B', b'A', b'C', b'D']);
+    // Swap third and last
+    vec.swap(2, 3);
+    assert_eq_slice(&vec, &[b'B', b'A', b'D', b'C']);
+    // Swap first and last
+    vec.swap(0, 3);
+    assert_eq_slice(&vec, &[b'C', b'A', b'D', b'B']);
+}
