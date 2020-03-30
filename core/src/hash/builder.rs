@@ -80,9 +80,9 @@ where
     ///
     /// # Note
     ///
-    /// Prefer the simpler [`hash_raw`](`HashBuilder::hash_raw`)
+    /// Prefer the simpler [`hash_bytes`](`HashBuilder::hash_bytes`)
     /// if you do _not_ need full control over the `output` buffer.
-    pub fn hash_raw_using(input: &[u8], output: &mut <H as Hasher>::Output)
+    pub fn hash_bytes_using(input: &[u8], output: &mut <H as Hasher>::Output)
     where
         H: Hasher,
     {
@@ -93,14 +93,14 @@ where
     ///
     /// # Note
     ///
-    /// Use [`hash_raw_using`](`HashBuilder::hash_raw_using`)
+    /// Use [`hash_bytes_using`](`HashBuilder::hash_bytes_using`)
     /// if you need full control over the `output` buffer.
-    pub fn hash_raw(input: &[u8]) -> <H as Hasher>::Output
+    pub fn hash_bytes(input: &[u8]) -> <H as Hasher>::Output
     where
         H: Hasher,
     {
         let mut output = <<H as Hasher>::Output as Default>::default();
-        Self::hash_raw_using(input, &mut output);
+        Self::hash_bytes_using(input, &mut output);
         output
     }
 }
