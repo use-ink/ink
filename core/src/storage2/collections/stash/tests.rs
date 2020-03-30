@@ -285,3 +285,178 @@ fn incremental_defrag_works() {
     assert_eq!(stash.get(1), Some(&b'E'));
     assert_eq!(entry_moves.as_slice(), complex_defrag_expected_moves());
 }
+
+#[derive(Debug, PartialEq, Eq)]
+enum Entry {
+    /// Vacant entry with `prev` and `next` links.
+    Vacant(u32, u32),
+    /// Occupied entry with value.
+    Occupied(u8),
+}
+
+fn entries_of_stash(stash: &StorageStash<u8>) -> Vec<Entry> {
+    stash
+        .entries()
+        .map(|entry| {
+            use super::Entry as StashEntry;
+            match entry {
+                StashEntry::Vacant(entry) => Entry::Vacant(entry.prev, entry.next),
+                StashEntry::Occupied(value) => Entry::Occupied(*value),
+            }
+        })
+        .collect::<Vec<_>>()
+}
+
+#[test]
+fn take_in_order_works() {
+    let mut stash = [b'A', b'B', b'C', b'D']
+        .iter()
+        .copied()
+        .collect::<StorageStash<_>>();
+    assert_eq!(stash.len(), 4);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), None);
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Occupied(b'A'),
+            Entry::Occupied(b'B'),
+            Entry::Occupied(b'C'),
+            Entry::Occupied(b'D')
+        ]
+    );
+    // Take first.
+    assert_eq!(stash.take(0), Some(b'A'));
+    assert_eq!(stash.len(), 3);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), Some(0));
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Vacant(0, 0),
+            Entry::Occupied(b'B'),
+            Entry::Occupied(b'C'),
+            Entry::Occupied(b'D')
+        ]
+    );
+    // Take second.
+    assert_eq!(stash.take(1), Some(b'B'));
+    assert_eq!(stash.len(), 2);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), Some(0));
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Vacant(1, 1),
+            Entry::Vacant(0, 0),
+            Entry::Occupied(b'C'),
+            Entry::Occupied(b'D')
+        ]
+    );
+    // Take third.
+    assert_eq!(stash.take(2), Some(b'C'));
+    assert_eq!(stash.len(), 1);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), Some(0));
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Vacant(2, 1),
+            Entry::Vacant(0, 2),
+            Entry::Vacant(1, 0),
+            Entry::Occupied(b'D')
+        ]
+    );
+    // Take last.
+    assert_eq!(stash.take(3), Some(b'D'));
+    assert_eq!(stash.len(), 0);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), Some(0));
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Vacant(3, 1),
+            Entry::Vacant(0, 2),
+            Entry::Vacant(1, 3),
+            Entry::Vacant(2, 0),
+        ]
+    );
+}
+
+#[test]
+fn take_rev_order_works() {
+    let mut stash = [b'A', b'B', b'C', b'D']
+        .iter()
+        .copied()
+        .collect::<StorageStash<_>>();
+    assert_eq!(stash.len(), 4);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), None);
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Occupied(b'A'),
+            Entry::Occupied(b'B'),
+            Entry::Occupied(b'C'),
+            Entry::Occupied(b'D')
+        ]
+    );
+    // Take last.
+    assert_eq!(stash.take(3), Some(b'D'));
+    assert_eq!(stash.len(), 3);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), Some(3));
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Occupied(b'A'),
+            Entry::Occupied(b'B'),
+            Entry::Occupied(b'C'),
+            Entry::Vacant(3, 3)
+        ]
+    );
+    // Take third.
+    assert_eq!(stash.take(2), Some(b'C'));
+    assert_eq!(stash.len(), 2);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), Some(2));
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Occupied(b'A'),
+            Entry::Occupied(b'B'),
+            Entry::Vacant(3, 3),
+            Entry::Vacant(2, 2)
+        ]
+    );
+    // Take second.
+    assert_eq!(stash.take(1), Some(b'B'));
+    assert_eq!(stash.len(), 1);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), Some(1));
+    assert_eq!(
+        entries_of_stash(&stash),
+        // The current layout is sub optimal and does not produce the best
+        // possible vacant linking.
+        vec![
+            Entry::Occupied(b'A'),
+            Entry::Vacant(3, 2),
+            Entry::Vacant(1, 3),
+            Entry::Vacant(2, 1)
+        ]
+    );
+    // Take first.
+    assert_eq!(stash.take(0), Some(b'A'));
+    assert_eq!(stash.len(), 0);
+    assert_eq!(stash.len_entries(), 4);
+    assert_eq!(stash.last_vacant_index(), Some(0));
+    assert_eq!(
+        entries_of_stash(&stash),
+        vec![
+            Entry::Vacant(3, 1),
+            Entry::Vacant(0, 2),
+            Entry::Vacant(1, 3),
+            Entry::Vacant(2, 0)
+        ]
+    );
+}
