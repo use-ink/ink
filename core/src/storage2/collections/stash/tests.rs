@@ -436,8 +436,6 @@ fn take_rev_order_works() {
     assert_eq!(stash.last_vacant_index(), Some(1));
     assert_eq!(
         entries_of_stash(&stash),
-        // The current layout is sub optimal and does not produce the best
-        // possible vacant linking.
         vec![
             Entry::Occupied(b'A'),
             Entry::Vacant(3, 2),
