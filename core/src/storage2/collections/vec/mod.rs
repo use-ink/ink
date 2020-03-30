@@ -117,11 +117,17 @@ where
 
     /// Returns a shared reference to the first element if any.
     pub fn first(&self) -> Option<&T> {
+        if self.is_empty() {
+            return None
+        }
         self.get(0)
     }
 
     /// Returns a shared reference to the last element if any.
     pub fn last(&self) -> Option<&T> {
+        if self.is_empty() {
+            return None
+        }
         let last_index = self.len() - 1;
         self.get(last_index)
     }
@@ -187,11 +193,17 @@ where
 
     /// Returns an exclusive reference to the first element if any.
     pub fn first_mut(&mut self) -> Option<&mut T> {
+        if self.is_empty() {
+            return None
+        }
         self.get_mut(0)
     }
 
     /// Returns an exclusive reference to the last element if any.
     pub fn last_mut(&mut self) -> Option<&mut T> {
+        if self.is_empty() {
+            return None
+        }
         let last_index = self.len() - 1;
         self.get_mut(last_index)
     }
