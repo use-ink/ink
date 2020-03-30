@@ -18,6 +18,14 @@ use super::{
 };
 use core::marker::PhantomData;
 
+/// Type indicating that no accumulator is in use.
+///
+/// # Note
+///
+/// This means that a hash builder with this type as accumulator cannot
+/// build hashes for instances based on their SCALE encoding.
+pub enum NoAccumulator {}
+
 /// Generic hash builder to construct hashes given a builder strategy.
 ///
 /// - `H` defines the crytographic hash to be conducted.
@@ -34,7 +42,7 @@ use core::marker::PhantomData;
 /// - [`Keccak256`](`crate::hash::Keccak256`)
 /// - [`Blake2x256`](`crate::hash::Blake2x256`)
 /// - [`Blake2x128`](`crate::hash::Blake2x128`)
-pub struct HashBuilder<H, S> {
+pub struct HashBuilder<H, S = NoAccumulator> {
     /// The strategy used to build up the hash.
     strategy: S,
     /// The underlying cryptographic hasher.
@@ -59,6 +67,41 @@ where
             hasher: Default::default(),
             strategy: accumulator,
         }
+    }
+}
+
+impl<H, S> HashBuilder<H, S>
+where
+    H: Hasher,
+{
+    /// Conducts the hash for the given bytes.
+    ///
+    /// Puts the resulting hash into the provided output buffer.
+    ///
+    /// # Note
+    ///
+    /// Prefer the simpler [`hash_bytes`](`HashBuilder::hash_bytes`)
+    /// if you do _not_ need full control over the `output` buffer.
+    pub fn hash_bytes_using(input: &[u8], output: &mut <H as Hasher>::Output)
+    where
+        H: Hasher,
+    {
+        <H as Hasher>::finalize_immediate(input, output)
+    }
+
+    /// Returns the hash for the given bytes.
+    ///
+    /// # Note
+    ///
+    /// Use [`hash_bytes_using`](`HashBuilder::hash_bytes_using`)
+    /// if you need full control over the `output` buffer.
+    pub fn hash_bytes(input: &[u8]) -> <H as Hasher>::Output
+    where
+        H: Hasher,
+    {
+        let mut output = <<H as Hasher>::Output as Default>::default();
+        Self::hash_bytes_using(input, &mut output);
+        output
     }
 }
 
@@ -88,39 +131,9 @@ where
 
 impl<H, S> HashBuilder<H, S>
 where
-    Self: Finalize<H> + scale::Output,
     H: Hasher,
+    S: Accumulator,
 {
-    /// Conducts the hash for the given bytes.
-    ///
-    /// Puts the resulting hash into the provided output buffer.
-    ///
-    /// # Note
-    ///
-    /// Prefer the simpler [`hash_raw`](`HashBuilder::hash_raw`)
-    /// if you do _not_ need full control over the `output` buffer.
-    pub fn hash_raw_using(&mut self, input: &[u8], output: &mut <H as Hasher>::Output)
-    where
-        H: Hasher,
-    {
-        <Self as scale::Output>::write(self, input);
-        self.finalize_using(output)
-    }
-
-    /// Returns the hash for the given bytes.
-    ///
-    /// # Note
-    ///
-    /// Use [`hash_raw_using`](`HashBuilder::hash_raw_using`)
-    /// if you need full control over the `output` buffer.
-    pub fn hash_raw(&mut self, input: &[u8]) -> <H as Hasher>::Output
-    where
-        H: Hasher,
-    {
-        <Self as scale::Output>::write(self, input);
-        self.finalize()
-    }
-
     /// Conducts the hash for the encoded input.
     ///
     /// Puts the resulting hash into the provided output buffer.
