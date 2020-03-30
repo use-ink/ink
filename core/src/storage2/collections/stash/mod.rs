@@ -346,9 +346,16 @@ where
                 .expect("last_vacant must point to a vacant entry");
             // Form the linked vacant entries in a way that makes it more likely
             // for them to refill the stash from low indices.
-            if at < root_vacant.next {
+            if at < index {
+                // Insert before root if new vacant index is smaller than root.
+                (root_vacant.prev, index)
+            } else if at < root_vacant.next {
+                // Insert between root and its next vacant entry if smaller than
+                // current root's next index.
                 (index, root_vacant.next)
             } else {
+                // Insert before root entry if index is greater. But we won't
+                // update the new element to be the new root index in this case.
                 (root_vacant.prev, index)
             }
         } else {
