@@ -287,6 +287,19 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -308,6 +321,14 @@
 };
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
+<span class="doccomment">/// Type indicating that no accumulator is in use.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This means that a hash builder with this type as accumulator cannot</span>
+<span class="doccomment">/// build hashes for instances based on their SCALE encoding.</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">NoAccumulator</span> {}
+
 <span class="doccomment">/// Generic hash builder to construct hashes given a builder strategy.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `H` defines the crytographic hash to be conducted.</span>
@@ -324,7 +345,7 @@
 <span class="doccomment">/// - [`Keccak256`](`crate::hash::Keccak256`)</span>
 <span class="doccomment">/// - [`Blake2x256`](`crate::hash::Blake2x256`)</span>
 <span class="doccomment">/// - [`Blake2x128`](`crate::hash::Blake2x128`)</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashBuilder</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashBuilder</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span> <span class="op">=</span> <span class="ident">NoAccumulator</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The strategy used to build up the hash.</span>
     <span class="ident">strategy</span>: <span class="ident">S</span>,
     <span class="doccomment">/// The underlying cryptographic hasher.</span>
@@ -349,6 +370,41 @@
             <span class="ident">hasher</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
             <span class="ident">strategy</span>: <span class="ident">accumulator</span>,
         }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">HashBuilder</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">H</span>: <span class="ident">Hasher</span>,
+{
+    <span class="doccomment">/// Conducts the hash for the given bytes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Puts the resulting hash into the provided output buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Prefer the simpler [`hash_bytes`](`HashBuilder::hash_bytes`)</span>
+    <span class="doccomment">/// if you do _not_ need full control over the `output` buffer.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_bytes_using</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>)
+    <span class="kw">where</span>
+        <span class="ident">H</span>: <span class="ident">Hasher</span>,
+    {
+        <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">finalize_immediate</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    }
+
+    <span class="doccomment">/// Returns the hash for the given bytes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Use [`hash_bytes_using`](`HashBuilder::hash_bytes_using`)</span>
+    <span class="doccomment">/// if you need full control over the `output` buffer.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_bytes</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>
+    <span class="kw">where</span>
+        <span class="ident">H</span>: <span class="ident">Hasher</span>,
+    {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span>::<span class="ident">default</span>();
+        <span class="self">Self</span>::<span class="ident">hash_bytes_using</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
+        <span class="ident">output</span>
     }
 }
 
@@ -378,39 +434,9 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">HashBuilder</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="self">Self</span>: <span class="ident">Finalize</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Output</span>,
     <span class="ident">H</span>: <span class="ident">Hasher</span>,
+    <span class="ident">S</span>: <span class="ident">Accumulator</span>,
 {
-    <span class="doccomment">/// Conducts the hash for the given bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Puts the resulting hash into the provided output buffer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Prefer the simpler [`hash_raw`](`HashBuilder::hash_raw`)</span>
-    <span class="doccomment">/// if you do _not_ need full control over the `output` buffer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_raw_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>)
-    <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    {
-        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>::<span class="ident">write</span>(<span class="self">self</span>, <span class="ident">input</span>);
-        <span class="self">self</span>.<span class="ident">finalize_using</span>(<span class="ident">output</span>)
-    }
-
-    <span class="doccomment">/// Returns the hash for the given bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use [`hash_raw_using`](`HashBuilder::hash_raw_using`)</span>
-    <span class="doccomment">/// if you need full control over the `output` buffer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_raw</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>
-    <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    {
-        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>::<span class="ident">write</span>(<span class="self">self</span>, <span class="ident">input</span>);
-        <span class="self">self</span>.<span class="ident">finalize</span>()
-    }
-
     <span class="doccomment">/// Conducts the hash for the encoded input.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Puts the resulting hash into the provided output buffer.</span>
