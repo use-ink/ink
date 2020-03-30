@@ -373,7 +373,7 @@ where
     ///
     /// If the given index is out of bounds.
     pub fn get(&self, at: Index) -> Option<&T> {
-        unsafe { &*self.load_through_cache(at).as_ptr() }.value()
+        unsafe { &*self.load_through_cache(at).as_ptr() }.value().into()
     }
 
     /// Returns an exclusive reference to the element at the given index if any.
@@ -386,7 +386,7 @@ where
     ///
     /// If the given index is out of bounds.
     pub fn get_mut(&mut self, at: Index) -> Option<&mut T> {
-        self.load_through_cache_mut(at).value_mut()
+        self.load_through_cache_mut(at).value_mut().into()
     }
 
     /// Removes the element at the given index and returns it if any.
@@ -427,12 +427,12 @@ where
     ///
     /// If any of the given indices is out of bounds.
     pub fn swap(&mut self, a: Index, b: Index) {
-        assert!(a < Self::capacity(), "a is out of bounds");
-        assert!(b < Self::capacity(), "b is out of bounds");
         if a == b {
-            // Bail out if both indices are equal.
+            // Bail out early if both indices are the same.
             return
         }
+        assert!(a < Self::capacity(), "a is out of bounds");
+        assert!(b < Self::capacity(), "b is out of bounds");
         let (loaded_a, loaded_b) =
             // SAFETY: The loaded `x` and `y` entries are distinct from each
             //         other guaranteed by the previous checks so they cannot
@@ -449,6 +449,6 @@ where
         // perform the swap and set both entry states to mutated.
         loaded_a.set_state(EntryState::Mutated);
         loaded_b.set_state(EntryState::Mutated);
-        core::mem::swap(&mut loaded_a.value_mut(), &mut loaded_b.value_mut());
+        core::mem::swap(loaded_a.value_mut(), loaded_b.value_mut());
     }
 }

@@ -355,7 +355,7 @@ where
         // SAFETY: Dereferencing the `*mut T` pointer into a `&T` is safe
         //         since this method's receiver is `&self` so we do not
         //         leak non-shared references to the outside.
-        unsafe { &*self.lazily_load(index).as_ptr() }.value()
+        unsafe { &*self.lazily_load(index).as_ptr() }.value().into()
     }
 
     /// Returns an exclusive reference to the element at the given index if any.
@@ -365,7 +365,7 @@ where
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
     pub fn get_mut(&mut self, index: K) -> Option<&mut V> {
-        self.lazily_load_mut(index).value_mut()
+        self.lazily_load_mut(index).value_mut().into()
     }
 
     /// Takes and returns the element at the given index if any.
@@ -434,6 +434,6 @@ where
         // values is guaranteed to be `Some`.
         loaded_x.set_state(EntryState::Mutated);
         loaded_y.set_state(EntryState::Mutated);
-        core::mem::swap(loaded_x.value_as_mut_ref(), loaded_y.value_as_mut_ref());
+        core::mem::swap(loaded_x.value_mut(), loaded_y.value_mut());
     }
 }

@@ -71,25 +71,8 @@ impl<T> Entry<T> {
     }
 
     /// Returns a shared reference to the value of the entry.
-    pub fn value(&self) -> Option<&T> {
-        self.value.as_ref()
-    }
-
-    /// Returns an exclusive reference to the value of the entry.
-    ///
-    /// # Note
-    ///
-    /// This changes the `mutate` state of the entry if the entry was occupied
-    /// since the caller could potentially change the returned value.
-    pub fn value_mut(&mut self) -> Option<&mut T> {
-        self.state.set(
-            if self.value.is_some() {
-                EntryState::Mutated
-            } else {
-                EntryState::Preserved
-            },
-        );
-        self.value.as_mut()
+    pub fn value(&self) -> &Option<T> {
+        &self.value
     }
 
     /// Returns an exclusive reference to the entry value.
@@ -98,7 +81,7 @@ impl<T> Entry<T> {
     ///
     /// This changes the `mutate` state of the entry if the entry was occupied
     /// since the caller could potentially change the returned value.
-    pub fn value_as_mut_ref(&mut self) -> &mut Option<T> {
+    pub fn value_mut(&mut self) -> &mut Option<T> {
         self.state.set(
             if self.value.is_some() {
                 EntryState::Mutated

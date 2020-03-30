@@ -269,7 +269,7 @@ where
     /// If decoding the loaded value to `T` failed.
     #[must_use]
     pub fn get(&self) -> Option<&T> {
-        self.get_entry().value()
+        self.get_entry().value().into()
     }
 
     /// Returns a shared reference to the value.
@@ -283,6 +283,6 @@ where
     /// If decoding the loaded value to `T` failed.
     #[must_use]
     pub fn get_mut(&mut self) -> Option<&mut T> {
-        self.get_entry_mut().value_mut()
+        self.get_entry_mut().value_mut().into()
     }
 }
