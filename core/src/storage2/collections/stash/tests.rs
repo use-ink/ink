@@ -65,6 +65,21 @@ fn take_from_filled_works() {
 }
 
 #[test]
+fn take_from_empty_works() {
+    let mut stash = <StorageStash<u8>>::new();
+    assert_eq!(stash.take(0), None);
+}
+
+#[test]
+fn take_out_of_bounds_works() {
+    let mut stash = [b'A', b'B', b'C']
+        .iter()
+        .copied()
+        .collect::<StorageStash<_>>();
+    assert_eq!(stash.take(3), None);
+}
+
+#[test]
 fn get_works() {
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
