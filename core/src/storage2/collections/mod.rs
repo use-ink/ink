@@ -13,6 +13,7 @@
 // limitations under the License.
 
 pub mod boxed;
+pub mod hashmap;
 pub mod smallvec;
 pub mod vec;
 pub mod stash;
