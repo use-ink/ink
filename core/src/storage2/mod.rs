@@ -32,9 +32,8 @@ pub use self::{
         LazyArray,
         LazyArrayLength,
         LazyCell,
-        LazyChunk,
-        LazyMap,
-        LazyMapping,
+        LazyHashMap,
+        LazyIndexMap,
     },
     pack::Pack,
     traits::{

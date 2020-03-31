@@ -15,7 +15,8 @@
 mod entry;
 mod lazy_array;
 mod lazy_cell;
-mod lazy_map;
+mod lazy_hmap;
+mod lazy_imap;
 
 use self::entry::{
     Entry,
@@ -27,11 +28,8 @@ pub use self::{
         LazyArrayLength,
     },
     lazy_cell::LazyCell,
-    lazy_map::{
-        LazyChunk,
-        LazyMap,
-        LazyMapping,
-    },
+    lazy_hmap::LazyHashMap,
+    lazy_imap::LazyIndexMap,
 };
 use super::{
     ClearForward,

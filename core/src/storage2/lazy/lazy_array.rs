@@ -61,7 +61,7 @@ impl<T, N: ArrayLength<Option<Entry<T>>>> LazyArrayLength<T> for UInt<N, B1> {}
 ///
 /// Computes operations on the underlying N storage cells in a lazy fashion.
 /// Due to the size constraints the `LazyArray` is generally more efficient
-/// than the [`LazyMap`](`super::LazyMap`) for most use cases with limited elements.
+/// than the [`LazyMap`](`super::LazyIndexMap`) for most use cases with limited elements.
 ///
 /// This is mainly used as low-level storage primitives by other high-level
 /// storage primitives in order to manage the contract storage for a whole
