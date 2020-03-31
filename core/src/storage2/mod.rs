@@ -23,6 +23,7 @@ mod traits;
 pub use self::{
     collections::{
         boxed::Box,
+        hashmap::HashMap,
         smallvec::SmallVec,
         stash::Stash,
         vec::Vec,
