@@ -43,17 +43,17 @@ use typenum::{
 impl<T> StorageFootprint for StorageStash<T>
 where
     T: StorageFootprint,
-    storage::LazyChunk<T>: StorageFootprint,
-    StorageFootprintOf<storage::LazyChunk<T>>: Add<typenum::B1>,
-    Add1<StorageFootprintOf<storage::LazyChunk<T>>>: Unsigned,
+    storage::LazyIndexMap<T>: StorageFootprint,
+    StorageFootprintOf<storage::LazyIndexMap<T>>: Add<typenum::B1>,
+    Add1<StorageFootprintOf<storage::LazyIndexMap<T>>>: Unsigned,
 {
-    type Value = Add1<StorageFootprintOf<storage::LazyChunk<T>>>;
+    type Value = Add1<StorageFootprintOf<storage::LazyIndexMap<T>>>;
 }
 
 impl<T> PullForward for StorageStash<T>
 where
     Entry<T>: StorageFootprint + scale::Decode,
-    storage::LazyChunk<Pack<Entry<T>>>: PullForward,
+    storage::LazyIndexMap<Pack<Entry<T>>>: PullForward,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -86,7 +86,7 @@ where
 
 impl<T> PushForward for StorageStash<T>
 where
-    storage::LazyChunk<Pack<Entry<T>>>: PushForward,
+    storage::LazyIndexMap<Pack<Entry<T>>>: PushForward,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         PushForward::push_forward(&self.header, ptr);
@@ -108,7 +108,7 @@ where
                 elem,
                 &mut KeyPtr::from(
                     self.entries
-                        .key_at(&(index as u32))
+                        .key_at(index as u32)
                         .expect("expected a key mapping since self.elems.key() is some"),
                 ),
             )

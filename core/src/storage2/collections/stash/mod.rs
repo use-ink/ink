@@ -26,7 +26,7 @@ pub use self::iter::{
     IterMut,
 };
 use crate::storage2::{
-    LazyChunk,
+    LazyIndexMap,
     Pack,
     PullForward,
     StorageFootprint,
@@ -41,7 +41,7 @@ pub struct Stash<T> {
     /// The combined and commonly used header data.
     header: Pack<Header>,
     /// The storage entries of the stash.
-    entries: LazyChunk<Pack<Entry<T>>>,
+    entries: LazyIndexMap<Pack<Entry<T>>>,
 }
 
 /// Stores general commonly required information about the storage stash.
@@ -127,7 +127,7 @@ impl<T> Stash<T> {
                 len: 0,
                 len_entries: 0,
             }),
-            entries: LazyChunk::new(),
+            entries: LazyIndexMap::new(),
         }
     }
 

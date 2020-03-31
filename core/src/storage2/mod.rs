@@ -16,16 +16,16 @@
 
 pub mod collections;
 pub mod lazy;
-mod traits;
 mod pack;
+mod traits;
 
 #[doc(inline)]
 pub use self::{
     collections::{
         boxed::Box,
         smallvec::SmallVec,
-        vec::Vec,
         stash::Stash,
+        vec::Vec,
     },
     lazy::{
         Lazy,
@@ -37,6 +37,7 @@ pub use self::{
     },
     pack::Pack,
     traits::{
+        pull_single_cell,
         storage_footprint_u128,
         storage_footprint_u64,
         ClearAt,
@@ -49,6 +50,5 @@ pub use self::{
         SaturatingStorage,
         StorageFootprint,
         StorageFootprintOf,
-        pull_single_cell,
     },
 };

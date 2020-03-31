@@ -26,7 +26,7 @@ pub use self::iter::{
 use crate::{
     storage2::{
         Lazy,
-        LazyChunk,
+        LazyIndexMap,
         PullForward,
         SaturatingStorage,
         StorageFootprint,
@@ -52,7 +52,7 @@ pub struct Vec<T> {
     /// The length of the vector.
     len: Lazy<u32>,
     /// The synchronized cells to operate on the contract storage.
-    elems: LazyChunk<T>,
+    elems: LazyIndexMap<T>,
 }
 
 impl<T> Default for Vec<T> {
@@ -66,7 +66,7 @@ impl<T> Vec<T> {
     pub fn new() -> Self {
         Self {
             len: Lazy::new(0),
-            elems: LazyChunk::new(),
+            elems: LazyIndexMap::new(),
         }
     }
 

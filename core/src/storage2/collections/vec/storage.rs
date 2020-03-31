@@ -35,17 +35,17 @@ use typenum::{
 impl<T> StorageFootprint for StorageVec<T>
 where
     T: StorageFootprint,
-    storage::LazyChunk<T>: StorageFootprint,
-    StorageFootprintOf<storage::LazyChunk<T>>: Add<typenum::B1>,
-    Add1<StorageFootprintOf<storage::LazyChunk<T>>>: Unsigned,
+    storage::LazyIndexMap<T>: StorageFootprint,
+    StorageFootprintOf<storage::LazyIndexMap<T>>: Add<typenum::B1>,
+    Add1<StorageFootprintOf<storage::LazyIndexMap<T>>>: Unsigned,
 {
-    type Value = Add1<StorageFootprintOf<storage::LazyChunk<T>>>;
+    type Value = Add1<StorageFootprintOf<storage::LazyIndexMap<T>>>;
 }
 
 impl<T> PullForward for StorageVec<T>
 where
     T: StorageFootprint,
-    storage::LazyChunk<T>: PullForward,
+    storage::LazyIndexMap<T>: PullForward,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -57,7 +57,7 @@ where
 
 impl<T> PushForward for StorageVec<T>
 where
-    storage::LazyChunk<T>: PushForward,
+    storage::LazyIndexMap<T>: PushForward,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         PushForward::push_forward(&self.len(), ptr);
@@ -79,7 +79,7 @@ where
                 elem,
                 &mut KeyPtr::from(
                     self.elems
-                        .key_at(&(index as u32))
+                        .key_at(index as u32)
                         .expect("expected a key mapping since self.elems.key() is some"),
                 ),
             )
