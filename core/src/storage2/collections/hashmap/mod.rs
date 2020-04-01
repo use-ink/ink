@@ -14,7 +14,10 @@
 
 mod iter;
 
-use self::iter::Iter;
+use self::iter::{
+    Iter,
+    IterMut,
+};
 use crate::{
     hash::hasher::{
         Blake2x256Hasher,
@@ -105,6 +108,18 @@ where
     ///   of yielded elements.
     pub fn iter(&self) -> Iter<K, V, H> {
         Iter::new(self)
+    }
+
+    /// Returns an iterator yielding exclusive references to all key/value pairs
+    /// of the hash map.
+    ///
+    /// # Note
+    ///
+    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Prefer using methods like `Iterator::take` in order to limit the number
+    ///   of yielded elements.
+    pub fn iter_mut(&mut self) -> IterMut<K, V, H> {
+        IterMut::new(self)
     }
 }
 

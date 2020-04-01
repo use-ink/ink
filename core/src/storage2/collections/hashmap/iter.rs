@@ -17,7 +17,10 @@ use crate::{
     hash::hasher::Hasher,
     storage2 as storage,
     storage2::{
-        collections::stash::Iter as StashIter,
+        collections::{
+            extend_lifetime,
+            stash::Iter as StashIter,
+        },
         LazyHashMap,
         Pack,
         PullForward,
@@ -99,6 +102,92 @@ where
 }
 
 impl<'a, K, V, H> DoubleEndedIterator for Iter<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let key = self.keys_iter.next_back()?;
+        Some(self.query_value(key))
+    }
+}
+
+/// An iterator over shared references to the elements of a storage hash map.
+pub struct IterMut<'a, K, V, H> {
+    /// The iterator over the map's keys.
+    keys_iter: StashIter<'a, K>,
+    /// The lazy hash map to query the values.
+    values: &'a mut LazyHashMap<K, Pack<ValueEntry<V>>, H>,
+}
+
+impl<'a, K, V, H> IterMut<'a, K, V, H> {
+    /// Creates a new iterator for the given storage hash map.
+    pub(crate) fn new(hash_map: &'a mut storage::HashMap<K, V, H>) -> Self
+    where
+        H: Hasher,
+    {
+        Self {
+            keys_iter: hash_map.keys.iter(),
+            values: &mut hash_map.values,
+        }
+    }
+}
+
+impl<'a, K, V, H> IterMut<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+    /// Queries the value for the given key and returns the key/value pair.
+    ///
+    /// # Panics
+    ///
+    /// If the key refers to an invalid element.
+    fn query_value<'b>(&'b mut self, key: &'a K) -> <Self as Iterator>::Item {
+        let entry = self
+            .values
+            .get_mut(key)
+            .map(Pack::as_inner_mut)
+            .expect("a key must always refer to an existing entry");
+        (key, unsafe {
+            extend_lifetime::<'b, 'a, V>(&mut entry.value)
+        })
+    }
+}
+
+impl<'a, K, V, H> Iterator for IterMut<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+    type Item = (&'a K, &'a mut V);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let key = self.keys_iter.next()?;
+        Some(self.query_value(key))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.keys_iter.size_hint()
+    }
+}
+
+impl<'a, K, V, H> ExactSizeIterator for IterMut<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+}
+
+impl<'a, K, V, H> DoubleEndedIterator for IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
     V: scale::Decode,
