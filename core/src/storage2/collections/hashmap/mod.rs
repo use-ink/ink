@@ -14,9 +14,12 @@
 
 mod iter;
 
-use self::iter::{
+pub use self::iter::{
     Iter,
     IterMut,
+    Keys,
+    Values,
+    ValuesMut,
 };
 use crate::{
     hash::hasher::{
@@ -120,6 +123,39 @@ where
     ///   of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<K, V, H> {
         IterMut::new(self)
+    }
+
+    /// Returns an iterator yielding shared references to all values of the hash map.
+    ///
+    /// # Note
+    ///
+    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Prefer using methods like `Iterator::take` in order to limit the number
+    ///   of yielded elements.
+    pub fn values(&self) -> Values<K, V, H> {
+        Values::new(self)
+    }
+
+    /// Returns an iterator yielding shared references to all values of the hash map.
+    ///
+    /// # Note
+    ///
+    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Prefer using methods like `Iterator::take` in order to limit the number
+    ///   of yielded elements.
+    pub fn values_mut(&mut self) -> ValuesMut<K, V, H> {
+        ValuesMut::new(self)
+    }
+
+    /// Returns an iterator yielding shared references to all keys of the hash map.
+    ///
+    /// # Note
+    ///
+    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Prefer using methods like `Iterator::take` in order to limit the number
+    ///   of yielded elements.
+    pub fn keys(&self) -> Keys<K> {
+        Keys::new(self)
     }
 }
 

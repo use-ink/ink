@@ -199,3 +199,167 @@ where
         Some(self.query_value(key))
     }
 }
+
+/// An iterator over shared references to the values of a storage hash map.
+pub struct Values<'a, K, V, H> {
+    /// The key/values pair iterator.
+    iter: Iter<'a, K, V, H>,
+}
+
+impl<'a, K, V, H> Values<'a, K, V, H> {
+    /// Creates a new iterator for the given storage hash map.
+    pub(crate) fn new(hash_map: &'a storage::HashMap<K, V, H>) -> Self
+    where
+        K: Ord,
+        H: Hasher,
+    {
+        Self {
+            iter: hash_map.iter(),
+        }
+    }
+}
+
+impl<'a, K, V, H> Iterator for Values<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+    type Item = &'a V;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|(_key, value)| value)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a, K, V, H> ExactSizeIterator for Values<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+}
+
+impl<'a, K, V, H> DoubleEndedIterator for Values<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back().map(|(_key, value)| value)
+    }
+}
+
+/// An iterator over exclusive references to the values of a storage hash map.
+pub struct ValuesMut<'a, K, V, H> {
+    /// The key/values pair iterator.
+    iter: IterMut<'a, K, V, H>,
+}
+
+impl<'a, K, V, H> ValuesMut<'a, K, V, H> {
+    /// Creates a new iterator for the given storage hash map.
+    pub(crate) fn new(hash_map: &'a mut storage::HashMap<K, V, H>) -> Self
+    where
+        K: Ord,
+        H: Hasher,
+    {
+        Self {
+            iter: hash_map.iter_mut(),
+        }
+    }
+}
+
+impl<'a, K, V, H> Iterator for ValuesMut<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+    type Item = &'a mut V;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|(_key, value)| value)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a, K, V, H> ExactSizeIterator for ValuesMut<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+}
+
+impl<'a, K, V, H> DoubleEndedIterator for ValuesMut<'a, K, V, H>
+where
+    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
+    V: scale::Decode,
+    H: Hasher,
+    Key: From<H::Output>,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back().map(|(_key, value)| value)
+    }
+}
+
+/// An iterator over references to the keys of a storage hash map.
+pub struct Keys<'a, K> {
+    /// The key iterator.
+    iter: StashIter<'a, K>,
+}
+
+impl<'a, K> Keys<'a, K> {
+    /// Creates a new iterator for the given storage hash map.
+    pub(crate) fn new<V, H>(hash_map: &'a storage::HashMap<K, V, H>) -> Self
+    where
+        K: Ord,
+        H: Hasher,
+    {
+        Self {
+            iter: hash_map.keys.iter(),
+        }
+    }
+}
+
+impl<'a, K> Iterator for Keys<'a, K>
+where
+    K: StorageFootprint + PullForward + scale::Codec,
+{
+    type Item = &'a K;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a, K> ExactSizeIterator for Keys<'a, K> where
+    K: StorageFootprint + PullForward + scale::Codec
+{
+}
+
+impl<'a, K> DoubleEndedIterator for Keys<'a, K>
+where
+    K: StorageFootprint + PullForward + scale::Codec,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
