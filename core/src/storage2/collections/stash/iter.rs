@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(test)]
+use super::Entry;
+#[cfg(test)]
+use crate::storage2::Pack;
 use crate::{
     storage2 as storage,
     storage2::{
@@ -21,16 +25,18 @@ use crate::{
         StorageFootprint,
     },
 };
-#[cfg(test)]
-use super::Entry;
-#[cfg(test)]
-use crate::storage2::Pack;
 
 /// An iterator over shared references to the elements of a storage stash.
 #[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T> {
     /// The storage stash to iterate over.
     stash: &'a storage::Stash<T>,
+    /// The number of already yielded elements.
+    ///
+    /// # Note
+    ///
+    /// This is important to make this iterator an `ExactSizeIterator`.
+    yielded: u32,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -42,8 +48,9 @@ impl<'a, T> Iter<'a, T> {
     pub(crate) fn new(stash: &'a storage::Stash<T>) -> Self {
         Self {
             stash,
+            yielded: 0,
             begin: 0,
-            end: stash.len(),
+            end: stash.len_entries(),
         }
     }
 }
@@ -55,17 +62,25 @@ where
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        debug_assert!(self.begin <= self.end);
-        if self.begin == self.end {
-            return None
+        loop {
+            debug_assert!(self.begin <= self.end);
+            if self.begin == self.end {
+                return None
+            }
+            let cur = self.begin;
+            self.begin += 1;
+            match self.stash.get(cur) {
+                Some(value) => {
+                    self.yielded += 1;
+                    return Some(value)
+                }
+                None => continue,
+            }
         }
-        let cur = self.begin;
-        self.begin += 1;
-        self.stash.get(cur)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.end - self.begin) as usize;
+        let remaining = (self.stash.len() - self.yielded) as usize;
         (remaining, Some(remaining))
     }
 }
@@ -80,13 +95,21 @@ where
     T: StorageFootprint + PullForward + scale::Decode,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
-        debug_assert!(self.begin <= self.end);
-        if self.begin == self.end {
-            return None
+        loop {
+            debug_assert!(self.begin <= self.end);
+            if self.begin == self.end {
+                return None
+            }
+            debug_assert_ne!(self.end, 0);
+            self.end -= 1;
+            match self.stash.get(self.end) {
+                Some(value) => {
+                    self.yielded += 1;
+                    return Some(value)
+                }
+                None => continue,
+            }
         }
-        debug_assert_ne!(self.end, 0);
-        self.end -= 1;
-        self.stash.get(self.end)
     }
 }
 
@@ -95,6 +118,12 @@ where
 pub struct IterMut<'a, T> {
     /// The storage stash to iterate over.
     stash: &'a mut storage::Stash<T>,
+    /// The number of already yielded elements.
+    ///
+    /// # Note
+    ///
+    /// This is important to make this iterator an `ExactSizeIterator`.
+    yielded: u32,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -104,9 +133,10 @@ pub struct IterMut<'a, T> {
 impl<'a, T> IterMut<'a, T> {
     /// Creates a new iterator for the given storage stash.
     pub(crate) fn new(stash: &'a mut storage::Stash<T>) -> Self {
-        let len = stash.len();
+        let len = stash.len_entries();
         Self {
             stash,
+            yielded: 0,
             begin: 0,
             end: len,
         }
@@ -138,17 +168,25 @@ where
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        debug_assert!(self.begin <= self.end);
-        if self.begin == self.end {
-            return None
+        loop {
+            debug_assert!(self.begin <= self.end);
+            if self.begin == self.end {
+                return None
+            }
+            let cur = self.begin;
+            self.begin += 1;
+            match self.get_mut(cur) {
+                Some(value) => {
+                    self.yielded += 1;
+                    return Some(value)
+                }
+                None => continue,
+            }
         }
-        let cur = self.begin;
-        self.begin += 1;
-        self.get_mut(cur)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.end - self.begin) as usize;
+        let remaining = (self.stash.len() - self.yielded) as usize;
         (remaining, Some(remaining))
     }
 }
@@ -163,16 +201,23 @@ where
     T: StorageFootprint + SaturatingStorage + PullForward + scale::Decode,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
-        debug_assert!(self.begin <= self.end);
-        if self.begin == self.end {
-            return None
+        loop {
+            debug_assert!(self.begin <= self.end);
+            if self.begin == self.end {
+                return None
+            }
+            debug_assert_ne!(self.end, 0);
+            self.end -= 1;
+            match self.get_mut(self.end) {
+                Some(value) => {
+                    self.yielded += 1;
+                    return Some(value)
+                }
+                None => continue,
+            }
         }
-        debug_assert_ne!(self.end, 0);
-        self.end -= 1;
-        self.get_mut(self.end)
     }
 }
-
 
 /// An iterator over shared references to the entries of a storage stash.
 ///
@@ -217,7 +262,10 @@ where
         }
         let cur = self.begin;
         self.begin += 1;
-        let entry = self.stash.entries.get(cur)
+        let entry = self
+            .stash
+            .entries
+            .get(cur)
             .map(|entry| Pack::as_inner(entry))
             .expect("iterator indices are within bounds");
         Some(entry)
@@ -247,7 +295,10 @@ where
         }
         debug_assert_ne!(self.end, 0);
         self.end -= 1;
-        let entry = self.stash.entries.get(self.end)
+        let entry = self
+            .stash
+            .entries
+            .get(self.end)
             .map(|entry| Pack::as_inner(entry))
             .expect("iterator indices are within bounds");
         Some(entry)
