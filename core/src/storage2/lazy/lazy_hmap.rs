@@ -47,6 +47,7 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_primitives::Key;
+use core::borrow::Borrow;
 
 /// The map for the contract storage entries.
 ///
@@ -209,11 +210,15 @@ where
     Key: From<O>,
 {
     /// Returns an offset key for the given key pair.
-    fn to_offset_key(&self, storage_key: &Key, key: &K) -> Key {
+    fn to_offset_key<Q>(&self, storage_key: &Key, key: &Q) -> Key
+    where
+        K: Borrow<Q>,
+        Q: scale::Encode,
+    {
         #[derive(scale::Encode)]
-        struct KeyPair<'a, K> {
+        struct KeyPair<'a, Q> {
             storage_key: &'a Key,
-            value_key: &'a K,
+            value_key: &'a Q,
         }
         let key_pair = KeyPair {
             storage_key,
@@ -226,7 +231,11 @@ where
     }
 
     /// Returns an offset key for the given key.
-    fn key_at(&self, key: &K) -> Option<Key> {
+    fn key_at<Q>(&self, key: &Q) -> Option<Key>
+    where
+        K: Borrow<Q>,
+        Q: scale::Encode,
+    {
         self.key
             .map(|storage_key| self.to_offset_key(&storage_key, key))
     }
@@ -264,7 +273,11 @@ where
     /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
     /// within internal use only and should never be given outside of the lazy
     /// entity for public `&self` methods.
-    unsafe fn lazily_load(&self, key: K) -> NonNull<Entry<V>> {
+    unsafe fn lazily_load<Q>(&self, key: &Q) -> NonNull<Entry<V>>
+    where
+        K: Borrow<Q>,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
         // SAFETY: We have put the whole `cached_entries` mapping into an
         //         `UnsafeCell` because of this caching functionality. The
         //         trick here is that due to using `Box<T>` internally
@@ -281,13 +294,13 @@ where
         // raw entry API for Rust hash maps, yet since it is unstable. We can remove
         // the contraints on `K: Clone` once we have access to this API.
         // Read more about the issue here: https://github.com/rust-lang/rust/issues/56167
-        match cached_entries.entry(key.clone()) {
+        match cached_entries.entry(key.to_owned()) {
             BTreeMapEntry::Occupied(occupied) => {
                 NonNull::from(&mut **occupied.into_mut())
             }
             BTreeMapEntry::Vacant(vacant) => {
                 let offset_key = self
-                    .key_at(&key)
+                    .key_at(key)
                     .expect("cannot load lazily in the current state");
                 let value = <Option<V> as PullForward>::pull_forward(&mut KeyPtr::from(
                     offset_key,
@@ -311,7 +324,11 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the lazy chunk is not in a state that allows lazy loading.
-    fn lazily_load_mut(&mut self, index: K) -> &mut Entry<V> {
+    fn lazily_load_mut<Q>(&mut self, index: &Q) -> &mut Entry<V>
+    where
+        K: Borrow<Q>,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
         // SAFETY:
         // - Returning a `&mut Entry<T>` is safe because entities inside the
         //   cache are stored within a `Box` to not invalidate references into
@@ -325,7 +342,11 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn get(&self, index: K) -> Option<&V> {
+    pub fn get<Q>(&self, index: &Q) -> Option<&V>
+    where
+        K: Borrow<Q>,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
         // SAFETY: Dereferencing the `*mut T` pointer into a `&T` is safe
         //         since this method's receiver is `&self` so we do not
         //         leak non-shared references to the outside.
@@ -338,7 +359,11 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn get_mut(&mut self, index: K) -> Option<&mut V> {
+    pub fn get_mut<Q>(&mut self, index: &Q) -> Option<&mut V>
+    where
+        K: Borrow<Q>,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
         self.lazily_load_mut(index).value_mut().into()
     }
 
@@ -352,7 +377,11 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the element at the given index failed.
-    pub fn take(&mut self, key: K) -> Option<V> {
+    pub fn take<Q>(&mut self, key: &Q) -> Option<V>
+    where
+        K: Borrow<Q>,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
         self.lazily_load_mut(key).take_value()
     }
 
@@ -367,7 +396,11 @@ where
     ///
     /// - If the lazy hashmap is in an invalid state that forbids interaction.
     /// - If the decoding of the old element at the given index failed.
-    pub fn put_get(&mut self, key: K, new_value: Option<V>) -> Option<V> {
+    pub fn put_get<Q>(&mut self, key: &Q, new_value: Option<V>) -> Option<V>
+    where
+        K: Borrow<Q>,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
         self.lazily_load_mut(key).put(new_value)
     }
 
@@ -379,7 +412,12 @@ where
     ///
     /// - If the lazy hashmap is in an invalid state that forbids interaction.
     /// - If the decoding of one of the elements failed.
-    pub fn swap(&mut self, x: K, y: K) {
+    pub fn swap<Q1, Q2>(&mut self, x: &Q1, y: &Q2)
+    where
+        K: Borrow<Q1> + Borrow<Q2>,
+        Q1: Ord + PartialEq<Q2> + scale::Encode + ToOwned<Owned = K>,
+        Q2: Ord + PartialEq<Q1> + scale::Encode + ToOwned<Owned = K>,
+    {
         if x == y {
             // Bail out early if both indices are the same.
             return

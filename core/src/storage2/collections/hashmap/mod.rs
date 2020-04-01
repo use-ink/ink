@@ -13,23 +13,23 @@
 // limitations under the License.
 
 use crate::{
-    hash::{
-        hasher::{
-            Blake2x256Hasher,
-            Hasher,
-        },
-        HashBuilder,
+    hash::hasher::{
+        Blake2x256Hasher,
+        Hasher,
     },
     storage2::{
         LazyHashMap,
+        Pack,
+        PullAt,
+        PullForward,
         Stash,
+        StorageFootprint,
     },
 };
 use core::{
     borrow::Borrow,
     cmp::Eq,
 };
-use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
 /// The index type within a hashmap.
@@ -37,7 +37,7 @@ use ink_primitives::Key;
 /// # Note
 ///
 /// Used for key indices internal to the hashmap.
-pub type Index = u32;
+type KeyIndex = u32;
 
 pub struct HashMap<K, V, H = Blake2x256Hasher>
 where
@@ -46,7 +46,7 @@ where
     /// The keys of the storage hash map.
     keys: Stash<K>,
     /// The values of the storage hash map.
-    values: LazyHashMap<K, ValueEntry<V>, H>,
+    values: LazyHashMap<K, Pack<ValueEntry<V>>, H>,
 }
 
 /// An entry within the storage hash map.
@@ -57,23 +57,16 @@ pub struct ValueEntry<V> {
     /// The value stored in this entry.
     value: V,
     /// The index of the key associated with this value.
-    key_index: Index,
+    key_index: KeyIndex,
 }
 
-/// The key pair that is used to compute the actual mapping storage offsets.
-///
-/// # Note
-///
-/// The storage hashmap calculates its storage access by hashing its storage
-/// key and the encoded bytes of the given value key and hashing it with the
-/// associated hasher. The `[u8; 32]` result is then converted into a storage
-/// key with which the contract storage is accessed through `LazyMapping`.
-#[derive(Debug, scale::Encode)]
-pub struct KeyPair<'a, 'b, K> {
-    /// The storage hashmap's storage key.
-    storage_key: &'a Key,
-    /// The key associated with the queried value.
-    value_key: &'b K,
+impl<V> PullAt for ValueEntry<V>
+where
+    V: scale::Decode,
+{
+    fn pull_at(at: Key) -> Self {
+        crate::storage2::pull_single_cell(at)
+    }
 }
 
 impl<K, V, H> HashMap<K, V, H>
@@ -102,7 +95,10 @@ where
 
 impl<K, V, H> HashMap<K, V, H>
 where
+    K: Ord + Eq + Clone + scale::Codec + PullForward + StorageFootprint,
+    V: scale::Decode,
     H: Hasher,
+    Key: From<H::Output>,
 {
     /// Inserts a key-value pair into the map.
     ///
@@ -110,26 +106,96 @@ where
     ///
     /// # Note
     ///
+    /// - Prefer this operation over [`HashMap::insert_get`] if the return value
+    ///   of the previous value associated with the same key is not required.
     /// - If the map did have this key present, the value is updated,
     ///   and the old value is returned. The key is not updated, though;
     ///   this matters for types that can be `==` without being identical.
-    pub fn insert(&mut self, key: K, new_value: V) -> Option<V> {
-        todo!()
+    pub fn insert<Q>(&mut self, key: K, new_value: V) -> Option<()> {
+        let key_index = self.keys.put(key.to_owned());
+        self.values
+            .put(
+                key,
+                Some(Pack::new(ValueEntry {
+                    value: new_value,
+                    key_index,
+                })),
+            );
+        Some(())
     }
 
-    /// Removes a key from the map, returning the value at the key if the key
-    /// was previously in the map.
+    /// Inserts a key-value pair into the map.
+    ///
+    /// Returns the previous value associated with the same key if any.
+    /// If the map did not have this key present, `None` is returned.
+    ///
+    /// # Note
+    ///
+    /// - Prefer [`HashMap::insert`] if the return value of the previous value
+    ///   associated with the same key is not required.
+    /// - If the map did have this key present, the value is updated,
+    ///   and the old value is returned. The key is not updated, though;
+    ///   this matters for types that can be `==` without being identical.
+    pub fn insert_get<Q>(&mut self, key: &Q, new_value: V) -> Option<V>
+    where
+        K: Borrow<Q>,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
+        let key_index = self.keys.put(key.to_owned());
+        self.values
+            .put_get(
+                key,
+                Some(Pack::new(ValueEntry {
+                    value: new_value,
+                    key_index,
+                })),
+            )
+            .map(|entry| Pack::into_inner(entry).value)
+    }
+
+    /// Removes the key/value pair from the map associated with the given key.
+    ///
+    /// - Returns the removed value if any.
+    /// - Prefer [`HashMap::remove`] in case the returned value is not required.
     ///
     /// # Note
     ///
     /// The key may be any borrowed form of the map's key type,
     /// but `Hash` and `Eq` on the borrowed form must match those for the key type.
-    pub fn remove<Q>(&mut self, key: &Q) -> Option<V>
+    pub fn take<Q>(&mut self, key: &Q) -> Option<V>
     where
         K: Borrow<Q>,
-        Q: scale::Encode + Eq + ?Sized,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
-        todo!()
+        let entry = self.values.put_get(key, None).map(Pack::into_inner)?;
+        self.keys
+            .take(entry.key_index)
+            .expect("`key_index` must point to a valid key entry");
+        Some(entry.value)
+    }
+
+    /// Removes the key/value pair from the map associated with the given key.
+    ///
+    /// - Returns `Some` if there was an associated value for the given key.
+    /// - Prefer this operation over [`HashMap::take`] in case the returned value
+    ///   is not required.
+    ///
+    /// # Note
+    ///
+    /// The key may be any borrowed form of the map's key type,
+    /// but `Hash` and `Eq` on the borrowed form must match those for the key type.
+    pub fn remove<Q>(&mut self, key: &Q) -> Option<()>
+    where
+        K: Borrow<Q>,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
+        let entry = self.values.put_get(key, None).map(Pack::into_inner)?;
+        // TODO: Add Stash::take_drop for use cases where the return value
+        //       is not required to avoid reading from storage.
+        self.keys
+            .take(entry.key_index)
+            .expect("`key_index` must point to a valid key entry");
+        Some(())
     }
 
     /// Returns a shared reference to the value corresponding to the key.
@@ -139,9 +205,12 @@ where
     pub fn get<Q>(&self, key: &Q) -> Option<&V>
     where
         K: Borrow<Q>,
-        Q: scale::Encode + Eq + ?Sized,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
-        todo!()
+        self.values
+            .get(key)
+            .map(Pack::as_inner)
+            .map(|entry| &entry.value)
     }
 
     /// Returns a mutable reference to the value corresponding to the key.
@@ -151,17 +220,39 @@ where
     pub fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
     where
         K: Borrow<Q>,
-        Q: scale::Encode + Eq + ?Sized,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
-        todo!()
+        self.values
+            .get_mut(key)
+            .map(Pack::as_inner_mut)
+            .map(|entry| &mut entry.value)
     }
 
     /// Returns `true` if there is an entry corresponding to the key in the map.
     pub fn contains_key<Q>(&self, key: &Q) -> bool
     where
         K: Borrow<Q>,
-        Q: scale::Encode + Eq + ?Sized,
+        Q: Ord + PartialEq<K> + Eq + scale::Encode + ToOwned<Owned = K>,
     {
+        self.values
+            .get(key)
+            .map(Pack::as_inner)
+            .map(|entry| entry.key_index)
+            .and_then(|key_index| {
+                self.keys.get(key_index).map(|stored_key| key == stored_key)
+            })
+            .unwrap_or(false)
+    }
+
+    /// Defragments storage used by the storage hash map.
+    ///
+    /// # Note
+    ///
+    /// This frees storage that is hold but not necessary for the hash map to hold.
+    /// This operation might be expensive, especially for big `max_iteration`
+    /// parameters. The `max_iterations` parameter can be used to limit the
+    /// expensiveness for this operation and instead free up storage incrementally.
+    pub fn defrag(&mut self, _max_iterations: Option<u32>) {
         todo!()
     }
 }
