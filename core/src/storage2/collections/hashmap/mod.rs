@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod iter;
+
+use self::iter::Iter;
 use crate::{
     hash::hasher::{
         Blake2x256Hasher,
@@ -91,6 +94,18 @@ where
     pub fn is_empty(&self) -> bool {
         self.keys.is_empty()
     }
+
+    /// Returns an iterator yielding shared references to all key/value pairs
+    /// of the hash map.
+    ///
+    /// # Note
+    ///
+    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Prefer using methods like `Iterator::take` in order to limit the number
+    ///   of yielded elements.
+    pub fn iter(&self) -> Iter<K, V, H> {
+        Iter::new(self)
+    }
 }
 
 impl<K, V, H> HashMap<K, V, H>
@@ -113,14 +128,13 @@ where
     ///   this matters for types that can be `==` without being identical.
     pub fn insert<Q>(&mut self, key: K, new_value: V) -> Option<()> {
         let key_index = self.keys.put(key.to_owned());
-        self.values
-            .put(
-                key,
-                Some(Pack::new(ValueEntry {
-                    value: new_value,
-                    key_index,
-                })),
-            );
+        self.values.put(
+            key,
+            Some(Pack::new(ValueEntry {
+                value: new_value,
+                key_index,
+            })),
+        );
         Some(())
     }
 
