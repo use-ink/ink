@@ -46,7 +46,6 @@ pub use self::{
         PullForward,
         PushAt,
         PushForward,
-        SaturatingStorage,
         StorageFootprint,
         StorageFootprintOf,
     },

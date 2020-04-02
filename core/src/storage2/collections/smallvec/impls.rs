@@ -19,7 +19,6 @@ use super::{
 use crate::storage2::{
     LazyArrayLength,
     PullForward,
-    SaturatingStorage,
     StorageFootprint,
 };
 use core::iter::{
@@ -41,7 +40,7 @@ where
 
 impl<T, N> core::ops::IndexMut<u32> for SmallVec<T, N>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
@@ -64,7 +63,7 @@ where
 
 impl<T, N> Extend<T> for SmallVec<T, N>
 where
-    T: StorageFootprint + SaturatingStorage,
+    T: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     fn extend<I>(&mut self, iter: I)
@@ -79,7 +78,7 @@ where
 
 impl<T, N> FromIterator<T> for SmallVec<T, N>
 where
-    T: StorageFootprint + SaturatingStorage,
+    T: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     fn from_iter<I>(iter: I) -> Self

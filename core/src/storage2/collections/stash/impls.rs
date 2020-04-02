@@ -22,7 +22,6 @@ use super::{
 use crate::{
     storage2::{
         PullForward,
-        SaturatingStorage,
         StorageFootprint,
     },
 };
@@ -50,7 +49,7 @@ where
 
 impl<T> core::ops::IndexMut<u32> for StorageStash<T>
 where
-    T: SaturatingStorage + StorageFootprint + PullForward + scale::Decode,
+    T: StorageFootprint + PullForward + scale::Decode,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index).expect("index out of bounds")
@@ -71,7 +70,7 @@ where
 
 impl<'a, T: 'a> IntoIterator for &'a mut StorageStash<T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward + scale::Decode,
+    T: StorageFootprint + PullForward + scale::Decode,
 {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
@@ -83,7 +82,7 @@ where
 
 impl<T> Extend<T> for StorageStash<T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward + scale::Codec,
+    T: StorageFootprint + PullForward + scale::Codec,
 {
     fn extend<I>(&mut self, iter: I)
     where
@@ -97,7 +96,7 @@ where
 
 impl<T> FromIterator<T> for StorageStash<T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward + scale::Codec,
+    T: StorageFootprint + PullForward + scale::Codec,
 {
     fn from_iter<I>(iter: I) -> Self
     where

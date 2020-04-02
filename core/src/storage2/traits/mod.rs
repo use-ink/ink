@@ -62,7 +62,6 @@ pub use self::{
         ClearForward,
     },
     footprint::{
-        SaturatingStorage,
         StorageFootprint,
         StorageFootprintOf,
     },

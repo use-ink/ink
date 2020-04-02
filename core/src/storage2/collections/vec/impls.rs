@@ -21,7 +21,6 @@ use super::{
 };
 use crate::storage2::{
     PullForward,
-    SaturatingStorage,
     StorageFootprint,
 };
 use core::iter::{
@@ -42,7 +41,7 @@ where
 
 impl<T> core::ops::IndexMut<u32> for StorageVec<T>
 where
-    T: SaturatingStorage + StorageFootprint + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index).expect("index out of bounds")
@@ -63,7 +62,7 @@ where
 
 impl<'a, T: 'a> IntoIterator for &'a mut StorageVec<T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
 {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
@@ -75,7 +74,7 @@ where
 
 impl<T> Extend<T> for StorageVec<T>
 where
-    T: StorageFootprint + SaturatingStorage,
+    T: StorageFootprint,
 {
     fn extend<I>(&mut self, iter: I)
     where
@@ -89,7 +88,7 @@ where
 
 impl<T> FromIterator<T> for StorageVec<T>
 where
-    T: StorageFootprint + SaturatingStorage,
+    T: StorageFootprint,
 {
     fn from_iter<I>(iter: I) -> Self
     where

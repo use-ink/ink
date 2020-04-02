@@ -21,7 +21,6 @@ use crate::{
     storage2::{
         collections::extend_lifetime,
         PullForward,
-        SaturatingStorage,
         StorageFootprint,
     },
 };
@@ -145,7 +144,7 @@ impl<'a, T> IterMut<'a, T> {
 
 impl<'a, T> IterMut<'a, T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward + scale::Decode,
+    T: StorageFootprint + PullForward + scale::Decode,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
         self.stash.get_mut(at).map(|value| {
@@ -163,7 +162,7 @@ where
 
 impl<'a, T> Iterator for IterMut<'a, T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward + scale::Decode,
+    T: StorageFootprint + PullForward + scale::Decode,
 {
     type Item = &'a mut T;
 
@@ -192,13 +191,13 @@ where
 }
 
 impl<'a, T> ExactSizeIterator for IterMut<'a, T> where
-    T: StorageFootprint + SaturatingStorage + PullForward + scale::Decode
+    T: StorageFootprint + PullForward + scale::Decode
 {
 }
 
 impl<'a, T> DoubleEndedIterator for IterMut<'a, T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward + scale::Decode,
+    T: StorageFootprint + PullForward + scale::Decode,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         loop {

@@ -17,7 +17,6 @@ use crate::{
     storage2::{
         collections::extend_lifetime,
         PullForward,
-        SaturatingStorage,
         StorageFootprint,
     },
 };
@@ -108,7 +107,7 @@ impl<'a, T> IterMut<'a, T> {
 
 impl<'a, T> IterMut<'a, T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
         self.vec.get_mut(at).map(|value| {
@@ -126,7 +125,7 @@ where
 
 impl<'a, T> Iterator for IterMut<'a, T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
 {
     type Item = &'a mut T;
 
@@ -147,13 +146,13 @@ where
 }
 
 impl<'a, T> ExactSizeIterator for IterMut<'a, T> where
-    T: StorageFootprint + SaturatingStorage + PullForward
+    T: StorageFootprint + PullForward
 {
 }
 
 impl<'a, T> DoubleEndedIterator for IterMut<'a, T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);

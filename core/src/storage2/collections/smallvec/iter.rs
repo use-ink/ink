@@ -17,7 +17,6 @@ use crate::storage2::{
     collections::extend_lifetime,
     LazyArrayLength,
     PullForward,
-    SaturatingStorage,
     StorageFootprint,
 };
 
@@ -126,7 +125,7 @@ where
 
 impl<'a, T, N> IterMut<'a, T, N>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
@@ -145,7 +144,7 @@ where
 
 impl<'a, T, N> Iterator for IterMut<'a, T, N>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
     type Item = &'a mut T;
@@ -168,14 +167,14 @@ where
 
 impl<'a, T, N> ExactSizeIterator for IterMut<'a, T, N>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
 }
 
 impl<'a, T, N> DoubleEndedIterator for IterMut<'a, T, N>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {

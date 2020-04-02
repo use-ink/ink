@@ -28,7 +28,6 @@ use crate::{
         Lazy,
         LazyIndexMap,
         PullForward,
-        SaturatingStorage,
         StorageFootprint,
     },
 };
@@ -143,7 +142,7 @@ where
 
 impl<T> Vec<T>
 where
-    T: StorageFootprint + SaturatingStorage,
+    T: StorageFootprint,
 {
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {
@@ -159,7 +158,7 @@ where
 
 impl<T> Vec<T>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
 {
     /// Pops the last element from the vector and returns it.
     //

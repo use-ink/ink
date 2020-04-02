@@ -21,7 +21,6 @@ use crate::storage2::{
     KeyPtr,
     PullForward,
     PushForward,
-    SaturatingStorage,
     StorageFootprint,
 };
 use core::{
@@ -97,7 +96,7 @@ where
 
 impl<T> PushForward for LazyCell<T>
 where
-    T: PushForward + SaturatingStorage,
+    T: PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         // We skip pushing to contract storage if we are still in unloaded form.
@@ -128,7 +127,7 @@ where
 
 impl<T> ClearForward for LazyCell<T>
 where
-    T: ClearForward + SaturatingStorage,
+    T: ClearForward,
 {
     fn clear_forward(&self, _ptr: &mut KeyPtr) {
         // Not implemented because at this point we are unsure whether

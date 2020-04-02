@@ -29,7 +29,6 @@ use crate::{
         LazyArray,
         LazyArrayLength,
         PullForward,
-        SaturatingStorage,
         StorageFootprint,
     },
 };
@@ -160,7 +159,7 @@ where
 
 impl<T, N> SmallVec<T, N>
 where
-    T: StorageFootprint + SaturatingStorage,
+    T: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     /// Appends an element to the back of the vector.
@@ -177,7 +176,7 @@ where
 
 impl<T, N> SmallVec<T, N>
 where
-    T: StorageFootprint + SaturatingStorage + PullForward,
+    T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
     /// Pops the last element from the vector and returns it.

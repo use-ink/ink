@@ -20,7 +20,6 @@ use crate::storage2::{
     KeyPtr,
     PullForward,
     PushForward,
-    SaturatingStorage,
     StorageFootprint,
     StorageFootprintOf,
 };
@@ -254,7 +253,7 @@ where
 
 impl<T, N> PushForward for LazyArray<T, N>
 where
-    T: StorageFootprint + SaturatingStorage + PushForward,
+    T: StorageFootprint + PushForward,
     N: LazyArrayLength<T>,
     Self: StorageFootprint,
     <Self as StorageFootprint>::Value: Unsigned,

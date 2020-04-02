@@ -18,7 +18,6 @@ use crate::storage2::{
     PullForward,
     PushAt,
     PushForward,
-    SaturatingStorage,
     StorageFootprint,
 };
 use ink_primitives::Key;
@@ -96,8 +95,6 @@ impl<T> StorageFootprint for Pack<T> {
     type Value = typenum::U1;
     const VALUE: u64 = 1;
 }
-
-impl<T> SaturatingStorage for Pack<T> {}
 
 impl<T> PullForward for Pack<T>
 where
