@@ -18,6 +18,14 @@ pub mod smallvec;
 pub mod vec;
 pub mod stash;
 
+pub use self::{
+    boxed::Box,
+    hashmap::HashMap,
+    smallvec::SmallVec,
+    stash::Stash,
+    vec::Vec,
+};
+
 /// Extends the lifetime 'a to the outliving lifetime 'b for the given reference.
 ///
 /// # Note
