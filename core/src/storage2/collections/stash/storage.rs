@@ -24,7 +24,6 @@ use crate::{
     storage2::{
         ClearForward,
         KeyPtr,
-        Pack,
         PullAt,
         PullForward,
         PushAt,
@@ -44,7 +43,6 @@ where
 impl<T> PullForward for StorageStash<T>
 where
     T: scale::Decode,
-    storage::LazyIndexMap<Pack<Entry<T>>>: PullForward,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -75,9 +73,18 @@ where
     }
 }
 
+impl<T> PushAt for Entry<T>
+where
+    T: scale::Encode,
+{
+    fn push_at(&self, at: Key) {
+        crate::env::set_contract_storage(at, self)
+    }
+}
+
 impl<T> PushForward for StorageStash<T>
 where
-    storage::LazyIndexMap<Pack<Entry<T>>>: PushForward,
+    T: PushAt + scale::Codec,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         PushForward::push_forward(&self.header, ptr);
