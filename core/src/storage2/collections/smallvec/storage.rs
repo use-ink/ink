@@ -19,6 +19,7 @@ use crate::storage2::{
     LazyArrayLength,
     PullForward,
     PushForward,
+    ClearForward,
     StorageFootprint,
 };
 use typenum::Unsigned;
@@ -50,7 +51,31 @@ where
     N: LazyArrayLength<T>,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        PushForward::push_forward(&self.len(), ptr);
+        PushForward::push_forward(&self.len, ptr);
         PushForward::push_forward(&self.elems, ptr);
+    }
+}
+
+impl<T, N> ClearForward for SmallVec<T, N>
+where
+    T: StorageFootprint + ClearForward + PullForward,
+    N: LazyArrayLength<T>,
+{
+    fn clear_forward(&self, ptr: &mut KeyPtr) {
+        ClearForward::clear_forward(&self.len, ptr);
+        // ClearForward::clear_forward(&self.elems, ptr);
+        if self.elems.key().is_none() {
+            return
+        }
+        for (index, elem) in self.iter().enumerate() {
+            <T as ClearForward>::clear_forward(
+                elem,
+                &mut KeyPtr::from(
+                    self.elems
+                        .key_at(index as u32)
+                        .expect("expected a key mapping since self.elems.key() is some"),
+                ),
+            )
+        }
     }
 }

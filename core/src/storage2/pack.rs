@@ -13,6 +13,8 @@
 // limitations under the License.
 
 use crate::storage2::{
+    ClearAt,
+    ClearForward,
     KeyPtr,
     PullAt,
     PullForward,
@@ -130,6 +132,24 @@ where
 {
     fn push_at(&self, at: Key) {
         <T as PushAt>::push_at(self.get(), at)
+    }
+}
+
+impl<T> ClearForward for Pack<T>
+where
+    T: ClearAt,
+{
+    fn clear_forward(&self, ptr: &mut KeyPtr) {
+        <Self as ClearAt>::clear_at(self, ptr.next_for::<Self>())
+    }
+}
+
+impl<T> ClearAt for Pack<T>
+where
+    T: ClearAt,
+{
+    fn clear_at(&self, at: Key) {
+        <T as ClearAt>::clear_at(self.get(), at)
     }
 }
 

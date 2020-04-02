@@ -61,19 +61,7 @@ where
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
-        ClearForward::clear_forward(&self.len(), ptr);
-        if self.elems.key().is_none() {
-            return
-        }
-        for (index, elem) in self.iter().enumerate() {
-            <T as ClearForward>::clear_forward(
-                elem,
-                &mut KeyPtr::from(
-                    self.elems
-                        .key_at(index as u32)
-                        .expect("expected a key mapping since self.elems.key() is some"),
-                ),
-            )
-        }
+        ClearForward::clear_forward(&self.len, ptr);
+        ClearForward::clear_forward(&self.elems, ptr);
     }
 }

@@ -28,6 +28,8 @@ use crate::{
         PushAt,
         PushForward,
         StorageFootprint,
+        ClearForward,
+        ClearAt,
     },
 };
 use core::{
@@ -144,6 +146,40 @@ where
         {
             let offset_key = self.to_offset_key(&at, key);
             PushForward::push_forward(&**entry, &mut KeyPtr::from(offset_key));
+        }
+    }
+}
+
+impl<K, V, H, O> ClearForward for LazyHashMap<K, V, H>
+where
+    K: Ord + scale::Encode,
+    V: StorageFootprint + ClearForward,
+    H: Hasher<Output = O>,
+    O: Default,
+    Key: From<O>,
+{
+    fn clear_forward(&self, ptr: &mut KeyPtr) {
+        <Self as ClearAt>::clear_at(self, ptr.next_for::<Self>())
+    }
+}
+
+impl<K, V, H, O> ClearAt for LazyHashMap<K, V, H>
+where
+    K: Ord + scale::Encode,
+    V: StorageFootprint + ClearForward,
+    H: Hasher<Output = O>,
+    O: Default,
+    Key: From<O>,
+{
+    fn clear_at(&self, at: Key) {
+        <Option<Key> as PushAt>::push_at(&Some(at), at);
+        for (key, entry) in self
+            .entries()
+            .iter()
+            .filter(|(_, entry)| entry.is_mutated())
+        {
+            let offset_key = self.to_offset_key(&at, key);
+            ClearForward::clear_forward(&**entry, &mut KeyPtr::from(offset_key));
         }
     }
 }

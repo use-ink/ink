@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::storage2::{
+    ClearForward,
     KeyPtr,
     PullForward,
     PushForward,
@@ -139,7 +140,7 @@ where
 
 impl<V> PullForward for LazyIndexMap<V>
 where
-    Self: StorageFootprint,
+    V: StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -151,7 +152,6 @@ where
 
 impl<V> PushForward for LazyIndexMap<V>
 where
-    Self: StorageFootprint,
     V: StorageFootprint + PullForward + PushForward,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
@@ -167,6 +167,27 @@ where
                 .expect("cannot load lazily in this state");
             let mut ptr = KeyPtr::from(offset_key);
             PushForward::push_forward(&**entry, &mut ptr);
+        }
+    }
+}
+
+impl<V> ClearForward for LazyIndexMap<V>
+where
+    V: StorageFootprint + ClearForward + PullForward,
+{
+    fn clear_forward(&self, ptr: &mut KeyPtr) {
+        let key = ptr.next_for::<Self>();
+        assert_eq!(self.key, Some(key));
+        for (index, entry) in self
+            .entries()
+            .iter()
+            .filter(|(_, entry)| entry.is_mutated())
+        {
+            let offset_key = self
+                .key_at(*index)
+                .expect("cannot load lazily in this state");
+            let mut ptr = KeyPtr::from(offset_key);
+            ClearForward::clear_forward(&**entry, &mut ptr);
         }
     }
 }
