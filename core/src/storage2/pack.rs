@@ -92,7 +92,6 @@ impl<T> Pack<T> {
 }
 
 impl<T> StorageFootprint for Pack<T> {
-    type Value = typenum::U1;
     const VALUE: u64 = 1;
 }
 

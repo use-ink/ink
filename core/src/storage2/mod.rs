@@ -47,6 +47,5 @@ pub use self::{
         PushAt,
         PushForward,
         StorageFootprint,
-        StorageFootprintOf,
     },
 };

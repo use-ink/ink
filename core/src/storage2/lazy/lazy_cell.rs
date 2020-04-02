@@ -81,7 +81,6 @@ impl<T> StorageFootprint for LazyCell<T>
 where
     T: StorageFootprint,
 {
-    type Value = <T as StorageFootprint>::Value;
     const VALUE: u64 = <T as StorageFootprint>::VALUE;
 }
 

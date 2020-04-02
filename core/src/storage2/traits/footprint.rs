@@ -14,50 +14,19 @@
 
 use ink_primitives::Key;
 
-use core::ops::{
-    Add,
-    Mul,
-};
-use typenum::{
-    Max,
-    Maximum,
-    Prod,
-    Sum,
-    Unsigned,
-    U0,
-    U1,
-};
-
 /// Implemented by types that can be stored on contract storage.
 ///
 /// Tells the amount of storage cells the type requires to be stored.
 pub trait StorageFootprint {
     /// The number of consecutive storage cells required by `Self` to be stored
     /// on the contract storage.
-    ///
-    /// # Note
-    ///
-    /// Using a type (`typenum`) here instead of an associated constant
-    /// solves some problems for implementations of generics because Rust's
-    /// handling of those associated constants is not mature while it can
-    /// easily handle the `typenum` types solving the same underlying problem
-    /// of representing a computable compile-time number.
-    ///
-    /// We should switch back to associated constants once the Rust compiler
-    /// is more mature at handling them in generics.
-    type Value: Unsigned;
-
     const VALUE: u64;
 }
-
-/// Helper type alias for better readability.
-pub type StorageFootprintOf<T> = <T as StorageFootprint>::Value;
 
 macro_rules! impl_storage_size_for_primitive {
     ( $($ty:ty),* ) => {
         $(
             impl StorageFootprint for $ty {
-                type Value = U1;
                 const VALUE: u64 = 1;
             }
         )*
@@ -66,21 +35,18 @@ macro_rules! impl_storage_size_for_primitive {
 impl_storage_size_for_primitive!(Key, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
 
 macro_rules! impl_storage_size_for_array2 {
-    ( $(($n:literal, $t:ty)),* $(,)? ) => {
+    ( $($n:literal),* $(,)? ) => {
         $(
             impl<T> StorageFootprint for [T; $n]
             where
                 T: StorageFootprint,
-                StorageFootprintOf<T>: Mul<$t>,
-                Prod<StorageFootprintOf<T>, $t>: Unsigned,
             {
-                type Value = Prod<StorageFootprintOf<T>, $t>;
                 const VALUE: u64 = <T as StorageFootprint>::VALUE * $n;
             }
         )*
     };
 }
-forward_supported_array_lens_ty!(impl_storage_size_for_array2);
+forward_supported_array_lens!(impl_storage_size_for_array2);
 
 macro_rules! impl_storage_size_tuple {
     ( $($frag:ident),* ) => {
@@ -90,12 +56,7 @@ macro_rules! impl_storage_size_tuple {
             $(
                 $frag: StorageFootprint,
             )*
-            ($($frag ,)*): StorageFootprint,
-            StorageFootprintOf<T1>: Add<U0>, // Not sure why we need this trait bound for T1 ...
-            StorageFootprintOf<T1>: Add<StorageFootprintOf<($($frag ,)*)>>,
-            Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>: Unsigned,
         {
-            type Value = Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>;
             const VALUE: u64 = (0 $( + <$frag as StorageFootprint>::VALUE )* );
         }
     }
@@ -112,12 +73,10 @@ impl_storage_size_tuple!(T2, T3, T4, T5, T6, T7, T8, T9);
 impl_storage_size_tuple!(T2, T3, T4, T5, T6, T7, T8, T9, T10);
 
 impl StorageFootprint for () {
-    type Value = U0;
     const VALUE: u64 = 0;
 }
 
 impl<T> StorageFootprint for core::marker::PhantomData<T> {
-    type Value = U0;
     const VALUE: u64 = 0;
 }
 
@@ -125,7 +84,6 @@ impl<T> StorageFootprint for Option<T>
 where
     T: StorageFootprint,
 {
-    type Value = <T as StorageFootprint>::Value;
     const VALUE: u64 = <T as StorageFootprint>::VALUE;
 }
 
@@ -138,10 +96,7 @@ impl<T, E> StorageFootprint for Result<T, E>
 where
     T: StorageFootprint,
     E: StorageFootprint,
-    StorageFootprintOf<T>: Max<StorageFootprintOf<E>>,
-    Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>: Unsigned,
 {
-    type Value = Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>;
     const VALUE: u64 = max(
         <T as StorageFootprint>::VALUE,
         <E as StorageFootprint>::VALUE,
@@ -152,22 +107,18 @@ impl<T> StorageFootprint for ink_prelude::boxed::Box<T>
 where
     T: StorageFootprint,
 {
-    type Value = StorageFootprintOf<T>;
     const VALUE: u64 = <T as StorageFootprint>::VALUE;
 }
 
 impl StorageFootprint for ink_prelude::string::String {
-    type Value = U1;
     const VALUE: u64 = 1;
 }
 
 impl<T> StorageFootprint for ink_prelude::vec::Vec<T> {
-    type Value = U1;
     const VALUE: u64 = 1;
 }
 
 impl<K, V> StorageFootprint for ink_prelude::collections::BTreeMap<K, V> {
-    type Value = U1;
     const VALUE: u64 = 1;
 }
 
@@ -175,7 +126,6 @@ macro_rules! impl_storage_size_for_collection {
     ( $($name:ident),* $(,)? ) => {
         $(
             impl<T> StorageFootprint for ink_prelude::collections::$name<T> {
-                type Value = U1;
                 const VALUE: u64 = 1;
             }
         )*

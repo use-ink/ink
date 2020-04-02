@@ -89,7 +89,6 @@ impl<K, V, H> StorageFootprint for LazyHashMap<K, V, H> {
     /// Actually the `LazyHashMap` requires to store no state on the contract storage.
     /// However, giving it a storage footprint of 1 avoids problems with having multiple
     /// consecutive lazy hash maps in the same type.
-    type Value = typenum::U1;
     const VALUE: u64 = 1;
 }
 

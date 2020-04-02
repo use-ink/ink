@@ -17,11 +17,9 @@ use crate::storage2::{
     PullForward,
     PushForward,
     StorageFootprint,
-    StorageFootprintOf,
 };
 use core::{
     cell::UnsafeCell,
-    ops::Mul,
     ptr::NonNull,
 };
 use ink_prelude::{
@@ -29,11 +27,6 @@ use ink_prelude::{
     collections::BTreeMap,
 };
 use ink_primitives::Key;
-use typenum::{
-    Prod,
-    Unsigned,
-    P4294967296,
-};
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -138,12 +131,9 @@ impl<V> LazyIndexMap<V> {
 impl<V> StorageFootprint for LazyIndexMap<V>
 where
     V: StorageFootprint,
-    StorageFootprintOf<V>: Mul<P4294967296>,
-    Prod<StorageFootprintOf<V>, P4294967296>: Unsigned,
 {
     /// A lazy chunk is contiguous and its size can be determined by the
     /// total number of elements it could theoretically hold.
-    type Value = Prod<StorageFootprintOf<V>, P4294967296>;
     const VALUE: u64 = 1_u64 << 32;
 }
 
@@ -188,8 +178,7 @@ where
     /// Returns an offset key for the given index.
     pub fn key_at(&self, index: Index) -> Option<Key> {
         let key = self.key?;
-        let offset_key =
-            key + (index as u64 * <<V as StorageFootprint>::Value as Unsigned>::U64);
+        let offset_key = key + (index as u64 * <V as StorageFootprint>::VALUE);
         Some(offset_key)
     }
 

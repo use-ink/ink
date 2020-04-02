@@ -21,12 +21,10 @@ use crate::storage2::{
     PullForward,
     PushForward,
     StorageFootprint,
-    StorageFootprintOf,
 };
 use core::{
     cell::UnsafeCell,
     mem,
-    ops::Mul,
     ptr::NonNull,
 };
 use generic_array::{
@@ -35,7 +33,6 @@ use generic_array::{
 };
 use ink_primitives::Key;
 use typenum::{
-    Prod,
     UInt,
     UTerm,
     Unsigned,
@@ -231,16 +228,13 @@ impl<T, N> StorageFootprint for LazyArray<T, N>
 where
     T: StorageFootprint,
     N: LazyArrayLength<T>,
-    StorageFootprintOf<T>: Mul<N>,
-    Prod<StorageFootprintOf<T>, N>: Unsigned,
 {
-    type Value = Prod<StorageFootprintOf<T>, N>;
     const VALUE: u64 = <N as Unsigned>::U64;
 }
 
 impl<T, N> PullForward for LazyArray<T, N>
 where
-    Self: StorageFootprint,
+    T: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
@@ -255,9 +249,6 @@ impl<T, N> PushForward for LazyArray<T, N>
 where
     T: StorageFootprint + PushForward,
     N: LazyArrayLength<T>,
-    Self: StorageFootprint,
-    <Self as StorageFootprint>::Value: Unsigned,
-    <T as StorageFootprint>::Value: Unsigned,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for::<Self>();
@@ -266,7 +257,7 @@ where
                 if !entry.is_mutated() {
                     continue
                 }
-                let footprint = <<T as StorageFootprint>::Value as Unsigned>::to_u64();
+                let footprint = <T as StorageFootprint>::VALUE;
                 let key = offset_key + (index as u64 * footprint);
                 match entry.value() {
                     Some(value) => {
@@ -298,7 +289,6 @@ where
 impl<T, N> LazyArray<T, N>
 where
     T: StorageFootprint,
-    <T as StorageFootprint>::Value: Unsigned,
     N: LazyArrayLength<T>,
 {
     /// Returns the offset key for the given index if not out of bounds.
@@ -307,7 +297,7 @@ where
             return None
         }
         self.key.map(|key| {
-            key + ((at as u64) * <<T as StorageFootprint>::Value as Unsigned>::to_u64())
+            key + ((at as u64) * <T as StorageFootprint>::VALUE)
         })
     }
 }
@@ -315,7 +305,6 @@ where
 impl<T, N> LazyArray<T, N>
 where
     T: StorageFootprint + PullForward,
-    <T as StorageFootprint>::Value: Unsigned,
     N: LazyArrayLength<T>,
 {
     /// Loads the entry at the given index.
@@ -373,7 +362,9 @@ where
     ///
     /// If the given index is out of bounds.
     pub fn get(&self, at: Index) -> Option<&T> {
-        unsafe { &*self.load_through_cache(at).as_ptr() }.value().into()
+        unsafe { &*self.load_through_cache(at).as_ptr() }
+            .value()
+            .into()
     }
 
     /// Returns an exclusive reference to the element at the given index if any.

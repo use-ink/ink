@@ -20,23 +20,14 @@ use crate::storage2::{
     PullForward,
     PushForward,
     StorageFootprint,
-    StorageFootprintOf,
 };
-use core::ops::Add;
-use typenum::{
-    Add1,
-    Unsigned,
-};
+use typenum::Unsigned;
 
 impl<T, N> StorageFootprint for SmallVec<T, N>
 where
     T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
-    LazyArray<T, N>: StorageFootprint,
-    StorageFootprintOf<LazyArray<T, N>>: Add<typenum::B1>,
-    Add1<StorageFootprintOf<LazyArray<T, N>>>: Unsigned,
 {
-    type Value = Add1<StorageFootprintOf<LazyArray<T, N>>>;
     const VALUE: u64 = 1 + <N as Unsigned>::U64;
 }
 

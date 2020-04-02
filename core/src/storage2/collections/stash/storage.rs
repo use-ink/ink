@@ -30,24 +30,14 @@ use crate::{
         PushAt,
         PushForward,
         StorageFootprint,
-        StorageFootprintOf,
     },
 };
-use core::ops::Add;
 use ink_primitives::Key;
-use typenum::{
-    Add1,
-    Unsigned,
-};
 
 impl<T> StorageFootprint for StorageStash<T>
 where
     T: StorageFootprint,
-    storage::LazyIndexMap<T>: StorageFootprint,
-    StorageFootprintOf<storage::LazyIndexMap<T>>: Add<typenum::B1>,
-    Add1<StorageFootprintOf<storage::LazyIndexMap<T>>>: Unsigned,
 {
-    type Value = Add1<StorageFootprintOf<storage::LazyIndexMap<T>>>;
     const VALUE: u64 = 1 + <storage::LazyIndexMap<T> as StorageFootprint>::VALUE;
 }
 

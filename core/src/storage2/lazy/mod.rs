@@ -37,7 +37,6 @@ use super::{
     PullForward,
     PushForward,
     StorageFootprint,
-    StorageFootprintOf,
 };
 use ink_primitives::Key;
 
@@ -57,7 +56,6 @@ impl<T> StorageFootprint for Lazy<T>
 where
     T: StorageFootprint,
 {
-    type Value = StorageFootprintOf<T>;
     const VALUE: u64 = <T as StorageFootprint>::VALUE;
 }
 
