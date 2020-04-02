@@ -52,7 +52,7 @@ where
 
 impl<T> PullForward for StorageStash<T>
 where
-    Entry<T>: StorageFootprint + scale::Decode,
+    T: scale::Decode,
     storage::LazyIndexMap<Pack<Entry<T>>>: PullForward,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
