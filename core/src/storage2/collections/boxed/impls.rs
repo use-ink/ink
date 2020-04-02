@@ -14,62 +14,13 @@
 
 use super::Box as StorageBox;
 use crate::{
-    storage2 as storage,
     storage2::{
         ClearForward,
         KeyPtr,
         PullForward,
-        PushForward,
         StorageFootprint,
     },
 };
-use ink_primitives::Key;
-
-impl<T> StorageFootprint for StorageBox<T>
-where
-    T: ClearForward,
-{
-    /// A boxed entity always uses exactly 1 cell for its storage.
-    ///
-    /// The indirectly stored storage entity is not considered because the
-    /// `StorageSize` is only concerned with inplace storage usage.
-    const VALUE: u64 = 1;
-}
-
-impl<T> PullForward for StorageBox<T>
-where
-    T: ClearForward,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        let key = <Key as PullForward>::pull_forward(ptr);
-        Self {
-            key,
-            value: storage::Lazy::lazy(key),
-        }
-    }
-}
-
-impl<T> PushForward for StorageBox<T>
-where
-    T: ClearForward,
-    storage::Lazy<T>: PushForward,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        PushForward::push_forward(&self.key, ptr);
-        PushForward::push_forward(&self.value, &mut KeyPtr::from(self.key));
-    }
-}
-
-impl<T> ClearForward for StorageBox<T>
-where
-    T: ClearForward,
-    storage::Lazy<T>: ClearForward,
-{
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        ClearForward::clear_forward(&self.key, ptr);
-        ClearForward::clear_forward(&self.value, &mut KeyPtr::from(self.key));
-    }
-}
 
 impl<T> Drop for StorageBox<T>
 where
