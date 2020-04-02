@@ -236,6 +236,7 @@ where
     Prod<StorageFootprintOf<T>, N>: Unsigned,
 {
     type Value = Prod<StorageFootprintOf<T>, N>;
+    const VALUE: u64 = <N as Unsigned>::U64;
 }
 
 impl<T, N> PullForward for LazyArray<T, N>

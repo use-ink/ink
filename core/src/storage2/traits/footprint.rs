@@ -48,6 +48,8 @@ pub trait StorageFootprint {
     /// We should switch back to associated constants once the Rust compiler
     /// is more mature at handling them in generics.
     type Value: Unsigned;
+
+    const VALUE: u64;
 }
 
 /// Helper type alias for better readability.
@@ -87,6 +89,7 @@ macro_rules! impl_storage_size_for_primitive {
         $(
             impl StorageFootprint for $ty {
                 type Value = U1;
+                const VALUE: u64 = 1;
             }
             impl SaturatingStorageMarker for $ty {}
         )*
@@ -104,6 +107,7 @@ macro_rules! impl_storage_size_for_array2 {
                 Prod<StorageFootprintOf<T>, $t>: Unsigned,
             {
                 type Value = Prod<StorageFootprintOf<T>, $t>;
+                const VALUE: u64 = <T as StorageFootprint>::VALUE * $n;
             }
             impl<T> SaturatingStorageMarker for [T; $n]
             where
@@ -127,12 +131,16 @@ macro_rules! impl_storage_size_tuple {
         impl<T1 $(, $frag)*> StorageFootprint for (T1 $(, $frag)* ,)
         where
             T1: StorageFootprint,
+            $(
+                $frag: StorageFootprint,
+            )*
             ($($frag ,)*): StorageFootprint,
             StorageFootprintOf<T1>: Add<U0>, // Not sure why we need this trait bound for T1 ...
             StorageFootprintOf<T1>: Add<StorageFootprintOf<($($frag ,)*)>>,
             Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>: Unsigned,
         {
             type Value = Sum<StorageFootprintOf<T1>, StorageFootprintOf<($($frag ,)*)>>;
+            const VALUE: u64 = (0 $( + <$frag as StorageFootprint>::VALUE )* );
         }
     }
 }
@@ -149,11 +157,13 @@ impl_storage_size_tuple!(T2, T3, T4, T5, T6, T7, T8, T9, T10);
 
 impl StorageFootprint for () {
     type Value = U0;
+    const VALUE: u64 = 0;
 }
 impl SaturatingStorage for () {}
 
 impl<T> StorageFootprint for core::marker::PhantomData<T> {
     type Value = U0;
+    const VALUE: u64 = 0;
 }
 impl<T> SaturatingStorage for core::marker::PhantomData<T> {}
 
@@ -162,6 +172,7 @@ where
     T: StorageFootprint,
 {
     type Value = <T as StorageFootprint>::Value;
+    const VALUE: u64 = <T as StorageFootprint>::VALUE;
 }
 impl<T> SaturatingStorage for Option<T>
 where
@@ -176,6 +187,11 @@ where
     // determined by `T` it should be okay to implement.
 }
 
+/// Returns the greater element between `a` and `b`.
+const fn max(a: u64, b: u64) -> u64 {
+    [a, b][(a < b) as usize]
+}
+
 impl<T, E> StorageFootprint for Result<T, E>
 where
     T: StorageFootprint,
@@ -184,6 +200,10 @@ where
     Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>: Unsigned,
 {
     type Value = Maximum<StorageFootprintOf<T>, StorageFootprintOf<E>>;
+    const VALUE: u64 = max(
+        <T as StorageFootprint>::VALUE,
+        <E as StorageFootprint>::VALUE,
+    );
 }
 
 impl<T, E> SaturatingStorageMarker for Result<T, E>
@@ -199,24 +219,28 @@ where
     T: StorageFootprint,
 {
     type Value = StorageFootprintOf<T>;
+    const VALUE: u64 = <T as StorageFootprint>::VALUE;
 }
 
 impl<T> SaturatingStorageMarker for ink_prelude::boxed::Box<T> where T: SaturatingStorage {}
 
 impl StorageFootprint for ink_prelude::string::String {
     type Value = U1;
+    const VALUE: u64 = 1;
 }
 
 impl SaturatingStorage for ink_prelude::string::String {}
 
 impl<T> StorageFootprint for ink_prelude::vec::Vec<T> {
     type Value = U1;
+    const VALUE: u64 = 1;
 }
 
 impl<T> SaturatingStorage for ink_prelude::vec::Vec<T> {}
 
 impl<K, V> StorageFootprint for ink_prelude::collections::BTreeMap<K, V> {
     type Value = U1;
+    const VALUE: u64 = 1;
 }
 
 impl<K, V> SaturatingStorage for ink_prelude::collections::BTreeMap<K, V> {}
@@ -226,6 +250,7 @@ macro_rules! impl_storage_size_for_collection {
         $(
             impl<T> StorageFootprint for ink_prelude::collections::$name<T> {
                 type Value = U1;
+                const VALUE: u64 = 1;
             }
 
             impl<T> SaturatingStorage for ink_prelude::collections::$name<T> {}

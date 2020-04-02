@@ -144,6 +144,7 @@ where
     /// A lazy chunk is contiguous and its size can be determined by the
     /// total number of elements it could theoretically hold.
     type Value = Prod<StorageFootprintOf<V>, P4294967296>;
+    const VALUE: u64 = 1_u64 << 32;
 }
 
 impl<V> PullForward for LazyIndexMap<V>

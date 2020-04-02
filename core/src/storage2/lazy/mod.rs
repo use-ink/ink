@@ -59,6 +59,7 @@ where
     T: StorageFootprint,
 {
     type Value = StorageFootprintOf<T>;
+    const VALUE: u64 = <T as StorageFootprint>::VALUE;
 }
 
 impl<T> PullForward for Lazy<T>

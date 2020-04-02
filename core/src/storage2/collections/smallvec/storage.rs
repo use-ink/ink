@@ -37,6 +37,7 @@ where
     Add1<StorageFootprintOf<LazyArray<T, N>>>: Unsigned,
 {
     type Value = Add1<StorageFootprintOf<LazyArray<T, N>>>;
+    const VALUE: u64 = 1 + <N as Unsigned>::U64;
 }
 
 impl<T, N> PullForward for SmallVec<T, N>

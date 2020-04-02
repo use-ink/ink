@@ -90,6 +90,7 @@ impl<K, V, H> StorageFootprint for LazyHashMap<K, V, H> {
     /// However, giving it a storage footprint of 1 avoids problems with having multiple
     /// consecutive lazy hash maps in the same type.
     type Value = typenum::U1;
+    const VALUE: u64 = 1;
 }
 
 impl<K, V, H> PullForward for LazyHashMap<K, V, H>

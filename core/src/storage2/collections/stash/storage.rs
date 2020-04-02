@@ -48,6 +48,7 @@ where
     Add1<StorageFootprintOf<storage::LazyIndexMap<T>>>: Unsigned,
 {
     type Value = Add1<StorageFootprintOf<storage::LazyIndexMap<T>>>;
+    const VALUE: u64 = 1 + <storage::LazyIndexMap<T> as StorageFootprint>::VALUE;
 }
 
 impl<T> PullForward for StorageStash<T>
