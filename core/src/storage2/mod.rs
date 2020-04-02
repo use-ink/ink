@@ -39,8 +39,6 @@ pub use self::{
     pack::Pack,
     traits::{
         pull_single_cell,
-        storage_footprint_u128,
-        storage_footprint_u64,
         ClearAt,
         ClearForward,
         KeyPtr,

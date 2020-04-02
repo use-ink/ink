@@ -21,7 +21,6 @@
 //! emulator for simple off-chain testing.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(const_fn)]
 #![deny(
     bad_style,
     const_err,

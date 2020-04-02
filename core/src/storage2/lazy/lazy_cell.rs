@@ -17,7 +17,6 @@ use super::{
     EntryState,
 };
 use crate::storage2::{
-    storage_footprint_u64,
     ClearForward,
     KeyPtr,
     PullForward,
@@ -112,7 +111,7 @@ where
                 None => {
                     // TODO: Find better and more general clean-up strategy with
                     //       the help of the proposed subtrie API.
-                    let footprint = storage_footprint_u64::<T>();
+                    let footprint = <T as StorageFootprint>::VALUE;
                     if footprint >= 32 {
                         panic!("cannot clean up more than 32 cells at once")
                     }

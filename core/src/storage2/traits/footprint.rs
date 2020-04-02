@@ -55,22 +55,6 @@ pub trait StorageFootprint {
 /// Helper type alias for better readability.
 pub type StorageFootprintOf<T> = <T as StorageFootprint>::Value;
 
-/// Returns the `u64` representation of the storage footprint of `T`.
-pub const fn storage_footprint_u64<T>() -> u64
-where
-    T: StorageFootprint,
-{
-    <StorageFootprintOf<T> as Unsigned>::U64
-}
-
-/// Returns the `u128` representation of the storage footprint of `T`.
-pub const fn storage_footprint_u128<T>() -> u128
-where
-    T: StorageFootprint,
-{
-    <StorageFootprintOf<T> as Unsigned>::U128
-}
-
 /// Types implementing this trait are guaranteed to always use the same amount
 /// of storage cells as described by the [`StorageFootprint`] trait.
 ///
