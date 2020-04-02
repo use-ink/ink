@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod impls;
 mod iter;
 mod storage;
-mod impls;
 
 #[cfg(test)]
 mod tests;
@@ -23,14 +23,14 @@ pub use self::iter::{
     Iter,
     IterMut,
 };
-use crate::{
-    storage2::{
+use crate::storage2::{
+    lazy::{
         Lazy,
         LazyArray,
         LazyArrayLength,
-        PullForward,
-        StorageFootprint,
     },
+    PullForward,
+    StorageFootprint,
 };
 
 /// The used index type.

@@ -21,7 +21,7 @@ use crate::{
             extend_lifetime,
             stash::Iter as StashIter,
         },
-        LazyHashMap,
+        lazy::LazyHashMap,
         Pack,
         PullForward,
         StorageFootprint,

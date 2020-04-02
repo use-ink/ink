@@ -20,8 +20,8 @@ use super::{
     Stash as StorageStash,
 };
 use crate::{
-    storage2 as storage,
     storage2::{
+        lazy::LazyIndexMap,
         ClearForward,
         KeyPtr,
         PullAt,
@@ -37,7 +37,7 @@ impl<T> StorageFootprint for StorageStash<T>
 where
     T: StorageFootprint,
 {
-    const VALUE: u64 = 1 + <storage::LazyIndexMap<T> as StorageFootprint>::VALUE;
+    const VALUE: u64 = 1 + <LazyIndexMap<T> as StorageFootprint>::VALUE;
 }
 
 impl<T> PullForward for StorageStash<T>

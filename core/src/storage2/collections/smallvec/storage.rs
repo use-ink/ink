@@ -14,12 +14,14 @@
 
 use super::SmallVec;
 use crate::storage2::{
+    lazy::{
+        LazyArray,
+        LazyArrayLength,
+    },
+    ClearForward,
     KeyPtr,
-    LazyArray,
-    LazyArrayLength,
     PullForward,
     PushForward,
-    ClearForward,
     StorageFootprint,
 };
 use typenum::Unsigned;

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod iter;
 mod impls;
+mod iter;
 mod storage;
 
 #[cfg(test)]
@@ -23,13 +23,13 @@ pub use self::iter::{
     Iter,
     IterMut,
 };
-use crate::{
-    storage2::{
+use crate::storage2::{
+    lazy::{
         Lazy,
         LazyIndexMap,
-        PullForward,
-        StorageFootprint,
     },
+    PullForward,
+    StorageFootprint,
 };
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.

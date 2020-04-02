@@ -15,7 +15,7 @@
 use super::SmallVec;
 use crate::storage2::{
     collections::extend_lifetime,
-    LazyArrayLength,
+    lazy::LazyArrayLength,
     PullForward,
     StorageFootprint,
 };

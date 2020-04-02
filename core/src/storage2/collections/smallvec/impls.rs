@@ -17,7 +17,7 @@ use super::{
     SmallVec,
 };
 use crate::storage2::{
-    LazyArrayLength,
+    lazy::LazyArrayLength,
     PullForward,
     StorageFootprint,
 };

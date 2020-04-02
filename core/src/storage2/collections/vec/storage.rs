@@ -15,28 +15,25 @@
 //! Implementation of ink! storage traits.
 
 use super::Vec as StorageVec;
-use crate::{
-    storage2 as storage,
-    storage2::{
-        ClearForward,
-        KeyPtr,
-        PullForward,
-        PushForward,
-        StorageFootprint,
-    },
+use crate::storage2::{
+    lazy::LazyIndexMap,
+    ClearForward,
+    KeyPtr,
+    PullForward,
+    PushForward,
+    StorageFootprint,
 };
 
 impl<T> StorageFootprint for StorageVec<T>
 where
     T: StorageFootprint,
 {
-    const VALUE: u64 = 1 + <storage::LazyIndexMap<T> as StorageFootprint>::VALUE;
+    const VALUE: u64 = 1 + <LazyIndexMap<T> as StorageFootprint>::VALUE;
 }
 
 impl<T> PullForward for StorageVec<T>
 where
     T: StorageFootprint,
-    storage::LazyIndexMap<T>: PullForward,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
@@ -48,7 +45,7 @@ where
 
 impl<T> PushForward for StorageVec<T>
 where
-    storage::LazyIndexMap<T>: PushForward,
+    T: PushForward + PullForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         PushForward::push_forward(&self.len(), ptr);

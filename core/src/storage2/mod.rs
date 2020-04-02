@@ -28,14 +28,6 @@ pub use self::{
         stash::Stash,
         vec::Vec,
     },
-    lazy::{
-        Lazy,
-        LazyArray,
-        LazyArrayLength,
-        LazyCell,
-        LazyHashMap,
-        LazyIndexMap,
-    },
     pack::Pack,
     traits::{
         pull_single_cell,

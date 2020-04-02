@@ -16,8 +16,8 @@ mod impls;
 mod storage;
 
 use crate::storage2::{
+    lazy::Lazy,
     ClearForward,
-    Lazy,
     PullForward,
     StorageFootprint,
 };

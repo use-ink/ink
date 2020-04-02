@@ -26,7 +26,7 @@ pub use self::iter::{
     IterMut,
 };
 use crate::storage2::{
-    LazyIndexMap,
+    lazy::LazyIndexMap,
     Pack,
     PullForward,
     StorageFootprint,
@@ -339,7 +339,8 @@ where
         // Precompute prev and next vacant entires as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
         let (prev, next) = if let Some(index) = self.last_vacant_index() {
-            let root_vacant = self.entries
+            let root_vacant = self
+                .entries
                 .get(index)
                 .expect("last_vacant must point to an existing entry")
                 .try_to_vacant()
@@ -409,7 +410,8 @@ where
         match taken_entry {
             Entry::Occupied(value) => {
                 use core::cmp::min;
-                self.header.last_vacant = min(self.header.last_vacant, min(at, min(prev, next)));
+                self.header.last_vacant =
+                    min(self.header.last_vacant, min(at, min(prev, next)));
                 self.header.len -= 1;
                 Some(value)
             }

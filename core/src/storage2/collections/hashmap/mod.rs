@@ -28,7 +28,7 @@ use crate::{
         Hasher,
     },
     storage2::{
-        LazyHashMap,
+        lazy::LazyHashMap,
         Pack,
         PullForward,
         Stash,

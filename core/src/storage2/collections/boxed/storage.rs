@@ -13,15 +13,13 @@
 // limitations under the License.
 
 use super::Box as StorageBox;
-use crate::{
-    storage2 as storage,
-    storage2::{
-        ClearForward,
-        KeyPtr,
-        PullForward,
-        PushForward,
-        StorageFootprint,
-    },
+use crate::storage2::{
+    lazy::Lazy,
+    ClearForward,
+    KeyPtr,
+    PullForward,
+    PushForward,
+    StorageFootprint,
 };
 use ink_primitives::Key;
 
@@ -44,7 +42,7 @@ where
         let key = <Key as PullForward>::pull_forward(ptr);
         Self {
             key,
-            value: storage::Lazy::lazy(key),
+            value: Lazy::lazy(key),
         }
     }
 }
