@@ -35,7 +35,7 @@ where
 /// An indirection to some dynamically allocated storage entity.
 pub struct Box<T>
 where
-    T: ClearForward,
+    T: ClearForward + StorageFootprint,
 {
     /// The storage area where the boxed storage entity is stored.
     key: Key,

@@ -98,40 +98,25 @@ where
     T: PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        // We skip pushing to contract storage if we are still in unloaded form.
         if let LazyCellEntry::Occupied(occupied) = self.kind() {
+            // Skip pushing to contract storage if we are still in unloaded form.
             if !occupied.is_mutated() {
                 // Don't sync with storage if the value has not been mutated.
                 return
             }
-            match occupied.value() {
-                Some(value) => <T as PushForward>::push_forward(value, ptr),
-                None => {
-                    // TODO: Find better and more general clean-up strategy with
-                    //       the help of the proposed subtrie API.
-                    let footprint = <T as StorageFootprint>::VALUE;
-                    if footprint >= 32 {
-                        panic!("cannot clean up more than 32 cells at once")
-                    }
-                    let key = ptr.next_for::<T>();
-                    // Clean up storage associated with the value.
-                    for n in 0..footprint {
-                        crate::env::clear_contract_storage(key + n)
-                    }
-                }
-            }
+            PushForward::push_forward(occupied.value(), ptr);
         }
     }
 }
 
 impl<T> ClearForward for LazyCell<T>
 where
-    T: ClearForward,
+    T: ClearForward + StorageFootprint,
 {
-    fn clear_forward(&self, _ptr: &mut KeyPtr) {
-        // Not implemented because at this point we are unsure whether
-        // the whole clean-up traits are useful at all.
-        todo!()
+    fn clear_forward(&self, ptr: &mut KeyPtr) {
+        if let LazyCellEntry::Occupied(occupied) = self.kind() {
+            ClearForward::clear_forward(occupied.value(), ptr);
+        }
     }
 }
 

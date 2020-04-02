@@ -81,7 +81,7 @@ where
 
 impl<T> ClearForward for Lazy<T>
 where
-    T: ClearForward,
+    T: ClearForward + StorageFootprint,
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
         <LazyCell<T> as ClearForward>::clear_forward(&self.cell, ptr)

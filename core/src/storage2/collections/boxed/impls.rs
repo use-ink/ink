@@ -24,7 +24,7 @@ use crate::{
 
 impl<T> Drop for StorageBox<T>
 where
-    T: ClearForward,
+    T: ClearForward + StorageFootprint,
 {
     fn drop(&mut self) {
         ClearForward::clear_forward(&self.value, &mut KeyPtr::from(self.key));
