@@ -13,6 +13,7 @@
 // limitations under the License.
 
 mod iter;
+mod storage;
 
 pub use self::iter::{
     Iter,
@@ -29,7 +30,6 @@ use crate::{
     storage2::{
         LazyHashMap,
         Pack,
-        PullAt,
         PullForward,
         Stash,
         StorageFootprint,
@@ -67,15 +67,6 @@ pub struct ValueEntry<V> {
     value: V,
     /// The index of the key associated with this value.
     key_index: KeyIndex,
-}
-
-impl<V> PullAt for ValueEntry<V>
-where
-    V: scale::Decode,
-{
-    fn pull_at(at: Key) -> Self {
-        crate::storage2::pull_single_cell(at)
-    }
 }
 
 impl<K, V, H> HashMap<K, V, H>
