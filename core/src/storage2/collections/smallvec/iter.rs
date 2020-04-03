@@ -62,7 +62,7 @@ where
         }
         let cur = self.begin;
         self.begin += 1;
-        self.vec.get(cur)
+        self.vec.get(cur).expect("access is within bounds").into()
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -90,7 +90,10 @@ where
         }
         debug_assert_ne!(self.end, 0);
         self.end -= 1;
-        self.vec.get(self.end)
+        self.vec
+            .get(self.end)
+            .expect("access is within bounds")
+            .into()
     }
 }
 
@@ -156,7 +159,7 @@ where
         }
         let cur = self.begin;
         self.begin += 1;
-        self.get_mut(cur)
+        self.get_mut(cur).expect("access is within bounds").into()
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -185,5 +188,7 @@ where
         debug_assert_ne!(self.end, 0);
         self.end -= 1;
         self.get_mut(self.end)
+            .expect("access is within bounds")
+            .into()
     }
 }
