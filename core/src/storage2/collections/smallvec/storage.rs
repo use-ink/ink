@@ -24,7 +24,7 @@ use crate::storage2::{
     PushForward,
     StorageFootprint,
 };
-use typenum::Unsigned;
+use generic_array::typenum::Unsigned;
 
 impl<T, N> StorageFootprint for SmallVec<T, N>
 where

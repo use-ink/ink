@@ -28,17 +28,17 @@ use core::{
     ptr::NonNull,
 };
 use generic_array::{
+    typenum::{
+        UInt,
+        UTerm,
+        Unsigned,
+        B0,
+        B1,
+    },
     ArrayLength,
     GenericArray,
 };
 use ink_primitives::Key;
-use typenum::{
-    UInt,
-    UTerm,
-    Unsigned,
-    B0,
-    B1,
-};
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
