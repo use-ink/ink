@@ -61,7 +61,12 @@ macro_rules! impl_push_for_primitive {
         )*
     };
 }
-impl_push_for_primitive!(Key, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_push_for_primitive!(
+    // We do not include `f32` and `f64` since Wasm contracts currently
+    // do not support them. We might add them to this list once we add
+    // support for those primitives.
+    Key, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128
+);
 
 macro_rules! impl_push_for_array {
     ( $($len:literal),* $(,)? ) => {

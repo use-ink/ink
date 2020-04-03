@@ -25,8 +25,11 @@ use ink_primitives::Key;
 ///
 /// # Note
 ///
-/// This tries to distribute all clearing operations of an entity at distinct
-/// storage cells.
+/// - This tries to distribute all clearing operations of an entity at distinct
+///   storage cells.
+/// - This trait should not be used or called manually and should only be called
+///   from the destructor of certain types such as
+///   [`storage::Box`](`ink_core::storage2::Box`).
 pub trait ClearForward {
     /// Pushes `self` distributed to the associated contract storage.
     fn clear_forward(&self, ptr: &mut KeyPtr);
@@ -61,7 +64,12 @@ macro_rules! impl_clear_for_primitive {
         )*
     };
 }
-impl_clear_for_primitive!(Key, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_clear_for_primitive!(
+    // We do not include `f32` and `f64` since Wasm contracts currently
+    // do not support them. We might add them to this list once we add
+    // support for those primitives.
+    Key, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128
+);
 
 macro_rules! impl_clear_for_array {
     ( $($len:literal),* $(,)? ) => {
