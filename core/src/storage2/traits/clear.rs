@@ -29,7 +29,7 @@ use ink_primitives::Key;
 ///   storage cells.
 /// - This trait should not be used or called manually and should only be called
 ///   from the destructor of certain types such as
-///   [`storage::Box`](`ink_core::storage2::Box`).
+///   [`storage::Box`](`crate::storage2::Box`).
 pub trait ClearForward {
     /// Pushes `self` distributed to the associated contract storage.
     fn clear_forward(&self, ptr: &mut KeyPtr);
