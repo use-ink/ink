@@ -31,7 +31,7 @@ use crate::{
         lazy::LazyHashMap,
         Pack,
         PullForward,
-        Stash,
+        collections::Stash,
         StorageFootprint,
     },
 };
@@ -62,7 +62,7 @@ where
 ///
 /// Stores the value as well as the index to its associated key.
 #[derive(Debug, scale::Encode, scale::Decode)]
-pub struct ValueEntry<V> {
+struct ValueEntry<V> {
     /// The value stored in this entry.
     value: V,
     /// The index of the key associated with this value.

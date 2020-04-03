@@ -15,11 +15,11 @@
 use super::ValueEntry;
 use crate::{
     hash::hasher::Hasher,
-    storage2 as storage,
     storage2::{
         collections::{
             extend_lifetime,
             stash::Iter as StashIter,
+            HashMap as StorageHashMap,
         },
         lazy::LazyHashMap,
         Pack,
@@ -40,7 +40,7 @@ pub struct Iter<'a, K, V, H> {
 
 impl<'a, K, V, H> Iter<'a, K, V, H> {
     /// Creates a new iterator for the given storage hash map.
-    pub(crate) fn new(hash_map: &'a storage::HashMap<K, V, H>) -> Self
+    pub(crate) fn new(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
         H: Hasher,
     {
@@ -124,7 +124,7 @@ pub struct IterMut<'a, K, V, H> {
 
 impl<'a, K, V, H> IterMut<'a, K, V, H> {
     /// Creates a new iterator for the given storage hash map.
-    pub(crate) fn new(hash_map: &'a mut storage::HashMap<K, V, H>) -> Self
+    pub(crate) fn new(hash_map: &'a mut StorageHashMap<K, V, H>) -> Self
     where
         H: Hasher,
     {
@@ -208,7 +208,7 @@ pub struct Values<'a, K, V, H> {
 
 impl<'a, K, V, H> Values<'a, K, V, H> {
     /// Creates a new iterator for the given storage hash map.
-    pub(crate) fn new(hash_map: &'a storage::HashMap<K, V, H>) -> Self
+    pub(crate) fn new(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
         K: Ord,
         H: Hasher,
@@ -266,7 +266,7 @@ pub struct ValuesMut<'a, K, V, H> {
 
 impl<'a, K, V, H> ValuesMut<'a, K, V, H> {
     /// Creates a new iterator for the given storage hash map.
-    pub(crate) fn new(hash_map: &'a mut storage::HashMap<K, V, H>) -> Self
+    pub(crate) fn new(hash_map: &'a mut StorageHashMap<K, V, H>) -> Self
     where
         K: Ord,
         H: Hasher,
@@ -324,7 +324,7 @@ pub struct Keys<'a, K> {
 
 impl<'a, K> Keys<'a, K> {
     /// Creates a new iterator for the given storage hash map.
-    pub(crate) fn new<V, H>(hash_map: &'a storage::HashMap<K, V, H>) -> Self
+    pub(crate) fn new<V, H>(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
         K: Ord,
         H: Hasher,

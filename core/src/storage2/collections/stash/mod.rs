@@ -46,7 +46,7 @@ pub struct Stash<T> {
 
 /// Stores general commonly required information about the storage stash.
 #[derive(Debug, scale::Encode, scale::Decode)]
-pub struct Header {
+struct Header {
     /// The latest vacant index.
     ///
     /// - If all entries are occupied:

@@ -21,8 +21,8 @@ use super::{
 };
 use crate::{
     hash::hasher::Hasher,
-    storage2 as storage,
     storage2::{
+        collections::Stash as StorageStash,
         ClearAt,
         ClearForward,
         KeyPtr,
@@ -40,7 +40,7 @@ where
     K: Ord + StorageFootprint,
     H: Hasher,
 {
-    const VALUE: u64 = 1 + <storage::Stash<K> as StorageFootprint>::VALUE;
+    const VALUE: u64 = 1 + <StorageStash<K> as StorageFootprint>::VALUE;
 }
 
 impl<K, V, H> PullForward for StorageHashMap<K, V, H>

@@ -14,10 +14,10 @@
 
 #[cfg(test)]
 use super::Entry;
+use super::Stash;
 #[cfg(test)]
 use crate::storage2::Pack;
 use crate::{
-    storage2 as storage,
     storage2::{
         collections::extend_lifetime,
         PullForward,
@@ -29,7 +29,7 @@ use crate::{
 #[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T> {
     /// The storage stash to iterate over.
-    stash: &'a storage::Stash<T>,
+    stash: &'a Stash<T>,
     /// The number of already yielded elements.
     ///
     /// # Note
@@ -44,7 +44,7 @@ pub struct Iter<'a, T> {
 
 impl<'a, T> Iter<'a, T> {
     /// Creates a new iterator for the given storage stash.
-    pub(crate) fn new(stash: &'a storage::Stash<T>) -> Self {
+    pub(crate) fn new(stash: &'a Stash<T>) -> Self {
         Self {
             stash,
             yielded: 0,
@@ -116,7 +116,7 @@ where
 #[derive(Debug)]
 pub struct IterMut<'a, T> {
     /// The storage stash to iterate over.
-    stash: &'a mut storage::Stash<T>,
+    stash: &'a mut Stash<T>,
     /// The number of already yielded elements.
     ///
     /// # Note
@@ -131,7 +131,7 @@ pub struct IterMut<'a, T> {
 
 impl<'a, T> IterMut<'a, T> {
     /// Creates a new iterator for the given storage stash.
-    pub(crate) fn new(stash: &'a mut storage::Stash<T>) -> Self {
+    pub(crate) fn new(stash: &'a mut Stash<T>) -> Self {
         let len = stash.len_entries();
         Self {
             stash,
@@ -227,7 +227,7 @@ where
 #[cfg(test)]
 pub struct Entries<'a, T> {
     /// The storage stash to iterate over.
-    stash: &'a storage::Stash<T>,
+    stash: &'a Stash<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -237,7 +237,7 @@ pub struct Entries<'a, T> {
 #[cfg(test)]
 impl<'a, T> Entries<'a, T> {
     /// Creates a new iterator for the given storage stash.
-    pub(crate) fn new(stash: &'a storage::Stash<T>) -> Self {
+    pub(crate) fn new(stash: &'a Stash<T>) -> Self {
         let len = stash.len_entries();
         Self {
             stash,

@@ -22,12 +22,10 @@ mod traits;
 #[doc(inline)]
 pub use self::{
     collections::{
-        boxed::Box,
-        hashmap::HashMap,
-        smallvec::SmallVec,
-        stash::Stash,
-        vec::Vec,
+        Box,
+        Vec,
     },
+    lazy::Lazy,
     pack::Pack,
     traits::{
         pull_single_cell,

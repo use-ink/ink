@@ -18,6 +18,7 @@ pub mod smallvec;
 pub mod vec;
 pub mod stash;
 
+#[doc(inline)]
 pub use self::{
     boxed::Box,
     hashmap::HashMap,
