@@ -296,9 +296,8 @@ where
         if at >= Self::capacity() {
             return None
         }
-        self.key.map(|key| {
-            key + ((at as u64) * <T as StorageFootprint>::VALUE)
-        })
+        self.key
+            .map(|key| key + ((at as u64) * <T as StorageFootprint>::VALUE))
     }
 }
 
