@@ -21,10 +21,15 @@ use core::cmp::min;
 
 /// Iterator over the bits of a storage bit vector.
 pub struct Bits<'a> {
+    /// The storage bit vector that it being iterated over.
     bitvec: &'a StorageBitvec,
+    /// The current 256-bit pack index.
     bits256_id: u32,
+    /// The current 256-bit pack to yield bits.
     bits256: Option<&'a Bits256>,
+    /// The current 256-bit pack length.
     bits256_len: u32,
+    /// The current bit index within the current 256-bit pack.
     bit: u32,
 }
 

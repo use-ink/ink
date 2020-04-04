@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Storage bit vector data structure and utilities.
+//!
+//! Allows to compactly and efficiently store and manipulate on single bits.
+
 mod access;
 mod bits256;
 mod impls;
