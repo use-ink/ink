@@ -146,6 +146,42 @@ impl Bitvec {
         self.get_access_mut(at)
     }
 
+    /// Returns the first bit of the bit vector.
+    ///
+    /// # Note
+    ///
+    /// Returns `None` if the bit vector is empty.
+    pub fn first(&mut self) -> Option<bool> {
+        if self.is_empty() {
+            return None
+        }
+        self.get(0)
+    }
+
+    /// Returns a mutable bit access to the first bit of the bit vector.
+    ///
+    /// # Note
+    ///
+    /// Returns `None` if the bit vector is empty.
+    pub fn first_mut(&mut self) -> Option<BitAccess> {
+        if self.is_empty() {
+            return None
+        }
+        self.get_access_mut(0)
+    }
+
+    /// Returns the last bit of the bit vector.
+    ///
+    /// # Note
+    ///
+    /// Returns `None` if the bit vector is empty.
+    pub fn last(&mut self) -> Option<bool> {
+        if self.is_empty() {
+            return None
+        }
+        self.get(self.len() - 1)
+    }
+
     /// Returns a mutable bit access to the last bit of the bit vector.
     ///
     /// # Note
