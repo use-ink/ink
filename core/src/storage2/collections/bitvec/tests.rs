@@ -19,6 +19,7 @@ fn new_default_works() {
     // Check if `Bitvec::new` works:
     let mut bitvec = StorageBitvec::new();
     assert_eq!(bitvec.len(), 0);
+    assert_eq!(bitvec.capacity(), 0);
     assert!(bitvec.is_empty());
     assert_eq!(bitvec.bits().next(), None);
     assert_eq!(bitvec.get(0), None);
@@ -29,6 +30,7 @@ fn new_default_works() {
     // Check if `Bitvec::default` works:
     let mut default = StorageBitvec::default();
     assert_eq!(default.len(), 0);
+    assert_eq!(bitvec.capacity(), 0);
     assert!(default.is_empty());
     assert_eq!(default.bits().next(), None);
     assert_eq!(default.get(0), None);
