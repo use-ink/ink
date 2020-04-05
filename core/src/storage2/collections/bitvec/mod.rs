@@ -207,6 +207,7 @@ impl Bitvec {
             if value {
                 // If `value` is `true` set its first bit to `1`.
                 bits256.set(0);
+                debug_assert_eq!(bits256.get(0), true);
             };
             self.bits.push(Pack::from(bits256));
         } else {
