@@ -137,7 +137,8 @@ impl Bitvec {
 
     /// Returns the value of the bit at the given index if any.
     pub fn get(&self, at: Index) -> Option<bool> {
-        self.get_bits256(at)
+        self
+            .get_bits256(at)
             .map(|(bits256, pos256)| bits256.get(pos256))
     }
 
@@ -151,7 +152,7 @@ impl Bitvec {
     /// # Note
     ///
     /// Returns `None` if the bit vector is empty.
-    pub fn first(&mut self) -> Option<bool> {
+    pub fn first(&self) -> Option<bool> {
         if self.is_empty() {
             return None
         }
@@ -175,7 +176,7 @@ impl Bitvec {
     /// # Note
     ///
     /// Returns `None` if the bit vector is empty.
-    pub fn last(&mut self) -> Option<bool> {
+    pub fn last(&self) -> Option<bool> {
         if self.is_empty() {
             return None
         }
@@ -210,18 +211,19 @@ impl Bitvec {
                 debug_assert_eq!(bits256.get(0), true);
             };
             self.bits.push(Pack::from(bits256));
+            *self.len += 1;
         } else {
             // Case: The last 256-bit pack has unused bits:
             // - Set last bit of last 256-bit pack to the given value.
             // - Opt.: Since bits are initialized as 0 we only need
             //         to mutate this value if `value` is `true`.
+            *self.len += 1;
             if value {
                 self.last_mut()
                     .expect("must have at least a valid bit in this case")
                     .set()
             }
         }
-        *self.len += 1;
     }
 
     /// Pops the last bit from the bit vector.
