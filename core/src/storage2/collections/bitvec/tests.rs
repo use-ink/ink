@@ -69,3 +69,65 @@ fn iter_works() {
         assert_eq!(bit, (i % 5) == 0 || (i % 13) == 0);
     }
 }
+
+#[test]
+fn push_works() {
+    let mut bitvec = StorageBitvec::new();
+    assert_eq!(bitvec.len(), 0);
+    assert_eq!(bitvec.capacity(), 0);
+    // Push `1`
+    bitvec.push(true);
+    assert_eq!(bitvec.len(), 1);
+    assert_eq!(bitvec.capacity(), 256);
+    assert_eq!(bitvec.first(), Some(true));
+    assert_eq!(bitvec.first_mut().map(|access| access.get()), Some(true));
+    assert_eq!(bitvec.last(), Some(true));
+    assert_eq!(bitvec.last_mut().map(|access| access.get()), Some(true));
+    // Push `0`
+    bitvec.push(false);
+    assert_eq!(bitvec.len(), 2);
+    assert_eq!(bitvec.capacity(), 256);
+    assert_eq!(bitvec.first(), Some(true));
+    assert_eq!(bitvec.first_mut().map(|access| access.get()), Some(true));
+    assert_eq!(bitvec.last(), Some(false));
+    assert_eq!(bitvec.last_mut().map(|access| access.get()), Some(false));
+    // Push `1`
+    bitvec.push(true);
+    assert_eq!(bitvec.len(), 3);
+    assert_eq!(bitvec.capacity(), 256);
+    assert_eq!(bitvec.first(), Some(true));
+    assert_eq!(bitvec.first_mut().map(|access| access.get()), Some(true));
+    assert_eq!(bitvec.last(), Some(true));
+    assert_eq!(bitvec.last_mut().map(|access| access.get()), Some(true));
+}
+
+#[test]
+fn pop_works() {
+    let mut bitvec = [true, false, true].iter().collect::<StorageBitvec>();
+    assert_eq!(bitvec.len(), 3);
+    assert_eq!(bitvec.capacity(), 256);
+    // Pop `1` (true)
+    assert_eq!(bitvec.pop(), Some(true));
+    assert_eq!(bitvec.len(), 2);
+    assert_eq!(bitvec.capacity(), 256);
+    assert_eq!(bitvec.first(), Some(true));
+    assert_eq!(bitvec.first_mut().map(|access| access.get()), Some(true));
+    assert_eq!(bitvec.last(), Some(false));
+    assert_eq!(bitvec.last_mut().map(|access| access.get()), Some(false));
+    // Pop `0` (false)
+    assert_eq!(bitvec.pop(), Some(false));
+    assert_eq!(bitvec.len(), 1);
+    assert_eq!(bitvec.capacity(), 256);
+    assert_eq!(bitvec.first(), Some(true));
+    assert_eq!(bitvec.first_mut().map(|access| access.get()), Some(true));
+    assert_eq!(bitvec.last(), Some(true));
+    assert_eq!(bitvec.last_mut().map(|access| access.get()), Some(true));
+    // Pop `1` (true)
+    assert_eq!(bitvec.pop(), Some(true));
+    assert_eq!(bitvec.len(), 0);
+    assert_eq!(bitvec.capacity(), 256);
+    assert!(bitvec.first().is_none());
+    assert!(bitvec.first_mut().is_none());
+    assert!(bitvec.last().is_none());
+    assert!(bitvec.last_mut().is_none());
+}
