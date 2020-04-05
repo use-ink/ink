@@ -22,6 +22,9 @@ mod impls;
 mod iter;
 mod storage;
 
+#[cfg(test)]
+mod tests;
+
 use self::bits256::Bits256;
 pub use self::{
     access::BitAccess,

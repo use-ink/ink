@@ -1,0 +1,69 @@
+// Copyright 2019-2020 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use super::Bitvec as StorageBitvec;
+
+#[test]
+fn new_default_works() {
+    // Check if `Bitvec::new` works:
+    let mut bitvec = StorageBitvec::new();
+    assert_eq!(bitvec.len(), 0);
+    assert!(bitvec.is_empty());
+    assert_eq!(bitvec.bits().next(), None);
+    assert_eq!(bitvec.get(0), None);
+    assert!(bitvec.first().is_none());
+    assert!(bitvec.first_mut().is_none());
+    assert!(bitvec.last().is_none());
+    assert!(bitvec.last_mut().is_none());
+    // Check if `Bitvec::default` works:
+    let mut default = StorageBitvec::default();
+    assert_eq!(default.len(), 0);
+    assert!(default.is_empty());
+    assert_eq!(default.bits().next(), None);
+    assert_eq!(default.get(0), None);
+    assert!(default.first().is_none());
+    assert!(default.first_mut().is_none());
+    assert!(default.last().is_none());
+    assert!(default.last_mut().is_none());
+    // Check if both are equal:
+    assert_eq!(bitvec, default);
+}
+
+/// Creates a storage bitvector where every bit at every 5th and 13th index
+/// is set to `1` (true). The bitvector has a total length of 600 bits which
+/// requires it to have 3 chunks of 256-bit giving a capacity of 768 bits.
+fn bitvec_600() -> StorageBitvec {
+    let bitvec = (0..600)
+        .map(|i| (i % 5) == 0 || (i % 13) == 0)
+        .collect::<StorageBitvec>();
+    assert_eq!(bitvec.len(), 600);
+    assert_eq!(bitvec.capacity(), 768);
+    bitvec
+}
+
+#[test]
+fn get_works() {
+    let bitvec = bitvec_600();
+    for i in 0..bitvec.len() {
+        assert_eq!(bitvec.get(i), Some((i % 5) == 0 || (i % 13) == 0));
+    }
+}
+
+#[test]
+fn iter_works() {
+    let bitvec = bitvec_600();
+    for (i, bit) in bitvec.bits().enumerate() {
+        assert_eq!(bit, (i % 5) == 0 || (i % 13) == 0);
+    }
+}
