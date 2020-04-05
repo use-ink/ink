@@ -44,6 +44,10 @@ impl<'a> Bits<'a> {
             bit: 0,
         }
     }
+
+    fn yielded(&self) -> u64 {
+        self.bit as u64 + (self.bits256_id.saturating_sub(1) as u64 * 256)
+    }
 }
 
 impl<'a> Iterator for Bits<'a> {
@@ -51,6 +55,9 @@ impl<'a> Iterator for Bits<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
+            if self.yielded() == self.bitvec.len() as u64 {
+                return None
+            }
             if let Some(bits256) = self.bits256 {
                 if self.bit == self.bits256_len {
                     self.bits256 = None;
@@ -81,5 +88,10 @@ impl<'a> Iterator for Bits<'a> {
                 continue
             }
         }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = (self.bitvec.len() as u64 - self.yielded()) as usize;
+        (remaining, Some(remaining))
     }
 }
