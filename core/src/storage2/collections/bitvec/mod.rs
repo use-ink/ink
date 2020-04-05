@@ -70,7 +70,7 @@ impl Bitvec {
         }
     }
 
-    /// Returns the length of the bit vector.
+    /// Returns the length of the bit vector in bits.
     pub fn len(&self) -> u32 {
         *self.len.get()
     }
@@ -80,7 +80,7 @@ impl Bitvec {
         self.len() == 0
     }
 
-    /// Returns the capacity of the bit vector.
+    /// Returns the capacity of the bit vector in bits.
     ///
     /// # Note
     ///
