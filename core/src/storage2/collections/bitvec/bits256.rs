@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use super::{
+    Bits64,
     Index256,
     Index64,
-    Bits64,
 };
 use crate::storage2::{
     pull_single_cell,
@@ -48,11 +48,7 @@ impl Bits256 {
 
     pub fn get(&self, at: Index256) -> bool {
         let (bits64, pos64) = self.bits_at(at);
-        match bits64 & (0x01 << pos64) {
-            0 => false,
-            1 => true,
-            _ => unreachable!(),
-        }
+        bits64 & (0x01 << (63 - pos64)) != 0
     }
 
     pub fn set_to(&mut self, at: Index256, new_value: bool) {
@@ -85,7 +81,7 @@ impl Bits256 {
     }
 
     pub fn and(&mut self, at: Index256, rhs: bool) {
-        self.op_at_with(at, rhs, |bits64, rhs| *bits64 &= rhs)
+        self.op_at_with(at, !rhs, |bits64, rhs| *bits64 &= !rhs)
     }
 
     pub fn or(&mut self, at: Index256, rhs: bool) {
@@ -106,5 +102,90 @@ impl PullAt for Bits256 {
 impl PushAt for Bits256 {
     fn push_at(&self, at: Key) {
         crate::env::set_contract_storage(at, self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Bits256;
+
+    #[test]
+    fn default_works() {
+        assert_eq!(
+            Bits256::default(),
+            Bits256 {
+                bits: [0x00, 0x00, 0x00, 0x00],
+            }
+        );
+    }
+
+    fn populated_bits256() -> Bits256 {
+        let mut bits256 = Bits256::default();
+        for i in 0..256 {
+            let i = i as u8;
+            bits256.set_to(i, (i % 5) == 0 || (i % 13) == 0);
+        }
+        bits256
+    }
+
+    #[test]
+    fn get_works() {
+        let bits256 = populated_bits256();
+        for i in 0..256 {
+            let i = i as u8;
+            assert_eq!(bits256.get(i), (i % 5) == 0 || (i % 13) == 0);
+        }
+    }
+
+    #[test]
+    fn set_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..256 {
+            let i = i as u8;
+            bits256.set(i);
+            assert_eq!(bits256.get(i), true);
+        }
+    }
+
+    #[test]
+    fn reset_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..256 {
+            let i = i as u8;
+            bits256.reset(i);
+            assert_eq!(bits256.get(i), false);
+        }
+    }
+
+    #[test]
+    fn and_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..256 {
+            let i = i as u8;
+            bits256.and(i, i % 2 == 0);
+            assert_eq!(bits256.get(i), (i % 2) == 0 && ((i % 5) == 0 || (i % 13) == 0));
+        }
+    }
+
+    #[test]
+    fn or_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..256 {
+            let i = i as u8;
+            bits256.or(i, i % 2 == 0);
+            assert_eq!(bits256.get(i), (i % 2) == 0 || (i % 5) == 0 || (i % 13) == 0);
+        }
+    }
+
+    #[test]
+    fn xor_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..256 {
+            let i = i as u8;
+            bits256.xor(i, i % 2 == 0);
+            let a = (i % 2) == 0;
+            let b = (i % 5) == 0 || (i % 13) == 0;
+            assert_eq!(bits256.get(i), a != b);
+        }
     }
 }
