@@ -106,7 +106,7 @@ impl Bitvec {
     /// Returns the immutable access pair to the underlying 256-bits pack and bit.
     ///
     /// Returns `None` if the given index is out of bounds.
-    fn get_bits256(&self, at: Index) -> Option<(&Bits256, Index64)> {
+    fn get_bits256(&self, at: Index) -> Option<(&Bits256, Index256)> {
         let (index, pos256) = self.split_index(at)?;
         let bits256 = self
             .bits
@@ -119,7 +119,7 @@ impl Bitvec {
     /// Returns the mutable access pair to the underlying 256-bits pack and bit.
     ///
     /// Returns `None` if the given index is out of bounds.
-    fn get_bits256_mut(&mut self, at: Index) -> Option<(&mut Bits256, Index64)> {
+    fn get_bits256_mut(&mut self, at: Index) -> Option<(&mut Bits256, Index256)> {
         let (index, pos256) = self.split_index(at)?;
         let bits256 = self
             .bits
