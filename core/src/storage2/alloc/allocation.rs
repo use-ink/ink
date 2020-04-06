@@ -33,7 +33,7 @@ use ink_primitives::Key;
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, scale::Encode, scale::Decode,
 )]
-pub struct DynamicAllocation(u32);
+pub struct DynamicAllocation(pub(super) u32);
 
 impl DynamicAllocation {
     /// Returns the allocation identifier as `u32`.

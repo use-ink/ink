@@ -79,7 +79,59 @@ impl DynamicAllocator {
     ///
     /// If the dynamic allocator ran out of free dynamic allocations.
     pub fn alloc(&mut self) -> DynamicAllocation {
-        todo!()
+        let mut bits256_index: Option<u32> = None;
+        let mut bits32_index: Option<u8> = None;
+        // Iterate over the `counts` list of a dynamic allocator.
+        // The counts list consists of packs of 32 counts per element.
+        'outer: for (n, counts) in
+            self.counts.iter_mut().map(Pack::as_inner_mut).enumerate()
+        {
+            // Iterate over the 32 `u8` within a single `CountFree` instance.
+            for (i, count) in counts.iter_mut().enumerate() {
+                if *count != 0xFF {
+                    bits256_index = Some(n as u32);
+                    bits32_index = Some(i as u8);
+                    *count += 1;
+                    break 'outer
+                }
+            }
+        }
+        if let (Some(bits256_index), Some(bits32_index)) = (bits256_index, bits32_index) {
+            // At this point we know where we can find the next free slot in the
+            // free list. We simply have to flag it there and return the value.
+            // No need to update the set-bit counts list since that has already
+            // happen at this point.
+            let mut bits256 = self
+                .free
+                .get_mut(bits256_index)
+                .expect("must exist if indices have been found");
+            debug_assert!(!bits256.get());
+            bits256.set();
+            // TODO: We need to add an API to query 256-bit packages in order.
+            todo!()
+            // DynamicAllocation(bits256_index * 256 + bits32_index)
+        } else {
+            // We found no free dynamic storage slot:
+            // Check if we already have allocated too many (2^32) dynamic
+            // storage allocations and panic if that's the case.
+            // Otherwise allocate a new pack of 256-bits in the free list
+            // and mirror it in the counts list.
+            let old_capacity = self.free.capacity();
+            self.free.push(true);
+            let new_capacity = self.free.capacity();
+            if new_capacity > old_capacity {
+                // A new 256-bit chunk has been allocated and there might be the
+                // need to push another set-bit counts chunk as well:
+                let q32x256 = 8192;
+                if new_capacity / q32x256 > old_capacity / q32x256 {
+                    let mut counter = CountFree::default();
+                    counter[0_u8] = 1;
+                    self.counts.push(Pack::from(counter));
+                }
+            }
+            // Return the new slot.
+            DynamicAllocation(self.free.len() - 1)
+        }
     }
 
     /// Frees the given dynamic storage allocation.
@@ -102,6 +154,8 @@ impl DynamicAllocator {
         assert!(access.get());
         // Set to `0` (false) which means that this slot is available again.
         access.reset();
+        // TODO: Update the counts list.
+        todo!()
     }
 }
 
@@ -109,6 +163,42 @@ impl DynamicAllocator {
 #[derive(Debug, scale::Encode, scale::Decode)]
 struct CountFree {
     counts: [u8; 32],
+}
+
+impl Default for CountFree {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl CountFree {
+    /// Returns an iterator yielding shared references to the set-bit counts.
+    pub fn iter(&self) -> core::slice::Iter<u8> {
+        self.counts.iter()
+    }
+
+    /// Returns an iterator yielding exclusive references to the set-bit counts.
+    pub fn iter_mut(&mut self) -> core::slice::IterMut<u8> {
+        self.counts.iter_mut()
+    }
+}
+
+impl<'a> IntoIterator for &'a CountFree {
+    type Item = &'a u8;
+    type IntoIter = core::slice::Iter<'a, u8>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a mut CountFree {
+    type Item = &'a mut u8;
+    type IntoIter = core::slice::IterMut<'a, u8>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
+    }
 }
 
 impl PullAt for CountFree {
@@ -122,6 +212,20 @@ impl PullAt for CountFree {
 impl PushAt for CountFree {
     fn push_at(&self, at: Key) {
         PushAt::push_at(&self.counts, at);
+    }
+}
+
+impl ::core::ops::Index<u8> for CountFree {
+    type Output = u8;
+
+    fn index(&self, index: u8) -> &Self::Output {
+        &self.counts[index as usize]
+    }
+}
+
+impl ::core::ops::IndexMut<u8> for CountFree {
+    fn index_mut(&mut self, index: u8) -> &mut Self::Output {
+        &mut self.counts[index as usize]
     }
 }
 
