@@ -14,6 +14,7 @@
 
 //! Core abstractions for storage manipulation. (revision 2)
 
+pub mod alloc;
 pub mod collections;
 pub mod lazy;
 mod pack;
