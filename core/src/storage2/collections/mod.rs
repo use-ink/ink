@@ -16,11 +16,12 @@ pub mod bitvec;
 pub mod boxed;
 pub mod hashmap;
 pub mod smallvec;
-pub mod vec;
 pub mod stash;
+pub mod vec;
 
 #[doc(inline)]
 pub use self::{
+    bitvec::Bitvec,
     boxed::Box,
     hashmap::HashMap,
     smallvec::SmallVec,
