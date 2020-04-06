@@ -22,17 +22,18 @@ use crate::{
         HashBuilder,
     },
     storage2::{
+        ClearAt,
+        ClearForward,
         KeyPtr,
         PullAt,
         PullForward,
         PushAt,
         PushForward,
         StorageFootprint,
-        ClearForward,
-        ClearAt,
     },
 };
 use core::{
+    borrow::Borrow,
     cell::{
         RefCell,
         UnsafeCell,
@@ -49,7 +50,6 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_primitives::Key;
-use core::borrow::Borrow;
 
 /// The map for the contract storage entries.
 ///

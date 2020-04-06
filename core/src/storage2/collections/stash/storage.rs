@@ -19,17 +19,15 @@ use super::{
     Header,
     Stash as StorageStash,
 };
-use crate::{
-    storage2::{
-        lazy::LazyIndexMap,
-        ClearForward,
-        KeyPtr,
-        PullAt,
-        PullForward,
-        PushAt,
-        PushForward,
-        StorageFootprint,
-    },
+use crate::storage2::{
+    lazy::LazyIndexMap,
+    ClearForward,
+    KeyPtr,
+    PullAt,
+    PullForward,
+    PushAt,
+    PushForward,
+    StorageFootprint,
 };
 use ink_primitives::Key;
 

@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use crate::storage2::{
+    ClearForward,
     KeyPtr,
     PushForward,
-    ClearForward,
     StorageFootprint,
 };
 use core::cell::Cell;

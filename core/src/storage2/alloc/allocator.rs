@@ -128,9 +128,7 @@ impl PushAt for CountFree {
 impl CountFree {
     /// Creates a new 32-entity set bit counter initialized with zeros.
     pub fn new() -> Self {
-        Self {
-            counts: [0x00; 32],
-        }
+        Self { counts: [0x00; 32] }
     }
 
     /// Returns the number of set bits for the given index.

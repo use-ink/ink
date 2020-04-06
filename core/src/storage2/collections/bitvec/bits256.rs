@@ -163,7 +163,10 @@ mod tests {
         for i in 0..256 {
             let i = i as u8;
             bits256.and(i, i % 2 == 0);
-            assert_eq!(bits256.get(i), (i % 2) == 0 && ((i % 5) == 0 || (i % 13) == 0));
+            assert_eq!(
+                bits256.get(i),
+                (i % 2) == 0 && ((i % 5) == 0 || (i % 13) == 0)
+            );
         }
     }
 
@@ -173,7 +176,10 @@ mod tests {
         for i in 0..256 {
             let i = i as u8;
             bits256.or(i, i % 2 == 0);
-            assert_eq!(bits256.get(i), (i % 2) == 0 || (i % 5) == 0 || (i % 13) == 0);
+            assert_eq!(
+                bits256.get(i),
+                (i % 2) == 0 || (i % 5) == 0 || (i % 13) == 0
+            );
         }
     }
 

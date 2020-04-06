@@ -140,8 +140,7 @@ impl Bitvec {
 
     /// Returns the value of the bit at the given index if any.
     pub fn get(&self, at: Index) -> Option<bool> {
-        self
-            .get_bits256(at)
+        self.get_bits256(at)
             .map(|(bits256, pos256)| bits256.get(pos256))
     }
 

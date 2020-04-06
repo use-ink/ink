@@ -141,10 +141,7 @@ fn create_vacant_stash() -> StorageStash<u8> {
 /// Create a stash where every second entry is vacant.
 fn create_holey_stash() -> StorageStash<u8> {
     let elements = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    let mut stash = elements
-        .iter()
-        .copied()
-        .collect::<StorageStash<_>>();
+    let mut stash = elements.iter().copied().collect::<StorageStash<_>>();
     for i in 0..stash.len() {
         stash.take(i * 2);
     }
@@ -208,7 +205,6 @@ fn iter_rev_over_holey_works() {
     assert_eq!(iter.next(), Some(&mut b'B'));
     assert_eq!(iter.next(), None);
 }
-
 
 #[test]
 fn iter_rev_works() {

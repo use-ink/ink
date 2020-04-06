@@ -17,12 +17,10 @@ use super::Entry;
 use super::Stash;
 #[cfg(test)]
 use crate::storage2::Pack;
-use crate::{
-    storage2::{
-        collections::extend_lifetime,
-        PullForward,
-        StorageFootprint,
-    },
+use crate::storage2::{
+    collections::extend_lifetime,
+    PullForward,
+    StorageFootprint,
 };
 
 /// An iterator over shared references to the elements of a storage stash.

@@ -19,11 +19,9 @@ use super::{
     IterMut,
     Stash as StorageStash,
 };
-use crate::{
-    storage2::{
-        PullForward,
-        StorageFootprint,
-    },
+use crate::storage2::{
+    PullForward,
+    StorageFootprint,
 };
 use core::iter::{
     Extend,

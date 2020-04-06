@@ -13,13 +13,11 @@
 // limitations under the License.
 
 use super::Box as StorageBox;
-use crate::{
-    storage2::{
-        ClearForward,
-        KeyPtr,
-        PullForward,
-        StorageFootprint,
-    },
+use crate::storage2::{
+    ClearForward,
+    KeyPtr,
+    PullForward,
+    StorageFootprint,
 };
 
 impl<T> Drop for StorageBox<T>
@@ -77,10 +75,7 @@ where
 
 impl<T> core::fmt::Display for StorageBox<T>
 where
-    T: core::fmt::Display
-        + ClearForward
-        + StorageFootprint
-        + PullForward
+    T: core::fmt::Display + ClearForward + StorageFootprint + PullForward,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         core::fmt::Display::fmt(self.get(), f)
@@ -89,10 +84,7 @@ where
 
 impl<T> core::hash::Hash for StorageBox<T>
 where
-    T: core::hash::Hash
-        + ClearForward
-        + StorageFootprint
-        + PullForward
+    T: core::hash::Hash + ClearForward + StorageFootprint + PullForward,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.get().hash(state);
