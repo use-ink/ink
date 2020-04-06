@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["ink_core"] = [{"text":"impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/std/io/trait.Write.html\" title=\"trait std::io::Write\">Write</a> for <a class=\"struct\" href=\"ink_core/hash/struct.Wrap.html\" title=\"struct ink_core::hash::Wrap\">Wrap</a>&lt;'a&gt;","synthetic":false,"types":["ink_core::hash::accumulator::Wrap"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -300,6 +300,8 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -327,6 +329,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This means that a hash builder with this type as accumulator cannot</span>
 <span class="doccomment">/// build hashes for instances based on their SCALE encoding.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">NoAccumulator</span> {}
 
 <span class="doccomment">/// Generic hash builder to construct hashes given a builder strategy.</span>
@@ -345,6 +348,7 @@
 <span class="doccomment">/// - [`Keccak256`](`crate::hash::Keccak256`)</span>
 <span class="doccomment">/// - [`Blake2x256`](`crate::hash::Blake2x256`)</span>
 <span class="doccomment">/// - [`Blake2x128`](`crate::hash::Blake2x128`)</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashBuilder</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span> <span class="op">=</span> <span class="ident">NoAccumulator</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The strategy used to build up the hash.</span>
     <span class="ident">strategy</span>: <span class="ident">S</span>,
