@@ -30,7 +30,7 @@ use crate::{
 use ink_primitives::Key;
 
 /// An iterator over shared references to the elements of a storage hash map.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, K, V, H> {
     /// The iterator over the map's keys.
     keys_iter: StashIter<'a, K>,
@@ -115,6 +115,7 @@ where
 }
 
 /// An iterator over shared references to the elements of a storage hash map.
+#[derive(Debug)]
 pub struct IterMut<'a, K, V, H> {
     /// The iterator over the map's keys.
     keys_iter: StashIter<'a, K>,
@@ -201,6 +202,7 @@ where
 }
 
 /// An iterator over shared references to the values of a storage hash map.
+#[derive(Debug, Copy, Clone)]
 pub struct Values<'a, K, V, H> {
     /// The key/values pair iterator.
     iter: Iter<'a, K, V, H>,
@@ -259,6 +261,7 @@ where
 }
 
 /// An iterator over exclusive references to the values of a storage hash map.
+#[derive(Debug)]
 pub struct ValuesMut<'a, K, V, H> {
     /// The key/values pair iterator.
     iter: IterMut<'a, K, V, H>,
@@ -317,6 +320,7 @@ where
 }
 
 /// An iterator over references to the keys of a storage hash map.
+#[derive(Debug, Copy, Clone)]
 pub struct Keys<'a, K> {
     /// The key iterator.
     iter: StashIter<'a, K>,

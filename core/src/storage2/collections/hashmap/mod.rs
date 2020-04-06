@@ -48,6 +48,7 @@ use ink_primitives::Key;
 /// Used for key indices internal to the hashmap.
 type KeyIndex = u32;
 
+#[derive(Debug)]
 pub struct HashMap<K, V, H = Blake2x256Hasher>
 where
     H: Hasher,

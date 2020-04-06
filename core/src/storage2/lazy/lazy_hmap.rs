@@ -71,6 +71,7 @@ pub type EntryMap<K, V> = BTreeMap<K, Box<Entry<V>>>;
 /// This storage data structure might store its entires anywhere in the contract
 /// storage. It is the users responsibility to keep track of the entries if it
 /// is necessary to do so.
+#[derive(Debug)]
 pub struct LazyHashMap<K, V, H> {
     /// The offset key for the storage mapping.
     ///
