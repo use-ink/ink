@@ -47,17 +47,21 @@ macro_rules! impl_hasher_for {
 }
 impl_hasher_for! {
     /// SHA2 256-bit hasher.
+    #[derive(Debug)]
     struct Sha2x256Hasher(sha2_256, 32);
 }
 impl_hasher_for! {
     /// KECCAK 256-bit hasher.
+    #[derive(Debug)]
     struct Keccak256Hasher(keccak_256, 32);
 }
 impl_hasher_for! {
     /// BLAKE2 256-bit hasher.
+    #[derive(Debug)]
     struct Blake2x256Hasher(blake2_256, 32);
 }
 impl_hasher_for! {
     /// BLAKE2 128-bit hasher.
+    #[derive(Debug)]
     struct Blake2x128Hasher(blake2_128, 16);
 }

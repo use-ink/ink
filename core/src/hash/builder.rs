@@ -24,6 +24,7 @@ use core::marker::PhantomData;
 ///
 /// This means that a hash builder with this type as accumulator cannot
 /// build hashes for instances based on their SCALE encoding.
+#[derive(Debug)]
 pub enum NoAccumulator {}
 
 /// Generic hash builder to construct hashes given a builder strategy.
@@ -42,6 +43,7 @@ pub enum NoAccumulator {}
 /// - [`Keccak256`](`crate::hash::Keccak256`)
 /// - [`Blake2x256`](`crate::hash::Blake2x256`)
 /// - [`Blake2x128`](`crate::hash::Blake2x128`)
+#[derive(Debug)]
 pub struct HashBuilder<H, S = NoAccumulator> {
     /// The strategy used to build up the hash.
     strategy: S,
