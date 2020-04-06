@@ -17,10 +17,14 @@ use crate::storage2::{
     collections::Bitvec as StorageBitvec,
     KeyPtr,
     Pack,
+    PullAt,
     PullForward,
+    PushAt,
+    PushForward,
     StorageFootprint,
     Vec as StorageVec,
 };
+use ink_primitives::Key;
 
 /// An index into the dynamic allocator's free list.
 type Index = u32;
@@ -29,7 +33,7 @@ type Index = u32;
 type Index32 = u8;
 
 pub struct DynamicAllocator {
-    /// Counter for set bits in a 256-bit chunk in `free`.
+    /// Counter for set bits in a 256-bit chunk of the `free` list.
     ///
     /// For every 256-bit chunk stored in `free` stores a `u8` that counts
     /// the number of set bits in the 256-bit chunk. This information is used
@@ -55,6 +59,13 @@ impl PullForward for DynamicAllocator {
             set_bits: PullForward::pull_forward(ptr),
             free: PullForward::pull_forward(ptr),
         }
+    }
+}
+
+impl PushForward for DynamicAllocator {
+    fn push_forward(&self, ptr: &mut KeyPtr) {
+        PushForward::push_forward(&self.set_bits, ptr);
+        PushForward::push_forward(&self.free, ptr);
     }
 }
 
@@ -95,6 +106,20 @@ impl DynamicAllocator {
 #[derive(Debug, scale::Encode, scale::Decode)]
 struct SetBits32 {
     set_bits: [u8; 32],
+}
+
+impl PullAt for SetBits32 {
+    fn pull_at(at: Key) -> Self {
+        Self {
+            set_bits: <[u8; 32] as PullAt>::pull_at(at),
+        }
+    }
+}
+
+impl PushAt for SetBits32 {
+    fn push_at(&self, at: Key) {
+        PushAt::push_at(&self.set_bits, at);
+    }
 }
 
 impl SetBits32 {
