@@ -28,10 +28,10 @@ use crate::{
         Hasher,
     },
     storage2::{
+        collections::Stash,
         lazy::LazyHashMap,
         Pack,
         PullForward,
-        collections::Stash,
         StorageFootprint,
     },
 };
@@ -308,7 +308,15 @@ where
     /// This operation might be expensive, especially for big `max_iteration`
     /// parameters. The `max_iterations` parameter can be used to limit the
     /// expensiveness for this operation and instead free up storage incrementally.
-    pub fn defrag(&mut self, _max_iterations: Option<u32>) {
-        todo!()
+    pub fn defrag(&mut self, max_iterations: Option<u32>) {
+        let len_vacant = self.keys.capacity() - self.keys.len();
+        let max_iterations = max_iterations.unwrap_or(len_vacant);
+        let values = &mut self.values;
+        let callback = |old_index, new_index, key: &K| {
+            let value_entry = values.get_mut(key).expect("key must be valid");
+            debug_assert_eq!(value_entry.key_index, old_index);
+            value_entry.key_index = new_index;
+        };
+        self.keys.defrag(Some(max_iterations), callback);
     }
 }
