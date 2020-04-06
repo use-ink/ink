@@ -46,20 +46,20 @@ pub struct DynamicAllocator {
     /// In theory it is possible to search up to 8192 storage cells for free
     /// slots with a single contract storage look-up. By iterating over the 32
     /// `SetBits32` instances of a single instance.
-    set_bits: StorageVec<Pack<SetBits32>>,
+    counts: StorageVec<Pack<CountFree>>,
     /// Stores a bit for every allocated or free storage cell.
     free: StorageBitvec,
 }
 
 impl StorageFootprint for DynamicAllocator {
-    const VALUE: u64 = <StorageVec<Pack<SetBits32>> as StorageFootprint>::VALUE
+    const VALUE: u64 = <StorageVec<Pack<CountFree>> as StorageFootprint>::VALUE
         + <StorageBitvec as StorageFootprint>::VALUE;
 }
 
 impl PullForward for DynamicAllocator {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
-            set_bits: PullForward::pull_forward(ptr),
+            counts: PullForward::pull_forward(ptr),
             free: PullForward::pull_forward(ptr),
         }
     }
@@ -67,7 +67,7 @@ impl PullForward for DynamicAllocator {
 
 impl PushForward for DynamicAllocator {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        PushForward::push_forward(&self.set_bits, ptr);
+        PushForward::push_forward(&self.counts, ptr);
         PushForward::push_forward(&self.free, ptr);
     }
 }
@@ -107,29 +107,29 @@ impl DynamicAllocator {
 
 /// Stores the number of set bits for each 256-bits block in a compact `u8`.
 #[derive(Debug, scale::Encode, scale::Decode)]
-struct SetBits32 {
-    set_bits: [u8; 32],
+struct CountFree {
+    counts: [u8; 32],
 }
 
-impl PullAt for SetBits32 {
+impl PullAt for CountFree {
     fn pull_at(at: Key) -> Self {
         Self {
-            set_bits: <[u8; 32] as PullAt>::pull_at(at),
+            counts: <[u8; 32] as PullAt>::pull_at(at),
         }
     }
 }
 
-impl PushAt for SetBits32 {
+impl PushAt for CountFree {
     fn push_at(&self, at: Key) {
-        PushAt::push_at(&self.set_bits, at);
+        PushAt::push_at(&self.counts, at);
     }
 }
 
-impl SetBits32 {
+impl CountFree {
     /// Creates a new 32-entity set bit counter initialized with zeros.
     pub fn new() -> Self {
         Self {
-            set_bits: [0x00; 32],
+            counts: [0x00; 32],
         }
     }
 
@@ -140,7 +140,7 @@ impl SetBits32 {
     /// - If the given index is out of bounds.
     pub fn get(&self, index: Index32) -> u8 {
         assert!(index < 32, "index is out of bounds");
-        self.set_bits[index as usize]
+        self.counts[index as usize]
     }
 
     /// Increases the number of set bits for the given index.
@@ -153,10 +153,10 @@ impl SetBits32 {
     /// - If the increment would cause an overflow.
     pub fn inc(&mut self, index: Index32) -> u8 {
         assert!(index < 32, "index is out of bounds");
-        let new_value = self.set_bits[index as usize]
+        let new_value = self.counts[index as usize]
             .checked_add(1)
             .expect("set bits increment overflowed");
-        self.set_bits[index as usize] = new_value;
+        self.counts[index as usize] = new_value;
         new_value
     }
 
@@ -170,10 +170,10 @@ impl SetBits32 {
     /// - If the increment would cause an overflow.
     pub fn dec(&mut self, index: Index32) -> u8 {
         assert!(index < 32, "index is out of bounds");
-        let new_value = self.set_bits[index as usize]
+        let new_value = self.counts[index as usize]
             .checked_add(1)
             .expect("set bits decrement overflowed");
-        self.set_bits[index as usize] = new_value;
+        self.counts[index as usize] = new_value;
         new_value
     }
 }
