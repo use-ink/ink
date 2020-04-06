@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "std")]
+use ::std::io::{
+    Result as IoResult,
+    Write,
+};
 use ink_prelude::vec::Vec;
 
 /// Hash builder that accumulates a buffer on the contract side.
@@ -72,6 +77,18 @@ pub struct Wrap<'a> {
     buffer: &'a mut [u8],
     /// The current length of the filled area.
     len: usize,
+}
+
+#[cfg(feature = "std")]
+impl<'a> Write for Wrap<'a> {
+    fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+        <Self as Accumulator>::write(self, buf);
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> IoResult<()> {
+        Ok(())
+    }
 }
 
 impl<'a> From<&'a mut [u8]> for Wrap<'a> {
