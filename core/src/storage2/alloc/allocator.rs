@@ -32,6 +32,9 @@ type Index = u32;
 /// An index into one of the 32 `SetBit32` entries.
 type Index32 = u8;
 
+/// The dynamic allocator.
+///
+/// Manages dynamic storage allocations in a very efficient and economic way.
 pub struct DynamicAllocator {
     /// Counter for set bits in a 256-bit chunk of the `free` list.
     ///
