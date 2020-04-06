@@ -141,6 +141,16 @@ impl<T> Stash<T> {
         self.len() == 0
     }
 
+    /// Returns the number of entries the stash can hold without
+    /// allocating another storage cell.
+    ///
+    /// # Note
+    ///
+    /// This is the total number of occupied and vacant entries of the stash.
+    pub fn capacity(&self) -> u32 {
+        self.len_entries()
+    }
+
     /// Returns the number of entries currently managed by the storage stash.
     fn len_entries(&self) -> u32 {
         self.header.len_entries
