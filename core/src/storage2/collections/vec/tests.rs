@@ -137,18 +137,15 @@ fn get_works() {
 fn iter_next_works() {
     let elems = [b'a', b'b', b'c', b'd'];
     let vec = vec_from_slice(&elems);
+    // Test iterator over `&T`:
     let mut iter = vec.iter();
     assert_eq!(iter.next(), Some(&b'a'));
     assert_eq!(iter.next(), Some(&b'b'));
     assert_eq!(iter.next(), Some(&b'c'));
     assert_eq!(iter.next(), Some(&b'd'));
     assert_eq!(iter.next(), None);
-}
-
-#[test]
-fn iter_mut_next_works() {
-    let elems = [b'a', b'b', b'c', b'd'];
-    let mut vec = vec_from_slice(&elems);
+    // Test iterator over `&mut T`:
+    let mut vec = vec;
     let mut iter = vec.iter_mut();
     assert_eq!(iter.next(), Some(&mut b'a'));
     assert_eq!(iter.next(), Some(&mut b'b'));
@@ -158,27 +155,58 @@ fn iter_mut_next_works() {
 }
 
 #[test]
+fn iter_nth_works() {
+    let elems = [b'a', b'b', b'c', b'd'];
+    let vec = vec_from_slice(&elems);
+    // Test iterator over `&T`:
+    let mut iter = vec.iter();
+    assert_eq!(iter.nth(1), Some(&b'b'));
+    assert_eq!(iter.nth(1), Some(&b'd'));
+    assert_eq!(iter.nth(1), None);
+    // Test iterator over `&mut T`:
+    let mut vec = vec;
+    let mut iter = vec.iter_mut();
+    assert_eq!(iter.nth(1), Some(&mut b'b'));
+    assert_eq!(iter.nth(1), Some(&mut b'd'));
+    assert_eq!(iter.nth(1), None);
+}
+
+#[test]
 fn iter_next_back_works() {
     let elems = [b'a', b'b', b'c', b'd'];
     let vec = vec_from_slice(&elems);
+    // Test iterator over `&T`:
     let mut iter = vec.iter().rev();
     assert_eq!(iter.next(), Some(&b'd'));
     assert_eq!(iter.next(), Some(&b'c'));
     assert_eq!(iter.next(), Some(&b'b'));
     assert_eq!(iter.next(), Some(&b'a'));
     assert_eq!(iter.next(), None);
-}
-
-#[test]
-fn iter_mut_next_back_works() {
-    let elems = [b'a', b'b', b'c', b'd'];
-    let mut vec = vec_from_slice(&elems);
+    // Test iterator over `&mut T`:
+    let mut vec = vec;
     let mut iter = vec.iter_mut().rev();
     assert_eq!(iter.next(), Some(&mut b'd'));
     assert_eq!(iter.next(), Some(&mut b'c'));
     assert_eq!(iter.next(), Some(&mut b'b'));
     assert_eq!(iter.next(), Some(&mut b'a'));
     assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn iter_nth_back_works() {
+    let elems = [b'a', b'b', b'c', b'd'];
+    let vec = vec_from_slice(&elems);
+    // Test iterator over `&T`:
+    let mut iter = vec.iter().rev();
+    assert_eq!(iter.nth(1), Some(&b'c'));
+    assert_eq!(iter.nth(1), Some(&b'a'));
+    assert_eq!(iter.nth(1), None);
+    // Test iterator over `&mut T`:
+    let mut vec = vec;
+    let mut iter = vec.iter_mut().rev();
+    assert_eq!(iter.nth(1), Some(&mut b'c'));
+    assert_eq!(iter.nth(1), Some(&mut b'a'));
+    assert_eq!(iter.nth(1), None);
 }
 
 /// Asserts that the the given ordered storage vector elements are equal to the
