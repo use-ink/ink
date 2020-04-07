@@ -41,6 +41,11 @@ impl<'a, T> Iter<'a, T> {
             end: vec.len(),
         }
     }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.end - self.begin
+    }
 }
 
 impl<'a, T> Iterator for Iter<'a, T>
@@ -54,8 +59,12 @@ where
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.end - self.begin) as usize;
+        let remaining = self.remaining() as usize;
         (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
     }
 
     fn nth(&mut self, n: usize) -> Option<Self::Item> {
@@ -115,6 +124,11 @@ impl<'a, T> IterMut<'a, T> {
             end: len,
         }
     }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.end - self.begin
+    }
 }
 
 impl<'a, T> IterMut<'a, T>
@@ -146,8 +160,12 @@ where
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.end - self.begin) as usize;
+        let remaining = self.remaining() as usize;
         (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
     }
 
     fn nth(&mut self, n: usize) -> Option<Self::Item> {
