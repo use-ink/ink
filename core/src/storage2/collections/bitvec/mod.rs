@@ -25,10 +25,12 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
-use self::bits256::Bits256;
 pub use self::{
-    access::{BitAccess, Bits256Access},
-    iter::Bits,
+    access::{
+        BitAccess,
+        Bits256Access,
+    },
+    bits256::Bits256,
 };
 use crate::storage2::{
     Lazy,
