@@ -99,6 +99,18 @@ impl Bits256 {
     pub fn xor(&mut self, at: Index256, rhs: bool) {
         self.op_at_with(at, rhs, |bits64, rhs| *bits64 ^= rhs)
     }
+
+    /// Returns the position of the first zero bit if any.
+    pub fn position_first_zero(&self) -> Option<u8> {
+        let mut offset = 0;
+        for bits64 in &self.bits {
+            if *bits64 != 0xFF {
+                return Some(offset + (!bits64).leading_zeros() as u8)
+            }
+            offset += 64;
+        }
+        None
+    }
 }
 
 impl PullAt for Bits256 {
