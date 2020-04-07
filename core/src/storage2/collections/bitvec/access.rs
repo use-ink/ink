@@ -77,3 +77,69 @@ impl<'a> BitAccess<'a> {
         self.bits.or(self.at, rhs)
     }
 }
+
+/// A mutable chunk of up to 256 bits.
+///
+/// # Note
+///
+/// - Allows to inspect and manipulate bits in the 256-bit chunk on a bitwise and
+///   on chunk level.
+/// - Assures that accesses to the underlying bits are valid for the storage
+///   bit vector in which they are stored.
+#[derive(Debug)]
+pub struct Bits256Access<'a> {
+    /// The queried pack of 256 bits.
+    chunk: &'a mut Bits256,
+    /// The length of the chunk.
+    ///
+    /// This is the number of valid bits in the chunk of 256 bits.
+    /// The valid bits are consecutive and always start from index 0.
+    len: u32,
+}
+
+impl<'a> Bits256Access<'a> {
+    /// Creates a new 256-bit chunk access with the given length.
+    pub fn new(chunk: &'a mut Bits256, len: u32) -> Self {
+        Self { chunk, len }
+    }
+
+    /// Returns the length of the 256-bit chunk.
+    ///
+    /// # Note
+    ///
+    /// This is the number of valid bits in the chunk of 256 bits.
+    /// The valid bits are consecutive and always start from index 0.
+    pub fn len(&self) -> u32 {
+        self.len
+    }
+
+    /// Returns the value of the indexed bit.
+    ///
+    /// # Note
+    ///
+    /// - If 0: returns `false`
+    /// - If 1: returns `true`
+    pub fn get(&self, index: u8) -> Option<bool> {
+        if index as u32 >= self.len {
+            return None
+        }
+        self.chunk.get(index).into()
+    }
+
+    /// Returns mutable access to a single bit if the index is within bounds.
+    pub fn get_mut(&mut self, index: u8) -> Option<BitAccess> {
+        if index as u32 >= self.len {
+            return None
+        }
+        BitAccess::new(self.chunk, index).into()
+    }
+
+    /// Returns the position of the first valid zero bit if any.
+    pub fn position_first_zero(&self) -> Option<u8> {
+        let position = self.chunk.position_first_zero()?;
+        if position as u32 >= self.len() {
+            return None
+        }
+        Some(position)
+    }
+}

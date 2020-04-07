@@ -27,7 +27,7 @@ mod tests;
 
 use self::bits256::Bits256;
 pub use self::{
-    access::BitAccess,
+    access::{BitAccess, Bits256Access},
     iter::Bits,
 };
 use crate::storage2::{
