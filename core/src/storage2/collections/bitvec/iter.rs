@@ -20,6 +20,7 @@ use crate::storage2::Pack;
 use core::cmp::min;
 
 /// Iterator over the bits of a storage bit vector.
+#[derive(Debug, Copy, Clone)]
 pub struct Bits<'a> {
     /// The storage bit vector that it being iterated over.
     bitvec: &'a StorageBitvec,
