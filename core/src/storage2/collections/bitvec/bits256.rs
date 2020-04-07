@@ -54,7 +54,7 @@ impl Bits256 {
     }
 
     /// Sets the bit value for the bit at the given index to the given value.
-    pub fn set_to(&mut self, at: Index256, new_value: bool) {
+    pub(super) fn set_to(&mut self, at: Index256, new_value: bool) {
         if new_value {
             self.set(at)
         } else {
@@ -63,17 +63,17 @@ impl Bits256 {
     }
 
     /// Flips the bit value for the bit at the given index.
-    pub fn flip(&mut self, at: Index256) {
+    pub(super) fn flip(&mut self, at: Index256) {
         self.xor(at, true)
     }
 
     /// Sets the bit value for the bit at the given index to 1 (`true`).
-    pub fn set(&mut self, at: Index256) {
+    pub(super) fn set(&mut self, at: Index256) {
         self.or(at, true)
     }
 
     /// Sets the bit value for the bit at the given index to 0 (`false`).
-    pub fn reset(&mut self, at: Index256) {
+    pub(super) fn reset(&mut self, at: Index256) {
         self.and(at, false)
     }
 
@@ -87,17 +87,17 @@ impl Bits256 {
     }
 
     /// Computes bitwise AND for the bit at the given index and `rhs`.
-    pub fn and(&mut self, at: Index256, rhs: bool) {
+    pub(super) fn and(&mut self, at: Index256, rhs: bool) {
         self.op_at_with(at, !rhs, |bits64, rhs| *bits64 &= !rhs)
     }
 
     /// Computes bitwise OR for the bit at the given index and `rhs`.
-    pub fn or(&mut self, at: Index256, rhs: bool) {
+    pub(super) fn or(&mut self, at: Index256, rhs: bool) {
         self.op_at_with(at, rhs, |bits64, rhs| *bits64 |= rhs)
     }
 
     /// Computes bitwise XOR for the bit at the given index and `rhs`.
-    pub fn xor(&mut self, at: Index256, rhs: bool) {
+    pub(super) fn xor(&mut self, at: Index256, rhs: bool) {
         self.op_at_with(at, rhs, |bits64, rhs| *bits64 ^= rhs)
     }
 
