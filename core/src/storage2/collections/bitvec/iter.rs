@@ -14,85 +14,152 @@
 
 use super::{
     Bits256,
+    Bits256BitsIter,
     Bitvec as StorageBitvec,
 };
-use crate::storage2::Pack;
+use crate::storage2::{
+    collections::vec::{
+        Iter as StorageVecIter,
+        IterMut as StorageVecIterMut,
+    },
+    Pack,
+};
 use core::cmp::min;
 
 /// Iterator over the bits of a storage bit vector.
 #[derive(Debug, Copy, Clone)]
 pub struct BitsIter<'a> {
-    /// The storage bit vector that it being iterated over.
-    bitvec: &'a StorageBitvec,
-    /// The current 256-bit pack index.
-    bits256_id: u32,
-    /// The current 256-bit pack to yield bits.
-    bits256: Option<&'a Bits256>,
-    /// The current 256-bit pack length.
-    bits256_len: u32,
-    /// The current bit index within the current 256-bit pack.
-    bit: u32,
+    remaining: u32,
+    bits256_iter: Bits256Iter<'a>,
+    front_iter: Option<Bits256BitsIter<'a>>,
+    back_iter: Option<Bits256BitsIter<'a>>,
 }
 
 impl<'a> BitsIter<'a> {
     /// Creates a new iterator yielding the bits of the storage bit vector.
-    pub(super) fn new(bitvec: &'a StorageBitvec) -> Self {
+    pub fn new(bitvec: &'a StorageBitvec) -> Self {
         Self {
-            bitvec,
-            bits256_id: 0,
-            bits256: None,
-            bits256_len: 0,
-            bit: 0,
+            remaining: bitvec.len(),
+            bits256_iter: bitvec.iter_chunks(),
+            front_iter: None,
+            back_iter: None,
         }
     }
-
-    fn yielded(&self) -> u64 {
-        self.bit as u64 + (self.bits256_id.saturating_sub(1) as u64 * 256)
-    }
 }
+
+impl<'a> ExactSizeIterator for BitsIter<'a> {}
 
 impl<'a> Iterator for BitsIter<'a> {
     type Item = bool;
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            if self.yielded() == self.bitvec.len() as u64 {
-                return None
-            }
-            if let Some(bits256) = self.bits256 {
-                if self.bit == self.bits256_len {
-                    self.bits256 = None;
-                    continue
+            if let Some(ref mut front_iter) = self.front_iter {
+                if let front @ Some(_) = front_iter.next() {
+                    self.remaining -= 1;
+                    return front
                 }
-                let value = bits256.get(self.bit as u8);
-                self.bit += 1;
-                return Some(value)
-            } else {
-                if (self.bits256_id * 256) as u64 == self.bitvec.capacity() {
+            }
+            match self.bits256_iter.next() {
+                None => {
+                    if let Some(back) = self.back_iter.as_mut()?.next() {
+                        self.remaining -= 1;
+                        return Some(back)
+                    }
                     return None
                 }
-                self.bits256 = Some(
-                    self.bitvec
-                        .bits
-                        .get(self.bits256_id)
-                        .map(Pack::as_inner)
-                        .expect("id is within bounds"),
-                );
-                self.bits256_len = min(
-                    256,
-                    self.bitvec
-                        .capacity()
-                        .saturating_sub((self.bits256_id * 256) as u64),
-                ) as u32;
-                self.bit = 0;
-                self.bits256_id += 1;
-                continue
+                Some(bucket) => {
+                    let len = min(256, self.remaining) as u16;
+                    self.front_iter = Some(bucket.iter(len));
+                }
             }
         }
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.bitvec.len() as u64 - self.yielded()) as usize;
+        let remaining = self.remaining as usize;
         (remaining, Some(remaining))
     }
+
+    fn count(self) -> usize {
+        self.remaining as usize
+    }
 }
+
+impl<'a> DoubleEndedIterator for BitsIter<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        loop {
+            if let Some(ref mut back_iter) = self.back_iter {
+                if let back @ Some(_) = back_iter.next_back() {
+                    self.remaining -= 1;
+                    return back
+                }
+            }
+            match self.bits256_iter.next_back() {
+                None => {
+                    if let Some(front) = self.front_iter.as_mut()?.next_back() {
+                        self.remaining -= 1;
+                        return Some(front)
+                    }
+                    return None
+                }
+                Some(back) => {
+                    let mut len = min(256, self.remaining % 256) as u16;
+                    if len == 0 {
+                        len = 256;
+                    }
+                    self.back_iter = Some(back.iter(len));
+                }
+            }
+        }
+    }
+}
+
+/// Iterator over the 256-bit chunks of a storage bitvector.
+#[derive(Debug, Copy, Clone)]
+pub struct Bits256Iter<'a> {
+    /// The storage vector iterator over the internal 256-bit chunks.
+    iter: StorageVecIter<'a, Pack<Bits256>>,
+}
+
+impl<'a> Bits256Iter<'a> {
+    /// Creates a new 256-bit chunks iterator over the given storage bitvector.
+    pub(super) fn new(bitvec: &'a StorageBitvec) -> Self {
+        Self {
+            iter: bitvec.bits.iter(),
+        }
+    }
+}
+
+impl<'a> Iterator for Bits256Iter<'a> {
+    type Item = &'a Bits256;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(Pack::as_inner)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+
+    fn count(self) -> usize {
+        self.iter.count()
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        self.iter.nth(n).map(Pack::as_inner)
+    }
+}
+
+impl<'a> DoubleEndedIterator for Bits256Iter<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back().map(Pack::as_inner)
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        self.iter.nth_back(n).map(Pack::as_inner)
+    }
+}
+
+impl<'a> ExactSizeIterator for Bits256Iter<'a> {}
+

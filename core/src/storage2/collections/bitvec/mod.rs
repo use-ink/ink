@@ -30,8 +30,12 @@ pub use self::{
         BitAccess,
         Bits256Access,
     },
-    bits256::Bits256,
+    bits256::{
+        Bits256,
+        Iter as Bits256BitsIter,
+    },
     iter::{
+        Bits256Iter,
         BitsIter,
     },
 };
@@ -101,6 +105,11 @@ impl Bitvec {
     /// Returns an iterator over the bits of the storage bit vector.
     pub fn bits(&self) -> BitsIter {
         BitsIter::new(self)
+    }
+
+    /// Returns an iterator over the 256-bit chunks of the storage bit vector.
+    pub fn iter_chunks(&self) -> Bits256Iter {
+        Bits256Iter::new(self)
     }
     }
 

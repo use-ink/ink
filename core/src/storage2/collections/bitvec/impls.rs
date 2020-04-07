@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::{
-    Bits,
+    BitsIter,
     Bitvec as StorageBitvec,
 };
 use core::iter::FromIterator;
@@ -67,7 +67,7 @@ impl<'a> FromIterator<&'a bool> for StorageBitvec {
 
 impl<'a> IntoIterator for &'a StorageBitvec {
     type Item = bool;
-    type IntoIter = Bits<'a>;
+    type IntoIter = BitsIter<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.bits()
