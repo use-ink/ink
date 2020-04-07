@@ -110,9 +110,13 @@ fn iter_works() {
         .collect::<StorageStash<_>>();
     // Test iterator over shared references.
     let mut iter = stash.iter();
+    assert_eq!(iter.count(), 3);
     assert_eq!(iter.next(), Some(&b'A'));
+    assert_eq!(iter.count(), 2);
     assert_eq!(iter.next(), Some(&b'B'));
+    assert_eq!(iter.count(), 1);
     assert_eq!(iter.next(), Some(&b'C'));
+    assert_eq!(iter.count(), 0);
     assert_eq!(iter.next(), None);
     // Test iterator over exclusive references.
     let mut stash = stash;
@@ -121,6 +125,7 @@ fn iter_works() {
     assert_eq!(iter.next(), Some(&mut b'B'));
     assert_eq!(iter.next(), Some(&mut b'C'));
     assert_eq!(iter.next(), None);
+    assert_eq!(iter.count(), 0);
 }
 
 /// Create a stash that only has vacant entries.
@@ -156,6 +161,7 @@ fn iter_over_vacant_works() {
     let stash = create_vacant_stash();
     // Test iterator over shared references.
     let mut iter = stash.iter();
+    assert_eq!(iter.count(), 0);
     assert_eq!(iter.next(), None);
     // Test iterator over exclusive references.
     let mut stash = stash;
@@ -163,6 +169,7 @@ fn iter_over_vacant_works() {
     assert_eq!(iter.next(), None);
     // Test reverse iterator over shared references.
     let mut iter = stash.iter().rev();
+    assert_eq!(iter.clone().count(), 0);
     assert_eq!(iter.next(), None);
     // Test reverse iterator over exclusive references.
     let mut stash = stash;
@@ -175,9 +182,13 @@ fn iter_over_holey_works() {
     let stash = create_holey_stash();
     // Test iterator over shared references.
     let mut iter = stash.iter();
+    assert_eq!(iter.count(), 3);
     assert_eq!(iter.next(), Some(&b'B'));
+    assert_eq!(iter.count(), 2);
     assert_eq!(iter.next(), Some(&b'D'));
+    assert_eq!(iter.count(), 1);
     assert_eq!(iter.next(), Some(&b'F'));
+    assert_eq!(iter.count(), 0);
     assert_eq!(iter.next(), None);
     // Test iterator over exclusive references.
     let mut stash = stash;
@@ -186,6 +197,7 @@ fn iter_over_holey_works() {
     assert_eq!(iter.next(), Some(&mut b'D'));
     assert_eq!(iter.next(), Some(&mut b'F'));
     assert_eq!(iter.next(), None);
+    assert_eq!(iter.count(), 0);
 }
 
 #[test]
@@ -193,9 +205,13 @@ fn iter_rev_over_holey_works() {
     let stash = create_holey_stash();
     // Test iterator over shared references.
     let mut iter = stash.iter().rev();
+    assert_eq!(iter.clone().count(), 3);
     assert_eq!(iter.next(), Some(&b'F'));
+    assert_eq!(iter.clone().count(), 2);
     assert_eq!(iter.next(), Some(&b'D'));
+    assert_eq!(iter.clone().count(), 1);
     assert_eq!(iter.next(), Some(&b'B'));
+    assert_eq!(iter.clone().count(), 0);
     assert_eq!(iter.next(), None);
     // Test iterator over exclusive references.
     let mut stash = stash;
@@ -204,6 +220,7 @@ fn iter_rev_over_holey_works() {
     assert_eq!(iter.next(), Some(&mut b'D'));
     assert_eq!(iter.next(), Some(&mut b'B'));
     assert_eq!(iter.next(), None);
+    assert_eq!(iter.count(), 0);
 }
 
 #[test]

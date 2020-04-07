@@ -50,6 +50,11 @@ impl<'a, T> Iter<'a, T> {
             end: stash.len_entries(),
         }
     }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.stash.len() - self.yielded
+    }
 }
 
 impl<'a, T> Iterator for Iter<'a, T>
@@ -77,8 +82,12 @@ where
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.stash.len() - self.yielded) as usize;
+        let remaining = self.remaining() as usize;
         (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
     }
 }
 
@@ -138,6 +147,11 @@ impl<'a, T> IterMut<'a, T> {
             end: len,
         }
     }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.stash.len() - self.yielded
+    }
 }
 
 impl<'a, T> IterMut<'a, T>
@@ -183,8 +197,12 @@ where
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.stash.len() - self.yielded) as usize;
+        let remaining = self.remaining() as usize;
         (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
     }
 }
 
