@@ -38,6 +38,72 @@ impl Default for Bits256 {
     }
 }
 
+/// Iterator over the valid bits of a pack of 256 bits.
+#[derive(Debug, Copy, Clone)]
+pub struct Iter<'a> {
+    bits: &'a Bits256,
+    start: u16,
+    end: u16,
+}
+
+impl<'a> Iter<'a> {
+    pub fn new(bits256: &'a Bits256, len: u16) -> Self {
+        Self {
+            bits: bits256,
+            start: 0,
+            end: len,
+        }
+    }
+
+    fn remaining(&self) -> u16 {
+        self.end - self.start
+    }
+}
+
+impl<'a> Iterator for Iter<'a> {
+    type Item = bool;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        <Self as Iterator>::nth(self, 0)
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        assert!(n < 256);
+        let n = n as u16;
+        if self.start + n >= self.end {
+            return None
+        }
+        let start = self.start + n;
+        self.start += 1 + n;
+        Some(self.bits.get(start as u8))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining() as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
+    }
+}
+
+impl<'a> DoubleEndedIterator for Iter<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        <Self as DoubleEndedIterator>::nth_back(self, 0)
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        assert!(n < 256);
+        let n = n as u16;
+        if self.start + n >= self.end {
+            return None
+        }
+        self.end -= 1 + n;
+        Some(self.bits.get(self.end as u8))
+    }
+}
+
 impl Bits256 {
     fn bits_at(&self, index: Index256) -> (&u64, Index64) {
         (&self.bits[(index / 64) as usize], index % 64)
@@ -45,6 +111,11 @@ impl Bits256 {
 
     fn bits_at_mut(&mut self, index: Index256) -> (&mut u64, Index64) {
         (&mut self.bits[(index / 64) as usize], index % 64)
+    }
+
+    /// Yields the first `len` bits of the pack of 256 bits.
+    pub fn iter(&self, len: u16) -> Iter {
+        Iter::new(self, len)
     }
 
     /// Returns the bit value for the bit at the given index.
