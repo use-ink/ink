@@ -56,18 +56,23 @@ where
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        debug_assert!(self.begin <= self.end);
-        if self.begin == self.end {
-            return None
-        }
-        let cur = self.begin;
-        self.begin += 1;
-        self.vec.get(cur).expect("access is within bounds").into()
+        <Self as Iterator>::nth(self, 0)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         let remaining = (self.end - self.begin) as usize;
         (remaining, Some(remaining))
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin + n >= self.end {
+            return None
+        }
+        let cur = self.begin + n;
+        self.begin += 1 + n;
+        self.vec.get(cur).expect("access is within bounds").into()
     }
 }
 
@@ -84,12 +89,16 @@ where
     N: LazyArrayLength<T>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
+        <Self as DoubleEndedIterator>::nth_back(self, 0)
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
-        if self.begin == self.end {
+        let n = n as u32;
+        if self.begin >= self.end.saturating_sub(n) {
             return None
         }
-        debug_assert_ne!(self.end, 0);
-        self.end -= 1;
+        self.end -= 1 + n;
         self.vec
             .get(self.end)
             .expect("access is within bounds")
@@ -153,18 +162,23 @@ where
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        debug_assert!(self.begin <= self.end);
-        if self.begin == self.end {
-            return None
-        }
-        let cur = self.begin;
-        self.begin += 1;
-        self.get_mut(cur).expect("access is within bounds").into()
+        <Self as Iterator>::nth(self, 0)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         let remaining = (self.end - self.begin) as usize;
         (remaining, Some(remaining))
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin + n >= self.end {
+            return None
+        }
+        let cur = self.begin + n;
+        self.begin += 1 + n;
+        self.get_mut(cur).expect("access is within bounds").into()
     }
 }
 
@@ -181,12 +195,16 @@ where
     N: LazyArrayLength<T>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
+        <Self as DoubleEndedIterator>::nth_back(self, 0)
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);
-        if self.begin == self.end {
+        let n = n as u32;
+        if self.begin >= self.end.saturating_sub(n) {
             return None
         }
-        debug_assert_ne!(self.end, 0);
-        self.end -= 1;
+        self.end -= 1 + n;
         self.get_mut(self.end)
             .expect("access is within bounds")
             .into()

@@ -167,7 +167,7 @@ fn get_works() {
 }
 
 #[test]
-fn iter_works() {
+fn iter_next_works() {
     let elems = [b'A', b'B', b'C', b'D'];
     let vec = vec_from_slice(&elems);
     // Test iterator over shared references.
@@ -188,7 +188,24 @@ fn iter_works() {
 }
 
 #[test]
-fn iter_rev_works() {
+fn iter_nth_works() {
+    let elems = [b'A', b'B', b'C', b'D'];
+    let vec = vec_from_slice(&elems);
+    // Test iterator over shared references.
+    let mut iter = vec.iter();
+    assert_eq!(iter.nth(1), Some(&b'B'));
+    assert_eq!(iter.nth(1), Some(&b'D'));
+    assert_eq!(iter.nth(1), None);
+    // Test iterator over exclusive references.
+    let mut vec = vec;
+    let mut iter = vec.iter_mut();
+    assert_eq!(iter.nth(1), Some(&mut b'B'));
+    assert_eq!(iter.nth(1), Some(&mut b'D'));
+    assert_eq!(iter.nth(1), None);
+}
+
+#[test]
+fn iter_next_back_works() {
     let elems = [b'A', b'B', b'C', b'D'];
     let vec = vec_from_slice(&elems);
     // Test iterator over shared references.
@@ -206,6 +223,23 @@ fn iter_rev_works() {
     assert_eq!(iter.next(), Some(&mut b'B'));
     assert_eq!(iter.next(), Some(&mut b'A'));
     assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn iter_nth_back_works() {
+    let elems = [b'A', b'B', b'C', b'D'];
+    let vec = vec_from_slice(&elems);
+    // Test iterator over shared references.
+    let mut iter = vec.iter().rev();
+    assert_eq!(iter.nth(1), Some(&b'C'));
+    assert_eq!(iter.nth(1), Some(&b'A'));
+    assert_eq!(iter.nth(1), None);
+    // Test iterator over exclusive references.
+    let mut vec = vec;
+    let mut iter = vec.iter_mut().rev();
+    assert_eq!(iter.nth(1), Some(&mut b'C'));
+    assert_eq!(iter.nth(1), Some(&mut b'A'));
+    assert_eq!(iter.nth(1), None);
 }
 
 #[test]
