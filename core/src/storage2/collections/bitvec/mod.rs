@@ -31,6 +31,9 @@ pub use self::{
         Bits256Access,
     },
     bits256::Bits256,
+    iter::{
+        BitsIter,
+    },
 };
 use crate::storage2::{
     Lazy,
@@ -96,8 +99,9 @@ impl Bitvec {
     }
 
     /// Returns an iterator over the bits of the storage bit vector.
-    pub fn bits(&self) -> Bits {
-        Bits::new(self)
+    pub fn bits(&self) -> BitsIter {
+        BitsIter::new(self)
+    }
     }
 
     /// Splits the given index into a 256-bit pack index and bit position index.

@@ -21,7 +21,7 @@ use core::cmp::min;
 
 /// Iterator over the bits of a storage bit vector.
 #[derive(Debug, Copy, Clone)]
-pub struct Bits<'a> {
+pub struct BitsIter<'a> {
     /// The storage bit vector that it being iterated over.
     bitvec: &'a StorageBitvec,
     /// The current 256-bit pack index.
@@ -34,7 +34,7 @@ pub struct Bits<'a> {
     bit: u32,
 }
 
-impl<'a> Bits<'a> {
+impl<'a> BitsIter<'a> {
     /// Creates a new iterator yielding the bits of the storage bit vector.
     pub(super) fn new(bitvec: &'a StorageBitvec) -> Self {
         Self {
@@ -51,7 +51,7 @@ impl<'a> Bits<'a> {
     }
 }
 
-impl<'a> Iterator for Bits<'a> {
+impl<'a> Iterator for BitsIter<'a> {
     type Item = bool;
 
     fn next(&mut self) -> Option<Self::Item> {
