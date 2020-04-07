@@ -24,6 +24,7 @@ use crate::storage2::{
 };
 use ink_primitives::Key;
 
+/// A chunk of 256 bits.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
 pub struct Bits256 {
     bits: [Bits64; 4],
