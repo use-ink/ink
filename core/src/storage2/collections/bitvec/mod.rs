@@ -30,13 +30,20 @@ pub use self::{
         BitAccess,
         Bits256Access,
     },
+    bits256::Bits256,
+    iter::{
+        BitsIter,
+        BitsIterMut,
+    },
+};
+use self::{
     bits256::{
-        Bits256,
         Iter as Bits256BitsIter,
+        IterMut as Bits256BitsIterMut,
     },
     iter::{
         Bits256Iter,
-        BitsIter,
+        Bits256IterMut,
     },
 };
 use crate::storage2::{
@@ -107,10 +114,19 @@ impl Bitvec {
         BitsIter::new(self)
     }
 
+    /// Returns an iterator over the mutable bits of the storage bit vector.
+    pub fn bits_mut(&mut self) -> BitsIterMut {
+        BitsIterMut::new(self)
+    }
+
     /// Returns an iterator over the 256-bit chunks of the storage bit vector.
     pub fn iter_chunks(&self) -> Bits256Iter {
         Bits256Iter::new(self)
     }
+
+    /// Returns an iterator over the mutable 256-bit chunks of the storage bit vector.
+    pub fn iter_chunks_mut(&mut self) -> Bits256IterMut {
+        Bits256IterMut::new(self)
     }
 
     /// Splits the given index into a 256-bit pack index and bit position index.

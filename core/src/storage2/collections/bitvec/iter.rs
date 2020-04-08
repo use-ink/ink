@@ -13,8 +13,12 @@
 // limitations under the License.
 
 use super::{
+    super::extend_lifetime,
+    BitAccess,
     Bits256,
+    Bits256Access,
     Bits256BitsIter,
+    Bits256BitsIterMut,
     Bitvec as StorageBitvec,
 };
 use crate::storage2::{
@@ -37,7 +41,7 @@ pub struct BitsIter<'a> {
 
 impl<'a> BitsIter<'a> {
     /// Creates a new iterator yielding the bits of the storage bit vector.
-    pub fn new(bitvec: &'a StorageBitvec) -> Self {
+    pub(super) fn new(bitvec: &'a StorageBitvec) -> Self {
         Self {
             remaining: bitvec.len(),
             bits256_iter: bitvec.iter_chunks(),
@@ -115,6 +119,90 @@ impl<'a> DoubleEndedIterator for BitsIter<'a> {
     }
 }
 
+/// Iterator over the bits of a storage bit vector.
+#[derive(Debug)]
+pub struct BitsIterMut<'a> {
+    remaining: u32,
+    bits256_iter: Bits256IterMut<'a>,
+    front_iter: Option<Bits256BitsIterMut<'a>>,
+    back_iter: Option<Bits256BitsIterMut<'a>>,
+}
+
+impl<'a> BitsIterMut<'a> {
+    /// Creates a new iterator yielding the bits of the storage bit vector.
+    pub(super) fn new(bitvec: &'a mut StorageBitvec) -> Self {
+        Self {
+            remaining: bitvec.len(),
+            bits256_iter: bitvec.iter_chunks_mut(),
+            front_iter: None,
+            back_iter: None,
+        }
+    }
+}
+
+impl<'a> ExactSizeIterator for BitsIterMut<'a> {}
+
+impl<'a> Iterator for BitsIterMut<'a> {
+    type Item = BitAccess<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            if let Some(ref mut front_iter) = self.front_iter {
+                if let front @ Some(_) = front_iter.next() {
+                    self.remaining -= 1;
+                    return front
+                }
+            }
+            match self.bits256_iter.next() {
+                None => {
+                    if let Some(back) = self.back_iter.as_mut()?.next() {
+                        self.remaining -= 1;
+                        return Some(back)
+                    }
+                    return None
+                }
+                Some(ref mut front) => {
+                    self.front_iter = Some(unsafe { extend_lifetime(front) }.iter_mut());
+                }
+            }
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining as usize
+    }
+}
+
+impl<'a> DoubleEndedIterator for BitsIterMut<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        loop {
+            if let Some(ref mut back_iter) = self.back_iter {
+                if let back @ Some(_) = back_iter.next_back() {
+                    self.remaining -= 1;
+                    return back
+                }
+            }
+            match self.bits256_iter.next_back() {
+                None => {
+                    if let Some(front) = self.front_iter.as_mut()?.next_back() {
+                        self.remaining -= 1;
+                        return Some(front)
+                    }
+                    return None
+                }
+                Some(ref mut back) => {
+                    self.back_iter = Some(unsafe { extend_lifetime(back) }.iter_mut());
+                }
+            }
+        }
+    }
+}
+
 /// Iterator over the 256-bit chunks of a storage bitvector.
 #[derive(Debug, Copy, Clone)]
 pub struct Bits256Iter<'a> {
@@ -163,3 +251,78 @@ impl<'a> DoubleEndedIterator for Bits256Iter<'a> {
 
 impl<'a> ExactSizeIterator for Bits256Iter<'a> {}
 
+/// Iterator over mutable 256-bit chunks of a storage bitvector.
+#[derive(Debug)]
+pub struct Bits256IterMut<'a> {
+    /// The storage vector iterator over the internal mutable 256-bit chunks.
+    iter: StorageVecIterMut<'a, Pack<Bits256>>,
+    /// The remaining bits to be yielded.
+    remaining: u32,
+}
+
+impl<'a> Bits256IterMut<'a> {
+    /// Creates a new 256-bit chunks iterator over the given storage bitvector.
+    pub(super) fn new(bitvec: &'a mut StorageBitvec) -> Self {
+        Self {
+            remaining: bitvec.len(),
+            iter: bitvec.bits.iter_mut(),
+        }
+    }
+}
+
+impl<'a> Iterator for Bits256IterMut<'a> {
+    type Item = Bits256Access<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let len = min(256, self.remaining);
+        self.remaining = self.remaining.saturating_sub(256);
+        self.iter
+            .next()
+            .map(Pack::as_inner_mut)
+            .map(|bits256| Bits256Access::new(bits256, len))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+
+    fn count(self) -> usize {
+        self.iter.count()
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        let len = min(256, self.remaining - (n as u32 * 256));
+        self.remaining = self.remaining.saturating_sub(256);
+        self.iter
+            .nth(n)
+            .map(Pack::as_inner_mut)
+            .map(|bits256| Bits256Access::new(bits256, len))
+    }
+}
+
+impl<'a> DoubleEndedIterator for Bits256IterMut<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let mut len = self.remaining % 256;
+        self.remaining -= len;
+        if len == 0 {
+            len = 256;
+        }
+        self.iter
+            .next_back()
+            .map(Pack::as_inner_mut)
+            .map(|bits256| Bits256Access::new(bits256, len))
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        self.remaining = self.remaining.saturating_sub(n as u32 * 256);
+        let old_remaining = self.remaining;
+        let new_remaining = old_remaining.saturating_sub(256);
+        let len = old_remaining - new_remaining;
+        self.iter
+            .nth_back(n)
+            .map(Pack::as_inner_mut)
+            .map(|bits256| Bits256Access::new(bits256, len))
+    }
+}
+
+impl<'a> ExactSizeIterator for Bits256IterMut<'a> {}

@@ -15,6 +15,8 @@
 use super::{
     Bits256,
     Index256,
+    Bits256BitsIter,
+    Bits256BitsIterMut,
 };
 
 /// A mutable bit access for operating on a single bit within a 256-bit pack.
@@ -99,7 +101,7 @@ pub struct Bits256Access<'a> {
 
 impl<'a> Bits256Access<'a> {
     /// Creates a new 256-bit chunk access with the given length.
-    pub fn new(chunk: &'a mut Bits256, len: u32) -> Self {
+    pub(super) fn new(chunk: &'a mut Bits256, len: u32) -> Self {
         Self { chunk, len }
     }
 
@@ -111,6 +113,16 @@ impl<'a> Bits256Access<'a> {
     /// The valid bits are consecutive and always start from index 0.
     pub fn len(&self) -> u32 {
         self.len
+    }
+
+    /// Returns an iterator over the valid bits of `self`.
+    pub fn iter(&self) -> Bits256BitsIter {
+        self.chunk.iter(self.len as u16)
+    }
+
+    /// Returns an iterator over mutable accessors to the valid bits of `self`.
+    pub fn iter_mut(&mut self) -> Bits256BitsIterMut {
+        self.chunk.iter_mut(self.len as u16)
     }
 
     /// Returns the value of the indexed bit.

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 use super::{
+    super::extend_lifetime,
+    BitAccess,
     Bits64,
     Index256,
     Index64,
@@ -47,7 +49,7 @@ pub struct Iter<'a> {
 }
 
 impl<'a> Iter<'a> {
-    pub fn new(bits256: &'a Bits256, len: u16) -> Self {
+    fn new(bits256: &'a Bits256, len: u16) -> Self {
         Self {
             bits: bits256,
             start: 0,
@@ -59,6 +61,8 @@ impl<'a> Iter<'a> {
         self.end - self.start
     }
 }
+
+impl<'a> ExactSizeIterator for Iter<'a> {}
 
 impl<'a> Iterator for Iter<'a> {
     type Item = bool;
@@ -104,6 +108,79 @@ impl<'a> DoubleEndedIterator for Iter<'a> {
     }
 }
 
+/// Iterator over the valid mutable bits of a pack of 256 bits.
+#[derive(Debug)]
+pub struct IterMut<'a> {
+    bits: &'a mut Bits256,
+    start: u16,
+    end: u16,
+}
+
+impl<'a> IterMut<'a> {
+    fn new(bits256: &'a mut Bits256, len: u16) -> Self {
+        Self {
+            bits: bits256,
+            start: 0,
+            end: len,
+        }
+    }
+
+    fn remaining(&self) -> u16 {
+        self.end - self.start
+    }
+
+    /// Returns a bit access for the given index with extended but valid lifetimes.
+    fn get<'b>(&'b mut self, index: u8) -> BitAccess<'a> {
+        unsafe { BitAccess::new(extend_lifetime(&mut self.bits), index) }
+    }
+}
+
+impl<'a> ExactSizeIterator for IterMut<'a> {}
+
+impl<'a> Iterator for IterMut<'a> {
+    type Item = BitAccess<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        <Self as Iterator>::nth(self, 0)
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        assert!(n < 256);
+        let n = n as u16;
+        if self.start + n >= self.end {
+            return None
+        }
+        let start = self.start + n;
+        self.start += 1 + n;
+        Some(self.get(start as u8))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining() as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
+    }
+}
+
+impl<'a> DoubleEndedIterator for IterMut<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        <Self as DoubleEndedIterator>::nth_back(self, 0)
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        assert!(n < 256);
+        let n = n as u16;
+        if self.start + n >= self.end {
+            return None
+        }
+        self.end -= 1 + n;
+        Some(self.get(self.end as u8))
+    }
+}
+
 impl Bits256 {
     fn bits_at(&self, index: Index256) -> (&u64, Index64) {
         (&self.bits[(index / 64) as usize], index % 64)
@@ -116,6 +193,11 @@ impl Bits256 {
     /// Yields the first `len` bits of the pack of 256 bits.
     pub fn iter(&self, len: u16) -> Iter {
         Iter::new(self, len)
+    }
+
+    /// Yields mutable accessors to the first `len` bits of the pack of 256 bits.
+    pub fn iter_mut(&mut self, len: u16) -> IterMut {
+        IterMut::new(self, len)
     }
 
     /// Returns the bit value for the bit at the given index.

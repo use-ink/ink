@@ -63,10 +63,30 @@ fn get_works() {
 }
 
 #[test]
-fn iter_works() {
+fn iter_next_works() {
     let bitvec = bitvec_600();
+    // Test iterator over read-only bits.
     for (i, bit) in bitvec.bits().enumerate() {
         assert_eq!(bit, (i % 5) == 0 || (i % 13) == 0);
+    }
+    // Test iterator over mutable accessors to bits.
+    let mut bitvec = bitvec;
+    for (i, accessor) in bitvec.bits_mut().enumerate() {
+        assert_eq!(accessor.get(), (i % 5) == 0 || (i % 13) == 0);
+    }
+}
+
+#[test]
+fn iter_next_back_works() {
+    let bitvec = bitvec_600();
+    // Test iterator over read-only bits.
+    for (i, bit) in bitvec.bits().enumerate().rev() {
+        assert_eq!(bit, (i % 5) == 0 || (i % 13) == 0);
+    }
+    // Test iterator over mutable accessors to bits.
+    let mut bitvec = bitvec;
+    for (i, accessor) in bitvec.bits_mut().enumerate().rev() {
+        assert_eq!(accessor.get(), (i % 5) == 0 || (i % 13) == 0);
     }
 }
 
