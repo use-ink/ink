@@ -181,6 +181,38 @@ impl Bitvec {
         self.get_access_mut(at)
     }
 
+    /// Returns a shared reference to the 256-bit chunk for the bit at the given index.
+    pub fn get_chunk(&self, at: Index) -> Option<Bits256Ref> {
+        if at >= self.len() {
+            return None
+        }
+        use core::cmp::min;
+        let chunk_id = at / 256;
+        let chunk_len = min(256, self.len() - at);
+        let bits256 = self
+            .bits
+            .get(chunk_id)
+            .map(Pack::as_inner)
+            .expect("index is within bounds");
+        Some(Bits256Ref::new(bits256, chunk_len))
+    }
+
+    /// Returns an exclusive reference to the 256-bit chunk for the bit at the given index.
+    pub fn get_chunk_mut(&mut self, at: Index) -> Option<Bits256RefMut> {
+        if at >= self.len() {
+            return None
+        }
+        use core::cmp::min;
+        let chunk_id = at / 256;
+        let chunk_len = min(256, self.len() - at);
+        let bits256 = self
+            .bits
+            .get_mut(chunk_id)
+            .map(Pack::as_inner_mut)
+            .expect("index is within bounds");
+        Some(Bits256RefMut::new(bits256, chunk_len))
+    }
+
     /// Returns the first bit of the bit vector.
     ///
     /// # Note
