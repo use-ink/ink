@@ -191,12 +191,12 @@ impl Bits256 {
     }
 
     /// Yields the first `len` bits of the pack of 256 bits.
-    pub fn iter(&self, len: u16) -> Iter {
+    pub(super) fn iter(&self, len: u16) -> Iter {
         Iter::new(self, len)
     }
 
     /// Yields mutable accessors to the first `len` bits of the pack of 256 bits.
-    pub fn iter_mut(&mut self, len: u16) -> IterMut {
+    pub(super) fn iter_mut(&mut self, len: u16) -> IterMut {
         IterMut::new(self, len)
     }
 

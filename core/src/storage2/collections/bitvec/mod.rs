@@ -120,12 +120,12 @@ impl Bitvec {
     }
 
     /// Returns an iterator over the 256-bit chunks of the storage bit vector.
-    pub fn iter_chunks(&self) -> Bits256Iter {
+    pub(super) fn iter_chunks(&self) -> Bits256Iter {
         Bits256Iter::new(self)
     }
 
     /// Returns an iterator over the mutable 256-bit chunks of the storage bit vector.
-    pub fn iter_chunks_mut(&mut self) -> Bits256IterMut {
+    pub(super) fn iter_chunks_mut(&mut self) -> Bits256IterMut {
         Bits256IterMut::new(self)
     }
 
