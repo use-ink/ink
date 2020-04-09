@@ -14,11 +14,12 @@
 
 use super::{
     super::extend_lifetime,
-    BitAccess,
+    BitRefMut,
     Bits256,
-    Bits256Access,
     Bits256BitsIter,
     Bits256BitsIterMut,
+    Bits256Ref,
+    Bits256RefMut,
     Bitvec as StorageBitvec,
 };
 use crate::storage2::{
@@ -143,7 +144,7 @@ impl<'a> BitsIterMut<'a> {
 impl<'a> ExactSizeIterator for BitsIterMut<'a> {}
 
 impl<'a> Iterator for BitsIterMut<'a> {
-    type Item = BitAccess<'a>;
+    type Item = BitRefMut<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -271,7 +272,7 @@ impl<'a> Bits256IterMut<'a> {
 }
 
 impl<'a> Iterator for Bits256IterMut<'a> {
-    type Item = Bits256Access<'a>;
+    type Item = Bits256RefMut<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let len = min(256, self.remaining);
@@ -279,7 +280,7 @@ impl<'a> Iterator for Bits256IterMut<'a> {
         self.iter
             .next()
             .map(Pack::as_inner_mut)
-            .map(|bits256| Bits256Access::new(bits256, len))
+            .map(|bits256| Bits256RefMut::new(bits256, len))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -321,7 +322,7 @@ impl<'a> DoubleEndedIterator for Bits256IterMut<'a> {
         self.iter
             .nth_back(n)
             .map(Pack::as_inner_mut)
-            .map(|bits256| Bits256Access::new(bits256, len))
+            .map(|bits256| Bits256RefMut::new(bits256, len))
     }
 }
 

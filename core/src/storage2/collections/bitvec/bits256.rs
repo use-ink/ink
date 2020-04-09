@@ -14,7 +14,7 @@
 
 use super::{
     super::extend_lifetime,
-    BitAccess,
+    BitRefMut,
     Bits64,
     Index256,
     Index64,
@@ -138,7 +138,7 @@ impl<'a> IterMut<'a> {
 impl<'a> ExactSizeIterator for IterMut<'a> {}
 
 impl<'a> Iterator for IterMut<'a> {
-    type Item = BitAccess<'a>;
+    type Item = BitRefMut<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         <Self as Iterator>::nth(self, 0)

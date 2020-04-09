@@ -21,14 +21,14 @@ use super::{
 
 /// A mutable bit access for operating on a single bit within a 256-bit pack.
 #[derive(Debug)]
-pub struct BitAccess<'a> {
+pub struct BitRefMut<'a> {
     /// The queried pack of 256 bits.
     bits: &'a mut Bits256,
     /// The bit position witihn the queried bit pack.
     at: u8,
 }
 
-impl<'a> BitAccess<'a> {
+impl<'a> BitRefMut<'a> {
     /// Creates a new bit access for the indexed bit within the 256-bit pack.
     pub(super) fn new(bits: &'a mut Bits256, at: Index256) -> Self {
         Self { bits, at }
@@ -89,7 +89,7 @@ impl<'a> BitAccess<'a> {
 /// - Assures that accesses to the underlying bits are valid for the storage
 ///   bit vector in which they are stored.
 #[derive(Debug)]
-pub struct Bits256Access<'a> {
+pub struct Bits256RefMut<'a> {
     /// The queried pack of 256 bits.
     chunk: &'a mut Bits256,
     /// The length of the chunk.
@@ -99,7 +99,7 @@ pub struct Bits256Access<'a> {
     len: u32,
 }
 
-impl<'a> Bits256Access<'a> {
+impl<'a> Bits256RefMut<'a> {
     /// Creates a new 256-bit chunk access with the given length.
     pub(super) fn new(chunk: &'a mut Bits256, len: u32) -> Self {
         Self { chunk, len }
@@ -139,11 +139,13 @@ impl<'a> Bits256Access<'a> {
     }
 
     /// Returns mutable access to a single bit if the index is within bounds.
-    pub fn get_mut(&mut self, index: u8) -> Option<BitAccess> {
+    pub fn get_mut(&mut self, index: u8) -> Option<BitRefMut> {
         if index as u32 >= self.len {
             return None
         }
-        BitAccess::new(self.chunk, index).into()
+        BitRefMut::new(self.chunk, index).into()
+    }
+}
     }
 
     /// Returns the position of the first valid zero bit if any.
