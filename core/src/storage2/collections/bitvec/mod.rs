@@ -27,8 +27,9 @@ mod tests;
 
 pub use self::{
     access::{
-        BitAccess,
-        Bits256Access,
+        BitRefMut,
+        Bits256Ref,
+        Bits256RefMut,
     },
     bits256::Bits256,
     iter::{
@@ -164,9 +165,9 @@ impl Bitvec {
     }
 
     /// Returns a mutable bit access to the bit at the given index if any.
-    fn get_access_mut(&mut self, at: Index) -> Option<BitAccess> {
+    fn get_access_mut(&mut self, at: Index) -> Option<BitRefMut> {
         self.get_bits256_mut(at)
-            .map(|(bits256, pos256)| BitAccess::new(bits256, pos256))
+            .map(|(bits256, pos256)| BitRefMut::new(bits256, pos256))
     }
 
     /// Returns the value of the bit at the given index if any.
@@ -176,7 +177,7 @@ impl Bitvec {
     }
 
     /// Returns a mutable bit access to the bit at the given index if any.
-    pub fn get_mut(&mut self, at: Index) -> Option<BitAccess> {
+    pub fn get_mut(&mut self, at: Index) -> Option<BitRefMut> {
         self.get_access_mut(at)
     }
 
@@ -197,7 +198,7 @@ impl Bitvec {
     /// # Note
     ///
     /// Returns `None` if the bit vector is empty.
-    pub fn first_mut(&mut self) -> Option<BitAccess> {
+    pub fn first_mut(&mut self) -> Option<BitRefMut> {
         if self.is_empty() {
             return None
         }
@@ -221,7 +222,7 @@ impl Bitvec {
     /// # Note
     ///
     /// Returns `None` if the bit vector is empty.
-    pub fn last_mut(&mut self) -> Option<BitAccess> {
+    pub fn last_mut(&mut self) -> Option<BitRefMut> {
         if self.is_empty() {
             return None
         }
