@@ -234,19 +234,22 @@ impl<'a> Iterator for Bits256Iter<'a> {
     fn count(self) -> usize {
         self.iter.count()
     }
-
-    fn nth(&mut self, n: usize) -> Option<Self::Item> {
-        self.iter.nth(n).map(Pack::as_inner)
-    }
 }
 
 impl<'a> DoubleEndedIterator for Bits256Iter<'a> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter.next_back().map(Pack::as_inner)
-    }
-
-    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
-        self.iter.nth_back(n).map(Pack::as_inner)
+        if self.remaining == 0 {
+            return None
+        }
+        let mut len = self.remaining % 256;
+        if len == 0 {
+            len = 256;
+        }
+        self.remaining = self.remaining.saturating_sub(len);
+        self.iter
+            .next_back()
+            .map(Pack::as_inner)
+            .map(|bits256| Bits256Ref::new(bits256, len))
     }
 }
 
@@ -290,15 +293,6 @@ impl<'a> Iterator for Bits256IterMut<'a> {
     fn count(self) -> usize {
         self.iter.count()
     }
-
-    fn nth(&mut self, n: usize) -> Option<Self::Item> {
-        let len = min(256, self.remaining - (n as u32 * 256));
-        self.remaining = self.remaining.saturating_sub(256);
-        self.iter
-            .nth(n)
-            .map(Pack::as_inner_mut)
-            .map(|bits256| Bits256Access::new(bits256, len))
-    }
 }
 
 impl<'a> DoubleEndedIterator for Bits256IterMut<'a> {
@@ -310,17 +304,6 @@ impl<'a> DoubleEndedIterator for Bits256IterMut<'a> {
         }
         self.iter
             .next_back()
-            .map(Pack::as_inner_mut)
-            .map(|bits256| Bits256Access::new(bits256, len))
-    }
-
-    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
-        self.remaining = self.remaining.saturating_sub(n as u32 * 256);
-        let old_remaining = self.remaining;
-        let new_remaining = old_remaining.saturating_sub(256);
-        let len = old_remaining - new_remaining;
-        self.iter
-            .nth_back(n)
             .map(Pack::as_inner_mut)
             .map(|bits256| Bits256RefMut::new(bits256, len))
     }
