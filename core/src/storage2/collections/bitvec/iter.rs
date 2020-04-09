@@ -73,9 +73,8 @@ impl<'a> Iterator for BitsIter<'a> {
                     }
                     return None
                 }
-                Some(bucket) => {
-                    let len = min(256, self.remaining) as u16;
-                    self.front_iter = Some(bucket.iter(len));
+                Some(ref mut front) => {
+                    self.front_iter = Some(unsafe { extend_lifetime(front) }.iter());
                 }
             }
         }
@@ -108,12 +107,8 @@ impl<'a> DoubleEndedIterator for BitsIter<'a> {
                     }
                     return None
                 }
-                Some(back) => {
-                    let mut len = min(256, self.remaining % 256) as u16;
-                    if len == 0 {
-                        len = 256;
-                    }
-                    self.back_iter = Some(back.iter(len));
+                Some(ref mut back) => {
+                    self.back_iter = Some(unsafe { extend_lifetime(back) }.iter());
                 }
             }
         }
@@ -209,6 +204,8 @@ impl<'a> DoubleEndedIterator for BitsIterMut<'a> {
 pub struct Bits256Iter<'a> {
     /// The storage vector iterator over the internal 256-bit chunks.
     iter: StorageVecIter<'a, Pack<Bits256>>,
+    /// The remaining bits to be yielded.
+    remaining: u32,
 }
 
 impl<'a> Bits256Iter<'a> {
@@ -216,15 +213,24 @@ impl<'a> Bits256Iter<'a> {
     pub(super) fn new(bitvec: &'a StorageBitvec) -> Self {
         Self {
             iter: bitvec.bits.iter(),
+            remaining: bitvec.len(),
         }
     }
 }
 
 impl<'a> Iterator for Bits256Iter<'a> {
-    type Item = &'a Bits256;
+    type Item = Bits256Ref<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(Pack::as_inner)
+        if self.remaining == 0 {
+            return None
+        }
+        let len = min(256, self.remaining);
+        self.remaining = self.remaining.saturating_sub(256);
+        self.iter
+            .next()
+            .map(Pack::as_inner)
+            .map(|bits256| Bits256Ref::new(bits256, len))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {

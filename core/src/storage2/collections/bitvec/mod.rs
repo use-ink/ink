@@ -31,7 +31,6 @@ pub use self::{
         Bits256Ref,
         Bits256RefMut,
     },
-    bits256::Bits256,
     iter::{
         BitsIter,
         BitsIterMut,
@@ -39,6 +38,7 @@ pub use self::{
 };
 use self::{
     bits256::{
+        Bits256,
         Iter as Bits256BitsIter,
         IterMut as Bits256BitsIterMut,
     },
