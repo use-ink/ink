@@ -26,9 +26,6 @@ use crate::storage2::{
 };
 use ink_primitives::Key;
 
-/// An index into the dynamic allocator's free list.
-type Index = u32;
-
 /// An index into one of the 32 `SetBit32` entries.
 type Index32 = u8;
 
@@ -255,16 +252,6 @@ impl CountFree {
         Self { counts: [0x00; 32] }
     }
 
-    /// Returns the number of set bits for the given index.
-    ///
-    /// # Panics
-    ///
-    /// - If the given index is out of bounds.
-    pub fn get(&self, index: Index32) -> u8 {
-        assert!(index < 32, "index is out of bounds");
-        self.counts[index as usize]
-    }
-
     /// Returns the position of the first free `u8` in the free counts.
     ///
     /// Returns `None` if all counts are `0xFF`.
@@ -276,23 +263,6 @@ impl CountFree {
             }
         }
         None
-    }
-
-    /// Increases the number of set bits for the given index.
-    ///
-    /// Returns the new number of set bits.
-    ///
-    /// # Panics
-    ///
-    /// - If the given index is out of bounds.
-    /// - If the increment would cause an overflow.
-    pub fn inc(&mut self, index: Index32) -> u8 {
-        assert!(index < 32, "index is out of bounds");
-        let new_value = self.counts[index as usize]
-            .checked_add(1)
-            .expect("set bits increment overflowed");
-        self.counts[index as usize] = new_value;
-        new_value
     }
 
     /// Increases the number of set bits for the given index.

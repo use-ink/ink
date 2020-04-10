@@ -110,9 +110,9 @@ impl PushAt for DynamicAllocation {
 }
 
 impl ClearForward for DynamicAllocation {
-    fn clear_forward(&self, ptr: &mut KeyPtr) {}
+    fn clear_forward(&self, _ptr: &mut KeyPtr) {}
 }
 
 impl ClearAt for DynamicAllocation {
-    fn clear_at(&self, at: Key) {}
+    fn clear_at(&self, _at: Key) {}
 }

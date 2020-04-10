@@ -16,7 +16,6 @@ use super::{
     alloc,
     free,
     DynamicAllocation,
-    DynamicAllocator,
     set_contract_phase,
     ContractPhase,
 };
