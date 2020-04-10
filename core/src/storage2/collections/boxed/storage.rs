@@ -14,10 +14,14 @@
 
 use super::Box as StorageBox;
 use crate::storage2::{
+    alloc::DynamicAllocation,
     lazy::Lazy,
+    ClearAt,
     ClearForward,
     KeyPtr,
+    PullAt,
     PullForward,
+    PushAt,
     PushForward,
     StorageFootprint,
 };
@@ -39,10 +43,19 @@ where
     T: ClearForward + StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        let key = <Key as PullForward>::pull_forward(ptr);
+        <Self as PullAt>::pull_at(ptr.next_for::<Self>())
+    }
+}
+
+impl<T> PullAt for StorageBox<T>
+where
+    T: ClearForward + StorageFootprint,
+{
+    fn pull_at(at: Key) -> Self {
+        let allocation = <DynamicAllocation as PullAt>::pull_at(at);
         Self {
-            key,
-            value: Lazy::lazy(key),
+            allocation,
+            value: Lazy::lazy(allocation.key()),
         }
     }
 }
@@ -52,8 +65,18 @@ where
     T: ClearForward + PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        PushForward::push_forward(&self.key, ptr);
-        PushForward::push_forward(&self.value, &mut KeyPtr::from(self.key));
+        PushForward::push_forward(&self.allocation, ptr);
+        PushForward::push_forward(&self.value, &mut KeyPtr::from(self.key()));
+    }
+}
+
+impl<T> PushAt for StorageBox<T>
+where
+    T: ClearForward + PushForward + StorageFootprint,
+{
+    fn push_at(&self, at: Key) {
+        <DynamicAllocation as PushAt>::push_at(&self.allocation, at);
+        PushForward::push_forward(&self.value, &mut KeyPtr::from(self.key()));
     }
 }
 
@@ -62,7 +85,16 @@ where
     T: ClearForward + StorageFootprint,
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
-        ClearForward::clear_forward(&self.key, ptr);
-        ClearForward::clear_forward(&self.value, &mut KeyPtr::from(self.key));
+        <Self as ClearAt>::clear_at(self, ptr.next_for::<Self>())
+    }
+}
+
+impl<T> ClearAt for StorageBox<T>
+where
+    T: ClearForward + StorageFootprint,
+{
+    fn clear_at(&self, at: Key) {
+        <DynamicAllocation as ClearAt>::clear_at(&self.allocation, at);
+        ClearForward::clear_forward(&self.value, &mut KeyPtr::from(self.key()));
     }
 }

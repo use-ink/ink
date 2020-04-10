@@ -16,6 +16,10 @@ mod impls;
 mod storage;
 
 use crate::storage2::{
+    alloc::{
+        alloc,
+        DynamicAllocation,
+    },
     lazy::Lazy,
     ClearForward,
     PullForward,
@@ -23,22 +27,13 @@ use crate::storage2::{
 };
 use ink_primitives::Key;
 
-/// Allocates a new storage key for the given `T` dynamically on the storage.
-fn allocate_dynamically<T>() -> Key
-where
-    T: StorageFootprint,
-{
-    // TODO: Actual implementation is still missing!
-    Key([0x42; 32])
-}
-
 /// An indirection to some dynamically allocated storage entity.
 pub struct Box<T>
 where
     T: ClearForward + StorageFootprint,
 {
     /// The storage area where the boxed storage entity is stored.
-    key: Key,
+    allocation: DynamicAllocation,
     /// The cache for the boxed storage entity.
     value: Lazy<T>,
 }
@@ -50,9 +45,14 @@ where
     /// Creates a new boxed entity.
     pub fn new(value: T) -> Self {
         Self {
-            key: allocate_dynamically::<T>(),
+            allocation: alloc(),
             value: Lazy::new(value),
         }
+    }
+
+    /// Returns the underlying storage key for the dynamic allocated entity.
+    fn key(&self) -> Key {
+        self.allocation.key()
     }
 }
 

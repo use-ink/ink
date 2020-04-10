@@ -25,7 +25,7 @@ where
     T: ClearForward + StorageFootprint,
 {
     fn drop(&mut self) {
-        ClearForward::clear_forward(&self.value, &mut KeyPtr::from(self.key));
+        ClearForward::clear_forward(&self.value, &mut KeyPtr::from(self.allocation.key()));
     }
 }
 
