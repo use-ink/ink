@@ -101,6 +101,15 @@ impl DynamicAllocator {
         None
     }
 
+    /// Returns the number of required counts elements.
+    fn required_counts(&self) -> u32 {
+        let capacity = self.free.capacity();
+        if capacity == 0 {
+            return 0
+        }
+        1 + ((capacity - 1) / (32 * 256)) as u32
+    }
+
     /// Returns a new dynamic storage allocation.
     ///
     /// # Panics
@@ -130,17 +139,12 @@ impl DynamicAllocator {
             // storage allocations and panic if that's the case.
             // Otherwise allocate a new pack of 256-bits in the free list
             // and mirror it in the counts list.
-            let old_capacity = self.free.capacity();
             self.free.push(true);
-            let new_capacity = self.free.capacity();
-            if new_capacity > old_capacity {
-                // A new 256-bit chunk has been allocated and there might be the
-                // need to push another set-bit counts chunk as well:
-                if new_capacity / (32 * 256) > old_capacity / (32 * 256) {
-                    let mut counter = CountFree::default();
-                    counter[0_u8] = 1;
-                    self.counts.push(Pack::from(counter));
-                }
+            if self.counts.len() < self.required_counts() {
+                // We need to push another counts element.
+                let mut counter = CountFree::default();
+                counter[0_u8] = 1;
+                self.counts.push(Pack::from(counter));
             }
             // Return the new slot.
             DynamicAllocation(self.free.len() - 1)
