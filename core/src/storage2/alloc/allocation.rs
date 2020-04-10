@@ -12,9 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::hash::{
-    Blake2x256,
-    Wrap,
+use crate::{
+    hash::{
+        Blake2x256,
+        Wrap,
+    },
+    storage2::{
+        pull_single_cell,
+        KeyPtr,
+        PullAt,
+        PullForward,
+        PushAt,
+        PushForward,
+        ClearForward,
+        ClearAt,
+        StorageFootprint,
+    },
 };
 use ink_primitives::Key;
 
@@ -66,4 +79,40 @@ impl DynamicAllocation {
         <Blake2x256>::hash_bytes_using(&buffer, &mut output);
         Key::from(output)
     }
+}
+
+impl StorageFootprint for DynamicAllocation {
+    const VALUE: u64 = 1;
+}
+
+impl PullForward for DynamicAllocation {
+    fn pull_forward(ptr: &mut KeyPtr) -> Self {
+        <Self as PullAt>::pull_at(ptr.next_for::<Self>())
+    }
+}
+
+impl PullAt for DynamicAllocation {
+    fn pull_at(at: Key) -> Self {
+        pull_single_cell(at)
+    }
+}
+
+impl PushForward for DynamicAllocation {
+    fn push_forward(&self, ptr: &mut KeyPtr) {
+        <Self as PushAt>::push_at(self, ptr.next_for::<Self>())
+    }
+}
+
+impl PushAt for DynamicAllocation {
+    fn push_at(&self, at: Key) {
+        crate::env::set_contract_storage(at, self)
+    }
+}
+
+impl ClearForward for DynamicAllocation {
+    fn clear_forward(&self, ptr: &mut KeyPtr) {}
+}
+
+impl ClearAt for DynamicAllocation {
+    fn clear_at(&self, at: Key) {}
 }
