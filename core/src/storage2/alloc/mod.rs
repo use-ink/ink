@@ -71,6 +71,9 @@
 mod allocation;
 mod allocator;
 
+#[cfg(test)]
+mod tests;
+
 pub use self::allocation::DynamicAllocation;
 use self::allocator::DynamicAllocator;
 use crate::storage2::{
@@ -82,7 +85,7 @@ use ink_primitives::Key;
 
 /// Returns a new dynamic storage allocation.
 pub fn alloc() -> DynamicAllocation {
-    on_instance(DynamicAllocator::alloc)
+    on_call(DynamicAllocator::alloc)
 }
 
 /// Frees the given dynamic storage allocation.
@@ -90,7 +93,7 @@ pub fn alloc() -> DynamicAllocation {
 /// This makes the given dynamic storage allocation available again
 /// for new dynamic storage allocations.
 pub fn free(allocation: DynamicAllocation) {
-    on_instance(|allocator| allocator.free(allocation))
+    on_call(|allocator| allocator.free(allocation))
 }
 
 /// The default dynamic allocator key offset.
@@ -98,34 +101,159 @@ pub fn free(allocation: DynamicAllocation) {
 /// This is where the dynamic allocator is stored on the contract storage.
 const DYNAMIC_ALLOCATOR_KEY_OFFSET: [u8; 32] = [0xFE; 32];
 
+mod phase {
+    use super::cfg_if;
+
+    /// The phase in which a contract execution can be.
+    #[derive(Debug, Copy, Clone)]
+    pub enum ContractPhase {
+        /// A contract has been deployed initially.
+        Deploy,
+        /// An already deployed contract has been called.
+        Call,
+    }
+
+    cfg_if! {
+        if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
+
+            /// The global static phase capturing the state.
+            static mut PHASE: Option<ContractPhase> = None;
+
+            /// Sets the contract phase (either call or deploy).
+            ///
+            /// # Note
+            ///
+            /// This must happen before the first dynamic storage allocation and thus
+            /// generally as early as possible upon contract execution.
+            ///
+            /// # Panics
+            ///
+            /// If a contract phase has already been submitted.
+            pub fn set_contract_phase(phase: ContractPhase) {
+                assert!(unsafe { &PHASE }.is_none());
+                unsafe { PHASE = Some(phase) };
+            }
+
+            /// Returns the contract phase.
+            ///
+            /// # Panics
+            ///
+            /// If no contract phase has yet been submitted.
+            pub fn get_contract_phase() -> ContractPhase {
+                unsafe { PHASE }.expect("a contract phase has not yet been submitted")
+            }
+
+        } else if #[cfg(feature = "std")] {
+
+            use ::core::cell::Cell;
+            thread_local!(
+                static PHASE: Cell<Option<ContractPhase>> = Cell::new(None);
+            );
+
+            /// Sets the contract phase (either call or deploy).
+            ///
+            /// # Note
+            ///
+            /// This must happen before the first dynamic storage allocation and thus
+            /// generally as early as possible upon contract execution.
+            ///
+            /// # Panics
+            ///
+            /// If a contract phase has already been submitted.
+            pub fn set_contract_phase(new_phase: ContractPhase) {
+                PHASE.with(|phase| {
+                    assert!(phase.get().is_none());
+                    phase.replace(Some(new_phase));
+                });
+            }
+
+            /// Returns the contract phase.
+            ///
+            /// # Panics
+            ///
+            /// If no contract phase has yet been submitted.
+            pub fn get_contract_phase() -> ContractPhase {
+                PHASE.with(|phase| {
+                    assert!(phase.get().is_some());
+                    phase.get().expect("a contract phase has not yet been submitted")
+                })
+            }
+
+        } else {
+            compile_error! {
+                "ink! only support compilation as `std` or `no_std` + `wasm32-unknown`"
+            }
+        }
+    }
+}
+use phase::get_contract_phase;
+pub use phase::{
+    set_contract_phase,
+    ContractPhase,
+};
+
 cfg_if! {
     if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
-        // On-chain environment:
-        fn on_instance<F, R>(f: F) -> R
+
+        // Runs the given closure with the dynamic allocator for contract calls.
+        fn on_call<F, R>(f: F) -> R
         where
             F: FnOnce(&mut DynamicAllocator) -> R,
         {
-            static mut INSTANCE: DynamicAllocator = <DynamicAllocator as PullForward>::pull_forward(
-                &mut KeyPtr::from(Key(DYNAMIC_ALLOCATOR_KEY_OFFSET))
-            );
-            f(unsafe { &mut INSTANCE })
+            static mut INSTANCE: Option<DynamicAllocator> = None;
+            // Lazily initialize the dynamic allocator if not done, yet.
+            if unsafe { INSTANCE }.is_none() {
+                match get_contract_phase() {
+                    ContractPhase::Deploy => unsafe {
+                        INSTANCE = Some(
+                            DynamicAllocator::new()
+                        );
+                    }
+                    ContractPhase::Call => unsafe {
+                        INSTANCE = Some(
+                            <DynamicAllocator as PullForward>::pull_forward(
+                                &mut KeyPtr::from(Key(DYNAMIC_ALLOCATOR_KEY_OFFSET))
+                            )
+                        );
+                    }
+                }
+            }
+            f(unsafe { &mut INSTANCE.expect("uninitialized dynamic storage allocator") })
         }
+
     } else if #[cfg(feature = "std")] {
+
         // Off-chain environment:
-        fn on_instance<F, R>(f: F) -> R
+        fn on_call<F, R>(f: F) -> R
         where
             F: FnOnce(&mut DynamicAllocator) -> R,
         {
             use ::core::cell::RefCell;
             thread_local!(
-                static INSTANCE: RefCell<DynamicAllocator> = RefCell::new(
-                    <DynamicAllocator as PullForward>::pull_forward(
-                        &mut KeyPtr::from(Key(DYNAMIC_ALLOCATOR_KEY_OFFSET))
-                    )
-                )
+                static INSTANCE: RefCell<Option<DynamicAllocator>> = RefCell::new(None);
             );
-            INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
+            // Lazily initialize the dynamic allocator if not done, yet.
+            INSTANCE.with(|instance| {
+                if instance.borrow().is_none() {
+                    match get_contract_phase() {
+                        ContractPhase::Deploy => {
+                            instance.replace_with(|_| Some(
+                                DynamicAllocator::new()
+                            ));
+                        }
+                        ContractPhase::Call => {
+                            instance.replace_with(|_| Some(
+                                <DynamicAllocator as PullForward>::pull_forward(
+                                    &mut KeyPtr::from(Key(DYNAMIC_ALLOCATOR_KEY_OFFSET))
+                                )
+                            ));
+                        }
+                    }
+                }
+            });
+            INSTANCE.with(|instance| f(&mut instance.borrow_mut().as_mut().expect("uninitialized dynamic storage allocator")))
         }
+
     } else {
         compile_error! {
             "ink! only support compilation as `std` or `no_std` + `wasm32-unknown`"

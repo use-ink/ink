@@ -73,43 +73,57 @@ impl PushForward for DynamicAllocator {
 }
 
 impl DynamicAllocator {
+    /// Creates a new dynamic storage allocator.
+    pub fn new() -> Self {
+        Self {
+            counts: StorageVec::new(),
+            free: StorageBitvec::new(),
+        }
+    }
+
+    /// Returns the bit position of the first 256-bit chunk with zero bits
+    /// in the `free` list.
+    ///
+    /// Returns the bit position of the first bit in the 256-bit chunk and not
+    /// the chunk position since that's what [`Bitvec::get_chunk`] expects.
+    ///
+    /// Also directly increases the count of the first found free bit chunk.
+    fn position_first_zero(&mut self) -> Option<u64> {
+        // Iterate over the `counts` list of a dynamic allocator.
+        // The counts list consists of packs of 32 counts per element.
+        for (n, counts) in self.counts.iter_mut().map(Pack::as_inner_mut).enumerate() {
+            if let Some(i) = counts.position_first_zero() {
+                let n = n as u64;
+                let i = i as u64;
+                return Some(n * (32 * 256) + i * 256)
+            }
+        }
+        None
+    }
+
     /// Returns a new dynamic storage allocation.
     ///
     /// # Panics
     ///
     /// If the dynamic allocator ran out of free dynamic allocations.
     pub fn alloc(&mut self) -> DynamicAllocation {
-        let mut bits256_index: Option<u32> = None;
-        let mut bits32_index: Option<u8> = None;
-        // Iterate over the `counts` list of a dynamic allocator.
-        // The counts list consists of packs of 32 counts per element.
-        'outer: for (n, counts) in
-            self.counts.iter_mut().map(Pack::as_inner_mut).enumerate()
-        {
-            // Iterate over the 32 `u8` within a single `CountFree` instance.
-            for (i, count) in counts.iter_mut().enumerate() {
-                if *count != 0xFF {
-                    bits256_index = Some(n as u32);
-                    bits32_index = Some(i as u8);
-                    *count += 1;
-                    break 'outer
-                }
-            }
-        }
-        if let (Some(bits256_index), Some(bits32_index)) = (bits256_index, bits32_index) {
+        if let Some(index) = self.position_first_zero() {
             // At this point we know where we can find the next free slot in the
             // free list. We simply have to flag it there and return the value.
             // No need to update the set-bit counts list since that has already
             // happen at this point.
             let mut bits256 = self
                 .free
-                .get_mut(bits256_index)
+                .get_chunk_mut(index as u32)
                 .expect("must exist if indices have been found");
-            debug_assert!(!bits256.get());
-            bits256.set();
-            // TODO: We need to add an API to query 256-bit packages in order.
-            todo!()
-            // DynamicAllocation(bits256_index * 256 + bits32_index)
+            let first_zero = bits256
+                .position_first_zero()
+                .expect("must exist if counts told so");
+            bits256
+                .get_mut(first_zero)
+                .expect("first zero is invalid")
+                .set();
+            DynamicAllocation(index as u32 + first_zero as u32)
         } else {
             // We found no free dynamic storage slot:
             // Check if we already have allocated too many (2^32) dynamic
@@ -122,8 +136,7 @@ impl DynamicAllocator {
             if new_capacity > old_capacity {
                 // A new 256-bit chunk has been allocated and there might be the
                 // need to push another set-bit counts chunk as well:
-                let q32x256 = 8192;
-                if new_capacity / q32x256 > old_capacity / q32x256 {
+                if new_capacity / (32 * 256) > old_capacity / (32 * 256) {
                     let mut counter = CountFree::default();
                     counter[0_u8] = 1;
                     self.counts.push(Pack::from(counter));
@@ -145,17 +158,20 @@ impl DynamicAllocator {
     /// A dynamic allocation is invalid if it is not represented as occupied
     /// in the `free` list.
     pub fn free(&mut self, allocation: DynamicAllocation) {
+        let index = allocation.get();
         let mut access = self
             .free
-            .get_mut(allocation.get())
+            .get_mut(index)
             .expect("index is out of bounds");
         // Panic if the given dynamic allocation is not represented as
         // occupied in the `free` list.
         assert!(access.get());
         // Set to `0` (false) which means that this slot is available again.
         access.reset();
-        // TODO: Update the counts list.
-        todo!()
+        // Update the counts list.
+        let counts_id = index / (256 * 32);
+        let byte_id = (index % 32) as u8;
+        self.counts.get_mut(counts_id).expect("invalid counts ID").dec(byte_id);
     }
 }
 
@@ -245,6 +261,19 @@ impl CountFree {
         self.counts[index as usize]
     }
 
+    /// Returns the position of the first free `u8` in the free counts.
+    ///
+    /// Returns `None` if all counts are `0xFF`.
+    pub fn position_first_zero(&mut self) -> Option<u8> {
+        for (i, count) in self.counts.iter_mut().enumerate() {
+            if *count != 0xFF {
+                *count += 1;
+                return Some(i as u8)
+            }
+        }
+        None
+    }
+
     /// Increases the number of set bits for the given index.
     ///
     /// Returns the new number of set bits.
@@ -273,7 +302,7 @@ impl CountFree {
     pub fn dec(&mut self, index: Index32) -> u8 {
         assert!(index < 32, "index is out of bounds");
         let new_value = self.counts[index as usize]
-            .checked_add(1)
+            .checked_sub(1)
             .expect("set bits decrement overflowed");
         self.counts[index as usize] = new_value;
         new_value
