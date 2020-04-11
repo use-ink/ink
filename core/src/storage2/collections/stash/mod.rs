@@ -266,37 +266,40 @@ where
         if prev_vacant == next_vacant {
             // There is only one other vacant entry left.
             // We can update the single vacant entry in a single look-up.
-            self.entries
+            if let Some(entry) = self
+                .entries
                 .get_mut(prev_vacant)
                 .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing entry at this point")
-                .map(|entry| {
-                    debug_assert_eq!(entry.prev, removed_index);
-                    debug_assert_eq!(entry.next, removed_index);
-                    entry.prev = prev_vacant;
-                    entry.next = prev_vacant;
-                });
+            {
+                debug_assert_eq!(entry.prev, removed_index);
+                debug_assert_eq!(entry.next, removed_index);
+                entry.prev = prev_vacant;
+                entry.next = prev_vacant;
+            }
         } else {
             // There are multiple other vacant entries left.
-            self.entries
+            if let Some(entry) = self
+                .entries
                 .get_mut(prev_vacant)
                 .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing entry at this point")
-                .map(|entry| {
-                    debug_assert_eq!(entry.next, removed_index);
-                    entry.next = next_vacant;
-                });
-            self.entries
+            {
+                debug_assert_eq!(entry.next, removed_index);
+                entry.next = next_vacant;
+            }
+            if let Some(entry) = self
+                .entries
                 .get_mut(next_vacant)
                 .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing entry at this point")
-                .map(|entry| {
-                    debug_assert_eq!(entry.prev, removed_index);
-                    entry.prev = prev_vacant;
-                });
+            {
+                debug_assert_eq!(entry.prev, removed_index);
+                entry.prev = prev_vacant;
+            }
         }
         // Bind the last vacant pointer to the vacant position with the lower index.
         // This has the effect that lower indices are refilled more quickly.
@@ -387,34 +390,37 @@ where
         if prev == next {
             // Previous and next are the same so we can update the vacant
             // neighbour with a single look-up.
-            self.entries
+            if let Some(entry) = self
+                .entries
                 .get_mut(next)
                 .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing entry at this point")
-                .map(|entry| {
-                    entry.prev = at;
-                    entry.next = at;
-                });
+            {
+                entry.prev = at;
+                entry.next = at;
+            }
         } else {
             // Previous and next vacant entries are different and thus need
             // different look-ups to update them.
-            self.entries
+            if let Some(entry) = self
+                .entries
                 .get_mut(prev)
                 .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing entry at this point")
-                .map(|entry| {
-                    entry.next = at;
-                });
-            self.entries
+            {
+                entry.next = at;
+            }
+            if let Some(entry) = self
+                .entries
                 .get_mut(next)
                 .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing entry at this point")
-                .map(|entry| {
-                    entry.prev = at;
-                });
+            {
+                entry.prev = at;
+            }
         }
         // Take the value out of the taken occupied entry and return it.
         match taken_entry {
