@@ -43,6 +43,15 @@ fn alloc_works() {
 }
 
 #[test]
+fn many_allocs_works() {
+    run_default_test(|| {
+        for i in 0..9000 {
+            assert_eq!(alloc(), DynamicAllocation(i));
+        }
+    })
+}
+
+#[test]
 fn free_works() {
     run_default_test(|| {
         // Check that this pattern does not panic.
