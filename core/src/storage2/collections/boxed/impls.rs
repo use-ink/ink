@@ -26,6 +26,7 @@ where
 {
     fn drop(&mut self) {
         ClearForward::clear_forward(&self.value, &mut KeyPtr::from(self.allocation.key()));
+        crate::storage2::alloc::free(self.allocation);
     }
 }
 
