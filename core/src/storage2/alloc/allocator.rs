@@ -276,7 +276,7 @@ impl FullMask {
     }
 
     /// Returns `true` if the 256-bit chunk at the given index is full.
-    pub fn is_full(&self, index: u8) -> bool {
+    pub fn is_full(self, index: u8) -> bool {
         assert!(index < 32);
         (self.0 >> (31 - index as u32)) & 0x01 == 1
     }
