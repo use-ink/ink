@@ -50,12 +50,12 @@ pub struct DynamicAllocation(pub(super) u32);
 
 impl DynamicAllocation {
     /// Returns the allocation identifier as `u32`.
-    pub(super) fn get(&self) -> u32 {
+    pub(super) fn get(self) -> u32 {
         self.0
     }
 
     /// Returns the storage key associated with this dynamic allocation.
-    pub fn key(&self) -> Key {
+    pub fn key(self) -> Key {
         // We create a 25-bytes buffer for the hashing.
         // This is due to the fact that we prepend the `u32` encoded identifier
         // with the `b"DYNAMICALLY ALLOCATED"` byte string which has a length
