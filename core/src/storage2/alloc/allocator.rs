@@ -114,22 +114,29 @@ impl DynamicAllocator {
     /// If the dynamic allocator ran out of free dynamic allocations.
     pub fn alloc(&mut self) -> DynamicAllocation {
         if let Some(index) = self.position_first_zero() {
-            // At this point we know where we can find the next free slot in the
-            // free list. We simply have to flag it there and return the value.
-            // No need to update the set-bit counts list since that has already
-            // happen at this point.
+            if index == self.free.len() as u64 {
+                self.free.push(true);
+                return DynamicAllocation(self.free.len() - 1)
+            }
             let mut bits256 = self
                 .free
                 .get_chunk_mut(index as u32)
                 .expect("must exist if indices have been found");
-            let first_zero = bits256
-                .position_first_zero()
-                .expect("must exist if counts told so");
-            bits256
-                .get_mut(first_zero)
-                .expect("first zero is invalid")
-                .set();
-            DynamicAllocation(index as u32 + first_zero as u32)
+            if let Some(first_zero) = bits256.position_first_zero() {
+                bits256
+                    .get_mut(first_zero)
+                    .expect("first zero is invalid")
+                    .set();
+                DynamicAllocation(index as u32 + first_zero as u32)
+            } else {
+                // We found a free storage slot but it isn't within the valid
+                // bounds of the free list but points to its end. So we simply
+                // append another 1 bit (`true`) to the free list and return
+                // a new dynamic allocation pointing to it. No need to push to
+                // the counts list in this case.
+                self.free.push(true);
+                DynamicAllocation(self.free.len() - 1)
+            }
         } else {
             // We found no free dynamic storage slot:
             // Check if we already have allocated too many (2^32) dynamic
@@ -160,10 +167,7 @@ impl DynamicAllocator {
     /// in the `free` list.
     pub fn free(&mut self, allocation: DynamicAllocation) {
         let index = allocation.get();
-        let mut access = self
-            .free
-            .get_mut(index)
-            .expect("index is out of bounds");
+        let mut access = self.free.get_mut(index).expect("index is out of bounds");
         // Panic if the given dynamic allocation is not represented as
         // occupied in the `free` list.
         assert!(access.get());
@@ -172,14 +176,22 @@ impl DynamicAllocator {
         // Update the counts list.
         let counts_id = index / (256 * 32);
         let byte_id = (index % 32) as u8;
-        self.counts.get_mut(counts_id).expect("invalid counts ID").dec(byte_id);
+        self.counts
+            .get_mut(counts_id)
+            .expect("invalid counts ID")
+            .dec(byte_id);
     }
 }
 
 /// Stores the number of set bits for each 256-bits block in a compact `u8`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 struct CountFree {
+    /// Set bits per 256-bit chunk.
     counts: [u8; 32],
+    /// Since with `u8` can only count up to 255 but there might be the need
+    /// to count up to 256 bits for 256-bit chunks we need to store one extra
+    /// bit per counter to determine filled chunks.
+    full: FullMask,
 }
 
 impl Default for CountFree {
@@ -220,15 +232,17 @@ impl<'a> IntoIterator for &'a mut CountFree {
 
 impl PullAt for CountFree {
     fn pull_at(at: Key) -> Self {
+        let (counts, full) = <([u8; 32], u32) as PullAt>::pull_at(at);
         Self {
-            counts: <[u8; 32] as PullAt>::pull_at(at),
+            counts,
+            full: FullMask(full),
         }
     }
 }
 
 impl PushAt for CountFree {
     fn push_at(&self, at: Key) {
-        PushAt::push_at(&self.counts, at);
+        PushAt::push_at(&(&self.counts, &self.full.0), at);
     }
 }
 
@@ -246,10 +260,45 @@ impl ::core::ops::IndexMut<u8> for CountFree {
     }
 }
 
+#[derive(Debug, Copy, Clone, scale::Encode, scale::Decode)]
+pub struct FullMask(u32);
+
+impl Default for FullMask {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl FullMask {
+    /// Creates a new full mask with every flag set to `false`.
+    pub fn new() -> Self {
+        Self(0)
+    }
+
+    /// Returns `true` if the 256-bit chunk at the given index is full.
+    pub fn is_full(&self, index: u8) -> bool {
+        assert!(index < 32);
+        (self.0 >> (31 - index as u32)) & 0x01 == 1
+    }
+
+    /// Sets the flag for the 256-bit chunk at the given index to `full`.
+    pub fn set_full(&mut self, index: u8) {
+        self.0 |= 1_u32 << (31 - index as u32);
+    }
+
+    /// Resets the flag for the 256-bit chunk at the given index to not `full`.
+    pub fn reset_full(&mut self, index: u8) {
+        self.0 &= !(1_u32 << (31 - index as u32));
+    }
+}
+
 impl CountFree {
     /// Creates a new 32-entity set bit counter initialized with zeros.
     pub fn new() -> Self {
-        Self { counts: [0x00; 32] }
+        Self {
+            counts: Default::default(),
+            full: Default::default(),
+        }
     }
 
     /// Returns the position of the first free `u8` in the free counts.
@@ -257,8 +306,12 @@ impl CountFree {
     /// Returns `None` if all counts are `0xFF`.
     pub fn position_first_zero(&mut self) -> Option<u8> {
         for (i, count) in self.counts.iter_mut().enumerate() {
-            if *count != 0xFF {
-                *count += 1;
+            if !self.full.is_full(i as u8) {
+                if *count == !0 {
+                    self.full.set_full(i as u8);
+                } else {
+                    *count += 1;
+                }
                 return Some(i as u8)
             }
         }
