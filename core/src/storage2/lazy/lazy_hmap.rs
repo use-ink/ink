@@ -185,6 +185,15 @@ where
     }
 }
 
+impl<K, V, H> Default for LazyHashMap<K, V, H>
+where
+    K: Ord,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<K, V, H> LazyHashMap<K, V, H>
 where
     K: Ord,
