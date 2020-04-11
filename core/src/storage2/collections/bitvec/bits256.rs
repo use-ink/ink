@@ -368,4 +368,23 @@ mod tests {
             assert_eq!(bits256.get(i), a != b);
         }
     }
+
+    #[test]
+    fn position_first_zero_works() {
+        // Zero bits256:
+        let empty = Bits256::default();
+        assert_eq!(empty.position_first_zero(), Some(0));
+        // First bit is set:
+        let first_bit_is_set = Bits256 { bits: [0x8000_0000_0000_0000, 0x00, 0x00, 0x00] };
+        assert_eq!(first_bit_is_set.position_first_zero(), Some(1));
+        // Last bit is unset:
+        let first_bit_is_set = Bits256 { bits: [!0, !0, !0, !1] };
+        assert_eq!(first_bit_is_set.position_first_zero(), Some(3 * 64 + 63));
+        // Some middle bit is unset:
+        let first_bit_is_set = Bits256 { bits: [!0, !0, !0xFFFF_FFFF, !1] };
+        assert_eq!(first_bit_is_set.position_first_zero(), Some(2 * 64 + 32));
+        // All bits set:
+        let all_bits_set = Bits256 { bits: [!0, !0, !0, !0] };
+        assert_eq!(all_bits_set.position_first_zero(), None);
+    }
 }
