@@ -256,10 +256,10 @@ impl Bits256 {
 
     /// Returns the position of the first zero bit if any.
     pub fn position_first_zero(&self) -> Option<u8> {
-        let mut offset = 0;
+        let mut offset: u32 = 0;
         for bits64 in &self.bits {
-            if *bits64 != 0xFF {
-                return Some(offset + (!bits64).leading_zeros() as u8)
+            if *bits64 != !0 {
+                return Some(((!bits64).leading_zeros() + offset) as u8)
             }
             offset += 64;
         }
