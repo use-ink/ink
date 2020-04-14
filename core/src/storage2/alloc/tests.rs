@@ -58,3 +58,16 @@ fn free_works() {
         free(alloc());
     })
 }
+
+#[test]
+fn many_alloc_and_free_works() {
+    run_default_test(|| {
+        let allocations = 10_000;
+        for i in 0..allocations {
+            assert_eq!(alloc(), DynamicAllocation(i));
+        }
+        for i in 0..allocations {
+            free(DynamicAllocation(i))
+        }
+    })
+}
