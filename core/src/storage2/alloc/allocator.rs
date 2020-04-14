@@ -32,6 +32,7 @@ type Index32 = u8;
 /// The dynamic allocator.
 ///
 /// Manages dynamic storage allocations in a very efficient and economic way.
+#[derive(Debug)]
 pub struct DynamicAllocator {
     /// Counter for set bits in a 256-bit chunk of the `free` list.
     ///
@@ -175,7 +176,7 @@ impl DynamicAllocator {
         access.reset();
         // Update the counts list.
         let counts_id = index / (256 * 32);
-        let byte_id = (index % 32) as u8;
+        let byte_id = ((index / 256) % 32) as u8;
         self.counts
             .get_mut(counts_id)
             .expect("invalid counts ID")
@@ -328,10 +329,14 @@ impl CountFree {
     /// - If the increment would cause an overflow.
     pub fn dec(&mut self, index: Index32) -> u8 {
         assert!(index < 32, "index is out of bounds");
-        let new_value = self.counts[index as usize]
-            .checked_sub(1)
-            .expect("set bits decrement overflowed");
-        self.counts[index as usize] = new_value;
-        new_value
+        if self.full.is_full(index) {
+            self.full.reset_full(index);
+        } else {
+            let new_value = self.counts[index as usize]
+                .checked_sub(1)
+                .expect("set bits decrement overflowed");
+            self.counts[index as usize] = new_value;
+        }
+        self.counts[index as usize]
     }
 }
