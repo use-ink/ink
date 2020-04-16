@@ -75,7 +75,7 @@ impl GenerateCode for ContractModule<'_> {
                 pub type Event = self::__ink_private::Event;
             }
         } else {
-            quote! { }
+            quote! {}
         };
 
         quote! {
