@@ -119,7 +119,7 @@ impl EventHelpers<'_> {
                     where
                         E: Into<Self::Event>,
                     {
-                        ink_lang::EnvAccess::<EnvTypes>::emit_event(self, event.into())
+                        ink_lang::EnvAccess::<EnvTypes>::emit_event_inner(self, event.into())
                     }
                 }
             };
