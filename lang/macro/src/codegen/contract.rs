@@ -96,6 +96,9 @@ impl GenerateCode for ContractModule<'_> {
                 #[cfg(feature = "ink-as-dependency")]
                 pub type #storage_ident = self::__ink_private::StorageAsDependency;
 
+                #[cfg(all(test, feature = "test-env"))]
+                pub type Event = self::__ink_private::Event;
+
                 #event_structs
 
                 #(
