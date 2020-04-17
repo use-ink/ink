@@ -189,10 +189,8 @@ where
     ///
     /// # Note
     ///
-    /// Prefer using
-    ///
     /// For more details visit: [`ink_core::env::emit_event`]
-    pub fn emit_event_generic<Event>(self, event: Event)
+    pub fn emit_generic_event<Event>(self, event: Event)
     where
         Event: Topics<T> + scale::Encode,
     {
