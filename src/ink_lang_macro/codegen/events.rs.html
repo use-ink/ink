@@ -407,7 +407,7 @@
                     <span class="kw">where</span>
                         <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Event</span><span class="op">&gt;</span>,
                     {
-                        <span class="ident">ink_lang</span>::<span class="ident">EnvAccess</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span>::<span class="ident">emit_event</span>(<span class="self">self</span>, <span class="ident">event</span>.<span class="ident">into</span>())
+                        <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">emit_event</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span>, <span class="self">Self</span>::<span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">event</span>.<span class="ident">into</span>());
                     }
                 }
             };
@@ -423,7 +423,7 @@
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
         <span class="macro">quote</span><span class="macro">!</span> {
-            <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale</span>::<span class="ident">Encode</span>)]</span>
+            <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
             <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Event</span> {
                 #( #<span class="ident">event_idents</span>(#<span class="ident">event_idents</span>), )<span class="op">*</span>
             }
@@ -470,7 +470,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// - making all fields `pub`</span>
 <span class="doccomment">/// - strip `#[ink(..)]` attributes</span>
-<span class="doccomment">/// - add `#[derive(scale::Encode)]`</span>
+<span class="doccomment">/// - add `#[derive(scale::Encode, scale::Decode)]`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
@@ -511,7 +511,7 @@
             <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
                 #<span class="ident">conflic_depedency_cfg</span>
                 #(#<span class="ident">attrs</span>)<span class="op">*</span>
-                <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale</span>::<span class="ident">Encode</span>)]</span>
+                <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">ident</span>
                     #<span class="ident">fields</span>
             )

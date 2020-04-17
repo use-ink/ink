@@ -298,19 +298,6 @@
 <span id="298">298</span>
 <span id="299">299</span>
 <span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -337,7 +324,6 @@
         },
         <span class="ident">EnvTypes</span>,
         <span class="prelude-ty">Result</span>,
-        <span class="ident">Topics</span>,
     },
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
@@ -497,18 +483,6 @@
     <span class="doccomment">/// For more details visit: [`ink_core::env::tombstone_deposit`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tombstone_deposit</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>::<span class="ident">Balance</span> {
         <span class="ident">env</span>::<span class="ident">tombstone_deposit</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode tombstone deposits&quot;</span>)
-    }
-
-    <span class="doccomment">/// Emits an event with the given event data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`ink_core::env::emit_event`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>)
-    <span class="kw">where</span>
-        <span class="ident">Event</span>: <span class="ident">Topics</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Encode</span>,
-    {
-        <span class="ident">env</span>::<span class="ident">emit_event</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">event</span>)
     }
 
     <span class="doccomment">/// Sets the rent allowance of the executed contract to the new value.</span>
