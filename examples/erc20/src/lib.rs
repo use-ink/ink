@@ -155,8 +155,18 @@ mod erc20 {
         fn new_works() {
             // Constructor works.
             let _erc20 = Erc20::new(100);
+
             // Transfer event triggered during initial contruction.
-            assert_eq!(1, env::test::recorded_events().count());
+            let emitted_events = env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+            let raw_event = emitted_events.first().unwrap();
+            let event = <Event as scale::Decode>::decode(&mut &raw_event.data[..])
+                .expect("Invalid contract Event");
+            if let Event::Transfer(transfer) = event {
+                assert_eq!(100, transfer.value);
+            } else {
+                panic!("Expected a Transfer Event")
+            }
         }
 
         /// The total supply was applied.
