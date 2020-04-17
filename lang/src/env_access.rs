@@ -185,9 +185,11 @@ where
         env::tombstone_deposit::<T>().expect("couldn't decode tombstone deposits")
     }
 
-    /// Emits an event with the given event data.
+    /// Emits an event with the given event data, for any event type.
     ///
     /// # Note
+    ///
+    /// Prefer using
     ///
     /// For more details visit: [`ink_core::env::emit_event`]
     pub fn emit_event_generic<Event>(self, event: Event)
