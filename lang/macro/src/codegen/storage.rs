@@ -54,6 +54,13 @@ impl GenerateCode for Storage<'_> {
         let message_impls = self.generate_message_impls();
         let storage_struct = self.generate_storage_struct();
 
+        let use_emit_event = if !self.contract.events.is_empty() {
+            // Required to allow for `self.env().emit_event(..)` in messages and constructors.
+            quote! { use __ink_private::EmitEvent as _; }
+        } else {
+            quote! {}
+        };
+
         quote_spanned!(storage_span =>
             #[doc(hidden)]
             #conflic_depedency_cfg
@@ -74,6 +81,7 @@ impl GenerateCode for Storage<'_> {
                 #[allow(unused_imports)]
                 use ink_lang::Env as _;
 
+                #use_emit_event
                 #message_impls
             };
         )
