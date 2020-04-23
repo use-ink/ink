@@ -89,11 +89,6 @@ impl Wrap<'_> {
     fn len(&self) -> usize {
         self.len
     }
-
-    /// Returns `true` if the underlying buffer is empty.
-    fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
 }
 
 #[cfg(feature = "std")]
