@@ -23,7 +23,6 @@ use ink_core::{
         },
         EnvTypes,
         Result,
-        Topics,
     },
 };
 use ink_primitives::Key;
@@ -183,18 +182,6 @@ where
     /// For more details visit: [`ink_core::env::tombstone_deposit`]
     pub fn tombstone_deposit(self) -> T::Balance {
         env::tombstone_deposit::<T>().expect("couldn't decode tombstone deposits")
-    }
-
-    /// Emits an event with the given event data.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_core::env::emit_event`]
-    pub fn emit_event<Event>(self, event: Event)
-    where
-        Event: Topics<T> + scale::Encode,
-    {
-        env::emit_event::<T, Event>(event)
     }
 
     /// Sets the rent allowance of the executed contract to the new value.

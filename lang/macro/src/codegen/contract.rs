@@ -69,6 +69,15 @@ impl GenerateCode for ContractModule<'_> {
         let cross_calling = self.generate_code_using::<CrossCalling>();
         let non_ink_items = &self.contract.non_ink_items;
 
+        let test_event_alias = if !self.contract.events.is_empty() {
+            quote! {
+                #[cfg(all(test, feature = "test-env"))]
+                pub type Event = self::__ink_private::Event;
+            }
+        } else {
+            quote! {}
+        };
+
         quote! {
             mod #ident {
                 #env_types
@@ -95,6 +104,8 @@ impl GenerateCode for ContractModule<'_> {
 
                 #[cfg(feature = "ink-as-dependency")]
                 pub type #storage_ident = self::__ink_private::StorageAsDependency;
+
+                #test_event_alias
 
                 #event_structs
 
