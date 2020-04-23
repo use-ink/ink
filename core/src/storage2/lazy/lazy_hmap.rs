@@ -48,6 +48,7 @@ use ink_prelude::{
     boxed::Box,
     collections::BTreeMap,
     vec::Vec,
+    borrow::ToOwned,
 };
 use ink_primitives::Key;
 

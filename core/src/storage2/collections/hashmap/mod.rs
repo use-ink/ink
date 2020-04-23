@@ -40,6 +40,7 @@ use core::{
     borrow::Borrow,
     cmp::Eq,
 };
+use ink_prelude::borrow::ToOwned;
 use ink_primitives::Key;
 
 /// The index type within a hashmap.
