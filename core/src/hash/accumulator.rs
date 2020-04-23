@@ -120,7 +120,7 @@ impl<'a> Accumulator for Wrap<'a> {
     }
 
     fn write(&mut self, bytes: &[u8]) {
-        assert!(self.len() + bytes.len() <= self.capacity());
+        debug_assert!(self.len() + bytes.len() <= self.capacity());
         let len = self.len;
         let bytes_len = bytes.len();
         self.buffer[len..(len + bytes_len)].copy_from_slice(bytes);
@@ -139,7 +139,7 @@ impl<'a> scale::Output for Wrap<'a> {
     }
 
     fn push_byte(&mut self, byte: u8) {
-        assert!(self.len() < self.capacity());
+        debug_assert!(self.len() < self.capacity());
         self.buffer[self.len] = byte;
         self.len += 1;
     }
