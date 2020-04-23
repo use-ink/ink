@@ -27,7 +27,7 @@ smallvec = { version = "1.2", default-features = false, features = ["union"] }
 cfg-if = "0.1"
 num-traits = { version = "0.2", default-features = false, features = ["i128"] }
 array-init = "0.1"
-generic-array = "0.13"
+generic-array = "0.14.1"
 paste = "0.1"
 
 # Hashes for the off-chain environment.
