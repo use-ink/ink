@@ -107,6 +107,7 @@ mod multisig_plain {
 
     /// Indicates whether a transaction is already confirmed or needs further confirmations.
     #[derive(scale::Encode, scale::Decode, Clone, Copy)]
+    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
         Confirmed,
