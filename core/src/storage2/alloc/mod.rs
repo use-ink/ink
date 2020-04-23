@@ -202,7 +202,7 @@ cfg_if! {
         {
             static mut INSTANCE: Option<DynamicAllocator> = None;
             // Lazily initialize the dynamic allocator if not done, yet.
-            if unsafe { INSTANCE }.is_none() {
+            if unsafe { &INSTANCE }.is_none() {
                 match get_contract_phase() {
                     ContractPhase::Deploy => unsafe {
                         INSTANCE = Some(
@@ -218,7 +218,7 @@ cfg_if! {
                     }
                 }
             }
-            f(unsafe { &mut INSTANCE.expect("uninitialized dynamic storage allocator") })
+            f(unsafe { INSTANCE.as_mut().expect("uninitialized dynamic storage allocator") })
         }
 
     } else if #[cfg(feature = "std")] {
