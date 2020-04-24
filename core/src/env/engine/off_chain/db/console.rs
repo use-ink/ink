@@ -28,6 +28,11 @@ impl Console {
         }
     }
 
+    /// Resets the console to uninitialized state.
+    pub fn reset(&mut self) {
+        self.past_prints.clear();
+    }
+
     /// Prints the contents to the actual console and stores them.
     pub fn println(&mut self, contents: &str) {
         self.past_prints.push(contents.to_string());
