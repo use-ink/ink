@@ -56,7 +56,7 @@ impl GenerateCode for TestWrapper<'_> {
                     type Wrapped = TestableStorage;
 
                     fn instantiate() -> Self::Wrapped {
-                        ink_core::env::test::initialize_as_default::<ink_core::env::DefaultEnvTypes>()
+                        ink_core::env::test::initialize_or_reset_as_default::<ink_core::env::DefaultEnvTypes>()
                             .expect("encountered already initialized off-chain environment");
                         let mut contract: Self = unsafe {
                             let mut alloc =
