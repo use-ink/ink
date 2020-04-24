@@ -58,6 +58,11 @@ impl EmittedEventsRecorder {
         }
     }
 
+    /// Resets the emitted events to none.
+    pub fn reset(&mut self) {
+        self.emitted_events.clear();
+    }
+
     /// Records a new emitted event.
     pub fn record<T, E>(&mut self, new_event: E)
     where
