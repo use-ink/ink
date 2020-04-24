@@ -23,7 +23,6 @@ use ink_core::{
         },
         EnvTypes,
         Result,
-        Topics,
     },
 };
 use ink_primitives::Key;
@@ -185,18 +184,6 @@ where
         env::tombstone_deposit::<T>().expect("couldn't decode tombstone deposits")
     }
 
-    /// Emits an event with the given event data.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_core::env::emit_event`]
-    pub fn emit_event<Event>(self, event: Event)
-    where
-        Event: Topics<T> + scale::Encode,
-    {
-        env::emit_event::<T, Event>(event)
-    }
-
     /// Sets the rent allowance of the executed contract to the new value.
     ///
     /// # Note
@@ -261,6 +248,30 @@ where
         filtered_keys: &[Key],
     ) {
         env::restore_contract::<T>(account_id, code_hash, rent_allowance, filtered_keys)
+    }
+
+    /// Terminates the existence of a smart contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::terminate_contract`]
+    pub fn terminate_contract(self, beneficiary: T::AccountId) -> !
+    where
+        T: EnvTypes,
+    {
+        env::terminate_contract::<T>(beneficiary)
+    }
+
+    /// Transfers value from the contract to the destination account ID.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_core::env::transfer`]
+    pub fn transfer(self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        env::transfer::<T>(destination, value)
     }
 
     /// Returns a random hash seed.

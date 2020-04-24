@@ -39,6 +39,8 @@ pub enum EnvError {
     MissingRuntimeStorageEntry,
     /// The queried contract storage entry is missing.
     MissingContractStorageEntry,
+    /// A call to transfer value from the contract failed.
+    TransferCallFailed,
 }
 
 /// A result of environmental operations.

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    hashing,
     Account,
     EnvInstance,
 };
@@ -24,6 +25,7 @@ use crate::env::{
         ReturnType,
     },
     Env,
+    EnvError,
     EnvTypes,
     Result,
     Topics,
@@ -109,6 +111,22 @@ impl Env for EnvInstance {
 
     fn println(&mut self, content: &str) {
         self.console.println(content)
+    }
+
+    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]) {
+        hashing::keccak_256(input, output)
+    }
+
+    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
+        hashing::blake2_256(input, output)
+    }
+
+    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]) {
+        hashing::blake2_128(input, output)
+    }
+
+    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
+        hashing::sha2_256(input, output)
     }
 }
 
@@ -248,6 +266,13 @@ impl TypedEnv for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
+    fn terminate_contract<T>(&mut self, _beneficiary: T::AccountId) -> !
+    where
+        T: EnvTypes,
+    {
+        unimplemented!("off-chain environment does not support contract termination")
+    }
+
     fn restore_contract<T>(
         &mut self,
         _account_id: T::AccountId,
@@ -258,6 +283,34 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
     {
         unimplemented!("off-chain environment does not support contract restoration")
+    }
+
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        let src_id = self.account_id::<T>()?;
+        let src_value = self
+            .accounts
+            .get_account::<T>(&src_id)
+            .expect("account of executed contract must exist")
+            .balance::<T>()?;
+        if src_value < value {
+            return Err(EnvError::TransferCallFailed)
+        }
+        let dst_value = self
+            .accounts
+            .get_or_create_account::<T>(&destination)
+            .balance::<T>()?;
+        self.accounts
+            .get_account_mut::<T>(&src_id)
+            .expect("account of executed contract must exist")
+            .set_balance::<T>(src_value - value)?;
+        self.accounts
+            .get_account_mut::<T>(&destination)
+            .expect("the account must exist already or has just been created")
+            .set_balance::<T>(dst_value + value)?;
+        Ok(())
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>

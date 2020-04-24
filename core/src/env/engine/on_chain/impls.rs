@@ -178,6 +178,22 @@ impl Env for EnvInstance {
     fn println(&mut self, content: &str) {
         ext::println(content)
     }
+
+    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]) {
+        ext::hash_keccak_256(input, output)
+    }
+
+    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
+        ext::hash_blake2_256(input, output)
+    }
+
+    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]) {
+        ext::hash_blake2_128(input, output)
+    }
+
+    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
+        ext::hash_sha2_256(input, output)
+    }
 }
 
 impl TypedEnv for EnvInstance {
@@ -328,6 +344,31 @@ impl TypedEnv for EnvInstance {
         let rent_allowance = &self.buffer[rent_allowance];
         // Perform the actual contract restoration.
         ext::restore_to(account_id, code_hash, rent_allowance, filtered_keys);
+    }
+
+    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
+    where
+        T: EnvTypes,
+    {
+        self.encode_into_buffer(beneficiary);
+        ext::terminate(&self.buffer[..]);
+    }
+
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        // Reset the contract-side buffer to append onto clean slate.
+        self.reset_buffer();
+        // Append the encoded `destination` and `value` in order and remember
+        // their encoded regions within the buffer.
+        let destination = self.append_encode_into_buffer(destination);
+        let value = self.append_encode_into_buffer(value);
+        // Resolve the encoded regions into actual byte slices.
+        let destination = &self.buffer[destination];
+        let value = &self.buffer[value];
+        // Perform the actual transfer call.
+        ext::transfer(destination, value)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>

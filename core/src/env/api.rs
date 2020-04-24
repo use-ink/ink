@@ -395,6 +395,45 @@ pub fn restore_contract<T>(
     })
 }
 
+/// Terminates the existence of the currently executed smart contract.
+///
+/// This removes the calling account and transfers all remaining balance
+/// to the given beneficiary.
+///
+/// # Note
+///
+/// This function never returns. Either the termination was successful and the
+/// execution of the destroyed contract is halted. Or it failed during the termination
+/// which is considered fatal and results in a trap + rollback.
+pub fn terminate_contract<T>(beneficiary: T::AccountId) -> !
+where
+    T: EnvTypes,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnv::terminate_contract::<T>(instance, beneficiary)
+    })
+}
+
+/// Transfers value from the contract to the destination account ID.
+///
+/// # Note
+///
+/// This is more efficient and simpler than the alternative to make a no-op
+/// contract call or invoke a runtime function that performs the
+/// transaction.
+///
+/// # Errors
+///
+/// If the contract doesn't have sufficient funds.
+pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
+where
+    T: EnvTypes,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnv::transfer::<T>(instance, destination, value)
+    })
+}
+
 /// Returns the input to the executed contract.
 ///
 /// # Note
@@ -466,4 +505,42 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         Env::get_runtime_storage::<R>(instance, runtime_key)
     })
+}
+
+/// Built-in efficient cryptographic hash functions.
+pub mod hash {
+    use super::*;
+
+    macro_rules! impl_hash_fn {
+        ( $(#[$doc:meta])* fn $name:ident($output_len:literal) ) => {
+            paste::item! {
+                $( #[$doc] )*
+                pub fn $name(input: &[u8], output: &mut [u8; $output_len]) {
+                    // No need to actually access the environmental instance
+                    // if we only call one of its inherent methods.
+                    <EnvInstance as Env>::[<hash_ $name>](input, output)
+                }
+            }
+        };
+    }
+    impl_hash_fn!(
+        /// Conducts the SHA2 256-bit hash of the given bytes and
+        /// puts the result into the output buffer.
+        fn sha2_256(32)
+    );
+    impl_hash_fn!(
+        /// Conducts the KECCAK 256-bit hash of the given bytes and
+        /// puts the result into the output buffer.
+        fn keccak_256(32)
+    );
+    impl_hash_fn!(
+        /// Conducts the BLAKE2 256-bit hash of the given bytes and
+        /// puts the result into the output buffer.
+        fn blake2_256(32)
+    );
+    impl_hash_fn!(
+        /// Conducts the BLAKE2 128-bit hash of the given bytes and
+        /// puts the result into the output buffer.
+        fn blake2_128(16)
+    );
 }

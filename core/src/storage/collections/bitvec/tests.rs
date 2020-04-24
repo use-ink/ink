@@ -116,6 +116,20 @@ fn push_filled() {
 }
 
 #[test]
+fn extend() {
+    let mut filled = new_filled_bitvec();
+    let arr = [true, false, true];
+
+    let mut expected = Vec::new();
+    expected.extend(filled.iter());
+    expected.extend(&arr);
+
+    filled.extend(&arr);
+
+    assert!(filled.iter().eq(expected.iter().cloned()));
+}
+
+#[test]
 fn pop_empty() {
     assert_eq!(new_empty_bitvec().pop(), None);
 }

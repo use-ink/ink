@@ -42,6 +42,14 @@ impl ChainSpec {
         }
     }
 
+    /// Resets the chain spec to uninitialized state.
+    pub fn reset(&mut self) {
+        self.gas_price = OffBalance::uninitialized();
+        self.minimum_balance = OffBalance::uninitialized();
+        self.tombstone_deposit = OffBalance::uninitialized();
+        self.block_time = OffTimestamp::uninitialized();
+    }
+
     /// Default initialization for the off-chain specification.
     pub fn initialize_as_default<T>(&mut self) -> crate::env::Result<()>
     where

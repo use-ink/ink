@@ -24,6 +24,9 @@ mod engine;
 mod error;
 mod types;
 
+#[cfg(test)]
+mod tests;
+
 #[cfg(any(feature = "std", test, doc))]
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
