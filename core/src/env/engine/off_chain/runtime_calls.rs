@@ -37,6 +37,11 @@ impl RuntimeCallHandler {
         Self { registered: None }
     }
 
+    /// Resets the runtime call handler to uninitialized state.
+    pub fn reset(&mut self) {
+        self.registered = None;
+    }
+
     /// Register a runtime call handler.
     pub fn register<T, F>(&mut self, mut f: F)
     where

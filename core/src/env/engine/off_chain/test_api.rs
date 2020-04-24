@@ -288,14 +288,13 @@ where
 ///
 /// - Initializes the off-chain environment with default values that fit most
 /// uses cases.
-/// - The off-chain environment _must_ be initialized before use.
-pub fn initialize_as_default<T>() -> Result<()>
+pub fn initialize_or_reset_as_default<T>() -> Result<()>
 where
     T: EnvTypes,
     <T as EnvTypes>::AccountId: From<[u8; 32]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.initialize_as_default::<T>()
+        instance.initialize_or_reset_as_default::<T>()
     })
 }
 
@@ -307,7 +306,7 @@ where
     F: FnOnce(DefaultAccounts<T>) -> Result<()>,
     <T as EnvTypes>::AccountId: From<[u8; 32]>,
 {
-    initialize_as_default::<T>()?;
+    initialize_or_reset_as_default::<T>()?;
     let default_accounts = default_accounts::<T>()?;
     f(default_accounts)
 }
