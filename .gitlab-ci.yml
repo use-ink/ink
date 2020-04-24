@@ -87,7 +87,7 @@ codecov:
   script:
     # - cargo clean
     - for crate in ${ALL_CRATES}; do
-        cargo +nightly test --verbose --all-features --no-fail-fast --release --manifest-path ${crate}/Cargo.toml;;
+        cargo +nightly test --verbose --all-features --no-fail-fast --release --manifest-path ${crate}/Cargo.toml;
       done
     # OR
     # - cargo +nightly test --verbose --all-features --no-fail-fast --release --workspace
