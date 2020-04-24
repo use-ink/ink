@@ -427,10 +427,11 @@ where
             // SAFETY: The loaded `x` and `y` entries are distinct from each
             //         other guaranteed by the previous checks so they cannot
             //         alias.
-            unsafe { (
-                &mut *self.load_through_cache(a).as_ptr(),
-                &mut *self.load_through_cache(b).as_ptr(),
-            ) };
+            unsafe {
+                let loaded_a = self.load_through_cache(a).as_ptr();
+                let loaded_b = self.load_through_cache(b).as_ptr();
+                (&mut *loaded_a, &mut *loaded_b)
+            };
         if loaded_a.value().is_none() && loaded_b.value().is_none() {
             // Bail out since nothing has to be swapped if both values are `None`.
             return
