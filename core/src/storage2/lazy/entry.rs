@@ -39,6 +39,21 @@ pub enum EntryState {
     Preserved,
 }
 
+impl EntryState {
+    /// Returns `true` if the entry state is mutated.
+    pub fn is_mutated(self) -> bool {
+        match self {
+            EntryState::Mutated => true,
+            EntryState::Preserved => false,
+        }
+    }
+
+    /// Returns `true` if the entry state is preserved.
+    pub fn is_preserved(self) -> bool {
+        !self.is_mutated()
+    }
+}
+
 impl<T> PushForward for Entry<T>
 where
     T: PushForward + StorageFootprint,
@@ -75,6 +90,11 @@ impl<T> Entry<T> {
             value,
             state: Cell::new(state),
         }
+    }
+
+    /// Replaces the current entry state with the new state and returns it.
+    pub fn replace_state(&mut self, new_state: EntryState) -> EntryState {
+        self.state.replace(new_state)
     }
 
     /// Sets the entry state to the new state.

@@ -44,10 +44,13 @@ use ink_primitives::Key;
 pub type Index = u32;
 
 /// Utility trait for helping with lazy array construction.
-pub trait LazyArrayLength<T>: ArrayLength<Option<Entry<T>>> + Unsigned {}
+pub trait LazyArrayLength<T>:
+    ArrayLength<UnsafeCell<Option<Entry<T>>>> + Unsigned
+{
+}
 impl<T> LazyArrayLength<T> for UTerm {}
-impl<T, N: ArrayLength<Option<Entry<T>>>> LazyArrayLength<T> for UInt<N, B0> {}
-impl<T, N: ArrayLength<Option<Entry<T>>>> LazyArrayLength<T> for UInt<N, B1> {}
+impl<T, N: ArrayLength<UnsafeCell<Option<Entry<T>>>>> LazyArrayLength<T> for UInt<N, B0> {}
+impl<T, N: ArrayLength<UnsafeCell<Option<Entry<T>>>>> LazyArrayLength<T> for UInt<N, B1> {}
 
 /// A lazy storage array that spans over N storage cells.
 ///
@@ -78,7 +81,7 @@ where
     /// The subset of currently cached entries of the lazy storage chunk.
     ///
     /// An entry is cached as soon as it is loaded or written.
-    cached_entries: UnsafeCell<EntryArray<T, N>>,
+    cached_entries: EntryArray<T, N>,
 }
 
 /// Returns the capacity for an array with the given array length.
@@ -96,8 +99,53 @@ where
     N: LazyArrayLength<T>,
 {
     /// The cache entries of the entry array.
-    entries: GenericArray<Option<Entry<T>>, N>,
+    entries: GenericArray<UnsafeCell<Option<Entry<T>>>, N>,
 }
+
+#[derive(Debug)]
+pub struct EntriesIter<'a, T> {
+    iter: core::slice::Iter<'a, UnsafeCell<Option<Entry<T>>>>,
+}
+
+impl<'a, T> EntriesIter<'a, T> {
+    pub fn new<N>(entry_array: &'a EntryArray<T, N>) -> Self
+    where
+        N: LazyArrayLength<T>,
+    {
+        Self {
+            iter: entry_array.entries.iter(),
+        }
+    }
+}
+
+impl<'a, T> Iterator for EntriesIter<'a, T> {
+    type Item = &'a mut Option<Entry<T>>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|cell| unsafe { &mut *cell.get() })
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+
+    fn count(self) -> usize
+    where
+        Self: Sized,
+    {
+        self.iter.count()
+    }
+}
+
+impl<'a, T> DoubleEndedIterator for EntriesIter<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter
+            .next_back()
+            .map(|cell| unsafe { &mut *cell.get() })
+    }
+}
+
+impl<'a, T> ExactSizeIterator for EntriesIter<'a, T> {}
 
 impl<T, N> EntryArray<T, N>
 where
@@ -132,9 +180,9 @@ where
 
     /// Puts the the new value into the indexed slot and
     /// returns the old value if any.
-    fn put(&mut self, at: Index, new_value: Option<T>) -> Option<T> {
+    fn put(&self, at: Index, new_value: Option<T>) -> Option<T> {
         mem::replace(
-            &mut self.entries.as_mut_slice()[at as usize],
+            unsafe { &mut *self.entries.as_slice()[at as usize].get() },
             Some(Entry::new(new_value, EntryState::Mutated)),
         )
         .map(Entry::into_value)
@@ -142,18 +190,24 @@ where
     }
 
     /// Inserts a new entry into the cache and returns an exclusive reference to it.
-    fn insert_entry(&mut self, at: Index, entry: Entry<T>) -> &mut Entry<T> {
-        self.entries[at as usize] = Some(entry);
-        let entry: Option<&mut Entry<T>> = (&mut self.entries[at as usize]).into();
-        entry.expect("just inserted the entry")
+    unsafe fn insert_entry(&self, at: Index, new_entry: Entry<T>) -> &mut Entry<T> {
+        let entry: &mut Option<Entry<T>> =
+            unsafe { &mut *UnsafeCell::get(&self.entries[at as usize]) };
+        *entry = Some(new_entry);
+        entry.as_mut().expect("just inserted the entry")
     }
 
     /// Returns an exclusive reference to the entry at the given index if any.
-    fn get_entry_mut(&mut self, at: Index) -> Option<&mut Entry<T>> {
+    unsafe fn get_entry_mut(&self, at: Index) -> Option<&mut Entry<T>> {
         if at >= Self::capacity() {
             return None
         }
-        self.entries[at as usize].as_mut()
+        (&mut *UnsafeCell::get(&self.entries[at as usize])).as_mut()
+    }
+
+    /// Returns an iterator that yields exclusive references to all cached entries.
+    pub unsafe fn iter(&self) -> EntriesIter<T> {
+        EntriesIter::new(self)
     }
 }
 
@@ -179,7 +233,7 @@ where
     pub fn new() -> Self {
         Self {
             key: None,
-            cached_entries: UnsafeCell::new(Default::default()),
+            cached_entries: Default::default(),
         }
     }
 
@@ -201,17 +255,7 @@ where
     /// This operation is safe since it returns a shared reference from
     /// a `&self` which is viable in safe Rust.
     fn cached_entries(&self) -> &EntryArray<T, N> {
-        unsafe { &*self.cached_entries.get() }
-    }
-
-    /// Returns an exclusive reference to the underlying cached entries.
-    ///
-    /// # Safety
-    ///
-    /// This operation is safe since it returns an exclusive reference from
-    /// a `&mut self` which is viable in safe Rust.
-    fn cached_entries_mut(&mut self) -> &mut EntryArray<T, N> {
-        unsafe { &mut *self.cached_entries.get() }
+        &self.cached_entries
     }
 
     /// Puts a new value into the given indexed slot.
@@ -220,7 +264,7 @@ where
     ///
     /// Use [`LazyArray::put_get`]`(None)` to remove an element.
     pub fn put(&mut self, at: Index, new_value: Option<T>) {
-        self.cached_entries_mut().put(at, new_value);
+        self.cached_entries().put(at, new_value);
     }
 }
 
@@ -240,7 +284,7 @@ where
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
         Self {
             key: Some(ptr.next_for::<Self>()),
-            cached_entries: UnsafeCell::new(EntryArray::new()),
+            cached_entries: EntryArray::new(),
         }
     }
 }
@@ -252,35 +296,16 @@ where
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for::<Self>();
-        for (index, entry) in self.cached_entries().entries.iter().enumerate() {
+        for (index, entry) in unsafe { self.cached_entries().iter() }.enumerate() {
             if let Some(entry) = entry {
-                if !entry.is_mutated() {
+                let state = entry.replace_state(EntryState::Preserved);
+                if !state.is_mutated() {
                     continue
                 }
-                let footprint = <T as StorageFootprint>::VALUE;
-                let key = offset_key + (index as u64 * footprint);
-                match entry.value() {
-                    Some(value) => {
-                        // Update associated storage entries.
-                        <T as PushForward>::push_forward(value, &mut KeyPtr::from(key))
-                    }
-                    None => {
-                        // Clean-up associated storage entries.
-                        if footprint > 32 {
-                            // Bail out if footprint is too big.
-                            //
-                            // TODO:
-                            // - Use compile-time solution to prevent situations like these.
-                            //   This should be simple now since we are using `typenum` instead
-                            //   of associated constants.
-                            return
-                        }
-                        use crate::env;
-                        for i in 0..footprint as u32 {
-                            env::clear_contract_storage(key + i);
-                        }
-                    }
-                }
+                let root_key = offset_key + index as u64;
+                // TODO: move system to new traits:
+                // crate::storage2::traits2::push_packed_root_opt(entry.value().into(), &root_key);
+                todo!()
             }
         }
     }
@@ -317,8 +342,7 @@ where
     /// - If the given index is out of bounds.
     fn load_through_cache(&self, at: Index) -> NonNull<Entry<T>> {
         assert!(at < Self::capacity(), "index is out of bounds");
-        let cached_entries = unsafe { &mut *self.cached_entries.get() };
-        match cached_entries.get_entry_mut(at) {
+        match unsafe { self.cached_entries.get_entry_mut(at) } {
             Some(entry) => {
                 // Load value from cache.
                 NonNull::from(entry)
@@ -330,7 +354,7 @@ where
                 let value =
                     <Option<T> as PullForward>::pull_forward(&mut KeyPtr::from(key));
                 let entry = Entry::new(value, EntryState::Preserved);
-                NonNull::from(cached_entries.insert_entry(at, entry))
+                NonNull::from(unsafe { self.cached_entries.insert_entry(at, entry) })
             }
         }
     }
@@ -427,11 +451,10 @@ where
             // SAFETY: The loaded `x` and `y` entries are distinct from each
             //         other guaranteed by the previous checks so they cannot
             //         alias.
-            unsafe {
-                let loaded_a = self.load_through_cache(a).as_ptr();
-                let loaded_b = self.load_through_cache(b).as_ptr();
-                (&mut *loaded_a, &mut *loaded_b)
-            };
+            unsafe { (
+                &mut *self.load_through_cache(a).as_ptr(),
+                &mut *self.load_through_cache(b).as_ptr(),
+            ) };
         if loaded_a.value().is_none() && loaded_b.value().is_none() {
             // Bail out since nothing has to be swapped if both values are `None`.
             return
