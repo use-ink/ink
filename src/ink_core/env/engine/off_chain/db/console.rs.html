@@ -74,6 +74,11 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -103,6 +108,11 @@
         <span class="self">Self</span> {
             <span class="ident">past_prints</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
         }
+    }
+
+    <span class="doccomment">/// Resets the console to uninitialized state.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">past_prints</span>.<span class="ident">clear</span>();
     }
 
     <span class="doccomment">/// Prints the contents to the actual console and stores them.</span>

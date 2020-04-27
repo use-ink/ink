@@ -325,7 +325,6 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
-<span id="328">328</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -617,14 +616,13 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// - Initializes the off-chain environment with default values that fit most</span>
 <span class="doccomment">/// uses cases.</span>
-<span class="doccomment">/// - The off-chain environment _must_ be initialized before use.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize_as_default</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize_or_reset_as_default</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
     <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">EnvTypes</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">instance</span>.<span class="ident">initialize_as_default</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+        <span class="ident">instance</span>.<span class="ident">initialize_or_reset_as_default</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     })
 }
 
@@ -636,7 +634,7 @@
     <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
     <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">EnvTypes</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
-    <span class="ident">initialize_as_default</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+    <span class="ident">initialize_or_reset_as_default</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">default_accounts</span> <span class="op">=</span> <span class="ident">default_accounts</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
     <span class="ident">f</span>(<span class="ident">default_accounts</span>)
 }

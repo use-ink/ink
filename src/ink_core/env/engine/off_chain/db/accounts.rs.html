@@ -344,6 +344,11 @@
 <span id="344">344</span>
 <span id="345">345</span>
 <span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -423,6 +428,11 @@
         <span class="self">Self</span> {
             <span class="ident">accounts</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
         }
+    }
+
+    <span class="doccomment">/// Resets the account DB to uninitialized state.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">accounts</span>.<span class="ident">clear</span>()
     }
 
     <span class="doccomment">/// Returns the account at the given account ID or creates it.</span>

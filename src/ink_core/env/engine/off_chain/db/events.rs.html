@@ -72,6 +72,11 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -131,6 +136,11 @@
         <span class="self">Self</span> {
             <span class="ident">emitted_events</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
         }
+    }
+
+    <span class="doccomment">/// Resets the emitted events to none.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">emitted_events</span>.<span class="ident">clear</span>();
     }
 
     <span class="doccomment">/// Records a new emitted event.</span>
