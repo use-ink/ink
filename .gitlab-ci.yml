@@ -69,7 +69,7 @@ codecov:
   <<:                              *docker-env
   variables:
     CARGO_INCREMENTAL:             0
-    RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+    RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
   script:
     - cargo clean; rm -rf $CARGO_TARGET_DIR
     # - cargo +nightly test --verbose --all-features --no-fail-fast --release --workspace
