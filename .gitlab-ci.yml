@@ -85,8 +85,8 @@ codecov:
 test:
   stage:                           check
   <<:                              *docker-env
-  needs:
-    - check-std
+  # needs:
+  #   - check-std
   script:
     # - for crate in ${ALL_CRATES}; do
     #     cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
