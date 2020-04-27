@@ -68,19 +68,12 @@ variables:
 codecov:
   stage:                           check
   <<:                              *docker-env
-#   dependencies:
-#     - check-std
   variables:
     CARGO_INCREMENTAL:             0
     RUSTFLAGS:                     '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads'
   script:
-    # - cargo clean
-    # - for crate in ${ALL_CRATES}; do
-    #     cargo +nightly test --verbose --all-features --no-fail-fast --release --manifest-path ${crate}/Cargo.toml;
-    #   done
-    # OR
+    - cargo clean; rm -rf $CARGO_TARGET_DIR
     - cargo +nightly test --verbose --all-features --no-fail-fast --release --workspace
-    # OR with default members in manifest
     - apt update && apt install -y zip
     - zip -0 ccov.zip `find ${CARGO_TARGET_DIR} \( -iname "*.gc*" \) -print`;
     - grcov ccov.zip -t coveralls+ --llvm --token ${CODECOV_TOKEN} --commit-sha ${CI_COMMIT_SHA} > ccov.json
@@ -88,3 +81,14 @@ codecov:
     # - bash <(curl https://codecov.io/bash) -t ${CODECOV_TOKEN} -f file -s ccov_reports 
     # - grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" > lcov.info
     - bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN} -X gcov -f ccov.json
+
+test:
+  stage:                           check
+  <<:                              *docker-env
+  needs:
+    - check-std
+  script:
+    # - for crate in ${ALL_CRATES}; do
+    #     cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+    #   done
+    - cargo test --verbose --all-features --release --workspace
