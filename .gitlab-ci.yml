@@ -71,16 +71,14 @@ codecov:
     CARGO_INCREMENTAL:             0
     RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
   script:
-    - cargo clean; rm -rf $CARGO_TARGET_DIR
-    # - cargo +nightly test --verbose --all-features --no-fail-fast --release --workspace
-    - cargo +nightly test --verbose --all-features --no-fail-fast --release --workspace | tee output_workspace.log
+    - cargo +nightly test --verbose --all-features --no-fail-fast --release --workspace
     - apt update && apt install -y zip
-    - zip -0 ccov.zip `find ${CARGO_TARGET_DIR} \( -iname "*.gc*" \) -print`;
-    - grcov ccov.zip -t coveralls+ --llvm --token ${CODECOV_TOKEN} --commit-sha ${CI_COMMIT_SHA} > ccov.json
+    - zip -0 ccov.zip $(find "${CARGO_TARGET_DIR}" \( -iname "*.gc*" \) -print)
+    - grcov ccov.zip -t coveralls+ --llvm --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" > ccov.json
     # - curl -X POST --data-binary ccov.json "https://codecov.io/upload/v2?commit=${CI_COMMIT_SHORT_SHA}&token=${CODECOV_TOKEN}&build_url=${CI_JOB_URL}&service=gitlab&pr=${CI_COMMIT_REF_NAME}"
     # - bash <(curl https://codecov.io/bash) -t ${CODECOV_TOKEN} -f file -s ccov_reports 
     # - grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" > lcov.info
-    - bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN} -X gcov -f ccov.json
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
 
 test:
   stage:                           check
