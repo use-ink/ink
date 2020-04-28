@@ -36,6 +36,23 @@ where
         .map(|_| super::pull_spread_root::<T>(root_key))
 }
 
+fn clear_associated_storage_cells<T>(root_key: &Key)
+where
+    T: SpreadLayout,
+{
+    // Due to performance implications we do not allow this with
+    // storage entities that have a footprint that is too big.
+    let footprint = <T as SpreadLayout>::FOOTPRINT;
+    assert!(
+        footprint < 32,
+        "footprint too large! try packing or boxing the storage entity."
+    );
+    let mut ptr = KeyPtr::from(*root_key);
+    for _ in 0..footprint {
+        env::clear_contract_storage(ptr.advance_by(1));
+    }
+}
+
 pub fn push_spread_root_opt<T>(entity: Option<&T>, root_key: &Key)
 where
     T: SpreadLayout,
@@ -49,21 +66,19 @@ where
             super::push_spread_root(value, root_key)
         }
         None => {
-            // Clear all associated contract storage cells.
-            //
-            // Due to performance implications we do not allow this with
-            // storage entities that have a footprint that is too big.
-            let footprint = <T as SpreadLayout>::FOOTPRINT;
-            assert!(
-                footprint < 32,
-                "footprint too large! try packing or boxing the storage entity."
-            );
-            let mut ptr = KeyPtr::from(*root_key);
-            for _ in 0..footprint {
-                env::clear_contract_storage(ptr.advance_by(1));
-            }
+            clear_associated_storage_cells::<T>(root_key)
         }
     }
+}
+
+pub fn clear_spread_root_opt<T>(entity: Option<&T>, root_key: &Key)
+where
+    T: SpreadLayout,
+{
+    if let Some(value) = entity {
+        super::clear_spread_root(value, root_key)
+    }
+    clear_associated_storage_cells::<T>(root_key)
 }
 
 pub fn pull_packed_root_opt<T>(root_key: &Key) -> Option<T>

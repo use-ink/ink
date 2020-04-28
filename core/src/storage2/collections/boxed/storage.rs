@@ -16,6 +16,7 @@ use super::Box as StorageBox;
 use crate::storage2::{
     alloc::DynamicAllocation,
     lazy::Lazy,
+    traits2::SpreadLayout,
     ClearAt,
     ClearForward,
     KeyPtr,
@@ -29,6 +30,7 @@ use ink_primitives::Key;
 
 impl<T> StorageFootprint for StorageBox<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     /// A boxed entity always uses exactly 1 cell for its storage.
@@ -40,6 +42,7 @@ where
 
 impl<T> PullForward for StorageBox<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
@@ -49,6 +52,7 @@ where
 
 impl<T> PullAt for StorageBox<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     fn pull_at(at: Key) -> Self {
@@ -62,6 +66,7 @@ where
 
 impl<T> PushForward for StorageBox<T>
 where
+    T: SpreadLayout,
     T: ClearForward + PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
@@ -72,6 +77,7 @@ where
 
 impl<T> PushAt for StorageBox<T>
 where
+    T: SpreadLayout,
     T: ClearForward + PushForward + StorageFootprint,
 {
     fn push_at(&self, at: Key) {
@@ -82,6 +88,7 @@ where
 
 impl<T> ClearForward for StorageBox<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
@@ -91,6 +98,7 @@ where
 
 impl<T> ClearAt for StorageBox<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     fn clear_at(&self, at: Key) {

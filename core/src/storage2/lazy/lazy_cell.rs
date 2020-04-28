@@ -17,6 +17,13 @@ use super::{
     EntryState,
 };
 use crate::storage2::{
+    traits2::{
+        clear_spread_root_opt,
+        push_spread_root_opt,
+        pull_spread_root_opt,
+        KeyPtr as KeyPtr2,
+        SpreadLayout,
+    },
     ClearForward,
     KeyPtr,
     PullForward,
@@ -29,34 +36,6 @@ use core::{
 };
 use ink_primitives::Key;
 
-/// The lazy storage entry can be in either of two states.
-///
-/// - Vacant: No value has been loaded and the next access to the lazy cell
-///           will lazily load and decode the value from contract storage.
-/// - Occupied: There already is a value that has been loaded or that has been
-///             simply set upon initialization.
-#[derive(Debug)]
-pub enum LazyCellEntry<T> {
-    /// A true lazy storage entity that loads its contract storage value upon first use.
-    Vacant(VacantEntry),
-    /// An already loaded eager lazy storage entity.
-    Occupied(Entry<T>),
-}
-
-/// The lazy storage entity is in a lazy state.
-#[derive(Debug)]
-pub struct VacantEntry {
-    /// The key to load the value from contract storage upon first use.
-    pub key: Key,
-}
-
-impl VacantEntry {
-    /// Creates a new truly lazy storage entity for the given key.
-    pub fn new(key: Key) -> Self {
-        Self { key }
-    }
-}
-
 /// A lazy storage entity.
 ///
 /// This loads its value from storage upon first use.
@@ -65,20 +44,59 @@ impl VacantEntry {
 ///
 /// Use this if the storage field doesn't need to be loaded in some or most cases.
 #[derive(Debug)]
-pub struct LazyCell<T> {
-    // SAFETY: We use `UnsafeCell` instead of `RefCell` because
-    //         the intended use-case is to hand out references (`&` and `&mut`)
-    //         to the callers of `Lazy`. This cannot be done without `unsafe`
-    //         code even with `RefCell`. Also `RefCell` has a larger footprint
-    //         and has additional overhead that we can avoid by the interface
-    //         and the fact that ink! code is always run single-threaded.
-    //         Being efficient is important here because this is intended to be
-    //         a low-level primitive with lots of dependencies.
-    kind: UnsafeCell<LazyCellEntry<T>>,
+pub struct LazyCell<T>
+where
+    T: SpreadLayout,
+{
+    key: Option<Key>,
+    // SAFETY:
+    //
+    // We use `UnsafeCell` instead of `RefCell` because
+    // the intended use-case is to hand out references (`&` and `&mut`)
+    // to the callers of `Lazy`. This cannot be done without `unsafe`
+    // code even with `RefCell`. Also `RefCell` has a larger memory footprint
+    // and has additional overhead that we can avoid by the interface
+    // and the fact that ink! code is always run single-threaded.
+    // Being efficient is important here because this is intended to be
+    // a low-level primitive with lots of dependencies.
+    cache: UnsafeCell<Entry<T>>,
+}
+
+impl<T> Drop for LazyCell<T>
+where
+    T: SpreadLayout,
+{
+    fn drop(&mut self) {
+        if let Some(key) = self.key() {
+            clear_spread_root_opt(self.value(), key)
+        }
+    }
+}
+
+impl<T> SpreadLayout for LazyCell<T>
+where
+    T: SpreadLayout,
+{
+    const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        Self::lazy(ptr.next_for::<T>())
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        if self.entry().is_mutated() {
+            push_spread_root_opt::<T>(self.value().into(), &ptr.next_for::<T>())
+        }
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        clear_spread_root_opt(self.value().into(), &ptr.next_for::<T>())
+    }
 }
 
 impl<T> StorageFootprint for LazyCell<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint,
 {
     const VALUE: u64 = <T as StorageFootprint>::VALUE;
@@ -86,41 +104,38 @@ where
 
 impl<T> PullForward for LazyCell<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<T>())
+        unimplemented!("deprecated trait")
     }
 }
 
 impl<T> PushForward for LazyCell<T>
 where
+    T: SpreadLayout,
     T: PushForward + StorageFootprint,
 {
     fn push_forward(&self, ptr: &mut KeyPtr) {
-        if let LazyCellEntry::Occupied(occupied) = self.kind() {
-            // Skip pushing to contract storage if we are still in unloaded form.
-            if !occupied.is_mutated() {
-                // Don't sync with storage if the value has not been mutated.
-                return
-            }
-            PushForward::push_forward(occupied.value(), ptr);
-        }
+        unimplemented!("deprecated trait")
     }
 }
 
 impl<T> ClearForward for LazyCell<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     fn clear_forward(&self, ptr: &mut KeyPtr) {
-        if let LazyCellEntry::Occupied(occupied) = self.kind() {
-            ClearForward::clear_forward(occupied.value(), ptr);
-        }
+        unimplemented!("deprecated trait")
     }
 }
 
-impl<T> From<T> for LazyCell<T> {
+impl<T> From<T> for LazyCell<T>
+where
+    T: SpreadLayout,
+{
     fn from(value: T) -> Self {
         Self::new(Some(value))
     }
@@ -128,14 +143,17 @@ impl<T> From<T> for LazyCell<T> {
 
 impl<T> Default for LazyCell<T>
 where
-    T: Default,
+    T: Default + SpreadLayout,
 {
     fn default() -> Self {
         Self::new(Some(Default::default()))
     }
 }
 
-impl<T> LazyCell<T> {
+impl<T> LazyCell<T>
+where
+    T: SpreadLayout,
+{
     /// Creates an already populated lazy storage cell.
     ///
     /// # Note
@@ -148,10 +166,8 @@ impl<T> LazyCell<T> {
         I: Into<Option<T>>,
     {
         Self {
-            kind: UnsafeCell::new(LazyCellEntry::Occupied(Entry::new(
-                value.into(),
-                EntryState::Mutated,
-            ))),
+            key: None,
+            cache: UnsafeCell::new(Entry::new(value.into(), EntryState::Mutated)),
         }
     }
 
@@ -164,22 +180,41 @@ impl<T> LazyCell<T> {
     #[must_use]
     pub fn lazy(key: Key) -> Self {
         Self {
-            kind: UnsafeCell::new(LazyCellEntry::Vacant(VacantEntry::new(key))),
+            key: Some(key),
+            cache: UnsafeCell::new(Entry::new(None, EntryState::Preserved)),
         }
     }
 
-    /// Returns a shared reference to the inner lazy kind.
-    #[must_use]
-    fn kind(&self) -> &LazyCellEntry<T> {
-        // SAFETY: We just return a shared reference while the method receiver
-        //         is a shared reference (&self) itself. So we respect normal
-        //         Rust rules.
-        unsafe { &*self.kind.get() }
+    /// Returns the lazy key if any.
+    ///
+    /// # Note
+    ///
+    /// The key is `None` if the `LazyCell` has been initialized as a value.
+    /// This generally only happens in ink! constructors.
+    fn key(&self) -> Option<&Key> {
+        self.key.as_ref()
+    }
+
+    /// Returns the cached value if any.
+    ///
+    /// # Note
+    ///
+    /// The cached value is `None` if the `LazyCell` has been initialized
+    /// as lazy and has not yet loaded any value. This generally only happens
+    /// in ink! messages.
+    fn value(&self) -> Option<&T> {
+        self.entry().value().into()
+    }
+
+    /// Returns the cached entry.
+    fn entry(&self) -> &Entry<T> {
+        unsafe { &*self.cache.get() }
     }
 }
 
 impl<T> LazyCell<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint + PullForward,
 {
     /// Loads the storage entry.
@@ -196,27 +231,19 @@ where
         //         If the entry is occupied by a value we return early.
         //         This way we do not invalidate pointers to this value.
         #[allow(unused_unsafe)]
-        let kind = unsafe { &mut *self.kind.get() };
-        match kind {
-            LazyCellEntry::Vacant(vacant) => {
-                // Load the value from contract storage lazily.
-                let mut key_ptr = KeyPtr::from(vacant.key);
-                let value = <Option<T> as PullForward>::pull_forward(&mut key_ptr);
-                let entry = Entry::new(value, EntryState::Mutated);
-                *kind = LazyCellEntry::Occupied(entry);
-                match kind {
-                    LazyCellEntry::Vacant(_) => {
-                        unreachable!("we just occupied the entry")
-                    }
-                    LazyCellEntry::Occupied(entry) => NonNull::from(entry),
-                }
-            }
-            LazyCellEntry::Occupied(entry) => NonNull::from(entry),
+        let cache = unsafe { &mut *self.cache.get() };
+        if cache.value().is_none() {
+            // Load value from storage and then return the cached entry.
+            let key = self.key.expect("key required for lazy loading");
+            let value = pull_spread_root_opt::<T>(&key);
+            cache.put(value);
+            cache.set_state(EntryState::Mutated);
         }
+        NonNull::from(cache)
     }
 
     /// Returns a shared reference to the entry.
-    fn get_entry(&self) -> &Entry<T> {
+    fn load_entry(&self) -> &Entry<T> {
         // SAFETY: We load the entry either from cache of from contract storage.
         //
         //         This is safe because we are just returning a shared reference
@@ -228,7 +255,7 @@ where
     }
 
     /// Returns an exclusive reference to the entry.
-    fn get_entry_mut(&mut self) -> &mut Entry<T> {
+    fn load_entry_mut(&mut self) -> &mut Entry<T> {
         // SAFETY: We load the entry either from cache of from contract storage.
         //
         //         This is safe because we are just returning a shared reference
@@ -252,7 +279,7 @@ where
     /// If decoding the loaded value to `T` failed.
     #[must_use]
     pub fn get(&self) -> Option<&T> {
-        self.get_entry().value().into()
+        self.load_entry().value().into()
     }
 
     /// Returns a shared reference to the value.
@@ -266,6 +293,6 @@ where
     /// If decoding the loaded value to `T` failed.
     #[must_use]
     pub fn get_mut(&mut self) -> Option<&mut T> {
-        self.get_entry_mut().value_mut().into()
+        self.load_entry_mut().value_mut().into()
     }
 }

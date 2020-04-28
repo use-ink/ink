@@ -14,6 +14,7 @@
 
 use super::Box as StorageBox;
 use crate::storage2::{
+    traits2::SpreadLayout,
     ClearForward,
     KeyPtr,
     PullForward,
@@ -22,16 +23,21 @@ use crate::storage2::{
 
 impl<T> Drop for StorageBox<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     fn drop(&mut self) {
-        ClearForward::clear_forward(&self.value, &mut KeyPtr::from(self.allocation.key()));
+        ClearForward::clear_forward(
+            &self.value,
+            &mut KeyPtr::from(self.allocation.key()),
+        );
         crate::storage2::alloc::free(self.allocation);
     }
 }
 
 impl<T> core::cmp::PartialEq for StorageBox<T>
 where
+    T: SpreadLayout,
     T: PartialEq + ClearForward + StorageFootprint + PullForward,
 {
     fn eq(&self, other: &Self) -> bool {
@@ -39,13 +45,16 @@ where
     }
 }
 
-impl<T> core::cmp::Eq for StorageBox<T> where
-    T: Eq + ClearForward + StorageFootprint + PullForward
+impl<T> core::cmp::Eq for StorageBox<T>
+where
+    T: SpreadLayout,
+    T: Eq + ClearForward + StorageFootprint + PullForward,
 {
 }
 
 impl<T> core::cmp::PartialOrd for StorageBox<T>
 where
+    T: SpreadLayout,
     T: PartialOrd + ClearForward + StorageFootprint + PullForward,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
@@ -67,6 +76,7 @@ where
 
 impl<T> core::cmp::Ord for StorageBox<T>
 where
+    T: SpreadLayout,
     T: core::cmp::Ord + ClearForward + StorageFootprint + PullForward,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
@@ -76,6 +86,7 @@ where
 
 impl<T> core::fmt::Display for StorageBox<T>
 where
+    T: SpreadLayout,
     T: core::fmt::Display + ClearForward + StorageFootprint + PullForward,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -85,6 +96,7 @@ where
 
 impl<T> core::hash::Hash for StorageBox<T>
 where
+    T: SpreadLayout,
     T: core::hash::Hash + ClearForward + StorageFootprint + PullForward,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
@@ -94,6 +106,7 @@ where
 
 impl<T> core::convert::AsRef<T> for StorageBox<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn as_ref(&self) -> &T {
@@ -103,6 +116,7 @@ where
 
 impl<T> core::convert::AsMut<T> for StorageBox<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn as_mut(&mut self) -> &mut T {
@@ -112,6 +126,7 @@ where
 
 impl<T> ink_prelude::borrow::Borrow<T> for StorageBox<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn borrow(&self) -> &T {
@@ -121,6 +136,7 @@ where
 
 impl<T> ink_prelude::borrow::BorrowMut<T> for StorageBox<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn borrow_mut(&mut self) -> &mut T {
@@ -130,6 +146,7 @@ where
 
 impl<T> core::ops::Deref for StorageBox<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint + ClearForward + PullForward,
 {
     type Target = T;
@@ -141,6 +158,7 @@ where
 
 impl<T> core::ops::DerefMut for StorageBox<T>
 where
+    T: SpreadLayout,
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {

@@ -20,9 +20,10 @@ mod spread;
 
 pub(crate) use self::optspec::{
     pull_packed_root_opt,
-    pull_spread_root_opt,
-    push_packed_root_opt,
     push_spread_root_opt,
+    clear_spread_root_opt,
+    push_packed_root_opt,
+    pull_spread_root_opt,
 };
 pub use self::{
     keyptr::KeyPtr,

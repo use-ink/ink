@@ -21,6 +21,7 @@ use crate::storage2::{
         DynamicAllocation,
     },
     lazy::Lazy,
+    traits2::SpreadLayout,
     ClearForward,
     PullForward,
     StorageFootprint,
@@ -30,6 +31,7 @@ use ink_primitives::Key;
 /// An indirection to some dynamically allocated storage entity.
 pub struct Box<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     /// The storage area where the boxed storage entity is stored.
@@ -40,6 +42,7 @@ where
 
 impl<T> Box<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
     /// Creates a new boxed entity.
@@ -58,6 +61,7 @@ where
 
 impl<T> Box<T>
 where
+    T: SpreadLayout,
     T: ClearForward + StorageFootprint + PullForward,
 {
     /// Returns a shared reference to the boxed value.
