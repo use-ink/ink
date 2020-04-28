@@ -71,28 +71,10 @@ codecov:
     CARGO_INCREMENTAL:             0
     RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
   script:
-    # - unset CARGO_TARGET_DIR
-    # - cargo clean
+    - unset "CARGO_TARGET_DIR"
+    - cargo clean
     - cargo test --verbose --all-features --no-fail-fast --workspace
     - cargo build --verbose --all-features --workspace
-    # - apt update && apt install -y zip
-    # - zip -0 ccov.zip $(find "${CARGO_TARGET_DIR}" \( -iname "*.gc*" \) -print)
-    # - grcov ccov.zip -t coveralls+ --llvm --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" > ccov.json
-    - grcov "${CARGO_TARGET_DIR}" -s . -t coveralls+ --llvm --branch --ignore-not-existing --ignore "/*" --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" > ccov.json
-    # - curl -X POST --data-binary ccov.json "https://codecov.io/upload/v2?commit=${CI_COMMIT_SHORT_SHA}&token=${CODECOV_TOKEN}&build_url=${CI_JOB_URL}&service=gitlab&pr=${CI_COMMIT_REF_NAME}"
-    # - bash <(curl https://codecov.io/bash) -t ${CODECOV_TOKEN} -f file -s ccov_reports 
-    # - grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" > lcov.info
+    - grcov ./target -s . -t coveralls+ --guess-directory-when-missing --llvm --branch --ignore-not-existing --ignore "/*" 
+        --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" --output-file ccov.json
     - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
-  after_script:
-    - find "${CARGO_TARGET_DIR}" \( -iname "*.gc*" \) -delete
-
-test:
-  stage:                           check
-  <<:                              *docker-env
-  # needs:
-  #   - check-std
-  script:
-    # - for crate in ${ALL_CRATES}; do
-    #     cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
-    #   done
-    - cargo test --verbose --all-features --release --workspace
