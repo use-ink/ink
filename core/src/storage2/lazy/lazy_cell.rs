@@ -48,17 +48,25 @@ pub struct LazyCell<T>
 where
     T: SpreadLayout,
 {
+    /// The key to lazily load the value from.
+    ///
+    /// # Note
+    ///
+    /// This can be `None` on contract initialization where a `LazyCell` is
+    /// normally initialized given a concrete value.
     key: Option<Key>,
-    // SAFETY:
-    //
-    // We use `UnsafeCell` instead of `RefCell` because
-    // the intended use-case is to hand out references (`&` and `&mut`)
-    // to the callers of `Lazy`. This cannot be done without `unsafe`
-    // code even with `RefCell`. Also `RefCell` has a larger memory footprint
-    // and has additional overhead that we can avoid by the interface
-    // and the fact that ink! code is always run single-threaded.
-    // Being efficient is important here because this is intended to be
-    // a low-level primitive with lots of dependencies.
+    /// The low-level cache for the lazily loaded storage value.
+    ///
+    /// # Safety (Dev)
+    ///
+    /// We use `UnsafeCell` instead of `RefCell` because
+    /// the intended use-case is to hand out references (`&` and `&mut`)
+    /// to the callers of `Lazy`. This cannot be done without `unsafe`
+    /// code even with `RefCell`. Also `RefCell` has a larger memory footprint
+    /// and has additional overhead that we can avoid by the interface
+    /// and the fact that ink! code is always run single-threaded.
+    /// Being efficient is important here because this is intended to be
+    /// a low-level primitive with lots of dependencies.
     cache: UnsafeCell<Entry<T>>,
 }
 
