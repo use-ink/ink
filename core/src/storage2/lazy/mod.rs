@@ -132,8 +132,8 @@ where
     ///
     /// If loading from contract storage failed.
     #[must_use]
-    pub fn get(&self) -> &T {
-        self.cell.get().expect("expected Some value")
+    pub fn get(lazy: &Self) -> &T {
+        lazy.cell.get().expect("cannot lazily load value")
     }
 
     /// Returns an exclusive reference to the lazily loaded value.
@@ -146,8 +146,8 @@ where
     ///
     /// If loading from contract storage failed.
     #[must_use]
-    pub fn get_mut(&mut self) -> &mut T {
-        self.cell.get_mut().expect("expected Some value")
+    pub fn get_mut(lazy: &mut Self) -> &mut T {
+        lazy.cell.get_mut().expect("cannot lazily load value")
     }
 }
 
@@ -176,7 +176,7 @@ where
     T: PartialEq + StorageFootprint + PullForward,
 {
     fn eq(&self, other: &Self) -> bool {
-        PartialEq::eq(self.get(), other.get())
+        PartialEq::eq(Lazy::get(self), Lazy::get(other))
     }
 }
 
@@ -191,19 +191,19 @@ where
     T: PartialOrd + StorageFootprint + PullForward,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
-        PartialOrd::partial_cmp(self.get(), other.get())
+        PartialOrd::partial_cmp(Lazy::get(self), Lazy::get(other))
     }
     fn lt(&self, other: &Self) -> bool {
-        PartialOrd::lt(self.get(), other.get())
+        PartialOrd::lt(Lazy::get(self), Lazy::get(other))
     }
     fn le(&self, other: &Self) -> bool {
-        PartialOrd::le(self.get(), other.get())
+        PartialOrd::le(Lazy::get(self), Lazy::get(other))
     }
     fn ge(&self, other: &Self) -> bool {
-        PartialOrd::ge(self.get(), other.get())
+        PartialOrd::ge(Lazy::get(self), Lazy::get(other))
     }
     fn gt(&self, other: &Self) -> bool {
-        PartialOrd::gt(self.get(), other.get())
+        PartialOrd::gt(Lazy::get(self), Lazy::get(other))
     }
 }
 
@@ -213,7 +213,7 @@ where
     T: core::cmp::Ord + StorageFootprint + PullForward,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-        Ord::cmp(self.get(), other.get())
+        Ord::cmp(Lazy::get(self), Lazy::get(other))
     }
 }
 
@@ -223,7 +223,7 @@ where
     T: core::fmt::Display + StorageFootprint + PullForward,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        core::fmt::Display::fmt(self.get(), f)
+        core::fmt::Display::fmt(Lazy::get(self), f)
     }
 }
 
@@ -233,7 +233,7 @@ where
     T: core::hash::Hash + StorageFootprint + PullForward,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        self.get().hash(state);
+        Lazy::get(self).hash(state);
     }
 }
 
@@ -243,7 +243,7 @@ where
     T: StorageFootprint + PullForward,
 {
     fn as_ref(&self) -> &T {
-        self.get()
+        Lazy::get(self)
     }
 }
 
@@ -253,7 +253,7 @@ where
     T: StorageFootprint + PullForward,
 {
     fn as_mut(&mut self) -> &mut T {
-        self.get_mut()
+        Lazy::get_mut(self)
     }
 }
 
@@ -263,7 +263,7 @@ where
     T: StorageFootprint + PullForward,
 {
     fn borrow(&self) -> &T {
-        self.get()
+        Lazy::get(self)
     }
 }
 
@@ -273,7 +273,7 @@ where
     T: StorageFootprint + PullForward,
 {
     fn borrow_mut(&mut self) -> &mut T {
-        self.get_mut()
+        Lazy::get_mut(self)
     }
 }
 
@@ -285,7 +285,7 @@ where
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.get()
+        Lazy::get(self)
     }
 }
 
@@ -295,6 +295,6 @@ where
     T: StorageFootprint + PullForward,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.get_mut()
+        Lazy::get_mut(self)
     }
 }

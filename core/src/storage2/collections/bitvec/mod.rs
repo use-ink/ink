@@ -92,7 +92,7 @@ impl Bitvec {
 
     /// Returns the length of the bit vector in bits.
     pub fn len(&self) -> u32 {
-        *self.len.get()
+        *self.len
     }
 
     /// Returns `true` if the bit vector is empty.
