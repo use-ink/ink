@@ -107,7 +107,7 @@ where
     T: SpreadLayout,
     T: StorageFootprint,
 {
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
+    fn pull_forward(_ptr: &mut KeyPtr) -> Self {
         unimplemented!("deprecated trait")
     }
 }
@@ -117,7 +117,7 @@ where
     T: SpreadLayout,
     T: PushForward + StorageFootprint,
 {
-    fn push_forward(&self, ptr: &mut KeyPtr) {
+    fn push_forward(&self, _ptr: &mut KeyPtr) {
         unimplemented!("deprecated trait")
     }
 }
@@ -127,7 +127,7 @@ where
     T: SpreadLayout,
     T: ClearForward + StorageFootprint,
 {
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
+    fn clear_forward(&self, _ptr: &mut KeyPtr) {
         unimplemented!("deprecated trait")
     }
 }
