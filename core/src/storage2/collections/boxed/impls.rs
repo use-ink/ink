@@ -41,7 +41,7 @@ where
     T: PartialEq + ClearForward + StorageFootprint + PullForward,
 {
     fn eq(&self, other: &Self) -> bool {
-        PartialEq::eq(self.get(), other.get())
+        PartialEq::eq(StorageBox::get(self), StorageBox::get(other))
     }
 }
 
@@ -58,19 +58,19 @@ where
     T: PartialOrd + ClearForward + StorageFootprint + PullForward,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
-        PartialOrd::partial_cmp(self.get(), other.get())
+        PartialOrd::partial_cmp(StorageBox::get(self), StorageBox::get(other))
     }
     fn lt(&self, other: &Self) -> bool {
-        PartialOrd::lt(self.get(), other.get())
+        PartialOrd::lt(StorageBox::get(self), StorageBox::get(other))
     }
     fn le(&self, other: &Self) -> bool {
-        PartialOrd::le(self.get(), other.get())
+        PartialOrd::le(StorageBox::get(self), StorageBox::get(other))
     }
     fn ge(&self, other: &Self) -> bool {
-        PartialOrd::ge(self.get(), other.get())
+        PartialOrd::ge(StorageBox::get(self), StorageBox::get(other))
     }
     fn gt(&self, other: &Self) -> bool {
-        PartialOrd::gt(self.get(), other.get())
+        PartialOrd::gt(StorageBox::get(self), StorageBox::get(other))
     }
 }
 
@@ -80,7 +80,7 @@ where
     T: core::cmp::Ord + ClearForward + StorageFootprint + PullForward,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-        Ord::cmp(self.get(), other.get())
+        Ord::cmp(StorageBox::get(self), StorageBox::get(other))
     }
 }
 
@@ -90,7 +90,7 @@ where
     T: core::fmt::Display + ClearForward + StorageFootprint + PullForward,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        core::fmt::Display::fmt(self.get(), f)
+        core::fmt::Display::fmt(StorageBox::get(self), f)
     }
 }
 
@@ -100,7 +100,7 @@ where
     T: core::hash::Hash + ClearForward + StorageFootprint + PullForward,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        self.get().hash(state);
+        StorageBox::get(self).hash(state)
     }
 }
 
@@ -110,7 +110,7 @@ where
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn as_ref(&self) -> &T {
-        self.get()
+        StorageBox::get(self)
     }
 }
 
@@ -120,7 +120,7 @@ where
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn as_mut(&mut self) -> &mut T {
-        self.get_mut()
+        StorageBox::get_mut(self)
     }
 }
 
@@ -130,7 +130,7 @@ where
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn borrow(&self) -> &T {
-        self.get()
+        StorageBox::get(self)
     }
 }
 
@@ -140,7 +140,7 @@ where
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn borrow_mut(&mut self) -> &mut T {
-        self.get_mut()
+        StorageBox::get_mut(self)
     }
 }
 
@@ -152,7 +152,7 @@ where
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.get()
+        StorageBox::get(self)
     }
 }
 
@@ -162,6 +162,6 @@ where
     T: StorageFootprint + ClearForward + PullForward,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.get_mut()
+        StorageBox::get_mut(self)
     }
 }

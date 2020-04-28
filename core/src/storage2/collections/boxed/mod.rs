@@ -75,8 +75,8 @@ where
     ///
     /// If loading from contract storage failed.
     #[must_use]
-    pub fn get(&self) -> &T {
-        &self.value
+    pub fn get(boxed: &Self) -> &T {
+        &boxed.value
     }
 
     /// Returns an exclusive reference to the boxed value.
@@ -90,7 +90,7 @@ where
     ///
     /// If loading from contract storage failed.
     #[must_use]
-    pub fn get_mut(&mut self) -> &mut T {
-        &mut self.value
+    pub fn get_mut(boxed: &mut Self) -> &mut T {
+        &mut boxed.value
     }
 }
