@@ -92,13 +92,11 @@ where
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr2) {
-        if self.entry().is_mutated() {
-            push_spread_root_opt::<T>(self.value().into(), &ptr.next_for::<T>())
-        }
+        SpreadLayout::push_spread(self.entry(), ptr)
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr2) {
-        clear_spread_root_opt(self.value().into(), &ptr.next_for::<T>())
+        SpreadLayout::clear_spread(self.entry(), ptr)
     }
 }
 

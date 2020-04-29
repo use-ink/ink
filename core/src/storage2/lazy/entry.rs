@@ -13,6 +13,13 @@
 // limitations under the License.
 
 use crate::storage2::{
+    traits2::{
+        clear_spread_root_opt,
+        pull_spread_root_opt,
+        push_spread_root_opt,
+        KeyPtr as KeyPtr2,
+        SpreadLayout,
+    },
     ClearForward,
     KeyPtr,
     PushForward,
@@ -51,6 +58,32 @@ impl EntryState {
     /// Returns `true` if the entry state is preserved.
     pub fn is_preserved(self) -> bool {
         !self.is_mutated()
+    }
+}
+
+impl<T> SpreadLayout for Entry<T>
+where
+    T: SpreadLayout,
+{
+    const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        let root_key = ptr.next_for::<Self>();
+        Self::new(pull_spread_root_opt::<T>(&root_key), EntryState::Preserved)
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        if !self.is_mutated() {
+            return
+        }
+        self.state.set(EntryState::Preserved);
+        let root_key = ptr.next_for::<Self>();
+        push_spread_root_opt::<T>(self.value().into(), &root_key);
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        let root_key = ptr.next_for::<Self>();
+        clear_spread_root_opt::<T>(self.value().into(), &root_key);
     }
 }
 
