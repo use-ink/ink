@@ -13,14 +13,14 @@ jobs:
       - name:                   Checkout repository
         uses:                   actions/checkout@v2
 
-      - name:                   Generate code coverage
-        run: |
-          cargo tarpaulin --verbose --all-features --workspace -t 120 -- out Xml
+      # - name:                   Generate code coverage
+      #   run: |
+      #     cargo tarpaulin --verbose --all-features --workspace -t 120 --out Xml
 
       - name:                   Run cargo-tarpaulin
         uses:                   actions-rs/tarpaulin@v0.1
         with:
-          args: '--verbose --all-features --workspace -t 120 -- out Xml -- --test-threads 1'
+          args: '--verbose --all-features --workspace -t 120 --out Xml -- --test-threads 1'
 
       - name:                   Upload to codecov.io
         uses:                   codecov/codecov-action@v1
