@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ux
+set -u
 
 # if there is no directory for this $CI_COMMIT_REF_NAME/$CI_JOB_NAME
 # create such directory and
