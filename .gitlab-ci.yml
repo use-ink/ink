@@ -114,7 +114,7 @@ test:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo test --verbose --all-features --manifest-path ${crate}/Cargo.toml;
+        cargo test --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
       done
 
 clippy-std:
