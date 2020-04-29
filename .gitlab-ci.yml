@@ -123,8 +123,10 @@ codecov:
     CARGO_INCREMENTAL:             0
     # If `-Zno-landing-pads` is enabled some some tests start to fail.
     RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
-    # it's better to use `cargo-taurpalin` instead of `grcov`,
-    # but the former requires running docker with `--security-opt seccomp=unconfined`
+    # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation
+    # and thus produces better results for Rust codebases in general. However, unlike `grcov` it
+    # requires running docker with `--security-opt seccomp=unconfined` which is why we use `grcov`
+    # instead.
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - unset "CARGO_TARGET_DIR"
