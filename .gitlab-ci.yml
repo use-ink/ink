@@ -120,7 +120,7 @@ codecov:
   variables:
     # according to https://github.com/mozilla/grcov/blob/master/README.md we have to use these variables, however
     CARGO_INCREMENTAL:             0
-    # it `-Zno-landing-pads` fails some tests
+    # If `-Zno-landing-pads` is enabled some some tests start to fail.
     RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
     # it's better to use `cargo-taurpalin` instead of `grcov`,
     # but the former requires running docker with `--security-opt seccomp=unconfined`
