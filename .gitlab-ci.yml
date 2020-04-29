@@ -118,7 +118,8 @@ codecov:
   needs:
     - check-std
   variables:
-    # according to https://github.com/mozilla/grcov/blob/master/README.md we have to use these variables, however
+    # According to https://github.com/mozilla/grcov/blob/master/README.md
+    # we have to use these variables.
     CARGO_INCREMENTAL:             0
     # If `-Zno-landing-pads` is enabled some some tests start to fail.
     RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
