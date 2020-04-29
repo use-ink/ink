@@ -120,9 +120,10 @@ codecov:
   variables:
     # according to https://github.com/mozilla/grcov/blob/master/README.md we have to use these variables, however
     CARGO_INCREMENTAL:             0
-    # it does not work with -Zno-landing-pads
+    # it `-Zno-landing-pads` fails some tests
     RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
-    # it's better to use `cargo-taurpalin` instead of `grcov`, but the former doesn't work within docker properly
+    # it's better to use `cargo-taurpalin` instead of `grcov`,
+    # but the former requires running docker with `--security-opt seccomp=unconfined`
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - unset "CARGO_TARGET_DIR"
@@ -131,7 +132,7 @@ codecov:
     - cargo build --verbose --all-features --workspace
     - grcov ./target -s . -t coveralls+ --guess-directory-when-missing --llvm --branch --ignore-not-existing --ignore "/*"
         --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" --output-file ccov.json
-    # this is a shame it's the only way to upload to codecov
+    # this is a shame that  running a huge online bash the only way to upload to codecov
     - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
 
 clippy-std:
