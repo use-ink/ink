@@ -56,6 +56,27 @@ where
     cell: LazyCell<T>,
 }
 
+impl<T> SpreadLayout for Lazy<T>
+where
+    T: SpreadLayout,
+{
+    const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
+
+    fn pull_spread(ptr: &mut super::traits2::KeyPtr) -> Self {
+        Self {
+            cell: <LazyCell<T> as SpreadLayout>::pull_spread(ptr),
+        }
+    }
+
+    fn push_spread(&self, ptr: &mut super::traits2::KeyPtr) {
+        SpreadLayout::push_spread(&self.cell, ptr)
+    }
+
+    fn clear_spread(&self, ptr: &mut super::traits2::KeyPtr) {
+        SpreadLayout::clear_spread(&self.cell, ptr)
+    }
+}
+
 impl<T> StorageFootprint for Lazy<T>
 where
     T: SpreadLayout,
