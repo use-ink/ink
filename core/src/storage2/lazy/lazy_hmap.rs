@@ -45,10 +45,10 @@ use core::{
     ptr::NonNull,
 };
 use ink_prelude::{
+    borrow::ToOwned,
     boxed::Box,
     collections::BTreeMap,
     vec::Vec,
-    borrow::ToOwned,
 };
 use ink_primitives::Key;
 
@@ -110,11 +110,7 @@ where
     K: Ord,
 {
     fn pull_at(at: Key) -> Self {
-        Self {
-            key: Some(at),
-            cached_entries: UnsafeCell::new(EntryMap::new()),
-            hash_builder: RefCell::new(HashBuilder::from(Vec::new())),
-        }
+        Self::lazy(at)
     }
 }
 
@@ -199,7 +195,7 @@ impl<K, V, H> LazyHashMap<K, V, H>
 where
     K: Ord,
 {
-    /// Creates a new empty lazy map.
+    /// Creates a new empty lazy hash map.
     ///
     /// # Note
     ///
@@ -208,6 +204,22 @@ where
     pub fn new() -> Self {
         Self {
             key: None,
+            cached_entries: UnsafeCell::new(EntryMap::new()),
+            hash_builder: RefCell::new(HashBuilder::from(Vec::new())),
+        }
+    }
+
+    /// Creates a new empty lazy hash map positioned at the given key.
+    ///
+    /// # Note
+    ///
+    /// This constructor is private and should never need to be called from
+    /// outside this module. It is used to construct a lazy index map from a
+    /// key that is only useful upon a contract call. Use [`LazyIndexMap::new`]
+    /// for construction during contract initialization.
+    fn lazy(key: Key) -> Self {
+        Self {
+            key: Some(key),
             cached_entries: UnsafeCell::new(EntryMap::new()),
             hash_builder: RefCell::new(HashBuilder::from(Vec::new())),
         }
