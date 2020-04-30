@@ -99,6 +99,14 @@ where
     }
 }
 
+// # Developer Note
+//
+// Implementing PackedLayout for LazyCell is not useful since that would
+// potentially allow overlapping distinct LazyCell instances by pulling
+// from the same underlying storage cell.
+//
+// If a user wants a packed LazyCell they can instead pack its inner type.
+
 impl<T> StorageFootprint for LazyCell<T>
 where
     T: SpreadLayout,
