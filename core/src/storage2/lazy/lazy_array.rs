@@ -17,6 +17,11 @@ use super::{
     EntryState,
 };
 use crate::storage2::{
+    traits2::{
+        KeyPtr as KeyPtr2,
+        SpreadLayout,
+        PackedLayout,
+    },
     KeyPtr,
     PullForward,
     PushForward,
@@ -268,6 +273,39 @@ where
     }
 }
 
+impl<T, N> SpreadLayout for LazyArray<T, N>
+where
+    T: PackedLayout,
+    N: LazyArrayLength<T>,
+{
+    const FOOTPRINT: u64 = <N as Unsigned>::U64;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        Self {
+            key: Some(ptr.next_for::<Self>()),
+            cached_entries: EntryArray::new(),
+        }
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        let offset_key = ptr.next_for::<Self>();
+        for (index, entry) in unsafe { self.cached_entries().iter() }.enumerate() {
+            if let Some(entry) = entry {
+                let root_key = offset_key + index as u64;
+                entry.push_packed_root(&root_key);
+            }
+        }
+    }
+
+    #[inline]
+    fn clear_spread(&self, _ptr: &mut KeyPtr2) {
+        // Low-level lazy abstractions won't perform automated clean-up since
+        // they generally are not aware of their entire set of associated
+        // elements. The high-level abstractions that build upon them are
+        // responsible for cleaning up.
+    }
+}
+
 impl<T, N> StorageFootprint for LazyArray<T, N>
 where
     T: StorageFootprint,
@@ -302,7 +340,7 @@ where
                 if !state.is_mutated() {
                     continue
                 }
-                let root_key = offset_key + index as u64;
+                let _root_key = offset_key + index as u64;
                 // TODO: move system to new traits:
                 // crate::storage2::traits2::push_packed_root_opt(entry.value().into(), &root_key);
                 todo!()
