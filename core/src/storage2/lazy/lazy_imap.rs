@@ -13,6 +13,11 @@
 // limitations under the License.
 
 use crate::storage2::{
+    traits2::{
+        KeyPtr as KeyPtr2,
+        PackedLayout,
+        SpreadLayout,
+    },
     ClearForward,
     KeyPtr,
     PullForward,
@@ -138,6 +143,33 @@ impl<V> LazyIndexMap<V> {
     pub fn put(&mut self, index: Index, new_value: Option<V>) {
         self.entries_mut()
             .insert(index, Box::new(Entry::new(new_value, EntryState::Mutated)));
+    }
+}
+
+impl<V> SpreadLayout for LazyIndexMap<V>
+where
+    V: PackedLayout,
+{
+    const FOOTPRINT: u64 = 1_u64 << 32;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        Self::lazy(ptr.next_for::<Self>())
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        let offset_key = ptr.next_for::<Self>();
+        for (&index, entry) in self.entries().iter() {
+            let root_key = offset_key + index;
+            entry.push_packed_root(&root_key);
+        }
+    }
+
+    #[inline]
+    fn clear_spread(&self, _ptr: &mut KeyPtr2) {
+        // Low-level lazy abstractions won't perform automated clean-up since
+        // they generally are not aware of their entire set of associated
+        // elements. The high-level abstractions that build upon them are
+        // responsible for cleaning up.
     }
 }
 
