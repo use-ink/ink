@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(doc)]
+use crate::storage2::lazy::{
+    LazyArray,
+    LazyIndexMap,
+};
 use crate::storage2::{
     traits2::{
+        clear_packed_root,
         clear_spread_root_opt,
+        pull_packed_root_opt,
         pull_spread_root_opt,
+        push_packed_root_opt,
         push_spread_root_opt,
         KeyPtr as KeyPtr2,
+        PackedLayout,
         SpreadLayout,
     },
     ClearForward,
@@ -26,6 +35,7 @@ use crate::storage2::{
     StorageFootprint,
 };
 use core::cell::Cell;
+use ink_primitives::Key;
 
 /// The entry of a single cached value of a lazy storage data structure.
 #[derive(Debug, Clone)]
@@ -84,6 +94,105 @@ where
     fn clear_spread(&self, ptr: &mut KeyPtr2) {
         let root_key = ptr.next_for::<Self>();
         clear_spread_root_opt::<T>(self.value().into(), &root_key);
+    }
+}
+
+impl<T> scale::Encode for Entry<T>
+where
+    T: scale::Encode,
+{
+    #[inline]
+    fn size_hint(&self) -> usize {
+        <Option<T> as scale::Encode>::size_hint(&self.value)
+    }
+
+    #[inline]
+    fn encode_to<O: scale::Output>(&self, dest: &mut O) {
+        <Option<T> as scale::Encode>::encode_to(&self.value, dest)
+    }
+
+    #[inline]
+    fn encode(&self) -> Vec<u8> {
+        <Option<T> as scale::Encode>::encode(&self.value)
+    }
+
+    #[inline]
+    fn using_encoded<R, F: FnOnce(&[u8]) -> R>(&self, f: F) -> R {
+        <Option<T> as scale::Encode>::using_encoded(&self.value, f)
+    }
+}
+
+impl<T> scale::Decode for Entry<T>
+where
+    T: scale::Decode,
+{
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
+        Ok(Self::new(
+            <Option<T> as scale::Decode>::decode(input)?,
+            EntryState::Preserved,
+        ))
+    }
+}
+
+impl<T> PackedLayout for Entry<T>
+where
+    T: PackedLayout,
+{
+    #[inline]
+    fn pull_packed(&mut self, at: &Key) {
+        PackedLayout::pull_packed(&mut self.value, at)
+    }
+
+    #[inline]
+    fn push_packed(&self, at: &Key) {
+        PackedLayout::push_packed(&self.value, at)
+    }
+
+    #[inline]
+    fn clear_packed(&self, at: &Key) {
+        PackedLayout::clear_packed(&self.value, at)
+    }
+}
+
+impl<T> Entry<T>
+where
+    T: PackedLayout,
+{
+    /// Pulls the entity from the underlying associated storage as packed representation.
+    ///
+    /// # Note
+    ///
+    /// Mainly used by lazy storage abstractions that only allow operating on
+    /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
+    pub fn pull_packed_root(root_key: &Key) -> Self {
+        let mut entry =
+            Self::new(pull_packed_root_opt::<T>(root_key), EntryState::Preserved);
+        PackedLayout::pull_packed(&mut entry, root_key);
+        entry
+    }
+
+    /// Pushes the underlying associated storage as packed representation.
+    ///
+    /// # Note
+    ///
+    /// Mainly used by lazy storage abstractions that only allow operating on
+    /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
+    pub fn push_packed_root(&self, root_key: &Key) {
+        if !self.is_mutated() {
+            return
+        }
+        self.state.set(EntryState::Preserved);
+        push_packed_root_opt::<T>(self.value().into(), &root_key);
+    }
+
+    /// Clears the underlying associated storage as packed representation.
+    ///
+    /// # Note
+    ///
+    /// Mainly used by lazy storage abstractions that only allow operating on
+    /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
+    pub fn clear_packed_root(&self, root_key: &Key) {
+        clear_packed_root::<Option<T>>(self.value(), &root_key);
     }
 }
 
