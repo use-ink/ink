@@ -19,7 +19,6 @@ use super::{
 use crate::storage2::{
     traits2::{
         clear_spread_root_opt,
-        push_spread_root_opt,
         pull_spread_root_opt,
         KeyPtr as KeyPtr2,
         SpreadLayout,
