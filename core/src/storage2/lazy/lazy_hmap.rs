@@ -22,6 +22,11 @@ use crate::{
         HashBuilder,
     },
     storage2::{
+        traits2::{
+            KeyPtr as KeyPtr2,
+            PackedLayout,
+            SpreadLayout,
+        },
         ClearAt,
         ClearForward,
         KeyPtr,
@@ -95,6 +100,46 @@ impl<K, V, H> StorageFootprint for LazyHashMap<K, V, H> {
     /// consecutive lazy hash maps in the same type.
     const VALUE: u64 = 1;
 }
+
+impl<K, V, H, O> SpreadLayout for LazyHashMap<K, V, H>
+where
+    K: Ord + scale::Encode,
+    V: PackedLayout,
+    H: Hasher<Output = O>,
+    O: Default,
+    Key: From<O>,
+{
+    const FOOTPRINT: u64 = 1;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        Self::lazy(ptr.next_for::<Self>())
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        let offset_key = ptr.next_for::<Self>();
+        for (index, entry) in self.entries().iter() {
+            let root_key = self.to_offset_key(&offset_key, index);
+            entry.push_packed_root(&root_key);
+        }
+    }
+
+    #[inline]
+    fn clear_spread(&self, _ptr: &mut KeyPtr2) {
+        // Low-level lazy abstractions won't perform automated clean-up since
+        // they generally are not aware of their entire set of associated
+        // elements. The high-level abstractions that build upon them are
+        // responsible for cleaning up.
+    }
+}
+
+// # Developer Note
+//
+// Even thought `LazyHashMap` would require storing just a single key a thus
+// be a packable storage entity we cannot really make it one since this could
+// allow for overlapping lazy hash map instances.
+// An example for this would be a `Pack<(LazyHashMap, LazyHashMap)>` where
+// both lazy hash maps would use the same underlying key and thus would apply
+// the same underlying key mapping.
 
 impl<K, V, H> PullForward for LazyHashMap<K, V, H>
 where
