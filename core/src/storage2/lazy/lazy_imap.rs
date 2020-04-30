@@ -59,10 +59,7 @@ pub struct LazyIndexMap<V> {
 
 impl<V> Default for LazyIndexMap<V> {
     fn default() -> Self {
-        Self {
-            key: None,
-            cached_entries: UnsafeCell::new(EntryMap::default()),
-        }
+        Self::new()
     }
 }
 
@@ -90,6 +87,21 @@ impl<V> LazyIndexMap<V> {
     pub fn new() -> Self {
         Self {
             key: None,
+            cached_entries: UnsafeCell::new(EntryMap::new()),
+        }
+    }
+
+    /// Creates a new empty lazy map positioned at the given key.
+    ///
+    /// # Note
+    ///
+    /// This constructor is private and should never need to be called from
+    /// outside this module. It is used to construct a lazy index map from a
+    /// key that is only useful upon a contract call. Use [`LazyIndexMap::new`]
+    /// for construction during contract initialization.
+    fn lazy(key: Key) -> Self {
+        Self {
+            key: Some(key),
             cached_entries: UnsafeCell::new(EntryMap::new()),
         }
     }
@@ -143,10 +155,7 @@ where
     V: StorageFootprint,
 {
     fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self {
-            key: Some(ptr.next_for::<Self>()),
-            cached_entries: UnsafeCell::new(BTreeMap::new()),
-        }
+        Self::lazy(ptr.next_for::<Self>())
     }
 }
 
