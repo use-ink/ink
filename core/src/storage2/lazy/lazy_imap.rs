@@ -17,6 +17,7 @@ use crate::storage2::{
         KeyPtr as KeyPtr2,
         PackedLayout,
         SpreadLayout,
+        clear_packed_root,
     },
     ClearForward,
     KeyPtr,
@@ -230,6 +231,33 @@ where
             let mut ptr = KeyPtr::from(offset_key);
             ClearForward::clear_forward(&**entry, &mut ptr);
         }
+    }
+}
+
+impl<V> LazyIndexMap<V>
+where
+    V: PackedLayout,
+    V: StorageFootprint + PullForward,
+{
+    /// Clears the underlying storage of the entry at the given index.
+    ///
+    /// # Safety
+    ///
+    /// For performance reasons this does not synchronize the lazy index map's
+    /// memory-side cache which invalidates future accesses the cleared entry.
+    /// Care should be taken when using this API.
+    ///
+    /// The general use of this API is to streamline `Drop` implementations of
+    /// high-level abstractions that build upon this low-level data strcuture.
+    pub fn clear_packed_at(&self, index: Index) {
+        let root_key = self.key.expect("cannot clear in lazy state");
+        // We need to load the entity before we remove its associated contract storage
+        // because it might be a type that propagates clearing to its fields,
+        // for example in the case of `T` being a `storage::Box`. However,
+        // since in other cases this load is not required but implies a lot of
+        // overhead we need to find a way to avoid it in those cases.
+        let entity = self.get(index).expect("cannot clear a non existing entity");
+        clear_packed_root::<V>(&entity, &root_key);
     }
 }
 
