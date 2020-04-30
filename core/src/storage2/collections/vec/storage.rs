@@ -17,12 +17,45 @@
 use super::Vec as StorageVec;
 use crate::storage2::{
     lazy::LazyIndexMap,
+    traits2::{
+        KeyPtr as KeyPtr2,
+        PackedLayout,
+        SpreadLayout,
+    },
     ClearForward,
     KeyPtr,
     PullForward,
     PushForward,
     StorageFootprint,
 };
+
+impl<T> SpreadLayout for StorageVec<T>
+where
+    T: PackedLayout,
+    T: StorageFootprint + PullForward,
+{
+    const FOOTPRINT: u64 = 1 + <LazyIndexMap<T> as SpreadLayout>::FOOTPRINT;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        Self {
+            len: SpreadLayout::pull_spread(ptr),
+            elems: SpreadLayout::pull_spread(ptr),
+        }
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        SpreadLayout::push_spread(&self.len, ptr);
+        SpreadLayout::push_spread(&self.elems, ptr);
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        for index in 0..self.len() {
+            self.elems.clear_packed_at(index);
+        }
+        SpreadLayout::clear_spread(&self.len, ptr);
+        SpreadLayout::clear_spread(&self.elems, ptr);
+    }
+}
 
 impl<T> StorageFootprint for StorageVec<T>
 where
