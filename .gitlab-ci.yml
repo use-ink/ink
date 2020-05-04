@@ -124,11 +124,14 @@ codecov:
     - cargo clean
     - cargo test --verbose --all-features --no-fail-fast --workspace
     - cargo build --verbose --all-features --workspace
-    - grcov ./target -s . -t coveralls+ --guess-directory-when-missing --llvm --branch --ignore-not-existing --ignore "/*"
-        --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" --output-file ccov.json
+    # - grcov ./target -s . -t coveralls+ --guess-directory-when-missing --llvm --branch --ignore-not-existing --ignore "/*"
+    #     --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" --output-file ccov.json
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
+    - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov.info
+    - rust-covfix -o lcov_correct.info lcov.info
+    # - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
+    - bash <(curl -s https://codecov.io/bash) -f lcov.info
 
 clippy-std:
   stage:                           workspace
