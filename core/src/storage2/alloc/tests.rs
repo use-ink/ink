@@ -17,6 +17,7 @@ use super::{
     free,
     DynamicAllocation,
     set_contract_phase,
+    reset_allocator,
     ContractPhase,
 };
 use crate::env::{
@@ -29,6 +30,7 @@ where
     F: FnOnce(),
 {
     set_contract_phase(ContractPhase::Deploy);
+    reset_allocator();
     test::run_test::<DefaultEnvTypes, _>(|_| {
         f();
         Ok(())
@@ -42,10 +44,21 @@ fn alloc_works() {
     })
 }
 
+cfg_if::cfg_if! {
+    if #[cfg(miri)] {
+        // We need to lower the test allocations because miri's stacked borrows
+        // analysis currently is super linear for some work loads.
+        // Read more here: https://github.com/rust-lang/miri/issues/1367
+        const TEST_ALLOCATIONS: u32 = 10;
+    } else {
+        const TEST_ALLOCATIONS: u32 = 10_000;
+    }
+}
+
 #[test]
 fn many_allocs_works() {
     run_default_test(|| {
-        for i in 0..9000 {
+        for i in 0..TEST_ALLOCATIONS {
             assert_eq!(alloc(), DynamicAllocation(i));
         }
     })
@@ -62,11 +75,10 @@ fn free_works() {
 #[test]
 fn many_alloc_and_free_works() {
     run_default_test(|| {
-        let allocations = 10_000;
-        for i in 0..allocations {
+        for i in 0..TEST_ALLOCATIONS {
             assert_eq!(alloc(), DynamicAllocation(i));
         }
-        for i in 0..allocations {
+        for i in 0..TEST_ALLOCATIONS {
             free(DynamicAllocation(i))
         }
     })

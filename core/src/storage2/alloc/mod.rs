@@ -96,6 +96,19 @@ pub fn free(allocation: DynamicAllocation) {
     on_call(|allocator| allocator.free(allocation))
 }
 
+/// Resets the allocator to the initial values.
+///
+/// # Note
+///
+/// This function is only needed for testing when tools such as `miri` run all
+/// tests on the same thread in sequence so every test has to reset the
+/// statically allocated instances like the storage allocator before running.
+#[cfg(test)]
+pub fn reset_allocator() {
+    assert_eq!(get_contract_phase(), ContractPhase::Deploy);
+    on_call(|allocator| allocator.reset())
+}
+
 /// The default dynamic allocator key offset.
 ///
 /// This is where the dynamic allocator is stored on the contract storage.
@@ -105,7 +118,7 @@ mod phase {
     use super::cfg_if;
 
     /// The phase in which a contract execution can be.
-    #[derive(Debug, Copy, Clone)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
     pub enum ContractPhase {
         /// A contract has been deployed initially.
         Deploy,
@@ -162,7 +175,6 @@ mod phase {
             /// If a contract phase has already been submitted.
             pub fn set_contract_phase(new_phase: ContractPhase) {
                 PHASE.with(|phase| {
-                    assert!(phase.get().is_none());
                     phase.replace(Some(new_phase));
                 });
             }
