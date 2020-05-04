@@ -103,6 +103,41 @@ where
     }
 }
 
+impl<T> SpreadLayout for StorageStash<T>
+where
+    T: PackedLayout,
+    T: StorageFootprint + PullForward,
+{
+    const FOOTPRINT: u64 = 1 + <LazyIndexMap<T> as SpreadLayout>::FOOTPRINT;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        Self {
+            header: SpreadLayout::pull_spread(ptr),
+            entries: SpreadLayout::pull_spread(ptr),
+        }
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        SpreadLayout::push_spread(&self.header, ptr);
+        SpreadLayout::push_spread(&self.entries, ptr);
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        for index in 0..self.len_entries() {
+            // It might seem wasteful to clear all entries instead of just
+            // the occupied ones. However this spares us from having one extra
+            // read for every element in the storage stash to filter out vacant
+            // entries. So this is actually a trade-off and at the time of this
+            // implementation it is unclear which path is more efficient.
+            //
+            // The bet is that clearing a storage cell is cheaper than reading one.
+            self.entries.clear_packed_at(index);
+        }
+        SpreadLayout::clear_spread(&self.header, ptr);
+        SpreadLayout::clear_spread(&self.entries, ptr);
+    }
+}
+
 impl<T> StorageFootprint for StorageStash<T>
 where
     T: StorageFootprint,
