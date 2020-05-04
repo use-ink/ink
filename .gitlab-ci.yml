@@ -113,7 +113,8 @@ codecov:
     # we have to use these variables.
     CARGO_INCREMENTAL:             0
     # If `-Zno-landing-pads` is enabled some some tests start to fail.
-    RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
+    # RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
+    RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads -Zmir-opt-level=0"
     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation
     # and thus produces better results for Rust codebases in general. However, unlike `grcov` it
     # requires running docker with `--security-opt seccomp=unconfined` which is why we use `grcov`
