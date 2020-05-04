@@ -28,6 +28,7 @@ use crate::storage2::{
         Lazy,
         LazyIndexMap,
     },
+    traits2::PackedLayout,
     PullForward,
     StorageFootprint,
 };
@@ -77,6 +78,27 @@ impl<T> Vec<T> {
     /// Returns `true` if the vector contains no elements.
     pub fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+}
+
+impl<T> Vec<T>
+where
+    T: PackedLayout,
+    T: StorageFootprint + PullForward,
+{
+    /// Clears the underlying storage cells of the storage vector.
+    ///
+    /// # Note
+    ///
+    /// This completely invalidates the storage vector's invariances about
+    /// the contents of its associated storage region.
+    ///
+    /// This API is used for the `Drop` implementation of [`Vec`] as well as
+    /// for the [`SpreadLayout::clear_spread`] trait implementation.
+    fn clear_cells(&self) {
+        for index in 0..self.len() {
+            self.elems.clear_packed_at(index);
+        }
     }
 }
 

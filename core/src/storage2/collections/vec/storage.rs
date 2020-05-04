@@ -49,9 +49,7 @@ where
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr2) {
-        for index in 0..self.len() {
-            self.elems.clear_packed_at(index);
-        }
+        self.clear_cells();
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.elems, ptr);
     }

@@ -20,6 +20,7 @@ use super::{
     Vec as StorageVec,
 };
 use crate::storage2::{
+    // traits2::PackedLayout,
     PullForward,
     StorageFootprint,
 };
@@ -27,6 +28,17 @@ use core::iter::{
     Extend,
     FromIterator,
 };
+
+// TODO: Uncomment below `Drop` implementation:
+//
+// impl<T> Drop for StorageVec<T>
+// where
+//     T: PackedLayout,
+// {
+//     fn drop(&mut self) {
+//         self.clear_cells();
+//     }
+// }
 
 impl<T> core::ops::Index<u32> for StorageVec<T>
 where
