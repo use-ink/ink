@@ -90,10 +90,9 @@ impl<T> Entry<T> {
     /// Returns `true` if the entry is occupied.
     pub fn is_occupied(&self) -> bool {
         if let Entry::Occupied(_) = self {
-            true
-        } else {
-            false
+            return true
         }
+        false
     }
 
     /// Returns `true` if the entry is vacant.
