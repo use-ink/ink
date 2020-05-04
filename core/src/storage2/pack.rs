@@ -13,6 +13,14 @@
 // limitations under the License.
 
 use crate::storage2::{
+    traits2::{
+        forward_clear_packed,
+        forward_pull_packed,
+        forward_push_packed,
+        KeyPtr as KeyPtr2,
+        PackedLayout,
+        SpreadLayout,
+    },
     ClearAt,
     ClearForward,
     KeyPtr,
@@ -90,6 +98,40 @@ impl<T> Pack<T> {
     /// Returns an exclusive reference to the packed value.
     fn get_mut(&mut self) -> &mut T {
         &mut self.inner
+    }
+}
+
+impl<T> SpreadLayout for Pack<T>
+where
+    T: PackedLayout,
+{
+    const FOOTPRINT: u64 = 1;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        Pack::from(forward_pull_packed::<T>(ptr))
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        forward_push_packed::<T>(Self::get(self), ptr)
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        forward_clear_packed::<T>(Self::get(self), ptr)
+    }
+}
+
+impl<T> PackedLayout for Pack<T>
+where
+    T: PackedLayout,
+{
+    fn pull_packed(&mut self, at: &Key) {
+        <T as PackedLayout>::pull_packed(Self::get_mut(self), at)
+    }
+    fn push_packed(&self, at: &Key) {
+        <T as PackedLayout>::push_packed(Self::get(self), at)
+    }
+    fn clear_packed(&self, at: &Key) {
+        <T as PackedLayout>::clear_packed(Self::get(self), at)
     }
 }
 
