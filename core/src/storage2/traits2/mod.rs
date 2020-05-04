@@ -19,13 +19,18 @@ mod packed;
 mod spread;
 
 pub(crate) use self::optspec::{
-    pull_packed_root_opt,
-    push_spread_root_opt,
     clear_spread_root_opt,
-    push_packed_root_opt,
+    pull_packed_root_opt,
     pull_spread_root_opt,
+    push_packed_root_opt,
+    push_spread_root_opt,
 };
 pub use self::{
+    impls::{
+        forward_clear_packed,
+        forward_pull_packed,
+        forward_push_packed,
+    },
     keyptr::KeyPtr,
     packed::PackedLayout,
     spread::SpreadLayout,
