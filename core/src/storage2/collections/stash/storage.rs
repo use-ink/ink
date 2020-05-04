@@ -21,6 +21,14 @@ use super::{
 };
 use crate::storage2::{
     lazy::LazyIndexMap,
+    traits2::{
+        forward_clear_packed,
+        forward_pull_packed,
+        forward_push_packed,
+        KeyPtr as KeyPtr2,
+        PackedLayout,
+        SpreadLayout,
+    },
     ClearForward,
     KeyPtr,
     PullAt,
