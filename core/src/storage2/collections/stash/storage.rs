@@ -31,6 +31,70 @@ use crate::storage2::{
 };
 use ink_primitives::Key;
 
+impl SpreadLayout for Header {
+    const FOOTPRINT: u64 = 1;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        forward_pull_packed::<Self>(ptr)
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        forward_push_packed::<Self>(self, ptr)
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        forward_clear_packed::<Self>(self, ptr)
+    }
+}
+
+impl PackedLayout for Header {
+    fn pull_packed(&mut self, _at: &Key) {}
+    fn push_packed(&self, _at: &Key) {}
+    fn clear_packed(&self, _at: &Key) {}
+}
+
+impl<T> SpreadLayout for Entry<T>
+where
+    T: PackedLayout,
+{
+    const FOOTPRINT: u64 = 1;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        forward_pull_packed::<Self>(ptr)
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        forward_push_packed::<Self>(self, ptr)
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        forward_clear_packed::<Self>(self, ptr)
+    }
+}
+
+impl<T> PackedLayout for Entry<T>
+where
+    T: PackedLayout,
+{
+    fn pull_packed(&mut self, at: &Key) {
+        if let Entry::Occupied(value) = self {
+            <T as PackedLayout>::pull_packed(value, at)
+        }
+    }
+
+    fn push_packed(&self, at: &Key) {
+        if let Entry::Occupied(value) = self {
+            <T as PackedLayout>::push_packed(value, at)
+        }
+    }
+
+    fn clear_packed(&self, at: &Key) {
+        if let Entry::Occupied(value) = self {
+            <T as PackedLayout>::clear_packed(value, at)
+        }
+    }
+}
+
 impl<T> StorageFootprint for StorageStash<T>
 where
     T: StorageFootprint,
