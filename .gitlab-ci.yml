@@ -140,11 +140,11 @@ codecov:
     # coverage with branches
     - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
     - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -y scripts/codecov.yml -f lcov-w-branch.info
     # lines coverage
     - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.json
     - rust-covfix -o lcov-lines.json lcov-lines.json
-    - bash <(curl -s https://codecov.io/bash) -f lcov-lines.json
+    - bash <(curl -s https://codecov.io/bash) -y scripts/codecov.yml -f lcov-lines.json
 
 clippy-std:
   stage:                           workspace
