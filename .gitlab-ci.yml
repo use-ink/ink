@@ -113,8 +113,8 @@ codecov:
     # we have to use these variables.
     CARGO_INCREMENTAL:             0
     # If `-Zno-landing-pads` is enabled some some tests start to fail.
-    # RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off"      
-    RUSTFLAGS:                     "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zmir-opt-level=0"
+    RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Zpanic_abort_tests -Ccodegen-units=1
+                                    -Cinline-threshold=0 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation
     # and thus produces better results for Rust codebases in general. However, unlike `grcov` it
     # requires running docker with `--security-opt seccomp=unconfined` which is why we use `grcov`
@@ -122,6 +122,7 @@ codecov:
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - unset "CARGO_TARGET_DIR"
+    - cargo install rust-covfix
     - cargo clean
     - cargo test --verbose --all-features --no-fail-fast --workspace
     - cargo build --verbose --all-features --workspace
@@ -129,10 +130,15 @@ codecov:
     #     --token "$CODECOV_TOKEN" --commit-sha "$CI_COMMIT_SHA" --output-file ccov.json
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov.info
-    - rust-covfix -o lcov_correct.info lcov.info
     # - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -X gcov -f ccov.json
-    - bash <(curl -s https://codecov.io/bash) -f lcov.info
+    # coverage with branches
+    - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
+    - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
+    # lines coverage
+    - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.json
+    - rust-covfix -o lcov-lines.json lcov-lines.json
+    - bash <(curl -s https://codecov.io/bash) -f lcov-lines.json
 
 clippy-std:
   stage:                           workspace
