@@ -18,6 +18,11 @@ use crate::storage2::{
         LazyArray,
         LazyArrayLength,
     },
+    traits2::{
+        KeyPtr as KeyPtr2,
+        PackedLayout,
+        SpreadLayout,
+    },
     ClearForward,
     KeyPtr,
     PullForward,
@@ -25,6 +30,33 @@ use crate::storage2::{
     StorageFootprint,
 };
 use generic_array::typenum::Unsigned;
+
+impl<T, N> SpreadLayout for SmallVec<T, N>
+where
+    T: PackedLayout,
+    T: StorageFootprint + PullForward,
+    N: LazyArrayLength<T>,
+{
+    const FOOTPRINT: u64 = 1 + <N as Unsigned>::U64;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        Self {
+            len: SpreadLayout::pull_spread(ptr),
+            elems: SpreadLayout::pull_spread(ptr),
+        }
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        SpreadLayout::push_spread(&self.len, ptr);
+        SpreadLayout::push_spread(&self.elems, ptr);
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        self.clear_cells();
+        SpreadLayout::clear_spread(&self.len, ptr);
+        SpreadLayout::clear_spread(&self.elems, ptr);
+    }
+}
 
 impl<T, N> StorageFootprint for SmallVec<T, N>
 where

@@ -29,6 +29,7 @@ use crate::storage2::{
         LazyArray,
         LazyArrayLength,
     },
+    traits2::PackedLayout,
     PullForward,
     StorageFootprint,
 };
@@ -65,6 +66,28 @@ where
 {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl<T, N> SmallVec<T, N>
+where
+    T: PackedLayout,
+    T: StorageFootprint + PullForward,
+    N: LazyArrayLength<T>,
+{
+    /// Clears the underlying storage cells of the storage vector.
+    ///
+    /// # Note
+    ///
+    /// This completely invalidates the storage vector's invariances about
+    /// the contents of its associated storage region.
+    ///
+    /// This API is used for the `Drop` implementation of [`Vec`] as well as
+    /// for the [`SpreadLayout::clear_spread`] trait implementation.
+    fn clear_cells(&self) {
+        for index in 0..self.len() {
+            self.elems.clear_packed_at(index);
+        }
     }
 }
 
