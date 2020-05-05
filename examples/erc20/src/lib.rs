@@ -119,9 +119,9 @@ mod erc20 {
             if from_balance < value {
                 return false
             }
-            self.balances.insert(from.clone(), from_balance - value);
+            self.balances.insert(from, from_balance - value);
             let to_balance = self.balance_of_or_zero(&to);
-            self.balances.insert(to.clone(), to_balance + value);
+            self.balances.insert(to, to_balance + value);
             self.env().emit_event(Transfer {
                 from: Some(from),
                 to: Some(to),
