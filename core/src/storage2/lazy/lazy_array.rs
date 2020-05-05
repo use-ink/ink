@@ -195,11 +195,11 @@ where
     }
 
     /// Inserts a new entry into the cache and returns an exclusive reference to it.
-    unsafe fn insert_entry(&self, at: Index, new_entry: Entry<T>) -> &mut Entry<T> {
+    unsafe fn insert_entry(&self, at: Index, new_entry: Entry<T>) -> NonNull<Entry<T>> {
         let entry: &mut Option<Entry<T>> =
             unsafe { &mut *UnsafeCell::get(&self.entries[at as usize]) };
         *entry = Some(new_entry);
-        entry.as_mut().expect("just inserted the entry")
+        entry.as_mut().map(NonNull::from).expect("just inserted the entry")
     }
 
     /// Returns an exclusive reference to the entry at the given index if any.
@@ -392,7 +392,7 @@ where
                 let value =
                     <Option<T> as PullForward>::pull_forward(&mut KeyPtr::from(key));
                 let entry = Entry::new(value, EntryState::Preserved);
-                NonNull::from(unsafe { self.cached_entries.insert_entry(at, entry) })
+                unsafe { self.cached_entries.insert_entry(at, entry) }
             }
         }
     }
