@@ -16,9 +16,9 @@
 
 use super::{
     Bits256,
-    Index256,
     Bits256BitsIter,
     Bits256BitsIterMut,
+    Index256,
 };
 
 /// A mutable bit access for operating on a single bit within a 256-bit pack.

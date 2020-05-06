@@ -22,14 +22,16 @@ use crate::storage2::traits2::{
     PackedLayout,
     SpreadLayout,
 };
-use ink_prelude::collections::{
-    BTreeMap as StdBTreeMap,
-    BTreeSet as StdBTreeSet,
-    BinaryHeap as StdBinaryHeap,
-    LinkedList as StdLinkedList,
-    VecDeque as StdVecDeque,
+use ink_prelude::{
+    collections::{
+        BTreeMap as StdBTreeMap,
+        BTreeSet as StdBTreeSet,
+        BinaryHeap as StdBinaryHeap,
+        LinkedList as StdLinkedList,
+        VecDeque as StdVecDeque,
+    },
+    vec::Vec,
 };
-use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
 impl<K, V> SpreadLayout for StdBTreeMap<K, V>

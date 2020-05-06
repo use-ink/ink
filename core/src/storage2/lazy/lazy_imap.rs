@@ -14,10 +14,10 @@
 
 use crate::storage2::{
     traits2::{
+        clear_packed_root,
         KeyPtr as KeyPtr2,
         PackedLayout,
         SpreadLayout,
-        clear_packed_root,
     },
     ClearForward,
     KeyPtr,

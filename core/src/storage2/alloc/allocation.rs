@@ -19,13 +19,13 @@ use crate::{
     },
     storage2::{
         pull_single_cell,
+        ClearAt,
+        ClearForward,
         KeyPtr,
         PullAt,
         PullForward,
         PushAt,
         PushForward,
-        ClearForward,
-        ClearAt,
         StorageFootprint,
     },
 };

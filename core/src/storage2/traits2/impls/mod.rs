@@ -95,10 +95,10 @@ mod prims;
 mod tuples;
 
 use super::{
-    PackedLayout,
+    clear_packed_root,
     pull_packed_root,
     push_packed_root,
-    clear_packed_root
+    PackedLayout,
 };
 use crate::storage2::traits2::KeyPtr;
 

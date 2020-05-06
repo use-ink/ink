@@ -15,10 +15,10 @@
 use super::{
     alloc,
     free,
-    DynamicAllocation,
-    set_contract_phase,
     reset_allocator,
+    set_contract_phase,
     ContractPhase,
+    DynamicAllocation,
 };
 use crate::env::{
     test,
@@ -34,7 +34,8 @@ where
     test::run_test::<DefaultEnvTypes, _>(|_| {
         f();
         Ok(())
-    }).unwrap();
+    })
+    .unwrap();
 }
 
 #[test]

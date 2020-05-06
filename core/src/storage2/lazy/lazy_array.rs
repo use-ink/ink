@@ -18,10 +18,10 @@ use super::{
 };
 use crate::storage2::{
     traits2::{
-        KeyPtr as KeyPtr2,
-        SpreadLayout,
-        PackedLayout,
         clear_packed_root,
+        KeyPtr as KeyPtr2,
+        PackedLayout,
+        SpreadLayout,
     },
     KeyPtr,
     PullForward,
@@ -200,7 +200,10 @@ where
         let entry: &mut Option<Entry<T>> =
             unsafe { &mut *UnsafeCell::get(&self.entries[at as usize]) };
         *entry = Some(new_entry);
-        entry.as_mut().map(NonNull::from).expect("just inserted the entry")
+        entry
+            .as_mut()
+            .map(NonNull::from)
+            .expect("just inserted the entry")
     }
 
     /// Returns an exclusive reference to the entry at the given index if any.

@@ -65,9 +65,7 @@ where
             // For this we'd need specialization in Rust or similar.
             super::push_spread_root(value, root_key)
         }
-        None => {
-            clear_associated_storage_cells::<T>(root_key)
-        }
+        None => clear_associated_storage_cells::<T>(root_key),
     }
 }
 

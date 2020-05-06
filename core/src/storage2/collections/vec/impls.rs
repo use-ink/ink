@@ -20,7 +20,6 @@ use super::{
     Vec as StorageVec,
 };
 use crate::storage2::{
-    // traits2::PackedLayout,
     PullForward,
     StorageFootprint,
 };

@@ -17,8 +17,8 @@ use crate::storage2::traits2::{
     PackedLayout,
     SpreadLayout,
 };
-use ink_primitives::Key;
 use array_init::array_init;
+use ink_primitives::Key;
 
 macro_rules! impl_layout_for_array {
     ( $($len:literal),* $(,)? ) => {
