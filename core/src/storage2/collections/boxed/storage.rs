@@ -33,8 +33,8 @@ use crate::storage2::{
     PushForward,
     StorageFootprint,
 };
-use ink_primitives::Key;
 use ink_prelude::vec::Vec;
+use ink_primitives::Key;
 
 impl<T> SpreadLayout for StorageBox<T>
 where
