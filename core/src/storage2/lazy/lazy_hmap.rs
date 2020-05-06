@@ -23,6 +23,7 @@ use crate::{
     },
     storage2::{
         traits2::{
+            clear_packed_root,
             KeyPtr as KeyPtr2,
             PackedLayout,
             SpreadLayout,
@@ -438,6 +439,32 @@ where
         //   cache are stored within a `Box` to not invalidate references into
         //   them upon operating on the outer cache.
         unsafe { &mut *self.lazily_load(index).as_ptr() }
+    }
+
+    /// Clears the underlying storage of the entry at the given index.
+    ///
+    /// # Safety
+    ///
+    /// For performance reasons this does not synchronize the lazy index map's
+    /// memory-side cache which invalidates future accesses the cleared entry.
+    /// Care should be taken when using this API.
+    ///
+    /// The general use of this API is to streamline `Drop` implementations of
+    /// high-level abstractions that build upon this low-level data strcuture.
+    pub fn clear_packed_at<Q>(&self, index: &Q)
+    where
+        K: Borrow<Q>,
+        V: PackedLayout,
+        Q: Ord + scale::Encode + ToOwned<Owned = K>,
+    {
+        let root_key = self.key_at(index).expect("cannot clear in lazy state");
+        // We need to load the entity before we remove its associated contract storage
+        // because it might be a type that propagates clearing to its fields,
+        // for example in the case of `T` being a `storage::Box`. However,
+        // since in other cases this load is not required but implies a lot of
+        // overhead we need to find a way to avoid it in those cases.
+        let entity = self.get(index).expect("cannot clear a non existing entity");
+        clear_packed_root::<V>(&entity, &root_key);
     }
 
     /// Returns a shared reference to the value associated with the given key if any.
