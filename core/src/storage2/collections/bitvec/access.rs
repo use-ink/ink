@@ -117,11 +117,6 @@ impl<'a> Bits256RefMut<'a> {
         self.len
     }
 
-    /// Returns an iterator over the valid bits of `self`.
-    pub(super) fn iter(&self) -> Bits256BitsIter {
-        self.chunk.iter(self.len as u16)
-    }
-
     /// Returns an iterator over mutable accessors to the valid bits of `self`.
     pub(super) fn iter_mut(&mut self) -> Bits256BitsIterMut {
         self.chunk.iter_mut(self.len as u16)
