@@ -34,6 +34,7 @@ use crate::storage2::{
     StorageFootprint,
 };
 use ink_primitives::Key;
+use ink_prelude::vec::Vec;
 
 impl<T> SpreadLayout for StorageBox<T>
 where

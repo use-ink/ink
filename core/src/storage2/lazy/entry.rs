@@ -35,6 +35,7 @@ use crate::storage2::{
     StorageFootprint,
 };
 use core::cell::Cell;
+use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
 /// The entry of a single cached value of a lazy storage data structure.
