@@ -28,8 +28,6 @@ use core::iter::{
     FromIterator,
 };
 
-// TODO: Uncomment below `Drop` implementation:
-//
 // impl<T> Drop for StorageVec<T>
 // where
 //     T: PackedLayout,

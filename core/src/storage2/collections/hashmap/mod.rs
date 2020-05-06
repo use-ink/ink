@@ -249,8 +249,6 @@ where
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
         let entry = self.values.put_get(key, None).map(Pack::into_inner)?;
-        // TODO: Add Stash::take_drop for use cases where the return value
-        //       is not required to avoid reading from storage.
         self.keys
             .take(entry.key_index)
             .expect("`key_index` must point to a valid key entry");
