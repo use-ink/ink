@@ -16,7 +16,14 @@ use super::Box as StorageBox;
 use crate::storage2::{
     alloc::DynamicAllocation,
     lazy::Lazy,
-    traits2::SpreadLayout,
+    traits2::{
+        forward_clear_packed,
+        forward_pull_packed,
+        forward_push_packed,
+        KeyPtr as KeyPtr2,
+        PackedLayout,
+        SpreadLayout,
+    },
     ClearAt,
     ClearForward,
     KeyPtr,
@@ -27,6 +34,76 @@ use crate::storage2::{
     StorageFootprint,
 };
 use ink_primitives::Key;
+
+impl<T> SpreadLayout for StorageBox<T>
+where
+    T: SpreadLayout,
+    T: StorageFootprint + ClearForward + PullForward,
+{
+    const FOOTPRINT: u64 = 1;
+
+    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+        forward_pull_packed::<Self>(ptr)
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr2) {
+        forward_push_packed::<Self>(&self, ptr)
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+        forward_clear_packed::<Self>(&self, ptr)
+    }
+}
+
+impl<T> scale::Encode for StorageBox<T>
+where
+    T: SpreadLayout,
+    T: StorageFootprint + ClearForward,
+{
+    fn size_hint(&self) -> usize {
+        <DynamicAllocation as scale::Encode>::size_hint(&self.allocation)
+    }
+
+    fn encode_to<O: scale::Output>(&self, dest: &mut O) {
+        <DynamicAllocation as scale::Encode>::encode_to(&self.allocation, dest)
+    }
+
+    fn encode(&self) -> Vec<u8> {
+        <DynamicAllocation as scale::Encode>::encode(&self.allocation)
+    }
+
+    fn using_encoded<R, F: FnOnce(&[u8]) -> R>(&self, f: F) -> R {
+        <DynamicAllocation as scale::Encode>::using_encoded(&self.allocation, f)
+    }
+}
+
+impl<T> scale::Decode for StorageBox<T>
+where
+    T: SpreadLayout,
+    T: StorageFootprint + ClearForward,
+{
+    fn decode<I: scale::Input>(value: &mut I) -> Result<Self, scale::Error> {
+        Ok(StorageBox::lazy(
+            <DynamicAllocation as scale::Decode>::decode(value)?,
+        ))
+    }
+}
+
+impl<T> PackedLayout for StorageBox<T>
+where
+    T: SpreadLayout,
+    T: StorageFootprint + ClearForward + PullForward,
+{
+    fn pull_packed(&mut self, _at: &Key) {}
+
+    fn push_packed(&self, _at: &Key) {
+        <T as SpreadLayout>::push_spread(Self::get(self), &mut KeyPtr2::from(self.key()))
+    }
+
+    fn clear_packed(&self, _at: &Key) {
+        <T as SpreadLayout>::clear_spread(Self::get(self), &mut KeyPtr2::from(self.key()))
+    }
+}
 
 impl<T> StorageFootprint for StorageBox<T>
 where

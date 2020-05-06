@@ -53,6 +53,14 @@ where
         }
     }
 
+    /// Creates a new boxed entity that has not yet loaded its value.
+    fn lazy(allocation: DynamicAllocation) -> Self {
+        Self {
+            allocation,
+            value: Lazy::lazy(allocation.key()),
+        }
+    }
+
     /// Returns the underlying storage key for the dynamic allocated entity.
     fn key(&self) -> Key {
         self.allocation.key()
