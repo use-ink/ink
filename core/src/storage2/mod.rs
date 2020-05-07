@@ -18,7 +18,6 @@ pub mod alloc;
 pub mod collections;
 pub mod lazy;
 mod pack;
-mod traits;
 pub mod traits2;
 
 #[doc(inline)]
@@ -29,15 +28,4 @@ pub use self::{
     },
     lazy::Lazy,
     pack::Pack,
-    traits::{
-        pull_single_cell,
-        ClearAt,
-        ClearForward,
-        KeyPtr,
-        PullAt,
-        PullForward,
-        PushAt,
-        PushForward,
-        StorageFootprint,
-    },
 };
