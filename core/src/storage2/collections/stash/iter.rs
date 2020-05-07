@@ -19,8 +19,7 @@ use super::Stash;
 use crate::storage2::Pack;
 use crate::storage2::{
     collections::extend_lifetime,
-    PullForward,
-    StorageFootprint,
+    traits2::PackedLayout,
 };
 
 /// An iterator over shared references to the elements of a storage stash.
@@ -59,7 +58,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     type Item = &'a T;
 
@@ -91,14 +90,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where
-    T: StorageFootprint + PullForward + scale::Decode
-{
-}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Decode + PackedLayout {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         loop {
@@ -156,7 +152,7 @@ impl<'a, T> IterMut<'a, T> {
 
 impl<'a, T> IterMut<'a, T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
         self.stash.get_mut(at).map(|value| {
@@ -174,7 +170,7 @@ where
 
 impl<'a, T> Iterator for IterMut<'a, T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     type Item = &'a mut T;
 
@@ -206,14 +202,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for IterMut<'a, T> where
-    T: StorageFootprint + PullForward + scale::Decode
-{
-}
+impl<'a, T> ExactSizeIterator for IterMut<'a, T> where T: scale::Decode + PackedLayout {}
 
 impl<'a, T> DoubleEndedIterator for IterMut<'a, T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         loop {
@@ -266,7 +259,7 @@ impl<'a, T> Entries<'a, T> {
 #[cfg(test)]
 impl<'a, T> Iterator for Entries<'a, T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     type Item = &'a Entry<T>;
 
@@ -293,15 +286,12 @@ where
 }
 
 #[cfg(test)]
-impl<'a, T> ExactSizeIterator for Entries<'a, T> where
-    T: StorageFootprint + PullForward + scale::Decode
-{
-}
+impl<'a, T> ExactSizeIterator for Entries<'a, T> where T: scale::Decode + PackedLayout {}
 
 #[cfg(test)]
 impl<'a, T> DoubleEndedIterator for Entries<'a, T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);

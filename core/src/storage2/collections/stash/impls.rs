@@ -20,8 +20,7 @@ use super::{
     Stash as StorageStash,
 };
 use crate::storage2::{
-    PullForward,
-    StorageFootprint,
+    traits2::PackedLayout,
 };
 use core::iter::{
     Extend,
@@ -36,7 +35,7 @@ impl<T> Default for StorageStash<T> {
 
 impl<T> core::ops::Index<u32> for StorageStash<T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     type Output = T;
 
@@ -47,7 +46,7 @@ where
 
 impl<T> core::ops::IndexMut<u32> for StorageStash<T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index).expect("index out of bounds")
@@ -56,7 +55,7 @@ where
 
 impl<'a, T: 'a> IntoIterator for &'a StorageStash<T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     type Item = &'a T;
     type IntoIter = Iter<'a, T>;
@@ -68,7 +67,7 @@ where
 
 impl<'a, T: 'a> IntoIterator for &'a mut StorageStash<T>
 where
-    T: StorageFootprint + PullForward + scale::Decode,
+    T: scale::Decode + PackedLayout,
 {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
@@ -80,7 +79,7 @@ where
 
 impl<T> Extend<T> for StorageStash<T>
 where
-    T: StorageFootprint + PullForward + scale::Codec,
+    T: scale::Codec + PackedLayout,
 {
     fn extend<I>(&mut self, iter: I)
     where
@@ -94,7 +93,7 @@ where
 
 impl<T> FromIterator<T> for StorageStash<T>
 where
-    T: StorageFootprint + PullForward + scale::Codec,
+    T: scale::Codec + PackedLayout,
 {
     fn from_iter<I>(iter: I) -> Self
     where
@@ -108,7 +107,7 @@ where
 
 impl<T> core::cmp::PartialEq for StorageStash<T>
 where
-    T: PartialEq + StorageFootprint + PullForward + scale::Decode,
+    T: scale::Codec + PartialEq + PackedLayout,
 {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
@@ -118,7 +117,4 @@ where
     }
 }
 
-impl<T> core::cmp::Eq for StorageStash<T> where
-    T: Eq + StorageFootprint + PullForward + scale::Decode
-{
-}
+impl<T> core::cmp::Eq for StorageStash<T> where T: scale::Decode + Eq + PackedLayout {}

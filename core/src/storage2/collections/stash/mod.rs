@@ -27,9 +27,8 @@ pub use self::iter::{
 };
 use crate::storage2::{
     lazy::LazyIndexMap,
+    traits2::PackedLayout,
     Pack,
-    PullForward,
-    StorageFootprint,
 };
 use ink_primitives::Key;
 
@@ -214,7 +213,7 @@ impl<T> Stash<T> {
 
 impl<T> Stash<T>
 where
-    T: scale::Decode + StorageFootprint + PullForward,
+    T: scale::Decode + PackedLayout,
 {
     /// Returns a shared reference to the element at the given index.
     pub fn get(&self, at: Index) -> Option<&T> {
@@ -247,7 +246,7 @@ where
 
 impl<T> Stash<T>
 where
-    T: scale::Codec + StorageFootprint + PullForward,
+    T: scale::Codec + PackedLayout,
 {
     /// Rebinds the `prev` and `next` bindings of the neighbours of the vacant entry.
     ///
