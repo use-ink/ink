@@ -17,18 +17,16 @@ use crate::storage2::lazy::{
     LazyArray,
     LazyIndexMap,
 };
-use crate::storage2::{
-    traits2::{
-        clear_packed_root,
-        clear_spread_root_opt,
-        pull_packed_root_opt,
-        pull_spread_root_opt,
-        push_packed_root_opt,
-        push_spread_root_opt,
-        KeyPtr as KeyPtr2,
-        PackedLayout,
-        SpreadLayout,
-    },
+use crate::storage2::traits2::{
+    clear_packed_root,
+    clear_spread_root_opt,
+    pull_packed_root_opt,
+    pull_spread_root_opt,
+    push_packed_root_opt,
+    push_spread_root_opt,
+    KeyPtr as KeyPtr2,
+    PackedLayout,
+    SpreadLayout,
 };
 use core::cell::Cell;
 use ink_prelude::vec::Vec;

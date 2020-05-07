@@ -152,10 +152,7 @@ where
     }
 }
 
-impl<T> core::cmp::Eq for Lazy<T> where
-    T: Eq + SpreadLayout,
-{
-}
+impl<T> core::cmp::Eq for Lazy<T> where T: Eq + SpreadLayout {}
 
 impl<T> core::cmp::PartialOrd for Lazy<T>
 where

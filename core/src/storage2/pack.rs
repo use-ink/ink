@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage2::{
-    traits2::{
-        forward_clear_packed,
-        forward_pull_packed,
-        forward_push_packed,
-        KeyPtr as KeyPtr,
-        PackedLayout,
-        SpreadLayout,
-    },
+use crate::storage2::traits2::{
+    forward_clear_packed,
+    forward_pull_packed,
+    forward_push_packed,
+    KeyPtr,
+    PackedLayout,
+    SpreadLayout,
 };
 use ink_primitives::Key;
 

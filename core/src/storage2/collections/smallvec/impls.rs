@@ -17,8 +17,8 @@ use super::{
     SmallVec,
 };
 use crate::storage2::{
-    traits2::PackedLayout,
     lazy::LazyArrayLength,
+    traits2::PackedLayout,
 };
 use core::iter::{
     Extend,

@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    hash::{
-        Blake2x256,
-        Wrap,
-    },
+use crate::hash::{
+    Blake2x256,
+    Wrap,
 };
 use ink_primitives::Key;
 
