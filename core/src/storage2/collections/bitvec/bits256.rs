@@ -19,12 +19,6 @@ use super::{
     Index256,
     Index64,
 };
-use crate::storage2::{
-    pull_single_cell,
-    PullAt,
-    PushAt,
-};
-use ink_primitives::Key;
 
 /// A chunk of 256 bits.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -264,18 +258,6 @@ impl Bits256 {
             offset += 64;
         }
         None
-    }
-}
-
-impl PullAt for Bits256 {
-    fn pull_at(at: Key) -> Self {
-        pull_single_cell(at)
-    }
-}
-
-impl PushAt for Bits256 {
-    fn push_at(&self, at: Key) {
-        crate::env::set_contract_storage(at, self)
     }
 }
 
