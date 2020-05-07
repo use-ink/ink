@@ -14,10 +14,9 @@
 
 use super::SmallVec;
 use crate::storage2::{
+    traits2::PackedLayout,
     collections::extend_lifetime,
     lazy::LazyArrayLength,
-    PullForward,
-    StorageFootprint,
 };
 
 /// An iterator over shared references to the elements of a small storage vector.
@@ -55,7 +54,7 @@ where
 
 impl<'a, T, N> Iterator for Iter<'a, T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     type Item = &'a T;
@@ -87,14 +86,14 @@ where
 
 impl<'a, T, N> ExactSizeIterator for Iter<'a, T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
 }
 
 impl<'a, T, N> DoubleEndedIterator for Iter<'a, T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
@@ -151,7 +150,7 @@ where
 
 impl<'a, T, N> IterMut<'a, T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
@@ -170,7 +169,7 @@ where
 
 impl<'a, T, N> Iterator for IterMut<'a, T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     type Item = &'a mut T;
@@ -202,14 +201,14 @@ where
 
 impl<'a, T, N> ExactSizeIterator for IterMut<'a, T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
 }
 
 impl<'a, T, N> DoubleEndedIterator for IterMut<'a, T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {

@@ -30,8 +30,6 @@ use crate::storage2::{
         LazyArrayLength,
     },
     traits2::PackedLayout,
-    PullForward,
-    StorageFootprint,
 };
 
 /// The used index type.
@@ -72,7 +70,6 @@ where
 impl<T, N> SmallVec<T, N>
 where
     T: PackedLayout,
-    T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
     /// Clears the underlying storage cells of the storage vector.
@@ -121,7 +118,7 @@ where
 
 impl<T, N> SmallVec<T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// Returns an iterator yielding shared references to all elements.
@@ -182,7 +179,6 @@ where
 
 impl<T, N> SmallVec<T, N>
 where
-    T: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     /// Appends an element to the back of the vector.
@@ -199,7 +195,7 @@ where
 
 impl<T, N> SmallVec<T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// Pops the last element from the vector and returns it.

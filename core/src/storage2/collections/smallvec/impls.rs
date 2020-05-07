@@ -17,9 +17,8 @@ use super::{
     SmallVec,
 };
 use crate::storage2::{
+    traits2::PackedLayout,
     lazy::LazyArrayLength,
-    PullForward,
-    StorageFootprint,
 };
 use core::iter::{
     Extend,
@@ -28,7 +27,7 @@ use core::iter::{
 
 impl<T, N> core::ops::Index<u32> for SmallVec<T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     type Output = T;
@@ -40,7 +39,7 @@ where
 
 impl<T, N> core::ops::IndexMut<u32> for SmallVec<T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
@@ -50,7 +49,7 @@ where
 
 impl<'a, T: 'a, N> IntoIterator for &'a SmallVec<T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     type Item = &'a T;
@@ -63,7 +62,6 @@ where
 
 impl<T, N> Extend<T> for SmallVec<T, N>
 where
-    T: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     fn extend<I>(&mut self, iter: I)
@@ -78,7 +76,6 @@ where
 
 impl<T, N> FromIterator<T> for SmallVec<T, N>
 where
-    T: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     fn from_iter<I>(iter: I) -> Self
@@ -93,7 +90,7 @@ where
 
 impl<T, N> core::cmp::PartialEq for SmallVec<T, N>
 where
-    T: PartialEq + StorageFootprint + PullForward,
+    T: PartialEq + PackedLayout,
     N: LazyArrayLength<T>,
 {
     fn eq(&self, other: &Self) -> bool {
@@ -106,7 +103,7 @@ where
 
 impl<T, N> core::cmp::Eq for SmallVec<T, N>
 where
-    T: Eq + StorageFootprint + PullForward,
+    T: Eq + PackedLayout,
     N: LazyArrayLength<T>,
 {
 }
