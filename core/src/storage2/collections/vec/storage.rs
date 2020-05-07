@@ -18,78 +18,33 @@ use super::Vec as StorageVec;
 use crate::storage2::{
     lazy::LazyIndexMap,
     traits2::{
-        KeyPtr as KeyPtr2,
+        KeyPtr,
         PackedLayout,
         SpreadLayout,
     },
-    ClearForward,
-    KeyPtr,
-    PullForward,
-    PushForward,
-    StorageFootprint,
 };
 
 impl<T> SpreadLayout for StorageVec<T>
 where
     T: PackedLayout,
-    T: StorageFootprint + PullForward,
 {
     const FOOTPRINT: u64 = 1 + <LazyIndexMap<T> as SpreadLayout>::FOOTPRINT;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
             len: SpreadLayout::pull_spread(ptr),
             elems: SpreadLayout::pull_spread(ptr),
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::push_spread(&self.len, ptr);
         SpreadLayout::push_spread(&self.elems, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         self.clear_cells();
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.elems, ptr);
-    }
-}
-
-impl<T> StorageFootprint for StorageVec<T>
-where
-    T: StorageFootprint,
-{
-    const VALUE: u64 = 1 + <LazyIndexMap<T> as StorageFootprint>::VALUE;
-}
-
-impl<T> PullForward for StorageVec<T>
-where
-    T: StorageFootprint,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self {
-            len: PullForward::pull_forward(ptr),
-            elems: PullForward::pull_forward(ptr),
-        }
-    }
-}
-
-impl<T> PushForward for StorageVec<T>
-where
-    T: PushForward + PullForward + StorageFootprint,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        PushForward::push_forward(&self.len(), ptr);
-        PushForward::push_forward(&self.elems, ptr);
-    }
-}
-
-impl<T> ClearForward for StorageVec<T>
-where
-    T: StorageFootprint + ClearForward + PullForward,
-{
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        ClearForward::clear_forward(&self.len, ptr);
-        ClearForward::clear_forward(&self.elems, ptr);
     }
 }

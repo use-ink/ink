@@ -15,9 +15,8 @@
 use crate::{
     storage2 as storage,
     storage2::{
+        traits2::PackedLayout,
         collections::extend_lifetime,
-        PullForward,
-        StorageFootprint,
     },
 };
 
@@ -50,7 +49,7 @@ impl<'a, T> Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     type Item = &'a T;
 
@@ -79,11 +78,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: StorageFootprint + PullForward {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: PackedLayout {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         <Self as DoubleEndedIterator>::nth_back(self, 0)
@@ -133,7 +132,7 @@ impl<'a, T> IterMut<'a, T> {
 
 impl<'a, T> IterMut<'a, T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
         self.vec.get_mut(at).map(|value| {
@@ -151,7 +150,7 @@ where
 
 impl<'a, T> Iterator for IterMut<'a, T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     type Item = &'a mut T;
 
@@ -180,11 +179,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for IterMut<'a, T> where T: StorageFootprint + PullForward {}
+impl<'a, T> ExactSizeIterator for IterMut<'a, T> where T: PackedLayout {}
 
 impl<'a, T> DoubleEndedIterator for IterMut<'a, T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         <Self as DoubleEndedIterator>::nth_back(self, 0)

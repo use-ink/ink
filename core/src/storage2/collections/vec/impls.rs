@@ -19,10 +19,7 @@ use super::{
     IterMut,
     Vec as StorageVec,
 };
-use crate::storage2::{
-    PullForward,
-    StorageFootprint,
-};
+use crate::storage2::traits2::PackedLayout;
 use core::iter::{
     Extend,
     FromIterator,
@@ -39,7 +36,7 @@ use core::iter::{
 
 impl<T> core::ops::Index<u32> for StorageVec<T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     type Output = T;
 
@@ -50,7 +47,7 @@ where
 
 impl<T> core::ops::IndexMut<u32> for StorageVec<T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         self.get_mut(index).expect("index out of bounds")
@@ -59,7 +56,7 @@ where
 
 impl<'a, T: 'a> IntoIterator for &'a StorageVec<T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     type Item = &'a T;
     type IntoIter = Iter<'a, T>;
@@ -71,7 +68,7 @@ where
 
 impl<'a, T: 'a> IntoIterator for &'a mut StorageVec<T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
@@ -83,7 +80,7 @@ where
 
 impl<T> Extend<T> for StorageVec<T>
 where
-    T: StorageFootprint,
+    T: PackedLayout,
 {
     fn extend<I>(&mut self, iter: I)
     where
@@ -97,7 +94,7 @@ where
 
 impl<T> FromIterator<T> for StorageVec<T>
 where
-    T: StorageFootprint,
+    T: PackedLayout,
 {
     fn from_iter<I>(iter: I) -> Self
     where
@@ -111,7 +108,7 @@ where
 
 impl<T> core::cmp::PartialEq for StorageVec<T>
 where
-    T: PartialEq + StorageFootprint + PullForward,
+    T: PartialEq + PackedLayout,
 {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
@@ -121,4 +118,4 @@ where
     }
 }
 
-impl<T> core::cmp::Eq for StorageVec<T> where T: Eq + StorageFootprint + PullForward {}
+impl<T> core::cmp::Eq for StorageVec<T> where T: Eq + PackedLayout {}

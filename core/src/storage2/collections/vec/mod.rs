@@ -29,8 +29,6 @@ use crate::storage2::{
         LazyIndexMap,
     },
     traits2::PackedLayout,
-    PullForward,
-    StorageFootprint,
 };
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.
@@ -84,7 +82,6 @@ impl<T> Vec<T> {
 impl<T> Vec<T>
 where
     T: PackedLayout,
-    T: StorageFootprint + PullForward,
 {
     /// Clears the underlying storage cells of the storage vector.
     ///
@@ -104,7 +101,7 @@ where
 
 impl<T> Vec<T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     /// Returns an iterator yielding shared references to all elements of the vector.
     ///
@@ -162,10 +159,7 @@ where
     }
 }
 
-impl<T> Vec<T>
-where
-    T: StorageFootprint,
-{
+impl<T> Vec<T> {
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {
         assert!(
@@ -180,7 +174,7 @@ where
 
 impl<T> Vec<T>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
 {
     /// Pops the last element from the vector and returns it.
     //
