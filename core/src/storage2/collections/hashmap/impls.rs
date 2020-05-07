@@ -13,12 +13,31 @@
 // limitations under the License.
 
 use super::HashMap as StorageHashMap;
-use crate::hash::hasher::Hasher;
+use crate::{
+    hash::hasher::Hasher,
+    storage2::traits::PackedLayout,
+};
+use core::cmp::Ord;
+use ink_primitives::Key;
+
+impl<K, V, H> Drop for StorageHashMap<K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    fn drop(&mut self) {
+        self.clear_cells();
+    }
+}
 
 impl<K, V, H> Default for StorageHashMap<K, V, H>
 where
-    K: Ord,
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
+    Key: From<<H as Hasher>::Output>,
 {
     fn default() -> Self {
         Self::new()

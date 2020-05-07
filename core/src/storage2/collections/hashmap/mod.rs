@@ -52,7 +52,10 @@ type KeyIndex = u32;
 #[derive(Debug)]
 pub struct HashMap<K, V, H = Blake2x256Hasher>
 where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
+    Key: From<<H as Hasher>::Output>,
 {
     /// The keys of the storage hash map.
     keys: Stash<K>,
@@ -73,8 +76,10 @@ struct ValueEntry<V> {
 
 impl<K, V, H> HashMap<K, V, H>
 where
-    K: Ord,
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
+    Key: From<<H as Hasher>::Output>,
 {
     /// Creates a new empty storage hash map.
     pub fn new() -> Self {
@@ -149,6 +154,32 @@ where
     ///   of yielded elements.
     pub fn keys(&self) -> Keys<K> {
         Keys::new(self)
+    }
+}
+
+impl<K, V, H> HashMap<K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    fn clear_cells(&self) {
+        if self.values.key().is_none() {
+            // We won't clear any storage if we are in lazy state since there
+            // probably has not been any state written to storage, yet.
+            return
+        }
+        for key in self.keys() {
+            // It might seem wasteful to clear all entries instead of just
+            // the occupied ones. However this spares us from having one extra
+            // read for every element in the storage stash to filter out vacant
+            // entries. So this is actually a trade-off and at the time of this
+            // implementation it is unclear which path is more efficient.
+            //
+            // The bet is that clearing a storage cell is cheaper than reading one.
+            self.values.clear_packed_at(key);
+        }
     }
 }
 

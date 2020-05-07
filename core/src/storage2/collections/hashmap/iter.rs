@@ -30,18 +30,26 @@ use ink_primitives::Key;
 
 /// An iterator over shared references to the elements of a storage hash map.
 #[derive(Debug, Clone, Copy)]
-pub struct Iter<'a, K, V, H> {
+pub struct Iter<'a, K, V, H>
+where
+    K: PackedLayout,
+{
     /// The iterator over the map's keys.
     keys_iter: StashIter<'a, K>,
     /// The lazy hash map to query the values.
     values: &'a LazyHashMap<K, Pack<ValueEntry<V>>, H>,
 }
 
-impl<'a, K, V, H> Iter<'a, K, V, H> {
+impl<'a, K, V, H> Iter<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+{
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
         H: Hasher,
+        V: PackedLayout,
+        Key: From<<H as Hasher>::Output>,
     {
         Self {
             keys_iter: hash_map.keys.iter(),
@@ -115,18 +123,26 @@ where
 
 /// An iterator over shared references to the elements of a storage hash map.
 #[derive(Debug)]
-pub struct IterMut<'a, K, V, H> {
+pub struct IterMut<'a, K, V, H>
+where
+    K: PackedLayout,
+{
     /// The iterator over the map's keys.
     keys_iter: StashIter<'a, K>,
     /// The lazy hash map to query the values.
     values: &'a mut LazyHashMap<K, Pack<ValueEntry<V>>, H>,
 }
 
-impl<'a, K, V, H> IterMut<'a, K, V, H> {
+impl<'a, K, V, H> IterMut<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+{
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new(hash_map: &'a mut StorageHashMap<K, V, H>) -> Self
     where
         H: Hasher,
+        V: PackedLayout,
+        Key: From<<H as Hasher>::Output>,
     {
         Self {
             keys_iter: hash_map.keys.iter(),
@@ -202,17 +218,24 @@ where
 
 /// An iterator over shared references to the values of a storage hash map.
 #[derive(Debug, Copy, Clone)]
-pub struct Values<'a, K, V, H> {
+pub struct Values<'a, K, V, H>
+where
+    K: PackedLayout,
+{
     /// The key/values pair iterator.
     iter: Iter<'a, K, V, H>,
 }
 
-impl<'a, K, V, H> Values<'a, K, V, H> {
+impl<'a, K, V, H> Values<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+{
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
-        K: Ord,
         H: Hasher,
+        V: PackedLayout,
+        Key: From<<H as Hasher>::Output>,
     {
         Self {
             iter: hash_map.iter(),
@@ -261,17 +284,24 @@ where
 
 /// An iterator over exclusive references to the values of a storage hash map.
 #[derive(Debug)]
-pub struct ValuesMut<'a, K, V, H> {
+pub struct ValuesMut<'a, K, V, H>
+where
+    K: PackedLayout,
+{
     /// The key/values pair iterator.
     iter: IterMut<'a, K, V, H>,
 }
 
-impl<'a, K, V, H> ValuesMut<'a, K, V, H> {
+impl<'a, K, V, H> ValuesMut<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+{
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new(hash_map: &'a mut StorageHashMap<K, V, H>) -> Self
     where
-        K: Ord,
         H: Hasher,
+        V: PackedLayout,
+        Key: From<<H as Hasher>::Output>,
     {
         Self {
             iter: hash_map.iter_mut(),
@@ -320,17 +350,24 @@ where
 
 /// An iterator over references to the keys of a storage hash map.
 #[derive(Debug, Copy, Clone)]
-pub struct Keys<'a, K> {
+pub struct Keys<'a, K>
+where
+    K: PackedLayout,
+{
     /// The key iterator.
     iter: StashIter<'a, K>,
 }
 
-impl<'a, K> Keys<'a, K> {
+impl<'a, K> Keys<'a, K>
+where
+    K: Ord + Clone + PackedLayout,
+{
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new<V, H>(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
-        K: Ord,
         H: Hasher,
+        V: PackedLayout,
+        Key: From<<H as Hasher>::Output>,
     {
         Self {
             iter: hash_map.keys.iter(),
