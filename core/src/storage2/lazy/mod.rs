@@ -31,7 +31,10 @@ pub use self::{
     lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,
 };
-use crate::storage2::traits::{KeyPtr, SpreadLayout};
+use crate::storage2::traits::{
+    KeyPtr,
+    SpreadLayout,
+};
 use ink_primitives::Key;
 
 /// A lazy storage entity.
