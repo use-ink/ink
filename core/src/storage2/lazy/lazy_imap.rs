@@ -15,15 +15,11 @@
 use crate::storage2::{
     traits2::{
         clear_packed_root,
-        KeyPtr as KeyPtr2,
+        KeyPtr,
         PackedLayout,
         SpreadLayout,
+        pull_packed_root_opt,
     },
-    ClearForward,
-    KeyPtr,
-    PullForward,
-    PushForward,
-    StorageFootprint,
 };
 use core::{
     cell::UnsafeCell,
@@ -153,11 +149,11 @@ where
 {
     const FOOTPRINT: u64 = 1_u64 << 32;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(ptr.next_for::<Self>())
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for::<Self>();
         for (&index, entry) in self.entries().iter() {
             let root_key = offset_key + index;
@@ -166,7 +162,7 @@ where
     }
 
     #[inline]
-    fn clear_spread(&self, _ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, _ptr: &mut KeyPtr) {
         // Low-level lazy abstractions won't perform automated clean-up since
         // they generally are not aware of their entire set of associated
         // elements. The high-level abstractions that build upon them are
@@ -174,70 +170,9 @@ where
     }
 }
 
-impl<V> StorageFootprint for LazyIndexMap<V>
-where
-    V: StorageFootprint,
-{
-    /// A lazy chunk is contiguous and its size can be determined by the
-    /// total number of elements it could theoretically hold.
-    const VALUE: u64 = 1_u64 << 32;
-}
-
-impl<V> PullForward for LazyIndexMap<V>
-where
-    V: StorageFootprint,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<Self>())
-    }
-}
-
-impl<V> PushForward for LazyIndexMap<V>
-where
-    V: StorageFootprint + PullForward + PushForward,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        let key = ptr.next_for::<Self>();
-        assert_eq!(self.key, Some(key));
-        for (index, entry) in self
-            .entries()
-            .iter()
-            .filter(|(_, entry)| entry.is_mutated())
-        {
-            let offset_key = self
-                .key_at(*index)
-                .expect("cannot load lazily in this state");
-            let mut ptr = KeyPtr::from(offset_key);
-            PushForward::push_forward(&**entry, &mut ptr);
-        }
-    }
-}
-
-impl<V> ClearForward for LazyIndexMap<V>
-where
-    V: StorageFootprint + ClearForward + PullForward,
-{
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        let key = ptr.next_for::<Self>();
-        assert_eq!(self.key, Some(key));
-        for (index, entry) in self
-            .entries()
-            .iter()
-            .filter(|(_, entry)| entry.is_mutated())
-        {
-            let offset_key = self
-                .key_at(*index)
-                .expect("cannot load lazily in this state");
-            let mut ptr = KeyPtr::from(offset_key);
-            ClearForward::clear_forward(&**entry, &mut ptr);
-        }
-    }
-}
-
 impl<V> LazyIndexMap<V>
 where
     V: PackedLayout,
-    V: StorageFootprint + PullForward,
 {
     /// Clears the underlying storage of the entry at the given index.
     ///
@@ -263,12 +198,12 @@ where
 
 impl<V> LazyIndexMap<V>
 where
-    V: StorageFootprint + PullForward,
+    V: PackedLayout,
 {
     /// Returns an offset key for the given index.
     pub fn key_at(&self, index: Index) -> Option<Key> {
         let key = self.key?;
-        let offset_key = key + (index as u64 * <V as StorageFootprint>::VALUE);
+        let offset_key = key + index as u64;
         Some(offset_key)
     }
 
@@ -317,9 +252,7 @@ where
                 let offset_key = self
                     .key_at(index)
                     .expect("cannot load lazily in this state");
-                let value = <Option<V> as PullForward>::pull_forward(&mut KeyPtr::from(
-                    offset_key,
-                ));
+                let value = pull_packed_root_opt::<V>(&offset_key);
                 NonNull::from(
                     &mut **vacant
                         .insert(Box::new(Entry::new(value, EntryState::Preserved))),
