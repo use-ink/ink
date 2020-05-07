@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage2::{
-    traits2::{
-        clear_packed_root,
-        KeyPtr,
-        PackedLayout,
-        SpreadLayout,
-        pull_packed_root_opt,
-    },
+use crate::storage2::traits2::{
+    clear_packed_root,
+    pull_packed_root_opt,
+    KeyPtr,
+    PackedLayout,
+    SpreadLayout,
 };
 use core::{
     cell::UnsafeCell,

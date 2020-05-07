@@ -19,9 +19,7 @@ use super::{
     IterMut,
     Stash as StorageStash,
 };
-use crate::storage2::{
-    traits2::PackedLayout,
-};
+use crate::storage2::traits2::PackedLayout;
 use core::iter::{
     Extend,
     FromIterator,

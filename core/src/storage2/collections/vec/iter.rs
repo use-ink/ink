@@ -15,8 +15,8 @@
 use crate::{
     storage2 as storage,
     storage2::{
-        traits2::PackedLayout,
         collections::extend_lifetime,
+        traits2::PackedLayout,
     },
 };
 

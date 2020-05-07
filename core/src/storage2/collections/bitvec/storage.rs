@@ -25,8 +25,8 @@ use crate::storage2::{
         PackedLayout,
         SpreadLayout,
     },
-    Vec as StorageVec,
     Pack,
+    Vec as StorageVec,
 };
 use ink_primitives::Key;
 

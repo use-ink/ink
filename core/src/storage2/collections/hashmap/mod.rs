@@ -29,9 +29,9 @@ use crate::{
         Hasher,
     },
     storage2::{
-        traits2::PackedLayout,
         collections::Stash,
         lazy::LazyHashMap,
+        traits2::PackedLayout,
         Pack,
     },
 };
