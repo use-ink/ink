@@ -76,10 +76,7 @@ mod tests;
 
 pub use self::allocation::DynamicAllocation;
 use self::allocator::DynamicAllocator;
-use crate::storage2::{
-    KeyPtr,
-    PullForward,
-};
+use crate::storage2::traits2::pull_spread_root;
 use cfg_if::cfg_if;
 use ink_primitives::Key;
 
@@ -223,9 +220,7 @@ cfg_if! {
                     }
                     ContractPhase::Call => unsafe {
                         INSTANCE = Some(
-                            <DynamicAllocator as PullForward>::pull_forward(
-                                &mut KeyPtr::from(Key(DYNAMIC_ALLOCATOR_KEY_OFFSET))
-                            )
+                            pull_spread_root::<DynamicAllocator>(&Key(DYNAMIC_ALLOCATOR_KEY_OFFSET))
                         );
                     }
                 }
@@ -255,9 +250,7 @@ cfg_if! {
                         }
                         ContractPhase::Call => {
                             instance.replace_with(|_| Some(
-                                <DynamicAllocator as PullForward>::pull_forward(
-                                    &mut KeyPtr::from(Key(DYNAMIC_ALLOCATOR_KEY_OFFSET))
-                                )
+                                pull_spread_root::<DynamicAllocator>(&Key(DYNAMIC_ALLOCATOR_KEY_OFFSET))
                             ));
                         }
                     }

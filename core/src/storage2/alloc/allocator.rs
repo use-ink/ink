@@ -23,13 +23,7 @@ use crate::storage2::{
         PackedLayout,
         SpreadLayout,
     },
-    KeyPtr,
     Pack,
-    PullAt,
-    PullForward,
-    PushAt,
-    PushForward,
-    StorageFootprint,
     Vec as StorageVec,
 };
 use ink_primitives::Key;
@@ -98,27 +92,6 @@ impl SpreadLayout for DynamicAllocator {
     fn clear_spread(&self, ptr: &mut KeyPtr2) {
         SpreadLayout::clear_spread(&self.counts, ptr);
         SpreadLayout::clear_spread(&self.free, ptr);
-    }
-}
-
-impl StorageFootprint for DynamicAllocator {
-    const VALUE: u64 = <StorageVec<Pack<CountFree>> as StorageFootprint>::VALUE
-        + <StorageBitvec as StorageFootprint>::VALUE;
-}
-
-impl PullForward for DynamicAllocator {
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self {
-            counts: PullForward::pull_forward(ptr),
-            free: PullForward::pull_forward(ptr),
-        }
-    }
-}
-
-impl PushForward for DynamicAllocator {
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        PushForward::push_forward(&self.counts, ptr);
-        PushForward::push_forward(&self.free, ptr);
     }
 }
 
@@ -293,22 +266,6 @@ impl<'a> IntoIterator for &'a mut CountFree {
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter_mut()
-    }
-}
-
-impl PullAt for CountFree {
-    fn pull_at(at: Key) -> Self {
-        let (counts, full) = <([u8; 32], u32) as PullAt>::pull_at(at);
-        Self {
-            counts,
-            full: FullMask(full),
-        }
-    }
-}
-
-impl PushAt for CountFree {
-    fn push_at(&self, at: Key) {
-        PushAt::push_at(&(&self.counts, &self.full.0), at);
     }
 }
 
