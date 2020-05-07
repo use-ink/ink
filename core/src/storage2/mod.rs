@@ -18,7 +18,7 @@ pub mod alloc;
 pub mod collections;
 pub mod lazy;
 mod pack;
-pub mod traits2;
+pub mod traits;
 
 #[doc(inline)]
 pub use self::{

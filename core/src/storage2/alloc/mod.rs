@@ -76,7 +76,7 @@ mod tests;
 
 pub use self::allocation::DynamicAllocation;
 use self::allocator::DynamicAllocator;
-use crate::storage2::traits2::pull_spread_root;
+use crate::storage2::traits::pull_spread_root;
 use cfg_if::cfg_if;
 use ink_primitives::Key;
 

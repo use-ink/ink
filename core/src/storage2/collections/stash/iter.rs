@@ -19,7 +19,7 @@ use super::Stash;
 use crate::storage2::Pack;
 use crate::storage2::{
     collections::extend_lifetime,
-    traits2::PackedLayout,
+    traits::PackedLayout,
 };
 
 /// An iterator over shared references to the elements of a storage stash.

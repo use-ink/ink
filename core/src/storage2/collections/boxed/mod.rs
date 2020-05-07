@@ -21,7 +21,7 @@ use crate::storage2::{
         DynamicAllocation,
     },
     lazy::Lazy,
-    traits2::SpreadLayout,
+    traits::SpreadLayout,
 };
 use ink_primitives::Key;
 

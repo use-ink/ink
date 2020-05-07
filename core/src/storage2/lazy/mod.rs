@@ -31,7 +31,7 @@ pub use self::{
     lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,
 };
-use crate::storage2::traits2::SpreadLayout;
+use crate::storage2::traits::{KeyPtr, SpreadLayout};
 use ink_primitives::Key;
 
 /// A lazy storage entity.
@@ -55,17 +55,17 @@ where
 {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
-    fn pull_spread(ptr: &mut super::traits2::KeyPtr) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
             cell: <LazyCell<T> as SpreadLayout>::pull_spread(ptr),
         }
     }
 
-    fn push_spread(&self, ptr: &mut super::traits2::KeyPtr) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::push_spread(&self.cell, ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut super::traits2::KeyPtr) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.cell, ptr)
     }
 }

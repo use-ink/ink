@@ -16,7 +16,7 @@ use super::{
     Entry,
     EntryState,
 };
-use crate::storage2::traits2::{
+use crate::storage2::traits::{
     clear_spread_root_opt,
     pull_spread_root_opt,
     KeyPtr,

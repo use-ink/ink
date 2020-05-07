@@ -19,7 +19,7 @@ use super::{
     IterMut,
     Vec as StorageVec,
 };
-use crate::storage2::traits2::PackedLayout;
+use crate::storage2::traits::PackedLayout;
 use core::iter::{
     Extend,
     FromIterator,

@@ -29,7 +29,7 @@ use crate::storage2::{
         LazyArray,
         LazyArrayLength,
     },
-    traits2::PackedLayout,
+    traits::PackedLayout,
 };
 
 /// The used index type.

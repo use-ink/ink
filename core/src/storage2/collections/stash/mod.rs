@@ -27,7 +27,7 @@ pub use self::iter::{
 };
 use crate::storage2::{
     lazy::LazyIndexMap,
-    traits2::PackedLayout,
+    traits::PackedLayout,
     Pack,
 };
 use ink_primitives::Key;

@@ -22,7 +22,7 @@ use crate::{
     hash::hasher::Hasher,
     storage2::{
         collections::Stash as StorageStash,
-        traits2::{
+        traits::{
             forward_clear_packed,
             forward_pull_packed,
             forward_push_packed,

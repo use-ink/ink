@@ -17,7 +17,7 @@ use super::{
     Bitvec as StorageBitvec,
 };
 use crate::storage2::{
-    traits2::{
+    traits::{
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,

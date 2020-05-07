@@ -21,7 +21,7 @@ use crate::{
         hasher::Hasher,
         HashBuilder,
     },
-    storage2::traits2::{
+    storage2::traits::{
         clear_packed_root,
         pull_packed_root_opt,
         KeyPtr,

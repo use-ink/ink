@@ -18,7 +18,7 @@ use crate::{
         AccountId,
         Hash,
     },
-    storage2::traits2::{
+    storage2::traits::{
         KeyPtr,
         PackedLayout,
         SpreadLayout,

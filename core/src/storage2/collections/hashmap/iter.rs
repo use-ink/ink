@@ -22,7 +22,7 @@ use crate::{
             HashMap as StorageHashMap,
         },
         lazy::LazyHashMap,
-        traits2::PackedLayout,
+        traits::PackedLayout,
         Pack,
     },
 };

@@ -16,7 +16,7 @@ use super::SmallVec;
 use crate::storage2::{
     collections::extend_lifetime,
     lazy::LazyArrayLength,
-    traits2::PackedLayout,
+    traits::PackedLayout,
 };
 
 /// An iterator over shared references to the elements of a small storage vector.

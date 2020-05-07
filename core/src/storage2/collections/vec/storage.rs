@@ -17,7 +17,7 @@
 use super::Vec as StorageVec;
 use crate::storage2::{
     lazy::LazyIndexMap,
-    traits2::{
+    traits::{
         KeyPtr,
         PackedLayout,
         SpreadLayout,

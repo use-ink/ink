@@ -15,7 +15,7 @@
 use super::Box as StorageBox;
 use crate::storage2::{
     alloc::DynamicAllocation,
-    traits2::{
+    traits::{
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,

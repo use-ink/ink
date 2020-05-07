@@ -31,7 +31,7 @@ use crate::{
     storage2::{
         collections::Stash,
         lazy::LazyHashMap,
-        traits2::PackedLayout,
+        traits::PackedLayout,
         Pack,
     },
 };

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::Box as StorageBox;
-use crate::storage2::traits2::{
+use crate::storage2::traits::{
     clear_spread_root,
     SpreadLayout,
 };

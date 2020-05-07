@@ -15,7 +15,7 @@
 use super::SmallVec;
 use crate::storage2::{
     lazy::LazyArrayLength,
-    traits2::{
+    traits::{
         KeyPtr,
         PackedLayout,
         SpreadLayout,

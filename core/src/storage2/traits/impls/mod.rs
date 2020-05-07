@@ -27,7 +27,7 @@ macro_rules! forward_supported_array_lens {
 macro_rules! impl_always_packed_layout {
     ( $name:ident < $($frag:ident),+ > ) => {
         const _: () = {
-            use crate::storage2::traits2::impls::{
+            use crate::storage2::traits::impls::{
                 forward_clear_packed,
                 forward_pull_packed,
                 forward_push_packed,
@@ -59,7 +59,7 @@ macro_rules! impl_always_packed_layout {
     };
     ( $name:ty ) => {
         const _: () = {
-            use crate::storage2::traits2::impls::{
+            use crate::storage2::traits::impls::{
                 forward_clear_packed,
                 forward_pull_packed,
                 forward_push_packed,
@@ -100,7 +100,7 @@ use super::{
     push_packed_root,
     PackedLayout,
 };
-use crate::storage2::traits2::KeyPtr;
+use crate::storage2::traits::KeyPtr;
 
 /// Returns the greater of both values.
 const fn max(a: u64, b: u64) -> u64 {

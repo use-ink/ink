@@ -28,7 +28,7 @@ use crate::storage2::{
         Lazy,
         LazyIndexMap,
     },
-    traits2::PackedLayout,
+    traits::PackedLayout,
 };
 
 /// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.

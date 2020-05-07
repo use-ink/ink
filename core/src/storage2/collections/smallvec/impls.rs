@@ -18,7 +18,7 @@ use super::{
 };
 use crate::storage2::{
     lazy::LazyArrayLength,
-    traits2::PackedLayout,
+    traits::PackedLayout,
 };
 use core::iter::{
     Extend,

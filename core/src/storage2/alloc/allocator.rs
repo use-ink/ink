@@ -15,7 +15,7 @@
 use super::DynamicAllocation;
 use crate::storage2::{
     collections::Bitvec as StorageBitvec,
-    traits2::{
+    traits::{
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,
