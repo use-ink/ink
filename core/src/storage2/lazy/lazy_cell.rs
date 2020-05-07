@@ -16,18 +16,11 @@ use super::{
     Entry,
     EntryState,
 };
-use crate::storage2::{
-    traits2::{
-        clear_spread_root_opt,
-        pull_spread_root_opt,
-        KeyPtr as KeyPtr2,
-        SpreadLayout,
-    },
-    ClearForward,
+use crate::storage2::traits2::{
+    clear_spread_root_opt,
+    pull_spread_root_opt,
     KeyPtr,
-    PullForward,
-    PushForward,
-    StorageFootprint,
+    SpreadLayout,
 };
 use core::{
     cell::UnsafeCell,
@@ -86,15 +79,15 @@ where
 {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(ptr.next_for::<T>())
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::push_spread(self.entry(), ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(self.entry(), ptr)
     }
 }
@@ -106,44 +99,6 @@ where
 // from the same underlying storage cell.
 //
 // If a user wants a packed LazyCell they can instead pack its inner type.
-
-impl<T> StorageFootprint for LazyCell<T>
-where
-    T: SpreadLayout,
-    T: StorageFootprint,
-{
-    const VALUE: u64 = <T as StorageFootprint>::VALUE;
-}
-
-impl<T> PullForward for LazyCell<T>
-where
-    T: SpreadLayout,
-    T: StorageFootprint,
-{
-    fn pull_forward(_ptr: &mut KeyPtr) -> Self {
-        unimplemented!("deprecated trait")
-    }
-}
-
-impl<T> PushForward for LazyCell<T>
-where
-    T: SpreadLayout,
-    T: PushForward + StorageFootprint,
-{
-    fn push_forward(&self, _ptr: &mut KeyPtr) {
-        unimplemented!("deprecated trait")
-    }
-}
-
-impl<T> ClearForward for LazyCell<T>
-where
-    T: SpreadLayout,
-    T: ClearForward + StorageFootprint,
-{
-    fn clear_forward(&self, _ptr: &mut KeyPtr) {
-        unimplemented!("deprecated trait")
-    }
-}
 
 impl<T> From<T> for LazyCell<T>
 where
@@ -228,7 +183,6 @@ where
 impl<T> LazyCell<T>
 where
     T: SpreadLayout,
-    T: StorageFootprint + PullForward,
 {
     /// Loads the storage entry.
     ///

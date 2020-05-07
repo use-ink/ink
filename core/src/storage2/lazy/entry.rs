@@ -29,10 +29,6 @@ use crate::storage2::{
         PackedLayout,
         SpreadLayout,
     },
-    ClearForward,
-    KeyPtr,
-    PushForward,
-    StorageFootprint,
 };
 use core::cell::Cell;
 use ink_prelude::vec::Vec;
@@ -194,35 +190,6 @@ where
     /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
     pub fn clear_packed_root(&self, root_key: &Key) {
         clear_packed_root::<Option<T>>(self.value(), &root_key);
-    }
-}
-
-impl<T> PushForward for Entry<T>
-where
-    T: PushForward + StorageFootprint,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        if self.state.get() != EntryState::Mutated {
-            return
-        }
-        // Reset the state because we just synced.
-        self.state.set(EntryState::Preserved);
-        // Since `self.value` is of type `Option` this will eventually
-        // clear the underlying storage entry if `self.value` is `None`.
-        self.value.push_forward(ptr);
-    }
-}
-
-impl<T> ClearForward for Entry<T>
-where
-    T: ClearForward + StorageFootprint,
-{
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        // Reset the state because we just synced.
-        self.state.set(EntryState::Preserved);
-        // Since `self.value` is of type `Option` this will eventually
-        // clear the underlying storage entry if `self.value` is `None`.
-        self.value.clear_forward(ptr);
     }
 }
 

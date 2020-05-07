@@ -31,13 +31,6 @@ pub use self::{
     lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,
 };
-use super::{
-    ClearForward,
-    KeyPtr,
-    PullForward,
-    PushForward,
-    StorageFootprint,
-};
 use crate::storage2::traits2::SpreadLayout;
 use ink_primitives::Key;
 
@@ -77,46 +70,6 @@ where
     }
 }
 
-impl<T> StorageFootprint for Lazy<T>
-where
-    T: SpreadLayout,
-    T: StorageFootprint,
-{
-    const VALUE: u64 = <T as StorageFootprint>::VALUE;
-}
-
-impl<T> PullForward for Lazy<T>
-where
-    T: SpreadLayout,
-    T: StorageFootprint,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self {
-            cell: <LazyCell<T> as PullForward>::pull_forward(ptr),
-        }
-    }
-}
-
-impl<T> PushForward for Lazy<T>
-where
-    T: SpreadLayout,
-    T: PushForward + StorageFootprint,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        <LazyCell<T> as PushForward>::push_forward(&self.cell, ptr)
-    }
-}
-
-impl<T> ClearForward for Lazy<T>
-where
-    T: SpreadLayout,
-    T: ClearForward + StorageFootprint,
-{
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        <LazyCell<T> as ClearForward>::clear_forward(&self.cell, ptr)
-    }
-}
-
 impl<T> Lazy<T>
 where
     T: SpreadLayout,
@@ -141,7 +94,6 @@ where
 impl<T> Lazy<T>
 where
     T: SpreadLayout,
-    T: StorageFootprint + PullForward,
 {
     /// Returns a shared reference to the lazily loaded value.
     ///
@@ -193,8 +145,7 @@ where
 
 impl<T> core::cmp::PartialEq for Lazy<T>
 where
-    T: SpreadLayout,
-    T: PartialEq + StorageFootprint + PullForward,
+    T: PartialEq + SpreadLayout,
 {
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(Lazy::get(self), Lazy::get(other))
@@ -202,14 +153,13 @@ where
 }
 
 impl<T> core::cmp::Eq for Lazy<T> where
-    T: Eq + SpreadLayout + StorageFootprint + PullForward
+    T: Eq + SpreadLayout,
 {
 }
 
 impl<T> core::cmp::PartialOrd for Lazy<T>
 where
-    T: SpreadLayout,
-    T: PartialOrd + StorageFootprint + PullForward,
+    T: PartialOrd + SpreadLayout,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         PartialOrd::partial_cmp(Lazy::get(self), Lazy::get(other))
@@ -230,8 +180,7 @@ where
 
 impl<T> core::cmp::Ord for Lazy<T>
 where
-    T: SpreadLayout,
-    T: core::cmp::Ord + StorageFootprint + PullForward,
+    T: core::cmp::Ord + SpreadLayout,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         Ord::cmp(Lazy::get(self), Lazy::get(other))
@@ -240,8 +189,7 @@ where
 
 impl<T> core::fmt::Display for Lazy<T>
 where
-    T: SpreadLayout,
-    T: core::fmt::Display + StorageFootprint + PullForward,
+    T: core::fmt::Display + SpreadLayout,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         core::fmt::Display::fmt(Lazy::get(self), f)
@@ -250,8 +198,7 @@ where
 
 impl<T> core::hash::Hash for Lazy<T>
 where
-    T: SpreadLayout,
-    T: core::hash::Hash + StorageFootprint + PullForward,
+    T: core::hash::Hash + SpreadLayout,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         Lazy::get(self).hash(state);
@@ -261,7 +208,6 @@ where
 impl<T> core::convert::AsRef<T> for Lazy<T>
 where
     T: SpreadLayout,
-    T: StorageFootprint + PullForward,
 {
     fn as_ref(&self) -> &T {
         Lazy::get(self)
@@ -271,7 +217,6 @@ where
 impl<T> core::convert::AsMut<T> for Lazy<T>
 where
     T: SpreadLayout,
-    T: StorageFootprint + PullForward,
 {
     fn as_mut(&mut self) -> &mut T {
         Lazy::get_mut(self)
@@ -281,7 +226,6 @@ where
 impl<T> ink_prelude::borrow::Borrow<T> for Lazy<T>
 where
     T: SpreadLayout,
-    T: StorageFootprint + PullForward,
 {
     fn borrow(&self) -> &T {
         Lazy::get(self)
@@ -291,7 +235,6 @@ where
 impl<T> ink_prelude::borrow::BorrowMut<T> for Lazy<T>
 where
     T: SpreadLayout,
-    T: StorageFootprint + PullForward,
 {
     fn borrow_mut(&mut self) -> &mut T {
         Lazy::get_mut(self)
@@ -301,7 +244,6 @@ where
 impl<T> core::ops::Deref for Lazy<T>
 where
     T: SpreadLayout,
-    T: StorageFootprint + PullForward,
 {
     type Target = T;
 
@@ -313,7 +255,6 @@ where
 impl<T> core::ops::DerefMut for Lazy<T>
 where
     T: SpreadLayout,
-    T: StorageFootprint + PullForward,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         Lazy::get_mut(self)
