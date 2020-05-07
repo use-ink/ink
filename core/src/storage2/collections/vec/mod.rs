@@ -46,20 +46,29 @@ use crate::storage2::{
 /// Allows to store up to `2^32` elements and is guaranteed to not reallocate
 /// upon pushing new elements to it.
 #[derive(Debug)]
-pub struct Vec<T> {
+pub struct Vec<T>
+where
+    T: PackedLayout,
+{
     /// The length of the vector.
     len: Lazy<u32>,
     /// The synchronized cells to operate on the contract storage.
     elems: LazyIndexMap<T>,
 }
 
-impl<T> Default for Vec<T> {
+impl<T> Default for Vec<T>
+where
+    T: PackedLayout,
+{
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> Vec<T> {
+impl<T> Vec<T>
+where
+    T: PackedLayout,
+{
     /// Creates a new empty storage vector.
     pub fn new() -> Self {
         Self {
@@ -159,7 +168,10 @@ where
     }
 }
 
-impl<T> Vec<T> {
+impl<T> Vec<T>
+where
+    T: PackedLayout,
+{
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {
         assert!(

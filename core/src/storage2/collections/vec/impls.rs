@@ -25,14 +25,14 @@ use core::iter::{
     FromIterator,
 };
 
-// impl<T> Drop for StorageVec<T>
-// where
-//     T: PackedLayout,
-// {
-//     fn drop(&mut self) {
-//         self.clear_cells();
-//     }
-// }
+impl<T> Drop for StorageVec<T>
+where
+    T: PackedLayout,
+{
+    fn drop(&mut self) {
+        self.clear_cells();
+    }
+}
 
 impl<T> core::ops::Index<u32> for StorageVec<T>
 where

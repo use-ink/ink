@@ -22,7 +22,10 @@ use crate::{
 
 /// An iterator over shared references to the elements of a storage vector.
 #[derive(Debug, Clone, Copy)]
-pub struct Iter<'a, T> {
+pub struct Iter<'a, T>
+where
+    T: PackedLayout,
+{
     /// The storage vector to iterate over.
     vec: &'a storage::Vec<T>,
     /// The current begin of the iteration.
@@ -31,7 +34,10 @@ pub struct Iter<'a, T> {
     end: u32,
 }
 
-impl<'a, T> Iter<'a, T> {
+impl<'a, T> Iter<'a, T>
+where
+    T: PackedLayout,
+{
     /// Creates a new iterator for the given storage vector.
     pub(crate) fn new(vec: &'a storage::Vec<T>) -> Self {
         Self {
@@ -104,7 +110,10 @@ where
 
 /// An iterator over exclusive references to the elements of a storage vector.
 #[derive(Debug)]
-pub struct IterMut<'a, T> {
+pub struct IterMut<'a, T>
+where
+    T: PackedLayout,
+{
     /// The storage vector to iterate over.
     vec: &'a mut storage::Vec<T>,
     /// The current begin of the iteration.
@@ -113,7 +122,10 @@ pub struct IterMut<'a, T> {
     end: u32,
 }
 
-impl<'a, T> IterMut<'a, T> {
+impl<'a, T> IterMut<'a, T>
+where
+    T: PackedLayout,
+{
     /// Creates a new iterator for the given storage vector.
     pub(crate) fn new(vec: &'a mut storage::Vec<T>) -> Self {
         let len = vec.len();
