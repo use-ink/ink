@@ -25,6 +25,16 @@ use core::iter::{
     FromIterator,
 };
 
+impl<T, N> Drop for SmallVec<T, N>
+where
+    T: PackedLayout,
+    N: LazyArrayLength<T>,
+{
+    fn drop(&mut self) {
+        self.clear_cells()
+    }
+}
+
 impl<T, N> core::ops::Index<u32> for SmallVec<T, N>
 where
     T: PackedLayout,
@@ -62,6 +72,7 @@ where
 
 impl<T, N> Extend<T> for SmallVec<T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     fn extend<I>(&mut self, iter: I)
@@ -76,6 +87,7 @@ where
 
 impl<T, N> FromIterator<T> for SmallVec<T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     fn from_iter<I>(iter: I) -> Self

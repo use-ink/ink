@@ -50,6 +50,7 @@ type Index = u32;
 #[derive(Debug)]
 pub struct SmallVec<T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// The current length of the small vector.
@@ -60,6 +61,7 @@ where
 
 impl<T, N> Default for SmallVec<T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     fn default() -> Self {
@@ -82,6 +84,11 @@ where
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
     /// for the [`SpreadLayout::clear_spread`] trait implementation.
     fn clear_cells(&self) {
+        if self.elems.key().is_none() {
+            // We won't clear any storage if we are in lazy state since there
+            // probably has not been any state written to storage, yet.
+            return
+        }
         for index in 0..self.len() {
             self.elems.clear_packed_at(index);
         }
@@ -90,6 +97,7 @@ where
 
 impl<T, N> SmallVec<T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// Creates a new empty vector.
@@ -179,6 +187,7 @@ where
 
 impl<T, N> SmallVec<T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// Appends an element to the back of the vector.

@@ -23,6 +23,7 @@ use crate::storage2::{
 #[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// The storage vector to iterate over.
@@ -35,6 +36,7 @@ where
 
 impl<'a, T, N> Iter<'a, T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// Creates a new iterator for the given storage vector.
@@ -118,6 +120,7 @@ where
 #[derive(Debug)]
 pub struct IterMut<'a, T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// The storage vector to iterate over.
@@ -130,6 +133,7 @@ where
 
 impl<'a, T, N> IterMut<'a, T, N>
 where
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// Creates a new iterator for the given storage vector.
