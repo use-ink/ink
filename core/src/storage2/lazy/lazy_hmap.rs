@@ -21,21 +21,12 @@ use crate::{
         hasher::Hasher,
         HashBuilder,
     },
-    storage2::{
-        traits2::{
-            clear_packed_root,
-            KeyPtr as KeyPtr2,
-            PackedLayout,
-            SpreadLayout,
-        },
-        ClearAt,
-        ClearForward,
-        KeyPtr,
-        PullAt,
-        PullForward,
-        PushAt,
-        PushForward,
-        StorageFootprint,
+    storage2::traits2::{
+        clear_packed_root,
+        pull_packed_root_opt,
+        KeyPtr as KeyPtr2,
+        PackedLayout,
+        SpreadLayout,
     },
 };
 use core::{
@@ -95,13 +86,6 @@ pub struct LazyHashMap<K, V, H> {
     hash_builder: RefCell<HashBuilder<H, Vec<u8>>>,
 }
 
-impl<K, V, H> StorageFootprint for LazyHashMap<K, V, H> {
-    /// Actually the `LazyHashMap` requires to store no state on the contract storage.
-    /// However, giving it a storage footprint of 1 avoids problems with having multiple
-    /// consecutive lazy hash maps in the same type.
-    const VALUE: u64 = 1;
-}
-
 impl<K, V, H, O> SpreadLayout for LazyHashMap<K, V, H>
 where
     K: Ord + scale::Encode,
@@ -141,92 +125,6 @@ where
 // An example for this would be a `Pack<(LazyHashMap, LazyHashMap)>` where
 // both lazy hash maps would use the same underlying key and thus would apply
 // the same underlying key mapping.
-
-impl<K, V, H> PullForward for LazyHashMap<K, V, H>
-where
-    K: Ord,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        <Self as PullAt>::pull_at(ptr.next_for::<Self>())
-    }
-}
-
-impl<K, V, H> PullAt for LazyHashMap<K, V, H>
-where
-    K: Ord,
-{
-    fn pull_at(at: Key) -> Self {
-        Self::lazy(at)
-    }
-}
-
-impl<K, V, H, O> PushForward for LazyHashMap<K, V, H>
-where
-    K: Ord + scale::Encode,
-    V: StorageFootprint + PushForward,
-    H: Hasher<Output = O>,
-    O: Default,
-    Key: From<O>,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        <Self as PushAt>::push_at(self, ptr.next_for::<Self>())
-    }
-}
-
-impl<K, V, H, O> PushAt for LazyHashMap<K, V, H>
-where
-    K: Ord + scale::Encode,
-    V: StorageFootprint + PushForward,
-    H: Hasher<Output = O>,
-    O: Default,
-    Key: From<O>,
-{
-    fn push_at(&self, at: Key) {
-        <Option<Key> as PushAt>::push_at(&Some(at), at);
-        for (key, entry) in self
-            .entries()
-            .iter()
-            .filter(|(_, entry)| entry.is_mutated())
-        {
-            let offset_key = self.to_offset_key(&at, key);
-            PushForward::push_forward(&**entry, &mut KeyPtr::from(offset_key));
-        }
-    }
-}
-
-impl<K, V, H, O> ClearForward for LazyHashMap<K, V, H>
-where
-    K: Ord + scale::Encode,
-    V: StorageFootprint + ClearForward,
-    H: Hasher<Output = O>,
-    O: Default,
-    Key: From<O>,
-{
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        <Self as ClearAt>::clear_at(self, ptr.next_for::<Self>())
-    }
-}
-
-impl<K, V, H, O> ClearAt for LazyHashMap<K, V, H>
-where
-    K: Ord + scale::Encode,
-    V: StorageFootprint + ClearForward,
-    H: Hasher<Output = O>,
-    O: Default,
-    Key: From<O>,
-{
-    fn clear_at(&self, at: Key) {
-        <Option<Key> as PushAt>::push_at(&Some(at), at);
-        for (key, entry) in self
-            .entries()
-            .iter()
-            .filter(|(_, entry)| entry.is_mutated())
-        {
-            let offset_key = self.to_offset_key(&at, key);
-            ClearForward::clear_forward(&**entry, &mut KeyPtr::from(offset_key));
-        }
-    }
-}
 
 impl<K, V, H> Default for LazyHashMap<K, V, H>
 where
@@ -349,7 +247,7 @@ where
 impl<K, V, H, O> LazyHashMap<K, V, H>
 where
     K: Ord + Eq + Clone + scale::Encode,
-    V: StorageFootprint + PullForward,
+    V: PackedLayout,
     H: Hasher<Output = O>,
     O: Default,
     Key: From<O>,
@@ -407,9 +305,7 @@ where
                 let offset_key = self
                     .key_at(key)
                     .expect("cannot load lazily in the current state");
-                let value = <Option<V> as PullForward>::pull_forward(&mut KeyPtr::from(
-                    offset_key,
-                ));
+                let value = pull_packed_root_opt::<V>(&offset_key);
                 NonNull::from(
                     &mut **vacant
                         .insert(Box::new(Entry::new(value, EntryState::Preserved))),
