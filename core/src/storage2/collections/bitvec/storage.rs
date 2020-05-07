@@ -25,12 +25,8 @@ use crate::storage2::{
         PackedLayout,
         SpreadLayout,
     },
-    KeyPtr,
-    Pack,
-    PullForward,
-    PushForward,
-    StorageFootprint,
     Vec as StorageVec,
+    Pack,
 };
 use ink_primitives::Key;
 
@@ -74,25 +70,5 @@ impl SpreadLayout for StorageBitvec {
     fn clear_spread(&self, ptr: &mut KeyPtr2) {
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.bits, ptr);
-    }
-}
-
-impl StorageFootprint for StorageBitvec {
-    const VALUE: u64 = 1 + <StorageVec<Pack<Bits256>> as StorageFootprint>::VALUE;
-}
-
-impl PullForward for StorageBitvec {
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self {
-            len: PullForward::pull_forward(ptr),
-            bits: PullForward::pull_forward(ptr),
-        }
-    }
-}
-
-impl PushForward for StorageBitvec {
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        self.len.push_forward(ptr);
-        self.bits.push_forward(ptr);
     }
 }
