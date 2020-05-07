@@ -86,13 +86,12 @@ pub struct LazyHashMap<K, V, H> {
     hash_builder: RefCell<HashBuilder<H, Vec<u8>>>,
 }
 
-impl<K, V, H, O> SpreadLayout for LazyHashMap<K, V, H>
+impl<K, V, H> SpreadLayout for LazyHashMap<K, V, H>
 where
     K: Ord + scale::Encode,
     V: PackedLayout,
-    H: Hasher<Output = O>,
-    O: Default,
-    Key: From<O>,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
 {
     const FOOTPRINT: u64 = 1;
 
@@ -205,12 +204,11 @@ where
     }
 }
 
-impl<K, V, H, O> LazyHashMap<K, V, H>
+impl<K, V, H> LazyHashMap<K, V, H>
 where
     K: Ord + scale::Encode,
-    H: Hasher<Output = O>,
-    O: Default,
-    Key: From<O>,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
 {
     /// Returns an offset key for the given key pair.
     fn to_offset_key<Q>(&self, storage_key: &Key, key: &Q) -> Key
@@ -244,13 +242,12 @@ where
     }
 }
 
-impl<K, V, H, O> LazyHashMap<K, V, H>
+impl<K, V, H> LazyHashMap<K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Encode,
+    K: Ord + Eq + scale::Encode,
     V: PackedLayout,
-    H: Hasher<Output = O>,
-    O: Default,
-    Key: From<O>,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
 {
     /// Lazily loads the value at the given index.
     ///
