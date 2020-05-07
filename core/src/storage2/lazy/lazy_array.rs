@@ -16,17 +16,12 @@ use super::{
     Entry,
     EntryState,
 };
-use crate::storage2::{
-    traits2::{
-        clear_packed_root,
-        KeyPtr as KeyPtr2,
-        PackedLayout,
-        SpreadLayout,
-    },
+use crate::storage2::traits2::{
+    clear_packed_root,
+    pull_packed_root_opt,
     KeyPtr,
-    PullForward,
-    PushForward,
-    StorageFootprint,
+    PackedLayout,
+    SpreadLayout,
 };
 use core::{
     cell::UnsafeCell,
@@ -223,7 +218,6 @@ where
 impl<T, N> LazyArray<T, N>
 where
     T: PackedLayout,
-    T: StorageFootprint + PullForward,
     N: LazyArrayLength<T>,
 {
     /// Clears the underlying storage of the entry at the given index.
@@ -312,14 +306,14 @@ where
 {
     const FOOTPRINT: u64 = <N as Unsigned>::U64;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
             key: Some(ptr.next_for::<Self>()),
             cached_entries: EntryArray::new(),
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for::<Self>();
         for (index, entry) in unsafe { self.cached_entries().iter() }.enumerate() {
             if let Some(entry) = entry {
@@ -330,7 +324,7 @@ where
     }
 
     #[inline]
-    fn clear_spread(&self, _ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, _ptr: &mut KeyPtr) {
         // Low-level lazy abstractions won't perform automated clean-up since
         // they generally are not aware of their entire set of associated
         // elements. The high-level abstractions that build upon them are
@@ -338,52 +332,8 @@ where
     }
 }
 
-impl<T, N> StorageFootprint for LazyArray<T, N>
-where
-    T: StorageFootprint,
-    N: LazyArrayLength<T>,
-{
-    const VALUE: u64 = <N as Unsigned>::U64;
-}
-
-impl<T, N> PullForward for LazyArray<T, N>
-where
-    T: StorageFootprint,
-    N: LazyArrayLength<T>,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        Self {
-            key: Some(ptr.next_for::<Self>()),
-            cached_entries: EntryArray::new(),
-        }
-    }
-}
-
-impl<T, N> PushForward for LazyArray<T, N>
-where
-    T: StorageFootprint + PushForward,
-    N: LazyArrayLength<T>,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        let offset_key = ptr.next_for::<Self>();
-        for (index, entry) in unsafe { self.cached_entries().iter() }.enumerate() {
-            if let Some(entry) = entry {
-                let state = entry.replace_state(EntryState::Preserved);
-                if !state.is_mutated() {
-                    continue
-                }
-                let _root_key = offset_key + index as u64;
-                // TODO: move system to new traits:
-                // crate::storage2::traits2::push_packed_root_opt(entry.value().into(), &root_key);
-                todo!()
-            }
-        }
-    }
-}
-
 impl<T, N> LazyArray<T, N>
 where
-    T: StorageFootprint,
     N: LazyArrayLength<T>,
 {
     /// Returns the offset key for the given index if not out of bounds.
@@ -391,14 +341,13 @@ where
         if at >= Self::capacity() {
             return None
         }
-        self.key
-            .map(|key| key + ((at as u64) * <T as StorageFootprint>::VALUE))
+        self.key.map(|key| key + at as u64)
     }
 }
 
 impl<T, N> LazyArray<T, N>
 where
-    T: StorageFootprint + PullForward,
+    T: PackedLayout,
     N: LazyArrayLength<T>,
 {
     /// Loads the entry at the given index.
@@ -421,8 +370,7 @@ where
                 // Load value from storage and put into cache.
                 // Then load value from cache.
                 let key = self.key_at(at).expect("cannot load lazily in this state");
-                let value =
-                    <Option<T> as PullForward>::pull_forward(&mut KeyPtr::from(key));
+                let value = pull_packed_root_opt::<T>(&key);
                 let entry = Entry::new(value, EntryState::Preserved);
                 unsafe { self.cached_entries.insert_entry(at, entry) }
             }
