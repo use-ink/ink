@@ -22,9 +22,8 @@ use crate::{
             HashMap as StorageHashMap,
         },
         lazy::LazyHashMap,
+        traits2::PackedLayout,
         Pack,
-        PullForward,
-        StorageFootprint,
     },
 };
 use ink_primitives::Key;
@@ -53,8 +52,8 @@ impl<'a, K, V, H> Iter<'a, K, V, H> {
 
 impl<'a, K, V, H> Iter<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -75,8 +74,8 @@ where
 
 impl<'a, K, V, H> Iterator for Iter<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -94,8 +93,8 @@ where
 
 impl<'a, K, V, H> ExactSizeIterator for Iter<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -103,8 +102,8 @@ where
 
 impl<'a, K, V, H> DoubleEndedIterator for Iter<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -138,8 +137,8 @@ impl<'a, K, V, H> IterMut<'a, K, V, H> {
 
 impl<'a, K, V, H> IterMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -162,8 +161,8 @@ where
 
 impl<'a, K, V, H> Iterator for IterMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -181,8 +180,8 @@ where
 
 impl<'a, K, V, H> ExactSizeIterator for IterMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -190,8 +189,8 @@ where
 
 impl<'a, K, V, H> DoubleEndedIterator for IterMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -223,8 +222,8 @@ impl<'a, K, V, H> Values<'a, K, V, H> {
 
 impl<'a, K, V, H> Iterator for Values<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -241,8 +240,8 @@ where
 
 impl<'a, K, V, H> ExactSizeIterator for Values<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -250,8 +249,8 @@ where
 
 impl<'a, K, V, H> DoubleEndedIterator for Values<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -282,8 +281,8 @@ impl<'a, K, V, H> ValuesMut<'a, K, V, H> {
 
 impl<'a, K, V, H> Iterator for ValuesMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -300,8 +299,8 @@ where
 
 impl<'a, K, V, H> ExactSizeIterator for ValuesMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -309,8 +308,8 @@ where
 
 impl<'a, K, V, H> DoubleEndedIterator for ValuesMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + StorageFootprint + PullForward + scale::Codec,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: scale::Decode + PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -341,7 +340,7 @@ impl<'a, K> Keys<'a, K> {
 
 impl<'a, K> Iterator for Keys<'a, K>
 where
-    K: StorageFootprint + PullForward + scale::Codec,
+    K: scale::Codec + PackedLayout,
 {
     type Item = &'a K;
 
@@ -354,14 +353,11 @@ where
     }
 }
 
-impl<'a, K> ExactSizeIterator for Keys<'a, K> where
-    K: StorageFootprint + PullForward + scale::Codec
-{
-}
+impl<'a, K> ExactSizeIterator for Keys<'a, K> where K: scale::Codec + PackedLayout {}
 
 impl<'a, K> DoubleEndedIterator for Keys<'a, K>
 where
-    K: StorageFootprint + PullForward + scale::Codec,
+    K: scale::Codec + PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back()

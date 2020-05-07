@@ -29,11 +29,10 @@ use crate::{
         Hasher,
     },
     storage2::{
+        traits2::PackedLayout,
         collections::Stash,
         lazy::LazyHashMap,
         Pack,
-        PullForward,
-        StorageFootprint,
     },
 };
 use core::{
@@ -155,8 +154,8 @@ where
 
 impl<K, V, H> HashMap<K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PullForward + StorageFootprint,
-    V: scale::Decode,
+    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    V: PackedLayout + scale::Decode,
     H: Hasher,
     Key: From<H::Output>,
 {
