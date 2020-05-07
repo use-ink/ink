@@ -19,7 +19,7 @@ use crate::storage2::{
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,
-        KeyPtr as KeyPtr2,
+        KeyPtr,
         PackedLayout,
         SpreadLayout,
     },
@@ -54,15 +54,15 @@ pub struct DynamicAllocator {
 impl SpreadLayout for CountFree {
     const FOOTPRINT: u64 = 1;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -77,19 +77,19 @@ impl SpreadLayout for DynamicAllocator {
     const FOOTPRINT: u64 = <StorageVec<Pack<CountFree>> as SpreadLayout>::FOOTPRINT
         + <StorageBitvec as SpreadLayout>::FOOTPRINT;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
             counts: SpreadLayout::pull_spread(ptr),
             free: SpreadLayout::pull_spread(ptr),
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::push_spread(&self.counts, ptr);
         SpreadLayout::push_spread(&self.free, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.counts, ptr);
         SpreadLayout::clear_spread(&self.free, ptr);
     }

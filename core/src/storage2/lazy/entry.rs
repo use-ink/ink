@@ -24,7 +24,7 @@ use crate::storage2::traits2::{
     pull_spread_root_opt,
     push_packed_root_opt,
     push_spread_root_opt,
-    KeyPtr as KeyPtr2,
+    KeyPtr,
     PackedLayout,
     SpreadLayout,
 };
@@ -72,12 +72,12 @@ where
 {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let root_key = ptr.next_for::<Self>();
         Self::new(pull_spread_root_opt::<T>(&root_key), EntryState::Preserved)
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         if !self.is_mutated() {
             return
         }
@@ -86,7 +86,7 @@ where
         push_spread_root_opt::<T>(self.value().into(), &root_key);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ptr.next_for::<Self>();
         clear_spread_root_opt::<T>(self.value().into(), &root_key);
     }

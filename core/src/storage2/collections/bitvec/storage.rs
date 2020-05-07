@@ -21,7 +21,7 @@ use crate::storage2::{
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,
-        KeyPtr as KeyPtr2,
+        KeyPtr,
         PackedLayout,
         SpreadLayout,
     },
@@ -33,15 +33,15 @@ use ink_primitives::Key;
 impl SpreadLayout for Bits256 {
     const FOOTPRINT: u64 = 1;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -55,19 +55,19 @@ impl PackedLayout for Bits256 {
 impl SpreadLayout for StorageBitvec {
     const FOOTPRINT: u64 = 1 + <StorageVec<Pack<Bits256>> as SpreadLayout>::FOOTPRINT;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
             len: SpreadLayout::pull_spread(ptr),
             bits: SpreadLayout::pull_spread(ptr),
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::push_spread(&self.len, ptr);
         SpreadLayout::push_spread(&self.bits, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.bits, ptr);
     }

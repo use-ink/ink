@@ -16,7 +16,7 @@ use super::SmallVec;
 use crate::storage2::{
     lazy::LazyArrayLength,
     traits2::{
-        KeyPtr as KeyPtr2,
+        KeyPtr,
         PackedLayout,
         SpreadLayout,
     },
@@ -30,19 +30,19 @@ where
 {
     const FOOTPRINT: u64 = 1 + <N as Unsigned>::U64;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
             len: SpreadLayout::pull_spread(ptr),
             elems: SpreadLayout::pull_spread(ptr),
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::push_spread(&self.len, ptr);
         SpreadLayout::push_spread(&self.elems, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         self.clear_cells();
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.elems, ptr);

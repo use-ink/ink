@@ -24,7 +24,7 @@ use crate::{
     storage2::traits2::{
         clear_packed_root,
         pull_packed_root_opt,
-        KeyPtr as KeyPtr2,
+        KeyPtr,
         PackedLayout,
         SpreadLayout,
     },
@@ -96,11 +96,11 @@ where
 {
     const FOOTPRINT: u64 = 1;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(ptr.next_for::<Self>())
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for::<Self>();
         for (index, entry) in self.entries().iter() {
             let root_key = self.to_offset_key(&offset_key, index);
@@ -109,7 +109,7 @@ where
     }
 
     #[inline]
-    fn clear_spread(&self, _ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, _ptr: &mut KeyPtr) {
         // Low-level lazy abstractions won't perform automated clean-up since
         // they generally are not aware of their entire set of associated
         // elements. The high-level abstractions that build upon them are
