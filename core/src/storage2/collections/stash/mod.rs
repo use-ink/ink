@@ -36,7 +36,10 @@ use ink_primitives::Key;
 type Index = u32;
 
 #[derive(Debug)]
-pub struct Stash<T> {
+pub struct Stash<T>
+where
+    T: PackedLayout,
+{
     /// The combined and commonly used header data.
     header: Pack<Header>,
     /// The storage entries of the stash.
@@ -116,7 +119,10 @@ impl<T> Entry<T> {
     }
 }
 
-impl<T> Stash<T> {
+impl<T> Stash<T>
+where
+    T: PackedLayout,
+{
     /// Creates a new empty stash.
     pub fn new() -> Self {
         Self {
@@ -241,6 +247,38 @@ where
                 Entry::Vacant { .. } => None,
             }
         })
+    }
+}
+
+impl<T> Stash<T>
+where
+    T: PackedLayout,
+{
+    /// Clears the underlying storage cells of the storage vector.
+    ///
+    /// # Note
+    ///
+    /// This completely invalidates the storage vector's invariances about
+    /// the contents of its associated storage region.
+    ///
+    /// This API is used for the `Drop` implementation of [`Vec`] as well as
+    /// for the [`SpreadLayout::clear_spread`] trait implementation.
+    fn clear_cells(&self) {
+        if self.entries.key().is_none() {
+            // We won't clear any storage if we are in lazy state since there
+            // probably has not been any state written to storage, yet.
+            return
+        }
+        for index in 0..self.len_entries() {
+            // It might seem wasteful to clear all entries instead of just
+            // the occupied ones. However this spares us from having one extra
+            // read for every element in the storage stash to filter out vacant
+            // entries. So this is actually a trade-off and at the time of this
+            // implementation it is unclear which path is more efficient.
+            //
+            // The bet is that clearing a storage cell is cheaper than reading one.
+            self.entries.clear_packed_at(index);
+        }
     }
 }
 

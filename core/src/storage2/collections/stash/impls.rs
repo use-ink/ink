@@ -25,7 +25,19 @@ use core::iter::{
     FromIterator,
 };
 
-impl<T> Default for StorageStash<T> {
+impl<T> Drop for StorageStash<T>
+where
+    T: PackedLayout,
+{
+    fn drop(&mut self) {
+        self.clear_cells();
+    }
+}
+
+impl<T> Default for StorageStash<T>
+where
+    T: PackedLayout,
+{
     fn default() -> Self {
         StorageStash::new()
     }

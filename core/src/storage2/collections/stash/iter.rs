@@ -24,7 +24,10 @@ use crate::storage2::{
 
 /// An iterator over shared references to the elements of a storage stash.
 #[derive(Debug, Clone, Copy)]
-pub struct Iter<'a, T> {
+pub struct Iter<'a, T>
+where
+    T: PackedLayout,
+{
     /// The storage stash to iterate over.
     stash: &'a Stash<T>,
     /// The number of already yielded elements.
@@ -39,7 +42,10 @@ pub struct Iter<'a, T> {
     end: u32,
 }
 
-impl<'a, T> Iter<'a, T> {
+impl<'a, T> Iter<'a, T>
+where
+    T: PackedLayout,
+{
     /// Creates a new iterator for the given storage stash.
     pub(crate) fn new(stash: &'a Stash<T>) -> Self {
         Self {
@@ -117,7 +123,10 @@ where
 
 /// An iterator over exclusive references to the elements of a storage stash.
 #[derive(Debug)]
-pub struct IterMut<'a, T> {
+pub struct IterMut<'a, T>
+where
+    T: PackedLayout,
+{
     /// The storage stash to iterate over.
     stash: &'a mut Stash<T>,
     /// The number of already yielded elements.
@@ -132,7 +141,10 @@ pub struct IterMut<'a, T> {
     end: u32,
 }
 
-impl<'a, T> IterMut<'a, T> {
+impl<'a, T> IterMut<'a, T>
+where
+    T: PackedLayout,
+{
     /// Creates a new iterator for the given storage stash.
     pub(crate) fn new(stash: &'a mut Stash<T>) -> Self {
         let len = stash.len_entries();
@@ -234,7 +246,10 @@ where
 /// This is an internal API and mainly used for testing the storage stash.
 #[derive(Debug, Clone, Copy)]
 #[cfg(test)]
-pub struct Entries<'a, T> {
+pub struct Entries<'a, T>
+where
+    T: PackedLayout,
+{
     /// The storage stash to iterate over.
     stash: &'a Stash<T>,
     /// The current begin of the iteration.
@@ -244,7 +259,10 @@ pub struct Entries<'a, T> {
 }
 
 #[cfg(test)]
-impl<'a, T> Entries<'a, T> {
+impl<'a, T> Entries<'a, T>
+where
+    T: PackedLayout,
+{
     /// Creates a new iterator for the given storage stash.
     pub(crate) fn new(stash: &'a Stash<T>) -> Self {
         let len = stash.len_entries();
