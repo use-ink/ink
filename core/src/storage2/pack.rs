@@ -17,18 +17,10 @@ use crate::storage2::{
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,
-        KeyPtr as KeyPtr2,
+        KeyPtr as KeyPtr,
         PackedLayout,
         SpreadLayout,
     },
-    ClearAt,
-    ClearForward,
-    KeyPtr,
-    PullAt,
-    PullForward,
-    PushAt,
-    PushForward,
-    StorageFootprint,
 };
 use ink_primitives::Key;
 
@@ -107,15 +99,15 @@ where
 {
     const FOOTPRINT: u64 = 1;
 
-    fn pull_spread(ptr: &mut KeyPtr2) -> Self {
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Pack::from(forward_pull_packed::<T>(ptr))
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr2) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<T>(Self::get(self), ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr2) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         forward_clear_packed::<T>(Self::get(self), ptr)
     }
 }
@@ -132,66 +124,6 @@ where
     }
     fn clear_packed(&self, at: &Key) {
         <T as PackedLayout>::clear_packed(Self::get(self), at)
-    }
-}
-
-impl<T> StorageFootprint for Pack<T> {
-    const VALUE: u64 = 1;
-}
-
-impl<T> PullForward for Pack<T>
-where
-    T: PullAt,
-{
-    fn pull_forward(ptr: &mut KeyPtr) -> Self {
-        <Self as PullAt>::pull_at(ptr.next_for::<Self>())
-    }
-}
-
-impl<T> PullAt for Pack<T>
-where
-    T: PullAt,
-{
-    fn pull_at(at: Key) -> Self {
-        Self {
-            inner: <T as PullAt>::pull_at(at),
-        }
-    }
-}
-
-impl<T> PushForward for Pack<T>
-where
-    T: PushAt,
-{
-    fn push_forward(&self, ptr: &mut KeyPtr) {
-        <Self as PushAt>::push_at(self, ptr.next_for::<Self>())
-    }
-}
-
-impl<T> PushAt for Pack<T>
-where
-    T: PushAt,
-{
-    fn push_at(&self, at: Key) {
-        <T as PushAt>::push_at(self.get(), at)
-    }
-}
-
-impl<T> ClearForward for Pack<T>
-where
-    T: ClearAt,
-{
-    fn clear_forward(&self, ptr: &mut KeyPtr) {
-        <Self as ClearAt>::clear_at(self, ptr.next_for::<Self>())
-    }
-}
-
-impl<T> ClearAt for Pack<T>
-where
-    T: ClearAt,
-{
-    fn clear_at(&self, at: Key) {
-        <T as ClearAt>::clear_at(self.get(), at)
     }
 }
 
