@@ -43,7 +43,7 @@ where
     /// The combined and commonly used header data.
     header: Pack<Header>,
     /// The storage entries of the stash.
-    entries: LazyIndexMap<Pack<Entry<T>>>,
+    entries: LazyIndexMap<Entry<T>>,
 }
 
 /// Stores general commonly required information about the storage stash.
@@ -228,7 +228,7 @@ where
             return None
         }
         self.entries.get(at).and_then(|entry| {
-            match Pack::as_inner(entry) {
+            match entry {
                 Entry::Occupied(val) => Some(val),
                 Entry::Vacant { .. } => None,
             }
@@ -242,7 +242,7 @@ where
             return None
         }
         self.entries.get_mut(at).and_then(|entry| {
-            match Pack::as_inner_mut(entry) {
+            match entry {
                 Entry::Occupied(val) => Some(val),
                 Entry::Vacant { .. } => None,
             }
@@ -305,7 +305,6 @@ where
             if let Some(entry) = self
                 .entries
                 .get_mut(prev_vacant)
-                .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing entry at this point")
             {
@@ -319,7 +318,6 @@ where
             if let Some(entry) = self
                 .entries
                 .get_mut(prev_vacant)
-                .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing entry at this point")
             {
@@ -329,7 +327,6 @@ where
             if let Some(entry) = self
                 .entries
                 .get_mut(next_vacant)
-                .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing entry at this point")
             {
@@ -349,14 +346,14 @@ where
     ///
     /// Returns the stash index that the element was put into.
     pub fn put(&mut self, new_value: T) -> Index {
-        let new_entry = Some(Pack::new(Entry::Occupied(new_value)));
+        let new_entry = Some(Entry::Occupied(new_value));
         let new_index = if let Some(index) = self.last_vacant_index() {
             // Put the new element to the most recent vacant index if not all entries are occupied.
             let old_entry = self
                 .entries
                 .put_get(index, new_entry)
                 .expect("a `next_vacant` index must point to an occupied cell");
-            let vacant_entry = match Pack::into_inner(old_entry) {
+            let vacant_entry = match old_entry {
                 Entry::Vacant(vacant_entry) => vacant_entry,
                 Entry::Occupied(_) => {
                     unreachable!("next_vacant must point to a vacant entry")
@@ -414,7 +411,7 @@ where
             (at, at)
         };
         let entry_mut =
-            Pack::as_inner_mut(self.entries.get_mut(at).expect("index is within bounds"));
+            self.entries.get_mut(at).expect("index is within bounds");
         if entry_mut.is_vacant() {
             // Early return if the taken entry is already vacant.
             return None
@@ -429,7 +426,6 @@ where
             if let Some(entry) = self
                 .entries
                 .get_mut(next)
-                .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing entry at this point")
             {
@@ -442,7 +438,6 @@ where
             if let Some(entry) = self
                 .entries
                 .get_mut(prev)
-                .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing entry at this point")
             {
@@ -451,7 +446,6 @@ where
             if let Some(entry) = self
                 .entries
                 .get_mut(next)
-                .map(Pack::as_inner_mut)
                 .map(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing entry at this point")
             {
@@ -506,9 +500,7 @@ where
                 // Bail out as soon as there are no more vacant entries left.
                 return
             }
-            match Pack::into_inner(
-                self.entries.take(index).expect("index is within bounds"),
-            ) {
+            match self.entries.take(index).expect("index is within bounds") {
                 Entry::Vacant(vacant_entry) => {
                     // Remove the vacant entry and rebind its neighbours.
                     self.remove_vacant_entry(index, vacant_entry);
@@ -521,12 +513,12 @@ where
                         .last_vacant_index()
                         .expect("it has been asserted that there are vacant entries");
                     callback(index, vacant_index, &value);
-                    let new_entry = Some(Pack::new(Entry::Occupied(value)));
+                    let new_entry = Some(Entry::Occupied(value));
                     let old_entry = self
                         .entries
                         .put_get(vacant_index, new_entry)
                         .expect("a `next_vacant` index must point to an occupied cell");
-                    let vacant_entry = match Pack::into_inner(old_entry) {
+                    let vacant_entry = match old_entry {
                         Entry::Vacant(vacant_entry) => vacant_entry,
                         Entry::Occupied(_) => {
                             unreachable!("next_vacant must point to a vacant entry")

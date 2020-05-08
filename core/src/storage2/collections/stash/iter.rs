@@ -15,8 +15,6 @@
 #[cfg(test)]
 use super::Entry;
 use super::Stash;
-#[cfg(test)]
-use crate::storage2::Pack;
 use crate::storage2::{
     collections::extend_lifetime,
     traits::PackedLayout,
@@ -292,7 +290,6 @@ where
             .stash
             .entries
             .get(cur)
-            .map(|entry| Pack::as_inner(entry))
             .expect("iterator indices are within bounds");
         Some(entry)
     }
@@ -322,7 +319,6 @@ where
             .stash
             .entries
             .get(self.end)
-            .map(|entry| Pack::as_inner(entry))
             .expect("iterator indices are within bounds");
         Some(entry)
     }
