@@ -25,6 +25,7 @@
 // #![deny(unsafe_op_in_unsafe_fn)]
 #![deny(
     bad_style,
+    bare_trait_objects,
     const_err,
     improper_ctypes,
     non_shorthand_field_patterns,
