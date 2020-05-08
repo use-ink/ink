@@ -17,6 +17,7 @@
 pub mod alloc;
 pub mod collections;
 pub mod lazy;
+mod memory;
 mod pack;
 pub mod traits;
 
@@ -27,5 +28,6 @@ pub use self::{
         Vec,
     },
     lazy::Lazy,
+    memory::Memory,
     pack::Pack,
 };
