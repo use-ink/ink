@@ -23,7 +23,6 @@ use crate::{
         },
         lazy::LazyHashMap,
         traits::PackedLayout,
-        Pack,
     },
 };
 use ink_primitives::Key;
@@ -37,7 +36,7 @@ where
     /// The iterator over the map's keys.
     keys_iter: StashIter<'a, K>,
     /// The lazy hash map to query the values.
-    values: &'a LazyHashMap<K, Pack<ValueEntry<V>>, H>,
+    values: &'a LazyHashMap<K, ValueEntry<V>, H>,
 }
 
 impl<'a, K, V, H> Iter<'a, K, V, H>
@@ -74,7 +73,6 @@ where
         let entry = self
             .values
             .get(key)
-            .map(Pack::as_inner)
             .expect("a key must always refer to an existing entry");
         (key, &entry.value)
     }
@@ -130,7 +128,7 @@ where
     /// The iterator over the map's keys.
     keys_iter: StashIter<'a, K>,
     /// The lazy hash map to query the values.
-    values: &'a mut LazyHashMap<K, Pack<ValueEntry<V>>, H>,
+    values: &'a mut LazyHashMap<K, ValueEntry<V>, H>,
 }
 
 impl<'a, K, V, H> IterMut<'a, K, V, H>
@@ -167,7 +165,6 @@ where
         let entry = self
             .values
             .get_mut(key)
-            .map(Pack::as_inner_mut)
             .expect("a key must always refer to an existing entry");
         (key, unsafe {
             extend_lifetime::<'b, 'a, V>(&mut entry.value)

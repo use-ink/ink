@@ -32,7 +32,6 @@ use crate::{
         collections::Stash,
         lazy::LazyHashMap,
         traits::PackedLayout,
-        Pack,
     },
 };
 use core::{
@@ -60,7 +59,7 @@ where
     /// The keys of the storage hash map.
     keys: Stash<K>,
     /// The values of the storage hash map.
-    values: LazyHashMap<K, Pack<ValueEntry<V>>, H>,
+    values: LazyHashMap<K, ValueEntry<V>, H>,
 }
 
 /// An entry within the storage hash map.
@@ -205,10 +204,10 @@ where
         let key_index = self.keys.put(key.to_owned());
         self.values.put(
             key,
-            Some(Pack::new(ValueEntry {
+            Some(ValueEntry {
                 value: new_value,
                 key_index,
-            })),
+            }),
         );
         Some(())
     }
@@ -234,12 +233,12 @@ where
         self.values
             .put_get(
                 key,
-                Some(Pack::new(ValueEntry {
+                Some(ValueEntry {
                     value: new_value,
                     key_index,
-                })),
+                }),
             )
-            .map(|entry| Pack::into_inner(entry).value)
+            .map(|entry| entry.value)
     }
 
     /// Removes the key/value pair from the map associated with the given key.
@@ -256,7 +255,7 @@ where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
-        let entry = self.values.put_get(key, None).map(Pack::into_inner)?;
+        let entry = self.values.put_get(key, None)?;
         self.keys
             .take(entry.key_index)
             .expect("`key_index` must point to a valid key entry");
@@ -278,7 +277,7 @@ where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
-        let entry = self.values.put_get(key, None).map(Pack::into_inner)?;
+        let entry = self.values.put_get(key, None)?;
         self.keys
             .take(entry.key_index)
             .expect("`key_index` must point to a valid key entry");
@@ -296,7 +295,6 @@ where
     {
         self.values
             .get(key)
-            .map(Pack::as_inner)
             .map(|entry| &entry.value)
     }
 
@@ -311,7 +309,6 @@ where
     {
         self.values
             .get_mut(key)
-            .map(Pack::as_inner_mut)
             .map(|entry| &mut entry.value)
     }
 
@@ -323,7 +320,6 @@ where
     {
         self.values
             .get(key)
-            .map(Pack::as_inner)
             .map(|entry| entry.key_index)
             .and_then(|key_index| {
                 self.keys.get(key_index).map(|stored_key| key == stored_key)
