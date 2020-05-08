@@ -138,8 +138,7 @@ where
 
 impl<T> Default for Lazy<T>
 where
-    T: SpreadLayout,
-    T: Default,
+    T: Default + SpreadLayout,
 {
     fn default() -> Self {
         Self::new(Default::default())
