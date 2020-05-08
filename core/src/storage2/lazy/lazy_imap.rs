@@ -28,6 +28,8 @@ use ink_prelude::{
     collections::BTreeMap,
 };
 use ink_primitives::Key;
+use core::fmt;
+use core::fmt::Debug;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -41,7 +43,6 @@ pub type Index = u32;
 /// chunk of storage cells.
 ///
 /// A chunk of storage cells is a contiguous range of 2^32 storage cells.
-#[derive(Debug)]
 pub struct LazyIndexMap<V> {
     /// The offset key for the chunk of cells.
     ///
@@ -55,6 +56,66 @@ pub struct LazyIndexMap<V> {
     ///
     /// An entry is cached as soon as it is loaded or written.
     cached_entries: UnsafeCell<EntryMap<V>>,
+}
+
+
+struct DebugEntryMap<'a, V>(&'a UnsafeCell<EntryMap<V>>);
+
+impl<'a, V> Debug for DebugEntryMap<'a, V>
+where
+    V: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_map()
+            .entries(unsafe { &*self.0.get() }.iter() )
+            .finish()
+    }
+}
+
+impl<V> Debug for LazyIndexMap<V>
+where
+    V: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("LazyIndexMap")
+            .field("key", &self.key)
+            .field("cached_entries", &DebugEntryMap(&self.cached_entries))
+            .finish()
+    }
+}
+
+#[test]
+fn debug_impl_works() {
+    let mut imap = <LazyIndexMap<i32>>::new();
+    // Empty imap.
+    assert_eq!(
+        format!("{:?}", &imap),
+        "LazyIndexMap { key: None, cached_entries: {} }",
+    );
+    // Filled imap.
+    imap.put(0, Some(1));
+    imap.put(42, Some(2));
+    imap.put(999, None);
+    assert_eq!(
+        format!("{:?}", &imap),
+        "LazyIndexMap { \
+            key: None, \
+            cached_entries: {\
+                0: Entry { \
+                    value: Some(1), \
+                    state: Cell { value: Mutated } \
+                }, \
+                42: Entry { \
+                    value: Some(2), \
+                    state: Cell { value: Mutated } \
+                }, \
+                999: Entry { \
+                    value: None, \
+                    state: Cell { value: Mutated } \
+                }\
+            } \
+        }",
+    );
 }
 
 impl<V> Default for LazyIndexMap<V> {
