@@ -22,11 +22,9 @@ use super::{
     Bits256RefMut,
     Bitvec as StorageBitvec,
 };
-use crate::storage2::{
-    collections::vec::{
-        Iter as StorageVecIter,
-        IterMut as StorageVecIterMut,
-    },
+use crate::storage2::collections::vec::{
+    Iter as StorageVecIter,
+    IterMut as StorageVecIterMut,
 };
 use core::cmp::min;
 

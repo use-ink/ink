@@ -410,8 +410,7 @@ where
             // So the resulting vacant index is pointing to itself.
             (at, at)
         };
-        let entry_mut =
-            self.entries.get_mut(at).expect("index is within bounds");
+        let entry_mut = self.entries.get_mut(at).expect("index is within bounds");
         if entry_mut.is_vacant() {
             // Early return if the taken entry is already vacant.
             return None

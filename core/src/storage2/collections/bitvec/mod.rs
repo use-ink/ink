@@ -142,10 +142,7 @@ impl Bitvec {
     /// Returns `None` if the given index is out of bounds.
     fn get_bits256(&self, at: Index) -> Option<(&Bits256, Index256)> {
         let (index, pos256) = self.split_index(at)?;
-        let bits256 = self
-            .bits
-            .get(index)
-            .expect("index is within bounds");
+        let bits256 = self.bits.get(index).expect("index is within bounds");
         Some((bits256, pos256))
     }
 
@@ -154,10 +151,7 @@ impl Bitvec {
     /// Returns `None` if the given index is out of bounds.
     fn get_bits256_mut(&mut self, at: Index) -> Option<(&mut Bits256, Index256)> {
         let (index, pos256) = self.split_index(at)?;
-        let bits256 = self
-            .bits
-            .get_mut(index)
-            .expect("index is within bounds");
+        let bits256 = self.bits.get_mut(index).expect("index is within bounds");
         Some((bits256, pos256))
     }
 
@@ -186,10 +180,7 @@ impl Bitvec {
         use core::cmp::min;
         let chunk_id = at / 256;
         let chunk_len = min(256, self.len() - at);
-        let bits256 = self
-            .bits
-            .get(chunk_id)
-            .expect("index is within bounds");
+        let bits256 = self.bits.get(chunk_id).expect("index is within bounds");
         Some(Bits256Ref::new(bits256, chunk_len))
     }
 
@@ -201,10 +192,7 @@ impl Bitvec {
         use core::cmp::min;
         let chunk_id = at / 256;
         let chunk_len = min(256, self.len() - at);
-        let bits256 = self
-            .bits
-            .get_mut(chunk_id)
-            .expect("index is within bounds");
+        let bits256 = self.bits.get_mut(chunk_id).expect("index is within bounds");
         Some(Bits256RefMut::new(bits256, chunk_len))
     }
 

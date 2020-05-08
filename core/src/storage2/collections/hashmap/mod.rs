@@ -293,9 +293,7 @@ where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
-        self.values
-            .get(key)
-            .map(|entry| &entry.value)
+        self.values.get(key).map(|entry| &entry.value)
     }
 
     /// Returns a mutable reference to the value corresponding to the key.
@@ -307,9 +305,7 @@ where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
-        self.values
-            .get_mut(key)
-            .map(|entry| &mut entry.value)
+        self.values.get_mut(key).map(|entry| &mut entry.value)
     }
 
     /// Returns `true` if there is an entry corresponding to the key in the map.

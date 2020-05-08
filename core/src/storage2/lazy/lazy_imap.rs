@@ -21,6 +21,8 @@ use crate::storage2::traits::{
 };
 use core::{
     cell::UnsafeCell,
+    fmt,
+    fmt::Debug,
     ptr::NonNull,
 };
 use ink_prelude::{
@@ -28,8 +30,6 @@ use ink_prelude::{
     collections::BTreeMap,
 };
 use ink_primitives::Key;
-use core::fmt;
-use core::fmt::Debug;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -58,7 +58,6 @@ pub struct LazyIndexMap<V> {
     cached_entries: UnsafeCell<EntryMap<V>>,
 }
 
-
 struct DebugEntryMap<'a, V>(&'a UnsafeCell<EntryMap<V>>);
 
 impl<'a, V> Debug for DebugEntryMap<'a, V>
@@ -67,7 +66,7 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_map()
-            .entries(unsafe { &*self.0.get() }.iter() )
+            .entries(unsafe { &*self.0.get() }.iter())
             .finish()
     }
 }
