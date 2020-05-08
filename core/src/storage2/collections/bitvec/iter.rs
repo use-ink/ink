@@ -27,7 +27,6 @@ use crate::storage2::{
         Iter as StorageVecIter,
         IterMut as StorageVecIterMut,
     },
-    Pack,
 };
 use core::cmp::min;
 
@@ -203,7 +202,7 @@ impl<'a> DoubleEndedIterator for BitsIterMut<'a> {
 #[derive(Debug, Copy, Clone)]
 pub struct Bits256Iter<'a> {
     /// The storage vector iterator over the internal 256-bit chunks.
-    iter: StorageVecIter<'a, Pack<Bits256>>,
+    iter: StorageVecIter<'a, Bits256>,
     /// The remaining bits to be yielded.
     remaining: u32,
 }
@@ -229,7 +228,6 @@ impl<'a> Iterator for Bits256Iter<'a> {
         self.remaining = self.remaining.saturating_sub(256);
         self.iter
             .next()
-            .map(Pack::as_inner)
             .map(|bits256| Bits256Ref::new(bits256, len))
     }
 
@@ -254,7 +252,6 @@ impl<'a> DoubleEndedIterator for Bits256Iter<'a> {
         self.remaining = self.remaining.saturating_sub(len);
         self.iter
             .next_back()
-            .map(Pack::as_inner)
             .map(|bits256| Bits256Ref::new(bits256, len))
     }
 }
@@ -265,7 +262,7 @@ impl<'a> ExactSizeIterator for Bits256Iter<'a> {}
 #[derive(Debug)]
 pub struct Bits256IterMut<'a> {
     /// The storage vector iterator over the internal mutable 256-bit chunks.
-    iter: StorageVecIterMut<'a, Pack<Bits256>>,
+    iter: StorageVecIterMut<'a, Bits256>,
     /// The remaining bits to be yielded.
     remaining: u32,
 }
@@ -288,7 +285,6 @@ impl<'a> Iterator for Bits256IterMut<'a> {
         self.remaining = self.remaining.saturating_sub(256);
         self.iter
             .next()
-            .map(Pack::as_inner_mut)
             .map(|bits256| Bits256RefMut::new(bits256, len))
     }
 
@@ -310,7 +306,6 @@ impl<'a> DoubleEndedIterator for Bits256IterMut<'a> {
         }
         self.iter
             .next_back()
-            .map(Pack::as_inner_mut)
             .map(|bits256| Bits256RefMut::new(bits256, len))
     }
 }

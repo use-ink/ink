@@ -49,7 +49,6 @@ use self::{
 };
 use crate::storage2::{
     Lazy,
-    Pack,
     Vec as StorageVec,
 };
 
@@ -78,7 +77,7 @@ pub struct Bitvec {
     /// The bits of the bit vector.
     ///
     /// Organized in packs of 256 bits.
-    bits: StorageVec<Pack<Bits256>>,
+    bits: StorageVec<Bits256>,
 }
 
 impl Bitvec {
@@ -146,7 +145,6 @@ impl Bitvec {
         let bits256 = self
             .bits
             .get(index)
-            .map(Pack::as_inner)
             .expect("index is within bounds");
         Some((bits256, pos256))
     }
@@ -159,7 +157,6 @@ impl Bitvec {
         let bits256 = self
             .bits
             .get_mut(index)
-            .map(Pack::as_inner_mut)
             .expect("index is within bounds");
         Some((bits256, pos256))
     }
@@ -192,7 +189,6 @@ impl Bitvec {
         let bits256 = self
             .bits
             .get(chunk_id)
-            .map(Pack::as_inner)
             .expect("index is within bounds");
         Some(Bits256Ref::new(bits256, chunk_len))
     }
@@ -208,7 +204,6 @@ impl Bitvec {
         let bits256 = self
             .bits
             .get_mut(chunk_id)
-            .map(Pack::as_inner_mut)
             .expect("index is within bounds");
         Some(Bits256RefMut::new(bits256, chunk_len))
     }
@@ -276,7 +271,7 @@ impl Bitvec {
                 bits256.set(0);
                 debug_assert_eq!(bits256.get(0), true);
             };
-            self.bits.push(Pack::from(bits256));
+            self.bits.push(bits256);
             *self.len += 1;
         } else {
             // Case: The last 256-bit pack has unused bits:
