@@ -16,6 +16,9 @@ mod impls;
 mod iter;
 mod storage;
 
+#[cfg(test)]
+mod tests;
+
 pub use self::iter::{
     Iter,
     IterMut,
