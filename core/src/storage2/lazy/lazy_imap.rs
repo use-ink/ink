@@ -282,11 +282,6 @@ where
     /// which is unsafe in isolation. The caller has to determine how to forward
     /// the returned `*mut T`.
     ///
-    /// # Panics
-    ///
-    /// - If the lazy chunk is in an invalid state that forbids interaction.
-    /// - If the lazy chunk is not in a state that allows lazy loading.
-    ///
     /// # Safety
     ///
     /// This is an `unsafe` operation because it has a `&self` receiver but returns
@@ -311,10 +306,10 @@ where
                 NonNull::from(&mut **occupied.into_mut())
             }
             BTreeMapEntry::Vacant(vacant) => {
-                let offset_key = self
+                let value = self
                     .key_at(index)
-                    .expect("cannot load lazily in this state");
-                let value = pull_packed_root_opt::<V>(&offset_key);
+                    .map(|key| pull_packed_root_opt::<V>(&key))
+                    .unwrap_or(None);
                 NonNull::from(
                     &mut **vacant
                         .insert(Box::new(Entry::new(value, EntryState::Preserved))),

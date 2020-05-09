@@ -326,11 +326,6 @@ where
     /// which is unsafe in isolation. The caller has to determine how to forward
     /// the returned `*mut T`.
     ///
-    /// # Panics
-    ///
-    /// - If the lazy chunk is in an invalid state that forbids interaction.
-    /// - If the lazy chunk is not in a state that allows lazy loading.
-    ///
     /// # Safety
     ///
     /// This is an `unsafe` operation because it has a `&self` receiver but returns

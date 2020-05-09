@@ -427,11 +427,6 @@ where
     ///
     /// Tries to load the entry from cache and falls back to lazily load the
     /// entry from the contract storage.
-    ///
-    /// # Panics
-    ///
-    /// - If the lazy array is in a state that forbids lazy loading.
-    /// - If the given index is out of bounds.
     fn load_through_cache(&self, at: Index) -> NonNull<Entry<T>> {
         assert!(at < Self::capacity(), "index is out of bounds");
         match unsafe { self.cached_entries.get_entry_mut(at) } {
@@ -442,8 +437,10 @@ where
             None => {
                 // Load value from storage and put into cache.
                 // Then load value from cache.
-                let key = self.key_at(at).expect("cannot load lazily in this state");
-                let value = pull_packed_root_opt::<T>(&key);
+                let value = self
+                    .key_at(at)
+                    .map(|key| pull_packed_root_opt::<T>(&key))
+                    .unwrap_or(None);
                 let entry = Entry::new(value, EntryState::Preserved);
                 unsafe { self.cached_entries.insert_entry(at, entry) }
             }

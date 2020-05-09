@@ -215,10 +215,6 @@ where
     ///
     /// Tries to load the entry from cache and falls back to lazily load the
     /// entry from the contract storage.
-    ///
-    /// # Panics
-    ///
-    /// Upon lazy loading if the lazy cell is in a state that forbids lazy loading.
     unsafe fn load_through_cache(&self) -> NonNull<Entry<T>> {
         // SAFETY: This is critical because we mutably access the entry.
         //         However, we mutate the entry only if it is vacant.
@@ -228,8 +224,10 @@ where
         let cache = unsafe { &mut *self.cache.get() };
         if cache.value().is_none() {
             // Load value from storage and then return the cached entry.
-            let key = self.key.expect("key required for lazy loading");
-            let value = pull_spread_root_opt::<T>(&key);
+            let value = self
+                .key
+                .map(|key| pull_spread_root_opt::<T>(&key))
+                .unwrap_or(None);
             cache.put(value);
             cache.set_state(EntryState::Mutated);
         }
