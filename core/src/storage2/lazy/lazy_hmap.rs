@@ -39,6 +39,8 @@ use core::{
         Eq,
         Ord,
     },
+    fmt,
+    fmt::Debug,
     ptr::NonNull,
 };
 use ink_prelude::{
@@ -48,8 +50,6 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_primitives::Key;
-use core::fmt;
-use core::fmt::Debug;
 
 /// The map for the contract storage entries.
 ///

@@ -28,11 +28,13 @@ use crate::storage2::traits::{
     PackedLayout,
     SpreadLayout,
 };
-use core::cell::Cell;
+use core::{
+    cell::Cell,
+    fmt,
+    fmt::Debug,
+};
 use ink_prelude::vec::Vec;
 use ink_primitives::Key;
-use core::fmt;
-use core::fmt::Debug;
 
 /// The entry of a single cached value of a lazy storage data structure.
 #[derive(Clone)]

@@ -24,11 +24,11 @@ use crate::storage2::traits::{
 };
 use core::{
     cell::UnsafeCell,
+    fmt,
+    fmt::Debug,
     ptr::NonNull,
 };
 use ink_primitives::Key;
-use core::fmt;
-use core::fmt::Debug;
 
 /// A lazy storage entity.
 ///

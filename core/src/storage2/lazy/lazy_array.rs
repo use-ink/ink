@@ -25,6 +25,8 @@ use crate::storage2::traits::{
 };
 use core::{
     cell::UnsafeCell,
+    fmt,
+    fmt::Debug,
     mem,
     ptr::NonNull,
 };
@@ -40,8 +42,6 @@ use generic_array::{
     GenericArray,
 };
 use ink_primitives::Key;
-use core::fmt;
-use core::fmt::Debug;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -98,9 +98,11 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_map()
-            .entries(self.0.iter().enumerate().filter_map(|(key, entry)| match entry {
-                Some(entry) => Some((key, entry)),
-                None => None,
+            .entries(self.0.iter().enumerate().filter_map(|(key, entry)| {
+                match entry {
+                    Some(entry) => Some((key, entry)),
+                    None => None,
+                }
             }))
             .finish()
     }
@@ -209,9 +211,7 @@ impl<'a, T> Iterator for EntriesIter<'a, T> {
 
 impl<'a, T> DoubleEndedIterator for EntriesIter<'a, T> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter
-            .next_back()
-            .map(|cell| unsafe { &*cell.get() })
+        self.iter.next_back().map(|cell| unsafe { &*cell.get() })
     }
 }
 
