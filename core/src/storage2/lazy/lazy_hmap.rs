@@ -363,10 +363,10 @@ where
                 NonNull::from(&mut **occupied.into_mut())
             }
             BTreeMapEntry::Vacant(vacant) => {
-                let offset_key = self
+                let value = self
                     .key_at(key)
-                    .expect("cannot load lazily in the current state");
-                let value = pull_packed_root_opt::<V>(&offset_key);
+                    .map(|key| pull_packed_root_opt::<V>(&key))
+                    .unwrap_or(None);
                 NonNull::from(
                     &mut **vacant
                         .insert(Box::new(Entry::new(value, EntryState::Preserved))),
