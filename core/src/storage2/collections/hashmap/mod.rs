@@ -241,28 +241,6 @@ where
         Some(entry.value)
     }
 
-    /// Removes the key/value pair from the map associated with the given key.
-    ///
-    /// - Returns `Some` if the key value pair existed in the mapping.
-    /// - Prefer this operation over [`HashMap::take`] in case the returned value
-    ///   is not required.
-    ///
-    /// # Note
-    ///
-    /// The key may be any borrowed form of the map's key type,
-    /// but `Hash` and `Eq` on the borrowed form must match those for the key type.
-    pub fn remove<Q>(&mut self, key: &Q) -> Option<()>
-    where
-        K: Borrow<Q>,
-        Q: Ord + scale::Encode + ToOwned<Owned = K>,
-    {
-        let entry = self.values.put_get(key, None)?;
-        self.keys
-            .take(entry.key_index)
-            .expect("`key_index` must point to a valid key entry");
-        Some(())
-    }
-
     /// Returns a shared reference to the value corresponding to the key.
     ///
     /// The key may be any borrowed form of the map's key type,
