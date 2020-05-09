@@ -31,15 +31,43 @@ use crate::storage2::traits::{
 use core::cell::Cell;
 use ink_prelude::vec::Vec;
 use ink_primitives::Key;
+use core::fmt;
+use core::fmt::Debug;
 
 /// The entry of a single cached value of a lazy storage data structure.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Entry<T> {
     /// The value or `None` if the value has been removed.
     value: Option<T>,
     /// This is `true` if the `value` is dirty and needs to be synchronized
     /// with the underlying contract storage.
     state: Cell<EntryState>,
+}
+
+impl<T> Debug for Entry<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Entry")
+            .field("value", &self.value)
+            .field("state", &self.state.get())
+            .finish()
+    }
+}
+
+#[test]
+fn debug_impl_works() {
+    let e1 = <Entry<i32>>::new(None, EntryState::Preserved);
+    assert_eq!(
+        format!("{:?}", &e1),
+        "Entry { value: None, state: Preserved }",
+    );
+    let e2 = Entry::new(Some(42), EntryState::Mutated);
+    assert_eq!(
+        format!("{:?}", &e2),
+        "Entry { value: Some(42), state: Mutated }",
+    );
 }
 
 /// The state of the entry.

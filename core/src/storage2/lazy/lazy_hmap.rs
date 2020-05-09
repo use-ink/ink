@@ -135,15 +135,15 @@ fn debug_impl_works() {
             cached_entries: {\
                 'A': Entry { \
                     value: Some(1), \
-                    state: Cell { value: Mutated } \
+                    state: Mutated \
                 }, \
                 'B': Entry { \
                     value: Some(2), \
-                    state: Cell { value: Mutated } \
+                    state: Mutated \
                 }, \
                 'C': Entry { \
                     value: None, \
-                    state: Cell { value: Mutated } \
+                    state: Mutated \
                 }\
             } \
         }",
