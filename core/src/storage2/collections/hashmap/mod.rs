@@ -194,6 +194,7 @@ where
 {
     /// Inserts a key-value pair into the map.
     ///
+    /// Returns the previous value associated with the same key if any.
     /// If the map did not have this key present, `None` is returned.
     ///
     /// # Note
@@ -203,7 +204,13 @@ where
     /// - If the map did have this key present, the value is updated,
     ///   and the old value is returned. The key is not updated, though;
     ///   this matters for types that can be `==` without being identical.
-    pub fn insert(&mut self, key: K, new_value: V) -> Option<()> {
+    pub fn insert(&mut self, key: K, new_value: V) -> Option<V> {
+        if let Some(occupied) = self.values.get_mut(&key) {
+            // Update value, don't update key.
+            let old_value = core::mem::replace(&mut occupied.value, new_value);
+            return Some(old_value)
+        }
+        // At this point we know that `key` does not yet exist in the map.
         let key_index = self.keys.put(key.to_owned());
         self.values.put(
             key,
@@ -212,36 +219,7 @@ where
                 key_index,
             }),
         );
-        Some(())
-    }
-
-    /// Inserts a key-value pair into the map.
-    ///
-    /// Returns the previous value associated with the same key if any.
-    /// If the map did not have this key present, `None` is returned.
-    ///
-    /// # Note
-    ///
-    /// - Prefer [`HashMap::insert`] if the return value of the previous value
-    ///   associated with the same key is not required.
-    /// - If the map did have this key present, the value is updated,
-    ///   and the old value is returned. The key is not updated, though;
-    ///   this matters for types that can be `==` without being identical.
-    pub fn insert_get<Q>(&mut self, key: &Q, new_value: V) -> Option<V>
-    where
-        K: Borrow<Q>,
-        Q: Ord + scale::Encode + ToOwned<Owned = K>,
-    {
-        let key_index = self.keys.put(key.to_owned());
-        self.values
-            .put_get(
-                key,
-                Some(ValueEntry {
-                    value: new_value,
-                    key_index,
-                }),
-            )
-            .map(|entry| entry.value)
+        None
     }
 
     /// Removes the key/value pair from the map associated with the given key.
