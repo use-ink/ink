@@ -243,3 +243,34 @@ fn keys_next_works() {
     assert_eq!(iter.count(), 0);
     assert_eq!(iter.next(), None);
 }
+
+#[test]
+fn defrag_works() {
+    let expected = [(b'A', 1), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+    // Defrag without limits:
+    let mut hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+    assert_eq!(hmap.defrag(None), 0);
+    assert_eq!(hmap.take(&b'B'), Some(2));
+    assert_eq!(hmap.take(&b'C'), Some(3));
+    assert_eq!(hmap.defrag(None), 2);
+    assert_eq!(hmap.defrag(None), 0);
+    assert_eq!(hmap, expected);
+    // Defrag with limits:
+    let mut hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+    assert_eq!(hmap.defrag(None), 0);
+    assert_eq!(hmap.take(&b'B'), Some(2));
+    assert_eq!(hmap.take(&b'C'), Some(3));
+    assert_eq!(hmap.defrag(Some(1)), 1);
+    assert_eq!(hmap.defrag(Some(1)), 1);
+    assert_eq!(hmap.defrag(Some(1)), 0);
+    assert_eq!(hmap, expected);
+}
