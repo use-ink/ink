@@ -70,13 +70,12 @@ where
     }
 }
 
-impl<K, V, H, O> SpreadLayout for StorageHashMap<K, V, H>
+impl<K, V, H> SpreadLayout for StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher<Output = O>,
-    O: Default,
-    Key: From<O>,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
 {
     const FOOTPRINT: u64 = 1 + <StorageStash<K> as SpreadLayout>::FOOTPRINT;
 
