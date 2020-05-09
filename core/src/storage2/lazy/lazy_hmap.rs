@@ -415,13 +415,17 @@ where
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
         let root_key = self.key_at(index).expect("cannot clear in lazy state");
-        // We need to load the entity before we remove its associated contract storage
-        // because it might be a type that propagates clearing to its fields,
-        // for example in the case of `T` being a `storage::Box`. However,
-        // since in other cases this load is not required but implies a lot of
-        // overhead we need to find a way to avoid it in those cases.
-        let entity = self.get(index).expect("cannot clear a non existing entity");
-        clear_packed_root::<V>(&entity, &root_key);
+        if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+            // We need to load the entity before we remove its associated contract storage
+            // because it requires a deep clean-up which propagates clearing to its fields,
+            // for example in the case of `T` being a `storage::Box`.
+            let entity = self.get(index).expect("cannot clear a non existing entity");
+            clear_packed_root::<V>(&entity, &root_key);
+        } else {
+            // The type does not require deep clean-up so we can simply clean-up
+            // its associated storage cell and be done without having to load it first.
+            crate::env::clear_contract_storage(root_key);
+        }
     }
 
     /// Returns a shared reference to the value associated with the given key if any.
