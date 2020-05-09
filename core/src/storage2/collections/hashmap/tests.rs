@@ -98,3 +98,29 @@ fn get_works() {
     assert_eq!(hmap.get_mut(&b'D'), Some(&mut 4));
     assert_eq!(hmap.get_mut(&b'E'), None);
 }
+
+#[test]
+fn take_works() {
+    // Empty hash map.
+    let mut hmap = <StorageHashMap<u8, i32>>::new();
+    assert_eq!(hmap.take(&b'A'), None);
+    assert_eq!(hmap.take(&b'E'), None);
+    // Filled hash map: `get`
+    let mut hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+    assert_eq!(hmap.len(), 4);
+    assert_eq!(hmap.take(&b'A'), Some(1));
+    assert_eq!(hmap.len(), 3);
+    assert_eq!(hmap.take(&b'A'), None);
+    assert_eq!(hmap.len(), 3);
+    assert_eq!(hmap.take(&b'B'), Some(2));
+    assert_eq!(hmap.len(), 2);
+    assert_eq!(hmap.take(&b'C'), Some(3));
+    assert_eq!(hmap.len(), 1);
+    assert_eq!(hmap.take(&b'D'), Some(4));
+    assert_eq!(hmap.len(), 0);
+    assert_eq!(hmap.take(&b'E'), None);
+    assert_eq!(hmap.len(), 0);
+}
