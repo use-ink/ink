@@ -48,6 +48,8 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_primitives::Key;
+use core::fmt;
+use core::fmt::Debug;
 
 /// The map for the contract storage entries.
 ///
@@ -69,7 +71,6 @@ pub type EntryMap<K, V> = BTreeMap<K, Box<Entry<V>>>;
 /// This storage data structure might store its entires anywhere in the contract
 /// storage. It is the users responsibility to keep track of the entries if it
 /// is necessary to do so.
-#[derive(Debug)]
 pub struct LazyHashMap<K, V, H> {
     /// The offset key for the storage mapping.
     ///
@@ -84,6 +85,69 @@ pub struct LazyHashMap<K, V, H> {
     cached_entries: UnsafeCell<EntryMap<K, V>>,
     /// The used hash builder.
     hash_builder: RefCell<HashBuilder<H, Vec<u8>>>,
+}
+
+struct DebugEntryMap<'a, K, V>(&'a UnsafeCell<EntryMap<K, V>>);
+
+impl<'a, K, V> Debug for DebugEntryMap<'a, K, V>
+where
+    K: Debug,
+    V: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_map()
+            .entries(unsafe { &*self.0.get() }.iter())
+            .finish()
+    }
+}
+
+impl<K, V, H> Debug for LazyHashMap<K, V, H>
+where
+    K: Debug,
+    V: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // The `hash_builder` field is not really required or needed for debugging purposes.
+        f.debug_struct("LazyHashMap")
+            .field("key", &self.key)
+            .field("cached_entries", &DebugEntryMap(&self.cached_entries))
+            .finish()
+    }
+}
+
+#[test]
+fn debug_impl_works() {
+    use crate::hash::hasher::Blake2x256Hasher;
+    let mut hmap = <LazyHashMap<char, i32, Blake2x256Hasher>>::new();
+    // Empty hmap.
+    assert_eq!(
+        format!("{:?}", &hmap),
+        "LazyHashMap { key: None, cached_entries: {} }",
+    );
+    // Filled hmap.
+    hmap.put('A', Some(1));
+    hmap.put('B', Some(2));
+    hmap.put('C', None);
+    assert_eq!(
+        format!("{:?}", &hmap),
+        "LazyHashMap { \
+            key: None, \
+            cached_entries: {\
+                'A': Entry { \
+                    value: Some(1), \
+                    state: Cell { value: Mutated } \
+                }, \
+                'B': Entry { \
+                    value: Some(2), \
+                    state: Cell { value: Mutated } \
+                }, \
+                'C': Entry { \
+                    value: None, \
+                    state: Cell { value: Mutated } \
+                }\
+            } \
+        }",
+    );
 }
 
 impl<K, V, H> SpreadLayout for LazyHashMap<K, V, H>
