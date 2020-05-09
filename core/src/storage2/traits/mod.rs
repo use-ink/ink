@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Traits and interfaces to operate with storage entities.
+//!
+//! Generally a type is said to be a storage entity if it implements the
+//! `SpreadLayout` trait. This defines certain constants and routines in order
+//! to tell a smart contract how to load and store instances of this type
+//! from and to the contract's storage.
+//!
+//! The `PackedLayout` trait can then be implemented on top of the `SpreadLayout`
+//! for types that further allow to be stored in the contract storage in a more
+//! compressed format to a single storage cell.
+
 mod impls;
 mod keyptr;
 mod optspec;

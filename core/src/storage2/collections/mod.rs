@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! High-level collections used to manage storage entities in the persisted
+//! contract storage.
+//!
+//! Users should generally use these collections in their contracts directly
+//! or as building blocks for their collections and algorithms.
+
 pub mod bitvec;
 pub mod boxed;
 pub mod hashmap;
