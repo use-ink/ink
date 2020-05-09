@@ -33,7 +33,7 @@ use ink_primitives::Key;
 macro_rules! impl_layout_for_primitive {
     ( $($ty:ty),* $(,)? ) => {
         $(
-            impl_always_packed_layout!($ty);
+            impl_always_packed_layout!($ty, deep: false);
             impl PackedLayout for $ty {
                 #[inline(always)]
                 fn pull_packed(&mut self, _at: &Key) {}
@@ -62,6 +62,7 @@ where
     T: SpreadLayout,
 {
     const FOOTPRINT: u64 = 1 + <T as SpreadLayout>::FOOTPRINT;
+    const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         match self {
@@ -125,6 +126,8 @@ where
         <T as SpreadLayout>::FOOTPRINT,
         <E as SpreadLayout>::FOOTPRINT,
     );
+    const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
+        || <E as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let is_ok = <bool as SpreadLayout>::pull_spread(ptr);
@@ -196,6 +199,7 @@ where
     T: SpreadLayout,
 {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
+    const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Box::new(<T as SpreadLayout>::pull_spread(ptr))

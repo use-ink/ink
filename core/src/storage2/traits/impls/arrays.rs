@@ -28,6 +28,7 @@ macro_rules! impl_layout_for_array {
                 T: SpreadLayout,
             {
                 const FOOTPRINT: u64 = $len * <T as SpreadLayout>::FOOTPRINT;
+                const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
                 fn push_spread(&self, ptr: &mut KeyPtr) {
                     for elem in self {

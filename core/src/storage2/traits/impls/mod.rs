@@ -25,7 +25,7 @@ macro_rules! forward_supported_array_lens {
 }
 
 macro_rules! impl_always_packed_layout {
-    ( $name:ident < $($frag:ident),+ > ) => {
+    ( $name:ident < $($frag:ident),+ >, deep: $deep:expr ) => {
         const _: () = {
             use crate::storage2::traits::impls::{
                 forward_clear_packed,
@@ -39,6 +39,8 @@ macro_rules! impl_always_packed_layout {
                 )+
             {
                 const FOOTPRINT: u64 = 1;
+
+                const REQUIRES_DEEP_CLEAN_UP: bool = $deep;
 
                 #[inline]
                 fn pull_spread(ptr: &mut KeyPtr) -> Self {
@@ -57,7 +59,7 @@ macro_rules! impl_always_packed_layout {
             }
         };
     };
-    ( $name:ty ) => {
+    ( $name:ty, deep: $deep:expr ) => {
         const _: () = {
             use crate::storage2::traits::impls::{
                 forward_clear_packed,
@@ -69,6 +71,8 @@ macro_rules! impl_always_packed_layout {
                 Self: PackedLayout,
             {
                 const FOOTPRINT: u64 = 1;
+
+                const REQUIRES_DEEP_CLEAN_UP: bool = $deep;
 
                 #[inline]
                 fn pull_spread(ptr: &mut KeyPtr) -> Self {

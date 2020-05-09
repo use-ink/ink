@@ -40,6 +40,7 @@ where
     V: PackedLayout,
 {
     const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
@@ -90,6 +91,7 @@ where
     T: PackedLayout + Ord,
 {
     const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
@@ -134,6 +136,7 @@ where
     T: PackedLayout + Ord,
 {
     const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
@@ -176,7 +179,7 @@ where
 macro_rules! impl_push_at_for_collection {
     ( $($collection:ident),* $(,)? ) => {
         $(
-            impl_always_packed_layout!($collection<T>);
+            impl_always_packed_layout!($collection<T>, deep: <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP);
 
             impl<T> PackedLayout for $collection<T>
             where

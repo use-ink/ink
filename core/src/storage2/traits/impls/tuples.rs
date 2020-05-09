@@ -28,6 +28,7 @@ macro_rules! impl_layout_for_tuple {
             )*
         {
             const FOOTPRINT: u64 = 0 $(+ <$frag as SpreadLayout>::FOOTPRINT)*;
+            const REQUIRES_DEEP_CLEAN_UP: bool = false $(|| <$frag as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP)*;
 
             fn push_spread(&self, ptr: &mut KeyPtr) {
                 #[allow(non_snake_case)]
