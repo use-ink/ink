@@ -27,6 +27,8 @@ use core::{
     ptr::NonNull,
 };
 use ink_primitives::Key;
+use core::fmt;
+use core::fmt::Debug;
 
 /// A lazy storage entity.
 ///
@@ -35,7 +37,6 @@ use ink_primitives::Key;
 /// # Note
 ///
 /// Use this if the storage field doesn't need to be loaded in some or most cases.
-#[derive(Debug)]
 pub struct LazyCell<T>
 where
     T: SpreadLayout,
@@ -60,6 +61,32 @@ where
     /// Being efficient is important here because this is intended to be
     /// a low-level primitive with lots of dependencies.
     cache: UnsafeCell<Entry<T>>,
+}
+
+impl<T> Debug for LazyCell<T>
+where
+    T: Debug + SpreadLayout,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("LazyCell")
+            .field("key", &self.key)
+            .field("cache", unsafe { &*self.cache.get() })
+            .finish()
+    }
+}
+
+#[test]
+fn debug_impl_works() {
+    let c1 = <LazyCell<i32>>::new(None);
+    assert_eq!(
+        format!("{:?}", &c1),
+        "LazyCell { key: None, cache: Entry { value: None, state: Mutated } }",
+    );
+    let c2 = <LazyCell<i32>>::new(42);
+    assert_eq!(
+        format!("{:?}", &c2),
+        "LazyCell { key: None, cache: Entry { value: Some(42), state: Mutated } }",
+    );
 }
 
 impl<T> Drop for LazyCell<T>
