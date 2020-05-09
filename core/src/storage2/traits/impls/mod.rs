@@ -111,6 +111,15 @@ const fn max(a: u64, b: u64) -> u64 {
     [a, b][(a > b) as usize]
 }
 
+/// Pulls an instance of type `T` in packed fashion from the contract storage.
+///
+/// Loads the instance from the storage location identified by `ptr`.
+/// The storage entity is expected to be decodable in its packed form.
+///
+/// # Note
+///
+/// Use this utility function to use a packed pull operation for the type
+/// instead of a spreaded pull operation.
 #[inline]
 pub fn forward_pull_packed<T>(ptr: &mut KeyPtr) -> T
 where
@@ -119,6 +128,15 @@ where
     pull_packed_root::<T>(&ptr.next_for::<T>())
 }
 
+/// Pushes an instance of type `T` in packed fashion to the contract storage.
+///
+/// Stores the instance to the storage location identified by `ptr`.
+/// The storage entity is expected to be encodable in its packed form.
+///
+/// # Note
+///
+/// Use this utility function to use a packed push operation for the type
+/// instead of a spreaded push operation.
 #[inline]
 pub fn forward_push_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where
@@ -127,6 +145,15 @@ where
     push_packed_root::<T>(entity, &ptr.next_for::<T>())
 }
 
+/// Clears an instance of type `T` in packed fashion from the contract storage.
+///
+/// Clears the instance from the storage location identified by `ptr`.
+/// The cleared storage entity is expected to be encoded in its packed form.
+///
+/// # Note
+///
+/// Use this utility function to use a packed clear operation for the type
+/// instead of a spreaded clear operation.
 #[inline]
 pub fn forward_clear_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where
