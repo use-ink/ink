@@ -140,20 +140,30 @@ fn iter_next_works() {
     // Test iterator over `&T`:
     let mut iter = vec.iter();
     assert_eq!(iter.count(), 4);
+    assert_eq!(iter.size_hint(), (4, Some(4)));
     assert_eq!(iter.next(), Some(&b'a'));
+    assert_eq!(iter.size_hint(), (3, Some(3)));
     assert_eq!(iter.next(), Some(&b'b'));
+    assert_eq!(iter.size_hint(), (2, Some(2)));
     assert_eq!(iter.count(), 2);
     assert_eq!(iter.next(), Some(&b'c'));
+    assert_eq!(iter.size_hint(), (1, Some(1)));
     assert_eq!(iter.next(), Some(&b'd'));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
     assert_eq!(iter.count(), 0);
     assert_eq!(iter.next(), None);
     // Test iterator over `&mut T`:
     let mut vec = vec;
     let mut iter = vec.iter_mut();
+    assert_eq!(iter.size_hint(), (4, Some(4)));
     assert_eq!(iter.next(), Some(&mut b'a'));
+    assert_eq!(iter.size_hint(), (3, Some(3)));
     assert_eq!(iter.next(), Some(&mut b'b'));
+    assert_eq!(iter.size_hint(), (2, Some(2)));
     assert_eq!(iter.next(), Some(&mut b'c'));
+    assert_eq!(iter.size_hint(), (1, Some(1)));
     assert_eq!(iter.next(), Some(&mut b'd'));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
     assert_eq!(iter.next(), None);
     assert_eq!(iter.count(), 0);
 }
@@ -165,16 +175,22 @@ fn iter_nth_works() {
     // Test iterator over `&T`:
     let mut iter = vec.iter();
     assert_eq!(iter.count(), 4);
+    assert_eq!(iter.size_hint(), (4, Some(4)));
     assert_eq!(iter.nth(1), Some(&b'b'));
     assert_eq!(iter.count(), 2);
+    assert_eq!(iter.size_hint(), (2, Some(2)));
     assert_eq!(iter.nth(1), Some(&b'd'));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
     assert_eq!(iter.count(), 0);
     assert_eq!(iter.nth(1), None);
     // Test iterator over `&mut T`:
     let mut vec = vec;
     let mut iter = vec.iter_mut();
+    assert_eq!(iter.size_hint(), (4, Some(4)));
     assert_eq!(iter.nth(1), Some(&mut b'b'));
+    assert_eq!(iter.size_hint(), (2, Some(2)));
     assert_eq!(iter.nth(1), Some(&mut b'd'));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
     assert_eq!(iter.nth(1), None);
     assert_eq!(iter.count(), 0);
 }
