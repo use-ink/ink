@@ -40,6 +40,8 @@ use generic_array::{
     GenericArray,
 };
 use ink_primitives::Key;
+use core::fmt;
+use core::fmt::Debug;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -66,7 +68,6 @@ impl<T, N: ArrayLength<UnsafeCell<Option<Entry<T>>>>> LazyArrayLength<T> for UIn
 /// This is mainly used as low-level storage primitives by other high-level
 /// storage primitives in order to manage the contract storage for a whole
 /// chunk of storage cells.
-#[derive(Debug)]
 pub struct LazyArray<T, N>
 where
     N: LazyArrayLength<T>,
@@ -83,6 +84,74 @@ where
     ///
     /// An entry is cached as soon as it is loaded or written.
     cached_entries: EntryArray<T, N>,
+}
+
+struct DebugEntryArray<'a, T, N>(&'a EntryArray<T, N>)
+where
+    T: Debug,
+    N: LazyArrayLength<T>;
+
+impl<'a, T, N> Debug for DebugEntryArray<'a, T, N>
+where
+    T: Debug,
+    N: LazyArrayLength<T>,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_map()
+            .entries(self.0.iter().enumerate().filter_map(|(key, entry)| match entry {
+                Some(entry) => Some((key, entry)),
+                None => None,
+            }))
+            .finish()
+    }
+}
+
+impl<T, N> Debug for LazyArray<T, N>
+where
+    T: Debug,
+    N: LazyArrayLength<T>,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("LazyArray")
+            .field("key", &self.key)
+            .field("cached_entries", &DebugEntryArray(&self.cached_entries))
+            .finish()
+    }
+}
+
+#[test]
+fn debug_impl_works() {
+    use generic_array::typenum::U4;
+    let mut larray = <LazyArray<i32, U4>>::new();
+    // Empty imap.
+    assert_eq!(
+        format!("{:?}", &larray),
+        "LazyArray { key: None, cached_entries: {} }",
+    );
+    // Filled imap.
+    larray.put(0, Some(1));
+    larray.put(2, Some(2));
+    larray.put(3, None);
+    assert_eq!(
+        format!("{:?}", &larray),
+        "LazyArray { \
+            key: None, \
+            cached_entries: {\
+                0: Entry { \
+                    value: Some(1), \
+                    state: Mutated \
+                }, \
+                2: Entry { \
+                    value: Some(2), \
+                    state: Mutated \
+                }, \
+                3: Entry { \
+                    value: None, \
+                    state: Mutated \
+                }\
+            } \
+        }",
+    );
 }
 
 /// Returns the capacity for an array with the given array length.
@@ -120,10 +189,10 @@ impl<'a, T> EntriesIter<'a, T> {
 }
 
 impl<'a, T> Iterator for EntriesIter<'a, T> {
-    type Item = &'a mut Option<Entry<T>>;
+    type Item = &'a Option<Entry<T>>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(|cell| unsafe { &mut *cell.get() })
+        self.iter.next().map(|cell| unsafe { &*cell.get() })
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -142,7 +211,7 @@ impl<'a, T> DoubleEndedIterator for EntriesIter<'a, T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter
             .next_back()
-            .map(|cell| unsafe { &mut *cell.get() })
+            .map(|cell| unsafe { &*cell.get() })
     }
 }
 
@@ -209,8 +278,8 @@ where
         (&mut *UnsafeCell::get(&self.entries[at as usize])).as_mut()
     }
 
-    /// Returns an iterator that yields exclusive references to all cached entries.
-    pub unsafe fn iter(&self) -> EntriesIter<T> {
+    /// Returns an iterator that yields shared references to all cached entries.
+    pub fn iter(&self) -> EntriesIter<T> {
         EntriesIter::new(self)
     }
 }
@@ -315,7 +384,7 @@ where
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ptr.next_for::<Self>();
-        for (index, entry) in unsafe { self.cached_entries().iter() }.enumerate() {
+        for (index, entry) in self.cached_entries().iter().enumerate() {
             if let Some(entry) = entry {
                 let root_key = offset_key + index as u64;
                 entry.push_packed_root(&root_key);
