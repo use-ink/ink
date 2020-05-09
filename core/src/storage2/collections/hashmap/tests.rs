@@ -33,19 +33,19 @@ fn new_vec_works() {
 #[test]
 fn from_iterator_works() {
     let test_values = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)];
-    assert_eq!(
-        test_values
-            .iter()
-            .copied()
-            .collect::<StorageHashMap<u8, i32>>(),
-        {
-            let mut hmap = <StorageHashMap<u8, i32>>::new();
-            for (key, value) in &test_values {
-                assert_eq!(hmap.insert(*key, *value), None);
-            }
-            hmap
+    let hmap = test_values
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+    assert!(!hmap.is_empty());
+    assert_eq!(hmap.len(), 4);
+    assert_eq!(hmap, {
+        let mut hmap = <StorageHashMap<u8, i32>>::new();
+        for (key, value) in &test_values {
+            assert_eq!(hmap.insert(*key, *value), None);
         }
-    );
+        hmap
+    });
 }
 
 #[test]
@@ -67,9 +67,9 @@ fn contains_key_works() {
         .iter()
         .copied()
         .collect::<StorageHashMap<u8, i32>>();
-        assert!(hmap.contains_key(&b'A'));
-        assert!(hmap.contains_key(&b'B'));
-        assert!(hmap.contains_key(&b'C'));
-        assert!(hmap.contains_key(&b'D'));
-        assert!(!hmap.contains_key(&b'E'));
+    assert!(hmap.contains_key(&b'A'));
+    assert!(hmap.contains_key(&b'B'));
+    assert!(hmap.contains_key(&b'C'));
+    assert!(hmap.contains_key(&b'D'));
+    assert!(!hmap.contains_key(&b'E'));
 }
