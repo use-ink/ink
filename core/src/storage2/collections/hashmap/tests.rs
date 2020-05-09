@@ -55,3 +55,21 @@ fn from_empty_iterator_works() {
         <StorageHashMap<u8, i32>>::new(),
     );
 }
+
+#[test]
+fn contains_key_works() {
+    // Empty hash map.
+    let hmap = <StorageHashMap<u8, i32>>::new();
+    assert!(!hmap.contains_key(&b'A'));
+    assert!(!hmap.contains_key(&b'E'));
+    // Filled hash map.
+    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+        assert!(hmap.contains_key(&b'A'));
+        assert!(hmap.contains_key(&b'B'));
+        assert!(hmap.contains_key(&b'C'));
+        assert!(hmap.contains_key(&b'D'));
+        assert!(!hmap.contains_key(&b'E'));
+}
