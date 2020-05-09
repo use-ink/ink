@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! A small storage vector that allows to store a limited amount of elements.
+//!
+//! Prefer using [`SmallVec`] over [`crate::storage2::Vec`] if you know up front
+//! the maximum amount of unique elements that have to be stored in the vector
+//! at the same time, given the number is fairly low: e.g. not exceeding several
+//! hundreds of elements.
+
 mod impls;
 mod iter;
 mod storage;

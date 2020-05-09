@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! A storage hash map that allows to associate keys with values.
+
 mod impls;
 mod iter;
 mod storage;

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! A storage vector used to store elements in a contiguous sequenced order.
+//!
+//! This is by default the go-to collection for most smart contracts if there
+//! are not special requirements to the storage data structure.
+
 mod impls;
 mod iter;
 mod storage;
