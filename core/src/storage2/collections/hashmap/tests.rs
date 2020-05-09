@@ -157,20 +157,67 @@ fn iter_next_works() {
     // Test iterator over shared references:
     let mut iter = hmap.iter();
     assert_eq!(iter.count(), 4);
+    assert_eq!(iter.size_hint(), (4, Some(4)));
     assert_eq!(iter.next(), Some((&b'A', &1)));
+    assert_eq!(iter.size_hint(), (3, Some(3)));
     assert_eq!(iter.next(), Some((&b'B', &2)));
+    assert_eq!(iter.size_hint(), (2, Some(2)));
     assert_eq!(iter.count(), 2);
     assert_eq!(iter.next(), Some((&b'C', &3)));
+    assert_eq!(iter.size_hint(), (1, Some(1)));
     assert_eq!(iter.next(), Some((&b'D', &4)));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
     assert_eq!(iter.count(), 0);
     assert_eq!(iter.next(), None);
     // Test iterator over exclusive references:
     let mut hmap = hmap;
     let mut iter = hmap.iter_mut();
+    assert_eq!(iter.size_hint(), (4, Some(4)));
     assert_eq!(iter.next(), Some((&b'A', &mut 1)));
+    assert_eq!(iter.size_hint(), (3, Some(3)));
     assert_eq!(iter.next(), Some((&b'B', &mut 2)));
+    assert_eq!(iter.size_hint(), (2, Some(2)));
     assert_eq!(iter.next(), Some((&b'C', &mut 3)));
+    assert_eq!(iter.size_hint(), (1, Some(1)));
     assert_eq!(iter.next(), Some((&b'D', &mut 4)));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+    assert_eq!(iter.next(), None);
+    assert_eq!(iter.count(), 0);
+}
+
+#[test]
+fn values_next_works() {
+    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+    // Test iterator over shared references:
+    let mut iter = hmap.values();
+    assert_eq!(iter.count(), 4);
+    assert_eq!(iter.size_hint(), (4, Some(4)));
+    assert_eq!(iter.next(), Some(&1));
+    assert_eq!(iter.size_hint(), (3, Some(3)));
+    assert_eq!(iter.next(), Some(&2));
+    assert_eq!(iter.size_hint(), (2, Some(2)));
+    assert_eq!(iter.count(), 2);
+    assert_eq!(iter.next(), Some(&3));
+    assert_eq!(iter.size_hint(), (1, Some(1)));
+    assert_eq!(iter.next(), Some(&4));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+    assert_eq!(iter.count(), 0);
+    assert_eq!(iter.next(), None);
+    // Test iterator over exclusive references:
+    let mut hmap = hmap;
+    let mut iter = hmap.values_mut();
+    assert_eq!(iter.size_hint(), (4, Some(4)));
+    assert_eq!(iter.next(), Some(&mut 1));
+    assert_eq!(iter.size_hint(), (3, Some(3)));
+    assert_eq!(iter.next(), Some(&mut 2));
+    assert_eq!(iter.size_hint(), (2, Some(2)));
+    assert_eq!(iter.next(), Some(&mut 3));
+    assert_eq!(iter.size_hint(), (1, Some(1)));
+    assert_eq!(iter.next(), Some(&mut 4));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
     assert_eq!(iter.next(), None);
     assert_eq!(iter.count(), 0);
 }
