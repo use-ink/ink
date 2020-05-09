@@ -28,7 +28,7 @@ use crate::{
 use ink_primitives::Key;
 
 /// An iterator over shared references to the elements of a storage hash map.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Copy, Clone)]
 pub struct Iter<'a, K, V, H>
 where
     K: PackedLayout,
@@ -86,6 +86,10 @@ where
     Key: From<H::Output>,
 {
     type Item = (&'a K, &'a V);
+
+    fn count(self) -> usize {
+        self.keys_iter.count()
+    }
 
     fn next(&mut self) -> Option<Self::Item> {
         let key = self.keys_iter.next()?;
@@ -181,6 +185,10 @@ where
 {
     type Item = (&'a K, &'a mut V);
 
+    fn count(self) -> usize {
+        self.keys_iter.count()
+    }
+
     fn next(&mut self) -> Option<Self::Item> {
         let key = self.keys_iter.next()?;
         Some(self.query_value(key))
@@ -249,6 +257,10 @@ where
 {
     type Item = &'a V;
 
+    fn count(self) -> usize {
+        self.iter.count()
+    }
+
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next().map(|(_key, value)| value)
     }
@@ -315,6 +327,10 @@ where
 {
     type Item = &'a mut V;
 
+    fn count(self) -> usize {
+        self.iter.count()
+    }
+
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next().map(|(_key, value)| value)
     }
@@ -377,6 +393,10 @@ where
     K: scale::Codec + PackedLayout,
 {
     type Item = &'a K;
+
+    fn count(self) -> usize {
+        self.iter.count()
+    }
 
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next()
