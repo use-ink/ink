@@ -243,7 +243,7 @@ where
 
     /// Removes the key/value pair from the map associated with the given key.
     ///
-    /// - Returns `Some` if there was an associated value for the given key.
+    /// - Returns `Some` if the key value pair existed in the mapping.
     /// - Prefer this operation over [`HashMap::take`] in case the returned value
     ///   is not required.
     ///
