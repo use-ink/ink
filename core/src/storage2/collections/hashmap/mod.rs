@@ -199,8 +199,6 @@ where
     ///
     /// # Note
     ///
-    /// - Prefer this operation over [`HashMap::insert_get`] if the return value
-    ///   of the previous value associated with the same key is not required.
     /// - If the map did have this key present, the value is updated,
     ///   and the old value is returned. The key is not updated, though;
     ///   this matters for types that can be `==` without being identical.
