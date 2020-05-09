@@ -34,6 +34,7 @@ macro_rules! impl_hasher_for {
         struct $ty_name:ident($fn_name:ident, $output_len:literal);
     ) => {
         $( #[$doc] )*
+        #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
         pub enum $ty_name {}
 
         impl Hasher for $ty_name {
@@ -47,21 +48,17 @@ macro_rules! impl_hasher_for {
 }
 impl_hasher_for! {
     /// SHA2 256-bit hasher.
-    #[derive(Debug)]
     struct Sha2x256Hasher(sha2_256, 32);
 }
 impl_hasher_for! {
     /// KECCAK 256-bit hasher.
-    #[derive(Debug)]
     struct Keccak256Hasher(keccak_256, 32);
 }
 impl_hasher_for! {
     /// BLAKE2 256-bit hasher.
-    #[derive(Debug)]
     struct Blake2x256Hasher(blake2_256, 32);
 }
 impl_hasher_for! {
     /// BLAKE2 128-bit hasher.
-    #[derive(Debug)]
     struct Blake2x128Hasher(blake2_128, 16);
 }
