@@ -41,8 +41,16 @@ fn from_iterator_works() {
     assert_eq!(test_values.iter().copied().collect::<StorageHashMap<u8, i32>>(), {
         let mut hmap = <StorageHashMap<u8, i32>>::new();
         for (key, value) in &test_values {
-            hmap.insert(*key, *value);
+            assert_eq!(hmap.insert(*key, *value), None);
         }
         hmap
     });
+}
+
+#[test]
+fn from_empty_iterator_works() {
+    assert_eq!(
+        [].iter().copied().collect::<StorageHashMap<u8, i32>>(),
+        <StorageHashMap<u8, i32>>::new(),
+    );
 }
