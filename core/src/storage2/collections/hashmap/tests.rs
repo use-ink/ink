@@ -32,19 +32,20 @@ fn new_vec_works() {
 
 #[test]
 fn from_iterator_works() {
-    let test_values = [
-        (b'A', 1),
-        (b'B', 2),
-        (b'C', 3),
-        (b'D', 4),
-    ];
-    assert_eq!(test_values.iter().copied().collect::<StorageHashMap<u8, i32>>(), {
-        let mut hmap = <StorageHashMap<u8, i32>>::new();
-        for (key, value) in &test_values {
-            assert_eq!(hmap.insert(*key, *value), None);
+    let test_values = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)];
+    assert_eq!(
+        test_values
+            .iter()
+            .copied()
+            .collect::<StorageHashMap<u8, i32>>(),
+        {
+            let mut hmap = <StorageHashMap<u8, i32>>::new();
+            for (key, value) in &test_values {
+                assert_eq!(hmap.insert(*key, *value), None);
+            }
+            hmap
         }
-        hmap
-    });
+    );
 }
 
 #[test]
