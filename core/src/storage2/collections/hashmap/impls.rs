@@ -30,7 +30,10 @@ use core::{
     iter::FromIterator,
     ops,
 };
-use ink_prelude::borrow::Borrow;
+use ink_prelude::borrow::{
+    Borrow,
+    ToOwned,
+};
 use ink_primitives::Key;
 
 impl<K, V, H> Drop for StorageHashMap<K, V, H>
