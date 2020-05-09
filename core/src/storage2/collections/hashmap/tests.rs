@@ -221,3 +221,25 @@ fn values_next_works() {
     assert_eq!(iter.next(), None);
     assert_eq!(iter.count(), 0);
 }
+
+#[test]
+fn keys_next_works() {
+    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+    let mut iter = hmap.keys();
+    assert_eq!(iter.count(), 4);
+    assert_eq!(iter.size_hint(), (4, Some(4)));
+    assert_eq!(iter.next(), Some(&b'A'));
+    assert_eq!(iter.size_hint(), (3, Some(3)));
+    assert_eq!(iter.next(), Some(&b'B'));
+    assert_eq!(iter.size_hint(), (2, Some(2)));
+    assert_eq!(iter.count(), 2);
+    assert_eq!(iter.next(), Some(&b'C'));
+    assert_eq!(iter.size_hint(), (1, Some(1)));
+    assert_eq!(iter.next(), Some(&b'D'));
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+    assert_eq!(iter.count(), 0);
+    assert_eq!(iter.next(), None);
+}
