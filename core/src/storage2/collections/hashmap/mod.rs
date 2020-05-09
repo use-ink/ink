@@ -223,7 +223,6 @@ where
     /// Removes the key/value pair from the map associated with the given key.
     ///
     /// - Returns the removed value if any.
-    /// - Prefer [`HashMap::remove`] in case the returned value is not required.
     ///
     /// # Note
     ///
