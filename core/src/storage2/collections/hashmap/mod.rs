@@ -283,13 +283,15 @@ where
 
     /// Defragments storage used by the storage hash map.
     ///
+    /// Returns the number of storage cells freed this way.
+    ///
     /// # Note
     ///
     /// This frees storage that is hold but not necessary for the hash map to hold.
     /// This operation might be expensive, especially for big `max_iteration`
     /// parameters. The `max_iterations` parameter can be used to limit the
     /// expensiveness for this operation and instead free up storage incrementally.
-    pub fn defrag(&mut self, max_iterations: Option<u32>) {
+    pub fn defrag(&mut self, max_iterations: Option<u32>) -> u32 {
         let len_vacant = self.keys.capacity() - self.keys.len();
         let max_iterations = max_iterations.unwrap_or(len_vacant);
         let values = &mut self.values;
@@ -298,6 +300,6 @@ where
             debug_assert_eq!(value_entry.key_index, old_index);
             value_entry.key_index = new_index;
         };
-        self.keys.defrag(Some(max_iterations), callback);
+        self.keys.defrag(Some(max_iterations), callback)
     }
 }
