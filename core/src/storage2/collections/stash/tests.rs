@@ -267,10 +267,10 @@ fn simple_defrag_works() {
     assert_eq!(stash.len_entries(), 6);
     // Now stash looks like this:
     //
-    //    i | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
-    // next |   |   |   |   |   |   |   |
-    // prev |   |   |   |   |   |   |   |
-    //  val | A |   | C |   |   |   |   |
+    //    i | 0 | 1 | 2 | 3 | 4 | 5 |
+    // next |   |   |   |   |   |   |
+    // prev |   |   |   |   |   |   |
+    //  val | A |   | C |   |   |   |
     //
     // After defrag the stash should look like this:
     //
@@ -286,7 +286,7 @@ fn simple_defrag_works() {
             value: *value,
         });
     };
-    stash.defrag(None, callback);
+    assert_eq!(stash.defrag(None, callback), 4);
     assert_eq!(stash.len(), 2);
     assert_eq!(stash.len_entries(), 2);
     assert_eq!(stash.get(0), Some(&b'A'));
@@ -353,7 +353,7 @@ fn complex_defrag_works() {
             value: *value,
         });
     };
-    stash.defrag(None, callback);
+    assert_eq!(stash.defrag(None, callback), 6);
     // After defrag the stash should look like this:
     //
     //    i | 0 | 1 |

@@ -470,6 +470,8 @@ where
 
     /// Defragments the underlying storage to minimize footprint.
     ///
+    /// Returns the number of storage cells freed this way.
+    ///
     /// This might invalidate indices stored outside of the stash.
     ///
     /// # Callback
@@ -488,19 +490,22 @@ where
     ///   value to keep gas costs within certain bounds.
     /// - The call to the given callback takes place before the reinsertion
     ///   of the shifted occupied entry.
-    pub fn defrag<C>(&mut self, max_iterations: Option<u32>, mut callback: C)
+    pub fn defrag<C>(&mut self, max_iterations: Option<u32>, mut callback: C) -> u32
     where
         C: FnMut(Index, Index, &T),
     {
         let len_entries = self.len_entries();
+        let mut freed_cells = 0;
         for index in (0..len_entries)
             .rev()
             .take(max_iterations.unwrap_or(len_entries) as usize)
         {
             if !self.has_vacant_entries() {
                 // Bail out as soon as there are no more vacant entries left.
-                return
+                return freed_cells
             }
+            // In any case we are going to free yet another storage cell.
+            freed_cells += 1;
             match self.entries.take(index).expect("index is within bounds") {
                 Entry::Vacant(vacant_entry) => {
                     // Remove the vacant entry and rebind its neighbours.
@@ -530,5 +535,6 @@ where
             }
             self.header.len_entries -= 1;
         }
+        freed_cells
     }
 }
