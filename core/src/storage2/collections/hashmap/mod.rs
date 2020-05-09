@@ -200,7 +200,7 @@ where
     /// - If the map did have this key present, the value is updated,
     ///   and the old value is returned. The key is not updated, though;
     ///   this matters for types that can be `==` without being identical.
-    pub fn insert<Q>(&mut self, key: K, new_value: V) -> Option<()> {
+    pub fn insert(&mut self, key: K, new_value: V) -> Option<()> {
         let key_index = self.keys.put(key.to_owned());
         self.values.put(
             key,
