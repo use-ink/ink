@@ -100,6 +100,29 @@ fn get_works() {
 }
 
 #[test]
+fn insert_works() {
+    let mut hmap = <StorageHashMap<u8, i32>>::new();
+    // Start with an empty hash map.
+    assert_eq!(hmap.len(), 0);
+    assert_eq!(hmap.get(&b'A'), None);
+    // Insert first value.
+    hmap.insert(b'A', 1);
+    assert_eq!(hmap.len(), 1);
+    assert_eq!(hmap.get(&b'A'), Some(&1));
+    assert_eq!(hmap.get_mut(&b'A'), Some(&mut 1));
+    // Update the inserted value.
+    hmap.insert(b'A', 2);
+    assert_eq!(hmap.len(), 1);
+    assert_eq!(hmap.get(&b'A'), Some(&2));
+    assert_eq!(hmap.get_mut(&b'A'), Some(&mut 2));
+    // Insert another value.
+    hmap.insert(b'B', 3);
+    assert_eq!(hmap.len(), 2);
+    assert_eq!(hmap.get(&b'B'), Some(&3));
+    assert_eq!(hmap.get_mut(&b'B'), Some(&mut 3));
+}
+
+#[test]
 fn take_works() {
     // Empty hash map.
     let mut hmap = <StorageHashMap<u8, i32>>::new();
