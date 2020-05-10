@@ -528,12 +528,12 @@ where
     ///
     /// If any of the given indices is out of bounds.
     pub fn swap(&mut self, a: Index, b: Index) {
+        assert!(a < Self::capacity(), "a is out of bounds");
+        assert!(b < Self::capacity(), "b is out of bounds");
         if a == b {
             // Bail out early if both indices are the same.
             return
         }
-        assert!(a < Self::capacity(), "a is out of bounds");
-        assert!(b < Self::capacity(), "b is out of bounds");
         let (loaded_a, loaded_b) =
             // SAFETY: The loaded `x` and `y` entries are distinct from each
             //         other guaranteed by the previous checks so they cannot
@@ -746,5 +746,68 @@ mod tests {
     fn put_out_of_bounds_works() {
         let mut larray = <LazyArray<u8, U4>>::new();
         larray.put(4, Some(b'A'));
+    }
+
+    #[test]
+    fn swap_works() {
+        let mut larray = <LazyArray<u8, U4>>::new();
+        let nothing_changed = &[
+            (0, Entry::new(Some(b'A'), EntryState::Mutated)),
+            (1, Entry::new(Some(b'B'), EntryState::Mutated)),
+            (2, Entry::new(None, EntryState::Preserved)),
+            (3, Entry::new(None, EntryState::Preserved)),
+        ];
+        // Put some values.
+        assert_eq!(larray.put_get(0, Some(b'A')), None);
+        assert_eq!(larray.put_get(1, Some(b'B')), None);
+        assert_eq!(larray.put_get(2, None), None);
+        assert_eq!(larray.put_get(3, None), None);
+        assert_cached_entries(&larray, nothing_changed);
+        // Swap same indices: Check that nothing has changed.
+        for i in 0..4 {
+            larray.swap(i, i);
+        }
+        assert_cached_entries(&larray, nothing_changed);
+        // Swap `None` values: Check that nothing has changed.
+        larray.swap(2, 3);
+        larray.swap(3, 2);
+        assert_cached_entries(&larray, nothing_changed);
+        // Swap `Some` and `None`:
+        larray.swap(0, 2);
+        assert_cached_entries(
+            &larray,
+            &[
+                (0, Entry::new(None, EntryState::Mutated)),
+                (1, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (2, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
+            ],
+        );
+        // Swap `Some` and `Some`:
+        larray.swap(1, 2);
+        assert_cached_entries(
+            &larray,
+            &[
+                (0, Entry::new(None, EntryState::Mutated)),
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
+            ],
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "b is out of bounds")]
+    fn swap_rhs_out_of_bounds() {
+        let mut larray = <LazyArray<u8, U4>>::new();
+        larray.swap(0, 4);
+    }
+
+
+    #[test]
+    #[should_panic(expected = "a is out of bounds")]
+    fn swap_both_out_of_bounds() {
+        let mut larray = <LazyArray<u8, U4>>::new();
+        larray.swap(4, 4);
     }
 }
