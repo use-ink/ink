@@ -43,7 +43,16 @@ where
     type Output = T;
 
     fn index(&self, index: u32) -> &Self::Output {
-        self.get(index).expect("index out of bounds")
+        match self.get(index) {
+            Some(value) => value,
+            None => {
+                panic!(
+                    "index out of bounds: the len is {} but the index is {}",
+                    self.len(),
+                    index
+                )
+            }
+        }
     }
 }
 
@@ -53,7 +62,16 @@ where
     N: LazyArrayLength<T>,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
-        self.get_mut(index).expect("index out of bounds")
+        let len = self.len();
+        match self.get_mut(index) {
+            Some(value) => value,
+            None => {
+                panic!(
+                    "index out of bounds: the len is {} but the index is {}",
+                    len, index
+                )
+            }
+        }
     }
 }
 

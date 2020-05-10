@@ -160,10 +160,28 @@ fn get_works() {
         let n = n as u32;
         assert_eq!(vec.get(n), Some(&expected));
         assert_eq!(vec.get_mut(n), Some(&mut expected));
+        assert_eq!(&vec[n], &expected);
+        assert_eq!(&mut vec[n], &mut expected);
     }
     let len = vec.len();
     assert_eq!(vec.get(len), None);
     assert_eq!(vec.get_mut(len), None);
+}
+
+#[test]
+#[should_panic(expected = "index out of bounds: the len is 3 but the index is 3")]
+fn index_out_of_bounds_works() {
+    let test_values = [b'a', b'b', b'c'];
+    let vec = vec_from_slice(&test_values);
+    let _ = &vec[test_values.len() as u32];
+}
+
+#[test]
+#[should_panic(expected = "index out of bounds: the len is 3 but the index is 3")]
+fn index_mut_out_of_bounds_works() {
+    let test_values = [b'a', b'b', b'c'];
+    let mut vec = vec_from_slice(&test_values);
+    let _ = &mut vec[test_values.len() as u32];
 }
 
 #[test]
