@@ -423,3 +423,107 @@ where
         core::mem::swap(loaded_x.value_mut(), loaded_y.value_mut());
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        super::{
+            Entry,
+            EntryState,
+        },
+        Index,
+        LazyIndexMap,
+    };
+    use ink_primitives::Key;
+
+    /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
+    fn assert_cached_entries(imap: &LazyIndexMap<u8>, expected: &[(Index, Entry<u8>)]) {
+        assert_eq!(imap.entries().len(), expected.len());
+        for (given, expected) in imap
+            .entries()
+            .iter()
+            .map(|(index, boxed_entry)| (*index, &**boxed_entry))
+            .zip(expected.iter().map(|(index, entry)| (*index, entry)))
+        {
+            assert_eq!(given, expected);
+        }
+    }
+
+    #[test]
+    fn new_works() {
+        let imap = <LazyIndexMap<u8>>::new();
+        // Key must be none.
+        assert_eq!(imap.key(), None);
+        assert_eq!(imap.key_at(0), None);
+        // Cached elements must be empty.
+        assert_cached_entries(&imap, &[]);
+    }
+
+    #[test]
+    fn lazy_works() {
+        let key = Key([0x42; 32]);
+        let imap = <LazyIndexMap<u8>>::lazy(key);
+        // Key must be none.
+        assert_eq!(imap.key(), Some(&key));
+        assert_eq!(imap.key_at(0), Some(key));
+        assert_eq!(imap.key_at(1), Some(key + 1u64));
+        // Cached elements must be empty.
+        assert_cached_entries(&imap, &[]);
+    }
+
+    #[test]
+    fn put_get_works() {
+        let mut imap = <LazyIndexMap<u8>>::new();
+        // Put some values.
+        assert_eq!(imap.put_get(1, Some(b'A')), None);
+        assert_eq!(imap.put_get(2, Some(b'B')), None);
+        assert_eq!(imap.put_get(4, Some(b'C')), None);
+        assert_cached_entries(
+            &imap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (4, Entry::new(Some(b'C'), EntryState::Mutated)),
+            ],
+        );
+        // Put none values.
+        assert_eq!(imap.put_get(3, None), None);
+        assert_eq!(imap.put_get(5, None), None);
+        assert_cached_entries(
+            &imap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
+                (4, Entry::new(Some(b'C'), EntryState::Mutated)),
+                (5, Entry::new(None, EntryState::Preserved)),
+            ],
+        );
+        // Override some values with none.
+        assert_eq!(imap.put_get(2, None), Some(b'B'));
+        assert_eq!(imap.put_get(4, None), Some(b'C'));
+        assert_cached_entries(
+            &imap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(None, EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
+                (4, Entry::new(None, EntryState::Mutated)),
+                (5, Entry::new(None, EntryState::Preserved)),
+            ],
+        );
+        // Override none values with some.
+        assert_eq!(imap.put_get(3, Some(b'X')), None);
+        assert_eq!(imap.put_get(5, Some(b'Y')), None);
+        assert_cached_entries(
+            &imap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(None, EntryState::Mutated)),
+                (3, Entry::new(Some(b'X'), EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Mutated)),
+                (5, Entry::new(Some(b'Y'), EntryState::Mutated)),
+            ],
+        );
+    }
+}

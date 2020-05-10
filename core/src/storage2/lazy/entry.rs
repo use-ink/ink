@@ -37,7 +37,7 @@ use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
 /// The entry of a single cached value of a lazy storage data structure.
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Entry<T> {
     /// The value or `None` if the value has been removed.
     value: Option<T>,
@@ -73,7 +73,7 @@ fn debug_impl_works() {
 }
 
 /// The state of the entry.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum EntryState {
     /// The entry's value must be synchronized with the contract storage.
     Mutated,
@@ -257,13 +257,9 @@ impl<T> Entry<T> {
     /// This changes the `mutate` state of the entry if the entry was occupied
     /// since the caller could potentially change the returned value.
     pub fn value_mut(&mut self) -> &mut Option<T> {
-        self.state.set(
-            if self.value.is_some() {
-                EntryState::Mutated
-            } else {
-                EntryState::Preserved
-            },
-        );
+        if self.value.is_some() {
+            self.state.set(EntryState::Mutated);
+        }
         &mut self.value
     }
 
