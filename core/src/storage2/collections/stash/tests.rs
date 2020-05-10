@@ -94,6 +94,40 @@ fn get_works() {
 }
 
 #[test]
+#[should_panic(expected = "index out of bounds: the len is 3 but the index is 3")]
+fn index_out_of_bounds_works() {
+    let test_values = [b'a', b'b', b'c'];
+    let stash = test_values.iter().copied().collect::<StorageStash<_>>();
+    let _ = &stash[test_values.len() as u32];
+}
+
+#[test]
+#[should_panic(expected = "index out of bounds: the len is 3 but the index is 3")]
+fn index_mut_out_of_bounds_works() {
+    let test_values = [b'a', b'b', b'c'];
+    let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
+    let _ = &mut stash[test_values.len() as u32];
+}
+
+#[test]
+#[should_panic(expected = "indexed vacant entry: at index 1")]
+fn index_vacant_works() {
+    let test_values = [b'a', b'b', b'c'];
+    let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
+    assert_eq!(stash.take(1), Some(b'b'));
+    let _ = &stash[1];
+}
+
+#[test]
+#[should_panic(expected = "indexed vacant entry: at index 1")]
+fn index_mut_vacant_works() {
+    let test_values = [b'a', b'b', b'c'];
+    let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
+    assert_eq!(stash.take(1), Some(b'b'));
+    let _ = &mut stash[1];
+}
+
+#[test]
 fn len_is_empty_works() {
     let mut stash = StorageStash::new();
     assert_eq!(stash.len(), 0);
