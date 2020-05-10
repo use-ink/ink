@@ -360,20 +360,6 @@ where
         self.lazily_load_mut(index).value_mut().into()
     }
 
-    /// Takes and returns the element at the given index if any.
-    ///
-    /// # Note
-    ///
-    /// This removes the element at the given index from the storage.
-    ///
-    /// # Panics
-    ///
-    /// - If the lazy chunk is in an invalid state that forbids interaction.
-    /// - If the decoding of the element at the given index failed.
-    pub fn take(&mut self, index: Index) -> Option<V> {
-        self.lazily_load_mut(index).take_value()
-    }
-
     /// Puts the new value at the given index and returns the old value if any.
     ///
     /// # Note

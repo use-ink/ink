@@ -506,7 +506,11 @@ where
             }
             // In any case we are going to free yet another storage cell.
             freed_cells += 1;
-            match self.entries.take(index).expect("index is within bounds") {
+            match self
+                .entries
+                .put_get(index, None)
+                .expect("index is within bounds")
+            {
                 Entry::Vacant(vacant_entry) => {
                     // Remove the vacant entry and rebind its neighbours.
                     self.remove_vacant_entry(index, vacant_entry);
