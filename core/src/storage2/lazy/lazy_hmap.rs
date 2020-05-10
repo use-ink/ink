@@ -469,7 +469,7 @@ where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
-        self.lazily_load_mut(key).take_value()
+        self.lazily_load_mut(key).put(None)
     }
 
     /// Puts the new value under the given key and returns the old value if any.

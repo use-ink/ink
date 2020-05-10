@@ -263,22 +263,6 @@ impl<T> Entry<T> {
         &mut self.value
     }
 
-    /// Takes the value from the entry and returns it.
-    ///
-    /// # Note
-    ///
-    /// This changes the `mutate` state of the entry if the entry was occupied.
-    pub fn take_value(&mut self) -> Option<T> {
-        self.state.set(
-            if self.value.is_some() {
-                EntryState::Mutated
-            } else {
-                EntryState::Preserved
-            },
-        );
-        self.value.take()
-    }
-
     /// Converts the entry into its value.
     pub fn into_value(self) -> Option<T> {
         self.value
@@ -291,12 +275,11 @@ impl<T> Entry<T> {
     /// This changes the `mutate` state of the entry to `true` as long as at
     /// least one of `old_value` and `new_value` is `Some`.
     pub fn put(&mut self, new_value: Option<T>) -> Option<T> {
-        match new_value {
-            Some(new_value) => {
-                self.state.set(EntryState::Mutated);
-                self.value.replace(new_value)
-            }
-            None => self.take_value(),
+        let new_value_is_some = new_value.is_some();
+        let old_value = core::mem::replace(&mut self.value, new_value);
+        if old_value.is_some() || new_value_is_some {
+            self.state.set(EntryState::Mutated);
         }
+        old_value
     }
 }

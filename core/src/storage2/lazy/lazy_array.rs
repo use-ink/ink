@@ -501,7 +501,7 @@ where
     ///
     /// If the given index is out of bounds.
     pub fn take(&mut self, at: Index) -> Option<T> {
-        self.load_through_cache_mut(at).take_value()
+        self.load_through_cache_mut(at).put(None)
     }
 
     /// Puts the new value into the indexed slot and returns the old value if any.
