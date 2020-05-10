@@ -549,8 +549,8 @@ where
         }
         // At this point at least one of the values is `Some` so we have to
         // perform the swap and set both entry states to mutated.
-        loaded_a.set_state(EntryState::Mutated);
-        loaded_b.set_state(EntryState::Mutated);
+        loaded_a.replace_state(EntryState::Mutated);
+        loaded_b.replace_state(EntryState::Mutated);
         core::mem::swap(loaded_a.value_mut(), loaded_b.value_mut());
     }
 }

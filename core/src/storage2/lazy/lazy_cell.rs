@@ -229,7 +229,7 @@ where
                 .map(|key| pull_spread_root_opt::<T>(&key))
                 .unwrap_or(None);
             cache.put(value);
-            cache.set_state(EntryState::Mutated);
+            cache.replace_state(EntryState::Mutated);
         }
         NonNull::from(cache)
     }
@@ -256,7 +256,7 @@ where
         //         entry. Aliases using this method are safe since ink! is
         //         single-threaded.
         let entry = unsafe { &mut *self.load_through_cache().as_ptr() };
-        entry.set_state(EntryState::Mutated);
+        entry.replace_state(EntryState::Mutated);
         entry
     }
 

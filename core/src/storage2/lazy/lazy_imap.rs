@@ -404,8 +404,8 @@ where
         }
         // Set the `mutate` flag since at this point at least one of the loaded
         // values is guaranteed to be `Some`.
-        loaded_x.set_state(EntryState::Mutated);
-        loaded_y.set_state(EntryState::Mutated);
+        loaded_x.replace_state(EntryState::Mutated);
+        loaded_y.replace_state(EntryState::Mutated);
         core::mem::swap(loaded_x.value_mut(), loaded_y.value_mut());
     }
 }

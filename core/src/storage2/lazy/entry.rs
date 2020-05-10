@@ -232,12 +232,10 @@ impl<T> Entry<T> {
 
     /// Replaces the current entry state with the new state and returns it.
     pub fn replace_state(&mut self, new_state: EntryState) -> EntryState {
+        // The implementation of `Cell::set` uses `Cell::replace` so instead
+        // of offering both APIs we simply opted to offer just the more general
+        // replace API for `Entry`.
         self.state.replace(new_state)
-    }
-
-    /// Sets the entry state to the new state.
-    pub fn set_state(&mut self, new_state: EntryState) {
-        self.state.set(new_state);
     }
 
     /// Returns `true` if the cached value of the entry has potentially been mutated.
