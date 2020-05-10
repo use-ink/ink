@@ -341,6 +341,21 @@ where
         }
     }
 
+    /// Creates a new empty lazy array positioned at the given key.
+    ///
+    /// # Note
+    ///
+    /// This constructor is private and should never need to be called from
+    /// outside this module. It is used to construct a lazy array from a
+    /// key that is only useful upon a contract call.
+    /// Use [`LazyArray::new`] for construction during contract initialization.
+    fn lazy(key: Key) -> Self {
+        Self {
+            key: Some(key),
+            cached_entries: Default::default(),
+        }
+    }
+
     /// Returns the constant capacity of the lazy array.
     #[inline]
     pub fn capacity() -> u32 {
@@ -380,10 +395,7 @@ where
     const FOOTPRINT: u64 = <N as Unsigned>::U64;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self {
-            key: Some(ptr.next_for::<Self>()),
-            cached_entries: EntryArray::new(),
-        }
+        Self::lazy(ptr.next_for::<Self>())
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
@@ -539,5 +551,123 @@ where
         loaded_a.replace_state(EntryState::Mutated);
         loaded_b.replace_state(EntryState::Mutated);
         core::mem::swap(loaded_a.value_mut(), loaded_b.value_mut());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        super::{
+            Entry,
+            EntryState,
+        },
+        Index,
+        LazyArray,
+        LazyArrayLength,
+    };
+    use generic_array::typenum::U4;
+    use ink_primitives::Key;
+
+    /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
+    fn assert_cached_entries<N>(
+        larray: &LazyArray<u8, N>,
+        expected: &[(Index, Entry<u8>)],
+    ) where
+        N: LazyArrayLength<u8>,
+    {
+        let mut len = 0;
+        for (given, expected) in larray
+            .cached_entries()
+            .iter()
+            .enumerate()
+            .filter_map(|(index, entry)| {
+                match entry {
+                    Some(entry) => Some((index as u32, entry)),
+                    None => None,
+                }
+            })
+            .zip(expected.iter().map(|(index, entry)| (*index, entry)))
+        {
+            assert_eq!(given, expected);
+            len += 1;
+        }
+        assert_eq!(len, expected.len());
+    }
+
+    #[test]
+    fn new_works() {
+        let larray = <LazyArray<u8, U4>>::new();
+        // Key must be none.
+        assert_eq!(larray.key(), None);
+        assert_eq!(larray.key_at(0), None);
+        // Cached elements must be empty.
+        assert_cached_entries(&larray, &[]);
+        // Same as default:
+        let default_larray = <LazyArray<u8, U4>>::default();
+        assert_eq!(default_larray.key(), larray.key());
+        assert_eq!(default_larray.key_at(0), larray.key_at(0));
+        assert_cached_entries(&default_larray, &[]);
+    }
+
+    #[test]
+    fn lazy_works() {
+        let key = Key([0x42; 32]);
+        let larray = <LazyArray<u8, U4>>::lazy(key);
+        // Key must be none.
+        assert_eq!(larray.key(), Some(&key));
+        assert_eq!(larray.key_at(0), Some(key));
+        assert_eq!(larray.key_at(1), Some(key + 1u64));
+        // Cached elements must be empty.
+        assert_cached_entries(&larray, &[]);
+    }
+
+
+    #[test]
+    fn put_get_works() {
+        let mut larray = <LazyArray<u8, U4>>::new();
+        // Assert that the array cache is empty at first.
+        assert_cached_entries(&larray, &[]);
+        // Put none values.
+        assert_eq!(larray.put_get(0, None), None);
+        assert_eq!(larray.put_get(1, None), None);
+        assert_eq!(larray.put_get(3, None), None);
+        assert_cached_entries(
+            &larray,
+            &[
+                (0, Entry::new(None, EntryState::Preserved)),
+                (1, Entry::new(None, EntryState::Preserved)),
+                (3, Entry::new(None, EntryState::Preserved)),
+            ],
+        );
+        // Override with some values.
+        assert_eq!(larray.put_get(0, Some(b'A')), None);
+        assert_eq!(larray.put_get(1, Some(b'B')), None);
+        assert_eq!(larray.put_get(3, Some(b'D')), None);
+        assert_cached_entries(
+            &larray,
+            &[
+                (0, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (1, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (3, Entry::new(Some(b'D'), EntryState::Mutated)),
+            ],
+        );
+        // Override some values with none.
+        assert_eq!(larray.put_get(1, None), Some(b'B'));
+        assert_eq!(larray.put_get(3, None), Some(b'D'));
+        assert_cached_entries(
+            &larray,
+            &[
+                (0, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (1, Entry::new(None, EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Mutated)),
+            ],
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "index is out of bounds")]
+    fn put_get_out_of_bounds_works() {
+        let mut larray = <LazyArray<u8, U4>>::new();
+        let _ = larray.put_get(4, Some(b'A'));
     }
 }
