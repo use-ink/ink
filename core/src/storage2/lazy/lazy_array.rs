@@ -621,6 +621,41 @@ mod tests {
         assert_cached_entries(&larray, &[]);
     }
 
+    #[test]
+    fn get_works() {
+        let mut larray = <LazyArray<u8, U4>>::new();
+        let nothing_changed = &[
+            (0, Entry::new(None, EntryState::Preserved)),
+            (1, Entry::new(Some(b'B'), EntryState::Mutated)),
+            (2, Entry::new(None, EntryState::Preserved)),
+            (3, Entry::new(Some(b'D'), EntryState::Mutated)),
+        ];
+        // Put some values.
+        assert_eq!(larray.put_get(0, None), None);
+        assert_eq!(larray.put_get(1, Some(b'B')), None);
+        assert_eq!(larray.put_get(2, None), None);
+        assert_eq!(larray.put_get(3, Some(b'D')), None);
+        assert_cached_entries(&larray, nothing_changed);
+        // `get` works:
+        assert_eq!(larray.get(0), None);
+        assert_eq!(larray.get(1), Some(&b'B'));
+        assert_eq!(larray.get(2), None);
+        assert_eq!(larray.get(3), Some(&b'D'));
+        assert_cached_entries(&larray, nothing_changed);
+        // `get_mut` works:
+        assert_eq!(larray.get_mut(0), None);
+        assert_eq!(larray.get_mut(1), Some(&mut b'B'));
+        assert_eq!(larray.get_mut(2), None);
+        assert_eq!(larray.get_mut(3), Some(&mut b'D'));
+        assert_cached_entries(&larray, nothing_changed);
+    }
+
+    #[test]
+    #[should_panic(expected = "index is out of bounds")]
+    fn get_out_of_bounds_works() {
+        let larray = <LazyArray<u8, U4>>::new();
+        let _ = larray.get(4);
+    }
 
     #[test]
     fn put_get_works() {
@@ -642,24 +677,24 @@ mod tests {
         // Override with some values.
         assert_eq!(larray.put_get(0, Some(b'A')), None);
         assert_eq!(larray.put_get(1, Some(b'B')), None);
-        assert_eq!(larray.put_get(3, Some(b'D')), None);
+        assert_eq!(larray.put_get(3, None), None);
         assert_cached_entries(
             &larray,
             &[
                 (0, Entry::new(Some(b'A'), EntryState::Mutated)),
                 (1, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (3, Entry::new(Some(b'D'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
             ],
         );
         // Override some values with none.
         assert_eq!(larray.put_get(1, None), Some(b'B'));
-        assert_eq!(larray.put_get(3, None), Some(b'D'));
+        assert_eq!(larray.put_get(3, None), None);
         assert_cached_entries(
             &larray,
             &[
                 (0, Entry::new(Some(b'A'), EntryState::Mutated)),
                 (1, Entry::new(None, EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
             ],
         );
     }
@@ -669,5 +704,47 @@ mod tests {
     fn put_get_out_of_bounds_works() {
         let mut larray = <LazyArray<u8, U4>>::new();
         let _ = larray.put_get(4, Some(b'A'));
+    }
+
+    #[test]
+    fn put_works() {
+        let mut larray = <LazyArray<u8, U4>>::new();
+        // Put some values.
+        larray.put(0, None);
+        larray.put(1, Some(b'B'));
+        larray.put(3, None);
+        // The main difference between `put` and `put_get` is that `put` never
+        // loads from storage which also has one drawback: Putting a `None`
+        // value always ends-up in `Mutated` state for the entry even if the
+        // entry is already `None`.
+        assert_cached_entries(
+            &larray,
+            &[
+                (0, Entry::new(None, EntryState::Mutated)),
+                (1, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Mutated)),
+            ],
+        );
+        // Overwrite entries:
+        larray.put(0, Some(b'A'));
+        larray.put(1, None);
+        larray.put(2, Some(b'C'));
+        larray.put(3, None);
+        assert_cached_entries(
+            &larray,
+            &[
+                (0, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (1, Entry::new(None, EntryState::Mutated)),
+                (2, Entry::new(Some(b'C'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Mutated)),
+            ],
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "index out of bounds: the len is 4 but the index is 4")]
+    fn put_out_of_bounds_works() {
+        let mut larray = <LazyArray<u8, U4>>::new();
+        larray.put(4, Some(b'A'));
     }
 }
