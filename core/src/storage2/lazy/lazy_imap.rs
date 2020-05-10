@@ -571,38 +571,42 @@ mod tests {
         assert_cached_entries(&imap, nothing_changed);
         // Swap `Some` and `None`:
         imap.swap(1, 3);
-        assert_cached_entries(&imap,
+        assert_cached_entries(
+            &imap,
             &[
                 (1, Entry::new(None, EntryState::Mutated)),
                 (2, Entry::new(Some(b'B'), EntryState::Mutated)),
                 (3, Entry::new(Some(b'A'), EntryState::Mutated)),
                 (4, Entry::new(None, EntryState::Preserved)),
-            ]
+            ],
         );
         // Swap `Some` and `Some`:
         imap.swap(2, 3);
-        assert_cached_entries(&imap,
+        assert_cached_entries(
+            &imap,
             &[
                 (1, Entry::new(None, EntryState::Mutated)),
                 (2, Entry::new(Some(b'A'), EntryState::Mutated)),
                 (3, Entry::new(Some(b'B'), EntryState::Mutated)),
                 (4, Entry::new(None, EntryState::Preserved)),
-            ]
+            ],
         );
         // Swap out of bounds: `None` and `None`
         imap.swap(4, 5);
-        assert_cached_entries(&imap,
+        assert_cached_entries(
+            &imap,
             &[
                 (1, Entry::new(None, EntryState::Mutated)),
                 (2, Entry::new(Some(b'A'), EntryState::Mutated)),
                 (3, Entry::new(Some(b'B'), EntryState::Mutated)),
                 (4, Entry::new(None, EntryState::Preserved)),
                 (5, Entry::new(None, EntryState::Preserved)),
-            ]
+            ],
         );
         // Swap out of bounds: `Some` and `None`
         imap.swap(3, 6);
-        assert_cached_entries(&imap,
+        assert_cached_entries(
+            &imap,
             &[
                 (1, Entry::new(None, EntryState::Mutated)),
                 (2, Entry::new(Some(b'A'), EntryState::Mutated)),
@@ -610,7 +614,7 @@ mod tests {
                 (4, Entry::new(None, EntryState::Preserved)),
                 (5, Entry::new(None, EntryState::Preserved)),
                 (6, Entry::new(Some(b'B'), EntryState::Mutated)),
-            ]
+            ],
         );
     }
 }
