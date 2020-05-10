@@ -91,6 +91,16 @@ fn get_works() {
         assert_eq!(&stash[index], &expected_value);
         assert_eq!(&mut stash[index], &mut expected_value);
     }
+    // Get out of bounds works:
+    let len = stash.len();
+    assert_eq!(stash.get(len), None);
+    assert_eq!(stash.get_mut(len), None);
+    // Get vacant entry works:
+    assert_eq!(stash.get(1), Some(&b'B'));
+    assert_eq!(stash.get_mut(1), Some(&mut b'B'));
+    assert_eq!(stash.take(1), Some(b'B'));
+    assert_eq!(stash.get(1), None);
+    assert_eq!(stash.get_mut(1), None);
 }
 
 #[test]
