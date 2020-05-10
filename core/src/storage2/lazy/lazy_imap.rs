@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::{
+    Entry,
+    EntryState,
+};
 use crate::storage2::traits::{
     clear_packed_root,
     pull_packed_root_opt,
@@ -131,11 +135,6 @@ impl<V> Default for LazyIndexMap<V> {
 /// invalidation upon updating the cache through `&self` methods as in
 /// [`LazyIndexMap::get`].
 pub type EntryMap<V> = BTreeMap<Index, Box<Entry<V>>>;
-
-use super::{
-    Entry,
-    EntryState,
-};
 
 impl<V> LazyIndexMap<V> {
     /// Creates a new empty lazy map.
