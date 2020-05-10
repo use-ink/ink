@@ -103,6 +103,7 @@ fn get_works() {
     assert_eq!(stash.get_mut(1), None);
 }
 
+#[cfg(debug_assertions)]
 #[test]
 #[should_panic(expected = "index out of bounds: the len is 3 but the index is 3")]
 fn index_out_of_bounds_works() {
@@ -111,6 +112,7 @@ fn index_out_of_bounds_works() {
     let _ = &stash[test_values.len() as u32];
 }
 
+#[cfg(debug_assertions)]
 #[test]
 #[should_panic(expected = "index out of bounds: the len is 3 but the index is 3")]
 fn index_mut_out_of_bounds_works() {
