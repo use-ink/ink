@@ -43,29 +43,63 @@ where
     }
 }
 
+cfg_if::cfg_if! {
+    if #[cfg(debug_assertions)] {
+        impl<T> StorageStash<T>
+        where
+            T: PackedLayout,
+        {
+            fn assert_index_within_bounds(&self, index: u32) {
+                if index >= self.len() {
+                    panic!(
+                        "index out of bounds: the len is {} but the index is {}",
+                        self.len(),
+                        index
+                    )
+                }
+            }
+        }
+    } else {
+        impl<T> StorageStash<T>
+        where
+            T: PackedLayout,
+        {
+            fn assert_index_within_bounds(&self, index: u32) {}
+        }
+    }
+}
+
 impl<T> core::ops::Index<u32> for StorageStash<T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     type Output = T;
 
     fn index(&self, index: u32) -> &Self::Output {
-        self.get(index).expect("index out of bounds")
+        self.assert_index_within_bounds(index);
+        match self.get(index) {
+            Some(value) => value,
+            None => panic!("indexed vacant entry: at index {}", index),
+        }
     }
 }
 
 impl<T> core::ops::IndexMut<u32> for StorageStash<T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
-        self.get_mut(index).expect("index out of bounds")
+        self.assert_index_within_bounds(index);
+        match self.get_mut(index) {
+            Some(value) => value,
+            None => panic!("indexed vacant entry: at index {}", index),
+        }
     }
 }
 
 impl<'a, T: 'a> IntoIterator for &'a StorageStash<T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     type Item = &'a T;
     type IntoIter = Iter<'a, T>;
@@ -77,7 +111,7 @@ where
 
 impl<'a, T: 'a> IntoIterator for &'a mut StorageStash<T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     type Item = &'a mut T;
     type IntoIter = IterMut<'a, T>;
@@ -89,7 +123,7 @@ where
 
 impl<T> Extend<T> for StorageStash<T>
 where
-    T: scale::Codec + PackedLayout,
+    T: PackedLayout,
 {
     fn extend<I>(&mut self, iter: I)
     where
@@ -103,7 +137,7 @@ where
 
 impl<T> FromIterator<T> for StorageStash<T>
 where
-    T: scale::Codec + PackedLayout,
+    T: PackedLayout,
 {
     fn from_iter<I>(iter: I) -> Self
     where
@@ -117,7 +151,7 @@ where
 
 impl<T> core::cmp::PartialEq for StorageStash<T>
 where
-    T: scale::Codec + PartialEq + PackedLayout,
+    T: PartialEq + PackedLayout,
 {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
