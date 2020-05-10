@@ -83,9 +83,13 @@ fn take_out_of_bounds_works() {
 fn get_works() {
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
-    for (index, expected_value) in test_values.iter().enumerate() {
-        assert_eq!(stash.get(index as u32), Some(expected_value));
-        assert_eq!(stash.get_mut(index as u32), Some(*expected_value).as_mut());
+    for (index, &expected_value) in test_values.iter().enumerate() {
+        let mut expected_value = expected_value;
+        let index = index as u32;
+        assert_eq!(stash.get(index), Some(&expected_value));
+        assert_eq!(stash.get_mut(index), Some(&mut expected_value));
+        assert_eq!(&stash[index], &expected_value);
+        assert_eq!(&mut stash[index], &mut expected_value);
     }
 }
 
