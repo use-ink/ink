@@ -803,7 +803,6 @@ mod tests {
         larray.swap(0, 4);
     }
 
-
     #[test]
     #[should_panic(expected = "a is out of bounds")]
     fn swap_both_out_of_bounds() {
