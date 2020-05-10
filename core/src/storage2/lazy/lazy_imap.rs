@@ -512,4 +512,36 @@ mod tests {
             ],
         );
     }
+
+    #[test]
+    fn put_works() {
+        let mut imap = <LazyIndexMap<u8>>::new();
+        // Put some values.
+        imap.put(1, None);
+        imap.put(2, Some(b'B'));
+        imap.put(4, None);
+        // The main difference between `put` and `put_get` is that `put` never
+        // loads from storage which also has one drawback: Putting a `None`
+        // value always ends-up in `Mutated` state for the entry even if the
+        // entry is already `None`.
+        assert_cached_entries(
+            &imap,
+            &[
+                (1, Entry::new(None, EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Mutated)),
+            ],
+        );
+        // Overwrite entries:
+        imap.put(1, Some(b'A'));
+        imap.put(2, None);
+        assert_cached_entries(
+            &imap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(None, EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Mutated)),
+            ],
+        );
+    }
 }
