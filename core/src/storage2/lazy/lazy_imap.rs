@@ -544,4 +544,73 @@ mod tests {
             ],
         );
     }
+
+    #[test]
+    fn swap_works() {
+        let mut imap = <LazyIndexMap<u8>>::new();
+        let nothing_changed = &[
+            (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+            (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+            (3, Entry::new(None, EntryState::Preserved)),
+            (4, Entry::new(None, EntryState::Preserved)),
+        ];
+        // Put some values.
+        assert_eq!(imap.put_get(1, Some(b'A')), None);
+        assert_eq!(imap.put_get(2, Some(b'B')), None);
+        assert_eq!(imap.put_get(3, None), None);
+        assert_eq!(imap.put_get(4, None), None);
+        assert_cached_entries(&imap, nothing_changed);
+        // Swap same indices: Check that nothing has changed.
+        for i in 0..4 {
+            imap.swap(i, i);
+        }
+        assert_cached_entries(&imap, nothing_changed);
+        // Swap `None` values: Check that nothing has changed.
+        imap.swap(3, 4);
+        imap.swap(4, 3);
+        assert_cached_entries(&imap, nothing_changed);
+        // Swap `Some` and `None`:
+        imap.swap(1, 3);
+        assert_cached_entries(&imap,
+            &[
+                (1, Entry::new(None, EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (3, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Preserved)),
+            ]
+        );
+        // Swap `Some` and `Some`:
+        imap.swap(2, 3);
+        assert_cached_entries(&imap,
+            &[
+                (1, Entry::new(None, EntryState::Mutated)),
+                (2, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (3, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Preserved)),
+            ]
+        );
+        // Swap out of bounds: `None` and `None`
+        imap.swap(4, 5);
+        assert_cached_entries(&imap,
+            &[
+                (1, Entry::new(None, EntryState::Mutated)),
+                (2, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (3, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Preserved)),
+                (5, Entry::new(None, EntryState::Preserved)),
+            ]
+        );
+        // Swap out of bounds: `Some` and `None`
+        imap.swap(3, 6);
+        assert_cached_entries(&imap,
+            &[
+                (1, Entry::new(None, EntryState::Mutated)),
+                (2, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Preserved)),
+                (5, Entry::new(None, EntryState::Preserved)),
+                (6, Entry::new(Some(b'B'), EntryState::Mutated)),
+            ]
+        );
+    }
 }
