@@ -108,12 +108,11 @@ where
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        if !self.is_mutated() {
-            return
+        let old_state = self.replace_state(EntryState::Preserved);
+        if old_state.is_mutated() {
+            let root_key = ptr.next_for::<Self>();
+            push_spread_root_opt::<T>(self.value().into(), &root_key);
         }
-        self.state.set(EntryState::Preserved);
-        let root_key = ptr.next_for::<Self>();
-        push_spread_root_opt::<T>(self.value().into(), &root_key);
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
@@ -203,11 +202,11 @@ where
     /// Mainly used by lazy storage abstractions that only allow operating on
     /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
     pub fn push_packed_root(&self, root_key: &Key) {
-        if !self.is_mutated() {
-            return
+        let old_state = self.replace_state(EntryState::Preserved);
+        if old_state.is_mutated() {
+            self.replace_state(EntryState::Preserved);
+            push_packed_root_opt::<T>(self.value().into(), &root_key);
         }
-        self.state.set(EntryState::Preserved);
-        push_packed_root_opt::<T>(self.value().into(), &root_key);
     }
 
     /// Clears the underlying associated storage as packed representation.
@@ -231,16 +230,11 @@ impl<T> Entry<T> {
     }
 
     /// Replaces the current entry state with the new state and returns it.
-    pub fn replace_state(&mut self, new_state: EntryState) -> EntryState {
+    pub fn replace_state(&self, new_state: EntryState) -> EntryState {
         // The implementation of `Cell::set` uses `Cell::replace` so instead
         // of offering both APIs we simply opted to offer just the more general
         // replace API for `Entry`.
         self.state.replace(new_state)
-    }
-
-    /// Returns `true` if the cached value of the entry has potentially been mutated.
-    pub fn is_mutated(&self) -> bool {
-        self.state.get() == EntryState::Mutated
     }
 
     /// Returns a shared reference to the value of the entry.
