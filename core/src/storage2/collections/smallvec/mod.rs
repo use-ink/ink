@@ -223,7 +223,7 @@ where
         }
         let last_index = self.len() - 1;
         *self.len = last_index;
-        self.elems.take(last_index)
+        self.elems.put_get(last_index, None)
     }
 
     /// Pops the last element from the vector and immediately drops it.
@@ -314,7 +314,7 @@ where
         }
         self.elems.put(n, None);
         let last_index = self.len() - 1;
-        let last = self.elems.take(last_index);
+        let last = self.elems.put_get(last_index, None);
         self.elems.put(n, last);
         *self.len = last_index;
         Some(())

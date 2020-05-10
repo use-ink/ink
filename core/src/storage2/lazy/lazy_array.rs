@@ -491,19 +491,6 @@ where
         self.load_through_cache_mut(at).value_mut().into()
     }
 
-    /// Removes the element at the given index and returns it if any.
-    ///
-    /// # Note
-    ///
-    /// This operation eventually loads from contract storage.
-    ///
-    /// # Panics
-    ///
-    /// If the given index is out of bounds.
-    pub fn take(&mut self, at: Index) -> Option<T> {
-        self.load_through_cache_mut(at).put(None)
-    }
-
     /// Puts the new value into the indexed slot and returns the old value if any.
     ///
     /// # Note

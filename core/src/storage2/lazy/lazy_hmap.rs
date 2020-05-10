@@ -454,24 +454,6 @@ where
         self.lazily_load_mut(index).value_mut().into()
     }
 
-    /// Takes and returns the value associated with the given key if any.
-    ///
-    /// # Note
-    ///
-    /// This removes the value associated with the given key from the storage.
-    ///
-    /// # Panics
-    ///
-    /// - If the lazy chunk is in an invalid state that forbids interaction.
-    /// - If the decoding of the element at the given index failed.
-    pub fn take<Q>(&mut self, key: &Q) -> Option<V>
-    where
-        K: Borrow<Q>,
-        Q: Ord + scale::Encode + ToOwned<Owned = K>,
-    {
-        self.lazily_load_mut(key).put(None)
-    }
-
     /// Puts the new value under the given key and returns the old value if any.
     ///
     /// # Note
