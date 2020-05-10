@@ -443,6 +443,10 @@ mod tests {
         assert_eq!(imap.key_at(0), None);
         // Cached elements must be empty.
         assert_cached_entries(&imap, &[]);
+        // Same as default:
+        let default_imap = <LazyIndexMap<u8>>::default();
+        assert_eq!(imap.key(), default_imap.key());
+        assert_eq!(imap.entries(), default_imap.entries());
     }
 
     #[test]
