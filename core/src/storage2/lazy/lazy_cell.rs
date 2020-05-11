@@ -335,6 +335,20 @@ mod tests {
     }
 
     #[test]
+    fn lazy_works() {
+        let root_key = Key([0x42; 32]);
+        let cell = <LazyCell<u8>>::lazy(root_key);
+        assert_eq!(cell.key(), Some(&root_key));
+    }
+
+    #[test]
+    #[should_panic(expected = "uninitialized execution context: UninitializedExecutionContext")]
+    fn lazy_get_panics() {
+        let cell = <LazyCell<u8>>::lazy(Key([0x42; 32]));
+        let _ = cell.get();
+    }
+
+    #[test]
     fn get_mut_works() {
         let mut cell = <LazyCell<i32>>::new(Some(1));
         assert_eq!(cell.get(), Some(&1));
