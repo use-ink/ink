@@ -512,3 +512,46 @@ where
         core::mem::swap(loaded_x.value_mut(), loaded_y.value_mut());
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        Entry,
+        LazyHashMap,
+    };
+    use crate::hash::hasher::Blake2x256Hasher;
+
+    /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
+    fn assert_cached_entries(
+        imap: &LazyHashMap<i32, u8, Blake2x256Hasher>,
+        expected: &[(i32, Entry<u8>)],
+    ) {
+        assert_eq!(imap.entries().len(), expected.len());
+        for (given, expected) in imap
+            .entries()
+            .iter()
+            .map(|(index, boxed_entry)| (*index, &**boxed_entry))
+            .zip(expected.iter().map(|(index, entry)| (*index, entry)))
+        {
+            assert_eq!(given, expected);
+        }
+    }
+
+    fn new_hmap() -> LazyHashMap<i32, u8, Blake2x256Hasher> {
+        <LazyHashMap<i32, u8, Blake2x256Hasher>>::new()
+    }
+
+    #[test]
+    fn new_works() {
+        let hmap = new_hmap();
+        // Key must be none.
+        assert_eq!(hmap.key(), None);
+        assert_eq!(hmap.key_at(&0), None);
+        // Cached elements must be empty.
+        assert_cached_entries(&hmap, &[]);
+        // Same as default:
+        let default_hmap = <LazyHashMap<i32, u8, Blake2x256Hasher>>::default();
+        assert_eq!(hmap.key(), default_hmap.key());
+        assert_eq!(hmap.entries(), default_hmap.entries());
+    }
+}
