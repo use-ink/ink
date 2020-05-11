@@ -519,8 +519,10 @@ mod tests {
         Entry,
         LazyHashMap,
     };
-    use crate::hash::hasher::Blake2x256Hasher;
-    use crate::hash::hasher::Sha2x256Hasher;
+    use crate::hash::hasher::{
+        Blake2x256Hasher,
+        Sha2x256Hasher,
+    };
     use ink_primitives::Key;
 
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
