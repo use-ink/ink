@@ -159,7 +159,7 @@ where
     pub fn new(value: Option<T>) -> Self {
         Self {
             key: None,
-            cache: UnsafeCell::new(Entry::new(value.into(), EntryState::Mutated)),
+            cache: UnsafeCell::new(Entry::new(value, EntryState::Mutated)),
         }
     }
 
