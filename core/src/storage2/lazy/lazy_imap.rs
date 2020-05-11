@@ -419,6 +419,13 @@ mod tests {
         Index,
         LazyIndexMap,
     };
+    use crate::{
+        env,
+        storage2::traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
+    };
     use ink_primitives::Key;
 
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
@@ -651,5 +658,76 @@ mod tests {
                 (6, Entry::new(Some(b'B'), EntryState::Mutated)),
             ],
         );
+    }
+
+    #[test]
+    fn spread_layout_works() -> env::Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            let mut imap = <LazyIndexMap<u8>>::new();
+            let nothing_changed = &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
+                (4, Entry::new(None, EntryState::Preserved)),
+            ];
+            // Put some values.
+            assert_eq!(imap.put_get(1, Some(b'A')), None);
+            assert_eq!(imap.put_get(2, Some(b'B')), None);
+            assert_eq!(imap.put_get(3, None), None);
+            assert_eq!(imap.put_get(4, None), None);
+            assert_cached_entries(&imap, nothing_changed);
+            // Push the lazy index map onto the contract storage and then load
+            // another instance of it from the contract stoarge.
+            // Then: Compare both instances to be equal.
+            let root_key = Key([0x42; 32]);
+            SpreadLayout::push_spread(&imap, &mut KeyPtr::from(root_key));
+            let imap2 = <LazyIndexMap<u8> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+            assert_cached_entries(&imap2, &[]);
+            assert_eq!(imap2.get(1), Some(&b'A'));
+            assert_eq!(imap2.get(2), Some(&b'B'));
+            assert_eq!(imap2.get(3), None);
+            assert_eq!(imap2.get(4), None);
+            assert_cached_entries(
+                &imap2,
+                &[
+                    (1, Entry::new(Some(b'A'), EntryState::Preserved)),
+                    (2, Entry::new(Some(b'B'), EntryState::Preserved)),
+                    (3, Entry::new(None, EntryState::Preserved)),
+                    (4, Entry::new(None, EntryState::Preserved)),
+                ],
+            );
+            // Clear the first lazy index map instance and reload another instance
+            // to check whether the associated storage has actually been freed
+            // again:
+            SpreadLayout::clear_spread(&imap2, &mut KeyPtr::from(root_key));
+            // The above `clear_spread` call is a no-op since lazy index map is
+            // generally not aware of its associated elements. So we have to
+            // manually clear them from the contract storage which is what the
+            // high-level data structures like `storage::Vec` would command:
+            imap2.clear_packed_at(1);
+            imap2.clear_packed_at(2);
+            imap2.clear_packed_at(3); // Not really needed here.
+            imap2.clear_packed_at(4); // Not really needed here.
+            let imap3 = <LazyIndexMap<u8> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+            assert_cached_entries(&imap3, &[]);
+            assert_eq!(imap3.get(1), None);
+            assert_eq!(imap3.get(2), None);
+            assert_eq!(imap3.get(3), None);
+            assert_eq!(imap3.get(4), None);
+            assert_cached_entries(
+                &imap3,
+                &[
+                    (1, Entry::new(None, EntryState::Preserved)),
+                    (2, Entry::new(None, EntryState::Preserved)),
+                    (3, Entry::new(None, EntryState::Preserved)),
+                    (4, Entry::new(None, EntryState::Preserved)),
+                ],
+            );
+            Ok(())
+        })
     }
 }
