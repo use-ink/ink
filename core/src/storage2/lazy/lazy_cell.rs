@@ -335,7 +335,7 @@ mod tests {
     }
 
     #[test]
-    fn push_pull_works() -> env::Result<()> {
+    fn spread_layout_works() -> env::Result<()> {
         run_test::<env::DefaultEnvTypes, _>(|_| {
             let cell_a0 = <LazyCell<u8>>::new(Some(b'A'));
             assert_eq!(cell_a0.get(), Some(&b'A'));
