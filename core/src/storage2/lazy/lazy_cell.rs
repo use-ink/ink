@@ -346,8 +346,12 @@ mod tests {
             SpreadLayout::push_spread(&cell_a0, &mut KeyPtr::from(root_key));
             let cell_a1 =
                 <LazyCell<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-            assert_eq!(cell_a0.get(), cell_a1.get());
+            assert_eq!(cell_a1.get(), cell_a0.get());
             assert_eq!(cell_a1.get(), Some(&b'A'));
+            // Also test if a lazily instantiated cell works:
+            let cell_a2 = <LazyCell<u8>>::lazy(root_key);
+            assert_eq!(cell_a2.get(), cell_a0.get());
+            assert_eq!(cell_a2.get(), Some(&b'A'));
             Ok(())
         })
     }
