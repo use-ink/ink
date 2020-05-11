@@ -82,7 +82,7 @@ fn debug_impl_works() {
         format!("{:?}", &c1),
         "LazyCell { key: None, cache: Entry { value: None, state: Mutated } }",
     );
-    let c2 = <LazyCell<i32>>::new(42);
+    let c2 = <LazyCell<i32>>::new(Some(42));
     assert_eq!(
         format!("{:?}", &c2),
         "LazyCell { key: None, cache: Entry { value: Some(42), state: Mutated } }",
@@ -95,7 +95,7 @@ where
 {
     fn drop(&mut self) {
         if let Some(key) = self.key() {
-            clear_spread_root_opt(self.value(), key)
+            clear_spread_root_opt(self.cached_value(), key)
         }
     }
 }
@@ -156,10 +156,7 @@ where
     /// Since this already has a value it will never actually load from
     /// the contract storage.
     #[must_use]
-    pub fn new<I>(value: I) -> Self
-    where
-        I: Into<Option<T>>,
-    {
+    pub fn new(value: Option<T>) -> Self {
         Self {
             key: None,
             cache: UnsafeCell::new(Entry::new(value.into(), EntryState::Mutated)),
@@ -197,7 +194,7 @@ where
     /// The cached value is `None` if the `LazyCell` has been initialized
     /// as lazy and has not yet loaded any value. This generally only happens
     /// in ink! messages.
-    fn value(&self) -> Option<&T> {
+    fn cached_value(&self) -> Option<&T> {
         self.entry().value().into()
     }
 
@@ -286,5 +283,45 @@ where
     #[must_use]
     pub fn get_mut(&mut self) -> Option<&mut T> {
         self.load_entry_mut().value_mut().into()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        Entry,
+        EntryState,
+        LazyCell,
+    };
+
+    #[test]
+    fn new_works() {
+        // Initialized via some value:
+        let mut a = <LazyCell<u8>>::new(Some(b'A'));
+        assert_eq!(a.key(), None);
+        assert_eq!(a.entry(), &Entry::new(Some(b'A'), EntryState::Mutated));
+        assert_eq!(a.get(), Some(&b'A'));
+        assert_eq!(a.get_mut(), Some(&mut b'A'));
+        // Initialized as none:
+        let mut b = <LazyCell<u8>>::new(None);
+        assert_eq!(b.key(), None);
+        assert_eq!(b.entry(), &Entry::new(None, EntryState::Mutated));
+        assert_eq!(b.get(), None);
+        assert_eq!(b.get_mut(), None);
+        // Same as default or from:
+        let default_lc = <LazyCell<u8>>::default();
+        let from_lc = LazyCell::from(u8::default());
+        let new_lc = LazyCell::new(Some(u8::default()));
+        assert_eq!(default_lc.get(), from_lc.get());
+        assert_eq!(from_lc.get(), new_lc.get());
+        assert_eq!(new_lc.get(), Some(&u8::default()));
+    }
+
+    #[test]
+    fn get_mut_works() {
+        let mut cell = <LazyCell<i32>>::new(Some(1));
+        assert_eq!(cell.get(), Some(&1));
+        *cell.get_mut().unwrap() += 1;
+        assert_eq!(cell.get(), Some(&2));
     }
 }
