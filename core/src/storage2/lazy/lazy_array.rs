@@ -565,6 +565,13 @@ mod tests {
         LazyArray,
         LazyArrayLength,
     };
+    use crate::{
+        env,
+        storage2::traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
+    };
     use generic_array::typenum::U4;
     use ink_primitives::Key;
 
@@ -808,5 +815,76 @@ mod tests {
     fn swap_both_out_of_bounds() {
         let mut larray = <LazyArray<u8, U4>>::new();
         larray.swap(4, 4);
+    }
+
+    #[test]
+    fn spread_layout_works() -> env::Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            let mut larray = <LazyArray<u8, U4>>::new();
+            let nothing_changed = &[
+                (0, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (1, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (2, Entry::new(None, EntryState::Preserved)),
+                (3, Entry::new(None, EntryState::Preserved)),
+            ];
+            // Put some values.
+            assert_eq!(larray.put_get(0, Some(b'A')), None);
+            assert_eq!(larray.put_get(1, Some(b'B')), None);
+            assert_eq!(larray.put_get(2, None), None);
+            assert_eq!(larray.put_get(3, None), None);
+            assert_cached_entries(&larray, nothing_changed);
+            // Push the lazy index map onto the contract storage and then load
+            // another instance of it from the contract stoarge.
+            // Then: Compare both instances to be equal.
+            let root_key = Key([0x42; 32]);
+            SpreadLayout::push_spread(&larray, &mut KeyPtr::from(root_key));
+            let larray2 = <LazyArray<u8, U4> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+            assert_cached_entries(&larray2, &[]);
+            assert_eq!(larray2.get(0), Some(&b'A'));
+            assert_eq!(larray2.get(1), Some(&b'B'));
+            assert_eq!(larray2.get(2), None);
+            assert_eq!(larray2.get(3), None);
+            assert_cached_entries(
+                &larray2,
+                &[
+                    (0, Entry::new(Some(b'A'), EntryState::Preserved)),
+                    (1, Entry::new(Some(b'B'), EntryState::Preserved)),
+                    (2, Entry::new(None, EntryState::Preserved)),
+                    (3, Entry::new(None, EntryState::Preserved)),
+                ],
+            );
+            // Clear the first lazy index map instance and reload another instance
+            // to check whether the associated storage has actually been freed
+            // again:
+            SpreadLayout::clear_spread(&larray2, &mut KeyPtr::from(root_key));
+            // The above `clear_spread` call is a no-op since lazy index map is
+            // generally not aware of its associated elements. So we have to
+            // manually clear them from the contract storage which is what the
+            // high-level data structures like `storage::Vec` would command:
+            larray2.clear_packed_at(0);
+            larray2.clear_packed_at(1);
+            larray2.clear_packed_at(2); // Not really needed here.
+            larray2.clear_packed_at(3); // Not really needed here.
+            let larray3 = <LazyArray<u8, U4> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+            assert_cached_entries(&larray3, &[]);
+            assert_eq!(larray3.get(0), None);
+            assert_eq!(larray3.get(1), None);
+            assert_eq!(larray3.get(2), None);
+            assert_eq!(larray3.get(3), None);
+            assert_cached_entries(
+                &larray3,
+                &[
+                    (0, Entry::new(None, EntryState::Preserved)),
+                    (1, Entry::new(None, EntryState::Preserved)),
+                    (2, Entry::new(None, EntryState::Preserved)),
+                    (3, Entry::new(None, EntryState::Preserved)),
+                ],
+            );
+            Ok(())
+        })
     }
 }
