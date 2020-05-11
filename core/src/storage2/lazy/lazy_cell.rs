@@ -60,7 +60,7 @@ where
     /// and the fact that ink! code is always run single-threaded.
     /// Being efficient is important here because this is intended to be
     /// a low-level primitive with lots of dependencies.
-    cache: UnsafeCell<Entry<T>>,
+    cache: UnsafeCell<Option<Entry<T>>>,
 }
 
 impl<T> Debug for LazyCell<T>
@@ -80,12 +80,12 @@ fn debug_impl_works() {
     let c1 = <LazyCell<i32>>::new(None);
     assert_eq!(
         format!("{:?}", &c1),
-        "LazyCell { key: None, cache: Entry { value: None, state: Mutated } }",
+        "LazyCell { key: None, cache: Some(Entry { value: None, state: Mutated }) }",
     );
     let c2 = <LazyCell<i32>>::new(Some(42));
     assert_eq!(
         format!("{:?}", &c2),
-        "LazyCell { key: None, cache: Entry { value: Some(42), state: Mutated } }",
+        "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
     );
 }
 
@@ -95,7 +95,9 @@ where
 {
     fn drop(&mut self) {
         if let Some(key) = self.key() {
-            clear_spread_root_opt(self.cached_value(), key)
+            if let Some(entry) = self.entry() {
+                clear_spread_root_opt::<T>(entry.value().into(), key)
+            }
         }
     }
 }
@@ -111,11 +113,15 @@ where
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(self.entry(), ptr)
+        if let Some(entry) = self.entry() {
+            SpreadLayout::push_spread(entry, ptr)
+        }
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(self.entry(), ptr)
+        if let Some(entry) = self.entry() {
+            SpreadLayout::clear_spread(entry, ptr)
+        }
     }
 }
 
@@ -159,7 +165,7 @@ where
     pub fn new(value: Option<T>) -> Self {
         Self {
             key: None,
-            cache: UnsafeCell::new(Entry::new(value, EntryState::Mutated)),
+            cache: UnsafeCell::new(Some(Entry::new(value, EntryState::Mutated))),
         }
     }
 
@@ -173,7 +179,7 @@ where
     pub fn lazy(key: Key) -> Self {
         Self {
             key: Some(key),
-            cache: UnsafeCell::new(Entry::new(None, EntryState::Preserved)),
+            cache: UnsafeCell::new(None),
         }
     }
 
@@ -187,20 +193,9 @@ where
         self.key.as_ref()
     }
 
-    /// Returns the cached value if any.
-    ///
-    /// # Note
-    ///
-    /// The cached value is `None` if the `LazyCell` has been initialized
-    /// as lazy and has not yet loaded any value. This generally only happens
-    /// in ink! messages.
-    fn cached_value(&self) -> Option<&T> {
-        self.entry().value().into()
-    }
-
     /// Returns the cached entry.
-    fn entry(&self) -> &Entry<T> {
-        unsafe { &*self.cache.get() }
+    fn entry(&self) -> Option<&Entry<T>> {
+        unsafe { &*self.cache.get() }.as_ref()
     }
 }
 
@@ -219,16 +214,16 @@ where
         //         This way we do not invalidate pointers to this value.
         #[allow(unused_unsafe)]
         let cache = unsafe { &mut *self.cache.get() };
-        if cache.value().is_none() {
+        if cache.is_none() {
             // Load value from storage and then return the cached entry.
             let value = self
                 .key
                 .map(|key| pull_spread_root_opt::<T>(&key))
                 .unwrap_or(None);
-            cache.put(value);
-            cache.replace_state(EntryState::Mutated);
+            *cache = Some(Entry::new(value, EntryState::Preserved));
         }
-        NonNull::from(cache)
+        debug_assert!(cache.is_some());
+        NonNull::from(cache.as_mut().expect("unpopulated cache entry"))
     }
 
     /// Returns a shared reference to the entry.
@@ -308,13 +303,13 @@ mod tests {
         // Initialized via some value:
         let mut a = <LazyCell<u8>>::new(Some(b'A'));
         assert_eq!(a.key(), None);
-        assert_eq!(a.entry(), &Entry::new(Some(b'A'), EntryState::Mutated));
+        assert_eq!(a.entry(), Some(&Entry::new(Some(b'A'), EntryState::Mutated)));
         assert_eq!(a.get(), Some(&b'A'));
         assert_eq!(a.get_mut(), Some(&mut b'A'));
         // Initialized as none:
         let mut b = <LazyCell<u8>>::new(None);
         assert_eq!(b.key(), None);
-        assert_eq!(b.entry(), &Entry::new(None, EntryState::Mutated));
+        assert_eq!(b.entry(), Some(&Entry::new(None, EntryState::Mutated)));
         assert_eq!(b.get(), None);
         assert_eq!(b.get_mut(), None);
         // Same as default or from:
