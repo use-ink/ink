@@ -109,7 +109,24 @@ where
     fn drop(&mut self) {
         if let Some(key) = self.key() {
             if let Some(entry) = self.entry() {
-                clear_spread_root_opt::<T>(entry.value().into(), key)
+                if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+                    // We need to load the entity before we remove its associated contract storage
+                    // because it requires a deep clean-up which propagates clearing to its fields,
+                    // for example in the case of `T` being a `storage::Box`.
+                    clear_spread_root_opt::<T>(entry.value().into(), key)
+                } else {
+                    // The type does not require deep clean-up so we can simply clean-up
+                    // its associated storage cell and be done without having to load it first.
+                    let footprint = <T as SpreadLayout>::FOOTPRINT;
+                    assert!(
+                        footprint <= 32,
+                        "storage footprint is too big to clear the entity"
+                    );
+                    let mut ptr = KeyPtr::from(*key);
+                    for _ in 0..footprint {
+                        crate::env::clear_contract_storage(ptr.advance_by(1));
+                    }
+                }
             }
         }
     }
@@ -316,7 +333,10 @@ mod tests {
         // Initialized via some value:
         let mut a = <LazyCell<u8>>::new(Some(b'A'));
         assert_eq!(a.key(), None);
-        assert_eq!(a.entry(), Some(&Entry::new(Some(b'A'), EntryState::Mutated)));
+        assert_eq!(
+            a.entry(),
+            Some(&Entry::new(Some(b'A'), EntryState::Mutated))
+        );
         assert_eq!(a.get(), Some(&b'A'));
         assert_eq!(a.get_mut(), Some(&mut b'A'));
         // Initialized as none:
@@ -342,7 +362,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "uninitialized execution context: UninitializedExecutionContext")]
+    #[should_panic(
+        expected = "uninitialized execution context: UninitializedExecutionContext"
+    )]
     fn lazy_get_panics() {
         let cell = <LazyCell<u8>>::lazy(Key([0x42; 32]));
         let _ = cell.get();
