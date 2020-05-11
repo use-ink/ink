@@ -408,6 +408,10 @@ mod tests {
             SpreadLayout::clear_spread(&cell_a1, &mut KeyPtr::from(root_key));
             let cell_a3 = <LazyCell<u8>>::lazy(root_key);
             assert_eq!(cell_a3.get(), None);
+            assert_eq!(
+                cell_a3.entry(),
+                Some(&Entry::new(None, EntryState::Preserved))
+            );
             Ok(())
         })
     }
