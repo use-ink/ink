@@ -803,4 +803,78 @@ mod tests {
             ],
         );
     }
+
+    #[test]
+    fn spread_layout_works() -> env::Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            let mut hmap = new_hmap();
+            let nothing_changed = &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
+                (4, Entry::new(None, EntryState::Preserved)),
+            ];
+            // Put some values.
+            assert_eq!(hmap.put_get(&1, Some(b'A')), None);
+            assert_eq!(hmap.put_get(&2, Some(b'B')), None);
+            assert_eq!(hmap.put_get(&3, None), None);
+            assert_eq!(hmap.put_get(&4, None), None);
+            assert_cached_entries(&hmap, nothing_changed);
+            // Push the lazy index map onto the contract storage and then load
+            // another instance of it from the contract stoarge.
+            // Then: Compare both instances to be equal.
+            let root_key = Key([0x42; 32]);
+            SpreadLayout::push_spread(&hmap, &mut KeyPtr::from(root_key));
+            let hmap2 =
+                <LazyHashMap<i32, u8, Blake2x256Hasher> as SpreadLayout>::pull_spread(
+                    &mut KeyPtr::from(root_key),
+                );
+            assert_cached_entries(&hmap2, &[]);
+            assert_eq!(hmap2.key(), Some(&Key([0x42; 32])));
+            assert_eq!(hmap2.get(&1), Some(&b'A'));
+            assert_eq!(hmap2.get(&2), Some(&b'B'));
+            assert_eq!(hmap2.get(&3), None);
+            assert_eq!(hmap2.get(&4), None);
+            assert_cached_entries(
+                &hmap2,
+                &[
+                    (1, Entry::new(Some(b'A'), EntryState::Preserved)),
+                    (2, Entry::new(Some(b'B'), EntryState::Preserved)),
+                    (3, Entry::new(None, EntryState::Preserved)),
+                    (4, Entry::new(None, EntryState::Preserved)),
+                ],
+            );
+            // Clear the first lazy index map instance and reload another instance
+            // to check whether the associated storage has actually been freed
+            // again:
+            SpreadLayout::clear_spread(&hmap2, &mut KeyPtr::from(root_key));
+            // The above `clear_spread` call is a no-op since lazy index map is
+            // generally not aware of its associated elements. So we have to
+            // manually clear them from the contract storage which is what the
+            // high-level data structures like `storage::Vec` would command:
+            hmap2.clear_packed_at(&1);
+            hmap2.clear_packed_at(&2);
+            hmap2.clear_packed_at(&3); // Not really needed here.
+            hmap2.clear_packed_at(&4); // Not really needed here.
+            let hmap3 =
+                <LazyHashMap<i32, u8, Blake2x256Hasher> as SpreadLayout>::pull_spread(
+                    &mut KeyPtr::from(root_key),
+                );
+            assert_cached_entries(&hmap3, &[]);
+            assert_eq!(hmap3.get(&1), None);
+            assert_eq!(hmap3.get(&2), None);
+            assert_eq!(hmap3.get(&3), None);
+            assert_eq!(hmap3.get(&4), None);
+            assert_cached_entries(
+                &hmap3,
+                &[
+                    (1, Entry::new(None, EntryState::Preserved)),
+                    (2, Entry::new(None, EntryState::Preserved)),
+                    (3, Entry::new(None, EntryState::Preserved)),
+                    (4, Entry::new(None, EntryState::Preserved)),
+                ],
+            );
+            Ok(())
+        })
+    }
 }
