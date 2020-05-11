@@ -352,6 +352,10 @@ mod tests {
             let cell_a2 = <LazyCell<u8>>::lazy(root_key);
             assert_eq!(cell_a2.get(), cell_a0.get());
             assert_eq!(cell_a2.get(), Some(&b'A'));
+            // Test if clearing works:
+            SpreadLayout::clear_spread(&cell_a1, &mut KeyPtr::from(root_key));
+            let cell_a3 = <LazyCell<u8>>::lazy(root_key);
+            assert_eq!(cell_a3.get(), None);
             Ok(())
         })
     }
