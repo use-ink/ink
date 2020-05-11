@@ -242,7 +242,7 @@ where
     /// The general use of this API is to streamline `Drop` implementations of
     /// high-level abstractions that build upon this low-level data strcuture.
     pub fn clear_packed_at(&self, index: Index) {
-        let root_key = self.key.expect("cannot clear in lazy state");
+        let root_key = self.key_at(index).expect("cannot clear in lazy state");
         if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
             // We need to load the entity before we remove its associated contract storage
             // because it requires a deep clean-up which propagates clearing to its fields,
