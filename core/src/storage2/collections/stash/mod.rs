@@ -286,7 +286,7 @@ where
 
 impl<T> Stash<T>
 where
-    T: scale::Codec + PackedLayout,
+    T: PackedLayout,
 {
     /// Rebinds the `prev` and `next` bindings of the neighbours of the vacant entry.
     ///

@@ -59,7 +59,7 @@ where
 
 impl<'a, K, V, H> Iter<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -80,7 +80,7 @@ where
 
 impl<'a, K, V, H> Iterator for Iter<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -103,7 +103,7 @@ where
 
 impl<'a, K, V, H> ExactSizeIterator for Iter<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -112,7 +112,7 @@ where
 
 impl<'a, K, V, H> DoubleEndedIterator for Iter<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -155,7 +155,7 @@ where
 
 impl<'a, K, V, H> IterMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -178,7 +178,7 @@ where
 
 impl<'a, K, V, H> Iterator for IterMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -201,7 +201,7 @@ where
 
 impl<'a, K, V, H> ExactSizeIterator for IterMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -210,7 +210,7 @@ where
 
 impl<'a, K, V, H> DoubleEndedIterator for IterMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -250,7 +250,7 @@ where
 
 impl<'a, K, V, H> Iterator for Values<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -272,7 +272,7 @@ where
 
 impl<'a, K, V, H> ExactSizeIterator for Values<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -281,7 +281,7 @@ where
 
 impl<'a, K, V, H> DoubleEndedIterator for Values<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -320,7 +320,7 @@ where
 
 impl<'a, K, V, H> Iterator for ValuesMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -342,7 +342,7 @@ where
 
 impl<'a, K, V, H> ExactSizeIterator for ValuesMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -351,7 +351,7 @@ where
 
 impl<'a, K, V, H> DoubleEndedIterator for ValuesMut<'a, K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
+    K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
@@ -390,7 +390,7 @@ where
 
 impl<'a, K> Iterator for Keys<'a, K>
 where
-    K: scale::Codec + PackedLayout,
+    K: PackedLayout,
 {
     type Item = &'a K;
 
@@ -407,11 +407,11 @@ where
     }
 }
 
-impl<'a, K> ExactSizeIterator for Keys<'a, K> where K: scale::Codec + PackedLayout {}
+impl<'a, K> ExactSizeIterator for Keys<'a, K> where K: PackedLayout {}
 
 impl<'a, K> DoubleEndedIterator for Keys<'a, K>
 where
-    K: scale::Codec + PackedLayout,
+    K: PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back()

@@ -189,8 +189,8 @@ where
 
 impl<K, V, H> HashMap<K, V, H>
 where
-    K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: PackedLayout + scale::Decode,
+    K: Ord + Eq + Clone + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
