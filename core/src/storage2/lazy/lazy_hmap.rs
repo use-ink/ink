@@ -520,14 +520,16 @@ mod tests {
         LazyHashMap,
     };
     use crate::hash::hasher::Blake2x256Hasher;
+    use crate::hash::hasher::Sha2x256Hasher;
+    use ink_primitives::Key;
 
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
-    fn assert_cached_entries(
-        imap: &LazyHashMap<i32, u8, Blake2x256Hasher>,
+    fn assert_cached_entries<H>(
+        hmap: &LazyHashMap<i32, u8, H>,
         expected: &[(i32, Entry<u8>)],
     ) {
-        assert_eq!(imap.entries().len(), expected.len());
-        for (given, expected) in imap
+        assert_eq!(hmap.entries().len(), expected.len());
+        for (given, expected) in hmap
             .entries()
             .iter()
             .map(|(index, boxed_entry)| (*index, &**boxed_entry))
@@ -553,5 +555,56 @@ mod tests {
         let default_hmap = <LazyHashMap<i32, u8, Blake2x256Hasher>>::default();
         assert_eq!(hmap.key(), default_hmap.key());
         assert_eq!(hmap.entries(), default_hmap.entries());
+    }
+
+    #[test]
+    fn lazy_works() {
+        let key = Key([0x42; 32]);
+
+        // BLAKE2 256-bit hasher:
+        let hmap1 = <LazyHashMap<i32, u8, Blake2x256Hasher>>::lazy(key);
+        // Key must be some.
+        assert_eq!(hmap1.key(), Some(&key));
+        // Cached elements must be empty.
+        assert_cached_entries(&hmap1, &[]);
+        assert_eq!(
+            hmap1.key_at(&0),
+            Some(Key(*b"\
+            \x85\x65\xCD\x3B\xD7\x94\x02\x9F\
+            \x8E\xF2\x63\x61\x01\xB1\x0F\xBE\
+            \x98\xAA\x02\xAE\xA3\x62\xD3\x04\
+            \x27\x36\x34\x58\x61\x35\xCD\xC5"))
+        );
+        assert_eq!(
+            hmap1.key_at(&1),
+            Some(Key(*b"\
+            \x8B\x7C\x05\xA4\x68\x37\x13\x45\
+            \xE5\x93\x04\xB3\xBF\x85\x8E\x8B\
+            \xE3\x58\x2F\x79\x4D\x75\x8A\xD8\
+            \x1E\xD0\x2A\xD1\xE7\xD1\x88\xF9"))
+        );
+
+        // SHA2 256-bit hasher:
+        let hmap2 = <LazyHashMap<i32, u8, Sha2x256Hasher>>::lazy(key);
+        // Key must be some.
+        assert_eq!(hmap2.key(), Some(&key));
+        // Cached elements must be empty.
+        assert_cached_entries(&hmap2, &[]);
+        assert_eq!(
+            hmap1.key_at(&0),
+            Some(Key(*b"\
+                \x9A\x2F\x1B\x62\x64\xEB\xE0\xB4\
+                \xD8\x37\x37\x9B\xA9\x74\x23\x56\
+                \xED\x8F\x04\x66\x86\xDE\xE5\x38\
+                \xC0\x95\xDD\x71\x36\xC2\xF5\x9F"))
+        );
+        assert_eq!(
+            hmap1.key_at(&1),
+            Some(Key(*b"\
+                \x17\x2E\x9F\xCD\x24\xF7\x89\x7F\
+                \xAA\x10\xF8\x58\xD9\x07\x95\x76\
+                \x28\xCB\x36\xA9\xEF\xC7\x95\x71\
+                \x3B\xE6\xB4\x33\xEF\xFB\x2F\xDF"))
+        );
     }
 }
