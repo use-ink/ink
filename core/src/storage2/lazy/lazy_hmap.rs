@@ -698,4 +698,36 @@ mod tests {
         assert_eq!(hmap.get(&5), None);
         assert_eq!(hmap.get_mut(&5), None);
     }
+
+    #[test]
+    fn put_works() {
+        let mut hmap = new_hmap();
+        // Put some values.
+        hmap.put(1, None);
+        hmap.put(2, Some(b'B'));
+        hmap.put(4, None);
+        // The main difference between `put` and `put_get` is that `put` never
+        // loads from storage which also has one drawback: Putting a `None`
+        // value always ends-up in `Mutated` state for the entry even if the
+        // entry is already `None`.
+        assert_cached_entries(
+            &hmap,
+            &[
+                (1, Entry::new(None, EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Mutated)),
+            ],
+        );
+        // Overwrite entries:
+        hmap.put(1, Some(b'A'));
+        hmap.put(2, None);
+        assert_cached_entries(
+            &hmap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(None, EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Mutated)),
+            ],
+        );
+    }
 }
