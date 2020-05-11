@@ -358,7 +358,7 @@ where
 
     /// Returns the constant capacity of the lazy array.
     #[inline]
-    pub fn capacity() -> u32 {
+    pub fn capacity(&self) -> u32 {
         array_capacity::<T, N>()
     }
 
@@ -423,7 +423,7 @@ where
 {
     /// Returns the offset key for the given index if not out of bounds.
     pub fn key_at(&self, at: Index) -> Option<Key> {
-        if at >= Self::capacity() {
+        if at >= self.capacity() {
             return None
         }
         self.key.map(|key| key + at as u64)
@@ -440,7 +440,7 @@ where
     /// Tries to load the entry from cache and falls back to lazily load the
     /// entry from the contract storage.
     fn load_through_cache(&self, at: Index) -> NonNull<Entry<T>> {
-        assert!(at < Self::capacity(), "index is out of bounds");
+        assert!(at < self.capacity(), "index is out of bounds");
         match unsafe { self.cached_entries.get_entry_mut(at) } {
             Some(entry) => {
                 // Load value from cache.
@@ -528,8 +528,8 @@ where
     ///
     /// If any of the given indices is out of bounds.
     pub fn swap(&mut self, a: Index, b: Index) {
-        assert!(a < Self::capacity(), "a is out of bounds");
-        assert!(b < Self::capacity(), "b is out of bounds");
+        assert!(a < self.capacity(), "a is out of bounds");
+        assert!(b < self.capacity(), "b is out of bounds");
         if a == b {
             // Bail out early if both indices are the same.
             return
@@ -607,12 +607,14 @@ mod tests {
         // Key must be none.
         assert_eq!(larray.key(), None);
         assert_eq!(larray.key_at(0), None);
+        assert_eq!(larray.capacity(), 4);
         // Cached elements must be empty.
         assert_cached_entries(&larray, &[]);
         // Same as default:
         let default_larray = <LazyArray<u8, U4>>::default();
         assert_eq!(default_larray.key(), larray.key());
         assert_eq!(default_larray.key_at(0), larray.key_at(0));
+        assert_eq!(larray.capacity(), 4);
         assert_cached_entries(&default_larray, &[]);
     }
 
@@ -624,6 +626,7 @@ mod tests {
         assert_eq!(larray.key(), Some(&key));
         assert_eq!(larray.key_at(0), Some(key));
         assert_eq!(larray.key_at(1), Some(key + 1u64));
+        assert_eq!(larray.capacity(), 4);
         // Cached elements must be empty.
         assert_cached_entries(&larray, &[]);
     }

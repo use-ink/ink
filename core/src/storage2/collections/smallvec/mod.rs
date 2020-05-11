@@ -116,16 +116,19 @@ where
     }
 
     /// Returns the capacity of the small vector.
-    pub fn capacity() -> u32 {
-        <LazyArray<T, N>>::capacity()
+    #[inline]
+    pub fn capacity(&self) -> u32 {
+        self.elems.capacity()
     }
 
     /// Returns the number of elements in the vector, also referred to as its 'length'.
+    #[inline]
     pub fn len(&self) -> u32 {
         *self.len
     }
 
     /// Returns `true` if the vector contains no elements.
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
@@ -200,7 +203,7 @@ where
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {
         assert!(
-            self.len() < Self::capacity(),
+            self.len() < self.capacity(),
             "cannot push more elements into the vector"
         );
         let last_index = self.len();
