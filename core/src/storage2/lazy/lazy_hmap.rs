@@ -666,4 +666,36 @@ mod tests {
             ],
         );
     }
+
+    #[test]
+    fn get_works() {
+        let mut hmap = new_hmap();
+        let nothing_changed = &[
+            (1, Entry::new(None, EntryState::Preserved)),
+            (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+            (3, Entry::new(None, EntryState::Preserved)),
+            (4, Entry::new(Some(b'D'), EntryState::Mutated)),
+        ];
+        // Put some values.
+        assert_eq!(hmap.put_get(&1, None), None);
+        assert_eq!(hmap.put_get(&2, Some(b'B')), None);
+        assert_eq!(hmap.put_get(&3, None), None);
+        assert_eq!(hmap.put_get(&4, Some(b'D')), None);
+        assert_cached_entries(&hmap, nothing_changed);
+        // `get` works:
+        assert_eq!(hmap.get(&1), None);
+        assert_eq!(hmap.get(&2), Some(&b'B'));
+        assert_eq!(hmap.get(&3), None);
+        assert_eq!(hmap.get(&4), Some(&b'D'));
+        assert_cached_entries(&hmap, nothing_changed);
+        // `get_mut` works:
+        assert_eq!(hmap.get_mut(&1), None);
+        assert_eq!(hmap.get_mut(&2), Some(&mut b'B'));
+        assert_eq!(hmap.get_mut(&3), None);
+        assert_eq!(hmap.get_mut(&4), Some(&mut b'D'));
+        assert_cached_entries(&hmap, nothing_changed);
+        // `get` or `get_mut` without cache:
+        assert_eq!(hmap.get(&5), None);
+        assert_eq!(hmap.get_mut(&5), None);
+    }
 }
