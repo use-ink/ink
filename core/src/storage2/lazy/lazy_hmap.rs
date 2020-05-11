@@ -282,10 +282,14 @@ where
     {
         #[derive(scale::Encode)]
         struct KeyPair<'a, Q> {
+            prefix: [u8; 11],
             storage_key: &'a Key,
             value_key: &'a Q,
         }
         let key_pair = KeyPair {
+            prefix: [
+                b'i', b'n', b'k', b' ', b'h', b'a', b's', b'h', b'm', b'a', b'p',
+            ],
             storage_key,
             value_key: key,
         };
@@ -520,9 +524,16 @@ mod tests {
         EntryState,
         LazyHashMap,
     };
-    use crate::hash::hasher::{
-        Blake2x256Hasher,
-        Sha2x256Hasher,
+    use crate::{
+        env,
+        hash::hasher::{
+            Blake2x256Hasher,
+            Sha2x256Hasher,
+        },
+        storage2::traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
     };
     use ink_primitives::Key;
 
@@ -561,7 +572,7 @@ mod tests {
     }
 
     #[test]
-    fn lazy_works() {
+    fn key_at_works() {
         let key = Key([0x42; 32]);
 
         // BLAKE2 256-bit hasher:
@@ -570,23 +581,26 @@ mod tests {
         assert_eq!(hmap1.key(), Some(&key));
         // Cached elements must be empty.
         assert_cached_entries(&hmap1, &[]);
-        assert_eq!(
-            hmap1.key_at(&0),
-            Some(Key(*b"\
-                \x85\x65\xCD\x3B\xD7\x94\x02\x9F\
-                \x8E\xF2\x63\x61\x01\xB1\x0F\xBE\
-                \x98\xAA\x02\xAE\xA3\x62\xD3\x04\
-                \x27\x36\x34\x58\x61\x35\xCD\xC5"))
-        );
+        let hmap1_at_0 = b"\
+        \x67\x7E\xD3\xA4\x72\x2A\x83\x60\
+        \x96\x65\x0E\xCD\x1F\x2C\xE8\x5D\
+        \xBF\x7E\xC0\xFF\x16\x40\x8A\xD8\
+        \x75\x88\xDE\x52\xF5\x8B\x99\xAF";
+        assert_eq!(hmap1.key_at(&0), Some(Key(*hmap1_at_0)));
+        // Same parameters must yield the same key:
+        //
+        // This tests an actual regression that happened because the
+        // hash accumulator was not reset after a hash finalization.
+        assert_cached_entries(&hmap1, &[]);
+        assert_eq!(hmap1.key_at(&0), Some(Key(*hmap1_at_0)));
         assert_eq!(
             hmap1.key_at(&1),
             Some(Key(*b"\
-                \x8B\x7C\x05\xA4\x68\x37\x13\x45\
-                \xE5\x93\x04\xB3\xBF\x85\x8E\x8B\
-                \xE3\x58\x2F\x79\x4D\x75\x8A\xD8\
-                \x1E\xD0\x2A\xD1\xE7\xD1\x88\xF9"))
+                \x9A\x46\x1F\xB3\xA1\xC4\x20\xF8\
+                \xA0\xD9\xA7\x79\x2F\x07\xFB\x7D\
+                \x49\xDD\xAB\x08\x67\x90\x96\x15\
+                \xFB\x85\x36\x3B\x82\x94\x85\x3F"))
         );
-
         // SHA2 256-bit hasher:
         let hmap2 = <LazyHashMap<i32, u8, Sha2x256Hasher>>::lazy(key);
         // Key must be some.
@@ -596,18 +610,18 @@ mod tests {
         assert_eq!(
             hmap1.key_at(&0),
             Some(Key(*b"\
-                \x9A\x2F\x1B\x62\x64\xEB\xE0\xB4\
-                \xD8\x37\x37\x9B\xA9\x74\x23\x56\
-                \xED\x8F\x04\x66\x86\xDE\xE5\x38\
-                \xC0\x95\xDD\x71\x36\xC2\xF5\x9F"))
+                \x67\x7E\xD3\xA4\x72\x2A\x83\x60\
+                \x96\x65\x0E\xCD\x1F\x2C\xE8\x5D\
+                \xBF\x7E\xC0\xFF\x16\x40\x8A\xD8\
+                \x75\x88\xDE\x52\xF5\x8B\x99\xAF"))
         );
         assert_eq!(
             hmap1.key_at(&1),
             Some(Key(*b"\
-                \x17\x2E\x9F\xCD\x24\xF7\x89\x7F\
-                \xAA\x10\xF8\x58\xD9\x07\x95\x76\
-                \x28\xCB\x36\xA9\xEF\xC7\x95\x71\
-                \x3B\xE6\xB4\x33\xEF\xFB\x2F\xDF"))
+                \x9A\x46\x1F\xB3\xA1\xC4\x20\xF8\
+                \xA0\xD9\xA7\x79\x2F\x07\xFB\x7D\
+                \x49\xDD\xAB\x08\x67\x90\x96\x15\
+                \xFB\x85\x36\x3B\x82\x94\x85\x3F"))
         );
     }
 
