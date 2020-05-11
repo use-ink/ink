@@ -517,6 +517,7 @@ where
 mod tests {
     use super::{
         Entry,
+        EntryState,
         LazyHashMap,
     };
     use crate::hash::hasher::{
@@ -607,6 +608,62 @@ mod tests {
                 \xAA\x10\xF8\x58\xD9\x07\x95\x76\
                 \x28\xCB\x36\xA9\xEF\xC7\x95\x71\
                 \x3B\xE6\xB4\x33\xEF\xFB\x2F\xDF"))
+        );
+    }
+
+    #[test]
+    fn put_get_works() {
+        let mut hmap = new_hmap();
+        // Put some values.
+        assert_eq!(hmap.put_get(&1, Some(b'A')), None);
+        assert_eq!(hmap.put_get(&2, Some(b'B')), None);
+        assert_eq!(hmap.put_get(&4, Some(b'C')), None);
+        assert_cached_entries(
+            &hmap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (4, Entry::new(Some(b'C'), EntryState::Mutated)),
+            ],
+        );
+        // Put none values.
+        assert_eq!(hmap.put_get(&3, None), None);
+        assert_eq!(hmap.put_get(&5, None), None);
+        assert_cached_entries(
+            &hmap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
+                (4, Entry::new(Some(b'C'), EntryState::Mutated)),
+                (5, Entry::new(None, EntryState::Preserved)),
+            ],
+        );
+        // Override some values with none.
+        assert_eq!(hmap.put_get(&2, None), Some(b'B'));
+        assert_eq!(hmap.put_get(&4, None), Some(b'C'));
+        assert_cached_entries(
+            &hmap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(None, EntryState::Mutated)),
+                (3, Entry::new(None, EntryState::Preserved)),
+                (4, Entry::new(None, EntryState::Mutated)),
+                (5, Entry::new(None, EntryState::Preserved)),
+            ],
+        );
+        // Override none values with some.
+        assert_eq!(hmap.put_get(&3, Some(b'X')), None);
+        assert_eq!(hmap.put_get(&5, Some(b'Y')), None);
+        assert_cached_entries(
+            &hmap,
+            &[
+                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
+                (2, Entry::new(None, EntryState::Mutated)),
+                (3, Entry::new(Some(b'X'), EntryState::Mutated)),
+                (4, Entry::new(None, EntryState::Mutated)),
+                (5, Entry::new(Some(b'Y'), EntryState::Mutated)),
+            ],
         );
     }
 }
