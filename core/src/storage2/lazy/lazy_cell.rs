@@ -87,6 +87,19 @@ fn debug_impl_works() {
         format!("{:?}", &c2),
         "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
     );
+    let c3 = <LazyCell<i32>>::lazy(Key([0x00; 32]));
+    assert_eq!(
+        format!("{:?}", &c3),
+        "LazyCell { \
+            key: Some(Key(\
+                0x00_\
+                00000000_00000000_\
+                00000000_00000000_\
+                00000000_00000000_\
+                00000000_000000)), \
+            cache: None \
+        }",
+    );
 }
 
 impl<T> Drop for LazyCell<T>
