@@ -293,6 +293,15 @@ mod tests {
         EntryState,
         LazyCell,
     };
+    use crate::{
+        env,
+        env::test::run_test,
+        storage2::traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
+    };
+    use ink_primitives::Key;
 
     #[test]
     fn new_works() {
@@ -323,5 +332,23 @@ mod tests {
         assert_eq!(cell.get(), Some(&1));
         *cell.get_mut().unwrap() += 1;
         assert_eq!(cell.get(), Some(&2));
+    }
+
+    #[test]
+    fn push_pull_works() -> env::Result<()> {
+        run_test::<env::DefaultEnvTypes, _>(|_| {
+            let cell_a0 = <LazyCell<u8>>::new(Some(b'A'));
+            assert_eq!(cell_a0.get(), Some(&b'A'));
+            // Push `cell_a0` to the contract storage.
+            // Then, pull `cell_a1` from the contract storage and check if it is
+            // equal to `cell_a0`.
+            let root_key = Key([0x42; 32]);
+            SpreadLayout::push_spread(&cell_a0, &mut KeyPtr::from(root_key));
+            let cell_a1 =
+                <LazyCell<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            assert_eq!(cell_a0.get(), cell_a1.get());
+            assert_eq!(cell_a1.get(), Some(&b'A'));
+            Ok(())
+        })
     }
 }
