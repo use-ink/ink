@@ -62,7 +62,7 @@ where
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     type Item = &'a T;
 
@@ -94,11 +94,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: scale::Decode + PackedLayout {}
+impl<'a, T> ExactSizeIterator for Iter<'a, T> where T: PackedLayout {}
 
 impl<'a, T> DoubleEndedIterator for Iter<'a, T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         loop {
@@ -162,7 +162,7 @@ where
 
 impl<'a, T> IterMut<'a, T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
         self.stash.get_mut(at).map(|value| {
@@ -180,7 +180,7 @@ where
 
 impl<'a, T> Iterator for IterMut<'a, T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     type Item = &'a mut T;
 
@@ -212,11 +212,11 @@ where
     }
 }
 
-impl<'a, T> ExactSizeIterator for IterMut<'a, T> where T: scale::Decode + PackedLayout {}
+impl<'a, T> ExactSizeIterator for IterMut<'a, T> where T: PackedLayout {}
 
 impl<'a, T> DoubleEndedIterator for IterMut<'a, T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         loop {
@@ -275,7 +275,7 @@ where
 #[cfg(test)]
 impl<'a, T> Iterator for Entries<'a, T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     type Item = &'a Entry<T>;
 
@@ -301,12 +301,12 @@ where
 }
 
 #[cfg(test)]
-impl<'a, T> ExactSizeIterator for Entries<'a, T> where T: scale::Decode + PackedLayout {}
+impl<'a, T> ExactSizeIterator for Entries<'a, T> where T: PackedLayout {}
 
 #[cfg(test)]
 impl<'a, T> DoubleEndedIterator for Entries<'a, T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.begin <= self.end);

@@ -60,7 +60,7 @@ where
 impl<'a, K, V, H> Iter<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -81,7 +81,7 @@ where
 impl<'a, K, V, H> Iterator for Iter<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -104,7 +104,7 @@ where
 impl<'a, K, V, H> ExactSizeIterator for Iter<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -113,7 +113,7 @@ where
 impl<'a, K, V, H> DoubleEndedIterator for Iter<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -156,7 +156,7 @@ where
 impl<'a, K, V, H> IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -179,7 +179,7 @@ where
 impl<'a, K, V, H> Iterator for IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -202,7 +202,7 @@ where
 impl<'a, K, V, H> ExactSizeIterator for IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -211,7 +211,7 @@ where
 impl<'a, K, V, H> DoubleEndedIterator for IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -251,7 +251,7 @@ where
 impl<'a, K, V, H> Iterator for Values<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -273,7 +273,7 @@ where
 impl<'a, K, V, H> ExactSizeIterator for Values<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -282,7 +282,7 @@ where
 impl<'a, K, V, H> DoubleEndedIterator for Values<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -321,7 +321,7 @@ where
 impl<'a, K, V, H> Iterator for ValuesMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -343,7 +343,7 @@ where
 impl<'a, K, V, H> ExactSizeIterator for ValuesMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {
@@ -352,7 +352,7 @@ where
 impl<'a, K, V, H> DoubleEndedIterator for ValuesMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + scale::Codec + PackedLayout,
-    V: scale::Decode + PackedLayout,
+    V: PackedLayout,
     H: Hasher,
     Key: From<H::Output>,
 {

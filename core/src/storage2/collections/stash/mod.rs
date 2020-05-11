@@ -221,7 +221,7 @@ where
 
 impl<T> Stash<T>
 where
-    T: scale::Decode + PackedLayout,
+    T: PackedLayout,
 {
     /// Returns a shared reference to the element at the given index.
     pub fn get(&self, at: Index) -> Option<&T> {
