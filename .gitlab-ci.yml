@@ -101,7 +101,7 @@ test:
   needs:
     - check-std
   script:
-    - cargo test --verbose --all-features --no-fail-fast --release --workspace
+    - cargo test --verbose --all-features --no-fail-fast --workspace
 
 codecov:
   stage:                           workspace
