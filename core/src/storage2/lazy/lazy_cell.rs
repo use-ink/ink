@@ -362,12 +362,15 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "uninitialized execution context: UninitializedExecutionContext"
-    )]
-    fn lazy_get_panics() {
-        let cell = <LazyCell<u8>>::lazy(Key([0x42; 32]));
-        let _ = cell.get();
+    fn lazy_get_works() -> env::Result<()> {
+        run_test::<env::DefaultEnvTypes, _>(|_| {
+            let cell = <LazyCell<u8>>::lazy(Key([0x42; 32]));
+            let value = cell.get();
+            // We do the normally unreachable check in order to have an easier
+            // time finding the issue if the above execution did not panic.
+            assert_eq!(value, None);
+            Ok(())
+        })
     }
 
     #[test]
