@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::SmallVec;
-use generic_array::typenum::*;
 use crate::{
     env,
     storage2::traits::{
@@ -21,6 +20,7 @@ use crate::{
         SpreadLayout,
     },
 };
+use generic_array::typenum::*;
 use ink_primitives::Key;
 
 #[test]
