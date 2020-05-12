@@ -13,6 +13,14 @@
 // limitations under the License.
 
 use super::HashMap as StorageHashMap;
+use crate::{
+    env,
+    storage2::traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
+};
+use ink_primitives::Key;
 
 #[test]
 fn new_vec_works() {
@@ -273,4 +281,48 @@ fn defrag_works() {
     assert_eq!(hmap.defrag(Some(1)), 1);
     assert_eq!(hmap.defrag(Some(1)), 0);
     assert_eq!(hmap, expected);
+}
+
+#[test]
+fn spread_layout_push_pull_works() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+            .iter()
+            .copied()
+            .collect::<StorageHashMap<u8, i32>>();
+        let root_key = Key([0x42; 32]);
+        SpreadLayout::push_spread(&hmap1, &mut KeyPtr::from(root_key));
+        // Load the pushed storage vector into another instance and check that
+        // both instances are equal:
+        let hmap2 = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+        assert_eq!(hmap1, hmap2);
+        Ok(())
+    })
+}
+
+#[test]
+#[should_panic(expected = "storage entry was empty")]
+fn spread_layout_clear_works() {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+            .iter()
+            .copied()
+            .collect::<StorageHashMap<u8, i32>>();
+        let root_key = Key([0x42; 32]);
+        SpreadLayout::push_spread(&hmap1, &mut KeyPtr::from(root_key));
+        // It has already been asserted that a valid instance can be pulled
+        // from contract storage after a push to the same storage region.
+        //
+        // Now clear the associated storage from `hmap1` and check whether
+        // loading another instance from this storage will panic since the
+        // vector's length property cannot read a value:
+        SpreadLayout::clear_spread(&hmap1, &mut KeyPtr::from(root_key));
+        let _ = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+        Ok(())
+    })
+    .unwrap()
 }
