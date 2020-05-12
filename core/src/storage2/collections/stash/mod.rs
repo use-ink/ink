@@ -37,6 +37,11 @@ use ink_primitives::Key;
 /// An index into the stash.
 type Index = u32;
 
+/// A stash data structure operating on contract storage.
+///
+/// This allows to store information similar to a vector but in unordered
+/// fashion which enables constant time random deletion of elements. This allows
+/// for efficient attachment of data to some numeric indices.
 #[derive(Debug)]
 pub struct Stash<T>
 where

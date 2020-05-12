@@ -53,6 +53,25 @@ use ink_primitives::Key;
 /// Used for key indices internal to the hashmap.
 type KeyIndex = u32;
 
+/// A hash map operating on the contract storage.
+///
+/// Stores a mapping between keys and values.
+///
+/// # Note
+///
+/// Unlike Rust's standard `HashMap` that uses the [`core::hash::Hash`] trait
+/// in order to hash its keys the storage hash map uses the [`scale::Encode`]
+/// encoding in order to hash its keys using a built-in cryptographic
+/// hash function provided by the chain runtime.
+///
+/// The main difference between the lower-level `LazyHashMap` and the
+/// `storage::HashMap` is that the latter is aware of its associated keys and
+/// values and operates on those instances directly as opposed to `Option`
+/// instances of them. Also it provides a more high-level and user focused
+/// API.
+///
+/// Users should generally prefer using this storage hash map over the low-level
+/// `LazyHashMap` for direct usage in their smart contracts.
 #[derive(Debug)]
 pub struct HashMap<K, V, H = Blake2x256Hasher>
 where
