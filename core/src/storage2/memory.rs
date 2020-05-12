@@ -64,13 +64,13 @@ where
 
 impl<T> Memory<T> {
     /// Returns a shared reference to the inner `T`.
-    pub fn get(self: &Self) -> &T {
-        &self.inner
+    pub fn get(memory: &Self) -> &T {
+        &memory.inner
     }
 
     /// Returns an exclusive reference to the inner `T`.
-    pub fn get_mut(self: &mut Self) -> &mut T {
-        &mut self.inner
+    pub fn get_mut(memory: &mut Self) -> &mut T {
+        &mut memory.inner
     }
 }
 
