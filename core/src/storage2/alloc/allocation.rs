@@ -67,3 +67,21 @@ impl DynamicAllocation {
         Key::from(output)
     }
 }
+
+#[test]
+fn get_works() {
+    let expected_keys = [
+        b"\
+            \x0A\x0F\xF5\x30\xBD\x5A\xB6\x67\
+            \x85\xC9\x74\x6D\x01\x33\xD7\xE1\
+            \x24\x40\xC4\x67\xA9\xF0\x6D\xCA\
+            \xE7\xED\x2E\x78\x32\x77\xE9\x10",
+        b"\
+            \x11\x5A\xC0\xB2\x29\xA5\x34\x10\
+            \xB0\xC0\x2D\x47\x49\xDC\x7A\x09\
+            \xB9\x6D\xF9\x51\xB6\x1D\x4F\x3B\
+            \x4E\x75\xAC\x3B\x14\x57\x47\x96",
+    ];
+    assert_eq!(DynamicAllocation(0).key(), Key(*expected_keys[0]));
+    assert_eq!(DynamicAllocation(1).key(), Key(*expected_keys[1]));
+}
