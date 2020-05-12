@@ -13,6 +13,14 @@
 // limitations under the License.
 
 use super::Stash as StorageStash;
+use crate::{
+    env,
+    storage2::traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
+};
+use ink_primitives::Key;
 
 #[test]
 fn new_works() {
@@ -622,4 +630,40 @@ fn take_rev_order_works() {
             Entry::Vacant(2, 0)
         ]
     );
+}
+
+#[test]
+fn spread_layout_push_pull_works() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let stash1 = create_holey_stash();
+        let root_key = Key([0x42; 32]);
+        SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
+        // Load the pushed storage vector into another instance and check that
+        // both instances are equal:
+        let stash2 =
+            <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert_eq!(stash1, stash2);
+        Ok(())
+    })
+}
+
+#[test]
+#[should_panic(expected = "storage entry was empty")]
+fn spread_layout_clear_works() {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let stash1 = create_holey_stash();
+        let root_key = Key([0x42; 32]);
+        SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
+        // It has already been asserted that a valid instance can be pulled
+        // from contract storage after a push to the same storage region.
+        //
+        // Now clear the associated storage from `stash1` and check whether
+        // loading another instance from this storage will panic since the
+        // vector's length property cannot read a value:
+        SpreadLayout::clear_spread(&stash1, &mut KeyPtr::from(root_key));
+        let _ =
+            <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        Ok(())
+    })
+    .unwrap()
 }
