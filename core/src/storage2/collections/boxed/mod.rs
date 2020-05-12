@@ -44,6 +44,7 @@ use crate::storage2::{
 use ink_primitives::Key;
 
 /// An indirection to some dynamically allocated storage entity.
+#[derive(Debug)]
 pub struct Box<T>
 where
     T: SpreadLayout,
