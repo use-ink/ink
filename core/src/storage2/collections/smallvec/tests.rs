@@ -14,6 +14,14 @@
 
 use super::SmallVec;
 use generic_array::typenum::*;
+use crate::{
+    env,
+    storage2::traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
+};
+use ink_primitives::Key;
 
 #[test]
 fn new_vec_works() {
@@ -352,4 +360,40 @@ fn swap_remove_drop_works() {
     // Swap remove from empty vector.
     assert_eq!(vec.swap_remove_drop(0), None);
     assert_eq_slice(&vec, &[]);
+}
+
+#[test]
+fn spread_layout_push_pull_works() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+        let root_key = Key([0x42; 32]);
+        SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
+        // Load the pushed storage vector into another instance and check that
+        // both instances are equal:
+        let vec2 =
+            <SmallVec<u8, U4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert_eq!(vec1, vec2);
+        Ok(())
+    })
+}
+
+#[test]
+#[should_panic(expected = "cannot lazily load value")]
+fn spread_layout_clear_works() {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+        let root_key = Key([0x42; 32]);
+        SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
+        // It has already been asserted that a valid instance can be pulled
+        // from contract storage after a push to the same storage region.
+        //
+        // Now clear the associated storage from `vec1` and check whether
+        // loading another instance from this storage will panic since the
+        // vector's length property cannot read a value:
+        SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
+        let _ =
+            <SmallVec<u8, U4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        Ok(())
+    })
+    .unwrap()
 }
