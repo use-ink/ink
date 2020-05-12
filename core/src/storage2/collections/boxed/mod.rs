@@ -33,6 +33,9 @@
 mod impls;
 mod storage;
 
+#[cfg(test)]
+mod tests;
+
 use crate::storage2::{
     alloc::{
         alloc,
