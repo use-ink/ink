@@ -72,22 +72,12 @@ impl<T> Pack<T> {
 
     /// Returns a shared reference to the packed value.
     pub fn as_inner(pack: &Pack<T>) -> &T {
-        pack.get()
+        &pack.inner
     }
 
     /// Returns an exclusive reference to the packed value.
     pub fn as_inner_mut(pack: &mut Pack<T>) -> &mut T {
-        pack.get_mut()
-    }
-
-    /// Returns a shared reference to the packed value.
-    fn get(&self) -> &T {
-        &self.inner
-    }
-
-    /// Returns an exclusive reference to the packed value.
-    fn get_mut(&mut self) -> &mut T {
-        &mut self.inner
+        &mut pack.inner
     }
 }
 
@@ -102,11 +92,11 @@ where
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        forward_push_packed::<T>(Self::get(self), ptr)
+        forward_push_packed::<T>(Self::as_inner(self), ptr)
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        forward_clear_packed::<T>(Self::get(self), ptr)
+        forward_clear_packed::<T>(Self::as_inner(self), ptr)
     }
 }
 
@@ -115,13 +105,13 @@ where
     T: PackedLayout,
 {
     fn pull_packed(&mut self, at: &Key) {
-        <T as PackedLayout>::pull_packed(Self::get_mut(self), at)
+        <T as PackedLayout>::pull_packed(Self::as_inner_mut(self), at)
     }
     fn push_packed(&self, at: &Key) {
-        <T as PackedLayout>::push_packed(Self::get(self), at)
+        <T as PackedLayout>::push_packed(Self::as_inner(self), at)
     }
     fn clear_packed(&self, at: &Key) {
-        <T as PackedLayout>::clear_packed(Self::get(self), at)
+        <T as PackedLayout>::clear_packed(Self::as_inner(self), at)
     }
 }
 
@@ -144,13 +134,13 @@ impl<T> core::ops::Deref for Pack<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.get()
+        Self::as_inner(self)
     }
 }
 
 impl<T> core::ops::DerefMut for Pack<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.get_mut()
+        Self::as_inner_mut(self)
     }
 }
 
@@ -159,7 +149,7 @@ where
     T: PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
-        PartialEq::eq(self.get(), other.get())
+        PartialEq::eq(Self::as_inner(self), Self::as_inner(other))
     }
 }
 
@@ -170,19 +160,19 @@ where
     T: PartialOrd,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
-        PartialOrd::partial_cmp(self.get(), other.get())
+        PartialOrd::partial_cmp(Self::as_inner(self), Self::as_inner(other))
     }
     fn lt(&self, other: &Self) -> bool {
-        PartialOrd::lt(self.get(), other.get())
+        PartialOrd::lt(Self::as_inner(self), Self::as_inner(other))
     }
     fn le(&self, other: &Self) -> bool {
-        PartialOrd::le(self.get(), other.get())
+        PartialOrd::le(Self::as_inner(self), Self::as_inner(other))
     }
     fn ge(&self, other: &Self) -> bool {
-        PartialOrd::ge(self.get(), other.get())
+        PartialOrd::ge(Self::as_inner(self), Self::as_inner(other))
     }
     fn gt(&self, other: &Self) -> bool {
-        PartialOrd::gt(self.get(), other.get())
+        PartialOrd::gt(Self::as_inner(self), Self::as_inner(other))
     }
 }
 
@@ -191,7 +181,7 @@ where
     T: core::cmp::Ord,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-        Ord::cmp(self.get(), other.get())
+        Ord::cmp(Self::as_inner(self), Self::as_inner(other))
     }
 }
 
@@ -200,7 +190,7 @@ where
     T: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        core::fmt::Display::fmt(self.get(), f)
+        core::fmt::Display::fmt(Self::as_inner(self), f)
     }
 }
 
@@ -209,30 +199,30 @@ where
     T: core::hash::Hash,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        self.get().hash(state);
+        Self::as_inner(self).hash(state);
     }
 }
 
 impl<T> core::convert::AsRef<T> for Pack<T> {
     fn as_ref(&self) -> &T {
-        self.get()
+        Self::as_inner(self)
     }
 }
 
 impl<T> core::convert::AsMut<T> for Pack<T> {
     fn as_mut(&mut self) -> &mut T {
-        self.get_mut()
+        Self::as_inner_mut(self)
     }
 }
 
 impl<T> ink_prelude::borrow::Borrow<T> for Pack<T> {
     fn borrow(&self) -> &T {
-        self.get()
+        Self::as_inner(self)
     }
 }
 
 impl<T> ink_prelude::borrow::BorrowMut<T> for Pack<T> {
     fn borrow_mut(&mut self) -> &mut T {
-        self.get_mut()
+        Self::as_inner_mut(self)
     }
 }
