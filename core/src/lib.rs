@@ -24,6 +24,7 @@
 #![allow(unused_unsafe)]
 // #![deny(unsafe_op_in_unsafe_fn)]
 #![deny(
+    missing_docs,
     bad_style,
     bare_trait_objects,
     const_err,
