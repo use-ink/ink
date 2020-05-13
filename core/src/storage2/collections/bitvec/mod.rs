@@ -16,20 +16,19 @@
 //!
 //! Allows to compactly and efficiently store and manipulate on single bits.
 
-mod access;
 mod bits256;
 mod impls;
 mod iter;
+mod bitref;
+mod bitsref;
 mod storage;
 
 #[cfg(test)]
 mod tests;
 
 pub use self::{
-    access::{
-        BitRefMut,
-        ChunkRef,
-    },
+    bitref::BitRefMut,
+    bitsref::ChunkRef,
     iter::{
         BitsIter,
         BitsIterMut,
