@@ -18,6 +18,7 @@ use crate::{
     env::test::DefaultAccounts,
     storage2::{
         alloc::{
+            reset_allocator,
             set_contract_phase,
             ContractPhase,
         },
@@ -51,6 +52,7 @@ where
 {
     env::test::run_test::<env::DefaultEnvTypes, _>(|default_accounts| {
         set_contract_phase(ContractPhase::Deploy);
+        reset_allocator();
         f(default_accounts);
         Ok(())
     })
