@@ -275,7 +275,10 @@ mod tests {
         assert_eq!(<Pack<_> as AsRef<_>>::as_ref(&pack), &expected);
         assert_eq!(<Pack<_> as AsMut<_>>::as_mut(&mut pack), &mut expected);
         assert_eq!(Borrow::<ComplexTuple>::borrow(&pack), &expected);
-        assert_eq!(BorrowMut::<ComplexTuple>::borrow_mut(&mut pack), &mut expected);
+        assert_eq!(
+            BorrowMut::<ComplexTuple>::borrow_mut(&mut pack),
+            &mut expected
+        );
         assert_eq!(Pack::as_inner(&pack), &expected);
         assert_eq!(Pack::as_inner_mut(&mut pack), &mut expected);
         assert_eq!(Pack::into_inner(pack), expected);
