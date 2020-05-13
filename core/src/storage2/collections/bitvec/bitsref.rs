@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(clippy::len_without_is_empty)]
+
 use super::{
     BitRefMut,
     Bits256,
@@ -79,7 +81,8 @@ impl<'a> core::ops::Deref for ChunkRef<&'a mut Bits256> {
         //         that both `ChunkRef<&'a mut Bits256>` as well as
         //         `ChunkRef<&'a Bits256>` have the same internal layout
         //         and thus can be transmuted safely.
-        unsafe { core::mem::transmute::<&Self, &Self::Target>(self) }
+        let ptr: *const Self = self;
+        unsafe { &*(ptr as *const Self::Target) }
     }
 }
 
