@@ -58,7 +58,7 @@ impl<'a> BitRefMut<'a> {
 
     /// Resets the indexed bit to `0` (false).
     pub fn reset(&mut self) {
-        self.bits.set(self.at)
+        self.bits.reset(self.at)
     }
 
     /// Flips the indexed bit.
