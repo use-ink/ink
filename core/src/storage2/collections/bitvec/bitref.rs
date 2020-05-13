@@ -28,6 +28,14 @@ pub struct BitRefMut<'a> {
     at: u8,
 }
 
+impl<'a> PartialEq for BitRefMut<'a> {
+    fn eq(&self, other: &Self) -> bool {
+        self.get() == other.get()
+    }
+}
+
+impl<'a> Eq for BitRefMut<'a> {}
+
 impl<'a> BitRefMut<'a> {
     /// Creates a new bit access for the indexed bit within the 256-bit pack.
     pub(super) fn new(bits: &'a mut Bits256, at: Index256) -> Self {
