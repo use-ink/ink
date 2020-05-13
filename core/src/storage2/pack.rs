@@ -226,3 +226,149 @@ impl<T> ink_prelude::borrow::BorrowMut<T> for Pack<T> {
         Self::as_inner_mut(self)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Pack;
+    use crate::{
+        env,
+        env::test::DefaultAccounts,
+        storage2::traits::{
+            pull_packed_root,
+            push_packed_root,
+            KeyPtr,
+            SpreadLayout,
+        },
+    };
+    use core::{
+        cmp::Ordering,
+        convert::{
+            AsMut,
+            AsRef,
+        },
+        ops::{
+            Deref,
+            DerefMut,
+        },
+    };
+    use ink_prelude::borrow::{
+        Borrow,
+        BorrowMut,
+    };
+    use ink_primitives::Key;
+
+    #[test]
+    fn new_works() {
+        let mut expected = 1;
+        let mut pack = Pack::new(expected);
+        assert_eq!(Deref::deref(&pack), &expected);
+        assert_eq!(DerefMut::deref_mut(&mut pack), &mut expected);
+        assert_eq!(AsRef::as_ref(&pack), &expected);
+        assert_eq!(AsMut::as_mut(&mut pack), &mut expected);
+        assert_eq!(Borrow::<i32>::borrow(&pack), &expected);
+        assert_eq!(BorrowMut::<i32>::borrow_mut(&mut pack), &mut expected);
+        assert_eq!(Pack::as_inner(&pack), &expected);
+        assert_eq!(Pack::as_inner_mut(&mut pack), &mut expected);
+        assert_eq!(Pack::into_inner(pack), expected);
+    }
+
+    #[test]
+    fn from_works() {
+        let mut from = Pack::from(b'A');
+        assert_eq!(from, Pack::new(b'A'));
+        assert_eq!(Pack::as_inner(&from), &b'A');
+        assert_eq!(Pack::as_inner_mut(&mut from), &mut b'A');
+        assert_eq!(Pack::into_inner(from), b'A');
+    }
+
+    #[test]
+    fn partial_eq_works() {
+        let b1 = Pack::new(b'X');
+        let b2 = Pack::new(b'Y');
+        let b3 = Pack::new(b'X');
+        assert!(<Pack<u8> as PartialEq>::ne(&b1, &b2));
+        assert!(<Pack<u8> as PartialEq>::eq(&b1, &b3));
+    }
+
+    #[test]
+    fn partial_ord_works() {
+        let b1 = Pack::new(1);
+        let b2 = Pack::new(2);
+        let b3 = Pack::new(1);
+        assert_eq!(
+            <Pack<u8> as PartialOrd>::partial_cmp(&b1, &b2),
+            Some(Ordering::Less)
+        );
+        assert_eq!(
+            <Pack<u8> as PartialOrd>::partial_cmp(&b2, &b1),
+            Some(Ordering::Greater)
+        );
+        assert_eq!(
+            <Pack<u8> as PartialOrd>::partial_cmp(&b1, &b3),
+            Some(Ordering::Equal)
+        );
+    }
+
+    fn run_test<F>(f: F)
+    where
+        F: FnOnce(DefaultAccounts<env::DefaultEnvTypes>),
+    {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|default_accounts| {
+            f(default_accounts);
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn spread_layout_push_pull_works() {
+        run_test(|_| {
+            let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
+            assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
+            let root_key = Key([0x42; 32]);
+            SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
+            // Now load another instance of a pack from the same key and check
+            // if both instances are equal:
+            let p2 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
+            assert_eq!(p1, p2);
+        })
+    }
+
+    #[test]
+    #[should_panic(expected = "storage entry was empty")]
+    fn spread_layout_clear_works() {
+        run_test(|_| {
+            let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
+            assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
+            let root_key = Key([0x42; 32]);
+            SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
+            // Now load another instance of a pack from the same key and check
+            // if both instances are equal:
+            let p2 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
+            assert_eq!(p1, p2);
+            // Clearing the underlying storage of p2 immediately so that
+            // loading another instance of pack again should panic.
+            SpreadLayout::clear_spread(&p2, &mut KeyPtr::from(root_key));
+            let p3 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
+            assert_eq!(p1, p3);
+        })
+    }
+
+    #[test]
+    fn spread_and_packed_layout_are_equal() {
+        run_test(|_| {
+            // Push as spread, pull as packed:
+            let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
+            assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
+            let root_key = Key([0x42; 32]);
+            SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
+            let p2 = pull_packed_root::<Pack<(u8, [i32; 4], (bool, i32))>>(&root_key);
+            assert_eq!(p1, p2);
+            // Push as packed, pull as spread:
+            let root_key2 = Key([0x43; 32]);
+            push_packed_root(&p2, &root_key2);
+            let p3 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key2));
+            assert_eq!(p2, p3);
+        })
+    }
+}
