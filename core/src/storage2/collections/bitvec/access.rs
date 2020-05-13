@@ -82,6 +82,113 @@ impl<'a> BitRefMut<'a> {
     }
 }
 
+#[cfg(test)]
+mod bit_ref_mut_tests {
+    use super::BitRefMut;
+    use crate::storage2::collections::bitvec::Bits256;
+
+    fn is_populated_bit_set(index: u8) -> bool {
+        (index % 5) == 0 || (index % 13) == 0
+    }
+
+    fn populated_bits256() -> Bits256 {
+        let mut bits256 = Bits256::default();
+        for i in 0..256 {
+            let i = i as u8;
+            bits256.set_to(i, is_populated_bit_set(i));
+        }
+        bits256
+    }
+
+    #[test]
+    fn get_set_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..=255 {
+            let mut bitref = BitRefMut::new(&mut bits256, i);
+            let expected = is_populated_bit_set(i);
+            assert_eq!(bitref.get(), expected);
+            // Set only every second bit to true and check this later:
+            bitref.set_to(i % 2 == 0);
+        }
+        // Check if `set_to` was successful:
+        for i in 0..=255 {
+            assert_eq!(bits256.get(i), i % 2 == 0);
+        }
+    }
+
+    #[test]
+    fn flip_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..=255 {
+            let mut bitref = BitRefMut::new(&mut bits256, i);
+            bitref.flip();
+        }
+        // Check if `flip` was successful:
+        for i in 0..=255 {
+            assert_eq!(bits256.get(i), !is_populated_bit_set(i));
+        }
+    }
+
+    #[test]
+    fn set_and_reset_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..=255 {
+            let mut bitref = BitRefMut::new(&mut bits256, i);
+            if i % 2 == 0 {
+                bitref.set();
+            } else {
+                bitref.reset();
+            }
+        }
+        // Check if `set` and `reset` was successful:
+        for i in 0..=255 {
+            assert_eq!(bits256.get(i), i % 2 == 0);
+        }
+    }
+
+    #[test]
+    fn bitops_works() {
+        let mut bits256 = populated_bits256();
+        for i in 0..=255 {
+            let mut bitref = BitRefMut::new(&mut bits256, i);
+            let expected = is_populated_bit_set(i);
+            fn test_xor(bitref: &mut BitRefMut, expected: bool) {
+                fn test_xor_for(bitref: &mut BitRefMut, expected: bool, input: bool) {
+                    assert_eq!(bitref.get(), expected);
+                    bitref.xor(input);
+                    assert_eq!(bitref.get(), expected ^ input);
+                    bitref.set_to(expected);
+                }
+                test_xor_for(bitref, expected, false);
+                test_xor_for(bitref, expected, true);
+            }
+            test_xor(&mut bitref, expected);
+            fn test_and(bitref: &mut BitRefMut, expected: bool) {
+                fn test_and_for(bitref: &mut BitRefMut, expected: bool, input: bool) {
+                    assert_eq!(bitref.get(), expected);
+                    bitref.and(input);
+                    assert_eq!(bitref.get(), expected & input);
+                    bitref.set_to(expected);
+                }
+                test_and_for(bitref, expected, false);
+                test_and_for(bitref, expected, true);
+            }
+            test_and(&mut bitref, expected);
+            fn test_or(bitref: &mut BitRefMut, expected: bool) {
+                fn test_or_for(bitref: &mut BitRefMut, expected: bool, input: bool) {
+                    assert_eq!(bitref.get(), expected);
+                    bitref.or(input);
+                    assert_eq!(bitref.get(), expected | input);
+                    bitref.set_to(expected);
+                }
+                test_or_for(bitref, expected, false);
+                test_or_for(bitref, expected, true);
+            }
+            test_or(&mut bitref, expected);
+        }
+    }
+}
+
 /// A mutable chunk of up to 256 bits.
 ///
 /// # Note
