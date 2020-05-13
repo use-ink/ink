@@ -35,6 +35,18 @@ pub struct ChunkRef<T> {
     len: u32,
 }
 
+impl<T> ChunkRef<T> {
+    /// Returns the length of the 256-bit chunk.
+    ///
+    /// # Note
+    ///
+    /// This is the number of valid bits in the chunk of 256 bits.
+    /// The valid bits are consecutive and always start from index 0.
+    pub fn len(&self) -> u32 {
+        self.len
+    }
+}
+
 impl<'a> ChunkRef<&'a Bits256> {
     /// Creates a new shared 256-bit chunk access with the given length.
     pub(super) fn shared(bits: &'a Bits256, len: u32) -> Self {
@@ -69,23 +81,6 @@ impl<'a> ChunkRef<&'a Bits256> {
     }
 }
 
-impl<'a> core::ops::Deref for ChunkRef<&'a mut Bits256> {
-    type Target = ChunkRef<&'a Bits256>;
-
-    fn deref(&self) -> &Self::Target {
-        // This implementation allows to mirror the interface on
-        // `ChunkRef<&'a Bits256>` onto `ChunkRef<&'a mut Bits256>`
-        // without the need of separate implementations.
-        //
-        // SAFETY: The `ChunkRef` struct is `repr(C)` which should guarantee
-        //         that both `ChunkRef<&'a mut Bits256>` as well as
-        //         `ChunkRef<&'a Bits256>` have the same internal layout
-        //         and thus can be transmuted safely.
-        let ptr: *const Self = self;
-        unsafe { &*(ptr as *const Self::Target) }
-    }
-}
-
 impl<'a> ChunkRef<&'a mut Bits256> {
     /// Creates a new exclusive 256-bit chunk access with the given length.
     pub(super) fn exclusive(bits: &'a mut Bits256, len: u32) -> Self {
@@ -106,14 +101,106 @@ impl<'a> ChunkRef<&'a mut Bits256> {
     }
 }
 
-impl<T> ChunkRef<T> {
-    /// Returns the length of the 256-bit chunk.
-    ///
-    /// # Note
-    ///
-    /// This is the number of valid bits in the chunk of 256 bits.
-    /// The valid bits are consecutive and always start from index 0.
-    pub fn len(&self) -> u32 {
-        self.len
+impl<'a> core::ops::Deref for ChunkRef<&'a mut Bits256> {
+    type Target = ChunkRef<&'a Bits256>;
+
+    fn deref(&self) -> &Self::Target {
+        // This implementation allows to mirror the interface on
+        // `ChunkRef<&'a Bits256>` onto `ChunkRef<&'a mut Bits256>`
+        // without the need of separate implementations.
+        //
+        // SAFETY: The `ChunkRef` struct is `repr(C)` which should guarantee
+        //         that both `ChunkRef<&'a mut Bits256>` as well as
+        //         `ChunkRef<&'a Bits256>` have the same internal layout
+        //         and thus can be transmuted safely.
+        let ptr: *const Self = self;
+        unsafe { &*(ptr as *const Self::Target) }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        Bits256,
+        ChunkRef,
+    };
+
+    fn is_populated_bit_set(index: u8) -> bool {
+        (index % 5) == 0 || (index % 13) == 0
+    }
+
+    fn populated_bits256() -> Bits256 {
+        let mut bits256 = Bits256::default();
+        for i in 0..256 {
+            let i = i as u8;
+            bits256.set_to(i, is_populated_bit_set(i));
+        }
+        bits256
+    }
+
+    #[test]
+    fn shared_works() {
+        let len: u8 = 100;
+        let bits = populated_bits256();
+        let cref = ChunkRef::shared(&bits, len as u32);
+        assert_eq!(cref.len(), len as u32);
+        // Get works:
+        for i in 0..len {
+            assert_eq!(cref.get(i), Some(is_populated_bit_set(i)));
+        }
+        assert_eq!(cref.get(len), None);
+        // Iter works:
+        for (i, val) in cref.iter().enumerate() {
+            assert_eq!(val, is_populated_bit_set(i as u8));
+        }
+    }
+
+    #[test]
+    fn exclusive_works() {
+        let len: u8 = 100;
+        let mut bits = populated_bits256();
+        let mut cref = ChunkRef::exclusive(&mut bits, len as u32);
+        assert_eq!(cref.len(), len as u32);
+        // `get` and `get_mut` works:
+        for i in 0..len {
+            assert_eq!(cref.get(i), Some(is_populated_bit_set(i)));
+            assert_eq!(
+                cref.get_mut(i).map(|br| br.get()),
+                Some(is_populated_bit_set(i))
+            );
+        }
+        assert_eq!(cref.get(len), None);
+        assert_eq!(cref.get_mut(len), None);
+        // `iter` works:
+        for (i, val) in cref.iter().enumerate() {
+            assert_eq!(val, is_populated_bit_set(i as u8));
+        }
+    }
+
+    #[test]
+    fn position_first_zero_works() {
+        let len = 256;
+        let mut zeros = Default::default();
+        let mut cref = ChunkRef::exclusive(&mut zeros, len);
+        for i in 0..len {
+            assert_eq!(cref.position_first_zero(), Some(i as u8));
+            cref.get_mut(i as u8).unwrap().set();
+        }
+        // Now all bits are set to `1`:
+        assert_eq!(cref.position_first_zero(), None);
+    }
+
+    #[test]
+    fn iter_mut_works() {
+        let len = 100;
+        let mut zeros = Default::default();
+        let mut cref = ChunkRef::exclusive(&mut zeros, len);
+        // Initialize all bits with 0 and set them to 1 via `iter_mut`.
+        // Then check if they are 1:
+        for mut byte in cref.iter_mut() {
+            assert!(!byte.get());
+            byte.set();
+        }
+        assert!(cref.iter().all(|byte| byte));
     }
 }
