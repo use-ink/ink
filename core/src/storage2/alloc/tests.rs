@@ -84,3 +84,22 @@ fn many_alloc_and_free_works() {
         }
     })
 }
+
+#[test]
+#[should_panic(expected = "encountered double free of dynamic storage: at index 0")]
+fn double_free_panics() {
+    run_default_test(|| {
+        let a0 = alloc();
+        let _ = alloc();
+        free(a0);
+        free(a0);
+    })
+}
+
+#[test]
+#[should_panic(expected = "index is out of bounds")]
+fn free_out_of_bounds() {
+    run_default_test(|| {
+        free(DynamicAllocation(0));
+    })
+}
