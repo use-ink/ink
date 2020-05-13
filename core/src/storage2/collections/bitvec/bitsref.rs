@@ -27,7 +27,7 @@ use super::{
 /// or an exclusive 256-bit chunk. Also it prevents accesses to out of bounds
 /// bits.
 #[derive(Debug, Copy, Clone)]
-#[repr(C)]
+#[repr(C)] // This is repr(C) to be on the safe side for the Deref impl.
 pub struct ChunkRef<T> {
     /// The reference to the 256-bits chunk.
     bits: T,
