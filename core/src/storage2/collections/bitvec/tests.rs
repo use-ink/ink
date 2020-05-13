@@ -67,7 +67,10 @@ fn get_works() {
     let mut bitvec = bitvec_600();
     for i in 0..bitvec.len() {
         assert_eq!(bitvec.get(i), Some((i % 5) == 0 || (i % 13) == 0));
-        assert_eq!(bitvec.get_mut(i).map(|b| b.get()), Some((i % 5) == 0 || (i % 13) == 0));
+        assert_eq!(
+            bitvec.get_mut(i).map(|b| b.get()),
+            Some((i % 5) == 0 || (i % 13) == 0)
+        );
     }
 }
 
