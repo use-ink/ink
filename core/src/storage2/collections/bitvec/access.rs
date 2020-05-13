@@ -189,44 +189,33 @@ mod bit_ref_mut_tests {
     }
 }
 
-/// A mutable chunk of up to 256 bits.
+/// A reference to a subslice within a 256-bit chunk.
 ///
-/// # Note
-///
-/// - Allows to inspect and manipulate bits in the 256-bit chunk on a bitwise and
-///   on chunk level.
-/// - Assures that accesses to the underlying bits are valid for the storage
-///   bit vector in which they are stored.
-#[derive(Debug)]
-pub struct Bits256RefMut<'a> {
-    /// The queried pack of 256 bits.
-    chunk: &'a mut Bits256,
-    /// The length of the chunk.
-    ///
-    /// This is the number of valid bits in the chunk of 256 bits.
-    /// The valid bits are consecutive and always start from index 0.
+/// This is a reference wrapper around either a shared 256-bit chunk
+/// or an exclusive 256-bit chunk. Also it prevents accesses to out of bounds
+/// bits.
+#[derive(Debug, Copy, Clone)]
+#[repr(C)]
+pub struct ChunkRef<T> {
+    /// The reference to the 256-bits chunk.
+    bits: T,
+    /// The length of the accessible chunk area.
     len: u32,
 }
 
-impl<'a> Bits256RefMut<'a> {
-    /// Creates a new 256-bit chunk access with the given length.
-    pub(super) fn new(chunk: &'a mut Bits256, len: u32) -> Self {
-        Self { chunk, len }
+impl<'a> ChunkRef<&'a Bits256> {
+    /// Creates a new shared 256-bit chunk access with the given length.
+    pub(super) fn shared(bits: &'a Bits256, len: u32) -> Self {
+        Self { bits, len }
     }
 
-    /// Returns the length of the 256-bit chunk.
-    ///
-    /// # Note
-    ///
-    /// This is the number of valid bits in the chunk of 256 bits.
-    /// The valid bits are consecutive and always start from index 0.
-    pub fn len(&self) -> u32 {
-        self.len
-    }
-
-    /// Returns an iterator over mutable accessors to the valid bits of `self`.
-    pub(super) fn iter_mut(&mut self) -> Bits256BitsIterMut {
-        self.chunk.iter_mut(self.len as u16)
+    /// Returns the position of the first valid zero bit if any.
+    pub fn position_first_zero(&self) -> Option<u8> {
+        let position = self.bits.position_first_zero()?;
+        if position as u32 >= self.len() {
+            return None
+        }
+        Some(position)
     }
 
     /// Returns the value of the indexed bit.
@@ -239,7 +228,35 @@ impl<'a> Bits256RefMut<'a> {
         if index as u32 >= self.len {
             return None
         }
-        self.chunk.get(index).into()
+        self.bits.get(index).into()
+    }
+
+    /// Returns an iterator over the valid bits of `self`.
+    pub(super) fn iter(&self) -> Bits256BitsIter {
+        self.bits.iter(self.len as u16)
+    }
+}
+
+impl<'a> core::ops::Deref for ChunkRef<&'a mut Bits256> {
+    type Target = ChunkRef<&'a Bits256>;
+
+    fn deref(&self) -> &Self::Target {
+        // This implementation allows to mirror the interface on
+        // `ChunkRef<&'a Bits256>` onto `ChunkRef<&'a mut Bits256>`
+        // without the need of separate implementations.
+        //
+        // SAFETY: The `ChunkRef` struct is `repr(C)` which should guarantee
+        //         that both `ChunkRef<&'a mut Bits256>` as well as
+        //         `ChunkRef<&'a Bits256>` have the same internal layout
+        //         and thus can be transmuted safely.
+        unsafe { core::mem::transmute::<&Self, &Self::Target>(self) }
+    }
+}
+
+impl<'a> ChunkRef<&'a mut Bits256> {
+    /// Creates a new exclusive 256-bit chunk access with the given length.
+    pub(super) fn exclusive(bits: &'a mut Bits256, len: u32) -> Self {
+        Self { bits, len }
     }
 
     /// Returns mutable access to a single bit if the index is within bounds.
@@ -247,44 +264,16 @@ impl<'a> Bits256RefMut<'a> {
         if index as u32 >= self.len {
             return None
         }
-        BitRefMut::new(self.chunk, index).into()
+        BitRefMut::new(self.bits, index).into()
     }
 
-    /// Returns the position of the first valid zero bit if any.
-    pub fn position_first_zero(&self) -> Option<u8> {
-        let position = self.chunk.position_first_zero()?;
-        if position as u32 >= self.len() {
-            return None
-        }
-        Some(position)
+    /// Returns an iterator over mutable accessors to the valid bits of `self`.
+    pub(super) fn iter_mut(&mut self) -> Bits256BitsIterMut {
+        self.bits.iter_mut(self.len as u16)
     }
 }
 
-/// A shared chunk of up to 256 bits.
-///
-/// # Note
-///
-/// - Allows to inspect bits in the 256-bit chunk on a bitwise and
-///   on chunk level.
-/// - Assures that accesses to the underlying bits are valid for the storage
-///   bit vector in which they are stored.
-#[derive(Debug, Copy, Clone)]
-pub struct Bits256Ref<'a> {
-    /// The queried pack of 256 bits.
-    chunk: &'a Bits256,
-    /// The length of the chunk.
-    ///
-    /// This is the number of valid bits in the chunk of 256 bits.
-    /// The valid bits are consecutive and always start from index 0.
-    len: u32,
-}
-
-impl<'a> Bits256Ref<'a> {
-    /// Creates a new 256-bit chunk access with the given length.
-    pub(super) fn new(chunk: &'a Bits256, len: u32) -> Self {
-        Self { chunk, len }
-    }
-
+impl<T> ChunkRef<T> {
     /// Returns the length of the 256-bit chunk.
     ///
     /// # Note
@@ -293,32 +282,5 @@ impl<'a> Bits256Ref<'a> {
     /// The valid bits are consecutive and always start from index 0.
     pub fn len(&self) -> u32 {
         self.len
-    }
-
-    /// Returns an iterator over the valid bits of `self`.
-    pub(super) fn iter(&self) -> Bits256BitsIter {
-        self.chunk.iter(self.len as u16)
-    }
-
-    /// Returns the value of the indexed bit.
-    ///
-    /// # Note
-    ///
-    /// - If 0: returns `false`
-    /// - If 1: returns `true`
-    pub fn get(&self, index: u8) -> Option<bool> {
-        if index as u32 >= self.len {
-            return None
-        }
-        self.chunk.get(index).into()
-    }
-
-    /// Returns the position of the first valid zero bit if any.
-    pub fn position_first_zero(&self) -> Option<u8> {
-        let position = self.chunk.position_first_zero()?;
-        if position as u32 >= self.len() {
-            return None
-        }
-        Some(position)
     }
 }

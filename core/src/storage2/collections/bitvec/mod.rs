@@ -28,8 +28,7 @@ mod tests;
 pub use self::{
     access::{
         BitRefMut,
-        Bits256Ref,
-        Bits256RefMut,
+        ChunkRef,
     },
     iter::{
         BitsIter,
@@ -173,7 +172,7 @@ impl Bitvec {
     }
 
     /// Returns a shared reference to the 256-bit chunk for the bit at the given index.
-    pub fn get_chunk(&self, at: Index) -> Option<Bits256Ref> {
+    pub fn get_chunk(&self, at: Index) -> Option<ChunkRef<&Bits256>> {
         if at >= self.len() {
             return None
         }
@@ -181,11 +180,11 @@ impl Bitvec {
         let chunk_id = at / 256;
         let chunk_len = min(256, self.len() - at);
         let bits256 = self.bits.get(chunk_id).expect("index is within bounds");
-        Some(Bits256Ref::new(bits256, chunk_len))
+        Some(ChunkRef::shared(bits256, chunk_len))
     }
 
     /// Returns an exclusive reference to the 256-bit chunk for the bit at the given index.
-    pub fn get_chunk_mut(&mut self, at: Index) -> Option<Bits256RefMut> {
+    pub fn get_chunk_mut(&mut self, at: Index) -> Option<ChunkRef<&mut Bits256>> {
         if at >= self.len() {
             return None
         }
@@ -193,7 +192,7 @@ impl Bitvec {
         let chunk_id = at / 256;
         let chunk_len = min(256, self.len() - at);
         let bits256 = self.bits.get_mut(chunk_id).expect("index is within bounds");
-        Some(Bits256RefMut::new(bits256, chunk_len))
+        Some(ChunkRef::exclusive(bits256, chunk_len))
     }
 
     /// Returns the first bit of the bit vector.

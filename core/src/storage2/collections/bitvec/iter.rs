@@ -18,9 +18,8 @@ use super::{
     Bits256,
     Bits256BitsIter,
     Bits256BitsIterMut,
-    Bits256Ref,
-    Bits256RefMut,
     Bitvec as StorageBitvec,
+    ChunkRef,
 };
 use crate::storage2::collections::vec::{
     Iter as StorageVecIter,
@@ -216,7 +215,7 @@ impl<'a> Bits256Iter<'a> {
 }
 
 impl<'a> Iterator for Bits256Iter<'a> {
-    type Item = Bits256Ref<'a>;
+    type Item = ChunkRef<&'a Bits256>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.remaining == 0 {
@@ -226,7 +225,7 @@ impl<'a> Iterator for Bits256Iter<'a> {
         self.remaining = self.remaining.saturating_sub(256);
         self.iter
             .next()
-            .map(|bits256| Bits256Ref::new(bits256, len))
+            .map(|bits256| ChunkRef::shared(bits256, len))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -250,7 +249,7 @@ impl<'a> DoubleEndedIterator for Bits256Iter<'a> {
         self.remaining = self.remaining.saturating_sub(len);
         self.iter
             .next_back()
-            .map(|bits256| Bits256Ref::new(bits256, len))
+            .map(|bits256| ChunkRef::shared(bits256, len))
     }
 }
 
@@ -276,14 +275,14 @@ impl<'a> Bits256IterMut<'a> {
 }
 
 impl<'a> Iterator for Bits256IterMut<'a> {
-    type Item = Bits256RefMut<'a>;
+    type Item = ChunkRef<&'a mut Bits256>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let len = min(256, self.remaining);
         self.remaining = self.remaining.saturating_sub(256);
         self.iter
             .next()
-            .map(|bits256| Bits256RefMut::new(bits256, len))
+            .map(|bits256| ChunkRef::exclusive(bits256, len))
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -304,7 +303,7 @@ impl<'a> DoubleEndedIterator for Bits256IterMut<'a> {
         }
         self.iter
             .next_back()
-            .map(|bits256| Bits256RefMut::new(bits256, len))
+            .map(|bits256| ChunkRef::exclusive(bits256, len))
     }
 }
 
