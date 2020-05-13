@@ -211,7 +211,10 @@ impl DynamicAllocator {
             // If the dynamic allocation bit is not set this indicates that
             // the dynamic storage location has already been cleaned up and
             // this might be a double free.
-            panic!("encountered double free of dynamic storage: at index {}", index);
+            panic!(
+                "encountered double free of dynamic storage: at index {}",
+                index
+            );
         }
         // Set to `0` (false) which means that this slot is available again.
         access.reset();
