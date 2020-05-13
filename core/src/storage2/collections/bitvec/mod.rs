@@ -16,11 +16,11 @@
 //!
 //! Allows to compactly and efficiently store and manipulate on single bits.
 
+mod bitref;
 mod bits256;
+mod bitsref;
 mod impls;
 mod iter;
-mod bitref;
-mod bitsref;
 mod storage;
 
 #[cfg(test)]
