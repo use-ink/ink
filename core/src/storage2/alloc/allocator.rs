@@ -207,9 +207,12 @@ impl DynamicAllocator {
     pub fn free(&mut self, allocation: DynamicAllocation) {
         let index = allocation.get();
         let mut access = self.free.get_mut(index).expect("index is out of bounds");
-        // Panic if the given dynamic allocation is not represented as
-        // occupied in the `free` list.
-        assert!(access.get(), "encountered double free of dynamic storage");
+        if !access.get() {
+            // If the dynamic allocation bit is not set this indicates that
+            // the dynamic storage location has already been cleaned up and
+            // this might be a double free.
+            panic!("encountered double free of dynamic storage: at index {}", index);
+        }
         // Set to `0` (false) which means that this slot is available again.
         access.reset();
         // Update the counts list.
