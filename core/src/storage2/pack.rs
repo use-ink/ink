@@ -257,16 +257,22 @@ mod tests {
     };
     use ink_primitives::Key;
 
+    type ComplexTuple = (u8, [i32; 4], (bool, i32));
+
+    fn complex_value() -> ComplexTuple {
+        (b'A', [0x00; 4], (true, 42))
+    }
+
     #[test]
     fn new_works() {
-        let mut expected = 1;
+        let mut expected = complex_value();
         let mut pack = Pack::new(expected);
-        assert_eq!(Deref::deref(&pack), &expected);
-        assert_eq!(DerefMut::deref_mut(&mut pack), &mut expected);
-        assert_eq!(AsRef::as_ref(&pack), &expected);
-        assert_eq!(AsMut::as_mut(&mut pack), &mut expected);
-        assert_eq!(Borrow::<i32>::borrow(&pack), &expected);
-        assert_eq!(BorrowMut::<i32>::borrow_mut(&mut pack), &mut expected);
+        assert_eq!(<Pack<_> as Deref>::deref(&pack), &expected);
+        assert_eq!(<Pack<_> as DerefMut>::deref_mut(&mut pack), &mut expected);
+        assert_eq!(<Pack<_> as AsRef<_>>::as_ref(&pack), &expected);
+        assert_eq!(<Pack<_> as AsMut<_>>::as_mut(&mut pack), &mut expected);
+        assert_eq!(Borrow::<ComplexTuple>::borrow(&pack), &expected);
+        assert_eq!(BorrowMut::<ComplexTuple>::borrow_mut(&mut pack), &mut expected);
         assert_eq!(Pack::as_inner(&pack), &expected);
         assert_eq!(Pack::as_inner_mut(&mut pack), &mut expected);
         assert_eq!(Pack::into_inner(pack), expected);
@@ -274,11 +280,12 @@ mod tests {
 
     #[test]
     fn from_works() {
-        let mut from = Pack::from(b'A');
-        assert_eq!(from, Pack::new(b'A'));
-        assert_eq!(Pack::as_inner(&from), &b'A');
-        assert_eq!(Pack::as_inner_mut(&mut from), &mut b'A');
-        assert_eq!(Pack::into_inner(from), b'A');
+        let mut expected = complex_value();
+        let mut from = Pack::from(expected);
+        assert_eq!(from, Pack::new(expected));
+        assert_eq!(Pack::as_inner(&from), &expected);
+        assert_eq!(Pack::as_inner_mut(&mut from), &mut expected);
+        assert_eq!(Pack::into_inner(from), expected);
     }
 
     #[test]
@@ -307,6 +314,16 @@ mod tests {
             <Pack<u8> as PartialOrd>::partial_cmp(&b1, &b3),
             Some(Ordering::Equal)
         );
+        // Less-than
+        assert!(<Pack<u8> as PartialOrd>::lt(&b1, &b2));
+        // Less-than-or-equals
+        assert!(<Pack<u8> as PartialOrd>::le(&b1, &b2));
+        assert!(<Pack<u8> as PartialOrd>::le(&b1, &b3));
+        // Greater-than
+        assert!(<Pack<u8> as PartialOrd>::gt(&b2, &b1));
+        // Greater-than-or-equals
+        assert!(<Pack<u8> as PartialOrd>::ge(&b2, &b1));
+        assert!(<Pack<u8> as PartialOrd>::ge(&b3, &b1));
     }
 
     fn run_test<F>(f: F)
