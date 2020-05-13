@@ -292,6 +292,25 @@ mod tests {
     }
 
     #[test]
+    fn default_works() {
+        use core::fmt::Debug;
+        fn assert_default<T>()
+        where
+            T: Debug + Default + PartialEq,
+        {
+            let pack_default = <Pack<T> as Default>::default();
+            assert_eq!(
+                <Pack<T>>::into_inner(pack_default),
+                <T as Default>::default()
+            );
+        }
+        assert_default::<bool>();
+        assert_default::<u8>();
+        assert_default::<Option<i32>>();
+        assert_default::<Pack<[u8; 4]>>();
+    }
+
+    #[test]
     fn partial_eq_works() {
         let b1 = Pack::new(b'X');
         let b2 = Pack::new(b'Y');
