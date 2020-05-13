@@ -204,7 +204,7 @@ fn recursive_clear_works() {
 }
 
 #[test]
-#[should_panic(expected = "set bits decrement overflowed")]
+#[should_panic(expected = "encountered double free of dynamic storage")]
 fn double_free_panics() {
     run_test(|_| {
         let b1 = StorageBox::new(b'A');
