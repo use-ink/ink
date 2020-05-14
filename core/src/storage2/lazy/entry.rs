@@ -41,8 +41,10 @@ use ink_primitives::Key;
 pub struct Entry<T> {
     /// The value or `None` if the value has been removed.
     value: Option<T>,
-    /// This is `true` if the `value` is dirty and needs to be synchronized
-    /// with the underlying contract storage.
+    /// This is [`EntryState::Mutated`] if the value has been mutated and is in
+    /// need to be synchronized with the contract storage. If it is
+    /// [`EntryState::Preserved`] the value from the contract storage has been
+    /// preserved and does not need to be synchronized.
     state: Cell<EntryState>,
 }
 
