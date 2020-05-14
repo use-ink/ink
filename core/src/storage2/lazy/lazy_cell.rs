@@ -254,10 +254,10 @@ where
     fn load_entry_mut(&mut self) -> &mut Entry<T> {
         // SAFETY: We load the entry either from cache of from contract storage.
         //
-        //         This is safe because we are just returning a shared reference
-        //         from within a `&self` method. This also cannot change the
-        //         loaded value and thus cannot change the `mutate` flag of the
-        //         entry. Aliases using this method are safe since ink! is
+        //         This is safe because we are just returning an exclusive reference
+        //         from within a `&mut self` method. This may change the
+        //         loaded value and thus the `mutate` flag of the entry is set.
+        //         Aliases cannot happen through this method since ink! is
         //         single-threaded.
         let entry = unsafe { &mut *self.load_through_cache().as_ptr() };
         entry.replace_state(EntryState::Mutated);
