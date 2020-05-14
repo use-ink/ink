@@ -144,3 +144,33 @@ fn spread_pull_push_works() {
         assert_eq!(alloc2, alloc);
     })
 }
+
+#[test]
+#[should_panic(expected = "encountered empty storage cell")]
+fn spread_clear_works() {
+    run_default_test(|| {
+        let alloc = spread_layout_alloc_setup();
+        let root_key = Key([0x42; 32]);
+        // Push the current state of the dynamic storage allocator to the storage:
+        SpreadLayout::push_spread(&alloc, &mut KeyPtr::from(root_key));
+        // Pull another instance of the storage allocator from storage,
+        // then check if both allocators are equal after also allocating the same
+        // allocation slots:
+        let alloc2 =
+            <DynamicAllocator as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert_eq!(alloc2, alloc);
+        // Now clear the storage associated with `alloc2` again and test if another
+        // loaded instance from the same storage region panics upon pulling:
+        SpreadLayout::clear_spread(&alloc2, &mut KeyPtr::from(root_key));
+        // We have to prevent calling `Drop` of `alloc3` since it has been created
+        // deliberately upon invalid contract storage. Since interacting with `alloc3`
+        // panics which immediately initiates the dropping routines we have to
+        // wrap it in `ManuallyDrop` before we interact with it to avoid to panic
+        // while panicking.
+        let alloc3 =
+            <DynamicAllocator as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        let mut alloc3 = core::mem::ManuallyDrop::new(alloc3);
+        // Now interact with `alloc3` to make it load from the invalid storage:
+        let _ = alloc3.alloc();
+    })
+}
