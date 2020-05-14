@@ -109,24 +109,7 @@ where
     fn drop(&mut self) {
         if let Some(key) = self.key() {
             if let Some(entry) = self.entry() {
-                if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
-                    // We need to load the entity before we remove its associated contract storage
-                    // because it requires a deep clean-up which propagates clearing to its fields,
-                    // for example in the case of `T` being a `storage::Box`.
-                    clear_spread_root_opt::<T>(entry.value().into(), key)
-                } else {
-                    // The type does not require deep clean-up so we can simply clean-up
-                    // its associated storage cell and be done without having to load it first.
-                    let footprint = <T as SpreadLayout>::FOOTPRINT;
-                    assert!(
-                        footprint <= 32,
-                        "storage footprint is too big to clear the entity"
-                    );
-                    let mut ptr = KeyPtr::from(*key);
-                    for _ in 0..footprint {
-                        crate::env::clear_contract_storage(ptr.advance_by(1));
-                    }
-                }
+                clear_spread_root_opt::<T, _>(key, || entry.value().into())
             }
         }
     }

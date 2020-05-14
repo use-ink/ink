@@ -36,7 +36,7 @@ where
         .map(|_| super::pull_spread_root::<T>(root_key))
 }
 
-fn clear_associated_storage_cells<T>(root_key: &Key)
+pub fn clear_associated_storage_cells<T>(root_key: &Key)
 where
     T: SpreadLayout,
 {
@@ -69,14 +69,33 @@ where
     }
 }
 
-pub fn clear_spread_root_opt<T>(entity: Option<&T>, root_key: &Key)
+pub fn clear_spread_root_opt<'a, T: 'a, F>(root_key: &Key, f: F)
 where
     T: SpreadLayout,
+    F: FnOnce() -> Option<&'a T>,
 {
-    if let Some(value) = entity {
-        super::clear_spread_root(value, root_key)
+    if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+        // We need to load the entity before we remove its associated contract storage
+        // because it requires a deep clean-up which propagates clearing to its fields,
+        // for example in the case of `T` being a `storage::Box`.
+        // clear_spread_root_opt::<T>(f(), root_key)
+        if let Some(value) = f() {
+            super::clear_spread_root(value, root_key)
+        }
+        clear_associated_storage_cells::<T>(root_key)
+    } else {
+        // The type does not require deep clean-up so we can simply clean-up
+        // its associated storage cell and be done without having to load it first.
+        let footprint = <T as SpreadLayout>::FOOTPRINT;
+        assert!(
+            footprint <= 32,
+            "storage footprint is too big to clear the entity"
+        );
+        let mut ptr = KeyPtr::from(*root_key);
+        for _ in 0..footprint {
+            crate::env::clear_contract_storage(ptr.advance_by(1));
+        }
     }
-    clear_associated_storage_cells::<T>(root_key)
 }
 
 pub fn pull_packed_root_opt<T>(root_key: &Key) -> Option<T>

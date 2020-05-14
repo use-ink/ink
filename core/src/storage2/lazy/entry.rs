@@ -117,7 +117,7 @@ where
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ptr.next_for::<Self>();
-        clear_spread_root_opt::<T>(self.value().into(), &root_key);
+        clear_spread_root_opt::<T, _>(&root_key, || self.value().into());
     }
 }
 
