@@ -180,7 +180,7 @@ fn spread_layout_push_pull_works() -> env::Result<()> {
 }
 
 #[test]
-#[should_panic(expected = "cannot lazily load value")]
+#[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let bv1 = bitvec_600();

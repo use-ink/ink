@@ -121,7 +121,7 @@ where
     /// If loading from contract storage failed.
     #[must_use]
     pub fn get(lazy: &Self) -> &T {
-        lazy.cell.get().expect("cannot lazily load value")
+        lazy.cell.get().expect("encountered empty storage cell")
     }
 
     /// Returns an exclusive reference to the lazily loaded value.
@@ -135,7 +135,7 @@ where
     /// If loading from contract storage failed.
     #[must_use]
     pub fn get_mut(lazy: &mut Self) -> &mut T {
-        lazy.cell.get_mut().expect("cannot lazily load value")
+        lazy.cell.get_mut().expect("encountered empty storage cell")
     }
 }
 
