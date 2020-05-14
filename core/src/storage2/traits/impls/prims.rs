@@ -78,7 +78,10 @@ where
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         if let Some(value) = self {
-            ptr.advance_by(1);
+            // We do not really need the reference to `self.is_some()`
+            // in order to clean-up the `bool` value from the storage.
+            // However the API is demanding a reference so we give it one.
+            <bool as SpreadLayout>::clear_spread(&self.is_some(), ptr);
             <T as SpreadLayout>::clear_spread(value, ptr)
         }
     }
