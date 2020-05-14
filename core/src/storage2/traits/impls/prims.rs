@@ -155,7 +155,6 @@ where
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        ptr.advance_by(1);
         match self {
             Ok(value) => {
                 <bool as SpreadLayout>::clear_spread(&true, ptr);
