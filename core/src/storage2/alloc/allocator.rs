@@ -23,7 +23,6 @@ use crate::storage2::{
         PackedLayout,
         SpreadLayout,
     },
-    Pack,
     Vec as StorageVec,
 };
 use ink_primitives::Key;
@@ -46,7 +45,7 @@ pub struct DynamicAllocator {
     /// In theory it is possible to search up to 8192 storage cells for free
     /// slots with a single contract storage look-up. By iterating over the 32
     /// `SetBits32` instances of a single instance.
-    counts: StorageVec<Pack<CountFree>>,
+    counts: StorageVec<CountFree>,
     /// Stores a bit for every allocated or free storage cell.
     free: StorageBitvec,
 }
@@ -74,7 +73,7 @@ impl PackedLayout for CountFree {
 }
 
 impl SpreadLayout for DynamicAllocator {
-    const FOOTPRINT: u64 = <StorageVec<Pack<CountFree>> as SpreadLayout>::FOOTPRINT
+    const FOOTPRINT: u64 = <StorageVec<CountFree> as SpreadLayout>::FOOTPRINT
         + <StorageBitvec as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
@@ -127,7 +126,7 @@ impl DynamicAllocator {
     fn position_first_zero(&mut self) -> Option<u64> {
         // Iterate over the `counts` list of a dynamic allocator.
         // The counts list consists of packs of 32 counts per element.
-        for (n, counts) in self.counts.iter_mut().map(Pack::as_inner_mut).enumerate() {
+        for (n, counts) in self.counts.iter_mut().enumerate() {
             if let Some(i) = counts.position_first_zero() {
                 let n = n as u64;
                 let i = i as u64;
@@ -187,7 +186,7 @@ impl DynamicAllocator {
                 // We need to push another counts element.
                 let mut counter = CountFree::default();
                 counter[0_u8] = 1;
-                self.counts.push(Pack::from(counter));
+                self.counts.push(counter);
             }
             // Return the new slot.
             DynamicAllocation(self.free.len() - 1)
