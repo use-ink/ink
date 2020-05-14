@@ -78,7 +78,7 @@ pub trait SpreadLayout {
     ///
     /// # Note
     ///
-    /// This method of pushing is depth-first: Sub-types are cleared before
+    /// This method of clearing is depth-first: Sub-types are cleared before
     /// their parent or super type.
     fn clear_spread(&self, ptr: &mut KeyPtr);
 }
