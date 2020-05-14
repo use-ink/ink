@@ -158,9 +158,11 @@ where
         ptr.advance_by(1);
         match self {
             Ok(value) => {
+                <bool as SpreadLayout>::clear_spread(&true, ptr);
                 <T as SpreadLayout>::clear_spread(value, ptr);
             }
             Err(error) => {
+                <bool as SpreadLayout>::clear_spread(&false, ptr);
                 <E as SpreadLayout>::clear_spread(error, ptr);
             }
         }
