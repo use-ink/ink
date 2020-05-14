@@ -36,23 +36,6 @@ where
         .map(|_| super::pull_spread_root::<T>(root_key))
 }
 
-pub fn clear_associated_storage_cells<T>(root_key: &Key)
-where
-    T: SpreadLayout,
-{
-    // Due to performance implications we do not allow this with
-    // storage entities that have a footprint that is too big.
-    let footprint = <T as SpreadLayout>::FOOTPRINT;
-    assert!(
-        footprint <= 32,
-        "footprint too large! try packing or boxing the storage entity."
-    );
-    let mut ptr = KeyPtr::from(*root_key);
-    for _ in 0..footprint {
-        env::clear_contract_storage(ptr.advance_by(1));
-    }
-}
-
 pub fn push_spread_root_opt<T>(entity: Option<&T>, root_key: &Key)
 where
     T: SpreadLayout,
@@ -65,7 +48,7 @@ where
             // For this we'd need specialization in Rust or similar.
             super::push_spread_root(value, root_key)
         }
-        None => clear_associated_storage_cells::<T>(root_key),
+        None => clear_spread_root_opt::<T, _>(root_key, || entity),
     }
 }
 
@@ -74,16 +57,44 @@ where
     T: SpreadLayout,
     F: FnOnce() -> Option<&'a T>,
 {
-    if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+    // We can clean up some storage entity using its `SpreadLayout::clear_spread`
+    // implementation or its defined storage footprint.
+    //
+    // While using its `SpreadLayout::clear_spread` implementation is more precise
+    // and will only clean-up what is necessary it requires an actual instance.
+    // Loading such an instance if it is not already in the memory cache of some
+    // lazy abstraction will incur significant overhead.
+    // Using its defined storage footprint this procedure can eagerly clean-up
+    // the associated contract storage region, however, this might clean-up more
+    // cells than needed.
+    //
+    // There are types that need a so-called "deep" clean-up. An example for this
+    // is `storage::Box<storage::Box<T>>` where the outer storage box definitely
+    // needs to propagate clearing signals onto its inner `storage::Box` in order
+    // to properly clean-up the whole associate contract storage region.
+    // This is when we cannot avoid loading the entity for the clean-up procedure.
+    //
+    // If the entity that shall be cleaned-up does not require deep clean-up we
+    // check if its storage footprint exceeds a certain threshold and only then
+    // we will still load it first in order to not clean-up too many unneeded
+    // storage cells.
+    let footprint = <T as SpreadLayout>::FOOTPRINT;
+    let threshold = 16; // Arbitrarily chosen. Might need adjustments later.
+    if footprint >= threshold || <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
         // We need to load the entity before we remove its associated contract storage
         // because it requires a deep clean-up which propagates clearing to its fields,
         // for example in the case of `T` being a `storage::Box`.
         // clear_spread_root_opt::<T>(f(), root_key)
         if let Some(value) = f() {
-            super::clear_spread_root(value, root_key)
+            super::clear_spread_root(value, root_key);
+            return
         }
     }
-    clear_associated_storage_cells::<T>(root_key);
+    // Clean-up eagerly without potentially loading the entity from storage:
+    let mut ptr = KeyPtr::from(*root_key);
+    for _ in 0..footprint {
+        env::clear_contract_storage(ptr.advance_by(1));
+    }
 }
 
 pub fn pull_packed_root_opt<T>(root_key: &Key) -> Option<T>
