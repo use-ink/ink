@@ -44,7 +44,7 @@ where
     // storage entities that have a footprint that is too big.
     let footprint = <T as SpreadLayout>::FOOTPRINT;
     assert!(
-        footprint < 32,
+        footprint <= 32,
         "footprint too large! try packing or boxing the storage entity."
     );
     let mut ptr = KeyPtr::from(*root_key);
@@ -82,20 +82,8 @@ where
         if let Some(value) = f() {
             super::clear_spread_root(value, root_key)
         }
-        clear_associated_storage_cells::<T>(root_key)
-    } else {
-        // The type does not require deep clean-up so we can simply clean-up
-        // its associated storage cell and be done without having to load it first.
-        let footprint = <T as SpreadLayout>::FOOTPRINT;
-        assert!(
-            footprint <= 32,
-            "storage footprint is too big to clear the entity"
-        );
-        let mut ptr = KeyPtr::from(*root_key);
-        for _ in 0..footprint {
-            crate::env::clear_contract_storage(ptr.advance_by(1));
-        }
     }
+    clear_associated_storage_cells::<T>(root_key);
 }
 
 pub fn pull_packed_root_opt<T>(root_key: &Key) -> Option<T>
