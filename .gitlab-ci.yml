@@ -111,11 +111,14 @@ codecov:
   variables:
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     CARGO_INCREMENTAL:             0
-    RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Zpanic_abort_tests -Ccodegen-units=1
-                                      -Cinline-threshold=0 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
+    RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
+                                      -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
     # produces better results for Rust codebases in general. However, unlike `grcov` it requires
     # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
+    # We removed the `-Cinline-threshold=0` flag from the above `RUSTFLAGS` since it was bugged
+    # at the time and lead to inlining of functions that shouldn't be inlined for the coverage
+    # report. (More information here: https://github.com/Kogia-sima/rust-covfix/issues/2)
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - unset "CARGO_TARGET_DIR"
