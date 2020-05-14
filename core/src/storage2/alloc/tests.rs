@@ -19,11 +19,19 @@ use super::{
     set_contract_phase,
     ContractPhase,
     DynamicAllocation,
+    DynamicAllocator,
 };
-use crate::env::{
-    test,
-    DefaultEnvTypes,
+use crate::{
+    env::{
+        test,
+        DefaultEnvTypes,
+    },
+    storage2::traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
 };
+use ink_primitives::Key;
 
 fn run_default_test<F>(f: F)
 where
@@ -101,5 +109,38 @@ fn double_free_panics() {
 fn free_out_of_bounds() {
     run_default_test(|| {
         free(DynamicAllocation(0));
+    })
+}
+
+fn spread_layout_alloc_setup() -> DynamicAllocator {
+    let mut alloc = DynamicAllocator::new();
+    assert_eq!(alloc.alloc(), DynamicAllocation(0));
+    assert_eq!(alloc.alloc(), DynamicAllocation(1));
+    assert_eq!(alloc.alloc(), DynamicAllocation(2));
+    assert_eq!(alloc.alloc(), DynamicAllocation(3));
+    assert_eq!(alloc.alloc(), DynamicAllocation(4));
+    alloc.free(DynamicAllocation(3));
+    alloc.free(DynamicAllocation(1));
+    alloc
+}
+
+#[test]
+fn spread_pull_push_works() {
+    run_default_test(|| {
+        let mut alloc = spread_layout_alloc_setup();
+        let root_key = Key([0x77; 32]);
+        // Push the current state of the dynamic storage allocator to the storage:
+        SpreadLayout::push_spread(&alloc, &mut KeyPtr::from(root_key));
+        // Now check if the new allocations are filling the freed ones:
+        assert_eq!(alloc.alloc(), DynamicAllocation(1));
+        assert_eq!(alloc.alloc(), DynamicAllocation(3));
+        // Pull another instance of the storage allocator from storage,
+        // then check if both allocators are equal after also allocating the same
+        // allocation slots:
+        let mut alloc2 =
+            <DynamicAllocator as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert_eq!(alloc2.alloc(), DynamicAllocation(1));
+        assert_eq!(alloc2.alloc(), DynamicAllocation(3));
+        assert_eq!(alloc2, alloc);
     })
 }

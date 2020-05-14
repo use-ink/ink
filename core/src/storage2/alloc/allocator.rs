@@ -34,7 +34,7 @@ type Index32 = u8;
 /// The dynamic allocator.
 ///
 /// Manages dynamic storage allocations in a very efficient and economic way.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct DynamicAllocator {
     /// Counter for set bits in a 256-bit chunk of the `free` list.
     ///
@@ -229,7 +229,7 @@ impl DynamicAllocator {
 }
 
 /// Stores the number of set bits for each 256-bits block in a compact `u8`.
-#[derive(Debug, scale::Encode, scale::Decode)]
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 struct CountFree {
     /// Set bits per 256-bit chunk.
     counts: [u8; 32],
@@ -289,7 +289,7 @@ impl ::core::ops::IndexMut<u8> for CountFree {
     }
 }
 
-#[derive(Debug, Copy, Clone, scale::Encode, scale::Decode)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
 pub struct FullMask(u32);
 
 impl Default for FullMask {
