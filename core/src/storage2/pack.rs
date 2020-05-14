@@ -22,7 +22,7 @@ use crate::storage2::traits::{
 };
 use ink_primitives::Key;
 
-/// Packs the inner `T` so that it only occupies a single contract stoage cell.
+/// Packs the inner `T` so that it only occupies a single contract storage cell.
 ///
 /// # Note
 ///
