@@ -34,6 +34,7 @@ use ink_primitives::Key;
 
 impl SpreadLayout for Header {
     const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = false;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         forward_pull_packed::<Self>(ptr)
@@ -59,6 +60,7 @@ where
     T: PackedLayout,
 {
     const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         forward_pull_packed::<Self>(ptr)
