@@ -191,10 +191,7 @@ where
     /// Mainly used by lazy storage abstractions that only allow operating on
     /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
     pub fn pull_packed_root(root_key: &Key) -> Self {
-        let mut entry =
-            Self::new(pull_packed_root_opt::<T>(root_key), EntryState::Preserved);
-        PackedLayout::pull_packed(&mut entry, root_key);
-        entry
+        Self::new(pull_packed_root_opt::<T>(root_key), EntryState::Preserved)
     }
 
     /// Pushes the underlying associated storage as packed representation.
