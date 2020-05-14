@@ -261,7 +261,7 @@ where
     pub alice: T::AccountId,
     /// The predefined `BOB` account holding some amounts of value.
     pub bob: T::AccountId,
-    /// The predefined `CHARLY` account holding some amounts of value.
+    /// The predefined `CHARLIE` account holding some amounts of value.
     pub charlie: T::AccountId,
     /// The predefined `DJANGO` account holding no value.
     pub django: T::AccountId,
