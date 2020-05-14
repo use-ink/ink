@@ -49,8 +49,5 @@ pub use self::{
 /// lifetimes of the objects they are referencing and thus potentially create
 /// dangling references if not used carefully.
 pub(crate) unsafe fn extend_lifetime<'a, 'b: 'a, T>(reference: &'a mut T) -> &'b mut T {
-    #[allow(unused_unsafe)]
-    unsafe {
-        core::mem::transmute::<&'a mut T, &'b mut T>(reference)
-    }
+    core::mem::transmute::<&'a mut T, &'b mut T>(reference)
 }

@@ -21,8 +21,6 @@
 //! emulator for simple off-chain testing.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(unused_unsafe)]
-// #![deny(unsafe_op_in_unsafe_fn)]
 #![deny(
     missing_docs,
     bad_style,

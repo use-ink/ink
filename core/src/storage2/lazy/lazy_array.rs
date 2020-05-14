@@ -262,7 +262,7 @@ where
     /// Inserts a new entry into the cache and returns an exclusive reference to it.
     unsafe fn insert_entry(&self, at: Index, new_entry: Entry<T>) -> NonNull<Entry<T>> {
         let entry: &mut Option<Entry<T>> =
-            unsafe { &mut *UnsafeCell::get(&self.entries[at as usize]) };
+            &mut *UnsafeCell::get(&self.entries[at as usize]);
         *entry = Some(new_entry);
         entry
             .as_mut()

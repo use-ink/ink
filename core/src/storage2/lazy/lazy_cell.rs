@@ -225,8 +225,7 @@ where
         //         However, we mutate the entry only if it is vacant.
         //         If the entry is occupied by a value we return early.
         //         This way we do not invalidate pointers to this value.
-        #[allow(unused_unsafe)]
-        let cache = unsafe { &mut *self.cache.get() };
+        let cache = &mut *self.cache.get();
         if cache.is_none() {
             // Load value from storage and then return the cached entry.
             let value = self

@@ -350,8 +350,7 @@ where
         //         By returning a raw pointer we enforce an `unsafe` block at
         //         the caller site to underline that guarantees are given by the
         //         caller.
-        #[allow(unused_unsafe)]
-        let cached_entries = unsafe { &mut *self.cached_entries.get() };
+        let cached_entries = &mut *self.cached_entries.get();
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         // We have to clone the key here because we do not have access to the unsafe
         // raw entry API for Rust hash maps, yet since it is unstable. We can remove
