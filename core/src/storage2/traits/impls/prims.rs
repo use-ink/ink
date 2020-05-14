@@ -72,11 +72,11 @@ where
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
+        // We do not really need the reference to 0 (zero)
+        // in order to clean-up the `bool` value from the storage.
+        // However the API is demanding a reference so we give it one.
+        <u8 as SpreadLayout>::clear_spread(&0, ptr);
         if let Some(value) = self {
-            // We do not really need the reference to 0 (zero)
-            // in order to clean-up the `bool` value from the storage.
-            // However the API is demanding a reference so we give it one.
-            <u8 as SpreadLayout>::clear_spread(&0, ptr);
             <T as SpreadLayout>::clear_spread(value, ptr)
         }
     }
@@ -150,13 +150,13 @@ where
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
+        // Clear the discriminant, same for all variants.
+        <u8 as SpreadLayout>::clear_spread(&0, ptr);
         match self {
             Ok(value) => {
-                <u8 as SpreadLayout>::clear_spread(&0, ptr);
                 <T as SpreadLayout>::clear_spread(value, ptr);
             }
             Err(error) => {
-                <u8 as SpreadLayout>::clear_spread(&1, ptr);
                 <E as SpreadLayout>::clear_spread(error, ptr);
             }
         }
