@@ -41,7 +41,7 @@ pub trait SpreadLayout {
     ///
     /// The default is set to `true` in order to have correctness by default since
     /// no type invariants break if a deep clean-up is performed on a type that does
-    /// not need it but perfoming a shallow clean-up for a type that requires a
+    /// not need it but performing a shallow clean-up for a type that requires a
     /// deep clean-up would break invariants.
     /// This is solely a setting to improve performance upon clean-up for some types.
     const REQUIRES_DEEP_CLEAN_UP: bool = true;
