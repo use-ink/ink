@@ -278,7 +278,7 @@ where
         self.load_entry().value().into()
     }
 
-    /// Returns a shared reference to the value.
+    /// Returns an exclusive reference to the value.
     ///
     /// # Note
     ///
