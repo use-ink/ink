@@ -65,32 +65,28 @@ where
     const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        match self {
-            Some(value) => {
-                false.push_spread(ptr);
-                <T as SpreadLayout>::push_spread(value, ptr)
-            }
-            None => {
-                true.push_spread(ptr);
-            }
+        <u8 as SpreadLayout>::push_spread(&(self.is_some() as u8), ptr);
+        if let Some(value) = self {
+            <T as SpreadLayout>::push_spread(value, ptr);
         }
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         if let Some(value) = self {
-            // We do not really need the reference to `self.is_some()`
+            // We do not really need the reference to 0 (zero)
             // in order to clean-up the `bool` value from the storage.
             // However the API is demanding a reference so we give it one.
-            <bool as SpreadLayout>::clear_spread(&self.is_some(), ptr);
+            <u8 as SpreadLayout>::clear_spread(&0, ptr);
             <T as SpreadLayout>::clear_spread(value, ptr)
         }
     }
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        if <bool as SpreadLayout>::pull_spread(ptr) {
-            return Some(<T as SpreadLayout>::pull_spread(ptr))
+        match <u8 as SpreadLayout>::pull_spread(ptr) {
+            0u8 => None,
+            1u8 => Some(<T as SpreadLayout>::pull_spread(ptr)),
+            _ => unreachable!("invalid Option discriminant"),
         }
-        None
     }
 }
 
@@ -133,22 +129,21 @@ where
         || <E as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        let is_ok = <bool as SpreadLayout>::pull_spread(ptr);
-        if is_ok {
-            Ok(<T as SpreadLayout>::pull_spread(ptr))
-        } else {
-            Err(<E as SpreadLayout>::pull_spread(ptr))
+        match <u8 as SpreadLayout>::pull_spread(ptr) {
+            0 => Ok(<T as SpreadLayout>::pull_spread(ptr)),
+            1 => Err(<E as SpreadLayout>::pull_spread(ptr)),
+            _ => unreachable!("invalid Result discriminant"),
         }
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         match self {
             Ok(value) => {
-                true.push_spread(ptr);
+                <u8 as SpreadLayout>::push_spread(&0, ptr);
                 <T as SpreadLayout>::push_spread(value, ptr);
             }
             Err(error) => {
-                false.push_spread(ptr);
+                <u8 as SpreadLayout>::push_spread(&1, ptr);
                 <E as SpreadLayout>::push_spread(error, ptr);
             }
         }
@@ -157,11 +152,11 @@ where
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         match self {
             Ok(value) => {
-                <bool as SpreadLayout>::clear_spread(&true, ptr);
+                <u8 as SpreadLayout>::clear_spread(&0, ptr);
                 <T as SpreadLayout>::clear_spread(value, ptr);
             }
             Err(error) => {
-                <bool as SpreadLayout>::clear_spread(&false, ptr);
+                <u8 as SpreadLayout>::clear_spread(&1, ptr);
                 <E as SpreadLayout>::clear_spread(error, ptr);
             }
         }
