@@ -93,7 +93,7 @@ where
     /// # Note
     ///
     /// This loads the value from the pointed to contract storage
-    /// if this did not happed before.
+    /// if this did not happen before.
     ///
     /// # Panics
     ///
