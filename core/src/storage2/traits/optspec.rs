@@ -84,7 +84,6 @@ where
         // We need to load the entity before we remove its associated contract storage
         // because it requires a deep clean-up which propagates clearing to its fields,
         // for example in the case of `T` being a `storage::Box`.
-        // clear_spread_root_opt::<T>(f(), root_key)
         if let Some(value) = f() {
             super::clear_spread_root(value, root_key);
             return
