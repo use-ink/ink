@@ -622,7 +622,7 @@ mod tests {
     fn lazy_works() {
         let key = Key([0x42; 32]);
         let larray = <LazyArray<u8, U4>>::lazy(key);
-        // Key must be none.
+        // Key must be Some.
         assert_eq!(larray.key(), Some(&key));
         assert_eq!(larray.key_at(0), Some(key));
         assert_eq!(larray.key_at(1), Some(key + 1u64));
