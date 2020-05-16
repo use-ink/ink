@@ -77,7 +77,9 @@ cfg_if! {
         pub fn initialize_for(phase: ContractPhase) {
             let instance = unsafe { &mut GLOBAL_INSTANCE };
             // We do not allow reinitialization for Wasm targets for performance reasons.
-            assert!(!instance.is_initialized());
+            if let DynamicAllocatorState::Initialized(_) = instance {
+                panic!("cannot reinitialize dynamic storage allocator instance in Wasm");
+            }
             *instance = phase.into();
         }
 
@@ -91,13 +93,13 @@ cfg_if! {
                 DynamicAllocatorState::UninitDeploy => {
                     let mut allocator = DynamicAllocator::new();
                     let result = f(&mut allocator);
-                    *instance = allocator;
+                    *instance = DynamicAllocatorState::Initialized(allocator);
                     result
                 }
                 DynamicAllocatorState::UninitCall => {
                     let mut allocator = pull_spread_root::<DynamicAllocator>(&Key(DYNAMIC_ALLOCATOR_KEY_OFFSET));
                     let result = f(&mut allocator);
-                    *instance = allocator;
+                    *instance = DynamicAllocatorState::Initialized(allocator);
                     result
                 }
                 DynamicAllocatorState::Initialized(ref mut allocator) => {
