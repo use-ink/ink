@@ -13,8 +13,8 @@
 // limitations under the License.
 
 use super::DynamicAllocator;
-use cfg_if::cfg_if;
 use crate::storage2::traits::pull_spread_root;
+use cfg_if::cfg_if;
 use ink_primitives::Key;
 
 /// The default dynamic allocator key offset.

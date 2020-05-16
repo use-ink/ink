@@ -75,12 +75,17 @@ mod init;
 #[cfg(test)]
 mod tests;
 
-pub use self::allocation::DynamicAllocation;
-use self::allocator::DynamicAllocator;
-use self::init::{
-    on_call,
+pub use self::{
+    allocation::DynamicAllocation,
+    init::{
+        initialize_for,
+        ContractPhase,
+    },
 };
-pub use self::init::{ContractPhase, initialize_for};
+use self::{
+    allocator::DynamicAllocator,
+    init::on_call,
+};
 
 /// Returns a new dynamic storage allocation.
 pub fn alloc() -> DynamicAllocation {
