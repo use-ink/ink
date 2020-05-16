@@ -190,14 +190,16 @@ fn spread_clear_works() {
 #[test]
 fn test_call_setup_works() {
     test::run_test::<DefaultEnvTypes, _>(|_| {
-        let allocator = DynamicAllocator::new();
+        let mut allocator = DynamicAllocator::new();
+        assert_eq!(allocator.alloc(), DynamicAllocation(0));
+        assert_eq!(allocator.alloc(), DynamicAllocation(1));
         let root_key = Key([0xFE; 32]);
         SpreadLayout::push_spread(&allocator, &mut KeyPtr::from(root_key));
         initialize_for(ContractPhase::Call);
-        assert_eq!(alloc(), DynamicAllocation(0));
-        assert_eq!(alloc(), DynamicAllocation(1));
+        assert_eq!(alloc(), DynamicAllocation(2));
+        assert_eq!(alloc(), DynamicAllocation(3));
         free(DynamicAllocation(0));
-        free(DynamicAllocation(1));
+        free(DynamicAllocation(2));
         Ok(())
     })
     .unwrap();
