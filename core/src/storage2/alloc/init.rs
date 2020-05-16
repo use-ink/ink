@@ -40,6 +40,7 @@ pub enum ContractPhase {
 
 /// The state of the dynamic allocator global instance.
 #[derive(Debug)]
+#[allow(clippy::large_enum_variant)]
 enum DynamicAllocatorState {
     /// The global instance has not yet been initialized.
     ///
