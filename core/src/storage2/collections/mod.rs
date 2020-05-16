@@ -18,6 +18,7 @@
 //! Users should generally use these collections in their contracts directly
 //! or as building blocks for their collections and algorithms.
 
+pub mod bitstash;
 pub mod bitvec;
 pub mod boxed;
 pub mod hashmap;
@@ -28,6 +29,7 @@ pub mod vec;
 #[doc(inline)]
 pub use self::{
     bitvec::Bitvec,
+    bitstash::BitStash,
     boxed::Box,
     hashmap::HashMap,
     smallvec::SmallVec,
