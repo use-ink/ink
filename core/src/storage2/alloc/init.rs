@@ -121,7 +121,9 @@ cfg_if! {
         /// Commands the (re-)initialization of the global instance for the dynamic
         /// storage allocator.
         pub fn initialize_for(phase: ContractPhase) {
-            GLOBAL_INSTANCE.with(|instance| instance.replace_with(|_| phase.into()));
+            GLOBAL_INSTANCE.with(|instance| {
+                core::mem::forget(instance.replace_with(|_| phase.into()))
+            });
         }
 
         /// Runs the given closure on the global instance for the dynamic storage allocator.
