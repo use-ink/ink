@@ -90,6 +90,20 @@ fn many_alloc_and_free_works() {
         for i in 0..TEST_ALLOCATIONS {
             free(DynamicAllocation(i))
         }
+        assert_eq!(alloc(), DynamicAllocation(0));
+    })
+}
+
+#[test]
+fn alloc_free_in_the_middle() {
+    run_default_test(|| {
+        for i in 0..TEST_ALLOCATIONS {
+            assert_eq!(alloc(), DynamicAllocation(i));
+        }
+        for i in 0..TEST_ALLOCATIONS {
+            free(DynamicAllocation(i));
+            assert_eq!(alloc(), DynamicAllocation(i));
+        }
     })
 }
 
