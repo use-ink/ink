@@ -232,36 +232,6 @@ impl Default for CountFree {
     }
 }
 
-impl CountFree {
-    /// Returns an iterator yielding shared references to the set-bit counts.
-    pub fn iter(&self) -> core::slice::Iter<u8> {
-        self.counts.iter()
-    }
-
-    /// Returns an iterator yielding exclusive references to the set-bit counts.
-    pub fn iter_mut(&mut self) -> core::slice::IterMut<u8> {
-        self.counts.iter_mut()
-    }
-}
-
-impl<'a> IntoIterator for &'a CountFree {
-    type Item = &'a u8;
-    type IntoIter = core::slice::Iter<'a, u8>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter()
-    }
-}
-
-impl<'a> IntoIterator for &'a mut CountFree {
-    type Item = &'a mut u8;
-    type IntoIter = core::slice::IterMut<'a, u8>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter_mut()
-    }
-}
-
 impl ::core::ops::Index<u8> for CountFree {
     type Output = u8;
 
