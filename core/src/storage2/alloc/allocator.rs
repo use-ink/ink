@@ -104,19 +104,6 @@ impl DynamicAllocator {
         }
     }
 
-    /// Resets the dynamic allocator.
-    ///
-    /// # Note
-    ///
-    /// This method is only needed for testing when tools such as `miri` run all
-    /// tests on the same thread in sequence so every test has to reset the
-    /// statically allocated instances like the storage allocator before running.
-    #[cfg(test)]
-    pub fn reset(&mut self) {
-        self.counts = StorageVec::new();
-        self.free = StorageBitvec::new();
-    }
-
     /// Returns the bit position of the first 256-bit chunk with zero bits
     /// in the `free` list.
     ///

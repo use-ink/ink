@@ -15,8 +15,7 @@
 use super::{
     alloc,
     free,
-    reset_allocator,
-    set_contract_phase,
+    initialize_for,
     ContractPhase,
     DynamicAllocation,
     DynamicAllocator,
@@ -37,8 +36,7 @@ fn run_default_test<F>(f: F)
 where
     F: FnOnce(),
 {
-    set_contract_phase(ContractPhase::Deploy);
-    reset_allocator();
+    initialize_for(ContractPhase::Deploy);
     test::run_test::<DefaultEnvTypes, _>(|_| {
         f();
         Ok(())
@@ -187,4 +185,20 @@ fn spread_clear_works() {
         // Now interact with `alloc3` to make it load from the invalid storage:
         let _ = alloc3.alloc();
     })
+}
+
+#[test]
+fn test_call_setup_works() {
+    test::run_test::<DefaultEnvTypes, _>(|_| {
+        let allocator = DynamicAllocator::new();
+        let root_key = Key([0xFE; 32]);
+        SpreadLayout::push_spread(&allocator, &mut KeyPtr::from(root_key));
+        initialize_for(ContractPhase::Call);
+        assert_eq!(alloc(), DynamicAllocation(0));
+        assert_eq!(alloc(), DynamicAllocation(1));
+        free(DynamicAllocation(0));
+        free(DynamicAllocation(1));
+        Ok(())
+    })
+    .unwrap();
 }
