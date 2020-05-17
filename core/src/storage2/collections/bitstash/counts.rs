@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::ops::{Index, IndexMut};
+use core::ops::{
+    Index,
+    IndexMut,
+};
 
 /// Stores the number of set bits for each 256-bits block in a compact `u8`.
 #[derive(Debug, Default, PartialEq, Eq, scale::Encode, scale::Decode)]

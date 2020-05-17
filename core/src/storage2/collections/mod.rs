@@ -28,8 +28,8 @@ pub mod vec;
 
 #[doc(inline)]
 pub use self::{
-    bitvec::Bitvec,
     bitstash::BitStash,
+    bitvec::Bitvec,
     boxed::Box,
     hashmap::HashMap,
     smallvec::SmallVec,

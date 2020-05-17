@@ -20,11 +20,11 @@
 mod counts;
 mod storage;
 
-use crate::storage2::collections::{
-    Vec as StorageVec,
-    Bitvec as StorageBitvec,
-};
 use self::counts::CountFree;
+use crate::storage2::collections::{
+    Bitvec as StorageBitvec,
+    Vec as StorageVec,
+};
 
 /// The index type used in the storage bit stash.
 type Index = u32;

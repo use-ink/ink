@@ -16,17 +16,19 @@ use super::{
     BitStash,
     CountFree,
 };
-use crate::storage2::traits::{
-    forward_clear_packed,
-    forward_pull_packed,
-    forward_push_packed,
-    KeyPtr,
-    PackedLayout,
-    SpreadLayout,
-};
-use crate::storage2::collections::{
-    Vec as StorageVec,
-    Bitvec as StorageBitvec,
+use crate::storage2::{
+    collections::{
+        Bitvec as StorageBitvec,
+        Vec as StorageVec,
+    },
+    traits::{
+        forward_clear_packed,
+        forward_pull_packed,
+        forward_push_packed,
+        KeyPtr,
+        PackedLayout,
+        SpreadLayout,
+    },
 };
 use ink_primitives::Key;
 
