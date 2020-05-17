@@ -92,7 +92,7 @@ cfg_if! {
             let instance = unsafe { &mut GLOBAL_INSTANCE };
             match instance {
                 DynamicAllocatorState::UninitDeploy => {
-                    let mut allocator = DynamicAllocator::new();
+                    let mut allocator = DynamicAllocator::default();
                     let result = f(&mut allocator);
                     *instance = DynamicAllocatorState::Initialized(allocator);
                     result
