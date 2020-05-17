@@ -122,7 +122,7 @@ cfg_if! {
         /// storage allocator.
         pub fn initialize_for(phase: ContractPhase) {
             GLOBAL_INSTANCE.with(|instance| {
-                core::mem::forget(instance.replace_with(|_| phase.into()))
+                instance.replace_with(|_| phase.into())
             });
         }
 
