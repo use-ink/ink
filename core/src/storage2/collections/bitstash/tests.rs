@@ -136,7 +136,8 @@ fn spread_layout_push_pull_works() {
         let pulled = <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(default, pulled);
         Ok(())
-    }).unwrap()
+    })
+    .unwrap()
 }
 
 #[test]
@@ -153,12 +154,14 @@ fn spread_layout_clear_works() {
         let pulled = <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(default, pulled);
         SpreadLayout::clear_spread(&pulled, &mut KeyPtr::from(root_key));
-        let invalid = <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        let invalid =
+            <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         // We have to prevent calling its destructor since that would also panic but
         // in an uncontrollable way.
         let mut invalid = core::mem::ManuallyDrop::new(invalid);
         // Now interact with invalid instance.
         let _ = invalid.put();
         Ok(())
-    }).unwrap()
+    })
+    .unwrap()
 }
