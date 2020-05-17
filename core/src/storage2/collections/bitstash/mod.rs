@@ -33,7 +33,7 @@ type Index = u32;
 ///
 /// Allows to efficienty put and take bits and
 /// stores the underlying bits in an extremely compressed format.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct BitStash {
     /// Counter for set bits in a 256-bit chunk of the `free` list.
     ///
