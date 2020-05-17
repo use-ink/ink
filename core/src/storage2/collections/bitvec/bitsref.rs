@@ -87,7 +87,7 @@ impl<'a> ChunkRef<&'a mut Bits256> {
         Self { bits, len }
     }
 
-    /// Returns mutable access to a single bit if the index is within bounds.
+    /// Returns mutable access to a single bit if the index is out of bounds.
     pub fn get_mut(&mut self, index: u8) -> Option<BitRefMut> {
         if index as u32 >= self.len {
             return None
