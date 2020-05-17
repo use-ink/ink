@@ -134,7 +134,7 @@ cfg_if! {
             GLOBAL_INSTANCE.with(|instance| {
                 match &mut *instance.borrow_mut() {
                     instance @ DynamicAllocatorState::UninitDeploy => {
-                        let mut allocator = DynamicAllocator::new();
+                        let mut allocator = DynamicAllocator::default();
                         let result = f(&mut allocator);
                         *instance = DynamicAllocatorState::Initialized(allocator);
                         result
