@@ -20,6 +20,9 @@
 mod counts;
 mod storage;
 
+#[cfg(test)]
+mod tests;
+
 use self::counts::CountFree;
 use crate::storage2::collections::{
     Bitvec as StorageBitvec,
