@@ -147,7 +147,7 @@ impl BitStash {
     /// Takes the bit from the given index and returns it.
     ///
     /// Returns `true` if the indexed bit was set (`1`).
-    /// Returns `None` if the index is out of bounds. (TODO)
+    /// Returns `None` if the index is out of bounds.
     ///
     /// # Note
     ///
