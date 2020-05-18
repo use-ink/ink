@@ -260,12 +260,6 @@ mod tests {
         .unwrap()
     }
 
-    // Key, Hash, AccountId,
-    // String,
-    // bool,
-    // u8, u16, u32, u64, u128,
-    // i8, i16, i32, i64, i128,
-
     macro_rules! push_pull_works_for_primitive {
         ( $name:ty, [$($value:expr),*] ) => {
             paste::item! {
@@ -276,9 +270,13 @@ mod tests {
                         $({
                             let x: $name = $value;
                             let key = Key([0x42; 32]);
+                            let key2 = Key([0x77; 32]);
                             push_spread_root(&x, &key);
                             let y: $name = pull_spread_root(&key);
                             assert_eq!(x, y);
+                            push_packed_root(&x, &key2);
+                            let z: $name = pull_packed_root(&key);
+                            assert_eq!(x, z);
                         })*
                     })
                 }
