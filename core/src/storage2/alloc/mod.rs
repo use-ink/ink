@@ -24,9 +24,9 @@
 //!
 //! The contracts pallet is using 256 bit keys for identifying storage cells.
 //! This implies a storage space of 2^256 cells which is big enough to say that
-//! there are probably never going to happen collissions anywhere at any time
+//! there are probably never going to happen collisions anywhere at any time
 //! if keys are chosen randomly. Using the built-in crypto hashers on unique
-//! input we can be sure that there are never going to be collissions in this
+//! input we can be sure that there are never going to be collisions in this
 //! space of 2^256 cells.
 //!
 //! This way we can reduce the problem of finding another region in our storage
@@ -54,8 +54,8 @@
 //! However, searching in this `free` list for a 0 bit and thus a free slot
 //! for a dynamic allocation would mean that for every 256 consecutively
 //! occupied dynamic allocations there was a contract storage lookup required.
-//! This might seem a lot but given that there might be potentially tousands or
-//! ten tousands of dynamic allocations at any given time this might not scale
+//! This might seem a lot but given that there could be thousands or
+//! tens of thousands of dynamic allocations at any given time this might not scale
 //! well.
 //! For the reason of improving scalability we added another vector: the
 //! so-called `set_bits` vector.

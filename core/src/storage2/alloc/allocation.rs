@@ -22,7 +22,7 @@ use ink_primitives::Key;
 ///
 /// This can refer to a dynamically allocated storage cell.
 /// It has been created by a dynamic storage allocator.
-/// The initiater of the allocation has to make sure to deallocate
+/// The initiator of the allocation has to make sure to deallocate
 /// this dynamic allocation again using the same dynamic allocator
 /// if it is no longer in use.
 ///
