@@ -48,8 +48,8 @@ macro_rules! impl_layout_for_primitive {
 #[rustfmt::skip]
 impl_layout_for_primitive!(
     // We do not include `f32` and `f64` since Wasm contracts currently
-    // do not support them. We might add them to this list once we add
-    // support for those primitives.
+    // do not support them since they are non deterministic. We might add them
+    // to this list once we add deterministic support for those primitives.
     Key, Hash, AccountId,
     String,
     bool,
@@ -231,4 +231,114 @@ where
     fn pull_packed(&mut self, at: &Key) {
         <T as PackedLayout>::pull_packed(&mut *self, at)
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        env,
+        env::AccountId,
+        storage2::traits::{
+            clear_spread_root,
+            pull_packed_root,
+            pull_spread_root,
+            push_packed_root,
+            push_spread_root,
+        },
+    };
+    use ink_primitives::Key;
+
+    /// Runs `f` using the off-chain testing environment.
+    fn run_test<F>(f: F)
+    where
+        F: FnOnce(),
+    {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            f();
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    // Key, Hash, AccountId,
+    // String,
+    // bool,
+    // u8, u16, u32, u64, u128,
+    // i8, i16, i32, i64, i128,
+
+    macro_rules! push_pull_works_for_primitive {
+        ( $name:ty, [$($value:expr),*] ) => {
+            paste::item! {
+                #[test]
+                #[allow(non_snake_case)]
+                fn [<$name _pull_push_works>] () {
+                    run_test(|| {
+                        $({
+                            let x: $name = $value;
+                            let key = Key([0x42; 32]);
+                            push_spread_root(&x, &key);
+                            let y: $name = pull_spread_root(&key);
+                            assert_eq!(x, y);
+                        })*
+                    })
+                }
+
+                #[test]
+                #[should_panic(expected = "storage entry was empty")]
+                #[allow(non_snake_case)]
+                fn [<$name _clean_works>]() {
+                    run_test(|| {
+                        $({
+                            let x: $name = $value;
+                            let key = Key([0x42; 32]);
+                            push_spread_root(&x, &key);
+                            // Works since we just populated the storage.
+                            let y: $name = pull_spread_root(&key);
+                            assert_eq!(x, y);
+                            clear_spread_root(&x, &key);
+                            // Panics since it loads eagerly from cleared storage.
+                            let _: $name = pull_spread_root(&key);
+                        })*
+                    })
+                }
+            }
+        };
+    }
+    push_pull_works_for_primitive!(bool, [false, true]);
+    push_pull_works_for_primitive!(
+        String,
+        [Default::default(), String::from("Hello, World!")]
+    );
+    push_pull_works_for_primitive!(
+        Key,
+        [
+            Key::from([0x00; 32]),
+            Key::from([0x42; 32]),
+            Key::from([0xFF; 32])
+        ]
+    );
+    push_pull_works_for_primitive!(
+        AccountId,
+        [
+            AccountId::from([0x00; 32]),
+            AccountId::from([0x42; 32]),
+            AccountId::from([0xFF; 32])
+        ]
+    );
+    push_pull_works_for_primitive!(i8, [0, Default::default(), 1, i8::MIN, i8::MAX]);
+    push_pull_works_for_primitive!(i16, [0, Default::default(), 2, i16::MIN, i16::MAX]);
+    push_pull_works_for_primitive!(i32, [0, Default::default(), 3, i32::MIN, i32::MAX]);
+    push_pull_works_for_primitive!(i64, [0, Default::default(), 4, i64::MIN, i64::MAX]);
+    push_pull_works_for_primitive!(
+        i128,
+        [0, Default::default(), 5, i128::MIN, i128::MAX]
+    );
+    push_pull_works_for_primitive!(u8, [0, Default::default(), 10, u8::MIN, u8::MAX]);
+    push_pull_works_for_primitive!(u16, [0, Default::default(), 20, u16::MIN, u16::MAX]);
+    push_pull_works_for_primitive!(u32, [0, Default::default(), 30, u32::MIN, u32::MAX]);
+    push_pull_works_for_primitive!(u64, [0, Default::default(), 40, u64::MIN, u64::MAX]);
+    push_pull_works_for_primitive!(
+        u128,
+        [0, Default::default(), 50, u128::MIN, u128::MAX]
+    );
 }
