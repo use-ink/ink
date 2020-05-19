@@ -103,6 +103,21 @@ fn iter_next_back_works() {
 }
 
 #[test]
+fn double_ended_iter_works() {
+    let mut bitvec = StorageBitvec::default();
+    bitvec.push(true);
+    bitvec.push(true);
+    bitvec.push(true);
+
+    let mut iter = bitvec.bits();
+    assert_eq!(Some(true), iter.next());
+    assert_eq!(Some(true), iter.next_back());
+    assert_eq!(Some(true), iter.next());
+    assert_eq!(None, iter.next());
+    assert_eq!(None, iter.next_back());
+}
+
+#[test]
 fn push_works() {
     let mut bitvec = StorageBitvec::new();
     assert_eq!(bitvec.len(), 0);
