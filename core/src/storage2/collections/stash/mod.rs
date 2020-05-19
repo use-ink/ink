@@ -181,7 +181,7 @@ where
     ///
     /// # Note
     ///
-    /// Avoid unbounded iteration over big storage stashs.
+    /// Avoid unbounded iteration over big storage stashes.
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
@@ -192,7 +192,7 @@ where
     ///
     /// # Note
     ///
-    /// Avoid unbounded iteration over big storage stashs.
+    /// Avoid unbounded iteration over big storage stashes.
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {

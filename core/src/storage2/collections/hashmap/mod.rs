@@ -127,7 +127,7 @@ where
     ///
     /// # Note
     ///
-    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Avoid unbounded iteration over big storage hash maps.
     /// - Prefer using methods like `Iterator::take` in order to limit the number
     ///   of yielded elements.
     pub fn iter(&self) -> Iter<K, V, H> {
@@ -139,7 +139,7 @@ where
     ///
     /// # Note
     ///
-    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Avoid unbounded iteration over big storage hash maps.
     /// - Prefer using methods like `Iterator::take` in order to limit the number
     ///   of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<K, V, H> {
@@ -150,7 +150,7 @@ where
     ///
     /// # Note
     ///
-    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Avoid unbounded iteration over big storage hash maps.
     /// - Prefer using methods like `Iterator::take` in order to limit the number
     ///   of yielded elements.
     pub fn values(&self) -> Values<K, V, H> {
@@ -161,7 +161,7 @@ where
     ///
     /// # Note
     ///
-    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Avoid unbounded iteration over big storage hash maps.
     /// - Prefer using methods like `Iterator::take` in order to limit the number
     ///   of yielded elements.
     pub fn values_mut(&mut self) -> ValuesMut<K, V, H> {
@@ -172,7 +172,7 @@ where
     ///
     /// # Note
     ///
-    /// - Avoid unbounded iteration over big storage stashs.
+    /// - Avoid unbounded iteration over big storage hash maps.
     /// - Prefer using methods like `Iterator::take` in order to limit the number
     ///   of yielded elements.
     pub fn keys(&self) -> Keys<K> {
