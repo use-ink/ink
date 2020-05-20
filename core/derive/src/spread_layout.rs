@@ -55,8 +55,7 @@ fn footprint(s: &synstructure::Structure) -> TokenStream2 {
                 })
         })
         .collect::<Vec<_>>();
-    let footprint = max_n(&variant_footprints[..]);
-    footprint
+    max_n(&variant_footprints[..])
 }
 
 /// Generates the tokens for the `SpreadLayout` `REQUIRES_DEEP_CLEAN_UP` constant for the given structure.
