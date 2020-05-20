@@ -107,7 +107,7 @@ codecov:
   stage:                           workspace
   <<:                              *docker-env
   needs:
-    - check-std
+    - test
   variables:
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     CARGO_INCREMENTAL:             0
