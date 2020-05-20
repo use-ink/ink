@@ -302,6 +302,8 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -416,8 +418,8 @@
 <span class="kw">where</span>
     <span class="ident">H</span>: <span class="ident">Hasher</span>,
 {
-    <span class="kw">fn</span> <span class="ident">finalize_using</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>);
-    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>;
+    <span class="kw">fn</span> <span class="ident">finalize_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>);
+    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Finalize</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HashBuilder</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">S</span><span class="op">&gt;</span>
@@ -425,11 +427,13 @@
     <span class="ident">H</span>: <span class="ident">Hasher</span>,
     <span class="ident">S</span>: <span class="ident">Accumulator</span>,
 {
-    <span class="kw">fn</span> <span class="ident">finalize_using</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>) {
-        <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">finalize_immediate</span>(<span class="self">self</span>.<span class="ident">strategy</span>.<span class="ident">as_slice</span>(), <span class="ident">output</span>)
+    <span class="kw">fn</span> <span class="ident">finalize_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span>) {
+        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">finalize_immediate</span>(<span class="self">self</span>.<span class="ident">strategy</span>.<span class="ident">as_slice</span>(), <span class="ident">output</span>);
+        <span class="self">self</span>.<span class="ident">strategy</span>.<span class="ident">reset</span>();
+        <span class="ident">output</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span> {
+    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span>::<span class="ident">default</span>();
         <span class="self">Self</span>::<span class="ident">finalize_using</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
         <span class="ident">output</span>

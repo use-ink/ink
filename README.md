@@ -16,6 +16,8 @@
 [f2]: https://paritytech.github.io/ink/ink_core
 [h1]: https://img.shields.io/badge/docs-abi-blue.svg
 [h2]: https://paritytech.github.io/ink/ink_abi
+[i1]: https://img.shields.io/badge/docs-prelude-blue.svg
+[i2]: https://paritytech.github.io/ink/ink_prelude
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
@@ -25,9 +27,9 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 
 ## Developer Documentation
 
-| `ink_abi`     | `ink_core`    |
-| ------------- | ------------- |
-| [![][h1]][h2] | [![][f1]][f2] |
+| `ink_abi`     | `ink_core`    | `ink_prelude` |
+| ------------- | ------------- | ------------- |
+| [![][h1]][h2] | [![][f1]][f2] | [![][i1]][i2] |
 
 ### Interaction with Substrate
 

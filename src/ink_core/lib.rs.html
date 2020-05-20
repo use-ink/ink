@@ -52,6 +52,9 @@
 <span id="52">52</span>
 <span id="53">53</span>
 <span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -77,7 +80,9 @@
 
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
 <span class="attribute">#![<span class="ident">deny</span>(
+    <span class="ident">missing_docs</span>,
     <span class="ident">bad_style</span>,
+    <span class="ident">bare_trait_objects</span>,
     <span class="ident">const_err</span>,
     <span class="ident">improper_ctypes</span>,
     <span class="ident">non_shorthand_field_patterns</span>,
@@ -104,6 +109,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">env</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hash</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">storage</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">storage2</span>;
 
 <span class="comment">// Needed for derive macros of `core/derive` sub crate.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span> <span class="kw">as</span> <span class="ident">ink_core</span>;

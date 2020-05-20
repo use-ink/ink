@@ -325,6 +325,12 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -585,11 +591,17 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
 {
+    <span class="doccomment">/// The predefined `ALICE` account holding substantial amounts of value.</span>
     <span class="kw">pub</span> <span class="ident">alice</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="doccomment">/// The predefined `BOB` account holding some amounts of value.</span>
     <span class="kw">pub</span> <span class="ident">bob</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="doccomment">/// The predefined `CHARLIE` account holding some amounts of value.</span>
     <span class="kw">pub</span> <span class="ident">charlie</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="doccomment">/// The predefined `DJANGO` account holding no value.</span>
     <span class="kw">pub</span> <span class="ident">django</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="doccomment">/// The predefined `EVE` account holding no value.</span>
     <span class="kw">pub</span> <span class="ident">eve</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="doccomment">/// The predefined `FRANK` account holding no value.</span>
     <span class="kw">pub</span> <span class="ident">frank</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
 }
 
