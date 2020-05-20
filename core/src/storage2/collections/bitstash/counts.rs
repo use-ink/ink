@@ -81,14 +81,14 @@ impl CountFree {
         None
     }
 
-    /// Increases the number of set bits for the given index.
+    /// Decreases the number of set bits for the given index.
     ///
     /// Returns the new number of set bits.
     ///
     /// # Panics
     ///
     /// - If the given index is out of bounds.
-    /// - If the increment would cause an overflow.
+    /// - If the decrement would cause an overflow.
     pub fn dec(&mut self, index: u8) -> u8 {
         assert!(index < 32, "index is out of bounds");
         if self.full.is_full(index) {
