@@ -137,6 +137,7 @@ miri:
     - test
   script:
     - cargo miri --version;
+      rustup add component rust-src;
       pushd core;
       cargo miri test --verbose -- -- storage2;
       popd
