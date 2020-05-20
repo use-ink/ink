@@ -139,13 +139,11 @@ miri:
     # miri uses xargo hence can't be used with RUSTC_WRAPPER=sccache
     # miri setup is needed because by default is demands interaction asking for dependencies
     - unset RUSTC_WRAPPER;
-      cargo miri --version;
-      rustup component add rust-src;
-      cargo install --force xargo;
-      pushd core;
-      cargo miri setup;
-      cargo miri test --verbose -- -- storage2;
-      popd
+    - cargo miri --version;
+    - pushd core;
+    - time cargo miri setup;
+    - time cargo miri test --verbose -- -- storage2;
+    - popd
 
 codecov:
   stage:                           extra
