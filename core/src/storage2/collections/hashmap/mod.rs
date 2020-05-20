@@ -306,7 +306,7 @@ where
     ///
     /// # Note
     ///
-    /// This frees storage that is hold but not necessary for the hash map to hold.
+    /// This frees storage that is held but not necessary for the hash map to hold.
     /// This operation might be expensive, especially for big `max_iteration`
     /// parameters. The `max_iterations` parameter can be used to limit the
     /// expensiveness for this operation and instead free up storage incrementally.
