@@ -23,7 +23,7 @@ use crate::{
 use ink_primitives::Key;
 
 #[test]
-fn new_vec_works() {
+fn new_works() {
     // `StorageHashMap::new`
     let vec = <StorageHashMap<u8, i32>>::new();
     assert!(vec.is_empty());
