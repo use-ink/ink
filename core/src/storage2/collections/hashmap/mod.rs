@@ -319,6 +319,11 @@ where
         // if many keys have been removed at some point. Some hash map
         // implementations might even prefer to perform this operation with a
         // limit set to 1 after every successful removal.
+        if let Some(0) = max_iterations {
+            // Bail out early if the iteration limit is set to 0 anyways to
+            // completely avoid doing work in this case.y
+            return 0;
+        }
         let len_vacant = self.keys.capacity() - self.keys.len();
         let max_iterations = max_iterations.unwrap_or(len_vacant);
         let values = &mut self.values;
