@@ -291,13 +291,12 @@ where
         K: Borrow<Q>,
         Q: Ord + PartialEq<K> + Eq + scale::Encode + ToOwned<Owned = K>,
     {
-        self.values
-            .get(key)
-            .map(|entry| entry.key_index)
-            .and_then(|key_index| {
-                self.keys.get(key_index).map(|stored_key| key == stored_key)
-            })
-            .unwrap_or(false)
+        // We do not check if the given key is equal to the queried key which is
+        // what normally a hash map implementation does because we do not resolve
+        // or prevent collissions in this hash map implementation at any level.
+        // Having a collission is very unlikely to ever happen though since we
+        // are using a keyspace of 2^256 bit.
+        self.values.get(key).is_some()
     }
 
     /// Defragments storage used by the storage hash map.
@@ -322,7 +321,7 @@ where
         if let Some(0) = max_iterations {
             // Bail out early if the iteration limit is set to 0 anyways to
             // completely avoid doing work in this case.y
-            return 0;
+            return 0
         }
         let len_vacant = self.keys.capacity() - self.keys.len();
         let max_iterations = max_iterations.unwrap_or(len_vacant);
