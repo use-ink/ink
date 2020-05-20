@@ -8,7 +8,7 @@
 stages:
   - check
   - workspace
-  - workspace-extra
+  - extra
   - examples
   - publish
 
@@ -131,7 +131,7 @@ fmt:
     - cargo fmt --verbose --all -- --check
 
 miri:
-  stage:                           workspace-extra
+  stage:                           extra
   <<:                              *docker-env
   needs:
     - test
@@ -142,7 +142,7 @@ miri:
       popd
 
 codecov:
-  stage:                           workspace-extra
+  stage:                           extra
   <<:                              *docker-env
   needs:
     - test
