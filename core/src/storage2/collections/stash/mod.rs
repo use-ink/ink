@@ -309,37 +309,34 @@ where
         if prev_vacant == next_vacant {
             // There is only one other vacant entry left.
             // We can update the single vacant entry in a single look-up.
-            if let Some(entry) = self
+            let entry = self
                 .entries
                 .get_mut(prev_vacant)
                 .map(Entry::try_to_vacant_mut)
-                .expect("`prev` must point to an existing entry at this point")
-            {
-                debug_assert_eq!(entry.prev, removed_index);
-                debug_assert_eq!(entry.next, removed_index);
-                entry.prev = prev_vacant;
-                entry.next = prev_vacant;
-            }
+                .flatten()
+                .expect("`prev` must point to an existing entry at this point");
+            debug_assert_eq!(entry.prev, removed_index);
+            debug_assert_eq!(entry.next, removed_index);
+            entry.prev = prev_vacant;
+            entry.next = prev_vacant;
         } else {
             // There are multiple other vacant entries left.
-            if let Some(entry) = self
+            let prev = self
                 .entries
                 .get_mut(prev_vacant)
                 .map(Entry::try_to_vacant_mut)
-                .expect("`prev` must point to an existing entry at this point")
-            {
-                debug_assert_eq!(entry.next, removed_index);
-                entry.next = next_vacant;
-            }
-            if let Some(entry) = self
+                .flatten()
+                .expect("`prev` must point to an existing entry at this point");
+            debug_assert_eq!(prev.next, removed_index);
+            prev.next = next_vacant;
+            let next = self
                 .entries
                 .get_mut(next_vacant)
                 .map(Entry::try_to_vacant_mut)
-                .expect("`next` must point to an existing entry at this point")
-            {
-                debug_assert_eq!(entry.prev, removed_index);
-                entry.prev = prev_vacant;
-            }
+                .flatten()
+                .expect("`next` must point to an existing entry at this point");
+            debug_assert_eq!(next.prev, removed_index);
+            next.prev = prev_vacant;
         }
         // Bind the last vacant pointer to the vacant position with the lower index.
         // This has the effect that lower indices are refilled more quickly.
@@ -395,9 +392,9 @@ where
             let root_vacant = self
                 .entries
                 .get(index)
-                .expect("last_vacant must point to an existing entry")
-                .try_to_vacant()
-                .expect("last_vacant must point to a vacant entry");
+                .map(|entry| entry.try_to_vacant())
+                .flatten()
+                .expect("last_vacant must point to an existing vacant entry");
             // Form the linked vacant entries in a way that makes it more likely
             // for them to refill the stash from low indices.
             if at < index {
@@ -429,34 +426,29 @@ where
         if prev == next {
             // Previous and next are the same so we can update the vacant
             // neighbour with a single look-up.
-            if let Some(entry) = self
+            let entry = self
                 .entries
                 .get_mut(next)
                 .map(Entry::try_to_vacant_mut)
-                .expect("`next` must point to an existing entry at this point")
-            {
-                entry.prev = at;
-                entry.next = at;
-            }
+                .flatten()
+                .expect("`next` must point to an existing vacant entry at this point");
+            entry.prev = at;
+            entry.next = at;
         } else {
             // Previous and next vacant entries are different and thus need
             // different look-ups to update them.
-            if let Some(entry) = self
-                .entries
+            self.entries
                 .get_mut(prev)
                 .map(Entry::try_to_vacant_mut)
-                .expect("`prev` must point to an existing entry at this point")
-            {
-                entry.next = at;
-            }
-            if let Some(entry) = self
-                .entries
+                .flatten()
+                .expect("`prev` must point to an existing vacant entry at this point")
+                .next = at;
+            self.entries
                 .get_mut(next)
                 .map(Entry::try_to_vacant_mut)
-                .expect("`next` must point to an existing entry at this point")
-            {
-                entry.prev = at;
-            }
+                .flatten()
+                .expect("`next` must point to an existing vacant entry at this point")
+                .prev = at;
         }
         // Take the value out of the taken occupied entry and return it.
         match taken_entry {
@@ -529,14 +521,15 @@ where
                         .expect("it has been asserted that there are vacant entries");
                     callback(index, vacant_index, &value);
                     let new_entry = Some(Entry::Occupied(value));
-                    let old_entry = self
-                        .entries
-                        .put_get(vacant_index, new_entry)
-                        .expect("a `next_vacant` index must point to an occupied cell");
+                    let old_entry = self.entries.put_get(vacant_index, new_entry).expect(
+                        "`last_vacant_index` index must point to an occupied cell",
+                    );
                     let vacant_entry = match old_entry {
                         Entry::Vacant(vacant_entry) => vacant_entry,
                         Entry::Occupied(_) => {
-                            unreachable!("next_vacant must point to a vacant entry")
+                            unreachable!(
+                                "`last_vacant_index` must point to a vacant entry"
+                            )
                         }
                     };
                     self.remove_vacant_entry(vacant_index, vacant_entry);
