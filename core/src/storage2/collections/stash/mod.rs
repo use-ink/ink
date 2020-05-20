@@ -389,7 +389,7 @@ where
             // Early return since `at` index is out of bounds.
             return None
         }
-        // Precompute prev and next vacant entires as we might need them later.
+        // Precompute prev and next vacant entries as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
         let (prev, next) = if let Some(index) = self.last_vacant_index() {
             let root_vacant = self
