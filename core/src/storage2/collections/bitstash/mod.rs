@@ -49,12 +49,12 @@ pub struct BitStash {
     /// slots with a single contract storage look-up. By iterating over the 32
     /// `SetBits32` instances of a single instance.
     counts: StorageVec<CountFree>,
-    /// Stores a bit for every allocated or free storage cell.
+    /// Stores the underlying bits of the storage bit stash.
     free: StorageBitvec,
 }
 
 impl BitStash {
-    /// Creates a new dynamic storage allocator.
+    /// Creates a new storage bit stash.
     pub fn new() -> Self {
         Self {
             counts: StorageVec::new(),
@@ -70,7 +70,7 @@ impl BitStash {
     ///
     /// Also directly increases the count of the first found free bit chunk.
     fn position_first_zero(&mut self) -> Option<u64> {
-        // Iterate over the `counts` list of a dynamic allocator.
+        // Iterate over the `counts` list of the bit stash.
         // The counts list consists of packs of 32 counts per element.
         for (n, counts) in self.counts.iter_mut().enumerate() {
             if let Some(i) = counts.position_first_zero() {
@@ -121,16 +121,18 @@ impl BitStash {
                 // We found a free storage slot but it isn't within the valid
                 // bounds of the free list but points to its end. So we simply
                 // append another 1 bit (`true`) to the free list and return
-                // a new dynamic allocation pointing to it. No need to push to
-                // the counts list in this case.
+                // a new index pointing to it. No need to push to the counts
+                // list in this case.
                 self.free.push(true);
                 self.free.len() - 1
             }
         } else {
-            // We found no free dynamic storage slot:
-            // Check if we already have allocated too many (2^32) dynamic
-            // storage allocations and panic if that's the case.
-            // Otherwise allocate a new pack of 256-bits in the free list
+            // We found no free 256-bit slot:
+            //
+            // - Check if we already have allocated too many (2^32) bits and
+            // panic if that's the case. The check is done on the internal
+            // storage bit vector.
+            // - Otherwise allocate a new pack of 256-bits in the free list
             // and mirror it in the counts list.
             self.free.push(true);
             if self.counts.len() < self.required_counts() {
