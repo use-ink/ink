@@ -25,17 +25,17 @@ use ink_primitives::Key;
 #[test]
 fn new_works() {
     // `StorageHashMap::new`
-    let vec = <StorageHashMap<u8, i32>>::new();
-    assert!(vec.is_empty());
-    assert_eq!(vec.len(), 0);
-    assert!(vec.iter().next().is_none());
+    let hmap = <StorageHashMap<u8, i32>>::new();
+    assert!(hmap.is_empty());
+    assert_eq!(hmap.len(), 0);
+    assert!(hmap.iter().next().is_none());
     // `StorageHashMap::default`
     let default = <StorageHashMap<u8, i32> as Default>::default();
     assert!(default.is_empty());
     assert_eq!(default.len(), 0);
     assert!(default.iter().next().is_none());
     // `StorageHashMap::new` and `StorageHashMap::default` should be equal.
-    assert_eq!(vec, default);
+    assert_eq!(hmap, default);
 }
 
 #[test]
