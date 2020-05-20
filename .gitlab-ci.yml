@@ -103,6 +103,17 @@ test:
   script:
     - cargo test --verbose --all-features --no-fail-fast --workspace
 
+miri:
+  stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - test
+  script:
+    - cargo miri --version;
+      pushd core;
+      cargo miri test --verbose -- -- storage2;
+      popd
+
 codecov:
   stage:                           workspace
   <<:                              *docker-env
