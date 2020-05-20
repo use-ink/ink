@@ -138,6 +138,7 @@ miri:
   script:
     - cargo miri --version;
       rustup component add rust-src;
+      cargo install --force xargo;
       pushd core;
       cargo miri test --verbose -- -- storage2;
       popd
