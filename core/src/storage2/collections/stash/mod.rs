@@ -363,7 +363,7 @@ where
             let vacant_entry = match old_entry {
                 Entry::Vacant(vacant_entry) => vacant_entry,
                 Entry::Occupied(_) => {
-                    unreachable!("next_vacant must point to a vacant entry")
+                    unreachable!("`last_vacant_index()` must point to a vacant entry")
                 }
             };
             self.remove_vacant_entry(index, vacant_entry);
