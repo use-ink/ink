@@ -185,7 +185,7 @@ examples-test:
   stage:                           examples
   <<:                              *docker-env
   needs:
-    - clippy-std
+    - test
   script:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
@@ -194,6 +194,8 @@ examples-test:
 examples-fmt:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - fmt
   script:
     - for example in examples/*/; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
@@ -212,6 +214,8 @@ examples-clippy-std:
 examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - clippy-wasm
   script:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
@@ -220,6 +224,8 @@ examples-clippy-wasm:
 examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
+  needs:
+    - build-wasm
   script:
     - *update-cargo-contract
     - for example in examples/*/; do
@@ -232,7 +238,7 @@ examples-generate-metadata:
   stage:                           examples
   <<:                              *docker-env
   needs:
-    - build-wasm
+    - test
   script:
     - *update-cargo-contract
     - for example in examples/*/; do
