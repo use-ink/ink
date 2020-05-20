@@ -37,6 +37,12 @@ use scale::{
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
 pub struct Key(pub [u8; 32]);
 
+impl From<[u8; 32]> for Key {
+    fn from(bytes: [u8; 32]) -> Self {
+        Self(bytes)
+    }
+}
+
 #[cfg(feature = "std")]
 impl type_metadata::HasTypeId for Key {
     fn type_id() -> type_metadata::TypeId {

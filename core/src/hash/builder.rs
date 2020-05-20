@@ -111,8 +111,8 @@ pub trait Finalize<H>
 where
     H: Hasher,
 {
-    fn finalize_using(&self, output: &mut <H as Hasher>::Output);
-    fn finalize(&self) -> <H as Hasher>::Output;
+    fn finalize_using(&mut self, output: &mut <H as Hasher>::Output);
+    fn finalize(&mut self) -> <H as Hasher>::Output;
 }
 
 impl<H, S> Finalize<H> for HashBuilder<H, S>
@@ -120,11 +120,13 @@ where
     H: Hasher,
     S: Accumulator,
 {
-    fn finalize_using(&self, output: &mut <H as Hasher>::Output) {
-        <H as Hasher>::finalize_immediate(self.strategy.as_slice(), output)
+    fn finalize_using(&mut self, output: &mut <H as Hasher>::Output) {
+        let output = <H as Hasher>::finalize_immediate(self.strategy.as_slice(), output);
+        self.strategy.reset();
+        output
     }
 
-    fn finalize(&self) -> <H as Hasher>::Output {
+    fn finalize(&mut self) -> <H as Hasher>::Output {
         let mut output = <<H as Hasher>::Output as Default>::default();
         Self::finalize_using(self, &mut output);
         output
