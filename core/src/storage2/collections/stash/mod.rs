@@ -359,7 +359,7 @@ where
             let old_entry = self
                 .entries
                 .put_get(index, new_entry)
-                .expect("a `next_vacant` index must point to an occupied cell");
+                .expect("a `last_vacant_index()` must point to an occupied cell");
             let vacant_entry = match old_entry {
                 Entry::Vacant(vacant_entry) => vacant_entry,
                 Entry::Occupied(_) => {
