@@ -8,6 +8,7 @@
 stages:
   - check
   - workspace
+  - workspace-extra
   - examples
   - publish
 
@@ -103,8 +104,34 @@ test:
   script:
     - cargo test --verbose --all-features --no-fail-fast --workspace
 
-miri:
+clippy-std:
   stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - check-std
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
+      done
+
+clippy-wasm:
+  stage:                           workspace
+  <<:                              *docker-env
+  needs:
+    - check-wasm
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+      done
+
+fmt:
+  stage:                           workspace
+  <<:                              *docker-env
+  script:
+    - cargo fmt --verbose --all -- --check
+
+miri:
+  stage:                           workspace-extra
   <<:                              *docker-env
   needs:
     - test
@@ -115,7 +142,7 @@ miri:
       popd
 
 codecov:
-  stage:                           workspace
+  stage:                           workspace-extra
   <<:                              *docker-env
   needs:
     - test
@@ -146,33 +173,6 @@ codecov:
     - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.info
     - rust-covfix -o lcov-lines.info lcov-lines.info
     - bash <(curl -s https://codecov.io/bash) -f lcov-lines.info
-
-clippy-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-std
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
-      done
-
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-wasm
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  script:
-    - cargo fmt --verbose --all -- --check
-
 
 #### stage:                        examples
 
