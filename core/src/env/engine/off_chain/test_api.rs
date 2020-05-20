@@ -257,11 +257,17 @@ pub struct DefaultAccounts<T>
 where
     T: EnvTypes,
 {
+    /// The predefined `ALICE` account holding substantial amounts of value.
     pub alice: T::AccountId,
+    /// The predefined `BOB` account holding some amounts of value.
     pub bob: T::AccountId,
+    /// The predefined `CHARLIE` account holding some amounts of value.
     pub charlie: T::AccountId,
+    /// The predefined `DJANGO` account holding no value.
     pub django: T::AccountId,
+    /// The predefined `EVE` account holding no value.
     pub eve: T::AccountId,
+    /// The predefined `FRANK` account holding no value.
     pub frank: T::AccountId,
 }
 
