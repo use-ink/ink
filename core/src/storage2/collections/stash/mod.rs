@@ -491,7 +491,7 @@ where
     /// - If `max_iterations` is `Some` concrete value it is used in order to
     ///   bound the number of iterations and won't try to defrag until the stash
     ///   is optimally compacted.
-    /// - Users are adviced to call this method using `Some` concrete
+    /// - Users are advised to call this method using `Some` concrete
     ///   value to keep gas costs within certain bounds.
     /// - The call to the given callback takes place before the reinsertion
     ///   of the shifted occupied entry.
