@@ -294,7 +294,7 @@ where
         // We do not check if the given key is equal to the queried key which is
         // what normally a hash map implementation does because we do not resolve
         // or prevent collissions in this hash map implementation at any level.
-        // Having a collission is very unlikely to ever happen though since we
+        // Having a collision is virtually impossible since we
         // are using a keyspace of 2^256 bit.
         self.values.get(key).is_some()
     }
