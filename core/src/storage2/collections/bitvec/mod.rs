@@ -242,12 +242,25 @@ impl Bitvec {
         self.get_access_mut(self.len() - 1)
     }
 
+    /// The maximum number of bits that can be pushed to a storage bit vector.
+    fn maximum_capacity(&self) -> u32 {
+        u32::MAX
+    }
+
     /// Pushes the given value onto the bit vector.
     ///
     /// # Note
     ///
     /// This increases the length of the bit vector.
+    ///
+    /// # Panics
+    ///
+    /// If the storage bit vector reached its maximum capacity.
     pub fn push(&mut self, value: bool) {
+        assert!(
+            self.len() < self.maximum_capacity(),
+            "reached maximum capacity for storage bit vector"
+        );
         if self.len() as u64 == self.capacity() {
             // Case: All 256-bits packs are full or there are none:
             // Need to push another 256-bit pack to the storage vector.
