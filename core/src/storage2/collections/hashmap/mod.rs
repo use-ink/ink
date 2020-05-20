@@ -304,6 +304,9 @@ where
     ///
     /// Returns the number of storage cells freed this way.
     ///
+    /// A `max_iterations` parameter of `None` means that there is no limit
+    /// to the number of iterations performed. This is generally not advised.
+    ///
     /// # Note
     ///
     /// This frees storage that is held but not necessary for the hash map to hold.
@@ -311,6 +314,11 @@ where
     /// parameters. The `max_iterations` parameter can be used to limit the
     /// expensiveness for this operation and instead free up storage incrementally.
     pub fn defrag(&mut self, max_iterations: Option<u32>) -> u32 {
+        // This method just defrags the underlying `storage::Stash` used to
+        // store the keys as it can sometimes take a lot of unused storage
+        // if many keys have been removed at some point. Some hash map
+        // implementations might even prefer to perform this operation with a
+        // limit set to 1 after every successful removal.
         let len_vacant = self.keys.capacity() - self.keys.len();
         let max_iterations = max_iterations.unwrap_or(len_vacant);
         let values = &mut self.values;
