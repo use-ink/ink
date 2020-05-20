@@ -16,8 +16,8 @@ extern crate proc_macro;
 
 mod allocate_using;
 mod flush;
-mod spread_layout;
 mod packed_layout;
+mod spread_layout;
 
 #[cfg(test)]
 mod tests;
@@ -25,8 +25,8 @@ mod tests;
 use self::{
     allocate_using::allocate_using_derive,
     flush::flush_derive,
-    spread_layout::spread_layout_derive,
     packed_layout::packed_layout_derive,
+    spread_layout::spread_layout_derive,
 };
 synstructure::decl_derive!([Flush] => flush_derive);
 synstructure::decl_derive!([AllocateUsing] => allocate_using_derive);
