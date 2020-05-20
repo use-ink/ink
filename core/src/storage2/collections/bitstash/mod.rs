@@ -43,11 +43,13 @@ pub struct BitStash {
     /// For every 256-bit chunk stored in `free` stores a `u8` that counts
     /// the number of set bits in the 256-bit chunk. This information is used
     /// to compact the information in `free` to make a `first fit` linear
-    /// search for a new free storage slot more scalable.
+    /// search for a new free storage slot more scalable. Since `u8` can only
+    /// represent 256 different states but since we consider 0 we need an extra
+    /// 9th bit. This 9th bit tells for every 256-bit chunk if it is full.
     ///
     /// In theory it is possible to search up to 8192 storage cells for free
     /// slots with a single contract storage look-up. By iterating over the 32
-    /// `SetBits32` instances of a single instance.
+    /// `CountFree` instances of a single instance.
     counts: StorageVec<CountFree>,
     /// Stores the underlying bits of the storage bit stash.
     free: StorageBitvec,
