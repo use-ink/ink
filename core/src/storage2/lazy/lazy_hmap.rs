@@ -93,9 +93,7 @@ where
     V: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_map()
-            .entries(self.0.as_inner().iter())
-            .finish()
+        f.debug_map().entries(self.0.as_inner().iter()).finish()
     }
 }
 
