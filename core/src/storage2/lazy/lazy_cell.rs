@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    CacheCell,
     Entry,
     EntryState,
 };
@@ -23,7 +24,6 @@ use crate::storage2::traits::{
     SpreadLayout,
 };
 use core::{
-    cell::UnsafeCell,
     fmt,
     fmt::Debug,
     ptr::NonNull,
@@ -60,7 +60,7 @@ where
     /// and the fact that ink! code is always run single-threaded.
     /// Being efficient is important here because this is intended to be
     /// a low-level primitive with lots of dependencies.
-    cache: UnsafeCell<Option<Entry<T>>>,
+    cache: CacheCell<Option<Entry<T>>>,
 }
 
 impl<T> Debug for LazyCell<T>
@@ -70,7 +70,7 @@ where
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("LazyCell")
             .field("key", &self.key)
-            .field("cache", unsafe { &*self.cache.get() })
+            .field("cache", self.cache.as_inner())
             .finish()
     }
 }
@@ -178,7 +178,7 @@ where
     pub fn new(value: Option<T>) -> Self {
         Self {
             key: None,
-            cache: UnsafeCell::new(Some(Entry::new(value, EntryState::Mutated))),
+            cache: CacheCell::new(Some(Entry::new(value, EntryState::Mutated))),
         }
     }
 
@@ -192,7 +192,7 @@ where
     pub fn lazy(key: Key) -> Self {
         Self {
             key: Some(key),
-            cache: UnsafeCell::new(None),
+            cache: CacheCell::new(None),
         }
     }
 
@@ -208,7 +208,7 @@ where
 
     /// Returns the cached entry.
     fn entry(&self) -> Option<&Entry<T>> {
-        unsafe { &*self.cache.get() }.as_ref()
+        self.cache.as_inner().as_ref()
     }
 }
 
@@ -225,7 +225,7 @@ where
         //         However, we mutate the entry only if it is vacant.
         //         If the entry is occupied by a value we return early.
         //         This way we do not invalidate pointers to this value.
-        let cache = &mut *self.cache.get();
+        let cache = &mut *self.cache.get_ptr().as_ptr();
         if cache.is_none() {
             // Load value from storage and then return the cached entry.
             let value = self
