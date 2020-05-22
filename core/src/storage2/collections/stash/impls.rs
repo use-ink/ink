@@ -49,7 +49,8 @@ where
 {
     fn assert_index_within_bounds(&self, index: u32) {
         if cfg!(debug_assertions) {
-            assert!(index < self.len(),
+            assert!(
+                index < self.len(),
                 "index out of bounds: the len is {} but the index is {}",
                 self.len(),
                 index
