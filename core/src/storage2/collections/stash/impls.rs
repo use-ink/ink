@@ -64,7 +64,7 @@ cfg_if::cfg_if! {
         where
             T: PackedLayout,
         {
-            fn assert_index_within_bounds(&self, index: u32) {}
+            fn assert_index_within_bounds(&self, _index: u32) {}
         }
     }
 }
