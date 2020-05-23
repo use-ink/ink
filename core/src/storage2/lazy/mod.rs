@@ -24,15 +24,19 @@
 //! These low-level collections are not aware of the elements they manage thus
 //! extra care has to be taken when operating directly on them.
 
+mod cache_cell;
 mod entry;
 mod lazy_array;
 mod lazy_cell;
 mod lazy_hmap;
 mod lazy_imap;
 
-use self::entry::{
-    Entry,
-    EntryState,
+use self::{
+    cache_cell::CacheCell,
+    entry::{
+        Entry,
+        EntryState,
+    },
 };
 pub use self::{
     lazy_array::{

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    CacheCell,
     Entry,
     EntryState,
 };
@@ -31,10 +32,7 @@ use crate::{
 };
 use core::{
     borrow::Borrow,
-    cell::{
-        RefCell,
-        UnsafeCell,
-    },
+    cell::RefCell,
     cmp::{
         Eq,
         Ord,
@@ -82,12 +80,12 @@ pub struct LazyHashMap<K, V, H> {
     ///
     /// This normally only represents a subset of the total set of elements.
     /// An entry is cached as soon as it is loaded or written.
-    cached_entries: UnsafeCell<EntryMap<K, V>>,
+    cached_entries: CacheCell<EntryMap<K, V>>,
     /// The used hash builder.
     hash_builder: RefCell<HashBuilder<H, Vec<u8>>>,
 }
 
-struct DebugEntryMap<'a, K, V>(&'a UnsafeCell<EntryMap<K, V>>);
+struct DebugEntryMap<'a, K, V>(&'a CacheCell<EntryMap<K, V>>);
 
 impl<'a, K, V> Debug for DebugEntryMap<'a, K, V>
 where
@@ -95,9 +93,7 @@ where
     V: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_map()
-            .entries(unsafe { &*self.0.get() }.iter())
-            .finish()
+        f.debug_map().entries(self.0.as_inner().iter()).finish()
     }
 }
 
@@ -211,7 +207,7 @@ where
     pub fn new() -> Self {
         Self {
             key: None,
-            cached_entries: UnsafeCell::new(EntryMap::new()),
+            cached_entries: CacheCell::new(EntryMap::new()),
             hash_builder: RefCell::new(HashBuilder::from(Vec::new())),
         }
     }
@@ -227,7 +223,7 @@ where
     fn lazy(key: Key) -> Self {
         Self {
             key: Some(key),
-            cached_entries: UnsafeCell::new(EntryMap::new()),
+            cached_entries: CacheCell::new(EntryMap::new()),
             hash_builder: RefCell::new(HashBuilder::from(Vec::new())),
         }
     }
@@ -239,14 +235,12 @@ where
 
     /// Returns a shared reference to the underlying entries.
     fn entries(&self) -> &EntryMap<K, V> {
-        // SAFETY: It is safe to return a `&` reference from a `&self` receiver.
-        unsafe { &*self.cached_entries.get() }
+        self.cached_entries.as_inner()
     }
 
     /// Returns an exclusive reference to the underlying entries.
     fn entries_mut(&mut self) -> &mut EntryMap<K, V> {
-        // SAFETY: It is safe to return a `&mut` reference from a `&mut self` receiver.
-        unsafe { &mut *self.cached_entries.get() }
+        self.cached_entries.as_inner_mut()
     }
 
     /// Puts the new value under the given key.
@@ -350,7 +344,7 @@ where
         //         By returning a raw pointer we enforce an `unsafe` block at
         //         the caller site to underline that guarantees are given by the
         //         caller.
-        let cached_entries = &mut *self.cached_entries.get();
+        let cached_entries = &mut *self.cached_entries.get_ptr().as_ptr();
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         // We have to clone the key here because we do not have access to the unsafe
         // raw entry API for Rust hash maps, yet since it is unstable. We can remove

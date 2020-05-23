@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    CacheCell,
     Entry,
     EntryState,
 };
@@ -24,7 +25,6 @@ use crate::storage2::traits::{
     SpreadLayout,
 };
 use core::{
-    cell::UnsafeCell,
     fmt,
     fmt::Debug,
     ptr::NonNull,
@@ -59,19 +59,17 @@ pub struct LazyIndexMap<V> {
     /// The subset of currently cached entries of the lazy storage chunk.
     ///
     /// An entry is cached as soon as it is loaded or written.
-    cached_entries: UnsafeCell<EntryMap<V>>,
+    cached_entries: CacheCell<EntryMap<V>>,
 }
 
-struct DebugEntryMap<'a, V>(&'a UnsafeCell<EntryMap<V>>);
+struct DebugEntryMap<'a, V>(&'a CacheCell<EntryMap<V>>);
 
 impl<'a, V> Debug for DebugEntryMap<'a, V>
 where
     V: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_map()
-            .entries(unsafe { &*self.0.get() }.iter())
-            .finish()
+        f.debug_map().entries(self.0.as_inner().iter()).finish()
     }
 }
 
@@ -146,7 +144,7 @@ impl<V> LazyIndexMap<V> {
     pub fn new() -> Self {
         Self {
             key: None,
-            cached_entries: UnsafeCell::new(EntryMap::new()),
+            cached_entries: CacheCell::new(EntryMap::new()),
         }
     }
 
@@ -161,7 +159,7 @@ impl<V> LazyIndexMap<V> {
     fn lazy(key: Key) -> Self {
         Self {
             key: Some(key),
-            cached_entries: UnsafeCell::new(EntryMap::new()),
+            cached_entries: CacheCell::new(EntryMap::new()),
         }
     }
 
@@ -172,14 +170,12 @@ impl<V> LazyIndexMap<V> {
 
     /// Returns a shared reference to the underlying entries.
     fn entries(&self) -> &EntryMap<V> {
-        // SAFETY: It is safe to return a `&` reference from a `&self` receiver.
-        unsafe { &*self.cached_entries.get() }
+        self.cached_entries.as_inner()
     }
 
     /// Returns an exclusive reference to the underlying entries.
     fn entries_mut(&mut self) -> &mut EntryMap<V> {
-        // SAFETY: It is safe to return a `&mut` reference from a `&mut self` receiver.
-        unsafe { &mut *self.cached_entries.get() }
+        self.cached_entries.as_inner_mut()
     }
 
     /// Puts the new value at the given index.
@@ -297,7 +293,7 @@ where
         //         By returning a raw pointer we enforce an `unsafe` block at
         //         the caller site to underline that guarantees are given by the
         //         caller.
-        let cached_entries = &mut *self.cached_entries.get();
+        let cached_entries = &mut *self.cached_entries.get_ptr().as_ptr();
         use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         match cached_entries.entry(index) {
             BTreeMapEntry::Occupied(occupied) => {

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    CacheCell,
     Entry,
     EntryState,
 };
@@ -24,7 +25,6 @@ use crate::storage2::traits::{
     SpreadLayout,
 };
 use core::{
-    cell::UnsafeCell,
     fmt,
     fmt::Debug,
     mem,
@@ -48,12 +48,12 @@ pub type Index = u32;
 
 /// Utility trait for helping with lazy array construction.
 pub trait LazyArrayLength<T>:
-    ArrayLength<UnsafeCell<Option<Entry<T>>>> + Unsigned
+    ArrayLength<CacheCell<Option<Entry<T>>>> + Unsigned
 {
 }
 impl<T> LazyArrayLength<T> for UTerm {}
-impl<T, N: ArrayLength<UnsafeCell<Option<Entry<T>>>>> LazyArrayLength<T> for UInt<N, B0> {}
-impl<T, N: ArrayLength<UnsafeCell<Option<Entry<T>>>>> LazyArrayLength<T> for UInt<N, B1> {}
+impl<T, N: ArrayLength<CacheCell<Option<Entry<T>>>>> LazyArrayLength<T> for UInt<N, B0> {}
+impl<T, N: ArrayLength<CacheCell<Option<Entry<T>>>>> LazyArrayLength<T> for UInt<N, B1> {}
 
 /// A lazy storage array that spans over N storage cells.
 ///
@@ -171,12 +171,12 @@ where
     N: LazyArrayLength<T>,
 {
     /// The cache entries of the entry array.
-    entries: GenericArray<UnsafeCell<Option<Entry<T>>>, N>,
+    entries: GenericArray<CacheCell<Option<Entry<T>>>, N>,
 }
 
 #[derive(Debug)]
 pub struct EntriesIter<'a, T> {
-    iter: core::slice::Iter<'a, UnsafeCell<Option<Entry<T>>>>,
+    iter: core::slice::Iter<'a, CacheCell<Option<Entry<T>>>>,
 }
 
 impl<'a, T> EntriesIter<'a, T> {
@@ -194,7 +194,7 @@ impl<'a, T> Iterator for EntriesIter<'a, T> {
     type Item = &'a Option<Entry<T>>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(|cell| unsafe { &*cell.get() })
+        self.iter.next().map(|cell| cell.as_inner())
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -211,7 +211,7 @@ impl<'a, T> Iterator for EntriesIter<'a, T> {
 
 impl<'a, T> DoubleEndedIterator for EntriesIter<'a, T> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter.next_back().map(|cell| unsafe { &*cell.get() })
+        self.iter.next_back().map(|cell| cell.as_inner())
     }
 }
 
@@ -252,7 +252,7 @@ where
     /// returns the old value if any.
     fn put(&self, at: Index, new_value: Option<T>) -> Option<T> {
         mem::replace(
-            unsafe { &mut *self.entries.as_slice()[at as usize].get() },
+            unsafe { self.entries.as_slice()[at as usize].get_ptr().as_mut() },
             Some(Entry::new(new_value, EntryState::Mutated)),
         )
         .map(Entry::into_value)
@@ -262,7 +262,7 @@ where
     /// Inserts a new entry into the cache and returns an exclusive reference to it.
     unsafe fn insert_entry(&self, at: Index, new_entry: Entry<T>) -> NonNull<Entry<T>> {
         let entry: &mut Option<Entry<T>> =
-            &mut *UnsafeCell::get(&self.entries[at as usize]);
+            &mut *CacheCell::get_ptr(&self.entries[at as usize]).as_ptr();
         *entry = Some(new_entry);
         entry
             .as_mut()
@@ -275,7 +275,7 @@ where
         if at >= Self::capacity() {
             return None
         }
-        (&mut *UnsafeCell::get(&self.entries[at as usize])).as_mut()
+        (&mut *CacheCell::get_ptr(&self.entries[at as usize]).as_ptr()).as_mut()
     }
 
     /// Returns an iterator that yields shared references to all cached entries.
