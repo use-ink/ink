@@ -70,6 +70,7 @@
 
 mod allocation;
 mod allocator;
+mod boxed;
 mod init;
 
 #[cfg(test)]
@@ -79,6 +80,7 @@ use self::allocator::DynamicAllocator;
 pub use self::{
     allocation::DynamicAllocation,
     init::ContractPhase,
+    boxed::Box,
 };
 
 /// Returns a new dynamic storage allocation.

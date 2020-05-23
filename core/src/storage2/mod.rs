@@ -23,10 +23,8 @@ pub mod traits;
 
 #[doc(inline)]
 pub use self::{
-    collections::{
-        Box,
-        Vec,
-    },
+    alloc::Box,
+    collections::Vec,
     lazy::Lazy,
     memory::Memory,
     pack::Pack,
