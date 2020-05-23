@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::storage2::alloc;
 use super::{
     alloc,
     free,
-    initialize_for,
     ContractPhase,
     DynamicAllocation,
     DynamicAllocator,
@@ -36,7 +36,7 @@ fn run_default_test<F>(f: F)
 where
     F: FnOnce(),
 {
-    initialize_for(ContractPhase::Deploy);
+    alloc::initialize(ContractPhase::Deploy);
     test::run_test::<DefaultEnvTypes, _>(|_| {
         f();
         Ok(())
@@ -195,7 +195,7 @@ fn test_call_setup_works() {
         assert_eq!(allocator.alloc(), DynamicAllocation(1));
         let root_key = Key([0xFE; 32]);
         SpreadLayout::push_spread(&allocator, &mut KeyPtr::from(root_key));
-        initialize_for(ContractPhase::Call);
+        alloc::initialize(ContractPhase::Call);
         assert_eq!(alloc(), DynamicAllocation(2));
         assert_eq!(alloc(), DynamicAllocation(3));
         free(DynamicAllocation(0));
