@@ -19,6 +19,7 @@ pub mod collections;
 pub mod lazy;
 mod memory;
 mod pack;
+mod push_on_drop;
 pub mod traits;
 
 #[doc(inline)]
@@ -30,4 +31,5 @@ pub use self::{
     lazy::Lazy,
     memory::Memory,
     pack::Pack,
+    push_on_drop::PushOnDrop,
 };
