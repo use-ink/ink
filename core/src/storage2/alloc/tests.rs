@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage2::alloc;
 use super::{
     alloc,
     free,
@@ -25,9 +24,12 @@ use crate::{
         test,
         DefaultEnvTypes,
     },
-    storage2::traits::{
-        KeyPtr,
-        SpreadLayout,
+    storage2::{
+        alloc,
+        traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
     },
 };
 use ink_primitives::Key;
