@@ -120,7 +120,7 @@ impl DynamicAllocatorState {
                 // Prevent calling `drop` on the dynamic storage allocator
                 // instance since this would clear all contract storage
                 // again.
-                let _ = ManuallyDrop::new(mem::replace(allocator, Default::default()));
+                let _ = ManuallyDrop::new(mem::take(allocator));
                 *self = DynamicAllocatorState::Finalized;
             }
             DynamicAllocatorState::Finalized => {
