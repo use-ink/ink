@@ -152,16 +152,6 @@
 <span id="152">152</span>
 <span id="153">153</span>
 <span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -208,28 +198,18 @@
     }
 }
 
-<span class="ident">cfg_if</span>::<span class="macro">cfg_if</span><span class="macro">!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span> {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageStash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
-        {
-            <span class="kw">fn</span> <span class="ident">assert_index_within_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) {
-                <span class="kw">if</span> <span class="ident">index</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>() {
-                    <span class="macro">panic</span><span class="macro">!</span>(
-                        <span class="string">&quot;index out of bounds: the len is {} but the index is {}&quot;</span>,
-                        <span class="self">self</span>.<span class="ident">len</span>(),
-                        <span class="ident">index</span>
-                    )
-                }
-            }
-        }
-    } <span class="kw">else</span> {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageStash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
-        {
-            <span class="kw">fn</span> <span class="ident">assert_index_within_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageStash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
+{
+    <span class="kw">fn</span> <span class="ident">assert_index_within_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) {
+        <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">debug_assertions</span>) {
+            <span class="macro">assert</span><span class="macro">!</span>(
+                <span class="ident">index</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>(),
+                <span class="string">&quot;index out of bounds: the len is {} but the index is {}&quot;</span>,
+                <span class="self">self</span>.<span class="ident">len</span>(),
+                <span class="ident">index</span>
+            )
         }
     }
 }

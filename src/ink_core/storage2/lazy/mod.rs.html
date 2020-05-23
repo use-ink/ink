@@ -271,6 +271,10 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -298,15 +302,19 @@
 <span class="doccomment">//! These low-level collections are not aware of the elements they manage thus</span>
 <span class="doccomment">//! extra care has to be taken when operating directly on them.</span>
 
+<span class="kw">mod</span> <span class="ident">cache_cell</span>;
 <span class="kw">mod</span> <span class="ident">entry</span>;
 <span class="kw">mod</span> <span class="ident">lazy_array</span>;
 <span class="kw">mod</span> <span class="ident">lazy_cell</span>;
 <span class="kw">mod</span> <span class="ident">lazy_hmap</span>;
 <span class="kw">mod</span> <span class="ident">lazy_imap</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">entry</span>::{
-    <span class="ident">Entry</span>,
-    <span class="ident">EntryState</span>,
+<span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">cache_cell</span>::<span class="ident">CacheCell</span>,
+    <span class="ident">entry</span>::{
+        <span class="ident">Entry</span>,
+        <span class="ident">EntryState</span>,
+    },
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">lazy_array</span>::{
