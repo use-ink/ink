@@ -70,6 +70,7 @@
 
 mod allocation;
 mod allocator;
+mod boxed;
 mod init;
 
 #[cfg(test)]
@@ -77,6 +78,7 @@ mod tests;
 
 pub use self::{
     allocation::DynamicAllocation,
+    boxed::Box,
     init::{
         initialize_for,
         ContractPhase,
