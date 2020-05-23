@@ -12,24 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! A dynamically allocated storage entity.
-//!
-//! Users can use this in order to make certain `SpreadLayout` storage entities
-//! used in contexts that require a `PackedLayout` storage entity by simply
-//! packing the storage entity witihn a `storage::Box`.
-//!
-//! Dynamic allocations caused by the creation of `storage::Box` instances do
-//! have some limited overhead:
-//!
-//! - The dynamic allocation itself has to be provided by some dynamic storage
-//!   allocator that needs to be invoked.
-//! - Each dynamic storage allocation implies roughly 1.12 bits of overhead.
-//! - Upon ever first dereferencing of a `storage::Box` instance a cryptographic
-//!   hash routine is run in order to compute the underlying storage key.
-//!
-//! Use this abstraction with caution due to the aforementioned performance
-//! implications.
-
 mod impls;
 mod storage;
 
@@ -46,7 +28,23 @@ use crate::storage2::{
 };
 use ink_primitives::Key;
 
-/// An indirection to some dynamically allocated storage entity.
+/// A dynamically allocated storage entity.
+///
+/// Users can use this in order to make certain `SpreadLayout` storage entities
+/// used in contexts that require a `PackedLayout` storage entity by simply
+/// packing the storage entity witihn a `storage::Box`.
+///
+/// Dynamic allocations caused by the creation of `storage::Box` instances do
+/// have some limited overhead:
+///
+/// - The dynamic allocation itself has to be provided by some dynamic storage
+///   allocator that needs to be invoked.
+/// - Each dynamic storage allocation implies roughly 1.12 bits of overhead.
+/// - Upon ever first dereferencing of a `storage::Box` instance a cryptographic
+///   hash routine is run in order to compute the underlying storage key.
+///
+/// Use this abstraction with caution due to the aforementioned performance
+/// implications.
 #[derive(Debug)]
 pub struct Box<T>
 where
