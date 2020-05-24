@@ -38,6 +38,10 @@ pub use self::layout::{
     StorageLayout,
 };
 
+pub use ::ink_core_derive::{
+    SpreadLayout,
+    PackedLayout,
+};
 pub(crate) use self::optspec::{
     clear_spread_root_opt,
     pull_packed_root_opt,
