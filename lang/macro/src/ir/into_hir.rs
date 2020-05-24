@@ -424,26 +424,43 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
         // Followed by some checks that are depending on the given function kind:
         match kind {
             ir::FunctionKind::Constructor(_) => {
-                let self_arg = sig.self_arg();
-                if !sig.is_mut() {
+                if let Some(receiver) = sig.self_arg() {
                     bail!(
-                        self_arg,
-                        "#[ink(constructor)] functions must have a `&mut self` receiver",
+                        receiver,
+                        "#[ink(constructor)] functions must not have any kind of `self` receiver",
                     )
                 }
-                if sig.output != syn::ReturnType::Default {
+                if let syn::ReturnType::Type(_, ty) = &sig.output {
+                    let self_ty: syn::Type = syn::parse_quote!(Self);
+                    if &**ty != &self_ty {
+                        bail!(
+                            sig.output,
+                            "#[ink(constructor)] functions must have `Self` return type",
+                        )
+                    }
+                } else {
                     bail!(
                         sig.output,
-                        "#[ink(constructor)] functions must not have a return type",
+                        "#[ink(constructor)] functions must have `Self` return type",
                     )
                 }
             }
             ir::FunctionKind::Message(_) | ir::FunctionKind::Method => {
-                if sig.self_arg().reference.is_none() {
-                    bail_span!(
-                        sig.span(),
-                        "ink! messages and methods must be either `&self` or `&mut self`",
-                    )
+                match sig.self_arg() {
+                    Some(receiver) => {
+                        if receiver.reference.is_none() {
+                            bail_span!(
+                                receiver.span(),
+                                "ink! messages and methods must have a `&self` or `&mut self` receiver",
+                            )
+                        }
+                    }
+                    None => {
+                        bail_span!(
+                            sig.span(),
+                            "ink! messages and methods must have a `self` receiver",
+                        )
+                    }
                 }
             }
         }
@@ -486,32 +503,12 @@ impl TryFrom<syn::Signature> for ir::Signature {
                 "variadic functions are not allowed as ink! functions",
             )
         }
-        if sig.inputs.is_empty() {
-            bail!(
-                sig,
-                "`&self` or `&mut self` is mandatory for ink! functions",
-            )
-        }
         let inputs = sig
             .inputs
             .iter()
             .cloned()
             .map(ir::FnArg::try_from)
             .collect::<Result<Punctuated<ir::FnArg, Token![,]>>>()?;
-        if let ir::FnArg::Typed(ident_type) = &inputs[0] {
-            bail_span!(
-                ident_type.span(),
-                "first argument of ink! functions must be `&self` or `&mut self`",
-            )
-        }
-        for input in inputs.iter().skip(1) {
-            if let ir::FnArg::Receiver(receiver) = input {
-                bail!(
-                    receiver,
-                    "unexpected `self` argument found for ink! function",
-                )
-            }
-        }
         Ok(ir::Signature {
             fn_token: sig.fn_token,
             ident: sig.ident,

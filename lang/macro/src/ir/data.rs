@@ -446,22 +446,24 @@ pub struct Signature {
 
 impl Signature {
     /// Returns `true` if the signature is `&mut self`.
-    pub fn is_mut(&self) -> bool {
-        self.self_arg().mutability.is_some()
+    ///
+    /// Returns `None` in case the signature doesn't have a `self` receiver,
+    /// e.g. in case for constructor messages.
+    pub fn is_mut(&self) -> Option<bool> {
+        self.self_arg().map(|receiver| receiver.mutability.is_some())
     }
 
     /// Returns the `self` input.
-    pub fn self_arg(&self) -> &syn::Receiver {
+    pub fn self_arg(&self) -> Option<&syn::Receiver> {
         if let FnArg::Receiver(receiver) = &self.inputs[0] {
-            &receiver
-        } else {
-            unreachable!("must contain the receiver in the first argument position")
+            return Some(&receiver)
         }
+        None
     }
 
     /// Returns an iterator over the function arguments without the receiver.
     pub fn inputs(&self) -> impl Iterator<Item = &IdentType> {
-        self.inputs.iter().skip(1).filter_map(|arg| {
+        self.inputs.iter().filter_map(|arg| {
             match arg {
                 FnArg::Receiver(_) => None,
                 FnArg::Typed(ident_type) => Some(ident_type),
