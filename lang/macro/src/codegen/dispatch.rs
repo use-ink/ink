@@ -90,6 +90,9 @@ impl Dispatch<'_> {
             syn::ReturnType::Type(_, ty) => quote! { #ty },
         };
         let is_mut = sig.is_mut();
+        let is_constructor = function.is_constructor();
+        let state_ident = &self.contract.storage.ident;
+        let fn_ident = &function.sig.ident;
 
         use syn::spanned::Spanned as _;
 
@@ -104,9 +107,17 @@ impl Dispatch<'_> {
                 #[allow(unused_parens)]
                 type Input = (#inputs_punct);
             }
+            impl ::ink_lang::v2::FnInput for #namespace<[(); #selector_id]> {
+                #[allow(unused_parens)]
+                type Input = (#inputs_punct);
+            }
         );
         let fn_output = quote_spanned!(sig.output.span() =>
             impl ink_lang::FnOutput for #namespace<[(); #selector_id]> {
+                #[allow(unused_parens)]
+                type Output = (#output_type);
+            }
+            impl ::ink_lang::v2::FnOutput for #namespace<[(); #selector_id]> {
                 #[allow(unused_parens)]
                 type Output = (#output_type);
             }
@@ -117,18 +128,57 @@ impl Dispatch<'_> {
                     #( #selector_bytes ),*
                 ]);
             }
+            impl ::ink_lang::v2::FnSelector for #namespace<[(); #selector_id]> {
+                const SELECTOR: ink_core::env::call::Selector = ink_core::env::call::Selector::new([
+                    #( #selector_bytes ),*
+                ]);
+            }
+        );
+        let fn_state = quote_spanned!(span =>
+            impl ::ink_lang::v2::FnState for #namespace<[(); #selector_id]> {
+                type State = #state_ident;
+            }
         );
         let message_impl = quote_spanned!(span =>
             impl ink_lang::Message for #namespace<[(); #selector_id]> {
                 const IS_MUT: bool = #is_mut;
             }
         );
+        let message2_impl = if is_constructor {
+            quote_spanned!(span =>
+                impl ::ink_lang::v2::Constructor for #namespace<[(); #selector_id]> {
+                    const CALLABLE: fn(
+                        <Self as ::ink_lang::v2::FnInput>::Input,
+                    ) -> <Self as ::ink_lang::v2::FnState>::State = #state_ident::#fn_ident;
+                }
+            )
+        } else if is_mut {
+            quote_spanned!(span =>
+                impl ::ink_lang::v2::MessageMut for #namespace<[(); #selector_id]> {
+                    const CALLABLE: fn(
+                        &mut <Self as ::ink_lang::v2::FnState>::State,
+                        <Self as ::ink_lang::v2::FnInput>::Input,
+                    ) -> <Self as ::ink_lang::v2::FnOutput>::Output = #state_ident::#fn_ident;
+                }
+            )
+        } else {
+            quote_spanned!(span =>
+                impl ::ink_lang::v2::MessageRef for #namespace<[(); #selector_id]> {
+                    const CALLABLE: fn(
+                        &<Self as ::ink_lang::v2::FnState>::State,
+                        <Self as ::ink_lang::v2::FnInput>::Input,
+                    ) -> <Self as ::ink_lang::v2::FnOutput>::Output = #state_ident::#fn_ident;
+                }
+            )
+        };
 
         quote_spanned!(span =>
             #fn_input
             #fn_output
             #fn_selector
+            #fn_state
             #message_impl
+            #message2_impl
         )
     }
 
