@@ -19,12 +19,24 @@
 mod abi;
 
 mod contract;
+mod contract2;
 mod cross_calling;
 mod dispatcher;
+mod dispatcher2;
 mod env_access;
 mod error;
 mod testable;
 mod traits;
+mod traits2;
+
+/// Re-exports all entities from the new revision of this crate.
+pub mod v2 {
+    pub use super::{
+        contract2::*,
+        dispatcher2::*,
+        traits2::*,
+    };
+}
 
 pub use ink_lang_macro::contract;
 
@@ -38,6 +50,7 @@ pub use self::{
         DispatchMode,
         DispatchUsingMode,
     },
+    contract2::Placeholder,
     cross_calling::{
         ForwardCall,
         ForwardCallMut,
