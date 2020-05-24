@@ -29,10 +29,7 @@ use crate::{
     DispatchError,
 };
 use core::marker::PhantomData;
-use ink_core::env::{
-    call::CallData,
-    EnvTypes,
-};
+use ink_core::env::call::CallData;
 
 /// Placeholder for the given type.
 #[derive(Debug)]
