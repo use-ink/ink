@@ -174,7 +174,7 @@ where
 {
     /// Instantiates the contract.
     #[inline(always)]
-    pub fn on_instantiate<T>(self, call_data: &CallData) -> Result<(), DispatchError> {
+    pub fn on_instantiate(self, call_data: &CallData) -> Result<(), DispatchError> {
         <Constrs as Dispatch>::dispatch(call_data)
     }
 }
@@ -185,7 +185,7 @@ where
 {
     /// Calls a contract message.
     #[inline(always)]
-    pub fn on_call<T>(self, call_data: &CallData) -> Result<(), DispatchError> {
+    pub fn on_call(self, call_data: &CallData) -> Result<(), DispatchError> {
         <Messages as Dispatch>::dispatch(call_data)
     }
 }
