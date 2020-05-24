@@ -177,11 +177,8 @@ where
 {
     /// Instantiates the contract.
     #[inline(always)]
-    pub fn on_instantiate<T>(self, call_data: &CallData) -> Result<(), DispatchError>
-    where
-        T: EnvTypes,
-    {
-        <Constrs as Dispatch>::dispatch::<T>(call_data)
+    pub fn on_instantiate<T>(self, call_data: &CallData) -> Result<(), DispatchError> {
+        <Constrs as Dispatch>::dispatch(call_data)
     }
 }
 
@@ -191,33 +188,7 @@ where
 {
     /// Calls a contract message.
     #[inline(always)]
-    pub fn on_call<T>(self, call_data: &CallData) -> Result<(), DispatchError>
-    where
-        T: EnvTypes,
-    {
-        <Messages as Dispatch>::dispatch::<T>(call_data)
-    }
-}
-
-pub trait FinalContract {
-    type EnvTypes: EnvTypes;
-
-    fn on_instantiate(self, call_data: &CallData) -> Result<(), DispatchError>;
-    fn on_call(self, call_data: &CallData) -> Result<(), DispatchError>;
-}
-
-impl<Constrs, Messages> FinalContract for Contract<Constrs, Messages, FinalPhase>
-where
-    Constrs: Dispatch,
-    Messages: Dispatch,
-{
-    type EnvTypes = ::ink_core::env::DefaultEnvTypes;
-
-    fn on_instantiate(self, call_data: &CallData) -> Result<(), DispatchError> {
-        Self::on_instantiate::<Self::EnvTypes>(self, call_data)
-    }
-
-    fn on_call(self, call_data: &CallData) -> Result<(), DispatchError> {
-        Self::on_call::<Self::EnvTypes>(self, call_data)
+    pub fn on_call<T>(self, call_data: &CallData) -> Result<(), DispatchError> {
+        <Messages as Dispatch>::dispatch(call_data)
     }
 }

@@ -30,12 +30,9 @@ use core::{
     mem::ManuallyDrop,
 };
 use ink_core::{
-    env::{
-        call::{
-            CallData,
-            Selector,
-        },
-        EnvTypes,
+    env::call::{
+        CallData,
+        Selector,
     },
     storage2::{
         alloc,
@@ -54,9 +51,7 @@ pub type Result<T> = core::result::Result<T, DispatchError>;
 /// Types implementing this trait can handle contract calls.
 pub trait Dispatch {
     /// Dispatches the call and returns the call result.
-    fn dispatch<T>(input: &CallData) -> Result<()>
-    where
-        T: EnvTypes;
+    fn dispatch(input: &CallData) -> Result<()>;
 }
 
 /// A dispatcher that shall never dispatch.
@@ -70,10 +65,7 @@ pub struct UnreachableDispatcher;
 
 impl Dispatch for UnreachableDispatcher {
     #[inline(always)]
-    fn dispatch<T>(_data: &CallData) -> Result<()>
-    where
-        T: EnvTypes,
-    {
+    fn dispatch(_data: &CallData) -> Result<()> {
         Err(DispatchError::UnknownSelector)
     }
 }
@@ -132,14 +124,11 @@ where
     Rest: Dispatch,
 {
     #[inline(always)]
-    fn dispatch<T>(data: &CallData) -> Result<()>
-    where
-        T: EnvTypes,
-    {
+    fn dispatch(data: &CallData) -> Result<()> {
         if <Head as FnSelector>::SELECTOR == data.selector() {
-            <Head as Dispatch>::dispatch::<T>(data)
+            <Head as Dispatch>::dispatch(data)
         } else {
-            <Rest as Dispatch>::dispatch::<T>(data)
+            <Rest as Dispatch>::dispatch(data)
         }
     }
 }
@@ -165,10 +154,7 @@ where
     M: MessageRef,
 {
     #[inline(always)]
-    fn dispatch<T>(data: &CallData) -> Result<()>
-    where
-        T: EnvTypes,
-    {
+    fn dispatch(data: &CallData) -> Result<()> {
         use scale::Decode as _;
         let args = <M as FnInput>::Input::decode(&mut &data.params()[..])
             .map_err(|_| DispatchError::InvalidParameters)?;
@@ -206,10 +192,7 @@ where
     M: MessageMut,
 {
     #[inline(always)]
-    fn dispatch<T>(data: &CallData) -> Result<()>
-    where
-        T: EnvTypes,
-    {
+    fn dispatch(data: &CallData) -> Result<()> {
         use scale::Decode as _;
         let args = <M as FnInput>::Input::decode(&mut &data.params()[..])
             .map_err(|_| DispatchError::InvalidParameters)?;
@@ -248,10 +231,7 @@ where
     M: Constructor,
 {
     #[inline(always)]
-    fn dispatch<T>(data: &CallData) -> Result<()>
-    where
-        T: EnvTypes,
-    {
+    fn dispatch(data: &CallData) -> Result<()> {
         use scale::Decode as _;
         let args = <M as FnInput>::Input::decode(&mut &data.params()[..])
             .map_err(|_| DispatchError::InvalidParameters)?;
