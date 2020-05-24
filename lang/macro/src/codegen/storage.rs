@@ -49,7 +49,6 @@ impl GenerateCode for Storage<'_> {
         let storage_span = self.contract.storage.span();
 
         let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
-        let trait_impls = self.generate_trait_impls_for_storage();
         let access_env_impls = self.generate_access_env_trait_impls();
         let message_impls = self.generate_message_impls();
         let storage_struct = self.generate_storage_struct();
@@ -68,7 +67,6 @@ impl GenerateCode for Storage<'_> {
                 use super::*;
 
                 #access_env_impls
-                #trait_impls
                 #storage_struct
             }
 
@@ -112,54 +110,6 @@ impl Storage<'_> {
         }
     }
 
-    fn generate_trait_impls_for_storage(&self) -> TokenStream2 {
-        let field_idents = &self
-            .contract
-            .storage
-            .fields
-            .named
-            .iter()
-            .map(|named_field| &named_field.ident)
-            .collect::<Vec<_>>();
-
-        quote! {
-            impl ink_core::storage::alloc::AllocateUsing for Storage {
-                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-                where
-                    A: ink_core::storage::alloc::Allocate,
-                {
-                    Self {
-                        #(
-                            #field_idents: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
-                        )*
-                    }
-                }
-            }
-
-            impl ink_core::storage::Flush for Storage {
-                fn flush(&mut self) {
-                    #(
-                        ink_core::storage::Flush::flush(&mut self.#field_idents);
-                    )*
-                }
-            }
-
-            impl ink_core::storage::alloc::Initialize for Storage {
-                type Args = ();
-
-                fn default_value() -> Option<Self::Args> {
-                    Some(())
-                }
-
-                fn initialize(&mut self, _args: Self::Args) {
-                    #(
-                        self.#field_idents.try_default_initialize();
-                    )*
-                }
-            }
-        }
-    }
-
     /// Generates the storage struct definition.
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
@@ -178,11 +128,10 @@ impl Storage<'_> {
                 feature = "ink-generate-abi",
                 derive(type_metadata::Metadata, ink_abi::HasLayout)
             )]
+            #[derive(::ink_core::storage2::traits::SpreadLayout)]
             #[cfg_attr(any(test, feature = "test-env"), derive(Debug))]
             pub struct Storage
                 #fields
-
-            impl ink_lang::Storage for Storage {}
         )
     }
 
