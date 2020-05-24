@@ -57,6 +57,7 @@ pub use self::{
     env_access::{
         Env,
         EnvAccess,
+        StaticEnv,
     },
     error::{
         DispatchError,
