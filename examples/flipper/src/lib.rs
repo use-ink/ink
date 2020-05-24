@@ -22,47 +22,49 @@ mod flipper {
 
     #[ink(storage)]
     struct Flipper {
-        value: storage::Value<bool>,
+        value: bool,
     }
 
     impl Flipper {
         #[ink(constructor)]
-        fn new(&mut self, init_value: bool) {
-            self.value.set(init_value);
+        fn new(init_value: bool) -> Self {
+            Self {
+                value: init_value,
+            }
         }
 
-        #[ink(constructor)]
-        fn default(&mut self) {
-            self.new(false)
-        }
+        // #[ink(constructor)]
+        // fn default() -> Self {
+        //     Self::new(false)
+        // }
 
         #[ink(message)]
         fn flip(&mut self) {
-            *self.value = !self.get();
+            self.value = !self.get();
         }
 
         #[ink(message)]
         fn get(&self) -> bool {
-            *self.value
+            self.value
         }
     }
 
-    #[cfg(test)]
-    mod tests {
-        use super::*;
+    // #[cfg(test)]
+    // mod tests {
+    //     use super::*;
 
-        #[test]
-        fn default_works() {
-            let flipper = Flipper::default();
-            assert_eq!(flipper.get(), false);
-        }
+    //     #[test]
+    //     fn default_works() {
+    //         let flipper = Flipper::default();
+    //         assert_eq!(flipper.get(), false);
+    //     }
 
-        #[test]
-        fn it_works() {
-            let mut flipper = Flipper::new(false);
-            assert_eq!(flipper.get(), false);
-            flipper.flip();
-            assert_eq!(flipper.get(), true);
-        }
-    }
+    //     #[test]
+    //     fn it_works() {
+    //         let mut flipper = Flipper::new(false);
+    //         assert_eq!(flipper.get(), false);
+    //         flipper.flip();
+    //         assert_eq!(flipper.get(), true);
+    //     }
+    // }
 }
