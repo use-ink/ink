@@ -98,6 +98,9 @@ pub fn free(allocation: DynamicAllocation) {
 ///
 /// # Note
 ///
+/// Normally users of ink! do not have to call this function directly as it is
+/// automatically being use in the correct order and way by the generated code.
+///
 /// - The `phase` parameter describes for which execution phase the dynamic
 ///   storage allocator needs to be initialized since this is different
 ///   in contract instantiations and calls.
@@ -120,6 +123,11 @@ pub fn initialize(phase: ContractPhase) {
 /// contract instance.
 ///
 /// The global dynamic storage allocator must not be used after this!
+///
+/// # Note
+///
+/// Normally users of ink! do not have to call this function directly as it is
+/// automatically being use in the correct order and way by the generated code.
 pub fn finalize() {
     init::finalize()
 }
