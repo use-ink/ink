@@ -432,7 +432,7 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                 }
                 if let syn::ReturnType::Type(_, ty) = &sig.output {
                     let self_ty: syn::Type = syn::parse_quote!(Self);
-                    if &**ty != &self_ty {
+                    if **ty != self_ty {
                         bail!(
                             sig.output,
                             "#[ink(constructor)] functions must have `Self` return type",
