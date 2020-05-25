@@ -153,7 +153,7 @@ impl Storage<'_> {
         quote_spanned!( span =>
             #( #attrs )*
             #vis fn #ident #type_generics (
-                #inputs,
+                #inputs
             ) #output
             #where_clause
             #block

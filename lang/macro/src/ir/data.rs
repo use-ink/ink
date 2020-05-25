@@ -456,7 +456,7 @@ impl Signature {
 
     /// Returns the `self` input.
     pub fn self_arg(&self) -> Option<&syn::Receiver> {
-        if let FnArg::Receiver(receiver) = &self.inputs[0] {
+        if let Some(FnArg::Receiver(receiver)) = self.inputs.first() {
             return Some(&receiver)
         }
         None
