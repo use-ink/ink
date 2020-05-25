@@ -27,14 +27,14 @@ optional = true
 name = "delegator"
 path = "lib.rs"
 crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
-	# Used for ABI generation.
-	"rlib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
 ]
 
 [features]
-default = ["test-env"]
+default = ["std"]
 std = [
     "ink_primitives/std",
     "ink_abi/std",
@@ -46,15 +46,6 @@ std = [
     "adder/std",
     "subber/std",
     "accumulator/std",
-]
-test-env = [
-	"std",
-    "ink_lang/test-env",
-    "type-metadata/std",
-
-    "adder/test-env",
-    "subber/test-env",
-    "accumulator/test-env",
 ]
 ink-generate-abi = [
     "std",
@@ -76,11 +67,11 @@ overflow-checks = true
 
 [workspace]
 members = [
-	".ink/abi_gen",
+    ".ink/abi_gen",
     "accumulator",
     "adder",
     "subber",
 ]
 exclude = [
-	".ink"
+    ".ink"
 ]

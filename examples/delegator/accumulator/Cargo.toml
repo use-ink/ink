@@ -23,25 +23,20 @@ optional = true
 name = "accumulator"
 path = "lib.rs"
 crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
-	# Used for ABI generation.
-	"rlib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
 ]
 
 [features]
-default = ["test-env"]
+default = ["std"]
 std = [
     "ink_primitives/std",
     "ink_abi/std",
     "ink_core/std",
     "ink_lang/std",
     "scale/std",
-    "type-metadata/std",
-]
-test-env = [
-	"std",
-    "ink_lang/test-env",
     "type-metadata/std",
 ]
 ink-generate-abi = [

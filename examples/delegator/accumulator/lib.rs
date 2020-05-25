@@ -18,20 +18,17 @@ use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod accumulator {
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage;
-    
     /// Holds a simple i32 value that can be incremented and decremented.
     #[ink(storage)]
     struct Accumulator {
-        value: storage::Value<i32>,
+        value: i32,
     }
 
     impl Accumulator {
         /// Initializes the value to the initial value.
         #[ink(constructor)]
-        fn new(&mut self, init_value: i32) {
-            self.value.set(init_value)
+        fn new(init_value: i32) -> Self {
+            Self { value: init_value }
         }
 
         /// Mutates the internal value.
@@ -43,7 +40,7 @@ mod accumulator {
         /// Returns the current state.
         #[ink(message)]
         fn get(&self) -> i32 {
-            *self.value
+            self.value
         }
     }
 }
