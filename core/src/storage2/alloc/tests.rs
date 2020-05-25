@@ -15,7 +15,6 @@
 use super::{
     alloc,
     free,
-    initialize_for,
     ContractPhase,
     DynamicAllocation,
     DynamicAllocator,
@@ -25,9 +24,12 @@ use crate::{
         test,
         DefaultEnvTypes,
     },
-    storage2::traits::{
-        KeyPtr,
-        SpreadLayout,
+    storage2::{
+        alloc,
+        traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
     },
 };
 use ink_primitives::Key;
@@ -36,7 +38,7 @@ fn run_default_test<F>(f: F)
 where
     F: FnOnce(),
 {
-    initialize_for(ContractPhase::Deploy);
+    alloc::initialize(ContractPhase::Deploy);
     test::run_test::<DefaultEnvTypes, _>(|_| {
         f();
         Ok(())
@@ -195,7 +197,7 @@ fn test_call_setup_works() {
         assert_eq!(allocator.alloc(), DynamicAllocation(1));
         let root_key = Key([0xFE; 32]);
         SpreadLayout::push_spread(&allocator, &mut KeyPtr::from(root_key));
-        initialize_for(ContractPhase::Call);
+        alloc::initialize(ContractPhase::Call);
         assert_eq!(alloc(), DynamicAllocation(2));
         assert_eq!(alloc(), DynamicAllocation(3));
         free(DynamicAllocation(0));

@@ -75,21 +75,15 @@ mod init;
 #[cfg(test)]
 mod tests;
 
+use self::allocator::DynamicAllocator;
 pub use self::{
     allocation::DynamicAllocation,
-    init::{
-        initialize_for,
-        ContractPhase,
-    },
-};
-use self::{
-    allocator::DynamicAllocator,
-    init::on_call,
+    init::ContractPhase,
 };
 
 /// Returns a new dynamic storage allocation.
 pub fn alloc() -> DynamicAllocation {
-    on_call(DynamicAllocator::alloc)
+    init::on_instance(DynamicAllocator::alloc)
 }
 
 /// Frees the given dynamic storage allocation.
@@ -97,5 +91,43 @@ pub fn alloc() -> DynamicAllocation {
 /// This makes the given dynamic storage allocation available again
 /// for new dynamic storage allocations.
 pub fn free(allocation: DynamicAllocation) {
-    on_call(|allocator| allocator.free(allocation))
+    init::on_instance(|allocator| allocator.free(allocation))
+}
+
+/// Tells the global dynamic storage allocator instance how it shall initialize.
+///
+/// # Note
+///
+/// Normally users of ink! do not have to call this function directly as it is
+/// automatically being use in the correct order and way by the generated code.
+///
+/// - The `phase` parameter describes for which execution phase the dynamic
+///   storage allocator needs to be initialized since this is different
+///   in contract instantiations and calls.
+/// - This has to be issued before the first interaction with the global allocator.
+/// - The actual instantiation will happen only upon the first interaction with
+///   the global allocator, e.g. using its `alloc` or `free` calls. Until then
+///   it remains uninitialized.
+///
+/// If this function is not called before the first global allocator interaction
+/// then the default initialization scheme is for contract instantiation.
+/// However, this behavior might change and must not be relied upon.
+pub fn initialize(phase: ContractPhase) {
+    init::initialize(phase);
+}
+
+/// Finalizes the global dynamic storage allocator instance.
+///
+/// This pushes all the accumulated state from this contract execution back to
+/// the contract storage to be used in the next contract execution for the same
+/// contract instance.
+///
+/// The global dynamic storage allocator must not be used after this!
+///
+/// # Note
+///
+/// Normally users of ink! do not have to call this function directly as it is
+/// automatically being use in the correct order and way by the generated code.
+pub fn finalize() {
+    init::finalize()
 }
