@@ -143,7 +143,14 @@ impl CrossCalling<'_> {
 
         quote! {
             #( #attrs )*
-            #[derive(Clone, Debug, scale::Encode, scale::Decode)]
+            #[derive(
+                Clone,
+                Debug,
+                ::scale::Encode,
+                ::scale::Decode,
+                ::ink_core::storage2::traits::SpreadLayout,
+                ::ink_core::storage2::traits::PackedLayout
+            )]
             #[cfg_attr(
                 feature = "ink-generate-abi",
                 derive(type_metadata::Metadata)
