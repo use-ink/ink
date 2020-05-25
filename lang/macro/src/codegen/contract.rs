@@ -31,7 +31,6 @@ pub use crate::{
             EventStructs,
         },
         storage::Storage,
-        testable::TestWrapper,
         GenerateCode,
         GenerateCodeUsing,
     },
@@ -65,7 +64,6 @@ impl GenerateCode for ContractModule<'_> {
         let event_helpers = self.generate_code_using::<EventHelpers>();
         let event_structs = self.generate_code_using::<EventStructs>();
         let event_imports = self.generate_code_using::<EventImports>();
-        let test_wrapper = self.generate_code_using::<TestWrapper>();
         let cross_calling = self.generate_code_using::<CrossCalling>();
         let non_ink_items = &self.contract.non_ink_items;
 
@@ -91,12 +89,8 @@ impl GenerateCode for ContractModule<'_> {
                     #event_helpers
                     #dispatch
                     #generate_abi
-                    #test_wrapper
                     #cross_calling
                 }
-
-                #[cfg(all(test, feature = "test-env"))]
-                pub type #storage_ident = self::__ink_private::TestableStorage;
 
                 #[cfg(not(all(test, feature = "test-env")))]
                 #conflic_depedency_cfg

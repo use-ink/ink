@@ -48,7 +48,6 @@ mod dispatch;
 mod env_types;
 mod events;
 mod storage;
-mod testable;
 
 use proc_macro2::TokenStream as TokenStream2;
 
