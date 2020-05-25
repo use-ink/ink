@@ -182,11 +182,19 @@ cfg_if! {
 
         /// Forwards to the `initialize` of the global dynamic storage allocator instance.
         pub fn initialize(phase: ContractPhase) {
+            // SAFETY: Accessing the global allocator in Wasm mode is single
+            //         threaded and will not return back a reference to its
+            //         internal state. Also the `initialize` method won't
+            //         re-enter the dynamic storage in any possible way.
             unsafe { &mut GLOBAL_INSTANCE }.initialize(phase);
         }
 
         /// Forwards to the `finalize` of the global dynamic storage allocator instance.
         pub fn finalize() {
+            // SAFETY: Accessing the global allocator in Wasm mode is single
+            //         threaded and will not return back a reference to its
+            //         internal state. Also the `finalize` method won't
+            //         re-enter the dynamic storage in any possible way.
             unsafe { &mut GLOBAL_INSTANCE }.finalize();
         }
 
@@ -195,6 +203,12 @@ cfg_if! {
         where
             F: FnOnce(&mut DynamicAllocator) -> R,
         {
+            // SAFETY: Accessing the global allocator in Wasm mode is single
+            //         threaded and will not return back a reference to its
+            //         internal state. Also this is an internal API only called
+            //         through `alloc` and `free` both of which do not return
+            //         anything that could allow to re-enter the dynamic storage
+            //         allocator instance.
             unsafe { &mut GLOBAL_INSTANCE }.on_instance(f)
         }
 
