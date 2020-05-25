@@ -31,7 +31,7 @@ crate-type = [
 ]
 
 [features]
-default = ["test-env"]
+default = ["std"]
 std = [
     "ink_abi/std",
     "ink_core/std",
@@ -39,10 +39,6 @@ std = [
     "ink_prelude/std",
     "scale/std",
     "type-metadata/std",
-]
-test-env = [
-    "std",
-    "ink_lang/test-env",
 ]
 ink-generate-abi = [
     "std",
