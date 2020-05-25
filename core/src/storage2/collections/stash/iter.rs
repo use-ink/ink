@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(test)]
 use super::Entry;
 use super::Stash;
 use crate::storage2::{
@@ -243,7 +242,6 @@ where
 ///
 /// This is an internal API and mainly used for testing the storage stash.
 #[derive(Debug, Clone, Copy)]
-#[cfg(test)]
 pub struct Entries<'a, T>
 where
     T: PackedLayout,
@@ -256,7 +254,6 @@ where
     end: u32,
 }
 
-#[cfg(test)]
 impl<'a, T> Entries<'a, T>
 where
     T: PackedLayout,
@@ -272,7 +269,6 @@ where
     }
 }
 
-#[cfg(test)]
 impl<'a, T> Iterator for Entries<'a, T>
 where
     T: PackedLayout,
@@ -300,10 +296,8 @@ where
     }
 }
 
-#[cfg(test)]
 impl<'a, T> ExactSizeIterator for Entries<'a, T> where T: PackedLayout {}
 
-#[cfg(test)]
 impl<'a, T> DoubleEndedIterator for Entries<'a, T>
 where
     T: PackedLayout,
