@@ -528,13 +528,3 @@ impl ToTokens for IdentType {
         self.ty.to_tokens(tokens);
     }
 }
-
-impl IdentType {
-    /// Returns the span of `self`.
-    pub fn span(&self) -> Span {
-        self.ident
-            .span()
-            .join(self.ty.span())
-            .expect("spans of `ident` and `ty` must be in the same file; qed")
-    }
-}
