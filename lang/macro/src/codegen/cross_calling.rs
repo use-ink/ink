@@ -368,8 +368,9 @@ impl CrossCalling<'_> {
     }
 
     fn generate_ref_forwarder(&self) -> TokenStream2 {
-        let forwarding_messages =
-            self.generate_forwarding_messages(|function| !function.sig.is_mut().unwrap_or(false));
+        let forwarding_messages = self.generate_forwarding_messages(|function| {
+            !function.sig.is_mut().unwrap_or(false)
+        });
 
         quote! {
             impl<'a> ink_lang::ForwardCall for &'a StorageAsDependency {
@@ -394,8 +395,9 @@ impl CrossCalling<'_> {
     }
 
     fn generate_ref_mut_forwarder(&self) -> TokenStream2 {
-        let forwarding_messages =
-            self.generate_forwarding_messages(|function| function.sig.is_mut().unwrap_or(false));
+        let forwarding_messages = self.generate_forwarding_messages(|function| {
+            function.sig.is_mut().unwrap_or(false)
+        });
 
         quote! {
             impl<'a> ink_lang::ForwardCallMut for &'a mut StorageAsDependency {

@@ -450,7 +450,8 @@ impl Signature {
     /// Returns `None` in case the signature doesn't have a `self` receiver,
     /// e.g. in case for constructor messages.
     pub fn is_mut(&self) -> Option<bool> {
-        self.self_arg().map(|receiver| receiver.mutability.is_some())
+        self.self_arg()
+            .map(|receiver| receiver.mutability.is_some())
     }
 
     /// Returns the `self` input.

@@ -38,10 +38,6 @@ pub use self::layout::{
     StorageLayout,
 };
 
-pub use ::ink_core_derive::{
-    SpreadLayout,
-    PackedLayout,
-};
 pub(crate) use self::optspec::{
     clear_spread_root_opt,
     pull_packed_root_opt,
@@ -61,6 +57,10 @@ pub use self::{
     },
     packed::PackedLayout,
     spread::SpreadLayout,
+};
+pub use ::ink_core_derive::{
+    PackedLayout,
+    SpreadLayout,
 };
 use ink_primitives::Key;
 
