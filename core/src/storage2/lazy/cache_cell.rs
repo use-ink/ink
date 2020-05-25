@@ -89,11 +89,6 @@ where
     }
 
     /// Returns a mutable pointer to the inner value.
-    ///
-    /// # Safety
-    ///
-    /// This is unsafe since it allows to mutably borrow the inner value through
-    /// a shared reference. The same rules apply here as with [`UnsafeCell::get`].
     pub fn get_ptr(&self) -> NonNull<T> {
         // SAFETY: The inner `T` of the internal `UnsafeCell` exists and thus
         //         the pointer that we get returned to it via `UnsafeCell::get`

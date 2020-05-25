@@ -20,7 +20,6 @@
 
 pub mod bitstash;
 pub mod bitvec;
-pub mod boxed;
 pub mod hashmap;
 pub mod smallvec;
 pub mod stash;
@@ -30,7 +29,6 @@ pub mod vec;
 pub use self::{
     bitstash::BitStash,
     bitvec::Bitvec,
-    boxed::Box,
     hashmap::HashMap,
     smallvec::SmallVec,
     stash::Stash,
