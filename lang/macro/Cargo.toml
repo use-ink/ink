@@ -48,10 +48,7 @@ name = "ink_lang_macro"
 proc-macro = true
 
 [features]
-default = ["test-env"]
-test-env = [
-    "std",
-]
+default = ["std"]
 std = [
     "scale/std",
     "itertools/use_std",

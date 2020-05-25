@@ -69,7 +69,7 @@ impl GenerateCode for ContractModule<'_> {
 
         let test_event_alias = if !self.contract.events.is_empty() {
             quote! {
-                #[cfg(all(test, feature = "test-env"))]
+                #[cfg(test)]
                 pub type Event = self::__ink_private::Event;
             }
         } else {
@@ -92,7 +92,6 @@ impl GenerateCode for ContractModule<'_> {
                     #cross_calling
                 }
 
-                #[cfg(not(all(test, feature = "test-env")))]
                 #conflic_depedency_cfg
                 pub type #storage_ident = self::__ink_private::Storage;
 

@@ -129,7 +129,7 @@ impl Storage<'_> {
                 derive(type_metadata::Metadata, ink_abi::HasLayout)
             )]
             #[derive(::ink_core::storage2::traits::SpreadLayout)]
-            #[cfg_attr(any(test, feature = "test-env"), derive(Debug))]
+            #[cfg_attr(test, derive(Debug))]
             pub struct Storage
                 #fields
         )
