@@ -61,12 +61,14 @@ pub trait StaticEnv {
 ///
 /// This allows ink! messages to make use of the environment efficiently
 /// and user friendly while also maintaining access invariants.
+#[derive(Copy, Clone)]
 pub struct EnvAccess<'a, T> {
     /// Tricks the Rust compiler into thinking that we use `T`.
     marker: PhantomData<fn() -> &'a T>,
 }
 
 impl<'a, T> Default for EnvAccess<'a, T> {
+    #[inline]
     fn default() -> Self {
         Self {
             marker: Default::default(),
