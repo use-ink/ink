@@ -22,10 +22,10 @@ optional = true
 [lib]
 name = "erc20"
 crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
-	# Used for ABI generation.
-	"rlib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
 ]
 
 [features]
@@ -54,8 +54,8 @@ overflow-checks = true
 
 [workspace]
 members = [
-	".ink/abi_gen"
+    ".ink/abi_gen"
 ]
 exclude = [
-	".ink"
+    ".ink"
 ]
