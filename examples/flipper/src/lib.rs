@@ -18,8 +18,6 @@ use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod flipper {
-    use ink_core::storage;
-
     #[ink(storage)]
     struct Flipper {
         value: bool,
