@@ -79,7 +79,10 @@ impl GenerateCode for Storage<'_> {
             const _: () = {
                 // Used to make `self.env()` available in message code.
                 #[allow(unused_imports)]
-                use ink_lang::Env as _;
+                use ::ink_lang::{
+                    Env as _,
+                    StaticEnv as _,
+                };
 
                 #use_emit_event
                 #message_impls
@@ -95,6 +98,14 @@ impl Storage<'_> {
                 type EnvAccess = ink_lang::EnvAccess<'a, EnvTypes>;
 
                 fn env(self) -> Self::EnvAccess {
+                    Default::default()
+                }
+            }
+
+            impl<'a> ink_lang::StaticEnv for Storage {
+                type EnvAccess = ink_lang::EnvAccess<'static, EnvTypes>;
+
+                fn env() -> Self::EnvAccess {
                     Default::default()
                 }
             }

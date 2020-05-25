@@ -17,10 +17,8 @@ use crate::{
     env,
     env::test::DefaultAccounts,
     storage2::{
-        alloc::{
-            initialize_for,
-            ContractPhase,
-        },
+        alloc,
+        alloc::ContractPhase,
         traits::{
             KeyPtr,
             SpreadLayout,
@@ -50,7 +48,7 @@ where
     F: FnOnce(DefaultAccounts<env::DefaultEnvTypes>),
 {
     env::test::run_test::<env::DefaultEnvTypes, _>(|default_accounts| {
-        initialize_for(ContractPhase::Deploy);
+        alloc::initialize(ContractPhase::Deploy);
         f(default_accounts);
         Ok(())
     })
