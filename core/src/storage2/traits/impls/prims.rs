@@ -50,7 +50,7 @@ impl_layout_for_primitive!(
     // We do not include `f32` and `f64` since Wasm contracts currently
     // do not support them since they are non deterministic. We might add them
     // to this list once we add deterministic support for those primitives.
-    Key, Hash, AccountId,
+    Key, Hash, AccountId, (),
     String,
     bool,
     u8, u16, u32, u64, u128,
