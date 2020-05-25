@@ -18,32 +18,32 @@ use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod incrementer {
-    use ink_core::storage;
-
     #[ink(storage)]
     struct Incrementer {
-        value: storage::Value<i32>,
+        value: i32,
     }
 
     impl Incrementer {
         #[ink(constructor)]
-        fn new(&mut self, init_value: i32) {
-            self.value.set(init_value);
+        fn new(init_value: i32) -> Self {
+            Self {
+                value: init_value,
+            }
         }
 
         #[ink(constructor)]
-        fn default(&mut self) {
-            self.new(0)
+        fn default() -> Self {
+            Self::new(Default::default())
         }
 
         #[ink(message)]
         fn inc(&mut self, by: i32) {
-            *self.value += by;
+            self.value += by;
         }
 
         #[ink(message)]
         fn get(&self) -> i32 {
-            *self.value
+            self.value
         }
     }
 
