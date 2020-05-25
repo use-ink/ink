@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Box","An indirection to some dynamically allocated storage entity."]]});

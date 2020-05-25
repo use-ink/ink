@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage2/collections/boxed/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script src="../../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../../ink_core/index.html'><div class='logo-container'><img src='../../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../../settings.html"><img src="../../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `core/src/storage2/alloc/boxed/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script src="../../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../../ink_core/index.html'><div class='logo-container'><img src='../../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../../../settings.html"><img src="../../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -116,8 +116,6 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -132,24 +130,6 @@
 <span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
-
-<span class="doccomment">//! A dynamically allocated storage entity.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Users can use this in order to make certain `SpreadLayout` storage entities</span>
-<span class="doccomment">//! used in contexts that require a `PackedLayout` storage entity by simply</span>
-<span class="doccomment">//! packing the storage entity witihn a `storage::Box`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Dynamic allocations caused by the creation of `storage::Box` instances do</span>
-<span class="doccomment">//! have some limited overhead:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - The dynamic allocation itself has to be provided by some dynamic storage</span>
-<span class="doccomment">//!   allocator that needs to be invoked.</span>
-<span class="doccomment">//! - Each dynamic storage allocation implies roughly 1.12 bits of overhead.</span>
-<span class="doccomment">//! - Upon ever first dereferencing of a `storage::Box` instance a cryptographic</span>
-<span class="doccomment">//!   hash routine is run in order to compute the underlying storage key.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Use this abstraction with caution due to the aforementioned performance</span>
-<span class="doccomment">//! implications.</span>
 
 <span class="kw">mod</span> <span class="ident">impls</span>;
 <span class="kw">mod</span> <span class="ident">storage</span>;
@@ -167,7 +147,23 @@
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
 
-<span class="doccomment">/// An indirection to some dynamically allocated storage entity.</span>
+<span class="doccomment">/// A dynamically allocated storage entity.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Users can use this in order to make certain `SpreadLayout` storage entities</span>
+<span class="doccomment">/// used in contexts that require a `PackedLayout` storage entity by simply</span>
+<span class="doccomment">/// packing the storage entity witihn a `storage::Box`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Dynamic allocations caused by the creation of `storage::Box` instances do</span>
+<span class="doccomment">/// have some limited overhead:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - The dynamic allocation itself has to be provided by some dynamic storage</span>
+<span class="doccomment">///   allocator that needs to be invoked.</span>
+<span class="doccomment">/// - Each dynamic storage allocation implies roughly 1.12 bits of overhead.</span>
+<span class="doccomment">/// - Upon ever first dereferencing of a `storage::Box` instance a cryptographic</span>
+<span class="doccomment">///   hash routine is run in order to compute the underlying storage key.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Use this abstraction with caution due to the aforementioned performance</span>
+<span class="doccomment">/// implications.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>

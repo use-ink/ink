@@ -131,6 +131,8 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -204,6 +206,7 @@
 
 <span class="kw">mod</span> <span class="ident">allocation</span>;
 <span class="kw">mod</span> <span class="ident">allocator</span>;
+<span class="kw">mod</span> <span class="ident">boxed</span>;
 <span class="kw">mod</span> <span class="ident">init</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -212,6 +215,7 @@
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">allocator</span>::<span class="ident">DynamicAllocator</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">allocation</span>::<span class="ident">DynamicAllocation</span>,
+    <span class="ident">boxed</span>::<span class="ident">Box</span>,
     <span class="ident">init</span>::<span class="ident">ContractPhase</span>,
 };
 
