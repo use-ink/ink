@@ -27,7 +27,7 @@ use ink_core::{
 };
 use ink_primitives::Key;
 
-/// Allows to directly access the environment mutably.
+/// Simplifies interaction with the host environment via `self`.
 ///
 /// # Note
 ///
@@ -35,11 +35,26 @@ use ink_primitives::Key;
 /// their environment in order to allow the different dispatch functions
 /// to use it for returning the contract's output.
 pub trait Env {
-    /// The environmental types.
+    /// The access wrapper.
     type EnvAccess;
 
     /// Accesses the environment with predefined environmental types.
     fn env(self) -> Self::EnvAccess;
+}
+
+/// Simplifies interaction with the host environment via `Self`.
+///
+/// # Note
+///
+/// This is generally implemented for storage structs that include
+/// their environment in order to allow the different dispatch functions
+/// to use it for returning the contract's output.
+pub trait StaticEnv {
+    /// The access wrapper.
+    type EnvAccess;
+
+    /// Accesses the environment with predefined environmental types.
+    fn env() -> Self::EnvAccess;
 }
 
 /// A typed accessor to the environment.
