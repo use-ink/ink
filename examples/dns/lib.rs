@@ -18,7 +18,11 @@ use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod dns {
-    use ink_core::storage;
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_core::storage2::{
+        lazy::Lazy,
+        collections::HashMap as StorageHashMap,
+    };
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
@@ -71,11 +75,11 @@ mod dns {
     #[ink(storage)]
     struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
-        name_to_address: storage::HashMap<Hash, AccountId>,
+        name_to_address: StorageHashMap<Hash, AccountId>,
         /// A hashmap to store all name to owners mapping.
-        name_to_owner: storage::HashMap<Hash, AccountId>,
+        name_to_owner: StorageHashMap<Hash, AccountId>,
         /// The default address.
-        default_address: storage::Value<AccountId>,
+        default_address: Lazy<AccountId>,
     }
 
     /// Errors that can occur upon calling this contract.
@@ -93,8 +97,12 @@ mod dns {
     impl DomainNameService {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
-        fn new(&mut self) {
-            self.default_address.set(AccountId::from([0x00; 32]));
+        fn new() -> Self {
+            Self {
+                default_address: Lazy::new(AccountId::from([0x00; 32])),
+                name_to_address: StorageHashMap::new(),
+                name_to_owner: StorageHashMap::new(),
+            }
         }
 
         /// Register specific name with caller as owner.
@@ -179,6 +187,17 @@ mod dns {
         use super::*;
         use ink_core::env;
 
+        /// Executes the given test through the off-chain environment.
+        fn run_test<F>(test_fn: F)
+        where
+            F: FnOnce(),
+        {
+            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                test_fn();
+                Ok(())
+            }).unwrap()
+        }
+
         const DEFAULT_CALLEE_HASH: [u8; 32] = [0x07; 32];
         const DEFAULT_ENDOWMENT: Balance = 1_000_000;
         const DEFAULT_GAS_LIMIT: Balance = 1_000_000;
@@ -200,62 +219,68 @@ mod dns {
 
         #[test]
         fn register_works() {
-            let default_accounts = default_accounts();
-            let name = Hash::from([0x99; 32]);
+            run_test(|| {
+                let default_accounts = default_accounts();
+                let name = Hash::from([0x99; 32]);
 
-            set_next_caller(default_accounts.alice);
-            let mut contract = DomainNameService::new();
+                set_next_caller(default_accounts.alice);
+                let mut contract = DomainNameService::new();
 
-            assert_eq!(contract.register(name), Ok(()));
-            assert_eq!(contract.register(name), Err(Error::NameAlreadyExists));
+                assert_eq!(contract.register(name), Ok(()));
+                assert_eq!(contract.register(name), Err(Error::NameAlreadyExists));
+            })
         }
 
         #[test]
         fn set_address_works() {
-            let accounts = default_accounts();
-            let name = Hash::from([0x99; 32]);
+            run_test(|| {
+                let accounts = default_accounts();
+                let name = Hash::from([0x99; 32]);
 
-            set_next_caller(accounts.alice);
+                set_next_caller(accounts.alice);
 
-            let mut contract = DomainNameService::new();
-            assert_eq!(contract.register(name), Ok(()));
+                let mut contract = DomainNameService::new();
+                assert_eq!(contract.register(name), Ok(()));
 
-            // Caller is not owner, `set_address` should fail.
-            set_next_caller(accounts.bob);
-            assert_eq!(
-                contract.set_address(name, accounts.bob),
-                Err(Error::CallerIsNotOwner)
-            );
+                // Caller is not owner, `set_address` should fail.
+                set_next_caller(accounts.bob);
+                assert_eq!(
+                    contract.set_address(name, accounts.bob),
+                    Err(Error::CallerIsNotOwner)
+                );
 
-            // caller is owner, set_address will be successful
-            set_next_caller(accounts.alice);
-            assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
-            assert_eq!(contract.get_address(name), accounts.bob);
+                // caller is owner, set_address will be successful
+                set_next_caller(accounts.alice);
+                assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
+                assert_eq!(contract.get_address(name), accounts.bob);
+            })
         }
 
         #[test]
         fn transfer_works() {
-            let accounts = default_accounts();
-            let name = Hash::from([0x99; 32]);
+            run_test(|| {
+                let accounts = default_accounts();
+                let name = Hash::from([0x99; 32]);
 
-            set_next_caller(accounts.alice);
+                set_next_caller(accounts.alice);
 
-            let mut contract = DomainNameService::new();
-            assert_eq!(contract.register(name), Ok(()));
+                let mut contract = DomainNameService::new();
+                assert_eq!(contract.register(name), Ok(()));
 
-            // Test transfer of owner.
-            assert_eq!(contract.transfer(name, accounts.bob), Ok(()));
+                // Test transfer of owner.
+                assert_eq!(contract.transfer(name, accounts.bob), Ok(()));
 
-            // Owner is bob, alice `set_address` should fail.
-            assert_eq!(
-                contract.set_address(name, accounts.bob),
-                Err(Error::CallerIsNotOwner)
-            );
+                // Owner is bob, alice `set_address` should fail.
+                assert_eq!(
+                    contract.set_address(name, accounts.bob),
+                    Err(Error::CallerIsNotOwner)
+                );
 
-            set_next_caller(accounts.bob);
-            // Now owner is bob, `set_address` should be successful.
-            assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
-            assert_eq!(contract.get_address(name), accounts.bob);
+                set_next_caller(accounts.bob);
+                // Now owner is bob, `set_address` should be successful.
+                assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
+                assert_eq!(contract.get_address(name), accounts.bob);
+            })
         }
     }
 }
