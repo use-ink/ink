@@ -42,7 +42,7 @@ impl GenerateCode for GenerateAbi<'_> {
         quote! {
             #[cfg(feature = "ink-generate-abi")]
             const _: () = {
-                impl ink_lang::GenerateAbi for #storage_ident {
+                impl ::ink_lang::GenerateAbi for #storage_ident {
                     fn generate_abi() -> ink_abi::InkProject {
                         let contract: ink_abi::ContractSpec = {
                             #contract
@@ -273,8 +273,8 @@ impl GenerateAbi<'_> {
         let contract_ident = &self.contract.storage.ident;
         quote! {
             unsafe {
-                use ink_abi::HasLayout as _;
-                use ink_core::storage::alloc::AllocateUsing as _;
+                use ::ink_abi::HasLayout as _;
+                use ::ink_core::storage::alloc::AllocateUsing as _;
                 // We can use `ManuallyDrop` here and don't care for
                 // unfreed memory since this function will generally be
                 // called from within the `.ink` tool `abi-gen` and process
@@ -291,7 +291,7 @@ impl GenerateAbi<'_> {
                 // beforehand which would normally happen for contract
                 // execution.
                 core::mem::ManuallyDrop::new(
-                    #contract_ident::allocate_using(&mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
+                    #contract_ident::allocate_using(&mut ::ink_core::storage::alloc::BumpAlloc::from_raw_parts(
                         ink_primitives::Key([0x0; 32]),
                     ))
                 )

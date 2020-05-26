@@ -164,22 +164,22 @@ impl CrossCalling<'_> {
     fn generate_storage_impls(&self) -> TokenStream2 {
         quote! {
             #[cfg(feature = "ink-generate-abi")]
-            impl ink_abi::HasLayout for StorageAsDependency {
-                fn layout(&self) -> ink_abi::StorageLayout {
-                    ink_abi::LayoutStruct::new(
-                        <Self as type_metadata::Metadata>::meta_type(), vec![]
+            impl ::ink_abi::HasLayout for StorageAsDependency {
+                fn layout(&self) -> ::ink_abi::StorageLayout {
+                    ::ink_abi::LayoutStruct::new(
+                        <Self as ::type_metadata::Metadata>::meta_type(), vec![]
                     ).into()
                 }
             }
 
-            impl ink_core::env::call::FromAccountId<EnvTypes> for StorageAsDependency {
+            impl ::ink_core::env::call::FromAccountId<EnvTypes> for StorageAsDependency {
                 #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { account_id }
                 }
             }
 
-            impl ink_lang::ToAccountId<EnvTypes> for StorageAsDependency {
+            impl ::ink_lang::ToAccountId<EnvTypes> for StorageAsDependency {
                 #[inline]
                 fn to_account_id(&self) -> AccountId {
                     self.account_id
@@ -278,7 +278,7 @@ impl CrossCalling<'_> {
                             #fn_args
                         ),*
                     ) #output {
-                        ink_lang::#call_path(self)
+                        ::ink_lang::#call_path(self)
                             .#ident( #( #arg_idents ),* )
                             .fire()
                             .expect(#failure_msg)
@@ -348,8 +348,8 @@ impl CrossCalling<'_> {
                         EnvTypes, #ret_ty_sig, ink_core::env::call::state::Sealed
                     > {
                         ink_core::env::call::CallParams::<EnvTypes, #ret_ty_param>::#instantiate_fn(
-                            ink_lang::ToAccountId::to_account_id(self.contract),
-                            ink_core::env::call::Selector::new([ #( #selector_bytes ),* ]),
+                            ::ink_lang::ToAccountId::to_account_id(self.contract),
+                            ::ink_core::env::call::Selector::new([ #( #selector_bytes ),* ]),
                         )
                         #(
                             .push_arg(&#arg_idents)
@@ -366,7 +366,7 @@ impl CrossCalling<'_> {
         });
 
         quote! {
-            impl<'a> ink_lang::ForwardCall for &'a StorageAsDependency {
+            impl<'a> ::ink_lang::ForwardCall for &'a StorageAsDependency {
                 type Forwarder = CallForwarder<'a>;
 
                 #[inline]
@@ -393,7 +393,7 @@ impl CrossCalling<'_> {
         });
 
         quote! {
-            impl<'a> ink_lang::ForwardCallMut for &'a mut StorageAsDependency {
+            impl<'a> ::ink_lang::ForwardCallMut for &'a mut StorageAsDependency {
                 type Forwarder = CallForwarderMut<'a>;
 
                 #[inline]

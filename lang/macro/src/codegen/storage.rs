@@ -92,16 +92,16 @@ impl GenerateCode for Storage<'_> {
 impl Storage<'_> {
     fn generate_access_env_trait_impls(&self) -> TokenStream2 {
         quote! {
-            impl<'a> ink_lang::Env for &'a Storage {
-                type EnvAccess = ink_lang::EnvAccess<'a, EnvTypes>;
+            impl<'a> ::ink_lang::Env for &'a Storage {
+                type EnvAccess = ::ink_lang::EnvAccess<'a, EnvTypes>;
 
                 fn env(self) -> Self::EnvAccess {
                     Default::default()
                 }
             }
 
-            impl<'a> ink_lang::StaticEnv for Storage {
-                type EnvAccess = ink_lang::EnvAccess<'static, EnvTypes>;
+            impl<'a> ::ink_lang::StaticEnv for Storage {
+                type EnvAccess = ::ink_lang::EnvAccess<'static, EnvTypes>;
 
                 fn env() -> Self::EnvAccess {
                     Default::default()
