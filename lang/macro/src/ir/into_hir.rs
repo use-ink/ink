@@ -446,6 +446,15 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                 }
             }
             ir::FunctionKind::Message(_) | ir::FunctionKind::Method => {
+                if let syn::ReturnType::Type(_, ty) = &sig.output {
+                    let self_ty: syn::Type = syn::parse_quote!(Self);
+                    if **ty == self_ty {
+                        bail!(
+                            sig.output,
+                            "ink! messages and methods must not return `Self`",
+                        )
+                    }
+                }
                 match sig.self_arg() {
                     Some(receiver) => {
                         if receiver.reference.is_none() {
