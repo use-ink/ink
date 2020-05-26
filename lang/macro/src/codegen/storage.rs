@@ -144,7 +144,7 @@ impl Storage<'_> {
         } else {
             quote_spanned!(span => )
         };
-        let attrs = utils::filter_non_ink_attributes(&self.contract.storage.attrs);
+        let attrs = utils::filter_non_ink_attributes(&function.attrs);
         let ident = &function.sig.ident;
         let (_, type_generics, where_clause) = function.sig.generics.split_for_impl();
         let inputs = &function.sig.inputs;
