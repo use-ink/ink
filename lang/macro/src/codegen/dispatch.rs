@@ -122,7 +122,7 @@ impl Dispatch<'_> {
         };
         let fn_selector = quote_spanned!(span =>
             impl ::ink_lang::FnSelector for #namespace<[(); #selector_id]> {
-                const SELECTOR: ink_core::env::call::Selector = ::ink_core::env::call::Selector::new([
+                const SELECTOR: ::ink_core::env::call::Selector = ::ink_core::env::call::Selector::new([
                     #( #selector_bytes ),*
                 ]);
             }
@@ -257,10 +257,10 @@ impl Dispatch<'_> {
             .map(|fun| self.generate_dispatch_using_mode_fragment(fun));
 
         quote! {
-            impl ink_lang::DispatchUsingMode for Storage {
+            impl ::ink_lang::DispatchUsingMode for Storage {
                 #[allow(unused_parens)]
                 fn dispatch_using_mode(
-                    mode: ink_lang::DispatchMode
+                    mode: ::ink_lang::DispatchMode
                 ) -> core::result::Result<(), ::ink_lang::DispatchError> {
                     let call_data =
                         ::ink_core::env::input().map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?;
@@ -283,9 +283,9 @@ impl Dispatch<'_> {
             #[cfg(not(test))]
             #[no_mangle]
             fn deploy() -> u32 {
-                ink_lang::DispatchRetCode::from(
-                    <Storage as ink_lang::DispatchUsingMode>::dispatch_using_mode(
-                        ink_lang::DispatchMode::Instantiate,
+                ::ink_lang::DispatchRetCode::from(
+                    <Storage as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                        ::ink_lang::DispatchMode::Instantiate,
                     ),
                 )
                 .to_u32()
@@ -294,9 +294,9 @@ impl Dispatch<'_> {
             #[cfg(not(test))]
             #[no_mangle]
             fn call() -> u32 {
-                ink_lang::DispatchRetCode::from(
-                    <Storage as ink_lang::DispatchUsingMode>::dispatch_using_mode(
-                        ink_lang::DispatchMode::Call,
+                ::ink_lang::DispatchRetCode::from(
+                    <Storage as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                        ::ink_lang::DispatchMode::Call,
                     ),
                 )
                 .to_u32()
