@@ -14,13 +14,13 @@
 
 use crate::{
     Constructor,
+    DispatchError,
     FnInput,
     FnOutput,
     FnSelector,
     FnState,
     MessageMut,
     MessageRef,
-    DispatchError,
     Placeholder,
 };
 use core::{
