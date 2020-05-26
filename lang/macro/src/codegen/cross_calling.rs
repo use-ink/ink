@@ -163,20 +163,6 @@ impl CrossCalling<'_> {
 
     fn generate_storage_impls(&self) -> TokenStream2 {
         quote! {
-            impl ink_core::storage::Flush for StorageAsDependency {}
-
-            #[cfg(feature = "ink-generate-abi")]
-            impl ink_core::storage::alloc::AllocateUsing for StorageAsDependency {
-                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-                where
-                    A: ink_core::storage::alloc::Allocate,
-                {
-                    // We don't want to carry this implementation arround.
-                    // Please remove as soon as possible.
-                    unimplemented!()
-                }
-            }
-
             #[cfg(feature = "ink-generate-abi")]
             impl ink_abi::HasLayout for StorageAsDependency {
                 fn layout(&self) -> ink_abi::StorageLayout {
