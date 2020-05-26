@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{
-    dispatcher2::{
+    dispatcher::{
         Dispatch,
         DispatchList,
         EmptyDispatchList,
@@ -21,7 +21,7 @@ use crate::{
         MsgMut,
         MsgRef,
     },
-    traits2::{
+    traits::{
         Constructor,
         MessageMut,
         MessageRef,

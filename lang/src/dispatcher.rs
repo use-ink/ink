@@ -13,15 +13,13 @@
 // limitations under the License.
 
 use crate::{
-    traits2::{
-        Constructor,
-        FnInput,
-        FnOutput,
-        FnSelector,
-        FnState,
-        MessageMut,
-        MessageRef,
-    },
+    Constructor,
+    FnInput,
+    FnOutput,
+    FnSelector,
+    FnState,
+    MessageMut,
+    MessageRef,
     DispatchError,
     Placeholder,
 };
