@@ -304,6 +304,7 @@ where
         if prev_vacant == removed_index && next_vacant == removed_index {
             // There is no other vacant entry left in the storage stash so
             // there is nothing to update. Bail out early.
+            self.header.last_vacant = self.header.len;
             return
         }
         if prev_vacant == next_vacant {

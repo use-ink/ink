@@ -23,6 +23,25 @@ use crate::{
 use ink_primitives::Key;
 
 #[test]
+fn regression_stash_unreachable_minified() {
+    // This regression has been discovered in the ERC721 example implementation
+    // `approved_for_all_works` unit test. The fix was to adjust
+    // `Stash::remove_vacant_entry` to update `header.last_vacant` if the
+    // removed index was the last remaining vacant index in the stash.
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut stash: StorageStash<u32> = StorageStash::new();
+        stash.put(1);
+        stash.put(2);
+        stash.take(0);
+        stash.put(99);
+        stash.take(1);
+        stash.put(99);
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
 fn new_works() {
     // `StorageVec::new`
     let stash = <StorageStash<i32>>::new();
