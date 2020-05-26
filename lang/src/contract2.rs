@@ -31,6 +31,24 @@ use crate::{
 use core::marker::PhantomData;
 use ink_core::env::call::CallData;
 
+/// The contract dispatch mode.
+///
+/// Tells the [`Contract::dispatch_using_mode`] routine what to dispatch for.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum DispatchMode {
+    /// Mode for instantiating a contract.
+    Instantiate,
+    /// Mode for calling a contract.
+    Call,
+}
+
+/// Trait implemented by contracts themselves in order to provide a clean
+/// interface for the C-ABI specified `call` and `create` functions to forward
+/// calls to.
+pub trait DispatchUsingMode {
+    fn dispatch_using_mode(mode: DispatchMode) -> Result<(), DispatchError>;
+}
+
 /// Placeholder for the given type.
 #[derive(Debug)]
 pub struct Placeholder<T>(PhantomData<fn() -> T>);

@@ -18,15 +18,12 @@
 #[cfg(feature = "ink-generate-abi")]
 mod abi;
 
-mod contract;
 mod contract2;
 mod cross_calling;
-mod dispatcher;
 mod dispatcher2;
 mod env_access;
 mod error;
 mod testable;
-mod traits;
 mod traits2;
 
 /// Re-exports all entities from the new revision of this crate.
@@ -44,28 +41,15 @@ pub use ink_lang_macro::contract;
 pub use self::abi::GenerateAbi;
 
 pub use self::{
-    contract::{
-        Contract,
-        ContractBuilder,
+    contract2::{
         DispatchMode,
         DispatchUsingMode,
+        Placeholder,
     },
-    contract2::Placeholder,
     cross_calling::{
         ForwardCall,
         ForwardCallMut,
         ToAccountId,
-    },
-    dispatcher::{
-        Dispatch,
-        DispatchList,
-        DispatchableFn,
-        DispatchableFnMut,
-        Dispatcher,
-        DispatcherMut,
-        EmptyDispatchList,
-        PushDispatcher,
-        UnreachableDispatcher,
     },
     env_access::{
         Env,
@@ -78,11 +62,4 @@ pub use self::{
         DispatchRetCode,
     },
     testable::InstantiateTestable,
-    traits::{
-        FnInput,
-        FnOutput,
-        FnSelector,
-        Message,
-        Storage,
-    },
 };
