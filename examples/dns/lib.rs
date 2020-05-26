@@ -73,6 +73,7 @@ mod dns {
     /// to facilitate transfers, voting and dapp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
+    #[derive(Default)]
     struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
         name_to_address: StorageHashMap<Hash, AccountId>,
@@ -98,11 +99,7 @@ mod dns {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
         fn new() -> Self {
-            Self {
-                default_address: Lazy::new(AccountId::from([0x00; 32])),
-                name_to_address: StorageHashMap::new(),
-                name_to_owner: StorageHashMap::new(),
-            }
+            Default::default()
         }
 
         /// Register specific name with caller as owner.
