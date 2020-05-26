@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Entry;
-use super::Stash;
+use super::{
+    Entry,
+    Stash,
+};
 use crate::storage2::{
     collections::extend_lifetime,
     traits::PackedLayout,
