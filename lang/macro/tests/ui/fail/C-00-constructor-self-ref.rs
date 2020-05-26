@@ -7,21 +7,13 @@ mod noop {
 
     impl Noop {
         #[ink(constructor)]
-        fn new() -> Self {
+        fn invalid_self_ref(&self) -> Self {
             Self {}
         }
 
         #[ink(message)]
         fn noop(&self) {}
     }
-
-    struct NonInkStruct {}
-    enum NonInkEnum {}
-    impl NonInkStruct {
-        fn do_nothing() {}
-    }
-
-    type NonInkTypeAlias = u32;
 }
 
 fn main() {}

@@ -2,7 +2,7 @@ use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
-    use ink_core::storage;
+    use ink_core::storage2::collections::HashMap as StorageHashMap;
 
     /// A token ID.
     pub type TokenId = u32;
@@ -26,15 +26,16 @@ mod erc721 {
 
     /// The storage items for a typical ERC721 token implementation.
     #[ink(storage)]
+    #[derive(Default)]
     struct Erc721 {
         /// Stores one owner for every token.
-        token_owner: storage::HashMap<TokenId, AccountId>,
+        token_owner: StorageHashMap<TokenId, AccountId>,
         /// Mapping from token ID to approved address.
-        token_approvals: storage::HashMap<TokenId, AccountId>,
+        token_approvals: StorageHashMap<TokenId, AccountId>,
         /// Mapping from owner to number of owned tokens.
-        owned_tokens_count: storage::HashMap<AccountId, u32>,
+        owned_tokens_count: StorageHashMap<AccountId, u32>,
         /// Mapping from owner to operator approval.
-        operator_approvals: storage::HashMap<(AccountId, AccountId), bool>,
+        operator_approvals: StorageHashMap<(AccountId, AccountId), bool>,
     }
 
     /// Notifies about token approvals.
@@ -73,7 +74,9 @@ mod erc721 {
     impl Erc721 {
         /// Nothing to do for initialization.
         #[ink(constructor)]
-        fn default(&mut self) {}
+        fn new() -> Self {
+            Default::default()
+        }
 
         /// Returns the balance of the specified address.
         ///
@@ -97,7 +100,9 @@ mod erc721 {
         /// Can only be called by the token owner or an approved operator.
         #[ink(message)]
         fn approve(&mut self, to: AccountId, token: TokenId) -> Result<()> {
-            let owner = self.owner_of(token).ok_or(Error::SpecifiedTokenHasNoOwner)?;
+            let owner = self
+                .owner_of(token)
+                .ok_or(Error::SpecifiedTokenHasNoOwner)?;
             if to == owner {
                 return Err(Error::ApprovalToCurrentOwner)
             }
@@ -106,9 +111,7 @@ mod erc721 {
                 return Err(Error::ApproveCallerNotLegitimate)
             }
             self.token_approvals.insert(token, to);
-            self.env().emit_event(Approval {
-                owner, to, token
-            });
+            self.env().emit_event(Approval { owner, to, token });
             Ok(())
         }
 
@@ -117,7 +120,8 @@ mod erc721 {
         /// Reverts if the token ID does not exist.
         #[ink(message)]
         fn get_approved(&self, token: TokenId) -> Result<AccountId> {
-            self.token_owner.get(&token)
+            self.token_owner
+                .get(&token)
                 .ok_or(Error::ApprovedQueryForNonexistentToken)
                 .map(Clone::clone)
         }
@@ -132,14 +136,21 @@ mod erc721 {
                 return Err(Error::ApproveToCaller)
             }
             self.operator_approvals.insert((caller, to), approved);
-            self.env().emit_event(ApprovalForAll { from: caller, to, approved });
+            self.env().emit_event(ApprovalForAll {
+                from: caller,
+                to,
+                approved,
+            });
             Ok(())
         }
 
         /// Returns `true` if an operator is approved by a given owner.
         #[ink(message)]
         fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            *self.operator_approvals.get(&(owner, operator)).unwrap_or(&false)
+            *self
+                .operator_approvals
+                .get(&(owner, operator))
+                .unwrap_or(&false)
         }
 
         /// Transfers the ownership of a given token ID to another address.
@@ -152,7 +163,12 @@ mod erc721 {
         ///
         /// If the caller is not the owner, approved or operator.
         #[ink(message)]
-        fn transfer_from(&mut self, from: AccountId, to: AccountId, token: TokenId) -> Result<()> {
+        fn transfer_from(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            token: TokenId,
+        ) -> Result<()> {
             let caller = self.env().caller();
             if !self.is_approved_or_owner(&caller, token) {
                 return Err(Error::TransferCallerIsNotOwnerOrApproved)
@@ -163,11 +179,14 @@ mod erc721 {
 
         /// Returns `true` if the given spender can transfer the given token.
         fn is_approved_or_owner(&self, spender: &AccountId, token: TokenId) -> bool {
-            self.token_owner.get(&token)
+            self.token_owner
+                .get(&token)
                 .ok_or(Error::OperatorQueryForNonexistentToken)
                 .map(|&owner| {
                     let approved = self.get_approved(token).unwrap_or(owner);
-                    *spender == owner || approved == *spender || self.is_approved_for_all(owner, *spender)
+                    *spender == owner
+                        || approved == *spender
+                        || self.is_approved_for_all(owner, *spender)
                 })
                 .unwrap_or(false)
         }
@@ -177,7 +196,12 @@ mod erc721 {
         /// # Safety
         ///
         /// As opposed to `transfer_from` this imposes no restructions on the `caller`.
-        fn transfer_from_impl(&mut self, from: AccountId, to: AccountId, token: TokenId) -> Result<()> {
+        fn transfer_from_impl(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            token: TokenId,
+        ) -> Result<()> {
             if self.owner_of(token).unwrap_or(from) != from {
                 return Err(Error::TransferOfTokenThatIsNotOwned)
             }
@@ -185,33 +209,49 @@ mod erc721 {
             self.owned_tokens_count[&from] -= 1; // TODO: are these calls safe here?
             self.owned_tokens_count[&to] += 1;
             self.token_owner[&token] = to;
-            self.env().emit_event(Transfer { from: Some(from), to: Some(to), token });
+            self.env().emit_event(Transfer {
+                from: Some(from),
+                to: Some(to),
+                token,
+            });
             Ok(())
         }
 
         /// Clears the current approval of a given token.
         fn clear_approval(&mut self, token: TokenId) {
-            self.token_approvals.remove(&token);
+            self.token_approvals.take(&token);
         }
 
         /// Mints a new token.
         fn mint(&mut self, to: AccountId, token: TokenId) -> Result<()> {
-            let _ = self.token_owner.get(&token)
+            let _ = self
+                .token_owner
+                .get(&token)
                 .ok_or(Error::TokenAlreadyMinted)?;
             self.token_owner[&token] = to;
             self.owned_tokens_count[&to] += 1;
-            self.env().emit_event(Transfer { from: None, to: Some(to), token });
+            self.env().emit_event(Transfer {
+                from: None,
+                to: Some(to),
+                token,
+            });
             Ok(())
         }
 
         // Burns the token.
         fn burn(&mut self, token: TokenId) -> Result<()> {
-            let owner = *self.token_owner.get(&token)
+            let owner = *self
+                .token_owner
+                .get(&token)
                 .ok_or(Error::CannotBurnNonexistentToken)?;
             self.clear_approval(token);
             self.owned_tokens_count[&owner] -= 1;
-            self.token_owner.remove(&token);
-            self.env().emit_event(Transfer { from: Some(owner), to: None, token });
+            self.token_owner.take(&token);
+            self.env().emit_event(Transfer {
+                from: Some(owner),
+                to: None,
+                token,
+            });
             Ok(())
         }
     }

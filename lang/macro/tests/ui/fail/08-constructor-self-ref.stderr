@@ -1,5 +1,0 @@
-error: #[ink(constructor)] functions must have a `&mut self` receiver
-  --> $DIR/08-constructor-self-ref.rs:10:29
-   |
-10 |         fn invalid_self_ref(&self) {}
-   |                             ^^^^^

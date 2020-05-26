@@ -1,18 +1,18 @@
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
-mod noop {
+mod missing_message_self_arg {
     #[ink(storage)]
-    struct Noop {}
+    struct MissingMessageSelfArg {}
 
-    impl Noop {
+    impl MissingMessage {
         #[ink(constructor)]
-        fn new() -> Self {
+        fn constructor() -> Self {
             Self {}
         }
 
         #[ink(message)]
-        fn noop(&self) {}
+        fn missing_self_arg() {}
     }
 }
 
