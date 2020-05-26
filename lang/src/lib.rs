@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(const_fn)]
 
 #[cfg(feature = "ink-generate-abi")]
 mod abi;
