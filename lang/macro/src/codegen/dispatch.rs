@@ -106,13 +106,13 @@ impl Dispatch<'_> {
             quote! { #inputs_punct }
         };
         let fn_input = quote_spanned!(sig.inputs.span() =>
-            impl ::ink_lang::v2::FnInput for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::FnInput for #namespace<[(); #selector_id]> {
                 type Input = #inputs;
             }
         );
         let fn_output2 = if !is_constructor {
             quote_spanned!(sig.output.span() =>
-                impl ::ink_lang::v2::FnOutput for #namespace<[(); #selector_id]> {
+                impl ::ink_lang::FnOutput for #namespace<[(); #selector_id]> {
                     #[allow(unused_parens)]
                     type Output = #output_type;
                 }
@@ -121,14 +121,14 @@ impl Dispatch<'_> {
             quote! {}
         };
         let fn_selector = quote_spanned!(span =>
-            impl ::ink_lang::v2::FnSelector for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::FnSelector for #namespace<[(); #selector_id]> {
                 const SELECTOR: ink_core::env::call::Selector = ::ink_core::env::call::Selector::new([
                     #( #selector_bytes ),*
                 ]);
             }
         );
         let fn_state = quote_spanned!(span =>
-            impl ::ink_lang::v2::FnState for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::FnState for #namespace<[(); #selector_id]> {
                 type State = #state_ident;
             }
         );
@@ -146,28 +146,28 @@ impl Dispatch<'_> {
         let input_forward = quote! { #input_idents };
         let message2_impl = if is_constructor {
             quote_spanned!(span =>
-                impl ::ink_lang::v2::Constructor for #namespace<[(); #selector_id]> {
+                impl ::ink_lang::Constructor for #namespace<[(); #selector_id]> {
                     const CALLABLE: fn(
-                        <Self as ::ink_lang::v2::FnInput>::Input
-                    ) -> <Self as ::ink_lang::v2::FnState>::State = |#input_params| #state_ident::#fn_ident(#input_forward);
+                        <Self as ::ink_lang::FnInput>::Input
+                    ) -> <Self as ::ink_lang::FnState>::State = |#input_params| #state_ident::#fn_ident(#input_forward);
                 }
             )
         } else if is_mut {
             quote_spanned!(span =>
-                impl ::ink_lang::v2::MessageMut for #namespace<[(); #selector_id]> {
+                impl ::ink_lang::MessageMut for #namespace<[(); #selector_id]> {
                     const CALLABLE: fn(
-                        &mut <Self as ::ink_lang::v2::FnState>::State,
-                        <Self as ::ink_lang::v2::FnInput>::Input
-                    ) -> <Self as ::ink_lang::v2::FnOutput>::Output = |state, #input_params| #state_ident::#fn_ident(state, #input_forward);
+                        &mut <Self as ::ink_lang::FnState>::State,
+                        <Self as ::ink_lang::FnInput>::Input
+                    ) -> <Self as ::ink_lang::FnOutput>::Output = |state, #input_params| #state_ident::#fn_ident(state, #input_forward);
                 }
             )
         } else {
             quote_spanned!(span =>
-                impl ::ink_lang::v2::MessageRef for #namespace<[(); #selector_id]> {
+                impl ::ink_lang::MessageRef for #namespace<[(); #selector_id]> {
                     const CALLABLE: fn(
-                        &<Self as ::ink_lang::v2::FnState>::State,
-                        <Self as ::ink_lang::v2::FnInput>::Input
-                    ) -> <Self as ::ink_lang::v2::FnOutput>::Output = |state, #input_params| #state_ident::#fn_ident(state, #input_forward);
+                        &<Self as ::ink_lang::FnState>::State,
+                        <Self as ::ink_lang::FnInput>::Input
+                    ) -> <Self as ::ink_lang::FnOutput>::Output = |state, #input_params| #state_ident::#fn_ident(state, #input_forward);
                 }
             )
         };
@@ -264,7 +264,7 @@ impl Dispatch<'_> {
                 ) -> core::result::Result<(), ::ink_lang::DispatchError> {
                     let call_data =
                         ::ink_core::env::input().map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?;
-                    let contract = ::ink_lang::v2::Contract::build()
+                    let contract = ::ink_lang::Contract::build()
                         #(
                             #fragments
                         )*
