@@ -18,6 +18,7 @@
 extern crate alloc;
 
 mod layout;
+pub mod layout2;
 mod specs;
 
 #[cfg(feature = "derive")]
