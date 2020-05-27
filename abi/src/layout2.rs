@@ -103,7 +103,7 @@ impl UnboundedHashingStrategy {
     /// Creates a new unbounded hashing strategy.
     pub fn new(hasher: CryptoHasher, prefix: Vec<u8>, postfix: Vec<u8>) -> Self {
         Self {
-            hasher: hasher.into(),
+            hasher,
             prefix,
             postfix,
         }
