@@ -214,7 +214,7 @@ impl ArrayLayout {
     }
 
     /// Creates an array layout with the given length.
-    pub fn array<T, K>(at: K, len: u32) -> Self
+    pub fn new<T, K>(at: K, len: u32) -> Self
     where
         T: Metadata,
         K: Into<LayoutKey>,
