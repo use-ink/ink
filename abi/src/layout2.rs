@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use core::fmt::Write;
+use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::{
     Key,
@@ -39,7 +40,7 @@ pub trait StorageLayout {
 }
 
 /// Represents the static storage layout of an ink! smart contract.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub enum Layout<F: Form = MetaForm> {
     /// A layout that can potentially hit the entire storage key space.
