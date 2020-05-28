@@ -388,4 +388,344 @@ mod tests {
             "\"0x0101010101010101010101010101010101010101010101010101010101010101\"",
         );
     }
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    #[allow(dead_code)]
+    pub struct NamedFieldsStruct {
+        a: i32,
+        b: i64,
+    }
+
+    impl StorageLayout for NamedFieldsStruct {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            StructLayout::new(vec![
+                FieldLayout::new(
+                    "a",
+                    ArrayLayout::single::<i32, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                ),
+                FieldLayout::new(
+                    "b",
+                    ArrayLayout::single::<i64, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                ),
+            ])
+            .into()
+        }
+    }
+
+    #[test]
+    fn named_fields_work() {
+        let layout = <NamedFieldsStruct as StorageLayout>::layout(&mut KeyPtr::from(
+            Key([0x00; 32]),
+        ));
+        let mut registry = Registry::new();
+        let compacted = layout.into_compact(&mut registry);
+        let json = serde_json::to_value(&compacted).unwrap();
+        let expected = serde_json::json! {
+            {
+                "Struct": {
+                    "fields": [
+                        {
+                            "layout": {
+                                "Array": {
+                                    "len": 1,
+                                    "offset": "0x\
+                                        0000000000000000\
+                                        0000000000000000\
+                                        0000000000000000\
+                                        0000000000000000",
+                                    "ty": 1,
+                                }
+                            },
+                            "name": 1,
+                        },
+                        {
+                            "layout": {
+                                "Array": {
+                                    "len": 1,
+                                    "offset": "0x\
+                                        0000000000000000\
+                                        0000000000000000\
+                                        0000000000000000\
+                                        0000000000000001",
+                                    "ty": 2,
+                                }
+                            },
+                            "name": 2,
+                        }
+                    ]
+                }
+            }
+        };
+        assert_eq!(json, expected);
+    }
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    #[allow(dead_code)]
+    pub struct TupleStruct(i32, i64);
+
+    impl StorageLayout for TupleStruct {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            StructLayout::new(vec![
+                FieldLayout::new(
+                    None,
+                    ArrayLayout::single::<i32, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                ),
+                FieldLayout::new(
+                    None,
+                    ArrayLayout::single::<i64, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                ),
+            ])
+            .into()
+        }
+    }
+
+    #[test]
+    fn tuple_struct_work() {
+        let layout =
+            <TupleStruct as StorageLayout>::layout(&mut KeyPtr::from(Key([0x00; 32])));
+        let mut registry = Registry::new();
+        let compacted = layout.into_compact(&mut registry);
+        let json = serde_json::to_value(&compacted).unwrap();
+        let expected = serde_json::json! {
+            {
+                "Struct": {
+                    "fields": [
+                        {
+                            "layout": {
+                                "Array": {
+                                    "len": 1,
+                                    "offset": "0x\
+                                        0000000000000000\
+                                        0000000000000000\
+                                        0000000000000000\
+                                        0000000000000000",
+                                    "ty": 1,
+                                }
+                            },
+                            "name": null,
+                        },
+                        {
+                            "layout": {
+                                "Array": {
+                                    "len": 1,
+                                    "offset": "0x\
+                                        0000000000000000\
+                                        0000000000000000\
+                                        0000000000000000\
+                                        0000000000000001",
+                                    "ty": 2,
+                                }
+                            },
+                            "name": null,
+                        }
+                    ]
+                }
+            }
+        };
+        assert_eq!(json, expected);
+    }
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    #[allow(dead_code)]
+    pub enum ClikeEnum {
+        A,
+        B,
+        C,
+    }
+
+    impl StorageLayout for ClikeEnum {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            EnumLayout::new(
+                key_ptr.advance_by(1),
+                vec![
+                    (Discriminant(0), StructLayout::new(vec![])),
+                    (Discriminant(1), StructLayout::new(vec![])),
+                    (Discriminant(2), StructLayout::new(vec![])),
+                ],
+            )
+            .into()
+        }
+    }
+
+    #[test]
+    fn clike_enum_work() {
+        let layout =
+            <ClikeEnum as StorageLayout>::layout(&mut KeyPtr::from(Key([0x00; 32])));
+        let mut registry = Registry::new();
+        let compacted = layout.into_compact(&mut registry);
+        let json = serde_json::to_value(&compacted).unwrap();
+        let expected = serde_json::json! {
+            {
+                "Enum": {
+                    "dispatch_key": "0x\
+                        0000000000000000\
+                        0000000000000000\
+                        0000000000000000\
+                        0000000000000000",
+                    "variants": {
+                        "0": {
+                            "fields": [],
+                        },
+                        "1": {
+                            "fields": [],
+                        },
+                        "2": {
+                            "fields": [],
+                        },
+                    }
+                }
+            }
+        };
+        assert_eq!(json, expected);
+    }
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    #[allow(dead_code)]
+    pub enum MixedEnum {
+        ClikeVariant,
+        TupleVariant(i32, i64),
+        StructVariant { a: i32, b: i64 },
+    }
+
+    impl StorageLayout for MixedEnum {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            EnumLayout::new(
+                key_ptr.advance_by(1),
+                vec![
+                    (Discriminant(0), StructLayout::new(vec![])),
+                    {
+                        let mut variant_key_ptr = KeyPtr::from(key_ptr.advance_by(0));
+                        (
+                            Discriminant(1),
+                            StructLayout::new(vec![
+                                FieldLayout::new(
+                                    None,
+                                    ArrayLayout::single::<i32, _>(LayoutKey::from(
+                                        variant_key_ptr.advance_by(1),
+                                    )),
+                                ),
+                                FieldLayout::new(
+                                    None,
+                                    ArrayLayout::single::<i64, _>(LayoutKey::from(
+                                        variant_key_ptr.advance_by(1),
+                                    )),
+                                ),
+                            ]),
+                        )
+                    },
+                    {
+                        let mut variant_key_ptr = KeyPtr::from(key_ptr.advance_by(0));
+                        (
+                            Discriminant(2),
+                            StructLayout::new(vec![
+                                FieldLayout::new(
+                                    "a",
+                                    ArrayLayout::single::<i32, _>(LayoutKey::from(
+                                        variant_key_ptr.advance_by(1),
+                                    )),
+                                ),
+                                FieldLayout::new(
+                                    "b",
+                                    ArrayLayout::single::<i64, _>(LayoutKey::from(
+                                        variant_key_ptr.advance_by(1),
+                                    )),
+                                ),
+                            ]),
+                        )
+                    },
+                ],
+            )
+            .into()
+        }
+    }
+
+    #[test]
+    fn mixed_enum_work() {
+        let layout =
+            <MixedEnum as StorageLayout>::layout(&mut KeyPtr::from(Key([0x00; 32])));
+        let mut registry = Registry::new();
+        let compacted = layout.into_compact(&mut registry);
+        let json = serde_json::to_value(&compacted).unwrap();
+        let expected = serde_json::json! {
+            {
+                "Enum": {
+                    "dispatch_key": "0x\
+                        0000000000000000\
+                        0000000000000000\
+                        0000000000000000\
+                        0000000000000000",
+                    "variants": {
+                        "0": {
+                            "fields": [],
+                        },
+                        "1": {
+                            "fields": [
+                                {
+                                    "layout": {
+                                        "Array": {
+                                            "len": 1,
+                                            "offset": "0x\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000001",
+                                            "ty": 1,
+                                        }
+                                    },
+                                    "name": null,
+                                },
+                                {
+                                    "layout": {
+                                        "Array": {
+                                            "len": 1,
+                                            "offset": "0x\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000002",
+                                            "ty": 2,
+                                        }
+                                    },
+                                    "name": null,
+                                }
+                            ],
+                        },
+                        "2": {
+                            "fields": [
+                                {
+                                    "layout": {
+                                        "Array": {
+                                            "len": 1,
+                                            "offset": "0x\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000001",
+                                            "ty": 1,
+                                        }
+                                    },
+                                    "name": 1,
+                                },
+                                {
+                                    "layout": {
+                                        "Array": {
+                                            "len": 1,
+                                            "offset": "0x\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000002",
+                                            "ty": 2,
+                                        }
+                                    },
+                                    "name": 2,
+                                }
+                            ],
+                        },
+                    }
+                }
+            }
+        };
+        assert_eq!(json, expected);
+    }
 }
