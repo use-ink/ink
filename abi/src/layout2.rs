@@ -38,7 +38,7 @@ where
     let bytes = bytes.as_ref();
     if bytes.is_empty() {
         // Return empty string without prepended `0x`.
-        return serializer.serialize_str("");
+        return serializer.serialize_str("")
     }
     let mut hex = String::with_capacity(bytes.len() * 2 + 2);
     write!(hex, "0x").expect("failed writing to string");
@@ -785,22 +785,22 @@ mod tests {
             let root_key = key_ptr.advance_by(1);
             UnboundedLayout::new(
                 root_key,
-                UnboundedStrategy::Hashing(
-                    UnboundedHashingStrategy::new(
-                        CryptoHasher::Blake2x256,
-                        b"ink storage hashmap".to_vec(),
-                        Vec::new(),
-                    )
-                ),
+                UnboundedStrategy::Hashing(UnboundedHashingStrategy::new(
+                    CryptoHasher::Blake2x256,
+                    b"ink storage hashmap".to_vec(),
+                    Vec::new(),
+                )),
                 CellLayout::new::<(i32, bool), _>(root_key),
-            ).into()
+            )
+            .into()
         }
     }
 
     #[test]
     fn unbounded_layout_works() {
-        let layout =
-            <UnboundedMapping as StorageLayout>::layout(&mut KeyPtr::from(Key([0x00; 32])));
+        let layout = <UnboundedMapping as StorageLayout>::layout(&mut KeyPtr::from(Key(
+            [0x00; 32],
+        )));
         let mut registry = Registry::new();
         let compacted = layout.into_compact(&mut registry);
         let json = serde_json::to_value(&compacted).unwrap();
