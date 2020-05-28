@@ -337,17 +337,21 @@ impl From<usize> for Discriminant {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub struct EnumLayout<F: Form = MetaForm> {
+    /// The key where the discriminant is stored to dispatch the variants.
+    dispatch_key: LayoutKey,
     /// The variants of the enum.
     variants: BTreeMap<Discriminant, StructLayout<F>>,
 }
 
 impl EnumLayout {
     /// Creates a new enum layout.
-    pub fn new<V>(variants: V) -> Self
+    pub fn new<K, V>(dispatch_key: K, variants: V) -> Self
     where
+        K: Into<LayoutKey>,
         V: IntoIterator<Item = (Discriminant, StructLayout)>,
     {
         Self {
+            dispatch_key: dispatch_key.into(),
             variants: variants.into_iter().collect(),
         }
     }
@@ -358,6 +362,7 @@ impl IntoCompact for EnumLayout {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         EnumLayout {
+            dispatch_key: self.dispatch_key,
             variants: self
                 .variants
                 .into_iter()
