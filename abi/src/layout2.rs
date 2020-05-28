@@ -368,3 +368,18 @@ impl IntoCompact for EnumLayout {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn key_serialization_works() {
+        let layout_key = LayoutKey::from(Key([0x01; 32]));
+        let json = serde_json::to_string(&layout_key).unwrap();
+        assert_eq!(
+            json,
+            "\"0x0101010101010101010101010101010101010101010101010101010101010101\"",
+        );
+    }
+}
