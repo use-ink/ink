@@ -20,6 +20,7 @@ use super::{
 use crate::storage2::traits::{
     clear_packed_root,
     pull_packed_root_opt,
+    ExtKeyPtr,
     KeyPtr,
     PackedLayout,
     SpreadLayout,
@@ -203,11 +204,11 @@ where
     const FOOTPRINT: u64 = 1_u64 << 32;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<Self>())
+        Self::lazy(ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        let offset_key = ptr.next_for::<Self>();
+        let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (&index, entry) in self.entries().iter() {
             let root_key = offset_key + index;
             entry.push_packed_root(&root_key);

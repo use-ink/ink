@@ -18,6 +18,7 @@ use super::{
     EntryState,
 };
 use crate::storage2::traits::{
+    ExtKeyPtr,
     clear_spread_root_opt,
     pull_spread_root_opt,
     KeyPtr,
@@ -122,7 +123,7 @@ where
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<T>())
+        Self::lazy(KeyPtr::next_for::<T>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {

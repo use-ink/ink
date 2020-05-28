@@ -42,7 +42,7 @@ pub use self::{
         forward_pull_packed,
         forward_push_packed,
     },
-    keyptr::KeyPtr,
+    keyptr::{ExtKeyPtr, KeyPtr},
     packed::PackedLayout,
     spread::SpreadLayout,
 };
