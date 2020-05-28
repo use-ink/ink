@@ -161,26 +161,26 @@ impl IntoCompact for Layout {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub struct UnboundedLayout<F: Form = MetaForm> {
-    /// The encoded type of the unbounded layout.
-    ty: <F as Form>::TypeId,
     /// The key offset used by the strategy.
     offset: LayoutKey,
     /// The actual strategy to compute the unbounded keys.
     strategy: UnboundedStrategy,
+    /// The storage layout of the unbounded layout elements.
+    layout: Box<Layout<F>>,
 }
 
 impl UnboundedLayout {
     /// Creates a new unbounded layout.
-    pub fn new<T, K, S>(offset: K, strategy: S) -> Self
+    pub fn new<K, S, L>(offset: K, strategy: S, layout: L) -> Self
     where
-        T: Metadata,
         K: Into<LayoutKey>,
         S: Into<UnboundedStrategy>,
+        L: Into<Layout>,
     {
         Self {
-            ty: <T as Metadata>::meta_type(),
             offset: offset.into(),
             strategy: strategy.into(),
+            layout: Box::new(layout.into()),
         }
     }
 }
@@ -190,9 +190,9 @@ impl IntoCompact for UnboundedLayout {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         UnboundedLayout {
-            ty: registry.register_type(&self.ty),
             offset: self.offset,
             strategy: self.strategy,
+            layout: Box::new(self.layout.into_compact(registry)),
         }
     }
 }
@@ -214,8 +214,10 @@ pub struct UnboundedHashingStrategy {
     /// One of the supported crypto hashers.
     hasher: CryptoHasher,
     /// An optional prefix to the computed hash.
+    #[serde(serialize_with = "serialize_as_byte_str")]
     prefix: Vec<u8>,
     /// An optional postfix to the computed hash.
+    #[serde(serialize_with = "serialize_as_byte_str")]
     postfix: Vec<u8>,
 }
 
