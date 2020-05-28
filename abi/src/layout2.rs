@@ -43,6 +43,13 @@ pub trait StorageLayout {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub enum Layout<F: Form = MetaForm> {
+    /// An encoded cell.
+    ///
+    /// This is the only leaf node within the layout graph.
+    /// All layout nodes have this node type as their leafs.
+    ///
+    /// This represents the encoding of a single cell mapped to a single key.
+    Cell(CellLayout<F>),
     /// A layout that can potentially hit the entire storage key space.
     ///
     /// This is commonly used by ink! hashmaps and similar data structures.
@@ -57,11 +64,78 @@ pub enum Layout<F: Form = MetaForm> {
     Enum(EnumLayout<F>),
 }
 
+/// A pointer into some storage region.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct LayoutKey {
+    key: [u8; 32],
+}
+
+impl serde::Serialize for LayoutKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let bytes = self.key;
+        let mut hex = String::with_capacity(bytes.len() * 2 + 2);
+        write!(hex, "0x").expect("failed writing to string");
+        for byte in &bytes {
+            write!(hex, "{:02x}", byte).expect("failed writing to string");
+        }
+        serializer.serialize_str(&hex)
+    }
+}
+
+impl From<Key> for LayoutKey {
+    fn from(key: Key) -> Self {
+        let mut arr = [0x00; 32];
+        arr.copy_from_slice(key.as_bytes());
+        Self { key: arr }
+    }
+}
+
+/// An encoded cell.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
+#[serde(bound = "F::TypeId: serde::Serialize")]
+pub struct CellLayout<F: Form = MetaForm> {
+    /// The offset key into the storage.
+    key: LayoutKey,
+    /// The type of the encoded entity.
+    ty: <F as Form>::TypeId,
+}
+
+impl CellLayout {
+    /// Creates a new cell layout.
+    pub fn new<T, K>(key: K) -> Self
+    where
+        T: Metadata,
+        K: Into<LayoutKey>,
+    {
+        Self {
+            key: key.into(),
+            ty: <T as Metadata>::meta_type(),
+        }
+    }
+}
+
+impl IntoCompact for CellLayout {
+    type Output = CellLayout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        CellLayout {
+            key: self.key,
+            ty: registry.register_type(&self.ty),
+        }
+    }
+}
+
 impl IntoCompact for Layout {
     type Output = Layout<CompactForm>;
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         match self {
+            Layout::Cell(encoded_cell) => {
+                Layout::Cell(encoded_cell.into_compact(registry))
+            }
             Layout::Unbounded(unbounded_layout) => {
                 Layout::Unbounded(unbounded_layout.into_compact(registry))
             }
@@ -166,64 +240,31 @@ pub enum CryptoHasher {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub struct ArrayLayout<F: Form = MetaForm> {
-    ty: <F as Form>::TypeId,
+    /// The offset key of the array layout.
+    ///
+    /// This is the same key as the 0-th element of the array layout.
     offset: LayoutKey,
+    /// The number of elements in the array layout.
     len: u32,
-}
-
-/// A pointer into some storage region.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct LayoutKey {
-    key: [u8; 32],
-}
-
-impl serde::Serialize for LayoutKey {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let bytes = self.key;
-        let mut hex = String::with_capacity(bytes.len() * 2 + 2);
-        write!(hex, "0x").expect("failed writing to string");
-        for byte in &bytes {
-            write!(hex, "{:02x}", byte).expect("failed writing to string");
-        }
-        serializer.serialize_str(&hex)
-    }
-}
-
-impl From<Key> for LayoutKey {
-    fn from(key: Key) -> Self {
-        let mut arr = [0x00; 32];
-        arr.copy_from_slice(key.as_bytes());
-        Self { key: arr }
-    }
+    /// The number of cells each element in the array layout consists of.
+    cells_per_elem: u64,
+    /// The layout of the elements stored in the array layout.
+    layout: Box<Layout<F>>,
 }
 
 impl ArrayLayout {
-    /// Creates an array layout for a single storage cell.
-    pub fn single<T, K>(at: K) -> Self
-    where
-        T: Metadata,
-        K: Into<LayoutKey>,
-    {
-        Self {
-            ty: <T as Metadata>::meta_type(),
-            offset: at.into(),
-            len: 1,
-        }
-    }
-
     /// Creates an array layout with the given length.
-    pub fn new<T, K>(at: K, len: u32) -> Self
+    pub fn new<T, K, L>(at: K, len: u32, cells_per_elem: u64, layout: L) -> Self
     where
         T: Metadata,
         K: Into<LayoutKey>,
+        L: Into<Layout>,
     {
         Self {
-            ty: <T as Metadata>::meta_type(),
             offset: at.into(),
             len,
+            cells_per_elem,
+            layout: Box::new(layout.into()),
         }
     }
 }
@@ -235,7 +276,8 @@ impl IntoCompact for ArrayLayout {
         ArrayLayout {
             offset: self.offset,
             len: self.len,
-            ty: registry.register_type(&self.ty),
+            cells_per_elem: self.cells_per_elem,
+            layout: Box::new(self.layout.into_compact(registry)),
         }
     }
 }
@@ -401,11 +443,11 @@ mod tests {
             StructLayout::new(vec![
                 FieldLayout::new(
                     "a",
-                    ArrayLayout::single::<i32, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                    CellLayout::new::<i32, _>(LayoutKey::from(key_ptr.advance_by(1))),
                 ),
                 FieldLayout::new(
                     "b",
-                    ArrayLayout::single::<i64, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                    CellLayout::new::<i64, _>(LayoutKey::from(key_ptr.advance_by(1))),
                 ),
             ])
             .into()
@@ -426,8 +468,7 @@ mod tests {
                     "fields": [
                         {
                             "layout": {
-                                "Array": {
-                                    "len": 1,
+                                "Cell": {
                                     "offset": "0x\
                                         0000000000000000\
                                         0000000000000000\
@@ -440,8 +481,7 @@ mod tests {
                         },
                         {
                             "layout": {
-                                "Array": {
-                                    "len": 1,
+                                "Cell": {
                                     "offset": "0x\
                                         0000000000000000\
                                         0000000000000000\
@@ -468,11 +508,11 @@ mod tests {
             StructLayout::new(vec![
                 FieldLayout::new(
                     None,
-                    ArrayLayout::single::<i32, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                    CellLayout::new::<i32, _>(LayoutKey::from(key_ptr.advance_by(1))),
                 ),
                 FieldLayout::new(
                     None,
-                    ArrayLayout::single::<i64, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                    CellLayout::new::<i64, _>(LayoutKey::from(key_ptr.advance_by(1))),
                 ),
             ])
             .into()
@@ -492,8 +532,7 @@ mod tests {
                     "fields": [
                         {
                             "layout": {
-                                "Array": {
-                                    "len": 1,
+                                "Cell": {
                                     "offset": "0x\
                                         0000000000000000\
                                         0000000000000000\
@@ -506,8 +545,7 @@ mod tests {
                         },
                         {
                             "layout": {
-                                "Array": {
-                                    "len": 1,
+                                "Cell": {
                                     "offset": "0x\
                                         0000000000000000\
                                         0000000000000000\
@@ -600,13 +638,13 @@ mod tests {
                             StructLayout::new(vec![
                                 FieldLayout::new(
                                     None,
-                                    ArrayLayout::single::<i32, _>(LayoutKey::from(
+                                    CellLayout::new::<i32, _>(LayoutKey::from(
                                         variant_key_ptr.advance_by(1),
                                     )),
                                 ),
                                 FieldLayout::new(
                                     None,
-                                    ArrayLayout::single::<i64, _>(LayoutKey::from(
+                                    CellLayout::new::<i64, _>(LayoutKey::from(
                                         variant_key_ptr.advance_by(1),
                                     )),
                                 ),
@@ -620,13 +658,13 @@ mod tests {
                             StructLayout::new(vec![
                                 FieldLayout::new(
                                     "a",
-                                    ArrayLayout::single::<i32, _>(LayoutKey::from(
+                                    CellLayout::new::<i32, _>(LayoutKey::from(
                                         variant_key_ptr.advance_by(1),
                                     )),
                                 ),
                                 FieldLayout::new(
                                     "b",
-                                    ArrayLayout::single::<i64, _>(LayoutKey::from(
+                                    CellLayout::new::<i64, _>(LayoutKey::from(
                                         variant_key_ptr.advance_by(1),
                                     )),
                                 ),
@@ -662,8 +700,7 @@ mod tests {
                             "fields": [
                                 {
                                     "layout": {
-                                        "Array": {
-                                            "len": 1,
+                                        "Cell": {
                                             "offset": "0x\
                                                 0000000000000000\
                                                 0000000000000000\
@@ -676,8 +713,7 @@ mod tests {
                                 },
                                 {
                                     "layout": {
-                                        "Array": {
-                                            "len": 1,
+                                        "Cell": {
                                             "offset": "0x\
                                                 0000000000000000\
                                                 0000000000000000\
@@ -694,8 +730,7 @@ mod tests {
                             "fields": [
                                 {
                                     "layout": {
-                                        "Array": {
-                                            "len": 1,
+                                        "Cell": {
                                             "offset": "0x\
                                                 0000000000000000\
                                                 0000000000000000\
@@ -708,8 +743,7 @@ mod tests {
                                 },
                                 {
                                     "layout": {
-                                        "Array": {
-                                            "len": 1,
+                                        "Cell": {
                                             "offset": "0x\
                                                 0000000000000000\
                                                 0000000000000000\
