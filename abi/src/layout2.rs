@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use ink_prelude::collections::btree_map::BTreeMap;
-use ink_primitives::Key;
+use ink_primitives::{Key, KeyPtr};
 use type_metadata::{
     form::{
         Form,
@@ -21,8 +21,6 @@ use type_metadata::{
     },
     Metadata,
 };
-
-pub struct KeyPtr(::ink_primitives::Key);
 
 /// Implemented by types that have a storage layout.
 pub trait StorageLayout {
