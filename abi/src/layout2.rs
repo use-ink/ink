@@ -244,14 +244,14 @@ impl From<usize> for Discriminant {
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub struct EnumLayout<F: Form = MetaForm> {
     /// The variants of the enum.
-    variants: BTreeMap<Discriminant, VariantLayout<F>>,
+    variants: BTreeMap<Discriminant, StructLayout<F>>,
 }
 
 impl EnumLayout {
     /// Creates a new enum layout.
     pub fn new<V>(variants: V) -> Self
     where
-        V: IntoIterator<Item = (Discriminant, VariantLayout)>,
+        V: IntoIterator<Item = (Discriminant, StructLayout)>,
     {
         Self {
             variants: variants.into_iter().collect(),
@@ -259,28 +259,18 @@ impl EnumLayout {
     }
 }
 
-/// A variant storage layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
-pub struct VariantLayout<F: Form = MetaForm> {
-    /// The discriminant for the variant.
-    discriminant: Discriminant,
-    /// The fields of the discriminant.
-    ///
-    /// This can be empty for unit variants.
-    /// Field layouts has an optional name to represent tuple struct variants.
-    fields: Vec<FieldLayout<F>>,
-}
+impl IntoCompact for EnumLayout {
+    type Output = EnumLayout<CompactForm>;
 
-impl VariantLayout {
-    /// Creates a new variant layout.
-    pub fn new<I>(discriminant: Discriminant, fields: I) -> Self
-    where
-        I: IntoIterator<Item = FieldLayout>,
-    {
-        Self {
-            discriminant,
-            fields: fields.into_iter().collect(),
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        EnumLayout {
+            variants: self
+                .variants
+                .into_iter()
+                .map(|(discriminant, layout)| {
+                    (discriminant, layout.into_compact(registry))
+                })
+                .collect(),
         }
     }
 }
