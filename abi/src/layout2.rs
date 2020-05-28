@@ -17,10 +17,13 @@ use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::{Key, KeyPtr};
 use type_metadata::{
     form::{
+        CompactForm,
         Form,
         MetaForm,
     },
+    IntoCompact,
     Metadata,
+    Registry,
 };
 
 /// Implemented by types that have a storage layout.
@@ -44,6 +47,25 @@ pub enum Layout<F: Form = MetaForm> {
     Struct(StructLayout<F>),
     /// An enum layout with a discriminant telling which variant is layed out.
     Enum(EnumLayout<F>),
+}
+
+impl IntoCompact for Layout {
+    type Output = Layout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        match self {
+            Layout::Unbounded(unbounded_layout) => {
+                Layout::Unbounded(unbounded_layout.into_compact(registry))
+            }
+            Layout::Array(array_layout) => {
+                Layout::Array(array_layout.into_compact(registry))
+            }
+            Layout::Struct(struct_layout) => {
+                Layout::Struct(struct_layout.into_compact(registry))
+            }
+            Layout::Enum(enum_layout) => Layout::Enum(enum_layout.into_compact(registry)),
+        }
+    }
 }
 
 /// An unbounded layout potentially hitting all cells of the storage.
@@ -72,6 +94,18 @@ impl UnboundedLayout {
             ty: <T as Metadata>::meta_type(),
             offset: offset.into(),
             strategy: strategy.into(),
+        }
+    }
+}
+
+impl IntoCompact for UnboundedLayout {
+    type Output = UnboundedLayout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        UnboundedLayout {
+            ty: registry.register_type(&self.ty),
+            offset: self.offset,
+            strategy: self.strategy,
         }
     }
 }
@@ -186,6 +220,18 @@ impl ArrayLayout {
     }
 }
 
+impl IntoCompact for ArrayLayout {
+    type Output = ArrayLayout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        ArrayLayout {
+            offset: self.offset,
+            len: self.len,
+            ty: registry.register_type(&self.ty),
+        }
+    }
+}
+
 /// A struct layout with consecutive fields of different layout.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
 #[serde(bound = "F::TypeId: serde::Serialize")]
@@ -202,6 +248,20 @@ impl StructLayout {
     {
         Self {
             fields: fields.into_iter().collect(),
+        }
+    }
+}
+
+impl IntoCompact for StructLayout {
+    type Output = StructLayout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        StructLayout {
+            fields: self
+                .fields
+                .into_iter()
+                .map(|field| field.into_compact(registry))
+                .collect::<Vec<_>>(),
         }
     }
 }
@@ -231,6 +291,17 @@ impl FieldLayout {
         Self {
             name: name.into(),
             layout: layout.into(),
+        }
+    }
+}
+
+impl IntoCompact for FieldLayout {
+    type Output = FieldLayout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        FieldLayout {
+            name: self.name.map(|name| registry.register_string(name)),
+            layout: self.layout.into_compact(registry),
         }
     }
 }
