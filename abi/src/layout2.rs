@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::fmt::Write;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::{Key, KeyPtr};
 use type_metadata::{
@@ -129,9 +130,24 @@ pub struct ArrayLayout<F: Form = MetaForm> {
 }
 
 /// A pointer into some storage region.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct LayoutKey {
     key: [u8; 32],
+}
+
+impl serde::Serialize for LayoutKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let bytes = self.key;
+        let mut hex = String::with_capacity(bytes.len() * 2 + 2);
+        write!(hex, "0x").expect("failed writing to string");
+        for byte in &bytes {
+            write!(hex, "{:02x}", byte).expect("failed writing to string");
+        }
+        serializer.serialize_str(&hex)
+    }
 }
 
 impl From<Key> for LayoutKey {
