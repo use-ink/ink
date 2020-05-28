@@ -769,4 +769,69 @@ mod tests {
         };
         assert_eq!(json, expected);
     }
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    pub struct Blake2x256Hasher;
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    #[allow(dead_code)]
+    pub struct UnboundedMapping {
+        hasher: Blake2x256Hasher,
+        kvs: Vec<(i32, bool)>,
+    }
+
+    impl StorageLayout for UnboundedMapping {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            let root_key = key_ptr.advance_by(1);
+            UnboundedLayout::new(
+                root_key,
+                UnboundedStrategy::Hashing(
+                    UnboundedHashingStrategy::new(
+                        CryptoHasher::Blake2x256,
+                        b"ink storage hashmap".to_vec(),
+                        Vec::new(),
+                    )
+                ),
+                CellLayout::new::<(i32, bool), _>(root_key),
+            ).into()
+        }
+    }
+
+    #[test]
+    fn unbounded_layout_works() {
+        let layout =
+            <UnboundedMapping as StorageLayout>::layout(&mut KeyPtr::from(Key([0x00; 32])));
+        let mut registry = Registry::new();
+        let compacted = layout.into_compact(&mut registry);
+        let json = serde_json::to_value(&compacted).unwrap();
+        let expected = serde_json::json! {
+            {
+                "Unbounded": {
+                    "layout": {
+                        "Cell": {
+                            "key": "0x\
+                                0000000000000000\
+                                0000000000000000\
+                                0000000000000000\
+                                0000000000000000",
+                            "ty": 1
+                        }
+                    },
+                    "offset": "0x\
+                        0000000000000000\
+                        0000000000000000\
+                        0000000000000000\
+                        0000000000000000",
+                    "strategy": {
+                        "Hashing": {
+                            "hasher": "Blake2x256",
+                            "prefix": "0x696e6b2073746f7261676520686173686d6170",
+                            "postfix": "",
+                        }
+                    }
+                }
+            }
+        };
+        assert_eq!(json, expected);
+    }
 }
