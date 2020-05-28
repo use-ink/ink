@@ -30,6 +30,24 @@ use type_metadata::{
     Registry,
 };
 
+/// Serializes the given bytes as byte string.
+fn serialize_as_byte_str<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let bytes = bytes.as_ref();
+    if bytes.is_empty() {
+        // Return empty string without prepended `0x`.
+        return serializer.serialize_str("");
+    }
+    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
+    write!(hex, "0x").expect("failed writing to string");
+    for byte in bytes {
+        write!(hex, "{:02x}", byte).expect("failed writing to string");
+    }
+    serializer.serialize_str(&hex)
+}
+
 /// Implemented by types that have a storage layout.
 pub trait StorageLayout {
     /// Returns the static storage layout of `Self`.
@@ -65,24 +83,11 @@ pub enum Layout<F: Form = MetaForm> {
 }
 
 /// A pointer into some storage region.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[serde(transparent)]
 pub struct LayoutKey {
+    #[serde(serialize_with = "serialize_as_byte_str")]
     key: [u8; 32],
-}
-
-impl serde::Serialize for LayoutKey {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let bytes = self.key;
-        let mut hex = String::with_capacity(bytes.len() * 2 + 2);
-        write!(hex, "0x").expect("failed writing to string");
-        for byte in &bytes {
-            write!(hex, "{:02x}", byte).expect("failed writing to string");
-        }
-        serializer.serialize_str(&hex)
-    }
 }
 
 impl From<Key> for LayoutKey {
