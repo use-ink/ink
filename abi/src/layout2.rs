@@ -28,6 +28,10 @@ use type_metadata::{
 
 /// Implemented by types that have a storage layout.
 pub trait StorageLayout {
+    /// Returns the static storage layout of `Self`.
+    ///
+    /// The given key pointer is guiding the allocation of static fields onto
+    /// the contract storage regions.
     fn layout(key_ptr: &mut KeyPtr) -> Layout;
 }
 
