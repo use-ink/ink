@@ -14,7 +14,10 @@
 
 use core::fmt::Write;
 use ink_prelude::collections::btree_map::BTreeMap;
-use ink_primitives::{Key, KeyPtr};
+use ink_primitives::{
+    Key,
+    KeyPtr,
+};
 use type_metadata::{
     form::{
         CompactForm,
