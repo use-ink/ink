@@ -639,7 +639,7 @@ mod tests {
                 vec![
                     (Discriminant(0), StructLayout::new(vec![])),
                     {
-                        let mut variant_key_ptr = KeyPtr::from(key_ptr.advance_by(0));
+                        let mut variant_key_ptr = key_ptr.clone();
                         (
                             Discriminant(1),
                             StructLayout::new(vec![
@@ -659,7 +659,7 @@ mod tests {
                         )
                     },
                     {
-                        let mut variant_key_ptr = KeyPtr::from(key_ptr.advance_by(0));
+                        let mut variant_key_ptr = key_ptr.clone();
                         (
                             Discriminant(2),
                             StructLayout::new(vec![
