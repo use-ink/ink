@@ -110,13 +110,12 @@ pub struct CellLayout<F: Form = MetaForm> {
 
 impl CellLayout {
     /// Creates a new cell layout.
-    pub fn new<T, K>(key: K) -> Self
+    pub fn new<T>(key: LayoutKey) -> Self
     where
         T: Metadata,
-        K: Into<LayoutKey>,
     {
         Self {
-            key: key.into(),
+            key,
             ty: <T as Metadata>::meta_type(),
         }
     }
@@ -450,11 +449,11 @@ mod tests {
             StructLayout::new(vec![
                 FieldLayout::new(
                     "a",
-                    CellLayout::new::<i32, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                    CellLayout::new::<i32>(LayoutKey::from(key_ptr.advance_by(1))),
                 ),
                 FieldLayout::new(
                     "b",
-                    CellLayout::new::<i64, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                    CellLayout::new::<i64>(LayoutKey::from(key_ptr.advance_by(1))),
                 ),
             ])
             .into()
@@ -515,11 +514,11 @@ mod tests {
             StructLayout::new(vec![
                 FieldLayout::new(
                     None,
-                    CellLayout::new::<i32, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                    CellLayout::new::<i32>(LayoutKey::from(key_ptr.advance_by(1))),
                 ),
                 FieldLayout::new(
                     None,
-                    CellLayout::new::<i64, _>(LayoutKey::from(key_ptr.advance_by(1))),
+                    CellLayout::new::<i64>(LayoutKey::from(key_ptr.advance_by(1))),
                 ),
             ])
             .into()
@@ -645,13 +644,13 @@ mod tests {
                             StructLayout::new(vec![
                                 FieldLayout::new(
                                     None,
-                                    CellLayout::new::<i32, _>(LayoutKey::from(
+                                    CellLayout::new::<i32>(LayoutKey::from(
                                         variant_key_ptr.advance_by(1),
                                     )),
                                 ),
                                 FieldLayout::new(
                                     None,
-                                    CellLayout::new::<i64, _>(LayoutKey::from(
+                                    CellLayout::new::<i64>(LayoutKey::from(
                                         variant_key_ptr.advance_by(1),
                                     )),
                                 ),
@@ -665,13 +664,13 @@ mod tests {
                             StructLayout::new(vec![
                                 FieldLayout::new(
                                     "a",
-                                    CellLayout::new::<i32, _>(LayoutKey::from(
+                                    CellLayout::new::<i32>(LayoutKey::from(
                                         variant_key_ptr.advance_by(1),
                                     )),
                                 ),
                                 FieldLayout::new(
                                     "b",
-                                    CellLayout::new::<i64, _>(LayoutKey::from(
+                                    CellLayout::new::<i64>(LayoutKey::from(
                                         variant_key_ptr.advance_by(1),
                                     )),
                                 ),
@@ -790,7 +789,7 @@ mod tests {
                     b"ink storage hashmap".to_vec(),
                     Vec::new(),
                 )),
-                CellLayout::new::<(i32, bool), _>(root_key),
+                CellLayout::new::<(i32, bool)>(LayoutKey::new(root_key)),
             )
             .into()
         }
