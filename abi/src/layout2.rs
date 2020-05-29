@@ -789,7 +789,7 @@ mod tests {
                     b"ink storage hashmap".to_vec(),
                     Vec::new(),
                 )),
-                CellLayout::new::<(i32, bool)>(LayoutKey::new(root_key)),
+                CellLayout::new::<(i32, bool)>(LayoutKey::from(root_key)),
             )
             .into()
         }
