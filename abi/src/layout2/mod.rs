@@ -75,6 +75,10 @@ pub enum Layout<F: Form = MetaForm> {
     ///
     /// This is commonly used by ink! hashmaps and similar data structures.
     Unbounded(UnboundedLayout<F>),
+    /// A layout that hashes values into the entire storage key space.
+    ///
+    /// This is commonly used by ink! hashmaps and similar data structures.
+    Hash(HashLayout<F>),
     /// An array of associated storage cells encoded with a given type.
     ///
     /// This can also represent only a single cell.
@@ -146,6 +150,9 @@ impl IntoCompact for Layout {
             Layout::Unbounded(unbounded_layout) => {
                 Layout::Unbounded(unbounded_layout.into_compact(registry))
             }
+            Layout::Hash(hash_layout) => {
+                Layout::Hash(hash_layout.into_compact(registry))
+            }
             Layout::Array(array_layout) => {
                 Layout::Array(array_layout.into_compact(registry))
             }
@@ -155,6 +162,86 @@ impl IntoCompact for Layout {
             Layout::Enum(enum_layout) => Layout::Enum(enum_layout.into_compact(registry)),
         }
     }
+}
+
+/// A hashing layout potentially hitting all cells of the storage.
+///
+/// Every hashing layout has an offset and a strategy to compute its keys.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[serde(bound = "F::TypeId: serde::Serialize")]
+pub struct HashLayout<F: Form = MetaForm> {
+    /// The key offset used by the strategy.
+    offset: LayoutKey,
+    /// The hashing strategy to layout the underlying elements.
+    strategy: HashingStrategy,
+    /// The storage layout of the unbounded layout elements.
+    layout: Box<Layout<F>>,
+}
+
+impl HashLayout {
+    /// Creates a new unbounded layout.
+    pub fn new<K, L>(offset: K, strategy: HashingStrategy, layout: L) -> Self
+    where
+        K: Into<LayoutKey>,
+        L: Into<Layout>,
+    {
+        Self {
+            offset: offset.into(),
+            strategy,
+            layout: Box::new(layout.into()),
+        }
+    }
+}
+
+impl IntoCompact for HashLayout {
+    type Output = HashLayout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        HashLayout {
+            offset: self.offset,
+            strategy: self.strategy,
+            layout: Box::new(self.layout.into_compact(registry)),
+        }
+    }
+}
+
+/// The unbounded hashing strategy.
+///
+/// The offset key is used as another postfix for the computation.
+/// So the actual formula is: `hasher(prefix + encoded(key) + offset + postfix)`
+/// Where `+` in this contexts means append of the byte slices.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+pub struct HashingStrategy {
+    /// One of the supported crypto hashers.
+    hasher: CryptoHasher,
+    /// An optional prefix to the computed hash.
+    #[serde(serialize_with = "serialize_as_byte_str")]
+    prefix: Vec<u8>,
+    /// An optional postfix to the computed hash.
+    #[serde(serialize_with = "serialize_as_byte_str")]
+    postfix: Vec<u8>,
+}
+
+impl HashingStrategy {
+    /// Creates a new unbounded hashing strategy.
+    pub fn new(hasher: CryptoHasher, prefix: Vec<u8>, postfix: Vec<u8>) -> Self {
+        Self {
+            hasher,
+            prefix,
+            postfix,
+        }
+    }
+}
+
+/// One of the supported crypto hashers.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+pub enum CryptoHasher {
+    /// The BLAKE-2 crypto hasher with an output of 256 bits.
+    Blake2x256,
+    /// The SHA-2 crypto hasher with an output of 256 bits.
+    Sha2x256,
+    /// The KECCAK crypto hasher with an output of 256 bits.
+    Keccak256,
 }
 
 /// An unbounded layout potentially hitting all cells of the storage.
@@ -232,17 +319,6 @@ impl UnboundedHashingStrategy {
             postfix,
         }
     }
-}
-
-/// One of the supported crypto hashers.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-pub enum CryptoHasher {
-    /// The BLAKE-2 crypto hasher with an output of 256 bits.
-    Blake2x256,
-    /// The SHA-2 crypto hasher with an output of 256 bits.
-    Sha2x256,
-    /// The KECCAK crypto hasher with an output of 256 bits.
-    Keccak256,
 }
 
 /// A layout for an array of associated cells with the same encoding.
