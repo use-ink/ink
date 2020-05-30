@@ -23,6 +23,36 @@ use crate::storage2::{
 };
 use generic_array::typenum::Unsigned;
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::{
+        lazy::LazyArray,
+        traits::StorageLayout,
+    };
+    use ink_abi::layout2::{
+        FieldLayout,
+        Layout,
+        StructLayout,
+    };
+    use type_metadata::Metadata;
+
+    impl<T, N> StorageLayout for SmallVec<T, N>
+    where
+        T: PackedLayout + Metadata,
+        N: LazyArrayLength<T>,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Struct(StructLayout::new(vec![
+                FieldLayout::new("len", <u32 as StorageLayout>::layout(key_ptr)),
+                FieldLayout::new(
+                    "elems",
+                    <LazyArray<T, N> as StorageLayout>::layout(key_ptr),
+                ),
+            ]))
+        }
+    }
+};
+
 impl<T, N> SpreadLayout for SmallVec<T, N>
 where
     T: PackedLayout,
