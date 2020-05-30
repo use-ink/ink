@@ -318,13 +318,13 @@ fn mixed_enum_work() {
 
 fn unbounded_hashing_layout(key_ptr: &mut KeyPtr) -> Layout {
     let root_key = key_ptr.advance_by(1);
-    UnboundedLayout::new(
+    HashLayout::new(
         root_key,
-        UnboundedStrategy::Hashing(UnboundedHashingStrategy::new(
+        HashingStrategy::new(
             CryptoHasher::Blake2x256,
             b"ink storage hashmap".to_vec(),
             Vec::new(),
-        )),
+        ),
         CellLayout::new::<(i32, bool)>(LayoutKey::from(root_key)),
     )
     .into()
@@ -340,7 +340,7 @@ fn unbounded_layout_works() {
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
-            "Unbounded": {
+            "Hash": {
                 "layout": {
                     "Cell": {
                         "key": "0x\
@@ -357,11 +357,9 @@ fn unbounded_layout_works() {
                     0000000000000000\
                     0000000000000000",
                 "strategy": {
-                    "Hashing": {
                         "hasher": "Blake2x256",
                         "prefix": "0x696e6b2073746f7261676520686173686d6170",
                         "postfix": "",
-                    }
                 }
             }
         }
