@@ -34,13 +34,7 @@ use ink_abi::layout2::{
 };
 use ink_prelude::{
     boxed::Box,
-    collections::{
-        BTreeMap,
-        // BTreeSet,
-        // BinaryHeap,
-        // LinkedList,
-        // VecDeque,
-    },
+    collections::BTreeMap,
     string::String,
     vec::Vec,
 };
@@ -140,7 +134,9 @@ where
     T: Metadata + 'static,
 {
     fn layout(key_ptr: &mut KeyPtr) -> Layout {
-        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
+            key_ptr.advance_by(1),
+        )))
     }
 }
 
@@ -150,7 +146,9 @@ where
     V: Metadata + 'static,
 {
     fn layout(key_ptr: &mut KeyPtr) -> Layout {
-        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
+            key_ptr.advance_by(1),
+        )))
     }
 }
 

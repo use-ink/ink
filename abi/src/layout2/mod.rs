@@ -143,9 +143,7 @@ impl IntoCompact for Layout {
             Layout::Cell(encoded_cell) => {
                 Layout::Cell(encoded_cell.into_compact(registry))
             }
-            Layout::Hash(hash_layout) => {
-                Layout::Hash(hash_layout.into_compact(registry))
-            }
+            Layout::Hash(hash_layout) => Layout::Hash(hash_layout.into_compact(registry)),
             Layout::Array(array_layout) => {
                 Layout::Array(array_layout.into_compact(registry))
             }

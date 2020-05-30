@@ -96,9 +96,7 @@ const _: () = {
         T: Metadata,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Cell(CellLayout::new::<T>(LayoutKey::from(
-                key_ptr.advance_by(1),
-            )))
+            Layout::Cell(CellLayout::new::<T>(LayoutKey::from(key_ptr.advance_by(1))))
         }
     }
 };

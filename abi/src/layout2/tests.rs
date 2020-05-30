@@ -332,9 +332,7 @@ fn unbounded_hashing_layout(key_ptr: &mut KeyPtr) -> Layout {
 
 #[test]
 fn unbounded_layout_works() {
-    let layout = unbounded_hashing_layout(&mut KeyPtr::from(Key(
-        [0x00; 32],
-    )));
+    let layout = unbounded_hashing_layout(&mut KeyPtr::from(Key([0x00; 32])));
     let mut registry = Registry::new();
     let compacted = layout.into_compact(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();

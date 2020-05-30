@@ -18,9 +18,9 @@ use super::{
     EntryState,
 };
 use crate::storage2::traits::{
-    ExtKeyPtr,
     clear_spread_root_opt,
     pull_spread_root_opt,
+    ExtKeyPtr,
     KeyPtr,
     SpreadLayout,
 };
