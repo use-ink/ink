@@ -89,12 +89,10 @@ where
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage2::{
-        traits::StorageLayout,
-        Pack,
-    };
+    use crate::storage2::traits::StorageLayout;
     use ink_abi::layout2::{
         ArrayLayout,
+        CellLayout,
         Layout,
         LayoutKey,
     };
@@ -111,7 +109,9 @@ const _: () = {
                 LayoutKey::from(key_ptr.advance_by(capacity as u64)),
                 capacity,
                 1,
-                <Pack<T> as StorageLayout>::layout(&mut key_ptr.clone()),
+                Layout::Cell(CellLayout::new::<T>(LayoutKey::from(
+                    key_ptr.advance_by(0),
+                ))),
             ))
         }
     }
