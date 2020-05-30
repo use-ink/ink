@@ -149,10 +149,12 @@ fn debug_impl_works() {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage2::traits::StorageLayout;
+    use crate::storage2::traits::{
+        LayoutCryptoHasher,
+        StorageLayout,
+    };
     use ink_abi::layout2::{
         CellLayout,
-        CryptoHasher,
         HashLayout,
         HashingStrategy,
         Layout,
@@ -164,14 +166,14 @@ const _: () = {
     where
         K: Ord + scale::Encode,
         V: Metadata,
-        H: Hasher,
+        H: Hasher + LayoutCryptoHasher,
         Key: From<<H as Hasher>::Output>,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Hash(HashLayout::new(
                 LayoutKey::from(key_ptr.advance_by(1)),
                 HashingStrategy::new(
-                    CryptoHasher::Blake2x256,
+                    <H as LayoutCryptoHasher>::crypto_hasher(),
                     b"ink hashmap".to_vec(),
                     Vec::new(),
                 ),
