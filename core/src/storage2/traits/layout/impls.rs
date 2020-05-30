@@ -32,8 +32,20 @@ use ink_abi::layout2::{
     LayoutKey,
     StructLayout,
 };
-use ink_prelude::string::String;
+use ink_prelude::{
+    boxed::Box,
+    collections::{
+        BTreeMap,
+        // BTreeSet,
+        // BinaryHeap,
+        // LinkedList,
+        // VecDeque,
+    },
+    string::String,
+    vec::Vec,
+};
 use ink_primitives::Key;
+use type_metadata::Metadata;
 
 macro_rules! impl_storage_layout_for_primitives {
     ( $($name:ty),* $(,)? ) => {
@@ -113,3 +125,67 @@ impl_layout_for_tuple!(A, B, C, D, E, F, G);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I, J);
+
+impl<T> StorageLayout for Box<T>
+where
+    T: Metadata,
+{
+    fn layout(key_ptr: &mut KeyPtr) -> Layout {
+        Layout::Cell(CellLayout::new::<T>(LayoutKey::from(key_ptr.advance_by(1))))
+    }
+}
+
+impl<T> StorageLayout for Vec<T>
+where
+    T: Metadata + 'static,
+{
+    fn layout(key_ptr: &mut KeyPtr) -> Layout {
+        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+    }
+}
+
+impl<K, V> StorageLayout for BTreeMap<K, V>
+where
+    K: Metadata + 'static,
+    V: Metadata + 'static,
+{
+    fn layout(key_ptr: &mut KeyPtr) -> Layout {
+        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+    }
+}
+
+// impl<T> StorageLayout for BinaryHeap<T>
+// where
+//     T: Metadata + 'static,
+// {
+//     fn layout(key_ptr: &mut KeyPtr) -> Layout {
+//         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+//     }
+// }
+
+// impl<T> StorageLayout for BTreeSet<T>
+// where
+//     T: Metadata + 'static,
+// {
+//     fn layout(key_ptr: &mut KeyPtr) -> Layout {
+//         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+//     }
+// }
+
+// impl<T> StorageLayout for VecDeque<T>
+// where
+//     T: Metadata + 'static,
+// {
+//     fn layout(key_ptr: &mut KeyPtr) -> Layout {
+//         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+//     }
+// }
+
+// impl<T> StorageLayout for LinkedList<T>
+// where
+//     T: Metadata + 'static,
+// {
+//     fn layout(key_ptr: &mut KeyPtr) -> Layout {
+//         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
+//     }
+// }
