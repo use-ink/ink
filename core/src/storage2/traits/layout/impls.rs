@@ -13,19 +13,27 @@
 // limitations under the License.
 
 use super::StorageLayout;
-use crate::storage2::traits::{
-    ExtKeyPtr as _,
-    KeyPtr,
-    SpreadLayout,
+use crate::{
+    env::{
+        AccountId,
+        Hash,
+    },
+    storage2::traits::{
+        ExtKeyPtr as _,
+        KeyPtr,
+        SpreadLayout,
+    },
 };
 use ink_abi::layout2::{
     ArrayLayout,
     CellLayout,
+    FieldLayout,
     Layout,
     LayoutKey,
     StructLayout,
-    FieldLayout,
 };
+use ink_prelude::string::String;
+use ink_primitives::Key;
 
 macro_rules! impl_storage_layout_for_primitives {
     ( $($name:ty),* $(,)? ) => {
@@ -40,6 +48,7 @@ macro_rules! impl_storage_layout_for_primitives {
 }
 #[rustfmt::skip]
 impl_storage_layout_for_primitives!(
+    Key, Hash, AccountId, String,
     bool, char, (),
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,
