@@ -87,6 +87,36 @@ where
     cached_entries: EntryArray<T, N>,
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::{
+        traits::StorageLayout,
+        Pack,
+    };
+    use ink_abi::layout2::{
+        ArrayLayout,
+        Layout,
+        LayoutKey,
+    };
+    use type_metadata::Metadata;
+
+    impl<T, N> StorageLayout for LazyArray<T, N>
+    where
+        T: Metadata,
+        N: LazyArrayLength<T>,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            let capacity = <N as Unsigned>::U32;
+            Layout::Array(ArrayLayout::new(
+                LayoutKey::from(key_ptr.advance_by(capacity as u64)),
+                capacity,
+                1,
+                <Pack<T> as StorageLayout>::layout(&mut key_ptr.clone()),
+            ))
+        }
+    }
+};
+
 struct DebugEntryArray<'a, T, N>(&'a EntryArray<T, N>)
 where
     T: Debug,
