@@ -128,10 +128,10 @@ impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I, J);
 
 impl<T> StorageLayout for Box<T>
 where
-    T: Metadata,
+    T: StorageLayout,
 {
     fn layout(key_ptr: &mut KeyPtr) -> Layout {
-        Layout::Cell(CellLayout::new::<T>(LayoutKey::from(key_ptr.advance_by(1))))
+        <T as StorageLayout>::layout(key_ptr)
     }
 }
 
