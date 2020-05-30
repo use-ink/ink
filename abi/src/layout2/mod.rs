@@ -71,10 +71,6 @@ pub enum Layout<F: Form = MetaForm> {
     ///
     /// This represents the encoding of a single cell mapped to a single key.
     Cell(CellLayout<F>),
-    /// A layout that can potentially hit the entire storage key space.
-    ///
-    /// This is commonly used by ink! hashmaps and similar data structures.
-    Unbounded(UnboundedLayout<F>),
     /// A layout that hashes values into the entire storage key space.
     ///
     /// This is commonly used by ink! hashmaps and similar data structures.
@@ -146,9 +142,6 @@ impl IntoCompact for Layout {
         match self {
             Layout::Cell(encoded_cell) => {
                 Layout::Cell(encoded_cell.into_compact(registry))
-            }
-            Layout::Unbounded(unbounded_layout) => {
-                Layout::Unbounded(unbounded_layout.into_compact(registry))
             }
             Layout::Hash(hash_layout) => {
                 Layout::Hash(hash_layout.into_compact(registry))
@@ -242,83 +235,6 @@ pub enum CryptoHasher {
     Sha2x256,
     /// The KECCAK crypto hasher with an output of 256 bits.
     Keccak256,
-}
-
-/// An unbounded layout potentially hitting all cells of the storage.
-///
-/// Every unbounded layout has an offset and a strategy to compute their keys.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
-pub struct UnboundedLayout<F: Form = MetaForm> {
-    /// The key offset used by the strategy.
-    offset: LayoutKey,
-    /// The actual strategy to compute the unbounded keys.
-    strategy: UnboundedStrategy,
-    /// The storage layout of the unbounded layout elements.
-    layout: Box<Layout<F>>,
-}
-
-impl UnboundedLayout {
-    /// Creates a new unbounded layout.
-    pub fn new<K, S, L>(offset: K, strategy: S, layout: L) -> Self
-    where
-        K: Into<LayoutKey>,
-        S: Into<UnboundedStrategy>,
-        L: Into<Layout>,
-    {
-        Self {
-            offset: offset.into(),
-            strategy: strategy.into(),
-            layout: Box::new(layout.into()),
-        }
-    }
-}
-
-impl IntoCompact for UnboundedLayout {
-    type Output = UnboundedLayout<CompactForm>;
-
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
-        UnboundedLayout {
-            offset: self.offset,
-            strategy: self.strategy,
-            layout: Box::new(self.layout.into_compact(registry)),
-        }
-    }
-}
-
-/// One of the supported unbounded strategies.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-pub enum UnboundedStrategy {
-    /// The strategy using a built-in crypto hasher for the computation.
-    Hashing(UnboundedHashingStrategy),
-}
-
-/// The unbounded hashing strategy.
-///
-/// The offset key is used as another postfix for the computation.
-/// So the actual formula is: `hasher(prefix + encoded(key) + offset + postfix)`
-/// Where `+` in this contexts means append of the byte slices.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-pub struct UnboundedHashingStrategy {
-    /// One of the supported crypto hashers.
-    hasher: CryptoHasher,
-    /// An optional prefix to the computed hash.
-    #[serde(serialize_with = "serialize_as_byte_str")]
-    prefix: Vec<u8>,
-    /// An optional postfix to the computed hash.
-    #[serde(serialize_with = "serialize_as_byte_str")]
-    postfix: Vec<u8>,
-}
-
-impl UnboundedHashingStrategy {
-    /// Creates a new unbounded hashing strategy.
-    pub fn new(hasher: CryptoHasher, prefix: Vec<u8>, postfix: Vec<u8>) -> Self {
-        Self {
-            hasher,
-            prefix,
-            postfix,
-        }
-    }
 }
 
 /// A layout for an array of associated cells with the same encoding.
