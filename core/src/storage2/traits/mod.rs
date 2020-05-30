@@ -33,7 +33,10 @@ mod spread;
 mod layout;
 
 #[cfg(feature = "std")]
-pub use self::layout::StorageLayout;
+pub use self::layout::{
+    StorageLayout,
+    LayoutCryptoHasher,
+};
 
 pub(crate) use self::optspec::{
     clear_spread_root_opt,

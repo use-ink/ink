@@ -18,7 +18,12 @@ mod impls;
 mod tests;
 
 use crate::storage2::traits::KeyPtr;
-use ink_abi::layout2::Layout;
+use ink_abi::layout2::{Layout, CryptoHasher};
+use crate::hash::hasher::{
+    Blake2x256Hasher,
+    Sha2x256Hasher,
+    Keccak256Hasher,
+};
 
 /// Implemented by types that have a storage layout.
 pub trait StorageLayout {
@@ -27,4 +32,28 @@ pub trait StorageLayout {
     /// The given key pointer is guiding the allocation of static fields onto
     /// the contract storage regions.
     fn layout(key_ptr: &mut KeyPtr) -> Layout;
+}
+
+/// Types implementing this trait are supported layouting crypto hashers.
+pub trait LayoutCryptoHasher {
+    /// Returns the layout crypto hasher for `Self`.
+    fn crypto_hasher() -> CryptoHasher;
+}
+
+impl LayoutCryptoHasher for Blake2x256Hasher {
+    fn crypto_hasher() -> CryptoHasher {
+        CryptoHasher::Blake2x256
+    }
+}
+
+impl LayoutCryptoHasher for Sha2x256Hasher {
+    fn crypto_hasher() -> CryptoHasher {
+        CryptoHasher::Sha2x256
+    }
+}
+
+impl LayoutCryptoHasher for Keccak256Hasher {
+    fn crypto_hasher() -> CryptoHasher {
+        CryptoHasher::Keccak256
+    }
 }
