@@ -25,12 +25,14 @@ use crate::{
     },
 };
 use ink_abi::layout2::{
+    Discriminant,
     ArrayLayout,
     CellLayout,
     FieldLayout,
     Layout,
     LayoutKey,
     StructLayout,
+    EnumLayout,
 };
 use ink_prelude::{
     boxed::Box,
@@ -126,6 +128,45 @@ where
 {
     fn layout(key_ptr: &mut KeyPtr) -> Layout {
         <T as StorageLayout>::layout(key_ptr)
+    }
+}
+
+impl<T> StorageLayout for Option<T>
+where
+    T: StorageLayout,
+{
+    fn layout(key_ptr: &mut KeyPtr) -> Layout {
+        let dispatch_key = key_ptr.advance_by(1);
+        Layout::Enum(EnumLayout::new(
+            dispatch_key,
+            vec![
+                (Discriminant::from(0), StructLayout::new(vec![
+                    FieldLayout::new(None, <T as StorageLayout>::layout(&mut key_ptr.clone())),
+                ])),
+                (Discriminant::from(1), StructLayout::new(Vec::new())),
+            ],
+        ))
+    }
+}
+
+impl<T, E> StorageLayout for Result<T, E>
+where
+    T: StorageLayout,
+    E: StorageLayout,
+{
+    fn layout(key_ptr: &mut KeyPtr) -> Layout {
+        let dispatch_key = key_ptr.advance_by(1);
+        Layout::Enum(EnumLayout::new(
+            dispatch_key,
+            vec![
+                (Discriminant::from(0), StructLayout::new(vec![
+                    FieldLayout::new(None, <T as StorageLayout>::layout(&mut key_ptr.clone())),
+                ])),
+                (Discriminant::from(1), StructLayout::new(vec![
+                    FieldLayout::new(None, <E as StorageLayout>::layout(&mut key_ptr.clone())),
+                ])),
+            ],
+        ))
     }
 }
 
