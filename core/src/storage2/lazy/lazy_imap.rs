@@ -197,6 +197,35 @@ impl<V> LazyIndexMap<V> {
     }
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        ArrayLayout,
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+    use type_metadata::Metadata;
+
+    impl<T> StorageLayout for LazyIndexMap<T>
+    where
+        T: Metadata,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            let capacity = u32::MAX;
+            Layout::Array(ArrayLayout::new(
+                LayoutKey::from(key_ptr.advance_by(capacity as u64)),
+                capacity,
+                1,
+                Layout::Cell(CellLayout::new::<T>(LayoutKey::from(
+                    key_ptr.advance_by(0),
+                ))),
+            ))
+        }
+    }
+};
+
 impl<V> SpreadLayout for LazyIndexMap<V>
 where
     V: PackedLayout,
