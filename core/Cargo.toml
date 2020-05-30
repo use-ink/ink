@@ -66,8 +66,9 @@ std = [
     "blake2-rfc",
     "sha2",
     "tiny-keccak",
+    "ink-generate-abi",
 ]
-ink-generate-abi = [
+ink-generate-abi = [ # TODO: Remove crate feature. Superseeded by `std`.
     "ink_abi",
     "type-metadata",
     "std",
