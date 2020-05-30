@@ -147,6 +147,42 @@ fn debug_impl_works() {
     );
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        CellLayout,
+        CryptoHasher,
+        HashLayout,
+        HashingStrategy,
+        Layout,
+        LayoutKey,
+    };
+    use type_metadata::Metadata;
+
+    impl<K, V, H> StorageLayout for LazyHashMap<K, V, H>
+    where
+        K: Ord + scale::Encode,
+        V: Metadata,
+        H: Hasher,
+        Key: From<<H as Hasher>::Output>,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Hash(HashLayout::new(
+                LayoutKey::from(key_ptr.advance_by(1)),
+                HashingStrategy::new(
+                    CryptoHasher::Blake2x256,
+                    b"ink hashmap".to_vec(),
+                    Vec::new(),
+                ),
+                Layout::Cell(CellLayout::new::<V>(LayoutKey::from(
+                    key_ptr.advance_by(0),
+                ))),
+            ))
+        }
+    }
+};
+
 impl<K, V, H> SpreadLayout for LazyHashMap<K, V, H>
 where
     K: Ord + scale::Encode,
