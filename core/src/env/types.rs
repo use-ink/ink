@@ -31,7 +31,7 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 use core::ops::{
@@ -180,7 +180,7 @@ where
 
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub enum DefaultEnvTypes {}
 
 impl EnvTypes for DefaultEnvTypes {
@@ -254,7 +254,7 @@ impl scale::Decode for Call {
     From,
     Default,
 )]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct AccountId([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for AccountId {
@@ -288,7 +288,7 @@ impl Flush for AccountId {}
     From,
     Default,
 )]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct Hash([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for Hash {
