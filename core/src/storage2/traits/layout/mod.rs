@@ -17,12 +17,17 @@ mod impls;
 #[cfg(test)]
 mod tests;
 
-use crate::storage2::traits::KeyPtr;
-use ink_abi::layout2::{Layout, CryptoHasher};
-use crate::hash::hasher::{
-    Blake2x256Hasher,
-    Sha2x256Hasher,
-    Keccak256Hasher,
+use crate::{
+    hash::hasher::{
+        Blake2x256Hasher,
+        Keccak256Hasher,
+        Sha2x256Hasher,
+    },
+    storage2::traits::KeyPtr,
+};
+use ink_abi::layout2::{
+    CryptoHasher,
+    Layout,
 };
 
 /// Implemented by types that have a storage layout.

@@ -25,14 +25,14 @@ use crate::{
     },
 };
 use ink_abi::layout2::{
-    Discriminant,
     ArrayLayout,
     CellLayout,
+    Discriminant,
+    EnumLayout,
     FieldLayout,
     Layout,
     LayoutKey,
     StructLayout,
-    EnumLayout,
 };
 use ink_prelude::{
     boxed::Box,
@@ -140,9 +140,13 @@ where
         Layout::Enum(EnumLayout::new(
             dispatch_key,
             vec![
-                (Discriminant::from(0), StructLayout::new(vec![
-                    FieldLayout::new(None, <T as StorageLayout>::layout(&mut key_ptr.clone())),
-                ])),
+                (
+                    Discriminant::from(0),
+                    StructLayout::new(vec![FieldLayout::new(
+                        None,
+                        <T as StorageLayout>::layout(&mut key_ptr.clone()),
+                    )]),
+                ),
                 (Discriminant::from(1), StructLayout::new(Vec::new())),
             ],
         ))
@@ -159,12 +163,20 @@ where
         Layout::Enum(EnumLayout::new(
             dispatch_key,
             vec![
-                (Discriminant::from(0), StructLayout::new(vec![
-                    FieldLayout::new(None, <T as StorageLayout>::layout(&mut key_ptr.clone())),
-                ])),
-                (Discriminant::from(1), StructLayout::new(vec![
-                    FieldLayout::new(None, <E as StorageLayout>::layout(&mut key_ptr.clone())),
-                ])),
+                (
+                    Discriminant::from(0),
+                    StructLayout::new(vec![FieldLayout::new(
+                        None,
+                        <T as StorageLayout>::layout(&mut key_ptr.clone()),
+                    )]),
+                ),
+                (
+                    Discriminant::from(1),
+                    StructLayout::new(vec![FieldLayout::new(
+                        None,
+                        <E as StorageLayout>::layout(&mut key_ptr.clone()),
+                    )]),
+                ),
             ],
         ))
     }

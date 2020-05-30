@@ -34,8 +34,8 @@ mod layout;
 
 #[cfg(feature = "std")]
 pub use self::layout::{
-    StorageLayout,
     LayoutCryptoHasher,
+    StorageLayout,
 };
 
 pub(crate) use self::optspec::{
