@@ -26,7 +26,10 @@ use crate::storage2::{
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage2::traits::StorageLayout;
+    use crate::storage2::{
+        lazy::Lazy,
+        traits::StorageLayout,
+    };
     use ink_abi::layout2::{
         FieldLayout,
         Layout,
@@ -40,7 +43,7 @@ const _: () = {
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![
-                FieldLayout::new("len", <u32 as StorageLayout>::layout(key_ptr)),
+                FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
                 FieldLayout::new(
                     "elems",
                     <LazyIndexMap<T> as StorageLayout>::layout(key_ptr),
