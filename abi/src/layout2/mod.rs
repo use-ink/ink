@@ -18,10 +18,7 @@ mod tests;
 use core::fmt::Write;
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
-use ink_primitives::{
-    Key,
-    KeyPtr,
-};
+use ink_primitives::Key;
 use type_metadata::{
     form::{
         CompactForm,
@@ -48,15 +45,6 @@ where
         write!(hex, "{:02x}", byte).expect("failed writing to string");
     }
     serializer.serialize_str(&hex)
-}
-
-/// Implemented by types that have a storage layout.
-pub trait StorageLayout {
-    /// Returns the static storage layout of `Self`.
-    ///
-    /// The given key pointer is guiding the allocation of static fields onto
-    /// the contract storage regions.
-    fn layout(key_ptr: &mut KeyPtr) -> Layout;
 }
 
 /// Represents the static storage layout of an ink! smart contract.

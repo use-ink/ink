@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::*;
+use ink_primitives::KeyPtr;
 
 #[test]
 fn layout_key_works() {
