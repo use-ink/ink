@@ -46,7 +46,13 @@ mod delegator {
         SpreadLayout,
         PackedLayout,
     )]
-    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+    #[cfg_attr(
+        feature = "std",
+        derive(
+            ::type_metadata::Metadata,
+            ::ink_core::storage2::traits::StorageLayout,
+        )
+    )]
     pub enum Which {
         Adder,
         Subber,
