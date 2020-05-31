@@ -37,7 +37,6 @@ pub use self::layout::{
     LayoutCryptoHasher,
     StorageLayout,
 };
-
 pub(crate) use self::optspec::{
     clear_spread_root_opt,
     pull_packed_root_opt,
@@ -61,6 +60,7 @@ pub use self::{
 pub use ::ink_core_derive::{
     PackedLayout,
     SpreadLayout,
+    StorageLayout,
 };
 use ink_primitives::Key;
 
