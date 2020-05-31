@@ -149,11 +149,14 @@ impl CrossCalling<'_> {
                 ::scale::Encode,
                 ::scale::Decode,
                 ::ink_core::storage2::traits::SpreadLayout,
-                ::ink_core::storage2::traits::PackedLayout
+                ::ink_core::storage2::traits::PackedLayout,
             )]
             #[cfg_attr(
-                feature = "ink-generate-abi",
-                derive(type_metadata::Metadata)
+                feature = "std",
+                derive(
+                    ::type_metadata::Metadata,
+                    ::ink_core::storage2::traits::StorageLayout,
+                )
             )]
             pub struct StorageAsDependency {
                 account_id: AccountId,
@@ -163,15 +166,6 @@ impl CrossCalling<'_> {
 
     fn generate_storage_impls(&self) -> TokenStream2 {
         quote! {
-            #[cfg(feature = "ink-generate-abi")]
-            impl ::ink_abi::HasLayout for StorageAsDependency {
-                fn layout(&self) -> ::ink_abi::StorageLayout {
-                    ::ink_abi::LayoutStruct::new(
-                        <Self as ::type_metadata::Metadata>::meta_type(), vec![]
-                    ).into()
-                }
-            }
-
             impl ::ink_core::env::call::FromAccountId<EnvTypes> for StorageAsDependency {
                 #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
