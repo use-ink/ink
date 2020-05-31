@@ -68,12 +68,12 @@ use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_core::storage2::collections::HashMap as StorageHashMap;
     use scale::{
         Decode,
         Encode,
     };
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage2::collections::HashMap as StorageHashMap;
 
     /// A token ID.
     pub type TokenId = u32;
@@ -435,7 +435,8 @@ mod erc721 {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 test_fn();
                 Ok(())
-            }).unwrap()
+            })
+            .unwrap()
         }
 
         #[test]

@@ -26,9 +26,7 @@ mod incrementer {
     impl Incrementer {
         #[ink(constructor)]
         fn new(init_value: i32) -> Self {
-            Self {
-                value: init_value,
-            }
+            Self { value: init_value }
         }
 
         #[ink(constructor)]

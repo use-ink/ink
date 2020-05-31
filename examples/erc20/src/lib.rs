@@ -20,8 +20,8 @@ use ink_lang as ink;
 mod erc20 {
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_core::storage2::{
-        lazy::Lazy,
         collections::HashMap as StorageHashMap,
+        lazy::Lazy,
     };
 
     #[ink(storage)]
@@ -168,7 +168,8 @@ mod erc20 {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 test_fn();
                 Ok(())
-            }).unwrap()
+            })
+            .unwrap()
         }
 
         /// The default constructor does its job.

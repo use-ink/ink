@@ -120,7 +120,8 @@ mod runtime {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 test_fn();
                 Ok(())
-            }).unwrap()
+            })
+            .unwrap()
         }
 
         #[test]
@@ -154,9 +155,10 @@ mod runtime {
 
                 let mut key = vec![
                     // Precomputed: Twox128("System")
-                    38, 170, 57, 78, 234, 86, 48, 224, 124, 72, 174, 12, 149, 88, 206, 247,
-                    // Precomputed: Twox128("Account")
-                    185, 157, 136, 14, 198, 129, 121, 156, 12, 243, 14, 136, 134, 55, 29, 169,
+                    38, 170, 57, 78, 234, 86, 48, 224, 124, 72, 174, 12, 149, 88, 206,
+                    247, // Precomputed: Twox128("Account")
+                    185, 157, 136, 14, 198, 129, 121, 156, 12, 243, 14, 136, 134, 55, 29,
+                    169,
                 ];
 
                 let hashed_account = <Blake2x128>::hash_bytes(&encoded_account);
