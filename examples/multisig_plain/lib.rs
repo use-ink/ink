@@ -118,7 +118,10 @@ mod multisig_plain {
 
     /// Indicates whether a transaction is already confirmed or needs further confirmations.
     #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
-    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+    #[cfg_attr(
+        feature = "std",
+        derive(type_metadata::Metadata, ink_core::storage2::traits::StorageLayout)
+    )]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
         Confirmed,
@@ -129,8 +132,16 @@ mod multisig_plain {
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
     #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
-    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
-    #[cfg_attr(feature = "std", derive(Debug, PartialEq, Eq))]
+    #[cfg_attr(
+        feature = "std",
+        derive(
+            Debug,
+            PartialEq,
+            Eq,
+            type_metadata::Metadata,
+            ink_core::storage2::traits::StorageLayout
+        )
+    )]
     pub struct Transaction {
         /// The AccountId of the contract that is called in this transaction.
         callee: AccountId,
