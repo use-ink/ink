@@ -106,3 +106,50 @@ fn named_fields_struct_works() {
         }
     }
 }
+
+#[test]
+fn clike_enum_works() {
+    synstructure::test_derive! {
+        storage_layout_derive {
+            enum ClikeEnum { A, B, C }
+        }
+        expands to {
+            #[allow(non_upper_case_globals)]
+            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_ClikeEnum: () = {
+                impl ::ink_core::storage2::traits::StorageLayout for ClikeEnum {
+                    fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_abi::layout2::Layout {
+                        let dispatch_key = __key_ptr.advance_by(1);
+                        ::ink_abi::layout2::Layout::Enum(
+                            ::ink_abi::layout2::EnumLayout::new(
+                                ::ink_abi::layout2::LayoutKey::from(dispatch_key),
+                                vec![
+                                    {
+                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        (
+                                            ::ink_abi::layout2::Discriminant::from(0usize),
+                                            ::ink_abi::layout2::StructLayout::new(vec![]),
+                                        )
+                                    },
+                                    {
+                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        (
+                                            ::ink_abi::layout2::Discriminant::from(1usize),
+                                            ::ink_abi::layout2::StructLayout::new(vec![]),
+                                        )
+                                    },
+                                    {
+                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        (
+                                            ::ink_abi::layout2::Discriminant::from(2usize),
+                                            ::ink_abi::layout2::StructLayout::new(vec![]),
+                                        )
+                                    },
+                                ]
+                            )
+                        )
+                    }
+                }
+            };
+        }
+    }
+}

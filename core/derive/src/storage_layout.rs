@@ -12,19 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use quote::quote;
 use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
 
-fn storage_layout_struct(s: &synstructure::Structure) -> TokenStream2 {
-    assert!(matches!(s.ast().data, syn::Data::Struct(_)), "s must be a struct item");
-    assert!(s.variants().len() == 1, "structs must have at most one variant");
-    let variant: &synstructure::VariantInfo = &s.variants()[0];
-    let field_layouts = variant.ast().fields.iter().map(|field| {
+fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Item = TokenStream2> + 'a {
+    variant.ast().fields.iter().map(|field| {
         let ident = match field.ident.as_ref() {
             Some(ident) => {
                 let ident_str = ident.to_string();
                 quote! { Some(#ident_str) }
-            },
+            }
             None => quote! { None },
         };
         let ty = &field.ty;
@@ -34,7 +31,20 @@ fn storage_layout_struct(s: &synstructure::Structure) -> TokenStream2 {
                 <#ty as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
             )
         }
-    });
+    })
+}
+
+fn storage_layout_struct(s: &synstructure::Structure) -> TokenStream2 {
+    assert!(
+        matches!(s.ast().data, syn::Data::Struct(_)),
+        "s must be a struct item"
+    );
+    assert!(
+        s.variants().len() == 1,
+        "structs must have at most one variant"
+    );
+    let variant: &synstructure::VariantInfo = &s.variants()[0];
+    let field_layouts = field_layout(variant);
     s.gen_impl(quote! {
         gen impl ::ink_core::storage2::traits::StorageLayout for @Self {
             fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_abi::layout2::Layout {
@@ -49,8 +59,47 @@ fn storage_layout_struct(s: &synstructure::Structure) -> TokenStream2 {
 }
 
 fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
-    assert!(matches!(s.ast().data, syn::Data::Struct(_)), "s must be an enum item");
-    quote! {}
+    assert!(
+        matches!(s.ast().data, syn::Data::Enum(_)),
+        "s must be an enum item"
+    );
+    let variant_layouts = s.variants().iter().enumerate().map(|(n, variant)| {
+        let discriminant = variant
+            .ast()
+            .discriminant
+            .as_ref()
+            .map(|(_, expr)| quote! { #expr })
+            .unwrap_or_else(|| quote! { #n });
+        let field_layouts = field_layout(variant);
+        quote! {
+            {
+                let mut __variant_key_ptr = __key_ptr.clone();
+                (
+                    ::ink_abi::layout2::Discriminant::from(#discriminant),
+                    ::ink_abi::layout2::StructLayout::new(vec![
+                        #(
+                            #field_layouts
+                        )*
+                    ]),
+                )
+            }
+        }
+    });
+    s.gen_impl(quote! {
+        gen impl ::ink_core::storage2::traits::StorageLayout for @Self {
+            fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_abi::layout2::Layout {
+                let dispatch_key = __key_ptr.advance_by(1);
+                ::ink_abi::layout2::Layout::Enum(
+                    ::ink_abi::layout2::EnumLayout::new(
+                        ::ink_abi::layout2::LayoutKey::from(dispatch_key),
+                        vec![
+                            #(#variant_layouts ,)*
+                        ]
+                    )
+                )
+            }
+        }
+    })
 }
 
 pub fn storage_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
@@ -59,6 +108,6 @@ pub fn storage_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
     match s.ast().data {
         syn::Data::Struct(_) => storage_layout_struct(&s),
         syn::Data::Enum(_) => storage_layout_enum(&s),
-        _ => panic!("cannot derive `StorageLayout` for Rust `union` items")
+        _ => panic!("cannot derive `StorageLayout` for Rust `union` items"),
     }
 }
