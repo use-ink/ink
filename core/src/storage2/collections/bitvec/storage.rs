@@ -32,9 +32,9 @@ use ink_primitives::Key;
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage2::traits::StorageLayout;
     use crate::storage2::{
         lazy::Lazy,
+        traits::StorageLayout,
     };
     use ink_abi::layout2::{
         FieldLayout,
