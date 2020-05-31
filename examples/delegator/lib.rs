@@ -48,10 +48,7 @@ mod delegator {
     )]
     #[cfg_attr(
         feature = "std",
-        derive(
-            ::type_metadata::Metadata,
-            ::ink_core::storage2::traits::StorageLayout,
-        )
+        derive(::type_metadata::Metadata, ::ink_core::storage2::traits::StorageLayout,)
     )]
     pub enum Which {
         Adder,
