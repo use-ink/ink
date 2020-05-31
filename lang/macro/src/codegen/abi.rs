@@ -47,7 +47,7 @@ impl GenerateCode for GenerateAbi<'_> {
                         let contract: ink_abi::ContractSpec = {
                             #contract
                         };
-                        let layout: ink_abi::StorageLayout = {
+                        let layout: ink_abi::layout2::Layout = {
                             #layout
                         };
                         ink_abi::InkProject::new(layout, contract)
@@ -272,31 +272,9 @@ impl GenerateAbi<'_> {
     fn generate_layout(&self) -> TokenStream2 {
         let contract_ident = &self.contract.storage.ident;
         quote! {
-            unsafe {
-                use ::ink_abi::HasLayout as _;
-                use ::ink_core::storage::alloc::AllocateUsing as _;
-                // We can use `ManuallyDrop` here and don't care for
-                // unfreed memory since this function will generally be
-                // called from within the `.ink` tool `abi-gen` and process
-                // will end shortly after generating the ABI, so the
-                // operating system will perform the cleanup immediately
-                // for us.
-                //
-                // # Note
-                //
-                // This is not an optimization but to prevent panicking
-                // because of a potential use of a dynamic environment
-                // that uses storage data structures internally
-                // that are going to panic upon `Drop` if not initialized
-                // beforehand which would normally happen for contract
-                // execution.
-                core::mem::ManuallyDrop::new(
-                    #contract_ident::allocate_using(&mut ::ink_core::storage::alloc::BumpAlloc::from_raw_parts(
-                        ink_primitives::Key([0x0; 32]),
-                    ))
-                )
-                .layout()
-            }
+            <#contract_ident as ::ink_core::storage2::traits::StorageLayout>::layout(
+                &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key([0x00; 32]))
+            )
         }
     }
 }

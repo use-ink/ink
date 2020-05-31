@@ -125,8 +125,8 @@ impl Storage<'_> {
         quote_spanned!( span =>
             #(#attrs)*
             #[cfg_attr(
-                feature = "ink-generate-abi",
-                derive(type_metadata::Metadata, ink_abi::HasLayout)
+                feature = "std",
+                derive(::ink_core::storage2::traits::StorageLayout)
             )]
             #[derive(::ink_core::storage2::traits::SpreadLayout)]
             #[cfg_attr(test, derive(Debug))]
