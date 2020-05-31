@@ -90,6 +90,7 @@ where
 ///
 /// Stores the value as well as the index to its associated key.
 #[derive(Debug, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(type_metadata::Metadata))]
 struct ValueEntry<V> {
     /// The value stored in this entry.
     value: V,

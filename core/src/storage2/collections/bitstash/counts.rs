@@ -19,6 +19,7 @@ use core::ops::{
 
 /// Stores the number of set bits for each 256-bits block in a compact `u8`.
 #[derive(Debug, Default, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(type_metadata::Metadata))]
 pub struct CountFree {
     /// Set bits per 256-bit chunk.
     counts: [u8; 32],
@@ -43,6 +44,7 @@ impl IndexMut<u8> for CountFree {
 }
 
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(type_metadata::Metadata))]
 pub struct FullMask(u32);
 
 impl FullMask {

@@ -34,6 +34,44 @@ use crate::{
 };
 use ink_primitives::Key;
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::{
+        lazy::LazyHashMap,
+        traits::{
+            LayoutCryptoHasher,
+            StorageLayout,
+        },
+    };
+    use ink_abi::layout2::{
+        FieldLayout,
+        Layout,
+        StructLayout,
+    };
+    use type_metadata::Metadata;
+
+    impl<K, V, H> StorageLayout for StorageHashMap<K, V, H>
+    where
+        K: Metadata + Ord + Clone + PackedLayout + 'static,
+        V: Metadata + PackedLayout + 'static,
+        H: LayoutCryptoHasher + Hasher,
+        Key: From<<H as Hasher>::Output>,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Struct(StructLayout::new(vec![
+                FieldLayout::new(
+                    "keys",
+                    <StorageStash<K> as StorageLayout>::layout(key_ptr),
+                ),
+                FieldLayout::new(
+                    "values",
+                    <LazyHashMap<K, ValueEntry<V>, H> as StorageLayout>::layout(key_ptr),
+                ),
+            ]))
+        }
+    }
+};
+
 impl<T> SpreadLayout for ValueEntry<T>
 where
     T: PackedLayout,
