@@ -38,7 +38,6 @@ fn serialize_as_byte_str<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Err
 where
     S: serde::Serializer,
 {
-    let bytes = bytes.as_ref();
     if bytes.is_empty() {
         // Return empty string without prepended `0x`.
         return serializer.serialize_str("")
