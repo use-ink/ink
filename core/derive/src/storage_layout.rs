@@ -15,11 +15,41 @@
 use quote::quote;
 use proc_macro2::TokenStream as TokenStream2;
 
-fn storage_layout_struct(_s: &synstructure::Structure) -> TokenStream2 {
-    quote! {}
+fn storage_layout_struct(s: &synstructure::Structure) -> TokenStream2 {
+    assert!(matches!(s.ast().data, syn::Data::Struct(_)), "s must be a struct item");
+    assert!(s.variants().len() == 1, "structs must have at most one variant");
+    let variant: &synstructure::VariantInfo = &s.variants()[0];
+    let field_layouts = variant.ast().fields.iter().map(|field| {
+        let ident = match field.ident.as_ref() {
+            Some(ident) => {
+                let ident_str = ident.to_string();
+                quote! { Some(#ident_str) }
+            },
+            None => quote! { None },
+        };
+        let ty = &field.ty;
+        quote! {
+            ::ink_abi::layout2::FieldLayout::new(
+                #ident,
+                <#ty as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+            )
+        }
+    });
+    s.gen_impl(quote! {
+        gen impl ::ink_core::storage2::traits::StorageLayout for @Self {
+            fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_abi::layout2::Layout {
+                ::ink_abi::layout2::Layout::Struct(
+                    ::ink_abi::layout2::StructLayout::new(vec![
+                        #(#field_layouts ,)*
+                    ])
+                )
+            }
+        }
+    })
 }
 
-fn storage_layout_enum(_s: &synstructure::Structure) -> TokenStream2 {
+fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
+    assert!(matches!(s.ast().data, syn::Data::Struct(_)), "s must be an enum item");
     quote! {}
 }
 

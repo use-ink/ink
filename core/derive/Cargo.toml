@@ -18,5 +18,6 @@ synstructure = "0.12"
 
 [dev-dependencies]
 ink_primitives = { version = "2.1.0", path = "../../primitives" }
+ink_abi = { version = "2.1.0", path = "../../abi" }
 ink_core = { version = "2.1.0", path = ".." }
 trybuild = "1.0.24"
