@@ -79,6 +79,7 @@ mod erc721 {
     pub type TokenId = u32;
 
     #[ink(storage)]
+    #[derive(Default)]
     struct Erc721 {
         /// Mapping from token to owner.
         token_owner: StorageHashMap<TokenId, AccountId>,
