@@ -20,8 +20,8 @@ use ink_lang as ink;
 mod dns {
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_core::storage2::{
-        lazy::Lazy,
         collections::HashMap as StorageHashMap,
+        lazy::Lazy,
     };
 
     /// Emitted whenever a new name is being registered.
@@ -192,7 +192,8 @@ mod dns {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 test_fn();
                 Ok(())
-            }).unwrap()
+            })
+            .unwrap()
         }
 
         const DEFAULT_CALLEE_HASH: [u8; 32] = [0x07; 32];
