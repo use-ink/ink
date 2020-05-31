@@ -124,21 +124,24 @@ fn clike_enum_works() {
                                 ::ink_abi::layout2::LayoutKey::from(dispatch_key),
                                 vec![
                                     {
-                                        let mut __key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_abi::layout2::Discriminant::from(0usize),
                                             ::ink_abi::layout2::StructLayout::new(vec![]),
                                         )
                                     },
                                     {
-                                        let mut __key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_abi::layout2::Discriminant::from(1usize),
                                             ::ink_abi::layout2::StructLayout::new(vec![]),
                                         )
                                     },
                                     {
-                                        let mut __key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_abi::layout2::Discriminant::from(2usize),
                                             ::ink_abi::layout2::StructLayout::new(vec![]),
