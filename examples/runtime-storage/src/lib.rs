@@ -52,6 +52,7 @@ mod runtime {
 
     /// This simple contract reads a value from runtime storage
     #[ink(storage)]
+    #[derive(Default)]
     struct RuntimeStorage {}
 
     impl RuntimeStorage {
