@@ -15,7 +15,9 @@
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-fn field_layout<'a>(variant: &'a synstructure::VariantInfo) -> impl Iterator<Item = TokenStream2> + 'a {
+fn field_layout<'a>(
+    variant: &'a synstructure::VariantInfo,
+) -> impl Iterator<Item = TokenStream2> + 'a {
     variant.ast().fields.iter().map(|field| {
         let ident = match field.ident.as_ref() {
             Some(ident) => {
