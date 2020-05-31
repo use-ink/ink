@@ -32,6 +32,45 @@ use crate::storage2::{
 };
 use ink_primitives::Key;
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::{
+        collections::Vec as StorageVec,
+        traits::StorageLayout,
+    };
+    use ink_abi::layout2::{
+        CellLayout,
+        FieldLayout,
+        Layout,
+        LayoutKey,
+        StructLayout,
+    };
+    use type_metadata::Metadata;
+
+    impl StorageLayout for Header {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Cell(CellLayout::new::<Header>(LayoutKey::from(
+                key_ptr.advance_by(1),
+            )))
+        }
+    }
+
+    impl<T> StorageLayout for StorageStash<T>
+    where
+        T: PackedLayout + Metadata + 'static,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Struct(StructLayout::new(vec![
+                FieldLayout::new("header", <Header as StorageLayout>::layout(key_ptr)),
+                FieldLayout::new(
+                    "entries",
+                    <StorageVec<Entry<T>> as StorageLayout>::layout(key_ptr),
+                ),
+            ]))
+        }
+    }
+};
+
 impl SpreadLayout for Header {
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = false;
