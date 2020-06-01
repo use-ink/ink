@@ -21,9 +21,9 @@ use quote::{
 
 use crate::{
     codegen::{
+        cross_calling::CrossCallingConflictCfg,
         GenerateCode,
         GenerateCodeUsing,
-        cross_calling::CrossCallingConflictCfg,
     },
     ir::{
         self,
