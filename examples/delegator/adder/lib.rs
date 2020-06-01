@@ -15,6 +15,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
+pub use self::adder::Adder;
 
 #[ink::contract(version = "0.1.0")]
 mod adder {
@@ -41,5 +42,3 @@ mod adder {
         }
     }
 }
-
-pub use crate::adder::Adder;

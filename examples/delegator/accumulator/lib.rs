@@ -15,6 +15,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
+pub use self::accumulator::Accumulator;
 
 #[ink::contract(version = "0.1.0")]
 mod accumulator {
@@ -44,5 +45,3 @@ mod accumulator {
         }
     }
 }
-
-pub use crate::accumulator::Accumulator;

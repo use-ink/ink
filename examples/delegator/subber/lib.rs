@@ -15,6 +15,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
+pub use self::subber::Subber;
 
 #[ink::contract(version = "0.1.0")]
 mod subber {
@@ -41,5 +42,3 @@ mod subber {
         }
     }
 }
-
-pub use crate::subber::Subber;

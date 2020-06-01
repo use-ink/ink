@@ -14,6 +14,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub use self::dns::DomainNameService;
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
@@ -85,6 +86,10 @@ mod dns {
 
     /// Errors that can occur upon calling this contract.
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(::type_metadata::Metadata)
+    )]
     pub enum Error {
         /// Returned if the name already exists upon registration.
         NameAlreadyExists,
