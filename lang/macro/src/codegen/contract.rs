@@ -82,13 +82,6 @@ impl GenerateCode for ContractModule<'_> {
                 #event_structs
                 #( #non_ink_items )*
             }
-
-            // Only re-export if we want to generate the ABI or docs.
-            // We should rethink this approach, it isn't a good
-            // idea to generate code outside of the scope of the
-            // given ink! module.
-            #[cfg(any(doc, feature = "std"))]
-            pub use crate::#ident::#storage_ident;
         }
     }
 }
