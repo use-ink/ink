@@ -14,6 +14,7 @@
 
 #![allow(clippy::new_ret_no_self)]
 
+use crate::utils::serialize_as_byte_str;
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
@@ -21,11 +22,7 @@ use alloc::{
     vec::Vec,
 };
 use core::marker::PhantomData;
-
-use serde::{
-    Serialize,
-    Serializer,
-};
+use serde::Serialize;
 use type_metadata::{
     form::{
         CompactForm,
@@ -194,7 +191,7 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
     /// The selector hash of the message.
-    #[serde(serialize_with = "serialize_selector")]
+    #[serde(serialize_with = "serialize_as_byte_str")]
     selector: [u8; 4],
     /// The parameters of the deploy handler.
     args: Vec<MessageParamSpec<F>>,
@@ -299,7 +296,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
     /// The selector hash of the message.
-    #[serde(serialize_with = "serialize_selector")]
+    #[serde(serialize_with = "serialize_as_byte_str")]
     selector: [u8; 4],
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
@@ -823,18 +820,6 @@ impl MessageParamSpecBuilder {
     pub fn done(self) -> MessageParamSpec {
         self.spec
     }
-}
-
-#[allow(clippy::trivially_copy_pass_by_ref)]
-fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let hex = format!(
-        r#"["0x{:02X}","0x{:02X}","0x{:02X}","0x{:02X}"]"#,
-        s[0], s[1], s[2], s[3]
-    );
-    serializer.serialize_str(&hex)
 }
 
 #[cfg(test)]

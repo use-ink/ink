@@ -20,9 +20,7 @@ extern crate alloc;
 mod layout;
 pub mod layout2;
 mod specs;
-
-#[cfg(feature = "derive")]
-pub use ink_abi_derive::HasLayout;
+mod utils;
 
 pub use self::{
     layout::{
@@ -51,6 +49,8 @@ pub use self::{
         TypeSpec,
     },
 };
+#[cfg(feature = "derive")]
+pub use ink_abi_derive::HasLayout;
 use serde::Serialize;
 use type_metadata::{
     form::CompactForm,

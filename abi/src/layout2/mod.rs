@@ -15,7 +15,7 @@
 #[cfg(test)]
 mod tests;
 
-use core::fmt::Write;
+use crate::utils::serialize_as_byte_str;
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
@@ -29,23 +29,6 @@ use type_metadata::{
     Metadata,
     Registry,
 };
-
-/// Serializes the given bytes as byte string.
-fn serialize_as_byte_str<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    if bytes.is_empty() {
-        // Return empty string without prepended `0x`.
-        return serializer.serialize_str("")
-    }
-    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
-    write!(hex, "0x").expect("failed writing to string");
-    for byte in bytes {
-        write!(hex, "{:02x}", byte).expect("failed writing to string");
-    }
-    serializer.serialize_str(&hex)
-}
 
 /// Represents the static storage layout of an ink! smart contract.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
