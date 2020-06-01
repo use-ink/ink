@@ -50,7 +50,6 @@ impl GenerateCode for ContractModule<'_> {
     /// Generates ink! contract code.
     fn generate_code(&self) -> TokenStream2 {
         let ident = &self.contract.ident;
-        let storage_ident = &self.contract.storage.ident;
 
         let env_types = self.generate_code_using::<EnvTypes>();
         let storage = self.generate_code_using::<Storage>();
