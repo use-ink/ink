@@ -24,7 +24,6 @@ pub use crate::{
         env_types::EnvTypes,
         events::{
             EventHelpers,
-            EventImports,
             EventStructs,
         },
         storage::Storage,
@@ -59,14 +58,13 @@ impl GenerateCode for ContractModule<'_> {
         let generate_abi = self.generate_code_using::<GenerateAbi>();
         let event_helpers = self.generate_code_using::<EventHelpers>();
         let event_structs = self.generate_code_using::<EventStructs>();
-        let event_imports = self.generate_code_using::<EventImports>();
         let cross_calling = self.generate_code_using::<CrossCalling>();
         let non_ink_items = &self.contract.non_ink_items;
 
         let test_event_alias = if !self.contract.events.is_empty() {
             quote! {
                 #[cfg(test)]
-                pub type Event = self::__ink_private::Event;
+                pub type Event = self::Event;
             }
         } else {
             quote! {}
@@ -75,31 +73,21 @@ impl GenerateCode for ContractModule<'_> {
         quote! {
             mod #ident {
                 #env_types
-
-                // Private struct and other type definitions.
-                mod __ink_private {
-                    use super::*;
-                    #event_imports
-
-                    #storage
-                    #event_helpers
-                    #dispatch
-                    #generate_abi
-                    #cross_calling
-                }
+                #storage
+                #event_helpers
+                #dispatch
+                #generate_abi
+                #cross_calling
                 #test_event_alias
                 #event_structs
-                #(
-                    #non_ink_items
-                )*
+                #( #non_ink_items )*
             }
 
-            // Only re-export if we want to generate the ABI.
+            // Only re-export if we want to generate the ABI or docs.
             // We should rethink this approach, it isn't a good
             // idea to generate code outside of the scope of the
             // given ink! module.
-            #[cfg(feature = "ink-generate-abi")]
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #[cfg(any(doc, feature = "std"))]
             pub use crate::#ident::#storage_ident;
         }
     }

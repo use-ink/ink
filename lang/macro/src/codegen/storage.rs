@@ -53,7 +53,7 @@ impl GenerateCode for Storage<'_> {
         let storage_struct = self.generate_storage_struct();
         let use_emit_event = if !self.contract.events.is_empty() {
             // Required to allow for `self.env().emit_event(..)` in messages and constructors.
-            Some(quote! { use __ink_private::EmitEvent as _; })
+            Some(quote! { use ::ink_lang::EmitEvent as _; })
         } else {
             None
         };
