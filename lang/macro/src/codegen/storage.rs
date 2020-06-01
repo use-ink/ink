@@ -117,6 +117,7 @@ impl Storage<'_> {
         });
 
         quote_spanned!( span =>
+            #[cfg(not(feature = "ink-as-dependency"))]
             #(#attrs)*
             #[cfg_attr(
                 feature = "std",
