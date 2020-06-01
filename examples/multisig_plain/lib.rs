@@ -264,16 +264,11 @@ mod multisig_plain {
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
         fn new(requirement: u32, owners: Vec<AccountId>) -> Self {
-            // for owner in &owners {
-            //     self.is_owner.insert(*owner, ());
-            //     self.owners.push(*owner);
-            // }
             let is_owner: StorageHashMap<_, _, _> =
                 owners.iter().copied().map(|owner| (owner, ())).collect();
             let owners: StorageVec<_> = owners.iter().copied().collect();
             ensure_requirement_is_valid(owners.len(), requirement);
             assert!(is_owner.len() == owners.len());
-            // self.requirement.set(requirement);
             Self {
                 confirmations: StorageHashMap::default(),
                 confirmation_count: StorageHashMap::default(),
