@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
 use quote::{
     quote,
     quote_spanned,
@@ -61,17 +64,8 @@ impl GenerateCode for Storage<'_> {
         };
 
         quote_spanned!(storage_span =>
-            #[doc(hidden)]
-            #conflic_depedency_cfg
-            mod __ink_storage {
-                use super::*;
-
-                #access_env_impls
-                #storage_struct
-            }
-
-            #conflic_depedency_cfg
-            pub use __ink_storage::Storage;
+            #access_env_impls
+            #storage_struct
 
             #conflic_depedency_cfg
             const _: () = {
@@ -91,28 +85,33 @@ impl GenerateCode for Storage<'_> {
 
 impl Storage<'_> {
     fn generate_access_env_trait_impls(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
         quote! {
-            impl<'a> ::ink_lang::Env for &'a Storage {
-                type EnvAccess = ::ink_lang::EnvAccess<'a, EnvTypes>;
+            #[cfg(not(feature = "ink-as-dependency"))]
+            const _: () = {
+                impl<'a> ::ink_lang::Env for &'a #storage_ident {
+                    type EnvAccess = ::ink_lang::EnvAccess<'a, EnvTypes>;
 
-                fn env(self) -> Self::EnvAccess {
-                    Default::default()
+                    fn env(self) -> Self::EnvAccess {
+                        Default::default()
+                    }
                 }
-            }
 
-            impl<'a> ::ink_lang::StaticEnv for Storage {
-                type EnvAccess = ::ink_lang::EnvAccess<'static, EnvTypes>;
+                impl<'a> ::ink_lang::StaticEnv for #storage_ident {
+                    type EnvAccess = ::ink_lang::EnvAccess<'static, EnvTypes>;
 
-                fn env() -> Self::EnvAccess {
-                    Default::default()
+                    fn env() -> Self::EnvAccess {
+                        Default::default()
+                    }
                 }
-            }
+            };
         }
     }
 
     /// Generates the storage struct definition.
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
+        let storage_ident = &storage.ident;
         let span = storage.span();
         let attrs = utils::filter_non_ink_attributes(&storage.attrs);
         let mut fields = storage.fields.clone();
@@ -130,7 +129,7 @@ impl Storage<'_> {
             )]
             #[derive(::ink_core::storage2::traits::SpreadLayout)]
             #[cfg_attr(test, derive(Debug))]
-            pub struct Storage
+            pub struct #storage_ident
                 #fields
         )
     }
@@ -163,6 +162,7 @@ impl Storage<'_> {
     /// Generates all the constructors, messages and methods defined on the storage struct.
     fn generate_message_impls(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
+        let storage_ident = &storage.ident;
         let span = storage.span();
         let fns = self
             .contract
@@ -171,7 +171,7 @@ impl Storage<'_> {
             .map(|fun| self.generate_message(fun));
         quote_spanned!( span =>
             #[cfg_attr(feature = "cargo-clippy", allow(clippy::new_ret_no_self))]
-            impl Storage {
+            impl #storage_ident {
                 #(
                     #fns
                 )*

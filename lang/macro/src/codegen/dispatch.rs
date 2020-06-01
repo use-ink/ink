@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{
+    codegen::{
+        cross_calling::CrossCallingConflictCfg,
+        GenerateCode,
+        GenerateCodeUsing,
+    },
+    ir,
+};
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
@@ -21,15 +29,6 @@ use quote::{
 use syn::{
     punctuated::Punctuated,
     Token,
-};
-
-use crate::{
-    codegen::{
-        cross_calling::CrossCallingConflictCfg,
-        GenerateCode,
-        GenerateCodeUsing,
-    },
-    ir,
 };
 
 /// Generates code for the dispatch parts that dispatch constructors
@@ -250,6 +249,7 @@ impl Dispatch<'_> {
     }
 
     fn generate_dispatch_using_mode(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
         let fragments = self
             .contract
             .functions
@@ -257,7 +257,7 @@ impl Dispatch<'_> {
             .map(|fun| self.generate_dispatch_using_mode_fragment(fun));
 
         quote! {
-            impl ::ink_lang::DispatchUsingMode for Storage {
+            impl ::ink_lang::DispatchUsingMode for #storage_ident {
                 #[allow(unused_parens)]
                 fn dispatch_using_mode(
                     mode: ::ink_lang::DispatchMode
@@ -279,12 +279,13 @@ impl Dispatch<'_> {
     }
 
     fn generate_entry_points(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
         quote! {
             #[cfg(not(test))]
             #[no_mangle]
             fn deploy() -> u32 {
                 ::ink_lang::DispatchRetCode::from(
-                    <Storage as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                    <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                         ::ink_lang::DispatchMode::Instantiate,
                     ),
                 )
@@ -295,7 +296,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             fn call() -> u32 {
                 ::ink_lang::DispatchRetCode::from(
-                    <Storage as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                    <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                         ::ink_lang::DispatchMode::Call,
                     ),
                 )

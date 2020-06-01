@@ -91,17 +91,8 @@ impl GenerateCode for ContractModule<'_> {
                     #generate_abi
                     #cross_calling
                 }
-
-                #conflic_depedency_cfg
-                pub type #storage_ident = self::__ink_private::Storage;
-
-                #[cfg(feature = "ink-as-dependency")]
-                pub type #storage_ident = self::__ink_private::StorageAsDependency;
-
                 #test_event_alias
-
                 #event_structs
-
                 #(
                     #non_ink_items
                 )*
