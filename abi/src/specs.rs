@@ -844,7 +844,7 @@ mod tests {
         // then
         assert_eq!(
             json,
-            r#"{"name":1,"selector":"[\"0x07\",\"0x5B\",\"0xCD\",\"0x15\"]","args":[],"docs":[]}"#
+            r#"{"name":1,"selector":"0x075bcd15","args":[],"docs":[]}"#
         );
     }
 }
