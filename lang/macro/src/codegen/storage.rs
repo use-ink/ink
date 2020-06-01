@@ -23,6 +23,7 @@ use crate::{
     codegen::{
         GenerateCode,
         GenerateCodeUsing,
+        cross_calling::CrossCallingConflictCfg,
     },
     ir::{
         self,
@@ -50,19 +51,19 @@ impl GenerateCode for Storage<'_> {
         let access_env_impls = self.generate_access_env_trait_impls();
         let message_impls = self.generate_message_impls();
         let storage_struct = self.generate_storage_struct();
-
         let use_emit_event = if !self.contract.events.is_empty() {
             // Required to allow for `self.env().emit_event(..)` in messages and constructors.
-            quote! { use __ink_private::EmitEvent as _; }
+            Some(quote! { use __ink_private::EmitEvent as _; })
         } else {
-            quote! {}
+            None
         };
+        let cfg = self.generate_code_using::<CrossCallingConflictCfg>();
 
         quote_spanned!(storage_span =>
             #access_env_impls
             #storage_struct
 
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #cfg
             const _: () = {
                 // Used to make `self.env()` available in message code.
                 #[allow(unused_imports)]
@@ -70,7 +71,6 @@ impl GenerateCode for Storage<'_> {
                     Env as _,
                     StaticEnv as _,
                 };
-
                 #use_emit_event
                 #message_impls
             };
@@ -81,8 +81,9 @@ impl GenerateCode for Storage<'_> {
 impl Storage<'_> {
     fn generate_access_env_trait_impls(&self) -> TokenStream2 {
         let storage_ident = &self.contract.storage.ident;
+        let cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         quote! {
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #cfg
             const _: () = {
                 impl<'a> ::ink_lang::Env for &'a #storage_ident {
                     type EnvAccess = ::ink_lang::EnvAccess<'a, EnvTypes>;
@@ -115,9 +116,9 @@ impl Storage<'_> {
                 pub_token: Default::default(),
             })
         });
-
+        let cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         quote_spanned!( span =>
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #cfg
             #(#attrs)*
             #[cfg_attr(
                 feature = "std",

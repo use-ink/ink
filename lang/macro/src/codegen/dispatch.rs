@@ -16,6 +16,7 @@ use crate::{
     codegen::{
         GenerateCode,
         GenerateCodeUsing,
+        cross_calling::CrossCallingConflictCfg,
     },
     ir,
 };
@@ -50,13 +51,14 @@ impl GenerateCode for Dispatch<'_> {
         let message_namespaces = self.generate_message_namespaces();
         let dispatch_using_mode = self.generate_dispatch_using_mode();
         let entry_points = self.generate_entry_points();
+        let cfg = self.generate_code_using::<CrossCallingConflictCfg>();
 
         quote! {
             // We do not generate contract dispatch code while the contract
             // is being tested or the contract is a dependency of another
             // since both resulting compilations do not require dispatching.
             #[cfg(not(test))]
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #cfg
             const _: () = {
                 #message_namespaces
                 #message_trait_impls
