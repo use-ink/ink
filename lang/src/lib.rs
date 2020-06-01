@@ -22,6 +22,7 @@ mod cross_calling;
 mod dispatcher;
 mod env_access;
 mod error;
+mod events;
 mod testable;
 mod traits;
 
@@ -64,6 +65,10 @@ pub use self::{
         DispatchError,
         DispatchResult,
         DispatchRetCode,
+    },
+    events::{
+        BaseEvent,
+        EmitEvent,
     },
     testable::InstantiateTestable,
     traits::{
