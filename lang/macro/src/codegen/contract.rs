@@ -19,10 +19,7 @@ use quote::quote;
 pub use crate::{
     codegen::{
         abi::GenerateAbi,
-        cross_calling::{
-            CrossCalling,
-            CrossCallingConflictCfg,
-        },
+        cross_calling::CrossCalling,
         dispatch::Dispatch,
         env_types::EnvTypes,
         events::{
@@ -56,7 +53,6 @@ impl GenerateCode for ContractModule<'_> {
         let ident = &self.contract.ident;
         let storage_ident = &self.contract.storage.ident;
 
-        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let env_types = self.generate_code_using::<EnvTypes>();
         let storage = self.generate_code_using::<Storage>();
         let dispatch = self.generate_code_using::<Dispatch>();
@@ -103,7 +99,7 @@ impl GenerateCode for ContractModule<'_> {
             // idea to generate code outside of the scope of the
             // given ink! module.
             #[cfg(feature = "ink-generate-abi")]
-            #conflic_depedency_cfg
+            #[cfg(not(feature = "ink-as-dependency"))]
             pub use crate::#ident::#storage_ident;
         }
     }

@@ -21,7 +21,6 @@ use quote::{
 
 use crate::{
     codegen::{
-        cross_calling::CrossCallingConflictCfg,
         env_types::EnvTypesImports,
         GenerateCode,
         GenerateCodeUsing,
@@ -55,7 +54,6 @@ impl<'a> GenerateCodeUsing for EventHelpers<'a> {
 
 impl GenerateCode for EventHelpers<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let topics_impls = self.generate_topics_impls();
         let event_enum = self.generate_event_enum();
         let emit_event_trait = self.generate_emit_event_trait();
@@ -68,7 +66,7 @@ impl GenerateCode for EventHelpers<'_> {
         }
 
         quote! {
-            #conflic_depedency_cfg
+            #[cfg(not(feature = "ink-as-dependency"))]
             mod __ink_events {
                 #env_imports
                 #event_imports
@@ -80,7 +78,7 @@ impl GenerateCode for EventHelpers<'_> {
                 #event_enum
                 #emit_event_trait
             }
-            #conflic_depedency_cfg
+            #[cfg(not(feature = "ink-as-dependency"))]
             pub use __ink_events::{EmitEvent, Event};
         }
     }
@@ -202,9 +200,6 @@ impl<'a> GenerateCodeUsing for EventStructs<'a> {
 impl EventStructs<'_> {
     fn generate_event_structs<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.events.iter().map(move |item_event| {
-            let conflic_depedency_cfg =
-                self.generate_code_using::<CrossCallingConflictCfg>();
-
             let span = item_event.span();
             let ident = &item_event.ident;
             let attrs = utils::filter_non_ink_attributes(&item_event.attrs);
@@ -221,7 +216,7 @@ impl EventStructs<'_> {
             });
 
             quote_spanned!(span =>
-                #conflic_depedency_cfg
+                #[cfg(not(feature = "ink-as-dependency"))]
                 #(#attrs)*
                 #[derive(scale::Encode, scale::Decode)]
                 pub struct #ident
@@ -270,7 +265,6 @@ impl GenerateCode for EventImports<'_> {
             return quote! {}
         }
 
-        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let event_idents = self
             .contract
             .events
@@ -278,7 +272,7 @@ impl GenerateCode for EventImports<'_> {
             .map(|item_event| &item_event.ident);
 
         quote! {
-            #conflic_depedency_cfg
+            #[cfg(not(feature = "ink-as-dependency"))]
             pub use super::{
                 #( #event_idents ),*
             };

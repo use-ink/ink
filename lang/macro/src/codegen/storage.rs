@@ -21,7 +21,6 @@ use quote::{
 
 use crate::{
     codegen::{
-        cross_calling::CrossCallingConflictCfg,
         GenerateCode,
         GenerateCodeUsing,
     },
@@ -48,7 +47,6 @@ impl GenerateCode for Storage<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let storage_span = self.contract.storage.span();
 
-        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let access_env_impls = self.generate_access_env_trait_impls();
         let message_impls = self.generate_message_impls();
         let storage_struct = self.generate_storage_struct();
@@ -64,7 +62,7 @@ impl GenerateCode for Storage<'_> {
             #access_env_impls
             #storage_struct
 
-            #conflic_depedency_cfg
+            #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 // Used to make `self.env()` available in message code.
                 #[allow(unused_imports)]

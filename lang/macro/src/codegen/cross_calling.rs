@@ -77,19 +77,6 @@ use crate::{
 };
 
 #[derive(From)]
-pub struct CrossCallingConflictCfg<'a> {
-    _contract: &'a ir::Contract,
-}
-
-impl GenerateCode for CrossCallingConflictCfg<'_> {
-    fn generate_code(&self) -> TokenStream2 {
-        quote! {
-            #[cfg(not(feature = "ink-as-dependency"))]
-        }
-    }
-}
-
-#[derive(From)]
 pub struct CrossCalling<'a> {
     contract: &'a ir::Contract,
 }
