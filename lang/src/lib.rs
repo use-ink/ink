@@ -14,7 +14,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 mod abi;
 
 mod contract;
@@ -28,7 +28,7 @@ mod traits;
 
 pub use ink_lang_macro::contract;
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 pub use self::abi::GenerateAbi;
 
 pub use self::{

@@ -33,9 +33,5 @@ std = [
     "ink_core/std",
     "ink_lang_macro/std",
     "scale/std",
-]
-ink-generate-abi = [
-    "std",
     "ink_abi",
-    "ink_core/ink-generate-abi",
 ]

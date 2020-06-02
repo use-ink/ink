@@ -29,7 +29,7 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 /// Number of edges each node has.
@@ -39,7 +39,7 @@ const EDGES: usize = 2 * B;
 
 /// Reference to a key/value pair in the tree.
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub(super) struct KVPair<K, V> {
     /// A key.
     key: K,
@@ -129,7 +129,7 @@ impl<'a, K, V> KVRef<'a, K, V> {
 /// since with each fetch the entire content of a node (all its elements, etc.)
 /// are fetched.
 #[derive(Debug, PartialEq, Eq, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub(super) struct Node<K, V> {
     /// A reference to this node's parent node.
     parent: Option<NodeHandle>,
@@ -325,7 +325,7 @@ impl<K, V> Node<K, V> {
 
 /// Points to a node in the tree.
 #[derive(Debug, Clone, Copy, Encode, Decode, PartialEq, Eq)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub(super) struct NodeHandle {
     node: u32,
 }

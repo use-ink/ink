@@ -18,7 +18,7 @@ use ink_lang as ink;
 pub use self::runtime_storage::RuntimeStorage;
 
 #[ink::contract(version = "0.1.0")]
-mod runtime {
+mod runtime_storage {
     use ink_core::{
         env,
         hash::Blake2x128,

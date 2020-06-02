@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutField,
     LayoutStruct,
     StorageLayout,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 use super::BitBlock;
@@ -36,7 +36,7 @@ use crate::storage::{
 
 /// A space-efficient contiguous growable bit array type.
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct BitVec {
     /// The number of bits.
     len: storage::Value<u32>,
@@ -44,7 +44,7 @@ pub struct BitVec {
     blocks: SyncChunk<BitBlock>,
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl HasLayout for BitVec {
     fn layout(&self) -> StorageLayout {
         LayoutStruct::new(

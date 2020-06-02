@@ -17,7 +17,7 @@ use core::cmp::{
     Ordering,
 };
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -29,7 +29,7 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 use super::duplex_sync_chunk::DuplexSyncChunk;
@@ -54,7 +54,7 @@ pub const CHILDREN: u32 = 2;
 ///
 /// Provides `O(log(n))` push and pop operations.
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct BinaryHeap<T> {
     /// The number of nodes stored in the heap.
     len: storage::Value<u32>,
@@ -90,7 +90,7 @@ where
     }
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasLayout for BinaryHeap<T>
 where
     T: Metadata + 'static,

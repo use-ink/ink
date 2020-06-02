@@ -14,8 +14,8 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
 pub use self::accumulator::Accumulator;
+use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod accumulator {

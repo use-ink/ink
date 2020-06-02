@@ -16,7 +16,7 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 use super::BitPack;
@@ -24,7 +24,7 @@ use crate::storage::Flush;
 
 /// A block of 1024 bits.
 #[derive(Debug, Copy, Clone, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct BitBlock {
     /// The underlying bit packs.
     packs: [BitPack; Self::PACKS as usize],

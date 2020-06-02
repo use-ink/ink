@@ -22,7 +22,7 @@ use crate::storage::{
     cell::TypedCell,
     Flush,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutRange,
@@ -30,7 +30,7 @@ use ink_abi::{
 };
 use ink_prelude::boxed::Box;
 use ink_primitives::Key;
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::{
     HasTypeDef,
     Metadata,
@@ -51,7 +51,7 @@ use type_metadata::{
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(TypeId))]
+#[cfg_attr(feature = "std", derive(TypeId))]
 pub struct SyncCell<T> {
     /// The underlying typed cell.
     cell: TypedCell<T>,
@@ -59,7 +59,7 @@ pub struct SyncCell<T> {
     cache: Cache<T>,
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasTypeDef for SyncCell<T> {
     fn type_def() -> TypeDef {
         TypeDefStruct::new(vec![NamedField::of::<Key>("cell")]).into()
@@ -306,7 +306,7 @@ impl<T> Cache<T> {
     }
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasLayout for SyncCell<T>
 where
     T: Metadata,

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutField,
     LayoutStruct,
     StorageLayout,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 use crate::storage::{
@@ -48,7 +48,7 @@ use crate::storage::{
 /// Allows to store up to `2^32` elements and is guaranteed to not reallocate
 /// upon pushing new elements to it.
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct Vec<T> {
     /// The length of the vector.
     len: storage::Value<u32>,
@@ -88,7 +88,7 @@ where
     }
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasLayout for Vec<T>
 where
     T: Metadata + 'static,

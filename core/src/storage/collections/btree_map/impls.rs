@@ -50,7 +50,7 @@ use core::{
     borrow::Borrow,
     cmp::Ord,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -62,7 +62,7 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 /// Each node in the tree has 2 * B children.
@@ -123,7 +123,7 @@ enum UnderflowResult {
 /// is in-memory, whereas this implementation uses the ink! storage
 /// primitives (`SyncChunk`, etc.).
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct BTreeMap<K, V> {
     /// Stores densely packed general BTreeMap information.
     header: storage::Value<BTreeMapHeader>,
@@ -150,7 +150,7 @@ pub struct BTreeMap<K, V> {
 /// storage entity. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 struct BTreeMapHeader {
     /// The latest vacant node index.
     next_vacant: Option<NodeHandle>,
@@ -1663,7 +1663,7 @@ where
     }
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<K, V> HasLayout for BTreeMap<K, V>
 where
     K: Metadata + 'static,
@@ -1707,7 +1707,7 @@ enum InsertResult {
 ///   - `InternalEntry` is used internally in our implementation. It is a storage
 ///     entity and contains a tree node with many key/value pair storage indices.
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 enum InternalEntry<K, V> {
     /// A vacant entry pointing to the next vacant index.
     Vacant(Option<NodeHandle>),
@@ -1742,7 +1742,7 @@ where
 ///   - `InternalEntry` is used internally in our implementation. It is a storage
 ///     entity and contains a tree node with many key/value pairs.
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 enum InternalKVEntry<K, V> {
     /// A vacant entry pointing to the next vacant index.
     Vacant(Option<KVStorageIndex>),

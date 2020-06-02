@@ -25,7 +25,7 @@ use crate::{
         Flush,
     },
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -37,7 +37,7 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 /// A stash collection.
@@ -61,7 +61,7 @@ use type_metadata::Metadata;
 /// 3. Except the guarantees noted above, you can assume nothing about key
 ///    assignment or iteration order. They can change at any time.
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct Stash<T> {
     /// Stores densely packed general stash information.
     header: storage::Value<StashHeader>,
@@ -78,7 +78,7 @@ pub struct Stash<T> {
 /// storage entity. This allows implementations to perform less reads
 /// and writes to the underlying contract storage.
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 struct StashHeader {
     /// The latest vacant index.
     next_vacant: u32,
@@ -121,7 +121,7 @@ where
     }
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasLayout for Stash<T>
 where
     T: Metadata + 'static,
@@ -248,7 +248,7 @@ where
 /// This represents either an occupied entry with its associated value
 /// or a vacant entry pointing to the next vacant entry.
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 enum Entry<T> {
     /// A vacant entry pointing to the next vacant index.
     Vacant(u32),

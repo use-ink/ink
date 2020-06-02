@@ -40,7 +40,7 @@ impl GenerateCode for GenerateAbi<'_> {
         let layout = self.generate_layout();
 
         quote! {
-            #[cfg(feature = "ink-generate-abi")]
+            #[cfg(feature = "std")]
             const _: () = {
                 impl ::ink_lang::GenerateAbi for #storage_ident {
                     fn generate_abi() -> ::ink_abi::InkProject {

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -23,7 +23,7 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 use crate::storage::{
@@ -57,13 +57,13 @@ use crate::storage::{
 /// [`set`](struct.Value.html#method.set) or
 /// [`mutate_with`](struct.Value.html#method.mutate_with).
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct Value<T> {
     /// The cell of the storage value.
     cell: SyncCell<T>,
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasLayout for Value<T>
 where
     T: Metadata + 'static,

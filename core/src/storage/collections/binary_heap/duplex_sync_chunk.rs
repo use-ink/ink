@@ -31,7 +31,7 @@
 //! The getters and setters exposed by this module take care of mapping
 //! to the correct group index.
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -43,7 +43,7 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 use crate::storage::{
@@ -57,11 +57,11 @@ use crate::storage::{
 const COUNT: u32 = 2;
 
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct Group<T>([Option<T>; COUNT as usize]);
 
 #[derive(Debug, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct DuplexSyncChunk<T>(SyncChunk<Group<T>>);
 
 impl<T> Flush for DuplexSyncChunk<T>
@@ -73,7 +73,7 @@ where
     }
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasLayout for DuplexSyncChunk<T>
 where
     T: Metadata + 'static,

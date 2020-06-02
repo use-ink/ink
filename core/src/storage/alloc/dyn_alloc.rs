@@ -22,7 +22,7 @@ use crate::storage::{
     Allocator,
     Flush,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutField,
@@ -30,7 +30,7 @@ use ink_abi::{
     StorageLayout,
 };
 use ink_primitives::Key;
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use type_metadata::Metadata;
 
 /// Allocator for dynamic contract storage.
@@ -41,7 +41,7 @@ use type_metadata::Metadata;
 /// at the same time. This is subject to change in the future if
 /// experiments show that this is a bottle neck.
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct DynAlloc {
     /// Bitmap indicating free cell slots.
     free_cells: storage::BitVec,
@@ -53,7 +53,7 @@ pub struct DynAlloc {
     chunks_origin: Key,
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl HasLayout for DynAlloc {
     fn layout(&self) -> StorageLayout {
         LayoutStruct::new(
