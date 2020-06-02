@@ -35,6 +35,7 @@ std = [
     "ink_abi",
     "ink_abi/std",
     "ink_core/std",
+    "ink_lang/std",
     "scale/std",
     "type-metadata",
     "type-metadata/std",

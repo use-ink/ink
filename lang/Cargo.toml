@@ -27,11 +27,11 @@ derive_more = { version = "0.99", default-features = false, features = ["from"] 
 [features]
 default = ["std"]
 std = [
+    "ink_abi",
     "ink_abi/std",
     "ink_prelude/std",
     "ink_primitives/std",
     "ink_core/std",
     "ink_lang_macro/std",
     "scale/std",
-    "ink_abi",
 ]
