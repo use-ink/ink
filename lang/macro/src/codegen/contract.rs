@@ -60,15 +60,6 @@ impl GenerateCode for ContractModule<'_> {
         let cross_calling = self.generate_code_using::<CrossCalling>();
         let non_ink_items = &self.contract.non_ink_items;
 
-        let test_event_alias = if !self.contract.events.is_empty() {
-            quote! {
-                #[cfg(test)]
-                pub type Event = self::Event;
-            }
-        } else {
-            quote! {}
-        };
-
         quote! {
             mod #ident {
                 #env_types
@@ -77,7 +68,6 @@ impl GenerateCode for ContractModule<'_> {
                 #dispatch
                 #generate_abi
                 #cross_calling
-                #test_event_alias
                 #event_structs
                 #( #non_ink_items )*
             }
