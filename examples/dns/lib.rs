@@ -86,10 +86,7 @@ mod dns {
 
     /// Errors that can occur upon calling this contract.
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(::type_metadata::Metadata)
-    )]
+    #[cfg_attr(feature = "std", derive(::type_metadata::Metadata))]
     pub enum Error {
         /// Returned if the name already exists upon registration.
         NameAlreadyExists,
