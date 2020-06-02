@@ -22,6 +22,7 @@ optional = true
 
 [lib]
 name = "runtime_storage"
+path = "lib.rs"
 crate-type = [
     # Used for normal contract Wasm blobs.
     "cdylib",
