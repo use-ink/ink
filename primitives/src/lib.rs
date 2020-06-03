@@ -35,9 +35,7 @@ pub use self::{
         Key,
         KeyDiff,
     },
-    key2::{
-        Key as Key2,
-    },
+    key2::Key as Key2,
     key_ptr::KeyPtr,
     key_ptr2::KeyPtr as KeyPtr2,
 };
