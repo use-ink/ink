@@ -113,7 +113,7 @@ fn bench_key2_add_assign_u64_wrap(c: &mut Criterion) {
 
 fn bench_key_ptr_advance_by(c: &mut Criterion) {
     let key = Key([0x00; 32]);
-    c.bench_function("KeyPtr::advance_by", |b| b.iter(|| {
+    c.bench_function("KeyPtr::advance_by copy", |b| b.iter(|| {
         let mut key_ptr = KeyPtr::from(key.clone());
         let _ = black_box(key_ptr.advance_by(1));
     }));
@@ -121,7 +121,7 @@ fn bench_key_ptr_advance_by(c: &mut Criterion) {
 
 fn bench_key_ptr2_advance_by(c: &mut Criterion) {
     let key = Key2::from([0x00; 32]);
-    c.bench_function("KeyPtr2::advance_by", |b| b.iter(|| {
+    c.bench_function("KeyPtr2::advance_by copy", |b| b.iter(|| {
         let mut key_ptr = KeyPtr2::from(key.clone());
         let _ = black_box(key_ptr.advance_by(1));
     }));
@@ -130,7 +130,7 @@ fn bench_key_ptr2_advance_by(c: &mut Criterion) {
 fn bench_key_ptr_advance_by_repeat(c: &mut Criterion) {
     let key = Key([0x00; 32]);
     let mut key_ptr = KeyPtr::from(key.clone());
-    c.bench_function("KeyPtr::advance_by", |b| b.iter(|| {
+    c.bench_function("KeyPtr::advance_by reuse", |b| b.iter(|| {
         let _ = black_box(key_ptr.advance_by(1));
     }));
 }
@@ -138,7 +138,7 @@ fn bench_key_ptr_advance_by_repeat(c: &mut Criterion) {
 fn bench_key_ptr2_advance_by_repeat(c: &mut Criterion) {
     let key = Key2::from([0x00; 32]);
     let mut key_ptr = KeyPtr2::from(key.clone());
-    c.bench_function("KeyPtr2::advance_by", |b| b.iter(|| {
+    c.bench_function("KeyPtr2::advance_by reuse", |b| b.iter(|| {
         let _ = black_box(key_ptr.advance_by(1));
     }));
 }
