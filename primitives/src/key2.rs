@@ -34,17 +34,31 @@ use core::{
 #[repr(transparent)]
 pub struct Key([u64; 4]);
 
-impl fmt::Debug for Key {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Key([0x")?;
+impl Key {
+    fn write_bytes(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "0x")?;
         for limb in &self.0 {
             write!(f, "_")?;
             for byte in &limb.to_le_bytes() {
                 write!(f, "{:02X}", byte)?;
             }
         }
-        write!(f, "])")?;
         Ok(())
+    }
+}
+
+impl fmt::Debug for Key {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Key(")?;
+        self.write_bytes(f)?;
+        write!(f, ")")?;
+        Ok(())
+    }
+}
+
+impl fmt::Display for Key {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.write_bytes(f)
     }
 }
 
@@ -185,12 +199,12 @@ mod tests {
         assert_eq!(
             format!("{:?}", key),
             String::from(
-                "Key([0x\
+                "Key(0x\
                     _0001020304050607\
                     _08090A0B0C0D0E0F\
                     _1011121314151617\
                     _18191A1B1C1D1E1F\
-                ])"
+                )"
             ),
         );
     }
