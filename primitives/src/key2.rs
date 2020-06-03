@@ -80,7 +80,7 @@ impl Key {
         fn carve_out_u64_bytes(bytes: &[u8; 32], offset: u8) -> [u8; 8] {
             let o = (offset * 8) as usize;
             [
-                bytes[o + 0],
+                bytes[o],
                 bytes[o + 1],
                 bytes[o + 2],
                 bytes[o + 3],
