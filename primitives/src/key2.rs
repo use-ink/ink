@@ -98,13 +98,23 @@ impl Key {
             u64::from_le_bytes(carve_out_u64_bytes(&bytes, 3)),
         ])
     }
-}
 
-#[cfg(target_endian = "little")]
-impl AsRef<[u8; 32]> for Key {
-    #[inline]
-    fn as_ref(&self) -> &[u8; 32] {
-        unsafe { &*(&self.0 as *const [u64; 4] as *const [u8; 32]) }
+    /// Tries to return the underlying bytes as slice.
+    ///
+    /// This only returns `Some` if the execution environment has little-endian
+    /// byte order.
+    pub fn try_as_bytes(&self) -> Option<&[u8; 32]> {
+        if cfg!(target_endian = "little") {
+            return Some(
+                // SAFETY: This pointer cast is possible since the outer struct
+                //         (Key) is `repr(transparent)` and since we restrict
+                //         ourselves to little-endian byte ordering. In any other
+                //         case this is invalid which is why return `None` as
+                //         fallback.
+                unsafe { &*(&self.0 as *const [u64; 4] as *const [u8; 32]) }
+            )
+        }
+        None
     }
 }
 
