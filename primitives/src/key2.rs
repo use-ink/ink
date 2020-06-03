@@ -170,7 +170,10 @@ mod tests {
     #[rustfmt::skip]
     fn from_works() {
         let test_bytes = test_bytes();
-        assert_eq!(Key::from(test_bytes).to_bytes(), test_bytes)
+        assert_eq!(Key::from(test_bytes).to_bytes(), test_bytes);
+        assert_eq!(Key::from_bytes_be_fallback(test_bytes).to_bytes(), test_bytes);
+        assert_eq!(Key::from(test_bytes).to_bytes_be_fallback(), test_bytes);
+        assert_eq!(Key::from_bytes_be_fallback(test_bytes).to_bytes_be_fallback(), test_bytes);
     }
 
     #[test]
