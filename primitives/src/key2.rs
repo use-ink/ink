@@ -124,6 +124,11 @@ impl Key {
     #[inline]
     pub fn to_bytes(&self) -> [u8; 32] {
         if cfg!(target_endian = "little") {
+            // SAFETY: This pointer cast is possible since the outer struct
+            //         (Key) is `repr(transparent)` and since we restrict
+            //         ourselves to little-endian byte ordering. In any other
+            //         case this is invalid which is why return `None` as
+            //         fallback.
             unsafe { core::mem::transmute::<[u64; 4], [u8; 32]>(self.0) }
         } else {
             self.to_bytes_be_fallback()
