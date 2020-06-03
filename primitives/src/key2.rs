@@ -31,6 +31,7 @@ use core::{
 /// Prefer using high-level types found in `ink_core` to operate on the contract
 /// storage.
 #[derive(Copy, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 pub struct Key([u64; 4]);
 
 impl fmt::Debug for Key {
