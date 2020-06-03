@@ -96,22 +96,24 @@ impl AsRef<[u8; 32]> for Key {
 
 #[cfg(target_endian = "little")]
 impl Key {
+    /// Returns the bytes that are representing the key.
     #[inline]
     pub fn to_bytes(&self) -> [u8; 32] {
-        unsafe { core::mem::transmute::<[u64; 4], [u8; 32]>(self.0) }
+        if cfg!(target_endian = "little") {
+            unsafe { core::mem::transmute::<[u64; 4], [u8; 32]>(self.0) }
+        } else {
+            self.to_bytes_be_fallback()
+        }
     }
-}
 
-#[cfg(not(target_endian = "little"))]
-impl Key {
-    #[inline]
-    pub fn to_bytes(&self) -> [u8; 32] {
-        [
-            self.0[0].to_le_bytes(),
-            self.0[1].to_le_bytes(),
-            self.0[2].to_le_bytes(),
-            self.0[3].to_le_bytes(),
-        ]
+    /// Fallback big-endian procedure to return the underlying bytes of `self`.
+    fn to_bytes_be_fallback(&self) -> [u8; 32] {
+        let mut result = [0x00; 32];
+        for i in 0..4 {
+            let o = i * 8;
+            result[o..(o + 8)].copy_from_slice(&self.0[i].to_le_bytes());
+        }
+        result
     }
 }
 
