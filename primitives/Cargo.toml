@@ -29,6 +29,9 @@ default-features = false
 features = ["derive"]
 optional = true
 
+[dev-dependencies]
+criterion = "0.3.1"
+
 [features]
 default = ["std"]
 std = [
@@ -37,3 +40,7 @@ std = [
     "type-metadata",
     "type-metadata/std",
 ]
+
+[[bench]]
+name = "bench"
+harness = false

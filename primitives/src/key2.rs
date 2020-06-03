@@ -1,0 +1,263 @@
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use core::{
+    fmt,
+    ops::AddAssign,
+};
+
+#[derive(Copy, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Key([u64; 4]);
+
+impl fmt::Debug for Key {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Key([0x")?;
+        for limb in &self.0 {
+            write!(f, "_")?;
+            for byte in &limb.to_le_bytes() {
+                write!(f, "{:02X}", byte)?;
+            }
+        }
+        write!(f, "])")?;
+        Ok(())
+    }
+}
+
+impl From<[u8; 32]> for Key {
+    #[inline]
+    fn from(bytes: [u8; 32]) -> Self {
+        if cfg!(target_endian = "little") {
+            // SAFETY: If the machine has little endian byte ordering we can
+            //         simply transmute the input bytes into the correct `u64`
+            //         byte ordering for the `Key` data structure. Otherwise
+            //         we have to manually convert them via the
+            //         `from_bytes_be_fallback` procedure.
+            //
+            // We decided to have the little endian as default format for Key
+            // instance since WebAssembly dictates little endian byte ordering
+            // for the execution environment.
+            Self(unsafe { ::core::mem::transmute::<[u8; 32], [u64; 4]>(bytes) })
+        } else {
+            Self::from_bytes_be_fallback(bytes)
+        }
+    }
+}
+
+impl Key {
+    /// Creates a new key from the given bytes.
+    ///
+    /// # Note
+    ///
+    /// This is a fallback procedure in case the target machine does not have
+    /// little endian byte ordering.
+    #[inline]
+    fn from_bytes_be_fallback(bytes: [u8; 32]) -> Self {
+        #[inline]
+        fn carve_out_u64_bytes(bytes: &[u8; 32], offset: u8) -> [u8; 8] {
+            let o = (offset * 8) as usize;
+            [
+                bytes[o + 0],
+                bytes[o + 1],
+                bytes[o + 2],
+                bytes[o + 3],
+                bytes[o + 4],
+                bytes[o + 5],
+                bytes[o + 6],
+                bytes[o + 7],
+            ]
+        }
+        Self([
+            u64::from_le_bytes(carve_out_u64_bytes(&bytes, 0)),
+            u64::from_le_bytes(carve_out_u64_bytes(&bytes, 1)),
+            u64::from_le_bytes(carve_out_u64_bytes(&bytes, 2)),
+            u64::from_le_bytes(carve_out_u64_bytes(&bytes, 3)),
+        ])
+    }
+}
+
+#[cfg(target_endian = "little")]
+impl AsRef<[u8; 32]> for Key {
+    #[inline]
+    fn as_ref(&self) -> &[u8; 32] {
+        unsafe { &*(&self.0 as *const [u64; 4] as *const [u8; 32]) }
+    }
+}
+
+#[cfg(target_endian = "little")]
+impl Key {
+    #[inline]
+    pub fn to_bytes(&self) -> [u8; 32] {
+        unsafe { core::mem::transmute::<[u64; 4], [u8; 32]>(self.0) }
+    }
+}
+
+#[cfg(not(target_endian = "little"))]
+impl Key {
+    #[inline]
+    pub fn to_bytes(&self) -> [u8; 32] {
+        [
+            self.0[0].to_le_bytes(),
+            self.0[1].to_le_bytes(),
+            self.0[2].to_le_bytes(),
+            self.0[3].to_le_bytes(),
+        ]
+    }
+}
+
+impl AddAssign<u64> for Key {
+    #[inline]
+    #[rustfmt::skip]
+    fn add_assign(&mut self, rhs: u64) {
+        let (res_0,  ovfl_0) = self.0[0].overflowing_add(rhs);
+        let (res_1,  ovfl_1) = self.0[1].overflowing_add(ovfl_0 as u64);
+        let (res_2,  ovfl_2) = self.0[2].overflowing_add(ovfl_1 as u64);
+        let (res_3, _ovfl_3) = self.0[3].overflowing_add(ovfl_2 as u64);
+        self.0[0] = res_0;
+        self.0[1] = res_1;
+        self.0[2] = res_2;
+        self.0[3] = res_3;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_bytes() -> [u8; 32] {
+        *b"\
+            \x00\x01\x02\x03\x04\x05\x06\x07\
+            \x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\
+            \x10\x11\x12\x13\x14\x15\x16\x17\
+            \x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\
+        "
+    }
+
+    #[test]
+    fn default_works() {
+        assert_eq!(<Key as Default>::default().to_bytes(), [0x00; 32]);
+    }
+
+    #[test]
+    fn debug_works() {
+        let key = Key::from(test_bytes());
+        assert_eq!(
+            format!("{:?}", key),
+            String::from(
+                "Key([0x\
+                    _0001020304050607\
+                    _08090A0B0C0D0E0F\
+                    _1011121314151617\
+                    _18191A1B1C1D1E1F\
+                ])"
+            ),
+        );
+    }
+
+    #[test]
+    #[rustfmt::skip]
+    fn from_works() {
+        let test_bytes = test_bytes();
+        assert_eq!(Key::from(test_bytes).to_bytes(), test_bytes)
+    }
+
+    #[test]
+    fn add_one_to_zero() {
+        let bytes = [0x00; 32];
+        let expected = {
+            let mut bytes = [0x00; 32];
+            bytes[0] = 0x01;
+            bytes
+        };
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_with_ovfl() {
+        let bytes = *b"\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+        ";
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[8] = 0x01;
+            expected
+        };
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_with_ovfl_2() {
+        let bytes = *b"\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+        ";
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[16] = 0x01;
+            expected
+        };
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_with_ovfl_3() {
+        let bytes = *b"\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+        ";
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[24] = 0x01;
+            expected
+        };
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_with_wrap() {
+        let bytes = [0xFF; 32];
+        let expected = [0x00; 32];
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_assign_to_zero() {
+        for test_value in &[0_u64, 1, 42, 10_000, u32::MAX as u64, u64::MAX] {
+            let mut key = <Key as Default>::default();
+            let expected = {
+                let mut expected = [0x00; 32];
+                expected[0..8].copy_from_slice(&test_value.to_le_bytes());
+                expected
+            };
+            key.add_assign(*test_value);
+            assert_eq!(key.to_bytes(), expected);
+        }
+    }
+}
