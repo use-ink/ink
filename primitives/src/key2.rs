@@ -17,6 +17,19 @@ use core::{
     ops::AddAssign,
 };
 
+/// Key into contract storage.
+///
+/// Used to identify contract storage cells for read and write operations.
+/// Can be compared to a raw pointer and features simple pointer arithmetic.
+///
+/// # Note
+///
+/// This is the most low-level primitive to identify contract storage cells.
+///
+/// # Unsafe
+///
+/// Prefer using high-level types found in `ink_core` to operate on the contract
+/// storage.
 #[derive(Copy, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Key([u64; 4]);
 
