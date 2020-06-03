@@ -111,7 +111,7 @@ impl Key {
                 //         ourselves to little-endian byte ordering. In any other
                 //         case this is invalid which is why return `None` as
                 //         fallback.
-                unsafe { &*(&self.0 as *const [u64; 4] as *const [u8; 32]) }
+                unsafe { &*(&self.0 as *const [u64; 4] as *const [u8; 32]) },
             )
         }
         None
