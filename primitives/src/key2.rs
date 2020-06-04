@@ -122,16 +122,23 @@ impl Key {
     /// byte order.
     pub fn try_as_bytes(&self) -> Option<&[u8; 32]> {
         if cfg!(target_endian = "little") {
-            return Some(
-                // SAFETY: This pointer cast is possible since the outer struct
-                //         (Key) is `repr(transparent)` and since we restrict
-                //         ourselves to little-endian byte ordering. In any other
-                //         case this is invalid which is why return `None` as
-                //         fallback.
-                unsafe { &*(&self.0 as *const [u64; 4] as *const [u8; 32]) },
-            )
+            return Some(self.as_bytes())
         }
         None
+    }
+
+    /// Returns the underlying bytes of the key.
+    ///
+    /// This only works and is supported if the target machine has little-endian
+    /// byte ordering. Use [`try_as_bytes`] as a general procedure instead.
+    #[cfg(target_endian = "little")]
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        // SAFETY: This pointer cast is possible since the outer struct
+        //         (Key) is `repr(transparent)` and since we restrict
+        //         ourselves to little-endian byte ordering. In any other
+        //         case this is invalid which is why return `None` as
+        //         fallback.
+        unsafe { &*(&self.0 as *const [u64; 4] as *const [u8; 32]) }
     }
 }
 
