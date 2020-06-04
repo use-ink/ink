@@ -209,7 +209,7 @@ where
 }
 
 /// Writes the value to the contract storage under the given key.
-pub fn set_contract_storage<V>(key: Key, value: &V)
+pub fn set_contract_storage<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
 {
@@ -223,7 +223,7 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed
-pub fn get_contract_storage<R>(key: Key) -> Option<Result<R>>
+pub fn get_contract_storage<R>(key: &Key) -> Option<Result<R>>
 where
     R: scale::Decode,
 {
@@ -233,7 +233,7 @@ where
 }
 
 /// Clears the contract's storage key entry.
-pub fn clear_contract_storage(key: Key) {
+pub fn clear_contract_storage(key: &Key) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         Env::clear_contract_storage(instance, key)
     })

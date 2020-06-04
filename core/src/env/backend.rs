@@ -28,7 +28,7 @@ use ink_primitives::Key;
 /// Environmental contract functionality that does not require `EnvTypes`.
 pub trait Env {
     /// Writes the value to the contract storage under the given key.
-    fn set_contract_storage<V>(&mut self, key: Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode;
 
@@ -37,12 +37,12 @@ pub trait Env {
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
-    fn get_contract_storage<R>(&mut self, key: Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
     where
         R: scale::Decode;
 
     /// Clears the contract's storage key entry.
-    fn clear_contract_storage(&mut self, key: Key);
+    fn clear_contract_storage(&mut self, key: &Key);
 
     /// Returns the value from the *runtime* storage at the position of the key if any.
     ///
