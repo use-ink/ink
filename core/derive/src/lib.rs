@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod allocate_using;
-mod flush;
 mod packed_layout;
 mod spread_layout;
 mod storage_layout;
@@ -22,14 +20,10 @@ mod storage_layout;
 mod tests;
 
 use self::{
-    allocate_using::allocate_using_derive,
-    flush::flush_derive,
     packed_layout::packed_layout_derive,
     spread_layout::spread_layout_derive,
     storage_layout::storage_layout_derive,
 };
-synstructure::decl_derive!([Flush] => flush_derive);
-synstructure::decl_derive!([AllocateUsing] => allocate_using_derive);
 synstructure::decl_derive!([SpreadLayout] => spread_layout_derive);
 synstructure::decl_derive!([PackedLayout] => packed_layout_derive);
 synstructure::decl_derive!([StorageLayout] => storage_layout_derive);
