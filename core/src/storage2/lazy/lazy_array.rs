@@ -341,7 +341,7 @@ where
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
-            crate::env::clear_contract_storage(root_key);
+            crate::env::clear_contract_storage(&root_key);
         }
     }
 }
@@ -426,15 +426,15 @@ where
     const FOOTPRINT: u64 = <N as Unsigned>::U64;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ExtKeyPtr::next_for::<Self>(ptr))
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (index, entry) in self.cached_entries().iter().enumerate() {
             if let Some(entry) = entry {
-                let root_key = offset_key + index as u64;
-                entry.push_packed_root(&root_key);
+                let key = offset_key + (index as u64);
+                entry.push_packed_root(&key);
             }
         }
     }
@@ -457,7 +457,7 @@ where
         if at >= self.capacity() {
             return None
         }
-        self.key.map(|key| key + at as u64)
+        self.key.as_ref().map(|key| key + at as u64)
     }
 }
 

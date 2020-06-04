@@ -195,7 +195,7 @@ where
     const FOOTPRINT: u64 = 1;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ExtKeyPtr::next_for::<Self>(ptr))
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
@@ -455,7 +455,7 @@ where
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
-            crate::env::clear_contract_storage(root_key);
+            crate::env::clear_contract_storage(&root_key);
         }
     }
 

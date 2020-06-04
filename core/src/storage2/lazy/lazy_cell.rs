@@ -138,7 +138,7 @@ where
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(KeyPtr::next_for::<T>(ptr))
+        Self::lazy(*KeyPtr::next_for::<T>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
