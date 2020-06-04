@@ -225,6 +225,28 @@ impl<'a, 'b> Add<&'b u64> for &'a Key {
         <&'a Key as Add<u64>>::add(self, *rhs)
     }
 }
+
+#[cfg(feature = "std")]
+impl type_metadata::HasTypeId for Key {
+    fn type_id() -> type_metadata::TypeId {
+        type_metadata::TypeIdCustom::new(
+            "Key",
+            type_metadata::Namespace::from_module_path("ink_primitives")
+                .expect("non-empty Rust identifier namespaces cannot fail"),
+            Vec::new(),
+        )
+        .into()
+    }
+}
+
+#[cfg(feature = "std")]
+impl type_metadata::HasTypeDef for Key {
+    fn type_def() -> type_metadata::TypeDef {
+        use ink_prelude::vec;
+        type_metadata::TypeDefTupleStruct::new(vec![type_metadata::UnnamedField::of::<
+            [u8; 32],
+        >()])
+        .into()
     }
 }
 
