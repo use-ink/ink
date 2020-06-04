@@ -133,10 +133,12 @@ impl Key {
 }
 
 impl scale::Encode for Key {
+    #[inline(always)]
     fn size_hint(&self) -> usize {
         32
     }
 
+    #[inline]
     fn encode_to<T: scale::Output>(&self, dest: &mut T) {
         if cfg!(target_endian = "little") {
             dest.write(self.try_as_bytes().expect("little endian is asserted"))
@@ -147,6 +149,7 @@ impl scale::Encode for Key {
 }
 
 impl scale::Decode for Key {
+    #[inline]
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         Ok(Self::from(<[u8; 32] as scale::Decode>::decode(input)?))
     }
