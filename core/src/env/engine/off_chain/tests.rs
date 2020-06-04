@@ -21,7 +21,7 @@ use ink_primitives::Key;
 #[test]
 fn store_load_clear() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let key = Key([0x42; 32]);
+        let key = Key::from([0x42; 32]);
         assert_eq!(env::get_contract_storage::<()>(key), None,);
         env::set_contract_storage(key, &[0x05_u8; 5]);
         assert_eq!(
@@ -37,7 +37,7 @@ fn store_load_clear() -> Result<()> {
 #[test]
 fn key_add() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let key00 = Key([0x0; 32]);
+        let key00 = Key::from([0x0; 32]);
         let key05 = key00 + 05_u32; // -> 5
         let key10 = key00 + 10_u32; // -> 10         | same as key55
         let key55 = key05 + 05_u32; // -> 5 + 5 = 10 | same as key10
@@ -52,7 +52,7 @@ fn key_add() -> Result<()> {
 #[test]
 fn key_add_sub() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let key0a = Key([0x0; 32]);
+        let key0a = Key::from([0x0; 32]);
         let key1a = key0a + 1337_u32;
         let key2a = key0a + 42_u32;
         let key3a = key0a + 52_u32;

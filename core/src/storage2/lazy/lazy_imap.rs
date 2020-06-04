@@ -482,7 +482,7 @@ mod tests {
 
     #[test]
     fn lazy_works() {
-        let key = Key([0x42; 32]);
+        let key = Key::from([0x42; 32]);
         let imap = <LazyIndexMap<u8>>::lazy(key);
         // Key must be none.
         assert_eq!(imap.key(), Some(&key));
@@ -704,7 +704,7 @@ mod tests {
             // Push the lazy index map onto the contract storage and then load
             // another instance of it from the contract stoarge.
             // Then: Compare both instances to be equal.
-            let root_key = Key([0x42; 32]);
+            let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&imap, &mut KeyPtr::from(root_key));
             let imap2 = <LazyIndexMap<u8> as SpreadLayout>::pull_spread(
                 &mut KeyPtr::from(root_key),

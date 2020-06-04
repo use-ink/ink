@@ -131,7 +131,7 @@ fn take_refill_rev_works() {
 fn spread_layout_push_pull_works() {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let default = filled_bitstash();
-        let root_key = Key([0x42; 32]);
+        let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&default, &mut KeyPtr::from(root_key));
         let pulled = <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(default, pulled);
@@ -149,7 +149,7 @@ fn spread_layout_clear_works() {
         // Then load a valid instance, check it and clear its associated storage.
         // Afterwards load the invalid instance from the same storage region
         // and try to interact with it which is expected to fail.
-        let root_key = Key([0x42; 32]);
+        let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&default, &mut KeyPtr::from(root_key));
         let pulled = <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(default, pulled);

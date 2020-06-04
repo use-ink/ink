@@ -88,7 +88,7 @@ fn debug_impl_works() {
         format!("{:?}", &c2),
         "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
     );
-    let c3 = <LazyCell<i32>>::lazy(Key([0x00; 32]));
+    let c3 = <LazyCell<i32>>::lazy(Key::from([0x00; 32]));
     assert_eq!(
         format!("{:?}", &c3),
         "LazyCell { \
@@ -354,7 +354,7 @@ mod tests {
 
     #[test]
     fn lazy_works() {
-        let root_key = Key([0x42; 32]);
+        let root_key = Key::from([0x42; 32]);
         let cell = <LazyCell<u8>>::lazy(root_key);
         assert_eq!(cell.key(), Some(&root_key));
     }
@@ -362,7 +362,7 @@ mod tests {
     #[test]
     fn lazy_get_works() -> env::Result<()> {
         run_test::<env::DefaultEnvTypes, _>(|_| {
-            let cell = <LazyCell<u8>>::lazy(Key([0x42; 32]));
+            let cell = <LazyCell<u8>>::lazy(Key::from([0x42; 32]));
             let value = cell.get();
             // We do the normally unreachable check in order to have an easier
             // time finding the issue if the above execution did not panic.
@@ -387,7 +387,7 @@ mod tests {
             // Push `cell_a0` to the contract storage.
             // Then, pull `cell_a1` from the contract storage and check if it is
             // equal to `cell_a0`.
-            let root_key = Key([0x42; 32]);
+            let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&cell_a0, &mut KeyPtr::from(root_key));
             let cell_a1 =
                 <LazyCell<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
