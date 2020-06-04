@@ -273,7 +273,7 @@ impl GenerateAbi<'_> {
         let contract_ident = &self.contract.storage.ident;
         quote! {
             <#contract_ident as ::ink_core::storage2::traits::StorageLayout>::layout(
-                &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key([0x00; 32]))
+                &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key::from([0x00; 32]))
             )
         }
     }
