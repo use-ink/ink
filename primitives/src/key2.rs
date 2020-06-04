@@ -14,10 +14,11 @@
 
 use core::{
     fmt,
-    ops::AddAssign,
+    ops::{
+        Add,
+        AddAssign,
+    },
 };
-#[cfg(test)]
-use core::ops::Add;
 
 /// Key into contract storage.
 ///
@@ -185,14 +186,38 @@ impl Key {
     }
 }
 
-#[cfg(test)]
+impl Add<u64> for Key {
+    type Output = Key;
+
+    fn add(mut self, rhs: u64) -> Self::Output {
+        self += rhs;
+        self
+    }
+}
+
 impl<'a> Add<u64> for &'a Key {
     type Output = Key;
 
     fn add(self, rhs: u64) -> Self::Output {
-        let mut copy = *self;
-        copy += rhs;
-        copy
+        <Key as Add<u64>>::add(*self, rhs)
+    }
+}
+
+impl<'a> Add<&'a u64> for Key {
+    type Output = Key;
+
+    fn add(self, rhs: &'a u64) -> Self::Output {
+        <Key as Add<u64>>::add(self, *rhs)
+    }
+}
+
+impl<'a, 'b> Add<&'b u64> for &'a Key {
+    type Output = Key;
+
+    fn add(self, rhs: &'b u64) -> Self::Output {
+        <&'a Key as Add<u64>>::add(self, *rhs)
+    }
+}
     }
 }
 
