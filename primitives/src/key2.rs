@@ -16,6 +16,8 @@ use core::{
     fmt,
     ops::AddAssign,
 };
+#[cfg(test)]
+use core::ops::Add;
 
 /// Key into contract storage.
 ///
@@ -180,6 +182,17 @@ impl Key {
             result[o..(o + 8)].copy_from_slice(&self.0[i].to_le_bytes());
         }
         result
+    }
+}
+
+#[cfg(test)]
+impl<'a> Add<u64> for &'a Key {
+    type Output = Key;
+
+    fn add(self, rhs: u64) -> Self::Output {
+        let mut copy = *self;
+        copy += rhs;
+        copy
     }
 }
 
