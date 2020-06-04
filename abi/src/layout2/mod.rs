@@ -63,11 +63,15 @@ pub struct LayoutKey {
     key: [u8; 32],
 }
 
+impl<'a> From<&'a Key> for LayoutKey {
+    fn from(key: &'a Key) -> Self {
+        Self { key: key.to_bytes() }
+    }
+}
+
 impl From<Key> for LayoutKey {
     fn from(key: Key) -> Self {
-        let mut arr = [0x00; 32];
-        arr.copy_from_slice(key.as_bytes());
-        Self { key: arr }
+        Self { key: key.to_bytes() }
     }
 }
 
