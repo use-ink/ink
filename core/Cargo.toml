@@ -49,6 +49,7 @@ optional = true
 
 [dev-dependencies]
 itertools = "0.9"
+criterion = "0.3"
 
 [features]
 default = ["std"]
@@ -72,3 +73,7 @@ ink-generate-abi = [
     "type-metadata",
     "std",
 ]
+
+[[bench]]
+name = "bench"
+harness = false
