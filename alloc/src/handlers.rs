@@ -14,12 +14,12 @@
 
 #[panic_handler]
 pub fn panic(_info: &core::panic::PanicInfo) -> ! {
-    unsafe { core::intrinsics::abort() }
+    core::intrinsics::abort()
 }
 
 // `extern` fn uses type `core::alloc::Layout`, which is not FFI-safe
 #[allow(improper_ctypes)]
 #[alloc_error_handler]
 pub extern "C" fn oom(_: core::alloc::Layout) -> ! {
-    unsafe { core::intrinsics::abort() }
+    core::intrinsics::abort()
 }
