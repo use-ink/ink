@@ -466,6 +466,26 @@ where
         }
     }
 
+    /// Removes the element stored at the given index if any.
+    ///
+    /// This method acts similar to the take API and even still returns an Option.
+    /// However, it guarantees to make no contract storage reads to the indexed
+    /// element and will only write to its internal low-level lazy cache that the
+    /// element at the given index is going to be removed at the end of the contract
+    /// execution.
+    ///
+    /// Calling this method with an index out of bounds for the returns `None` and
+    /// does not `remove` the element, otherwise it returns `Some(())`.
+    pub fn remove(&mut self, at: Index) -> Option<()> {
+        if at >= self.len_entries() {
+            // Early return since `at` index is out of bounds.
+            return None
+        }
+        self.entries.put(at, None);
+        self.header.len -= 1;
+        Some(())
+    }
+
     /// Defragments the underlying storage to minimize footprint.
     ///
     /// Returns the number of storage cells freed this way.

@@ -107,6 +107,35 @@ fn take_out_of_bounds_works() {
 }
 
 #[test]
+fn remove_from_filled_works() {
+    let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
+    let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
+
+    let mut count = stash.len();
+    for (index, _value) in test_values.iter().enumerate() {
+        assert_eq!(stash.remove(index as u32), Some(()));
+        count -= 1;
+        assert_eq!(stash.len(), count);
+    }
+    assert_eq!(stash.len(), 0);
+}
+
+#[test]
+fn remove_from_empty_works() {
+    let mut stash = <StorageStash<u8>>::new();
+    assert_eq!(stash.remove(0), None);
+}
+
+#[test]
+fn remove_out_of_bounds_works() {
+    let mut stash = [b'A', b'B', b'C']
+        .iter()
+        .copied()
+        .collect::<StorageStash<_>>();
+    assert_eq!(stash.remove(3), None);
+}
+
+#[test]
 fn get_works() {
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
