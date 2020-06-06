@@ -234,12 +234,13 @@ pub trait TypedEnv: Env {
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::instantiate_contract`]
-    fn instantiate_contract<T, C>(
+    fn instantiate_contract<T, Args, C>(
         &mut self,
-        params: &InstantiateParams<T, C>,
+        params: &InstantiateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
-        T: EnvTypes;
+        T: EnvTypes,
+        Args: scale::Encode;
 
     /// Restores a smart contract tombstone.
     ///

@@ -16,7 +16,10 @@ use core::marker::PhantomData;
 
 use crate::env::{
     call::{
-        CallData,
+        Argument,
+        ArgumentList,
+        EmptyArgumentList,
+        ExecutionInput,
         Selector,
     },
     EnvTypes,
@@ -52,7 +55,7 @@ where
 }
 
 /// Builds up contract instantiations.
-pub struct InstantiateParams<T, C>
+pub struct InstantiateParams<T, Args, C>
 where
     T: EnvTypes,
 {
@@ -63,23 +66,23 @@ where
     /// The endowment for the instantiated contract.
     endowment: T::Balance,
     /// The input data for the instantation.
-    call_data: CallData,
+    call_data: ExecutionInput<Args>,
     /// The type of the instantiated contract.
     contract_marker: PhantomData<fn() -> C>,
 }
 
 /// Builds up contract instantiations.
-pub struct InstantiateBuilder<T, C, Seal, CodeHash>
+pub struct InstantiateBuilder<T, Args, C, Seal, CodeHash>
 where
     T: EnvTypes,
 {
     /// The parameters of the cross-contract instantiation.
-    params: InstantiateParams<T, C>,
+    params: InstantiateParams<T, Args, C>,
     /// Seal state.
     state: PhantomData<fn() -> (Seal, CodeHash)>,
 }
 
-impl<T, C> InstantiateParams<T, C>
+impl<T, Args, C> InstantiateParams<T, Args, C>
 where
     T: EnvTypes,
 {
@@ -98,12 +101,12 @@ where
     }
 
     /// The raw encoded input data.
-    pub fn input_data(&self) -> &CallData {
+    pub fn input_data(&self) -> &ExecutionInput<Args> {
         &self.call_data
     }
 }
 
-impl<T, C> InstantiateParams<T, C>
+impl<T, C> InstantiateParams<T, EmptyArgumentList, C>
 where
     T: EnvTypes,
     T::Hash: Default,
@@ -115,7 +118,7 @@ where
             code_hash: Default::default(),
             gas_limit: 0,
             endowment: Default::default(),
-            call_data: CallData::new(selector),
+            call_data: ExecutionInput::new(selector),
             contract_marker: Default::default(),
         }
     }
@@ -123,7 +126,13 @@ where
     /// Creates a new create builder without setting any presets.
     pub fn build(
         selector: Selector,
-    ) -> InstantiateBuilder<T, C, state::Unsealed, state::CodeHashUnassigned> {
+    ) -> InstantiateBuilder<
+        T,
+        EmptyArgumentList,
+        C,
+        state::Unsealed,
+        state::CodeHashUnassigned,
+    > {
         InstantiateBuilder {
             params: InstantiateParams::new(selector),
             state: Default::default(),
@@ -131,7 +140,7 @@ where
     }
 }
 
-impl<T, C, Seal, CodeHash> InstantiateBuilder<T, C, Seal, CodeHash>
+impl<T, Args, C, Seal, CodeHash> InstantiateBuilder<T, Args, C, Seal, CodeHash>
 where
     T: EnvTypes,
 {
@@ -148,7 +157,7 @@ where
     }
 }
 
-impl<T, C, Seal> InstantiateBuilder<T, C, Seal, state::CodeHashUnassigned>
+impl<T, Args, C, Seal> InstantiateBuilder<T, Args, C, Seal, state::CodeHashUnassigned>
 where
     T: EnvTypes,
 {
@@ -156,7 +165,7 @@ where
     pub fn using_code(
         mut self,
         code_hash: T::Hash,
-    ) -> InstantiateBuilder<T, C, Seal, state::CodeHashAssigned> {
+    ) -> InstantiateBuilder<T, Args, C, Seal, state::CodeHashAssigned> {
         self.params.code_hash = code_hash;
         InstantiateBuilder {
             params: self.params,
@@ -165,21 +174,84 @@ where
     }
 }
 
-impl<T, C, CodeHash> InstantiateBuilder<T, C, state::Unsealed, CodeHash>
+impl<T, C, CodeHash>
+    InstantiateBuilder<T, EmptyArgumentList, C, state::Unsealed, CodeHash>
 where
     T: EnvTypes,
 {
-    /// Pushes an argument to the inputs of the call.
-    pub fn push_arg<A>(mut self, arg: &A) -> Self
+    /// Pushes an argument to the inputs of the instantiation.
+    #[inline]
+    pub fn push_arg<A>(
+        self,
+        arg: A,
+    ) -> InstantiateBuilder<
+        T,
+        ArgumentList<Argument<A>, EmptyArgumentList>,
+        C,
+        state::Unsealed,
+        CodeHash,
+    >
     where
         A: scale::Encode,
     {
-        self.params.call_data.push_arg(arg);
-        self
+        InstantiateBuilder {
+            params: InstantiateParams {
+                code_hash: self.params.code_hash,
+                gas_limit: self.params.gas_limit,
+                endowment: self.params.endowment,
+                call_data: self.params.call_data.push_arg(arg),
+                contract_marker: self.params.contract_marker,
+            },
+            state: Default::default(),
+        }
     }
+}
 
+impl<T, ArgsHead, ArgsRest, C, CodeHash>
+    InstantiateBuilder<
+        T,
+        ArgumentList<Argument<ArgsHead>, ArgsRest>,
+        C,
+        state::Unsealed,
+        CodeHash,
+    >
+where
+    T: EnvTypes,
+{
+    /// Pushes an argument to the inputs of the instantiation.
+    #[inline]
+    pub fn push_arg<A>(
+        self,
+        arg: A,
+    ) -> InstantiateBuilder<
+        T,
+        ArgumentList<Argument<A>, ArgumentList<Argument<ArgsHead>, ArgsRest>>,
+        C,
+        state::Unsealed,
+        CodeHash,
+    >
+    where
+        A: scale::Encode,
+    {
+        InstantiateBuilder {
+            params: InstantiateParams {
+                code_hash: self.params.code_hash,
+                gas_limit: self.params.gas_limit,
+                endowment: self.params.endowment,
+                call_data: self.params.call_data.push_arg(arg),
+                contract_marker: self.params.contract_marker,
+            },
+            state: Default::default(),
+        }
+    }
+}
+
+impl<T, Args, C, CodeHash> InstantiateBuilder<T, Args, C, state::Unsealed, CodeHash>
+where
+    T: EnvTypes,
+{
     /// Seals the create builder to prevent further arguments.
-    pub fn seal(self) -> InstantiateBuilder<T, C, state::Sealed, CodeHash> {
+    pub fn seal(self) -> InstantiateBuilder<T, Args, C, state::Sealed, CodeHash> {
         InstantiateBuilder {
             params: self.params,
             state: Default::default(),
@@ -187,9 +259,10 @@ where
     }
 }
 
-impl<T, C, Seal> InstantiateBuilder<T, C, Seal, state::CodeHashAssigned>
+impl<T, Args, C, Seal> InstantiateBuilder<T, Args, C, Seal, state::CodeHashAssigned>
 where
     T: EnvTypes,
+    Args: scale::Encode,
     C: FromAccountId<T>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.

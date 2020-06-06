@@ -261,12 +261,13 @@ impl TypedEnv for EnvInstance {
         unimplemented!("off-chain environment does not support contract evaluation")
     }
 
-    fn instantiate_contract<T, C>(
+    fn instantiate_contract<T, Args, C>(
         &mut self,
-        _params: &InstantiateParams<T, C>,
+        _params: &InstantiateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         unimplemented!("off-chain environment does not support contract instantiation")
     }

@@ -250,11 +250,14 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::instantiate_contract`]
-    pub fn instantiate_contract<C>(
+    pub fn instantiate_contract<Args, C>(
         self,
-        params: &InstantiateParams<T, C>,
-    ) -> Result<T::AccountId> {
-        env::instantiate_contract::<T, C>(params)
+        params: &InstantiateParams<T, Args, C>,
+    ) -> Result<T::AccountId>
+    where
+        Args: scale::Encode,
+    {
+        env::instantiate_contract::<T, Args, C>(params)
     }
 
     /// Restores a smart contract in tombstone state.

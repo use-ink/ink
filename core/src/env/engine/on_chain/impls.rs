@@ -301,12 +301,13 @@ impl TypedEnv for EnvInstance {
         self.decode_scratch_buffer().map_err(Into::into)
     }
 
-    fn instantiate_contract<T, C>(
+    fn instantiate_contract<T, Args, C>(
         &mut self,
-        params: &InstantiateParams<T, C>,
+        params: &InstantiateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         // Reset the contract-side buffer to append onto clean slate.
         self.reset_buffer();

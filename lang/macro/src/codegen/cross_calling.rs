@@ -207,6 +207,9 @@ impl CrossCalling<'_> {
                 let ident = &function.sig.ident;
                 let attrs = utils::filter_non_ink_attributes(&function.attrs);
                 let fn_args = function.sig.inputs();
+                let arg_types = Self::generate_args_ty(
+                    function.sig.inputs().map(move |fn_arg| &fn_arg.ty)
+                );
                 let arg_idents = function.sig.inputs().map(|fn_arg| &fn_arg.ident);
                 let selector = function
                     .selector()
@@ -219,15 +222,16 @@ impl CrossCalling<'_> {
                         #( #fn_args ),*
                     ) -> ink_core::env::call::InstantiateBuilder<
                         EnvTypes,
+                        #arg_types,
                         Self,
                         ink_core::env::call::state::Sealed,
                         ink_core::env::call::state::CodeHashUnassigned,
                     > {
-                        ink_core::env::call::InstantiateParams::<EnvTypes, Self>::build(
+                        ink_core::env::call::InstantiateParams::<EnvTypes, ::ink_core::env::call::EmptyArgumentList, Self>::build(
                             ink_core::env::call::Selector::new([#( #selector_bytes ),*])
                         )
                         #(
-                            .push_arg(&#arg_idents)
+                            .push_arg(#arg_idents)
                         )*
                         .seal()
                     }
@@ -341,7 +345,6 @@ impl CrossCalling<'_> {
                 let selector_bytes = kind.selector.as_bytes();
                 let fn_args = function.sig.inputs();
                 let arg_idents = function.sig.inputs().map(move |fn_arg| &fn_arg.ident);
-                // let arg_types = function.sig.inputs().map(move |fn_arg| &fn_arg.ty);
                 let arg_types = Self::generate_args_ty(
                     function.sig.inputs().map(move |fn_arg| &fn_arg.ty)
                 );
