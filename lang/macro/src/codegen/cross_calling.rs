@@ -279,6 +279,7 @@ impl CrossCalling<'_> {
 
                 quote_spanned!(span=>
                     #( #attrs )*
+                    #[inline]
                     pub fn #ident(
                         #receiver ,
                         #(
@@ -310,6 +311,20 @@ impl CrossCalling<'_> {
         }
     }
 
+    fn generate_args_ty<'a, Args>(args: Args) -> TokenStream2
+    where
+        Args: IntoIterator<Item = &'a syn::Type>,
+    {
+        let args = args.into_iter().collect::<Vec<_>>().into_iter().rev();
+        let mut list = quote! { ink_core::env::call::EmptyArgumentList };
+        for arg in args {
+            list = quote! {
+                ink_core::env::call::ArgumentList<ink_core::env::call::Argument<#arg>, #list>
+            };
+        }
+        list
+    }
+
     fn generate_forwarding_messages<'a>(
         &'a self,
         pred: fn(function: &ir::Function) -> bool,
@@ -326,6 +341,10 @@ impl CrossCalling<'_> {
                 let selector_bytes = kind.selector.as_bytes();
                 let fn_args = function.sig.inputs();
                 let arg_idents = function.sig.inputs().map(move |fn_arg| &fn_arg.ident);
+                // let arg_types = function.sig.inputs().map(move |fn_arg| &fn_arg.ty);
+                let arg_types = Self::generate_args_ty(
+                    function.sig.inputs().map(move |fn_arg| &fn_arg.ty)
+                );
                 let ret_ty: Option<syn::Type> = match &function.sig.output {
                     syn::ReturnType::Default => None,
                     syn::ReturnType::Type(_, ty) => Some((&**ty).clone()),
@@ -348,18 +367,19 @@ impl CrossCalling<'_> {
 
                 quote_spanned!(span=>
                     #( #attrs )*
+                    #[inline]
                     pub fn #ident(
                         self,
                         #( #fn_args ),*
                     ) -> ink_core::env::call::CallBuilder<
-                        EnvTypes, #ret_ty_sig, ink_core::env::call::state::Sealed
+                        EnvTypes, #arg_types, #ret_ty_sig, ink_core::env::call::state::Sealed
                     > {
-                        ink_core::env::call::CallParams::<EnvTypes, #ret_ty_param>::#instantiate_fn(
+                        ink_core::env::call::CallParams::<EnvTypes, ::ink_core::env::call::EmptyArgumentList, #ret_ty_param>::#instantiate_fn(
                             ink_lang::ToAccountId::to_account_id(self.contract),
                             ink_core::env::call::Selector::new([ #( #selector_bytes ),* ]),
                         )
                         #(
-                            .push_arg(&#arg_idents)
+                            .push_arg(#arg_idents)
                         )*
                         .seal()
                     }
@@ -411,7 +431,7 @@ impl CrossCalling<'_> {
                 contract: &'a StorageAsDependency,
             }
 
-            impl CallForwarderMut<'_> {
+            impl<'a> CallForwarderMut<'a> {
                 #(
                     #forwarding_messages
                 )*
