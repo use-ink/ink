@@ -66,20 +66,24 @@ where
     E: EnvTypes,
 {
     /// The code hash of the contract.
+    #[inline]
     pub fn callee(&self) -> &E::AccountId {
         &self.callee
     }
 
     /// The gas limit for the contract instantiation.
+    #[inline]
     pub fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
     /// The transferred value for the called contract.
+    #[inline]
     pub fn transferred_value(&self) -> &E::Balance {
         &self.transferred_value
     }
 
     /// The raw encoded input data.
+    #[inline]
     pub fn input_data(&self) -> &ExecutionInput<Args> {
         &self.call_data
     }
@@ -91,6 +95,7 @@ where
     E::Balance: Default,
 {
     /// Creates the default set of parameters for the cross-contract call.
+    #[inline]
     fn new(callee: E::AccountId, selector: Selector) -> Self {
         Self {
             callee,
@@ -102,6 +107,7 @@ where
     }
 
     /// Returns a builder for a cross-contract call that might return data.
+    #[inline]
     pub fn eval(
         callee: E::AccountId,
         selector: Selector,
@@ -115,6 +121,7 @@ where
     /// Returns a builder for a cross-contract call that cannot return data.
     ///
     /// Prefer this over [`CallParams::eval`] if possible since it is the more efficient operation.
+    #[inline]
     pub fn invoke(
         callee: E::AccountId,
         selector: Selector,
@@ -131,12 +138,14 @@ where
     E: EnvTypes,
 {
     /// Sets the maximumly allowed gas costs for the call.
+    #[inline]
     pub fn gas_limit(mut self, gas_limit: u64) -> Self {
         self.params.gas_limit = gas_limit;
         self
     }
 
     /// Sets the value transferred upon the execution of the call.
+    #[inline]
     pub fn transferred_value(mut self, value: E::Balance) -> Self {
         self.params.transferred_value = value;
         self
@@ -148,6 +157,7 @@ where
     E: EnvTypes,
 {
     /// Pushes an argument to the inputs of the call.
+    #[inline]
     pub fn push_arg<A>(
         self,
         arg: A,
@@ -174,6 +184,7 @@ where
     E: EnvTypes,
 {
     /// Pushes an argument to the inputs of the call.
+    #[inline]
     pub fn push_arg<A>(
         self,
         arg: A,
@@ -204,6 +215,7 @@ where
     E: EnvTypes,
 {
     /// Seals the call builder to prevent further arguments.
+    #[inline]
     pub fn seal(self) -> CallBuilder<E, Args, R, state::Sealed> {
         CallBuilder {
             params: self.params,
@@ -220,6 +232,7 @@ where
 {
     /// Fires the call to the remote smart contract.
     /// Returns the returned data back to the caller.
+    #[inline]
     pub fn fire(self) -> Result<R>
     where
         R: scale::Decode,
@@ -234,6 +247,7 @@ where
     Args: scale::Encode,
 {
     /// Fires the cross-call to the smart contract.
+    #[inline]
     pub fn fire(self) -> Result<()> {
         crate::env::invoke_contract(&self.params)
     }
