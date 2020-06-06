@@ -231,7 +231,10 @@ impl TypedEnv for EnvInstance {
             .expect("could not encode rent allowance")
     }
 
-    fn invoke_contract<T, Args>(&mut self, _call_params: &CallParams<T, Args, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(
+        &mut self,
+        _call_params: &CallParams<T, Args, ()>,
+    ) -> Result<()>
     where
         T: EnvTypes,
         Args: scale::Encode,

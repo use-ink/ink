@@ -207,7 +207,10 @@ pub trait TypedEnv: Env {
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::invoke_contract`]
-    fn invoke_contract<T, Args>(&mut self, call_data: &CallParams<T, Args, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(
+        &mut self,
+        call_data: &CallParams<T, Args, ()>,
+    ) -> Result<()>
     where
         T: EnvTypes,
         Args: scale::Encode;

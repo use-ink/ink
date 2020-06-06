@@ -277,7 +277,10 @@ impl TypedEnv for EnvInstance {
         Ok(())
     }
 
-    fn invoke_contract<T, Args>(&mut self, call_params: &CallParams<T, Args, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(
+        &mut self,
+        call_params: &CallParams<T, Args, ()>,
+    ) -> Result<()>
     where
         T: EnvTypes,
         Args: scale::Encode,

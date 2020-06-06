@@ -234,7 +234,10 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::eval_contract`]
-    pub fn eval_contract<Args, R>(self, params: &CallParams<T, Args, ReturnType<R>>) -> Result<R>
+    pub fn eval_contract<Args, R>(
+        self,
+        params: &CallParams<T, Args, ReturnType<R>>,
+    ) -> Result<R>
     where
         Args: scale::Encode,
         R: scale::Decode,
