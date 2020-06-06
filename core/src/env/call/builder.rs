@@ -18,6 +18,7 @@ use crate::env::{
     call::{
         state,
         Argument,
+        ArgsList,
         ArgumentList,
         EmptyArgumentList,
         ExecutionInput,
@@ -179,7 +180,7 @@ where
 }
 
 impl<'a, E, ArgsHead, ArgsRest, R>
-    CallBuilder<E, ArgumentList<Argument<ArgsHead>, ArgsRest>, R, state::Unsealed>
+    CallBuilder<E, ArgsList<ArgsHead, ArgsRest>, R, state::Unsealed>
 where
     E: EnvTypes,
 {
@@ -190,7 +191,7 @@ where
         arg: A,
     ) -> CallBuilder<
         E,
-        ArgumentList<Argument<A>, ArgumentList<Argument<ArgsHead>, ArgsRest>>,
+        ArgsList<A, ArgsList<ArgsHead, ArgsRest>>,
         R,
         state::Unsealed,
     >

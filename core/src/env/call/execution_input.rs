@@ -54,7 +54,7 @@ impl<'a, Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
     pub fn push_arg<T>(
         self,
         arg: T,
-    ) -> ExecutionInput<ArgumentList<Argument<T>, ArgumentList<Argument<Head>, Rest>>>
+    ) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>>
     where
         T: scale::Encode,
     {
@@ -78,6 +78,9 @@ pub struct ArgumentList<Head, Rest> {
     /// All the rest arguments.
     rest: Rest,
 }
+
+/// Minor simplification of an argument list with a head and rest.
+pub type ArgsList<Head, Rest> = ArgumentList<Argument<Head>, Rest>;
 
 /// A single argument and its reference to a known value.
 pub struct Argument<T> {

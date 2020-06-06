@@ -18,6 +18,7 @@ use crate::env::{
     call::{
         Argument,
         ArgumentList,
+        ArgsList,
         EmptyArgumentList,
         ExecutionInput,
         Selector,
@@ -218,7 +219,7 @@ where
 impl<T, ArgsHead, ArgsRest, C, CodeHash>
     InstantiateBuilder<
         T,
-        ArgumentList<Argument<ArgsHead>, ArgsRest>,
+        ArgsList<ArgsHead, ArgsRest>,
         C,
         state::Unsealed,
         CodeHash,
@@ -233,7 +234,7 @@ where
         arg: A,
     ) -> InstantiateBuilder<
         T,
-        ArgumentList<Argument<A>, ArgumentList<Argument<ArgsHead>, ArgsRest>>,
+        ArgsList<A, ArgsList<ArgsHead, ArgsRest>>,
         C,
         state::Unsealed,
         CodeHash,
