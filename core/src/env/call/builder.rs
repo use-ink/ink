@@ -17,8 +17,8 @@ use core::marker::PhantomData;
 use crate::env::{
     call::{
         state,
-        Argument,
         ArgsList,
+        Argument,
         ArgumentList,
         EmptyArgumentList,
         ExecutionInput,
@@ -189,12 +189,7 @@ where
     pub fn push_arg<A>(
         self,
         arg: A,
-    ) -> CallBuilder<
-        E,
-        ArgsList<A, ArgsList<ArgsHead, ArgsRest>>,
-        R,
-        state::Unsealed,
-    >
+    ) -> CallBuilder<E, ArgsList<A, ArgsList<ArgsHead, ArgsRest>>, R, state::Unsealed>
     where
         A: scale::Encode,
     {

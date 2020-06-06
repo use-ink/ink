@@ -16,9 +16,9 @@ use core::marker::PhantomData;
 
 use crate::env::{
     call::{
+        ArgsList,
         Argument,
         ArgumentList,
-        ArgsList,
         EmptyArgumentList,
         ExecutionInput,
         Selector,
@@ -217,13 +217,7 @@ where
 }
 
 impl<T, ArgsHead, ArgsRest, C, CodeHash>
-    InstantiateBuilder<
-        T,
-        ArgsList<ArgsHead, ArgsRest>,
-        C,
-        state::Unsealed,
-        CodeHash,
-    >
+    InstantiateBuilder<T, ArgsList<ArgsHead, ArgsRest>, C, state::Unsealed, CodeHash>
 where
     T: EnvTypes,
 {

@@ -51,10 +51,7 @@ impl ExecutionInput<EmptyArgumentList> {
 impl<'a, Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
     /// Pushes an argument to the execution input.
     #[inline]
-    pub fn push_arg<T>(
-        self,
-        arg: T,
-    ) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>>
+    pub fn push_arg<T>(self, arg: T) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>>
     where
         T: scale::Encode,
     {
