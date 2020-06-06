@@ -87,20 +87,24 @@ where
     T: EnvTypes,
 {
     /// The code hash of the contract.
+    #[inline]
     pub fn code_hash(&self) -> &T::Hash {
         &self.code_hash
     }
 
     /// The gas limit for the contract instantiation.
+    #[inline]
     pub fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
     /// The endowment for the instantiated contract.
+    #[inline]
     pub fn endowment(&self) -> &T::Balance {
         &self.endowment
     }
 
     /// The raw encoded input data.
+    #[inline]
     pub fn input_data(&self) -> &ExecutionInput<Args> {
         &self.call_data
     }
@@ -124,6 +128,7 @@ where
     }
 
     /// Creates a new create builder without setting any presets.
+    #[inline]
     pub fn build(
         selector: Selector,
     ) -> InstantiateBuilder<
@@ -145,12 +150,14 @@ where
     T: EnvTypes,
 {
     /// Sets the maximum allowed gas costs for the call.
+    #[inline]
     pub fn gas_limit(mut self, gas_limit: u64) -> Self {
         self.params.gas_limit = gas_limit;
         self
     }
 
     /// Sets the value transferred upon the execution of the call.
+    #[inline]
     pub fn endowment(mut self, value: T::Balance) -> Self {
         self.params.endowment = value;
         self
@@ -162,6 +169,7 @@ where
     T: EnvTypes,
 {
     /// Using the given code hash.
+    #[inline]
     pub fn using_code(
         mut self,
         code_hash: T::Hash,
@@ -251,6 +259,7 @@ where
     T: EnvTypes,
 {
     /// Seals the create builder to prevent further arguments.
+    #[inline]
     pub fn seal(self) -> InstantiateBuilder<T, Args, C, state::Sealed, CodeHash> {
         InstantiateBuilder {
             params: self.params,
@@ -266,6 +275,7 @@ where
     C: FromAccountId<T>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
+    #[inline]
     pub fn instantiate(self) -> Result<C> {
         crate::env::instantiate_contract(&self.params).map(FromAccountId::from_account_id)
     }
