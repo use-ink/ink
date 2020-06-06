@@ -274,12 +274,13 @@ where
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
-pub fn invoke_contract<T>(params: &CallParams<T, ()>) -> Result<()>
+pub fn invoke_contract<T, Args>(params: &CallParams<T, Args, ()>) -> Result<()>
 where
     T: EnvTypes,
+    Args: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::invoke_contract::<T>(instance, params)
+        TypedEnv::invoke_contract::<T, Args>(instance, params)
     })
 }
 
@@ -298,13 +299,14 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn eval_contract<T, R>(params: &CallParams<T, ReturnType<R>>) -> Result<R>
+pub fn eval_contract<T, Args, R>(params: &CallParams<T, Args, ReturnType<R>>) -> Result<R>
 where
     T: EnvTypes,
+    Args: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::eval_contract::<T, R>(instance, params)
+        TypedEnv::eval_contract::<T, Args, R>(instance, params)
     })
 }
 

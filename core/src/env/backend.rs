@@ -207,21 +207,23 @@ pub trait TypedEnv: Env {
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::invoke_contract`]
-    fn invoke_contract<T>(&mut self, call_data: &CallParams<T, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(&mut self, call_data: &CallParams<T, Args, ()>) -> Result<()>
     where
-        T: EnvTypes;
+        T: EnvTypes,
+        Args: scale::Encode;
 
     /// Evaluates a contract message and returns its result.
     ///
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::eval_contract`]
-    fn eval_contract<T, R>(
+    fn eval_contract<T, Args, R>(
         &mut self,
-        call_data: &CallParams<T, ReturnType<R>>,
+        call_data: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: EnvTypes,
+        Args: scale::Encode,
         R: scale::Decode;
 
     /// Instantiates another contract.

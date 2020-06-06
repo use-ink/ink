@@ -231,9 +231,10 @@ impl TypedEnv for EnvInstance {
             .expect("could not encode rent allowance")
     }
 
-    fn invoke_contract<T>(&mut self, _call_params: &CallParams<T, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(&mut self, _call_params: &CallParams<T, Args, ()>) -> Result<()>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         unimplemented!("off-chain environment does not support contract invokation")
     }
@@ -245,12 +246,13 @@ impl TypedEnv for EnvInstance {
         self.runtime_call_handler.invoke::<T>(params)
     }
 
-    fn eval_contract<T, R>(
+    fn eval_contract<T, Args, R>(
         &mut self,
-        _call_params: &CallParams<T, ReturnType<R>>,
+        _call_params: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: EnvTypes,
+        Args: scale::Encode,
         R: scale::Decode,
     {
         unimplemented!("off-chain environment does not support contract evaluation")

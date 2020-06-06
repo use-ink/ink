@@ -101,12 +101,13 @@ impl EnvInstance {
     }
 
     /// Reusable implementation for invoking another contract message.
-    fn invoke_contract_impl<T, RetType>(
+    fn invoke_contract_impl<T, Args, RetType>(
         &mut self,
-        call_params: &CallParams<T, RetType>,
+        call_params: &CallParams<T, Args, RetType>,
     ) -> Result<()>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         // Reset the contract-side buffer to append onto clean slate.
         self.reset_buffer();
@@ -276,19 +277,21 @@ impl TypedEnv for EnvInstance {
         Ok(())
     }
 
-    fn invoke_contract<T>(&mut self, call_params: &CallParams<T, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(&mut self, call_params: &CallParams<T, Args, ()>) -> Result<()>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         self.invoke_contract_impl(call_params)
     }
 
-    fn eval_contract<T, R>(
+    fn eval_contract<T, Args, R>(
         &mut self,
-        call_params: &CallParams<T, ReturnType<R>>,
+        call_params: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: EnvTypes,
+        Args: scale::Encode,
         R: scale::Decode,
     {
         self.invoke_contract_impl(call_params)?;

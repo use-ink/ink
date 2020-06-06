@@ -17,7 +17,10 @@ use core::marker::PhantomData;
 use crate::env::{
     call::{
         state,
-        CallData,
+        Argument,
+        ArgumentList,
+        EmptyArgumentList,
+        ExecutionInput,
         Selector,
     },
     EnvTypes,
@@ -31,7 +34,7 @@ use crate::env::{
 pub struct ReturnType<T>(PhantomData<fn() -> T>);
 
 /// The final parameters to the cross-contract call.
-pub struct CallParams<E, R>
+pub struct CallParams<E, Args, R>
 where
     E: EnvTypes,
 {
@@ -44,21 +47,21 @@ where
     /// The expected return type.
     return_type: PhantomData<ReturnType<R>>,
     /// The already encoded call data respecting the ABI.
-    call_data: CallData,
+    call_data: ExecutionInput<Args>,
 }
 
 /// Builds up a call.
-pub struct CallBuilder<E, R, Seal>
+pub struct CallBuilder<E, Args, R, Seal>
 where
     E: EnvTypes,
 {
     /// The current parameters that have been built up so far.
-    params: CallParams<E, R>,
+    params: CallParams<E, Args, R>,
     /// Seal state.
     seal: PhantomData<Seal>,
 }
 
-impl<E, R> CallParams<E, R>
+impl<E, Args, R> CallParams<E, Args, R>
 where
     E: EnvTypes,
 {
@@ -77,12 +80,12 @@ where
     }
 
     /// The raw encoded input data.
-    pub fn input_data(&self) -> &CallData {
+    pub fn input_data(&self) -> &ExecutionInput<Args> {
         &self.call_data
     }
 }
 
-impl<E, R> CallParams<E, R>
+impl<E, R> CallParams<E, EmptyArgumentList, R>
 where
     E: EnvTypes,
     E::Balance: Default,
@@ -94,7 +97,7 @@ where
             gas_limit: 0,
             transferred_value: E::Balance::default(),
             return_type: PhantomData,
-            call_data: CallData::new(selector),
+            call_data: ExecutionInput::new(selector),
         }
     }
 
@@ -102,7 +105,7 @@ where
     pub fn eval(
         callee: E::AccountId,
         selector: Selector,
-    ) -> CallBuilder<E, ReturnType<R>, state::Unsealed> {
+    ) -> CallBuilder<E, EmptyArgumentList, ReturnType<R>, state::Unsealed> {
         CallBuilder {
             params: CallParams::new(callee, selector),
             seal: Default::default(),
@@ -115,7 +118,7 @@ where
     pub fn invoke(
         callee: E::AccountId,
         selector: Selector,
-    ) -> CallBuilder<E, (), state::Unsealed> {
+    ) -> CallBuilder<E, EmptyArgumentList, (), state::Unsealed> {
         CallBuilder {
             params: CallParams::new(callee, selector),
             seal: Default::default(),
@@ -123,7 +126,7 @@ where
     }
 }
 
-impl<E, R, Seal> CallBuilder<E, R, Seal>
+impl<E, Args, R, Seal> CallBuilder<E, Args, R, Seal>
 where
     E: EnvTypes,
 {
@@ -140,21 +143,68 @@ where
     }
 }
 
-impl<E, R> CallBuilder<E, R, state::Unsealed>
+impl<E, R> CallBuilder<E, EmptyArgumentList, R, state::Unsealed>
 where
     E: EnvTypes,
 {
     /// Pushes an argument to the inputs of the call.
-    pub fn push_arg<A>(mut self, arg: &A) -> Self
+    pub fn push_arg<A>(
+        self,
+        arg: A,
+    ) -> CallBuilder<E, ArgumentList<Argument<A>, EmptyArgumentList>, R, state::Unsealed>
     where
         A: scale::Encode,
     {
-        self.params.call_data.push_arg(arg);
-        self
+        CallBuilder {
+            params: CallParams {
+                call_data: self.params.call_data.push_arg(arg),
+                callee: self.params.callee,
+                gas_limit: self.params.gas_limit,
+                transferred_value: self.params.transferred_value,
+                return_type: self.params.return_type,
+            },
+            seal: Default::default(),
+        }
     }
+}
 
+impl<'a, E, ArgsHead, ArgsRest, R>
+    CallBuilder<E, ArgumentList<Argument<ArgsHead>, ArgsRest>, R, state::Unsealed>
+where
+    E: EnvTypes,
+{
+    /// Pushes an argument to the inputs of the call.
+    pub fn push_arg<A>(
+        self,
+        arg: A,
+    ) -> CallBuilder<
+        E,
+        ArgumentList<Argument<A>, ArgumentList<Argument<ArgsHead>, ArgsRest>>,
+        R,
+        state::Unsealed,
+    >
+    where
+        A: scale::Encode,
+    {
+        CallBuilder {
+            params: CallParams {
+                call_data: self.params.call_data.push_arg(arg),
+                callee: self.params.callee,
+                gas_limit: self.params.gas_limit,
+                transferred_value: self.params.transferred_value,
+                return_type: self.params.return_type,
+            },
+            seal: Default::default(),
+        }
+    }
+}
+
+impl<E, Args, R> CallBuilder<E, Args, R, state::Unsealed>
+where
+    E: EnvTypes,
+{
     /// Seals the call builder to prevent further arguments.
-    pub fn seal(self) -> CallBuilder<E, R, state::Sealed> {
+    pub fn seal(self) -> CallBuilder<E, Args, R, state::Sealed> {
         CallBuilder {
             params: self.params,
             seal: Default::default(),
@@ -162,9 +212,10 @@ where
     }
 }
 
-impl<E, R, Seal> CallBuilder<E, ReturnType<R>, Seal>
+impl<E, Args, R, Seal> CallBuilder<E, Args, ReturnType<R>, Seal>
 where
     E: EnvTypes,
+    Args: scale::Encode,
     R: scale::Decode,
 {
     /// Fires the call to the remote smart contract.
@@ -177,9 +228,10 @@ where
     }
 }
 
-impl<E, Seal> CallBuilder<E, (), Seal>
+impl<E, Args, Seal> CallBuilder<E, Args, (), Seal>
 where
     E: EnvTypes,
+    Args: scale::Encode,
 {
     /// Fires the cross-call to the smart contract.
     pub fn fire(self) -> Result<()> {
