@@ -52,6 +52,7 @@ impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let message_trait_impls = self.generate_message_trait_impls();
         let message_dispatch_enum = self.generate_message_dispatch_enum();
+        let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
         let message_namespaces = self.generate_message_namespaces();
         let dispatch_using_mode = self.generate_dispatch_using_mode();
         let entry_points = self.generate_entry_points();
@@ -64,8 +65,9 @@ impl GenerateCode for Dispatch<'_> {
             #[cfg(not(test))]
             #cfg
             const _: () = {
-                #message_namespaces
                 #message_dispatch_enum
+                #constructor_dispatch_enum
+                #message_namespaces
                 #message_trait_impls
                 #dispatch_using_mode
                 #entry_points
@@ -75,18 +77,62 @@ impl GenerateCode for Dispatch<'_> {
 }
 
 impl Dispatch<'_> {
-    fn generate_message_dispatch_variant_ident(&self, message: &ir::Function) -> Ident {
+    fn generate_dispatch_variant_ident(
+        &self,
+        message: &ir::Function,
+        prefix: &str,
+    ) -> Ident {
         let selector = message
             .selector()
-            .expect("encountered a non-message function");
+            .expect("encountered a non-constructor function");
         let selector_bytes = selector.as_bytes();
         quote::format_ident!(
-            "__Message_0x{:X}{:X}{:X}{:X}",
+            "__{}_0x{:02X}{:02X}{:02X}{:02X}",
+            prefix,
             selector_bytes[0],
             selector_bytes[1],
             selector_bytes[2],
             selector_bytes[3]
         )
+    }
+
+    fn generate_dispatch_variant_decode(
+        &self,
+        message: &ir::Function,
+        prefix: &str,
+    ) -> TokenStream2 {
+        let selector_bytes = message
+            .selector()
+            .expect("encountered a non-message function")
+            .as_bytes()
+            .clone();
+        let s0 = selector_bytes[0];
+        let s1 = selector_bytes[1];
+        let s2 = selector_bytes[2];
+        let s3 = selector_bytes[3];
+        let variant_ident = self.generate_dispatch_variant_ident(message, prefix);
+        let variant_types = message.sig.inputs().map(|arg| &arg.ty);
+        quote! {
+            [#s0, #s1, #s2, #s3] => {
+                Ok(Self::#variant_ident(
+                    #(
+                        <#variant_types as ::scale::Decode>::decode(input)?
+                    ),*
+                ))
+            }
+        }
+    }
+
+    fn generate_dispatch_variant_arm(
+        &self,
+        message: &ir::Function,
+        prefix: &str,
+    ) -> TokenStream2 {
+        let input_types = message.sig.inputs().map(|arg| &arg.ty);
+        let variant_ident = self.generate_dispatch_variant_ident(message, prefix);
+        quote! {
+            #variant_ident(#(#input_types),*)
+        }
     }
 
     fn generate_message_dispatch_enum(&self) -> TokenStream2 {
@@ -96,40 +142,13 @@ impl Dispatch<'_> {
             .functions
             .iter()
             .filter(|function| function.is_message())
-            .map(|message| {
-                let input_types = message.sig.inputs().map(|arg| &arg.ty);
-                let variant_ident = self.generate_message_dispatch_variant_ident(message);
-                quote! {
-                    #variant_ident(#(#input_types),*)
-                }
-            });
+            .map(|message| self.generate_dispatch_variant_arm(message, "Message"));
         let decode_message = self
             .contract
             .functions
             .iter()
             .filter(|function| function.is_message())
-            .map(|message| {
-                let selector_bytes = message
-                    .selector()
-                    .expect("encountered a non-message function")
-                    .as_bytes()
-                    .clone();
-                let s0 = selector_bytes[0];
-                let s1 = selector_bytes[1];
-                let s2 = selector_bytes[2];
-                let s3 = selector_bytes[3];
-                let variant_ident = self.generate_message_dispatch_variant_ident(message);
-                let variant_types = message.sig.inputs().map(|arg| &arg.ty);
-                quote! {
-                    [#s0, #s1, #s2, #s3] => {
-                        Ok(Self::#variant_ident(
-                            #(
-                                <#variant_types as ::scale::Decode>::decode(input)?
-                            ),*
-                        ))
-                    }
-                }
-            });
+            .map(|message| self.generate_dispatch_variant_decode(message, "Message"));
         quote! {
             const _: () = {
                 pub enum MessageDispatchEnum {
@@ -147,6 +166,44 @@ impl Dispatch<'_> {
                                 #decode_message
                             )*
                             _invalid => Err(::scale::Error::from("invalid message selector"))
+                        }
+                    }
+                }
+            };
+        }
+    }
+
+    fn generate_constructor_dispatch_enum(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let message_variants = self
+            .contract
+            .functions
+            .iter()
+            .filter(|function| function.is_constructor())
+            .map(|message| self.generate_dispatch_variant_arm(message, "Constructor"));
+        let decode_message = self
+            .contract
+            .functions
+            .iter()
+            .filter(|function| function.is_constructor())
+            .map(|message| self.generate_dispatch_variant_decode(message, "Constructor"));
+        quote! {
+            const _: () = {
+                pub enum ConstructorDispatchEnum {
+                    #( #message_variants ),*
+                }
+
+                impl ::ink_lang::ConstructorDispatcher for #storage_ident {
+                    type Type = ConstructorDispatchEnum;
+                }
+
+                impl ::scale::Decode for ConstructorDispatchEnum {
+                    fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
+                        match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                            #(
+                                #decode_message
+                            )*
+                            _invalid => Err(::scale::Error::from("invalid constructor selector"))
                         }
                     }
                 }
