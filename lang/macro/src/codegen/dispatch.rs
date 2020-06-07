@@ -101,11 +101,10 @@ impl Dispatch<'_> {
         message: &ir::Function,
         prefix: &str,
     ) -> TokenStream2 {
-        let selector_bytes = message
+        let selector_bytes = *message
             .selector()
             .expect("encountered a non-message function")
-            .as_bytes()
-            .clone();
+            .as_bytes();
         let s0 = selector_bytes[0];
         let s1 = selector_bytes[1];
         let s2 = selector_bytes[2];
