@@ -220,6 +220,81 @@ where
     }
 }
 
+/// Connector trait used to start the execution of a smart contract.
+///
+/// The generated message and constructor dispatch enums implement this trait
+/// in order to forward their already decoded state to the selected messages
+/// or constructors.
+pub trait Execute {
+    /// Starts the smart contract execution.
+    fn execute(self) -> Result<()>;
+}
+
+/// Executes the given `&self` message closure.
+///
+/// # Note
+///
+/// The closure is supposed to already contain all the arguments that the real
+/// message requires and forwards them.
+pub fn execute_message<M, F>(f: F) -> Result<()>
+where
+    M: MessageMut,
+    F: FnOnce(&<M as FnState>::State) -> <M as FnOutput>::Output,
+{
+    alloc::initialize(ContractPhase::Call);
+    let root_key = Key::from([0x00; 32]);
+    let state = ManuallyDrop::new(pull_spread_root::<<M as FnState>::State>(&root_key));
+    let result = f(&state);
+    alloc::finalize();
+    if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
+        ink_core::env::output::<<M as FnOutput>::Output>(&result)
+    }
+    Ok(())
+}
+
+/// Executes the given `&mut self` message closure.
+///
+/// # Note
+///
+/// The closure is supposed to already contain all the arguments that the real
+/// message requires and forwards them.
+pub fn execute_message_mut<M, F>(f: F) -> Result<()>
+where
+    M: MessageMut,
+    F: FnOnce(&mut <M as FnState>::State) -> <M as FnOutput>::Output,
+{
+    alloc::initialize(ContractPhase::Call);
+    let root_key = Key::from([0x00; 32]);
+    let mut state =
+        ManuallyDrop::new(pull_spread_root::<<M as FnState>::State>(&root_key));
+    let result = f(&mut state);
+    push_spread_root::<<M as FnState>::State>(&state, &root_key);
+    alloc::finalize();
+    if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
+        ink_core::env::output::<<M as FnOutput>::Output>(&result)
+    }
+    Ok(())
+}
+
+/// Executes the given constructor closure.
+///
+/// # Note
+///
+/// The closure is supposed to already contain all the arguments that the real
+/// constructor message requires and forwards them.
+pub fn execute_constructor<C, F>(f: F) -> Result<()>
+where
+    C: Constructor,
+    F: FnOnce() -> <C as FnState>::State,
+{
+    alloc::initialize(ContractPhase::Deploy);
+    let state = ManuallyDrop::new(f());
+    let root_key = Key::from([0x00; 32]);
+    push_spread_root::<<C as FnState>::State>(&state, &root_key);
+    alloc::finalize();
+    Ok(())
+}
+
 /// A constructor contract message wrapper.
 #[derive(Debug, Default)]
 pub struct MsgCon<M>
