@@ -149,6 +149,54 @@ impl Dispatch<'_> {
             .iter()
             .filter(|function| function.is_message())
             .map(|message| self.generate_dispatch_variant_decode(message, "Message"));
+        let execute_variants = self
+            .contract
+            .functions
+            .iter()
+            .filter(|function| function.is_message())
+            .map(|function| {
+                let ident = self.generate_dispatch_variant_ident(function, "Message");
+                let arg_idents = function
+                    .sig
+                    .inputs()
+                    .map(|arg| &arg.ident)
+                    .collect::<Vec<_>>();
+                let (mut_mod, msg_trait, exec_fn) = if function
+                    .sig
+                    .is_mut()
+                    .expect("encountered non-ink! message or constructor")
+                {
+                    (
+                        Some(quote! { mut }),
+                        quote! { MessageMut },
+                        quote! { execute_message_mut },
+                    )
+                } else {
+                    (
+                        None,
+                        quote! { MessageRef },
+                        quote! { execute_message },
+                    )
+                };
+                let empty_filler = if arg_idents.is_empty() {
+                    Some(quote! { , () })
+                } else {
+                    None
+                };
+                let selector_id = function
+                    .selector()
+                    .expect("encountered non-ink! message or constructor")
+                    .unique_id();
+                quote! {
+                    Self::#ident(#(#arg_idents),*) => {
+                        ::ink_lang::#exec_fn::<Msg<[(); #selector_id]>, _>(move |state: &#mut_mod #storage_ident| {
+                            <Msg<[(); #selector_id]> as ::ink_lang::#msg_trait>::CALLABLE(
+                                state #(, #arg_idents)* #empty_filler
+                            )
+                        })
+                    }
+                }
+            });
         quote! {
             const _: () = {
                 pub enum MessageDispatchEnum {
@@ -166,6 +214,16 @@ impl Dispatch<'_> {
                                 #decode_message
                             )*
                             _invalid => Err(::scale::Error::from("invalid message selector"))
+                        }
+                    }
+                }
+
+                impl ::ink_lang::Execute for MessageDispatchEnum {
+                    fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                        match self {
+                            #(
+                                #execute_variants
+                            )*
                         }
                     }
                 }
@@ -187,6 +245,37 @@ impl Dispatch<'_> {
             .iter()
             .filter(|function| function.is_constructor())
             .map(|message| self.generate_dispatch_variant_decode(message, "Constructor"));
+        let execute_variants = self
+                .contract
+                .functions
+                .iter()
+                .filter(|function| function.is_constructor())
+                .map(|function| {
+                    let ident = self.generate_dispatch_variant_ident(function, "Constructor");
+                    let arg_idents = function
+                        .sig
+                        .inputs()
+                        .map(|arg| &arg.ident)
+                        .collect::<Vec<_>>();
+                    let empty_filler = if arg_idents.is_empty() {
+                        Some(quote! { () })
+                    } else {
+                        None
+                    };
+                    let selector_id = function
+                        .selector()
+                        .expect("encountered non-ink! message or constructor")
+                        .unique_id();
+                    quote! {
+                        Self::#ident(#(#arg_idents),*) => {
+                            ::ink_lang::execute_constructor::<Constr<[(); #selector_id]>, _>(move || {
+                                <Constr<[(); #selector_id]> as ::ink_lang::Constructor>::CALLABLE(
+                                    #(#arg_idents),* #empty_filler
+                                )
+                            })
+                        }
+                    }
+                });
         quote! {
             const _: () = {
                 pub enum ConstructorDispatchEnum {
@@ -204,6 +293,16 @@ impl Dispatch<'_> {
                                 #decode_message
                             )*
                             _invalid => Err(::scale::Error::from("invalid constructor selector"))
+                        }
+                    }
+                }
+
+                impl ::ink_lang::Execute for ConstructorDispatchEnum {
+                    fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                        match self {
+                            #(
+                                #execute_variants
+                            )*
                         }
                     }
                 }
