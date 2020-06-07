@@ -459,59 +459,27 @@ impl Dispatch<'_> {
         }
     }
 
-    fn generate_dispatch_using_mode_fragment(
-        &self,
-        function: &ir::Function,
-    ) -> TokenStream2 {
-        if !(function.is_constructor() || function.is_message()) {
-            return quote! {}
-        }
-        let selector = function
-            .selector()
-            .expect("this is either a message or constructor at this point; qed");
-        let selector_id = selector.unique_id();
-        let sig = &function.sig;
-        let builder_name = if function.is_constructor() {
-            quote! { register_constructor }
-        } else if sig.is_mut().expect("must be a message if not constructor") {
-            quote! { register_message_mut }
-        } else {
-            quote! { register_message }
-        };
-        let namespace = match function.kind() {
-            ir::FunctionKind::Constructor(_) => quote! { Constr },
-            ir::FunctionKind::Message(_) => quote! { Msg },
-            ir::FunctionKind::Method => panic!("ICE: can't match a method at this point"),
-        };
-        quote! {
-            .#builder_name::<#namespace<[(); #selector_id]>>()
-        }
-    }
-
     fn generate_dispatch_using_mode(&self) -> TokenStream2 {
         let storage_ident = &self.contract.storage.ident;
-        let fragments = self
-            .contract
-            .functions
-            .iter()
-            .map(|fun| self.generate_dispatch_using_mode_fragment(fun));
-
         quote! {
             impl ::ink_lang::DispatchUsingMode for #storage_ident {
                 #[allow(unused_parens)]
                 fn dispatch_using_mode(
                     mode: ::ink_lang::DispatchMode
                 ) -> core::result::Result<(), ::ink_lang::DispatchError> {
-                    let call_data =
-                        ::ink_core::env::input().map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?;
-                    let contract = ::ink_lang::Contract::build()
-                        #(
-                            #fragments
-                        )*
-                        .finalize();
                     match mode {
-                        ::ink_lang::DispatchMode::Instantiate => contract.on_instantiate(&call_data),
-                        ::ink_lang::DispatchMode::Call => contract.on_call(&call_data),
+                        ::ink_lang::DispatchMode::Instantiate => {
+                            <<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type as ::ink_lang::Execute>::execute(
+                                ::ink_core::env::decode_input::<<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type>()
+                                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
+                            )
+                        }
+                        ::ink_lang::DispatchMode::Call => {
+                            <<#storage_ident as ::ink_lang::MessageDispatcher>::Type as ::ink_lang::Execute>::execute(
+                                ::ink_core::env::decode_input::<<#storage_ident as ::ink_lang::MessageDispatcher>::Type>()
+                                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
+                            )
+                        }
                     }
                 }
             }
