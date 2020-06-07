@@ -433,13 +433,16 @@ mod multisig_plain {
         fn invoke_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = CallParams::<EnvTypes, EmptyArgumentList, ()>::invoke(t.callee, t.selector.into())
-                .gas_limit(t.gas_limit)
-                .transferred_value(t.transferred_value)
-                .push_arg(CallInput(&t.input))
-                .seal()
-                .fire()
-                .map_err(|_| ());
+            let result = CallParams::<EnvTypes, EmptyArgumentList, ()>::invoke(
+                t.callee,
+                t.selector.into(),
+            )
+            .gas_limit(t.gas_limit)
+            .transferred_value(t.transferred_value)
+            .push_arg(CallInput(&t.input))
+            .seal()
+            .fire()
+            .map_err(|_| ());
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.map(|_| None),
@@ -456,13 +459,16 @@ mod multisig_plain {
         fn eval_transaction(&mut self, trans_id: TransactionId) -> Result<Vec<u8>, ()> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = CallParams::<EnvTypes, EmptyArgumentList, Vec<u8>>::eval(t.callee, t.selector.into())
-                .gas_limit(t.gas_limit)
-                .transferred_value(t.transferred_value)
-                .push_arg(CallInput(&t.input))
-                .seal()
-                .fire()
-                .map_err(|_| ());
+            let result = CallParams::<EnvTypes, EmptyArgumentList, Vec<u8>>::eval(
+                t.callee,
+                t.selector.into(),
+            )
+            .gas_limit(t.gas_limit)
+            .transferred_value(t.transferred_value)
+            .push_arg(CallInput(&t.input))
+            .seal()
+            .fire()
+            .map_err(|_| ());
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.clone().map(Some),
