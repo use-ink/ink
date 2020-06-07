@@ -46,6 +46,18 @@ use ink_primitives::Key;
 /// Results of message handling operations.
 pub type Result<T> = core::result::Result<T, DispatchError>;
 
+/// Connector trait: Connects enum dispatcher for messages with the contract.
+pub trait MessageDispatcher {
+    /// The contract's message dispatcher type.
+    type Type;
+}
+
+/// Connector trait: Connects enum dispatcher for constructors with the contract.
+pub trait ConstructorDispatcher {
+    /// The contract's constructors dispatcher type.
+    type Type;
+}
+
 /// Types implementing this trait can handle contract calls.
 pub trait Dispatch {
     /// Dispatches the call and returns the call result.

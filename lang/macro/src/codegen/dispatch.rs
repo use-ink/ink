@@ -21,7 +21,10 @@ use crate::{
     ir,
 };
 use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
 use quote::{
     quote,
     quote_spanned,
@@ -48,6 +51,7 @@ impl<'a> GenerateCodeUsing for Dispatch<'a> {
 impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let message_trait_impls = self.generate_message_trait_impls();
+        let message_dispatch_enum = self.generate_message_dispatch_enum();
         let message_namespaces = self.generate_message_namespaces();
         let dispatch_using_mode = self.generate_dispatch_using_mode();
         let entry_points = self.generate_entry_points();
@@ -61,6 +65,7 @@ impl GenerateCode for Dispatch<'_> {
             #cfg
             const _: () = {
                 #message_namespaces
+                #message_dispatch_enum
                 #message_trait_impls
                 #dispatch_using_mode
                 #entry_points
@@ -70,6 +75,85 @@ impl GenerateCode for Dispatch<'_> {
 }
 
 impl Dispatch<'_> {
+    fn generate_message_dispatch_variant_ident(&self, message: &ir::Function) -> Ident {
+        let selector = message
+            .selector()
+            .expect("encountered a non-message function");
+        let selector_bytes = selector.as_bytes();
+        quote::format_ident!(
+            "__Message_0x{:X}{:X}{:X}{:X}",
+            selector_bytes[0],
+            selector_bytes[1],
+            selector_bytes[2],
+            selector_bytes[3]
+        )
+    }
+
+    fn generate_message_dispatch_enum(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let message_variants = self
+            .contract
+            .functions
+            .iter()
+            .filter(|function| function.is_message())
+            .map(|message| {
+                let input_types = message.sig.inputs().map(|arg| &arg.ty);
+                let variant_ident = self.generate_message_dispatch_variant_ident(message);
+                quote! {
+                    #variant_ident(#(#input_types),*)
+                }
+            });
+        let decode_message = self
+            .contract
+            .functions
+            .iter()
+            .filter(|function| function.is_message())
+            .map(|message| {
+                let selector_bytes = message
+                    .selector()
+                    .expect("encountered a non-message function")
+                    .as_bytes()
+                    .clone();
+                let s0 = selector_bytes[0];
+                let s1 = selector_bytes[1];
+                let s2 = selector_bytes[2];
+                let s3 = selector_bytes[3];
+                let variant_ident = self.generate_message_dispatch_variant_ident(message);
+                let variant_types = message.sig.inputs().map(|arg| &arg.ty);
+                quote! {
+                    [#s0, #s1, #s2, #s3] => {
+                        Ok(Self::#variant_ident(
+                            #(
+                                <#variant_types as ::scale::Decode>::decode(input)?
+                            ),*
+                        ))
+                    }
+                }
+            });
+        quote! {
+            const _: () = {
+                pub enum MessageDispatchEnum {
+                    #( #message_variants ),*
+                }
+
+                impl ::ink_lang::MessageDispatcher for #storage_ident {
+                    type Type = MessageDispatchEnum;
+                }
+
+                impl ::scale::Decode for MessageDispatchEnum {
+                    fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
+                        match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                            #(
+                                #decode_message
+                            )*
+                            _invalid => Err(::scale::Error::from("invalid message selector"))
+                        }
+                    }
+                }
+            };
+        }
+    }
+
     fn generate_trait_impls_for_message(&self, function: &ir::Function) -> TokenStream2 {
         if !(function.is_constructor() || function.is_message()) {
             return quote! {}

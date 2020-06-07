@@ -47,6 +47,8 @@ pub use self::{
         ToAccountId,
     },
     dispatcher::{
+        MessageDispatcher,
+        ConstructorDispatcher,
         Dispatch,
         DispatchList,
         EmptyDispatchList,
