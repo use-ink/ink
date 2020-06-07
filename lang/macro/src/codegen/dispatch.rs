@@ -178,10 +178,10 @@ impl Dispatch<'_> {
                         quote! { execute_message },
                     )
                 };
-                let empty_filler = if arg_idents.is_empty() {
-                    Some(quote! { , () })
+                let arg_inputs = if arg_idents.len() == 1 {
+                    quote! { #(#arg_idents),* }
                 } else {
-                    None
+                    quote! { ( #(#arg_idents),* ) }
                 };
                 let selector_id = function
                     .selector()
@@ -191,7 +191,7 @@ impl Dispatch<'_> {
                     Self::#ident(#(#arg_idents),*) => {
                         ::ink_lang::#exec_fn::<Msg<[(); #selector_id]>, _>(move |state: &#mut_mod #storage_ident| {
                             <Msg<[(); #selector_id]> as ::ink_lang::#msg_trait>::CALLABLE(
-                                state #(, #arg_idents)* #empty_filler
+                                state, #arg_inputs
                             )
                         })
                     }
@@ -257,10 +257,10 @@ impl Dispatch<'_> {
                         .inputs()
                         .map(|arg| &arg.ident)
                         .collect::<Vec<_>>();
-                    let empty_filler = if arg_idents.is_empty() {
-                        Some(quote! { () })
+                    let arg_inputs = if arg_idents.len() == 1 {
+                        quote! { #(#arg_idents),* }
                     } else {
-                        None
+                        quote! { ( #(#arg_idents),* ) }
                     };
                     let selector_id = function
                         .selector()
@@ -270,7 +270,7 @@ impl Dispatch<'_> {
                         Self::#ident(#(#arg_idents),*) => {
                             ::ink_lang::execute_constructor::<Constr<[(); #selector_id]>, _>(move || {
                                 <Constr<[(); #selector_id]> as ::ink_lang::Constructor>::CALLABLE(
-                                    #(#arg_idents),* #empty_filler
+                                    #arg_inputs
                                 )
                             })
                         }
