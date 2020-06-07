@@ -238,7 +238,7 @@ pub trait Execute {
 /// message requires and forwards them.
 pub fn execute_message<M, F>(f: F) -> Result<()>
 where
-    M: MessageMut,
+    M: MessageRef,
     F: FnOnce(&<M as FnState>::State) -> <M as FnOutput>::Output,
 {
     alloc::initialize(ContractPhase::Call);
