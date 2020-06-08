@@ -15,9 +15,11 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 
 use ink_core::storage2::collections::Stash as StorageStash;
+use num_traits::real::Real;
 
 criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);
+criterion_group!(benches_worst_case, criterion_benchmark_with_taken_value_read);
+criterion_main!(benches, benches_worst_case);
 
 fn remove_from_filled(test_values: &[u8; 6]) {
     let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
@@ -37,6 +39,16 @@ fn take_from_filled(test_values: &[u8; 6]) {
     assert_eq!(stash.len(), 0);
 }
 
+fn take_from_filled_worst_case(test_values: &[u8; 6]) {
+    let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
+
+    for (index, _value) in test_values.iter().enumerate() {
+        let val = stash.take(index as u32);
+        let v = val.expect("must exist");
+    }
+    assert_eq!(stash.len(), 0);
+}
+
 fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("RemoveMustOutperformTake");
 
@@ -45,5 +57,16 @@ fn criterion_benchmark(c: &mut Criterion) {
                            |b, i| b.iter(|| remove_from_filled(i)));
     group.bench_with_input(BenchmarkId::new("Take", 0), &test_values,
                            |b, i| b.iter(|| take_from_filled(i)));
+    group.finish();
+}
+
+fn criterion_benchmark_with_taken_value_read(c: &mut Criterion) {
+    let mut group = c.benchmark_group("RemoveMustOutperformTakeWorstCase");
+
+    let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
+    group.bench_with_input(BenchmarkId::new("Remove", 0), &test_values,
+                           |b, i| b.iter(|| remove_from_filled(i)));
+    group.bench_with_input(BenchmarkId::new("TakeWorstCase", 0), &test_values,
+                           |b, i| b.iter(|| take_from_filled_worst_case(i)));
     group.finish();
 }
