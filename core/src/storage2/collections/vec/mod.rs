@@ -144,7 +144,7 @@ where
         IterMut::new(self)
     }
 
-    /// Returns the index if it is witihn bounds or `None` otherwise.
+    /// Returns the index if it is within bounds or `None` otherwise.
     fn within_bounds(&self, index: u32) -> Option<u32> {
         if index < self.len() {
             return Some(index)
