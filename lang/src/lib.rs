@@ -23,7 +23,6 @@ mod dispatcher;
 mod env_access;
 mod error;
 mod events;
-mod testable;
 mod traits;
 
 pub use ink_lang_macro::contract;
