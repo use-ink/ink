@@ -14,34 +14,39 @@
 
 //! Implementations of supported cryptographic hash functions.
 
+/// Helper routine implementing variable size BLAKE2b hash computation.
+fn blake2b_var(size: usize, input: &[u8], output: &mut [u8]) {
+    use blake2::digest::VariableOutput as _;
+    use std::io::Write as _;
+    let mut blake2 = blake2::VarBlake2b::new_keyed(&[], size);
+    blake2
+        .write_all(input)
+        .expect("failed to compute BLAKE2b hash of input");
+    output.copy_from_slice(blake2.vec_result().as_slice());
+}
+
 /// Conduct the BLAKE2 256-bit hash and place the result into `output`.
-pub fn blake2_256(input: &[u8], output: &mut [u8; 32]) {
-    output.copy_from_slice(blake2_rfc::blake2b::blake2b(32, &[], input).as_bytes());
+pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
+    blake2b_var(32, input, output)
 }
 
 /// Conduct the BLAKE2 128-bit hash and place the result into `output`.
-pub fn blake2_128(input: &[u8], output: &mut [u8; 16]) {
-    output.copy_from_slice(blake2_rfc::blake2b::blake2b(16, &[], input).as_bytes());
+pub fn blake2b_128(input: &[u8], output: &mut [u8; 16]) {
+    blake2b_var(16, input, output)
 }
 
 /// Conduct the KECCAK 256-bit hash and place the result into `output`.
 pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
-    use ::tiny_keccak::{
-        Hasher,
-        Keccak,
-    };
-    let mut keccak = Keccak::v256();
-    keccak.update(input);
-    keccak.finalize(output)
+    use ::sha2::Digest as _;
+    let mut hasher = ::sha3::Keccak256::new();
+    hasher.input(input);
+    output.copy_from_slice(hasher.result().as_slice());
 }
 
 /// Conduct the SHA2 256-bit hash and place the result into `output`.
 pub fn sha2_256(input: &[u8], output: &mut [u8; 32]) {
-    use ::sha2::{
-        Digest,
-        Sha256,
-    };
-    let mut hasher = Sha256::new();
+    use ::sha2::Digest as _;
+    let mut hasher = ::sha2::Sha256::new();
     hasher.input(input);
-    output.copy_from_slice(&hasher.result());
+    output.copy_from_slice(hasher.result().as_slice());
 }
