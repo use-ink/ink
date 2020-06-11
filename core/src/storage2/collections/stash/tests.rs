@@ -139,6 +139,40 @@ fn remove_out_of_bounds_works() {
 }
 
 #[test]
+fn remove_works_with_spread_layout_push_pull() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        // First populate some storage Stash and writes that to the contract storage using pull_spread
+        // and some known Key.
+        let mut stash = [b'A', b'B', b'C']
+            .iter()
+            .copied()
+            .collect::<StorageStash<_>>();
+        let root_key = Key([0x42; 32]);
+        SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
+
+        // Then load another instance from the same key lazily and remove some of
+        // the known-to-be-populated entries from it. Afterwards push_spread this second instance and
+        // load yet another using pull_spread again.
+        let mut stash2 =
+            <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert_eq!(unsafe { stash2.remove_occupied(0) }, Some(()));
+        SpreadLayout::push_spread(&stash2, &mut KeyPtr::from(root_key));
+
+        // This time we check from the third instance using
+        // get if the expected cells are still there or have been successfully removed.
+        let stash3 =
+            <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert_eq!(stash3.get(0), None);
+        assert_eq!(stash3.get(1), Some(&b'B'));
+        assert_eq!(stash3.get(2), Some(&b'C'));
+        assert_eq!(stash3.len(), 2);
+
+        Ok(())
+    })
+}
+
+
+#[test]
 fn get_works() {
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
