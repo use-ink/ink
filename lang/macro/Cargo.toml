@@ -39,7 +39,6 @@ pretty_assertions = "0.6.1"
 
 [dependencies.scale-info]
 git = "https://github.com/paritytech/scale-info.git"
-branch = "aj-merge-type"
 default-features = false
 features = ["derive"]
 

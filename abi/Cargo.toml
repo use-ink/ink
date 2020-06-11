@@ -24,7 +24,6 @@ derive_more = { version = "0.99", default-features = false, features = ["from"] 
 
 [dependencies.scale-info]
 git = "https://github.com/paritytech/scale-info.git"
-branch = "aj-merge-type"
 default-features = false
 features = ["derive"]
 
