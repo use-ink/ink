@@ -481,13 +481,94 @@ where
     /// This method is unsafe to call. It must be ensured that `at` is an
     /// occupied index.
     pub unsafe fn remove_occupied(&mut self, at: Index) -> Option<()> {
+        // TODO This is currently basically the same code as `take()`.
+        // What we actually want to do is save the `.get()` calls and
+        // instead do something like `self.entries.put(at, None)` directly.
+
+        // Cases:
+        // - There are vacant entries already.
+        // - There are no vacant entries before.
         if at >= self.len_entries() {
             // Early return since `at` index is out of bounds.
             return None
         }
-        self.entries.put(at, None);
-        self.header.len -= 1;
-        Some(())
+        // Precompute prev and next vacant entries as we might need them later.
+        // Due to borrow checker constraints we cannot have this at a later stage.
+        let (prev, next) = if let Some(index) = self.last_vacant_index() {
+            let root_vacant = self
+                .entries
+                .get(index)
+                .map(|entry| entry.try_to_vacant())
+                .flatten()
+                .expect("last_vacant must point to an existing vacant entry");
+            // Form the linked vacant entries in a way that makes it more likely
+            // for them to refill the stash from low indices.
+            if at < index {
+                // Insert before root if new vacant index is smaller than root.
+                (root_vacant.prev, index)
+            } else if at < root_vacant.next {
+                // Insert between root and its next vacant entry if smaller than
+                // current root's next index.
+                (index, root_vacant.next)
+            } else {
+                // Insert before root entry if index is greater. But we won't
+                // update the new element to be the new root index in this case.
+                (root_vacant.prev, index)
+            }
+        } else {
+            // Default prev and next to the given at index.
+            // So the resulting vacant index is pointing to itself.
+            (at, at)
+        };
+        let entry_mut = self.entries.get_mut(at).expect("index is out of bounds");
+        if entry_mut.is_vacant() {
+            // Early return if the taken entry is already vacant.
+            return None
+        }
+        // At this point we know that the entry is occupied with a value.
+        let new_vacant_entry = Entry::Vacant(VacantEntry { prev, next });
+        let taken_entry = core::mem::replace(entry_mut, new_vacant_entry);
+        // Update links from and to neighbouring vacant entries.
+        if prev == next {
+            // Previous and next are the same so we can update the vacant
+            // neighbour with a single look-up.
+            let entry = self
+                .entries
+                .get_mut(next)
+                .map(Entry::try_to_vacant_mut)
+                .flatten()
+                .expect("`next` must point to an existing vacant entry at this point");
+            entry.prev = at;
+            entry.next = at;
+        } else {
+            // Previous and next vacant entries are different and thus need
+            // different look-ups to update them.
+            self.entries
+                .get_mut(prev)
+                .map(Entry::try_to_vacant_mut)
+                .flatten()
+                .expect("`prev` must point to an existing vacant entry at this point")
+                .next = at;
+            self.entries
+                .get_mut(next)
+                .map(Entry::try_to_vacant_mut)
+                .flatten()
+                .expect("`next` must point to an existing vacant entry at this point")
+                .prev = at;
+        }
+        // Take the value out of the taken occupied entry and return it.
+        match taken_entry {
+            Entry::Occupied(_value) => {
+                use core::cmp::min;
+                self.header.last_vacant =
+                    min(self.header.last_vacant, min(at, min(prev, next)));
+                self.header.len -= 1;
+                Some(())
+            }
+            Entry::Vacant { .. } => {
+                unreachable!("the taken entry is known to be occupied")
+            }
+        }
     }
 
     /// Defragments the underlying storage to minimize footprint.
