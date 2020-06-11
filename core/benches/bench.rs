@@ -23,7 +23,6 @@ use ink_core::{
 };
 use ink_primitives::Key;
 use ink_core::storage2::collections::Stash as StorageStash;
-use num_traits::real::Real;
 
 criterion_group!(benches, criterion_benchmark);
 criterion_group!(benches_worst_case, criterion_benchmark_with_taken_value_read);
@@ -48,12 +47,12 @@ fn take_from_filled(test_values: &[u8; 6]) {
 }
 
 fn take_from_filled_worst_case(test_values: &[u8; 6]) {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // In order to enforce that the storage2::Stash actually loads the taken
         // value from the contract storage we have to instantiate an instance of
         // such a `test_values` storage Stash and then `push_spread` it onto the contract
         // storage using a known Key.
-        let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
+        let stash = test_values.iter().copied().collect::<StorageStash<_>>();
         let root_key = Key([0x42; 32]);
         SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
 

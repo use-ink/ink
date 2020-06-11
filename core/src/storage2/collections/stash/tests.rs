@@ -143,7 +143,7 @@ fn remove_works_with_spread_layout_push_pull() -> env::Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // First populate some storage Stash and writes that to the contract storage using pull_spread
         // and some known Key.
-        let mut stash = [b'A', b'B', b'C']
+        let stash = [b'A', b'B', b'C']
             .iter()
             .copied()
             .collect::<StorageStash<_>>();
