@@ -115,7 +115,7 @@ fn remove_from_filled_works() {
     for (index, val) in test_values.iter().enumerate() {
         let index = index as u32;
         assert_eq!(stash.get(index), Some(val));
-        assert_eq!(stash.remove(index), Some(()));
+        assert_eq!(unsafe { stash.remove_occupied(index) }, Some(()));
         assert_eq!(stash.get(index), None);
         count -= 1;
         assert_eq!(stash.len(), count);
@@ -126,7 +126,7 @@ fn remove_from_filled_works() {
 #[test]
 fn remove_from_empty_works() {
     let mut stash = <StorageStash<u8>>::new();
-    assert_eq!(stash.remove(0), None);
+    assert_eq!(unsafe { stash.remove_occupied(0) }, None);
 }
 
 #[test]
@@ -135,7 +135,7 @@ fn remove_out_of_bounds_works() {
         .iter()
         .copied()
         .collect::<StorageStash<_>>();
-    assert_eq!(stash.remove(3), None);
+    assert_eq!(unsafe { stash.remove_occupied(3) }, None);
 }
 
 #[test]

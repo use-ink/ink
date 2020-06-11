@@ -33,7 +33,7 @@ fn remove_from_filled(test_values: &[u8; 6]) {
     let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
 
     for (index, _value) in test_values.iter().enumerate() {
-        stash.remove(index as u32);
+        unsafe { stash.remove_occupied(index as u32) };
     }
     assert_eq!(stash.len(), 0);
 }

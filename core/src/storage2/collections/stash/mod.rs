@@ -476,7 +476,11 @@ where
     ///
     /// Calling this method with an index out of bounds for the returns `None` and
     /// does not `remove` the element, otherwise it returns `Some(())`.
-    pub fn remove(&mut self, at: Index) -> Option<()> {
+    ///
+    /// *Note:*
+    /// This method is unsafe to call. It must be ensured that `at` is an
+    /// occupied index.
+    pub unsafe fn remove_occupied(&mut self, at: Index) -> Option<()> {
         if at >= self.len_entries() {
             // Early return since `at` index is out of bounds.
             return None
