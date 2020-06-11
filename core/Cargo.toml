@@ -30,9 +30,9 @@ generic-array = "0.14.1"
 paste = "0.1"
 
 # Hashes for the off-chain environment.
-sha2 = { version = "0.8", optional = true }
-sha3 = { version = "0.8", optional = true }
-blake2 = { version = "0.8", optional = true }
+sha2 = { version = "0.9", optional = true }
+sha3 = { version = "0.9", optional = true }
+blake2 = { version = "0.9", optional = true }
 
 # Only used in the off-chain environment.
 #
