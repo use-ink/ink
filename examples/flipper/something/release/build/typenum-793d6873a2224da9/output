@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/home/andrew/code/paritytech/ink/examples/flipper/something/release/build/typenum-793d6873a2224da9/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/home/andrew/code/paritytech/ink/examples/flipper/something/release/build/typenum-793d6873a2224da9/out/op.rs

@@ -38,6 +38,12 @@ use scale::{
 #[cfg_attr(feature = "std", derive(scale_info::Metadata))]
 pub struct Key(pub [u8; 32]);
 
+impl From<[u8; 32]> for Key {
+    fn from(bytes: [u8; 32]) -> Self {
+        Self(bytes)
+    }
+}
+
 impl core::fmt::Debug for Key {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "Key(")?;

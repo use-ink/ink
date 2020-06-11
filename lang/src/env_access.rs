@@ -23,12 +23,11 @@ use ink_core::{
         },
         EnvTypes,
         Result,
-        Topics,
     },
 };
 use ink_primitives::Key;
 
-/// Allows to directly access the environment mutably.
+/// Simplifies interaction with the host environment via `self`.
 ///
 /// # Note
 ///
@@ -36,11 +35,26 @@ use ink_primitives::Key;
 /// their environment in order to allow the different dispatch functions
 /// to use it for returning the contract's output.
 pub trait Env {
-    /// The environmental types.
+    /// The access wrapper.
     type EnvAccess;
 
     /// Accesses the environment with predefined environmental types.
     fn env(self) -> Self::EnvAccess;
+}
+
+/// Simplifies interaction with the host environment via `Self`.
+///
+/// # Note
+///
+/// This is generally implemented for storage structs that include
+/// their environment in order to allow the different dispatch functions
+/// to use it for returning the contract's output.
+pub trait StaticEnv {
+    /// The access wrapper.
+    type EnvAccess;
+
+    /// Accesses the environment with predefined environmental types.
+    fn env() -> Self::EnvAccess;
 }
 
 /// A typed accessor to the environment.
@@ -183,18 +197,6 @@ where
     /// For more details visit: [`ink_core::env::tombstone_deposit`]
     pub fn tombstone_deposit(self) -> T::Balance {
         env::tombstone_deposit::<T>().expect("couldn't decode tombstone deposits")
-    }
-
-    /// Emits an event with the given event data.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_core::env::emit_event`]
-    pub fn emit_event<Event>(self, event: Event)
-    where
-        Event: Topics<T> + scale::Encode,
-    {
-        env::emit_event::<T, Event>(event)
     }
 
     /// Sets the rent allowance of the executed contract to the new value.

@@ -119,7 +119,7 @@ impl EventHelpers<'_> {
                     where
                         E: Into<Self::Event>,
                     {
-                        ink_lang::EnvAccess::<EnvTypes>::emit_event(self, event.into())
+                        ink_core::env::emit_event::<EnvTypes, Self::Event>(event.into());
                     }
                 }
             };
@@ -135,7 +135,7 @@ impl EventHelpers<'_> {
             .collect::<Vec<_>>();
 
         quote! {
-            #[derive(scale::Encode)]
+            #[derive(scale::Encode, scale::Decode)]
             pub enum Event {
                 #( #event_idents(#event_idents), )*
             }
@@ -182,7 +182,7 @@ impl EventHelpers<'_> {
 ///
 /// - making all fields `pub`
 /// - strip `#[ink(..)]` attributes
-/// - add `#[derive(scale::Encode)]`
+/// - add `#[derive(scale::Encode, scale::Decode)]`
 ///
 /// # Note
 ///
@@ -223,7 +223,7 @@ impl EventStructs<'_> {
             quote_spanned!(span =>
                 #conflic_depedency_cfg
                 #(#attrs)*
-                #[derive(scale::Encode)]
+                #[derive(scale::Encode, scale::Decode)]
                 pub struct #ident
                     #fields
             )

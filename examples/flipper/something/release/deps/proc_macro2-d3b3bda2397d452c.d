@@ -1,0 +1,11 @@
+/home/andrew/code/paritytech/ink/examples/flipper/something/release/deps/proc_macro2-d3b3bda2397d452c.rmeta: /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/lib.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/strnom.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/detection.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/fallback.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/wrapper.rs
+
+/home/andrew/code/paritytech/ink/examples/flipper/something/release/deps/libproc_macro2-d3b3bda2397d452c.rlib: /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/lib.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/strnom.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/detection.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/fallback.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/wrapper.rs
+
+/home/andrew/code/paritytech/ink/examples/flipper/something/release/deps/proc_macro2-d3b3bda2397d452c.d: /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/lib.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/strnom.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/detection.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/fallback.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/wrapper.rs
+
+/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/lib.rs:
+/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/strnom.rs:
+/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/detection.rs:
+/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/fallback.rs:
+/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.12/src/wrapper.rs:

@@ -25,7 +25,6 @@ mod runtime {
     use ink_prelude::{
         format,
         vec,
-        vec::Vec,
     };
     use scale::{
         Decode,
@@ -83,10 +82,8 @@ mod runtime {
                 185, 157, 136, 14, 198, 129, 121, 156, 12, 243, 14, 136, 134, 55, 29, 169,
             ];
 
-            let encoded_account = &account.encode();
-
-            let mut blake2_128 = Blake2x128::from(Vec::new());
-            let hashed_account = blake2_128.hash_raw(&encoded_account);
+            let encoded_account = account.encode();
+            let hashed_account = <Blake2x128>::hash_bytes(&encoded_account);
 
             // The hasher is `Blake2_128Concat` which appends the unhashed account to the hashed account
             key.extend_from_slice(&hashed_account);
@@ -146,8 +143,7 @@ mod runtime {
                 185, 157, 136, 14, 198, 129, 121, 156, 12, 243, 14, 136, 134, 55, 29, 169,
             ];
 
-            let mut blake2_128 = Blake2x128::from(Vec::new());
-            let hashed_account = blake2_128.hash_raw(&encoded_account);
+            let hashed_account = <Blake2x128>::hash_bytes(&encoded_account);
 
             key.extend_from_slice(&hashed_account);
             key.extend_from_slice(&encoded_account);

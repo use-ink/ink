@@ -78,6 +78,11 @@ impl AccountsDb {
         }
     }
 
+    /// Resets the account DB to uninitialized state.
+    pub fn reset(&mut self) {
+        self.accounts.clear()
+    }
+
     /// Returns the account at the given account ID or creates it.
     pub fn get_or_create_account<T>(&mut self, at: &T::AccountId) -> &mut Account
     where

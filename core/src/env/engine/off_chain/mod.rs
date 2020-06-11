@@ -110,6 +110,36 @@ impl EnvInstance {
         }
     }
 
+    /// Returns `true` if the off-chain environment is uninitialized.
+    pub fn is_initialized(&self) -> bool {
+        !self.exec_context.is_empty()
+    }
+
+    /// Either resets or initializes the off-chain environment to default values.
+    pub fn initialize_or_reset_as_default<T>(&mut self) -> crate::env::Result<()>
+    where
+        T: EnvTypes,
+        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    {
+        if self.is_initialized() {
+            self.reset()
+        }
+        self.initialize_as_default::<T>()?;
+        Ok(())
+    }
+
+    /// Resets the off-chain environment to unintialized state.
+    pub fn reset(&mut self) {
+        self.accounts.reset();
+        self.exec_context.clear();
+        self.chain_spec.reset();
+        self.blocks.clear();
+        self.console.reset();
+        self.runtime_storage.reset();
+        self.runtime_call_handler.reset();
+        self.emitted_events.reset();
+    }
+
     /// Initializes the whole off-chain environment.
     ///
     /// # Note

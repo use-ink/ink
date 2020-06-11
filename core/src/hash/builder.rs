@@ -18,6 +18,15 @@ use super::{
 };
 use core::marker::PhantomData;
 
+/// Type indicating that no accumulator is in use.
+///
+/// # Note
+///
+/// This means that a hash builder with this type as accumulator cannot
+/// build hashes for instances based on their SCALE encoding.
+#[derive(Debug)]
+pub enum NoAccumulator {}
+
 /// Generic hash builder to construct hashes given a builder strategy.
 ///
 /// - `H` defines the crytographic hash to be conducted.
@@ -34,7 +43,8 @@ use core::marker::PhantomData;
 /// - [`Keccak256`](`crate::hash::Keccak256`)
 /// - [`Blake2x256`](`crate::hash::Blake2x256`)
 /// - [`Blake2x128`](`crate::hash::Blake2x128`)
-pub struct HashBuilder<H, S> {
+#[derive(Debug)]
+pub struct HashBuilder<H, S = NoAccumulator> {
     /// The strategy used to build up the hash.
     strategy: S,
     /// The underlying cryptographic hasher.
@@ -62,33 +72,8 @@ where
     }
 }
 
-pub trait Finalize<H>
-where
-    H: Hasher,
-{
-    fn finalize_using(&self, output: &mut <H as Hasher>::Output);
-    fn finalize(&self) -> <H as Hasher>::Output;
-}
-
-impl<H, S> Finalize<H> for HashBuilder<H, S>
-where
-    H: Hasher,
-    S: Accumulator,
-{
-    fn finalize_using(&self, output: &mut <H as Hasher>::Output) {
-        <H as Hasher>::finalize_immediate(self.strategy.as_slice(), output)
-    }
-
-    fn finalize(&self) -> <H as Hasher>::Output {
-        let mut output = <<H as Hasher>::Output as Default>::default();
-        Self::finalize_using(self, &mut output);
-        output
-    }
-}
-
 impl<H, S> HashBuilder<H, S>
 where
-    Self: Finalize<H> + scale::Output,
     H: Hasher,
 {
     /// Conducts the hash for the given bytes.
@@ -97,30 +82,62 @@ where
     ///
     /// # Note
     ///
-    /// Prefer the simpler [`hash_raw`](`HashBuilder::hash_raw`)
+    /// Prefer the simpler [`hash_bytes`](`HashBuilder::hash_bytes`)
     /// if you do _not_ need full control over the `output` buffer.
-    pub fn hash_raw_using(&mut self, input: &[u8], output: &mut <H as Hasher>::Output)
+    pub fn hash_bytes_using(input: &[u8], output: &mut <H as Hasher>::Output)
     where
         H: Hasher,
     {
-        <Self as scale::Output>::write(self, input);
-        self.finalize_using(output)
+        <H as Hasher>::finalize_immediate(input, output)
     }
 
     /// Returns the hash for the given bytes.
     ///
     /// # Note
     ///
-    /// Use [`hash_raw_using`](`HashBuilder::hash_raw_using`)
+    /// Use [`hash_bytes_using`](`HashBuilder::hash_bytes_using`)
     /// if you need full control over the `output` buffer.
-    pub fn hash_raw(&mut self, input: &[u8]) -> <H as Hasher>::Output
+    pub fn hash_bytes(input: &[u8]) -> <H as Hasher>::Output
     where
         H: Hasher,
     {
-        <Self as scale::Output>::write(self, input);
-        self.finalize()
+        let mut output = <<H as Hasher>::Output as Default>::default();
+        Self::hash_bytes_using(input, &mut output);
+        output
+    }
+}
+
+pub trait Finalize<H>
+where
+    H: Hasher,
+{
+    fn finalize_using(&mut self, output: &mut <H as Hasher>::Output);
+    fn finalize(&mut self) -> <H as Hasher>::Output;
+}
+
+impl<H, S> Finalize<H> for HashBuilder<H, S>
+where
+    H: Hasher,
+    S: Accumulator,
+{
+    fn finalize_using(&mut self, output: &mut <H as Hasher>::Output) {
+        let output = <H as Hasher>::finalize_immediate(self.strategy.as_slice(), output);
+        self.strategy.reset();
+        output
     }
 
+    fn finalize(&mut self) -> <H as Hasher>::Output {
+        let mut output = <<H as Hasher>::Output as Default>::default();
+        Self::finalize_using(self, &mut output);
+        output
+    }
+}
+
+impl<H, S> HashBuilder<H, S>
+where
+    H: Hasher,
+    S: Accumulator,
+{
     /// Conducts the hash for the encoded input.
     ///
     /// Puts the resulting hash into the provided output buffer.

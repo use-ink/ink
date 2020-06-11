@@ -1,0 +1,1 @@
+{"rustc":14420027189279859095,"features":"[\"use_std\"]","target":11384075933534393051,"profile":10825244071002989819,"path":8574385034969842815,"deps":[[11941395822602641974,"either",false,15979536344485581529]],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/itertools-f9f50acfa4465be1/dep-lib-itertools"}}],"rustflags":[],"metadata":966520972279299966}
