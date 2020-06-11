@@ -112,8 +112,11 @@ fn remove_from_filled_works() {
     let mut stash = test_values.iter().copied().collect::<StorageStash<_>>();
 
     let mut count = stash.len();
-    for (index, _value) in test_values.iter().enumerate() {
-        assert_eq!(stash.remove(index as u32), Some(()));
+    for (index, val) in test_values.iter().enumerate() {
+        let index = index as u32;
+        assert_eq!(stash.get(index), Some(val));
+        assert_eq!(stash.remove(index), Some(()));
+        assert_eq!(stash.get(index), None);
         count -= 1;
         assert_eq!(stash.len(), count);
     }
