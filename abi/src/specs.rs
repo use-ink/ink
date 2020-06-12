@@ -629,7 +629,8 @@ impl TypeSpec {
     {
         Self {
             id: T::meta_type(),
-            display_name: DisplayName::from_segments(segments).expect("display name is invalid"),
+            display_name: DisplayName::from_segments(segments)
+                .expect("display name is invalid"),
         }
     }
 

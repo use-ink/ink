@@ -62,9 +62,8 @@ impl<T> TypeInfo for SyncCell<T> {
     fn type_info() -> Type {
         Type::builder()
             .path(Path::new("SyncCell", module_path!()))
-
-        .composite(Fields::named().field_of::<Key>("cell"))
-        .into()
+            .composite(Fields::named().field_of::<Key>("cell"))
+            .into()
     }
 }
 

@@ -32,9 +32,9 @@ use ink_primitives::Key;
 use scale_info::{
     build::Fields,
     Metadata,
+    Path,
     Type,
     TypeInfo,
-    Path,
 };
 
 /// A chunk of synchronized cells.
