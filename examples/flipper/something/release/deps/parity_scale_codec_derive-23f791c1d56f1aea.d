@@ -1,9 +1,0 @@
-/home/andrew/code/paritytech/ink/examples/flipper/something/release/deps/libparity_scale_codec_derive-23f791c1d56f1aea.so: /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/lib.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/decode.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/encode.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/utils.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/trait_bounds.rs
-
-/home/andrew/code/paritytech/ink/examples/flipper/something/release/deps/parity_scale_codec_derive-23f791c1d56f1aea.d: /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/lib.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/decode.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/encode.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/utils.rs /home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/trait_bounds.rs
-
-/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/lib.rs:
-/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/decode.rs:
-/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/encode.rs:
-/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/utils.rs:
-/home/andrew/.cargo/registry/src/github.com-1ecc6299db9ec823/parity-scale-codec-derive-1.2.0/src/trait_bounds.rs:
