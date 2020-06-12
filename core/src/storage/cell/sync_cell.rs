@@ -32,11 +32,10 @@ use ink_prelude::boxed::Box;
 use ink_primitives::Key;
 #[cfg(feature = "ink-generate-abi")]
 use scale_info::{
-    Fields,
+    build::Fields,
     Metadata,
-    Namespace,
+    Path,
     Type,
-    TypeComposite,
     TypeInfo,
 };
 
@@ -61,12 +60,10 @@ pub struct SyncCell<T> {
 #[cfg(feature = "ink-generate-abi")]
 impl<T> TypeInfo for SyncCell<T> {
     fn type_info() -> Type {
-        TypeComposite::new(
-            "SyncCell",
-            Namespace::from_module_path(module_path!())
-                .expect("namespace from module path cannot fail"),
-        )
-        .fields(Fields::named().field_of::<Key>("cell"))
+        Type::builder()
+            .path(Path::new("SyncCell", module_path!()))
+
+        .composite(Fields::named().field_of::<Key>("cell"))
         .into()
     }
 }

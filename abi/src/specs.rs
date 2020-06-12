@@ -551,7 +551,7 @@ impl EventSpec {
 /// default setup. Even though it would be useful for third party tools
 /// such as the Polkadot UI to know that we are handling with `Balance`
 /// types, we currently cannot communicate this without display names.
-pub type DisplayName<F> = scale_info::Namespace<F>;
+pub type DisplayName<F> = scale_info::Path<F>;
 
 /// A type specification.
 ///
@@ -629,7 +629,7 @@ impl TypeSpec {
     {
         Self {
             id: T::meta_type(),
-            display_name: DisplayName::new(segments).expect("display name is invalid"),
+            display_name: DisplayName::from_segments(segments).expect("display name is invalid"),
         }
     }
 
@@ -640,7 +640,7 @@ impl TypeSpec {
     {
         Self {
             id: T::meta_type(),
-            display_name: DisplayName::prelude(),
+            display_name: DisplayName::default(),
         }
     }
 }

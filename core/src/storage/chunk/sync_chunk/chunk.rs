@@ -30,12 +30,11 @@ use ink_abi::{
 use ink_primitives::Key;
 #[cfg(feature = "ink-generate-abi")]
 use scale_info::{
-    Fields,
+    build::Fields,
     Metadata,
-    Namespace,
     Type,
-    TypeComposite,
     TypeInfo,
+    Path,
 };
 
 /// A chunk of synchronized cells.
@@ -61,13 +60,9 @@ pub struct SyncChunk<T> {
 #[cfg(feature = "ink-generate-abi")]
 impl<T> TypeInfo for SyncChunk<T> {
     fn type_info() -> Type {
-        TypeComposite::new(
-            "SyncChunk",
-            Namespace::from_module_path(module_path!())
-                .expect("namespace from module path cannot fail"),
-        )
-        .fields(Fields::named().field_of::<Key>("cells_key"))
-        .into()
+        Type::builder()
+            .path(Path::new("SyncChunk", module_path!()))
+            .composite(Fields::named().field_of::<Key>("cells_key"))
     }
 }
 
