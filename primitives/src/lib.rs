@@ -26,12 +26,16 @@
 mod byte_utils;
 pub mod hash;
 mod key;
+mod key2;
 mod key_ptr;
+mod key_ptr2;
 
 pub use self::{
     key::{
         Key,
         KeyDiff,
     },
+    key2::Key as Key2,
     key_ptr::KeyPtr,
+    key_ptr2::KeyPtr as KeyPtr2,
 };

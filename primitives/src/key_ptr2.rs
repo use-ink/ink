@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Key;
+use crate::Key2 as Key;
 
 /// A key pointer.
 ///
@@ -21,22 +21,24 @@ use crate::Key;
 #[derive(Debug, Copy, Clone)]
 pub struct KeyPtr {
     /// The underlying offset key.
-    offset: Key,
+    key: Key,
+    /// The last shift performed.
+    last_shift: u64,
 }
 
 impl From<Key> for KeyPtr {
     #[inline]
     fn from(key: Key) -> Self {
-        Self { offset: key }
+        Self { key, last_shift: 0 }
     }
 }
 
 impl KeyPtr {
     /// Advances the key pointer by the given amount and returns the old value.
     #[inline]
-    pub fn advance_by(&mut self, amount: u64) -> Key {
-        let copy = self.offset;
-        self.offset += amount;
-        copy
+    pub fn advance_by(&mut self, new_shift: u64) -> &Key {
+        let old_shift = core::mem::replace(&mut self.last_shift, new_shift);
+        self.key += old_shift;
+        &self.key
     }
 }
