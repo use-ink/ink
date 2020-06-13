@@ -117,7 +117,7 @@ where
 /// Trims a doc string obtained from an attribute token stream into the actual doc string.
 ///
 /// Practically speaking this method removes the trailing start `" = \""` and end `\"`
-/// of documentation strings coming from Syn attribute token streams.
+/// of documentation strings coming from `syn` attribute token streams.
 pub fn to_trimmed_doc_string(attr: &syn::Attribute) -> String {
     attr.tokens
         .to_string()
