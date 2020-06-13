@@ -32,10 +32,7 @@ use scale_info::{
     Metadata,
     Registry,
 };
-use serde::{
-    Serialize,
-    Serializer,
-};
+use serde::Serialize;
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -826,12 +823,4 @@ impl MessageParamSpecBuilder {
     pub fn done(self) -> MessageParamSpec {
         self.spec
     }
-}
-
-#[allow(clippy::trivially_copy_pass_by_ref)]
-fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    super::hex_encode(&s[..], serializer)
 }
