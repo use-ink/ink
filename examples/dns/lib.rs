@@ -213,7 +213,7 @@ mod dns {
                 AccountId::from(DEFAULT_CALLEE_HASH),
                 DEFAULT_ENDOWMENT,
                 DEFAULT_GAS_LIMIT,
-                env::call::CallData::new(env::call::Selector::from_str("")),
+                env::call::CallData::new(env::call::Selector::new([0x00; 4])),
             )
         }
 
