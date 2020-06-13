@@ -17,6 +17,9 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
+#[cfg(test)]
+mod tests;
+
 mod layout;
 mod specs;
 
@@ -51,11 +54,15 @@ pub use self::{
     },
 };
 
-use serde::Serialize;
-use type_metadata::{
+use core::fmt::Write as _;
+use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
+};
+use serde::{
+    Serialize,
+    Serializer,
 };
 
 /// An entire ink! project for ABI file generation purposes.
@@ -82,4 +89,16 @@ impl InkProject {
             registry,
         }
     }
+}
+
+fn hex_encode<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
+    write!(hex, "0x").expect("failed writing to string");
+    for byte in bytes {
+        write!(hex, "{:02x}", byte).expect("failed writing to string");
+    }
+    serializer.serialize_str(&hex)
 }

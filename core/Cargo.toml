@@ -39,13 +39,7 @@ blake2 = { version = "0.9", optional = true }
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside of the off-chain environment!
 rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
-
-[dependencies.type-metadata]
-git = "https://github.com/type-metadata/type-metadata.git"
-rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
-default-features = false
-features = ["derive"]
-optional = true
+scale-info = { version = "0.1", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
 itertools = "0.9"
@@ -58,7 +52,7 @@ std = [
     "ink_prelude/std",
     "ink_primitives/std",
     "scale/std",
-    "type-metadata/std",
+    "scale-info/std",
     "rand",
     "rand/std",
     "num-traits/std",
@@ -69,6 +63,6 @@ std = [
 ]
 ink-generate-abi = [
     "ink_abi",
-    "type-metadata",
+    "scale-info",
     "std",
 ]

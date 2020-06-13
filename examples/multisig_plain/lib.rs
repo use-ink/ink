@@ -118,7 +118,7 @@ mod multisig_plain {
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
     #[derive(scale::Encode, scale::Decode, storage::Flush)]
-    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+    #[cfg_attr(feature = "ink-generate-abi", derive(scale_info::Metadata))]
     #[cfg_attr(feature = "std", derive(Debug, PartialEq, Eq))]
     pub struct Transaction {
         /// The AccountId of the contract that is called in this transaction.

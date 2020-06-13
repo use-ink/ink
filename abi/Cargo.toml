@@ -21,15 +21,11 @@ ink_primitives = { version = "2.1.0", path = "../primitives/", default-features 
 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
-
-[dependencies.type-metadata]
-git = "https://github.com/type-metadata/type-metadata.git"
-rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
-default-features = false
-features = ["derive"]
+scale-info = { version = "0.1", default-features = false, features = ["derive"] }
 
 [dev-dependencies]
 serde_json = "1.0"
+assert-json-diff = "1.0.1"
 
 [features]
 default = [
@@ -40,7 +36,7 @@ std = [
     "ink_abi_derive/std",
     "ink_prelude/std",
     "serde/std",
-    "type-metadata/std",
+    "scale-info/std",
 ]
 derive = [
     "ink_abi_derive"

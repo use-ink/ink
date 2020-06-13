@@ -31,13 +31,12 @@ use ink_abi::{
 use ink_prelude::boxed::Box;
 use ink_primitives::Key;
 #[cfg(feature = "ink-generate-abi")]
-use type_metadata::{
-    HasTypeDef,
+use scale_info::{
+    build::Fields,
     Metadata,
-    NamedField,
-    TypeDef,
-    TypeDefStruct,
-    TypeId,
+    Path,
+    Type,
+    TypeInfo,
 };
 
 /// A synchronized cell.
@@ -51,7 +50,6 @@ use type_metadata::{
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(TypeId))]
 pub struct SyncCell<T> {
     /// The underlying typed cell.
     cell: TypedCell<T>,
@@ -60,9 +58,11 @@ pub struct SyncCell<T> {
 }
 
 #[cfg(feature = "ink-generate-abi")]
-impl<T> HasTypeDef for SyncCell<T> {
-    fn type_def() -> TypeDef {
-        TypeDefStruct::new(vec![NamedField::of::<Key>("cell")]).into()
+impl<T> TypeInfo for SyncCell<T> {
+    fn type_info() -> Type {
+        Type::builder()
+            .path(Path::new("SyncCell", module_path!()))
+            .composite(Fields::named().field_of::<Key>("cell"))
     }
 }
 

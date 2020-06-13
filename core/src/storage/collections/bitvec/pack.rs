@@ -17,7 +17,7 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 /// The underlying representation type for a pack.
 pub type BitPackRepr = u32;

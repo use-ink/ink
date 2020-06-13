@@ -32,7 +32,7 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 use core::ops::{
     Add,

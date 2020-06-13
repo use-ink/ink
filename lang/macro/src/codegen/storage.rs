@@ -176,7 +176,7 @@ impl Storage<'_> {
             #(#attrs)*
             #[cfg_attr(
                 feature = "ink-generate-abi",
-                derive(type_metadata::Metadata, ink_abi::HasLayout)
+                derive(scale_info::Metadata, ink_abi::HasLayout)
             )]
             #[cfg_attr(any(test, feature = "test-env"), derive(Debug))]
             pub struct Storage

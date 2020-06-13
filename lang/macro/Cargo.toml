@@ -36,12 +36,7 @@ ink_lang = { version = "2.1.0", path = "..", default-features = false, features 
 
 trybuild = "1.0.24"
 pretty_assertions = "0.6.1"
-
-[dependencies.type-metadata]
-git = "https://github.com/type-metadata/type-metadata.git"
-rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
-default-features = false
-features = ["derive"]
+scale-info = { version = "0.1", default-features = false, features = ["derive"] }
 
 [lib]
 name = "ink_lang_macro"

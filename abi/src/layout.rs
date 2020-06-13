@@ -17,14 +17,9 @@ use alloc::{
     string::String,
     vec::Vec,
 };
-use core::fmt::Write;
 
 use derive_more::From;
-use serde::{
-    Serialize,
-    Serializer,
-};
-use type_metadata::{
+use scale_info::{
     form::{
         CompactForm,
         Form,
@@ -32,6 +27,10 @@ use type_metadata::{
     },
     IntoCompact,
     Registry,
+};
+use serde::{
+    Serialize,
+    Serializer,
 };
 
 /// Implemented by types that have a storage layout.
@@ -49,15 +48,14 @@ impl From<ink_primitives::Key> for LayoutKey {
 
 impl HasLayout for ink_primitives::Key {
     fn layout(&self) -> StorageLayout {
-        LayoutRange::cell(*self, <[u8; 32] as type_metadata::Metadata>::meta_type())
-            .into()
+        LayoutRange::cell(*self, <[u8; 32] as scale_info::Metadata>::meta_type()).into()
     }
 }
 
 /// Either a concrete layout bound or another layout sub-struct.
 #[derive(Debug, PartialEq, Eq, Serialize, From)]
 #[serde(bound = "F::TypeId: Serialize")]
-#[serde(untagged)]
+#[serde(rename_all = "lowercase")]
 pub enum StorageLayout<F: Form = MetaForm> {
     /// A concrete layout bound.
     Range(LayoutRange<F>),
@@ -94,10 +92,9 @@ pub struct LayoutKey(
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct LayoutStruct<F: Form = MetaForm> {
-    #[serde(rename = "struct.type")]
+    #[serde(rename = "type")]
     self_ty: F::TypeId,
     /// The sub-fields of the struct.
-    #[serde(rename = "struct.fields")]
     fields: Vec<LayoutField<F>>,
 }
 
@@ -176,13 +173,12 @@ impl IntoCompact for LayoutField {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct LayoutRange<F: Form = MetaForm> {
     /// The single key for cells or the starting key address for chunks.
-    #[serde(rename = "range.offset", serialize_with = "serialize_key")]
+    #[serde(serialize_with = "serialize_key")]
     offset: LayoutKey,
     /// The amount of associated key addresses starting from the offset key.
-    #[serde(rename = "range.len")]
     len: u32,
     /// The element type stored under the associated keys.
-    #[serde(rename = "range.elem_type")]
+    #[serde(rename = "elemType")]
     elem_ty: F::TypeId,
 }
 
@@ -228,47 +224,5 @@ fn serialize_key<S>(key: &LayoutKey, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    let bytes = key.0;
-    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
-    write!(hex, "0x").expect("failed writing to string");
-    for byte in &bytes {
-        write!(hex, "{:02x}", byte).expect("failed writing to string");
-    }
-
-    serializer.serialize_str(&hex)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use type_metadata::{
-        form::{
-            Form,
-            MetaForm,
-        },
-        IntoCompact,
-        Registry,
-    };
-
-    #[test]
-    fn key_must_serialize_to_hex() {
-        // given
-        let type_id = <MetaForm as Form>::TypeId::new::<u32>();
-        let offset = LayoutKey([1; 32]);
-        let cs: LayoutRange<MetaForm> = LayoutRange {
-            offset,
-            len: 1337,
-            elem_ty: type_id,
-        };
-        let mut registry = Registry::new();
-
-        // when
-        let json = serde_json::to_string(&cs.into_compact(&mut registry)).unwrap();
-
-        // then
-        assert_eq!(
-            json,
-            "{\"range.offset\":\"0x0101010101010101010101010101010101010101010101010101010101010101\",\"range.len\":1337,\"range.elem_type\":1}"
-        );
-    }
+    super::hex_encode(&key.0[..], serializer)
 }

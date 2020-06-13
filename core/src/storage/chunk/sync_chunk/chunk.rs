@@ -29,13 +29,12 @@ use ink_abi::{
 };
 use ink_primitives::Key;
 #[cfg(feature = "ink-generate-abi")]
-use type_metadata::{
-    HasTypeDef,
+use scale_info::{
+    build::Fields,
     Metadata,
-    NamedField,
-    TypeDef,
-    TypeDefStruct,
-    TypeId,
+    Path,
+    Type,
+    TypeInfo,
 };
 
 /// A chunk of synchronized cells.
@@ -51,7 +50,6 @@ use type_metadata::{
 ///
 /// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).
 #[derive(Debug)]
-#[cfg_attr(feature = "ink-generate-abi", derive(TypeId))]
 pub struct SyncChunk<T> {
     /// The underlying chunk of cells.
     chunk: TypedChunk<T>,
@@ -60,9 +58,11 @@ pub struct SyncChunk<T> {
 }
 
 #[cfg(feature = "ink-generate-abi")]
-impl<T> HasTypeDef for SyncChunk<T> {
-    fn type_def() -> TypeDef {
-        TypeDefStruct::new(vec![NamedField::of::<Key>("cells_key")]).into()
+impl<T> TypeInfo for SyncChunk<T> {
+    fn type_info() -> Type {
+        Type::builder()
+            .path(Path::new("SyncChunk", module_path!()))
+            .composite(Fields::named().field_of::<Key>("cells_key"))
     }
 }
 

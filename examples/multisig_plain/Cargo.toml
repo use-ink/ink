@@ -12,13 +12,7 @@ ink_lang = { version = "2.1.0", path = "../../lang", default-features = false }
 ink_prelude = { version = "2.1.0", path = "../../prelude", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive"] }
-
-[dependencies.type-metadata]
-git = "https://github.com/type-metadata/type-metadata.git"
-rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
-default-features = false
-features = ["derive"]
-optional = true
+scale-info = { version = "0.1", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "multisig_plain"
@@ -38,7 +32,7 @@ std = [
     "ink_primitives/std",
     "ink_prelude/std",
     "scale/std",
-    "type-metadata/std",
+    "scale-info/std",
 ]
 test-env = [
     "std",
@@ -47,7 +41,7 @@ test-env = [
 ink-generate-abi = [
     "std",
     "ink_abi",
-    "type-metadata",
+    "scale-info",
     "ink_core/ink-generate-abi",
     "ink_lang/ink-generate-abi",
 ]
