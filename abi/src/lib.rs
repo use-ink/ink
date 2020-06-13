@@ -24,36 +24,30 @@ pub mod layout2;
 mod specs;
 mod utils;
 
-pub use self::{
-    specs::{
-        ConstructorSpec,
-        ConstructorSpecBuilder,
-        ContractSpec,
-        ContractSpecBuilder,
-        DisplayName,
-        EventParamSpec,
-        EventParamSpecBuilder,
-        EventSpec,
-        EventSpecBuilder,
-        MessageParamSpec,
-        MessageParamSpecBuilder,
-        MessageSpec,
-        MessageSpecBuilder,
-        ReturnTypeSpec,
-        TypeSpec,
-    },
+pub use self::specs::{
+    ConstructorSpec,
+    ConstructorSpecBuilder,
+    ContractSpec,
+    ContractSpecBuilder,
+    DisplayName,
+    EventParamSpec,
+    EventParamSpecBuilder,
+    EventSpec,
+    EventSpecBuilder,
+    MessageParamSpec,
+    MessageParamSpecBuilder,
+    MessageSpec,
+    MessageSpecBuilder,
+    ReturnTypeSpec,
+    TypeSpec,
 };
-use core::fmt::Write as _;
 #[cfg(feature = "derive")]
 use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
 };
-use serde::{
-    Serialize,
-    Serializer,
-};
+use serde::Serialize;
 
 /// An entire ink! project for ABI file generation purposes.
 #[derive(Debug, Serialize)]
