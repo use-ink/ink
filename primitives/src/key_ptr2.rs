@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Key2 as Key;
+use crate::Key;
 
 /// A key pointer.
 ///
