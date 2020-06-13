@@ -45,7 +45,6 @@ pub use self::{
 };
 use core::fmt::Write as _;
 #[cfg(feature = "derive")]
-pub use ink_abi_derive::HasLayout;
 use scale_info::{
     form::CompactForm,
     IntoCompact as _,
