@@ -627,11 +627,13 @@ mod tests {
         assert_eq!(hmap1.key_at(&0), Some(Key::from(*hmap1_at_0)));
         assert_eq!(
             hmap1.key_at(&1),
-            Some(Key::from(*b"\
+            Some(Key::from(
+                *b"\
                 \x9A\x46\x1F\xB3\xA1\xC4\x20\xF8\
                 \xA0\xD9\xA7\x79\x2F\x07\xFB\x7D\
                 \x49\xDD\xAB\x08\x67\x90\x96\x15\
-                \xFB\x85\x36\x3B\x82\x94\x85\x3F"))
+                \xFB\x85\x36\x3B\x82\x94\x85\x3F"
+            ))
         );
         // SHA2 256-bit hasher:
         let hmap2 = <LazyHashMap<i32, u8, Sha2x256Hasher>>::lazy(key);
@@ -641,19 +643,23 @@ mod tests {
         assert_cached_entries(&hmap2, &[]);
         assert_eq!(
             hmap1.key_at(&0),
-            Some(Key::from(*b"\
+            Some(Key::from(
+                *b"\
                 \x67\x7E\xD3\xA4\x72\x2A\x83\x60\
                 \x96\x65\x0E\xCD\x1F\x2C\xE8\x5D\
                 \xBF\x7E\xC0\xFF\x16\x40\x8A\xD8\
-                \x75\x88\xDE\x52\xF5\x8B\x99\xAF"))
+                \x75\x88\xDE\x52\xF5\x8B\x99\xAF"
+            ))
         );
         assert_eq!(
             hmap1.key_at(&1),
-            Some(Key::from(*b"\
+            Some(Key::from(
+                *b"\
                 \x9A\x46\x1F\xB3\xA1\xC4\x20\xF8\
                 \xA0\xD9\xA7\x79\x2F\x07\xFB\x7D\
                 \x49\xDD\xAB\x08\x67\x90\x96\x15\
-                \xFB\x85\x36\x3B\x82\x94\x85\x3F"))
+                \xFB\x85\x36\x3B\x82\x94\x85\x3F"
+            ))
         );
     }
 
