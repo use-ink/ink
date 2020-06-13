@@ -80,15 +80,3 @@ impl InkProject {
         }
     }
 }
-
-fn hex_encode<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
-    write!(hex, "0x").expect("failed writing to string");
-    for byte in bytes {
-        write!(hex, "{:02x}", byte).expect("failed writing to string");
-    }
-    serializer.serialize_str(&hex)
-}
