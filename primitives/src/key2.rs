@@ -132,6 +132,26 @@ impl Key {
     }
 }
 
+impl scale::Encode for Key {
+    fn size_hint(&self) -> usize {
+        32
+    }
+
+    fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+        if cfg!(target_endian = "little") {
+            dest.write(self.try_as_bytes().expect("little endian is asserted"))
+        } else {
+            dest.write(&self.to_bytes())
+        }
+    }
+}
+
+impl scale::Decode for Key {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
+        Ok(Self::from(<[u8; 32] as scale::Decode>::decode(input)?))
+    }
+}
+
 #[cfg(target_endian = "little")]
 impl Key {
     /// Returns the bytes that are representing the key.
