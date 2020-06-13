@@ -16,7 +16,6 @@
 
 #[cfg(not(feature = "std"))]
 extern crate alloc;
-extern crate proc_macro;
 
 #[macro_use]
 mod error;

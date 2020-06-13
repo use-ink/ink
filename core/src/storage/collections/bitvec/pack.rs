@@ -16,15 +16,15 @@ use scale::{
     Decode,
     Encode,
 };
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
+#[cfg(feature = "std")]
+use scale_info::Metadata;
 
 /// The underlying representation type for a pack.
 pub type BitPackRepr = u32;
 
 /// A pack of 32 bits.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 #[repr(transparent)]
 pub struct BitPack {
     /// The actual bits.

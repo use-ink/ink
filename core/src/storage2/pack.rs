@@ -81,6 +81,26 @@ impl<T> Pack<T> {
     }
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+    use scale_info::Metadata;
+
+    impl<T> StorageLayout for Pack<T>
+    where
+        T: Metadata,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Cell(CellLayout::new::<T>(LayoutKey::from(key_ptr.advance_by(1))))
+        }
+    }
+};
+
 impl<T> SpreadLayout for Pack<T>
 where
     T: PackedLayout,

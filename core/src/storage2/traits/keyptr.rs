@@ -14,36 +14,22 @@
 
 use super::SpreadLayout;
 use ink_primitives::Key;
+pub use ink_primitives::KeyPtr;
 
-/// A key pointer.
-///
-/// Mainly used by [`SpreadLayout`] trait in order to provide
-/// a streamlined and efficient interface for accessing the underlying [`Key`].
-pub struct KeyPtr {
-    /// The underlying key.
-    key: Key,
-}
-
-impl From<Key> for KeyPtr {
-    fn from(key: Key) -> Self {
-        Self { key }
-    }
-}
-
-impl KeyPtr {
+/// Extension trait to make `KeyPtr` simpler to use for `T: SpreadLayout` types.
+pub trait ExtKeyPtr {
     /// Advances the key pointer by the same amount of the footprint of the
     /// generic type parameter of `T` and returns the old value.
-    pub fn next_for<T>(&mut self) -> Key
+    fn next_for<T>(&mut self) -> Key
+    where
+        T: SpreadLayout;
+}
+
+impl ExtKeyPtr for KeyPtr {
+    fn next_for<T>(&mut self) -> Key
     where
         T: SpreadLayout,
     {
         self.advance_by(<T as SpreadLayout>::FOOTPRINT)
-    }
-
-    /// Advances the key pointer by the given amount and returns the old value.
-    pub fn advance_by(&mut self, amount: u64) -> Key {
-        let copy = self.key;
-        self.key += amount;
-        copy
     }
 }

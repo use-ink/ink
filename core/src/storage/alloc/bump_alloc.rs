@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
+#[cfg(feature = "std")]
+use scale_info::Metadata;
 
 use super::*;
 use ink_primitives::Key;
@@ -28,7 +28,7 @@ use ink_primitives::Key;
 ///
 /// Users are recommended to use the [`DynAlloc`](struct.DynAlloc.html)
 /// for dynamic storage allocation purposes instead.
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct BumpAlloc {
     /// The key offset used for all allocations.
     offset_key: Key,

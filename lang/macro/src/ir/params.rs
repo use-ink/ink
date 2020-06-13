@@ -300,7 +300,8 @@ impl Parse for ParamVersion {
         let data = MetaVersion::try_from(content).map_err(|_| {
             format_err_span!(
                 value.span(),
-                "couldn't match provided version as semantic version string: {}",
+                "couldn't match provided version as semantic version string: {}.\n\
+                 info: The format expects a number triplet x.y.z, e.g. \"0.1.0\"",
                 content,
             )
         })?;

@@ -84,7 +84,7 @@ fn generate_fields_layout<'a>(
 fn generate_struct_fields_layout(fields: &Punctuated<Field, Token![,]>) -> TokenStream2 {
     let fields_layout = generate_fields_layout(fields);
     quote! {
-        use type_metadata::Metadata as _;
+        use scale_info::Metadata as _;
         _ink_abi::LayoutStruct::new(Self::meta_type(), __core::vec![
             #( #fields_layout, )*
         ])
@@ -97,7 +97,7 @@ fn generate_struct_layout(data_struct: &DataStruct) -> TokenStream2 {
         Fields::Unnamed(ref fs) => generate_struct_fields_layout(&fs.unnamed),
         Fields::Unit => {
             quote! {
-                _ink_abi::LayoutStruct::new(<Self as type_metadata::Metadata>::meta_type(), Vec::new())
+                _ink_abi::LayoutStruct::new(<Self as scale_info::Metadata>::meta_type(), Vec::new())
             }
         }
     }

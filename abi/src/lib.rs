@@ -17,11 +17,13 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
-mod layout;
-mod specs;
+#[cfg(test)]
+mod tests;
 
-#[cfg(feature = "derive")]
-pub use ink_abi_derive::HasLayout;
+mod layout;
+pub mod layout2;
+mod specs;
+mod utils;
 
 pub use self::{
     layout::{
@@ -50,12 +52,17 @@ pub use self::{
         TypeSpec,
     },
 };
-
-use serde::Serialize;
-use type_metadata::{
+use core::fmt::Write as _;
+#[cfg(feature = "derive")]
+pub use ink_abi_derive::HasLayout;
+use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
+};
+use serde::{
+    Serialize,
+    Serializer,
 };
 
 /// An entire ink! project for ABI file generation purposes.
@@ -63,7 +70,7 @@ use type_metadata::{
 pub struct InkProject {
     registry: Registry,
     #[serde(rename = "storage")]
-    layout: StorageLayout<CompactForm>,
+    layout: layout2::Layout<CompactForm>,
     #[serde(rename = "contract")]
     spec: ContractSpec<CompactForm>,
 }
@@ -72,7 +79,7 @@ impl InkProject {
     /// Creates a new ink! project.
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
-        L: Into<StorageLayout>,
+        L: Into<layout2::Layout>,
         S: Into<ContractSpec>,
     {
         let mut registry = Registry::new();
@@ -82,4 +89,16 @@ impl InkProject {
             registry,
         }
     }
+}
+
+fn hex_encode<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
+    write!(hex, "0x").expect("failed writing to string");
+    for byte in bytes {
+        write!(hex, "{:02x}", byte).expect("failed writing to string");
+    }
+    serializer.serialize_str(&hex)
 }

@@ -20,6 +20,7 @@ use super::{
 use crate::storage2::traits::{
     clear_spread_root_opt,
     pull_spread_root_opt,
+    ExtKeyPtr,
     KeyPtr,
     SpreadLayout,
 };
@@ -115,6 +116,21 @@ where
     }
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::Layout;
+
+    impl<T> StorageLayout for LazyCell<T>
+    where
+        T: StorageLayout + SpreadLayout,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            <T as StorageLayout>::layout(key_ptr)
+        }
+    }
+};
+
 impl<T> SpreadLayout for LazyCell<T>
 where
     T: SpreadLayout,
@@ -122,7 +138,7 @@ where
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<T>())
+        Self::lazy(KeyPtr::next_for::<T>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
