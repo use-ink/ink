@@ -21,14 +21,14 @@ use crate::storage::{
     chunk::TypedChunk,
     Flush,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutRange,
     StorageLayout,
 };
 use ink_primitives::Key;
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use scale_info::{
     build::Fields,
     Metadata,
@@ -57,7 +57,7 @@ pub struct SyncChunk<T> {
     cache: CacheGuard<T>,
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> TypeInfo for SyncChunk<T> {
     fn type_info() -> Type {
         Type::builder()
@@ -102,7 +102,7 @@ impl<T> scale::Decode for SyncChunk<T> {
     }
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasLayout for SyncChunk<T>
 where
     T: Metadata,

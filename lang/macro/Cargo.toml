@@ -32,7 +32,7 @@ regex = "1.3"
 [dev-dependencies]
 ink_abi = { version = "2.1.0", path = "../../abi/" }
 ink_core = { version = "2.1.0", path = "../../core/" }
-ink_lang = { version = "2.1.0", path = "..", default-features = false, features = ["ink-generate-abi"] }
+ink_lang = { version = "2.1.0", path = ".." }
 
 trybuild = "1.0.24"
 pretty_assertions = "0.6.1"
@@ -43,17 +43,11 @@ name = "ink_lang_macro"
 proc-macro = true
 
 [features]
-default = ["test-env"]
-test-env = [
-    "std",
-]
+default = ["std"]
 std = [
     "scale/std",
     "itertools/use_std",
     "either/use_std",
     "ink_primitives/std",
     "serde/std",
-]
-ink-generate-abi = [
-    "std",
 ]

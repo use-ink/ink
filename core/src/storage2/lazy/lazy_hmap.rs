@@ -25,6 +25,7 @@ use crate::{
     storage2::traits::{
         clear_packed_root,
         pull_packed_root_opt,
+        ExtKeyPtr,
         KeyPtr,
         PackedLayout,
         SpreadLayout,
@@ -146,6 +147,44 @@ fn debug_impl_works() {
     );
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::{
+        LayoutCryptoHasher,
+        StorageLayout,
+    };
+    use ink_abi::layout2::{
+        CellLayout,
+        HashLayout,
+        HashingStrategy,
+        Layout,
+        LayoutKey,
+    };
+    use scale_info::Metadata;
+
+    impl<K, V, H> StorageLayout for LazyHashMap<K, V, H>
+    where
+        K: Ord + scale::Encode,
+        V: Metadata,
+        H: Hasher + LayoutCryptoHasher,
+        Key: From<<H as Hasher>::Output>,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Hash(HashLayout::new(
+                LayoutKey::from(key_ptr.advance_by(1)),
+                HashingStrategy::new(
+                    <H as LayoutCryptoHasher>::crypto_hasher(),
+                    b"ink hashmap".to_vec(),
+                    Vec::new(),
+                ),
+                Layout::Cell(CellLayout::new::<V>(LayoutKey::from(
+                    key_ptr.advance_by(0),
+                ))),
+            ))
+        }
+    }
+};
+
 impl<K, V, H> SpreadLayout for LazyHashMap<K, V, H>
 where
     K: Ord + scale::Encode,
@@ -156,11 +195,11 @@ where
     const FOOTPRINT: u64 = 1;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<Self>())
+        Self::lazy(ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        let offset_key = ptr.next_for::<Self>();
+        let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (index, entry) in self.entries().iter() {
             let root_key = self.to_offset_key(&offset_key, index);
             entry.push_packed_root(&root_key);

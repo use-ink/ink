@@ -2,13 +2,14 @@ use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod erc20 {
-    use ink_core::storage;
+    use ink_core::storage2::collections::HashMap as StorageHashMap;
+    use ink_core::storage2::Lazy;
 
     #[ink(storage)]
     struct Erc20 {
-        total_supply: storage::Value<Balance>,
-        balances: storage::HashMap<AccountId, Balance>,
-        allowances: storage::HashMap<(AccountId, AccountId), Balance>,
+        total_supply: Lazy<Balance>,
+        balances: StorageHashMap<AccountId, Balance>,
+        allowances: StorageHashMap<(AccountId, AccountId), Balance>,
     }
 
     #[ink(event)]
@@ -33,15 +34,21 @@ mod erc20 {
 
     impl Erc20 {
         #[ink(constructor)]
-        fn new(&mut self, initial_supply: Balance) {
-            let caller = self.env().caller();
-            self.total_supply.set(initial_supply);
-            self.balances.insert(caller, initial_supply);
-            self.env().emit_event(Transferred {
+        fn new(initial_supply: Balance) -> Self {
+            let caller = Self::env().caller();
+            let mut balances = StorageHashMap::new();
+            balances.insert(caller, initial_supply);
+            let instance = Self {
+                total_supply: Lazy::new(initial_supply),
+                balances,
+                allowances: Default::default(),
+            };
+            Self::env().emit_event(Transferred {
                 from: None,
                 to: Some(caller),
                 amount: initial_supply,
             });
+            instance
         }
 
         #[ink(message)]

@@ -21,7 +21,6 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
-#[cfg(test)]
 use self::iter::Entries;
 pub use self::iter::{
     Iter,
@@ -55,6 +54,7 @@ where
 
 /// Stores general commonly required information about the storage stash.
 #[derive(Debug, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::Metadata))]
 struct Header {
     /// The latest vacant index.
     ///
@@ -76,6 +76,7 @@ struct Header {
 
 /// A vacant entry with previous and next vacant indices.
 #[derive(Debug, Copy, Clone, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::Metadata))]
 pub struct VacantEntry {
     /// The next vacant index.
     next: Index,
@@ -88,6 +89,7 @@ pub struct VacantEntry {
 /// The vacant entries within a storage stash form a doubly linked list of
 /// vacant entries that is used to quickly re-use their vacant storage.
 #[derive(Debug, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::Metadata))]
 pub enum Entry<T> {
     /// A vacant entry that holds the index to the next and previous vacant entry.
     Vacant(VacantEntry),
@@ -200,12 +202,7 @@ where
     }
 
     /// Returns an iterator yielding shared references to all entries of the stash.
-    ///
-    /// # Note
-    ///
-    /// This is an internal API mainly used for testing the storage stash.
-    #[cfg(test)]
-    fn entries(&self) -> Entries<T> {
+    pub fn entries(&self) -> Entries<T> {
         Entries::new(self)
     }
 

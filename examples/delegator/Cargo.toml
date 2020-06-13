@@ -21,44 +21,27 @@ scale-info = { version = "0.1", default-features = false, features = ["derive"],
 name = "delegator"
 path = "lib.rs"
 crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
-	# Used for ABI generation.
-	"rlib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
 ]
 
 [features]
-default = ["test-env"]
+default = ["std"]
 std = [
     "ink_primitives/std",
+    "ink_abi",
     "ink_abi/std",
     "ink_core/std",
     "ink_lang/std",
     "scale/std",
+    "scale-info",
     "scale-info/std",
 
     "adder/std",
     "subber/std",
     "accumulator/std",
-]
-test-env = [
-	"std",
-    "ink_lang/test-env",
-    "scale-info/std",
-
-    "adder/test-env",
-    "subber/test-env",
-    "accumulator/test-env",
-]
-ink-generate-abi = [
-    "std",
-    "ink_abi",
-    "scale-info",
-    "ink_core/ink-generate-abi",
-
-    "adder/ink-generate-abi",
-    "subber/ink-generate-abi",
-    "accumulator/ink-generate-abi",
 ]
 ink-as-dependency = []
 
@@ -70,11 +53,11 @@ overflow-checks = true
 
 [workspace]
 members = [
-	".ink/abi_gen",
+    ".ink/abi_gen",
     "accumulator",
     "adder",
     "subber",
 ]
 exclude = [
-	".ink"
+    ".ink"
 ]

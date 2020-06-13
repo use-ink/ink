@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::storage2::traits::ExtKeyPtr as _;
+
 macro_rules! impl_always_packed_layout {
     ( $name:ident < $($frag:ident),+ >, deep: $deep:expr ) => {
         const _: () = {

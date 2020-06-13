@@ -68,6 +68,21 @@ where
     cell: LazyCell<T>,
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::Layout;
+
+    impl<T> StorageLayout for Lazy<T>
+    where
+        T: StorageLayout + SpreadLayout,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            <T as StorageLayout>::layout(key_ptr)
+        }
+    }
+};
+
 impl<T> SpreadLayout for Lazy<T>
 where
     T: SpreadLayout,

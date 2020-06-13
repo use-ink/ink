@@ -20,6 +20,7 @@ use super::{
 use crate::storage2::traits::{
     clear_packed_root,
     pull_packed_root_opt,
+    ExtKeyPtr,
     KeyPtr,
     PackedLayout,
     SpreadLayout,
@@ -196,6 +197,35 @@ impl<V> LazyIndexMap<V> {
     }
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        ArrayLayout,
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+    use scale_info::Metadata;
+
+    impl<T> StorageLayout for LazyIndexMap<T>
+    where
+        T: Metadata,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            let capacity = u32::MAX;
+            Layout::Array(ArrayLayout::new(
+                LayoutKey::from(key_ptr.advance_by(capacity as u64)),
+                capacity,
+                1,
+                Layout::Cell(CellLayout::new::<T>(LayoutKey::from(
+                    key_ptr.advance_by(0),
+                ))),
+            ))
+        }
+    }
+};
+
 impl<V> SpreadLayout for LazyIndexMap<V>
 where
     V: PackedLayout,
@@ -203,11 +233,11 @@ where
     const FOOTPRINT: u64 = 1_u64 << 32;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<Self>())
+        Self::lazy(ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        let offset_key = ptr.next_for::<Self>();
+        let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (&index, entry) in self.entries().iter() {
             let root_key = offset_key + index;
             entry.push_packed_root(&root_key);

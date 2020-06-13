@@ -22,7 +22,7 @@ use crate::storage::{
     cell::TypedCell,
     Flush,
 };
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
     LayoutRange,
@@ -30,7 +30,7 @@ use ink_abi::{
 };
 use ink_prelude::boxed::Box;
 use ink_primitives::Key;
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 use scale_info::{
     build::Fields,
     Metadata,
@@ -57,7 +57,7 @@ pub struct SyncCell<T> {
     cache: Cache<T>,
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> TypeInfo for SyncCell<T> {
     fn type_info() -> Type {
         Type::builder()
@@ -306,7 +306,7 @@ impl<T> Cache<T> {
     }
 }
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 impl<T> HasLayout for SyncCell<T>
 where
     T: Metadata,

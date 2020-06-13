@@ -78,14 +78,15 @@ use crate::{
 
 #[derive(From)]
 pub struct CrossCallingConflictCfg<'a> {
-    _contract: &'a ir::Contract,
+    contract: &'a ir::Contract,
 }
 
 impl GenerateCode for CrossCallingConflictCfg<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        quote! {
-            #[cfg(not(feature = "ink-as-dependency"))]
+        if self.contract.meta_info.is_compiled_as_dependency() {
+            return quote! { #[cfg(feature = "__ink_DO_NOT_COMPILE")] }
         }
+        quote! { #[cfg(not(feature = "ink-as-dependency"))] }
     }
 }
 
@@ -96,7 +97,6 @@ pub struct CrossCalling<'a> {
 
 impl GenerateCode for CrossCalling<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let cfg_bounds = self.generate_cfg_bounds();
         let storage = self.generate_storage();
         let storage_impls = self.generate_storage_impls();
         let storage_fns = self.generate_storage_fns();
@@ -104,19 +104,11 @@ impl GenerateCode for CrossCalling<'_> {
         let ref_mut_forwarder = self.generate_ref_mut_forwarder();
 
         quote! {
-            #cfg_bounds
-            mod __ink_cross_calling {
-                use super::*;
-
-                #storage
-                #storage_fns
-                #storage_impls
-                #ref_forwarder
-                #ref_mut_forwarder
-            }
-
-            #[cfg(feature = "ink-as-dependency")]
-            pub use self::__ink_cross_calling::StorageAsDependency;
+            #storage
+            #storage_impls
+            #storage_fns
+            #ref_forwarder
+            #ref_mut_forwarder
         }
     }
 }
@@ -128,70 +120,65 @@ impl GenerateCodeUsing for CrossCalling<'_> {
 }
 
 impl CrossCalling<'_> {
-    fn generate_cfg_bounds(&self) -> TokenStream2 {
+    fn generate_cfg(&self) -> Option<TokenStream2> {
         if self.contract.meta_info.is_compiled_as_dependency() {
-            quote! {}
-        } else {
-            quote! {
-                #[cfg(feature = "ink-as-dependency")]
-            }
+            return None
         }
+        Some(quote! {
+            #[cfg(feature = "ink-as-dependency")]
+        })
     }
 
     fn generate_storage(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let cfg = self.generate_cfg();
         let attrs = utils::filter_non_ink_attributes(&self.contract.storage.attrs);
 
         quote! {
+            #cfg
             #( #attrs )*
-            #[derive(Clone, Debug, scale::Encode, scale::Decode)]
-            #[cfg_attr(
-                feature = "ink-generate-abi",
-                derive(scale_info::Metadata)
+            #[derive(
+                Clone,
+                Debug,
+                ::scale::Encode,
+                ::scale::Decode,
+                ::ink_core::storage2::traits::SpreadLayout,
+                ::ink_core::storage2::traits::PackedLayout,
             )]
-            pub struct StorageAsDependency {
+            #[cfg_attr(
+                feature = "std",
+                derive(
+                    ::scale_info::Metadata,
+                    ::ink_core::storage2::traits::StorageLayout,
+                )
+            )]
+            pub struct #storage_ident {
                 account_id: AccountId,
             }
         }
     }
 
     fn generate_storage_impls(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let cfg = self.generate_cfg();
+
         quote! {
-            impl ink_core::storage::Flush for StorageAsDependency {}
-
-            #[cfg(feature = "ink-generate-abi")]
-            impl ink_core::storage::alloc::AllocateUsing for StorageAsDependency {
-                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-                where
-                    A: ink_core::storage::alloc::Allocate,
-                {
-                    // We don't want to carry this implementation arround.
-                    // Please remove as soon as possible.
-                    unimplemented!()
+            #cfg
+            const _: () = {
+                impl ::ink_core::env::call::FromAccountId<EnvTypes> for #storage_ident {
+                    #[inline]
+                    fn from_account_id(account_id: AccountId) -> Self {
+                        Self { account_id }
+                    }
                 }
-            }
 
-            #[cfg(feature = "ink-generate-abi")]
-            impl ink_abi::HasLayout for StorageAsDependency {
-                fn layout(&self) -> ink_abi::StorageLayout {
-                    ink_abi::LayoutStruct::new(
-                        <Self as scale_info::Metadata>::meta_type(), vec![]
-                    ).into()
+                impl ::ink_lang::ToAccountId<EnvTypes> for #storage_ident {
+                    #[inline]
+                    fn to_account_id(&self) -> AccountId {
+                        self.account_id
+                    }
                 }
-            }
-
-            impl ink_core::env::call::FromAccountId<EnvTypes> for StorageAsDependency {
-                #[inline]
-                fn from_account_id(account_id: AccountId) -> Self {
-                    Self { account_id }
-                }
-            }
-
-            impl ink_lang::ToAccountId<EnvTypes> for StorageAsDependency {
-                #[inline]
-                fn to_account_id(&self) -> AccountId {
-                    self.account_id
-                }
-            }
+            };
         }
     }
 
@@ -217,14 +204,14 @@ impl CrossCalling<'_> {
                     #( #attrs )*
                     pub fn #ident(
                         #( #fn_args ),*
-                    ) -> ink_core::env::call::InstantiateBuilder<
+                    ) -> ::ink_core::env::call::InstantiateBuilder<
                         EnvTypes,
                         Self,
-                        ink_core::env::call::state::Sealed,
-                        ink_core::env::call::state::CodeHashUnassigned,
+                        ::ink_core::env::call::state::Sealed,
+                        ::ink_core::env::call::state::CodeHashUnassigned,
                     > {
-                        ink_core::env::call::InstantiateParams::<EnvTypes, Self>::build(
-                            ink_core::env::call::Selector::new([#( #selector_bytes ),*])
+                        ::ink_core::env::call::InstantiateParams::<EnvTypes, Self>::build(
+                            ::ink_core::env::call::Selector::new([#( #selector_bytes ),*])
                         )
                         #(
                             .push_arg(&#arg_idents)
@@ -251,7 +238,7 @@ impl CrossCalling<'_> {
                 let fn_args = function.sig.inputs();
                 let arg_idents = function.sig.inputs().map(|fn_arg| &fn_arg.ident);
                 let output = &function.sig.output;
-                let is_mut = function.sig.is_mut();
+                let is_mut = function.sig.is_mut().expect("must be a message");
                 let call_path = if is_mut {
                     quote! { ForwardCallMut::call_mut}
                 } else {
@@ -285,7 +272,7 @@ impl CrossCalling<'_> {
                             #fn_args
                         ),*
                     ) #output {
-                        ink_lang::#call_path(self)
+                        ::ink_lang::#call_path(self)
                             .#ident( #( #arg_idents ),* )
                             .fire()
                             .expect(#failure_msg)
@@ -295,18 +282,23 @@ impl CrossCalling<'_> {
     }
 
     fn generate_storage_fns(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
         let storage_constructors = self.generate_storage_constructors();
         let storage_messages = self.generate_storage_messages();
+        let cfg = self.generate_cfg();
 
         quote! {
-            impl StorageAsDependency {
-                #(
-                    #storage_constructors
-                )*
-                #(
-                    #storage_messages
-                )*
-            }
+            #cfg
+            const _: () = {
+                impl #storage_ident {
+                    #(
+                        #storage_constructors
+                    )*
+                    #(
+                        #storage_messages
+                    )*
+                }
+            };
         }
     }
 
@@ -331,7 +323,7 @@ impl CrossCalling<'_> {
                     syn::ReturnType::Type(_, ty) => Some((&**ty).clone()),
                 };
                 let ret_ty_sig = if ret_ty.is_some() {
-                    quote! { ink_core::env::call::ReturnType<#ret_ty> }
+                    quote! { ::ink_core::env::call::ReturnType<#ret_ty> }
                 } else {
                     quote! { () }
                 };
@@ -351,12 +343,12 @@ impl CrossCalling<'_> {
                     pub fn #ident(
                         self,
                         #( #fn_args ),*
-                    ) -> ink_core::env::call::CallBuilder<
-                        EnvTypes, #ret_ty_sig, ink_core::env::call::state::Sealed
+                    ) -> ::ink_core::env::call::CallBuilder<
+                        EnvTypes, #ret_ty_sig, ::ink_core::env::call::state::Sealed
                     > {
-                        ink_core::env::call::CallParams::<EnvTypes, #ret_ty_param>::#instantiate_fn(
-                            ink_lang::ToAccountId::to_account_id(self.contract),
-                            ink_core::env::call::Selector::new([ #( #selector_bytes ),* ]),
+                        ::ink_core::env::call::CallParams::<EnvTypes, #ret_ty_param>::#instantiate_fn(
+                            ::ink_lang::ToAccountId::to_account_id(self.contract),
+                            ::ink_core::env::call::Selector::new([ #( #selector_bytes ),* ]),
                         )
                         #(
                             .push_arg(&#arg_idents)
@@ -368,54 +360,66 @@ impl CrossCalling<'_> {
     }
 
     fn generate_ref_forwarder(&self) -> TokenStream2 {
-        let forwarding_messages =
-            self.generate_forwarding_messages(|function| !function.sig.is_mut());
+        let storage_ident = &self.contract.storage.ident;
+        let forwarding_messages = self.generate_forwarding_messages(|function| {
+            !function.sig.is_mut().unwrap_or(false)
+        });
+        let cfg = self.generate_cfg();
 
         quote! {
-            impl<'a> ink_lang::ForwardCall for &'a StorageAsDependency {
-                type Forwarder = CallForwarder<'a>;
+            #cfg
+            const _: () = {
+                impl<'a> ::ink_lang::ForwardCall for &'a #storage_ident {
+                    type Forwarder = CallForwarder<'a>;
 
-                #[inline]
-                fn call(self) -> Self::Forwarder {
-                    CallForwarder { contract: self }
+                    #[inline]
+                    fn call(self) -> Self::Forwarder {
+                        CallForwarder { contract: self }
+                    }
                 }
-            }
 
-            pub struct CallForwarder<'a> {
-                contract: &'a StorageAsDependency,
-            }
+                pub struct CallForwarder<'a> {
+                    contract: &'a #storage_ident,
+                }
 
-            impl CallForwarder<'_> {
-                #(
-                    #forwarding_messages
-                )*
-            }
+                impl CallForwarder<'_> {
+                    #(
+                        #forwarding_messages
+                    )*
+                }
+            };
         }
     }
 
     fn generate_ref_mut_forwarder(&self) -> TokenStream2 {
-        let forwarding_messages =
-            self.generate_forwarding_messages(|function| function.sig.is_mut());
+        let storage_ident = &self.contract.storage.ident;
+        let forwarding_messages = self.generate_forwarding_messages(|function| {
+            function.sig.is_mut().unwrap_or(false)
+        });
+        let cfg = self.generate_cfg();
 
         quote! {
-            impl<'a> ink_lang::ForwardCallMut for &'a mut StorageAsDependency {
-                type Forwarder = CallForwarderMut<'a>;
+            #cfg
+            const _: () = {
+                impl<'a> ::ink_lang::ForwardCallMut for &'a mut #storage_ident {
+                    type Forwarder = CallForwarderMut<'a>;
 
-                #[inline]
-                fn call_mut(self) -> Self::Forwarder {
-                    CallForwarderMut { contract: self }
+                    #[inline]
+                    fn call_mut(self) -> Self::Forwarder {
+                        CallForwarderMut { contract: self }
+                    }
                 }
-            }
 
-            pub struct CallForwarderMut<'a> {
-                contract: &'a StorageAsDependency,
-            }
+                pub struct CallForwarderMut<'a> {
+                    contract: &'a #storage_ident,
+                }
 
-            impl CallForwarderMut<'_> {
-                #(
-                    #forwarding_messages
-                )*
-            }
+                impl CallForwarderMut<'_> {
+                    #(
+                        #forwarding_messages
+                    )*
+                }
+            };
         }
     }
 }

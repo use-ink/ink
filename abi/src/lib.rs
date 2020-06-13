@@ -21,10 +21,9 @@ extern crate alloc;
 mod tests;
 
 mod layout;
+pub mod layout2;
 mod specs;
-
-#[cfg(feature = "derive")]
-pub use ink_abi_derive::HasLayout;
+mod utils;
 
 pub use self::{
     layout::{
@@ -53,8 +52,9 @@ pub use self::{
         TypeSpec,
     },
 };
-
 use core::fmt::Write as _;
+#[cfg(feature = "derive")]
+pub use ink_abi_derive::HasLayout;
 use scale_info::{
     form::CompactForm,
     IntoCompact as _,
@@ -70,7 +70,7 @@ use serde::{
 pub struct InkProject {
     registry: Registry,
     #[serde(rename = "storage")]
-    layout: StorageLayout<CompactForm>,
+    layout: layout2::Layout<CompactForm>,
     #[serde(rename = "contract")]
     spec: ContractSpec<CompactForm>,
 }
@@ -79,7 +79,7 @@ impl InkProject {
     /// Creates a new ink! project.
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
-        L: Into<StorageLayout>,
+        L: Into<layout2::Layout>,
         S: Into<ContractSpec>,
     {
         let mut registry = Registry::new();

@@ -14,26 +14,25 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub use self::subber::Subber;
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
 mod subber {
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage;
     use accumulator::Accumulator;
 
     /// Decreases the underlying accumulator's value.
     #[ink(storage)]
     struct Subber {
         /// The accumulator to store the value.
-        accumulator: storage::Value<accumulator::Accumulator>,
+        accumulator: accumulator::Accumulator,
     }
 
     impl Subber {
         /// Creates a new subber from the given accumulator.
         #[ink(constructor)]
-        fn new(&mut self, accumulator: Accumulator) {
-            self.accumulator.set(accumulator)
+        fn new(accumulator: Accumulator) -> Self {
+            Self { accumulator }
         }
 
         /// Decreases the accumulator's value by some amount.
@@ -43,5 +42,3 @@ mod subber {
         }
     }
 }
-
-pub use crate::subber::Subber;

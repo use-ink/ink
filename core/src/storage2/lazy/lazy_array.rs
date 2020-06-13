@@ -20,6 +20,7 @@ use super::{
 use crate::storage2::traits::{
     clear_packed_root,
     pull_packed_root_opt,
+    ExtKeyPtr,
     KeyPtr,
     PackedLayout,
     SpreadLayout,
@@ -85,6 +86,36 @@ where
     /// An entry is cached as soon as it is loaded or written.
     cached_entries: EntryArray<T, N>,
 }
+
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        ArrayLayout,
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+    use scale_info::Metadata;
+
+    impl<T, N> StorageLayout for LazyArray<T, N>
+    where
+        T: Metadata,
+        N: LazyArrayLength<T>,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            let capacity = <N as Unsigned>::U32;
+            Layout::Array(ArrayLayout::new(
+                LayoutKey::from(key_ptr.advance_by(capacity as u64)),
+                capacity,
+                1,
+                Layout::Cell(CellLayout::new::<T>(LayoutKey::from(
+                    key_ptr.advance_by(0),
+                ))),
+            ))
+        }
+    }
+};
 
 struct DebugEntryArray<'a, T, N>(&'a EntryArray<T, N>)
 where
@@ -395,11 +426,11 @@ where
     const FOOTPRINT: u64 = <N as Unsigned>::U64;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<Self>())
+        Self::lazy(ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        let offset_key = ptr.next_for::<Self>();
+        let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (index, entry) in self.cached_entries().iter().enumerate() {
             if let Some(entry) = entry {
                 let root_key = offset_key + index as u64;

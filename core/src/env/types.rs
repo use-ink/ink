@@ -24,31 +24,30 @@ use crate::storage::Flush;
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
+    ops::{
+        Add,
+        AddAssign,
+        Div,
+        DivAssign,
+        Mul,
+        MulAssign,
+        Sub,
+        SubAssign,
+    },
 };
 use derive_more::From;
 use ink_prelude::vec::Vec;
-use scale::{
-    Decode,
-    Encode,
-};
-#[cfg(feature = "ink-generate-abi")]
-use scale_info::Metadata;
-
-use core::ops::{
-    Add,
-    AddAssign,
-    Div,
-    DivAssign,
-    Mul,
-    MulAssign,
-    Sub,
-    SubAssign,
-};
 use num_traits::{
     Bounded,
     One,
     Zero,
 };
+use scale::{
+    Decode,
+    Encode,
+};
+#[cfg(feature = "std")]
+use scale_info::Metadata;
 
 /// Types that allow for simple arithmetic operations.
 ///
@@ -180,7 +179,7 @@ where
 
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub enum DefaultEnvTypes {}
 
 impl EnvTypes for DefaultEnvTypes {
@@ -254,7 +253,7 @@ impl scale::Decode for Call {
     From,
     Default,
 )]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct AccountId([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for AccountId {
@@ -288,7 +287,7 @@ impl Flush for AccountId {}
     From,
     Default,
 )]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(Metadata))]
 pub struct Hash([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for Hash {

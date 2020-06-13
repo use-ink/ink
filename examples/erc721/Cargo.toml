@@ -15,6 +15,7 @@ scale-info = { version = "0.1", default-features = false, features = ["derive"],
 
 [lib]
 name = "erc721"
+path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
 	"cdylib",
@@ -23,24 +24,16 @@ crate-type = [
 ]
 
 [features]
-default = ["test-env"]
+default = ["std"]
 std = [
     "ink_primitives/std",
+    "ink_abi",
     "ink_abi/std",
     "ink_core/std",
+    "ink_lang/std",
     "scale/std",
-    "scale-info/std",
-]
-test-env = [
-    "std",
-    "ink_lang/test-env",
-]
-ink-generate-abi = [
-    "std",
-    "ink_abi",
     "scale-info",
-    "ink_core/ink-generate-abi",
-    "ink_lang/ink-generate-abi",
+    "scale-info/std",
 ]
 ink-as-dependency = []
 
