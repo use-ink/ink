@@ -24,14 +24,12 @@ use core::{
     any::TypeId,
     mem::ManuallyDrop,
 };
-use ink_core::{
-    storage2::{
-        alloc,
-        alloc::ContractPhase,
-        traits::{
-            pull_spread_root,
-            push_spread_root,
-        },
+use ink_core::storage2::{
+    alloc,
+    alloc::ContractPhase,
+    traits::{
+        pull_spread_root,
+        push_spread_root,
     },
 };
 use ink_primitives::Key;
