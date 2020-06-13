@@ -19,7 +19,7 @@ use crate::utils::serialize_as_byte_str;
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
-use type_metadata::{
+use scale_info::{
     form::{
         CompactForm,
         Form,

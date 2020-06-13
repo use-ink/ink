@@ -22,8 +22,7 @@ use alloc::{
     vec::Vec,
 };
 use core::marker::PhantomData;
-use serde::Serialize;
-use type_metadata::{
+use scale_info::{
     form::{
         CompactForm,
         Form,
@@ -32,6 +31,10 @@ use type_metadata::{
     IntoCompact,
     Metadata,
     Registry,
+};
+use serde::{
+    Serialize,
+    Serializer,
 };
 
 /// Describes a contract.
@@ -292,6 +295,7 @@ impl ConstructorSpecBuilder<state::Selector> {
 /// Describes a contract message.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
+#[serde(rename_all = "camelCase")]
 pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
     name: F::String,
@@ -547,7 +551,7 @@ impl EventSpec {
 /// default setup. Even though it would be useful for third party tools
 /// such as the Polkadot UI to know that we are handling with `Balance`
 /// types, we currently cannot communicate this without display names.
-pub type DisplayName<F> = type_metadata::Namespace<F>;
+pub type DisplayName<F> = scale_info::Path<F>;
 
 /// A type specification.
 ///
@@ -568,9 +572,10 @@ pub type DisplayName<F> = type_metadata::Namespace<F>;
 /// simply be a type alias to `fn(i32, i32) -> Ordering`.
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
+#[serde(rename_all = "camelCase")]
 pub struct TypeSpec<F: Form = MetaForm> {
     /// The actual type.
-    ty: F::TypeId,
+    id: F::TypeId,
     /// The compile-time known displayed representation of the type.
     display_name: DisplayName<F>,
 }
@@ -580,7 +585,7 @@ impl IntoCompact for TypeSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         TypeSpec {
-            ty: registry.register_type(&self.ty),
+            id: registry.register_type(&self.id),
             display_name: self.display_name.into_compact(registry),
         }
     }
@@ -623,8 +628,9 @@ impl TypeSpec {
         S: IntoIterator<Item = <MetaForm as Form>::String>,
     {
         Self {
-            ty: T::meta_type(),
-            display_name: DisplayName::new(segments).expect("display name is invalid"),
+            id: T::meta_type(),
+            display_name: DisplayName::from_segments(segments)
+                .expect("display name is invalid"),
         }
     }
 
@@ -634,8 +640,8 @@ impl TypeSpec {
         T: Metadata,
     {
         Self {
-            ty: T::meta_type(),
-            display_name: DisplayName::prelude(),
+            id: T::meta_type(),
+            display_name: DisplayName::default(),
         }
     }
 }
@@ -822,29 +828,10 @@ impl MessageParamSpecBuilder {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn construct_selector_must_serialize_to_hex() {
-        // given
-        let name = "foo";
-        let cs: ConstructorSpec<MetaForm> = ConstructorSpec {
-            name,
-            selector: 123_456_789u32.to_be_bytes(),
-            args: Vec::new(),
-            docs: Vec::new(),
-        };
-        let mut registry = Registry::new();
-
-        // when
-        let json = serde_json::to_string(&cs.into_compact(&mut registry)).unwrap();
-
-        // then
-        assert_eq!(
-            json,
-            r#"{"name":1,"selector":"0x075bcd15","args":[],"docs":[]}"#
-        );
-    }
+#[allow(clippy::trivially_copy_pass_by_ref)]
+fn serialize_selector<S>(s: &[u8; 4], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    super::hex_encode(&s[..], serializer)
 }

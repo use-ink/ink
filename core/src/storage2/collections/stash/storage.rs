@@ -45,7 +45,7 @@ const _: () = {
         LayoutKey,
         StructLayout,
     };
-    use type_metadata::Metadata;
+    use scale_info::Metadata;
 
     impl StorageLayout for Header {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {

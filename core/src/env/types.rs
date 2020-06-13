@@ -24,31 +24,30 @@ use crate::storage::Flush;
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
+    ops::{
+        Add,
+        AddAssign,
+        Div,
+        DivAssign,
+        Mul,
+        MulAssign,
+        Sub,
+        SubAssign,
+    },
 };
 use derive_more::From;
 use ink_prelude::vec::Vec;
-use scale::{
-    Decode,
-    Encode,
-};
-#[cfg(feature = "std")]
-use type_metadata::Metadata;
-
-use core::ops::{
-    Add,
-    AddAssign,
-    Div,
-    DivAssign,
-    Mul,
-    MulAssign,
-    Sub,
-    SubAssign,
-};
 use num_traits::{
     Bounded,
     One,
     Zero,
 };
+use scale::{
+    Decode,
+    Encode,
+};
+#[cfg(feature = "std")]
+use scale_info::Metadata;
 
 /// Types that allow for simple arithmetic operations.
 ///

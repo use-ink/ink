@@ -48,7 +48,7 @@ const _: () = {
         Layout,
         StructLayout,
     };
-    use type_metadata::Metadata;
+    use scale_info::Metadata;
 
     impl<K, V, H> StorageLayout for StorageHashMap<K, V, H>
     where

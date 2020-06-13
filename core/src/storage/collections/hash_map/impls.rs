@@ -30,7 +30,7 @@ use ink_abi::{
 };
 use ink_primitives::hash;
 #[cfg(feature = "std")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 use crate::storage::{
     self,

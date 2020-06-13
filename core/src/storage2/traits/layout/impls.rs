@@ -41,7 +41,7 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_primitives::Key;
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 macro_rules! impl_storage_layout_for_primitives {
     ( $($name:ty),* $(,)? ) => {

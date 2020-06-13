@@ -89,7 +89,7 @@ const _: () = {
         Layout,
         LayoutKey,
     };
-    use type_metadata::Metadata;
+    use scale_info::Metadata;
 
     impl<T> StorageLayout for Pack<T>
     where

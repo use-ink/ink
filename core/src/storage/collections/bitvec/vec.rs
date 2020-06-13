@@ -20,7 +20,7 @@ use ink_abi::{
     StorageLayout,
 };
 #[cfg(feature = "std")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 use super::BitBlock;
 use crate::storage::{

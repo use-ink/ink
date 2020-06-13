@@ -31,7 +31,7 @@ use ink_abi::{
 };
 use ink_primitives::Key;
 #[cfg(feature = "std")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 /// Allocator for dynamic contract storage.
 ///

@@ -44,7 +44,7 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "std")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 use crate::storage::{
     chunk::SyncChunk,

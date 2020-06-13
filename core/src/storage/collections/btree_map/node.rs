@@ -30,7 +30,7 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "std")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 /// Number of edges each node has.
 ///

@@ -12,6 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::storage::{
+    self,
+    alloc::{
+        Allocate,
+        AllocateUsing,
+        Initialize,
+    },
+    cell::SyncCell,
+    Flush,
+};
 #[cfg(feature = "std")]
 use ink_abi::{
     HasLayout,
@@ -24,18 +34,7 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "std")]
-use type_metadata::Metadata;
-
-use crate::storage::{
-    self,
-    alloc::{
-        Allocate,
-        AllocateUsing,
-        Initialize,
-    },
-    cell::SyncCell,
-    Flush,
-};
+use scale_info::Metadata;
 
 // Missing traits:
 //

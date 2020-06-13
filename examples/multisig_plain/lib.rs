@@ -139,7 +139,7 @@ mod multisig_plain {
             Debug,
             PartialEq,
             Eq,
-            type_metadata::Metadata,
+            scale_info::Metadata,
             ink_core::storage2::traits::StorageLayout
         )
     )]

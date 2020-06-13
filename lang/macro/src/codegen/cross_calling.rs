@@ -148,7 +148,7 @@ impl CrossCalling<'_> {
             #[cfg_attr(
                 feature = "std",
                 derive(
-                    ::type_metadata::Metadata,
+                    ::scale_info::Metadata,
                     ::ink_core::storage2::traits::StorageLayout,
                 )
             )]

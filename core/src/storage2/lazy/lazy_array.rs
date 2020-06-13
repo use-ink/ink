@@ -96,7 +96,7 @@ const _: () = {
         Layout,
         LayoutKey,
     };
-    use type_metadata::Metadata;
+    use scale_info::Metadata;
 
     impl<T, N> StorageLayout for LazyArray<T, N>
     where

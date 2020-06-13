@@ -35,7 +35,7 @@ const _: () = {
         Layout,
         StructLayout,
     };
-    use type_metadata::Metadata;
+    use scale_info::Metadata;
 
     impl<T> StorageLayout for StorageVec<T>
     where

@@ -30,7 +30,7 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "std")]
-use type_metadata::Metadata;
+use scale_info::Metadata;
 
 use super::duplex_sync_chunk::DuplexSyncChunk;
 use crate::storage::{
