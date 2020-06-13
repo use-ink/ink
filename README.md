@@ -94,32 +94,34 @@ mod flipper {
     #[ink(storage)]
     struct Flipper {
         /// The single `bool` value.
-        value: storage::Value<bool>,
+        value: bool,
     }
 
     impl Flipper {
         /// Instantiates a new Flipper contract and initializes `value` to `init_value`.
         #[ink(constructor)]
-        fn new(&mut self, init_value: bool) {
-            self.value.set(init_value);
+        fn new(init_value: bool) -> Self {
+            Self {
+                value: init_value,
+            }
         }
 
         /// Instantiates a new Flipper contract and initializes `value` to `false` by default.
         #[ink(constructor)]
-        fn default(&mut self) {
-            self.new(false)
+        fn default() -> Self {
+            Self::new(false)
         }
 
         /// Flips `value` from `true` to `false` or vice versa.
         #[ink(message)]
         fn flip(&mut self) {
-            *self.value = !self.get();
+            self.value = !self.value;
         }
 
         /// Returns the current state of `value`.
         #[ink(message)]
         fn get(&self) -> bool {
-            *self.value
+            self.value
         }
     }
 

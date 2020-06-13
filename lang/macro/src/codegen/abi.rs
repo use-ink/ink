@@ -40,17 +40,17 @@ impl GenerateCode for GenerateAbi<'_> {
         let layout = self.generate_layout();
 
         quote! {
-            #[cfg(feature = "ink-generate-abi")]
+            #[cfg(feature = "std")]
             const _: () = {
-                impl ink_lang::GenerateAbi for #storage_ident {
-                    fn generate_abi() -> ink_abi::InkProject {
-                        let contract: ink_abi::ContractSpec = {
+                impl ::ink_lang::GenerateAbi for #storage_ident {
+                    fn generate_abi() -> ::ink_abi::InkProject {
+                        let contract: ::ink_abi::ContractSpec = {
                             #contract
                         };
-                        let layout: ink_abi::StorageLayout = {
+                        let layout: ::ink_abi::layout2::Layout = {
                             #layout
                         };
-                        ink_abi::InkProject::new(layout, contract)
+                        ::ink_abi::InkProject::new(layout, contract)
                     }
                 }
             };
@@ -78,7 +78,7 @@ impl GenerateAbi<'_> {
                     .map(|fn_arg| self.generate_message_param(fn_arg));
 
                 quote_spanned!(span =>
-                    ink_abi::ConstructorSpec::new(#ident_lit)
+                    ::ink_abi::ConstructorSpec::new(#ident_lit)
                         .selector([#(#selector_bytes),*])
                         .args(vec![
                             #(#args ,)*
@@ -93,7 +93,7 @@ impl GenerateAbi<'_> {
 
     fn generate_type_spec(&self, ty: &syn::Type) -> TokenStream2 {
         fn without_display_name(ty: &syn::Type) -> TokenStream2 {
-            quote! { ink_abi::TypeSpec::new::<#ty>() }
+            quote! { ::ink_abi::TypeSpec::new::<#ty>() }
         }
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {
@@ -109,7 +109,7 @@ impl GenerateAbi<'_> {
                 .map(|seg| seg.ident.to_string())
                 .collect::<Vec<_>>();
             quote! {
-                ink_abi::TypeSpec::with_name_segs::<#ty, _>(
+                ::ink_abi::TypeSpec::with_name_segs::<#ty, _>(
                     vec![#(#segs),*].into_iter().map(AsRef::as_ref)
                 )
             }
@@ -122,13 +122,13 @@ impl GenerateAbi<'_> {
         match ret_ty {
             syn::ReturnType::Default => {
                 quote! {
-                    ink_abi::ReturnTypeSpec::new(None)
+                    ::ink_abi::ReturnTypeSpec::new(None)
                 }
             }
             syn::ReturnType::Type(_, ty) => {
                 let type_spec = self.generate_type_spec(ty);
                 quote! {
-                    ink_abi::ReturnTypeSpec::new(#type_spec)
+                    ::ink_abi::ReturnTypeSpec::new(#type_spec)
                 }
             }
         }
@@ -139,7 +139,7 @@ impl GenerateAbi<'_> {
         let type_spec = self.generate_type_spec(&fn_arg.ty);
 
         quote! {
-            ink_abi::MessageParamSpec::new(#ident_lit)
+            ::ink_abi::MessageParamSpec::new(#ident_lit)
                 .of_type(#type_spec)
                 .done()
         }
@@ -165,7 +165,7 @@ impl GenerateAbi<'_> {
                 let ret_ty = self.generate_return_type(&message.sig.output);
 
                 quote_spanned!(span =>
-                    ink_abi::MessageSpec::new(#ident_lit)
+                    ::ink_abi::MessageSpec::new(#ident_lit)
                         .selector([#(#selector_bytes),*])
                         .mutates(#is_mut)
                         .args(vec![
@@ -206,7 +206,7 @@ impl GenerateAbi<'_> {
             let ty_spec = self.generate_type_spec(&field.ty);
 
             quote_spanned!(span =>
-                ink_abi::EventParamSpec::new(#ident_lit)
+                ::ink_abi::EventParamSpec::new(#ident_lit)
                     .of_type(#ty_spec)
                     .indexed(#is_topic)
                     .docs(vec![
@@ -227,7 +227,7 @@ impl GenerateAbi<'_> {
             let args = self.generate_event_args(event);
 
             quote_spanned!(span =>
-                ink_abi::EventSpec::new(#ident_lit)
+                ::ink_abi::EventSpec::new(#ident_lit)
                     .args(vec![
                         #( #args, )*
                     ])
@@ -252,7 +252,7 @@ impl GenerateAbi<'_> {
         let docs = self.generate_docs();
 
         quote! {
-            ink_abi::ContractSpec::new(#contract_ident_lit)
+            ::ink_abi::ContractSpec::new(#contract_ident_lit)
                 .constructors(vec![
                     #(#constructors ,)*
                 ])
@@ -272,31 +272,9 @@ impl GenerateAbi<'_> {
     fn generate_layout(&self) -> TokenStream2 {
         let contract_ident = &self.contract.storage.ident;
         quote! {
-            unsafe {
-                use ink_abi::HasLayout as _;
-                use ink_core::storage::alloc::AllocateUsing as _;
-                // We can use `ManuallyDrop` here and don't care for
-                // unfreed memory since this function will generally be
-                // called from within the `.ink` tool `abi-gen` and process
-                // will end shortly after generating the ABI, so the
-                // operating system will perform the cleanup immediately
-                // for us.
-                //
-                // # Note
-                //
-                // This is not an optimization but to prevent panicking
-                // because of a potential use of a dynamic environment
-                // that uses storage data structures internally
-                // that are going to panic upon `Drop` if not initialized
-                // beforehand which would normally happen for contract
-                // execution.
-                core::mem::ManuallyDrop::new(
-                    #contract_ident::allocate_using(&mut ink_core::storage::alloc::BumpAlloc::from_raw_parts(
-                        ink_primitives::Key([0x0; 32]),
-                    ))
-                )
-                .layout()
-            }
+            <#contract_ident as ::ink_core::storage2::traits::StorageLayout>::layout(
+                &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key([0x00; 32]))
+            )
         }
     }
 }

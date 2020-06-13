@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +14,7 @@
 
 use ink_core::{
     env::call::Selector,
-    storage::{
-        alloc::{
-            AllocateUsing,
-            Initialize,
-        },
-        Flush,
-    },
+    storage2::traits::SpreadLayout,
 };
 
 /// Dispatchable functions that have inputs.
@@ -41,10 +35,29 @@ pub trait FnSelector {
     const SELECTOR: Selector;
 }
 
-/// Types implementing this are messages that may only read from storage.
-pub trait Message: FnInput + FnOutput + FnSelector {
-    const IS_MUT: bool;
+/// The storage state that the dispatchable function acts on.
+pub trait FnState {
+    /// The storage state.
+    type State: SpreadLayout + Sized;
 }
 
-/// Types implementing this trait are storage structs.
-pub trait Storage: AllocateUsing + Initialize + Flush {}
+/// A dispatchable contract constructor message.
+pub trait Constructor: FnInput + FnSelector + FnState {
+    const CALLABLE: fn(<Self as FnInput>::Input) -> <Self as FnState>::State;
+}
+
+/// A `&self` dispatchable contract message.
+pub trait MessageRef: FnInput + FnOutput + FnSelector + FnState {
+    const CALLABLE: fn(
+        &<Self as FnState>::State,
+        <Self as FnInput>::Input,
+    ) -> <Self as FnOutput>::Output;
+}
+
+/// A `&mut self` dispatchable contract message.
+pub trait MessageMut: FnInput + FnOutput + FnSelector + FnState {
+    const CALLABLE: fn(
+        &mut <Self as FnState>::State,
+        <Self as FnInput>::Input,
+    ) -> <Self as FnOutput>::Output;
+}

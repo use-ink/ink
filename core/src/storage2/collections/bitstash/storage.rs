@@ -32,6 +32,31 @@ use crate::storage2::{
 };
 use ink_primitives::Key;
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        FieldLayout,
+        Layout,
+        StructLayout,
+    };
+
+    impl StorageLayout for BitStash {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Struct(StructLayout::new(vec![
+                FieldLayout::new(
+                    "counts",
+                    <StorageVec<CountFree> as StorageLayout>::layout(key_ptr),
+                ),
+                FieldLayout::new(
+                    "elems",
+                    <StorageBitvec as StorageLayout>::layout(key_ptr),
+                ),
+            ]))
+        }
+    }
+};
+
 impl SpreadLayout for CountFree {
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = false;

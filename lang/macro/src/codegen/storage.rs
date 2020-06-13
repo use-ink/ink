@@ -48,34 +48,22 @@ impl GenerateCode for Storage<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let storage_span = self.contract.storage.span();
 
-        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
-        let trait_impls = self.generate_trait_impls_for_storage();
         let access_env_impls = self.generate_access_env_trait_impls();
         let message_impls = self.generate_message_impls();
         let storage_struct = self.generate_storage_struct();
-
         let use_emit_event = if !self.contract.events.is_empty() {
             // Required to allow for `self.env().emit_event(..)` in messages and constructors.
-            quote! { use __ink_private::EmitEvent as _; }
+            Some(quote! { use ::ink_lang::EmitEvent as _; })
         } else {
-            quote! {}
+            None
         };
+        let cfg = self.generate_code_using::<CrossCallingConflictCfg>();
 
         quote_spanned!(storage_span =>
-            #[doc(hidden)]
-            #conflic_depedency_cfg
-            mod __ink_storage {
-                use super::*;
+            #access_env_impls
+            #storage_struct
 
-                #access_env_impls
-                #trait_impls
-                #storage_struct
-            }
-
-            #conflic_depedency_cfg
-            pub use __ink_storage::Storage;
-
-            #conflic_depedency_cfg
+            #cfg
             const _: () = {
                 // Used to make `self.env()` available in message code.
                 #[allow(unused_imports)]
@@ -83,7 +71,6 @@ impl GenerateCode for Storage<'_> {
                     Env as _,
                     StaticEnv as _,
                 };
-
                 #use_emit_event
                 #message_impls
             };
@@ -93,76 +80,34 @@ impl GenerateCode for Storage<'_> {
 
 impl Storage<'_> {
     fn generate_access_env_trait_impls(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         quote! {
-            impl<'a> ink_lang::Env for &'a Storage {
-                type EnvAccess = ink_lang::EnvAccess<'a, EnvTypes>;
+            #cfg
+            const _: () = {
+                impl<'a> ::ink_lang::Env for &'a #storage_ident {
+                    type EnvAccess = ::ink_lang::EnvAccess<'a, EnvTypes>;
 
-                fn env(self) -> Self::EnvAccess {
-                    Default::default()
-                }
-            }
-
-            impl<'a> ink_lang::StaticEnv for Storage {
-                type EnvAccess = ink_lang::EnvAccess<'static, EnvTypes>;
-
-                fn env() -> Self::EnvAccess {
-                    Default::default()
-                }
-            }
-        }
-    }
-
-    fn generate_trait_impls_for_storage(&self) -> TokenStream2 {
-        let field_idents = &self
-            .contract
-            .storage
-            .fields
-            .named
-            .iter()
-            .map(|named_field| &named_field.ident)
-            .collect::<Vec<_>>();
-
-        quote! {
-            impl ink_core::storage::alloc::AllocateUsing for Storage {
-                unsafe fn allocate_using<A>(alloc: &mut A) -> Self
-                where
-                    A: ink_core::storage::alloc::Allocate,
-                {
-                    Self {
-                        #(
-                            #field_idents: ink_core::storage::alloc::AllocateUsing::allocate_using(alloc),
-                        )*
+                    fn env(self) -> Self::EnvAccess {
+                        Default::default()
                     }
                 }
-            }
 
-            impl ink_core::storage::Flush for Storage {
-                fn flush(&mut self) {
-                    #(
-                        ink_core::storage::Flush::flush(&mut self.#field_idents);
-                    )*
+                impl<'a> ::ink_lang::StaticEnv for #storage_ident {
+                    type EnvAccess = ::ink_lang::EnvAccess<'static, EnvTypes>;
+
+                    fn env() -> Self::EnvAccess {
+                        Default::default()
+                    }
                 }
-            }
-
-            impl ink_core::storage::alloc::Initialize for Storage {
-                type Args = ();
-
-                fn default_value() -> Option<Self::Args> {
-                    Some(())
-                }
-
-                fn initialize(&mut self, _args: Self::Args) {
-                    #(
-                        self.#field_idents.try_default_initialize();
-                    )*
-                }
-            }
+            };
         }
     }
 
     /// Generates the storage struct definition.
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
+        let storage_ident = &storage.ident;
         let span = storage.span();
         let attrs = utils::filter_non_ink_attributes(&storage.attrs);
         let mut fields = storage.fields.clone();
@@ -171,18 +116,18 @@ impl Storage<'_> {
                 pub_token: Default::default(),
             })
         });
-
+        let cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         quote_spanned!( span =>
+            #cfg
             #(#attrs)*
             #[cfg_attr(
-                feature = "ink-generate-abi",
-                derive(type_metadata::Metadata, ink_abi::HasLayout)
+                feature = "std",
+                derive(::ink_core::storage2::traits::StorageLayout)
             )]
-            #[cfg_attr(any(test, feature = "test-env"), derive(Debug))]
-            pub struct Storage
+            #[derive(::ink_core::storage2::traits::SpreadLayout)]
+            #[cfg_attr(test, derive(Debug))]
+            pub struct #storage_ident
                 #fields
-
-            impl ink_lang::Storage for Storage {}
         )
     }
 
@@ -195,7 +140,7 @@ impl Storage<'_> {
         } else {
             quote_spanned!(span => )
         };
-        let attrs = utils::filter_non_ink_attributes(&self.contract.storage.attrs);
+        let attrs = utils::filter_non_ink_attributes(&function.attrs);
         let ident = &function.sig.ident;
         let (_, type_generics, where_clause) = function.sig.generics.split_for_impl();
         let inputs = &function.sig.inputs;
@@ -204,7 +149,7 @@ impl Storage<'_> {
         quote_spanned!( span =>
             #( #attrs )*
             #vis fn #ident #type_generics (
-                #inputs,
+                #inputs
             ) #output
             #where_clause
             #block
@@ -214,6 +159,7 @@ impl Storage<'_> {
     /// Generates all the constructors, messages and methods defined on the storage struct.
     fn generate_message_impls(&self) -> TokenStream2 {
         let storage = &self.contract.storage;
+        let storage_ident = &storage.ident;
         let span = storage.span();
         let fns = self
             .contract
@@ -222,7 +168,7 @@ impl Storage<'_> {
             .map(|fun| self.generate_message(fun));
         quote_spanned!( span =>
             #[cfg_attr(feature = "cargo-clippy", allow(clippy::new_ret_no_self))]
-            impl Storage {
+            impl #storage_ident {
                 #(
                     #fns
                 )*

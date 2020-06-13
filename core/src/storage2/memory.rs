@@ -50,6 +50,24 @@ pub struct Memory<T> {
     inner: T,
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+
+    impl<T> StorageLayout for Memory<T> {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Cell(CellLayout::new::<()>(LayoutKey::from(
+                key_ptr.advance_by(0),
+            )))
+        }
+    }
+};
+
 impl<T> SpreadLayout for Memory<T>
 where
     T: Default,

@@ -19,19 +19,14 @@ use quote::quote;
 pub use crate::{
     codegen::{
         abi::GenerateAbi,
-        cross_calling::{
-            CrossCalling,
-            CrossCallingConflictCfg,
-        },
+        cross_calling::CrossCalling,
         dispatch::Dispatch,
         env_types::EnvTypes,
         events::{
             EventHelpers,
-            EventImports,
             EventStructs,
         },
         storage::Storage,
-        testable::TestWrapper,
         GenerateCode,
         GenerateCodeUsing,
     },
@@ -55,72 +50,27 @@ impl GenerateCode for ContractModule<'_> {
     /// Generates ink! contract code.
     fn generate_code(&self) -> TokenStream2 {
         let ident = &self.contract.ident;
-        let storage_ident = &self.contract.storage.ident;
 
-        let conflic_depedency_cfg = self.generate_code_using::<CrossCallingConflictCfg>();
         let env_types = self.generate_code_using::<EnvTypes>();
         let storage = self.generate_code_using::<Storage>();
         let dispatch = self.generate_code_using::<Dispatch>();
         let generate_abi = self.generate_code_using::<GenerateAbi>();
         let event_helpers = self.generate_code_using::<EventHelpers>();
         let event_structs = self.generate_code_using::<EventStructs>();
-        let event_imports = self.generate_code_using::<EventImports>();
-        let test_wrapper = self.generate_code_using::<TestWrapper>();
         let cross_calling = self.generate_code_using::<CrossCalling>();
         let non_ink_items = &self.contract.non_ink_items;
-
-        let test_event_alias = if !self.contract.events.is_empty() {
-            quote! {
-                #[cfg(all(test, feature = "test-env"))]
-                pub type Event = self::__ink_private::Event;
-            }
-        } else {
-            quote! {}
-        };
 
         quote! {
             mod #ident {
                 #env_types
-
-                // Private struct and other type definitions.
-                mod __ink_private {
-                    use super::*;
-                    #event_imports
-
-                    #storage
-                    #event_helpers
-                    #dispatch
-                    #generate_abi
-                    #test_wrapper
-                    #cross_calling
-                }
-
-                #[cfg(all(test, feature = "test-env"))]
-                pub type #storage_ident = self::__ink_private::TestableStorage;
-
-                #[cfg(not(all(test, feature = "test-env")))]
-                #conflic_depedency_cfg
-                pub type #storage_ident = self::__ink_private::Storage;
-
-                #[cfg(feature = "ink-as-dependency")]
-                pub type #storage_ident = self::__ink_private::StorageAsDependency;
-
-                #test_event_alias
-
+                #storage
+                #event_helpers
+                #dispatch
+                #generate_abi
+                #cross_calling
                 #event_structs
-
-                #(
-                    #non_ink_items
-                )*
+                #( #non_ink_items )*
             }
-
-            // Only re-export if we want to generate the ABI.
-            // We should rethink this approach, it isn't a good
-            // idea to generate code outside of the scope of the
-            // given ink! module.
-            #[cfg(feature = "ink-generate-abi")]
-            #conflic_depedency_cfg
-            pub use crate::#ident::#storage_ident;
         }
     }
 }

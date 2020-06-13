@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,165 +13,23 @@
 // limitations under the License.
 
 use crate::{
-    Dispatch,
-    DispatchError,
-    DispatchList,
-    DispatchableFn,
-    DispatchableFnMut,
-    Dispatcher,
-    DispatcherMut,
-    EmptyDispatchList,
-    FnInput,
-    FnOutput,
-    PushDispatcher,
-};
-use core::{
-    marker::PhantomData,
-    mem::ManuallyDrop,
-};
-use ink_core::env::EnvTypes;
-
-/// The contract definition.
-pub struct Contract<Storage, Constrs, Msgs> {
-    /// The storage holding contract state.
-    pub storage: ManuallyDrop<Storage>,
-    /// The dispatchable constructors.
-    pub constructors: Constrs,
-    /// The dispatchable messages.
-    pub messages: Msgs,
-}
-
-impl Contract<(), (), ()> {
-    /// Creates a new contract definition for the given storage type.
-    pub fn with_storage<Storage>(
-    ) -> ContractBuilder<Storage, EmptyDispatchList, EmptyDispatchList> {
-        ContractBuilder {
-            storage: Default::default(),
-            constructors: DispatchList::empty(),
-            messages: DispatchList::empty(),
-        }
-    }
-}
-
-/// Storage marker.
-#[derive(Debug, Copy, Clone)]
-struct StorageMarker<S>(PhantomData<fn() -> S>);
-
-impl<S> Default for StorageMarker<S> {
-    fn default() -> Self {
-        Self(Default::default())
-    }
-}
-
-/// Simplifies declaration of a smart contract.
-pub struct ContractBuilder<Storage, Constrs, Msgs> {
-    storage: StorageMarker<Storage>,
-    constructors: Constrs,
-    messages: Msgs,
-}
-
-impl<Storage, Constrs> ContractBuilder<Storage, Constrs, EmptyDispatchList>
-where
-    Constrs: PushDispatcher,
-{
-    /// Pushes a new constructor to the contract definition.
-    pub fn on_instantiate<C>(
-        self,
-        dfn: DispatchableFnMut<C, Storage>,
-    ) -> ContractBuilder<
-        Storage,
-        DispatchList<DispatcherMut<C, Storage>, Constrs>,
+    dispatcher::{
+        Dispatch,
+        DispatchList,
         EmptyDispatchList,
-    >
-    where
-        C: FnInput + FnOutput,
-    {
-        ContractBuilder {
-            storage: self.storage,
-            constructors: self.constructors.push(DispatcherMut::new(dfn)),
-            messages: self.messages,
-        }
-    }
-}
-
-impl<Storage, Constrs, Msgs> ContractBuilder<Storage, Constrs, Msgs>
-where
-    Msgs: PushDispatcher,
-{
-    /// Pushes a new message to the contract definition.
-    ///
-    /// The message may not mutate contract storage.
-    pub fn on_msg<M>(
-        self,
-        dfn: DispatchableFn<M, Storage>,
-    ) -> ContractBuilder<Storage, Constrs, DispatchList<Dispatcher<M, Storage>, Msgs>>
-    where
-        M: FnInput + FnOutput,
-    {
-        ContractBuilder {
-            storage: self.storage,
-            constructors: self.constructors,
-            messages: self.messages.push(Dispatcher::new(dfn)),
-        }
-    }
-}
-
-impl<Storage, Constrs, Msgs> ContractBuilder<Storage, Constrs, Msgs>
-where
-    Msgs: PushDispatcher,
-{
-    /// Pushes a new message to the contract definition.
-    ///
-    /// The message may not mutate contract storage.
-    pub fn on_msg_mut<M>(
-        self,
-        dfn: DispatchableFnMut<M, Storage>,
-    ) -> ContractBuilder<Storage, Constrs, DispatchList<DispatcherMut<M, Storage>, Msgs>>
-    where
-        M: FnInput + FnOutput,
-    {
-        ContractBuilder {
-            storage: self.storage,
-            constructors: self.constructors,
-            messages: self.messages.push(DispatcherMut::new(dfn)),
-        }
-    }
-}
-
-impl<Storage, ConstrsHead, ConstrsRest, MsgsHead, MsgsRest>
-    ContractBuilder<
-        Storage,
-        DispatchList<ConstrsHead, ConstrsRest>,
-        DispatchList<MsgsHead, MsgsRest>,
-    >
-{
-    /// Finalizes construction of the contract definition.
-    pub fn done(
-        self,
-    ) -> Contract<
-        Storage,
-        DispatchList<ConstrsHead, ConstrsRest>,
-        DispatchList<MsgsHead, MsgsRest>,
-    >
-    where
-        Storage: crate::Storage,
-    {
-        use ink_core::storage::alloc::{
-            AllocateUsing,
-            BumpAlloc,
-        };
-        use ink_primitives::Key;
-        let storage = ManuallyDrop::new(unsafe {
-            let mut alloc = BumpAlloc::from_raw_parts(Key([0x0; 32]));
-            AllocateUsing::allocate_using(&mut alloc)
-        });
-        Contract {
-            storage,
-            constructors: self.constructors,
-            messages: self.messages,
-        }
-    }
-}
+        MsgCon,
+        MsgMut,
+        MsgRef,
+    },
+    traits::{
+        Constructor,
+        MessageMut,
+        MessageRef,
+    },
+    DispatchError,
+};
+use core::marker::PhantomData;
+use ink_core::env::call::CallData;
 
 /// The contract dispatch mode.
 ///
@@ -184,46 +42,168 @@ pub enum DispatchMode {
     Call,
 }
 
-impl<Storage, ConstrsHead, ConstrsRest, MsgsHead, MsgsRest>
-    Contract<
-        Storage,
-        DispatchList<ConstrsHead, ConstrsRest>,
-        DispatchList<MsgsHead, MsgsRest>,
-    >
-where
-    Storage: crate::Storage,
-    DispatchList<ConstrsHead, ConstrsRest>: Dispatch<Storage>,
-    DispatchList<MsgsHead, MsgsRest>: Dispatch<Storage>,
-{
-    pub fn dispatch_using_mode<T>(
-        mut self,
-        mode: DispatchMode,
-    ) -> Result<(), DispatchError>
-    where
-        T: EnvTypes,
-    {
-        // Initialize storage if we instantiate the contract.
-        if mode == DispatchMode::Instantiate {
-            self.storage.try_default_initialize();
-        }
-        // Dispatch using the contract execution input.
-        let call_data =
-            ink_core::env::input().map_err(|_| DispatchError::CouldNotReadInput)?;
-        match mode {
-            DispatchMode::Instantiate => {
-                self.constructors
-                    .dispatch::<T>(&mut self.storage, &call_data)
-            }
-            DispatchMode::Call => {
-                self.messages.dispatch::<T>(&mut self.storage, &call_data)
-            }
-        }
-    }
-}
-
 /// Trait implemented by contracts themselves in order to provide a clean
 /// interface for the C-ABI specified `call` and `create` functions to forward
 /// calls to.
 pub trait DispatchUsingMode {
     fn dispatch_using_mode(mode: DispatchMode) -> Result<(), DispatchError>;
+}
+
+/// Placeholder for the given type.
+#[derive(Debug)]
+pub struct Placeholder<T>(PhantomData<fn() -> T>);
+
+impl<T> Default for Placeholder<T> {
+    fn default() -> Self {
+        Self(Default::default())
+    }
+}
+
+impl<T> Clone for Placeholder<T> {
+    fn clone(&self) -> Self {
+        Default::default()
+    }
+}
+
+impl<T> Copy for Placeholder<T> {}
+
+/// The contract definition.
+///
+/// ## Dispatch
+///
+/// ### Constructor Dispatch
+///
+/// 1. Retrieve function selector `s`.
+/// 1. Find selected constructor `C` given `s`:
+///     - If `C` was found:
+///         1. Decode input arguments `i` according to `C`'s requirements
+///         1. Initialize dynamic storage allocator for instantiation
+///         1. Call `C(i)`, returns storage instance `S`
+///         1. Push state of `S` to contract storage
+///         1. Finalize dynamic storage allocator
+///         1. Exit
+///     - Otherwise:
+///         1. Panic that the provided constructor selector was invalid
+///
+/// ### Message Dispatch
+///
+/// 1. Retrieve function selector `s`.
+/// 1. Find selected message `M` given `s`:
+///     - If `M` was found:
+///         1. Decode input arguments `i` according to `M`'s requirements
+///         1. Initialize dynamic storage allocator for calls
+///         1. Pull storage instance `S` from contract storage
+///         1. Call `M(s, i)`, returns return value `R`
+///         1. If `M` has mutable access to the contract storage:
+///             1. push mutated state of `S` back to contract storage
+///         1. Finalize dynamic storage allocator
+///         1. If `R` is not of type `()`:
+///             1. return `R`
+///         1. Exit
+///     - Otherwise:
+///         1. Panic that the provided message selector was invalid
+#[derive(Debug)]
+pub struct Contract<Constrs, Msgs, Phase> {
+    /// The current type state of the contract.
+    state: Placeholder<(Constrs, Msgs, Phase)>,
+}
+
+impl<Constrs, Msgs, Phase> Default for Contract<Constrs, Msgs, Phase> {
+    #[inline(always)]
+    fn default() -> Self {
+        Self {
+            state: Default::default(),
+        }
+    }
+}
+
+impl<Constrs, Msgs, Phase> Clone for Contract<Constrs, Msgs, Phase> {
+    fn clone(&self) -> Self {
+        Default::default()
+    }
+}
+
+impl<Constrs, Msgs, Phase> Copy for Contract<Constrs, Msgs, Phase> {}
+
+/// Phase to start the building process of a contract.
+#[derive(Debug)]
+pub enum EmptyPhase {}
+/// Building phase of a contract construction.
+#[derive(Debug)]
+pub enum BuildPhase {}
+/// Final phase of a fully constructed contract.
+#[derive(Debug)]
+pub enum FinalPhase {}
+
+impl Contract<(), (), EmptyPhase> {
+    /// Creates a new contract builder.
+    #[inline(always)]
+    pub fn build() -> Contract<EmptyDispatchList, EmptyDispatchList, BuildPhase> {
+        Default::default()
+    }
+}
+
+impl<Constrs> Contract<Constrs, EmptyDispatchList, BuildPhase> {
+    /// Registers a new constructor for the contract.
+    #[inline(always)]
+    pub fn register_constructor<C>(
+        self,
+    ) -> Contract<DispatchList<MsgCon<C>, Constrs>, EmptyDispatchList, BuildPhase>
+    where
+        C: Constructor,
+    {
+        Default::default()
+    }
+}
+
+impl<Constrs, Messages> Contract<Constrs, Messages, BuildPhase> {
+    /// Registers a new `&self` message for the contract.
+    #[inline(always)]
+    pub fn register_message<M>(
+        self,
+    ) -> Contract<Constrs, DispatchList<MsgRef<M>, Messages>, BuildPhase>
+    where
+        M: MessageRef,
+    {
+        Default::default()
+    }
+
+    /// Registers a new `&mut self` message for the contract.
+    #[inline(always)]
+    pub fn register_message_mut<M>(
+        self,
+    ) -> Contract<Constrs, DispatchList<MsgMut<M>, Messages>, BuildPhase>
+    where
+        M: MessageMut,
+    {
+        Default::default()
+    }
+
+    /// Finalizes the construction of the contract.
+    #[inline(always)]
+    pub fn finalize(self) -> Contract<Constrs, Messages, FinalPhase> {
+        Default::default()
+    }
+}
+
+impl<Constrs, Messages> Contract<Constrs, Messages, FinalPhase>
+where
+    Constrs: Dispatch,
+{
+    /// Instantiates the contract.
+    #[inline(always)]
+    pub fn on_instantiate(self, call_data: &CallData) -> Result<(), DispatchError> {
+        <Constrs as Dispatch>::dispatch(call_data)
+    }
+}
+
+impl<Constrs, Messages> Contract<Constrs, Messages, FinalPhase>
+where
+    Messages: Dispatch,
+{
+    /// Calls a contract message.
+    #[inline(always)]
+    pub fn on_call(self, call_data: &CallData) -> Result<(), DispatchError> {
+        <Messages as Dispatch>::dispatch(call_data)
+    }
 }

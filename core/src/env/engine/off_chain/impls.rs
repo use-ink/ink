@@ -118,11 +118,11 @@ impl Env for EnvInstance {
     }
 
     fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
-        hashing::blake2_256(input, output)
+        hashing::blake2b_256(input, output)
     }
 
     fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]) {
-        hashing::blake2_128(input, output)
+        hashing::blake2b_128(input, output)
     }
 
     fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {

@@ -35,11 +35,11 @@ impl GenerateCode for EnvTypes<'_> {
         quote! {
             type EnvTypes = #env_types;
 
-            type AccountId = <#env_types as ink_core::env::EnvTypes>::AccountId;
-            type Balance = <#env_types as ink_core::env::EnvTypes>::Balance;
-            type Hash = <#env_types as ink_core::env::EnvTypes>::Hash;
-            type Timestamp = <#env_types as ink_core::env::EnvTypes>::Timestamp;
-            type BlockNumber = <#env_types as ink_core::env::EnvTypes>::BlockNumber;
+            type AccountId = <#env_types as ::ink_core::env::EnvTypes>::AccountId;
+            type Balance = <#env_types as ::ink_core::env::EnvTypes>::Balance;
+            type Hash = <#env_types as ::ink_core::env::EnvTypes>::Hash;
+            type Timestamp = <#env_types as ::ink_core::env::EnvTypes>::Timestamp;
+            type BlockNumber = <#env_types as ::ink_core::env::EnvTypes>::BlockNumber;
         }
     }
 }

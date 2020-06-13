@@ -27,6 +27,27 @@ use crate::storage2::{
 use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+
+    impl<T> StorageLayout for StorageBox<T>
+    where
+        T: SpreadLayout,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Cell(CellLayout::new::<DynamicAllocation>(LayoutKey::from(
+                key_ptr.advance_by(1),
+            )))
+        }
+    }
+};
+
 impl<T> SpreadLayout for StorageBox<T>
 where
     T: SpreadLayout,

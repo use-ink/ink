@@ -24,6 +24,35 @@ use crate::storage2::{
     },
 };
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::{
+        lazy::Lazy,
+        traits::StorageLayout,
+    };
+    use ink_abi::layout2::{
+        FieldLayout,
+        Layout,
+        StructLayout,
+    };
+    use scale_info::Metadata;
+
+    impl<T> StorageLayout for StorageVec<T>
+    where
+        T: PackedLayout + Metadata,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Struct(StructLayout::new(vec![
+                FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
+                FieldLayout::new(
+                    "elems",
+                    <LazyIndexMap<T> as StorageLayout>::layout(key_ptr),
+                ),
+            ]))
+        }
+    }
+};
+
 impl<T> SpreadLayout for StorageVec<T>
 where
     T: PackedLayout,
