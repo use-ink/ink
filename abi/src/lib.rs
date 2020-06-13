@@ -20,50 +20,34 @@ extern crate alloc;
 #[cfg(test)]
 mod tests;
 
-mod layout;
 pub mod layout2;
 mod specs;
 mod utils;
 
-pub use self::{
-    layout::{
-        HasLayout,
-        LayoutField,
-        LayoutKey,
-        LayoutRange,
-        LayoutStruct,
-        StorageLayout,
-    },
-    specs::{
-        ConstructorSpec,
-        ConstructorSpecBuilder,
-        ContractSpec,
-        ContractSpecBuilder,
-        DisplayName,
-        EventParamSpec,
-        EventParamSpecBuilder,
-        EventSpec,
-        EventSpecBuilder,
-        MessageParamSpec,
-        MessageParamSpecBuilder,
-        MessageSpec,
-        MessageSpecBuilder,
-        ReturnTypeSpec,
-        TypeSpec,
-    },
+pub use self::specs::{
+    ConstructorSpec,
+    ConstructorSpecBuilder,
+    ContractSpec,
+    ContractSpecBuilder,
+    DisplayName,
+    EventParamSpec,
+    EventParamSpecBuilder,
+    EventSpec,
+    EventSpecBuilder,
+    MessageParamSpec,
+    MessageParamSpecBuilder,
+    MessageSpec,
+    MessageSpecBuilder,
+    ReturnTypeSpec,
+    TypeSpec,
 };
-use core::fmt::Write as _;
 #[cfg(feature = "derive")]
-pub use ink_abi_derive::HasLayout;
 use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
 };
-use serde::{
-    Serialize,
-    Serializer,
-};
+use serde::Serialize;
 
 /// An entire ink! project for ABI file generation purposes.
 #[derive(Debug, Serialize)]
@@ -89,16 +73,4 @@ impl InkProject {
             registry,
         }
     }
-}
-
-fn hex_encode<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
-    write!(hex, "0x").expect("failed writing to string");
-    for byte in bytes {
-        write!(hex, "{:02x}", byte).expect("failed writing to string");
-    }
-    serializer.serialize_str(&hex)
 }

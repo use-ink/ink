@@ -20,7 +20,6 @@
 //! Users are required to provide their own type definitions and `EnvTypes`
 //! implementations in order to write ink! contracts for other chain configurations.
 
-use crate::storage::Flush;
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
@@ -265,8 +264,6 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     }
 }
 
-impl Flush for AccountId {}
-
 /// The default environment `Hash` type.
 ///
 /// # Note
@@ -331,5 +328,3 @@ impl Clear for Hash {
         Self([0x00; 32])
     }
 }
-
-impl Flush for Hash {}
