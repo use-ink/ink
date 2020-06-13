@@ -227,28 +227,27 @@ impl<'a, 'b> Add<&'b u64> for &'a Key {
 }
 
 #[cfg(feature = "std")]
-impl type_metadata::HasTypeId for Key {
-    fn type_id() -> type_metadata::TypeId {
-        type_metadata::TypeIdCustom::new(
-            "Key",
-            type_metadata::Namespace::from_module_path("ink_primitives")
-                .expect("non-empty Rust identifier namespaces cannot fail"),
-            Vec::new(),
-        )
-        .into()
-    }
-}
+const _: () = {
+    use scale_info::{
+        build::{
+            FieldsBuilder,
+            UnnamedFields,
+        },
+        Path,
+        Type,
+        TypeInfo,
+    };
 
-#[cfg(feature = "std")]
-impl type_metadata::HasTypeDef for Key {
-    fn type_def() -> type_metadata::TypeDef {
-        use ink_prelude::vec;
-        type_metadata::TypeDefTupleStruct::new(vec![type_metadata::UnnamedField::of::<
-            [u8; 32],
-        >()])
-        .into()
+    impl TypeInfo for Key {
+        fn type_info() -> Type {
+            Type::builder()
+                .path(Path::new("Key", "ink_primitives"))
+                .composite(
+                    FieldsBuilder::<UnnamedFields>::default().field_of::<[u8; 32]>(),
+                )
+        }
     }
-}
+};
 
 impl AddAssign<u64> for Key {
     #[inline]
