@@ -486,7 +486,7 @@
     <span class="ident">Ordering</span>,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ink_abi</span>::{
     <span class="ident">HasLayout</span>,
     <span class="ident">LayoutField</span>,
@@ -498,7 +498,7 @@
     <span class="ident">Decode</span>,
     <span class="ident">Encode</span>,
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">duplex_sync_chunk</span>::<span class="ident">DuplexSyncChunk</span>;
@@ -523,7 +523,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Provides `O(log(n))` push and pop operations.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The number of nodes stored in the heap.</span>
     <span class="ident">len</span>: <span class="ident">storage</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
@@ -559,7 +559,7 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">HasLayout</span> <span class="kw">for</span> <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,

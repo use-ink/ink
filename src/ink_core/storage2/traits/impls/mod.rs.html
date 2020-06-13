@@ -149,6 +149,8 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -163,6 +165,8 @@
 <span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">ExtKeyPtr</span> <span class="kw">as</span> <span class="kw">_</span>;
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_always_packed_layout</span> {
     ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span> <span class="op">&lt;</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>:<span class="ident">ident</span>),<span class="op">+</span> <span class="op">&gt;</span>, <span class="ident">deep</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">deep</span>:<span class="ident">expr</span> ) <span class="op">=</span><span class="op">&gt;</span> {

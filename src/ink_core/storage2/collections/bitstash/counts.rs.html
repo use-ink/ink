@@ -102,6 +102,8 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -124,6 +126,7 @@
 
 <span class="doccomment">/// Stores the number of set bits for each 256-bits block in a compact `u8`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CountFree</span> {
     <span class="doccomment">/// Set bits per 256-bit chunk.</span>
     <span class="ident">counts</span>: [<span class="ident">u8</span>; <span class="number">32</span>],
@@ -148,6 +151,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FullMask</span>(<span class="ident">u32</span>);
 
 <span class="kw">impl</span> <span class="ident">FullMask</span> {

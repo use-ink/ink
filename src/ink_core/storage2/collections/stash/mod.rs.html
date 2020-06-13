@@ -538,9 +538,6 @@
 <span id="538">538</span>
 <span id="539">539</span>
 <span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -565,7 +562,6 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">iter</span>::<span class="ident">Entries</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">iter</span>::{
     <span class="ident">Iter</span>,
@@ -599,6 +595,7 @@
 
 <span class="doccomment">/// Stores general commonly required information about the storage stash.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>))]</span>
 <span class="kw">struct</span> <span class="ident">Header</span> {
     <span class="doccomment">/// The latest vacant index.</span>
     <span class="doccomment">///</span>
@@ -620,6 +617,7 @@
 
 <span class="doccomment">/// A vacant entry with previous and next vacant indices.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VacantEntry</span> {
     <span class="doccomment">/// The next vacant index.</span>
     <span class="ident">next</span>: <span class="ident">Index</span>,
@@ -632,6 +630,7 @@
 <span class="doccomment">/// The vacant entries within a storage stash form a doubly linked list of</span>
 <span class="doccomment">/// vacant entries that is used to quickly re-use their vacant storage.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A vacant entry that holds the index to the next and previous vacant entry.</span>
     <span class="ident">Vacant</span>(<span class="ident">VacantEntry</span>),
@@ -744,12 +743,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator yielding shared references to all entries of the stash.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is an internal API mainly used for testing the storage stash.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">entries</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Entries</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">entries</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Entries</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Entries</span>::<span class="ident">new</span>(<span class="self">self</span>)
     }
 

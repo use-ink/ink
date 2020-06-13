@@ -280,6 +280,24 @@
 <span id="280">280</span>
 <span id="281">281</span>
 <span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -332,6 +350,24 @@
     <span class="doccomment">/// The inner value that will always be stored within contract memory.</span>
     <span class="ident">inner</span>: <span class="ident">T</span>,
 }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
+    <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::{
+        <span class="ident">CellLayout</span>,
+        <span class="ident">Layout</span>,
+        <span class="ident">LayoutKey</span>,
+    };
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
+            <span class="ident">Layout</span>::<span class="ident">Cell</span>(<span class="ident">CellLayout</span>::<span class="ident">new</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="ident">LayoutKey</span>::<span class="ident">from</span>(
+                <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">0</span>),
+            )))
+        }
+    }
+};
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>

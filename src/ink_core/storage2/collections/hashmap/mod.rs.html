@@ -334,6 +334,7 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -427,6 +428,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Stores the value as well as the index to its associated key.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>))]</span>
 <span class="kw">struct</span> <span class="ident">ValueEntry</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The value stored in this entry.</span>
     <span class="ident">value</span>: <span class="ident">V</span>,

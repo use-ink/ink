@@ -473,7 +473,7 @@
         <span class="ident">Flush</span>,
     },
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ink_abi</span>::{
     <span class="ident">HasLayout</span>,
     <span class="ident">LayoutField</span>,
@@ -485,7 +485,7 @@
     <span class="ident">Decode</span>,
     <span class="ident">Encode</span>,
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
 
 <span class="doccomment">/// A stash collection.</span>
@@ -509,7 +509,7 @@
 <span class="doccomment">/// 3. Except the guarantees noted above, you can assume nothing about key</span>
 <span class="doccomment">///    assignment or iteration order. They can change at any time.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Stores densely packed general stash information.</span>
     <span class="ident">header</span>: <span class="ident">storage</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="ident">StashHeader</span><span class="op">&gt;</span>,
@@ -526,7 +526,7 @@
 <span class="doccomment">/// storage entity. This allows implementations to perform less reads</span>
 <span class="doccomment">/// and writes to the underlying contract storage.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">struct</span> <span class="ident">StashHeader</span> {
     <span class="doccomment">/// The latest vacant index.</span>
     <span class="ident">next_vacant</span>: <span class="ident">u32</span>,
@@ -569,7 +569,7 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">HasLayout</span> <span class="kw">for</span> <span class="ident">Stash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -696,7 +696,7 @@
 <span class="doccomment">/// This represents either an occupied entry with its associated value</span>
 <span class="doccomment">/// or a vacant entry pointing to the next vacant entry.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">enum</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A vacant entry pointing to the next vacant index.</span>
     <span class="ident">Vacant</span>(<span class="ident">u32</span>),

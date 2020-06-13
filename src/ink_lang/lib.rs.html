@@ -73,6 +73,14 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -89,9 +97,8 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
-<span class="attribute">#![<span class="ident">feature</span>(<span class="ident">const_fn</span>)]</span>
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">abi</span>;
 
 <span class="kw">mod</span> <span class="ident">contract</span>;
@@ -99,20 +106,24 @@
 <span class="kw">mod</span> <span class="ident">dispatcher</span>;
 <span class="kw">mod</span> <span class="ident">env_access</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">mod</span> <span class="ident">events</span>;
 <span class="kw">mod</span> <span class="ident">testable</span>;
 <span class="kw">mod</span> <span class="ident">traits</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_lang_macro</span>::<span class="ident">contract</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">abi</span>::<span class="ident">GenerateAbi</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">contract</span>::{
+        <span class="ident">BuildPhase</span>,
         <span class="ident">Contract</span>,
-        <span class="ident">ContractBuilder</span>,
         <span class="ident">DispatchMode</span>,
         <span class="ident">DispatchUsingMode</span>,
+        <span class="ident">EmptyPhase</span>,
+        <span class="ident">FinalPhase</span>,
+        <span class="ident">Placeholder</span>,
     },
     <span class="ident">cross_calling</span>::{
         <span class="ident">ForwardCall</span>,
@@ -122,11 +133,10 @@
     <span class="ident">dispatcher</span>::{
         <span class="ident">Dispatch</span>,
         <span class="ident">DispatchList</span>,
-        <span class="ident">DispatchableFn</span>,
-        <span class="ident">DispatchableFnMut</span>,
-        <span class="ident">Dispatcher</span>,
-        <span class="ident">DispatcherMut</span>,
         <span class="ident">EmptyDispatchList</span>,
+        <span class="ident">MsgCon</span>,
+        <span class="ident">MsgMut</span>,
+        <span class="ident">MsgRef</span>,
         <span class="ident">PushDispatcher</span>,
         <span class="ident">UnreachableDispatcher</span>,
     },
@@ -140,13 +150,19 @@
         <span class="ident">DispatchResult</span>,
         <span class="ident">DispatchRetCode</span>,
     },
+    <span class="ident">events</span>::{
+        <span class="ident">BaseEvent</span>,
+        <span class="ident">EmitEvent</span>,
+    },
     <span class="ident">testable</span>::<span class="ident">InstantiateTestable</span>,
     <span class="ident">traits</span>::{
+        <span class="ident">Constructor</span>,
         <span class="ident">FnInput</span>,
         <span class="ident">FnOutput</span>,
         <span class="ident">FnSelector</span>,
-        <span class="ident">Message</span>,
-        <span class="ident">Storage</span>,
+        <span class="ident">FnState</span>,
+        <span class="ident">MessageMut</span>,
+        <span class="ident">MessageRef</span>,
     },
 };
 </pre></div>

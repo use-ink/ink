@@ -120,7 +120,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
@@ -136,7 +136,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Users are recommended to use the [`DynAlloc`](struct.DynAlloc.html)</span>
 <span class="doccomment">/// for dynamic storage allocation purposes instead.</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BumpAlloc</span> {
     <span class="doccomment">/// The key offset used for all allocations.</span>
     <span class="ident">offset_key</span>: <span class="ident">Key</span>,

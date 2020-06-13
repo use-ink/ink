@@ -48,8 +48,21 @@
 <span id="48">48</span>
 <span id="49">49</span>
 <span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
+<span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
 <span class="comment">// you may not use this file except in compliance with the License.</span>
@@ -65,13 +78,7 @@
 
 <span class="kw">use</span> <span class="ident">ink_core</span>::{
     <span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>,
-    <span class="ident">storage</span>::{
-        <span class="ident">alloc</span>::{
-            <span class="ident">AllocateUsing</span>,
-            <span class="ident">Initialize</span>,
-        },
-        <span class="ident">Flush</span>,
-    },
+    <span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">SpreadLayout</span>,
 };
 
 <span class="doccomment">/// Dispatchable functions that have inputs.</span>
@@ -92,12 +99,31 @@
     <span class="kw">const</span> <span class="ident">SELECTOR</span>: <span class="ident">Selector</span>;
 }
 
-<span class="doccomment">/// Types implementing this are messages that may only read from storage.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Message</span>: <span class="ident">FnInput</span> <span class="op">+</span> <span class="ident">FnOutput</span> <span class="op">+</span> <span class="ident">FnSelector</span> {
-    <span class="kw">const</span> <span class="ident">IS_MUT</span>: <span class="ident">bool</span>;
+<span class="doccomment">/// The storage state that the dispatchable function acts on.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FnState</span> {
+    <span class="doccomment">/// The storage state.</span>
+    <span class="kw">type</span> <span class="ident">State</span>: <span class="ident">SpreadLayout</span> <span class="op">+</span> <span class="ident">Sized</span>;
 }
 
-<span class="doccomment">/// Types implementing this trait are storage structs.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Storage</span>: <span class="ident">AllocateUsing</span> <span class="op">+</span> <span class="ident">Initialize</span> <span class="op">+</span> <span class="ident">Flush</span> {}
+<span class="doccomment">/// A dispatchable contract constructor message.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Constructor</span>: <span class="ident">FnInput</span> <span class="op">+</span> <span class="ident">FnSelector</span> <span class="op">+</span> <span class="ident">FnState</span> {
+    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnInput</span><span class="op">&gt;</span>::<span class="ident">Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span>::<span class="ident">State</span>;
+}
+
+<span class="doccomment">/// A `&amp;self` dispatchable contract message.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MessageRef</span>: <span class="ident">FnInput</span> <span class="op">+</span> <span class="ident">FnOutput</span> <span class="op">+</span> <span class="ident">FnSelector</span> <span class="op">+</span> <span class="ident">FnState</span> {
+    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(
+        <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span>::<span class="ident">State</span>,
+        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnInput</span><span class="op">&gt;</span>::<span class="ident">Input</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnOutput</span><span class="op">&gt;</span>::<span class="ident">Output</span>;
+}
+
+<span class="doccomment">/// A `&amp;mut self` dispatchable contract message.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MessageMut</span>: <span class="ident">FnInput</span> <span class="op">+</span> <span class="ident">FnOutput</span> <span class="op">+</span> <span class="ident">FnSelector</span> <span class="op">+</span> <span class="ident">FnState</span> {
+    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span>::<span class="ident">State</span>,
+        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnInput</span><span class="op">&gt;</span>::<span class="ident">Input</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnOutput</span><span class="op">&gt;</span>::<span class="ident">Output</span>;
+}
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "ink_lang";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

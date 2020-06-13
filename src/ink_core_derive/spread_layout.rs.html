@@ -411,14 +411,14 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spread_layout_derive</span>(<span class="kw-2">mut</span> <span class="ident">s</span>: <span class="ident">synstructure</span>::<span class="ident">Structure</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
     <span class="ident">s</span>.<span class="ident">bind_with</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">synstructure</span>::<span class="ident">BindStyle</span>::<span class="ident">Move</span>);
     <span class="ident">s</span>.<span class="ident">add_bounds</span>(<span class="ident">synstructure</span>::<span class="ident">AddBounds</span>::<span class="ident">Generics</span>);
-
-    <span class="kw">let</span> <span class="ident">is_enum</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">variants</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>;
-    <span class="kw">if</span> <span class="ident">is_enum</span> {
-        <span class="ident">spread_layout_enum_derive</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">variants</span>().<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="ident">spread_layout_struct_derive</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>)
-    } <span class="kw">else</span> {
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;empty enums are not supported&quot;</span>);
+    <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">ast</span>().<span class="ident">data</span> {
+        <span class="ident">syn</span>::<span class="ident">Data</span>::<span class="ident">Struct</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">spread_layout_struct_derive</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>),
+        <span class="ident">syn</span>::<span class="ident">Data</span>::<span class="ident">Enum</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">spread_layout_enum_derive</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">panic</span><span class="macro">!</span>(
+                <span class="string">&quot;cannot derive `SpreadLayout` or `PackedLayout` for Rust `union` items&quot;</span>
+            )
+        }
     }
 }
 </pre></div>

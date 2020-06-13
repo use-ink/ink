@@ -48,6 +48,35 @@
 <span id="48">48</span>
 <span id="49">49</span>
 <span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -73,6 +102,35 @@
         <span class="ident">PackedLayout</span>,
         <span class="ident">SpreadLayout</span>,
     },
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage2</span>::{
+        <span class="ident">lazy</span>::<span class="ident">Lazy</span>,
+        <span class="ident">traits</span>::<span class="ident">StorageLayout</span>,
+    };
+    <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::{
+        <span class="ident">FieldLayout</span>,
+        <span class="ident">Layout</span>,
+        <span class="ident">StructLayout</span>,
+    };
+    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Metadata</span>,
+    {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
+            <span class="ident">Layout</span>::<span class="ident">Struct</span>(<span class="ident">StructLayout</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">FieldLayout</span>::<span class="ident">new</span>(<span class="string">&quot;len&quot;</span>, <span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span>::<span class="ident">layout</span>(<span class="ident">key_ptr</span>)),
+                <span class="ident">FieldLayout</span>::<span class="ident">new</span>(
+                    <span class="string">&quot;elems&quot;</span>,
+                    <span class="op">&lt;</span><span class="ident">LazyIndexMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span>::<span class="ident">layout</span>(<span class="ident">key_ptr</span>),
+                ),
+            ]))
+        }
+    }
 };
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>

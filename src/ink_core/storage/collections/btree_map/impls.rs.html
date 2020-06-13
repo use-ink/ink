@@ -2073,7 +2073,7 @@
     <span class="ident">borrow</span>::<span class="ident">Borrow</span>,
     <span class="ident">cmp</span>::<span class="ident">Ord</span>,
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ink_abi</span>::{
     <span class="ident">HasLayout</span>,
     <span class="ident">LayoutField</span>,
@@ -2085,7 +2085,7 @@
     <span class="ident">Decode</span>,
     <span class="ident">Encode</span>,
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
 
 <span class="doccomment">/// Each node in the tree has 2 * B children.</span>
@@ -2146,7 +2146,7 @@
 <span class="doccomment">/// is in-memory, whereas this implementation uses the ink! storage</span>
 <span class="doccomment">/// primitives (`SyncChunk`, etc.).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Stores densely packed general BTreeMap information.</span>
     <span class="ident">header</span>: <span class="ident">storage</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="ident">BTreeMapHeader</span><span class="op">&gt;</span>,
@@ -2173,7 +2173,7 @@
 <span class="doccomment">/// storage entity. This allows implementations to perform less reads</span>
 <span class="doccomment">/// and writes to the underlying contract storage.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">struct</span> <span class="ident">BTreeMapHeader</span> {
     <span class="doccomment">/// The latest vacant node index.</span>
     <span class="ident">next_vacant</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeHandle</span><span class="op">&gt;</span>,
@@ -3686,7 +3686,7 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">HasLayout</span> <span class="kw">for</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -3730,7 +3730,7 @@
 <span class="doccomment">///   - `InternalEntry` is used internally in our implementation. It is a storage</span>
 <span class="doccomment">///     entity and contains a tree node with many key/value pair storage indices.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">enum</span> <span class="ident">InternalEntry</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A vacant entry pointing to the next vacant index.</span>
     <span class="ident">Vacant</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeHandle</span><span class="op">&gt;</span>),
@@ -3765,7 +3765,7 @@
 <span class="doccomment">///   - `InternalEntry` is used internally in our implementation. It is a storage</span>
 <span class="doccomment">///     entity and contains a tree node with many key/value pairs.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">enum</span> <span class="ident">InternalKVEntry</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A vacant entry pointing to the next vacant index.</span>
     <span class="ident">Vacant</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">KVStorageIndex</span><span class="op">&gt;</span>),

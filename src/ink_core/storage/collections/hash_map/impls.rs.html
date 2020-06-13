@@ -587,7 +587,7 @@
     <span class="ident">hash</span>::<span class="ident">Hash</span>,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ink_abi</span>::{
     <span class="ident">HasLayout</span>,
     <span class="ident">LayoutField</span>,
@@ -595,7 +595,7 @@
     <span class="ident">StorageLayout</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">hash</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage</span>::{
@@ -627,7 +627,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This distinction is important for the quadratic map probing.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The storage key to the length of this storage map.</span>
     <span class="ident">len</span>: <span class="ident">storage</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
@@ -640,7 +640,7 @@
     <span class="ident">entries</span>: <span class="ident">SyncChunk</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">HasLayout</span> <span class="kw">for</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -664,7 +664,7 @@
 <span class="doccomment">/// or represent an entry that was removed after it</span>
 <span class="doccomment">/// has been occupied with key and value.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// An occupied slot with a key and a value.</span>
     <span class="ident">Occupied</span>(<span class="ident">OccupiedEntry</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>),
@@ -687,7 +687,7 @@
 
 <span class="doccomment">/// An occupied entry of a storage map.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OccupiedEntry</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The entry&#39;s key.</span>
     <span class="ident">key</span>: <span class="ident">K</span>,

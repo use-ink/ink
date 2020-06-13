@@ -333,7 +333,6 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
-<span id="336">336</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -361,31 +360,30 @@
 <span class="kw">use</span> <span class="ident">core</span>::{
     <span class="ident">array</span>::<span class="ident">TryFromSliceError</span>,
     <span class="ident">convert</span>::<span class="ident">TryFrom</span>,
+    <span class="ident">ops</span>::{
+        <span class="ident">Add</span>,
+        <span class="ident">AddAssign</span>,
+        <span class="ident">Div</span>,
+        <span class="ident">DivAssign</span>,
+        <span class="ident">Mul</span>,
+        <span class="ident">MulAssign</span>,
+        <span class="ident">Sub</span>,
+        <span class="ident">SubAssign</span>,
+    },
 };
 <span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
 <span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">vec</span>::<span class="ident">Vec</span>;
-<span class="kw">use</span> <span class="ident">scale</span>::{
-    <span class="ident">Decode</span>,
-    <span class="ident">Encode</span>,
-};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
-
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>::{
-    <span class="ident">Add</span>,
-    <span class="ident">AddAssign</span>,
-    <span class="ident">Div</span>,
-    <span class="ident">DivAssign</span>,
-    <span class="ident">Mul</span>,
-    <span class="ident">MulAssign</span>,
-    <span class="ident">Sub</span>,
-    <span class="ident">SubAssign</span>,
-};
 <span class="kw">use</span> <span class="ident">num_traits</span>::{
     <span class="ident">Bounded</span>,
     <span class="ident">One</span>,
     <span class="ident">Zero</span>,
 };
+<span class="kw">use</span> <span class="ident">scale</span>::{
+    <span class="ident">Decode</span>,
+    <span class="ident">Encode</span>,
+};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
 
 <span class="doccomment">/// Types that allow for simple arithmetic operations.</span>
 <span class="doccomment">///</span>
@@ -517,7 +515,7 @@
 
 <span class="doccomment">/// The fundamental types of the default configuration.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DefaultEnvTypes</span> {}
 
 <span class="kw">impl</span> <span class="ident">EnvTypes</span> <span class="kw">for</span> <span class="ident">DefaultEnvTypes</span> {
@@ -591,7 +589,7 @@
     <span class="ident">From</span>,
     <span class="ident">Default</span>,
 )]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AccountId</span>([<span class="ident">u8</span>; <span class="number">32</span>]);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AccountId</span> {
@@ -625,7 +623,7 @@
     <span class="ident">From</span>,
     <span class="ident">Default</span>,
 )]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Hash</span>([<span class="ident">u8</span>; <span class="number">32</span>]);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Hash</span> {

@@ -278,28 +278,6 @@
 <span id="278">278</span>
 <span id="279">279</span>
 <span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -343,17 +321,17 @@
         <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_layout</span>();
 
         <span class="macro">quote</span><span class="macro">!</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span> <span class="ident">ink_lang</span>::<span class="ident">GenerateAbi</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
-                    <span class="kw">fn</span> <span class="ident">generate_abi</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ink_abi</span>::<span class="ident">InkProject</span> {
-                        <span class="kw">let</span> <span class="ident">contract</span>: <span class="ident">ink_abi</span>::<span class="ident">ContractSpec</span> <span class="op">=</span> {
+                <span class="kw">impl</span> ::<span class="ident">ink_lang</span>::<span class="ident">GenerateAbi</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                    <span class="kw">fn</span> <span class="ident">generate_abi</span>() <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">ink_abi</span>::<span class="ident">InkProject</span> {
+                        <span class="kw">let</span> <span class="ident">contract</span>: ::<span class="ident">ink_abi</span>::<span class="ident">ContractSpec</span> <span class="op">=</span> {
                             #<span class="ident">contract</span>
                         };
-                        <span class="kw">let</span> <span class="ident">layout</span>: <span class="ident">ink_abi</span>::<span class="ident">StorageLayout</span> <span class="op">=</span> {
+                        <span class="kw">let</span> <span class="ident">layout</span>: ::<span class="ident">ink_abi</span>::<span class="ident">layout2</span>::<span class="ident">Layout</span> <span class="op">=</span> {
                             #<span class="ident">layout</span>
                         };
-                        <span class="ident">ink_abi</span>::<span class="ident">InkProject</span>::<span class="ident">new</span>(<span class="ident">layout</span>, <span class="ident">contract</span>)
+                        ::<span class="ident">ink_abi</span>::<span class="ident">InkProject</span>::<span class="ident">new</span>(<span class="ident">layout</span>, <span class="ident">contract</span>)
                     }
                 }
             };
@@ -381,7 +359,7 @@
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">fn_arg</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_message_param</span>(<span class="ident">fn_arg</span>));
 
                 <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
-                    <span class="ident">ink_abi</span>::<span class="ident">ConstructorSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
+                    ::<span class="ident">ink_abi</span>::<span class="ident">ConstructorSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
                         .<span class="ident">selector</span>([#(#<span class="ident">selector_bytes</span>),<span class="kw-2">*</span>])
                         .<span class="ident">args</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             #(#<span class="ident">args</span> ,)<span class="op">*</span>
@@ -396,7 +374,7 @@
 
     <span class="kw">fn</span> <span class="ident">generate_type_spec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
         <span class="kw">fn</span> <span class="ident">without_display_name</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
-            <span class="macro">quote</span><span class="macro">!</span> { <span class="ident">ink_abi</span>::<span class="ident">TypeSpec</span>::<span class="ident">new</span>::<span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span>() }
+            <span class="macro">quote</span><span class="macro">!</span> { ::<span class="ident">ink_abi</span>::<span class="ident">TypeSpec</span>::<span class="ident">new</span>::<span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span>() }
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Type</span>::<span class="ident">Path</span>(<span class="ident">type_path</span>) <span class="op">=</span> <span class="ident">ty</span> {
             <span class="kw">if</span> <span class="ident">type_path</span>.<span class="ident">qself</span>.<span class="ident">is_some</span>() {
@@ -412,7 +390,7 @@
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">seg</span><span class="op">|</span> <span class="ident">seg</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>())
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
             <span class="macro">quote</span><span class="macro">!</span> {
-                <span class="ident">ink_abi</span>::<span class="ident">TypeSpec</span>::<span class="ident">with_name_segs</span>::<span class="op">&lt;</span>#<span class="ident">ty</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+                ::<span class="ident">ink_abi</span>::<span class="ident">TypeSpec</span>::<span class="ident">with_name_segs</span>::<span class="op">&lt;</span>#<span class="ident">ty</span>, <span class="kw">_</span><span class="op">&gt;</span>(
                     <span class="macro">vec</span><span class="macro">!</span>[#(#<span class="ident">segs</span>),<span class="kw-2">*</span>].<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">AsRef</span>::<span class="ident">as_ref</span>)
                 )
             }
@@ -425,13 +403,13 @@
         <span class="kw">match</span> <span class="ident">ret_ty</span> {
             <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Default</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">quote</span><span class="macro">!</span> {
-                    <span class="ident">ink_abi</span>::<span class="ident">ReturnTypeSpec</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>)
+                    ::<span class="ident">ink_abi</span>::<span class="ident">ReturnTypeSpec</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>)
                 }
             }
             <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">type_spec</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_type_spec</span>(<span class="ident">ty</span>);
                 <span class="macro">quote</span><span class="macro">!</span> {
-                    <span class="ident">ink_abi</span>::<span class="ident">ReturnTypeSpec</span>::<span class="ident">new</span>(#<span class="ident">type_spec</span>)
+                    ::<span class="ident">ink_abi</span>::<span class="ident">ReturnTypeSpec</span>::<span class="ident">new</span>(#<span class="ident">type_spec</span>)
                 }
             }
         }
@@ -442,7 +420,7 @@
         <span class="kw">let</span> <span class="ident">type_spec</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_type_spec</span>(<span class="kw-2">&amp;</span><span class="ident">fn_arg</span>.<span class="ident">ty</span>);
 
         <span class="macro">quote</span><span class="macro">!</span> {
-            <span class="ident">ink_abi</span>::<span class="ident">MessageParamSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
+            ::<span class="ident">ink_abi</span>::<span class="ident">MessageParamSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
                 .<span class="ident">of_type</span>(#<span class="ident">type_spec</span>)
                 .<span class="ident">done</span>()
         }
@@ -468,7 +446,7 @@
                 <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_return_type</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>.<span class="ident">sig</span>.<span class="ident">output</span>);
 
                 <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
-                    <span class="ident">ink_abi</span>::<span class="ident">MessageSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
+                    ::<span class="ident">ink_abi</span>::<span class="ident">MessageSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
                         .<span class="ident">selector</span>([#(#<span class="ident">selector_bytes</span>),<span class="kw-2">*</span>])
                         .<span class="ident">mutates</span>(#<span class="ident">is_mut</span>)
                         .<span class="ident">args</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -509,7 +487,7 @@
             <span class="kw">let</span> <span class="ident">ty_spec</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_type_spec</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>);
 
             <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
-                <span class="ident">ink_abi</span>::<span class="ident">EventParamSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
+                ::<span class="ident">ink_abi</span>::<span class="ident">EventParamSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
                     .<span class="ident">of_type</span>(#<span class="ident">ty_spec</span>)
                     .<span class="ident">indexed</span>(#<span class="ident">is_topic</span>)
                     .<span class="ident">docs</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -530,7 +508,7 @@
             <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_event_args</span>(<span class="ident">event</span>);
 
             <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
-                <span class="ident">ink_abi</span>::<span class="ident">EventSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
+                ::<span class="ident">ink_abi</span>::<span class="ident">EventSpec</span>::<span class="ident">new</span>(#<span class="ident">ident_lit</span>)
                     .<span class="ident">args</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         #( #<span class="ident">args</span>, )<span class="op">*</span>
                     ])
@@ -555,7 +533,7 @@
         <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_docs</span>();
 
         <span class="macro">quote</span><span class="macro">!</span> {
-            <span class="ident">ink_abi</span>::<span class="ident">ContractSpec</span>::<span class="ident">new</span>(#<span class="ident">contract_ident_lit</span>)
+            ::<span class="ident">ink_abi</span>::<span class="ident">ContractSpec</span>::<span class="ident">new</span>(#<span class="ident">contract_ident_lit</span>)
                 .<span class="ident">constructors</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     #(#<span class="ident">constructors</span> ,)<span class="op">*</span>
                 ])
@@ -575,31 +553,9 @@
     <span class="kw">fn</span> <span class="ident">generate_layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">contract_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">storage</span>.<span class="ident">ident</span>;
         <span class="macro">quote</span><span class="macro">!</span> {
-            <span class="kw">unsafe</span> {
-                <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">HasLayout</span> <span class="kw">as</span> <span class="kw">_</span>;
-                <span class="kw">use</span> <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">AllocateUsing</span> <span class="kw">as</span> <span class="kw">_</span>;
-                <span class="comment">// We can use `ManuallyDrop` here and don&#39;t care for</span>
-                <span class="comment">// unfreed memory since this function will generally be</span>
-                <span class="comment">// called from within the `.ink` tool `abi-gen` and process</span>
-                <span class="comment">// will end shortly after generating the ABI, so the</span>
-                <span class="comment">// operating system will perform the cleanup immediately</span>
-                <span class="comment">// for us.</span>
-                <span class="comment">//</span>
-                <span class="comment">// # Note</span>
-                <span class="comment">//</span>
-                <span class="comment">// This is not an optimization but to prevent panicking</span>
-                <span class="comment">// because of a potential use of a dynamic environment</span>
-                <span class="comment">// that uses storage data structures internally</span>
-                <span class="comment">// that are going to panic upon `Drop` if not initialized</span>
-                <span class="comment">// beforehand which would normally happen for contract</span>
-                <span class="comment">// execution.</span>
-                <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">ManuallyDrop</span>::<span class="ident">new</span>(
-                    #<span class="ident">contract_ident</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(
-                        <span class="ident">ink_primitives</span>::<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]),
-                    ))
-                )
-                .<span class="ident">layout</span>()
-            }
+            <span class="op">&lt;</span>#<span class="ident">contract_ident</span> <span class="kw">as</span> ::<span class="ident">ink_core</span>::<span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span><span class="op">&gt;</span>::<span class="ident">layout</span>(
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> ::<span class="ident">ink_primitives</span>::<span class="ident">KeyPtr</span>::<span class="ident">from</span>(::<span class="ident">ink_primitives</span>::<span class="ident">Key</span>([<span class="number">0x00</span>; <span class="number">32</span>]))
+            )
         }
     }
 }

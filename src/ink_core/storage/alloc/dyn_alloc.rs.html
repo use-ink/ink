@@ -245,7 +245,7 @@
     <span class="ident">Allocator</span>,
     <span class="ident">Flush</span>,
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ink_abi</span>::{
     <span class="ident">HasLayout</span>,
     <span class="ident">LayoutField</span>,
@@ -253,7 +253,7 @@
     <span class="ident">StorageLayout</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
 
 <span class="doccomment">/// Allocator for dynamic contract storage.</span>
@@ -264,7 +264,7 @@
 <span class="doccomment">/// at the same time. This is subject to change in the future if</span>
 <span class="doccomment">/// experiments show that this is a bottle neck.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DynAlloc</span> {
     <span class="doccomment">/// Bitmap indicating free cell slots.</span>
     <span class="ident">free_cells</span>: <span class="ident">storage</span>::<span class="ident">BitVec</span>,
@@ -276,7 +276,7 @@
     <span class="ident">chunks_origin</span>: <span class="ident">Key</span>,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">HasLayout</span> <span class="kw">for</span> <span class="ident">DynAlloc</span> {
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> {
         <span class="ident">LayoutStruct</span>::<span class="ident">new</span>(

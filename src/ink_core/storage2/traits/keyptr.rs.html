@@ -33,20 +33,6 @@
 <span id="33">33</span>
 <span id="34">34</span>
 <span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -64,37 +50,23 @@
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">SpreadLayout</span>;
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">KeyPtr</span>;
 
-<span class="doccomment">/// A key pointer.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Mainly used by [`SpreadLayout`] trait in order to provide</span>
-<span class="doccomment">/// a streamlined and efficient interface for accessing the underlying [`Key`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">KeyPtr</span> {
-    <span class="doccomment">/// The underlying key.</span>
-    <span class="ident">key</span>: <span class="ident">Key</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">KeyPtr</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">key</span> }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">KeyPtr</span> {
+<span class="doccomment">/// Extension trait to make `KeyPtr` simpler to use for `T: SpreadLayout` types.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ExtKeyPtr</span> {
     <span class="doccomment">/// Advances the key pointer by the same amount of the footprint of the</span>
     <span class="doccomment">/// generic type parameter of `T` and returns the old value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_for</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Key</span>
+    <span class="kw">fn</span> <span class="ident">next_for</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Key</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">SpreadLayout</span>;
+}
+
+<span class="kw">impl</span> <span class="ident">ExtKeyPtr</span> <span class="kw">for</span> <span class="ident">KeyPtr</span> {
+    <span class="kw">fn</span> <span class="ident">next_for</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Key</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
     {
         <span class="self">self</span>.<span class="ident">advance_by</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">FOOTPRINT</span>)
-    }
-
-    <span class="doccomment">/// Advances the key pointer by the given amount and returns the old value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">advance_by</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">amount</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Key</span> {
-        <span class="kw">let</span> <span class="ident">copy</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">key</span>;
-        <span class="self">self</span>.<span class="ident">key</span> <span class="op">+</span><span class="op">=</span> <span class="ident">amount</span>;
-        <span class="ident">copy</span>
     }
 }
 </pre></div>

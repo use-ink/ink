@@ -275,6 +275,21 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -345,6 +360,21 @@
 {
     <span class="ident">cell</span>: <span class="ident">LazyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
+    <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::<span class="ident">Layout</span>;
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">StorageLayout</span> <span class="op">+</span> <span class="ident">SpreadLayout</span>,
+    {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
+            <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span>::<span class="ident">layout</span>(<span class="ident">key_ptr</span>)
+        }
+    }
+};
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>

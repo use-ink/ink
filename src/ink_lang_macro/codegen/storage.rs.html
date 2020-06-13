@@ -176,60 +176,6 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -281,34 +227,22 @@
     <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">storage</span>.<span class="ident">span</span>();
 
-        <span class="kw">let</span> <span class="ident">conflic_depedency_cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">CrossCallingConflictCfg</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">trait_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_trait_impls_for_storage</span>();
         <span class="kw">let</span> <span class="ident">access_env_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_access_env_trait_impls</span>();
         <span class="kw">let</span> <span class="ident">message_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_message_impls</span>();
         <span class="kw">let</span> <span class="ident">storage_struct</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_storage_struct</span>();
-
         <span class="kw">let</span> <span class="ident">use_emit_event</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">events</span>.<span class="ident">is_empty</span>() {
             <span class="comment">// Required to allow for `self.env().emit_event(..)` in messages and constructors.</span>
-            <span class="macro">quote</span><span class="macro">!</span> { <span class="kw">use</span> <span class="ident">__ink_private</span>::<span class="ident">EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; }
+            <span class="prelude-val">Some</span>(<span class="macro">quote</span><span class="macro">!</span> { <span class="kw">use</span> ::<span class="ident">ink_lang</span>::<span class="ident">EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; })
         } <span class="kw">else</span> {
-            <span class="macro">quote</span><span class="macro">!</span> {}
+            <span class="prelude-val">None</span>
         };
+        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">CrossCallingConflictCfg</span><span class="op">&gt;</span>();
 
         <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">storage_span</span> <span class="op">=</span><span class="op">&gt;</span>
-            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-            #<span class="ident">conflic_depedency_cfg</span>
-            <span class="kw">mod</span> <span class="ident">__ink_storage</span> {
-                <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+            #<span class="ident">access_env_impls</span>
+            #<span class="ident">storage_struct</span>
 
-                #<span class="ident">access_env_impls</span>
-                #<span class="ident">trait_impls</span>
-                #<span class="ident">storage_struct</span>
-            }
-
-            #<span class="ident">conflic_depedency_cfg</span>
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">__ink_storage</span>::<span class="ident">Storage</span>;
-
-            #<span class="ident">conflic_depedency_cfg</span>
+            #<span class="ident">cfg</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
                 <span class="comment">// Used to make `self.env()` available in message code.</span>
                 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
@@ -316,7 +250,6 @@
                     <span class="ident">Env</span> <span class="kw">as</span> <span class="kw">_</span>,
                     <span class="ident">StaticEnv</span> <span class="kw">as</span> <span class="kw">_</span>,
                 };
-
                 #<span class="ident">use_emit_event</span>
                 #<span class="ident">message_impls</span>
             };
@@ -326,76 +259,34 @@
 
 <span class="kw">impl</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">generate_access_env_trait_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">storage</span>.<span class="ident">ident</span>;
+        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">CrossCallingConflictCfg</span><span class="op">&gt;</span>();
         <span class="macro">quote</span><span class="macro">!</span> {
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ink_lang</span>::<span class="ident">Env</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Storage</span> {
-                <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> <span class="ident">ink_lang</span>::<span class="ident">EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">EnvTypes</span><span class="op">&gt;</span>;
+            #<span class="ident">cfg</span>
+            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> ::<span class="ident">ink_lang</span>::<span class="ident">Env</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">storage_ident</span> {
+                    <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> ::<span class="ident">ink_lang</span>::<span class="ident">EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">EnvTypes</span><span class="op">&gt;</span>;
 
-                <span class="kw">fn</span> <span class="ident">env</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">EnvAccess</span> {
-                    <span class="ident">Default</span>::<span class="ident">default</span>()
-                }
-            }
-
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ink_lang</span>::<span class="ident">StaticEnv</span> <span class="kw">for</span> <span class="ident">Storage</span> {
-                <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> <span class="ident">ink_lang</span>::<span class="ident">EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">EnvTypes</span><span class="op">&gt;</span>;
-
-                <span class="kw">fn</span> <span class="ident">env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">EnvAccess</span> {
-                    <span class="ident">Default</span>::<span class="ident">default</span>()
-                }
-            }
-        }
-    }
-
-    <span class="kw">fn</span> <span class="ident">generate_trait_impls_for_storage</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">field_idents</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">storage</span>
-            .<span class="ident">fields</span>
-            .<span class="ident">named</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">named_field</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">named_field</span>.<span class="ident">ident</span>)
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-
-        <span class="macro">quote</span><span class="macro">!</span> {
-            <span class="kw">impl</span> <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">AllocateUsing</span> <span class="kw">for</span> <span class="ident">Storage</span> {
-                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">allocate_using</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
-                <span class="kw">where</span>
-                    <span class="ident">A</span>: <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">Allocate</span>,
-                {
-                    <span class="self">Self</span> {
-                        #(
-                            #<span class="ident">field_idents</span>: <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">AllocateUsing</span>::<span class="ident">allocate_using</span>(<span class="ident">alloc</span>),
-                        )<span class="op">*</span>
+                    <span class="kw">fn</span> <span class="ident">env</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">EnvAccess</span> {
+                        <span class="ident">Default</span>::<span class="ident">default</span>()
                     }
                 }
-            }
 
-            <span class="kw">impl</span> <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">Flush</span> <span class="kw">for</span> <span class="ident">Storage</span> {
-                <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-                    #(
-                        <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">Flush</span>::<span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.#<span class="ident">field_idents</span>);
-                    )<span class="op">*</span>
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> ::<span class="ident">ink_lang</span>::<span class="ident">StaticEnv</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                    <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> ::<span class="ident">ink_lang</span>::<span class="ident">EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">EnvTypes</span><span class="op">&gt;</span>;
+
+                    <span class="kw">fn</span> <span class="ident">env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">EnvAccess</span> {
+                        <span class="ident">Default</span>::<span class="ident">default</span>()
+                    }
                 }
-            }
-
-            <span class="kw">impl</span> <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::<span class="ident">Initialize</span> <span class="kw">for</span> <span class="ident">Storage</span> {
-                <span class="kw">type</span> <span class="ident">Args</span> <span class="op">=</span> ();
-
-                <span class="kw">fn</span> <span class="ident">default_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Args</span><span class="op">&gt;</span> {
-                    <span class="prelude-val">Some</span>(())
-                }
-
-                <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_args</span>: <span class="self">Self</span>::<span class="ident">Args</span>) {
-                    #(
-                        <span class="self">self</span>.#<span class="ident">field_idents</span>.<span class="ident">try_default_initialize</span>();
-                    )<span class="op">*</span>
-                }
-            }
+            };
         }
     }
 
     <span class="doccomment">/// Generates the storage struct definition.</span>
     <span class="kw">fn</span> <span class="ident">generate_storage_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">storage</span>;
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">storage</span>.<span class="ident">ident</span>;
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">filter_non_ink_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">storage</span>.<span class="ident">attrs</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">fields</span>.<span class="ident">clone</span>();
@@ -404,18 +295,18 @@
                 <span class="ident">pub_token</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
             })
         });
-
+        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">CrossCallingConflictCfg</span><span class="op">&gt;</span>();
         <span class="macro">quote_spanned</span><span class="macro">!</span>( <span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
+            #<span class="ident">cfg</span>
             #(#<span class="ident">attrs</span>)<span class="op">*</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(
-                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>,
-                <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>, <span class="ident">ink_abi</span>::<span class="ident">HasLayout</span>)
+                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
+                <span class="ident">derive</span>(::<span class="ident">ink_core</span>::<span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>)
             )]</span>
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;test-env&quot;</span>), <span class="ident">derive</span>(<span class="ident">Debug</span>))]</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Storage</span>
+            <span class="attribute">#[<span class="ident">derive</span>(::<span class="ident">ink_core</span>::<span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">SpreadLayout</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">Debug</span>))]</span>
+            <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">storage_ident</span>
                 #<span class="ident">fields</span>
-
-            <span class="kw">impl</span> <span class="ident">ink_lang</span>::<span class="ident">Storage</span> <span class="kw">for</span> <span class="ident">Storage</span> {}
         )
     }
 
@@ -428,7 +319,7 @@
         } <span class="kw">else</span> {
             <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span> )
         };
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">filter_non_ink_attributes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">storage</span>.<span class="ident">attrs</span>);
+        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">filter_non_ink_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">attrs</span>);
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">ident</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">type_generics</span>, <span class="ident">where_clause</span>) <span class="op">=</span> <span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
         <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>;
@@ -437,7 +328,7 @@
         <span class="macro">quote_spanned</span><span class="macro">!</span>( <span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             #( #<span class="ident">attrs</span> )<span class="op">*</span>
             #<span class="ident">vis</span> <span class="kw">fn</span> #<span class="ident">ident</span> #<span class="ident">type_generics</span> (
-                #<span class="ident">inputs</span>,
+                #<span class="ident">inputs</span>
             ) #<span class="ident">output</span>
             #<span class="ident">where_clause</span>
             #<span class="ident">block</span>
@@ -447,6 +338,7 @@
     <span class="doccomment">/// Generates all the constructors, messages and methods defined on the storage struct.</span>
     <span class="kw">fn</span> <span class="ident">generate_message_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">storage</span>;
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">storage</span>.<span class="ident">ident</span>;
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">fns</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">contract</span>
@@ -455,7 +347,7 @@
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">fun</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_message</span>(<span class="ident">fun</span>));
         <span class="macro">quote_spanned</span><span class="macro">!</span>( <span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">new_ret_no_self</span>))]</span>
-            <span class="kw">impl</span> <span class="ident">Storage</span> {
+            <span class="kw">impl</span> #<span class="ident">storage_ident</span> {
                 #(
                     #<span class="ident">fns</span>
                 )<span class="op">*</span>

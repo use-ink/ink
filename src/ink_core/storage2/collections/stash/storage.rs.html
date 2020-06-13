@@ -122,6 +122,45 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -156,6 +195,45 @@
     },
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage2</span>::{
+        <span class="ident">collections</span>::<span class="ident">Vec</span> <span class="kw">as</span> <span class="ident">StorageVec</span>,
+        <span class="ident">traits</span>::<span class="ident">StorageLayout</span>,
+    };
+    <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::{
+        <span class="ident">CellLayout</span>,
+        <span class="ident">FieldLayout</span>,
+        <span class="ident">Layout</span>,
+        <span class="ident">LayoutKey</span>,
+        <span class="ident">StructLayout</span>,
+    };
+    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
+
+    <span class="kw">impl</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Header</span> {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
+            <span class="ident">Layout</span>::<span class="ident">Cell</span>(<span class="ident">CellLayout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">Header</span><span class="op">&gt;</span>(<span class="ident">LayoutKey</span>::<span class="ident">from</span>(
+                <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>),
+            )))
+        }
+    }
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">StorageStash</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Metadata</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
+            <span class="ident">Layout</span>::<span class="ident">Struct</span>(<span class="ident">StructLayout</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">FieldLayout</span>::<span class="ident">new</span>(<span class="string">&quot;header&quot;</span>, <span class="op">&lt;</span><span class="ident">Header</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span>::<span class="ident">layout</span>(<span class="ident">key_ptr</span>)),
+                <span class="ident">FieldLayout</span>::<span class="ident">new</span>(
+                    <span class="string">&quot;entries&quot;</span>,
+                    <span class="op">&lt;</span><span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span>::<span class="ident">layout</span>(<span class="ident">key_ptr</span>),
+                ),
+            ]))
+        }
+    }
+};
 
 <span class="kw">impl</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">Header</span> {
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;

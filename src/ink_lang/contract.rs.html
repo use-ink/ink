@@ -207,28 +207,8 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
+<span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
 <span class="comment">// you may not use this file except in compliance with the License.</span>
@@ -243,165 +223,23 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Dispatch</span>,
-    <span class="ident">DispatchError</span>,
-    <span class="ident">DispatchList</span>,
-    <span class="ident">DispatchableFn</span>,
-    <span class="ident">DispatchableFnMut</span>,
-    <span class="ident">Dispatcher</span>,
-    <span class="ident">DispatcherMut</span>,
-    <span class="ident">EmptyDispatchList</span>,
-    <span class="ident">FnInput</span>,
-    <span class="ident">FnOutput</span>,
-    <span class="ident">PushDispatcher</span>,
-};
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
-    <span class="ident">mem</span>::<span class="ident">ManuallyDrop</span>,
-};
-<span class="kw">use</span> <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">EnvTypes</span>;
-
-<span class="doccomment">/// The contract definition.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">Msgs</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The storage holding contract state.</span>
-    <span class="kw">pub</span> <span class="ident">storage</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">Storage</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The dispatchable constructors.</span>
-    <span class="kw">pub</span> <span class="ident">constructors</span>: <span class="ident">Constrs</span>,
-    <span class="doccomment">/// The dispatchable messages.</span>
-    <span class="kw">pub</span> <span class="ident">messages</span>: <span class="ident">Msgs</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Contract</span><span class="op">&lt;</span>(), (), ()<span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new contract definition for the given storage type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_storage</span><span class="op">&lt;</span><span class="ident">Storage</span><span class="op">&gt;</span>(
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContractBuilder</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">EmptyDispatchList</span>, <span class="ident">EmptyDispatchList</span><span class="op">&gt;</span> {
-        <span class="ident">ContractBuilder</span> {
-            <span class="ident">storage</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-            <span class="ident">constructors</span>: <span class="ident">DispatchList</span>::<span class="ident">empty</span>(),
-            <span class="ident">messages</span>: <span class="ident">DispatchList</span>::<span class="ident">empty</span>(),
-        }
-    }
-}
-
-<span class="doccomment">/// Storage marker.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">StorageMarker</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span><span class="op">&gt;</span>);
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">StorageMarker</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Default</span>::<span class="ident">default</span>())
-    }
-}
-
-<span class="doccomment">/// Simplifies declaration of a smart contract.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContractBuilder</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">Msgs</span><span class="op">&gt;</span> {
-    <span class="ident">storage</span>: <span class="ident">StorageMarker</span><span class="op">&lt;</span><span class="ident">Storage</span><span class="op">&gt;</span>,
-    <span class="ident">constructors</span>: <span class="ident">Constrs</span>,
-    <span class="ident">messages</span>: <span class="ident">Msgs</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span><span class="op">&gt;</span> <span class="ident">ContractBuilder</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">EmptyDispatchList</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Constrs</span>: <span class="ident">PushDispatcher</span>,
-{
-    <span class="doccomment">/// Pushes a new constructor to the contract definition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_instantiate</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(
-        <span class="self">self</span>,
-        <span class="ident">dfn</span>: <span class="ident">DispatchableFnMut</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">Storage</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContractBuilder</span><span class="op">&lt;</span>
-        <span class="ident">Storage</span>,
-        <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">DispatcherMut</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">Storage</span><span class="op">&gt;</span>, <span class="ident">Constrs</span><span class="op">&gt;</span>,
+    <span class="ident">dispatcher</span>::{
+        <span class="ident">Dispatch</span>,
+        <span class="ident">DispatchList</span>,
         <span class="ident">EmptyDispatchList</span>,
-    <span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnInput</span> <span class="op">+</span> <span class="ident">FnOutput</span>,
-    {
-        <span class="ident">ContractBuilder</span> {
-            <span class="ident">storage</span>: <span class="self">self</span>.<span class="ident">storage</span>,
-            <span class="ident">constructors</span>: <span class="self">self</span>.<span class="ident">constructors</span>.<span class="ident">push</span>(<span class="ident">DispatcherMut</span>::<span class="ident">new</span>(<span class="ident">dfn</span>)),
-            <span class="ident">messages</span>: <span class="self">self</span>.<span class="ident">messages</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">Msgs</span><span class="op">&gt;</span> <span class="ident">ContractBuilder</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">Msgs</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Msgs</span>: <span class="ident">PushDispatcher</span>,
-{
-    <span class="doccomment">/// Pushes a new message to the contract definition.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The message may not mutate contract storage.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_msg</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(
-        <span class="self">self</span>,
-        <span class="ident">dfn</span>: <span class="ident">DispatchableFn</span><span class="op">&lt;</span><span class="ident">M</span>, <span class="ident">Storage</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContractBuilder</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">M</span>, <span class="ident">Storage</span><span class="op">&gt;</span>, <span class="ident">Msgs</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">M</span>: <span class="ident">FnInput</span> <span class="op">+</span> <span class="ident">FnOutput</span>,
-    {
-        <span class="ident">ContractBuilder</span> {
-            <span class="ident">storage</span>: <span class="self">self</span>.<span class="ident">storage</span>,
-            <span class="ident">constructors</span>: <span class="self">self</span>.<span class="ident">constructors</span>,
-            <span class="ident">messages</span>: <span class="self">self</span>.<span class="ident">messages</span>.<span class="ident">push</span>(<span class="ident">Dispatcher</span>::<span class="ident">new</span>(<span class="ident">dfn</span>)),
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">Msgs</span><span class="op">&gt;</span> <span class="ident">ContractBuilder</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">Msgs</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Msgs</span>: <span class="ident">PushDispatcher</span>,
-{
-    <span class="doccomment">/// Pushes a new message to the contract definition.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The message may not mutate contract storage.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_msg_mut</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(
-        <span class="self">self</span>,
-        <span class="ident">dfn</span>: <span class="ident">DispatchableFnMut</span><span class="op">&lt;</span><span class="ident">M</span>, <span class="ident">Storage</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContractBuilder</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">Constrs</span>, <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">DispatcherMut</span><span class="op">&lt;</span><span class="ident">M</span>, <span class="ident">Storage</span><span class="op">&gt;</span>, <span class="ident">Msgs</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">M</span>: <span class="ident">FnInput</span> <span class="op">+</span> <span class="ident">FnOutput</span>,
-    {
-        <span class="ident">ContractBuilder</span> {
-            <span class="ident">storage</span>: <span class="self">self</span>.<span class="ident">storage</span>,
-            <span class="ident">constructors</span>: <span class="self">self</span>.<span class="ident">constructors</span>,
-            <span class="ident">messages</span>: <span class="self">self</span>.<span class="ident">messages</span>.<span class="ident">push</span>(<span class="ident">DispatcherMut</span>::<span class="ident">new</span>(<span class="ident">dfn</span>)),
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">ConstrsHead</span>, <span class="ident">ConstrsRest</span>, <span class="ident">MsgsHead</span>, <span class="ident">MsgsRest</span><span class="op">&gt;</span>
-    <span class="ident">ContractBuilder</span><span class="op">&lt;</span>
-        <span class="ident">Storage</span>,
-        <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">ConstrsHead</span>, <span class="ident">ConstrsRest</span><span class="op">&gt;</span>,
-        <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">MsgsHead</span>, <span class="ident">MsgsRest</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span>
-{
-    <span class="doccomment">/// Finalizes construction of the contract definition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(
-        <span class="self">self</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span>
-        <span class="ident">Storage</span>,
-        <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">ConstrsHead</span>, <span class="ident">ConstrsRest</span><span class="op">&gt;</span>,
-        <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">MsgsHead</span>, <span class="ident">MsgsRest</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">Storage</span>: <span class="kw">crate</span>::<span class="ident">Storage</span>,
-    {
-        <span class="kw">use</span> <span class="ident">ink_core</span>::<span class="ident">storage</span>::<span class="ident">alloc</span>::{
-            <span class="ident">AllocateUsing</span>,
-            <span class="ident">BumpAlloc</span>,
-        };
-        <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
-        <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="ident">ManuallyDrop</span>::<span class="ident">new</span>(<span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">BumpAlloc</span>::<span class="ident">from_raw_parts</span>(<span class="ident">Key</span>([<span class="number">0x0</span>; <span class="number">32</span>]));
-            <span class="ident">AllocateUsing</span>::<span class="ident">allocate_using</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">alloc</span>)
-        });
-        <span class="ident">Contract</span> {
-            <span class="ident">storage</span>,
-            <span class="ident">constructors</span>: <span class="self">self</span>.<span class="ident">constructors</span>,
-            <span class="ident">messages</span>: <span class="self">self</span>.<span class="ident">messages</span>,
-        }
-    }
-}
+        <span class="ident">MsgCon</span>,
+        <span class="ident">MsgMut</span>,
+        <span class="ident">MsgRef</span>,
+    },
+    <span class="ident">traits</span>::{
+        <span class="ident">Constructor</span>,
+        <span class="ident">MessageMut</span>,
+        <span class="ident">MessageRef</span>,
+    },
+    <span class="ident">DispatchError</span>,
+};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
+<span class="kw">use</span> <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">CallData</span>;
 
 <span class="doccomment">/// The contract dispatch mode.</span>
 <span class="doccomment">///</span>
@@ -414,48 +252,170 @@
     <span class="ident">Call</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Storage</span>, <span class="ident">ConstrsHead</span>, <span class="ident">ConstrsRest</span>, <span class="ident">MsgsHead</span>, <span class="ident">MsgsRest</span><span class="op">&gt;</span>
-    <span class="ident">Contract</span><span class="op">&lt;</span>
-        <span class="ident">Storage</span>,
-        <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">ConstrsHead</span>, <span class="ident">ConstrsRest</span><span class="op">&gt;</span>,
-        <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">MsgsHead</span>, <span class="ident">MsgsRest</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Storage</span>: <span class="kw">crate</span>::<span class="ident">Storage</span>,
-    <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">ConstrsHead</span>, <span class="ident">ConstrsRest</span><span class="op">&gt;</span>: <span class="ident">Dispatch</span><span class="op">&lt;</span><span class="ident">Storage</span><span class="op">&gt;</span>,
-    <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">MsgsHead</span>, <span class="ident">MsgsRest</span><span class="op">&gt;</span>: <span class="ident">Dispatch</span><span class="op">&lt;</span><span class="ident">Storage</span><span class="op">&gt;</span>,
-{
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dispatch_using_mode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">mode</span>: <span class="ident">DispatchMode</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
-    {
-        <span class="comment">// Initialize storage if we instantiate the contract.</span>
-        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DispatchMode</span>::<span class="ident">Instantiate</span> {
-            <span class="self">self</span>.<span class="ident">storage</span>.<span class="ident">try_default_initialize</span>();
-        }
-        <span class="comment">// Dispatch using the contract execution input.</span>
-        <span class="kw">let</span> <span class="ident">call_data</span> <span class="op">=</span>
-            <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">input</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">DispatchError</span>::<span class="ident">CouldNotReadInput</span>)<span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">DispatchMode</span>::<span class="ident">Instantiate</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">constructors</span>
-                    .<span class="ident">dispatch</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">storage</span>, <span class="kw-2">&amp;</span><span class="ident">call_data</span>)
-            }
-            <span class="ident">DispatchMode</span>::<span class="ident">Call</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">messages</span>.<span class="ident">dispatch</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">storage</span>, <span class="kw-2">&amp;</span><span class="ident">call_data</span>)
-            }
-        }
-    }
-}
-
 <span class="doccomment">/// Trait implemented by contracts themselves in order to provide a clean</span>
 <span class="doccomment">/// interface for the C-ABI specified `call` and `create` functions to forward</span>
 <span class="doccomment">/// calls to.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DispatchUsingMode</span> {
     <span class="kw">fn</span> <span class="ident">dispatch_using_mode</span>(<span class="ident">mode</span>: <span class="ident">DispatchMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>;
+}
+
+<span class="doccomment">/// Placeholder for the given type.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Placeholder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Placeholder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>(<span class="ident">Default</span>::<span class="ident">default</span>())
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Placeholder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Default</span>::<span class="ident">default</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Placeholder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+
+<span class="doccomment">/// The contract definition.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Dispatch</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ### Constructor Dispatch</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// 1. Retrieve function selector `s`.</span>
+<span class="doccomment">/// 1. Find selected constructor `C` given `s`:</span>
+<span class="doccomment">///     - If `C` was found:</span>
+<span class="doccomment">///         1. Decode input arguments `i` according to `C`&#39;s requirements</span>
+<span class="doccomment">///         1. Initialize dynamic storage allocator for instantiation</span>
+<span class="doccomment">///         1. Call `C(i)`, returns storage instance `S`</span>
+<span class="doccomment">///         1. Push state of `S` to contract storage</span>
+<span class="doccomment">///         1. Finalize dynamic storage allocator</span>
+<span class="doccomment">///         1. Exit</span>
+<span class="doccomment">///     - Otherwise:</span>
+<span class="doccomment">///         1. Panic that the provided constructor selector was invalid</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ### Message Dispatch</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// 1. Retrieve function selector `s`.</span>
+<span class="doccomment">/// 1. Find selected message `M` given `s`:</span>
+<span class="doccomment">///     - If `M` was found:</span>
+<span class="doccomment">///         1. Decode input arguments `i` according to `M`&#39;s requirements</span>
+<span class="doccomment">///         1. Initialize dynamic storage allocator for calls</span>
+<span class="doccomment">///         1. Pull storage instance `S` from contract storage</span>
+<span class="doccomment">///         1. Call `M(s, i)`, returns return value `R`</span>
+<span class="doccomment">///         1. If `M` has mutable access to the contract storage:</span>
+<span class="doccomment">///             1. push mutated state of `S` back to contract storage</span>
+<span class="doccomment">///         1. Finalize dynamic storage allocator</span>
+<span class="doccomment">///         1. If `R` is not of type `()`:</span>
+<span class="doccomment">///             1. return `R`</span>
+<span class="doccomment">///         1. Exit</span>
+<span class="doccomment">///     - Otherwise:</span>
+<span class="doccomment">///         1. Panic that the provided message selector was invalid</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Msgs</span>, <span class="ident">Phase</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The current type state of the contract.</span>
+    <span class="ident">state</span>: <span class="ident">Placeholder</span><span class="op">&lt;</span>(<span class="ident">Constrs</span>, <span class="ident">Msgs</span>, <span class="ident">Phase</span>)<span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Msgs</span>, <span class="ident">Phase</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Msgs</span>, <span class="ident">Phase</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">state</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Msgs</span>, <span class="ident">Phase</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Msgs</span>, <span class="ident">Phase</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Default</span>::<span class="ident">default</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Msgs</span>, <span class="ident">Phase</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Msgs</span>, <span class="ident">Phase</span><span class="op">&gt;</span> {}
+
+<span class="doccomment">/// Phase to start the building process of a contract.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EmptyPhase</span> {}
+<span class="doccomment">/// Building phase of a contract construction.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BuildPhase</span> {}
+<span class="doccomment">/// Final phase of a fully constructed contract.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">FinalPhase</span> {}
+
+<span class="kw">impl</span> <span class="ident">Contract</span><span class="op">&lt;</span>(), (), <span class="ident">EmptyPhase</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new contract builder.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">EmptyDispatchList</span>, <span class="ident">EmptyDispatchList</span>, <span class="ident">BuildPhase</span><span class="op">&gt;</span> {
+        <span class="ident">Default</span>::<span class="ident">default</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Constrs</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">EmptyDispatchList</span>, <span class="ident">BuildPhase</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Registers a new constructor for the contract.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_constructor</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(
+        <span class="self">self</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">MsgCon</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">Constrs</span><span class="op">&gt;</span>, <span class="ident">EmptyDispatchList</span>, <span class="ident">BuildPhase</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">C</span>: <span class="ident">Constructor</span>,
+    {
+        <span class="ident">Default</span>::<span class="ident">default</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Messages</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Messages</span>, <span class="ident">BuildPhase</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Registers a new `&amp;self` message for the contract.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_message</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(
+        <span class="self">self</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">MsgRef</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>, <span class="ident">Messages</span><span class="op">&gt;</span>, <span class="ident">BuildPhase</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">M</span>: <span class="ident">MessageRef</span>,
+    {
+        <span class="ident">Default</span>::<span class="ident">default</span>()
+    }
+
+    <span class="doccomment">/// Registers a new `&amp;mut self` message for the contract.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_message_mut</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(
+        <span class="self">self</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">DispatchList</span><span class="op">&lt;</span><span class="ident">MsgMut</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>, <span class="ident">Messages</span><span class="op">&gt;</span>, <span class="ident">BuildPhase</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">M</span>: <span class="ident">MessageMut</span>,
+    {
+        <span class="ident">Default</span>::<span class="ident">default</span>()
+    }
+
+    <span class="doccomment">/// Finalizes the construction of the contract.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Messages</span>, <span class="ident">FinalPhase</span><span class="op">&gt;</span> {
+        <span class="ident">Default</span>::<span class="ident">default</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Messages</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Messages</span>, <span class="ident">FinalPhase</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">Constrs</span>: <span class="ident">Dispatch</span>,
+{
+    <span class="doccomment">/// Instantiates the contract.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_instantiate</span>(<span class="self">self</span>, <span class="ident">call_data</span>: <span class="kw-2">&amp;</span><span class="ident">CallData</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span> {
+        <span class="op">&lt;</span><span class="ident">Constrs</span> <span class="kw">as</span> <span class="ident">Dispatch</span><span class="op">&gt;</span>::<span class="ident">dispatch</span>(<span class="ident">call_data</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Messages</span><span class="op">&gt;</span> <span class="ident">Contract</span><span class="op">&lt;</span><span class="ident">Constrs</span>, <span class="ident">Messages</span>, <span class="ident">FinalPhase</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">Messages</span>: <span class="ident">Dispatch</span>,
+{
+    <span class="doccomment">/// Calls a contract message.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_call</span>(<span class="self">self</span>, <span class="ident">call_data</span>: <span class="kw-2">&amp;</span><span class="ident">CallData</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span> {
+        <span class="op">&lt;</span><span class="ident">Messages</span> <span class="kw">as</span> <span class="ident">Dispatch</span><span class="op">&gt;</span>::<span class="ident">dispatch</span>(<span class="ident">call_data</span>)
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "ink_lang";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
