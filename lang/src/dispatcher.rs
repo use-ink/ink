@@ -72,11 +72,11 @@ where
     M: MessageRef,
     F: FnOnce(&<M as FnState>::State) -> <M as FnOutput>::Output,
 {
-    // alloc::initialize(ContractPhase::Call);
+    alloc::initialize(ContractPhase::Call);
     let root_key = Key::from([0x00; 32]);
     let state = ManuallyDrop::new(pull_spread_root::<<M as FnState>::State>(&root_key));
     let result = f(&state);
-    // alloc::finalize();
+    alloc::finalize();
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
         ink_core::env::output::<<M as FnOutput>::Output>(&result)
     }
@@ -94,13 +94,13 @@ where
     M: MessageMut,
     F: FnOnce(&mut <M as FnState>::State) -> <M as FnOutput>::Output,
 {
-    // alloc::initialize(ContractPhase::Call);
+    alloc::initialize(ContractPhase::Call);
     let root_key = Key::from([0x00; 32]);
     let mut state =
         ManuallyDrop::new(pull_spread_root::<<M as FnState>::State>(&root_key));
     let result = f(&mut state);
     push_spread_root::<<M as FnState>::State>(&state, &root_key);
-    // alloc::finalize();
+    alloc::finalize();
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
         ink_core::env::output::<<M as FnOutput>::Output>(&result)
     }
@@ -118,10 +118,10 @@ where
     C: Constructor,
     F: FnOnce() -> <C as FnState>::State,
 {
-    // alloc::initialize(ContractPhase::Deploy);
+    alloc::initialize(ContractPhase::Deploy);
     let state = ManuallyDrop::new(f());
     let root_key = Key::from([0x00; 32]);
     push_spread_root::<<C as FnState>::State>(&state, &root_key);
-    // alloc::finalize();
+    alloc::finalize();
     Ok(())
 }
