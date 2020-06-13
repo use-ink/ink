@@ -423,6 +423,29 @@
 <span id="423">423</span>
 <span id="424">424</span>
 <span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -620,6 +643,9 @@
                 <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">ident</span>;
                 <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">utils</span>::<span class="ident">filter_non_ink_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">attrs</span>);
                 <span class="kw">let</span> <span class="ident">fn_args</span> <span class="op">=</span> <span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>();
+                <span class="kw">let</span> <span class="ident">arg_types</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">generate_args_ty</span>(
+                    <span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">fn_arg</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">fn_arg</span>.<span class="ident">ty</span>)
+                );
                 <span class="kw">let</span> <span class="ident">arg_idents</span> <span class="op">=</span> <span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">fn_arg</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">fn_arg</span>.<span class="ident">ident</span>);
                 <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">function</span>
                     .<span class="ident">selector</span>()
@@ -632,15 +658,16 @@
                         #( #<span class="ident">fn_args</span> ),<span class="op">*</span>
                     ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">InstantiateBuilder</span><span class="op">&lt;</span>
                         <span class="ident">EnvTypes</span>,
+                        #<span class="ident">arg_types</span>,
                         <span class="self">Self</span>,
                         ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">state</span>::<span class="ident">Sealed</span>,
                         ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">state</span>::<span class="ident">CodeHashUnassigned</span>,
                     <span class="op">&gt;</span> {
-                        ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">InstantiateParams</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span>, <span class="self">Self</span><span class="op">&gt;</span>::<span class="ident">build</span>(
-                            ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>::<span class="ident">new</span>([#( #<span class="ident">selector_bytes</span> ),<span class="kw-2">*</span>])
+                        <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">InstantiateParams</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span>, ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">EmptyArgumentList</span>, <span class="self">Self</span><span class="op">&gt;</span>::<span class="ident">build</span>(
+                            <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>::<span class="ident">new</span>([#( #<span class="ident">selector_bytes</span> ),<span class="kw-2">*</span>])
                         )
                         #(
-                            .<span class="ident">push_arg</span>(<span class="kw-2">&amp;</span>#<span class="ident">arg_idents</span>)
+                            .<span class="ident">push_arg</span>(#<span class="ident">arg_idents</span>)
                         )<span class="op">*</span>
                         .<span class="ident">seal</span>()
                     }
@@ -692,6 +719,7 @@
 
                 <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span>
                     #( #<span class="ident">attrs</span> )<span class="op">*</span>
+                    <span class="attribute">#[<span class="ident">inline</span>]</span>
                     <span class="kw">pub</span> <span class="kw">fn</span> #<span class="ident">ident</span>(
                         #<span class="ident">receiver</span> ,
                         #(
@@ -728,6 +756,20 @@
         }
     }
 
+    <span class="kw">fn</span> <span class="ident">generate_args_ty</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">Args</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span>
+    <span class="kw">where</span>
+        <span class="ident">Args</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">into_iter</span>().<span class="ident">rev</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="macro">quote</span><span class="macro">!</span> { <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">EmptyArgumentList</span> };
+        <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span> {
+            <span class="ident">list</span> <span class="op">=</span> <span class="macro">quote</span><span class="macro">!</span> {
+                <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">Argument</span><span class="op">&lt;</span>#<span class="ident">arg</span><span class="op">&gt;</span>, #<span class="ident">list</span><span class="op">&gt;</span>
+            };
+        }
+        <span class="ident">list</span>
+    }
+
     <span class="kw">fn</span> <span class="ident">generate_forwarding_messages</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">pred</span>: <span class="kw">fn</span>(<span class="ident">function</span>: <span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">Function</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
@@ -744,6 +786,9 @@
                 <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">kind</span>.<span class="ident">selector</span>.<span class="ident">as_bytes</span>();
                 <span class="kw">let</span> <span class="ident">fn_args</span> <span class="op">=</span> <span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>();
                 <span class="kw">let</span> <span class="ident">arg_idents</span> <span class="op">=</span> <span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">fn_arg</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">fn_arg</span>.<span class="ident">ident</span>);
+                <span class="kw">let</span> <span class="ident">arg_types</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">generate_args_ty</span>(
+                    <span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">fn_arg</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">fn_arg</span>.<span class="ident">ty</span>)
+                );
                 <span class="kw">let</span> <span class="ident">ret_ty</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Type</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">sig</span>.<span class="ident">output</span> {
                     <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                     <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">ty</span>).<span class="ident">clone</span>()),
@@ -766,18 +811,19 @@
 
                 <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span>
                     #( #<span class="ident">attrs</span> )<span class="op">*</span>
+                    <span class="attribute">#[<span class="ident">inline</span>]</span>
                     <span class="kw">pub</span> <span class="kw">fn</span> #<span class="ident">ident</span>(
                         <span class="self">self</span>,
                         #( #<span class="ident">fn_args</span> ),<span class="op">*</span>
-                    ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">CallBuilder</span><span class="op">&lt;</span>
-                        <span class="ident">EnvTypes</span>, #<span class="ident">ret_ty_sig</span>, ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">state</span>::<span class="ident">Sealed</span>
+                    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">CallBuilder</span><span class="op">&lt;</span>
+                        <span class="ident">EnvTypes</span>, #<span class="ident">arg_types</span>, #<span class="ident">ret_ty_sig</span>, <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">state</span>::<span class="ident">Sealed</span>
                     <span class="op">&gt;</span> {
-                        ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">CallParams</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span>, #<span class="ident">ret_ty_param</span><span class="op">&gt;</span>::#<span class="ident">instantiate_fn</span>(
-                            ::<span class="ident">ink_lang</span>::<span class="ident">ToAccountId</span>::<span class="ident">to_account_id</span>(<span class="self">self</span>.<span class="ident">contract</span>),
-                            ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>::<span class="ident">new</span>([ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ]),
+                        <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">CallParams</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span>, ::<span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">EmptyArgumentList</span>, #<span class="ident">ret_ty_param</span><span class="op">&gt;</span>::#<span class="ident">instantiate_fn</span>(
+                            <span class="ident">ink_lang</span>::<span class="ident">ToAccountId</span>::<span class="ident">to_account_id</span>(<span class="self">self</span>.<span class="ident">contract</span>),
+                            <span class="ident">ink_core</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>::<span class="ident">new</span>([ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ]),
                         )
                         #(
-                            .<span class="ident">push_arg</span>(<span class="kw-2">&amp;</span>#<span class="ident">arg_idents</span>)
+                            .<span class="ident">push_arg</span>(#<span class="ident">arg_idents</span>)
                         )<span class="op">*</span>
                         .<span class="ident">seal</span>()
                     }

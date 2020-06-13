@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["hash","Hashing utilities around the Keccak256 hasher."]],"struct":[["Key","Typeless generic key into contract storage."],["KeyDiff","The difference between two keys."],["KeyPtr","A key pointer."]]});
+initSidebarItems({"mod":[["hash","Hashing utilities around the Keccak256 hasher."]],"struct":[["Key","Typeless generic key into contract storage."],["Key2","Key into contract storage."],["KeyDiff","The difference between two keys."],["KeyPtr","A key pointer."],["KeyPtr2","A key pointer."]]});
