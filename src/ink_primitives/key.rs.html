@@ -315,29 +315,6 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -376,35 +353,12 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Prefer using types found in `collections` or `Synced` type.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Key</span>(<span class="kw">pub</span> [<span class="ident">u8</span>; <span class="number">32</span>]);
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">32</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>(<span class="ident">bytes</span>)
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">type_metadata</span>::<span class="ident">HasTypeId</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">type_id</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">type_metadata</span>::<span class="ident">TypeId</span> {
-        <span class="ident">type_metadata</span>::<span class="ident">TypeIdCustom</span>::<span class="ident">new</span>(
-            <span class="string">&quot;Key&quot;</span>,
-            <span class="ident">type_metadata</span>::<span class="ident">Namespace</span>::<span class="ident">from_module_path</span>(<span class="string">&quot;ink_primitives&quot;</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;non-empty Rust identifier namespaces cannot fail&quot;</span>),
-            <span class="ident">Vec</span>::<span class="ident">new</span>(),
-        )
-        .<span class="ident">into</span>()
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">type_metadata</span>::<span class="ident">HasTypeDef</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">type_def</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">type_metadata</span>::<span class="ident">TypeDef</span> {
-        <span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">vec</span>;
-        <span class="ident">type_metadata</span>::<span class="ident">TypeDefTupleStruct</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">type_metadata</span>::<span class="ident">UnnamedField</span>::<span class="ident">of</span>::<span class="op">&lt;</span>
-            [<span class="ident">u8</span>; <span class="number">32</span>],
-        <span class="op">&gt;</span>()])
-        .<span class="ident">into</span>()
     }
 }
 

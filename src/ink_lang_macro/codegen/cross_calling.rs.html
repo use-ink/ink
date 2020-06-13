@@ -568,7 +568,7 @@
             <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(
                 <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>,
-                <span class="ident">derive</span>(<span class="ident">type_metadata</span>::<span class="ident">Metadata</span>)
+                <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>)
             )]</span>
             <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StorageAsDependency</span> {
                 <span class="ident">account_id</span>: <span class="ident">AccountId</span>,
@@ -596,7 +596,7 @@
             <span class="kw">impl</span> <span class="ident">ink_abi</span>::<span class="ident">HasLayout</span> <span class="kw">for</span> <span class="ident">StorageAsDependency</span> {
                 <span class="kw">fn</span> <span class="ident">layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ink_abi</span>::<span class="ident">StorageLayout</span> {
                     <span class="ident">ink_abi</span>::<span class="ident">LayoutStruct</span>::<span class="ident">new</span>(
-                        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">type_metadata</span>::<span class="ident">Metadata</span><span class="op">&gt;</span>::<span class="ident">meta_type</span>(), <span class="macro">vec</span><span class="macro">!</span>[]
+                        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span><span class="op">&gt;</span>::<span class="ident">meta_type</span>(), <span class="macro">vec</span><span class="macro">!</span>[]
                     ).<span class="ident">into</span>()
                 }
             }

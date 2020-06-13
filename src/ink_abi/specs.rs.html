@@ -835,34 +835,6 @@
 <span id="835">835</span>
 <span id="836">836</span>
 <span id="837">837</span>
-<span id="838">838</span>
-<span id="839">839</span>
-<span id="840">840</span>
-<span id="841">841</span>
-<span id="842">842</span>
-<span id="843">843</span>
-<span id="844">844</span>
-<span id="845">845</span>
-<span id="846">846</span>
-<span id="847">847</span>
-<span id="848">848</span>
-<span id="849">849</span>
-<span id="850">850</span>
-<span id="851">851</span>
-<span id="852">852</span>
-<span id="853">853</span>
-<span id="854">854</span>
-<span id="855">855</span>
-<span id="856">856</span>
-<span id="857">857</span>
-<span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -888,11 +860,7 @@
 };
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{
-    <span class="ident">Serialize</span>,
-    <span class="ident">Serializer</span>,
-};
-<span class="kw">use</span> <span class="ident">type_metadata</span>::{
+<span class="kw">use</span> <span class="ident">scale_info</span>::{
     <span class="ident">form</span>::{
         <span class="ident">CompactForm</span>,
         <span class="ident">Form</span>,
@@ -901,6 +869,10 @@
     <span class="ident">IntoCompact</span>,
     <span class="ident">Metadata</span>,
     <span class="ident">Registry</span>,
+};
+<span class="kw">use</span> <span class="ident">serde</span>::{
+    <span class="ident">Serialize</span>,
+    <span class="ident">Serializer</span>,
 };
 
 <span class="doccomment">/// Describes a contract.</span>
@@ -1161,6 +1133,7 @@
 <span class="doccomment">/// Describes a contract message.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The name of the message.</span>
     <span class="ident">name</span>: <span class="ident">F</span>::<span class="ident">String</span>,
@@ -1416,7 +1389,7 @@
 <span class="doccomment">/// default setup. Even though it would be useful for third party tools</span>
 <span class="doccomment">/// such as the Polkadot UI to know that we are handling with `Balance`</span>
 <span class="doccomment">/// types, we currently cannot communicate this without display names.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">type_metadata</span>::<span class="ident">Namespace</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">scale_info</span>::<span class="ident">Path</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// A type specification.</span>
 <span class="doccomment">///</span>
@@ -1437,9 +1410,10 @@
 <span class="doccomment">/// simply be a type alias to `fn(i32, i32) -&gt; Ordering`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The actual type.</span>
-    <span class="ident">ty</span>: <span class="ident">F</span>::<span class="ident">TypeId</span>,
+    <span class="ident">id</span>: <span class="ident">F</span>::<span class="ident">TypeId</span>,
     <span class="doccomment">/// The compile-time known displayed representation of the type.</span>
     <span class="ident">display_name</span>: <span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
 }
@@ -1449,7 +1423,7 @@
 
     <span class="kw">fn</span> <span class="ident">into_compact</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
         <span class="ident">TypeSpec</span> {
-            <span class="ident">ty</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>),
+            <span class="ident">id</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>),
             <span class="ident">display_name</span>: <span class="self">self</span>.<span class="ident">display_name</span>.<span class="ident">into_compact</span>(<span class="ident">registry</span>),
         }
     }
@@ -1492,8 +1466,9 @@
         <span class="ident">S</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">MetaForm</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span>::<span class="ident">String</span><span class="op">&gt;</span>,
     {
         <span class="self">Self</span> {
-            <span class="ident">ty</span>: <span class="ident">T</span>::<span class="ident">meta_type</span>(),
-            <span class="ident">display_name</span>: <span class="ident">DisplayName</span>::<span class="ident">new</span>(<span class="ident">segments</span>).<span class="ident">expect</span>(<span class="string">&quot;display name is invalid&quot;</span>),
+            <span class="ident">id</span>: <span class="ident">T</span>::<span class="ident">meta_type</span>(),
+            <span class="ident">display_name</span>: <span class="ident">DisplayName</span>::<span class="ident">from_segments</span>(<span class="ident">segments</span>)
+                .<span class="ident">expect</span>(<span class="string">&quot;display name is invalid&quot;</span>),
         }
     }
 
@@ -1503,8 +1478,8 @@
         <span class="ident">T</span>: <span class="ident">Metadata</span>,
     {
         <span class="self">Self</span> {
-            <span class="ident">ty</span>: <span class="ident">T</span>::<span class="ident">meta_type</span>(),
-            <span class="ident">display_name</span>: <span class="ident">DisplayName</span>::<span class="ident">prelude</span>(),
+            <span class="ident">id</span>: <span class="ident">T</span>::<span class="ident">meta_type</span>(),
+            <span class="ident">display_name</span>: <span class="ident">DisplayName</span>::<span class="ident">default</span>(),
         }
     }
 }
@@ -1696,38 +1671,7 @@
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Serializer</span>,
 {
-    <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
-        <span class="string">r#&quot;[&quot;0x{:02X}&quot;,&quot;0x{:02X}&quot;,&quot;0x{:02X}&quot;,&quot;0x{:02X}&quot;]&quot;#</span>,
-        <span class="ident">s</span>[<span class="number">0</span>], <span class="ident">s</span>[<span class="number">1</span>], <span class="ident">s</span>[<span class="number">2</span>], <span class="ident">s</span>[<span class="number">3</span>]
-    );
-    <span class="ident">serializer</span>.<span class="ident">serialize_str</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>)
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">construct_selector_must_serialize_to_hex</span>() {
-        <span class="comment">// given</span>
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;foo&quot;</span>;
-        <span class="kw">let</span> <span class="ident">cs</span>: <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">MetaForm</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ConstructorSpec</span> {
-            <span class="ident">name</span>,
-            <span class="ident">selector</span>: <span class="number">123_456_789u32</span>.<span class="ident">to_be_bytes</span>(),
-            <span class="ident">args</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">docs</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry</span>::<span class="ident">new</span>();
-
-        <span class="comment">// when</span>
-        <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">cs</span>.<span class="ident">into_compact</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registry</span>)).<span class="ident">unwrap</span>();
-
-        <span class="comment">// then</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">json</span>,
-            <span class="string">r#&quot;{&quot;name&quot;:1,&quot;selector&quot;:&quot;[\&quot;0x07\&quot;,\&quot;0x5B\&quot;,\&quot;0xCD\&quot;,\&quot;0x15\&quot;]&quot;,&quot;args&quot;:[],&quot;docs&quot;:[]}&quot;#</span>
-        );
-    }
+    <span class="kw">super</span>::<span class="ident">hex_encode</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[..], <span class="ident">serializer</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "ink_abi";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

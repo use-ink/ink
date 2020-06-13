@@ -7,5 +7,5 @@ sourcesIndex["ink_lang"] = {"name":"","files":["abi.rs","contract.rs","cross_cal
 sourcesIndex["ink_lang_macro"] = {"name":"","dirs":[{"name":"codegen","files":["abi.rs","contract.rs","cross_calling.rs","dispatch.rs","env_types.rs","events.rs","mod.rs","storage.rs","testable.rs"]},{"name":"ir","files":["data.rs","into_hir.rs","mod.rs","params.rs","utils.rs"]}],"files":["contract.rs","error.rs","extensions.rs","lib.rs","lint.rs"]};
 sourcesIndex["ink_prelude"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["ink_primitives"] = {"name":"","files":["byte_utils.rs","hash.rs","key.rs","lib.rs"]};
-sourcesIndex["type_metadata"] = {"name":"","files":["form.rs","impls.rs","interner.rs","lib.rs","meta_type.rs","registry.rs","tm_std.rs","type_def.rs","type_id.rs","utils.rs"]};
+sourcesIndex["scale_info"] = {"name":"","dirs":[{"name":"ty","files":["composite.rs","fields.rs","mod.rs","path.rs","variant.rs"]}],"files":["build.rs","form.rs","impls.rs","interner.rs","lib.rs","meta_type.rs","registry.rs","tm_std.rs","utils.rs"]};
 createSourceSidebar();

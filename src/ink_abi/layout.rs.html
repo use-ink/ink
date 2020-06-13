@@ -226,52 +226,6 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -292,14 +246,9 @@
     <span class="ident">string</span>::<span class="ident">String</span>,
     <span class="ident">vec</span>::<span class="ident">Vec</span>,
 };
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Write</span>;
 
 <span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{
-    <span class="ident">Serialize</span>,
-    <span class="ident">Serializer</span>,
-};
-<span class="kw">use</span> <span class="ident">type_metadata</span>::{
+<span class="kw">use</span> <span class="ident">scale_info</span>::{
     <span class="ident">form</span>::{
         <span class="ident">CompactForm</span>,
         <span class="ident">Form</span>,
@@ -307,6 +256,10 @@
     },
     <span class="ident">IntoCompact</span>,
     <span class="ident">Registry</span>,
+};
+<span class="kw">use</span> <span class="ident">serde</span>::{
+    <span class="ident">Serialize</span>,
+    <span class="ident">Serializer</span>,
 };
 
 <span class="doccomment">/// Implemented by types that have a storage layout.</span>
@@ -324,15 +277,14 @@
 
 <span class="kw">impl</span> <span class="ident">HasLayout</span> <span class="kw">for</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span> {
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> {
-        <span class="ident">LayoutRange</span>::<span class="ident">cell</span>(<span class="kw-2">*</span><span class="self">self</span>, <span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="ident">type_metadata</span>::<span class="ident">Metadata</span><span class="op">&gt;</span>::<span class="ident">meta_type</span>())
-            .<span class="ident">into</span>()
+        <span class="ident">LayoutRange</span>::<span class="ident">cell</span>(<span class="kw-2">*</span><span class="self">self</span>, <span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span><span class="op">&gt;</span>::<span class="ident">meta_type</span>()).<span class="ident">into</span>()
     }
 }
 
 <span class="doccomment">/// Either a concrete layout bound or another layout sub-struct.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">From</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StorageLayout</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A concrete layout bound.</span>
     <span class="ident">Range</span>(<span class="ident">LayoutRange</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>),
@@ -369,10 +321,9 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LayoutStruct</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;struct.type&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
     <span class="ident">self_ty</span>: <span class="ident">F</span>::<span class="ident">TypeId</span>,
     <span class="doccomment">/// The sub-fields of the struct.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;struct.fields&quot;</span>)]</span>
     <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LayoutField</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
@@ -451,13 +402,12 @@
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LayoutRange</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The single key for cells or the starting key address for chunks.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;range.offset&quot;</span>, <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_key&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_key&quot;</span>)]</span>
     <span class="ident">offset</span>: <span class="ident">LayoutKey</span>,
     <span class="doccomment">/// The amount of associated key addresses starting from the offset key.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;range.len&quot;</span>)]</span>
     <span class="ident">len</span>: <span class="ident">u32</span>,
     <span class="doccomment">/// The element type stored under the associated keys.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;range.elem_type&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;elemType&quot;</span>)]</span>
     <span class="ident">elem_ty</span>: <span class="ident">F</span>::<span class="ident">TypeId</span>,
 }
 
@@ -503,49 +453,7 @@
 <span class="kw">where</span>
     <span class="ident">S</span>: <span class="ident">Serializer</span>,
 {
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">key</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hex</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">with_capacity</span>(<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">2</span>);
-    <span class="macro">write</span><span class="macro">!</span>(<span class="ident">hex</span>, <span class="string">&quot;0x&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed writing to string&quot;</span>);
-    <span class="kw">for</span> <span class="ident">byte</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">bytes</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">hex</span>, <span class="string">&quot;{:02x}&quot;</span>, <span class="ident">byte</span>).<span class="ident">expect</span>(<span class="string">&quot;failed writing to string&quot;</span>);
-    }
-
-    <span class="ident">serializer</span>.<span class="ident">serialize_str</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>)
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">type_metadata</span>::{
-        <span class="ident">form</span>::{
-            <span class="ident">Form</span>,
-            <span class="ident">MetaForm</span>,
-        },
-        <span class="ident">IntoCompact</span>,
-        <span class="ident">Registry</span>,
-    };
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">key_must_serialize_to_hex</span>() {
-        <span class="comment">// given</span>
-        <span class="kw">let</span> <span class="ident">type_id</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">MetaForm</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span>::<span class="ident">TypeId</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">LayoutKey</span>([<span class="number">1</span>; <span class="number">32</span>]);
-        <span class="kw">let</span> <span class="ident">cs</span>: <span class="ident">LayoutRange</span><span class="op">&lt;</span><span class="ident">MetaForm</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LayoutRange</span> {
-            <span class="ident">offset</span>,
-            <span class="ident">len</span>: <span class="number">1337</span>,
-            <span class="ident">elem_ty</span>: <span class="ident">type_id</span>,
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry</span>::<span class="ident">new</span>();
-
-        <span class="comment">// when</span>
-        <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">cs</span>.<span class="ident">into_compact</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registry</span>)).<span class="ident">unwrap</span>();
-
-        <span class="comment">// then</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">json</span>,
-            <span class="string">&quot;{\&quot;range.offset\&quot;:\&quot;0x0101010101010101010101010101010101010101010101010101010101010101\&quot;,\&quot;range.len\&quot;:1337,\&quot;range.elem_type\&quot;:1}&quot;</span>
-        );
-    }
+    <span class="kw">super</span>::<span class="ident">hex_encode</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="number">0</span>[..], <span class="ident">serializer</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "ink_abi";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

@@ -247,13 +247,12 @@
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">type_metadata</span>::{
-    <span class="ident">HasTypeDef</span>,
+<span class="kw">use</span> <span class="ident">scale_info</span>::{
+    <span class="ident">build</span>::<span class="ident">Fields</span>,
     <span class="ident">Metadata</span>,
-    <span class="ident">NamedField</span>,
-    <span class="ident">TypeDef</span>,
-    <span class="ident">TypeDefStruct</span>,
-    <span class="ident">TypeId</span>,
+    <span class="ident">Path</span>,
+    <span class="ident">Type</span>,
+    <span class="ident">TypeInfo</span>,
 };
 
 <span class="doccomment">/// A chunk of synchronized cells.</span>
@@ -269,7 +268,6 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Read more about kinds of guarantees and their effect [here](../index.html#guarantees).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>, <span class="ident">derive</span>(<span class="ident">TypeId</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SyncChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The underlying chunk of cells.</span>
     <span class="ident">chunk</span>: <span class="ident">TypedChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
@@ -278,9 +276,11 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-generate-abi&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">HasTypeDef</span> <span class="kw">for</span> <span class="ident">SyncChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_def</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TypeDef</span> {
-        <span class="ident">TypeDefStruct</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">NamedField</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>(<span class="string">&quot;cells_key&quot;</span>)]).<span class="ident">into</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">SyncChunk</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+        <span class="ident">Type</span>::<span class="ident">builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;SyncChunk&quot;</span>, <span class="macro">module_path</span><span class="macro">!</span>()))
+            .<span class="ident">composite</span>(<span class="ident">Fields</span>::<span class="ident">named</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>(<span class="string">&quot;cells_key&quot;</span>))
     }
 }
 

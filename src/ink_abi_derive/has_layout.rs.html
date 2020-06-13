@@ -189,7 +189,7 @@
 <span class="kw">fn</span> <span class="ident">generate_struct_fields_layout</span>(<span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Field</span>, <span class="macro">Token</span><span class="macro">!</span>[,]<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
     <span class="kw">let</span> <span class="ident">fields_layout</span> <span class="op">=</span> <span class="ident">generate_fields_layout</span>(<span class="ident">fields</span>);
     <span class="macro">quote</span><span class="macro">!</span> {
-        <span class="kw">use</span> <span class="ident">type_metadata</span>::<span class="ident">Metadata</span> <span class="kw">as</span> <span class="kw">_</span>;
+        <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span> <span class="kw">as</span> <span class="kw">_</span>;
         <span class="ident">_ink_abi</span>::<span class="ident">LayoutStruct</span>::<span class="ident">new</span>(<span class="self">Self</span>::<span class="ident">meta_type</span>(), <span class="ident">__core</span>::<span class="macro">vec</span><span class="macro">!</span>[
             #( #<span class="ident">fields_layout</span>, )<span class="op">*</span>
         ])
@@ -202,7 +202,7 @@
         <span class="ident">Fields</span>::<span class="ident">Unnamed</span>(<span class="kw-2">ref</span> <span class="ident">fs</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">generate_struct_fields_layout</span>(<span class="kw-2">&amp;</span><span class="ident">fs</span>.<span class="ident">unnamed</span>),
         <span class="ident">Fields</span>::<span class="ident">Unit</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="macro">quote</span><span class="macro">!</span> {
-                <span class="ident">_ink_abi</span>::<span class="ident">LayoutStruct</span>::<span class="ident">new</span>(<span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">type_metadata</span>::<span class="ident">Metadata</span><span class="op">&gt;</span>::<span class="ident">meta_type</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>())
+                <span class="ident">_ink_abi</span>::<span class="ident">LayoutStruct</span>::<span class="ident">new</span>(<span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span><span class="op">&gt;</span>::<span class="ident">meta_type</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>())
             }
         }
     }
