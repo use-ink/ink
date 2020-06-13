@@ -15,6 +15,7 @@
 //! Utilities to call or instantiate contracts on the chain.
 
 mod builder;
+mod execution_input;
 mod instantiate;
 mod utils;
 
@@ -38,6 +39,14 @@ pub use self::{
         CallBuilder,
         CallParams,
         ReturnType,
+    },
+    execution_input::{
+        ArgsList,
+        Argument,
+        ArgumentList,
+        ArgumentListEnd,
+        EmptyArgumentList,
+        ExecutionInput,
     },
     instantiate::{
         FromAccountId,

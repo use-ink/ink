@@ -224,8 +224,11 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::invoke_contract`]
-    pub fn invoke_contract(self, params: &CallParams<T, ()>) -> Result<()> {
-        env::invoke_contract::<T>(params)
+    pub fn invoke_contract<Args>(self, params: &CallParams<T, Args, ()>) -> Result<()>
+    where
+        Args: scale::Encode,
+    {
+        env::invoke_contract::<T, Args>(params)
     }
 
     /// Evaluates a contract message and returns its result.
@@ -233,11 +236,15 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::eval_contract`]
-    pub fn eval_contract<R>(self, params: &CallParams<T, ReturnType<R>>) -> Result<R>
+    pub fn eval_contract<Args, R>(
+        self,
+        params: &CallParams<T, Args, ReturnType<R>>,
+    ) -> Result<R>
     where
+        Args: scale::Encode,
         R: scale::Decode,
     {
-        env::eval_contract::<T, R>(params)
+        env::eval_contract::<T, Args, R>(params)
     }
 
     /// Instantiates another contract.
@@ -245,11 +252,14 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::instantiate_contract`]
-    pub fn instantiate_contract<C>(
+    pub fn instantiate_contract<Args, C>(
         self,
-        params: &InstantiateParams<T, C>,
-    ) -> Result<T::AccountId> {
-        env::instantiate_contract::<T, C>(params)
+        params: &InstantiateParams<T, Args, C>,
+    ) -> Result<T::AccountId>
+    where
+        Args: scale::Encode,
+    {
+        env::instantiate_contract::<T, Args, C>(params)
     }
 
     /// Restores a smart contract in tombstone state.

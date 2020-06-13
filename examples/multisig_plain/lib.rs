@@ -76,12 +76,8 @@ use ink_lang as ink;
 mod multisig_plain {
     use ink_core::{
         env::call::{
-            state::{
-                Sealed,
-                Unsealed,
-            },
-            CallBuilder,
             CallParams,
+            EmptyArgumentList,
         },
         storage2::{
             collections::{
@@ -474,10 +470,14 @@ mod multisig_plain {
         fn invoke_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = parameterize_call(
-                &t,
-                CallParams::<EnvTypes, ()>::invoke(t.callee, t.selector.into()),
+            let result = CallParams::<EnvTypes, EmptyArgumentList, ()>::invoke(
+                t.callee,
+                t.selector.into(),
             )
+            .gas_limit(t.gas_limit)
+            .transferred_value(t.transferred_value)
+            .push_arg(CallInput(&t.input))
+            .seal()
             .fire()
             .map_err(|_| ());
             self.env().emit_event(Execution {
@@ -496,10 +496,14 @@ mod multisig_plain {
         fn eval_transaction(&mut self, trans_id: TransactionId) -> Result<Vec<u8>, ()> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = parameterize_call(
-                &t,
-                CallParams::<EnvTypes, Vec<u8>>::eval(t.callee, t.selector.into()),
+            let result = CallParams::<EnvTypes, EmptyArgumentList, Vec<u8>>::eval(
+                t.callee,
+                t.selector.into(),
             )
+            .gas_limit(t.gas_limit)
+            .transferred_value(t.transferred_value)
+            .push_arg(CallInput(&t.input))
+            .seal()
             .fire()
             .map_err(|_| ());
             self.env().emit_event(Execution {
@@ -637,18 +641,6 @@ mod multisig_plain {
         fn ensure_no_owner(&self, owner: &AccountId) {
             assert!(!self.is_owner.contains_key(owner));
         }
-    }
-
-    /// Parameterize a call with the arguments stored inside a transaction.
-    fn parameterize_call<R>(
-        t: &Transaction,
-        builder: CallBuilder<EnvTypes, R, Unsealed>,
-    ) -> CallBuilder<EnvTypes, R, Sealed> {
-        builder
-            .gas_limit(t.gas_limit)
-            .transferred_value(t.transferred_value)
-            .push_arg(&CallInput(&t.input))
-            .seal()
     }
 
     /// Panic if the number of `owners` under a `requirement` violates our
