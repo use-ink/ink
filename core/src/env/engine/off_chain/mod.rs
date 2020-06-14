@@ -25,7 +25,14 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-pub use self::call_data::CallData;
+pub use self::{
+    call_data::CallData,
+    db::{
+        AccountError,
+        PastPrints,
+    },
+    typed_encoded::TypedEncodedError,
+};
 use self::{
     db::{
         Account,
@@ -48,13 +55,6 @@ use self::{
         OffHash,
         OffTimestamp,
     },
-};
-pub use self::{
-    db::{
-        AccountError,
-        PastPrints,
-    },
-    typed_encoded::TypedEncodedError,
 };
 use super::OnInstance;
 use crate::env::EnvTypes;

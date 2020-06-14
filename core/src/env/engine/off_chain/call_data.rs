@@ -1,5 +1,8 @@
-use ink_prelude::{vec, vec::Vec};
 use crate::env::call::Selector;
+use ink_prelude::{
+    vec,
+    vec::Vec,
+};
 
 /// The raw ABI respecting input data to a call.
 ///

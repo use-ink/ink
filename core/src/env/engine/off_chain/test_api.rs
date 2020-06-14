@@ -14,6 +14,7 @@
 
 //! Operations on the off-chain testing environment.
 
+pub use super::CallData;
 use super::{
     db::ExecContext,
     AccountError,
@@ -26,7 +27,6 @@ use crate::env::{
     Result,
 };
 use ink_prelude::string::String;
-pub use super::CallData;
 
 /// Pushes a contract execution context.
 ///
