@@ -20,13 +20,13 @@ use super::{
     EmittedEvent,
     EnvInstance,
     OnInstance,
-    CallData,
 };
 use crate::env::{
     EnvTypes,
     Result,
 };
 use ink_prelude::string::String;
+pub use super::CallData;
 
 /// Pushes a contract execution context.
 ///

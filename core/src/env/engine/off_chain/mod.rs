@@ -25,8 +25,8 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+pub use self::call_data::CallData;
 use self::{
-    call_data::CallData,
     db::{
         Account,
         AccountsDb,
