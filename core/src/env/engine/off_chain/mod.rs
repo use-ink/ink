@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod call_data;
 mod db;
 mod hashing;
 mod impls;
@@ -25,6 +26,7 @@ mod types;
 mod tests;
 
 use self::{
+    call_data::CallData,
     db::{
         Account,
         AccountsDb,
@@ -198,17 +200,17 @@ impl EnvInstance {
             T::Balance::from(20),
         );
         // Initialize the execution context for the first contract execution.
-        use crate::env::call::{
-            CallData,
-            Selector,
-        };
+        use crate::env::call::Selector;
+        // The below selector bytes are incorrect but since calling doesn't work
+        // yet we do not have to fix this now.
+        let selector_bytes_for_call = [0x00; 4];
         self.exec_context.push(
             ExecContext::build::<T>()
                 .caller(default_accounts.alice)
                 .callee(contract_account_id)
                 .gas(T::Balance::from(500_000))
                 .transferred_value(T::Balance::from(500))
-                .call_data(CallData::new(Selector::from_str("call")))
+                .call_data(CallData::new(Selector::new(selector_bytes_for_call)))
                 .finish(),
         );
         Ok(())

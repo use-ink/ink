@@ -16,12 +16,12 @@ use super::{
     super::{
         Result,
         TypedEncoded,
+        CallData,
     },
     OffAccountId,
     OffBalance,
 };
 use crate::env::{
-    call::CallData,
     EnvTypes,
 };
 use ink_prelude::vec::Vec;

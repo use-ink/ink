@@ -14,7 +14,6 @@
 
 use crate::env::{
     call::{
-        CallData,
         CallParams,
         InstantiateParams,
         ReturnType,
@@ -52,17 +51,6 @@ pub trait Env {
     fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
     where
         R: scale::Decode;
-
-    /// Returns the input to the executed contract.
-    ///
-    /// # Note
-    ///
-    /// - The input is the 4-bytes selector followed by the arguments
-    ///   of the called function in their SCALE encoded representation.
-    /// - This property must be received as the first action an executed
-    ///   contract to its environment and can only be queried once.
-    ///   The environment access asserts this guarantee.
-    fn input(&mut self) -> Result<CallData>;
 
     /// Returns the execution input to the executed contract and decodes it as `T`.
     ///

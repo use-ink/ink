@@ -20,7 +20,6 @@ use crate::env::{
         TypedEnv,
     },
     call::{
-        CallData,
         CallParams,
         InstantiateParams,
         ReturnType,
@@ -435,26 +434,6 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnv::transfer::<T>(instance, destination, value)
     })
-}
-
-/// Returns the input to the executed contract.
-///
-/// # Note
-///
-/// - The input is the 4-bytes selector followed by the arguments
-///   of the called function in their SCALE encoded representation.
-/// - This property must be received as the first action an executed
-///   contract to its environment and can only be queried once.
-///   The environment access asserts this guarantee.
-///
-/// # Errors
-///
-/// - If the call to `input` is not the first call to the environment.
-/// - If the input failed to decode into call data.
-///     - This happens only if the host runtime provides less than 4 bytes for
-///       the function selector upon this query.
-pub fn input() -> Result<CallData> {
-    <EnvInstance as OnInstance>::on_instance(|instance| Env::input(instance))
 }
 
 /// Returns the execution input to the executed contract and decodes it as `T`.

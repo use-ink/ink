@@ -19,7 +19,6 @@ use super::{
 };
 use crate::env::{
     call::{
-        CallData,
         CallParams,
         InstantiateParams,
         ReturnType,
@@ -89,14 +88,6 @@ impl Env for EnvInstance {
         R: scale::Decode,
     {
         self.runtime_storage.load::<R>(runtime_key)
-    }
-
-    fn input(&mut self) -> Result<CallData> {
-        self.exec_context()
-            .map(|exec_ctx| &exec_ctx.call_data)
-            .map(Clone::clone)
-            .map_err(|_| scale::Error::from("could not decode input call data"))
-            .map_err(Into::into)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

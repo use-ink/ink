@@ -20,9 +20,9 @@ use super::{
     EmittedEvent,
     EnvInstance,
     OnInstance,
+    CallData,
 };
 use crate::env::{
-    call::CallData,
     EnvTypes,
     Result,
 };
