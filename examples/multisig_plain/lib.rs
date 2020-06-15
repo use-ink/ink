@@ -301,7 +301,7 @@ mod multisig_plain {
         ///
         /// // first create the transaction that adds `alice` through `add_owner`
         /// let alice: AccountId = [1u8; 32].into();
-        /// let mut call = CallData::new(Selector::from_str("add_owner"));
+        /// let mut call = CallData::new(Selector::new([166, 229, 27, 154])); // add_owner
         /// call.push_arg(&alice);
         /// let transaction = Transaction {
         ///     callee: wallet_id,
@@ -314,7 +314,7 @@ mod multisig_plain {
         /// // submit the transaction for confirmation
         /// let mut submit = CallParams::<Env, _, _>::eval(
         ///     wallet_id,
-        ///     Selector::from_str("submit_transaction")
+        ///     Selector::new([86, 244, 13, 223]) // submit_transaction
         /// );
         /// let (id, _): (u32, ConfirmationStatus)  = submit.push_arg(&transaction)
         ///     .fire()
@@ -323,7 +323,7 @@ mod multisig_plain {
         /// // wait until all required owners have confirmed and then execute the transaction
         /// let mut invoke = CallParams::<Env, _, ()>::invoke(
         ///     wallet_id,
-        ///     Selector::from_str("invoke_transaction")
+        ///     Selector::new([185, 50, 225, 236]) // invoke_transaction
         /// );
         /// invoke.push_arg(&id).fire();
         /// ```
