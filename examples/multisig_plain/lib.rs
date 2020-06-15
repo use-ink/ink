@@ -69,7 +69,11 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::multisig_plain::MultisigPlain;
+pub use self::multisig_plain::{
+    ConfirmationStatus,
+    MultisigPlain,
+    Transaction,
+};
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
@@ -141,15 +145,15 @@ mod multisig_plain {
     )]
     pub struct Transaction {
         /// The AccountId of the contract that is called in this transaction.
-        callee: AccountId,
+        pub callee: AccountId,
         /// The selector bytes that identifies the function of the callee that should be called.
-        selector: [u8; 4],
+        pub selector: [u8; 4],
         /// The SCALE encoded parameters that are passed to the called function.
-        input: Vec<u8>,
+        pub input: Vec<u8>,
         /// The amount of chain balance that is transferred to the callee.
-        transferred_value: Balance,
+        pub transferred_value: Balance,
         /// Gas limit for the execution of the call.
-        gas_limit: u64,
+        pub gas_limit: u64,
     }
 
     #[ink(storage)]
@@ -288,15 +292,16 @@ mod multisig_plain {
         ///
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
-        /// ```ignore
-        /// use ink_core::env::call{CallData, CallParams, Selector};
+        /// ```no_run
+        /// use ink_core::env::{DefaultEnvTypes as Env, AccountId, call::{CallData, CallParams, Selector}};
+        /// use multisig_plain::{Transaction, ConfirmationStatus};
         ///
         /// // address of an existing MultiSigPlain contract
         /// let wallet_id: AccountId = [7u8; 32].into();
         ///
         /// // first create the transaction that adds `alice` through `add_owner`
         /// let alice: AccountId = [1u8; 32].into();
-        /// let mut call = CallData::new(Selector::from_str("add_owner"));
+        /// let mut call = CallData::new(Selector::new([166, 229, 27, 154])); // add_owner
         /// call.push_arg(&alice);
         /// let transaction = Transaction {
         ///     callee: wallet_id,
@@ -307,13 +312,19 @@ mod multisig_plain {
         /// };
         ///
         /// // submit the transaction for confirmation
-        /// let mut submit = CallParams::eval(wallet_id, Selector::from_str("submit_transaction"));
-        /// let (id, _)  = submit.push_arg(&transaction)
+        /// let mut submit = CallParams::<Env, _, _>::eval(
+        ///     wallet_id,
+        ///     Selector::new([86, 244, 13, 223]) // submit_transaction
+        /// );
+        /// let (id, _): (u32, ConfirmationStatus)  = submit.push_arg(&transaction)
         ///     .fire()
         ///     .expect("submit_transaction won't panic.");
         ///
         /// // wait until all required owners have confirmed and then execute the transaction
-        /// let mut invoke = CallParams::eval(wallet_id, Selector::from_str("invoke_transaction"));
+        /// let mut invoke = CallParams::<Env, _, ()>::invoke(
+        ///     wallet_id,
+        ///     Selector::new([185, 50, 225, 236]) // invoke_transaction
+        /// );
         /// invoke.push_arg(&id).fire();
         /// ```
         #[ink(message)]
