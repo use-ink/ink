@@ -19,6 +19,181 @@ use core::{
 };
 use regex::Regex;
 
+/// Either an ink! specific attribute, or another uninterpreted attribute.
+#[derive(Debug, PartialEq, Eq)]
+pub enum Attribute {
+    /// An ink! specific attribute, e.g. `#[ink(storage)]`.
+    Ink(InkAttribute),
+    /// Any other attribute.
+    ///
+    /// This can be a known `#[derive(Debug)]` or a specific attribute of another
+    /// crate.
+    Other(syn::Attribute),
+}
+
+/// An ink! specific attribute.
+///
+/// # Examples
+///
+/// An attribute with a simple flag:
+/// ```no_compile
+/// #[ink(storage)]
+/// ```
+///
+/// An attribute with a parameterized flag:
+/// ```no_compile
+/// #[ink(selector = "0xDEADBEEF")]
+/// ```
+///
+/// An attribute with multiple flags:
+/// ```no_compile
+/// #[ink(message, payable, selector = "0xDEADBEEF")]
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct InkAttribute {
+    /// The internal flags of the ink! attribute.
+    flags: Vec<AttributeFlag>,
+}
+
+impl InkAttribute {
+    /// Returns an iterator over the non-empty flags of the ink! attribute.
+    ///
+    /// # Note
+    ///
+    /// This yields at least one ink! attribute flag.
+    pub fn flags(&self) -> core::slice::Iter<AttributeFlag> {
+        self.flags.iter()
+    }
+}
+
+/// An ink! specific attribute flag.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum AttributeFlag {
+    /// `#[ink(storage)]`
+    ///
+    /// Applied on `struct` or `enum` types in order to flag them for being
+    /// the contract's storage definition.
+    Storage,
+    /// `#[ink(event)]`
+    ///
+    /// Applied on `struct` types in order to flag them for being an ink! event.
+    Event,
+    /// `#[ink(topic)]`
+    ///
+    /// Applied on fields of ink! event types to indicate that they are topics.
+    Topic,
+    /// `#[ink(message)]`
+    ///
+    /// Applied on `&self` or `&mut self` methods to flag them for being an ink!
+    /// exported message.
+    Message,
+    /// `#[ink(constructor)]`
+    ///
+    /// Applied on inherent methods returning `Self` to flag them for being ink!
+    /// exported contract constructors.
+    Constructor,
+    /// `#[ink(payable)]`
+    ///
+    /// Applied on ink! constructors or messages in order to specify that they
+    /// can receive funds from callers.
+    Payable,
+    /// `#[ink(selector = "0xDEADBEEF")]`
+    ///
+    /// Applied on ink! constructors or messages to manually control their
+    /// selectors.
+    Selector(Selector),
+    /// `#[ink(salt = "my_salt_message")]`
+    ///
+    /// Applied on ink! trait implementation blocks to disambiguate other trait
+    /// implementation blocks with equal names.
+    Salt(Salt),
+    /// `#[ink(impl)]`
+    ///
+    /// This attribute supports a niche case that is rarely needed.
+    ///
+    /// Can be applied on ink! implementation blocks in order to make ink! aware
+    /// of them. This is useful if such an implementation block doesn't contain
+    /// any other ink! attributes, so it would be flagged by ink! as a Rust item.
+    /// Adding `#[ink(impl)]` on such implementation blocks makes them treated
+    /// as ink! implementation blocks thus allowing to access the environment
+    /// etc. Note that ink! messages and constructors still need to be explicitely
+    /// flagged as such.
+    Implementation,
+}
+
+/// An ink! salt applicable to a trait implementation block.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Salt {
+    /// The underlying bytes.
+    bytes: Vec<u8>,
+}
+
+impl From<Vec<u8>> for Salt {
+    fn from(bytes: Vec<u8>) -> Self {
+        Self { bytes }
+    }
+}
+
+impl Salt {
+    /// Returns the salt as bytes.
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.bytes
+    }
+}
+
+/// Errors that can occur upon parsing ink! attributes.
+#[derive(Debug, PartialEq, Eq)]
+pub enum Error {
+    /// Invalid identifier or structure, e.g. `#[foo(..)]` instead of `#[ink(..)]`.
+    Invalid {
+        invalid: syn::Attribute,
+        reason: String,
+    },
+    /// ```
+    /// #[ink(storage)]
+    /// #[ink(storage)]
+    /// pub struct MyStorage { .. }
+    /// ```
+    DuplicateAttributes {
+        fst: InkAttribute,
+        snd: InkAttribute,
+    },
+    /// `#[ink(unknown_flag)]` or `#[ink(selector = true)]`
+    InvalidFlag {
+        invalid: syn::NestedMeta,
+        reason: String,
+    },
+    /// `#[ink(message, message)]`
+    DuplicateFlags {
+        fst: AttributeFlag,
+        snd: AttributeFlag,
+    },
+}
+
+impl Error {
+    /// Creates a new `InvalidFlag` error.
+    pub fn invalid<S>(origin: syn::Attribute, reason: S) -> Self
+    where
+        S: Into<String>,
+    {
+        Self::Invalid {
+            invalid: origin,
+            reason: reason.into(),
+        }
+    }
+
+    /// Creates a new `InvalidFlag` error.
+    pub fn invalid_flag<S>(origin: syn::NestedMeta, reason: S) -> Self
+    where
+        S: Into<String>,
+    {
+        Self::InvalidFlag {
+            invalid: origin,
+            reason: reason.into(),
+        }
+    }
+}
+
 /// Partitions the given attributes into ink! specific and non-ink! specific attributes.
 ///
 /// # Error
@@ -228,181 +403,6 @@ impl TryFrom<syn::NestedMeta> for AttributeFlag {
                 ))
             }
         }
-    }
-}
-
-/// Either an ink! specific attribute, or another uninterpreted attribute.
-#[derive(Debug, PartialEq, Eq)]
-pub enum Attribute {
-    /// An ink! specific attribute, e.g. `#[ink(storage)]`.
-    Ink(InkAttribute),
-    /// Any other attribute.
-    ///
-    /// This can be a known `#[derive(Debug)]` or a specific attribute of another
-    /// crate.
-    Other(syn::Attribute),
-}
-
-/// Errors that can occur upon parsing ink! attributes.
-#[derive(Debug, PartialEq, Eq)]
-pub enum Error {
-    /// Invalid identifier or structure, e.g. `#[foo(..)]` instead of `#[ink(..)]`.
-    Invalid {
-        invalid: syn::Attribute,
-        reason: String,
-    },
-    /// ```
-    /// #[ink(storage)]
-    /// #[ink(storage)]
-    /// pub struct MyStorage { .. }
-    /// ```
-    DuplicateAttributes {
-        fst: InkAttribute,
-        snd: InkAttribute,
-    },
-    /// `#[ink(unknown_flag)]` or `#[ink(selector = true)]`
-    InvalidFlag {
-        invalid: syn::NestedMeta,
-        reason: String,
-    },
-    /// `#[ink(message, message)]`
-    DuplicateFlags {
-        fst: AttributeFlag,
-        snd: AttributeFlag,
-    },
-}
-
-impl Error {
-    /// Creates a new `InvalidFlag` error.
-    pub fn invalid<S>(origin: syn::Attribute, reason: S) -> Self
-    where
-        S: Into<String>,
-    {
-        Self::Invalid {
-            invalid: origin,
-            reason: reason.into(),
-        }
-    }
-
-    /// Creates a new `InvalidFlag` error.
-    pub fn invalid_flag<S>(origin: syn::NestedMeta, reason: S) -> Self
-    where
-        S: Into<String>,
-    {
-        Self::InvalidFlag {
-            invalid: origin,
-            reason: reason.into(),
-        }
-    }
-}
-
-/// An ink! specific attribute.
-///
-/// # Examples
-///
-/// An attribute with a simple flag:
-/// ```no_compile
-/// #[ink(storage)]
-/// ```
-///
-/// An attribute with a parameterized flag:
-/// ```no_compile
-/// #[ink(selector = "0xDEADBEEF")]
-/// ```
-///
-/// An attribute with multiple flags:
-/// ```no_compile
-/// #[ink(message, payable, selector = "0xDEADBEEF")]
-/// ```
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct InkAttribute {
-    /// The internal flags of the ink! attribute.
-    flags: Vec<AttributeFlag>,
-}
-
-impl InkAttribute {
-    /// Returns an iterator over the non-empty flags of the ink! attribute.
-    ///
-    /// # Note
-    ///
-    /// This yields at least one ink! attribute flag.
-    pub fn flags(&self) -> core::slice::Iter<AttributeFlag> {
-        self.flags.iter()
-    }
-}
-
-/// An ink! specific attribute flag.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum AttributeFlag {
-    /// `#[ink(storage)]`
-    ///
-    /// Applied on `struct` or `enum` types in order to flag them for being
-    /// the contract's storage definition.
-    Storage,
-    /// `#[ink(event)]`
-    ///
-    /// Applied on `struct` types in order to flag them for being an ink! event.
-    Event,
-    /// `#[ink(topic)]`
-    ///
-    /// Applied on fields of ink! event types to indicate that they are topics.
-    Topic,
-    /// `#[ink(message)]`
-    ///
-    /// Applied on `&self` or `&mut self` methods to flag them for being an ink!
-    /// exported message.
-    Message,
-    /// `#[ink(constructor)]`
-    ///
-    /// Applied on inherent methods returning `Self` to flag them for being ink!
-    /// exported contract constructors.
-    Constructor,
-    /// `#[ink(payable)]`
-    ///
-    /// Applied on ink! constructors or messages in order to specify that they
-    /// can receive funds from callers.
-    Payable,
-    /// `#[ink(selector = "0xDEADBEEF")]`
-    ///
-    /// Applied on ink! constructors or messages to manually control their
-    /// selectors.
-    Selector(Selector),
-    /// `#[ink(salt = "my_salt_message")]`
-    ///
-    /// Applied on ink! trait implementation blocks to disambiguate other trait
-    /// implementation blocks with equal names.
-    Salt(Salt),
-    /// `#[ink(impl)]`
-    ///
-    /// This attribute supports a niche case that is rarely needed.
-    ///
-    /// Can be applied on ink! implementation blocks in order to make ink! aware
-    /// of them. This is useful if such an implementation block doesn't contain
-    /// any other ink! attributes, so it would be flagged by ink! as a Rust item.
-    /// Adding `#[ink(impl)]` on such implementation blocks makes them treated
-    /// as ink! implementation blocks thus allowing to access the environment
-    /// etc. Note that ink! messages and constructors still need to be explicitely
-    /// flagged as such.
-    Implementation,
-}
-
-/// An ink! salt applicable to a trait implementation block.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Salt {
-    /// The underlying bytes.
-    bytes: Vec<u8>,
-}
-
-impl From<Vec<u8>> for Salt {
-    fn from(bytes: Vec<u8>) -> Self {
-        Self { bytes }
-    }
-}
-
-impl Salt {
-    /// Returns the salt as bytes.
-    pub fn as_bytes(&self) -> &[u8] {
-        &self.bytes
     }
 }
 
