@@ -107,17 +107,6 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                     .into_iter()
                     .map(|nested| <AttributeFlag as TryFrom<_>>::try_from(nested))
                     .collect::<Result<Vec<_>, Error>>()?;
-                // use std::collections::BTreeSet;
-                // let mut seen: BTreeSet<&AttributeFlag> = BTreeSet::new();
-                // for flag in &flags {
-                //     if let Some(seen) = seen.get(flag) {
-                //         return Err(Error::DuplicateFlags {
-                //             fst: *seen.clone(),
-                //             snd: *flag.clone(),
-                //         })
-                //     }
-                //     seen.insert(flag);
-                // }
                 Self::ensure_no_duplicate_flags(&flags)?;
                 Ok(InkAttribute { flags })
             }
