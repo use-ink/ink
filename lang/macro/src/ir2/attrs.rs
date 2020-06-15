@@ -77,6 +77,17 @@ pub struct InkAttribute {
     flags: Vec<AttributeFlag>,
 }
 
+impl InkAttribute {
+    /// Returns an iterator over the non-empty flags of the ink! attribute.
+    ///
+    /// # Note
+    ///
+    /// This yields at least one ink! attribute flag.
+    pub fn flags(&self) -> core::slice::Iter<AttributeFlag> {
+        self.flags.iter()
+    }
+}
+
 /// An ink! specific attribute flag.
 pub enum AttributeFlag {
     /// `#[ink(storage)]`
@@ -112,4 +123,34 @@ pub enum AttributeFlag {
     /// Applied on ink! constructors or messages to manually control their
     /// selectors.
     Selector(Selector),
+    /// `#[ink(salt = "my_salt_message")]`
+    ///
+    /// Applied on ink! trait implementation blocks to disambiguate other trait
+    /// implementation blocks with equal names.
+    Salt(Salt),
+    /// `#[ink(impl)]`
+    ///
+    /// This attribute supports a niche case that is rarely needed.
+    ///
+    /// Can be applied on ink! implementation blocks in order to make ink! aware
+    /// of them. This is useful if such an implementation block doesn't contain
+    /// any other ink! attributes, so it would be flagged by ink! as a Rust item.
+    /// Adding `#[ink(impl)]` on such implementation blocks makes them treated
+    /// as ink! implementation blocks thus allowing to access the environment
+    /// etc. Note that ink! messages and constructors still need to be explicitely
+    /// flagged as such.
+    Implementation,
+}
+
+/// An ink! salt applicable to a trait implementation block.
+pub struct Salt {
+    /// The underlying bytes.
+    bytes: Vec<u8>,
+}
+
+impl Salt {
+    /// Returns the salt as bytes.
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.bytes
+    }
 }
