@@ -32,7 +32,7 @@ where
 {
     use either::Either;
     use itertools::Itertools as _;
-    Ok(attrs
+    let (ink_attrs, others) = attrs
         .into_iter()
         .map(|attr| <Attribute as TryFrom<_>>::try_from(attr))
         .collect::<Result<Vec<Attribute>, Error>>()?
@@ -42,7 +42,36 @@ where
                 Attribute::Ink(ink_attr) => Either::Left(ink_attr),
                 Attribute::Other(other_attr) => Either::Right(other_attr),
             }
-        }))
+        });
+    Attribute::ensure_no_duplicates(&ink_attrs)?;
+    Ok((ink_attrs, others))
+}
+
+impl Attribute {
+    /// Returns `Ok` if the given iterator yields no duplicate ink! attributes.
+    ///
+    /// # Errors
+    ///
+    /// If the given iterator yields duplicate ink! attributes.
+    /// Note: Duplicate non-ink! attributes are fine.
+    fn ensure_no_duplicates<'a, I>(flags: I) -> Result<(), Error>
+    where
+        I: IntoIterator<Item = &'a InkAttribute>,
+    {
+        use std::collections::BTreeSet;
+        let mut seen: BTreeSet<&InkAttribute> = BTreeSet::new();
+        for flag in flags.into_iter() {
+            if let Some(seen) = seen.get(flag) {
+                return Err(Error::DuplicateAttributes {
+                    // A call to `seen.clone()` clones the reference for whatever reason ...
+                    fst: <InkAttribute as Clone>::clone(seen),
+                    snd: flag.clone(),
+                })
+            }
+            seen.insert(flag);
+        }
+        Ok(())
+    }
 }
 
 impl TryFrom<syn::Attribute> for Attribute {
@@ -78,10 +107,48 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                     .into_iter()
                     .map(|nested| <AttributeFlag as TryFrom<_>>::try_from(nested))
                     .collect::<Result<Vec<_>, Error>>()?;
+                // use std::collections::BTreeSet;
+                // let mut seen: BTreeSet<&AttributeFlag> = BTreeSet::new();
+                // for flag in &flags {
+                //     if let Some(seen) = seen.get(flag) {
+                //         return Err(Error::DuplicateFlags {
+                //             fst: *seen.clone(),
+                //             snd: *flag.clone(),
+                //         })
+                //     }
+                //     seen.insert(flag);
+                // }
+                Self::ensure_no_duplicate_flags(&flags)?;
                 Ok(InkAttribute { flags })
             }
             _ => Err(Error::invalid(attr, "unknown ink! attribute")),
         }
+    }
+}
+
+impl InkAttribute {
+    /// Returns `Ok` if the given iterator yields no duplicate attribute flags.
+    ///
+    /// # Errors
+    ///
+    /// If the given iterator yields duplicate attribute flags.
+    fn ensure_no_duplicate_flags<'a, I>(flags: I) -> Result<(), Error>
+    where
+        I: IntoIterator<Item = &'a AttributeFlag>,
+    {
+        use std::collections::BTreeSet;
+        let mut seen: BTreeSet<&AttributeFlag> = BTreeSet::new();
+        for flag in flags.into_iter() {
+            if let Some(seen) = seen.get(flag) {
+                return Err(Error::DuplicateFlags {
+                    // A call to `seen.clone()` clones the reference for whatever reason ...
+                    fst: <AttributeFlag as Clone>::clone(seen),
+                    snd: flag.clone(),
+                })
+            }
+            seen.insert(flag);
+        }
+        Ok(())
     }
 }
 
@@ -195,6 +262,15 @@ pub enum Error {
         invalid: syn::Attribute,
         reason: String,
     },
+    /// ```
+    /// #[ink(storage)]
+    /// #[ink(storage)]
+    /// pub struct MyStorage { .. }
+    /// ```
+    DuplicateAttributes {
+        fst: InkAttribute,
+        snd: InkAttribute,
+    },
     /// `#[ink(unknown_flag)]` or `#[ink(selector = true)]`
     InvalidFlag {
         invalid: syn::NestedMeta,
@@ -204,15 +280,6 @@ pub enum Error {
     DuplicateFlags {
         fst: AttributeFlag,
         snd: AttributeFlag,
-    },
-    /// ```
-    /// #[ink(storage)]
-    /// #[ink(storage)]
-    /// pub struct MyStorage { .. }
-    /// ```
-    DuplicateAttributes {
-        fst: syn::Attribute,
-        snd: syn::Attribute,
     },
 }
 
@@ -258,7 +325,7 @@ impl Error {
 /// ```no_compile
 /// #[ink(message, payable, selector = "0xDEADBEEF")]
 /// ```
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct InkAttribute {
     /// The internal flags of the ink! attribute.
     flags: Vec<AttributeFlag>,
@@ -276,7 +343,7 @@ impl InkAttribute {
 }
 
 /// An ink! specific attribute flag.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AttributeFlag {
     /// `#[ink(storage)]`
     ///
@@ -331,7 +398,7 @@ pub enum AttributeFlag {
 }
 
 /// An ink! salt applicable to a trait implementation block.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Salt {
     /// The underlying bytes.
     bytes: Vec<u8>,
@@ -483,6 +550,56 @@ mod tests {
         assert_eq!(
             <Attribute as TryFrom<_>>::try_from(no_args.clone()),
             Err(Error::invalid(no_args.clone(), "unknown ink! attribute"))
+        );
+    }
+
+    #[test]
+    fn duplicate_flags_fails() {
+        let duplicate_flags: syn::Attribute = syn::parse_quote! {
+            #[ink(message, message)]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(duplicate_flags),
+            Err(Error::DuplicateFlags {
+                fst: AttributeFlag::Message,
+                snd: AttributeFlag::Message,
+            })
+        );
+    }
+
+    #[test]
+    fn parition_attributes_works() {
+        let duplicate_attrs: Vec<syn::Attribute> = vec![
+            syn::parse_quote! { #[ink(message)] },
+            syn::parse_quote! { #[non_ink_attribute] },
+        ];
+        let ink_attr = <InkAttribute as TryFrom<syn::Attribute>>::try_from(
+            syn::parse_quote! { #[ink(message)] },
+        )
+        .unwrap();
+        let non_ink_attr: syn::Attribute = syn::parse_quote! { #[non_ink_attribute] };
+        assert_eq!(
+            partition_attributes(duplicate_attrs),
+            Ok((vec![ink_attr], vec![non_ink_attr]))
+        );
+    }
+
+    #[test]
+    fn parition_duplicates_fails() {
+        let duplicate_attrs: Vec<syn::Attribute> = vec![
+            syn::parse_quote! { #[ink(message)] },
+            syn::parse_quote! { #[ink(message)] },
+        ];
+        let dupe = <InkAttribute as TryFrom<syn::Attribute>>::try_from(
+            syn::parse_quote! { #[ink(message)] },
+        )
+        .unwrap();
+        assert_eq!(
+            partition_attributes(duplicate_attrs),
+            Err(Error::DuplicateAttributes {
+                fst: dupe.clone(),
+                snd: dupe.clone(),
+            })
         );
     }
 }
