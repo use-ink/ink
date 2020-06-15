@@ -23,6 +23,11 @@ use proc_macro2::Ident;
 pub struct Selector([u8; 4]);
 
 impl Selector {
+    /// Creates a new selector from the given bytes.
+    pub fn new(bytes: [u8; 4]) -> Self {
+        Self(bytes)
+    }
+
     /// Returns the underlying four bytes.
     pub fn as_bytes(&self) -> &[u8; 4] {
         &self.0

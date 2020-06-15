@@ -13,8 +13,170 @@
 // limitations under the License.
 
 use crate::ir2::Selector;
+use core::{
+    convert::TryFrom,
+    result::Result,
+};
+use regex::Regex;
+
+/// Partitions the given attributes into ink! specific and non-ink! specific attributes.
+///
+/// # Error
+///
+/// Returns an error if some ink! specific attributes could not be successfully parsed.
+pub fn partition_attributes<I>(
+    attrs: I,
+) -> Result<(Vec<InkAttribute>, Vec<syn::Attribute>), Error>
+where
+    I: IntoIterator<Item = syn::Attribute>,
+{
+    use either::Either;
+    use itertools::Itertools as _;
+    Ok(attrs
+        .into_iter()
+        .map(|attr| <Attribute as TryFrom<_>>::try_from(attr))
+        .collect::<Result<Vec<Attribute>, Error>>()?
+        .into_iter()
+        .partition_map(|attr| {
+            match attr {
+                Attribute::Ink(ink_attr) => Either::Left(ink_attr),
+                Attribute::Other(other_attr) => Either::Right(other_attr),
+            }
+        }))
+}
+
+impl TryFrom<syn::Attribute> for Attribute {
+    type Error = Error;
+
+    fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
+        if attr.path.is_ident("ink") {
+            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into)
+        }
+        Ok(Attribute::Other(attr))
+    }
+}
+
+impl From<InkAttribute> for Attribute {
+    fn from(ink_attribute: InkAttribute) -> Self {
+        Attribute::Ink(ink_attribute)
+    }
+}
+
+impl TryFrom<syn::Attribute> for InkAttribute {
+    type Error = Error;
+
+    fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
+        if !attr.path.is_ident("ink") {
+            return Err(Error::invalid(attr, "unexpected non-ink! attribute"))
+        }
+        match attr.parse_meta().map_err(|_| {
+            Error::invalid(attr.clone(), "unexpected ink! attribute structure")
+        })? {
+            syn::Meta::List(meta_list) => {
+                let flags = meta_list
+                    .nested
+                    .into_iter()
+                    .map(|nested| <AttributeFlag as TryFrom<_>>::try_from(nested))
+                    .collect::<Result<Vec<_>, Error>>()?;
+                Ok(InkAttribute { flags })
+            }
+            _ => Err(Error::invalid(attr, "unknown ink! attribute")),
+        }
+    }
+}
+
+impl TryFrom<syn::NestedMeta> for AttributeFlag {
+    type Error = Error;
+
+    fn try_from(nested_meta: syn::NestedMeta) -> Result<Self, Self::Error> {
+        match &nested_meta {
+            syn::NestedMeta::Meta(meta) => {
+                match meta {
+                    syn::Meta::NameValue(name_value) => {
+                        if name_value.path.is_ident("selector") {
+                            if let syn::Lit::Str(lit_str) = &name_value.lit {
+                                let regex = Regex::new(
+                                    r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})"
+                                ).map_err(|_| Error::invalid_flag(nested_meta.clone(), "invalid selector bytes"))?;
+                                let str = lit_str.value();
+                                let cap = regex.captures(&str).unwrap();
+                                let selector_bytes = [
+                                    u8::from_str_radix(&cap[1], 16).expect(
+                                        "encountered non-hex digit at position 0",
+                                    ),
+                                    u8::from_str_radix(&cap[2], 16).expect(
+                                        "encountered non-hex digit at position 1",
+                                    ),
+                                    u8::from_str_radix(&cap[3], 16).expect(
+                                        "encountered non-hex digit at position 2",
+                                    ),
+                                    u8::from_str_radix(&cap[4], 16).expect(
+                                        "encountered non-hex digit at position 3",
+                                    ),
+                                ];
+                                return Ok(AttributeFlag::Selector(Selector::new(
+                                    selector_bytes,
+                                )))
+                            }
+                        }
+                        if name_value.path.is_ident("salt") {
+                            if let syn::Lit::Str(lit_str) = &name_value.lit {
+                                let bytes = lit_str.value().into_bytes();
+                                return Ok(AttributeFlag::Salt(Salt::from(bytes)))
+                            }
+                        }
+                        Err(Error::invalid_flag(
+                            nested_meta,
+                            "unknown ink! marker (name = value)",
+                        ))
+                    }
+                    syn::Meta::Path(path) => {
+                        if path.is_ident("storage") {
+                            return Ok(AttributeFlag::Storage)
+                        }
+                        if path.is_ident("message") {
+                            return Ok(AttributeFlag::Message)
+                        }
+                        if path.is_ident("constructor") {
+                            return Ok(AttributeFlag::Constructor)
+                        }
+                        if path.is_ident("event") {
+                            return Ok(AttributeFlag::Event)
+                        }
+                        if path.is_ident("topic") {
+                            return Ok(AttributeFlag::Topic)
+                        }
+                        if path.is_ident("payable") {
+                            return Ok(AttributeFlag::Payable)
+                        }
+                        if path.is_ident("impl") {
+                            return Ok(AttributeFlag::Implementation)
+                        }
+                        Err(Error::invalid_flag(
+                            nested_meta,
+                            "unknown ink! marker (path)",
+                        ))
+                    }
+                    syn::Meta::List(_) => {
+                        Err(Error::invalid_flag(
+                            nested_meta,
+                            "unknown ink! marker (list)",
+                        ))
+                    }
+                }
+            }
+            syn::NestedMeta::Lit(_) => {
+                Err(Error::invalid_flag(
+                    nested_meta,
+                    "unknown ink! marker (lit)",
+                ))
+            }
+        }
+    }
+}
 
 /// Either an ink! specific attribute, or another uninterpreted attribute.
+#[derive(Debug, PartialEq, Eq)]
 pub enum Attribute {
     /// An ink! specific attribute, e.g. `#[ink(storage)]`.
     Ink(InkAttribute),
@@ -26,15 +188,23 @@ pub enum Attribute {
 }
 
 /// Errors that can occur upon parsing ink! attributes.
+#[derive(Debug, PartialEq, Eq)]
 pub enum Error {
-    /// `#[ink()]` or `#[ink]`
-    EmptyFlags { empty: syn::Attribute },
-    /// `#[ink(unknown_flag)]`
-    UnknownFlag { unknown: syn::Attribute },
-    /// `#[ink(selector = true)]`
-    InvalidFlag { invalid: syn::Attribute },
+    /// Invalid identifier or structure, e.g. `#[foo(..)]` instead of `#[ink(..)]`.
+    Invalid {
+        invalid: syn::Attribute,
+        reason: String,
+    },
+    /// `#[ink(unknown_flag)]` or `#[ink(selector = true)]`
+    InvalidFlag {
+        invalid: syn::NestedMeta,
+        reason: String,
+    },
     /// `#[ink(message, message)]`
-    DuplicateFlags { duplicate_flags: syn::Attribute },
+    DuplicateFlags {
+        fst: AttributeFlag,
+        snd: AttributeFlag,
+    },
     /// ```
     /// #[ink(storage)]
     /// #[ink(storage)]
@@ -44,6 +214,30 @@ pub enum Error {
         fst: syn::Attribute,
         snd: syn::Attribute,
     },
+}
+
+impl Error {
+    /// Creates a new `InvalidFlag` error.
+    pub fn invalid<S>(origin: syn::Attribute, reason: S) -> Self
+    where
+        S: Into<String>,
+    {
+        Self::Invalid {
+            invalid: origin,
+            reason: reason.into(),
+        }
+    }
+
+    /// Creates a new `InvalidFlag` error.
+    pub fn invalid_flag<S>(origin: syn::NestedMeta, reason: S) -> Self
+    where
+        S: Into<String>,
+    {
+        Self::InvalidFlag {
+            invalid: origin,
+            reason: reason.into(),
+        }
+    }
 }
 
 /// An ink! specific attribute.
@@ -64,6 +258,7 @@ pub enum Error {
 /// ```no_compile
 /// #[ink(message, payable, selector = "0xDEADBEEF")]
 /// ```
+#[derive(Debug, PartialEq, Eq)]
 pub struct InkAttribute {
     /// The internal flags of the ink! attribute.
     flags: Vec<AttributeFlag>,
@@ -81,6 +276,7 @@ impl InkAttribute {
 }
 
 /// An ink! specific attribute flag.
+#[derive(Debug, PartialEq, Eq)]
 pub enum AttributeFlag {
     /// `#[ink(storage)]`
     ///
@@ -135,14 +331,158 @@ pub enum AttributeFlag {
 }
 
 /// An ink! salt applicable to a trait implementation block.
+#[derive(Debug, PartialEq, Eq)]
 pub struct Salt {
     /// The underlying bytes.
     bytes: Vec<u8>,
+}
+
+impl From<Vec<u8>> for Salt {
+    fn from(bytes: Vec<u8>) -> Self {
+        Self { bytes }
+    }
 }
 
 impl Salt {
     /// Returns the salt as bytes.
     pub fn as_bytes(&self) -> &[u8] {
         &self.bytes
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn storage_works() {
+        let attr: syn::Attribute = syn::parse_quote! {
+            #[ink(storage)]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(attr),
+            Ok(Attribute::Ink(InkAttribute {
+                flags: vec![AttributeFlag::Storage]
+            }))
+        );
+    }
+
+    #[test]
+    fn impl_works() {
+        let attr: syn::Attribute = syn::parse_quote! {
+            #[ink(impl)]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(attr),
+            Ok(Attribute::Ink(InkAttribute {
+                flags: vec![AttributeFlag::Implementation]
+            }))
+        );
+    }
+
+    #[test]
+    fn selector_works() {
+        let attr: syn::Attribute = syn::parse_quote! {
+            #[ink(selector = "0xDEADBEEF")]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(attr),
+            Ok(Attribute::Ink(InkAttribute {
+                flags: vec![AttributeFlag::Selector(Selector::new([
+                    0xDE, 0xAD, 0xBE, 0xEF
+                ]))]
+            }))
+        );
+    }
+
+    #[test]
+    fn salt_works() {
+        let attr: syn::Attribute = syn::parse_quote! {
+            #[ink(salt = "take my salt!")]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(attr),
+            Ok(Attribute::Ink(InkAttribute {
+                flags: vec![AttributeFlag::Salt(Salt::from(
+                    "take my salt!".to_string().into_bytes()
+                ))]
+            }))
+        );
+    }
+
+    #[test]
+    fn compound_mixed_works() {
+        let attr: syn::Attribute = syn::parse_quote! {
+            #[ink(message, salt = "message_salt")]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(attr),
+            Ok(Attribute::Ink(InkAttribute {
+                flags: vec![
+                    AttributeFlag::Message,
+                    AttributeFlag::Salt(Salt::from(
+                        "message_salt".to_string().into_bytes()
+                    )),
+                ]
+            }))
+        );
+    }
+
+    #[test]
+    fn compound_simple_works() {
+        let attr: syn::Attribute = syn::parse_quote! {
+            #[ink(
+                storage,
+                message,
+                constructor,
+                event,
+                topic,
+                payable,
+                impl,
+            )]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(attr),
+            Ok(Attribute::Ink(InkAttribute {
+                flags: vec![
+                    AttributeFlag::Storage,
+                    AttributeFlag::Message,
+                    AttributeFlag::Constructor,
+                    AttributeFlag::Event,
+                    AttributeFlag::Topic,
+                    AttributeFlag::Payable,
+                    AttributeFlag::Implementation,
+                ]
+            }))
+        );
+    }
+
+    #[test]
+    fn non_ink_attribute_works() {
+        let attr: syn::Attribute = syn::parse_quote! {
+            #[non_ink(message)]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(attr.clone()),
+            Ok(Attribute::Other(attr.clone())),
+        );
+    }
+
+    #[test]
+    fn empty_ink_attribute_fails() {
+        let naked: syn::Attribute = syn::parse_quote! {
+            #[ink]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(naked.clone()),
+            Err(Error::invalid(naked.clone(), "unknown ink! attribute"))
+        );
+        let no_args: syn::Attribute = syn::parse_quote! {
+            #[ink]
+        };
+        assert_eq!(
+            <Attribute as TryFrom<_>>::try_from(no_args.clone()),
+            Err(Error::invalid(no_args.clone(), "unknown ink! attribute"))
+        );
     }
 }
