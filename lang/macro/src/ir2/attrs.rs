@@ -28,21 +28,13 @@ pub enum Attribute {
 /// Errors that can occur upon parsing ink! attributes.
 pub enum Error {
     /// `#[ink()]` or `#[ink]`
-    EmptyFlags {
-        empty: syn::Attribute,
-    },
+    EmptyFlags { empty: syn::Attribute },
     /// `#[ink(unknown_flag)]`
-    UnknownFlag {
-        unknown: syn::Attribute,
-    },
+    UnknownFlag { unknown: syn::Attribute },
     /// `#[ink(selector = true)]`
-    InvalidFlag {
-        invalid: syn::Attribute,
-    },
+    InvalidFlag { invalid: syn::Attribute },
     /// `#[ink(message, message)]`
-    DuplicateFlags {
-        duplicate_flags: syn::Attribute,
-    },
+    DuplicateFlags { duplicate_flags: syn::Attribute },
     /// ```
     /// #[ink(storage)]
     /// #[ink(storage)]
