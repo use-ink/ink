@@ -69,7 +69,11 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::multisig_plain::{MultisigPlain, Transaction, ConfirmationStatus};
+pub use self::multisig_plain::{
+    ConfirmationStatus,
+    MultisigPlain,
+    Transaction,
+};
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
