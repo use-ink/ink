@@ -23,6 +23,13 @@ mod selector;
 mod storage;
 
 pub use self::{
+    attrs::{
+        partition_attributes,
+        Attribute,
+        AttributeFlag,
+        InkAttribute,
+        Salt,
+    },
     config::{
         Config,
         InkVersion,
