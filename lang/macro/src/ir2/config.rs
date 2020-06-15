@@ -39,10 +39,7 @@ impl Config {
     /// Otherwise returns the default environmental types definition provided
     /// by ink!.
     pub fn env_types(&self) -> EnvTypes {
-        self.env_types
-            .as_ref()
-            .cloned()
-            .unwrap_or_default()
+        self.env_types.as_ref().cloned().unwrap_or_default()
     }
 
     /// Returns `true` if the dynamic storage allocator facilities are enabled
