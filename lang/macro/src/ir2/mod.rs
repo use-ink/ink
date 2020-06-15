@@ -26,7 +26,7 @@ pub use self::{
     attrs::{
         partition_attributes,
         Attribute,
-        AttributeFlag,
+        AttributeArgs,
         InkAttribute,
         Salt,
     },

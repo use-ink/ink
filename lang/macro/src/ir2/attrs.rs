@@ -51,8 +51,8 @@ pub enum Attribute {
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct InkAttribute {
-    /// The internal flags of the ink! attribute.
-    flags: Vec<AttributeFlag>,
+    /// The internal arguments of the ink! attribute.
+    args: Vec<AttributeArgs>,
 }
 
 impl InkAttribute {
@@ -61,14 +61,14 @@ impl InkAttribute {
     /// # Note
     ///
     /// This yields at least one ink! attribute flag.
-    pub fn flags(&self) -> core::slice::Iter<AttributeFlag> {
-        self.flags.iter()
+    pub fn args(&self) -> core::slice::Iter<AttributeArgs> {
+        self.args.iter()
     }
 }
 
 /// An ink! specific attribute flag.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum AttributeFlag {
+pub enum AttributeArgs {
     /// `#[ink(storage)]`
     ///
     /// Applied on `struct` or `enum` types in order to flag them for being
@@ -159,14 +159,14 @@ pub enum Error {
         snd: InkAttribute,
     },
     /// `#[ink(unknown_flag)]` or `#[ink(selector = true)]`
-    InvalidFlag {
+    InvalidArg {
         invalid: syn::NestedMeta,
         reason: String,
     },
     /// `#[ink(message, message)]`
-    DuplicateFlags {
-        fst: AttributeFlag,
-        snd: AttributeFlag,
+    DuplicateArgs {
+        fst: AttributeArgs,
+        snd: AttributeArgs,
     },
 }
 
@@ -187,7 +187,7 @@ impl Error {
     where
         S: Into<String>,
     {
-        Self::InvalidFlag {
+        Self::InvalidArg {
             invalid: origin,
             reason: reason.into(),
         }
@@ -280,10 +280,10 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                 let flags = meta_list
                     .nested
                     .into_iter()
-                    .map(|nested| <AttributeFlag as TryFrom<_>>::try_from(nested))
+                    .map(|nested| <AttributeArgs as TryFrom<_>>::try_from(nested))
                     .collect::<Result<Vec<_>, Error>>()?;
                 Self::ensure_no_duplicate_flags(&flags)?;
-                Ok(InkAttribute { flags })
+                Ok(InkAttribute { args: flags })
             }
             _ => Err(Error::invalid(attr, "unknown ink! attribute")),
         }
@@ -298,15 +298,15 @@ impl InkAttribute {
     /// If the given iterator yields duplicate attribute flags.
     fn ensure_no_duplicate_flags<'a, I>(flags: I) -> Result<(), Error>
     where
-        I: IntoIterator<Item = &'a AttributeFlag>,
+        I: IntoIterator<Item = &'a AttributeArgs>,
     {
         use std::collections::BTreeSet;
-        let mut seen: BTreeSet<&AttributeFlag> = BTreeSet::new();
+        let mut seen: BTreeSet<&AttributeArgs> = BTreeSet::new();
         for flag in flags.into_iter() {
             if let Some(seen) = seen.get(flag) {
-                return Err(Error::DuplicateFlags {
+                return Err(Error::DuplicateArgs {
                     // A call to `seen.clone()` clones the reference for whatever reason ...
-                    fst: <AttributeFlag as Clone>::clone(seen),
+                    fst: <AttributeArgs as Clone>::clone(seen),
                     snd: flag.clone(),
                 })
             }
@@ -316,7 +316,7 @@ impl InkAttribute {
     }
 }
 
-impl TryFrom<syn::NestedMeta> for AttributeFlag {
+impl TryFrom<syn::NestedMeta> for AttributeArgs {
     type Error = Error;
 
     fn try_from(nested_meta: syn::NestedMeta) -> Result<Self, Self::Error> {
@@ -345,7 +345,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFlag {
                                         "encountered non-hex digit at position 3",
                                     ),
                                 ];
-                                return Ok(AttributeFlag::Selector(Selector::new(
+                                return Ok(AttributeArgs::Selector(Selector::new(
                                     selector_bytes,
                                 )))
                             }
@@ -353,7 +353,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFlag {
                         if name_value.path.is_ident("salt") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let bytes = lit_str.value().into_bytes();
-                                return Ok(AttributeFlag::Salt(Salt::from(bytes)))
+                                return Ok(AttributeArgs::Salt(Salt::from(bytes)))
                             }
                         }
                         Err(Error::invalid_flag(
@@ -363,25 +363,25 @@ impl TryFrom<syn::NestedMeta> for AttributeFlag {
                     }
                     syn::Meta::Path(path) => {
                         if path.is_ident("storage") {
-                            return Ok(AttributeFlag::Storage)
+                            return Ok(AttributeArgs::Storage)
                         }
                         if path.is_ident("message") {
-                            return Ok(AttributeFlag::Message)
+                            return Ok(AttributeArgs::Message)
                         }
                         if path.is_ident("constructor") {
-                            return Ok(AttributeFlag::Constructor)
+                            return Ok(AttributeArgs::Constructor)
                         }
                         if path.is_ident("event") {
-                            return Ok(AttributeFlag::Event)
+                            return Ok(AttributeArgs::Event)
                         }
                         if path.is_ident("topic") {
-                            return Ok(AttributeFlag::Topic)
+                            return Ok(AttributeArgs::Topic)
                         }
                         if path.is_ident("payable") {
-                            return Ok(AttributeFlag::Payable)
+                            return Ok(AttributeArgs::Payable)
                         }
                         if path.is_ident("impl") {
-                            return Ok(AttributeFlag::Implementation)
+                            return Ok(AttributeArgs::Implementation)
                         }
                         Err(Error::invalid_flag(
                             nested_meta,
@@ -418,7 +418,7 @@ mod tests {
         assert_eq!(
             <Attribute as TryFrom<_>>::try_from(attr),
             Ok(Attribute::Ink(InkAttribute {
-                flags: vec![AttributeFlag::Storage]
+                args: vec![AttributeArgs::Storage]
             }))
         );
     }
@@ -431,7 +431,7 @@ mod tests {
         assert_eq!(
             <Attribute as TryFrom<_>>::try_from(attr),
             Ok(Attribute::Ink(InkAttribute {
-                flags: vec![AttributeFlag::Implementation]
+                args: vec![AttributeArgs::Implementation]
             }))
         );
     }
@@ -444,7 +444,7 @@ mod tests {
         assert_eq!(
             <Attribute as TryFrom<_>>::try_from(attr),
             Ok(Attribute::Ink(InkAttribute {
-                flags: vec![AttributeFlag::Selector(Selector::new([
+                args: vec![AttributeArgs::Selector(Selector::new([
                     0xDE, 0xAD, 0xBE, 0xEF
                 ]))]
             }))
@@ -459,7 +459,7 @@ mod tests {
         assert_eq!(
             <Attribute as TryFrom<_>>::try_from(attr),
             Ok(Attribute::Ink(InkAttribute {
-                flags: vec![AttributeFlag::Salt(Salt::from(
+                args: vec![AttributeArgs::Salt(Salt::from(
                     "take my salt!".to_string().into_bytes()
                 ))]
             }))
@@ -474,9 +474,9 @@ mod tests {
         assert_eq!(
             <Attribute as TryFrom<_>>::try_from(attr),
             Ok(Attribute::Ink(InkAttribute {
-                flags: vec![
-                    AttributeFlag::Message,
-                    AttributeFlag::Salt(Salt::from(
+                args: vec![
+                    AttributeArgs::Message,
+                    AttributeArgs::Salt(Salt::from(
                         "message_salt".to_string().into_bytes()
                     )),
                 ]
@@ -500,14 +500,14 @@ mod tests {
         assert_eq!(
             <Attribute as TryFrom<_>>::try_from(attr),
             Ok(Attribute::Ink(InkAttribute {
-                flags: vec![
-                    AttributeFlag::Storage,
-                    AttributeFlag::Message,
-                    AttributeFlag::Constructor,
-                    AttributeFlag::Event,
-                    AttributeFlag::Topic,
-                    AttributeFlag::Payable,
-                    AttributeFlag::Implementation,
+                args: vec![
+                    AttributeArgs::Storage,
+                    AttributeArgs::Message,
+                    AttributeArgs::Constructor,
+                    AttributeArgs::Event,
+                    AttributeArgs::Topic,
+                    AttributeArgs::Payable,
+                    AttributeArgs::Implementation,
                 ]
             }))
         );
@@ -549,9 +549,9 @@ mod tests {
         };
         assert_eq!(
             <Attribute as TryFrom<_>>::try_from(duplicate_flags),
-            Err(Error::DuplicateFlags {
-                fst: AttributeFlag::Message,
-                snd: AttributeFlag::Message,
+            Err(Error::DuplicateArgs {
+                fst: AttributeArgs::Message,
+                snd: AttributeArgs::Message,
             })
         );
     }
