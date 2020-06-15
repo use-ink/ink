@@ -19,6 +19,7 @@ mod event;
 mod impl_block;
 mod item;
 mod module;
+mod selector;
 mod storage;
 
 pub use self::{
@@ -39,5 +40,6 @@ pub use self::{
         RustItem,
     },
     module::Module,
+    selector::Selector,
     storage::Storage,
 };
