@@ -477,9 +477,10 @@ where
     /// Calling this method with an index out of bounds for the returns `None` and
     /// does not `remove` the element, otherwise it returns `Some(())`.
     ///
-    /// *Note:*
-    /// This method is unsafe to call. It must be ensured that `at` is an
-    /// occupied index.
+    /// # Safety
+    ///
+    /// It must be ensured that `at` is an occupied index, otherwise this function
+    /// will panic.
     pub unsafe fn remove_occupied(&mut self, at: Index) -> Option<()> {
         // Cases:
         // - There are vacant entries already.
