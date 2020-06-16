@@ -303,4 +303,25 @@ where
         *self.len = last_index;
         Some(())
     }
+
+    /// Sets the elements at the given index to the new value.
+    ///
+    /// Won't return the old element back to the caller.
+    /// Prefer this operation over other method of overriding an element
+    /// in the storage vector since this is more efficient.
+    ///
+    /// # Panics
+    ///
+    /// If the index is out of bounds.
+    pub fn set(&mut self, index: u32, new_value: T) {
+        if let None = self.within_bounds(index) {
+            panic!(
+                "index out of bounds: the len is {} but the index is {}",
+                self.len(),
+                index
+            );
+        }
+
+        self.elems.put(index, Some(new_value));
+    }
 }

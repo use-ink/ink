@@ -392,3 +392,20 @@ fn spread_layout_clear_works() {
     })
     .unwrap()
 }
+
+#[test]
+fn set_works() {
+    let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+    vec.set(0, b'x');
+    let expected = vec_from_slice(&[b'x', b'b', b'c', b'd']);
+    assert_eq!(vec, expected);
+}
+
+#[test]
+#[should_panic(expected = "index out of bounds: the len is 1 but the index is 1")]
+fn set_panics_when_index_oob() {
+    let mut vec = vec_from_slice(&[b'a']);
+    vec.set(1, b'x');
+    let expected = vec_from_slice(&[b'a']);
+    assert_eq!(vec, expected);
+}
