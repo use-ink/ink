@@ -324,4 +324,15 @@ where
 
         self.elems.put(index, Some(new_value));
     }
+
+    /// Removes all elements from this vector.
+    fn clear(&mut self) {
+        if self.is_empty() {
+            return
+        }
+        for index in 0..self.len() {
+            self.elems.put(index, None);
+        }
+        *self.len = 0;
+    }
 }

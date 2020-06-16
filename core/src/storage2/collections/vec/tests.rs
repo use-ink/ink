@@ -409,3 +409,18 @@ fn set_panics_when_index_oob() {
     let expected = vec_from_slice(&[b'a']);
     assert_eq!(vec, expected);
 }
+
+#[test]
+fn clear_works_on_filled_vec() {
+    let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+    vec.clear();
+    assert_eq!(vec.len(), 0);
+}
+
+#[test]
+fn clear_works_on_empty_vec() {
+    let mut vec = vec_from_slice(&[]);
+    vec.clear();
+    assert_eq!(vec.len(), 0);
+}
+
