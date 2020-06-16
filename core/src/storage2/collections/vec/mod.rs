@@ -326,7 +326,7 @@ where
     }
 
     /// Removes all elements from this vector.
-    fn clear(&mut self) {
+    pub fn clear(&mut self) {
         if self.is_empty() {
             return
         }
