@@ -481,10 +481,6 @@ where
     /// This method is unsafe to call. It must be ensured that `at` is an
     /// occupied index.
     pub unsafe fn remove_occupied(&mut self, at: Index) -> Option<()> {
-        // TODO This is currently basically the same code as `take()`.
-        // What we actually want to do is save the `.get()` calls and
-        // instead do something like `self.entries.put(at, None)` directly.
-
         // Cases:
         // - There are vacant entries already.
         // - There are no vacant entries before.
@@ -563,6 +559,10 @@ where
                 self.header.last_vacant =
                     min(self.header.last_vacant, min(at, min(prev, next)));
                 self.header.len -= 1;
+
+                // Up until here this function is basically the same code as `take()`.
+                // Instead of returning `_value` here, we return the unit type instead
+                // and save a read operation.
                 Some(())
             }
             Entry::Vacant { .. } => {
