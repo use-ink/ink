@@ -134,25 +134,23 @@ impl Dispatch<'_> {
         }
     }
 
+    /// Returns an iterator yielding the functions of a contract that are messages.
+    fn contract_messages<'a>(&'a self) -> impl Iterator<Item = &'a ir::Function> + 'a {
+        self.contract
+            .functions
+            .iter()
+            .filter(|function| function.is_message())
+    }
+
     fn generate_message_dispatch_enum(&self) -> TokenStream2 {
         let storage_ident = &self.contract.storage.ident;
         let message_variants = self
-            .contract
-            .functions
-            .iter()
-            .filter(|function| function.is_message())
+            .contract_messages()
             .map(|message| self.generate_dispatch_variant_arm(message, "Message"));
         let decode_message = self
-            .contract
-            .functions
-            .iter()
-            .filter(|function| function.is_message())
+            .contract_messages()
             .map(|message| self.generate_dispatch_variant_decode(message, "Message"));
-        let execute_variants = self
-            .contract
-            .functions
-            .iter()
-            .filter(|function| function.is_message())
+        let execute_variants = self.contract_messages()
             .map(|function| {
                 let ident = self.generate_dispatch_variant_ident(function, "Message");
                 let arg_idents = function
@@ -230,25 +228,25 @@ impl Dispatch<'_> {
         }
     }
 
+    /// Returns an iterator yielding the functions of a contract that are constructors.
+    fn contract_constructors<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = &'a ir::Function> + 'a {
+        self.contract
+            .functions
+            .iter()
+            .filter(|function| function.is_constructor())
+    }
+
     fn generate_constructor_dispatch_enum(&self) -> TokenStream2 {
         let storage_ident = &self.contract.storage.ident;
         let message_variants = self
-            .contract
-            .functions
-            .iter()
-            .filter(|function| function.is_constructor())
+            .contract_constructors()
             .map(|message| self.generate_dispatch_variant_arm(message, "Constructor"));
         let decode_message = self
-            .contract
-            .functions
-            .iter()
-            .filter(|function| function.is_constructor())
+            .contract_constructors()
             .map(|message| self.generate_dispatch_variant_decode(message, "Constructor"));
-        let execute_variants = self
-                .contract
-                .functions
-                .iter()
-                .filter(|function| function.is_constructor())
+        let execute_variants = self.contract_constructors()
                 .map(|function| {
                     let ident = self.generate_dispatch_variant_ident(function, "Constructor");
                     let arg_idents = function
