@@ -31,11 +31,16 @@ use ink_core::{
 };
 use ink_primitives::Key;
 
-criterion_group!(benches_clear, bench_clear);
-criterion_group!(benches_clear_worst_case, bench_clear_worst_case);
-criterion_group!(benches_put, bench_put);
-criterion_group!(benches_put_worst_case, bench_put_worst_case());
-criterion_main!(benches_clear, benches_clear_worst_case, benches_put);
+criterion_group!(benches_clear_cached, bench_clear_cached);
+criterion_group!(benches_clear_lazy, bench_clear_lazy);
+criterion_group!(benches_put_cached, bench_put_cached);
+criterion_group!(benches_put_lazy, bench_put_lazy);
+criterion_main!(
+    benches_clear_cached,
+    benches_clear_lazy,
+    benches_put_cached,
+    benches_put_lazy
+);
 
 /// Asserts that the the given ordered storage vector elements are equal to the
 /// ordered elements of the given slice.
@@ -61,11 +66,11 @@ fn pop_all(test_values: &[u8]) {
     assert!(vec.is_empty());
 }
 
-/// In the worst case we lazily instantiate a `StorageVec` by first
-/// `push_spread`-ing onto the contract storage. We then load the vec
-/// from storage lazily using `pull_spread`. This will just load lazily
-/// and won't pull anything from the storage.
-fn clear_worst_case(test_values: &[u8]) {
+/// In this case we lazily instantiate a `StorageVec` by first `push_spread`-ing
+/// onto the contract storage. We then load the vec from storage lazily using
+/// `pull_spread`. This will just load lazily and won't pull anything from the
+/// storage.
+fn clear_lazy(test_values: &[u8]) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let vec = vec_from_slice(&test_values);
         let root_key = Key::from([0x00; 32]);
@@ -79,12 +84,11 @@ fn clear_worst_case(test_values: &[u8]) {
     .unwrap();
 }
 
-/// In the worst case we lazily instantiate a `StorageVec` by first
-/// `push_spread`-ing onto the contract storage. We then load the vec
-/// from storage lazily using `pull_spread`. This will just load lazily
-/// and won't pull anything from the storage.
-/// `pop` will then result in loading from storage.
-fn pop_all_worst_case(test_values: &[u8]) {
+/// In this case we lazily instantiate a `StorageVec` by first `push_spread`-ing
+/// onto the contract storage. We then load the vec from storage lazily using
+/// `pull_spread`. This will just load lazily and won't pull anything from the
+/// storage. `pop` will then result in loading from storage.
+fn pop_all_lazy(test_values: &[u8]) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let vec = vec_from_slice(&test_values);
         let root_key = Key::from([0x00; 32]);
@@ -114,12 +118,11 @@ fn deref(test_values: &[u8]) {
     assert_eq_slice(&vec, &[b'X', b'X', b'X', b'X', b'X', b'X']);
 }
 
-/// In the worst case we lazily instantiate a `StorageVec` by first
-/// `push_spread`-ing onto the contract storage. We then load the vec
-/// from storage lazily using `pull_spread`. This will just load lazily
-/// and won't pull anything from the storage.
-/// The `vec.set()` will not load anything from storage.
-fn put_worst_case(test_values: &[u8]) {
+/// In this case we lazily instantiate a `StorageVec` by first `push_spread`-ing
+/// onto the contract storage. We then load the vec from storage lazily using
+/// `pull_spread`. This will just load lazily and won't pull anything from the
+/// storage. The `vec.set()` will not load anything from storage.
+fn put_lazy(test_values: &[u8]) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let vec = vec_from_slice(&test_values);
         let root_key = Key::from([0x00; 32]);
@@ -135,12 +138,11 @@ fn put_worst_case(test_values: &[u8]) {
     .unwrap();
 }
 
-/// In the worst case we lazily instantiate a `StorageVec` by first
-/// `push_spread`-ing onto the contract storage. We then load the vec
-/// from storage lazily using `pull_spread`. This will just load lazily
-/// and won't pull anything from the storage.
-/// The `deref` will then load from storage.
-fn deref_worst_case(test_values: &[u8]) {
+/// In this case we lazily instantiate a `StorageVec` by first `push_spread`-ing
+/// onto the contract storage. We then load the vec from storage lazily using
+/// `pull_spread`. This will just load lazily and won't pull anything from the
+/// storage. The `deref` will then load from storage.
+fn deref_lazy(test_values: &[u8]) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let vec = vec_from_slice(&test_values);
         let root_key = Key::from([0x00; 32]);
@@ -156,8 +158,8 @@ fn deref_worst_case(test_values: &[u8]) {
     .unwrap();
 }
 
-fn bench_clear(c: &mut Criterion) {
-    let mut group = c.benchmark_group("ClearMustOutperformPop");
+fn bench_clear_cached(c: &mut Criterion) {
+    let mut group = c.benchmark_group("ClearMustOutperformPopInCachedCase");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     group.bench_with_input(BenchmarkId::new("Clear", 0), &test_values, |b, i| {
@@ -169,21 +171,21 @@ fn bench_clear(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_clear_worst_case(c: &mut Criterion) {
-    let mut group = c.benchmark_group("ClearMustOutperformPopInWorstCase");
+fn bench_clear_lazy(c: &mut Criterion) {
+    let mut group = c.benchmark_group("ClearMustOutperformPopInLazyCase");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     group.bench_with_input(BenchmarkId::new("Clear", 0), &test_values, |b, i| {
-        b.iter(|| clear_worst_case(i))
+        b.iter(|| clear_lazy(i))
     });
     group.bench_with_input(BenchmarkId::new("PopAll", 0), &test_values, |b, i| {
-        b.iter(|| pop_all_worst_case(i))
+        b.iter(|| pop_all_lazy(i))
     });
     group.finish();
 }
 
-fn bench_put(c: &mut Criterion) {
-    let mut group = c.benchmark_group("PutMustOutperformDeref");
+fn bench_put_cached(c: &mut Criterion) {
+    let mut group = c.benchmark_group("PutMustOutperformDerefInCachedCase");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     group.bench_with_input(BenchmarkId::new("Put", 0), &test_values, |b, i| {
@@ -195,15 +197,15 @@ fn bench_put(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_put_worst_case(c: &mut Criterion) {
-    let mut group = c.benchmark_group("PutMustOutperformDerefInWorstCase");
+fn bench_put_lazy(c: &mut Criterion) {
+    let mut group = c.benchmark_group("PutMustOutperformDerefInLazyCase");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     group.bench_with_input(BenchmarkId::new("Put", 0), &test_values, |b, i| {
-        b.iter(|| put_worst_case(i))
+        b.iter(|| put_lazy(i))
     });
     group.bench_with_input(BenchmarkId::new("Deref", 0), &test_values, |b, i| {
-        b.iter(|| deref_worst_case(i))
+        b.iter(|| deref_lazy(i))
     });
     group.finish();
 }
