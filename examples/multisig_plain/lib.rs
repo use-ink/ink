@@ -293,7 +293,7 @@ mod multisig_plain {
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
         /// ```no_run
-        /// use ink_core::env::{DefaultEnvTypes as Env, AccountId, call::{CallData, CallParams, Selector}};
+        /// use ink_core::env::{DefaultEnvTypes as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig_plain::{Transaction, ConfirmationStatus};
         ///
         /// // address of an existing MultiSigPlain contract
