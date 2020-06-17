@@ -33,27 +33,7 @@ pub struct Selector {
     bytes: [u8; 4],
 }
 
-impl<'a> From<&'a [u8]> for Selector {
-    /// Computes the selector from the given input bytes.
-    ///
-    /// # Note
-    ///
-    /// Normally this is invoked through `Selector::from_str`.
-    fn from(input: &'a [u8]) -> Self {
-        let keccak = ink_primitives::hash::keccak256(input);
-        Self {
-            bytes: [keccak[0], keccak[1], keccak[2], keccak[3]],
-        }
-    }
-}
-
 impl Selector {
-    /// Returns the selector for the given name.
-    #[allow(clippy::should_implement_trait)]
-    pub fn from_str(name: &str) -> Self {
-        From::from(name.as_bytes())
-    }
-
     /// Creates a selector directly from 4 bytes.
     pub const fn new(bytes: [u8; 4]) -> Self {
         Self { bytes }

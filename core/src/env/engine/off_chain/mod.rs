@@ -202,13 +202,16 @@ impl EnvInstance {
             CallData,
             Selector,
         };
+        // The below selector bytes are incorrect but since calling doesn't work
+        // yet we do not have to fix this now.
+        let selector_bytes_for_call = [0x00; 4];
         self.exec_context.push(
             ExecContext::build::<T>()
                 .caller(default_accounts.alice)
                 .callee(contract_account_id)
                 .gas(T::Balance::from(500_000))
                 .transferred_value(T::Balance::from(500))
-                .call_data(CallData::new(Selector::from_str("call")))
+                .call_data(CallData::new(Selector::new(selector_bytes_for_call)))
                 .finish(),
         );
         Ok(())

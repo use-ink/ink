@@ -366,8 +366,11 @@ impl From<&'_ Ident> for FunctionSelector {
 
 impl From<&'_ str> for FunctionSelector {
     fn from(name: &str) -> Self {
-        let sha3_hash = ink_primitives::hash::keccak256(name.as_bytes());
-        Self([sha3_hash[0], sha3_hash[1], sha3_hash[2], sha3_hash[3]])
+        use sha3::digest::Digest as _;
+        let mut hasher = sha3::Keccak256::default();
+        hasher.input(name.as_bytes());
+        let hash = hasher.result();
+        Self([hash[0], hash[1], hash[2], hash[3]])
     }
 }
 

@@ -269,8 +269,8 @@ mod tests {
                     run_test(|| {
                         $({
                             let x: $name = $value;
-                            let key = Key([0x42; 32]);
-                            let key2 = Key([0x77; 32]);
+                            let key = Key::from([0x42; 32]);
+                            let key2 = Key::from([0x77; 32]);
                             push_spread_root(&x, &key);
                             let y: $name = pull_spread_root(&key);
                             assert_eq!(x, y);
@@ -288,7 +288,7 @@ mod tests {
                     run_test(|| {
                         $({
                             let x: $name = $value;
-                            let key = Key([0x42; 32]);
+                            let key = Key::from([0x42; 32]);
                             push_spread_root(&x, &key);
                             // Works since we just populated the storage.
                             let y: $name = pull_spread_root(&key);

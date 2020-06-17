@@ -17,7 +17,7 @@ use ink_primitives::KeyPtr;
 
 #[test]
 fn layout_key_works() {
-    let layout_key = LayoutKey::from(Key([0x01; 32]));
+    let layout_key = LayoutKey::from(Key::from([0x01; 32]));
     let json = serde_json::to_string(&layout_key).unwrap();
     assert_eq!(
         json,
@@ -41,7 +41,7 @@ fn named_fields_struct_layout(key_ptr: &mut KeyPtr) -> Layout {
 
 #[test]
 fn named_fields_work() {
-    let layout = named_fields_struct_layout(&mut KeyPtr::from(Key([0x00; 32])));
+    let layout = named_fields_struct_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
     let compacted = layout.into_compact(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
@@ -66,10 +66,10 @@ fn named_fields_work() {
                         "layout": {
                             "Cell": {
                                 "key": "0x\
+                                    0100000000000000\
                                     0000000000000000\
                                     0000000000000000\
-                                    0000000000000000\
-                                    0000000000000001",
+                                    0000000000000000",
                                 "ty": 2,
                             }
                         },
@@ -98,7 +98,7 @@ fn tuple_struct_layout(key_ptr: &mut KeyPtr) -> Layout {
 
 #[test]
 fn tuple_struct_work() {
-    let layout = tuple_struct_layout(&mut KeyPtr::from(Key([0x00; 32])));
+    let layout = tuple_struct_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
     let compacted = layout.into_compact(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
@@ -123,10 +123,10 @@ fn tuple_struct_work() {
                         "layout": {
                             "Cell": {
                                 "key": "0x\
+                                    0100000000000000\
                                     0000000000000000\
                                     0000000000000000\
-                                    0000000000000000\
-                                    0000000000000001",
+                                    0000000000000000",
                                 "ty": 2,
                             }
                         },
@@ -153,7 +153,7 @@ fn clike_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
 
 #[test]
 fn clike_enum_work() {
-    let layout = clike_enum_layout(&mut KeyPtr::from(Key([0x00; 32])));
+    let layout = clike_enum_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
     let compacted = layout.into_compact(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
@@ -184,7 +184,7 @@ fn clike_enum_work() {
 
 fn mixed_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
     EnumLayout::new(
-        key_ptr.advance_by(1),
+        *key_ptr.advance_by(1),
         vec![
             (Discriminant(0), StructLayout::new(vec![])),
             {
@@ -234,7 +234,7 @@ fn mixed_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
 
 #[test]
 fn mixed_enum_work() {
-    let layout = mixed_enum_layout(&mut KeyPtr::from(Key([0x00; 32])));
+    let layout = mixed_enum_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
     let compacted = layout.into_compact(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
@@ -256,10 +256,10 @@ fn mixed_enum_work() {
                                 "layout": {
                                     "Cell": {
                                         "key": "0x\
+                                            0100000000000000\
                                             0000000000000000\
                                             0000000000000000\
-                                            0000000000000000\
-                                            0000000000000001",
+                                            0000000000000000",
                                         "ty": 1,
                                     }
                                 },
@@ -269,10 +269,10 @@ fn mixed_enum_work() {
                                 "layout": {
                                     "Cell": {
                                         "key": "0x\
+                                            0200000000000000\
                                             0000000000000000\
                                             0000000000000000\
-                                            0000000000000000\
-                                            0000000000000002",
+                                            0000000000000000",
                                         "ty": 2,
                                     }
                                 },
@@ -286,10 +286,10 @@ fn mixed_enum_work() {
                                 "layout": {
                                     "Cell": {
                                         "key": "0x\
+                                            0100000000000000\
                                             0000000000000000\
                                             0000000000000000\
-                                            0000000000000000\
-                                            0000000000000001",
+                                            0000000000000000",
                                         "ty": 1,
                                     }
                                 },
@@ -299,10 +299,10 @@ fn mixed_enum_work() {
                                 "layout": {
                                     "Cell": {
                                         "key": "0x\
+                                            0200000000000000\
                                             0000000000000000\
                                             0000000000000000\
-                                            0000000000000000\
-                                            0000000000000002",
+                                            0000000000000000",
                                         "ty": 2,
                                     }
                                 },
@@ -333,7 +333,7 @@ fn unbounded_hashing_layout(key_ptr: &mut KeyPtr) -> Layout {
 
 #[test]
 fn unbounded_layout_works() {
-    let layout = unbounded_hashing_layout(&mut KeyPtr::from(Key([0x00; 32])));
+    let layout = unbounded_hashing_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
     let compacted = layout.into_compact(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();

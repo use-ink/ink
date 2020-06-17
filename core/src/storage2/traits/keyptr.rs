@@ -20,13 +20,13 @@ pub use ink_primitives::KeyPtr;
 pub trait ExtKeyPtr {
     /// Advances the key pointer by the same amount of the footprint of the
     /// generic type parameter of `T` and returns the old value.
-    fn next_for<T>(&mut self) -> Key
+    fn next_for<T>(&mut self) -> &Key
     where
         T: SpreadLayout;
 }
 
 impl ExtKeyPtr for KeyPtr {
-    fn next_for<T>(&mut self) -> Key
+    fn next_for<T>(&mut self) -> &Key
     where
         T: SpreadLayout,
     {

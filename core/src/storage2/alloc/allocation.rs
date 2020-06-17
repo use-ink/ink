@@ -83,6 +83,6 @@ fn get_works() {
             \xB9\x6D\xF9\x51\xB6\x1D\x4F\x3B\
             \x4E\x75\xAC\x3B\x14\x57\x47\x96",
     ];
-    assert_eq!(DynamicAllocation(0).key(), Key(*expected_keys[0]));
-    assert_eq!(DynamicAllocation(1).key(), Key(*expected_keys[1]));
+    assert_eq!(DynamicAllocation(0).key(), Key::from(*expected_keys[0]));
+    assert_eq!(DynamicAllocation(1).key(), Key::from(*expected_keys[1]));
 }

@@ -115,7 +115,7 @@ impl DynamicAllocatorState {
                 // instance back onto the contract storage.
                 push_spread_root::<DynamicAllocator>(
                     &allocator,
-                    &Key(DYNAMIC_ALLOCATOR_KEY_OFFSET),
+                    &Key::from(DYNAMIC_ALLOCATOR_KEY_OFFSET),
                 );
                 // Prevent calling `drop` on the dynamic storage allocator
                 // instance since this would clear all contract storage
@@ -155,7 +155,7 @@ impl DynamicAllocatorState {
                 result
             }
             DynamicAllocatorState::UninitCall => {
-                let mut allocator = pull_spread_root::<DynamicAllocator>(&Key(
+                let mut allocator = pull_spread_root::<DynamicAllocator>(&Key::from(
                     DYNAMIC_ALLOCATOR_KEY_OFFSET,
                 ));
                 let result = f(&mut allocator);
