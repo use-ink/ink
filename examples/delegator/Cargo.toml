@@ -50,6 +50,7 @@ panic = "abort"
 lto = true
 opt-level = "z"
 overflow-checks = true
+codegen-units = 1
 
 [workspace]
 members = [

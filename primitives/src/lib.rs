@@ -23,7 +23,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub mod hash;
 mod key2;
 mod key_ptr2;
 
