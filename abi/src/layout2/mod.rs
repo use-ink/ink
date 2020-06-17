@@ -25,9 +25,10 @@ use scale_info::{
         Form,
         MetaForm,
     },
+    meta_type,
     IntoCompact,
-    Metadata,
     Registry,
+    TypeInfo,
 };
 
 /// Represents the static storage layout of an ink! smart contract.
@@ -93,11 +94,11 @@ impl CellLayout {
     /// Creates a new cell layout.
     pub fn new<T>(key: LayoutKey) -> Self
     where
-        T: Metadata,
+        T: TypeInfo + 'static,
     {
         Self {
             key,
-            ty: <T as Metadata>::meta_type(),
+            ty: meta_type::<T>(),
         }
     }
 }

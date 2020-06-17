@@ -89,11 +89,11 @@ const _: () = {
         Layout,
         LayoutKey,
     };
-    use scale_info::Metadata;
+    use scale_info::TypeInfo;
 
     impl<T> StorageLayout for Pack<T>
     where
-        T: Metadata,
+        T: TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Cell(CellLayout::new::<T>(LayoutKey::from(key_ptr.advance_by(1))))

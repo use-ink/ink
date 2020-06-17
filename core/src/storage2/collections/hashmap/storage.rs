@@ -48,12 +48,12 @@ const _: () = {
         Layout,
         StructLayout,
     };
-    use scale_info::Metadata;
+    use scale_info::TypeInfo;
 
     impl<K, V, H> StorageLayout for StorageHashMap<K, V, H>
     where
-        K: Metadata + Ord + Clone + PackedLayout + 'static,
-        V: Metadata + PackedLayout + 'static,
+        K: TypeInfo + Ord + Clone + PackedLayout + 'static,
+        V: TypeInfo + PackedLayout + 'static,
         H: LayoutCryptoHasher + Hasher,
         Key: From<<H as Hasher>::Output>,
     {

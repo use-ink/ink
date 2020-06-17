@@ -46,7 +46,7 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "std")]
-use scale_info::Metadata;
+use scale_info::TypeInfo;
 
 /// Types that allow for simple arithmetic operations.
 ///
@@ -178,7 +178,7 @@ where
 
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "std", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
 pub enum DefaultEnvTypes {}
 
 impl EnvTypes for DefaultEnvTypes {
@@ -252,7 +252,7 @@ impl scale::Decode for Call {
     From,
     Default,
 )]
-#[cfg_attr(feature = "std", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AccountId([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for AccountId {
@@ -284,7 +284,7 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     From,
     Default,
 )]
-#[cfg_attr(feature = "std", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct Hash([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for Hash {

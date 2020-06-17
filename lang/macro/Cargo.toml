@@ -37,7 +37,7 @@ ink_lang = { version = "2.1.0", path = ".." }
 
 trybuild = "1.0.24"
 pretty_assertions = "0.6.1"
-scale-info = { version = "0.1", default-features = false, features = ["derive"] }
+scale-info = { version = "0.2", default-features = false, features = ["derive"] }
 
 [lib]
 name = "ink_lang_macro"

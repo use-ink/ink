@@ -35,11 +35,11 @@ const _: () = {
         Layout,
         StructLayout,
     };
-    use scale_info::Metadata;
+    use scale_info::TypeInfo;
 
     impl<T> StorageLayout for StorageVec<T>
     where
-        T: PackedLayout + Metadata,
+        T: PackedLayout + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![

@@ -28,9 +28,10 @@ use scale_info::{
         Form,
         MetaForm,
     },
+    meta_type,
     IntoCompact,
-    Metadata,
     Registry,
+    TypeInfo,
 };
 use serde::Serialize;
 
@@ -602,7 +603,7 @@ impl TypeSpec {
     /// Panics if the given display name is invalid.
     pub fn with_name_str<T>(display_name: &'static str) -> Self
     where
-        T: Metadata,
+        T: TypeInfo + 'static,
     {
         Self::with_name_segs::<T, _>(display_name.split("::"))
     }
@@ -621,11 +622,11 @@ impl TypeSpec {
     /// Panics if the given display name is invalid.
     pub fn with_name_segs<T, S>(segments: S) -> Self
     where
-        T: Metadata,
+        T: TypeInfo + 'static,
         S: IntoIterator<Item = <MetaForm as Form>::String>,
     {
         Self {
-            id: T::meta_type(),
+            id: meta_type::<T>(),
             display_name: DisplayName::from_segments(segments)
                 .expect("display name is invalid"),
         }
@@ -634,10 +635,10 @@ impl TypeSpec {
     /// Creates a new type specification without a display name.
     pub fn new<T>() -> Self
     where
-        T: Metadata,
+        T: TypeInfo + 'static,
     {
         Self {
-            id: T::meta_type(),
+            id: meta_type::<T>(),
             display_name: DisplayName::default(),
         }
     }

@@ -22,7 +22,7 @@ use super::{
 
 /// A chunk of 256 bits.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::Metadata))]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Bits256 {
     bits: [Bits64; 4],
 }

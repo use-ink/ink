@@ -8,7 +8,7 @@ mod erc721 {
     pub type TokenId = u32;
 
     #[derive(scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::Metadata))]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
         SpecifiedTokenHasNoOwner,
         ApprovalToCurrentOwner,

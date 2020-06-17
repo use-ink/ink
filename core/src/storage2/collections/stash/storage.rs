@@ -45,7 +45,7 @@ const _: () = {
         LayoutKey,
         StructLayout,
     };
-    use scale_info::Metadata;
+    use scale_info::TypeInfo;
 
     impl StorageLayout for Header {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
@@ -57,7 +57,7 @@ const _: () = {
 
     impl<T> StorageLayout for StorageStash<T>
     where
-        T: PackedLayout + Metadata + 'static,
+        T: PackedLayout + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![
