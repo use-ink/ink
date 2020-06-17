@@ -131,7 +131,7 @@ impl EnvInstance {
 }
 
 impl Env for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
     {
@@ -139,7 +139,7 @@ impl Env for EnvInstance {
         ext::set_storage(key.as_bytes(), &self.buffer[..]);
     }
 
-    fn get_contract_storage<R>(&mut self, key: Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
     where
         R: scale::Decode,
     {
@@ -149,7 +149,7 @@ impl Env for EnvInstance {
         Some(self.decode_scratch_buffer().map_err(Into::into))
     }
 
-    fn clear_contract_storage(&mut self, key: Key) {
+    fn clear_contract_storage(&mut self, key: &Key) {
         ext::clear_storage(key.as_bytes())
     }
 

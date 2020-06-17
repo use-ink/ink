@@ -384,7 +384,7 @@ mod tests {
         run_test(|_| {
             let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
             assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
-            let root_key = Key([0x42; 32]);
+            let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
             // Now load another instance of a pack from the same key and check
             // if both instances are equal:
@@ -399,7 +399,7 @@ mod tests {
         run_test(|_| {
             let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
             assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
-            let root_key = Key([0x42; 32]);
+            let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
             // Now load another instance of a pack from the same key and check
             // if both instances are equal:
@@ -419,12 +419,12 @@ mod tests {
             // Push as spread, pull as packed:
             let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
             assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
-            let root_key = Key([0x42; 32]);
+            let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
             let p2 = pull_packed_root::<Pack<(u8, [i32; 4], (bool, i32))>>(&root_key);
             assert_eq!(p1, p2);
             // Push as packed, pull as spread:
-            let root_key2 = Key([0x43; 32]);
+            let root_key2 = Key::from([0x43; 32]);
             push_packed_root(&p2, &root_key2);
             let p3 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key2));
             assert_eq!(p2, p3);

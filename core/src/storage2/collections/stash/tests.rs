@@ -655,7 +655,7 @@ fn take_rev_order_works() {
 fn spread_layout_push_pull_works() -> env::Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let stash1 = create_holey_stash();
-        let root_key = Key([0x42; 32]);
+        let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
         // Load the pushed storage vector into another instance and check that
         // both instances are equal:
@@ -671,7 +671,7 @@ fn spread_layout_push_pull_works() -> env::Result<()> {
 fn spread_layout_clear_works() {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let stash1 = create_holey_stash();
-        let root_key = Key([0x42; 32]);
+        let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
         // It has already been asserted that a valid instance can be pulled
         // from contract storage after a push to the same storage region.

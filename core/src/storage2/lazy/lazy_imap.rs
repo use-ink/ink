@@ -233,13 +233,13 @@ where
     const FOOTPRINT: u64 = 1_u64 << 32;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ExtKeyPtr::next_for::<Self>(ptr))
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (&index, entry) in self.entries().iter() {
-            let root_key = offset_key + index;
+            let root_key = offset_key + (index as u64);
             entry.push_packed_root(&root_key);
         }
     }
@@ -278,7 +278,7 @@ where
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
-            crate::env::clear_contract_storage(root_key);
+            crate::env::clear_contract_storage(&root_key);
         }
     }
 }
@@ -482,7 +482,7 @@ mod tests {
 
     #[test]
     fn lazy_works() {
-        let key = Key([0x42; 32]);
+        let key = Key::from([0x42; 32]);
         let imap = <LazyIndexMap<u8>>::lazy(key);
         // Key must be none.
         assert_eq!(imap.key(), Some(&key));
@@ -704,7 +704,7 @@ mod tests {
             // Push the lazy index map onto the contract storage and then load
             // another instance of it from the contract stoarge.
             // Then: Compare both instances to be equal.
-            let root_key = Key([0x42; 32]);
+            let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&imap, &mut KeyPtr::from(root_key));
             let imap2 = <LazyIndexMap<u8> as SpreadLayout>::pull_spread(
                 &mut KeyPtr::from(root_key),

@@ -138,7 +138,7 @@ where
     fn layout(key_ptr: &mut KeyPtr) -> Layout {
         let dispatch_key = key_ptr.advance_by(1);
         Layout::Enum(EnumLayout::new(
-            dispatch_key,
+            *dispatch_key,
             vec![
                 (
                     Discriminant::from(0),
@@ -161,7 +161,7 @@ where
     fn layout(key_ptr: &mut KeyPtr) -> Layout {
         let dispatch_key = key_ptr.advance_by(1);
         Layout::Enum(EnumLayout::new(
-            dispatch_key,
+            *dispatch_key,
             vec![
                 (
                     Discriminant::from(0),

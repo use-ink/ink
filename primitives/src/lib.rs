@@ -23,18 +23,10 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-mod byte_utils;
 mod key;
-mod key2;
 mod key_ptr;
-mod key_ptr2;
 
 pub use self::{
-    key::{
-        Key,
-        KeyDiff,
-    },
-    key2::Key as Key2,
+    key::Key,
     key_ptr::KeyPtr,
-    key_ptr2::KeyPtr as KeyPtr2,
 };
