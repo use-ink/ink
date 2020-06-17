@@ -326,6 +326,12 @@ where
     }
 
     /// Removes all elements from this vector.
+    ///
+    /// # Note
+    ///
+    /// Use this method to clear the vector instead of e.g. iterative `pop()`.
+    /// This method performs significantly better and does not actually read
+    /// any of the elements (whereas `pop()` does).
     pub fn clear(&mut self) {
         if self.is_empty() {
             return
