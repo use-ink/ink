@@ -314,14 +314,13 @@ where
     ///
     /// If the index is out of bounds.
     pub fn set(&mut self, index: u32, new_value: T) {
-        if let None = self.within_bounds(index) {
+        if self.within_bounds(index).is_none() {
             panic!(
                 "index out of bounds: the len is {} but the index is {}",
                 self.len(),
                 index
             );
         }
-
         self.elems.put(index, Some(new_value));
     }
 
