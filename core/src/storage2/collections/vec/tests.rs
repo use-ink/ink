@@ -423,4 +423,3 @@ fn clear_works_on_empty_vec() {
     vec.clear();
     assert_eq!(vec.len(), 0);
 }
-

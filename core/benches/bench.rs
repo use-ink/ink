@@ -12,17 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{
+    criterion_group,
+    criterion_main,
+    BenchmarkId,
+    Criterion,
+};
 
 use ink_core::{
     env,
-    storage2::traits::{
-        KeyPtr,
-        SpreadLayout,
+    storage2::{
+        collections::Vec as StorageVec,
+        traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
     },
 };
 use ink_primitives::Key;
-use ink_core::storage2::collections::Vec as StorageVec;
 
 criterion_group!(benches_clear, bench_clear);
 criterion_group!(benches_clear_worst_case, bench_clear_worst_case);
@@ -49,7 +56,7 @@ fn clear(test_values: &[u8]) {
 
 fn pop_all(test_values: &[u8]) {
     let mut vec = vec_from_slice(&test_values);
-    while let Some(_) = vec.pop() {};
+    while let Some(_) = vec.pop() {}
     assert!(vec.is_empty());
 }
 
@@ -63,7 +70,7 @@ fn clear_worst_case(test_values: &[u8]) {
         let root_key = Key::from([0x00; 32]);
         SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
         let mut vec =
-                <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         vec.clear();
         assert!(vec.is_empty());
         Ok(())
@@ -83,7 +90,7 @@ fn pop_all_worst_case(test_values: &[u8]) {
         SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
         let mut vec =
             <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        while let Some(_) = vec.pop() {};
+        while let Some(_) = vec.pop() {}
         assert!(vec.is_empty());
         Ok(())
     })
@@ -153,22 +160,25 @@ fn bench_clear(c: &mut Criterion) {
     let mut group = c.benchmark_group("ClearMustOutperformPop");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    group.bench_with_input(BenchmarkId::new("Clear", 0), &test_values,
-                           |b, i| b.iter(|| clear(i)));
-    group.bench_with_input(BenchmarkId::new("PopAll", 0), &test_values,
-                           |b, i| b.iter(|| pop_all(i)));
+    group.bench_with_input(BenchmarkId::new("Clear", 0), &test_values, |b, i| {
+        b.iter(|| clear(i))
+    });
+    group.bench_with_input(BenchmarkId::new("PopAll", 0), &test_values, |b, i| {
+        b.iter(|| pop_all(i))
+    });
     group.finish();
 }
 
 fn bench_clear_worst_case(c: &mut Criterion) {
-    let mut group =
-        c.benchmark_group("ClearMustOutperformPopInWorstCase");
+    let mut group = c.benchmark_group("ClearMustOutperformPopInWorstCase");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    group.bench_with_input(BenchmarkId::new("Clear", 0), &test_values,
-                           |b, i| b.iter(|| clear_worst_case(i)));
-    group.bench_with_input(BenchmarkId::new("PopAll", 0), &test_values,
-                           |b, i| b.iter(|| pop_all_worst_case(i)));
+    group.bench_with_input(BenchmarkId::new("Clear", 0), &test_values, |b, i| {
+        b.iter(|| clear_worst_case(i))
+    });
+    group.bench_with_input(BenchmarkId::new("PopAll", 0), &test_values, |b, i| {
+        b.iter(|| pop_all_worst_case(i))
+    });
     group.finish();
 }
 
@@ -176,21 +186,24 @@ fn bench_put(c: &mut Criterion) {
     let mut group = c.benchmark_group("PutMustOutperformDeref");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    group.bench_with_input(BenchmarkId::new("Put", 0), &test_values,
-                           |b, i| b.iter(|| put(i)));
-    group.bench_with_input(BenchmarkId::new("Deref", 0), &test_values,
-                           |b, i| b.iter(|| deref(i)));
+    group.bench_with_input(BenchmarkId::new("Put", 0), &test_values, |b, i| {
+        b.iter(|| put(i))
+    });
+    group.bench_with_input(BenchmarkId::new("Deref", 0), &test_values, |b, i| {
+        b.iter(|| deref(i))
+    });
     group.finish();
 }
 
 fn bench_put_worst_case(c: &mut Criterion) {
-    let mut group =
-        c.benchmark_group("PutMustOutperformDerefInWorstCase");
+    let mut group = c.benchmark_group("PutMustOutperformDerefInWorstCase");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    group.bench_with_input(BenchmarkId::new("Put", 0), &test_values,
-                           |b, i| b.iter(|| put_worst_case(i)));
-    group.bench_with_input(BenchmarkId::new("Deref", 0), &test_values,
-                           |b, i| b.iter(|| deref_worst_case(i)));
+    group.bench_with_input(BenchmarkId::new("Put", 0), &test_values, |b, i| {
+        b.iter(|| put_worst_case(i))
+    });
+    group.bench_with_input(BenchmarkId::new("Deref", 0), &test_values, |b, i| {
+        b.iter(|| deref_worst_case(i))
+    });
     group.finish();
 }
