@@ -96,11 +96,11 @@ const _: () = {
         Layout,
         LayoutKey,
     };
-    use scale_info::Metadata;
+    use scale_info::TypeInfo;
 
     impl<T, N> StorageLayout for LazyArray<T, N>
     where
-        T: Metadata,
+        T: TypeInfo + 'static,
         N: LazyArrayLength<T>,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {

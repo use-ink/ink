@@ -34,11 +34,11 @@ const _: () = {
         Layout,
         StructLayout,
     };
-    use scale_info::Metadata;
+    use scale_info::TypeInfo;
 
     impl<T, N> StorageLayout for SmallVec<T, N>
     where
-        T: PackedLayout + Metadata,
+        T: PackedLayout + TypeInfo + 'static,
         N: LazyArrayLength<T>,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {

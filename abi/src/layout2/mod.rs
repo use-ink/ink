@@ -20,13 +20,14 @@ use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
 use scale_info::{
+    meta_type,
     form::{
         CompactForm,
         Form,
         MetaForm,
     },
     IntoCompact,
-    Metadata,
+    TypeInfo,
     Registry,
 };
 
@@ -85,11 +86,11 @@ impl CellLayout {
     /// Creates a new cell layout.
     pub fn new<T>(key: LayoutKey) -> Self
     where
-        T: Metadata,
+        T: TypeInfo + 'static,
     {
         Self {
             key,
-            ty: <T as Metadata>::meta_type(),
+            ty: meta_type::<T>(),
         }
     }
 }

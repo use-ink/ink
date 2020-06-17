@@ -121,7 +121,7 @@ mod multisig_plain {
     #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::Metadata, ink_core::storage2::traits::StorageLayout)
+        derive(scale_info::TypeInfo, ink_core::storage2::traits::StorageLayout)
     )]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
@@ -139,7 +139,7 @@ mod multisig_plain {
             Debug,
             PartialEq,
             Eq,
-            scale_info::Metadata,
+            scale_info::TypeInfo,
             ink_core::storage2::traits::StorageLayout
         )
     )]

@@ -33,7 +33,7 @@ use ink_primitives::Key;
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, scale::Encode, scale::Decode,
 )]
-#[cfg_attr(feature = "std", derive(scale_info::Metadata))]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct DynamicAllocation(pub(super) u32);
 
 impl DynamicAllocation {

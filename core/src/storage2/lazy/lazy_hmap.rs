@@ -160,12 +160,12 @@ const _: () = {
         Layout,
         LayoutKey,
     };
-    use scale_info::Metadata;
+    use scale_info::TypeInfo;
 
     impl<K, V, H> StorageLayout for LazyHashMap<K, V, H>
     where
         K: Ord + scale::Encode,
-        V: Metadata,
+        V: TypeInfo + 'static,
         H: Hasher + LayoutCryptoHasher,
         Key: From<<H as Hasher>::Output>,
     {

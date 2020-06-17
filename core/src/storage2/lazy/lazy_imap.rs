@@ -206,11 +206,11 @@ const _: () = {
         Layout,
         LayoutKey,
     };
-    use scale_info::Metadata;
+    use scale_info::TypeInfo;
 
     impl<T> StorageLayout for LazyIndexMap<T>
     where
-        T: Metadata,
+        T: TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             let capacity = u32::MAX;

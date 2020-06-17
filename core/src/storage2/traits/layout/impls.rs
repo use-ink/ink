@@ -41,7 +41,7 @@ use ink_prelude::{
     vec::Vec,
 };
 use ink_primitives::Key;
-use scale_info::Metadata;
+use scale_info::TypeInfo;
 
 macro_rules! impl_storage_layout_for_primitives {
     ( $($name:ty),* $(,)? ) => {
@@ -184,7 +184,7 @@ where
 
 impl<T> StorageLayout for Vec<T>
 where
-    T: Metadata + 'static,
+    T: TypeInfo + 'static,
 {
     fn layout(key_ptr: &mut KeyPtr) -> Layout {
         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
@@ -195,8 +195,8 @@ where
 
 impl<K, V> StorageLayout for BTreeMap<K, V>
 where
-    K: Metadata + 'static,
-    V: Metadata + 'static,
+    K: TypeInfo + 'static,
+    V: TypeInfo + 'static,
 {
     fn layout(key_ptr: &mut KeyPtr) -> Layout {
         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
@@ -207,7 +207,7 @@ where
 
 // impl<T> StorageLayout for BinaryHeap<T>
 // where
-//     T: Metadata + 'static,
+//     T: TypeInfo + 'static,
 // {
 //     fn layout(key_ptr: &mut KeyPtr) -> Layout {
 //         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
@@ -216,7 +216,7 @@ where
 
 // impl<T> StorageLayout for BTreeSet<T>
 // where
-//     T: Metadata + 'static,
+//     T: TypeInfo + 'static,
 // {
 //     fn layout(key_ptr: &mut KeyPtr) -> Layout {
 //         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
@@ -225,7 +225,7 @@ where
 
 // impl<T> StorageLayout for VecDeque<T>
 // where
-//     T: Metadata + 'static,
+//     T: TypeInfo + 'static,
 // {
 //     fn layout(key_ptr: &mut KeyPtr) -> Layout {
 //         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
@@ -234,7 +234,7 @@ where
 
 // impl<T> StorageLayout for LinkedList<T>
 // where
-//     T: Metadata + 'static,
+//     T: TypeInfo + 'static,
 // {
 //     fn layout(key_ptr: &mut KeyPtr) -> Layout {
 //         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
