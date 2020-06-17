@@ -106,7 +106,6 @@ fn put(test_values: &[u8]) {
 }
 
 fn deref(test_values: &[u8]) {
-    let vec = vec_from_slice(&test_values);
     let mut vec = vec_from_slice(&test_values);
     for (index, _value) in test_values.iter().enumerate() {
         *vec.get_mut(index as u32).unwrap() = b'X';
