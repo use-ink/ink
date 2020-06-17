@@ -44,15 +44,13 @@ fn vec_from_slice(slice: &[u8]) -> StorageVec<u8> {
 fn clear(test_values: &[u8]) {
     let mut vec = vec_from_slice(&test_values);
     vec.clear();
-    assert_eq!(vec.len(), 0);
+    assert!(vec.is_empty());
 }
 
 fn pop_all(test_values: &[u8]) {
     let mut vec = vec_from_slice(&test_values);
-    while vec.len() > 0 {
-        vec.pop();
-    }
-    assert_eq!(vec.len(), 0);
+    while let Some(_) = vec.pop() {};
+    assert!(vec.is_empty());
 }
 
 /// In the worst case we lazily instantiate a `StorageVec` by first
@@ -62,14 +60,15 @@ fn pop_all(test_values: &[u8]) {
 fn clear_worst_case(test_values: &[u8]) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let vec = vec_from_slice(&test_values);
-        let root_key = Key::from([0x42; 32]);
+        let root_key = Key::from([0x00; 32]);
         SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
         let mut vec =
                 <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         vec.clear();
-        assert_eq!(vec.len(), 0);
+        assert!(vec.is_empty());
         Ok(())
-    });
+    })
+    .unwrap();
 }
 
 /// In the worst case we lazily instantiate a `StorageVec` by first
@@ -80,16 +79,15 @@ fn clear_worst_case(test_values: &[u8]) {
 fn pop_all_worst_case(test_values: &[u8]) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let vec = vec_from_slice(&test_values);
-        let root_key = Key::from([0x42; 32]);
+        let root_key = Key::from([0x00; 32]);
         SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
         let mut vec =
             <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        while vec.len() > 0 {
-            vec.pop();
-        }
-        assert_eq!(vec.len(), 0);
+        while let Some(_) = vec.pop() {};
+        assert!(vec.is_empty());
         Ok(())
-    });
+    })
+    .unwrap();
 }
 
 fn put(test_values: &[u8]) {
@@ -117,7 +115,7 @@ fn deref(test_values: &[u8]) {
 fn put_worst_case(test_values: &[u8]) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let vec = vec_from_slice(&test_values);
-        let root_key = Key::from([0x42; 32]);
+        let root_key = Key::from([0x00; 32]);
         SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
         let mut vec =
             <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
@@ -126,7 +124,8 @@ fn put_worst_case(test_values: &[u8]) {
         }
         assert_eq_slice(&vec, &[b'X', b'X', b'X', b'X', b'X', b'X']);
         Ok(())
-    });
+    })
+    .unwrap();
 }
 
 /// In the worst case we lazily instantiate a `StorageVec` by first
@@ -137,7 +136,7 @@ fn put_worst_case(test_values: &[u8]) {
 fn deref_worst_case(test_values: &[u8]) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let vec = vec_from_slice(&test_values);
-        let root_key = Key::from([0x42; 32]);
+        let root_key = Key::from([0x00; 32]);
         SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
         let mut vec =
             <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
@@ -146,7 +145,8 @@ fn deref_worst_case(test_values: &[u8]) {
         }
         assert_eq_slice(&vec, &[b'X', b'X', b'X', b'X', b'X', b'X']);
         Ok(())
-    });
+    })
+    .unwrap();
 }
 
 fn bench_clear(c: &mut Criterion) {
