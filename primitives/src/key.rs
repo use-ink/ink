@@ -229,10 +229,7 @@ impl<'a, 'b> Add<&'b u64> for &'a Key {
 #[cfg(feature = "std")]
 const _: () = {
     use scale_info::{
-        build::{
-            FieldsBuilder,
-            UnnamedFields,
-        },
+        build::Fields,
         Path,
         Type,
         TypeInfo,
@@ -242,9 +239,7 @@ const _: () = {
         fn type_info() -> Type {
             Type::builder()
                 .path(Path::new("Key", "ink_primitives"))
-                .composite(
-                    FieldsBuilder::<UnnamedFields>::default().field_of::<[u8; 32]>(),
-                )
+                .composite(Fields::unnamed().field_of::<[u8; 32]>())
         }
     }
 };
