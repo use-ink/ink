@@ -17,6 +17,7 @@ extern crate proc_macro;
 #[macro_use]
 mod error;
 
+mod ast;
 mod codegen;
 mod contract;
 mod extensions;
