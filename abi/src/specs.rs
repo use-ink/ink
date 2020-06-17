@@ -23,15 +23,15 @@ use alloc::{
 };
 use core::marker::PhantomData;
 use scale_info::{
-    meta_type,
     form::{
         CompactForm,
         Form,
         MetaForm,
     },
+    meta_type,
     IntoCompact,
-    TypeInfo,
     Registry,
+    TypeInfo,
 };
 use serde::Serialize;
 
