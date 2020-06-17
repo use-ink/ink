@@ -21,7 +21,10 @@ use crate::{
     ir,
 };
 use derive_more::From;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
 use quote::{
     quote,
     quote_spanned,
@@ -48,6 +51,8 @@ impl<'a> GenerateCodeUsing for Dispatch<'a> {
 impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let message_trait_impls = self.generate_message_trait_impls();
+        let message_dispatch_enum = self.generate_message_dispatch_enum();
+        let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
         let message_namespaces = self.generate_message_namespaces();
         let dispatch_using_mode = self.generate_dispatch_using_mode();
         let entry_points = self.generate_entry_points();
@@ -60,6 +65,8 @@ impl GenerateCode for Dispatch<'_> {
             #[cfg(not(test))]
             #cfg
             const _: () = {
+                #message_dispatch_enum
+                #constructor_dispatch_enum
                 #message_namespaces
                 #message_trait_impls
                 #dispatch_using_mode
@@ -70,6 +77,236 @@ impl GenerateCode for Dispatch<'_> {
 }
 
 impl Dispatch<'_> {
+    fn generate_dispatch_variant_ident(
+        &self,
+        message: &ir::Function,
+        prefix: &str,
+    ) -> Ident {
+        let selector = message
+            .selector()
+            .expect("encountered a non-constructor function");
+        let selector_bytes = selector.as_bytes();
+        quote::format_ident!(
+            "__{}_0x{:02X}{:02X}{:02X}{:02X}",
+            prefix,
+            selector_bytes[0],
+            selector_bytes[1],
+            selector_bytes[2],
+            selector_bytes[3]
+        )
+    }
+
+    fn generate_dispatch_variant_decode(
+        &self,
+        message: &ir::Function,
+        prefix: &str,
+    ) -> TokenStream2 {
+        let selector_bytes = *message
+            .selector()
+            .expect("encountered a non-message function")
+            .as_bytes();
+        let s0 = selector_bytes[0];
+        let s1 = selector_bytes[1];
+        let s2 = selector_bytes[2];
+        let s3 = selector_bytes[3];
+        let variant_ident = self.generate_dispatch_variant_ident(message, prefix);
+        let variant_types = message.sig.inputs().map(|arg| &arg.ty);
+        quote! {
+            [#s0, #s1, #s2, #s3] => {
+                Ok(Self::#variant_ident(
+                    #(
+                        <#variant_types as ::scale::Decode>::decode(input)?
+                    ),*
+                ))
+            }
+        }
+    }
+
+    fn generate_dispatch_variant_arm(
+        &self,
+        message: &ir::Function,
+        prefix: &str,
+    ) -> TokenStream2 {
+        let input_types = message.sig.inputs().map(|arg| &arg.ty);
+        let variant_ident = self.generate_dispatch_variant_ident(message, prefix);
+        quote! {
+            #variant_ident(#(#input_types),*)
+        }
+    }
+
+    /// Returns an iterator yielding the functions of a contract that are messages.
+    fn contract_messages<'a>(&'a self) -> impl Iterator<Item = &'a ir::Function> + 'a {
+        self.contract
+            .functions
+            .iter()
+            .filter(|function| function.is_message())
+    }
+
+    fn generate_message_dispatch_enum(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let message_variants = self
+            .contract_messages()
+            .map(|message| self.generate_dispatch_variant_arm(message, "Message"));
+        let decode_message = self
+            .contract_messages()
+            .map(|message| self.generate_dispatch_variant_decode(message, "Message"));
+        let execute_variants = self.contract_messages()
+            .map(|function| {
+                let ident = self.generate_dispatch_variant_ident(function, "Message");
+                let arg_idents = function
+                    .sig
+                    .inputs()
+                    .map(|arg| &arg.ident)
+                    .collect::<Vec<_>>();
+                let (mut_mod, msg_trait, exec_fn) = if function
+                    .sig
+                    .is_mut()
+                    .expect("encountered non-ink! message or constructor")
+                {
+                    (
+                        Some(quote! { mut }),
+                        quote! { MessageMut },
+                        quote! { execute_message_mut },
+                    )
+                } else {
+                    (
+                        None,
+                        quote! { MessageRef },
+                        quote! { execute_message },
+                    )
+                };
+                let arg_inputs = if arg_idents.len() == 1 {
+                    quote! { #(#arg_idents),* }
+                } else {
+                    quote! { ( #(#arg_idents),* ) }
+                };
+                let selector_id = function
+                    .selector()
+                    .expect("encountered non-ink! message or constructor")
+                    .unique_id();
+                quote! {
+                    Self::#ident(#(#arg_idents),*) => {
+                        ::ink_lang::#exec_fn::<Msg<[(); #selector_id]>, _>(move |state: &#mut_mod #storage_ident| {
+                            <Msg<[(); #selector_id]> as ::ink_lang::#msg_trait>::CALLABLE(
+                                state, #arg_inputs
+                            )
+                        })
+                    }
+                }
+            });
+        quote! {
+            const _: () = {
+                pub enum MessageDispatchEnum {
+                    #( #message_variants ),*
+                }
+
+                impl ::ink_lang::MessageDispatcher for #storage_ident {
+                    type Type = MessageDispatchEnum;
+                }
+
+                impl ::scale::Decode for MessageDispatchEnum {
+                    fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
+                        match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                            #(
+                                #decode_message
+                            )*
+                            _invalid => Err(::scale::Error::from("invalid message selector"))
+                        }
+                    }
+                }
+
+                impl ::ink_lang::Execute for MessageDispatchEnum {
+                    fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                        match self {
+                            #(
+                                #execute_variants
+                            )*
+                        }
+                    }
+                }
+            };
+        }
+    }
+
+    /// Returns an iterator yielding the functions of a contract that are constructors.
+    fn contract_constructors<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = &'a ir::Function> + 'a {
+        self.contract
+            .functions
+            .iter()
+            .filter(|function| function.is_constructor())
+    }
+
+    fn generate_constructor_dispatch_enum(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.storage.ident;
+        let message_variants = self
+            .contract_constructors()
+            .map(|message| self.generate_dispatch_variant_arm(message, "Constructor"));
+        let decode_message = self
+            .contract_constructors()
+            .map(|message| self.generate_dispatch_variant_decode(message, "Constructor"));
+        let execute_variants = self.contract_constructors()
+                .map(|function| {
+                    let ident = self.generate_dispatch_variant_ident(function, "Constructor");
+                    let arg_idents = function
+                        .sig
+                        .inputs()
+                        .map(|arg| &arg.ident)
+                        .collect::<Vec<_>>();
+                    let arg_inputs = if arg_idents.len() == 1 {
+                        quote! { #(#arg_idents),* }
+                    } else {
+                        quote! { ( #(#arg_idents),* ) }
+                    };
+                    let selector_id = function
+                        .selector()
+                        .expect("encountered non-ink! message or constructor")
+                        .unique_id();
+                    quote! {
+                        Self::#ident(#(#arg_idents),*) => {
+                            ::ink_lang::execute_constructor::<Constr<[(); #selector_id]>, _>(move || {
+                                <Constr<[(); #selector_id]> as ::ink_lang::Constructor>::CALLABLE(
+                                    #arg_inputs
+                                )
+                            })
+                        }
+                    }
+                });
+        quote! {
+            const _: () = {
+                pub enum ConstructorDispatchEnum {
+                    #( #message_variants ),*
+                }
+
+                impl ::ink_lang::ConstructorDispatcher for #storage_ident {
+                    type Type = ConstructorDispatchEnum;
+                }
+
+                impl ::scale::Decode for ConstructorDispatchEnum {
+                    fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
+                        match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                            #(
+                                #decode_message
+                            )*
+                            _invalid => Err(::scale::Error::from("invalid constructor selector"))
+                        }
+                    }
+                }
+
+                impl ::ink_lang::Execute for ConstructorDispatchEnum {
+                    fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                        match self {
+                            #(
+                                #execute_variants
+                            )*
+                        }
+                    }
+                }
+            };
+        }
+    }
+
     fn generate_trait_impls_for_message(&self, function: &ir::Function) -> TokenStream2 {
         if !(function.is_constructor() || function.is_message()) {
             return quote! {}
@@ -219,59 +456,27 @@ impl Dispatch<'_> {
         }
     }
 
-    fn generate_dispatch_using_mode_fragment(
-        &self,
-        function: &ir::Function,
-    ) -> TokenStream2 {
-        if !(function.is_constructor() || function.is_message()) {
-            return quote! {}
-        }
-        let selector = function
-            .selector()
-            .expect("this is either a message or constructor at this point; qed");
-        let selector_id = selector.unique_id();
-        let sig = &function.sig;
-        let builder_name = if function.is_constructor() {
-            quote! { register_constructor }
-        } else if sig.is_mut().expect("must be a message if not constructor") {
-            quote! { register_message_mut }
-        } else {
-            quote! { register_message }
-        };
-        let namespace = match function.kind() {
-            ir::FunctionKind::Constructor(_) => quote! { Constr },
-            ir::FunctionKind::Message(_) => quote! { Msg },
-            ir::FunctionKind::Method => panic!("ICE: can't match a method at this point"),
-        };
-        quote! {
-            .#builder_name::<#namespace<[(); #selector_id]>>()
-        }
-    }
-
     fn generate_dispatch_using_mode(&self) -> TokenStream2 {
         let storage_ident = &self.contract.storage.ident;
-        let fragments = self
-            .contract
-            .functions
-            .iter()
-            .map(|fun| self.generate_dispatch_using_mode_fragment(fun));
-
         quote! {
             impl ::ink_lang::DispatchUsingMode for #storage_ident {
                 #[allow(unused_parens)]
                 fn dispatch_using_mode(
                     mode: ::ink_lang::DispatchMode
                 ) -> core::result::Result<(), ::ink_lang::DispatchError> {
-                    let call_data =
-                        ::ink_core::env::input().map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?;
-                    let contract = ::ink_lang::Contract::build()
-                        #(
-                            #fragments
-                        )*
-                        .finalize();
                     match mode {
-                        ::ink_lang::DispatchMode::Instantiate => contract.on_instantiate(&call_data),
-                        ::ink_lang::DispatchMode::Call => contract.on_call(&call_data),
+                        ::ink_lang::DispatchMode::Instantiate => {
+                            <<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type as ::ink_lang::Execute>::execute(
+                                ::ink_core::env::decode_input::<<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type>()
+                                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
+                            )
+                        }
+                        ::ink_lang::DispatchMode::Call => {
+                            <<#storage_ident as ::ink_lang::MessageDispatcher>::Type as ::ink_lang::Execute>::execute(
+                                ::ink_core::env::decode_input::<<#storage_ident as ::ink_lang::MessageDispatcher>::Type>()
+                                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
+                            )
+                        }
                     }
                 }
             }

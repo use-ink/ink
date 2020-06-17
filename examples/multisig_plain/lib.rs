@@ -293,7 +293,7 @@ mod multisig_plain {
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
         /// ```no_run
-        /// use ink_core::env::{DefaultEnvTypes as Env, AccountId, call::{CallData, CallParams, Selector}};
+        /// use ink_core::env::{DefaultEnvTypes as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig_plain::{Transaction, ConfirmationStatus};
         ///
         /// // address of an existing MultiSigPlain contract
@@ -672,7 +672,7 @@ mod multisig_plain {
 
         impl Transaction {
             fn change_requirement(requirement: u32) -> Self {
-                let mut call = call::CallData::new(call::Selector::new([0x00; 4])); // change_requirement
+                let mut call = test::CallData::new(call::Selector::new([0x00; 4])); // change_requirement
                 call.push_arg(&requirement);
                 Self {
                     callee: WALLET.into(),
@@ -690,7 +690,7 @@ mod multisig_plain {
                 WALLET.into(),
                 1000000,
                 1000000,
-                call::CallData::new(call::Selector::new([0x00; 4])),
+                test::CallData::new(call::Selector::new([0x00; 4])), // dummy
             );
         }
 

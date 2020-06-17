@@ -53,8 +53,5 @@ pub use self::{
         InstantiateBuilder,
         InstantiateParams,
     },
-    utils::{
-        CallData,
-        Selector,
-    },
+    utils::Selector,
 };

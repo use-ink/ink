@@ -23,7 +23,6 @@ mod dispatcher;
 mod env_access;
 mod error;
 mod events;
-mod testable;
 mod traits;
 
 pub use ink_lang_macro::contract;
@@ -33,13 +32,8 @@ pub use self::abi::GenerateAbi;
 
 pub use self::{
     contract::{
-        BuildPhase,
-        Contract,
         DispatchMode,
         DispatchUsingMode,
-        EmptyPhase,
-        FinalPhase,
-        Placeholder,
     },
     cross_calling::{
         ForwardCall,
@@ -47,14 +41,12 @@ pub use self::{
         ToAccountId,
     },
     dispatcher::{
-        Dispatch,
-        DispatchList,
-        EmptyDispatchList,
-        MsgCon,
-        MsgMut,
-        MsgRef,
-        PushDispatcher,
-        UnreachableDispatcher,
+        execute_constructor,
+        execute_message,
+        execute_message_mut,
+        ConstructorDispatcher,
+        Execute,
+        MessageDispatcher,
     },
     env_access::{
         Env,
@@ -70,7 +62,6 @@ pub use self::{
         BaseEvent,
         EmitEvent,
     },
-    testable::InstantiateTestable,
     traits::{
         Constructor,
         FnInput,

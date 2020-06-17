@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod call_data;
 mod db;
 mod hashing;
 mod impls;
@@ -24,6 +25,14 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+pub use self::{
+    call_data::CallData,
+    db::{
+        AccountError,
+        PastPrints,
+    },
+    typed_encoded::TypedEncodedError,
+};
 use self::{
     db::{
         Account,
@@ -46,13 +55,6 @@ use self::{
         OffHash,
         OffTimestamp,
     },
-};
-pub use self::{
-    db::{
-        AccountError,
-        PastPrints,
-    },
-    typed_encoded::TypedEncodedError,
 };
 use super::OnInstance;
 use crate::env::EnvTypes;
@@ -198,10 +200,7 @@ impl EnvInstance {
             T::Balance::from(20),
         );
         // Initialize the execution context for the first contract execution.
-        use crate::env::call::{
-            CallData,
-            Selector,
-        };
+        use crate::env::call::Selector;
         // The below selector bytes are incorrect but since calling doesn't work
         // yet we do not have to fix this now.
         let selector_bytes_for_call = [0x00; 4];

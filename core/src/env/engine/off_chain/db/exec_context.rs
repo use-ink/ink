@@ -14,16 +14,14 @@
 
 use super::{
     super::{
+        CallData,
         Result,
         TypedEncoded,
     },
     OffAccountId,
     OffBalance,
 };
-use crate::env::{
-    call::CallData,
-    EnvTypes,
-};
+use crate::env::EnvTypes;
 use ink_prelude::vec::Vec;
 
 pub type Bytes = Vec<u8>;

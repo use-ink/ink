@@ -18,7 +18,6 @@ use super::{
 };
 use crate::env::{
     call::{
-        CallData,
         CallParams,
         InstantiateParams,
         ReturnType,
@@ -164,8 +163,11 @@ impl Env for EnvInstance {
         Some(self.decode_scratch_buffer().map_err(Into::into))
     }
 
-    fn input(&mut self) -> Result<CallData> {
-        self.get_property::<CallData>(|| ())
+    fn decode_input<T>(&mut self) -> Result<T>
+    where
+        T: scale::Decode,
+    {
+        self.get_property::<T>(|| ())
     }
 
     fn output<R>(&mut self, return_value: &R)

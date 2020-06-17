@@ -14,6 +14,7 @@
 
 //! Operations on the off-chain testing environment.
 
+pub use super::CallData;
 use super::{
     db::ExecContext,
     AccountError,
@@ -22,7 +23,6 @@ use super::{
     OnInstance,
 };
 use crate::env::{
-    call::CallData,
     EnvTypes,
     Result,
 };
