@@ -34,6 +34,7 @@ use ink_primitives::Key;
 criterion_group!(benches_clear, bench_clear);
 criterion_group!(benches_clear_worst_case, bench_clear_worst_case);
 criterion_group!(benches_put, bench_put);
+criterion_group!(benches_put_worst_case, bench_put_worst_case());
 criterion_main!(benches_clear, benches_clear_worst_case, benches_put);
 
 /// Asserts that the the given ordered storage vector elements are equal to the
