@@ -20,34 +20,37 @@ use proc_macro2::Ident;
 ///
 /// This is equal to the first four bytes of the SHA-3 hash of a function's name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Selector([u8; 4]);
+pub struct Selector {
+    bytes: [u8; 4],
+}
 
 impl Selector {
     /// Creates a new selector from the given bytes.
     pub fn new(bytes: [u8; 4]) -> Self {
-        Self(bytes)
+        Self { bytes }
     }
 
     /// Returns the underlying four bytes.
     pub fn as_bytes(&self) -> &[u8; 4] {
-        &self.0
+        &self.bytes
     }
 
     /// Returns a unique identifier as `usize`.
     pub fn unique_id(self) -> usize {
-        u32::from_le_bytes(self.0) as usize
+        u32::from_le_bytes(self.bytes) as usize
+    }
+}
+
+impl From<[u8; 4]> for Selector {
+    fn from(bytes: [u8; 4]) -> Self {
+        Self::new(bytes)
     }
 }
 
 impl From<&'_ Ident> for Selector {
     fn from(ident: &Ident) -> Self {
-        Self::from(ident.to_string().as_str())
-    }
-}
-
-impl From<&'_ str> for Selector {
-    fn from(name: &str) -> Self {
-        let sha3_hash = <sha3::Keccak256 as sha3::Digest>::digest(name.as_bytes());
-        Self([sha3_hash[0], sha3_hash[1], sha3_hash[2], sha3_hash[3]])
+        let hash =
+            <sha3::Keccak256 as sha3::Digest>::digest(ident.to_string().as_bytes());
+        Self::new([hash[0], hash[1], hash[2], hash[3]])
     }
 }
