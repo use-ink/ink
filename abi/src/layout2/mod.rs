@@ -20,15 +20,15 @@ use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
 use scale_info::{
-    meta_type,
     form::{
         CompactForm,
         Form,
         MetaForm,
     },
+    meta_type,
     IntoCompact,
-    TypeInfo,
     Registry,
+    TypeInfo,
 };
 
 /// Represents the static storage layout of an ink! smart contract.
