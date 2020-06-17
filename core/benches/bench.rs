@@ -24,8 +24,8 @@ use ink_core::{
 use ink_primitives::Key;
 use ink_core::storage2::collections::Vec as StorageVec;
 
-criterion_group!(benches, criterion_clear);
-criterion_group!(benches_put, criterion_put);
+criterion_group!(benches, bench_clear);
+criterion_group!(benches_put, bench_put);
 criterion_main!(benches, benches_put);
 
 /// Asserts that the the given ordered storage vector elements are equal to the
@@ -73,7 +73,7 @@ fn deref(test_values: &[u8]) {
     assert_eq_slice(&vec, &[b'X', b'X', b'X', b'X', b'X', b'X']);
 }
 
-fn criterion_clear(c: &mut Criterion) {
+fn bench_clear(c: &mut Criterion) {
     let mut group = c.benchmark_group("ClearMustOutperformIterativePop");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
@@ -84,7 +84,7 @@ fn criterion_clear(c: &mut Criterion) {
     group.finish();
 }
 
-fn criterion_put(c: &mut Criterion) {
+fn bench_put(c: &mut Criterion) {
     let mut group = c.benchmark_group("PutMustOutperformDeref");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
