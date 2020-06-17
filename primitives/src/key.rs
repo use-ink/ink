@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,306 +12,384 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::byte_utils;
-use scale::{
-    Decode,
-    Encode,
+use core::{
+    fmt,
+    ops::{
+        Add,
+        AddAssign,
+    },
 };
 
-/// Typeless generic key into contract storage.
+/// Key into contract storage.
 ///
-/// Can be compared to a raw pointer featuring pointer arithmetic.
+/// Used to identify contract storage cells for read and write operations.
+/// Can be compared to a raw pointer and features simple pointer arithmetic.
 ///
 /// # Note
 ///
-/// This is the most low-level method to access contract storage.
+/// This is the most low-level primitive to identify contract storage cells.
 ///
 /// # Unsafe
 ///
-/// - Does not restrict ownership.
-/// - Can read and write to any storage location.
-/// - Does not synchronize between main memory and contract storage.
-/// - Violates Rust's mutability and immutability guarantees.
-///
-/// Prefer using types found in `collections` or `Synced` type.
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Encode, Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::Metadata))]
-pub struct Key(pub [u8; 32]);
+/// Prefer using high-level types found in `ink_core` to operate on the contract
+/// storage.
+#[derive(Copy, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct Key([u64; 4]);
 
-impl From<[u8; 32]> for Key {
-    fn from(bytes: [u8; 32]) -> Self {
-        Self(bytes)
+impl Key {
+    fn write_bytes(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "0x")?;
+        for limb in &self.0 {
+            write!(f, "_")?;
+            for byte in &limb.to_le_bytes() {
+                write!(f, "{:02X}", byte)?;
+            }
+        }
+        Ok(())
     }
 }
 
-impl core::fmt::Debug for Key {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+impl fmt::Debug for Key {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Key(")?;
-        <Self as core::fmt::Display>::fmt(self, f)?;
+        self.write_bytes(f)?;
         write!(f, ")")?;
         Ok(())
     }
 }
 
-impl core::fmt::Display for Key {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(f, "0x")?;
-        if f.alternate() {
-            let bytes = self.as_bytes();
-            write!(
-                f,
-                "{:02X}{:02X}_{:02X}{:02X}_……_{:02X}{:02X}_{:02X}{:02X}",
-                bytes[0],
-                bytes[1],
-                bytes[2],
-                bytes[3],
-                bytes[28],
-                bytes[29],
-                bytes[30],
-                bytes[31],
-            )?;
+impl fmt::Display for Key {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.write_bytes(f)
+    }
+}
+
+impl From<[u8; 32]> for Key {
+    #[inline]
+    fn from(bytes: [u8; 32]) -> Self {
+        if cfg!(target_endian = "little") {
+            // SAFETY: If the machine has little endian byte ordering we can
+            //         simply transmute the input bytes into the correct `u64`
+            //         byte ordering for the `Key` data structure. Otherwise
+            //         we have to manually convert them via the
+            //         `from_bytes_be_fallback` procedure.
+            //
+            // We decided to have the little endian as default format for Key
+            // instance since WebAssembly dictates little endian byte ordering
+            // for the execution environment.
+            Self(unsafe { ::core::mem::transmute::<[u8; 32], [u64; 4]>(bytes) })
         } else {
-            for (n, byte) in self.as_bytes().iter().enumerate() {
-                write!(f, "{:02X}", byte)?;
-                if n % 4 == 0 && n != 32 {
-                    write!(f, "_")?;
-                }
-            }
+            Self::from_bytes_be_fallback(bytes)
         }
-        Ok(())
     }
 }
 
 impl Key {
-    /// Returns the byte slice of this key.
-    pub fn as_bytes(&self) -> &[u8] {
-        &self.0
-    }
-
-    /// Returns the mutable byte slice of this key.
-    pub fn as_bytes_mut(&mut self) -> &mut [u8] {
-        &mut self.0
-    }
-}
-
-impl core::ops::Sub for Key {
-    type Output = KeyDiff;
-
-    fn sub(self, rhs: Self) -> KeyDiff {
-        let mut lhs = self;
-        let mut rhs = rhs;
-        byte_utils::negate_bytes(rhs.as_bytes_mut());
-        byte_utils::bytes_add_bytes(lhs.as_bytes_mut(), rhs.as_bytes());
-        KeyDiff(lhs.0)
-    }
-}
-
-/// The difference between two keys.
-///
-/// This is the result of substracting one key from another.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct KeyDiff([u8; 32]);
-
-macro_rules! impl_try_to_prim {
-	(
-		$( #[$attr:meta] )*
-		$name:ident, $prim:ty, $conv:ident
-	) => {
-		impl KeyDiff {
-			$( #[$attr] )*
-			pub fn $name(&self) -> Option<$prim> {
-				const KEY_BYTES: usize = 32;
-				const PRIM_BYTES: usize = core::mem::size_of::<$prim>();
-				if self.as_bytes().iter().take(KEY_BYTES - PRIM_BYTES).any(|&byte| byte != 0x0) {
-					return None
-				}
-				let value = <$prim>::from_be_bytes(
-					*byte_utils::$conv(&self.as_bytes()[(KEY_BYTES - PRIM_BYTES)..KEY_BYTES])
-						.unwrap()
-				);
-				Some(value)
-			}
-		}
-	};
-}
-
-impl_try_to_prim!(
-    /// Tries to convert the key difference to a `u32` if possible.
+    /// Creates a new key from the given bytes.
     ///
-    /// Returns `None` if the resulting value is out of bounds.
-    try_to_u32,
-    u32,
-    slice4_as_array4
-);
-impl_try_to_prim!(
-    /// Tries to convert the key difference to a `u64` if possible.
+    /// # Note
     ///
-    /// Returns `None` if the resulting value is out of bounds.
-    try_to_u64,
-    u64,
-    slice8_as_array8
-);
-impl_try_to_prim!(
-    /// Tries to convert the key difference to a `u128` if possible.
-    ///
-    /// Returns `None` if the resulting value is out of bounds.
-    try_to_u128,
-    u128,
-    slice16_as_array16
-);
+    /// This is a fallback procedure in case the target machine does not have
+    /// little endian byte ordering.
+    #[inline]
+    fn from_bytes_be_fallback(bytes: [u8; 32]) -> Self {
+        #[inline]
+        fn carve_out_u64_bytes(bytes: &[u8; 32], offset: u8) -> [u8; 8] {
+            let o = (offset * 8) as usize;
+            [
+                bytes[o],
+                bytes[o + 1],
+                bytes[o + 2],
+                bytes[o + 3],
+                bytes[o + 4],
+                bytes[o + 5],
+                bytes[o + 6],
+                bytes[o + 7],
+            ]
+        }
+        Self([
+            u64::from_le_bytes(carve_out_u64_bytes(&bytes, 0)),
+            u64::from_le_bytes(carve_out_u64_bytes(&bytes, 1)),
+            u64::from_le_bytes(carve_out_u64_bytes(&bytes, 2)),
+            u64::from_le_bytes(carve_out_u64_bytes(&bytes, 3)),
+        ])
+    }
 
-impl KeyDiff {
-    /// Returns the byte slice of this key difference.
-    fn as_bytes(&self) -> &[u8] {
-        &self.0
+    /// Tries to return the underlying bytes as slice.
+    ///
+    /// This only returns `Some` if the execution environment has little-endian
+    /// byte order.
+    pub fn try_as_bytes(&self) -> Option<&[u8; 32]> {
+        if cfg!(target_endian = "little") {
+            return Some(self.as_bytes())
+        }
+        None
+    }
+
+    /// Returns the underlying bytes of the key.
+    ///
+    /// This only works and is supported if the target machine has little-endian
+    /// byte ordering. Use [`try_as_bytes`] as a general procedure instead.
+    #[cfg(target_endian = "little")]
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        // SAFETY: This pointer cast is possible since the outer struct
+        //         (Key) is `repr(transparent)` and since we restrict
+        //         ourselves to little-endian byte ordering. In any other
+        //         case this is invalid which is why return `None` as
+        //         fallback.
+        unsafe { &*(&self.0 as *const [u64; 4] as *const [u8; 32]) }
     }
 }
 
-macro_rules! impl_add_sub_for_key {
-    ( $prim:ty ) => {
-        impl core::ops::Add<$prim> for Key {
-            type Output = Self;
+impl scale::Encode for Key {
+    #[inline(always)]
+    fn size_hint(&self) -> usize {
+        32
+    }
 
-            fn add(self, rhs: $prim) -> Self::Output {
-                let mut result = self;
-                result += rhs;
-                result
-            }
+    #[inline]
+    fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+        if cfg!(target_endian = "little") {
+            dest.write(self.try_as_bytes().expect("little endian is asserted"))
+        } else {
+            dest.write(&self.to_bytes())
         }
+    }
+}
 
-        impl core::ops::AddAssign<$prim> for Key {
-            fn add_assign(&mut self, rhs: $prim) {
-                byte_utils::bytes_add_bytes(self.as_bytes_mut(), &(rhs.to_be_bytes()));
-            }
+impl scale::Decode for Key {
+    #[inline]
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
+        Ok(Self::from(<[u8; 32] as scale::Decode>::decode(input)?))
+    }
+}
+
+#[cfg(target_endian = "little")]
+impl Key {
+    /// Returns the bytes that are representing the key.
+    #[inline]
+    pub fn to_bytes(&self) -> [u8; 32] {
+        if cfg!(target_endian = "little") {
+            // SAFETY: This pointer cast is possible since the outer struct
+            //         (Key) is `repr(transparent)` and since we restrict
+            //         ourselves to little-endian byte ordering. In any other
+            //         case this is invalid which is why return `None` as
+            //         fallback.
+            unsafe { core::mem::transmute::<[u64; 4], [u8; 32]>(self.0) }
+        } else {
+            self.to_bytes_be_fallback()
         }
+    }
 
-        impl core::ops::Sub<$prim> for Key {
-            type Output = Self;
-
-            fn sub(self, rhs: $prim) -> Self::Output {
-                let mut result = self;
-                result -= rhs;
-                result
-            }
+    /// Fallback big-endian procedure to return the underlying bytes of `self`.
+    fn to_bytes_be_fallback(&self) -> [u8; 32] {
+        let mut result = [0x00; 32];
+        for i in 0..4 {
+            let o = i * 8;
+            result[o..(o + 8)].copy_from_slice(&self.0[i].to_le_bytes());
         }
+        result
+    }
+}
 
-        impl core::ops::SubAssign<$prim> for Key {
-            fn sub_assign(&mut self, rhs: $prim) {
-                byte_utils::bytes_sub_bytes(self.as_bytes_mut(), &rhs.to_be_bytes());
-            }
-        }
+impl Add<u64> for Key {
+    type Output = Key;
+
+    fn add(mut self, rhs: u64) -> Self::Output {
+        self += rhs;
+        self
+    }
+}
+
+impl<'a> Add<u64> for &'a Key {
+    type Output = Key;
+
+    fn add(self, rhs: u64) -> Self::Output {
+        <Key as Add<u64>>::add(*self, rhs)
+    }
+}
+
+impl<'a> Add<&'a u64> for Key {
+    type Output = Key;
+
+    fn add(self, rhs: &'a u64) -> Self::Output {
+        <Key as Add<u64>>::add(self, *rhs)
+    }
+}
+
+impl<'a, 'b> Add<&'b u64> for &'a Key {
+    type Output = Key;
+
+    fn add(self, rhs: &'b u64) -> Self::Output {
+        <&'a Key as Add<u64>>::add(self, *rhs)
+    }
+}
+
+#[cfg(feature = "std")]
+const _: () = {
+    use scale_info::{
+        build::Fields,
+        Path,
+        Type,
+        TypeInfo,
     };
-}
 
-impl_add_sub_for_key!(u32);
-impl_add_sub_for_key!(u64);
-impl_add_sub_for_key!(u128);
+    impl TypeInfo for Key {
+        fn type_info() -> Type {
+            Type::builder()
+                .path(Path::new("Key", "ink_primitives"))
+                .composite(Fields::unnamed().field_of::<[u8; 32]>())
+        }
+    }
+};
+
+impl AddAssign<u64> for Key {
+    #[inline]
+    #[rustfmt::skip]
+    fn add_assign(&mut self, rhs: u64) {
+        let (res_0,  ovfl_0) = self.0[0].overflowing_add(rhs);
+        let (res_1,  ovfl_1) = self.0[1].overflowing_add(ovfl_0 as u64);
+        let (res_2,  ovfl_2) = self.0[2].overflowing_add(ovfl_1 as u64);
+        let (res_3, _ovfl_3) = self.0[3].overflowing_add(ovfl_2 as u64);
+        self.0[0] = res_0;
+        self.0[1] = res_1;
+        self.0[2] = res_2;
+        self.0[3] = res_3;
+    }
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn key_sub() {
-        assert_eq!(Key([0x42; 32]), Key([0x42; 32]));
-        assert_eq!(Key([0x00; 32]) - 1_u32, Key([0xFF; 32]));
-        assert_eq!(
-            Key([0x01; 32]) - 1_u32,
-            Key([
-                0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-                0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-                0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00
-            ])
-        );
-        {
-            let key_u32_max_value = Key([
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
-            ]);
-            assert_eq!(key_u32_max_value - u32::max_value(), Key([0x00; 32]));
-        }
-        {
-            let key_a = Key([
-                0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x10, 0x20, 0x30, 0x40,
-                0x50, 0x60, 0x70, 0x80, 0xA0, 0xB1, 0xC2, 0xD3, 0xE4, 0xF5, 0x06, 0x17,
-                0x00, 0x22, 0x44, 0x66, 0x88, 0xAA, 0xCC, 0xEE,
-            ]);
-            let b: u32 = 0xFA09_51C3;
-            let expected_b = Key([
-                0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x10, 0x20, 0x30, 0x40,
-                0x50, 0x60, 0x70, 0x80, 0xA0, 0xB1, 0xC2, 0xD3, 0xE4, 0xF5, 0x06, 0x17,
-                0x00, 0x22, 0x44, 0x65, 0x8E, 0xA1, 0x7B, 0x2B,
-            ]);
-            assert_eq!(key_a - b, expected_b);
-            let c: u64 = 0xFBDC_BEEF_9999_1234;
-            let expected_c = Key([
-                0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x10, 0x20, 0x30, 0x40,
-                0x50, 0x60, 0x70, 0x80, 0xA0, 0xB1, 0xC2, 0xD3, 0xE4, 0xF5, 0x06, 0x16,
-                0x04, 0x45, 0x85, 0x76, 0xEF, 0x11, 0xBA, 0xBA,
-            ]);
-            assert_eq!(key_a - c, expected_c);
-        }
+    fn test_bytes() -> [u8; 32] {
+        *b"\
+            \x00\x01\x02\x03\x04\x05\x06\x07\
+            \x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\
+            \x10\x11\x12\x13\x14\x15\x16\x17\
+            \x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\
+        "
     }
 
     #[test]
-    fn as_bytes() {
-        let mut key = Key([0x42; 32]);
-        assert_eq!(key.as_bytes(), &[0x42; 32]);
-        assert_eq!(key.as_bytes_mut(), &mut [0x42; 32]);
+    fn default_works() {
+        assert_eq!(<Key as Default>::default().to_bytes(), [0x00; 32]);
     }
 
     #[test]
-    fn key_diff() {
-        let key1 = Key([0x0; 32]);
-        let key2 = key1 + 0x42_u32;
-        let key3 = key1 + u32::max_value() + 1_u32;
-        let key4 = key1 + u64::max_value();
+    fn debug_works() {
+        let key = Key::from(test_bytes());
         assert_eq!(
-            key2 - key1,
-            KeyDiff([
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x42,
-            ])
+            format!("{:?}", key),
+            String::from(
+                "Key(0x\
+                    _0001020304050607\
+                    _08090A0B0C0D0E0F\
+                    _1011121314151617\
+                    _18191A1B1C1D1E1F\
+                )"
+            ),
         );
-        assert_eq!((key2 - key1).try_to_u32(), Some(0x42));
-        assert_eq!((key2 - key1).try_to_u64(), Some(0x42));
-        assert_eq!(
-            key3 - key1,
-            KeyDiff([
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-            ])
-        );
-        assert_eq!((key3 - key1).try_to_u32(), None);
-        assert_eq!(
-            (key3 - key1).try_to_u64(),
-            Some(u32::max_value() as u64 + 1)
-        );
-        assert_eq!(
-            key4 - key1,
-            KeyDiff([
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            ])
-        );
-        assert_eq!((key4 - key1).try_to_u32(), None);
-        assert_eq!((key4 - key1).try_to_u64(), Some(u64::max_value()));
-        assert_eq!(
-            key4 - key3,
-            KeyDiff([
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF,
-            ])
-        );
-        assert_eq!((key4 - key1).try_to_u32(), None);
-        assert_eq!(
-            (key4 - key3).try_to_u64(),
-            Some(u64::max_value() - (u32::max_value() as u64 + 1))
-        );
+    }
+
+    #[test]
+    #[rustfmt::skip]
+    fn from_works() {
+        let test_bytes = test_bytes();
+        assert_eq!(Key::from(test_bytes).to_bytes(), test_bytes);
+        assert_eq!(Key::from_bytes_be_fallback(test_bytes).to_bytes(), test_bytes);
+        assert_eq!(Key::from(test_bytes).to_bytes_be_fallback(), test_bytes);
+        assert_eq!(Key::from_bytes_be_fallback(test_bytes).to_bytes_be_fallback(), test_bytes);
+    }
+
+    #[test]
+    fn add_one_to_zero() {
+        let bytes = [0x00; 32];
+        let expected = {
+            let mut bytes = [0x00; 32];
+            bytes[0] = 0x01;
+            bytes
+        };
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_with_ovfl() {
+        let bytes = *b"\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+        ";
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[8] = 0x01;
+            expected
+        };
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_with_ovfl_2() {
+        let bytes = *b"\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+        ";
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[16] = 0x01;
+            expected
+        };
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_with_ovfl_3() {
+        let bytes = *b"\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+            \x00\x00\x00\x00\x00\x00\x00\x00\
+        ";
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[24] = 0x01;
+            expected
+        };
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_with_wrap() {
+        let bytes = [0xFF; 32];
+        let expected = [0x00; 32];
+        let mut key = Key::from(bytes);
+        key.add_assign(1u64);
+        assert_eq!(key.to_bytes(), expected);
+    }
+
+    #[test]
+    fn add_assign_to_zero() {
+        for test_value in &[0_u64, 1, 42, 10_000, u32::MAX as u64, u64::MAX] {
+            let mut key = <Key as Default>::default();
+            let expected = {
+                let mut expected = [0x00; 32];
+                expected[0..8].copy_from_slice(&test_value.to_le_bytes());
+                expected
+            };
+            key.add_assign(*test_value);
+            assert_eq!(key.to_bytes(), expected);
+        }
     }
 }

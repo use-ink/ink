@@ -142,7 +142,7 @@ fn spread_layout_alloc_setup() -> DynamicAllocator {
 fn spread_pull_push_works() {
     run_default_test(|| {
         let mut alloc = spread_layout_alloc_setup();
-        let root_key = Key([0x77; 32]);
+        let root_key = Key::from([0x77; 32]);
         // Push the current state of the dynamic storage allocator to the storage:
         SpreadLayout::push_spread(&alloc, &mut KeyPtr::from(root_key));
         // Now check if the new allocations are filling the freed ones:
@@ -164,7 +164,7 @@ fn spread_pull_push_works() {
 fn spread_clear_works() {
     run_default_test(|| {
         let alloc = spread_layout_alloc_setup();
-        let root_key = Key([0x42; 32]);
+        let root_key = Key::from([0x42; 32]);
         // Push the current state of the dynamic storage allocator to the storage:
         SpreadLayout::push_spread(&alloc, &mut KeyPtr::from(root_key));
         // Pull another instance of the storage allocator from storage,
@@ -195,7 +195,7 @@ fn test_call_setup_works() {
         let mut allocator = DynamicAllocator::default();
         assert_eq!(allocator.alloc(), DynamicAllocation(0));
         assert_eq!(allocator.alloc(), DynamicAllocation(1));
-        let root_key = Key([0xFE; 32]);
+        let root_key = Key::from([0xFE; 32]);
         SpreadLayout::push_spread(&allocator, &mut KeyPtr::from(root_key));
         alloc::initialize(ContractPhase::Call);
         assert_eq!(alloc(), DynamicAllocation(2));

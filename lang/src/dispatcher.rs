@@ -157,7 +157,7 @@ where
         let args = <M as FnInput>::Input::decode(&mut &data.params()[..])
             .map_err(|_| DispatchError::InvalidParameters)?;
         alloc::initialize(ContractPhase::Call);
-        let root_key = Key([0x00; 32]);
+        let root_key = Key::from([0x00; 32]);
         let state =
             ManuallyDrop::new(pull_spread_root::<<M as FnState>::State>(&root_key));
         let result = <M as MessageRef>::CALLABLE(&state, args);
@@ -195,7 +195,7 @@ where
         let args = <M as FnInput>::Input::decode(&mut &data.params()[..])
             .map_err(|_| DispatchError::InvalidParameters)?;
         alloc::initialize(ContractPhase::Call);
-        let root_key = Key([0x00; 32]);
+        let root_key = Key::from([0x00; 32]);
         let mut state =
             ManuallyDrop::new(pull_spread_root::<<M as FnState>::State>(&root_key));
         let result = <M as MessageMut>::CALLABLE(&mut state, args);
@@ -234,7 +234,7 @@ where
         let args = <M as FnInput>::Input::decode(&mut &data.params()[..])
             .map_err(|_| DispatchError::InvalidParameters)?;
         alloc::initialize(ContractPhase::Deploy);
-        let root_key = Key([0x00; 32]);
+        let root_key = Key::from([0x00; 32]);
         let state = ManuallyDrop::new(<M as Constructor>::CALLABLE(args));
         push_spread_root::<<M as FnState>::State>(&state, &root_key);
         alloc::finalize();

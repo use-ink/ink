@@ -60,27 +60,27 @@ impl EnvInstance {
 }
 
 impl Env for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
     {
         self.callee_account_mut()
-            .set_storage(key, value)
+            .set_storage(*key, value)
             .expect("callee account is not a smart contract");
     }
 
-    fn get_contract_storage<R>(&mut self, key: Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
     where
         R: scale::Decode,
     {
         self.callee_account()
-            .get_storage::<R>(key)
+            .get_storage::<R>(*key)
             .map(|result| result.map_err(Into::into))
     }
 
-    fn clear_contract_storage(&mut self, key: Key) {
+    fn clear_contract_storage(&mut self, key: &Key) {
         self.callee_account_mut()
-            .clear_storage(key)
+            .clear_storage(*key)
             .expect("callee account is not a smart contract");
     }
 
