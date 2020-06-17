@@ -24,9 +24,10 @@ use ink_core::{
 use ink_primitives::Key;
 use ink_core::storage2::collections::Vec as StorageVec;
 
-criterion_group!(benches, bench_clear);
+criterion_group!(benches_clear, bench_clear);
+criterion_group!(benches_clear_worst_case, bench_clear_worst_case);
 criterion_group!(benches_put, bench_put);
-criterion_main!(benches, benches_put);
+criterion_main!(benches_clear, benches_clear_worst_case, benches_put);
 
 /// Asserts that the the given ordered storage vector elements are equal to the
 /// ordered elements of the given slice.
@@ -48,11 +49,47 @@ fn clear(test_values: &[u8]) {
 
 fn pop_all(test_values: &[u8]) {
     let mut vec = vec_from_slice(&test_values);
-
     while vec.len() > 0 {
         vec.pop();
     }
     assert_eq!(vec.len(), 0);
+}
+
+/// In the worst case we lazily instantiate a `StorageVec` by first
+/// `push_spread`-ing onto the contract storage. We then load the vec
+/// from storage lazily using `pull_spread`. This will just load lazily
+/// and won't pull anything from the storage.
+fn clear_worst_case(test_values: &[u8]) {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let vec = vec_from_slice(&test_values);
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
+        let mut vec =
+                <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        vec.clear();
+        assert_eq!(vec.len(), 0);
+        Ok(())
+    });
+}
+
+/// In the worst case we lazily instantiate a `StorageVec` by first
+/// `push_spread`-ing onto the contract storage. We then load the vec
+/// from storage lazily using `pull_spread`. This will just load lazily
+/// and won't pull anything from the storage.
+/// `pop` will then result in loading from storage.
+fn pop_all_worst_case(test_values: &[u8]) {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let vec = vec_from_slice(&test_values);
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
+        let mut vec =
+            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        while vec.len() > 0 {
+            vec.pop();
+        }
+        assert_eq!(vec.len(), 0);
+        Ok(())
+    });
 }
 
 fn put(test_values: &[u8]) {
@@ -64,8 +101,7 @@ fn put(test_values: &[u8]) {
 }
 
 fn deref(test_values: &[u8]) {
-    let mut vec = vec_from_slice(&test_values);
-
+    let vec = vec_from_slice(&test_values);
     let mut vec = vec_from_slice(&test_values);
     for (index, _value) in test_values.iter().enumerate() {
         *vec.get_mut(index as u32).unwrap() = b'X';
@@ -73,14 +109,66 @@ fn deref(test_values: &[u8]) {
     assert_eq_slice(&vec, &[b'X', b'X', b'X', b'X', b'X', b'X']);
 }
 
+/// In the worst case we lazily instantiate a `StorageVec` by first
+/// `push_spread`-ing onto the contract storage. We then load the vec
+/// from storage lazily using `pull_spread`. This will just load lazily
+/// and won't pull anything from the storage.
+/// The `vec.set()` will not load anything from storage.
+fn put_worst_case(test_values: &[u8]) {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let vec = vec_from_slice(&test_values);
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
+        let mut vec =
+            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        for (index, _value) in test_values.iter().enumerate() {
+            vec.set(index as u32, b'X');
+        }
+        assert_eq_slice(&vec, &[b'X', b'X', b'X', b'X', b'X', b'X']);
+        Ok(())
+    });
+}
+
+/// In the worst case we lazily instantiate a `StorageVec` by first
+/// `push_spread`-ing onto the contract storage. We then load the vec
+/// from storage lazily using `pull_spread`. This will just load lazily
+/// and won't pull anything from the storage.
+/// The `deref` will then load from storage.
+fn deref_worst_case(test_values: &[u8]) {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let vec = vec_from_slice(&test_values);
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
+        let mut vec =
+            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        for (index, _value) in test_values.iter().enumerate() {
+            *vec.get_mut(index as u32).unwrap() = b'X';
+        }
+        assert_eq_slice(&vec, &[b'X', b'X', b'X', b'X', b'X', b'X']);
+        Ok(())
+    });
+}
+
 fn bench_clear(c: &mut Criterion) {
-    let mut group = c.benchmark_group("ClearMustOutperformIterativePop");
+    let mut group = c.benchmark_group("ClearMustOutperformPop");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     group.bench_with_input(BenchmarkId::new("Clear", 0), &test_values,
                            |b, i| b.iter(|| clear(i)));
     group.bench_with_input(BenchmarkId::new("PopAll", 0), &test_values,
                            |b, i| b.iter(|| pop_all(i)));
+    group.finish();
+}
+
+fn bench_clear_worst_case(c: &mut Criterion) {
+    let mut group =
+        c.benchmark_group("ClearMustOutperformPopInWorstCase");
+
+    let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
+    group.bench_with_input(BenchmarkId::new("Clear", 0), &test_values,
+                           |b, i| b.iter(|| clear_worst_case(i)));
+    group.bench_with_input(BenchmarkId::new("PopAll", 0), &test_values,
+                           |b, i| b.iter(|| pop_all_worst_case(i)));
     group.finish();
 }
 
@@ -92,5 +180,17 @@ fn bench_put(c: &mut Criterion) {
                            |b, i| b.iter(|| put(i)));
     group.bench_with_input(BenchmarkId::new("Deref", 0), &test_values,
                            |b, i| b.iter(|| deref(i)));
+    group.finish();
+}
+
+fn bench_put_worst_case(c: &mut Criterion) {
+    let mut group =
+        c.benchmark_group("PutMustOutperformDerefInWorstCase");
+
+    let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
+    group.bench_with_input(BenchmarkId::new("Put", 0), &test_values,
+                           |b, i| b.iter(|| put_worst_case(i)));
+    group.bench_with_input(BenchmarkId::new("Deref", 0), &test_values,
+                           |b, i| b.iter(|| deref_worst_case(i)));
     group.finish();
 }
