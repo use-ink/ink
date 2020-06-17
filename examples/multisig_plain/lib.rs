@@ -672,8 +672,7 @@ mod multisig_plain {
 
         impl Transaction {
             fn change_requirement(requirement: u32) -> Self {
-                let mut call =
-                    test::CallData::new(call::Selector::new([0x00; 4])); // change_requirement
+                let mut call = test::CallData::new(call::Selector::new([0x00; 4])); // change_requirement
                 call.push_arg(&requirement);
                 Self {
                     callee: WALLET.into(),
