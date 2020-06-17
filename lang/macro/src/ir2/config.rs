@@ -135,6 +135,8 @@ impl TryFrom<syn::AttributeArgs> for Config {
     }
 }
 
+/// Convenience function to convert a [`MetaNameValue`](`syn::MetaNameValue`)
+/// into a [`NestedMeta`](`syn::NestedMeta`).
 fn into_nested_meta(name_value: &syn::MetaNameValue) -> syn::NestedMeta {
     syn::NestedMeta::Meta(syn::Meta::NameValue(name_value.clone()))
 }
