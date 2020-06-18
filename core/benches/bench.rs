@@ -148,14 +148,14 @@ mod empty_cache {
         push_storage_vec();
         let mut vec = pull_storage_vec();
         for index in 0..vec.len() {
-            let _ = black_box(*vec.get_mut(index).unwrap() = b'X');
+            *black_box(vec.get_mut(index).unwrap()) = b'X';
         }
     }
 
     /// In this case we lazily load the vec from storage using `pull_spread`.
     /// This will just load lazily and won't pull anything from the storage.
     /// The `vec.set()` will not load anything from storage.
-    pub fn put() {
+    pub fn set() {
         push_storage_vec();
         let mut vec = pull_storage_vec();
         for index in 0..vec.len() {
@@ -183,8 +183,8 @@ fn bench_clear_empty_cache(c: &mut Criterion) {
 /// benchmark iteration.
 fn bench_put_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let mut group = c.benchmark_group("Compare: `put` and `get_mut` (empty cache)");
-        group.bench_function("put", |b| b.iter(|| empty_cache::put()));
+        let mut group = c.benchmark_group("Compare: `set` and `get_mut` (empty cache)");
+        group.bench_function("set", |b| b.iter(|| empty_cache::set()));
         group.bench_function("get_mut", |b| b.iter(|| empty_cache::get_mut()));
         group.finish();
         Ok(())
