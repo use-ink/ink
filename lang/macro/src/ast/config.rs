@@ -20,18 +20,23 @@ use syn::{
         ParseStream,
     },
     punctuated::Punctuated,
+    Token,
 };
 
 /// The attribute arguments for the configuration of an ink! smart contract.
 ///
 /// These are the segments `version = "0.1.0"` and `env_types = DefaultEnvTypes`
 /// in `#[ink::contract(version = "0.1.0", env_types = DefaultEnvTypes)]`.
-pub type AttributeArgs = Vec<MetaNameValue>;
+#[derive(Debug, PartialEq, Eq)]
+pub struct AttributeArgs {
+    pub args: Punctuated<MetaNameValue, Token![,]>,
+}
 
 /// A name-value pair within an attribute, like feature = "nightly".
 ///
 /// The only difference from `syn::MetaNameValue` is that this additionally
 /// allows the `value` to be a plain identifier or path.
+#[derive(Debug, PartialEq, Eq)]
 pub struct MetaNameValue {
     pub name: syn::Path,
     pub eq_token: syn::token::Eq,
@@ -39,9 +44,18 @@ pub struct MetaNameValue {
 }
 
 /// Either a path or a literal.
+#[derive(Debug, PartialEq, Eq)]
 pub enum PathOrLit {
     Path(syn::Path),
     Lit(syn::Lit),
+}
+
+impl Parse for AttributeArgs {
+    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
+        Ok(Self {
+            args: Punctuated::parse_terminated(input)?,
+        })
+    }
 }
 
 impl Parse for MetaNameValue {
@@ -96,31 +110,157 @@ impl MetaNameValue {
 
 impl Parse for PathOrLit {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        if let Ok(lit) = input.fork().parse::<syn::Lit>() {
-            return Ok(PathOrLit::Lit(lit))
+        if input.fork().peek(syn::Lit) {
+            return input.parse::<syn::Lit>().map(|lit| PathOrLit::Lit(lit))
         }
-        if let Ok(path) = input.parse::<syn::Path>() {
-            return Ok(PathOrLit::Path(path))
+        if input.fork().peek(Ident::peek_any) || input.fork().peek(Token![::]) {
+            return input.parse::<syn::Path>().map(|path| PathOrLit::Path(path))
         }
         Err(input.error("cannot parse into either literal or path"))
     }
 }
 
-impl PathOrLit {
-    /// Determines whether this is a path of length 1 equal to the given ident.
-    /// For them to compare equal, it must be the case that:
-    ///
-    /// - the path has no leading colon,
-    /// - the number of path segments is 1,
-    /// - the first path segment has no angle bracketed or parenthesized path arguments, and
-    /// - the ident of the first path segment is equal to the given one.
-    pub fn is_ident<I: ?Sized>(&self, ident: &I) -> bool
-    where
-        Ident: PartialEq<I>,
-    {
-        if let Self::Path(path) = self {
-            return path.is_ident(ident)
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quote::quote;
+
+    impl AttributeArgs {
+        /// Creates a new attribute argument list from the given arguments.
+        pub fn new<I>(args: I) -> Self
+        where
+            I: IntoIterator<Item = MetaNameValue>,
+        {
+            Self {
+                args: args.into_iter().collect(),
+            }
         }
-        false
+    }
+
+    #[test]
+    fn empty_works() {
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! {}).unwrap(),
+            AttributeArgs::new(vec![])
+        )
+    }
+
+    #[test]
+    fn literal_bool_value_works() {
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! { name = true }).unwrap(),
+            AttributeArgs::new(vec![MetaNameValue {
+                name: syn::parse_quote! { name },
+                eq_token: syn::parse_quote! { = },
+                value: PathOrLit::Lit(syn::parse_quote! { true }),
+            }])
+        )
+    }
+
+    #[test]
+    fn literal_str_value_works() {
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! { name = "string literal" }).unwrap(),
+            AttributeArgs::new(vec![MetaNameValue {
+                name: syn::parse_quote! { name },
+                eq_token: syn::parse_quote! { = },
+                value: PathOrLit::Lit(syn::parse_quote! { "string literal" }),
+            }])
+        )
+    }
+
+    #[test]
+    fn ident_value_works() {
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! { name = MyIdentifier }).unwrap(),
+            AttributeArgs::new(vec![MetaNameValue {
+                name: syn::parse_quote! { name },
+                eq_token: syn::parse_quote! { = },
+                value: PathOrLit::Path(syn::parse_quote! { MyIdentifier }),
+            }])
+        )
+    }
+
+    #[test]
+    fn root_path_value_works() {
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! { name = ::this::is::my::Path }).unwrap(),
+            AttributeArgs::new(vec![MetaNameValue {
+                name: syn::parse_quote! { name },
+                eq_token: syn::parse_quote! { = },
+                value: PathOrLit::Path(syn::parse_quote! { ::this::is::my::Path }),
+            }])
+        )
+    }
+
+    #[test]
+    fn relative_path_value_works() {
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! { name = this::is::my::relative::Path }).unwrap(),
+            AttributeArgs::new(vec![MetaNameValue {
+                name: syn::parse_quote! { name },
+                eq_token: syn::parse_quote! { = },
+                value: PathOrLit::Path(syn::parse_quote! { this::is::my::relative::Path }),
+            }])
+        )
+    }
+
+    #[test]
+    fn trailing_comma_works() {
+        let mut expected_args = Punctuated::new();
+        expected_args.push_value(
+            MetaNameValue {
+                name: syn::parse_quote! { name },
+                eq_token: syn::parse_quote! { = },
+                value: PathOrLit::Path(syn::parse_quote! { value }),
+            }
+        );
+        expected_args.push_punct(<Token![,]>::default());
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! { name = value, }).unwrap(),
+            AttributeArgs {
+                args: expected_args,
+            }
+        )
+    }
+
+    #[test]
+    fn many_mixed_works() {
+        assert_eq!(
+            syn::parse2::<AttributeArgs>(quote! {
+                name1 = ::root::Path,
+                name2 = false,
+                name3 = "string literal",
+                name4 = 42,
+                name5 = 7.7
+            }).unwrap(),
+            AttributeArgs::new(vec![
+                MetaNameValue {
+                    name: syn::parse_quote! { name1 },
+                    eq_token: syn::parse_quote! { = },
+                    value: PathOrLit::Path(syn::parse_quote! { ::root::Path }),
+                },
+                MetaNameValue {
+                    name: syn::parse_quote! { name2 },
+                    eq_token: syn::parse_quote! { = },
+                    value: PathOrLit::Lit(syn::parse_quote! { false }),
+                },
+                MetaNameValue {
+                    name: syn::parse_quote! { name3 },
+                    eq_token: syn::parse_quote! { = },
+                    value: PathOrLit::Lit(syn::parse_quote! { "string literal" }),
+                },
+                MetaNameValue {
+                    name: syn::parse_quote! { name4 },
+                    eq_token: syn::parse_quote! { = },
+                    value: PathOrLit::Lit(syn::parse_quote! { 42 }),
+                },
+                MetaNameValue {
+                    name: syn::parse_quote! { name5 },
+                    eq_token: syn::parse_quote! { = },
+                    value: PathOrLit::Lit(syn::parse_quote! { 7.7 }),
+                },
+            ])
+        )
     }
 }
