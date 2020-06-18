@@ -17,6 +17,7 @@ use core::convert::TryFrom;
 use crate::ast;
 
 /// The ink! configuration.
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct Config {
     /// If `true` enables the dynamic storage allocator
     /// facilities and code generation of the ink! smart
@@ -109,6 +110,8 @@ impl TryFrom<ast::AttributeArgs> for Config {
     }
 }
 
+/// Errors that can be encountered when converting into an ink! configuration.
+#[derive(Debug, PartialEq, Eq)]
 pub enum Error {
     InvalidArg {
         invalid: ast::MetaNameValue,
@@ -181,7 +184,7 @@ impl Config {
 }
 
 /// The environmental types definition.
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnvTypes {
     /// The underlying Rust type.
     env_types: syn::Path,
@@ -192,5 +195,134 @@ impl Default for EnvTypes {
         Self {
             env_types: syn::parse_quote! { ::ink_core::env::DefaultEnvTypes },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empty_config_works() {
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(syn::parse_quote! {}),
+            Ok(Config::default()),
+        )
+    }
+
+    #[test]
+    fn storage_alloc_works() {
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(syn::parse_quote! {
+                storage_alloc = true
+            }),
+            Ok(Config {
+                storage_alloc: Some(true),
+                as_dependency: None,
+                env_types: None,
+            }),
+        )
+    }
+
+    #[test]
+    fn storage_alloc_invalid_value_fails() {
+        let invalid = syn::parse_quote! { storage_alloc = "invalid" };
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(syn::parse_quote! {
+                #invalid
+            }),
+            Err(Error::invalid_arg(
+                invalid,
+                "expected a bool literal for `storage_allocator` ink! argument"
+            ))
+        )
+    }
+
+    #[test]
+    fn as_dependency_works() {
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(syn::parse_quote! {
+                compile_as_dependency = false
+            }),
+            Ok(Config {
+                storage_alloc: None,
+                as_dependency: Some(false),
+                env_types: None,
+            }),
+        )
+    }
+
+    #[test]
+    fn as_dependency_invalid_value_fails() {
+        let invalid = syn::parse_quote! { compile_as_dependency = "invalid" };
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(syn::parse_quote! {
+                #invalid
+            }),
+            Err(Error::invalid_arg(
+                invalid,
+                "expected a bool literal for `compile_as_dependency` ink! argument"
+            ))
+        )
+    }
+
+    #[test]
+    fn env_types_works() {
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(syn::parse_quote! {
+                env_types = ::my::env::Types
+            }),
+            Ok(Config {
+                storage_alloc: None,
+                as_dependency: None,
+                env_types: Some(EnvTypes {
+                    env_types: syn::parse_quote! { ::my::env::Types }
+                }),
+            }),
+        )
+    }
+
+    #[test]
+    fn env_types_invalid_value_fails() {
+        let invalid = syn::parse_quote! { env_types = "invalid" };
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(syn::parse_quote! {
+                #invalid
+            }),
+            Err(Error::invalid_arg(
+                invalid,
+                "expected a path for `env_types` ink! argument"
+            ))
+        )
+    }
+
+    #[test]
+    fn unknown_arg_fails() {
+        let unknown = syn::parse_quote! { unknown = argument };
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(syn::parse_quote! {
+                #unknown
+            }),
+            Err(Error::invalid_arg(
+                unknown,
+                "encountered unknown or unsupported ink! config argument"
+            ))
+        )
+    }
+
+    #[test]
+    fn duplicate_args_fails() {
+        let fst = syn::parse_quote! { env_types = ::my::env::Types };
+        let snd = syn::parse_quote! { env_types = ::my::other::env::Types };
+        assert_eq!(
+            <Config as TryFrom<ast::AttributeArgs>>::try_from(
+                syn::parse_quote! { #fst, #snd }
+            ),
+            Err(Error::duplicate_arg(
+                fst,
+                snd,
+                "found duplicate ink! `env_types` argument"
+            ))
+        )
     }
 }
