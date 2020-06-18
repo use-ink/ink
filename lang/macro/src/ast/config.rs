@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
+use quote::ToTokens;
 use syn::{
     ext::IdentExt as _,
     parse::{
@@ -52,7 +56,7 @@ pub enum PathOrLit {
 
 impl IntoIterator for AttributeArgs {
     type Item = MetaNameValue;
-    type IntoIter = syn::punctuated::IntoIter::<MetaNameValue>;
+    type IntoIter = syn::punctuated::IntoIter<MetaNameValue>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.args.into_iter()
@@ -205,11 +209,14 @@ mod tests {
     #[test]
     fn relative_path_value_works() {
         assert_eq!(
-            syn::parse2::<AttributeArgs>(quote! { name = this::is::my::relative::Path }).unwrap(),
+            syn::parse2::<AttributeArgs>(quote! { name = this::is::my::relative::Path })
+                .unwrap(),
             AttributeArgs::new(vec![MetaNameValue {
                 name: syn::parse_quote! { name },
                 eq_token: syn::parse_quote! { = },
-                value: PathOrLit::Path(syn::parse_quote! { this::is::my::relative::Path }),
+                value: PathOrLit::Path(
+                    syn::parse_quote! { this::is::my::relative::Path }
+                ),
             }])
         )
     }
@@ -217,13 +224,11 @@ mod tests {
     #[test]
     fn trailing_comma_works() {
         let mut expected_args = Punctuated::new();
-        expected_args.push_value(
-            MetaNameValue {
-                name: syn::parse_quote! { name },
-                eq_token: syn::parse_quote! { = },
-                value: PathOrLit::Path(syn::parse_quote! { value }),
-            }
-        );
+        expected_args.push_value(MetaNameValue {
+            name: syn::parse_quote! { name },
+            eq_token: syn::parse_quote! { = },
+            value: PathOrLit::Path(syn::parse_quote! { value }),
+        });
         expected_args.push_punct(<Token![,]>::default());
         assert_eq!(
             syn::parse2::<AttributeArgs>(quote! { name = value, }).unwrap(),
@@ -242,7 +247,8 @@ mod tests {
                 name3 = "string literal",
                 name4 = 42,
                 name5 = 7.7
-            }).unwrap(),
+            })
+            .unwrap(),
             AttributeArgs::new(vec![
                 MetaNameValue {
                     name: syn::parse_quote! { name1 },

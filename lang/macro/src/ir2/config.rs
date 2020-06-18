@@ -55,7 +55,10 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     storage_alloc = Some((lit_bool.value, arg))
                 } else {
-                    return Err(Error::invalid_arg(arg, "expected a bool literal for `storage_allocator` ink! argument"))
+                    return Err(Error::invalid_arg(
+                        arg,
+                        "expected a bool literal for `storage_allocator` ink! argument",
+                    ))
                 }
             } else if arg.name.is_ident("compile_as_dependency") {
                 if let Some((_, ast)) = as_dependency {
@@ -79,12 +82,23 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     ))
                 }
                 if let ast::PathOrLit::Path(path) = &arg.value {
-                    env_types = Some((EnvTypes { env_types: path.clone() }, arg))
+                    env_types = Some((
+                        EnvTypes {
+                            env_types: path.clone(),
+                        },
+                        arg,
+                    ))
                 } else {
-                    return Err(Error::invalid_arg(arg, "expected a path for `compile_as_dependency` ink! argument"))
+                    return Err(Error::invalid_arg(
+                        arg,
+                        "expected a path for `env_types` ink! argument",
+                    ))
                 }
             } else {
-                return Err(Error::invalid_arg(arg, "encountered unknown or unsupported ink! config argument"))
+                return Err(Error::invalid_arg(
+                    arg,
+                    "encountered unknown or unsupported ink! config argument",
+                ))
             }
         }
         Ok(Config {
@@ -124,7 +138,11 @@ impl Error {
     /// Creates a new error indicating a duplicate config argument.
     ///
     /// Use the reason to further specify what happened.
-    pub fn duplicate_arg<S>(fst: ast::MetaNameValue, snd: ast::MetaNameValue, reason: S) -> Self
+    pub fn duplicate_arg<S>(
+        fst: ast::MetaNameValue,
+        snd: ast::MetaNameValue,
+        reason: S,
+    ) -> Self
     where
         S: Into<String>,
     {
