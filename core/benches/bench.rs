@@ -31,6 +31,7 @@ use ink_core::{
     },
 };
 use ink_primitives::Key;
+use criterion::black_box;
 
 criterion_group!(benches_clear_cached, bench_clear_cached);
 criterion_group!(benches_clear_lazy, bench_clear_lazy);
@@ -57,13 +58,13 @@ fn vec_from_slice(slice: &[u8]) -> StorageVec<u8> {
 
 fn clear(test_values: &[u8]) {
     let mut vec = vec_from_slice(&test_values);
-    vec.clear();
+    black_box(vec.clear());
     assert!(vec.is_empty());
 }
 
 fn pop_all(test_values: &[u8]) {
     let mut vec = vec_from_slice(&test_values);
-    while let Some(_) = vec.pop() {}
+    while let Some(_) = black_box(vec.pop()) {}
     assert!(vec.is_empty());
 }
 
@@ -120,7 +121,7 @@ fn clear_lazy() {
     let root_key = Key::from([0x00; 32]);
     let mut vec =
         <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-    vec.clear();
+    black_box(vec.clear());
     assert!(vec.is_empty());
     manual_drop(vec);
 }
@@ -132,7 +133,7 @@ fn pop_all_lazy() {
     let root_key = Key::from([0x00; 32]);
     let mut vec =
         <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-    while let Some(_) = vec.pop() {}
+    while let Some(_) = black_box(vec.pop()) {}
     assert!(vec.is_empty());
     manual_drop(vec);
 }
