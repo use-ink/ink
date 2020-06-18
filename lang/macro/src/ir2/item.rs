@@ -21,7 +21,7 @@ pub enum Item {
     /// The item is an ink! specific item.
     Ink(InkItem),
     /// The item is a normal Rust item.
-    Rust(RustItem),
+    Rust(syn::Item),
 }
 
 impl Item {
@@ -111,10 +111,4 @@ impl InkItem {
     pub fn is_impl_block(&self) -> bool {
         self.filter_map_impl_block().is_some()
     }
-}
-
-/// A normal Rust item.
-pub struct RustItem {
-    /// The underlying Rust item.
-    item: syn::Item,
 }

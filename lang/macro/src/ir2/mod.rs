@@ -15,6 +15,7 @@
 mod attrs;
 mod config;
 mod contract;
+mod error;
 mod event;
 mod impl_block;
 mod item;
@@ -48,7 +49,6 @@ pub use self::{
     item::{
         InkItem,
         Item,
-        RustItem,
     },
     module::Module,
     selector::Selector,
