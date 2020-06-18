@@ -24,16 +24,20 @@ mod storage;
 
 pub use self::{
     attrs::{
+        contains_ink_attributes,
         partition_attributes,
         Attribute,
         AttributeArgs,
+        Error as AttrsError,
         InkAttribute,
         Salt,
     },
     config::{
         Config,
         EnvTypes,
+        Error as ConfigError,
     },
+    error::Error,
     event::Event,
     impl_block::{
         Constructor,
