@@ -48,7 +48,7 @@ impl Item {
     /// Returns `Some` if `self` is an ink! specific item.
     ///
     /// Otherwise, returns `None`.
-    pub fn map_rust_item(&self) -> Option<&RustItem> {
+    pub fn map_rust_item(&self) -> Option<&syn::Item> {
         match self {
             Item::Rust(rust_item) => Some(rust_item),
             _ => None,
