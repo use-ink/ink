@@ -78,6 +78,23 @@ impl Parse for MetaNameValue {
     }
 }
 
+impl ToTokens for PathOrLit {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        match self {
+            Self::Lit(lit) => lit.to_tokens(tokens),
+            Self::Path(path) => path.to_tokens(tokens),
+        }
+    }
+}
+
+impl ToTokens for MetaNameValue {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        self.name.to_tokens(tokens);
+        self.eq_token.to_tokens(tokens);
+        self.value.to_tokens(tokens);
+    }
+}
+
 impl MetaNameValue {
     /// Like Path::parse_mod_style but accepts keywords in the path.
     ///
