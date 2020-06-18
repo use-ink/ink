@@ -81,25 +81,25 @@ mod populated_cache {
         }
     }
 
-    pub fn put(test_values: &[u8]) {
+    pub fn set(test_values: &[u8]) {
         let mut vec = storage_vec_from_slice(&test_values);
         for (index, _value) in test_values.iter().enumerate() {
-            vec.set(index as u32, b'X');
+            black_box(vec.set(index as u32, b'X'));
         }
     }
 
     pub fn get_mut(test_values: &[u8]) {
         let mut vec = storage_vec_from_slice(&test_values);
         for (index, _value) in test_values.iter().enumerate() {
-            *vec.get_mut(index as u32).unwrap() = b'X';
+            *black_box(vec.get_mut(index as u32).unwrap()) = b'X';
         }
     }
 }
 
 fn bench_put_populated_cache(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Compare: `put` and `get_mu` (populated cache)");
-    group.bench_with_input(BenchmarkId::new("put", 0), test_values(), |b, i| {
-        b.iter(|| populated_cache::put(i))
+    let mut group = c.benchmark_group("Compare: `set` and `get_mut` (populated cache)");
+    group.bench_with_input(BenchmarkId::new("set", 0), test_values(), |b, i| {
+        b.iter(|| populated_cache::set(i))
     });
     group.bench_with_input(BenchmarkId::new("get_mut", 0), test_values(), |b, i| {
         b.iter(|| populated_cache::get_mut(i))
