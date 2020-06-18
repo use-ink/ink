@@ -32,7 +32,7 @@ pub use self::{
     },
     config::{
         Config,
-        InkVersion,
+        EnvTypes,
     },
     event::Event,
     impl_block::{

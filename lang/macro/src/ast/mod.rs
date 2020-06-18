@@ -25,7 +25,7 @@
 
 mod config;
 
-use self::config::{
+pub use self::config::{
     AttributeArgs,
     MetaNameValue,
     PathOrLit,
