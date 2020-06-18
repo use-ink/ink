@@ -50,6 +50,15 @@ pub enum PathOrLit {
     Lit(syn::Lit),
 }
 
+impl IntoIterator for AttributeArgs {
+    type Item = MetaNameValue;
+    type IntoIter = syn::punctuated::IntoIter::<MetaNameValue>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.args.into_iter()
+    }
+}
+
 impl Parse for AttributeArgs {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         Ok(Self {
