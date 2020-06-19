@@ -12,20 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{
+    criterion_group,
+    criterion_main,
+    BenchmarkId,
+    Criterion,
+};
 
 use ink_core::{
     env,
-    storage2::traits::{
-        KeyPtr,
-        SpreadLayout,
+    storage2::{
+        collections::Stash as StorageStash,
+        traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
     },
 };
 use ink_primitives::Key;
-use ink_core::storage2::collections::Stash as StorageStash;
 
 criterion_group!(benches, criterion_benchmark);
-criterion_group!(benches_worst_case, criterion_benchmark_with_taken_value_read);
+criterion_group!(
+    benches_worst_case,
+    criterion_benchmark_with_taken_value_read
+);
 criterion_main!(benches, benches_worst_case);
 
 fn remove_from_filled(test_values: &[u8; 6]) {
@@ -77,10 +87,12 @@ fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("RemoveMustOutperformTake");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    group.bench_with_input(BenchmarkId::new("Remove", 0), &test_values,
-                           |b, i| b.iter(|| remove_from_filled(i)));
-    group.bench_with_input(BenchmarkId::new("Take", 0), &test_values,
-                           |b, i| b.iter(|| take_from_filled(i)));
+    group.bench_with_input(BenchmarkId::new("Remove", 0), &test_values, |b, i| {
+        b.iter(|| remove_from_filled(i))
+    });
+    group.bench_with_input(BenchmarkId::new("Take", 0), &test_values, |b, i| {
+        b.iter(|| take_from_filled(i))
+    });
     group.finish();
 }
 
@@ -88,9 +100,13 @@ fn criterion_benchmark_with_taken_value_read(c: &mut Criterion) {
     let mut group = c.benchmark_group("RemoveMustOutperformTakeWorstCase");
 
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    group.bench_with_input(BenchmarkId::new("Remove", 0), &test_values,
-                           |b, i| b.iter(|| remove_from_filled(i)));
-    group.bench_with_input(BenchmarkId::new("TakeWorstCase", 0), &test_values,
-                           |b, i| b.iter(|| take_from_filled_worst_case(i)));
+    group.bench_with_input(BenchmarkId::new("Remove", 0), &test_values, |b, i| {
+        b.iter(|| remove_from_filled(i))
+    });
+    group.bench_with_input(
+        BenchmarkId::new("TakeWorstCase", 0),
+        &test_values,
+        |b, i| b.iter(|| take_from_filled_worst_case(i)),
+    );
     group.finish();
 }

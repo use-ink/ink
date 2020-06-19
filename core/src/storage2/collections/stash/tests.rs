@@ -147,7 +147,7 @@ fn remove_works_with_spread_layout_push_pull() -> env::Result<()> {
             .iter()
             .copied()
             .collect::<StorageStash<_>>();
-        let root_key = Key([0x42; 32]);
+        let root_key = Key::from([0x00; 32]);
         SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
 
         // Then load another instance from the same key lazily and remove some of
@@ -170,7 +170,6 @@ fn remove_works_with_spread_layout_push_pull() -> env::Result<()> {
         Ok(())
     })
 }
-
 
 #[test]
 fn get_works() {
