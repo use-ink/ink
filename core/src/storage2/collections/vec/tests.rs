@@ -405,7 +405,7 @@ fn set_works() {
 }
 
 #[test]
-fn set_panics_when_index_oob() {
+fn set_fails_when_index_oob() {
     let mut vec = vec_from_slice(&[b'a']);
     let res = vec.set(1, b'x');
     assert_eq!(res, Err(IndexOutOfBounds));
@@ -415,12 +415,12 @@ fn set_panics_when_index_oob() {
 fn clear_works_on_filled_vec() {
     let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
     vec.clear();
-    assert_eq!(vec.len(), 0);
+    assert!(vec.is_empty());
 }
 
 #[test]
 fn clear_works_on_empty_vec() {
     let mut vec = vec_from_slice(&[]);
     vec.clear();
-    assert_eq!(vec.len(), 0);
+    assert!(vec.is_empty());
 }
