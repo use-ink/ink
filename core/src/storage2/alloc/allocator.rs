@@ -29,6 +29,25 @@ pub struct DynamicAllocator {
     allocations: BitStash,
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        FieldLayout,
+        Layout,
+        StructLayout,
+    };
+
+    impl StorageLayout for DynamicAllocator {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Struct(StructLayout::new(vec![FieldLayout::new(
+                "allocations",
+                <BitStash as StorageLayout>::layout(key_ptr),
+            )]))
+        }
+    }
+};
+
 impl SpreadLayout for DynamicAllocator {
     const FOOTPRINT: u64 = <BitStash as SpreadLayout>::FOOTPRINT;
 

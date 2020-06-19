@@ -32,7 +32,7 @@ where
 {
     // In case the contract storage is occupied we handle
     // the Option<T> as if it was a T.
-    env::get_contract_storage::<()>(*root_key)
+    env::get_contract_storage::<()>(root_key)
         .map(|_| super::pull_spread_root::<T>(root_key))
 }
 
@@ -100,7 +100,7 @@ pub fn pull_packed_root_opt<T>(root_key: &Key) -> Option<T>
 where
     T: PackedLayout,
 {
-    match env::get_contract_storage::<T>(*root_key) {
+    match env::get_contract_storage::<T>(root_key) {
         Some(value) => {
             // In case the contract storage is occupied we handle
             // the Option<T> as if it was a T.
@@ -126,7 +126,7 @@ where
         }
         None => {
             // Clear the associated storage cell.
-            env::clear_contract_storage(*root_key);
+            env::clear_contract_storage(root_key);
         }
     }
 }

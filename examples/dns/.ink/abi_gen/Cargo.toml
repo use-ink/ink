@@ -10,7 +10,7 @@ name = "abi-gen"
 path = "main.rs"
 
 [dependencies]
-contract = { path = "../..", package = "dns", default-features = false, features = ["ink-generate-abi"] }
-ink_lang = { path = "../../../../lang", default-features = false, features = ["ink-generate-abi"] }
+contract = { path = "../..", package = "dns" }
+ink_lang = { path = "../../../../lang" }
 serde = "1.0"
 serde_json = "1.0"

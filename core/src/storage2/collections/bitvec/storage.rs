@@ -30,6 +30,31 @@ use crate::storage2::{
 };
 use ink_primitives::Key;
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::{
+        lazy::Lazy,
+        traits::StorageLayout,
+    };
+    use ink_abi::layout2::{
+        FieldLayout,
+        Layout,
+        StructLayout,
+    };
+
+    impl StorageLayout for StorageBitvec {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Struct(StructLayout::new(vec![
+                FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
+                FieldLayout::new(
+                    "elems",
+                    <StorageVec<Bits256> as StorageLayout>::layout(key_ptr),
+                ),
+            ]))
+        }
+    }
+};
+
 impl SpreadLayout for Bits256 {
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = false;

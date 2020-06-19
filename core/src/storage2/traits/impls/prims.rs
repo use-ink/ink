@@ -50,7 +50,7 @@ impl_layout_for_primitive!(
     // We do not include `f32` and `f64` since Wasm contracts currently
     // do not support them since they are non deterministic. We might add them
     // to this list once we add deterministic support for those primitives.
-    Key, Hash, AccountId,
+    Key, Hash, AccountId, (),
     String,
     bool,
     u8, u16, u32, u64, u128,
@@ -269,8 +269,8 @@ mod tests {
                     run_test(|| {
                         $({
                             let x: $name = $value;
-                            let key = Key([0x42; 32]);
-                            let key2 = Key([0x77; 32]);
+                            let key = Key::from([0x42; 32]);
+                            let key2 = Key::from([0x77; 32]);
                             push_spread_root(&x, &key);
                             let y: $name = pull_spread_root(&key);
                             assert_eq!(x, y);
@@ -288,7 +288,7 @@ mod tests {
                     run_test(|| {
                         $({
                             let x: $name = $value;
-                            let key = Key([0x42; 32]);
+                            let key = Key::from([0x42; 32]);
                             push_spread_root(&x, &key);
                             // Works since we just populated the storage.
                             let y: $name = pull_spread_root(&key);

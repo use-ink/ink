@@ -29,6 +29,14 @@ mod optspec;
 mod packed;
 mod spread;
 
+#[cfg(feature = "std")]
+mod layout;
+
+#[cfg(feature = "std")]
+pub use self::layout::{
+    LayoutCryptoHasher,
+    StorageLayout,
+};
 pub(crate) use self::optspec::{
     clear_spread_root_opt,
     pull_packed_root_opt,
@@ -42,9 +50,17 @@ pub use self::{
         forward_pull_packed,
         forward_push_packed,
     },
-    keyptr::KeyPtr,
+    keyptr::{
+        ExtKeyPtr,
+        KeyPtr,
+    },
     packed::PackedLayout,
     spread::SpreadLayout,
+};
+pub use ::ink_core_derive::{
+    PackedLayout,
+    SpreadLayout,
+    StorageLayout,
 };
 use ink_primitives::Key;
 
@@ -120,7 +136,7 @@ pub fn pull_packed_root<T>(root_key: &Key) -> T
 where
     T: PackedLayout,
 {
-    let mut entity = crate::env::get_contract_storage::<T>(*root_key)
+    let mut entity = crate::env::get_contract_storage::<T>(root_key)
         .expect("storage entry was empty")
         .expect("could not properly decode storage entry");
     <T as PackedLayout>::pull_packed(&mut entity, root_key);
@@ -143,7 +159,7 @@ where
     T: PackedLayout,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
-    crate::env::set_contract_storage(*root_key, entity);
+    crate::env::set_contract_storage(root_key, entity);
 }
 
 /// Clears the entity from the contract storage using packed layout.
@@ -162,5 +178,5 @@ where
     T: PackedLayout,
 {
     <T as PackedLayout>::clear_packed(entity, root_key);
-    crate::env::clear_contract_storage(*root_key);
+    crate::env::clear_contract_storage(root_key);
 }

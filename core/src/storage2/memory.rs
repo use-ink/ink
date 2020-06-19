@@ -50,6 +50,24 @@ pub struct Memory<T> {
     inner: T,
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::StorageLayout;
+    use ink_abi::layout2::{
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+
+    impl<T> StorageLayout for Memory<T> {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Cell(CellLayout::new::<()>(LayoutKey::from(
+                key_ptr.advance_by(0),
+            )))
+        }
+    }
+};
+
 impl<T> SpreadLayout for Memory<T>
 where
     T: Default,
@@ -237,7 +255,7 @@ mod tests {
         let p1 = Memory::new((b'A', [0x00; 4], (true, 42)));
         assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
         assert_ne!(p1, Default::default());
-        let root_key = Key([0x42; 32]);
+        let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
         // Now load another instance of a pack from the same key and check
         // if both instances are equal:
@@ -263,7 +281,7 @@ mod tests {
             // Clearing a memory instance should have no effect on the underlying
             // contract storage. We can test this by pushing and pulling a storage
             // affecting entity in between on the same storage region:
-            let root_key = Key([0x42; 32]);
+            let root_key = Key::from([0x42; 32]);
             <i32 as SpreadLayout>::push_spread(&42, &mut KeyPtr::from(root_key));
             let loaded1 = <i32 as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
             assert_eq!(loaded1, 42);

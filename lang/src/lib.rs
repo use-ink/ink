@@ -13,9 +13,8 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(const_fn)]
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 mod abi;
 
 mod contract;
@@ -23,18 +22,16 @@ mod cross_calling;
 mod dispatcher;
 mod env_access;
 mod error;
-mod testable;
+mod events;
 mod traits;
 
 pub use ink_lang_macro::contract;
 
-#[cfg(feature = "ink-generate-abi")]
+#[cfg(feature = "std")]
 pub use self::abi::GenerateAbi;
 
 pub use self::{
     contract::{
-        Contract,
-        ContractBuilder,
         DispatchMode,
         DispatchUsingMode,
     },
@@ -44,15 +41,12 @@ pub use self::{
         ToAccountId,
     },
     dispatcher::{
-        Dispatch,
-        DispatchList,
-        DispatchableFn,
-        DispatchableFnMut,
-        Dispatcher,
-        DispatcherMut,
-        EmptyDispatchList,
-        PushDispatcher,
-        UnreachableDispatcher,
+        execute_constructor,
+        execute_message,
+        execute_message_mut,
+        ConstructorDispatcher,
+        Execute,
+        MessageDispatcher,
     },
     env_access::{
         Env,
@@ -64,12 +58,17 @@ pub use self::{
         DispatchResult,
         DispatchRetCode,
     },
-    testable::InstantiateTestable,
+    events::{
+        BaseEvent,
+        EmitEvent,
+    },
     traits::{
+        Constructor,
         FnInput,
         FnOutput,
         FnSelector,
-        Message,
-        Storage,
+        FnState,
+        MessageMut,
+        MessageRef,
     },
 };

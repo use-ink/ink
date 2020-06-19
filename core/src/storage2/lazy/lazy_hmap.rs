@@ -25,6 +25,7 @@ use crate::{
     storage2::traits::{
         clear_packed_root,
         pull_packed_root_opt,
+        ExtKeyPtr,
         KeyPtr,
         PackedLayout,
         SpreadLayout,
@@ -146,6 +147,44 @@ fn debug_impl_works() {
     );
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::storage2::traits::{
+        LayoutCryptoHasher,
+        StorageLayout,
+    };
+    use ink_abi::layout2::{
+        CellLayout,
+        HashLayout,
+        HashingStrategy,
+        Layout,
+        LayoutKey,
+    };
+    use scale_info::TypeInfo;
+
+    impl<K, V, H> StorageLayout for LazyHashMap<K, V, H>
+    where
+        K: Ord + scale::Encode,
+        V: TypeInfo + 'static,
+        H: Hasher + LayoutCryptoHasher,
+        Key: From<<H as Hasher>::Output>,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Hash(HashLayout::new(
+                LayoutKey::from(key_ptr.advance_by(1)),
+                HashingStrategy::new(
+                    <H as LayoutCryptoHasher>::crypto_hasher(),
+                    b"ink hashmap".to_vec(),
+                    Vec::new(),
+                ),
+                Layout::Cell(CellLayout::new::<V>(LayoutKey::from(
+                    key_ptr.advance_by(0),
+                ))),
+            ))
+        }
+    }
+};
+
 impl<K, V, H> SpreadLayout for LazyHashMap<K, V, H>
 where
     K: Ord + scale::Encode,
@@ -156,11 +195,11 @@ where
     const FOOTPRINT: u64 = 1;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(ptr.next_for::<Self>())
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        let offset_key = ptr.next_for::<Self>();
+        let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (index, entry) in self.entries().iter() {
             let root_key = self.to_offset_key(&offset_key, index);
             entry.push_packed_root(&root_key);
@@ -416,7 +455,7 @@ where
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
-            crate::env::clear_contract_storage(root_key);
+            crate::env::clear_contract_storage(&root_key);
         }
     }
 
@@ -566,7 +605,7 @@ mod tests {
 
     #[test]
     fn key_at_works() {
-        let key = Key([0x42; 32]);
+        let key = Key::from([0x42; 32]);
 
         // BLAKE2 256-bit hasher:
         let hmap1 = <LazyHashMap<i32, u8, Blake2x256Hasher>>::lazy(key);
@@ -579,20 +618,22 @@ mod tests {
         \x96\x65\x0E\xCD\x1F\x2C\xE8\x5D\
         \xBF\x7E\xC0\xFF\x16\x40\x8A\xD8\
         \x75\x88\xDE\x52\xF5\x8B\x99\xAF";
-        assert_eq!(hmap1.key_at(&0), Some(Key(*hmap1_at_0)));
+        assert_eq!(hmap1.key_at(&0), Some(Key::from(*hmap1_at_0)));
         // Same parameters must yield the same key:
         //
         // This tests an actual regression that happened because the
         // hash accumulator was not reset after a hash finalization.
         assert_cached_entries(&hmap1, &[]);
-        assert_eq!(hmap1.key_at(&0), Some(Key(*hmap1_at_0)));
+        assert_eq!(hmap1.key_at(&0), Some(Key::from(*hmap1_at_0)));
         assert_eq!(
             hmap1.key_at(&1),
-            Some(Key(*b"\
+            Some(Key::from(
+                *b"\
                 \x9A\x46\x1F\xB3\xA1\xC4\x20\xF8\
                 \xA0\xD9\xA7\x79\x2F\x07\xFB\x7D\
                 \x49\xDD\xAB\x08\x67\x90\x96\x15\
-                \xFB\x85\x36\x3B\x82\x94\x85\x3F"))
+                \xFB\x85\x36\x3B\x82\x94\x85\x3F"
+            ))
         );
         // SHA2 256-bit hasher:
         let hmap2 = <LazyHashMap<i32, u8, Sha2x256Hasher>>::lazy(key);
@@ -602,19 +643,23 @@ mod tests {
         assert_cached_entries(&hmap2, &[]);
         assert_eq!(
             hmap1.key_at(&0),
-            Some(Key(*b"\
+            Some(Key::from(
+                *b"\
                 \x67\x7E\xD3\xA4\x72\x2A\x83\x60\
                 \x96\x65\x0E\xCD\x1F\x2C\xE8\x5D\
                 \xBF\x7E\xC0\xFF\x16\x40\x8A\xD8\
-                \x75\x88\xDE\x52\xF5\x8B\x99\xAF"))
+                \x75\x88\xDE\x52\xF5\x8B\x99\xAF"
+            ))
         );
         assert_eq!(
             hmap1.key_at(&1),
-            Some(Key(*b"\
+            Some(Key::from(
+                *b"\
                 \x9A\x46\x1F\xB3\xA1\xC4\x20\xF8\
                 \xA0\xD9\xA7\x79\x2F\x07\xFB\x7D\
                 \x49\xDD\xAB\x08\x67\x90\x96\x15\
-                \xFB\x85\x36\x3B\x82\x94\x85\x3F"))
+                \xFB\x85\x36\x3B\x82\x94\x85\x3F"
+            ))
         );
     }
 
@@ -830,14 +875,14 @@ mod tests {
             // Push the lazy index map onto the contract storage and then load
             // another instance of it from the contract stoarge.
             // Then: Compare both instances to be equal.
-            let root_key = Key([0x42; 32]);
+            let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&hmap, &mut KeyPtr::from(root_key));
             let hmap2 =
                 <LazyHashMap<i32, u8, Blake2x256Hasher> as SpreadLayout>::pull_spread(
                     &mut KeyPtr::from(root_key),
                 );
             assert_cached_entries(&hmap2, &[]);
-            assert_eq!(hmap2.key(), Some(&Key([0x42; 32])));
+            assert_eq!(hmap2.key(), Some(&Key::from([0x42; 32])));
             assert_eq!(hmap2.get(&1), Some(&b'A'));
             assert_eq!(hmap2.get(&2), Some(&b'B'));
             assert_eq!(hmap2.get(&3), None);

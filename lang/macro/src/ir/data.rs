@@ -366,8 +366,11 @@ impl From<&'_ Ident> for FunctionSelector {
 
 impl From<&'_ str> for FunctionSelector {
     fn from(name: &str) -> Self {
-        let sha3_hash = ink_primitives::hash::keccak256(name.as_bytes());
-        Self([sha3_hash[0], sha3_hash[1], sha3_hash[2], sha3_hash[3]])
+        use sha3::digest::Digest as _;
+        let mut hasher = sha3::Keccak256::default();
+        hasher.input(name.as_bytes());
+        let hash = hasher.result();
+        Self([hash[0], hash[1], hash[2], hash[3]])
     }
 }
 
@@ -446,22 +449,25 @@ pub struct Signature {
 
 impl Signature {
     /// Returns `true` if the signature is `&mut self`.
-    pub fn is_mut(&self) -> bool {
-        self.self_arg().mutability.is_some()
+    ///
+    /// Returns `None` in case the signature doesn't have a `self` receiver,
+    /// e.g. in case for constructor messages.
+    pub fn is_mut(&self) -> Option<bool> {
+        self.self_arg()
+            .map(|receiver| receiver.mutability.is_some())
     }
 
     /// Returns the `self` input.
-    pub fn self_arg(&self) -> &syn::Receiver {
-        if let FnArg::Receiver(receiver) = &self.inputs[0] {
-            &receiver
-        } else {
-            unreachable!("must contain the receiver in the first argument position")
+    pub fn self_arg(&self) -> Option<&syn::Receiver> {
+        if let Some(FnArg::Receiver(receiver)) = self.inputs.first() {
+            return Some(&receiver)
         }
+        None
     }
 
     /// Returns an iterator over the function arguments without the receiver.
     pub fn inputs(&self) -> impl Iterator<Item = &IdentType> {
-        self.inputs.iter().skip(1).filter_map(|arg| {
+        self.inputs.iter().filter_map(|arg| {
             match arg {
                 FnArg::Receiver(_) => None,
                 FnArg::Typed(ident_type) => Some(ident_type),
@@ -523,15 +529,5 @@ impl ToTokens for IdentType {
         self.ident.to_tokens(tokens);
         self.colon_token.to_tokens(tokens);
         self.ty.to_tokens(tokens);
-    }
-}
-
-impl IdentType {
-    /// Returns the span of `self`.
-    pub fn span(&self) -> Span {
-        self.ident
-            .span()
-            .join(self.ty.span())
-            .expect("spans of `ident` and `ty` must be in the same file; qed")
     }
 }

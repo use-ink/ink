@@ -199,13 +199,13 @@ fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
 pub fn spread_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move);
     s.add_bounds(synstructure::AddBounds::Generics);
-
-    let is_enum = s.variants().len() >= 2;
-    if is_enum {
-        spread_layout_enum_derive(&s)
-    } else if s.variants().len() == 1 {
-        spread_layout_struct_derive(&s)
-    } else {
-        panic!("empty enums are not supported");
+    match s.ast().data {
+        syn::Data::Struct(_) => spread_layout_struct_derive(&s),
+        syn::Data::Enum(_) => spread_layout_enum_derive(&s),
+        _ => {
+            panic!(
+                "cannot derive `SpreadLayout` or `PackedLayout` for Rust `union` items"
+            )
+        }
     }
 }

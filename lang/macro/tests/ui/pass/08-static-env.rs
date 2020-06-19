@@ -7,7 +7,9 @@ mod static_env {
 
     impl StaticEnv {
         #[ink(constructor)]
-        fn new(&mut self) {
+        fn new() -> Self {
+            assert!(Self::env().balance() > 0);
+            Self {}
         }
 
         #[ink(message)]
