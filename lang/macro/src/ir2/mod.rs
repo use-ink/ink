@@ -25,8 +25,8 @@ mod storage;
 
 pub use self::{
     attrs::{
-        first_ink_attribute,
         contains_ink_attributes,
+        first_ink_attribute,
         partition_attributes,
         Attribute,
         AttributeArgs,

@@ -60,9 +60,22 @@ impl TryFrom<syn::Item> for Item {
         match item {
             syn::Item::Struct(item_struct) => {
                 // This can be either the ink! storage struct or an ink! event.
-                let (ink_attrs, other_attrs) =
-                    ir2::partition_attributes(item_struct.attrs)?;
-                todo!()
+                match ir2::first_ink_attribute(&item_struct.attrs)?
+                    .expect("missing expected ink! attribute")
+                    .first()
+                {
+                    ir2::AttributeArgs::Storage => {
+                        <ir2::Storage as TryFrom<_>>::try_from(item_struct)
+                            .map(Into::into)
+                            .map(Item::Ink)
+                    }
+                    ir2::AttributeArgs::Event => {
+                        <ir2::Event as TryFrom<_>>::try_from(item_struct)
+                            .map(Into::into)
+                            .map(Item::Ink)
+                    }
+                    invalid => todo!(),
+                }
             }
             syn::Item::Impl(item_impl) => {
                 <ir2::ImplBlock as TryFrom<_>>::try_from(item_impl)

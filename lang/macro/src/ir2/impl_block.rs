@@ -39,8 +39,7 @@ impl TryFrom<syn::ItemImpl> for ImplBlock {
 
     fn try_from(item_impl: syn::ItemImpl) -> Result<Self, Self::Error> {
         // This can be either the ink! storage struct or an ink! event.
-        let (ink_attrs, other_attrs) =
-            ir2::partition_attributes(item_impl.attrs)?;
+        let (ink_attrs, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
         todo!()
     }
 }

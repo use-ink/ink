@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::ir2;
+use core::convert::TryFrom;
 use proc_macro2::Ident;
 
 /// An ink! storage struct definition.
@@ -35,6 +37,14 @@ use proc_macro2::Ident;
 pub struct Storage {
     /// The underlying `struct` Rust item.
     struct_item: syn::ItemStruct,
+}
+
+impl TryFrom<syn::ItemStruct> for Storage {
+    type Error = ir2::Error;
+
+    fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
+        todo!()
+    }
 }
 
 impl Storage {

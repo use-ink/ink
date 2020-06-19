@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::ir2;
+use core::convert::TryFrom;
+
 pub struct Event {
     item: syn::ItemStruct,
+}
+
+impl TryFrom<syn::ItemStruct> for Event {
+    type Error = ir2::Error;
+
+    fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
+        todo!()
+    }
 }

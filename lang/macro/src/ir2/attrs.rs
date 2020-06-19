@@ -59,6 +59,17 @@ pub struct InkAttribute {
 }
 
 impl InkAttribute {
+    /// Returns the first ink! attribute argument.
+    ///
+    /// # Panics
+    ///
+    /// If the ink! attribute argument list is empty.
+    pub fn first(&self) -> &AttributeArgs {
+        self.args
+            .first()
+            .expect("encountered empty ink! attribute list")
+    }
+
     /// Returns an iterator over the non-empty flags of the ink! attribute.
     ///
     /// # Note
@@ -455,12 +466,8 @@ mod tests {
     #[test]
     fn contains_ink_attributes_works() {
         assert!(!contains_ink_attributes(&[]));
-        assert!(contains_ink_attributes(&[
-            syn::parse_quote! { #[ink] }
-        ]));
-        assert!(contains_ink_attributes(&[
-            syn::parse_quote! { #[ink(..)] }
-        ]));
+        assert!(contains_ink_attributes(&[syn::parse_quote! { #[ink] }]));
+        assert!(contains_ink_attributes(&[syn::parse_quote! { #[ink(..)] }]));
         assert!(contains_ink_attributes(&[
             syn::parse_quote! { #[inline] },
             syn::parse_quote! { #[likely] },
@@ -474,24 +481,17 @@ mod tests {
 
     #[test]
     fn first_ink_attribute_works() {
+        assert_eq!(first_ink_attribute(&[]), Ok(None),);
         assert_eq!(
-            first_ink_attribute(&[]),
-            Ok(None),
-        );
-        assert_eq!(
-            first_ink_attribute(&[
-                syn::parse_quote! { #[ink(storage)] }
-            ]),
-            Ok(Some(InkAttribute { args: vec![
-                AttributeArgs::Storage,
-            ] })),
+            first_ink_attribute(&[syn::parse_quote! { #[ink(storage)] }]),
+            Ok(Some(InkAttribute {
+                args: vec![AttributeArgs::Storage,]
+            })),
         );
         {
             let invalid = syn::parse_quote! { invalid };
             assert_eq!(
-                first_ink_attribute(&[
-                    syn::parse_quote! { #[ink(invalid)] }
-                ]),
+                first_ink_attribute(&[syn::parse_quote! { #[ink(invalid)] }]),
                 Err(Error::invalid_flag(invalid, "unknown ink! marker (path)")),
             );
         }
