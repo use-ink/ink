@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir2::Selector;
+use crate::{
+    ir2,
+    ir2::Selector,
+};
 use core::{
     convert::TryFrom,
     result::Result,
@@ -210,6 +213,27 @@ where
         .filter(|attr| attr.path.is_ident("ink"))
         .next()
         .is_some()
+}
+
+/// Returns the first valid ink! attribute, if any.
+///
+/// Returns `None` if there are no ink! attributes.
+///
+/// # Errors
+///
+/// Returns an error if the first ink! attribute is invalid.
+pub fn first_ink_attribute<'a, I>(attrs: I) -> Result<Option<ir2::InkAttribute>, Error>
+where
+    I: IntoIterator<Item = &'a syn::Attribute>,
+{
+    let first = attrs
+        .into_iter()
+        .filter(|attr| attr.path.is_ident("ink"))
+        .next();
+    match first {
+        None => Ok(None),
+        Some(ink_attr) => InkAttribute::try_from(ink_attr.clone()).map(Some),
+    }
 }
 
 /// Partitions the given attributes into ink! specific and non-ink! specific attributes.
