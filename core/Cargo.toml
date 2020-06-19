@@ -72,5 +72,9 @@ std = [
 ]
 
 [[bench]]
-name = "bench"
+name = "bench_vec"
+harness = false
+
+[[bench]]
+name = "bench_stash"
 harness = false
