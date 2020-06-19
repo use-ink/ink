@@ -62,6 +62,7 @@ where
 }
 
 /// The index is out of the bounds of this vector.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct IndexOutOfBounds;
 
 impl<T> Default for Vec<T>

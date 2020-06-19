@@ -399,7 +399,7 @@ fn spread_layout_clear_works() {
 #[test]
 fn set_works() {
     let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-    vec.set(0, b'x');
+    let _ = vec.set(0, b'x').unwrap();
     let expected = vec_from_slice(&[b'x', b'b', b'c', b'd']);
     assert_eq!(vec, expected);
 }
