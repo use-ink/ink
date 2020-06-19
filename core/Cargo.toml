@@ -43,7 +43,6 @@ scale-info = { version = "0.2", default-features = false, features = ["derive"],
 
 [dev-dependencies]
 itertools = "0.9"
-criterion = "0.3.1"
 
 [features]
 default = ["std"]
@@ -64,7 +63,3 @@ std = [
     "sha3",
     "blake2",
 ]
-
-[[bench]]
-name = "bench"
-harness = false
