@@ -29,22 +29,22 @@ pub enum Item {
 fn item_attrs(item: &syn::Item) -> &[syn::Attribute] {
     use syn::Item;
     match item {
-        Item::Const(syn::ItemConst { attrs, .. }) => attrs,
-        Item::Enum(syn::ItemEnum { attrs, .. }) => attrs,
-        Item::ExternCrate(syn::ItemExternCrate { attrs, .. }) => attrs,
-        Item::Fn(syn::ItemFn { attrs, .. }) => attrs,
-        Item::ForeignMod(syn::ItemForeignMod { attrs, .. }) => attrs,
-        Item::Impl(syn::ItemImpl { attrs, .. }) => attrs,
-        Item::Macro(syn::ItemMacro { attrs, .. }) => attrs,
-        Item::Macro2(syn::ItemMacro2 { attrs, .. }) => attrs,
-        Item::Mod(syn::ItemMod { attrs, .. }) => attrs,
-        Item::Static(syn::ItemStatic { attrs, .. }) => attrs,
-        Item::Struct(syn::ItemStruct { attrs, .. }) => attrs,
-        Item::Trait(syn::ItemTrait { attrs, .. }) => attrs,
-        Item::TraitAlias(syn::ItemTraitAlias { attrs, .. }) => attrs,
-        Item::Type(syn::ItemType { attrs, .. }) => attrs,
-        Item::Union(syn::ItemUnion { attrs, .. }) => attrs,
-        Item::Use(syn::ItemUse { attrs, .. }) => attrs,
+        Item::Const(syn::ItemConst { attrs, .. })
+        | Item::Enum(syn::ItemEnum { attrs, .. })
+        | Item::ExternCrate(syn::ItemExternCrate { attrs, .. })
+        | Item::Fn(syn::ItemFn { attrs, .. })
+        | Item::ForeignMod(syn::ItemForeignMod { attrs, .. })
+        | Item::Impl(syn::ItemImpl { attrs, .. })
+        | Item::Macro(syn::ItemMacro { attrs, .. })
+        | Item::Macro2(syn::ItemMacro2 { attrs, .. })
+        | Item::Mod(syn::ItemMod { attrs, .. })
+        | Item::Static(syn::ItemStatic { attrs, .. })
+        | Item::Struct(syn::ItemStruct { attrs, .. })
+        | Item::Trait(syn::ItemTrait { attrs, .. })
+        | Item::TraitAlias(syn::ItemTraitAlias { attrs, .. })
+        | Item::Type(syn::ItemType { attrs, .. })
+        | Item::Union(syn::ItemUnion { attrs, .. })
+        | Item::Use(syn::ItemUse { attrs, .. }) => attrs,
         _ => &[],
     }
 }
