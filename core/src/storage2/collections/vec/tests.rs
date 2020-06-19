@@ -15,9 +15,12 @@
 use super::Vec as StorageVec;
 use crate::{
     env,
-    storage2::traits::{
-        KeyPtr,
-        SpreadLayout,
+    storage2::{
+        collections::vec::IndexOutOfBounds,
+        traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
     },
 };
 use ink_primitives::Key;
@@ -402,12 +405,10 @@ fn set_works() {
 }
 
 #[test]
-#[should_panic(expected = "index out of bounds: the len is 1 but the index is 1")]
 fn set_panics_when_index_oob() {
     let mut vec = vec_from_slice(&[b'a']);
-    vec.set(1, b'x');
-    let expected = vec_from_slice(&[b'a']);
-    assert_eq!(vec, expected);
+    let res = vec.set(1, b'x');
+    assert_eq!(res, Err(gndexOutOfBounds));
 }
 
 #[test]

@@ -61,6 +61,9 @@ where
     elems: LazyIndexMap<T>,
 }
 
+/// The index is out of the bounds of this vector.
+pub struct IndexOutOfBounds;
+
 impl<T> Default for Vec<T>
 where
     T: PackedLayout,
@@ -313,15 +316,12 @@ where
     /// # Panics
     ///
     /// If the index is out of bounds.
-    pub fn set(&mut self, index: u32, new_value: T) {
+    pub fn set(&mut self, index: u32, new_value: T) -> Result<(), IndexOutOfBounds> {
         if self.within_bounds(index).is_none() {
-            panic!(
-                "index out of bounds: the len is {} but the index is {}",
-                self.len(),
-                index
-            );
+            return Err(IndexOutOfBounds)
         }
         self.elems.put(index, Some(new_value));
+        Ok(())
     }
 
     /// Removes all elements from this vector.
