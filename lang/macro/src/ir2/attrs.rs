@@ -194,6 +194,24 @@ impl Error {
     }
 }
 
+/// Returns `true` if the given iterator yields at least one attribute of the form
+/// `#[ink(..)]` or `#[ink]`.
+///
+/// # Note
+///
+/// This does not check at this point whether the ink! attribute is valid since
+/// this check is optimized for efficiency.
+pub fn contains_ink_attributes<'a, I>(attrs: I) -> bool
+where
+    I: IntoIterator<Item = &'a syn::Attribute>,
+{
+    attrs
+        .into_iter()
+        .filter(|attr| attr.path.is_ident("ink"))
+        .next()
+        .is_some()
+}
+
 /// Partitions the given attributes into ink! specific and non-ink! specific attributes.
 ///
 /// # Error
