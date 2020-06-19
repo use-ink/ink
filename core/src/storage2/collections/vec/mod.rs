@@ -61,6 +61,10 @@ where
     elems: LazyIndexMap<T>,
 }
 
+/// The index is out of the bounds of this vector.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct IndexOutOfBounds;
+
 impl<T> Default for Vec<T>
 where
     T: PackedLayout,
@@ -144,7 +148,7 @@ where
         IterMut::new(self)
     }
 
-    /// Returns the index if it is witihn bounds or `None` otherwise.
+    /// Returns the index if it is within bounds or `None` otherwise.
     fn within_bounds(&self, index: u32) -> Option<u32> {
         if index < self.len() {
             return Some(index)
@@ -302,5 +306,36 @@ where
         self.elems.put(n, last);
         *self.len = last_index;
         Some(())
+    }
+
+    /// Sets the elements at the given index to the new value.
+    ///
+    /// Won't return the old element back to the caller.
+    /// Prefer this operation over other method of overriding an element
+    /// in the storage vector since this is more efficient.
+    #[inline]
+    pub fn set(&mut self, index: u32, new_value: T) -> Result<(), IndexOutOfBounds> {
+        if self.within_bounds(index).is_none() {
+            return Err(IndexOutOfBounds)
+        }
+        self.elems.put(index, Some(new_value));
+        Ok(())
+    }
+
+    /// Removes all elements from this vector.
+    ///
+    /// # Note
+    ///
+    /// Use this method to clear the vector instead of e.g. iterative `pop()`.
+    /// This method performs significantly better and does not actually read
+    /// any of the elements (whereas `pop()` does).
+    pub fn clear(&mut self) {
+        if self.is_empty() {
+            return
+        }
+        for index in 0..self.len() {
+            self.elems.put(index, None);
+        }
+        *self.len = 0;
     }
 }
