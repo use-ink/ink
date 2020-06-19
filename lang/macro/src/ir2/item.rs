@@ -67,12 +67,12 @@ impl TryFrom<syn::Item> for Item {
                     ir2::AttributeArgs::Storage => {
                         <ir2::Storage as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
-                            .map(Item::Ink)
+                            .map(Self::Ink)
                     }
                     ir2::AttributeArgs::Event => {
                         <ir2::Event as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
-                            .map(Item::Ink)
+                            .map(Self::Ink)
                     }
                     invalid => todo!(),
                 }
