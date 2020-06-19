@@ -408,7 +408,7 @@ fn set_works() {
 fn set_panics_when_index_oob() {
     let mut vec = vec_from_slice(&[b'a']);
     let res = vec.set(1, b'x');
-    assert_eq!(res, Err(gndexOutOfBounds));
+    assert_eq!(res, Err(IndexOutOfBounds));
 }
 
 #[test]
