@@ -15,9 +15,12 @@
 use super::Vec as StorageVec;
 use crate::{
     env,
-    storage2::traits::{
-        KeyPtr,
-        SpreadLayout,
+    storage2::{
+        collections::vec::IndexOutOfBounds,
+        traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
     },
 };
 use ink_primitives::Key;
@@ -391,4 +394,33 @@ fn spread_layout_clear_works() {
         Ok(())
     })
     .unwrap()
+}
+
+#[test]
+fn set_works() {
+    let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+    let _ = vec.set(0, b'x').unwrap();
+    let expected = vec_from_slice(&[b'x', b'b', b'c', b'd']);
+    assert_eq!(vec, expected);
+}
+
+#[test]
+fn set_fails_when_index_oob() {
+    let mut vec = vec_from_slice(&[b'a']);
+    let res = vec.set(1, b'x');
+    assert_eq!(res, Err(IndexOutOfBounds));
+}
+
+#[test]
+fn clear_works_on_filled_vec() {
+    let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+    vec.clear();
+    assert!(vec.is_empty());
+}
+
+#[test]
+fn clear_works_on_empty_vec() {
+    let mut vec = vec_from_slice(&[]);
+    vec.clear();
+    assert!(vec.is_empty());
 }
