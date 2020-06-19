@@ -312,10 +312,6 @@ where
     /// Won't return the old element back to the caller.
     /// Prefer this operation over other method of overriding an element
     /// in the storage vector since this is more efficient.
-    ///
-    /// # Panics
-    ///
-    /// If the index is out of bounds.
     pub fn set(&mut self, index: u32, new_value: T) -> Result<(), IndexOutOfBounds> {
         if self.within_bounds(index).is_none() {
             return Err(IndexOutOfBounds)
