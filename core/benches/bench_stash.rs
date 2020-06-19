@@ -81,8 +81,9 @@ mod populated_cache {
 }
 
 fn bench_remove_occupied_populated_cache(c: &mut Criterion) {
-    let mut group =
-        c.benchmark_group("Compare: `remove_occupied_all` and `take_all` (populated cache)");
+    let mut group = c.benchmark_group(
+        "Compare: `remove_occupied_all` and `take_all` (populated cache)",
+    );
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
     group.bench_with_input("remove_occupied_all", &test_values, |b, i| {
         b.iter(|| populated_cache::remove_occupied_all(i))
@@ -123,8 +124,9 @@ mod empty_cache {
 /// benchmark iteration.
 fn bench_remove_occupied_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let mut group =
-            c.benchmark_group("Compare: `remove_occupied_all` and `take_all` (empty cache)");
+        let mut group = c.benchmark_group(
+            "Compare: `remove_occupied_all` and `take_all` (empty cache)",
+        );
         group.bench_function("remove_occupied_all", |b| {
             b.iter(|| empty_cache::remove_occupied_all())
         });
