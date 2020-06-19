@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::ir2;
+use core::convert::TryFrom;
 
 /// An item in the root of the ink! module.
 ///
@@ -22,6 +23,60 @@ pub enum Item {
     Ink(InkItem),
     /// The item is a normal Rust item.
     Rust(syn::Item),
+}
+
+/// Returns a slice to the attributes of the given [`syn::Item`].
+fn item_attrs(item: &syn::Item) -> &[syn::Attribute] {
+    use syn::Item;
+    match item {
+        Item::Const(syn::ItemConst { attrs, .. }) => attrs,
+        Item::Enum(syn::ItemEnum { attrs, .. }) => attrs.as_slice(),
+        Item::ExternCrate(syn::ItemExternCrate { attrs, .. }) => attrs.as_slice(),
+        Item::Fn(syn::ItemFn { attrs, .. }) => attrs.as_slice(),
+        Item::ForeignMod(syn::ItemForeignMod { attrs, .. }) => attrs.as_slice(),
+        Item::Impl(syn::ItemImpl { attrs, .. }) => attrs.as_slice(),
+        Item::Macro(syn::ItemMacro { attrs, .. }) => attrs.as_slice(),
+        Item::Macro2(syn::ItemMacro2 { attrs, .. }) => attrs.as_slice(),
+        Item::Mod(syn::ItemMod { attrs, .. }) => attrs.as_slice(),
+        Item::Static(syn::ItemStatic { attrs, .. }) => attrs.as_slice(),
+        Item::Struct(syn::ItemStruct { attrs, .. }) => attrs.as_slice(),
+        Item::Trait(syn::ItemTrait { attrs, .. }) => attrs.as_slice(),
+        Item::TraitAlias(syn::ItemTraitAlias { attrs, .. }) => attrs.as_slice(),
+        Item::Type(syn::ItemType { attrs, .. }) => attrs.as_slice(),
+        Item::Union(syn::ItemUnion { attrs, .. }) => attrs.as_slice(),
+        Item::Use(syn::ItemUse { attrs, .. }) => attrs.as_slice(),
+        _ => &[],
+    }
+}
+
+impl TryFrom<syn::Item> for Item {
+    type Error = ir2::Error;
+
+    fn try_from(item: syn::Item) -> Result<Self, Self::Error> {
+        if !ir2::contains_ink_attributes(item_attrs(&item)) {
+            return Ok(Self::Rust(item))
+        }
+        // At this point we know that there must be at least one ink! attribute.
+        match item {
+            syn::Item::Struct(item_struct) => {
+                // This can be either the ink! storage struct or an ink! event.
+                let (ink_attrs, other_attrs) =
+                    ir2::partition_attributes(item_struct.attrs)?;
+                todo!()
+            }
+            syn::Item::Impl(item_impl) => {
+                // This can be either an inherent or a trait ink! impl.
+                let (ink_attrs, other_attrs) =
+                    ir2::partition_attributes(item_impl.attrs)?;
+                todo!()
+            }
+            invalid => {
+                // Error since we do not expect to see an ink! attribute on any
+                // other item kind.
+                todo!()
+            }
+        }
+    }
 }
 
 impl Item {
