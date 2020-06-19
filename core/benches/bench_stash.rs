@@ -31,12 +31,6 @@ use ink_core::{
 };
 use ink_primitives::Key;
 
-// criterion_group!(benches, criterion_benchmark);
-// criterion_group!(
-// benches_worst_case,
-// criterion_benchmark_with_taken_value_read
-// );
-// criterion_main!(benches, benches_worst_case);
 criterion_group!(populated_cache, bench_remove_occupied_populated_cache,);
 criterion_group!(empty_cache, bench_remove_occupied_empty_cache,);
 criterion_main!(populated_cache, empty_cache,);
@@ -71,7 +65,7 @@ fn pull_storage_stash() -> StorageStash<u8> {
 mod populated_cache {
     use super::*;
 
-    pub fn remove_occupied(test_values: &[u8]) {
+    pub fn remove_occupied_all(test_values: &[u8]) {
         let mut stash = storage_stash_from_slice(test_values);
         for (index, _value) in test_values.iter().enumerate() {
             black_box(unsafe { stash.remove_occupied(index as u32) });
@@ -88,12 +82,12 @@ mod populated_cache {
 
 fn bench_remove_occupied_populated_cache(c: &mut Criterion) {
     let mut group =
-        c.benchmark_group("Compare: `remove_occupied` and `take_all` (populated cache)");
+        c.benchmark_group("Compare: `remove_occupied_all` and `take_all` (populated cache)");
     let test_values = [b'A', b'B', b'C', b'D', b'E', b'F'];
-    group.bench_with_input("clear", &test_values, |b, i| {
-        b.iter(|| populated_cache::remove_occupied(i))
+    group.bench_with_input("remove_occupied_all", &test_values, |b, i| {
+        b.iter(|| populated_cache::remove_occupied_all(i))
     });
-    group.bench_with_input("pop_all", &test_values, |b, i| {
+    group.bench_with_input("take_all", &test_values, |b, i| {
         b.iter(|| populated_cache::take_all(i))
     });
     group.finish();
@@ -104,7 +98,7 @@ mod empty_cache {
 
     /// In this case we lazily load the stash from storage using `pull_spread`.
     /// This will just load lazily and won't pull anything from the storage.
-    pub fn remove_occupied() {
+    pub fn remove_occupied_all() {
         push_storage_stash();
         let mut stash = pull_storage_stash();
         for index in 0..stash.len() {
@@ -130,11 +124,11 @@ mod empty_cache {
 fn bench_remove_occupied_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut group =
-            c.benchmark_group("Compare: `remove_occupied` and `take_all` (empty cache)");
-        group.bench_function("remove_occupied", |b| {
-            b.iter(|| empty_cache::remove_occupied())
+            c.benchmark_group("Compare: `remove_occupied_all` and `take_all` (empty cache)");
+        group.bench_function("remove_occupied_all", |b| {
+            b.iter(|| empty_cache::remove_occupied_all())
         });
-        group.bench_function("pop_all", |b| b.iter(|| empty_cache::take_all()));
+        group.bench_function("take_all", |b| b.iter(|| empty_cache::take_all()));
         group.finish();
         Ok(())
     })
