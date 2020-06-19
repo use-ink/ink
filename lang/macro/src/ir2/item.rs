@@ -65,10 +65,9 @@ impl TryFrom<syn::Item> for Item {
                 todo!()
             }
             syn::Item::Impl(item_impl) => {
-                // This can be either an inherent or a trait ink! impl.
-                let (ink_attrs, other_attrs) =
-                    ir2::partition_attributes(item_impl.attrs)?;
-                todo!()
+                <ir2::ImplBlock as TryFrom<_>>::try_from(item_impl)
+                    .map(Into::into)
+                    .map(Self::Ink)
             }
             invalid => {
                 // Error since we do not expect to see an ink! attribute on any
@@ -119,6 +118,24 @@ pub enum InkItem {
     Event(ir2::Event),
     /// An ink! implementation block.
     ImplBlock(ir2::ImplBlock),
+}
+
+impl From<ir2::Storage> for InkItem {
+    fn from(storage: ir2::Storage) -> Self {
+        Self::Storage(storage)
+    }
+}
+
+impl From<ir2::Event> for InkItem {
+    fn from(event: ir2::Event) -> Self {
+        Self::Event(event)
+    }
+}
+
+impl From<ir2::ImplBlock> for InkItem {
+    fn from(impl_block: ir2::ImplBlock) -> Self {
+        Self::ImplBlock(impl_block)
+    }
 }
 
 impl InkItem {
