@@ -10,6 +10,7 @@ name = "abi-gen"
 path = "main.rs"
 
 [dependencies]
+ink_abi = { path = "../../../../abi" }
 contract = { path = "../..", package = "delegator" }
 ink_lang = { path = "../../../../lang" }
 serde = "1.0"
