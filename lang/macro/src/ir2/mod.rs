@@ -15,7 +15,6 @@
 mod attrs;
 mod config;
 mod contract;
-mod error;
 mod event;
 mod impl_block;
 mod item;
@@ -29,8 +28,8 @@ pub use self::{
         first_ink_attribute,
         partition_attributes,
         Attribute,
-        AttributeArgs,
-        Error as AttrsError,
+        AttributeArg,
+        AttributeArgKind,
         InkAttribute,
         Salt,
     },
@@ -39,7 +38,6 @@ pub use self::{
         EnvTypes,
         Error as ConfigError,
     },
-    error::Error,
     event::Event,
     impl_block::{
         Constructor,
