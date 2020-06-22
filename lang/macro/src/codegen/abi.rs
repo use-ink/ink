@@ -41,17 +41,14 @@ impl GenerateCode for GenerateAbi<'_> {
             #[cfg(feature = "std")]
             const _: () = {
                 #[no_mangle]
-                pub extern fn generate_metadata()  {
+                pub fn generate_metadata() -> ::ink_abi::InkProject  {
                     let contract: ::ink_abi::ContractSpec = {
                         #contract
                     };
                     let layout: ::ink_abi::layout2::Layout = {
                         #layout
                     };
-                    let project = ::ink_abi::InkProject::new(layout, contract);
-
-                    let contents = serde_json::to_string_pretty(&project).unwrap();
-                    print!("{}", contents);
+                    ::ink_abi::InkProject::new(layout, contract)
                 }
             };
         }
