@@ -40,7 +40,7 @@ pub struct Storage {
 }
 
 impl TryFrom<syn::ItemStruct> for Storage {
-    type Error = ir2::Error;
+    type Error = syn::Error;
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         todo!()

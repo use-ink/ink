@@ -35,7 +35,7 @@ pub struct ImplBlock {
 }
 
 impl TryFrom<syn::ItemImpl> for ImplBlock {
-    type Error = ir2::Error;
+    type Error = syn::Error;
 
     fn try_from(item_impl: syn::ItemImpl) -> Result<Self, Self::Error> {
         // This can be either the ink! storage struct or an ink! event.

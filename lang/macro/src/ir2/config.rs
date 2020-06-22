@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::convert::TryFrom;
-
 use crate::ast;
+use core::convert::TryFrom;
 
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]

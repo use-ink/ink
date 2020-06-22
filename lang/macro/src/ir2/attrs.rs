@@ -20,7 +20,12 @@ use core::{
     convert::TryFrom,
     result::Result,
 };
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use regex::Regex;
+use syn::spanned::Spanned;
 
 /// Either an ink! specific attribute, or another uninterpreted attribute.
 #[derive(Debug, PartialEq, Eq)]
@@ -95,10 +100,21 @@ impl Attrs for syn::Item {
 /// ```no_compile
 /// #[ink(message, payable, selector = "0xDEADBEEF")]
 /// ```
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct InkAttribute {
-    /// The internal arguments of the ink! attribute.
-    args: Vec<AttributeArgs>,
+    /// The internal non-empty sequence of arguments of the ink! attribute.
+    args: Vec<AttributeArg>,
+}
+
+impl Spanned for InkAttribute {
+    fn span(&self) -> Span {
+        self.args
+            .iter()
+            .map(|arg| arg.span())
+            .fold(self.first().span(), |fst, snd| {
+                fst.join(snd).unwrap_or(self.first().span())
+            })
+    }
 }
 
 impl InkAttribute {
@@ -107,7 +123,7 @@ impl InkAttribute {
     /// # Panics
     ///
     /// If the ink! attribute argument list is empty.
-    pub fn first(&self) -> &AttributeArgs {
+    pub fn first(&self) -> &AttributeArg {
         self.args
             .first()
             .expect("encountered empty ink! attribute list")
@@ -118,14 +134,27 @@ impl InkAttribute {
     /// # Note
     ///
     /// This yields at least one ink! attribute flag.
-    pub fn args(&self) -> core::slice::Iter<AttributeArgs> {
+    pub fn args(&self) -> core::slice::Iter<AttributeArg> {
         self.args.iter()
     }
 }
 
+/// An ink! specific attribute argument.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct AttributeArg {
+    pub ast: syn::Meta,
+    pub kind: AttributeArgKind,
+}
+
+impl Spanned for AttributeArg {
+    fn span(&self) -> Span {
+        self.ast.span()
+    }
+}
+
 /// An ink! specific attribute flag.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum AttributeArgs {
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum AttributeArgKind {
     /// `#[ink(storage)]`
     ///
     /// Applied on `struct` or `enum` types in order to flag them for being
@@ -179,7 +208,7 @@ pub enum AttributeArgs {
 }
 
 /// An ink! salt applicable to a trait implementation block.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Salt {
     /// The underlying bytes.
     bytes: Vec<u8>,
@@ -195,59 +224,6 @@ impl Salt {
     /// Returns the salt as bytes.
     pub fn as_bytes(&self) -> &[u8] {
         &self.bytes
-    }
-}
-
-/// Errors that can occur upon parsing ink! attributes.
-#[derive(Debug, PartialEq, Eq)]
-pub enum Error {
-    /// Invalid identifier or structure, e.g. `#[foo(..)]` instead of `#[ink(..)]`.
-    Invalid {
-        invalid: syn::Attribute,
-        reason: String,
-    },
-    /// ```
-    /// #[ink(storage)]
-    /// #[ink(storage)]
-    /// pub struct MyStorage { .. }
-    /// ```
-    DuplicateAttributes {
-        fst: InkAttribute,
-        snd: InkAttribute,
-    },
-    /// `#[ink(unknown_flag)]` or `#[ink(selector = true)]`
-    InvalidArg {
-        invalid: syn::NestedMeta,
-        reason: String,
-    },
-    /// `#[ink(message, message)]`
-    DuplicateArgs {
-        fst: AttributeArgs,
-        snd: AttributeArgs,
-    },
-}
-
-impl Error {
-    /// Creates a new `InvalidFlag` error.
-    pub fn invalid<S>(origin: syn::Attribute, reason: S) -> Self
-    where
-        S: Into<String>,
-    {
-        Self::Invalid {
-            invalid: origin,
-            reason: reason.into(),
-        }
-    }
-
-    /// Creates a new `InvalidFlag` error.
-    pub fn invalid_flag<S>(origin: syn::NestedMeta, reason: S) -> Self
-    where
-        S: Into<String>,
-    {
-        Self::InvalidArg {
-            invalid: origin,
-            reason: reason.into(),
-        }
     }
 }
 
@@ -276,7 +252,9 @@ where
 /// # Errors
 ///
 /// Returns an error if the first ink! attribute is invalid.
-pub fn first_ink_attribute<'a, I>(attrs: I) -> Result<Option<ir2::InkAttribute>, Error>
+pub fn first_ink_attribute<'a, I>(
+    attrs: I,
+) -> Result<Option<ir2::InkAttribute>, syn::Error>
 where
     I: IntoIterator<Item = &'a syn::Attribute>,
 {
@@ -297,7 +275,7 @@ where
 /// Returns an error if some ink! specific attributes could not be successfully parsed.
 pub fn partition_attributes<I>(
     attrs: I,
-) -> Result<(Vec<InkAttribute>, Vec<syn::Attribute>), Error>
+) -> Result<(Vec<InkAttribute>, Vec<syn::Attribute>), syn::Error>
 where
     I: IntoIterator<Item = syn::Attribute>,
 {
@@ -306,7 +284,7 @@ where
     let (ink_attrs, others) = attrs
         .into_iter()
         .map(|attr| <Attribute as TryFrom<_>>::try_from(attr))
-        .collect::<Result<Vec<Attribute>, Error>>()?
+        .collect::<Result<Vec<Attribute>, syn::Error>>()?
         .into_iter()
         .partition_map(|attr| {
             match attr {
@@ -325,28 +303,29 @@ impl Attribute {
     ///
     /// If the given iterator yields duplicate ink! attributes.
     /// Note: Duplicate non-ink! attributes are fine.
-    fn ensure_no_duplicates<'a, I>(flags: I) -> Result<(), Error>
+    fn ensure_no_duplicates<'a, I>(attrs: I) -> Result<(), syn::Error>
     where
         I: IntoIterator<Item = &'a InkAttribute>,
     {
-        use std::collections::BTreeSet;
-        let mut seen: BTreeSet<&InkAttribute> = BTreeSet::new();
-        for flag in flags.into_iter() {
-            if let Some(seen) = seen.get(flag) {
-                return Err(Error::DuplicateAttributes {
-                    // A call to `seen.clone()` clones the reference for whatever reason ...
-                    fst: <InkAttribute as Clone>::clone(seen),
-                    snd: flag.clone(),
-                })
+        use std::collections::HashSet;
+        let mut seen: HashSet<&InkAttribute> = HashSet::new();
+        for attr in attrs.into_iter() {
+            if let Some(seen) = seen.get(attr) {
+                use crate::error::ExtError as _;
+                return Err(format_err_span!(
+                    attr.span(),
+                    "encountered duplicate ink! attribute"
+                )
+                .into_combine(format_err_span!(seen.span(), "first ink! attribute here")))
             }
-            seen.insert(flag);
+            seen.insert(attr);
         }
         Ok(())
     }
 }
 
 impl TryFrom<syn::Attribute> for Attribute {
-    type Error = Error;
+    type Error = syn::Error;
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if attr.path.is_ident("ink") {
@@ -363,25 +342,32 @@ impl From<InkAttribute> for Attribute {
 }
 
 impl TryFrom<syn::Attribute> for InkAttribute {
-    type Error = Error;
+    type Error = syn::Error;
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path.is_ident("ink") {
-            return Err(Error::invalid(attr, "unexpected non-ink! attribute"))
+            return Err(format_err!(attr, "unexpected non-ink! attribute"))
         }
-        match attr.parse_meta().map_err(|_| {
-            Error::invalid(attr.clone(), "unexpected ink! attribute structure")
-        })? {
+        match attr
+            .parse_meta()
+            .map_err(|_| format_err!(attr, "unexpected ink! attribute structure"))?
+        {
             syn::Meta::List(meta_list) => {
-                let flags = meta_list
+                let args = meta_list
                     .nested
                     .into_iter()
-                    .map(|nested| <AttributeArgs as TryFrom<_>>::try_from(nested))
-                    .collect::<Result<Vec<_>, Error>>()?;
-                Self::ensure_no_duplicate_flags(&flags)?;
-                Ok(InkAttribute { args: flags })
+                    .map(|nested| <AttributeArg as TryFrom<_>>::try_from(nested))
+                    .collect::<Result<Vec<_>, syn::Error>>()?;
+                Self::ensure_no_duplicate_flags(&args)?;
+                if args.is_empty() {
+                    return Err(format_err!(
+                        attr,
+                        "encountered unsupported empty ink! attribute"
+                    ))
+                }
+                Ok(InkAttribute { args })
             }
-            _ => Err(Error::invalid(attr, "unknown ink! attribute")),
+            _ => Err(format_err!(attr, "unknown ink! attribute")),
         }
     }
 }
@@ -392,39 +378,48 @@ impl InkAttribute {
     /// # Errors
     ///
     /// If the given iterator yields duplicate attribute flags.
-    fn ensure_no_duplicate_flags<'a, I>(flags: I) -> Result<(), Error>
+    fn ensure_no_duplicate_flags<'a, I>(args: I) -> Result<(), syn::Error>
     where
-        I: IntoIterator<Item = &'a AttributeArgs>,
+        I: IntoIterator<Item = &'a AttributeArg>,
     {
-        use std::collections::BTreeSet;
-        let mut seen: BTreeSet<&AttributeArgs> = BTreeSet::new();
-        for flag in flags.into_iter() {
-            if let Some(seen) = seen.get(flag) {
-                return Err(Error::DuplicateArgs {
-                    // A call to `seen.clone()` clones the reference for whatever reason ...
-                    fst: <AttributeArgs as Clone>::clone(seen),
-                    snd: flag.clone(),
-                })
+        use crate::error::ExtError as _;
+        use std::collections::HashSet;
+        let mut seen: HashSet<&AttributeArg> = HashSet::new();
+        for arg in args.into_iter() {
+            if let Some(seen) = seen.get(arg) {
+                return Err(format_err_span!(
+                    arg.span(),
+                    "encountered duplicate ink! attribute arguments"
+                )
+                .into_combine(format_err_span!(
+                    seen.span(),
+                    "first equal ink! attribute argument here"
+                )))
             }
-            seen.insert(flag);
+            seen.insert(arg);
         }
         Ok(())
     }
 }
 
-impl TryFrom<syn::NestedMeta> for AttributeArgs {
-    type Error = Error;
+impl TryFrom<syn::NestedMeta> for AttributeArg {
+    type Error = syn::Error;
 
     fn try_from(nested_meta: syn::NestedMeta) -> Result<Self, Self::Error> {
-        match &nested_meta {
+        match nested_meta {
             syn::NestedMeta::Meta(meta) => {
-                match meta {
+                match &meta {
                     syn::Meta::NameValue(name_value) => {
                         if name_value.path.is_ident("selector") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let regex = Regex::new(
                                     r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})"
-                                ).map_err(|_| Error::invalid_flag(nested_meta.clone(), "invalid selector bytes"))?;
+                                ).map_err(|_| {
+                                    format_err!(
+                                        meta,
+                                        "invalid selector bytes"
+                                    )
+                                })?;
                                 let str = lit_str.value();
                                 let cap = regex.captures(&str).unwrap();
                                 let selector_bytes = [
@@ -441,61 +436,56 @@ impl TryFrom<syn::NestedMeta> for AttributeArgs {
                                         "encountered non-hex digit at position 3",
                                     ),
                                 ];
-                                return Ok(AttributeArgs::Selector(Selector::new(
-                                    selector_bytes,
-                                )))
+                                return Ok(AttributeArg {
+                                    ast: meta,
+                                    kind: AttributeArgKind::Selector(Selector::new(
+                                        selector_bytes,
+                                    )),
+                                })
                             }
                         }
                         if name_value.path.is_ident("salt") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let bytes = lit_str.value().into_bytes();
-                                return Ok(AttributeArgs::Salt(Salt::from(bytes)))
+                                return Ok(AttributeArg {
+                                    ast: meta,
+                                    kind: AttributeArgKind::Salt(Salt::from(bytes)),
+                                })
                             }
                         }
-                        Err(Error::invalid_flag(
-                            nested_meta,
-                            "unknown ink! marker (name = value)",
+                        Err(format_err!(
+                            meta,
+                            "unknown ink! attribute argument (name = value)",
                         ))
                     }
                     syn::Meta::Path(path) => {
-                        if path.is_ident("storage") {
-                            return Ok(AttributeArgs::Storage)
+                        let kind: Option<AttributeArgKind> =
+                            path.get_ident().map(Ident::to_string).and_then(|ident| {
+                                match ident.as_str() {
+                                    "storage" => Some(AttributeArgKind::Storage),
+                                    "message" => Some(AttributeArgKind::Message),
+                                    "constructor" => Some(AttributeArgKind::Constructor),
+                                    "event" => Some(AttributeArgKind::Event),
+                                    "topic" => Some(AttributeArgKind::Topic),
+                                    "payable" => Some(AttributeArgKind::Payable),
+                                    "impl" => Some(AttributeArgKind::Implementation),
+                                    _ => None,
+                                }
+                            });
+                        if let Some(kind) = kind {
+                            return Ok(AttributeArg { ast: meta, kind })
                         }
-                        if path.is_ident("message") {
-                            return Ok(AttributeArgs::Message)
-                        }
-                        if path.is_ident("constructor") {
-                            return Ok(AttributeArgs::Constructor)
-                        }
-                        if path.is_ident("event") {
-                            return Ok(AttributeArgs::Event)
-                        }
-                        if path.is_ident("topic") {
-                            return Ok(AttributeArgs::Topic)
-                        }
-                        if path.is_ident("payable") {
-                            return Ok(AttributeArgs::Payable)
-                        }
-                        if path.is_ident("impl") {
-                            return Ok(AttributeArgs::Implementation)
-                        }
-                        Err(Error::invalid_flag(
-                            nested_meta,
-                            "unknown ink! marker (path)",
-                        ))
+                        Err(format_err!(meta, "unknown ink! attribute (path)"))
                     }
                     syn::Meta::List(_) => {
-                        Err(Error::invalid_flag(
-                            nested_meta,
-                            "unknown ink! marker (list)",
-                        ))
+                        Err(format_err!(meta, "unknown ink! attribute argument (list)"))
                     }
                 }
             }
             syn::NestedMeta::Lit(_) => {
-                Err(Error::invalid_flag(
+                Err(format_err!(
                     nested_meta,
-                    "unknown ink! marker (lit)",
+                    "unknown ink! attribute argument (literal)"
                 ))
             }
         }

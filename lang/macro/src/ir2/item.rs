@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir2;
+use crate::{
+    error::ExtError as _,
+    ir2,
+    ir2::attrs::Attrs as _,
+};
 use core::convert::TryFrom;
+use syn::spanned::Spanned as _;
 
 /// An item in the root of the ink! module.
 ///
@@ -25,67 +30,73 @@ pub enum Item {
     Rust(syn::Item),
 }
 
-/// Returns a slice to the attributes of the given [`syn::Item`].
-fn item_attrs(item: &syn::Item) -> &[syn::Attribute] {
-    use syn::Item;
-    match item {
-        Item::Const(syn::ItemConst { attrs, .. })
-        | Item::Enum(syn::ItemEnum { attrs, .. })
-        | Item::ExternCrate(syn::ItemExternCrate { attrs, .. })
-        | Item::Fn(syn::ItemFn { attrs, .. })
-        | Item::ForeignMod(syn::ItemForeignMod { attrs, .. })
-        | Item::Impl(syn::ItemImpl { attrs, .. })
-        | Item::Macro(syn::ItemMacro { attrs, .. })
-        | Item::Macro2(syn::ItemMacro2 { attrs, .. })
-        | Item::Mod(syn::ItemMod { attrs, .. })
-        | Item::Static(syn::ItemStatic { attrs, .. })
-        | Item::Struct(syn::ItemStruct { attrs, .. })
-        | Item::Trait(syn::ItemTrait { attrs, .. })
-        | Item::TraitAlias(syn::ItemTraitAlias { attrs, .. })
-        | Item::Type(syn::ItemType { attrs, .. })
-        | Item::Union(syn::ItemUnion { attrs, .. })
-        | Item::Use(syn::ItemUse { attrs, .. }) => attrs,
-        _ => &[],
-    }
-}
-
 impl TryFrom<syn::Item> for Item {
-    type Error = ir2::Error;
+    type Error = syn::Error;
 
     fn try_from(item: syn::Item) -> Result<Self, Self::Error> {
-        if !ir2::contains_ink_attributes(item_attrs(&item)) {
-            return Ok(Self::Rust(item))
-        }
-        // At this point we know that there must be at least one ink! attribute.
         match item {
             syn::Item::Struct(item_struct) => {
-                // This can be either the ink! storage struct or an ink! event.
-                match ir2::first_ink_attribute(&item_struct.attrs)?
-                    .expect("missing expected ink! attribute")
-                    .first()
-                {
-                    ir2::AttributeArgs::Storage => {
+                if !ir2::contains_ink_attributes(&item_struct.attrs) {
+                    return Ok(Self::Rust(item_struct.into()))
+                }
+                // At this point we know that there must be at least one ink!
+                // attribute. This can be either the ink! storage struct,
+                // an ink! event or an invalid ink! attribute.
+                let attr = ir2::first_ink_attribute(&item_struct.attrs)?
+                    .expect("missing expected ink! attribute for struct");
+                match &attr.first().kind {
+                    ir2::AttributeArgKind::Storage => {
                         <ir2::Storage as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)
                     }
-                    ir2::AttributeArgs::Event => {
+                    ir2::AttributeArgKind::Event => {
                         <ir2::Event as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)
                     }
-                    invalid => todo!(),
+                    _invalid => {
+                        Err(format_err_span!(
+                            attr.span(),
+                            "encountered unsupported ink! attribute argument on struct",
+                        ))
+                    }
                 }
             }
             syn::Item::Impl(item_impl) => {
+                if !ir2::contains_ink_attributes(&item_impl.attrs)
+                    && item_impl
+                        .items
+                        .iter()
+                        .all(|item| !ir2::contains_ink_attributes(item.attrs()))
+                {
+                    return Ok(Self::Rust(item_impl.into()))
+                }
+                // At this point we know that there must be at least one ink!
+                // attribute on either the impl block itself or one of its items.
                 <ir2::ImplBlock as TryFrom<_>>::try_from(item_impl)
                     .map(Into::into)
                     .map(Self::Ink)
             }
-            invalid => {
-                // Error since we do not expect to see an ink! attribute on any
-                // other item kind.
-                todo!()
+            item => {
+                // This is an error if the item contains any unexpected
+                // ink! attributes. Otherwise it is a normal Rust item.
+                if ir2::contains_ink_attributes(item.attrs()) {
+                    let (ink_attrs, _) =
+                        ir2::partition_attributes(item.attrs().iter().cloned())?;
+                    assert!(!ink_attrs.is_empty());
+                    fn into_err(attr: &ir2::InkAttribute) -> syn::Error {
+                        format_err_span!(
+                            attr.span(),
+                            "encountered unexpected ink! attribute",
+                        )
+                    }
+                    return Err(ink_attrs[1..]
+                        .iter()
+                        .map(into_err)
+                        .fold(into_err(&ink_attrs[0]), |fst, snd| fst.into_combine(snd)))
+                }
+                Ok(Self::Rust(item))
             }
         }
     }

@@ -19,7 +19,7 @@ use proc_macro2::Ident;
 /// # Note
 ///
 /// This is equal to the first four bytes of the SHA-3 hash of a function's name.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Selector {
     bytes: [u8; 4],
 }
