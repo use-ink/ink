@@ -134,7 +134,7 @@ impl InkAttribute {
     /// # Note
     ///
     /// This yields at least one ink! attribute flag.
-    pub fn args(&self) -> core::slice::Iter<AttributeArg> {
+    pub fn args(&self) -> ::core::slice::Iter<AttributeArg> {
         self.args.iter()
     }
 }
