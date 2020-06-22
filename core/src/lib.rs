@@ -22,7 +22,9 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
+    missing_docs,
     bad_style,
+    bare_trait_objects,
     const_err,
     improper_ctypes,
     non_shorthand_field_patterns,
@@ -52,7 +54,4 @@ extern crate quickcheck_macros;
 
 pub mod env;
 pub mod hash;
-pub mod storage;
-
-// Needed for derive macros of `core/derive` sub crate.
-pub(crate) use crate as ink_core;
+pub mod storage2;

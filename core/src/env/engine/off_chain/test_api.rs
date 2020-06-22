@@ -14,6 +14,7 @@
 
 //! Operations on the off-chain testing environment.
 
+pub use super::CallData;
 use super::{
     db::ExecContext,
     AccountError,
@@ -22,7 +23,6 @@ use super::{
     OnInstance,
 };
 use crate::env::{
-    call::CallData,
     EnvTypes,
     Result,
 };
@@ -257,11 +257,17 @@ pub struct DefaultAccounts<T>
 where
     T: EnvTypes,
 {
+    /// The predefined `ALICE` account holding substantial amounts of value.
     pub alice: T::AccountId,
+    /// The predefined `BOB` account holding some amounts of value.
     pub bob: T::AccountId,
+    /// The predefined `CHARLIE` account holding some amounts of value.
     pub charlie: T::AccountId,
+    /// The predefined `DJANGO` account holding no value.
     pub django: T::AccountId,
+    /// The predefined `EVE` account holding no value.
     pub eve: T::AccountId,
+    /// The predefined `FRANK` account holding no value.
     pub frank: T::AccountId,
 }
 
@@ -288,14 +294,13 @@ where
 ///
 /// - Initializes the off-chain environment with default values that fit most
 /// uses cases.
-/// - The off-chain environment _must_ be initialized before use.
-pub fn initialize_as_default<T>() -> Result<()>
+pub fn initialize_or_reset_as_default<T>() -> Result<()>
 where
     T: EnvTypes,
     <T as EnvTypes>::AccountId: From<[u8; 32]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.initialize_as_default::<T>()
+        instance.initialize_or_reset_as_default::<T>()
     })
 }
 
@@ -326,7 +331,7 @@ where
     F: FnOnce(DefaultAccounts<T>) -> Result<()>,
     <T as EnvTypes>::AccountId: From<[u8; 32]>,
 {
-    initialize_as_default::<T>()?;
+    initialize_or_reset_as_default::<T>()?;
     let default_accounts = default_accounts::<T>()?;
     f(default_accounts)
 }

@@ -19,7 +19,6 @@ use super::{
 };
 use crate::env::{
     call::{
-        CallData,
         CallParams,
         InstantiateParams,
         ReturnType,
@@ -60,27 +59,27 @@ impl EnvInstance {
 }
 
 impl Env for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
     {
         self.callee_account_mut()
-            .set_storage(key, value)
+            .set_storage(*key, value)
             .expect("callee account is not a smart contract");
     }
 
-    fn get_contract_storage<R>(&mut self, key: Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
     where
         R: scale::Decode,
     {
         self.callee_account()
-            .get_storage::<R>(key)
+            .get_storage::<R>(*key)
             .map(|result| result.map_err(Into::into))
     }
 
-    fn clear_contract_storage(&mut self, key: Key) {
+    fn clear_contract_storage(&mut self, key: &Key) {
         self.callee_account_mut()
-            .clear_storage(key)
+            .clear_storage(*key)
             .expect("callee account is not a smart contract");
     }
 
@@ -91,12 +90,19 @@ impl Env for EnvInstance {
         self.runtime_storage.load::<R>(runtime_key)
     }
 
-    fn input(&mut self) -> Result<CallData> {
+    fn decode_input<T>(&mut self) -> Result<T>
+    where
+        T: scale::Decode,
+    {
         self.exec_context()
             .map(|exec_ctx| &exec_ctx.call_data)
-            .map(Clone::clone)
-            .map_err(|_| scale::Error::from("could not decode input call data"))
+            .map(|call_data| scale::Encode::encode(call_data))
             .map_err(Into::into)
+            .and_then(|encoded| {
+                <T as scale::Decode>::decode(&mut &encoded[..])
+                    .map_err(|_| scale::Error::from("could not decode input call data"))
+                    .map_err(Into::into)
+            })
     }
 
     fn output<R>(&mut self, return_value: &R)
@@ -118,11 +124,11 @@ impl Env for EnvInstance {
     }
 
     fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
-        hashing::blake2_256(input, output)
+        hashing::blake2b_256(input, output)
     }
 
     fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]) {
-        hashing::blake2_128(input, output)
+        hashing::blake2b_128(input, output)
     }
 
     fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
@@ -231,9 +237,13 @@ impl TypedEnv for EnvInstance {
             .expect("could not encode rent allowance")
     }
 
-    fn invoke_contract<T>(&mut self, _call_params: &CallParams<T, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(
+        &mut self,
+        _call_params: &CallParams<T, Args, ()>,
+    ) -> Result<()>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         unimplemented!("off-chain environment does not support contract invokation")
     }
@@ -245,23 +255,25 @@ impl TypedEnv for EnvInstance {
         self.runtime_call_handler.invoke::<T>(params)
     }
 
-    fn eval_contract<T, R>(
+    fn eval_contract<T, Args, R>(
         &mut self,
-        _call_params: &CallParams<T, ReturnType<R>>,
+        _call_params: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: EnvTypes,
+        Args: scale::Encode,
         R: scale::Decode,
     {
         unimplemented!("off-chain environment does not support contract evaluation")
     }
 
-    fn instantiate_contract<T, C>(
+    fn instantiate_contract<T, Args, C>(
         &mut self,
-        _params: &InstantiateParams<T, C>,
+        _params: &InstantiateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         unimplemented!("off-chain environment does not support contract instantiation")
     }

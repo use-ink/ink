@@ -23,12 +23,11 @@ use ink_core::{
         },
         EnvTypes,
         Result,
-        Topics,
     },
 };
 use ink_primitives::Key;
 
-/// Allows to directly access the environment mutably.
+/// Simplifies interaction with the host environment via `self`.
 ///
 /// # Note
 ///
@@ -36,23 +35,40 @@ use ink_primitives::Key;
 /// their environment in order to allow the different dispatch functions
 /// to use it for returning the contract's output.
 pub trait Env {
-    /// The environmental types.
+    /// The access wrapper.
     type EnvAccess;
 
     /// Accesses the environment with predefined environmental types.
     fn env(self) -> Self::EnvAccess;
 }
 
+/// Simplifies interaction with the host environment via `Self`.
+///
+/// # Note
+///
+/// This is generally implemented for storage structs that include
+/// their environment in order to allow the different dispatch functions
+/// to use it for returning the contract's output.
+pub trait StaticEnv {
+    /// The access wrapper.
+    type EnvAccess;
+
+    /// Accesses the environment with predefined environmental types.
+    fn env() -> Self::EnvAccess;
+}
+
 /// A typed accessor to the environment.
 ///
 /// This allows ink! messages to make use of the environment efficiently
 /// and user friendly while also maintaining access invariants.
+#[derive(Copy, Clone)]
 pub struct EnvAccess<'a, T> {
     /// Tricks the Rust compiler into thinking that we use `T`.
     marker: PhantomData<fn() -> &'a T>,
 }
 
 impl<'a, T> Default for EnvAccess<'a, T> {
+    #[inline]
     fn default() -> Self {
         Self {
             marker: Default::default(),
@@ -185,18 +201,6 @@ where
         env::tombstone_deposit::<T>().expect("couldn't decode tombstone deposits")
     }
 
-    /// Emits an event with the given event data.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_core::env::emit_event`]
-    pub fn emit_event<Event>(self, event: Event)
-    where
-        Event: Topics<T> + scale::Encode,
-    {
-        env::emit_event::<T, Event>(event)
-    }
-
     /// Sets the rent allowance of the executed contract to the new value.
     ///
     /// # Note
@@ -220,8 +224,11 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::invoke_contract`]
-    pub fn invoke_contract(self, params: &CallParams<T, ()>) -> Result<()> {
-        env::invoke_contract::<T>(params)
+    pub fn invoke_contract<Args>(self, params: &CallParams<T, Args, ()>) -> Result<()>
+    where
+        Args: scale::Encode,
+    {
+        env::invoke_contract::<T, Args>(params)
     }
 
     /// Evaluates a contract message and returns its result.
@@ -229,11 +236,15 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::eval_contract`]
-    pub fn eval_contract<R>(self, params: &CallParams<T, ReturnType<R>>) -> Result<R>
+    pub fn eval_contract<Args, R>(
+        self,
+        params: &CallParams<T, Args, ReturnType<R>>,
+    ) -> Result<R>
     where
+        Args: scale::Encode,
         R: scale::Decode,
     {
-        env::eval_contract::<T, R>(params)
+        env::eval_contract::<T, Args, R>(params)
     }
 
     /// Instantiates another contract.
@@ -241,11 +252,14 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::instantiate_contract`]
-    pub fn instantiate_contract<C>(
+    pub fn instantiate_contract<Args, C>(
         self,
-        params: &InstantiateParams<T, C>,
-    ) -> Result<T::AccountId> {
-        env::instantiate_contract::<T, C>(params)
+        params: &InstantiateParams<T, Args, C>,
+    ) -> Result<T::AccountId>
+    where
+        Args: scale::Encode,
+    {
+        env::instantiate_contract::<T, Args, C>(params)
     }
 
     /// Restores a smart contract in tombstone state.

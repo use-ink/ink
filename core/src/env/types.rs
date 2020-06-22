@@ -20,35 +20,33 @@
 //! Users are required to provide their own type definitions and `EnvTypes`
 //! implementations in order to write ink! contracts for other chain configurations.
 
-use crate::storage::Flush;
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
+    ops::{
+        Add,
+        AddAssign,
+        Div,
+        DivAssign,
+        Mul,
+        MulAssign,
+        Sub,
+        SubAssign,
+    },
 };
 use derive_more::From;
 use ink_prelude::vec::Vec;
-use scale::{
-    Decode,
-    Encode,
-};
-#[cfg(feature = "ink-generate-abi")]
-use type_metadata::Metadata;
-
-use core::ops::{
-    Add,
-    AddAssign,
-    Div,
-    DivAssign,
-    Mul,
-    MulAssign,
-    Sub,
-    SubAssign,
-};
 use num_traits::{
     Bounded,
     One,
     Zero,
 };
+use scale::{
+    Decode,
+    Encode,
+};
+#[cfg(feature = "std")]
+use scale_info::TypeInfo;
 
 /// Types that allow for simple arithmetic operations.
 ///
@@ -180,7 +178,7 @@ where
 
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
 pub enum DefaultEnvTypes {}
 
 impl EnvTypes for DefaultEnvTypes {
@@ -254,7 +252,7 @@ impl scale::Decode for Call {
     From,
     Default,
 )]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AccountId([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for AccountId {
@@ -265,8 +263,6 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
         Ok(Self(address))
     }
 }
-
-impl Flush for AccountId {}
 
 /// The default environment `Hash` type.
 ///
@@ -288,7 +284,7 @@ impl Flush for AccountId {}
     From,
     Default,
 )]
-#[cfg_attr(feature = "ink-generate-abi", derive(Metadata))]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct Hash([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for Hash {
@@ -332,5 +328,3 @@ impl Clear for Hash {
         Self([0x00; 32])
     }
 }
-
-impl Flush for Hash {}

@@ -34,6 +34,7 @@ macro_rules! impl_hasher_for {
         struct $ty_name:ident($fn_name:ident, $output_len:literal);
     ) => {
         $( #[$doc] )*
+        #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
         pub enum $ty_name {}
 
         impl Hasher for $ty_name {

@@ -17,53 +17,44 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
-mod layout;
+#[cfg(test)]
+mod tests;
+
+pub mod layout2;
 mod specs;
+mod utils;
 
-#[cfg(feature = "derive")]
-pub use ink_abi_derive::HasLayout;
-
-pub use self::{
-    layout::{
-        HasLayout,
-        LayoutField,
-        LayoutKey,
-        LayoutRange,
-        LayoutStruct,
-        StorageLayout,
-    },
-    specs::{
-        ConstructorSpec,
-        ConstructorSpecBuilder,
-        ContractSpec,
-        ContractSpecBuilder,
-        DisplayName,
-        EventParamSpec,
-        EventParamSpecBuilder,
-        EventSpec,
-        EventSpecBuilder,
-        MessageParamSpec,
-        MessageParamSpecBuilder,
-        MessageSpec,
-        MessageSpecBuilder,
-        ReturnTypeSpec,
-        TypeSpec,
-    },
+pub use self::specs::{
+    ConstructorSpec,
+    ConstructorSpecBuilder,
+    ContractSpec,
+    ContractSpecBuilder,
+    DisplayName,
+    EventParamSpec,
+    EventParamSpecBuilder,
+    EventSpec,
+    EventSpecBuilder,
+    MessageParamSpec,
+    MessageParamSpecBuilder,
+    MessageSpec,
+    MessageSpecBuilder,
+    ReturnTypeSpec,
+    TypeSpec,
 };
-
-use serde::Serialize;
-use type_metadata::{
+#[cfg(feature = "derive")]
+use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
 };
+use serde::Serialize;
 
 /// An entire ink! project for ABI file generation purposes.
 #[derive(Debug, Serialize)]
 pub struct InkProject {
     registry: Registry,
     #[serde(rename = "storage")]
-    layout: StorageLayout<CompactForm>,
+    layout: layout2::Layout<CompactForm>,
     #[serde(rename = "contract")]
     spec: ContractSpec<CompactForm>,
 }
@@ -72,7 +63,7 @@ impl InkProject {
     /// Creates a new ink! project.
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
-        L: Into<StorageLayout>,
+        L: Into<layout2::Layout>,
         S: Into<ContractSpec>,
     {
         let mut registry = Registry::new();

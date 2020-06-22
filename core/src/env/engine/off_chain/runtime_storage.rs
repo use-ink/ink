@@ -34,6 +34,11 @@ impl RuntimeStorage {
         }
     }
 
+    /// Resets the runtime storage to uninitialized state.
+    pub fn reset(&mut self) {
+        self.entries.clear();
+    }
+
     /// Stores the value under the given key.
     pub fn store<T>(&mut self, key: Vec<u8>, value: T)
     where

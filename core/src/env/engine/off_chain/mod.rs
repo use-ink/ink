@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod call_data;
 mod db;
 mod hashing;
 mod impls;
@@ -24,6 +25,14 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+pub use self::{
+    call_data::CallData,
+    db::{
+        AccountError,
+        PastPrints,
+    },
+    typed_encoded::TypedEncodedError,
+};
 use self::{
     db::{
         Account,
@@ -46,13 +55,6 @@ use self::{
         OffHash,
         OffTimestamp,
     },
-};
-pub use self::{
-    db::{
-        AccountError,
-        PastPrints,
-    },
-    typed_encoded::TypedEncodedError,
 };
 use super::OnInstance;
 use crate::env::EnvTypes;
@@ -108,6 +110,36 @@ impl EnvInstance {
             runtime_call_handler: RuntimeCallHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
         }
+    }
+
+    /// Returns `true` if the off-chain environment is uninitialized.
+    pub fn is_initialized(&self) -> bool {
+        !self.exec_context.is_empty()
+    }
+
+    /// Either resets or initializes the off-chain environment to default values.
+    pub fn initialize_or_reset_as_default<T>(&mut self) -> crate::env::Result<()>
+    where
+        T: EnvTypes,
+        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    {
+        if self.is_initialized() {
+            self.reset()
+        }
+        self.initialize_as_default::<T>()?;
+        Ok(())
+    }
+
+    /// Resets the off-chain environment to unintialized state.
+    pub fn reset(&mut self) {
+        self.accounts.reset();
+        self.exec_context.clear();
+        self.chain_spec.reset();
+        self.blocks.clear();
+        self.console.reset();
+        self.runtime_storage.reset();
+        self.runtime_call_handler.reset();
+        self.emitted_events.reset();
     }
 
     /// Initializes the whole off-chain environment.
@@ -168,17 +200,17 @@ impl EnvInstance {
             T::Balance::from(20),
         );
         // Initialize the execution context for the first contract execution.
-        use crate::env::call::{
-            CallData,
-            Selector,
-        };
+        use crate::env::call::Selector;
+        // The below selector bytes are incorrect but since calling doesn't work
+        // yet we do not have to fix this now.
+        let selector_bytes_for_call = [0x00; 4];
         self.exec_context.push(
             ExecContext::build::<T>()
                 .caller(default_accounts.alice)
                 .callee(contract_account_id)
                 .gas(T::Balance::from(500_000))
                 .transferred_value(T::Balance::from(500))
-                .call_data(CallData::new(Selector::from_str("call")))
+                .call_data(CallData::new(Selector::new(selector_bytes_for_call)))
                 .finish(),
         );
         Ok(())

@@ -7,7 +7,7 @@
 #
 # - compile to a Wasm blob using `no_std` environment
 # - run offchain tests
-# - generate ABI file using `ink-generate-abi`
+# - generate metadata JSON
 #
 # Afterwards the script prints out a summary report.
 #

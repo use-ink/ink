@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "std")]
+use ::std::io::{
+    Result as IoResult,
+    Write,
+};
 use ink_prelude::vec::Vec;
 
 /// Hash builder that accumulates a buffer on the contract side.
@@ -74,6 +79,30 @@ pub struct Wrap<'a> {
     len: usize,
 }
 
+impl Wrap<'_> {
+    /// Returns the capacity of the underlying buffer.
+    fn capacity(&self) -> usize {
+        self.buffer.len()
+    }
+
+    /// Returns the length of the underlying buffer.
+    fn len(&self) -> usize {
+        self.len
+    }
+}
+
+#[cfg(feature = "std")]
+impl<'a> Write for Wrap<'a> {
+    fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+        <Self as Accumulator>::write(self, buf);
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> IoResult<()> {
+        Ok(())
+    }
+}
+
 impl<'a> From<&'a mut [u8]> for Wrap<'a> {
     fn from(buffer: &'a mut [u8]) -> Self {
         Self { buffer, len: 0 }
@@ -86,6 +115,7 @@ impl<'a> Accumulator for Wrap<'a> {
     }
 
     fn write(&mut self, bytes: &[u8]) {
+        debug_assert!(self.len() + bytes.len() <= self.capacity());
         let len = self.len;
         let bytes_len = bytes.len();
         self.buffer[len..(len + bytes_len)].copy_from_slice(bytes);
@@ -94,5 +124,18 @@ impl<'a> Accumulator for Wrap<'a> {
 
     fn as_slice(&self) -> &[u8] {
         &self.buffer[..self.len]
+    }
+}
+
+#[cfg(not(feature = "std"))]
+impl<'a> scale::Output for Wrap<'a> {
+    fn write(&mut self, bytes: &[u8]) {
+        <Self as Accumulator>::write(self, bytes)
+    }
+
+    fn push_byte(&mut self, byte: u8) {
+        debug_assert!(self.len() < self.capacity());
+        self.buffer[self.len] = byte;
+        self.len += 1;
     }
 }

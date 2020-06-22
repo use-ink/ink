@@ -10,17 +10,12 @@ ink_abi = { version = "2.1.0", path = "../../abi", default-features = false, fea
 ink_core = { version = "2.1.0", path = "../../core", default-features = false }
 ink_lang = { version = "2.1.0", path = "../../lang", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive"] }
-
-[dependencies.type-metadata]
-git = "https://github.com/type-metadata/type-metadata.git"
-rev = "02eae9f35c40c943b56af5b60616219f2b72b47d"
-default-features = false
-features = ["derive"]
-optional = true
+scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive"] }
+scale-info = { version = "0.2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "erc721"
+path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
 	"cdylib",
@@ -29,24 +24,16 @@ crate-type = [
 ]
 
 [features]
-default = ["test-env"]
+default = ["std"]
 std = [
     "ink_primitives/std",
+    "ink_abi",
     "ink_abi/std",
     "ink_core/std",
+    "ink_lang/std",
     "scale/std",
-    "type-metadata/std",
-]
-test-env = [
-    "std",
-    "ink_lang/test-env",
-]
-ink-generate-abi = [
-    "std",
-    "ink_abi",
-    "type-metadata",
-    "ink_core/ink-generate-abi",
-    "ink_lang/ink-generate-abi",
+    "scale-info",
+    "scale-info/std",
 ]
 ink-as-dependency = []
 
@@ -55,6 +42,7 @@ panic = "abort"
 lto = true
 opt-level = "z"
 overflow-checks = true
+codegen-units = 1
 
 [workspace]
 members = [

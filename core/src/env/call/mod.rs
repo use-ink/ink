@@ -15,9 +15,12 @@
 //! Utilities to call or instantiate contracts on the chain.
 
 mod builder;
+mod execution_input;
 mod instantiate;
 mod utils;
 
+/// The compile-time states of builder for calls and instantiations.
+#[doc(hidden)]
 pub mod state {
     pub use crate::env::call::{
         instantiate::state::{
@@ -37,13 +40,18 @@ pub use self::{
         CallParams,
         ReturnType,
     },
+    execution_input::{
+        ArgsList,
+        Argument,
+        ArgumentList,
+        ArgumentListEnd,
+        EmptyArgumentList,
+        ExecutionInput,
+    },
     instantiate::{
         FromAccountId,
         InstantiateBuilder,
         InstantiateParams,
     },
-    utils::{
-        CallData,
-        Selector,
-    },
+    utils::Selector,
 };

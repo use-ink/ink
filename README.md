@@ -16,6 +16,8 @@
 [f2]: https://paritytech.github.io/ink/ink_core
 [h1]: https://img.shields.io/badge/docs-abi-blue.svg
 [h2]: https://paritytech.github.io/ink/ink_abi
+[i1]: https://img.shields.io/badge/docs-prelude-blue.svg
+[i2]: https://paritytech.github.io/ink/ink_prelude
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
@@ -25,9 +27,9 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 
 ## Developer Documentation
 
-| `ink_abi`     | `ink_core`    |
-| ------------- | ------------- |
-| [![][h1]][h2] | [![][f1]][f2] |
+| `ink_abi`     | `ink_core`    | `ink_prelude` |
+| ------------- | ------------- | ------------- |
+| [![][h1]][h2] | [![][f1]][f2] | [![][i1]][i2] |
 
 ### Interaction with Substrate
 
@@ -92,32 +94,34 @@ mod flipper {
     #[ink(storage)]
     struct Flipper {
         /// The single `bool` value.
-        value: storage::Value<bool>,
+        value: bool,
     }
 
     impl Flipper {
         /// Instantiates a new Flipper contract and initializes `value` to `init_value`.
         #[ink(constructor)]
-        fn new(&mut self, init_value: bool) {
-            self.value.set(init_value);
+        fn new(init_value: bool) -> Self {
+            Self {
+                value: init_value,
+            }
         }
 
         /// Instantiates a new Flipper contract and initializes `value` to `false` by default.
         #[ink(constructor)]
-        fn default(&mut self) {
-            self.new(false)
+        fn default() -> Self {
+            Self::new(false)
         }
 
         /// Flips `value` from `true` to `false` or vice versa.
         #[ink(message)]
         fn flip(&mut self) {
-            *self.value = !self.get();
+            self.value = !self.value;
         }
 
         /// Returns the current state of `value`.
         #[ink(message)]
         fn get(&self) -> bool {
-            *self.value
+            self.value
         }
     }
 

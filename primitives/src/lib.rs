@@ -23,11 +23,10 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-mod byte_utils;
-pub mod hash;
 mod key;
+mod key_ptr;
 
-pub use self::key::{
-    Key,
-    KeyDiff,
+pub use self::{
+    key::Key,
+    key_ptr::KeyPtr,
 };

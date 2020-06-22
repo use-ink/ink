@@ -18,7 +18,6 @@ use super::{
 };
 use crate::env::{
     call::{
-        CallData,
         CallParams,
         InstantiateParams,
         ReturnType,
@@ -101,12 +100,13 @@ impl EnvInstance {
     }
 
     /// Reusable implementation for invoking another contract message.
-    fn invoke_contract_impl<T, RetType>(
+    fn invoke_contract_impl<T, Args, RetType>(
         &mut self,
-        call_params: &CallParams<T, RetType>,
+        call_params: &CallParams<T, Args, RetType>,
     ) -> Result<()>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         // Reset the contract-side buffer to append onto clean slate.
         self.reset_buffer();
@@ -131,7 +131,7 @@ impl EnvInstance {
 }
 
 impl Env for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
     {
@@ -139,7 +139,7 @@ impl Env for EnvInstance {
         ext::set_storage(key.as_bytes(), &self.buffer[..]);
     }
 
-    fn get_contract_storage<R>(&mut self, key: Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
     where
         R: scale::Decode,
     {
@@ -149,7 +149,7 @@ impl Env for EnvInstance {
         Some(self.decode_scratch_buffer().map_err(Into::into))
     }
 
-    fn clear_contract_storage(&mut self, key: Key) {
+    fn clear_contract_storage(&mut self, key: &Key) {
         ext::clear_storage(key.as_bytes())
     }
 
@@ -163,8 +163,11 @@ impl Env for EnvInstance {
         Some(self.decode_scratch_buffer().map_err(Into::into))
     }
 
-    fn input(&mut self) -> Result<CallData> {
-        self.get_property::<CallData>(|| ())
+    fn decode_input<T>(&mut self) -> Result<T>
+    where
+        T: scale::Decode,
+    {
+        self.get_property::<T>(|| ())
     }
 
     fn output<R>(&mut self, return_value: &R)
@@ -276,31 +279,37 @@ impl TypedEnv for EnvInstance {
         Ok(())
     }
 
-    fn invoke_contract<T>(&mut self, call_params: &CallParams<T, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(
+        &mut self,
+        call_params: &CallParams<T, Args, ()>,
+    ) -> Result<()>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         self.invoke_contract_impl(call_params)
     }
 
-    fn eval_contract<T, R>(
+    fn eval_contract<T, Args, R>(
         &mut self,
-        call_params: &CallParams<T, ReturnType<R>>,
+        call_params: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: EnvTypes,
+        Args: scale::Encode,
         R: scale::Decode,
     {
         self.invoke_contract_impl(call_params)?;
         self.decode_scratch_buffer().map_err(Into::into)
     }
 
-    fn instantiate_contract<T, C>(
+    fn instantiate_contract<T, Args, C>(
         &mut self,
-        params: &InstantiateParams<T, C>,
+        params: &InstantiateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
+        Args: scale::Encode,
     {
         // Reset the contract-side buffer to append onto clean slate.
         self.reset_buffer();

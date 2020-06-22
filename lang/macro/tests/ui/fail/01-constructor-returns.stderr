@@ -1,5 +1,0 @@
-error: #[ink(constructor)] functions must not have a return type
-  --> $DIR/01-constructor-returns.rs:10:38
-   |
-10 |         fn invalid_return(&mut self) -> Self {}
-   |                                      ^^^^^^^
