@@ -36,7 +36,6 @@ pub use self::{
     config::{
         Config,
         EnvTypes,
-        Error as ConfigError,
     },
     event::Event,
     impl_block::{

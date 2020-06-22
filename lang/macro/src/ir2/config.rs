@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ast;
+use crate::{
+    ast,
+    error::ExtError as _,
+};
 use core::convert::TryFrom;
+use syn::spanned::Spanned;
 
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -36,8 +40,26 @@ pub struct Config {
     env_types: Option<EnvTypes>,
 }
 
+/// Return an error to notify about duplicate ink! config arguments.
+fn duplicate_config_err<F, S>(fst: F, snd: S, name: &str) -> syn::Error
+where
+    F: Spanned,
+    S: Spanned,
+{
+    format_err_span!(
+        snd.span(),
+        "encountered duplicate ink! `{}` config argument",
+        name,
+    )
+    .into_combine(format_err_span!(
+        fst.span(),
+        "first `{}` config argument here",
+        name
+    ))
+}
+
 impl TryFrom<ast::AttributeArgs> for Config {
-    type Error = Error;
+    type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut storage_alloc: Option<(bool, ast::MetaNameValue)> = None;
@@ -46,40 +68,31 @@ impl TryFrom<ast::AttributeArgs> for Config {
         for arg in args.into_iter() {
             if arg.name.is_ident("storage_alloc") {
                 if let Some((_, ast)) = storage_alloc {
-                    return Err(Error::duplicate_arg(
-                        ast,
-                        arg,
-                        "found duplicate ink! `storage_allocator` argument",
-                    ))
+                    return Err(duplicate_config_err(ast, arg, "storage_allocator"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     storage_alloc = Some((lit_bool.value, arg))
                 } else {
-                    return Err(Error::invalid_arg(
+                    return Err(format_err!(
                         arg,
-                        "expected a bool literal for `storage_allocator` ink! argument",
+                        "expected a bool literal for `storage_allocator` ink! config argument",
                     ))
                 }
             } else if arg.name.is_ident("compile_as_dependency") {
                 if let Some((_, ast)) = as_dependency {
-                    return Err(Error::duplicate_arg(
-                        ast,
-                        arg,
-                        "found duplicate ink! `compile_as_dependency` argument",
-                    ))
+                    return Err(duplicate_config_err(ast, arg, "compile_as_dependency"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     as_dependency = Some((lit_bool.value, arg))
                 } else {
-                    return Err(Error::invalid_arg(arg, "expected a bool literal for `compile_as_dependency` ink! argument"))
+                    return Err(format_err!(
+                        arg,
+                        "expected a bool literal for `compile_as_dependency` ink! config argument",
+                    ))
                 }
             } else if arg.name.is_ident("env_types") {
                 if let Some((_, ast)) = env_types {
-                    return Err(Error::duplicate_arg(
-                        ast,
-                        arg,
-                        "found duplicate ink! `env_types` argument",
-                    ))
+                    return Err(duplicate_config_err(ast, arg, "env_types"))
                 }
                 if let ast::PathOrLit::Path(path) = &arg.value {
                     env_types = Some((
@@ -89,13 +102,13 @@ impl TryFrom<ast::AttributeArgs> for Config {
                         arg,
                     ))
                 } else {
-                    return Err(Error::invalid_arg(
+                    return Err(format_err!(
                         arg,
-                        "expected a path for `env_types` ink! argument",
+                        "expected a path for `env_types` ink! config argument",
                     ))
                 }
             } else {
-                return Err(Error::invalid_arg(
+                return Err(format_err!(
                     arg,
                     "encountered unknown or unsupported ink! config argument",
                 ))
@@ -106,53 +119,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
             as_dependency: as_dependency.map(|(as_dependency, _)| as_dependency),
             env_types: env_types.map(|(env_types, _)| env_types),
         })
-    }
-}
-
-/// Errors that can be encountered when converting into an ink! configuration.
-#[derive(Debug, PartialEq, Eq)]
-pub enum Error {
-    InvalidArg {
-        invalid: ast::MetaNameValue,
-        reason: String,
-    },
-    DuplicateArg {
-        fst: ast::MetaNameValue,
-        snd: ast::MetaNameValue,
-        reason: String,
-    },
-}
-
-impl Error {
-    /// Creates a new error indicating an invalid config argument.
-    ///
-    /// Use the reason to further specify what happened.
-    pub fn invalid_arg<S>(arg: ast::MetaNameValue, reason: S) -> Self
-    where
-        S: Into<String>,
-    {
-        Self::InvalidArg {
-            invalid: arg,
-            reason: reason.into(),
-        }
-    }
-
-    /// Creates a new error indicating a duplicate config argument.
-    ///
-    /// Use the reason to further specify what happened.
-    pub fn duplicate_arg<S>(
-        fst: ast::MetaNameValue,
-        snd: ast::MetaNameValue,
-        reason: S,
-    ) -> Self
-    where
-        S: Into<String>,
-    {
-        Self::DuplicateArg {
-            fst,
-            snd,
-            reason: reason.into(),
-        }
     }
 }
 
