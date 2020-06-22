@@ -344,6 +344,80 @@ where
         }
     }
 
+    /// Returns the previous and next vacant entry for the entry at index `at`.
+    ///
+    /// If there exists a last vacant entry, the return value is a tuple
+    /// `(index_of_previous_vacant, index_of_next_vacant)`.
+    /// The two `index_` values hereby are selected in a way that makes it
+    /// more likely that the stash is refilled from low indices.
+    ///
+    /// If no vacant entry exists a self-referential tuple of `(at, at)`
+    /// is returned.
+    fn fetch_prev_and_next_vacant_entry(&self, at: Index) -> (Index, Index) {
+        if let Some(index) = self.last_vacant_index() {
+            let root_vacant = self
+                .entries
+                .get(index)
+                .map(|entry| entry.try_to_vacant())
+                .flatten()
+                .expect("last_vacant must point to an existing vacant entry");
+            // Form the linked vacant entries in a way that makes it more likely
+            // for them to refill the stash from low indices.
+            if at < index {
+                // Insert before root if new vacant index is smaller than root.
+                (root_vacant.prev, index)
+            } else if at < root_vacant.next {
+                // Insert between root and its next vacant entry if smaller than
+                // current root's next index.
+                (index, root_vacant.next)
+            } else {
+                // Insert before root entry if index is greater. But we won't
+                // update the new element to be the new root index in this case.
+                (root_vacant.prev, index)
+            }
+        } else {
+            // Default prev and next to the given at index.
+            // So the resulting vacant index is pointing to itself.
+            (at, at)
+        }
+    }
+
+    /// Updates links from and to neighbouring vacant entries.
+    fn update_neighboring_vacant_entry_links(
+        &mut self,
+        prev: Index,
+        next: Index,
+        at: Index,
+    ) {
+        if prev == next {
+            // Previous and next are the same so we can update the vacant
+            // neighbour with a single look-up.
+            let entry = self
+                .entries
+                .get_mut(next)
+                .map(Entry::try_to_vacant_mut)
+                .flatten()
+                .expect("`next` must point to an existing vacant entry at this point");
+            entry.prev = at;
+            entry.next = at;
+        } else {
+            // Previous and next vacant entries are different and thus need
+            // different look-ups to update them.
+            self.entries
+                .get_mut(prev)
+                .map(Entry::try_to_vacant_mut)
+                .flatten()
+                .expect("`prev` must point to an existing vacant entry at this point")
+                .next = at;
+            self.entries
+                .get_mut(next)
+                .map(Entry::try_to_vacant_mut)
+                .flatten()
+                .expect("`next` must point to an existing vacant entry at this point")
+                .prev = at;
+        }
+    }
+
     /// Put the element into the stash at the next vacant position.
     ///
     /// Returns the stash index that the element was put into.
@@ -386,32 +460,7 @@ where
         }
         // Precompute prev and next vacant entries as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
-        let (prev, next) = if let Some(index) = self.last_vacant_index() {
-            let root_vacant = self
-                .entries
-                .get(index)
-                .map(|entry| entry.try_to_vacant())
-                .flatten()
-                .expect("last_vacant must point to an existing vacant entry");
-            // Form the linked vacant entries in a way that makes it more likely
-            // for them to refill the stash from low indices.
-            if at < index {
-                // Insert before root if new vacant index is smaller than root.
-                (root_vacant.prev, index)
-            } else if at < root_vacant.next {
-                // Insert between root and its next vacant entry if smaller than
-                // current root's next index.
-                (index, root_vacant.next)
-            } else {
-                // Insert before root entry if index is greater. But we won't
-                // update the new element to be the new root index in this case.
-                (root_vacant.prev, index)
-            }
-        } else {
-            // Default prev and next to the given at index.
-            // So the resulting vacant index is pointing to itself.
-            (at, at)
-        };
+        let (prev, next) = self.fetch_prev_and_next_vacant_entry(at);
         let entry_mut = self.entries.get_mut(at).expect("index is out of bounds");
         if entry_mut.is_vacant() {
             // Early return if the taken entry is already vacant.
@@ -420,34 +469,7 @@ where
         // At this point we know that the entry is occupied with a value.
         let new_vacant_entry = Entry::Vacant(VacantEntry { prev, next });
         let taken_entry = core::mem::replace(entry_mut, new_vacant_entry);
-        // Update links from and to neighbouring vacant entries.
-        if prev == next {
-            // Previous and next are the same so we can update the vacant
-            // neighbour with a single look-up.
-            let entry = self
-                .entries
-                .get_mut(next)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
-                .expect("`next` must point to an existing vacant entry at this point");
-            entry.prev = at;
-            entry.next = at;
-        } else {
-            // Previous and next vacant entries are different and thus need
-            // different look-ups to update them.
-            self.entries
-                .get_mut(prev)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
-                .expect("`prev` must point to an existing vacant entry at this point")
-                .next = at;
-            self.entries
-                .get_mut(next)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
-                .expect("`next` must point to an existing vacant entry at this point")
-                .prev = at;
-        }
+        self.update_neighboring_vacant_entry_links(prev, next, at);
         // Take the value out of the taken occupied entry and return it.
         match taken_entry {
             Entry::Occupied(value) => {
@@ -461,6 +483,43 @@ where
                 unreachable!("the taken entry is known to be occupied")
             }
         }
+    }
+
+    /// Removes the element stored at the given index if any.
+    ///
+    /// This method acts similar to the take API and even still returns an Option.
+    /// However, it guarantees to make no contract storage reads to the indexed
+    /// element and will only write to its internal low-level lazy cache that the
+    /// element at the given index is going to be removed at the end of the contract
+    /// execution.
+    ///
+    /// Calling this method with an index out of bounds for the returns `None` and
+    /// does not `remove` the element, otherwise it returns `Some(())`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that `at` refers to an occupied index. Behavior is
+    /// unspecified if `at` refers to a vacant index and could seriously damage the
+    /// contract storage integrity.
+    pub unsafe fn remove_occupied(&mut self, at: Index) -> Option<()> {
+        // This function is written similar to [`Stash::take`], with the exception
+        // that the caller has to ensure that `at` refers to an occupied entry whereby
+        // the procedure can avoid loading the occupied entry which might be handy if
+        // the stored `T` is especially costly to load from contract storage.
+        if at >= self.len_entries() {
+            // Early return since `at` index is out of bounds.
+            return None
+        }
+        // Precompute prev and next vacant entries as we might need them later.
+        // Due to borrow checker constraints we cannot have this at a later stage.
+        let (prev, next) = self.fetch_prev_and_next_vacant_entry(at);
+        let new_vacant_entry = Entry::Vacant(VacantEntry { prev, next });
+        self.entries.put(at, Some(new_vacant_entry));
+        self.update_neighboring_vacant_entry_links(prev, next, at);
+        use core::cmp::min;
+        self.header.last_vacant = min(self.header.last_vacant, min(at, min(prev, next)));
+        self.header.len -= 1;
+        Some(())
     }
 
     /// Defragments the underlying storage to minimize footprint.
