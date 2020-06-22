@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir2;
+use crate::{
+    error::ExtError as _,
+    ir2,
+};
 use core::convert::TryFrom;
 use proc_macro2::Ident;
+use syn::spanned::Spanned as _;
 
 /// An ink! storage struct definition.
 ///
@@ -43,7 +47,25 @@ impl TryFrom<syn::ItemStruct> for Storage {
     type Error = syn::Error;
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
-        todo!()
+        let struct_span = item_struct.span();
+        let (ink_attrs, other_attrs) = ir2::partition_attributes(item_struct.attrs)?;
+        let normalized = ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+            err.into_combine(format_err_span!(struct_span, "at this invokation",))
+        })?;
+        normalized
+            .ensure_first(&ir2::AttributeArgKind::Storage)
+            .map_err(|err| {
+                err.into_combine(format_err_span!(
+                    struct_span,
+                    "expected `#[ink(storage)]` as first ink! attribute argument",
+                ))
+            })?;
+        Ok(Self {
+            struct_item: syn::ItemStruct {
+                attrs: other_attrs,
+                ..item_struct
+            },
+        })
     }
 }
 
