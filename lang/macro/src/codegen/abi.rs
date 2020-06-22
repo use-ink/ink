@@ -41,19 +41,20 @@ impl GenerateCode for GenerateAbi<'_> {
 
         quote! {
             #[cfg(feature = "std")]
-            const _: () = {
-                impl ::ink_lang::GenerateAbi for #storage_ident {
-                    fn generate_abi() -> ::ink_abi::InkProject {
-                        let contract: ::ink_abi::ContractSpec = {
-                            #contract
-                        };
-                        let layout: ::ink_abi::layout2::Layout = {
-                            #layout
-                        };
-                        ::ink_abi::InkProject::new(layout, contract)
-                    }
-                }
-            };
+            #[start]
+            fn generate_metadata(argc: isize, argv: *const *const u8) -> isize {
+                let contract: ::ink_abi::ContractSpec = {
+                    #contract
+                };
+                let layout: ::ink_abi::layout2::Layout = {
+                    #layout
+                };
+                let project = ::ink_abi::InkProject::new(layout, contract);
+
+                let contents = serde_json::to_string_pretty(&project).unwrap();
+                print!("{}", contents);
+                0
+            }
         }
     }
 }
