@@ -490,12 +490,10 @@ where
     ///
     /// # Safety
     ///
-    /// It must be ensured that `at` is an occupied index, otherwise this function
-    /// will panic.
+    /// The caller must ensure that `at` refers to an occupied index. Behavior is unspecified if `at` refers to a vacant index and could seriously damage the contract storage integrity.
     pub unsafe fn remove_occupied(&mut self, at: Index) -> Option<()> {
-        // This function is written similar to `take()`, with the exception
-        // that we take it for granted that `at` is occupied and hence
-        // can remove some logic under this assumption.
+        // This function is written similar to [`Stash::take`], with the exception
+        // that the caller has to ensure that `at` refers to an occupied entry whereby the procedure can avoid loading the occupied entry which might be handy if the stored `T` is especially costly to load from contract storage.
         if at >= self.len_entries() {
             // Early return since `at` index is out of bounds.
             return None
