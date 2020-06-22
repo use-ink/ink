@@ -118,6 +118,81 @@ impl Spanned for InkAttribute {
 }
 
 impl InkAttribute {
+    /// Ensure that the first ink! attribute argument is of expected kind.
+    ///
+    /// # Errors
+    ///
+    /// If the first ink! attribute argument is not of expected kind.
+    pub fn ensure_first(&self, expected: &AttributeArgKind) -> Result<(), syn::Error> {
+        if &self.first().kind != expected {
+            return Err(format_err_span!(
+                self.span(),
+                "unexpected first ink! attribute argument",
+            ))
+        }
+        Ok(())
+    }
+
+    /// Ensures that the given iterator of ink! attribute arguments do not have
+    /// duplicates.
+    ///
+    /// # Errors
+    ///
+    /// If the given iterator yields duplicate ink! attribute arguments.
+    fn ensure_no_duplicate_args<'a, A>(args: A) -> Result<(), syn::Error>
+    where
+        A: IntoIterator<Item = &'a ir2::AttributeArg>,
+    {
+        use crate::error::ExtError as _;
+        use std::collections::HashSet;
+        let mut seen: HashSet<&AttributeArg> = HashSet::new();
+        for arg in args.into_iter() {
+            if let Some(seen) = seen.get(arg) {
+                return Err(format_err_span!(
+                    arg.span(),
+                    "encountered duplicate ink! attribute arguments"
+                )
+                .into_combine(format_err_span!(
+                    seen.span(),
+                    "first equal ink! attribute argument here"
+                )))
+            }
+            seen.insert(arg);
+        }
+        Ok(())
+    }
+
+    /// Converts a sequence of `#[ink(..)]` attributes into a single flattened
+    /// `#[ink(..)]` attribute that contains all of the input arguments.
+    ///
+    /// # Example
+    ///
+    /// Given the input ink! attribute sequence `[ #[ink(message)], #[ink(payable)] ]`
+    /// this procedure returns the single attribute `#[ink(message, payable)]`.
+    ///
+    /// # Errors
+    ///
+    /// - If the sequence of input ink! attributes contains duplicates.
+    /// - If the input sequence is empty.
+    pub fn from_expanded<A>(attrs: A) -> Result<Self, syn::Error>
+    where
+        A: IntoIterator<Item = Self>,
+    {
+        let args = attrs
+            .into_iter()
+            .map(|attr| attr.args)
+            .flatten()
+            .collect::<Vec<_>>();
+        if args.is_empty() {
+            return Err(format_err_span!(
+                Span::call_site(),
+                "encountered unexpected empty expanded ink! attribute arguments",
+            ))
+        }
+        Self::ensure_no_duplicate_args(&args)?;
+        Ok(Self { args })
+    }
+
     /// Returns the first ink! attribute argument.
     ///
     /// # Panics
