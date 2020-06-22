@@ -345,7 +345,7 @@ where
     }
 
     /// Returns the previous and next vacant entry.
-    fn fetch_prev_and_next_vacant_entry(&mut self, at: Index) -> (Index, Index) {
+    fn fetch_prev_and_next_vacant_entry(&self, at: Index) -> (Index, Index) {
         if let Some(index) = self.last_vacant_index() {
             let root_vacant = self
                 .entries
