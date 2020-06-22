@@ -14,6 +14,18 @@
 
 //! Provide macros to simplify error reporting in procedural macros.
 
+pub trait ExtError {
+    /// Returns `self` combined with the other error.
+    fn into_combine(self, another: syn::Error) -> Self;
+}
+
+impl ExtError for syn::Error {
+    fn into_combine(mut self, another: syn::Error) -> Self {
+        self.combine(another);
+        self
+    }
+}
+
 /// Returns a generated error result directly to the caller.
 ///
 /// # Note
