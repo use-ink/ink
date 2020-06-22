@@ -512,124 +512,205 @@ mod tests {
         ]));
     }
 
+    /// Asserts that the given input yields the expected first argument or the
+    /// expected error string.
+    ///
+    /// # Note
+    ///
+    /// Can be used to assert against the success and failure path.
+    fn assert_first_ink_attribute(
+        input: &[syn::Attribute],
+        expected: Result<Option<Vec<ir2::AttributeArgKind>>, &'static str>,
+    ) {
+        assert_eq!(
+            first_ink_attribute(input)
+                .map(|maybe_attr: Option<ir2::InkAttribute>| {
+                    maybe_attr.map(|attr: ir2::InkAttribute| {
+                        attr.args
+                            .into_iter()
+                            .map(|arg| arg.kind)
+                            .collect::<Vec<_>>()
+                    })
+                })
+                .map_err(|err| err.to_string()),
+            expected.map_err(ToString::to_string),
+        )
+    }
+
     #[test]
     fn first_ink_attribute_works() {
-        assert_eq!(first_ink_attribute(&[]), Ok(None),);
-        assert_eq!(
-            first_ink_attribute(&[syn::parse_quote! { #[ink(storage)] }]),
-            Ok(Some(InkAttribute {
-                args: vec![AttributeArgs::Storage,]
-            })),
+        assert_first_ink_attribute(&[], Ok(None));
+        assert_first_ink_attribute(
+            &[syn::parse_quote! { #[ink(storage)] }],
+            Ok(Some(vec![AttributeArgKind::Storage])),
         );
-        {
-            let invalid = syn::parse_quote! { invalid };
-            assert_eq!(
-                first_ink_attribute(&[syn::parse_quote! { #[ink(invalid)] }]),
-                Err(Error::invalid_flag(invalid, "unknown ink! marker (path)")),
-            );
+        assert_first_ink_attribute(
+            &[syn::parse_quote! { #[ink(invalid)] }],
+            Err("unknown ink! attribute (path)"),
+        );
+    }
+
+    mod test {
+        use crate::ir2;
+
+        /// Mock for `ir2::Attribute` to improve testability.
+        #[derive(Debug, PartialEq, Eq)]
+        pub enum Attribute {
+            Ink(Vec<ir2::AttributeArgKind>),
+            Other(syn::Attribute),
         }
+
+        impl From<ir2::Attribute> for Attribute {
+            fn from(attr: ir2::Attribute) -> Self {
+                match attr {
+                    ir2::Attribute::Ink(ink_attr) => {
+                        Self::Ink(
+                            ink_attr
+                                .args
+                                .into_iter()
+                                .map(|arg| arg.kind)
+                                .collect::<Vec<_>>(),
+                        )
+                    }
+                    ir2::Attribute::Other(other_attr) => Self::Other(other_attr),
+                }
+            }
+        }
+
+        impl From<ir2::InkAttribute> for Attribute {
+            fn from(ink_attr: ir2::InkAttribute) -> Self {
+                Attribute::from(ir2::Attribute::Ink(ink_attr))
+            }
+        }
+
+        /// Mock for `ir2::InkAttribute` to improve testability.
+        #[derive(Debug, PartialEq, Eq)]
+        pub struct InkAttribute {
+            args: Vec<ir2::AttributeArgKind>,
+        }
+
+        impl From<ir2::InkAttribute> for InkAttribute {
+            fn from(ink_attr: ir2::InkAttribute) -> Self {
+                Self {
+                    args: ink_attr
+                        .args
+                        .into_iter()
+                        .map(|arg| arg.kind)
+                        .collect::<Vec<_>>(),
+                }
+            }
+        }
+
+        impl<I> From<I> for InkAttribute
+        where
+            I: IntoIterator<Item = ir2::AttributeArgKind>,
+        {
+            fn from(args: I) -> Self {
+                Self {
+                    args: args.into_iter().collect::<Vec<_>>(),
+                }
+            }
+        }
+    }
+
+    /// Asserts that the given [`syn::Attribute`] is converted into the expected
+    /// [`ir2::Attribute]` or yields the expected error message.
+    fn assert_attribute_try_from(
+        input: syn::Attribute,
+        expected: Result<test::Attribute, &'static str>,
+    ) {
+        assert_eq!(
+            <ir2::Attribute as TryFrom<_>>::try_from(input)
+                .map(test::Attribute::from)
+                .map_err(|err| err.to_string()),
+            expected.map_err(ToString::to_string),
+        )
     }
 
     #[test]
     fn storage_works() {
-        let attr: syn::Attribute = syn::parse_quote! {
-            #[ink(storage)]
-        };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(attr),
-            Ok(Attribute::Ink(InkAttribute {
-                args: vec![AttributeArgs::Storage]
-            }))
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(storage)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArgKind::Storage])),
         );
     }
 
+    /// This tests that `#[ink(impl)]` works which can be non-trivial since
+    /// `impl` is also a Rust keyword.
     #[test]
     fn impl_works() {
-        let attr: syn::Attribute = syn::parse_quote! {
-            #[ink(impl)]
-        };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(attr),
-            Ok(Attribute::Ink(InkAttribute {
-                args: vec![AttributeArgs::Implementation]
-            }))
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(impl)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArgKind::Implementation])),
         );
     }
 
     #[test]
     fn selector_works() {
-        let attr: syn::Attribute = syn::parse_quote! {
-            #[ink(selector = "0xDEADBEEF")]
-        };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(attr),
-            Ok(Attribute::Ink(InkAttribute {
-                args: vec![AttributeArgs::Selector(Selector::new([
-                    0xDE, 0xAD, 0xBE, 0xEF
-                ]))]
-            }))
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = "0xDEADBEEF")]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArgKind::Selector(
+                Selector::new([0xDE, 0xAD, 0xBE, 0xEF]),
+            )])),
         );
     }
 
     #[test]
     fn salt_works() {
-        let attr: syn::Attribute = syn::parse_quote! {
-            #[ink(salt = "take my salt!")]
-        };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(attr),
-            Ok(Attribute::Ink(InkAttribute {
-                args: vec![AttributeArgs::Salt(Salt::from(
-                    "take my salt!".to_string().into_bytes()
-                ))]
-            }))
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(salt = "take my salt!")]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArgKind::Salt(
+                Salt::from("take my salt!".to_string().into_bytes()),
+            )])),
         );
     }
 
     #[test]
     fn compound_mixed_works() {
-        let attr: syn::Attribute = syn::parse_quote! {
-            #[ink(message, salt = "message_salt")]
-        };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(attr),
-            Ok(Attribute::Ink(InkAttribute {
-                args: vec![
-                    AttributeArgs::Message,
-                    AttributeArgs::Salt(Salt::from(
-                        "message_salt".to_string().into_bytes()
-                    )),
-                ]
-            }))
-        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(message, salt = "take my salt!")]
+            },
+            Ok(test::Attribute::Ink(vec![
+                AttributeArgKind::Message,
+                AttributeArgKind::Salt(Salt::from(
+                    "take my salt!".to_string().into_bytes(),
+                )),
+            ])),
+        )
     }
 
     #[test]
     fn compound_simple_works() {
-        let attr: syn::Attribute = syn::parse_quote! {
-            #[ink(
-                storage,
-                message,
-                constructor,
-                event,
-                topic,
-                payable,
-                impl,
-            )]
-        };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(attr),
-            Ok(Attribute::Ink(InkAttribute {
-                args: vec![
-                    AttributeArgs::Storage,
-                    AttributeArgs::Message,
-                    AttributeArgs::Constructor,
-                    AttributeArgs::Event,
-                    AttributeArgs::Topic,
-                    AttributeArgs::Payable,
-                    AttributeArgs::Implementation,
-                ]
-            }))
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(
+                    storage,
+                    message,
+                    constructor,
+                    event,
+                    topic,
+                    payable,
+                    impl,
+                )]
+            },
+            Ok(test::Attribute::Ink(vec![
+                AttributeArgKind::Storage,
+                AttributeArgKind::Message,
+                AttributeArgKind::Constructor,
+                AttributeArgKind::Event,
+                AttributeArgKind::Topic,
+                AttributeArgKind::Payable,
+                AttributeArgKind::Implementation,
+            ])),
         );
     }
 
@@ -638,77 +719,80 @@ mod tests {
         let attr: syn::Attribute = syn::parse_quote! {
             #[non_ink(message)]
         };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(attr.clone()),
-            Ok(Attribute::Other(attr.clone())),
-        );
+        assert_attribute_try_from(attr.clone(), Ok(test::Attribute::Other(attr)));
     }
 
     #[test]
     fn empty_ink_attribute_fails() {
-        let naked: syn::Attribute = syn::parse_quote! {
-            #[ink]
-        };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(naked.clone()),
-            Err(Error::invalid(naked.clone(), "unknown ink! attribute"))
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink]
+            },
+            Err("unknown ink! attribute"),
         );
-        let no_args: syn::Attribute = syn::parse_quote! {
-            #[ink]
-        };
-        assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(no_args.clone()),
-            Err(Error::invalid(no_args.clone(), "unknown ink! attribute"))
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink()]
+            },
+            Err("encountered unsupported empty ink! attribute"),
         );
     }
 
     #[test]
     fn duplicate_flags_fails() {
-        let duplicate_flags: syn::Attribute = syn::parse_quote! {
-            #[ink(message, message)]
-        };
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(message, message)]
+            },
+            Err("encountered duplicate ink! attribute arguments"),
+        );
+    }
+
+    /// Asserts that the given sequence of [`syn::Attribute`] is correctly
+    /// partitioned into the expected tuple of ink! and non-ink! attributes
+    /// or that the expected error is returned.
+    fn assert_parition_attributes(
+        input: Vec<syn::Attribute>,
+        expected: Result<(Vec<test::InkAttribute>, Vec<syn::Attribute>), &'static str>,
+    ) {
         assert_eq!(
-            <Attribute as TryFrom<_>>::try_from(duplicate_flags),
-            Err(Error::DuplicateArgs {
-                fst: AttributeArgs::Message,
-                snd: AttributeArgs::Message,
-            })
+            partition_attributes(input)
+                .map(|(ink_attr, other_attr)| {
+                    (
+                        ink_attr
+                            .into_iter()
+                            .map(test::InkAttribute::from)
+                            .collect::<Vec<_>>(),
+                        other_attr,
+                    )
+                })
+                .map_err(|err| err.to_string()),
+            expected.map_err(ToString::to_string)
         );
     }
 
     #[test]
     fn parition_attributes_works() {
-        let duplicate_attrs: Vec<syn::Attribute> = vec![
-            syn::parse_quote! { #[ink(message)] },
-            syn::parse_quote! { #[non_ink_attribute] },
-        ];
-        let ink_attr = <InkAttribute as TryFrom<syn::Attribute>>::try_from(
-            syn::parse_quote! { #[ink(message)] },
+        assert_parition_attributes(
+            vec![
+                syn::parse_quote! { #[ink(message)] },
+                syn::parse_quote! { #[non_ink_attribute] },
+            ],
+            Ok((
+                vec![test::InkAttribute::from(vec![AttributeArgKind::Message])],
+                vec![syn::parse_quote! { #[non_ink_attribute] }],
+            )),
         )
-        .unwrap();
-        let non_ink_attr: syn::Attribute = syn::parse_quote! { #[non_ink_attribute] };
-        assert_eq!(
-            partition_attributes(duplicate_attrs),
-            Ok((vec![ink_attr], vec![non_ink_attr]))
-        );
     }
 
     #[test]
     fn parition_duplicates_fails() {
-        let duplicate_attrs: Vec<syn::Attribute> = vec![
-            syn::parse_quote! { #[ink(message)] },
-            syn::parse_quote! { #[ink(message)] },
-        ];
-        let dupe = <InkAttribute as TryFrom<syn::Attribute>>::try_from(
-            syn::parse_quote! { #[ink(message)] },
+        assert_parition_attributes(
+            vec![
+                syn::parse_quote! { #[ink(message)] },
+                syn::parse_quote! { #[ink(message)] },
+            ],
+            Err("encountered duplicate ink! attribute"),
         )
-        .unwrap();
-        assert_eq!(
-            partition_attributes(duplicate_attrs),
-            Err(Error::DuplicateAttributes {
-                fst: dupe.clone(),
-                snd: dupe.clone(),
-            })
-        );
     }
 }
