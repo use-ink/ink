@@ -25,10 +25,6 @@ crate-type = [
     "rlib",
 ]
 
-[[bin]]
-name = "incrementer"
-path = "lib.rs"
-
 [features]
 default = ["std"]
 std = [
