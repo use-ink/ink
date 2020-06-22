@@ -1,7 +1,10 @@
+extern crate contract;
+
+extern "C" {
+    fn generate_metadata() -> i32;
+}
+
 fn main() -> Result<(), std::io::Error> {
-    let abi = <::contract::Incrementer as ::ink_lang::GenerateAbi>::generate_abi();
-    let contents = serde_json::to_string_pretty(&abi)?;
-    std::fs::create_dir("target").ok();
-    std::fs::write("target/metadata.json", contents)?;
+    unsafe { generate_metadata(); }
     Ok(())
 }

@@ -34,27 +34,26 @@ pub struct GenerateAbi<'a> {
 
 impl GenerateCode for GenerateAbi<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let storage_ident = &self.contract.storage.ident;
-
         let contract = self.generate_contract();
         let layout = self.generate_layout();
 
         quote! {
             #[cfg(feature = "std")]
-            #[start]
-            fn generate_metadata(argc: isize, argv: *const *const u8) -> isize {
-                let contract: ::ink_abi::ContractSpec = {
-                    #contract
-                };
-                let layout: ::ink_abi::layout2::Layout = {
-                    #layout
-                };
-                let project = ::ink_abi::InkProject::new(layout, contract);
+            const _: () = {
+                #[no_mangle]
+                pub extern fn generate_metadata()  {
+                    let contract: ::ink_abi::ContractSpec = {
+                        #contract
+                    };
+                    let layout: ::ink_abi::layout2::Layout = {
+                        #layout
+                    };
+                    let project = ::ink_abi::InkProject::new(layout, contract);
 
-                let contents = serde_json::to_string_pretty(&project).unwrap();
-                print!("{}", contents);
-                0
-            }
+                    let contents = serde_json::to_string_pretty(&project).unwrap();
+                    print!("{}", contents);
+                }
+            };
         }
     }
 }
