@@ -41,7 +41,7 @@ impl GenerateCode for GenerateAbi<'_> {
             #[cfg(feature = "std")]
             const _: () = {
                 #[no_mangle]
-                pub fn generate_metadata() -> ::ink_abi::InkProject  {
+                pub fn __ink_generate_metadata() -> ::ink_abi::InkProject  {
                     let contract: ::ink_abi::ContractSpec = {
                         #contract
                     };
