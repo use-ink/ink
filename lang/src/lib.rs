@@ -14,9 +14,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "std")]
-mod abi;
-
 mod contract;
 mod cross_calling;
 mod dispatcher;
@@ -26,9 +23,6 @@ mod events;
 mod traits;
 
 pub use ink_lang_macro::contract;
-
-#[cfg(feature = "std")]
-pub use self::abi::GenerateAbi;
 
 pub use self::{
     contract::{
