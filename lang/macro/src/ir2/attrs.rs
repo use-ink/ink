@@ -292,7 +292,7 @@ where
                 Attribute::Other(other_attr) => Either::Right(other_attr),
             }
         });
-    Attribute::ensure_no_duplicates(&ink_attrs)?;
+    Attribute::ensure_no_duplicate_attrs(&ink_attrs)?;
     Ok((ink_attrs, others))
 }
 
@@ -303,7 +303,7 @@ impl Attribute {
     ///
     /// If the given iterator yields duplicate ink! attributes.
     /// Note: Duplicate non-ink! attributes are fine.
-    fn ensure_no_duplicates<'a, I>(attrs: I) -> Result<(), syn::Error>
+    fn ensure_no_duplicate_attrs<'a, I>(attrs: I) -> Result<(), syn::Error>
     where
         I: IntoIterator<Item = &'a InkAttribute>,
     {
