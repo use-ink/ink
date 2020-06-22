@@ -34,6 +34,49 @@ pub enum Attribute {
     Other(syn::Attribute),
 }
 
+/// Types implementing this trait can return a slice over their `syn` attributes.
+pub trait Attrs {
+    /// Returns the slice of attributes of an AST entity.
+    fn attrs(&self) -> &[syn::Attribute];
+}
+
+impl Attrs for syn::ImplItem {
+    fn attrs(&self) -> &[syn::Attribute] {
+        match self {
+            syn::ImplItem::Const(item) => &item.attrs,
+            syn::ImplItem::Method(item) => &item.attrs,
+            syn::ImplItem::Type(item) => &item.attrs,
+            syn::ImplItem::Macro(item) => &item.attrs,
+            _ => &[],
+        }
+    }
+}
+
+impl Attrs for syn::Item {
+    fn attrs(&self) -> &[syn::Attribute] {
+        use syn::Item;
+        match self {
+            Item::Const(syn::ItemConst { attrs, .. })
+            | Item::Enum(syn::ItemEnum { attrs, .. })
+            | Item::ExternCrate(syn::ItemExternCrate { attrs, .. })
+            | Item::Fn(syn::ItemFn { attrs, .. })
+            | Item::ForeignMod(syn::ItemForeignMod { attrs, .. })
+            | Item::Impl(syn::ItemImpl { attrs, .. })
+            | Item::Macro(syn::ItemMacro { attrs, .. })
+            | Item::Macro2(syn::ItemMacro2 { attrs, .. })
+            | Item::Mod(syn::ItemMod { attrs, .. })
+            | Item::Static(syn::ItemStatic { attrs, .. })
+            | Item::Struct(syn::ItemStruct { attrs, .. })
+            | Item::Trait(syn::ItemTrait { attrs, .. })
+            | Item::TraitAlias(syn::ItemTraitAlias { attrs, .. })
+            | Item::Type(syn::ItemType { attrs, .. })
+            | Item::Union(syn::ItemUnion { attrs, .. })
+            | Item::Use(syn::ItemUse { attrs, .. }) => attrs,
+            _ => &[],
+        }
+    }
+}
+
 /// An ink! specific attribute.
 ///
 /// # Examples
