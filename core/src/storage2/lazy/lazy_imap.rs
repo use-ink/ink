@@ -192,8 +192,17 @@ impl<V> LazyIndexMap<V> {
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the decoding of the old element at the given index failed.
     pub fn put(&mut self, index: Index, new_value: Option<V>) {
-        self.entries_mut()
-            .insert(index, Box::new(Entry::new(new_value, EntryState::Mutated)));
+        use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
+        match self.entries_mut().entry(index) {
+            BTreeMapEntry::Occupied(mut occupied) => {
+                // We can re-use the already existing boxed `Entry` and simply
+                // swap the underlying values.
+                occupied.get_mut().put(new_value);
+            }
+            BTreeMapEntry::Vacant(vacant) => {
+                vacant.insert(Box::new(Entry::new(new_value, EntryState::Mutated)));
+            }
+        }
     }
 }
 

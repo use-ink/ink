@@ -34,24 +34,22 @@ pub struct GenerateAbi<'a> {
 
 impl GenerateCode for GenerateAbi<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let storage_ident = &self.contract.storage.ident;
-
         let contract = self.generate_contract();
         let layout = self.generate_layout();
 
         quote! {
             #[cfg(feature = "std")]
+            #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
-                impl ::ink_lang::GenerateAbi for #storage_ident {
-                    fn generate_abi() -> ::ink_abi::InkProject {
-                        let contract: ::ink_abi::ContractSpec = {
-                            #contract
-                        };
-                        let layout: ::ink_abi::layout2::Layout = {
-                            #layout
-                        };
-                        ::ink_abi::InkProject::new(layout, contract)
-                    }
+                #[no_mangle]
+                pub fn __ink_generate_metadata() -> ::ink_abi::InkProject  {
+                    let contract: ::ink_abi::ContractSpec = {
+                        #contract
+                    };
+                    let layout: ::ink_abi::layout2::Layout = {
+                        #layout
+                    };
+                    ::ink_abi::InkProject::new(layout, contract)
                 }
             };
         }

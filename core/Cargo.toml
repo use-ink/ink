@@ -41,12 +41,19 @@ blake2 = { version = "0.9", optional = true }
 rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
 scale-info = { version = "0.2", default-features = false, features = ["derive"], optional = true }
 
+# Workaround: we actually just need criterion as a dev-dependency, but
+# there is an issue with a doubly included std lib when executing
+# `cargo check --no-default-features --target wasm32-unknown-unknown`.
+# We haven't found a better solution yet.
+criterion = { version = "0.3", optional = true }
+
 [dev-dependencies]
 itertools = "0.9"
 
 [features]
 default = ["std"]
 std = [
+    "criterion",
     "ink_abi",
     "ink_abi/std",
     "ink_alloc/std",
@@ -63,3 +70,7 @@ std = [
     "sha3",
     "blake2",
 ]
+
+[[bench]]
+name = "bench"
+harness = false
