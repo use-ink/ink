@@ -39,6 +39,7 @@ impl GenerateCode for GenerateAbi<'_> {
 
         quote! {
             #[cfg(feature = "std")]
+            #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink_abi::InkProject  {
