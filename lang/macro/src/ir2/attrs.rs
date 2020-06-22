@@ -146,6 +146,13 @@ pub struct AttributeArg {
     pub kind: AttributeArgKind,
 }
 
+impl AttributeArg {
+    /// Returns a shared reference to the attribute argument kind.
+    pub fn kind(&self) -> &AttributeArgKind {
+        &self.kind
+    }
+}
+
 impl Spanned for AttributeArg {
     fn span(&self) -> Span {
         self.ast.span()
