@@ -344,7 +344,15 @@ where
         }
     }
 
-    /// Returns the previous and next vacant entry.
+    /// Returns the previous and next vacant entry for the entry at index `at`.
+    ///
+    /// If there exists a last vacant entry, the return value is a tuple
+    /// `(index_of_previous_vacant, index_of_next_vacant)`.
+    /// The two `index_` values hereby are selected in a way that makes it
+    /// more likely that the stash is refilled from low indices.
+    ///
+    /// If no vacant entry exists a self-referential tuple of `(at, at)`
+    /// is returned.
     fn fetch_prev_and_next_vacant_entry(&self, at: Index) -> (Index, Index) {
         if let Some(index) = self.last_vacant_index() {
             let root_vacant = self
