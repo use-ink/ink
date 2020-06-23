@@ -435,4 +435,3 @@ fn randomized_removes(xs: Vec<i32>, xth: usize) {
     })
     .unwrap()
 }
-
