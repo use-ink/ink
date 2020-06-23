@@ -20,6 +20,7 @@ use core::convert::TryFrom;
 use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct Event {
     ast: syn::ItemStruct,
 }
