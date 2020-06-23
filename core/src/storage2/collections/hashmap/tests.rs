@@ -341,7 +341,7 @@ fn defrag_works() {
 }
 
 #[test]
-fn spread_layout_push_pull_works() {
+fn spread_layout_push_pull_works() -> env::Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
             .iter()
@@ -357,7 +357,6 @@ fn spread_layout_push_pull_works() {
         assert_eq!(hmap1, hmap2);
         Ok(())
     })
-    .unwrap()
 }
 
 #[test]

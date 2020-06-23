@@ -304,25 +304,6 @@ where
     })
 }
 
-/// Initializes the whole off-chain environment.
-/// Uses a fresh off-chain environment instance!
-///
-/// # Note
-///
-/// - Initializes the off-chain environment with default values that fit most
-/// uses cases.
-/// - The off-chain environment _must_ be initialized before use.
-pub fn recreate_and_initialize_as_default<T>() -> Result<()>
-where
-    T: EnvTypes,
-    <T as EnvTypes>::AccountId: From<[u8; 32]>,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        *instance = EnvInstance::uninitialized();
-        instance.initialize_as_default::<T>()
-    })
-}
-
 /// Runs the given closure test function with the default configuartion
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
