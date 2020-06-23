@@ -38,6 +38,7 @@ use syn::spanned::Spanned as _;
 //      counter: u32,
 /// }
 /// ```
+#[derive(Debug, PartialEq, Eq)]
 pub struct Storage {
     /// The underlying `struct` Rust item.
     struct_item: syn::ItemStruct,
@@ -95,5 +96,114 @@ impl Storage {
     /// Returns an iter yielding all fields of the storage struct.
     pub fn fields(&self) -> syn::punctuated::Iter<syn::Field> {
         self.struct_item.fields.iter()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn simple_try_from_works() {
+        let item_struct: syn::ItemStruct = syn::parse_quote! {
+            #[ink(storage)]
+            pub struct MyStorage {
+                field_1: i32,
+                field_2: bool,
+            }
+        };
+        assert!(Storage::try_from(item_struct).is_ok())
+    }
+
+    fn assert_try_from_fails(item_struct: syn::ItemStruct, expected: &str) {
+        assert_eq!(
+            Storage::try_from(item_struct).map_err(|err| err.to_string()),
+            Err(expected.to_string())
+        )
+    }
+
+    #[test]
+    fn conflicting_attributes_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(storage)]
+                #[ink(event)]
+                pub struct MyStorage {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered conflicting ink! attribute argument",
+        )
+    }
+
+    #[test]
+    fn duplicate_attributes_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(storage)]
+                #[ink(storage)]
+                pub struct MyStorage {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered duplicate ink! attribute",
+        )
+    }
+
+    #[test]
+    fn wrong_first_attribute_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(storage)]
+                pub struct MyStorage {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "unexpected first ink! attribute argument",
+        )
+    }
+
+    #[test]
+    fn missing_storage_attribute_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                pub struct MyStorage {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered unexpected empty expanded ink! attribute arguments",
+        )
+    }
+
+    #[test]
+    fn generic_storage_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(storage)]
+                pub struct GenericStorage<T> {
+                    field_1: T,
+                }
+            },
+            "generic ink! storage structs are not supported",
+        )
+    }
+
+    #[test]
+    fn non_pub_storage_struct() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(storage)]
+                struct PrivateStorage {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "non `pub` ink! storage structs are not supported",
+        )
     }
 }
