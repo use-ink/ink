@@ -148,5 +148,20 @@ impl<'a> Iterator for TopicFieldsIter<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn simple_try_from_works() {
+        let item_struct: syn::ItemStruct = syn::parse_quote! {
+            #[ink(event)]
+            pub struct MyEvent {
+                field_1: i32,
+                field_2: bool,
+            }
+        };
+        assert!(Event::try_from(item_struct).is_ok())
     }
 }
