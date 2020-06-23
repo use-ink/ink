@@ -48,8 +48,8 @@ scale-info = { version = "0.2", default-features = false, features = ["derive"],
 criterion = { version = "0.3", optional = true }
 
 [dev-dependencies]
-quickcheck = "0.9.0"
-quickcheck_macros = "0.8.0"
+quickcheck = "0.9"
+quickcheck_macros = "0.8"
 itertools = "0.9"
 
 [features]

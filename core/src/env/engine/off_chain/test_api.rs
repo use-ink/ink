@@ -336,22 +336,6 @@ where
     f(default_accounts)
 }
 
-/// Runs the given closure test function with the default configuration
-/// for the off-chain environment.
-///
-/// Doesn't reuse an off-chain environment which might already exist in
-/// this thread, but instead uses a new off-chain environment instance.
-pub fn run_multiple_tests_in_thread<T, F>(f: F) -> Result<()>
-where
-    T: EnvTypes,
-    F: FnOnce(DefaultAccounts<T>) -> Result<()>,
-    <T as EnvTypes>::AccountId: From<[u8; 32]>,
-{
-    recreate_and_initialize_as_default::<T>()?;
-    let default_accounts = default_accounts::<T>()?;
-    f(default_accounts)
-}
-
 /// Returns the total number of reads and writes of the contract's storage.
 pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> Result<(usize, usize)>
 where
