@@ -112,7 +112,7 @@ impl Spanned for InkAttribute {
             .iter()
             .map(|arg| arg.span())
             .fold(self.first().span(), |fst, snd| {
-                fst.join(snd).unwrap_or(self.first().span())
+                fst.join(snd).unwrap_or_else(|| self.first().span())
             })
     }
 }
@@ -322,9 +322,7 @@ where
 {
     attrs
         .into_iter()
-        .filter(|attr| attr.path.is_ident("ink"))
-        .next()
-        .is_some()
+        .any(|attr| attr.path.is_ident("ink"))
 }
 
 /// Returns the first valid ink! attribute, if any.
@@ -340,10 +338,7 @@ pub fn first_ink_attribute<'a, I>(
 where
     I: IntoIterator<Item = &'a syn::Attribute>,
 {
-    let first = attrs
-        .into_iter()
-        .filter(|attr| attr.path.is_ident("ink"))
-        .next();
+    let first = attrs.into_iter().find(|attr| attr.path.is_ident("ink"));
     match first {
         None => Ok(None),
         Some(ink_attr) => InkAttribute::try_from(ink_attr.clone()).map(Some),
@@ -365,7 +360,7 @@ where
     use itertools::Itertools as _;
     let (ink_attrs, others) = attrs
         .into_iter()
-        .map(|attr| <Attribute as TryFrom<_>>::try_from(attr))
+        .map(<Attribute as TryFrom<_>>::try_from)
         .collect::<Result<Vec<Attribute>, syn::Error>>()?
         .into_iter()
         .partition_map(|attr| {
@@ -438,7 +433,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                 let args = meta_list
                     .nested
                     .into_iter()
-                    .map(|nested| <AttributeArg as TryFrom<_>>::try_from(nested))
+                    .map(<AttributeArg as TryFrom<_>>::try_from)
                     .collect::<Result<Vec<_>, syn::Error>>()?;
                 Self::ensure_no_duplicate_flags(&args)?;
                 if args.is_empty() {
@@ -487,9 +482,12 @@ impl InkAttribute {
     ///
     /// The given `is_conflicting` describes for every ink! attribute argument
     /// found in `self` if it is in conflict.
-    pub fn ensure_no_conflicts<'a, P>(&'a self, mut is_conflicting: P) -> Result<(), syn::Error>
+    pub fn ensure_no_conflicts<'a, P>(
+        &'a self,
+        mut is_conflicting: P,
+    ) -> Result<(), syn::Error>
     where
-        P: FnMut(&'a ir2::AttributeArg) -> bool
+        P: FnMut(&'a ir2::AttributeArg) -> bool,
     {
         for arg in self.args() {
             if is_conflicting(arg) {

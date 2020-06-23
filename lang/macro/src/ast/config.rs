@@ -141,10 +141,10 @@ impl MetaNameValue {
 impl Parse for PathOrLit {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         if input.fork().peek(syn::Lit) {
-            return input.parse::<syn::Lit>().map(|lit| PathOrLit::Lit(lit))
+            return input.parse::<syn::Lit>().map(PathOrLit::Lit)
         }
         if input.fork().peek(Ident::peek_any) || input.fork().peek(Token![::]) {
-            return input.parse::<syn::Path>().map(|path| PathOrLit::Path(path))
+            return input.parse::<syn::Path>().map(PathOrLit::Path)
         }
         Err(input.error("cannot parse into either literal or path"))
     }

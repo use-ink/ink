@@ -57,6 +57,7 @@ impl ImplBlock {
 }
 
 /// An item within an ink! implementation block.
+#[allow(clippy::large_enum_variant)]
 pub enum ImplBlockItem {
     /// A `#[ink(constructor)]` marked inherent function.
     Constructor(Constructor),
