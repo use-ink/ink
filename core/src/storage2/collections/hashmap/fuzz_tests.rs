@@ -71,7 +71,7 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
 }
 
 #[quickcheck]
-fn randomized_inserts_and_removes_hm(xs: Vec<i32>, inserts_each: u8) {
+fn inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         insert_and_remove(xs, inserts_each);
         Ok(())
@@ -82,7 +82,7 @@ fn randomized_inserts_and_removes_hm(xs: Vec<i32>, inserts_each: u8) {
 /// Inserts all elements from `xs`. Then removes each `xth` element from the map
 /// and asserts that all non-`xth` elements are still in the map.
 #[quickcheck]
-fn randomized_removes(xs: Vec<i32>, xth: usize) {
+fn removes(xs: Vec<i32>, xth: usize) {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let xs: Vec<i32> = xs.into_iter().unique().collect();
