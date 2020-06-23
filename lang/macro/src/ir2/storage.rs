@@ -70,12 +70,14 @@ impl TryFrom<syn::ItemStruct> for Storage {
             ))
         }
         match &item_struct.vis {
-            syn::Visibility::Inherited |
-            syn::Visibility::Restricted(_) |
-            syn::Visibility::Crate(_) => return Err(format_err!(
-                &item_struct.vis,
-                "non `pub` ink! storage structs are not supported",
-            )),
+            syn::Visibility::Inherited
+            | syn::Visibility::Restricted(_)
+            | syn::Visibility::Crate(_) => {
+                return Err(format_err!(
+                    &item_struct.vis,
+                    "non `pub` ink! storage structs are not supported",
+                ))
+            }
             _ => (),
         }
         Ok(Self {
