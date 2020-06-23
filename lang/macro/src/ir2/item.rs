@@ -44,7 +44,7 @@ impl TryFrom<syn::Item> for Item {
                 // an ink! event or an invalid ink! attribute.
                 let attr = ir2::first_ink_attribute(&item_struct.attrs)?
                     .expect("missing expected ink! attribute for struct");
-                match &attr.first().kind {
+                match attr.first().kind() {
                     ir2::AttributeArgKind::Storage => {
                         <ir2::Storage as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
