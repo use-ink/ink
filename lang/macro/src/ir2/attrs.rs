@@ -482,6 +482,25 @@ impl InkAttribute {
         }
         Ok(())
     }
+
+    /// Ensures that there are no conflicting ink! attribute arguments in `self`.
+    ///
+    /// The given `is_conflicting` describes for every ink! attribute argument
+    /// found in `self` if it is in conflict.
+    pub fn ensure_no_conflicts<'a, P>(&'a self, mut is_conflicting: P) -> Result<(), syn::Error>
+    where
+        P: FnMut(&'a ir2::AttributeArg) -> bool
+    {
+        for arg in self.args() {
+            if is_conflicting(arg) {
+                return Err(format_err_span!(
+                    arg.span(),
+                    "encountered conflicting ink! attribute argument",
+                ))
+            }
+        }
+        Ok(())
+    }
 }
 
 impl TryFrom<syn::NestedMeta> for AttributeArg {
