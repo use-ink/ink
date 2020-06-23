@@ -72,7 +72,7 @@ std = [
     "sha3",
     "blake2",
 ]
-ink-fuzz = ["std"]
+ink-fuzz-tests = ["std"]
 
 [[bench]]
 name = "bench"

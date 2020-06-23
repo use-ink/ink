@@ -48,7 +48,7 @@
 #[cfg(not(feature = "std"))]
 extern crate ink_alloc;
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz"))]
+#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 

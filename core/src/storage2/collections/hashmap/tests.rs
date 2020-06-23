@@ -22,7 +22,7 @@ use crate::{
 };
 use ink_primitives::Key;
 
-#[cfg(feature = "ink-fuzz")]
+#[cfg(feature = "ink-fuzz-tests")]
 use itertools::Itertools;
 
 /// Conducts repeated insert and remove operations into the map by iterating
@@ -35,7 +35,7 @@ use itertools::Itertools;
 ///
 /// `inserts_each` was chosen as `u8` to keep the number of inserts per `x` in
 /// a reasonable range.
-#[cfg(feature = "ink-fuzz")]
+#[cfg(feature = "ink-fuzz-tests")]
 fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
     let mut map = <StorageHashMap<i32, i32>>::new();
     let mut cnt_inserts = 0;
@@ -384,7 +384,7 @@ fn spread_layout_clear_works() {
     .unwrap()
 }
 
-#[cfg(feature = "ink-fuzz")]
+#[cfg(feature = "ink-fuzz-tests")]
 #[quickcheck]
 fn randomized_inserts_and_removes_hm(xs: Vec<i32>, inserts_each: u8) {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
@@ -396,7 +396,7 @@ fn randomized_inserts_and_removes_hm(xs: Vec<i32>, inserts_each: u8) {
 
 /// Inserts all elements from `xs`. Then removes each `xth` element from the map
 /// and asserts that all non-`xth` elements are still in the map.
-#[cfg(feature = "ink-fuzz")]
+#[cfg(feature = "ink-fuzz-tests")]
 #[quickcheck]
 fn randomized_removes(xs: Vec<i32>, xth: usize) {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
