@@ -180,6 +180,7 @@ mod tests {
                 #[ink(event)]
                 #[ink(storage)]
                 pub struct MyEvent {
+                    #[ink(topic)]
                     field_1: i32,
                     field_2: bool,
                 }
@@ -195,6 +196,7 @@ mod tests {
                 #[ink(event)]
                 #[ink(event)]
                 pub struct MyEvent {
+                    #[ink(topic)]
                     field_1: i32,
                     field_2: bool,
                 }
@@ -210,6 +212,7 @@ mod tests {
                 #[ink(storage)]
                 #[ink(event)]
                 pub struct MyEvent {
+                    #[ink(topic)]
                     field_1: i32,
                     field_2: bool,
                 }
@@ -223,6 +226,7 @@ mod tests {
         assert_try_from_fails(
             syn::parse_quote! {
                 pub struct MyEvent {
+                    #[ink(topic)]
                     field_1: i32,
                     field_2: bool,
                 }
@@ -237,7 +241,9 @@ mod tests {
             syn::parse_quote! {
                 #[ink(event)]
                 pub struct GenericEvent<T> {
+                    #[ink(topic)]
                     field_1: T,
+                    field_2: bool,
                 }
             },
             "generic ink! event structs are not supported",
@@ -250,6 +256,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(event)]
                 struct PrivateEvent {
+                    #[ink(topic)]
                     field_1: i32,
                     field_2: bool,
                 }
