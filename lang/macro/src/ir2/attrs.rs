@@ -320,9 +320,7 @@ pub fn contains_ink_attributes<'a, I>(attrs: I) -> bool
 where
     I: IntoIterator<Item = &'a syn::Attribute>,
 {
-    attrs
-        .into_iter()
-        .any(|attr| attr.path.is_ident("ink"))
+    attrs.into_iter().any(|attr| attr.path.is_ident("ink"))
 }
 
 /// Returns the first valid ink! attribute, if any.

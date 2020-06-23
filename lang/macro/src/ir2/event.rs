@@ -65,7 +65,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             let field_span = field.span();
             let (ink_attrs, _) = ir2::partition_attributes(field.attrs.clone())?;
             if ink_attrs.is_empty() {
-                continue;
+                continue
             }
             let normalized =
                 ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
