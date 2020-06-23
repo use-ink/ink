@@ -41,7 +41,7 @@ use syn::spanned::Spanned as _;
 #[derive(Debug, PartialEq, Eq)]
 pub struct Storage {
     /// The underlying `struct` Rust item.
-    struct_item: syn::ItemStruct,
+    ast: syn::ItemStruct,
 }
 
 impl TryFrom<syn::ItemStruct> for Storage {
@@ -81,7 +81,7 @@ impl TryFrom<syn::ItemStruct> for Storage {
             _ => (),
         }
         Ok(Self {
-            struct_item: syn::ItemStruct {
+            ast: syn::ItemStruct {
                 attrs: other_attrs,
                 ..item_struct
             },
@@ -92,12 +92,12 @@ impl TryFrom<syn::ItemStruct> for Storage {
 impl Storage {
     /// Returns the identifier of the storage struct.
     pub fn ident(&self) -> &Ident {
-        &self.struct_item.ident
+        &self.ast.ident
     }
 
     /// Returns an iter yielding all fields of the storage struct.
     pub fn fields(&self) -> syn::punctuated::Iter<syn::Field> {
-        self.struct_item.fields.iter()
+        self.ast.fields.iter()
     }
 }
 
