@@ -165,4 +165,96 @@ mod tests {
         };
         assert!(Event::try_from(item_struct).is_ok());
     }
+
+    fn assert_try_from_fails(item_struct: syn::ItemStruct, expected: &str) {
+        assert_eq!(
+            Event::try_from(item_struct).map_err(|err| err.to_string()),
+            Err(expected.to_string())
+        )
+    }
+
+    #[test]
+    fn conflicting_struct_attributes_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(storage)]
+                pub struct MyEvent {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered conflicting ink! attribute argument",
+        )
+    }
+
+    #[test]
+    fn duplicate_struct_attributes_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(event)]
+                pub struct MyEvent {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered duplicate ink! attribute",
+        )
+    }
+
+    #[test]
+    fn wrong_first_struct_attribute_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(storage)]
+                #[ink(event)]
+                pub struct MyEvent {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "unexpected first ink! attribute argument",
+        )
+    }
+
+    #[test]
+    fn missing_storage_attribute_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                pub struct MyEvent {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered unexpected empty expanded ink! attribute arguments",
+        )
+    }
+
+    #[test]
+    fn generic_event_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                pub struct GenericEvent<T> {
+                    field_1: T,
+                }
+            },
+            "generic ink! event structs are not supported",
+        )
+    }
+
+    #[test]
+    fn non_pub_event_struct() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                struct PrivateEvent {
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "non `pub` ink! event structs are not supported",
+        )
+    }
 }
