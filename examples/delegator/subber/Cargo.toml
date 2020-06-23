@@ -18,7 +18,12 @@ scale-info = { version = "0.2", default-features = false, features = ["derive"],
 [lib]
 name = "subber"
 path = "lib.rs"
-crate-type = ["cdylib"]
+crate-type = [
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
+]
 
 [features]
 default = ["std"]
