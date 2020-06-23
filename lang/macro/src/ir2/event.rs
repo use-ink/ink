@@ -78,10 +78,12 @@ impl TryFrom<syn::ItemStruct> for Event {
                 ))
             }
             for arg in normalized.args() {
-                return Err(format_err_span!(
-                    arg.span(),
-                    "encountered conflicting ink! attribute for event field",
-                ))
+                if arg.kind() != &ir2::AttributeArgKind::Topic {
+                    return Err(format_err_span!(
+                        arg.span(),
+                        "encountered conflicting ink! attribute for event field",
+                    ))
+                }
             }
         }
         Ok(Self {
@@ -158,10 +160,11 @@ mod tests {
         let item_struct: syn::ItemStruct = syn::parse_quote! {
             #[ink(event)]
             pub struct MyEvent {
+                #[ink(topic)]
                 field_1: i32,
                 field_2: bool,
             }
         };
-        assert!(Event::try_from(item_struct).is_ok())
+        assert!(Event::try_from(item_struct).is_ok());
     }
 }
