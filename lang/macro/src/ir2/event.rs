@@ -264,4 +264,51 @@ mod tests {
             "non `pub` ink! event structs are not supported",
         )
     }
+
+    #[test]
+    fn duplicate_field_attributes_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered duplicate ink! attribute",
+        )
+    }
+
+    #[test]
+    fn invalid_field_attributes_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                pub struct MyEvent {
+                    #[ink(message)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "first optional ink! attribute of an event field must be #[ink(topic)]",
+        )
+    }
+
+    #[test]
+    fn conflicting_field_attributes_fails() {
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    #[ink(payable)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "encountered conflicting ink! attribute for event field",
+        )
+    }
 }
