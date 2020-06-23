@@ -16,7 +16,7 @@ use crate::ir2;
 use core::convert::TryFrom;
 
 pub struct Event {
-    item: syn::ItemStruct,
+    ast: syn::ItemStruct,
 }
 
 impl TryFrom<syn::ItemStruct> for Event {
