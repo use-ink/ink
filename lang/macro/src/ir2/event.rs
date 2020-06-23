@@ -135,14 +135,12 @@ impl<'a> Iterator for TopicFieldsIter<'a> {
             match self.iter.next() {
                 None => return None,
                 Some(field) => {
-                    if ir2::first_ink_attribute(&field.attrs)
-                        .unwrap_or_default()
-                        .map(|field| {
-                            field.first().kind() == &ir2::AttributeArgKind::Event
-                        })
-                        .unwrap_or(false)
+                    if let Some(attr) =
+                        ir2::first_ink_attribute(&field.attrs).unwrap_or_default()
                     {
-                        return Some(field)
+                        if attr.first().kind() == &ir2::AttributeArgKind::Topic {
+                            return Some(field)
+                        }
                     }
                     continue 'outer
                 }
