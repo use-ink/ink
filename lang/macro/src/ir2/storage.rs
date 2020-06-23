@@ -60,6 +60,23 @@ impl TryFrom<syn::ItemStruct> for Storage {
                     "expected `#[ink(storage)]` as first ink! attribute argument",
                 ))
             })?;
+        normalized
+            .ensure_no_conflicts(|arg| arg.kind() != &ir2::AttributeArgKind::Storage)?;
+        if !item_struct.generics.params.is_empty() {
+            return Err(format_err!(
+                item_struct.generics.params,
+                "generic ink! storage structs are not supported",
+            ))
+        }
+        match &item_struct.vis {
+            syn::Visibility::Inherited |
+            syn::Visibility::Restricted(_) |
+            syn::Visibility::Crate(_) => return Err(format_err!(
+                &item_struct.vis,
+                "non `pub` ink! storage structs are not supported",
+            )),
+            _ => (),
+        }
         Ok(Self {
             struct_item: syn::ItemStruct {
                 attrs: other_attrs,
