@@ -421,14 +421,14 @@ mod tests {
                 #[ink(invalid)]
                 impl MyStorage {}
             },
-            "unknown ink! attribute (path)"
+            "unknown ink! attribute (path)",
         );
         assert_is_ink_impl_block_fails(
             &syn::parse_quote! {
                 #[ink(invalid)]
                 impl MyTrait for MyStorage {}
             },
-            "unknown ink! attribute (path)"
+            "unknown ink! attribute (path)",
         );
         assert_is_ink_impl_block_fails(
             &syn::parse_quote! {
@@ -436,7 +436,7 @@ mod tests {
                 #[ink(impl)]
                 impl MyStorage {}
             },
-            "encountered duplicate ink! attribute"
+            "encountered duplicate ink! attribute",
         );
         assert_is_ink_impl_block_fails(
             &syn::parse_quote! {
@@ -444,7 +444,7 @@ mod tests {
                 #[ink(impl)]
                 impl MyTrait for MyStorage {}
             },
-            "encountered duplicate ink! attribute"
+            "encountered duplicate ink! attribute",
         );
         assert_is_ink_impl_block_fails(
             &syn::parse_quote! {
@@ -453,7 +453,7 @@ mod tests {
                     fn invalid_fn_attr(&self) {}
                 }
             },
-            "unknown ink! attribute (path)"
+            "unknown ink! attribute (path)",
         );
         assert_is_ink_impl_block_fails(
             &syn::parse_quote! {
@@ -462,7 +462,7 @@ mod tests {
                     fn invalid_fn_attr(&self) {}
                 }
             },
-            "unknown ink! attribute (path)"
+            "unknown ink! attribute (path)",
         );
     }
 }
