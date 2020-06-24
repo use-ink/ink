@@ -23,6 +23,7 @@ use syn::spanned::Spanned as _;
 /// An item in the root of the ink! module.
 ///
 /// This is either an ink! specific item or a normal Rust item.
+#[derive(Debug, PartialEq, Eq)]
 pub enum Item {
     /// The item is an ink! specific item.
     Ink(InkItem),
@@ -135,6 +136,7 @@ impl Item {
 }
 
 /// An ink! specific item.
+#[derive(Debug, PartialEq, Eq)]
 pub enum InkItem {
     /// The ink! storage struct definition.
     Storage(ir2::Storage),

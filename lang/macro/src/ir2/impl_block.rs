@@ -22,6 +22,7 @@ use core::convert::TryFrom;
 /// This can be either an inherent implementation block that implements some
 /// constructors, messages or internal functions for the storage struct; OR it
 /// can be a trait implementation for the storage struct.
+#[derive(Debug, PartialEq, Eq)]
 pub struct ImplBlock {
     attrs: Vec<syn::Attribute>,
     defaultness: Option<syn::token::Default>,
@@ -57,6 +58,7 @@ impl ImplBlock {
 }
 
 /// An item within an ink! implementation block.
+#[derive(Debug, PartialEq, Eq)]
 #[allow(clippy::large_enum_variant)]
 pub enum ImplBlockItem {
     /// A `#[ink(constructor)]` marked inherent function.
@@ -115,12 +117,14 @@ impl ImplBlockItem {
 }
 
 /// An ink! constructor definition.
+#[derive(Debug, PartialEq, Eq)]
 pub struct Constructor {
     /// The underlying Rust method item.
     item: syn::ImplItemMethod,
 }
 
 /// An ink! message definition.
+#[derive(Debug, PartialEq, Eq)]
 pub struct Message {
     /// The underlying Rust method item.
     item: syn::ImplItemMethod,
