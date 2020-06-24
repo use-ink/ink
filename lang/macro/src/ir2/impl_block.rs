@@ -159,6 +159,21 @@ pub enum ImplBlockItem {
     Other(syn::ImplItem),
 }
 
+impl TryFrom<syn::ImplItemMethod> for Message {
+    type Error = syn::Error;
+
+    fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
+        todo!()
+    }
+}
+
+impl TryFrom<syn::ImplItemMethod> for Constructor {
+    type Error = syn::Error;
+
+    fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
+        todo!()
+    }
+}
 impl ImplBlockItem {
     /// Returns `true` if the impl block item is an ink! message.
     pub fn is_message(&self) -> bool {
