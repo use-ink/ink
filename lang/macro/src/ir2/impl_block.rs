@@ -129,9 +129,48 @@ impl TryFrom<syn::ItemImpl> for ImplBlock {
     type Error = syn::Error;
 
     fn try_from(item_impl: syn::ItemImpl) -> Result<Self, Self::Error> {
-        // This can be either the ink! storage struct or an ink! event.
-        let (ink_attrs, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
-        todo!()
+        let impl_block_span = item_impl.span();
+        if !Self::is_ink_impl_block(&item_impl)? {
+            return Err(format_err!(
+                item_impl,
+                "missing ink! annotations on the impl block or on any of its items"
+            ))
+        }
+        if let Some(defaultness) = item_impl.defaultness {
+            return Err(format_err!(
+                defaultness,
+                "default implementations are unsupported for ink! implementation blocks",
+            ))
+        }
+        if let Some(unsafety) = item_impl.unsafety {
+            return Err(format_err!(
+                unsafety,
+                "unsafe ink! implementation blocks are not supported",
+            ))
+        }
+        if !item_impl.generics.params.is_empty() {
+            return Err(format_err!(
+                item_impl.generics.params,
+                "generic ink! implementation blocks are not supported",
+            ))
+        }
+        let impl_items = item_impl
+            .items
+            .into_iter()
+            .map(|impl_item| <ImplBlockItem as TryFrom<_>>::try_from(impl_item))
+            .collect::<Result<Vec<_>, syn::Error>>()?;
+        let (_, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
+        Ok(Self {
+            attrs: other_attrs,
+            defaultness: item_impl.defaultness,
+            unsafety: item_impl.unsafety,
+            impl_token: item_impl.impl_token,
+            generics: item_impl.generics,
+            trait_: item_impl.trait_,
+            self_ty: item_impl.self_ty,
+            brace_token: item_impl.brace_token,
+            items: impl_items,
+        })
     }
 }
 
