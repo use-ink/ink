@@ -155,8 +155,8 @@ pub enum ImplBlockItem {
     Constructor(Constructor),
     /// A `#[ink(message)]` marked method.
     Message(Message),
-    /// Any other normal Rust implementation block item.
-    Rust(syn::ImplItem),
+    /// Any other implementation block item.
+    Other(syn::ImplItem),
 }
 
 impl ImplBlockItem {
@@ -190,17 +190,17 @@ impl ImplBlockItem {
         }
     }
 
-    /// Returns `true` if the impl block item is a normal Rust item.
-    pub fn is_rust_item(&self) -> bool {
-        self.filter_map_rust_item().is_some()
+    /// Returns `true` if the impl block item is a non ink! specific item.
+    pub fn is_other_item(&self) -> bool {
+        self.filter_map_other_item().is_some()
     }
 
-    /// Returns `Some` if `self` is a normal Rust item.
+    /// Returns `Some` if `self` is a not an ink! specific item.
     ///
     /// Otherwise, returns `None`.
-    pub fn filter_map_rust_item(&self) -> Option<&syn::ImplItem> {
+    pub fn filter_map_other_item(&self) -> Option<&syn::ImplItem> {
         match self {
-            ImplBlockItem::Rust(rust_item) => Some(rust_item),
+            ImplBlockItem::Other(rust_item) => Some(rust_item),
             _ => None,
         }
     }
