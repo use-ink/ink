@@ -210,3 +210,76 @@ impl InkItem {
         self.filter_map_impl_block().is_some()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn simple_storage_works() {
+        let storage_struct: syn::Item = syn::parse_quote! {
+            #[ink(storage)]
+            pub struct MyStorage {
+                field_1: bool,
+                field_2: i32,
+            }
+        };
+        assert!(matches!(
+            <ir2::Item as TryFrom<_>>::try_from(storage_struct.clone())
+                .map_err(|err| err.to_string()),
+            Ok(ir2::Item::Ink(ir2::InkItem::Storage(_)))
+        ))
+    }
+
+    #[test]
+    fn simple_event_works() {
+        let event_struct: syn::Item = syn::parse_quote! {
+            #[ink(event)]
+            pub struct MyEvent {
+                #[ink(topic)]
+                param_1: bool,
+                param_2: i32,
+            }
+        };
+        assert!(matches!(
+            <ir2::Item as TryFrom<_>>::try_from(event_struct.clone())
+                .map_err(|err| err.to_string()),
+            Ok(ir2::Item::Ink(ir2::InkItem::Event(_)))
+        ))
+    }
+
+    #[test]
+    fn simple_rust_item_works() {
+        let rust_items: Vec<syn::Item> = vec![
+            syn::parse_quote! {
+                struct RustStruct {
+                    field_1: bool,
+                    field_2: i32,
+                }
+            },
+            syn::parse_quote! {
+                enum RustEnum {
+                    Variant1,
+                    Variant2(bool),
+                    Variant3 {
+                        a: i32,
+                        b: i32,
+                    }
+                }
+            },
+            syn::parse_quote! {
+                fn rust_function(param1: bool, param2: i32) {}
+            },
+            syn::parse_quote! {
+                mod rust_module {}
+            },
+        ];
+        for rust_item in rust_items {
+            assert_eq!(
+                <ir2::Item as TryFrom<_>>::try_from(rust_item.clone())
+                    .map_err(|err| err.to_string()),
+                Ok(ir2::Item::Rust(rust_item))
+            )
+        }
+    }
+}
