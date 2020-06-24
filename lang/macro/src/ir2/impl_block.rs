@@ -67,6 +67,8 @@ impl ImplBlock {
     /// }
     /// ```
     ///
+    /// The same rules apply to ink! trait implementation blocks.
+    ///
     /// # Errors
     ///
     /// Returns an error in case of encountered malformed ink! attributes.
