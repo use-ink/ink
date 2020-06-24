@@ -16,12 +16,7 @@ scale-info = { version = "0.2", default-features = false, features = ["derive"],
 [lib]
 name = "erc20"
 path = "lib.rs"
-crate-type = [
-    # Used for normal contract Wasm blobs.
-    "cdylib",
-    # Used for ABI generation.
-    "rlib",
-]
+crate-type = ["cdylib"]
 
 [features]
 default = ["std"]
@@ -36,18 +31,3 @@ std = [
     "scale-info/std",
 ]
 ink-as-dependency = []
-
-[profile.release]
-panic = "abort"
-lto = true
-opt-level = "z"
-overflow-checks = true
-codegen-units = 1
-
-[workspace]
-members = [
-    ".ink/abi_gen"
-]
-exclude = [
-    ".ink"
-]
