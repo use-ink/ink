@@ -14,6 +14,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub use self::adder::Adder;
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]
