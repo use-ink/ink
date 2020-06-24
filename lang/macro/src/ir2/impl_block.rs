@@ -174,6 +174,60 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
         todo!()
     }
 }
+
+impl TryFrom<syn::ImplItem> for ImplBlockItem {
+    type Error = syn::Error;
+
+    fn try_from(impl_item: syn::ImplItem) -> Result<Self, Self::Error> {
+        match impl_item {
+            syn::ImplItem::Method(method_item) => {
+                if !ir2::contains_ink_attributes(&method_item.attrs) {
+                    return Ok(Self::Other(method_item.into()))
+                }
+                let attr = ir2::first_ink_attribute(&method_item.attrs)?
+                    .expect("missing expected ink! attribute for struct");
+                match attr.first().kind() {
+                    ir2::AttributeArgKind::Message => {
+                        <Message as TryFrom<_>>::try_from(method_item)
+                            .map(Into::into)
+                            .map(Self::Message)
+                    }
+                    ir2::AttributeArgKind::Constructor => {
+                        <Constructor as TryFrom<_>>::try_from(method_item)
+                            .map(Into::into)
+                            .map(Self::Constructor)
+                    }
+                    _ => Err(format_err!(
+                        method_item,
+                        "encountered invalid ink! attribute at this point, expected either \
+                        #[ink(message)] or #[ink(constructor) attributes"
+                    )),
+                }
+            }
+            other_item => {
+                // This is an error if the impl item contains any unexpected
+                // ink! attributes. Otherwise it is a normal Rust item.
+                if ir2::contains_ink_attributes(other_item.attrs()) {
+                    let (ink_attrs, _) =
+                        ir2::partition_attributes(other_item.attrs().iter().cloned())?;
+                    assert!(!ink_attrs.is_empty());
+                    fn into_err(attr: &ir2::InkAttribute) -> syn::Error {
+                        format_err_span!(
+                            attr.span(),
+                            "encountered unexpected ink! attribute",
+                        )
+                    }
+                    return Err(ink_attrs[1..]
+                        .iter()
+                        .map(into_err)
+                        .fold(into_err(&ink_attrs[0]), |fst, snd| fst.into_combine(snd)))
+                }
+                Ok(Self::Other(other_item))
+            }
+        }
+    }
+}
+
 impl ImplBlockItem {
     /// Returns `true` if the impl block item is an ink! message.
     pub fn is_message(&self) -> bool {
