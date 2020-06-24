@@ -169,7 +169,7 @@ fmt:
   # `cargo install` returns an error if there is nothing to update, so have to suppress it here temporarily
 # restore this once ink! 3.0 is published and the new version of cargo-contract has been released to crates.io
 #  - cargo install cargo-contract || echo $?
-  - cargo install --git https://github.com/paritytech/cargo-contract --branch aj-abi || echo $?
+  - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci || echo $?
   - cargo contract -V
 
 examples-test:
