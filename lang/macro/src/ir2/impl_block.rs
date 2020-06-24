@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir2;
+use crate::{
+    error::ExtError as _,
+    ir2,
+    ir2::attrs::Attrs as _,
+};
 use core::convert::TryFrom;
+use syn::spanned::Spanned as _;
 
 /// An ink! implementation block.
 ///
@@ -33,6 +38,89 @@ pub struct ImplBlock {
     self_ty: Box<syn::Type>,
     brace_token: syn::token::Brace,
     items: Vec<ImplBlockItem>,
+}
+
+impl ImplBlock {
+    /// Returns `true` if the Rust implementation block is an ink! implementation
+    /// block.
+    ///
+    /// # Note
+    ///
+    /// This is the case if:
+    ///
+    /// - The ink! implementation block has been annotatated as in:
+    ///
+    /// ```rust
+    /// #[ink(impl)]
+    /// impl MyStorage {
+    ///     fn my_function(&self) { /* ... */ }
+    /// }
+    /// ```
+    ///
+    /// - Or if any of the ink! implementation block methods do have ink!
+    ///   specific annotations:
+    ///
+    /// ```rust
+    /// impl MyStorage {
+    ///     #[ink(constructor)]
+    ///     fn my_constructor() -> Self { /* ... */ }
+    /// }
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns an error in case of encountered malformed ink! attributes.
+    pub fn is_ink_impl_block(item_impl: &syn::ItemImpl) -> Result<bool, syn::Error> {
+        // Quick check in order to efficiently bail out in case where there are
+        // no ink! attributes:
+        if !ir2::contains_ink_attributes(&item_impl.attrs)
+            && item_impl
+                .items
+                .iter()
+                .all(|item| !ir2::contains_ink_attributes(item.attrs()))
+        {
+            return Ok(false)
+        }
+        // Check if the implementation block itself has been annotated with
+        // `#[ink(impl)]` and return `true` if this is the case.
+        let (ink_attrs, _) = ir2::partition_attributes(item_impl.attrs.clone())?;
+        let impl_block_span = item_impl.span();
+        if !ink_attrs.is_empty() {
+            let normalized =
+                ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                    err.into_combine(format_err_span!(
+                        impl_block_span,
+                        "at this invokation",
+                    ))
+                })?;
+            if normalized
+                .ensure_first(&ir2::AttributeArgKind::Implementation)
+                .is_ok()
+            {
+                return Ok(true)
+            }
+        }
+        // Check if any of the implementation block's methods either resembles
+        // an ink! constructor or an ink! message:
+        'outer: for item in &item_impl.items {
+            match item {
+                syn::ImplItem::Method(method_item) => {
+                    if !ir2::contains_ink_attributes(&method_item.attrs) {
+                        continue 'outer
+                    }
+                    let attr = ir2::first_ink_attribute(&method_item.attrs)?
+                        .expect("missing expected ink! attribute for struct");
+                    match attr.first().kind() {
+                        ir2::AttributeArgKind::Constructor
+                        | ir2::AttributeArgKind::Message => return Ok(true),
+                        _ => continue 'outer,
+                    }
+                }
+                _ => continue 'outer,
+            }
+        }
+        Ok(false)
+    }
 }
 
 impl TryFrom<syn::ItemImpl> for ImplBlock {
@@ -225,5 +313,154 @@ impl<'a> Iterator for IterMessages<'a> {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_ink_impl_block_eval_false_works() {
+        let item_impls: Vec<syn::ItemImpl> = vec![
+            syn::parse_quote! {
+                impl MyStorage {}
+            },
+            syn::parse_quote! {
+                impl MyTrait for MyStorage {}
+            },
+        ];
+        for item_impl in &item_impls {
+            assert_eq!(
+                ir2::ImplBlock::is_ink_impl_block(item_impl)
+                    .map_err(|err| err.to_string()),
+                Ok(false),
+            )
+        }
+    }
+
+    #[test]
+    fn is_ink_impl_block_eval_true_works() {
+        let item_impls: Vec<syn::ItemImpl> = vec![
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl MyStorage {}
+            },
+            syn::parse_quote! {
+                impl MyStorage {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self {}
+                }
+            },
+            syn::parse_quote! {
+                impl MyStorage {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                }
+            },
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl MyTrait for MyStorage {}
+            },
+            syn::parse_quote! {
+                impl MyTrait for MyStorage {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                }
+            },
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl MyStorage {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self {}
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                }
+            },
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl MyTrait for MyStorage {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self {}
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                }
+            },
+            syn::parse_quote! {
+                // This is actually invalid but the function under test will
+                // still determine this to be a valid ink! implementation block.
+                #[ink(impl)]
+                impl MyStorage {
+                    #[ink(..)]
+                    fn invalid_ink_attribute(&self) {}
+                }
+            },
+        ];
+        for item_impl in &item_impls {
+            assert_eq!(
+                ir2::ImplBlock::is_ink_impl_block(item_impl)
+                    .map_err(|err| err.to_string()),
+                Ok(true),
+            )
+        }
+    }
+
+    fn assert_is_ink_impl_block_fails(impl_block: &syn::ItemImpl, expected: &str) {
+        assert_eq!(
+            ir2::ImplBlock::is_ink_impl_block(impl_block).map_err(|err| err.to_string()),
+            Err(expected.to_string())
+        )
+    }
+
+    #[test]
+    fn is_ink_impl_block_fails() {
+        assert_is_ink_impl_block_fails(
+            &syn::parse_quote! {
+                #[ink(invalid)]
+                impl MyStorage {}
+            },
+            "unknown ink! attribute (path)"
+        );
+        assert_is_ink_impl_block_fails(
+            &syn::parse_quote! {
+                #[ink(invalid)]
+                impl MyTrait for MyStorage {}
+            },
+            "unknown ink! attribute (path)"
+        );
+        assert_is_ink_impl_block_fails(
+            &syn::parse_quote! {
+                #[ink(impl)]
+                #[ink(impl)]
+                impl MyStorage {}
+            },
+            "encountered duplicate ink! attribute"
+        );
+        assert_is_ink_impl_block_fails(
+            &syn::parse_quote! {
+                #[ink(impl)]
+                #[ink(impl)]
+                impl MyTrait for MyStorage {}
+            },
+            "encountered duplicate ink! attribute"
+        );
+        assert_is_ink_impl_block_fails(
+            &syn::parse_quote! {
+                impl MyStorage {
+                    #[ink(invalid)]
+                    fn invalid_fn_attr(&self) {}
+                }
+            },
+            "unknown ink! attribute (path)"
+        );
+        assert_is_ink_impl_block_fails(
+            &syn::parse_quote! {
+                impl MyTrait for MyStorage {
+                    #[ink(invalid)]
+                    fn invalid_fn_attr(&self) {}
+                }
+            },
+            "unknown ink! attribute (path)"
+        );
     }
 }

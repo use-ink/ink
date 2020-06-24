@@ -65,12 +65,7 @@ impl TryFrom<syn::Item> for Item {
                 }
             }
             syn::Item::Impl(item_impl) => {
-                if !ir2::contains_ink_attributes(&item_impl.attrs)
-                    && item_impl
-                        .items
-                        .iter()
-                        .all(|item| !ir2::contains_ink_attributes(item.attrs()))
-                {
+                if !ir2::ImplBlock::is_ink_impl_block(&item_impl)? {
                     return Ok(Self::Rust(item_impl.into()))
                 }
                 // At this point we know that there must be at least one ink!
