@@ -208,10 +208,6 @@ impl TypedEnv for EnvInstance {
         self.get_property::<T::Balance>(ext::value_transferred)
     }
 
-    fn gas_price<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::gas_price)
-    }
-
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
         self.get_property::<T::Balance>(ext::gas_left)
     }
@@ -378,6 +374,11 @@ impl TypedEnv for EnvInstance {
         let value = &self.buffer[value];
         // Perform the actual transfer call.
         ext::transfer(destination, value)
+    }
+
+    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
+        ext::gas_price(gas);
+        self.decode_scratch_buffer().map_err(Into::into)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
