@@ -27,6 +27,7 @@ pub use self::{
         contains_ink_attributes,
         first_ink_attribute,
         partition_attributes,
+        sanitize_attributes,
         Attribute,
         AttributeArg,
         AttributeArgKind,

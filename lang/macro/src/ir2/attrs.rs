@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::{
+    error::ExtError as _,
     ir2,
     ir2::Selector,
 };
@@ -289,6 +290,22 @@ pub enum AttributeArgKind {
     Implementation,
 }
 
+impl core::fmt::Display for AttributeArgKind {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
+        match self {
+            Self::Storage => write!(f, "storage"),
+            Self::Event => write!(f, "event"),
+            Self::Topic => write!(f, "topic"),
+            Self::Message => write!(f, "message"),
+            Self::Constructor => write!(f, "constructor"),
+            Self::Payable => write!(f, "payable"),
+            Self::Selector(selector) => write!(f, "selector = {:?}", selector.as_bytes()),
+            Self::Salt(salt) => write!(f, "salt = {:?}", salt.as_bytes()),
+            Self::Implementation => write!(f, "impl"),
+        }
+    }
+}
+
 /// An ink! salt applicable to a trait implementation block.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Salt {
@@ -369,6 +386,47 @@ where
         });
     Attribute::ensure_no_duplicate_attrs(&ink_attrs)?;
     Ok((ink_attrs, others))
+}
+
+/// Sanitizes the given attributes.
+///
+/// This paritions the attributes into ink! and non-ink! attributes.
+/// All ink! attributes are normalized, they are checked to have a valid first
+/// ink! attribute argument and no conflicts given the conflict predicate.
+///
+/// Returns the partitioned ink! and non-ink! attributes.
+///
+/// # Errors
+///
+/// - If there are invalid ink! attributes.
+/// - If there are duplicate ink! attributes.
+/// - If the first ink! attribute is not matching the expected.
+/// - If there are conflicting ink! attributes.
+pub fn sanitize_attributes<I, C>(
+    parent_span: Span,
+    attrs: I,
+    is_valid_first: &ir2::AttributeArgKind,
+    mut is_conflicting_attr: C,
+) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
+where
+    I: IntoIterator<Item = syn::Attribute>,
+    C: FnMut(&AttributeArgKind) -> bool,
+{
+    let (ink_attrs, other_attrs) = ir2::partition_attributes(attrs)?;
+    let normalized = ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+        err.into_combine(format_err_span!(parent_span, "at this invokation",))
+    })?;
+    normalized
+        .ensure_first(is_valid_first)
+        .map_err(|err| {
+            err.into_combine(format_err_span!(
+                parent_span,
+                "expected {} as first ink! attribute argument",
+                is_valid_first,
+            ))
+        })?;
+    normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg.kind()))?;
+    Ok((normalized, other_attrs))
 }
 
 impl Attribute {
