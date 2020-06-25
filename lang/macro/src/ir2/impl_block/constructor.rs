@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    error::ExtError as _,
-    ir2,
-    ir2::attrs::Attrs as _,
-};
+use crate::ir2;
 use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
 
@@ -44,13 +40,13 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
             &ir2::AttributeArgKind::Constructor,
             |kind| {
                 match kind {
-                    ir2::AttributeArgKind::Constructor |
-                    ir2::AttributeArgKind::Payable |
-                    ir2::AttributeArgKind::Salt(_) |
-                    ir2::AttributeArgKind::Selector(_) => false,
+                    ir2::AttributeArgKind::Constructor
+                    | ir2::AttributeArgKind::Payable
+                    | ir2::AttributeArgKind::Salt(_)
+                    | ir2::AttributeArgKind::Selector(_) => false,
                     _ => false,
                 }
-            }
+            },
         )?;
         let is_payable = false; // TODO
         let salt = None; // TODO
@@ -61,8 +57,7 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
             selector,
             item: syn::ImplItemMethod {
                 attrs: other_attrs,
-                ..
-                method_item
+                ..method_item
             },
         })
     }
