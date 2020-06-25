@@ -89,7 +89,7 @@ mod sys {
         pub fn ext_block_number();
         pub fn ext_address();
         pub fn ext_balance();
-        pub fn ext_gas_price();
+        pub fn ext_gas_price(gas: u64);
         pub fn ext_gas_left();
         pub fn ext_value_transferred();
         pub fn ext_now();
