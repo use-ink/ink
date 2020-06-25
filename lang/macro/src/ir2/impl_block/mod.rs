@@ -1,0 +1,208 @@
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use crate::{
+    error::ExtError as _,
+    ir2,
+    ir2::attrs::Attrs as _,
+};
+use core::convert::TryFrom;
+use syn::spanned::Spanned as _;
+
+mod constructor;
+mod impl_item;
+mod iter;
+mod message;
+
+#[cfg(test)]
+mod tests;
+
+pub use self::{
+    constructor::Constructor,
+    impl_item::ImplBlockItem,
+    iter::{
+        IterConstructors,
+        IterMessages,
+    },
+    message::{
+        Message,
+        Receiver,
+    },
+};
+
+/// An ink! implementation block.
+///
+/// # Note
+///
+/// This can be either an inherent implementation block that implements some
+/// constructors, messages or internal functions for the storage struct; OR it
+/// can be a trait implementation for the storage struct.
+#[derive(Debug, PartialEq, Eq)]
+pub struct ImplBlock {
+    attrs: Vec<syn::Attribute>,
+    defaultness: Option<syn::token::Default>,
+    unsafety: Option<syn::token::Unsafe>,
+    impl_token: syn::token::Impl,
+    generics: syn::Generics,
+    trait_: Option<(Option<syn::token::Bang>, syn::Path, syn::token::For)>,
+    self_ty: Box<syn::Type>,
+    brace_token: syn::token::Brace,
+    items: Vec<ImplBlockItem>,
+}
+
+impl ImplBlock {
+    /// Returns `true` if the Rust implementation block is an ink! implementation
+    /// block.
+    ///
+    /// # Note
+    ///
+    /// This is the case if:
+    ///
+    /// - The ink! implementation block has been annotatated as in:
+    ///
+    /// ```rust
+    /// #[ink(impl)]
+    /// impl MyStorage {
+    ///     fn my_function(&self) { /* ... */ }
+    /// }
+    /// ```
+    ///
+    /// - Or if any of the ink! implementation block methods do have ink!
+    ///   specific annotations:
+    ///
+    /// ```rust
+    /// impl MyStorage {
+    ///     #[ink(constructor)]
+    ///     fn my_constructor() -> Self { /* ... */ }
+    /// }
+    /// ```
+    ///
+    /// The same rules apply to ink! trait implementation blocks.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error in case of encountered malformed ink! attributes.
+    pub fn is_ink_impl_block(item_impl: &syn::ItemImpl) -> Result<bool, syn::Error> {
+        // Quick check in order to efficiently bail out in case where there are
+        // no ink! attributes:
+        if !ir2::contains_ink_attributes(&item_impl.attrs)
+            && item_impl
+                .items
+                .iter()
+                .all(|item| !ir2::contains_ink_attributes(item.attrs()))
+        {
+            return Ok(false)
+        }
+        // Check if the implementation block itself has been annotated with
+        // `#[ink(impl)]` and return `true` if this is the case.
+        let (ink_attrs, _) = ir2::partition_attributes(item_impl.attrs.clone())?;
+        let impl_block_span = item_impl.span();
+        if !ink_attrs.is_empty() {
+            let normalized =
+                ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                    err.into_combine(format_err_span!(
+                        impl_block_span,
+                        "at this invokation",
+                    ))
+                })?;
+            if normalized
+                .ensure_first(&ir2::AttributeArgKind::Implementation)
+                .is_ok()
+            {
+                return Ok(true)
+            }
+        }
+        // Check if any of the implementation block's methods either resembles
+        // an ink! constructor or an ink! message:
+        'outer: for item in &item_impl.items {
+            match item {
+                syn::ImplItem::Method(method_item) => {
+                    if !ir2::contains_ink_attributes(&method_item.attrs) {
+                        continue 'outer
+                    }
+                    let attr = ir2::first_ink_attribute(&method_item.attrs)?
+                        .expect("missing expected ink! attribute for struct");
+                    match attr.first().kind() {
+                        ir2::AttributeArgKind::Constructor
+                        | ir2::AttributeArgKind::Message => return Ok(true),
+                        _ => continue 'outer,
+                    }
+                }
+                _ => continue 'outer,
+            }
+        }
+        Ok(false)
+    }
+}
+
+impl TryFrom<syn::ItemImpl> for ImplBlock {
+    type Error = syn::Error;
+
+    fn try_from(item_impl: syn::ItemImpl) -> Result<Self, Self::Error> {
+        let impl_block_span = item_impl.span();
+        if !Self::is_ink_impl_block(&item_impl)? {
+            return Err(format_err!(
+                item_impl,
+                "missing ink! annotations on the impl block or on any of its items"
+            ))
+        }
+        if let Some(defaultness) = item_impl.defaultness {
+            return Err(format_err!(
+                defaultness,
+                "default implementations are unsupported for ink! implementation blocks",
+            ))
+        }
+        if let Some(unsafety) = item_impl.unsafety {
+            return Err(format_err!(
+                unsafety,
+                "unsafe ink! implementation blocks are not supported",
+            ))
+        }
+        if !item_impl.generics.params.is_empty() {
+            return Err(format_err!(
+                item_impl.generics.params,
+                "generic ink! implementation blocks are not supported",
+            ))
+        }
+        let impl_items = item_impl
+            .items
+            .into_iter()
+            .map(|impl_item| <ImplBlockItem as TryFrom<_>>::try_from(impl_item))
+            .collect::<Result<Vec<_>, syn::Error>>()?;
+        let (_, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
+        Ok(Self {
+            attrs: other_attrs,
+            defaultness: item_impl.defaultness,
+            unsafety: item_impl.unsafety,
+            impl_token: item_impl.impl_token,
+            generics: item_impl.generics,
+            trait_: item_impl.trait_,
+            self_ty: item_impl.self_ty,
+            brace_token: item_impl.brace_token,
+            items: impl_items,
+        })
+    }
+}
+
+impl ImplBlock {
+    /// Returns an iterator yielding the ink! messages of the implementation block.
+    pub fn iter_messages(&self) -> IterMessages {
+        IterMessages::new(self)
+    }
+
+    /// Returns an iterator yielding the ink! messages of the implementation block.
+    pub fn iter_constructors(&self) -> IterConstructors {
+        IterConstructors::new(self)
+    }
+}
