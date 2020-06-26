@@ -54,20 +54,14 @@ pub enum Receiver {
 }
 
 impl Receiver {
-    /// Returns `true` if the receiver is `&mut self`.
+    /// Returns `true` if the receiver is `&self`.
     pub fn is_ref(self) -> bool {
-        match self {
-            Receiver::Ref => true,
-            _ => false,
-        }
+        matches!(self, Self::Ref)
     }
 
     /// Returns `true` if the receiver is `&mut self`.
     pub fn is_ref_mut(self) -> bool {
-        match self {
-            Receiver::RefMut => true,
-            _ => false,
-        }
+        matches!(self, Self::RefMut)
     }
 }
 
