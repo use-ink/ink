@@ -34,7 +34,7 @@ impl Visibility {
         matches!(self, Self::Public(_))
     }
 
-    /// Returns `true` if the receiver is inherited.
+    /// Returns `true` if the message's visibility is inherited.
     ///
     /// # Note
     ///
