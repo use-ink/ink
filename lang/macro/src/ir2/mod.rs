@@ -15,12 +15,10 @@
 mod attrs;
 mod config;
 mod contract;
-mod event;
 mod impl_block;
 mod item;
 mod module;
 mod selector;
-mod storage;
 
 pub use self::{
     attrs::{
@@ -38,7 +36,6 @@ pub use self::{
         Config,
         EnvTypes,
     },
-    event::Event,
     impl_block::{
         Constructor,
         ImplBlock,
@@ -48,8 +45,9 @@ pub use self::{
     item::{
         InkItem,
         Item,
+        Event,
+        Storage,
     },
     module::Module,
     selector::Selector,
-    storage::Storage,
 };
