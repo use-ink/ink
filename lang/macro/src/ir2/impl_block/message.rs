@@ -18,7 +18,7 @@ use proc_macro2::Span;
 use syn::spanned::Spanned as _;
 
 /// The receiver of an ink! message.
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum Receiver {
     /// The `&self` message receiver.
     Ref,
@@ -194,7 +194,17 @@ impl Message {
 
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
-        todo!()
+        match self.item.sig.inputs.iter().next() {
+            Some(syn::FnArg::Receiver(receiver)) => {
+                debug_assert!(receiver.reference.is_some());
+                if receiver.mutability.is_some() {
+                    Receiver::RefMut
+                } else {
+                    Receiver::Ref
+                }
+            }
+            _ => unreachable!("encountered invalid receiver argument for ink! message")
+        }
     }
 }
 
