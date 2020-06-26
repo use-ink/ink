@@ -21,35 +21,11 @@ use crate::{
     ir2,
     ir2::attrs::Attrs as _,
 };
-use core::convert::TryFrom;
+use core::{
+    convert::TryFrom,
+    fmt,
+};
 use syn::spanned::Spanned as _;
-
-/// The visibility of an ink! message or constructor.
-#[derive(Debug, Clone)]
-pub enum Visibility {
-    Public(syn::VisPublic),
-    Inherited,
-}
-
-impl Visibility {
-    /// Returns `true` if the visibility of the ink! message of constructor is public (`pub`).
-    ///
-    /// # Note
-    ///
-    /// Messages in normal implementation blocks must have public visibility.
-    pub fn is_pub(&self) -> bool {
-        matches!(self, Self::Public(_))
-    }
-
-    /// Returns `true` if the visibility of the ink! message of constructor is inherited.
-    ///
-    /// # Note
-    ///
-    /// Messages in trait implementation blocks must have inherited visibility.
-    pub fn is_inherited(&self) -> bool {
-        matches!(self, Self::Inherited)
-    }
-}
 
 /// An item within an ink! implementation block.
 #[derive(Debug, PartialEq, Eq)]
