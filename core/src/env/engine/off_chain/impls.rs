@@ -153,7 +153,7 @@ impl TypedEnv for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn gas_price<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn gas_price<T: EnvTypes>(&mut self, _gas: u64) -> Result<T::Balance> {
         self.chain_spec
             .gas_price::<T>()
             .map_err(|_| scale::Error::from("could not decode gas price"))
