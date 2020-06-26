@@ -12,37 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::Visibility;
 use crate::ir2;
 use core::convert::TryFrom;
 use proc_macro2::Span;
 use syn::spanned::Spanned as _;
-
-/// The visibility of an ink! message.
-#[derive(Debug, Clone)]
-pub enum Visibility {
-    Public(syn::VisPublic),
-    Inherited,
-}
-
-impl Visibility {
-    /// Returns `true` if the message's visibility is public (`pub`).
-    ///
-    /// # Note
-    ///
-    /// Messages in normal implementation blocks must have public visibility.
-    pub fn is_pub(&self) -> bool {
-        matches!(self, Self::Public(_))
-    }
-
-    /// Returns `true` if the message's visibility is inherited.
-    ///
-    /// # Note
-    ///
-    /// Messages in trait implementation blocks must have inherited visibility.
-    pub fn is_inherited(&self) -> bool {
-        matches!(self, Self::Inherited)
-    }
-}
 
 /// The receiver of an ink! message.
 #[derive(Debug, Copy, Clone)]

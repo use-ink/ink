@@ -30,7 +30,10 @@ mod tests;
 
 pub use self::{
     constructor::Constructor,
-    impl_item::ImplBlockItem,
+    impl_item::{
+        ImplBlockItem,
+        Visibility,
+    },
     iter::{
         IterConstructors,
         IterMessages,
@@ -38,7 +41,6 @@ pub use self::{
     message::{
         Message,
         Receiver,
-        Visibility,
     },
 };
 

@@ -41,6 +41,7 @@ pub use self::{
         ImplBlock,
         Message,
         Receiver,
+        Visibility,
     },
     item::{
         InkItem,
