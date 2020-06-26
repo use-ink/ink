@@ -148,4 +148,99 @@ impl Constructor {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn try_from_works() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                fn my_constructor() -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor() -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert!(<ir2::Constructor as TryFrom<_>>::try_from(item_method).is_ok());
+        }
+    }
+
+    fn assert_try_from_fails(item_method: syn::ImplItemMethod, expected_err: &str) {
+        assert_eq!(
+            <ir2::Constructor as TryFrom<_>>::try_from(item_method)
+                .map_err(|err| err.to_string()),
+            Err(expected_err.to_string()),
+        );
+    }
+
+    #[test]
+    fn try_from_missing_return_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                fn my_constructor() {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor() {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "missing return for ink! constructor")
+        }
+    }
+
+    #[test]
+    fn try_from_invalid_return_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                fn my_constructor() -> &Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor() -> &mut Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor() -> i32 {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor() -> Result<Self, ()> {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! constructors must return Self")
+        }
+    }
+
+    #[test]
+    fn try_from_invalid_self_receiver_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                fn my_constructor(&self) -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor(&mut self) -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor(self) -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor(mut self) -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "ink! constructors must have no `self` receiver",
+            )
+        }
+    }
 }
