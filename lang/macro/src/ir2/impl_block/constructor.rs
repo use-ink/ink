@@ -34,12 +34,53 @@ pub struct Constructor {
     selector: Option<ir2::Selector>,
 }
 
+impl Constructor {
+    /// Returns `true` if the given type is `Self`.
+    fn type_is_self_val(ty: &syn::Type) -> bool {
+        matches!(ty, syn::Type::Path(syn::TypePath {
+            qself: None,
+            path
+        }) if path.is_ident("Self"))
+    }
+
+    /// Ensures that the return type of the ink! constructor is `Self`.
+    ///
+    /// Returns an appropriate error otherwise.
+    ///
+    /// # Errors
+    ///
+    /// If the ink! constructor does not return `Self` or is missing a return
+    /// type entirely.
+    fn ensure_valid_return_type(
+        method_item: &syn::ImplItemMethod,
+    ) -> Result<(), syn::Error> {
+        match &method_item.sig.output {
+            syn::ReturnType::Default => {
+                return Err(format_err!(
+                    &method_item.sig,
+                    "missing return for ink! constructor",
+                ))
+            }
+            syn::ReturnType::Type(_, return_type) => {
+                if !Self::type_is_self_val(return_type.as_ref()) {
+                    return Err(format_err!(
+                        return_type,
+                        "ink! constructors must return Self",
+                    ))
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
 impl TryFrom<syn::ImplItemMethod> for Constructor {
     type Error = syn::Error;
 
     fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
         let method_span = method_item.span();
         ensure_callable_invariants(&method_item, CallableKind::Constructor)?;
+        Self::ensure_valid_return_type(&method_item)?;
         let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
             method_span,
             method_item.attrs,
