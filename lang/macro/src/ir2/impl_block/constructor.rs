@@ -72,6 +72,29 @@ impl Constructor {
         }
         Ok(())
     }
+
+    /// Ensures that the ink! constructor has no `self` receiver.
+    ///
+    /// Returns an appropriate error otherwise.
+    ///
+    /// # Errors
+    ///
+    /// If the ink! constructor has a `&self`, `&mut self`, `self` or any other
+    /// kind of a `self` receiver as first argument.
+    fn ensure_no_self_receiver(
+        method_item: &syn::ImplItemMethod,
+    ) -> Result<(), syn::Error> {
+        match method_item.sig.inputs.iter().next() {
+            None | Some(syn::FnArg::Typed(_)) => (),
+            Some(syn::FnArg::Receiver(receiver)) => {
+                return Err(format_err!(
+                    receiver,
+                    "ink! constructors must have no `self` receiver",
+                ))
+            }
+        }
+        Ok(())
+    }
 }
 
 impl TryFrom<syn::ImplItemMethod> for Constructor {
@@ -81,6 +104,7 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
         let method_span = method_item.span();
         ensure_callable_invariants(&method_item, CallableKind::Constructor)?;
         Self::ensure_valid_return_type(&method_item)?;
+        Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
             method_span,
             method_item.attrs,
