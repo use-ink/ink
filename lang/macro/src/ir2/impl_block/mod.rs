@@ -34,11 +34,9 @@ use self::callable::{
     CallableKind,
 };
 pub use self::{
+    callable::Visibility,
     constructor::Constructor,
-    impl_item::{
-        ImplBlockItem,
-        Visibility,
-    },
+    impl_item::ImplBlockItem,
     iter::{
         IterConstructors,
         IterMessages,
