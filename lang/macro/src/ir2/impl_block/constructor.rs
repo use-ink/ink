@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::Visibility;
 use crate::ir2;
 use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
@@ -60,5 +61,16 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
                 ..method_item
             },
         })
+    }
+}
+
+impl Constructor {
+    /// Returns the visibility of the constructor.
+    pub fn visibility(&self) -> Visibility {
+        match &self.item.vis {
+            syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
+            syn::Visibility::Inherited => Visibility::Inherited,
+            _ => unreachable!("encountered invalid visibility for ink! constructor"),
+        }
     }
 }
