@@ -272,6 +272,35 @@ mod tests {
     }
 
     #[test]
+    fn receiver_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+            // &self
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            // &mut self
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&mut self) {}
+                },
+            ),
+        ];
+        for (is_mut, item_method) in test_inputs {
+            let receiver = <ir2::Message as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .receiver();
+            assert_eq!(receiver.is_ref_mut(), is_mut);
+            assert_eq!(receiver.is_ref(), !is_mut);
+        }
+    }
+
+    #[test]
     fn try_from_works() {
         let item_methods: Vec<syn::ImplItemMethod> = vec![
             // &self
