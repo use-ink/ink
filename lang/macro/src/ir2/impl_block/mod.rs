@@ -38,6 +38,7 @@ pub use self::{
     message::{
         Message,
         Receiver,
+        Visibility,
     },
 };
 
@@ -45,9 +46,12 @@ pub use self::{
 ///
 /// # Note
 ///
-/// This can be either an inherent implementation block that implements some
-/// constructors, messages or internal functions for the storage struct; OR it
-/// can be a trait implementation for the storage struct.
+/// - This can be either an inherent implementation block that implements some
+///   constructors, messages or internal functions for the storage struct; OR it
+///   can be a trait implementation for the storage struct.
+/// - We try to support all fields that are supported by the underlying `syn`
+///   implementation for [`syn::ItemImpl`] even though they are not really
+///   required to represent ink!. This is done for consistency with `syn`.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ImplBlock {
     attrs: Vec<syn::Attribute>,
