@@ -20,6 +20,7 @@ use crate::{
 use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
 
+mod callable;
 mod constructor;
 mod impl_item;
 mod iter;
@@ -28,6 +29,10 @@ mod message;
 #[cfg(test)]
 mod tests;
 
+use self::callable::{
+    ensure_callable_invariants,
+    CallableKind,
+};
 pub use self::{
     constructor::Constructor,
     impl_item::{
