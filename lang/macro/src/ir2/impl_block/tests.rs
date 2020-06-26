@@ -27,8 +27,7 @@ fn is_ink_impl_block_eval_false_works() {
     ];
     for item_impl in &item_impls {
         assert_eq!(
-            ir2::ImplBlock::is_ink_impl_block(item_impl)
-                .map_err(|err| err.to_string()),
+            ir2::ImplBlock::is_ink_impl_block(item_impl).map_err(|err| err.to_string()),
             Ok(false),
         )
     }
@@ -93,8 +92,7 @@ fn is_ink_impl_block_eval_true_works() {
     ];
     for item_impl in &item_impls {
         assert_eq!(
-            ir2::ImplBlock::is_ink_impl_block(item_impl)
-                .map_err(|err| err.to_string()),
+            ir2::ImplBlock::is_ink_impl_block(item_impl).map_err(|err| err.to_string()),
             Ok(true),
         )
     }
@@ -161,13 +159,29 @@ fn is_ink_impl_block_fails() {
 
 #[test]
 fn try_from_works() {
-    assert!(
-        <ir2::ImplBlock as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    let item_impls: Vec<syn::ItemImpl> = vec![
+        syn::parse_quote! {
+            #[ink(impl)]
+            impl MyStorage {}
+        },
+        syn::parse_quote! {
             impl MyStorage {
+                #[ink(message)]
+                pub fn my_message(&self) {}
+            }
+        },
+        syn::parse_quote! {
+            #[ink(impl)]
+            impl MyTrait for MyStorage {}
+        },
+        syn::parse_quote! {
+            impl MyTrait for MyStorage {
                 #[ink(message)]
                 fn my_message(&self) {}
             }
-        })
-        .is_ok()
-    )
+        },
+    ];
+    for item_impl in item_impls {
+        assert!(<ir2::ImplBlock as TryFrom<syn::ItemImpl>>::try_from(item_impl).is_ok())
+    }
 }
