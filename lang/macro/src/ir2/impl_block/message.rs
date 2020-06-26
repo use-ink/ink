@@ -444,22 +444,22 @@ mod tests {
             // &self + crate visibility
             syn::parse_quote! {
                 #[ink(message)]
-                crate fn my_message(&self, ...) {}
+                crate fn my_message(&self) {}
             },
             // &mut self + crate visibility
             syn::parse_quote! {
                 #[ink(message)]
-                crate fn my_message(&mut self, ...) {}
+                crate fn my_message(&mut self) {}
             },
             // &self + pub restricted visibility
             syn::parse_quote! {
                 #[ink(message)]
-                pub(in my::path) fn my_message(&self, ...) {}
+                pub(in my::path) fn my_message(&self) {}
             },
             // &mut self + pub restricted visibility
             syn::parse_quote! {
                 #[ink(message)]
-                pub(in my::path) fn my_message(&mut self, ...) {}
+                pub(in my::path) fn my_message(&mut self) {}
             },
         ];
         for item_method in item_methods {
