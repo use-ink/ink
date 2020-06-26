@@ -26,6 +26,13 @@ pub enum Receiver {
     RefMut,
 }
 
+/// The visibility of an ink! message.
+#[derive(Debug, Clone)]
+pub enum Visibility {
+    Public(syn::VisPublic),
+    Inherited,
+}
+
 impl Receiver {
     /// Returns `true` if the receiver is `&mut self`.
     pub fn is_ref(self) -> bool {
@@ -176,6 +183,15 @@ impl TryFrom<syn::ImplItemMethod> for Message {
 }
 
 impl Message {
+    /// Returns the visibility of the message.
+    pub fn visibility(&self) -> Visibility {
+        match &self.item.vis {
+            syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
+            syn::Visibility::Inherited => Visibility::Inherited,
+            _ => unreachable!("encountered invalid visibility for ink! message"),
+        }
+    }
+
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
         todo!()
