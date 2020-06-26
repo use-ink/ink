@@ -113,6 +113,13 @@ impl TryFrom<syn::ImplItemMethod> for Message {
                 }
             },
         )?;
+        if !matches!(method_item.vis, syn::Visibility::Public(_) | syn::Visibility::Inherited)
+        {
+            return Err(format_err!(
+                method_item.vis,
+                "ink! messages must have public or inherited visibility",
+            ))
+        }
         if !method_item.sig.generics.params.is_empty() {
             return Err(format_err!(
                 method_item.sig.generics.params,
@@ -298,10 +305,7 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert_try_from_fails(
-                item_method,
-                "ink! messages must not be const",
-            )
+            assert_try_from_fails(item_method, "ink! messages must not be const")
         }
     }
 
@@ -320,10 +324,7 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert_try_from_fails(
-                item_method,
-                "ink! messages must not be async",
-            )
+            assert_try_from_fails(item_method, "ink! messages must not be async")
         }
     }
 
@@ -342,10 +343,7 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert_try_from_fails(
-                item_method,
-                "ink! messages must not be unsafe",
-            )
+            assert_try_from_fails(item_method, "ink! messages must not be unsafe")
         }
     }
 
@@ -364,10 +362,7 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert_try_from_fails(
-                item_method,
-                "ink! messages must have explicit ABI",
-            )
+            assert_try_from_fails(item_method, "ink! messages must have explicit ABI")
         }
     }
 
@@ -386,9 +381,38 @@ mod tests {
             },
         ];
         for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! messages must not be variadic")
+        }
+    }
+
+    #[test]
+    fn try_from_visibility_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // &self + crate visibility
+            syn::parse_quote! {
+                #[ink(message)]
+                crate fn my_message(&self, ...) {}
+            },
+            // &mut self + crate visibility
+            syn::parse_quote! {
+                #[ink(message)]
+                crate fn my_message(&mut self, ...) {}
+            },
+            // &self + pub restricted visibility
+            syn::parse_quote! {
+                #[ink(message)]
+                pub(in my::path) fn my_message(&self, ...) {}
+            },
+            // &mut self + pub restricted visibility
+            syn::parse_quote! {
+                #[ink(message)]
+                pub(in my::path) fn my_message(&mut self, ...) {}
+            },
+        ];
+        for item_method in item_methods {
             assert_try_from_fails(
                 item_method,
-                "ink! messages must not be variadic",
+                "ink! messages must have public or inherited visibility",
             )
         }
     }
