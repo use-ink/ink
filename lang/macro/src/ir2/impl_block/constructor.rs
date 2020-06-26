@@ -272,4 +272,126 @@ mod tests {
             )
         }
     }
+
+    #[test]
+    fn try_from_generics_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                fn my_constructor<T>() -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor<T>() -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! constructors must not be generic")
+        }
+    }
+
+    #[test]
+    fn try_from_const_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                const fn my_constructor() -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub const fn my_constructor() -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! constructors must not be const")
+        }
+    }
+
+    #[test]
+    fn try_from_async_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                async fn my_constructor() -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                async fn my_constructor() -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! constructors must not be async")
+        }
+    }
+
+    #[test]
+    fn try_from_unsafe_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                unsafe fn my_constructor() -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                unsafe fn my_constructor() -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! constructors must not be unsafe")
+        }
+    }
+
+    #[test]
+    fn try_from_explicit_abi_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                extern "C" fn my_constructor() -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                extern "C" fn my_constructor() -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! constructors must have explicit ABI")
+        }
+    }
+
+    #[test]
+    fn try_from_variadic_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                fn my_constructor(...) -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                fn my_constructor(...) -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! constructors must not be variadic")
+        }
+    }
+
+    #[test]
+    fn try_from_visibility_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(constructor)]
+                crate fn my_constructor() -> Self {}
+            },
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub(in my::path) fn my_constructor() -> Self {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "ink! constructors must have public or inherited visibility",
+            )
+        }
+    }
 }
