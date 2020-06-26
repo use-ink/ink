@@ -181,13 +181,20 @@ mod tests {
     #[test]
     fn try_from_works() {
         let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // simple + inherited visibility
             syn::parse_quote! {
                 #[ink(constructor)]
                 fn my_constructor() -> Self {}
             },
+            // simple + public visibility
             syn::parse_quote! {
                 #[ink(constructor)]
                 pub fn my_constructor() -> Self {}
+            },
+            // many inputs
+            syn::parse_quote! {
+                #[ink(constructor)]
+                fn my_constructor(input1: i32, input2: i64, input3: u32, input4: u64) -> Self {}
             },
         ];
         for item_method in item_methods {

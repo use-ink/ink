@@ -272,6 +272,16 @@ mod tests {
                 #[ink(message, payable)]
                 fn my_message(&mut self) {}
             },
+            // &self + many inputs + output works
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&self, input1: i32, input2: i64, input3: u32, input4: u64) -> bool {}
+            },
+            // &mut self + many inputs + output works
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&mut self, input1: i32, input2: i64, input3: u32, input4: u64) -> bool {}
+            },
         ];
         for item_method in item_methods {
             assert!(<ir2::Message as TryFrom<_>>::try_from(item_method).is_ok());
