@@ -30,7 +30,7 @@ impl Visibility {
     /// # Note
     ///
     /// Messages in normal implementation blocks must have public visibility.
-    pub fn is_pub(self) -> bool {
+    pub fn is_pub(&self) -> bool {
         matches!(self, Self::Public(_))
     }
 
@@ -39,7 +39,7 @@ impl Visibility {
     /// # Note
     ///
     /// Messages in trait implementation blocks must have inherited visibility.
-    pub fn is_inherited(self) -> bool {
+    pub fn is_inherited(&self) -> bool {
         matches!(self, Self::Inherited)
     }
 }
@@ -217,7 +217,7 @@ impl Message {
                     Receiver::Ref
                 }
             }
-            _ => unreachable!("encountered invalid receiver argument for ink! message")
+            _ => unreachable!("encountered invalid receiver argument for ink! message"),
         }
     }
 }
@@ -225,6 +225,51 @@ impl Message {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn visibility_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+            // &self
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            // &self + pub
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    pub fn my_message(&self) {}
+                },
+            ),
+            // &mut self
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&mut self) {}
+                },
+            ),
+            // &mut self + pub
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    pub fn my_message(&mut self) {}
+                },
+            ),
+        ];
+        for (is_pub, item_method) in test_inputs {
+            let visibility = <ir2::Message as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .visibility();
+            assert_eq!(visibility.is_pub(), is_pub);
+            assert_eq!(visibility.is_inherited(), !is_pub);
+        }
+    }
 
     #[test]
     fn try_from_works() {
