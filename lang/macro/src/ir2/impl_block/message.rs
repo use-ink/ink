@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Visibility;
+use super::{
+    ensure_callable_invariants,
+    CallableKind,
+    Visibility,
+};
 use crate::ir2;
 use core::convert::TryFrom;
 use proc_macro2::Span;
@@ -94,6 +98,14 @@ impl TryFrom<syn::ImplItemMethod> for Message {
 
     fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
         let method_span = method_item.span();
+        ensure_callable_invariants(
+            &method_item,
+            CallableKind::Message,
+        )?;
+        Self::ensure_receiver_is_self_ref(
+            method_item.sig.inputs.span(),
+            method_item.sig.inputs.iter(),
+        )?;
         let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
             method_span,
             method_item.attrs,
@@ -108,53 +120,6 @@ impl TryFrom<syn::ImplItemMethod> for Message {
                 }
             },
         )?;
-        if !matches!(method_item.vis, syn::Visibility::Public(_) | syn::Visibility::Inherited)
-        {
-            return Err(format_err!(
-                method_item.vis,
-                "ink! messages must have public or inherited visibility",
-            ))
-        }
-        if !method_item.sig.generics.params.is_empty() {
-            return Err(format_err!(
-                method_item.sig.generics.params,
-                "ink! messages must not be generic",
-            ))
-        }
-        Self::ensure_receiver_is_self_ref(
-            method_item.sig.inputs.span(),
-            method_item.sig.inputs.iter(),
-        )?;
-        if method_item.sig.constness.is_some() {
-            return Err(format_err!(
-                method_item.sig.constness,
-                "ink! messages must not be const",
-            ))
-        }
-        if method_item.sig.asyncness.is_some() {
-            return Err(format_err!(
-                method_item.sig.asyncness,
-                "ink! messages must not be async",
-            ))
-        }
-        if method_item.sig.unsafety.is_some() {
-            return Err(format_err!(
-                method_item.sig.unsafety,
-                "ink! messages must not be unsafe",
-            ))
-        }
-        if method_item.sig.abi.is_some() {
-            return Err(format_err!(
-                method_item.sig.abi,
-                "ink! messages must have explicit ABI",
-            ))
-        }
-        if method_item.sig.variadic.is_some() {
-            return Err(format_err!(
-                method_item.sig.variadic,
-                "ink! messages must not be variadic",
-            ))
-        }
         let is_payable = false; // TODO
         let salt = None; // TODO
         let selector = None; // TODO

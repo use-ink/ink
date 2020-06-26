@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Visibility;
+use super::{
+    ensure_callable_invariants,
+    CallableKind,
+    Visibility,
+};
 use crate::ir2;
 use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
@@ -35,6 +39,7 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
 
     fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
         let method_span = method_item.span();
+        ensure_callable_invariants(&method_item, CallableKind::Constructor)?;
         let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
             method_span,
             method_item.attrs,
@@ -73,4 +78,9 @@ impl Constructor {
             _ => unreachable!("encountered invalid visibility for ink! constructor"),
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
 }
