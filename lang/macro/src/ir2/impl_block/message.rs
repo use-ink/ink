@@ -57,23 +57,19 @@ pub struct Message {
 }
 
 impl Message {
-    /// Ensures that the given `fn_args` start with `&self` or `&mut self`
+    /// Ensures that the given method inputs start with `&self` or `&mut self`
     /// receivers.
     ///
     /// If not an appropriate error is returned.
     ///
     /// # Errors
     ///
-    /// - If `fn_args` yields no elements.
-    /// - If the first yielded element of `fn_args` is not `&self` or `&mut self`.
-    fn ensure_receiver_is_self_ref<'a, I>(
-        parent_span: Span,
-        fn_args: I,
-    ) -> Result<(), syn::Error>
-    where
-        I: IntoIterator<Item = &'a syn::FnArg>,
-    {
-        let mut fn_args = fn_args.into_iter();
+    /// - If the method inputs yields no elements.
+    /// - If the first method input is not `&self` or `&mut self`.
+    fn ensure_receiver_is_self_ref(
+        method_item: &syn::ImplItemMethod,
+    ) -> Result<(), syn::Error> {
+        let mut fn_args = method_item.sig.inputs.iter();
         fn bail(span: Span) -> syn::Error {
             format_err_span!(
                 span,
@@ -81,7 +77,7 @@ impl Message {
             )
         }
         match fn_args.next() {
-            None => return Err(bail(parent_span)),
+            None => return Err(bail(method_item.span())),
             Some(syn::FnArg::Typed(pat_typed)) => return Err(bail(pat_typed.span())),
             Some(syn::FnArg::Receiver(receiver)) => {
                 if receiver.reference.is_none() {
@@ -91,24 +87,16 @@ impl Message {
         }
         Ok(())
     }
-}
 
-impl TryFrom<syn::ImplItemMethod> for Message {
-    type Error = syn::Error;
-
-    fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
-        let method_span = method_item.span();
-        ensure_callable_invariants(
-            &method_item,
-            CallableKind::Message,
-        )?;
-        Self::ensure_receiver_is_self_ref(
-            method_item.sig.inputs.span(),
-            method_item.sig.inputs.iter(),
-        )?;
-        let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
-            method_span,
-            method_item.attrs,
+    /// Sanitizes the attributes for the ink! message.
+    ///
+    /// Returns a tuple of ink! attributes and non-ink! attributes.
+    fn sanitize_attributes(
+        method_item: &syn::ImplItemMethod,
+    ) -> Result<(ir2::InkAttribute, Vec<syn::Attribute>), syn::Error> {
+        ir2::sanitize_attributes(
+            method_item.span(),
+            method_item.attrs.clone(),
             &ir2::AttributeArgKind::Message,
             |kind| {
                 match kind {
@@ -119,7 +107,18 @@ impl TryFrom<syn::ImplItemMethod> for Message {
                     _ => true,
                 }
             },
-        )?;
+        )
+    }
+}
+
+impl TryFrom<syn::ImplItemMethod> for Message {
+    type Error = syn::Error;
+
+    fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
+        let method_span = method_item.span();
+        ensure_callable_invariants(&method_item, CallableKind::Message)?;
+        Self::ensure_receiver_is_self_ref(&method_item)?;
+        let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = false; // TODO
         let salt = None; // TODO
         let selector = None; // TODO

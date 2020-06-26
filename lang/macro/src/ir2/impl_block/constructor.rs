@@ -95,19 +95,16 @@ impl Constructor {
         }
         Ok(())
     }
-}
 
-impl TryFrom<syn::ImplItemMethod> for Constructor {
-    type Error = syn::Error;
-
-    fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
-        let method_span = method_item.span();
-        ensure_callable_invariants(&method_item, CallableKind::Constructor)?;
-        Self::ensure_valid_return_type(&method_item)?;
-        Self::ensure_no_self_receiver(&method_item)?;
-        let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
-            method_span,
-            method_item.attrs,
+    /// Sanitizes the attributes for the ink! constructor.
+    ///
+    /// Returns a tuple of ink! attributes and non-ink! attributes.
+    fn sanitize_attributes(
+        method_item: &syn::ImplItemMethod,
+    ) -> Result<(ir2::InkAttribute, Vec<syn::Attribute>), syn::Error> {
+        ir2::sanitize_attributes(
+            method_item.span(),
+            method_item.attrs.clone(),
             &ir2::AttributeArgKind::Constructor,
             |kind| {
                 match kind {
@@ -118,7 +115,19 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
                     _ => false,
                 }
             },
-        )?;
+        )
+    }
+}
+
+impl TryFrom<syn::ImplItemMethod> for Constructor {
+    type Error = syn::Error;
+
+    fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
+        let method_span = method_item.span();
+        ensure_callable_invariants(&method_item, CallableKind::Constructor)?;
+        Self::ensure_valid_return_type(&method_item)?;
+        Self::ensure_no_self_receiver(&method_item)?;
+        let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = false; // TODO
         let salt = None; // TODO
         let selector = None; // TODO
