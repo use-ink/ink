@@ -150,6 +150,35 @@ mod tests {
     use super::*;
 
     #[test]
+    fn visibility_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+            // inherited
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self {}
+                },
+            ),
+            // public
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    pub fn my_constructor() -> Self {}
+                },
+            ),
+        ];
+        for (is_pub, item_method) in test_inputs {
+            let visibility = <ir2::Constructor as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .visibility();
+            assert_eq!(visibility.is_pub(), is_pub);
+            assert_eq!(visibility.is_inherited(), !is_pub);
+        }
+    }
+
+    #[test]
     fn try_from_works() {
         let item_methods: Vec<syn::ImplItemMethod> = vec![
             syn::parse_quote! {
