@@ -23,6 +23,12 @@ pub struct IterConstructors<'a> {
     impl_items: core::slice::Iter<'a, ImplBlockItem>,
 }
 
+impl<'a> From<core::slice::Iter<'a, ImplBlockItem>> for IterConstructors<'a> {
+    fn from(iter: core::slice::Iter<'a, ImplBlockItem>) -> Self {
+        Self { impl_items: iter }
+    }
+}
+
 impl<'a> IterConstructors<'a> {
     /// Creates a new ink! messages iterator.
     pub(super) fn new(impl_block: &'a ImplBlock) -> Self {
@@ -53,6 +59,12 @@ impl<'a> Iterator for IterConstructors<'a> {
 /// Iterator yielding messages of the ink! smart contract definition.
 pub struct IterMessages<'a> {
     impl_items: core::slice::Iter<'a, ImplBlockItem>,
+}
+
+impl<'a> From<core::slice::Iter<'a, ImplBlockItem>> for IterMessages<'a> {
+    fn from(iter: core::slice::Iter<'a, ImplBlockItem>) -> Self {
+        Self { impl_items: iter }
+    }
 }
 
 impl<'a> IterMessages<'a> {
