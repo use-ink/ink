@@ -126,7 +126,7 @@ pub trait TypedEnv: Env {
     /// For more details visit: [`ink_core::env::transferred_balance`]
     fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
-    /// Returns the price for the specified amount of weight.
+    /// Returns the price for the specified amount of gas.
     ///
     /// # Note
     ///

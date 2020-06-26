@@ -60,7 +60,7 @@ where
     })
 }
 
-/// Returns the price for the specified amount of weight.
+/// Returns the price for the specified amount of gas.
 ///
 /// # Errors
 ///
