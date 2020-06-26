@@ -72,20 +72,12 @@ impl TryFrom<syn::ItemStruct> for Storage {
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         let struct_span = item_struct.span();
-        let (ink_attrs, other_attrs) = ir2::partition_attributes(item_struct.attrs)?;
-        let normalized = ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-            err.into_combine(format_err_span!(struct_span, "at this invokation",))
-        })?;
-        normalized
-            .ensure_first(&ir2::AttributeArgKind::Storage)
-            .map_err(|err| {
-                err.into_combine(format_err_span!(
-                    struct_span,
-                    "expected `#[ink(storage)]` as first ink! attribute argument",
-                ))
-            })?;
-        normalized
-            .ensure_no_conflicts(|arg| arg.kind() != &ir2::AttributeArgKind::Storage)?;
+        let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
+            struct_span,
+            item_struct.attrs,
+            &ir2::AttributeArgKind::Storage,
+            |kind| !matches!(kind, ir2::AttributeArgKind::Storage),
+        )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err!(
                 item_struct.generics.params,
