@@ -14,6 +14,7 @@
 
 use crate::ir2;
 use core::convert::TryFrom;
+use proc_macro2::Span;
 use syn::spanned::Spanned as _;
 
 /// The receiver of an ink! message.
@@ -56,6 +57,43 @@ pub struct Message {
     selector: Option<ir2::Selector>,
 }
 
+impl Message {
+    /// Ensures that the given `fn_args` start with `&self` or `&mut self`
+    /// receivers.
+    ///
+    /// If not an appropriate error is returned.
+    ///
+    /// # Errors
+    ///
+    /// - If `fn_args` yields no elements.
+    /// - If the first yielded element of `fn_args` is not `&self` or `&mut self`.
+    fn ensure_receiver_is_self_ref<'a, I>(
+        parent_span: Span,
+        fn_args: I,
+    ) -> Result<(), syn::Error>
+    where
+        I: IntoIterator<Item = &'a syn::FnArg>,
+    {
+        let mut fn_args = fn_args.into_iter();
+        fn bail(span: Span) -> syn::Error {
+            format_err_span!(
+                span,
+                "ink! messages must have `&self` or `&mut self` receiver",
+            )
+        }
+        match fn_args.next() {
+            None => return Err(bail(parent_span)),
+            Some(syn::FnArg::Typed(pat_typed)) => return Err(bail(pat_typed.span())),
+            Some(syn::FnArg::Receiver(receiver)) => {
+                if receiver.reference.is_none() {
+                    return Err(bail(receiver.span()))
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
 impl TryFrom<syn::ImplItemMethod> for Message {
     type Error = syn::Error;
 
@@ -75,6 +113,46 @@ impl TryFrom<syn::ImplItemMethod> for Message {
                 }
             },
         )?;
+        if !method_item.sig.generics.params.is_empty() {
+            return Err(format_err!(
+                method_item.sig.generics.params,
+                "ink! messages must not be generic",
+            ))
+        }
+        Self::ensure_receiver_is_self_ref(
+            method_item.sig.inputs.span(),
+            method_item.sig.inputs.iter(),
+        )?;
+        if method_item.sig.constness.is_some() {
+            return Err(format_err!(
+                method_item.sig.constness,
+                "ink! messages must not be const",
+            ))
+        }
+        if method_item.sig.asyncness.is_some() {
+            return Err(format_err!(
+                method_item.sig.asyncness,
+                "ink! messages must not be async",
+            ))
+        }
+        if method_item.sig.unsafety.is_some() {
+            return Err(format_err!(
+                method_item.sig.unsafety,
+                "ink! messages must not be unsafe",
+            ))
+        }
+        if method_item.sig.abi.is_some() {
+            return Err(format_err!(
+                method_item.sig.abi,
+                "ink! messages must have explicit ABI",
+            ))
+        }
+        if method_item.sig.variadic.is_some() {
+            return Err(format_err!(
+                method_item.sig.variadic,
+                "ink! messages must not be variadic",
+            ))
+        }
         let is_payable = false; // TODO
         let salt = None; // TODO
         let selector = None; // TODO
@@ -94,5 +172,224 @@ impl Message {
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
         todo!()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn try_from_works() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // &self
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&self) {}
+            },
+            // &self + pub
+            syn::parse_quote! {
+                #[ink(message)]
+                pub fn my_message(&self) {}
+            },
+            // &mut self
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&mut self) {}
+            },
+            // &mut self + pub
+            syn::parse_quote! {
+                #[ink(message)]
+                pub fn my_message(&mut self) {}
+            },
+            // &self + payable
+            syn::parse_quote! {
+                #[ink(message, payable)]
+                fn my_message(&self) {}
+            },
+            // &mut self + payable
+            syn::parse_quote! {
+                #[ink(message, payable)]
+                fn my_message(&mut self) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert!(<ir2::Message as TryFrom<_>>::try_from(item_method).is_ok());
+        }
+    }
+
+    fn assert_try_from_fails(item_method: syn::ImplItemMethod, expected_err: &str) {
+        assert_eq!(
+            <ir2::Message as TryFrom<_>>::try_from(item_method)
+                .map_err(|err| err.to_string()),
+            Err(expected_err.to_string()),
+        );
+    }
+
+    #[test]
+    fn try_from_generics_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message<T>(&self) {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                pub fn my_message<T>(&self) {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message<T>(&mut self) {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                pub fn my_message<T>(&mut self) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(item_method, "ink! messages must not be generic")
+        }
+    }
+
+    #[test]
+    fn try_from_receiver_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message() {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(self) {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                pub fn my_message(mut self) {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(this: &Self) {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                pub fn my_message(this: &mut Self) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "ink! messages must have `&self` or `&mut self` receiver",
+            )
+        }
+    }
+
+    #[test]
+    fn try_from_const_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // &self
+            syn::parse_quote! {
+                #[ink(message)]
+                const fn my_message(&self) {}
+            },
+            // &mut self
+            syn::parse_quote! {
+                #[ink(message)]
+                const fn my_message(&mut self) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "ink! messages must not be const",
+            )
+        }
+    }
+
+    #[test]
+    fn try_from_async_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // &self
+            syn::parse_quote! {
+                #[ink(message)]
+                async fn my_message(&self) {}
+            },
+            // &mut self
+            syn::parse_quote! {
+                #[ink(message)]
+                async fn my_message(&mut self) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "ink! messages must not be async",
+            )
+        }
+    }
+
+    #[test]
+    fn try_from_unsafe_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // &self
+            syn::parse_quote! {
+                #[ink(message)]
+                unsafe fn my_message(&self) {}
+            },
+            // &mut self
+            syn::parse_quote! {
+                #[ink(message)]
+                unsafe fn my_message(&mut self) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "ink! messages must not be unsafe",
+            )
+        }
+    }
+
+    #[test]
+    fn try_from_explicit_abi_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // &self
+            syn::parse_quote! {
+                #[ink(message)]
+                extern "C" fn my_message(&self) {}
+            },
+            // &mut self
+            syn::parse_quote! {
+                #[ink(message)]
+                extern "C" fn my_message(&mut self) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "ink! messages must have explicit ABI",
+            )
+        }
+    }
+
+    #[test]
+    fn try_from_variadic_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // &self
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&self, ...) {}
+            },
+            // &mut self
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&mut self, ...) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "ink! messages must not be variadic",
+            )
+        }
     }
 }
