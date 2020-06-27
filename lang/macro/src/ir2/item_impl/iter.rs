@@ -14,17 +14,17 @@
 
 use super::{
     ItemImpl,
-    ImplBlockItem,
+    ImplItem,
 };
 use crate::ir2;
 
 /// Iterator yielding constructors of the ink! smart contract definition.
 pub struct IterConstructors<'a> {
-    impl_items: core::slice::Iter<'a, ImplBlockItem>,
+    impl_items: core::slice::Iter<'a, ImplItem>,
 }
 
-impl<'a> From<core::slice::Iter<'a, ImplBlockItem>> for IterConstructors<'a> {
-    fn from(iter: core::slice::Iter<'a, ImplBlockItem>) -> Self {
+impl<'a> From<core::slice::Iter<'a, ImplItem>> for IterConstructors<'a> {
+    fn from(iter: core::slice::Iter<'a, ImplItem>) -> Self {
         Self { impl_items: iter }
     }
 }
@@ -58,11 +58,11 @@ impl<'a> Iterator for IterConstructors<'a> {
 
 /// Iterator yielding messages of the ink! smart contract definition.
 pub struct IterMessages<'a> {
-    impl_items: core::slice::Iter<'a, ImplBlockItem>,
+    impl_items: core::slice::Iter<'a, ImplItem>,
 }
 
-impl<'a> From<core::slice::Iter<'a, ImplBlockItem>> for IterMessages<'a> {
-    fn from(iter: core::slice::Iter<'a, ImplBlockItem>) -> Self {
+impl<'a> From<core::slice::Iter<'a, ImplItem>> for IterMessages<'a> {
+    fn from(iter: core::slice::Iter<'a, ImplItem>) -> Self {
         Self { impl_items: iter }
     }
 }

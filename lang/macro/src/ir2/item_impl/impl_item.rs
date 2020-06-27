@@ -27,7 +27,7 @@ use syn::spanned::Spanned as _;
 /// An item within an ink! implementation block.
 #[derive(Debug, PartialEq, Eq)]
 #[allow(clippy::large_enum_variant)]
-pub enum ImplBlockItem {
+pub enum ImplItem {
     /// A `#[ink(constructor)]` marked inherent function.
     Constructor(Constructor),
     /// A `#[ink(message)]` marked method.
@@ -36,7 +36,7 @@ pub enum ImplBlockItem {
     Other(syn::ImplItem),
 }
 
-impl TryFrom<syn::ImplItem> for ImplBlockItem {
+impl TryFrom<syn::ImplItem> for ImplItem {
     type Error = syn::Error;
 
     fn try_from(impl_item: syn::ImplItem) -> Result<Self, Self::Error> {
@@ -89,7 +89,7 @@ impl TryFrom<syn::ImplItem> for ImplBlockItem {
     }
 }
 
-impl ImplBlockItem {
+impl ImplItem {
     /// Returns `true` if the impl block item is an ink! message.
     pub fn is_message(&self) -> bool {
         self.filter_map_message().is_some()
@@ -100,7 +100,7 @@ impl ImplBlockItem {
     /// Otherwise, returns `None`.
     pub fn filter_map_message(&self) -> Option<&Message> {
         match self {
-            ImplBlockItem::Message(message) => Some(message),
+            ImplItem::Message(message) => Some(message),
             _ => None,
         }
     }
@@ -115,7 +115,7 @@ impl ImplBlockItem {
     /// Otherwise, returns `None`.
     pub fn filter_map_constructor(&self) -> Option<&Constructor> {
         match self {
-            ImplBlockItem::Constructor(constructor) => Some(constructor),
+            ImplItem::Constructor(constructor) => Some(constructor),
             _ => None,
         }
     }
@@ -130,7 +130,7 @@ impl ImplBlockItem {
     /// Otherwise, returns `None`.
     pub fn filter_map_other_item(&self) -> Option<&syn::ImplItem> {
         match self {
-            ImplBlockItem::Other(rust_item) => Some(rust_item),
+            ImplItem::Other(rust_item) => Some(rust_item),
             _ => None,
         }
     }

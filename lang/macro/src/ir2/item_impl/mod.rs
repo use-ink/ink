@@ -36,7 +36,7 @@ use self::callable::{
 pub use self::{
     callable::Visibility,
     constructor::Constructor,
-    impl_item::ImplBlockItem,
+    impl_item::ImplItem,
     iter::{
         IterConstructors,
         IterMessages,
@@ -67,7 +67,7 @@ pub struct ItemImpl {
     trait_: Option<(Option<syn::token::Bang>, syn::Path, syn::token::For)>,
     self_ty: Box<syn::Type>,
     brace_token: syn::token::Brace,
-    items: Vec<ImplBlockItem>,
+    items: Vec<ImplItem>,
     /// A salt prefix to disambiguate trait implementation blocks with equal
     /// names. Generally can be used to change computation of message and
     /// constructor selectors of the implementation block.
@@ -191,7 +191,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         let impl_items = item_impl
             .items
             .into_iter()
-            .map(|impl_item| <ImplBlockItem as TryFrom<_>>::try_from(impl_item))
+            .map(|impl_item| <ImplItem as TryFrom<_>>::try_from(impl_item))
             .collect::<Result<Vec<_>, syn::Error>>()?;
         let (ink_attrs, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
         let mut salt = None;
