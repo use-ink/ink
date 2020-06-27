@@ -213,6 +213,26 @@ impl InkAttribute {
     pub fn args(&self) -> ::core::slice::Iter<AttributeArg> {
         self.args.iter()
     }
+
+    /// Returns the salt of the ink! attribute if any.
+    pub fn salt(&self) -> Option<ir2::Salt> {
+        self.args().find_map(|arg| {
+            if let ir2::AttributeArgKind::Salt(salt) = arg.kind() {
+                return Some(salt.clone())
+            }
+            None
+        })
+    }
+
+    /// Returns the selector of the ink! attribute if any.
+    pub fn selector(&self) -> Option<ir2::Selector> {
+        self.args().find_map(|arg| {
+            if let ir2::AttributeArgKind::Selector(selector) = arg.kind() {
+                return Some(selector.clone())
+            }
+            None
+        })
+    }
 }
 
 /// An ink! specific attribute argument.
