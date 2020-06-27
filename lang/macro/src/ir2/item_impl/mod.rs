@@ -214,9 +214,10 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 if requires_pub != vis.is_pub() {
                     return Err(format_err_span!(
                         span,
-                        "ink! {} in {} impl blocks must have public visibility",
+                        "ink! {} in {} impl blocks must have {} visibility",
                         what,
                         if is_trait_impl { "trait" } else { "inherent" },
+                        if requires_pub { "public" } else { "inherited" },
                     ))
                 }
                 Ok(())
