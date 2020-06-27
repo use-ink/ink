@@ -25,6 +25,8 @@ use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
 
 /// An item within an ink! implementation block.
+///
+/// Based on [`syn::ImplItem`] with special variants for ink! impl items.
 #[derive(Debug, PartialEq, Eq)]
 #[allow(clippy::large_enum_variant)]
 pub enum ImplItem {
