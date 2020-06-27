@@ -25,6 +25,26 @@ pub struct Event {
     ast: syn::ItemStruct,
 }
 
+impl Event {
+    /// Returns `true` if the first ink! annotation on the given struct is
+    /// `#[ink(event)]`.
+    ///
+    /// # Errors
+    ///
+    /// If the first found ink! attribute is malformed.
+    pub fn is_ink_event(item_struct: &syn::ItemStruct) -> Result<bool, syn::Error> {
+        if !ir2::contains_ink_attributes(&item_struct.attrs) {
+            return Ok(false)
+        }
+        // At this point we know that there must be at least one ink!
+        // attribute. This can be either the ink! storage struct,
+        // an ink! event or an invalid ink! attribute.
+        let attr = ir2::first_ink_attribute(&item_struct.attrs)?
+            .expect("missing expected ink! attribute for struct");
+        Ok(matches!(attr.first().kind(), ir2::AttributeArgKind::Event))
+    }
+}
+
 impl TryFrom<syn::ItemStruct> for Event {
     type Error = syn::Error;
 
