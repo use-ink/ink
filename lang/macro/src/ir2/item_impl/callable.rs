@@ -60,6 +60,107 @@ pub trait Callable {
     /// Returns an iterator yielding all input parameters of the ink! callable.
     fn inputs(&self) -> InputsIter;
 }
+
+/// Returns the composed selector of the ink! callable.
+///
+/// Composition takes into account the given [`ir2::ItemImpl`].
+///
+/// # Details
+///
+/// Given
+/// - the callable's identifier `i`
+/// - the optionally set callable's selector `s`
+/// - the impl blocks trait path in case it implements a trait, `P`
+/// - the impl blocks optional user provided salt `S`
+///
+/// Then the selector is composed in the following way:
+///
+/// - If `s` is given we simply return `s`.
+/// - Otherwise if `T` is not `None` (trait impl block) we concatenate
+///   `S`, `T` and `i` with `::` as separator if `T` refers to a full-path.
+///   If `T` refers to a relative path or is just an identifier we only take
+///   its last segment `p` (e.g. the trait's identifier) into consideration
+///   and use it instead of `P` in the above concatenation.
+///   In the following we refer to the resulting concatenation as `C`.
+/// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output
+///   and take the first 4 bytes that are returned in order as the composed
+///   selector.
+///
+/// # Examples
+///
+/// ## Overriding the composed selector
+///
+/// Given
+///
+/// ```no_compile
+/// impl MyStorage {
+///     #[ink(message, selector = "0xDEADBEEF")]
+///     fn my_message(&self) {}
+/// }
+/// ```
+///
+/// ... then the selector of `my_message` is simply `0xDEADBEEF` since it overrides
+/// the composed selector.
+///
+/// ## Inherent implementation block
+///
+/// Given
+///
+/// ```no_compile
+/// impl MyStorage {
+///     #[ink(message)]
+///     fn my_message(&self) {}
+/// }
+/// ```
+///
+/// ... then the selector of `my_message` is composed such as:
+/// ```no_compile
+/// BLAKE2("my_message".to_string().as_bytes())[0..4]
+/// ```
+///
+/// ## Trait implementation block
+///
+/// Given
+///
+/// ```no_compile
+/// impl MyTrait for MyStorage {
+///     #[ink(message)]
+///     fn my_message(&self) {}
+/// }
+/// ```
+///
+/// ... then the selector of `my_message` is composed such as:
+/// ```no_compile
+/// BLAKE2("MyTrait::my_message".to_string().as_bytes())[0..4]
+/// ```
+///
+/// ## Using a salt
+///
+/// Given
+///
+/// ```no_compile
+/// #[ink(salt = "my_salt")]
+/// impl MyTrait for MyStorage {
+///     #[ink(message)]
+///     fn my_message(&self) {}
+/// }
+/// ```
+///
+/// ... then the selector of `my_message` is composed such as:
+/// ```no_compile
+/// BLAKE2("my_salt::MyTrait::my_message".to_string().as_bytes())[0..4]
+/// ```
+///
+/// ## Note
+///
+/// All above examples work similarly for ink! constructors interchangeably.
+pub fn compose_selector<C>(item_impl: &ir2::ItemImpl, callable: &C)
+where
+    C: Callable,
+{
+    todo!()
+}
+
 /// Ensures that common invariants of externally callable ink! entities are met.
 ///
 /// # Errors
