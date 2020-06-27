@@ -28,7 +28,7 @@ use syn::spanned::Spanned as _;
 ///
 /// # Example
 ///
-/// ```
+/// ```no_compile
 /// #[ink(storage)]
 /// pub struct MyStorage {
 ///     my_value: bool,
