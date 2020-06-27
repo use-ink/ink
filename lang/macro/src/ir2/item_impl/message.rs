@@ -193,6 +193,56 @@ mod tests {
     use super::*;
 
     #[test]
+    fn inputs_works() {
+        macro_rules! expected_inputs {
+            ( $( $name:ident: $ty:ty ),* ) => {{
+                vec![
+                    $(
+                        syn::parse_quote! {
+                            $name: $ty
+                        }
+                    ),*
+                ]
+            }};
+        }
+        let test_inputs: Vec<(Vec<syn::FnArg>, syn::ImplItemMethod)> = vec![
+            (
+                // No inputs:
+                expected_inputs!(),
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            (
+                // Single input:
+                expected_inputs!(a: i32),
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self, a: i32) {}
+                },
+            ),
+            (
+                // Some inputs:
+                expected_inputs!(a: i32, b: u64, c: [u8; 32]),
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self, a: i32, b: u64, c: [u8; 32]) {}
+                },
+            ),
+        ];
+        for (expected_inputs, item_method) in test_inputs {
+            let actual_inputs = <ir2::Message as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .inputs()
+                .cloned()
+                .map(|pat_type| syn::FnArg::Typed(pat_type))
+                .collect::<Vec<_>>();
+            assert_eq!(actual_inputs, expected_inputs);
+        }
+    }
+
+    #[test]
     fn is_payable_works() {
         let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
             // Not payable.
