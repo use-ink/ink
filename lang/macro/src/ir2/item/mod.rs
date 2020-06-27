@@ -162,7 +162,8 @@ impl InkItem {
         match item {
             syn::Item::Struct(item_struct) => {
                 if ir2::Storage::is_ink_storage(item_struct)?
-                || ir2::Event::is_ink_event(item_struct)? {
+                    || ir2::Event::is_ink_event(item_struct)?
+                {
                     return Ok(true)
                 }
             }
