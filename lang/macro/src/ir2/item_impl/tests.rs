@@ -157,6 +157,56 @@ fn is_ink_impl_block_fails() {
     );
 }
 
+/// Asserts that the `TryFrom` application on the given [`syn::ItemImpl`]
+/// fails with the expected error message.
+fn assert_try_from_item_impl_fails(item_impl: syn::ItemImpl, expected_err: &str) {
+    assert_eq!(
+        <ir2::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl)
+            .map_err(|err| err.to_string()),
+        Err(expected_err.to_string())
+    )
+}
+
+#[test]
+fn visibility_fails() {
+    assert_try_from_item_impl_fails(
+        syn::parse_quote! {
+            impl MyStorage {
+                #[ink(message)]
+                fn my_private_message(&self) {}
+            }
+        },
+        "ink! message in inherent impl blocks must have public visibility"
+    );
+    assert_try_from_item_impl_fails(
+        syn::parse_quote! {
+            impl MyStorage {
+                #[ink(constructor)]
+                fn my_private_constructor() -> Self {}
+            }
+        },
+        "ink! constructor in inherent impl blocks must have public visibility"
+    );
+    assert_try_from_item_impl_fails(
+        syn::parse_quote! {
+            impl MyTrait for MyStorage {
+                #[ink(message)]
+                pub fn my_public_message(&self) {}
+            }
+        },
+        "ink! message in trait impl blocks must have inherited visibility"
+    );
+    assert_try_from_item_impl_fails(
+        syn::parse_quote! {
+            impl MyTrait for MyStorage {
+                #[ink(constructor)]
+                pub fn my_public_constructor() -> Self {}
+            }
+        },
+        "ink! constructor in trait impl blocks must have inherited visibility"
+    );
+}
+
 #[test]
 fn try_from_works() {
     let item_impls: Vec<syn::ItemImpl> = vec![
