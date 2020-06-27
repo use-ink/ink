@@ -134,6 +134,22 @@ pub trait Callable {
 /// BLAKE2("MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
 ///
+/// ## Using full path for trait
+///
+/// Given
+///
+/// ```no_compile
+/// impl ::my_full::long_path::MyTrait for MyStorage {
+///     #[ink(message)]
+///     fn my_message(&self) {}
+/// }
+/// ```
+///
+/// ... then the selector of `my_message` is composed such as:
+/// ```no_compile
+/// BLAKE2("::my_full::long_path::MyTrait::my_message".to_string().as_bytes())[0..4]
+/// ```
+///
 /// ## Using a salt
 ///
 /// Given
@@ -154,10 +170,26 @@ pub trait Callable {
 /// ## Note
 ///
 /// All above examples work similarly for ink! constructors interchangeably.
-pub fn compose_selector<C>(item_impl: &ir2::ItemImpl, callable: &C)
+///
+/// ## Usage Recommendations
+///
+/// These recommendation mainly apply to trait implementation blocks:
+///
+/// - The recommandation by the ink! team is to use the full-path approach
+/// wherever possible; OR import the trait and use only its identifier with
+/// an additional salt if required to disambiguate selectors.
+/// - Try not to intermix the above recommendations.
+/// - Avoid directly setting the selector of an ink! message or constuctor.
+///   Only do this if nothing else helps and you need a very specific selector,
+///   e.g. in case of backwards compatibility.
+/// - Do not use the salt unless required to disambiguate.
+pub fn compose_selector<C>(item_impl: &ir2::ItemImpl, callable: &C) -> ir2::Selector
 where
     C: Callable,
 {
+    if let Some(selector) = callable.selector() {
+        return *selector
+    }
     todo!()
 }
 
