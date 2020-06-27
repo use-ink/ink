@@ -193,7 +193,7 @@ fn salt_works() {
             #[ink(salt = "this is my salt")]
             impl MyStorage {
                 #[ink(message)]
-                fn my_message(&self) {}
+                pub fn my_message(&self) {}
             }
         })
         .unwrap();
