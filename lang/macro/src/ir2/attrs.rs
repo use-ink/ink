@@ -228,7 +228,7 @@ impl InkAttribute {
     pub fn selector(&self) -> Option<ir2::Selector> {
         self.args().find_map(|arg| {
             if let ir2::AttributeArgKind::Selector(selector) = arg.kind() {
-                return Some(selector.clone())
+                return Some(*selector)
             }
             None
         })
@@ -237,8 +237,7 @@ impl InkAttribute {
     /// Returns `true` if the ink! attribute contains the `payable` argument.
     pub fn is_payable(&self) -> bool {
         self.args()
-            .find(|arg| matches!(arg.kind(), AttributeArgKind::Payable))
-            .is_some()
+            .any(|arg| matches!(arg.kind(), AttributeArgKind::Payable))
     }
 }
 

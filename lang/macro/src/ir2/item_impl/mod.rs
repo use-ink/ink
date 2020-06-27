@@ -192,7 +192,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         let impl_items = item_impl
             .items
             .into_iter()
-            .map(|impl_item| <ImplItem as TryFrom<_>>::try_from(impl_item))
+            .map(<ImplItem as TryFrom<_>>::try_from)
             .collect::<Result<Vec<_>, syn::Error>>()?;
         let (ink_attrs, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
         let mut salt = None;
