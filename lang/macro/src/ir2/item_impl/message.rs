@@ -24,7 +24,7 @@ use proc_macro2::Span;
 use syn::spanned::Spanned as _;
 
 /// The receiver of an ink! message.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Receiver {
     /// The `&self` message receiver.
     Ref,
@@ -239,6 +239,32 @@ mod tests {
     }
 
     #[test]
+    fn receiver_works() {
+        let test_inputs: Vec<(Receiver, syn::ImplItemMethod)> = vec![
+            (
+                Receiver::Ref,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            (
+                Receiver::RefMut,
+                syn::parse_quote! {
+                    #[ink(message, payable)]
+                    fn my_message(&mut self) {}
+                },
+            ),
+        ];
+        for (expected_receiver, item_method) in test_inputs {
+            let actual_receiver = <ir2::Message as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .receiver();
+            assert_eq!(actual_receiver, expected_receiver);
+        }
+    }
+
+    #[test]
     fn visibility_works() {
         let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
             // &self
@@ -280,35 +306,6 @@ mod tests {
                 .visibility();
             assert_eq!(visibility.is_pub(), is_pub);
             assert_eq!(visibility.is_inherited(), !is_pub);
-        }
-    }
-
-    #[test]
-    fn receiver_works() {
-        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
-            // &self
-            (
-                false,
-                syn::parse_quote! {
-                    #[ink(message)]
-                    fn my_message(&self) {}
-                },
-            ),
-            // &mut self
-            (
-                true,
-                syn::parse_quote! {
-                    #[ink(message)]
-                    fn my_message(&mut self) {}
-                },
-            ),
-        ];
-        for (is_mut, item_method) in test_inputs {
-            let receiver = <ir2::Message as TryFrom<_>>::try_from(item_method)
-                .unwrap()
-                .receiver();
-            assert_eq!(receiver.is_ref_mut(), is_mut);
-            assert_eq!(receiver.is_ref(), !is_mut);
         }
     }
 
