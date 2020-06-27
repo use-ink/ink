@@ -145,6 +145,15 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
 }
 
 impl Constructor {
+    /// Returns `true` if the message is flagged as payable.
+    ///
+    /// # Note
+    ///
+    /// Flagging as payable is done using the `#[ink(payable)]` attribute.
+    pub fn is_payable(&self) -> bool {
+        self.is_payable
+    }
+
     /// Returns the visibility of the constructor.
     pub fn visibility(&self) -> Visibility {
         match &self.item.vis {

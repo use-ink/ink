@@ -136,6 +136,15 @@ impl TryFrom<syn::ImplItemMethod> for Message {
 }
 
 impl Message {
+    /// Returns `true` if the message is flagged as payable.
+    ///
+    /// # Note
+    ///
+    /// Flagging as payable is done using the `#[ink(payable)]` attribute.
+    pub fn is_payable(&self) -> bool {
+        self.is_payable
+    }
+
     /// Returns the visibility of the message.
     pub fn visibility(&self) -> Visibility {
         match &self.item.vis {
