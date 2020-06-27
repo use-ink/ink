@@ -176,7 +176,7 @@ fn visibility_fails() {
                 fn my_private_message(&self) {}
             }
         },
-        "ink! message in inherent impl blocks must have public visibility"
+        "ink! message in inherent impl blocks must have public visibility",
     );
     assert_try_from_item_impl_fails(
         syn::parse_quote! {
@@ -185,7 +185,7 @@ fn visibility_fails() {
                 fn my_private_constructor() -> Self {}
             }
         },
-        "ink! constructor in inherent impl blocks must have public visibility"
+        "ink! constructor in inherent impl blocks must have public visibility",
     );
     assert_try_from_item_impl_fails(
         syn::parse_quote! {
@@ -194,7 +194,7 @@ fn visibility_fails() {
                 pub fn my_public_message(&self) {}
             }
         },
-        "ink! message in trait impl blocks must have inherited visibility"
+        "ink! message in trait impl blocks must have inherited visibility",
     );
     assert_try_from_item_impl_fails(
         syn::parse_quote! {
@@ -203,7 +203,7 @@ fn visibility_fails() {
                 pub fn my_public_constructor() -> Self {}
             }
         },
-        "ink! constructor in trait impl blocks must have inherited visibility"
+        "ink! constructor in trait impl blocks must have inherited visibility",
     );
 }
 
