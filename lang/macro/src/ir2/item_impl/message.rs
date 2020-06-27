@@ -193,6 +193,52 @@ mod tests {
     use super::*;
 
     #[test]
+    fn is_payable_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+            // Not payable.
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            // Normalized ink! attribute.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message, payable)]
+                    pub fn my_message(&self) {}
+                },
+            ),
+            // Different ink! attributes.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    #[ink(payable)]
+                    pub fn my_message(&self) {}
+                },
+            ),
+            // Another ink! attribute, separate and normalized attribute.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    #[ink(selector = "0xDEADBEEF", payable)]
+                    pub fn my_message(&self) {}
+                },
+            ),
+        ];
+        for (expect_payable, item_method) in test_inputs {
+            let is_payable = <ir2::Message as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .is_payable();
+            assert_eq!(is_payable, expect_payable);
+        }
+    }
+
+    #[test]
     fn visibility_works() {
         let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
             // &self
