@@ -185,3 +185,22 @@ fn try_from_works() {
         assert!(<ir2::ImplBlock as TryFrom<syn::ItemImpl>>::try_from(item_impl).is_ok())
     }
 }
+
+#[test]
+fn salt_works() {
+    let impl_block: ir2::ImplBlock =
+        <ir2::ImplBlock as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+            #[ink(salt = "this is my salt")]
+            impl MyStorage {
+                #[ink(message)]
+                fn my_message(&self) {}
+            }
+        })
+        .unwrap();
+    assert_eq!(
+        impl_block.salt,
+        Some(ir2::Salt::from(
+            "this is my salt".to_string().as_bytes().to_vec()
+        ))
+    )
+}

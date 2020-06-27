@@ -228,7 +228,7 @@ impl TryFrom<syn::ItemImpl> for ImplBlock {
             self_ty: item_impl.self_ty,
             brace_token: item_impl.brace_token,
             items: impl_items,
-            salt: None,
+            salt,
         })
     }
 }
