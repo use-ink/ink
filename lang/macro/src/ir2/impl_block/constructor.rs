@@ -131,8 +131,8 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
         Self::ensure_valid_return_type(&method_item)?;
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
-        let is_payable = false; // TODO
-        let selector = None; // TODO
+        let is_payable = ink_attrs.is_payable();
+        let selector = ink_attrs.selector();
         Ok(Constructor {
             is_payable,
             selector,
