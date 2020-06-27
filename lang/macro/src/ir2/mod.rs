@@ -38,7 +38,7 @@ pub use self::{
     },
     impl_block::{
         Constructor,
-        ImplBlock,
+        ItemImpl,
         Message,
         Receiver,
         Visibility,

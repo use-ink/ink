@@ -58,7 +58,7 @@ pub use self::{
 ///   implementation for [`syn::ItemImpl`] even though they are not really
 ///   required to represent ink!. This is done for consistency with `syn`.
 #[derive(Debug, PartialEq, Eq)]
-pub struct ImplBlock {
+pub struct ItemImpl {
     attrs: Vec<syn::Attribute>,
     defaultness: Option<syn::token::Default>,
     unsafety: Option<syn::token::Unsafe>,
@@ -74,7 +74,7 @@ pub struct ImplBlock {
     salt: Option<ir2::Salt>,
 }
 
-impl ImplBlock {
+impl ItemImpl {
     /// Returns `true` if the Rust implementation block is an ink! implementation
     /// block.
     ///
@@ -159,7 +159,7 @@ impl ImplBlock {
     }
 }
 
-impl TryFrom<syn::ItemImpl> for ImplBlock {
+impl TryFrom<syn::ItemImpl> for ItemImpl {
     type Error = syn::Error;
 
     fn try_from(item_impl: syn::ItemImpl) -> Result<Self, Self::Error> {
@@ -227,7 +227,7 @@ impl TryFrom<syn::ItemImpl> for ImplBlock {
     }
 }
 
-impl ImplBlock {
+impl ItemImpl {
     /// Returns an iterator yielding the ink! messages of the implementation block.
     pub fn iter_messages(&self) -> IterMessages {
         IterMessages::new(self)

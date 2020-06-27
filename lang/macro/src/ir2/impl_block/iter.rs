@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::{
-    ImplBlock,
+    ItemImpl,
     ImplBlockItem,
 };
 use crate::ir2;
@@ -31,7 +31,7 @@ impl<'a> From<core::slice::Iter<'a, ImplBlockItem>> for IterConstructors<'a> {
 
 impl<'a> IterConstructors<'a> {
     /// Creates a new ink! messages iterator.
-    pub(super) fn new(impl_block: &'a ImplBlock) -> Self {
+    pub(super) fn new(impl_block: &'a ItemImpl) -> Self {
         Self {
             impl_items: impl_block.items.iter(),
         }
@@ -69,7 +69,7 @@ impl<'a> From<core::slice::Iter<'a, ImplBlockItem>> for IterMessages<'a> {
 
 impl<'a> IterMessages<'a> {
     /// Creates a new ink! messages iterator.
-    pub(super) fn new(impl_block: &'a ImplBlock) -> Self {
+    pub(super) fn new(impl_block: &'a ItemImpl) -> Self {
         Self {
             impl_items: impl_block.items.iter(),
         }

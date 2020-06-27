@@ -76,12 +76,12 @@ impl TryFrom<syn::Item> for Item {
                 }
             }
             syn::Item::Impl(item_impl) => {
-                if !ir2::ImplBlock::is_ink_impl_block(&item_impl)? {
+                if !ir2::ItemImpl::is_ink_impl_block(&item_impl)? {
                     return Ok(Self::Rust(item_impl.into()))
                 }
                 // At this point we know that there must be at least one ink!
                 // attribute on either the impl block itself or one of its items.
-                <ir2::ImplBlock as TryFrom<_>>::try_from(item_impl)
+                <ir2::ItemImpl as TryFrom<_>>::try_from(item_impl)
                     .map(Into::into)
                     .map(Self::Ink)
             }
@@ -149,7 +149,7 @@ pub enum InkItem {
     /// An ink! event definition.
     Event(ir2::Event),
     /// An ink! implementation block.
-    ImplBlock(ir2::ImplBlock),
+    ImplBlock(ir2::ItemImpl),
 }
 
 impl From<ir2::Storage> for InkItem {
@@ -164,8 +164,8 @@ impl From<ir2::Event> for InkItem {
     }
 }
 
-impl From<ir2::ImplBlock> for InkItem {
-    fn from(impl_block: ir2::ImplBlock) -> Self {
+impl From<ir2::ItemImpl> for InkItem {
+    fn from(impl_block: ir2::ItemImpl) -> Self {
         Self::ImplBlock(impl_block)
     }
 }
@@ -204,7 +204,7 @@ impl InkItem {
     /// Returns `Some` if `self` is an ink! implementation block.
     ///
     /// Otherwise, returns `None`.
-    pub fn filter_map_impl_block(&self) -> Option<&ir2::ImplBlock> {
+    pub fn filter_map_impl_block(&self) -> Option<&ir2::ItemImpl> {
         match self {
             InkItem::ImplBlock(impl_block) => Some(impl_block),
             _ => None,

@@ -203,7 +203,7 @@ impl<'a> IterImplBlocks<'a> {
 }
 
 impl<'a> Iterator for IterImplBlocks<'a> {
-    type Item = &'a ir2::ImplBlock;
+    type Item = &'a ir2::ItemImpl;
 
     fn next(&mut self) -> Option<Self::Item> {
         'outer: loop {
