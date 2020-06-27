@@ -28,9 +28,12 @@ pub struct Constructor {
     item: syn::ImplItemMethod,
     /// If the ink! constructor can receive funds.
     is_payable: bool,
-    /// An optional user provided salt.
-    salt: Option<ir2::Salt>,
     /// An optional user provided selector.
+    ///
+    /// # Note
+    ///
+    /// This overrides the computed selector, even when using a manual salt
+    /// for the parent implementation block.
     selector: Option<ir2::Selector>,
 }
 
@@ -129,11 +132,9 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = false; // TODO
-        let salt = None; // TODO
         let selector = None; // TODO
         Ok(Constructor {
             is_payable,
-            salt,
             selector,
             item: syn::ImplItemMethod {
                 attrs: other_attrs,

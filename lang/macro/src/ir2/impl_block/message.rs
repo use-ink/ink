@@ -50,9 +50,12 @@ pub struct Message {
     item: syn::ImplItemMethod,
     /// If the ink! message can receive funds.
     is_payable: bool,
-    /// An optional user provided salt.
-    salt: Option<ir2::Salt>,
     /// An optional user provided selector.
+    ///
+    /// # Note
+    ///
+    /// This overrides the computed selector, even when using a manual salt
+    /// for the parent implementation block.
     selector: Option<ir2::Selector>,
 }
 
@@ -120,11 +123,9 @@ impl TryFrom<syn::ImplItemMethod> for Message {
         Self::ensure_receiver_is_self_ref(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = false; // TODO
-        let salt = None; // TODO
         let selector = None; // TODO
         Ok(Self {
             is_payable,
-            salt,
             selector,
             item: syn::ImplItemMethod {
                 attrs: other_attrs,
@@ -158,7 +159,21 @@ impl Message {
             _ => unreachable!("encountered invalid receiver argument for ink! message"),
         }
     }
+
+    /// Returns an iterator over all inputs of the ink! message.
+    pub fn inputs(&self) -> InputsIter {
+        todo!()
+    }
+
+    /// Returns an iterator over all inputs of the ink! message without its
+    /// `self` receiver argument.
+    pub fn inputs_without_receiver(&self) -> InputsWithoutReceiverIter {
+        todo!()
+    }
 }
+
+pub struct InputsIter;
+pub struct InputsWithoutReceiverIter;
 
 #[cfg(test)]
 mod tests {
