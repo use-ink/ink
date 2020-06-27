@@ -193,6 +193,44 @@ mod tests {
     use super::*;
 
     #[test]
+    fn output_works() {
+        let test_inputs: Vec<(Option<syn::Type>, syn::ImplItemMethod)> = vec![
+            (
+                // No output:
+                None,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            (
+                // Single output:
+                Some(syn::parse_quote! { i32 }),
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) -> i32 {}
+                },
+            ),
+            (
+                // Tuple output:
+                Some(syn::parse_quote! { (i32, u64, bool) }),
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) -> (i32, u64, bool) {}
+                },
+            ),
+        ];
+        for (expected_output, item_method) in test_inputs {
+            let actual_output =
+                <ir2::Message as TryFrom<_>>::try_from(item_method)
+                    .unwrap()
+                    .output()
+                    .cloned();
+            assert_eq!(actual_output, expected_output);
+        }
+    }
+
+    #[test]
     fn inputs_works() {
         macro_rules! expected_inputs {
             ( $( $name:ident: $ty:ty ),* ) => {{
