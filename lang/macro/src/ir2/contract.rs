@@ -76,6 +76,6 @@ impl Contract {
     ///                    This configuration is mainly needed for testing and
     ///                    the default is `false`.
     pub fn config(&self) -> &ir2::Config {
-        todo!()
+        &self.config
     }
 }
