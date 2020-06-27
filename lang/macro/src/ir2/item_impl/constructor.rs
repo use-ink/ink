@@ -16,6 +16,7 @@ use super::{
     ensure_callable_invariants,
     CallableKind,
     Visibility,
+    InputsIter,
 };
 use crate::ir2;
 use core::convert::TryFrom;
@@ -161,6 +162,11 @@ impl Constructor {
             syn::Visibility::Inherited => Visibility::Inherited,
             _ => unreachable!("encountered invalid visibility for ink! constructor"),
         }
+    }
+
+    /// Returns an iterator yielding all input parameters of the ink! constructor.
+    pub fn inputs(&self) -> InputsIter {
+        InputsIter::from(self)
     }
 }
 

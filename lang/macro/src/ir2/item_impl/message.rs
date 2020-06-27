@@ -15,6 +15,7 @@
 use super::{
     ensure_callable_invariants,
     CallableKind,
+    InputsIter,
     Visibility,
 };
 use crate::ir2;
@@ -169,20 +170,15 @@ impl Message {
         }
     }
 
-    /// Returns an iterator over all inputs of the ink! message.
+    /// Returns an iterator yielding all input parameters of the ink! message.
+    ///
+    /// # Note
+    ///
+    /// Does not yield the ink! message receiver, e.g. `&self`.
     pub fn inputs(&self) -> InputsIter {
-        todo!()
-    }
-
-    /// Returns an iterator over all inputs of the ink! message without its
-    /// `self` receiver argument.
-    pub fn inputs_without_receiver(&self) -> InputsWithoutReceiverIter {
-        todo!()
+        InputsIter::from(self)
     }
 }
-
-pub struct InputsIter;
-pub struct InputsWithoutReceiverIter;
 
 #[cfg(test)]
 mod tests {
