@@ -44,9 +44,9 @@ pub use self::{
         Visibility,
     },
     item::{
+        Event,
         InkItem,
         Item,
-        Event,
         Storage,
     },
     module::Module,

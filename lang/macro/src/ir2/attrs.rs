@@ -436,15 +436,13 @@ where
     let normalized = ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
         err.into_combine(format_err_span!(parent_span, "at this invokation",))
     })?;
-    normalized
-        .ensure_first(is_valid_first)
-        .map_err(|err| {
-            err.into_combine(format_err_span!(
-                parent_span,
-                "expected {} as first ink! attribute argument",
-                is_valid_first,
-            ))
-        })?;
+    normalized.ensure_first(is_valid_first).map_err(|err| {
+        err.into_combine(format_err_span!(
+            parent_span,
+            "expected {} as first ink! attribute argument",
+            is_valid_first,
+        ))
+    })?;
     normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg.kind()))?;
     Ok((normalized, other_attrs))
 }
