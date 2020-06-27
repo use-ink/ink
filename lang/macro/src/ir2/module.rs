@@ -13,8 +13,10 @@
 // limitations under the License.
 
 use crate::ir2;
+use core::convert::TryFrom;
 use proc_macro2::Ident;
 use syn::{
+    spanned::Spanned as _,
     token,
     Attribute,
     Visibility,
@@ -41,6 +43,49 @@ pub struct Module {
     ident: Ident,
     brace: token::Brace,
     items: Vec<ir2::Item>,
+}
+
+impl TryFrom<syn::ItemMod> for Module {
+    type Error = syn::Error;
+
+    fn try_from(module: syn::ItemMod) -> Result<Self, Self::Error> {
+        let module_span = module.span();
+        let (brace, items) = match module.content {
+            Some((brace, items)) => (brace, items),
+            None => {
+                return Err(format_err!(
+                    module,
+                    "inline ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}",
+                ))
+            }
+        };
+        let (ink_attrs, other_attrs) = ir2::partition_attributes(module.attrs)?;
+        if !ink_attrs.is_empty() {
+            let mut error = format_err_span!(
+                module_span,
+                "encountered invalid ink! attributes on ink! module"
+            );
+            for ink_attr in ink_attrs {
+                error.combine(format_err_span!(
+                    ink_attr.span(),
+                    "invalid ink! attribute on module"
+                ))
+            }
+            return Err(error)
+        }
+        let items = items
+            .into_iter()
+            .map(<ir2::Item as TryFrom<syn::Item>>::try_from)
+            .collect::<Result<Vec<_>, syn::Error>>()?;
+        Ok(Self {
+            attrs: other_attrs,
+            vis: module.vis,
+            mod_token: module.mod_token,
+            ident: module.ident,
+            brace,
+            items,
+        })
+    }
 }
 
 impl Module {
