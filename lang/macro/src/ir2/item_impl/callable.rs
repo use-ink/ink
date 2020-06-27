@@ -195,7 +195,7 @@ where
     let salt_bytes = item_impl
         .salt()
         .map(|salt| salt.as_bytes().to_vec())
-        .unwrap_or(vec![]);
+        .unwrap_or_default();
     let separator = &b"::"[..];
     let joined = match item_impl.trait_path() {
         None => {
