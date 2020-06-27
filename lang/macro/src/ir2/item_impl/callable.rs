@@ -200,7 +200,11 @@ where
     let joined = match item_impl.trait_path() {
         None => {
             // Inherent implementation block:
-            [salt_bytes, callable_ident].join(separator)
+            if salt_bytes.is_empty() {
+                callable_ident
+            } else {
+                [salt_bytes, callable_ident].join(separator)
+            }
         }
         Some(path) => {
             // Trait implementation block:
@@ -208,14 +212,20 @@ where
             // We need to separate between full-path, e.g. `::my::full::Path`
             // starting with `::` and relative paths for the composition.
             let path_bytes = if path.leading_colon.is_some() {
-                path.to_token_stream().to_string().into_bytes()
+                let mut str_repr = path.to_token_stream().to_string();
+                str_repr.retain(|c| !c.is_whitespace());
+                str_repr.into_bytes()
             } else {
                 path.get_ident()
                     .expect("encountered trait path without identifier")
                     .to_string()
                     .into_bytes()
             };
-            [salt_bytes, path_bytes, callable_ident].join(separator)
+            if salt_bytes.is_empty() {
+                [path_bytes, callable_ident].join(separator)
+            } else {
+                [salt_bytes, path_bytes, callable_ident].join(separator)
+            }
         }
     };
     let hash = <blake2::Blake2b as blake2::Digest>::digest(&joined);
