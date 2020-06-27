@@ -233,6 +233,13 @@ impl InkAttribute {
             None
         })
     }
+
+    /// Returns `true` if the ink! attribute contains the `payable` argument.
+    pub fn is_payable(&self) -> bool {
+        self.args()
+            .find(|arg| matches!(arg.kind(), AttributeArgKind::Payable))
+            .is_some()
+    }
 }
 
 /// An ink! specific attribute argument.
