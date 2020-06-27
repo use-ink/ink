@@ -31,8 +31,8 @@ mod message;
 mod tests;
 
 use self::callable::{
-    Callable,
     ensure_callable_invariants,
+    Callable,
     CallableKind,
     InputsIter,
 };
@@ -278,6 +278,23 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
 }
 
 impl ItemImpl {
+    /// Retursn the `Self` type of the implementation block.
+    pub fn self_type(&self) -> &syn::Type {
+        self.self_ty.as_ref()
+    }
+
+    /// Returns the trait type path if this is a trait implementation block.
+    ///
+    /// Returns `None` if this is an inherent implementation block.
+    pub fn trait_path(&self) -> Option<&syn::Path> {
+        self.trait_.as_ref().map(|(_, path, _)| path)
+    }
+
+    /// Returns the salt of the implementation block if any has been provided.
+    pub fn salt(&self) -> Option<&ir2::Salt> {
+        self.salt.as_ref()
+    }
+
     /// Returns an iterator yielding the ink! messages of the implementation block.
     pub fn iter_messages(&self) -> IterMessages {
         IterMessages::new(self)
