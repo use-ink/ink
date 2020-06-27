@@ -46,6 +46,7 @@ pub use self::{
     },
     item_impl::{
         Constructor,
+        ImplItem,
         ItemImpl,
         Message,
         Receiver,
