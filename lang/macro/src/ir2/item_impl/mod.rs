@@ -31,6 +31,7 @@ mod message;
 mod tests;
 
 use self::callable::{
+    Callable,
     ensure_callable_invariants,
     CallableKind,
     InputsIter,

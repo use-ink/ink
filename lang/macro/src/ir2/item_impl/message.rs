@@ -14,6 +14,7 @@
 
 use super::{
     ensure_callable_invariants,
+    Callable,
     CallableKind,
     InputsIter,
     Visibility,
@@ -138,10 +139,15 @@ impl TryFrom<syn::ImplItemMethod> for Message {
     }
 }
 
-impl Message {
+impl Callable for Message {
     /// Returns the identifier of the ink! message.
-    pub fn ident(&self) -> &Ident {
+    fn ident(&self) -> &Ident {
         &self.item.sig.ident
+    }
+
+    /// Returns the selector of the ink! message.
+    fn selector(&self) -> Option<&ir2::Selector> {
+        self.selector.as_ref()
     }
 
     /// Returns `true` if the message is flagged as payable.
@@ -149,12 +155,12 @@ impl Message {
     /// # Note
     ///
     /// Flagging as payable is done using the `#[ink(payable)]` attribute.
-    pub fn is_payable(&self) -> bool {
+    fn is_payable(&self) -> bool {
         self.is_payable
     }
 
     /// Returns the visibility of the message.
-    pub fn visibility(&self) -> Visibility {
+    fn visibility(&self) -> Visibility {
         match &self.item.vis {
             syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
             syn::Visibility::Inherited => Visibility::Inherited,
@@ -162,6 +168,17 @@ impl Message {
         }
     }
 
+    /// Returns an iterator yielding all input parameters of the ink! message.
+    ///
+    /// # Note
+    ///
+    /// Does not yield the ink! message receiver, e.g. `&self`.
+    fn inputs(&self) -> InputsIter {
+        InputsIter::from(self)
+    }
+}
+
+impl Message {
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
         match self.item.sig.inputs.iter().next() {
@@ -175,15 +192,6 @@ impl Message {
             }
             _ => unreachable!("encountered invalid receiver argument for ink! message"),
         }
-    }
-
-    /// Returns an iterator yielding all input parameters of the ink! message.
-    ///
-    /// # Note
-    ///
-    /// Does not yield the ink! message receiver, e.g. `&self`.
-    pub fn inputs(&self) -> InputsIter {
-        InputsIter::from(self)
     }
 
     /// Returns the return type of the ink! message if any.

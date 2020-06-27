@@ -17,6 +17,7 @@
 
 use crate::ir2;
 use core::fmt;
+use proc_macro2::Ident;
 
 /// The kind of externally callable smart contract entity.
 pub(super) enum CallableKind {
@@ -35,6 +36,30 @@ impl fmt::Display for CallableKind {
     }
 }
 
+/// An ink! callable.
+///
+/// This is either an ink! message or an ink! constructor.
+/// Used to share common behavior between different callable types.
+pub trait Callable {
+    /// Returns the identifier of the ink! callable.
+    fn ident(&self) -> &Ident;
+
+    /// Returns the selector of the ink! callable if any has been manually set.
+    fn selector(&self) -> Option<&ir2::Selector>;
+
+    /// Returns `true` if the ink! callable is flagged as payable.
+    ///
+    /// # Note
+    ///
+    /// Flagging as payable is done using the `#[ink(payable)]` attribute.
+    fn is_payable(&self) -> bool;
+
+    /// Returns the visibility of the ink! callable.
+    fn visibility(&self) -> Visibility;
+
+    /// Returns an iterator yielding all input parameters of the ink! callable.
+    fn inputs(&self) -> InputsIter;
+}
 /// Ensures that common invariants of externally callable ink! entities are met.
 ///
 /// # Errors

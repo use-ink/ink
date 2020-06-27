@@ -14,6 +14,7 @@
 
 use super::{
     ensure_callable_invariants,
+    Callable,
     CallableKind,
     InputsIter,
     Visibility,
@@ -145,10 +146,15 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
     }
 }
 
-impl Constructor {
+impl Callable for Constructor {
     /// Returns the identifier of the ink! constructor.
-    pub fn ident(&self) -> &Ident {
+    fn ident(&self) -> &Ident {
         &self.item.sig.ident
+    }
+
+    /// Returns the selector of the ink! constructor.
+    fn selector(&self) -> Option<&ir2::Selector> {
+        self.selector.as_ref()
     }
 
     /// Returns `true` if the constructor is flagged as payable.
@@ -156,12 +162,12 @@ impl Constructor {
     /// # Note
     ///
     /// Flagging as payable is done using the `#[ink(payable)]` attribute.
-    pub fn is_payable(&self) -> bool {
+    fn is_payable(&self) -> bool {
         self.is_payable
     }
 
     /// Returns the visibility of the constructor.
-    pub fn visibility(&self) -> Visibility {
+    fn visibility(&self) -> Visibility {
         match &self.item.vis {
             syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
             syn::Visibility::Inherited => Visibility::Inherited,
@@ -170,7 +176,7 @@ impl Constructor {
     }
 
     /// Returns an iterator yielding all input parameters of the ink! constructor.
-    pub fn inputs(&self) -> InputsIter {
+    fn inputs(&self) -> InputsIter {
         InputsIter::from(self)
     }
 }
