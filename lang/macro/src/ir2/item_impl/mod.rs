@@ -18,6 +18,7 @@ use crate::{
     ir2::attrs::Attrs as _,
 };
 use core::convert::TryFrom;
+use proc_macro2::Span;
 use syn::spanned::Spanned as _;
 
 mod callable;
@@ -194,6 +195,52 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             .into_iter()
             .map(<ImplItem as TryFrom<_>>::try_from)
             .collect::<Result<Vec<_>, syn::Error>>()?;
+        let is_trait_impl = item_impl.trait_.is_some();
+        for impl_item in &impl_items {
+            /// Ensures that visibility of ink! messages and constructors is
+            /// valid in dependency of the containing ink! impl block.
+            ///
+            /// # Note
+            ///
+            /// Trait implementation blocks expect inherited visibility
+            /// while inherent implementation block expect public visibility.
+            fn ensure_valid_visibility(
+                vis: ir2::Visibility,
+                span: Span,
+                what: &str,
+                is_trait_impl: bool,
+            ) -> Result<(), syn::Error> {
+                let requires_pub = !is_trait_impl;
+                if requires_pub != vis.is_pub() {
+                    return Err(format_err_span!(
+                        span,
+                        "ink! {} in {} impl blocks must have public visibility",
+                        what,
+                        if is_trait_impl { "trait" } else { "inherent" },
+                    ))
+                }
+                Ok(())
+            }
+            match impl_item {
+                ir2::ImplItem::Message(message) => {
+                    ensure_valid_visibility(
+                        message.visibility(),
+                        message.item.span(),
+                        "message",
+                        is_trait_impl,
+                    )?;
+                }
+                ir2::ImplItem::Constructor(constructor) => {
+                    ensure_valid_visibility(
+                        constructor.visibility(),
+                        constructor.item.span(),
+                        "constructor",
+                        is_trait_impl,
+                    )?;
+                }
+                _ => (),
+            }
+        }
         let (ink_attrs, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
         let mut salt = None;
         if !ink_attrs.is_empty() {
