@@ -60,10 +60,7 @@ impl Storage {
         // an ink! event or an invalid ink! attribute.
         let attr = ir2::first_ink_attribute(&item_struct.attrs)?
             .expect("missing expected ink! attribute for struct");
-        if attr.first().kind() == &ir2::AttributeArgKind::Storage {
-            return Ok(true)
-        }
-        Ok(false)
+        Ok(matches!(attr.first().kind(), ir2::AttributeArgKind::Storage))
     }
 }
 
