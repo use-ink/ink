@@ -15,8 +15,8 @@
 use super::{
     ensure_callable_invariants,
     CallableKind,
-    Visibility,
     InputsIter,
+    Visibility,
 };
 use crate::ir2;
 use core::convert::TryFrom;
@@ -173,6 +173,52 @@ impl Constructor {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn is_payable_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+            // Not payable.
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self {}
+                },
+            ),
+            // Normalized ink! attribute.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(constructor, payable)]
+                    fn my_constructor() -> Self {}
+                },
+            ),
+            // Different ink! attributes.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    #[ink(payable)]
+                    fn my_constructor() -> Self {}
+                },
+            ),
+            // Another ink! attribute, separate and normalized attribute.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    #[ink(selector = "0xDEADBEEF", payable)]
+                    fn my_constructor() -> Self {}
+                },
+            ),
+        ];
+        for (expect_payable, item_method) in test_inputs {
+            let is_payable = <ir2::Constructor as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .is_payable();
+            assert_eq!(is_payable, expect_payable);
+        }
+    }
 
     #[test]
     fn visibility_works() {
