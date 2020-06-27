@@ -15,20 +15,8 @@
 //! Utilities and helper routines that are useful for both ink! messages
 //! and ink! constructors.
 
-use super::{
-    Constructor,
-    Message,
-};
-use crate::{
-    error::ExtError as _,
-    ir2,
-    ir2::attrs::Attrs as _,
-};
-use core::{
-    convert::TryFrom,
-    fmt,
-};
-use syn::spanned::Spanned as _;
+use crate::ir2;
+use core::fmt;
 
 /// The kind of externally callable smart contract entity.
 pub(super) enum CallableKind {

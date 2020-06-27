@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use crate::ir2;
-use proc_macro2::Ident;
 
 /// The contract inline module `mod`.
 ///

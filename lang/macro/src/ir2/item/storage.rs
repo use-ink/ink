@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    error::ExtError as _,
-    ir2,
-};
+use crate::ir2;
 use core::convert::TryFrom;
 use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
@@ -72,7 +69,7 @@ impl TryFrom<syn::ItemStruct> for Storage {
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         let struct_span = item_struct.span();
-        let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
+        let (_ink_attrs, other_attrs) = ir2::sanitize_attributes(
             struct_span,
             item_struct.attrs,
             &ir2::AttributeArgKind::Storage,

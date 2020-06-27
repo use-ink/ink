@@ -128,7 +128,6 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
     type Error = syn::Error;
 
     fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
-        let method_span = method_item.span();
         ensure_callable_invariants(&method_item, CallableKind::Constructor)?;
         Self::ensure_valid_return_type(&method_item)?;
         Self::ensure_no_self_receiver(&method_item)?;

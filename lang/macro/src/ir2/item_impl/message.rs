@@ -122,7 +122,6 @@ impl TryFrom<syn::ImplItemMethod> for Message {
     type Error = syn::Error;
 
     fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
-        let method_span = method_item.span();
         ensure_callable_invariants(&method_item, CallableKind::Message)?;
         Self::ensure_receiver_is_self_ref(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;

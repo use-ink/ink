@@ -50,7 +50,7 @@ impl TryFrom<syn::ItemStruct> for Event {
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         let struct_span = item_struct.span();
-        let (ink_attrs, other_attrs) = ir2::sanitize_attributes(
+        let (_ink_attrs, other_attrs) = ir2::sanitize_attributes(
             struct_span,
             item_struct.attrs,
             &ir2::AttributeArgKind::Event,
