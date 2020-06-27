@@ -20,7 +20,10 @@ use super::{
 };
 use crate::ir2;
 use core::convert::TryFrom;
-use proc_macro2::Span;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use syn::spanned::Spanned as _;
 
 /// The receiver of an ink! message.
@@ -137,6 +140,11 @@ impl TryFrom<syn::ImplItemMethod> for Message {
 }
 
 impl Message {
+    /// Returns the identifier of the ink! message.
+    pub fn ident(&self) -> &Ident {
+        &self.item.sig.ident
+    }
+
     /// Returns `true` if the message is flagged as payable.
     ///
     /// # Note

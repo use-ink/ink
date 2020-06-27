@@ -20,6 +20,7 @@ use super::{
 };
 use crate::ir2;
 use core::convert::TryFrom;
+use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
@@ -146,7 +147,12 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
 }
 
 impl Constructor {
-    /// Returns `true` if the message is flagged as payable.
+    /// Returns the identifier of the ink! constructor.
+    pub fn ident(&self) -> &Ident {
+        &self.item.sig.ident
+    }
+
+    /// Returns `true` if the constructor is flagged as payable.
     ///
     /// # Note
     ///
