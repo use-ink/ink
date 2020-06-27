@@ -364,3 +364,120 @@ impl<'a> Iterator for InputsIter<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::{
+        convert::TryFrom,
+        fmt::Debug,
+    };
+
+    pub enum ExpectedSelector {
+        Raw([u8; 4]),
+        Blake2(Vec<u8>),
+    }
+
+    impl From<[u8; 4]> for ExpectedSelector {
+        fn from(raw_selector: [u8; 4]) -> Self {
+            ExpectedSelector::Raw(raw_selector)
+        }
+    }
+
+    impl From<Vec<u8>> for ExpectedSelector {
+        fn from(blake2_input: Vec<u8>) -> Self {
+            ExpectedSelector::Blake2(blake2_input)
+        }
+    }
+
+    impl ExpectedSelector {
+        pub fn expected_selector(self) -> ir2::Selector {
+            match self {
+                Self::Raw(raw_selector) => ir2::Selector::new(raw_selector),
+                Self::Blake2(blake2_input) => {
+                    let hash = <blake2::Blake2b as blake2::Digest>::digest(&blake2_input);
+                    ir2::Selector::new([hash[0], hash[1], hash[2], hash[3]])
+                }
+            }
+        }
+    }
+
+    /// Asserts that the given ink! implementation block and the given ink!
+    /// message result in the same composed selector as the expected bytes.
+    fn assert_compose_selector<C, S>(
+        item_impl: syn::ItemImpl,
+        item_method: syn::ImplItemMethod,
+        expected_selector: S,
+    ) where
+        C: Callable + TryFrom<syn::ImplItemMethod>,
+        <C as TryFrom<syn::ImplItemMethod>>::Error: Debug,
+        S: Into<ExpectedSelector>,
+    {
+        assert_eq!(
+            compose_selector(
+                &<ir2::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).unwrap(),
+                &<C as TryFrom<syn::ImplItemMethod>>::try_from(item_method).unwrap(),
+            ),
+            expected_selector.into().expected_selector(),
+        )
+    }
+
+    #[test]
+    fn compose_selector_works() {
+        assert_compose_selector::<ir2::Message, _>(
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl MyStorage {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&self) {}
+            },
+            b"my_message".to_vec(),
+        );
+        assert_compose_selector::<ir2::Message, _>(
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl MyTrait for MyStorage {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&self) {}
+            },
+            b"MyTrait::my_message".to_vec(),
+        );
+        assert_compose_selector::<ir2::Message, _>(
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl ::my::full::path::MyTrait for MyStorage {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&self) {}
+            },
+            b"::my::full::path::MyTrait::my_message".to_vec(),
+        );
+        assert_compose_selector::<ir2::Message, _>(
+            syn::parse_quote! {
+                #[ink(impl, salt = "my_salt")]
+                impl MyTrait for MyStorage {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&self) {}
+            },
+            b"my_salt::MyTrait::my_message".to_vec(),
+        );
+        assert_compose_selector::<ir2::Message, _>(
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl MyTrait for MyStorage {}
+            },
+            syn::parse_quote! {
+                #[ink(message, selector = "0xDEADBEEF")]
+                fn my_message(&self) {}
+            },
+            [0xDE, 0xAD, 0xBE, 0xEF],
+        );
+    }
+}
