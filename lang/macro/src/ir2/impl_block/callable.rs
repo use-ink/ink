@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Utilities and helper routines that are useful for both ink! messages
+//! and ink! constructors.
+
 use super::{
     Constructor,
     Message,
