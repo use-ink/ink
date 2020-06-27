@@ -194,7 +194,8 @@ impl TryFrom<syn::ItemImpl> for ImplBlock {
             .map(|impl_item| <ImplBlockItem as TryFrom<_>>::try_from(impl_item))
             .collect::<Result<Vec<_>, syn::Error>>()?;
         let (ink_attrs, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
-        let salt = if !ink_attrs.is_empty() {
+        let mut salt = None;
+        if !ink_attrs.is_empty() {
             let normalized =
                 ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
                     err.into_combine(format_err_span!(
@@ -209,15 +210,8 @@ impl TryFrom<syn::ItemImpl> for ImplBlock {
                     _ => true,
                 }
             })?;
-            normalized.args().find_map(|arg| {
-                if let ir2::AttributeArgKind::Salt(salt) = arg.kind() {
-                    return Some(salt.clone())
-                }
-                None
-            })
-        } else {
-            None
-        };
+            salt = normalized.salt();
+        }
         Ok(Self {
             attrs: other_attrs,
             defaultness: item_impl.defaultness,
