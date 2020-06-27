@@ -47,7 +47,7 @@ impl Receiver {
 #[derive(Debug, PartialEq, Eq)]
 pub struct Message {
     /// The underlying Rust method item.
-    item: syn::ImplItemMethod,
+    pub(super) item: syn::ImplItemMethod,
     /// If the ink! message can receive funds.
     is_payable: bool,
     /// An optional user provided selector.

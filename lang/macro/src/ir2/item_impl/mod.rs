@@ -32,6 +32,7 @@ mod tests;
 use self::callable::{
     ensure_callable_invariants,
     CallableKind,
+    InputsIter,
 };
 pub use self::{
     callable::Visibility,

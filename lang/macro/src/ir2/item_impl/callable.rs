@@ -142,3 +142,40 @@ impl Visibility {
         matches!(self, Self::Inherited)
     }
 }
+
+/// Iterator over the input parameters of an ink! message or constructor.
+///
+/// Does not yield the self receiver of ink! messages.
+pub struct InputsIter<'a> {
+    iter: syn::punctuated::Iter<'a, syn::FnArg>,
+}
+
+impl<'a> From<&'a ir2::Message> for InputsIter<'a> {
+    fn from(message: &'a ir2::Message) -> Self {
+        Self {
+            iter: message.item.sig.inputs.iter(),
+        }
+    }
+}
+
+impl<'a> From<&'a ir2::Constructor> for InputsIter<'a> {
+    fn from(constructor: &'a ir2::Constructor) -> Self {
+        Self {
+            iter: constructor.item.sig.inputs.iter(),
+        }
+    }
+}
+
+impl<'a> Iterator for InputsIter<'a> {
+    type Item = &'a syn::PatType;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        'outer: loop {
+            match self.iter.next() {
+                None => return None,
+                Some(syn::FnArg::Typed(pat_typed)) => return Some(pat_typed),
+                Some(syn::FnArg::Receiver(_)) => continue 'outer,
+            }
+        }
+    }
+}

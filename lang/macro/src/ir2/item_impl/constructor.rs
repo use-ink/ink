@@ -25,7 +25,7 @@ use syn::spanned::Spanned as _;
 #[derive(Debug, PartialEq, Eq)]
 pub struct Constructor {
     /// The underlying Rust method item.
-    item: syn::ImplItemMethod,
+    pub(super) item: syn::ImplItemMethod,
     /// If the ink! constructor can receive funds.
     is_payable: bool,
     /// An optional user provided selector.
