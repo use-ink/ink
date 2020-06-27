@@ -152,6 +152,29 @@ pub enum InkItem {
     ImplBlock(ir2::ItemImpl),
 }
 
+impl InkItem {
+    /// Returns `true` if the given [`syn::Item`] is eventually an ink! item.
+    ///
+    /// # Errors
+    ///
+    /// If invalid or malformed ink! attributes are encountered for the given item.
+    pub fn is_ink_item(item: &syn::Item) -> Result<bool, syn::Error> {
+        match item {
+            syn::Item::Struct(item_struct) => {
+                if ir2::Storage::is_ink_storage(item_struct)?
+                || ir2::Event::is_ink_event(item_struct)? {
+                    return Ok(true)
+                }
+            }
+            syn::Item::Impl(item_impl) => {
+                return ir2::ItemImpl::is_ink_impl_block(item_impl)
+            }
+            _ => (),
+        }
+        Ok(false)
+    }
+}
+
 impl From<ir2::Storage> for InkItem {
     fn from(storage: ir2::Storage) -> Self {
         Self::Storage(storage)
