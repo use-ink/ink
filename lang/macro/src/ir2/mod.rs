@@ -15,8 +15,8 @@
 mod attrs;
 mod config;
 mod contract;
-mod item_impl;
 mod item;
+mod item_impl;
 mod module;
 mod selector;
 
@@ -36,18 +36,18 @@ pub use self::{
         Config,
         EnvTypes,
     },
+    item::{
+        Event,
+        InkItem,
+        Item,
+        Storage,
+    },
     item_impl::{
         Constructor,
         ItemImpl,
         Message,
         Receiver,
         Visibility,
-    },
-    item::{
-        Event,
-        InkItem,
-        Item,
-        Storage,
     },
     module::Module,
     selector::Selector,

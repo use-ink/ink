@@ -13,8 +13,8 @@
 // limitations under the License.
 
 use super::{
-    ItemImpl,
     ImplItem,
+    ItemImpl,
 };
 use crate::ir2;
 
