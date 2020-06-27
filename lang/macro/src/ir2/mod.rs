@@ -15,7 +15,7 @@
 mod attrs;
 mod config;
 mod contract;
-mod impl_block;
+mod item_impl;
 mod item;
 mod module;
 mod selector;
@@ -36,7 +36,7 @@ pub use self::{
         Config,
         EnvTypes,
     },
-    impl_block::{
+    item_impl::{
         Constructor,
         ItemImpl,
         Message,
