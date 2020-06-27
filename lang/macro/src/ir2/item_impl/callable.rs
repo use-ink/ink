@@ -18,6 +18,7 @@
 use crate::ir2;
 use core::fmt;
 use proc_macro2::Ident;
+use quote::ToTokens as _;
 
 /// The kind of externally callable smart contract entity.
 pub(super) enum CallableKind {
@@ -190,7 +191,35 @@ where
     if let Some(selector) = callable.selector() {
         return *selector
     }
-    todo!()
+    let callable_ident = callable.ident().to_string().into_bytes();
+    let salt_bytes = item_impl
+        .salt()
+        .map(|salt| salt.as_bytes().to_vec())
+        .unwrap_or(vec![]);
+    let separator = &b"::"[..];
+    let joined = match item_impl.trait_path() {
+        None => {
+            // Inherent implementation block:
+            [salt_bytes, callable_ident].join(separator)
+        }
+        Some(path) => {
+            // Trait implementation block:
+            //
+            // We need to separate between full-path, e.g. `::my::full::Path`
+            // starting with `::` and relative paths for the composition.
+            let path_bytes = if path.leading_colon.is_some() {
+                path.to_token_stream().to_string().into_bytes()
+            } else {
+                path.get_ident()
+                    .expect("encountered trait path without identifier")
+                    .to_string()
+                    .into_bytes()
+            };
+            [salt_bytes, path_bytes, callable_ident].join(separator)
+        }
+    };
+    let hash = <blake2::Blake2b as blake2::Digest>::digest(&joined);
+    ir2::Selector::new([hash[0], hash[1], hash[2], hash[3]])
 }
 
 /// Ensures that common invariants of externally callable ink! entities are met.
