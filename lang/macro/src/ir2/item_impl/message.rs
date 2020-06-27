@@ -229,11 +229,10 @@ mod tests {
             ),
         ];
         for (expected_output, item_method) in test_inputs {
-            let actual_output =
-                <ir2::Message as TryFrom<_>>::try_from(item_method)
-                    .unwrap()
-                    .output()
-                    .cloned();
+            let actual_output = <ir2::Message as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .output()
+                .cloned();
             assert_eq!(actual_output, expected_output);
         }
     }
