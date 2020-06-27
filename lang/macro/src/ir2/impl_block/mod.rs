@@ -68,6 +68,10 @@ pub struct ImplBlock {
     self_ty: Box<syn::Type>,
     brace_token: syn::token::Brace,
     items: Vec<ImplBlockItem>,
+    /// A salt prefix to disambiguate trait implementation blocks with equal
+    /// names. Generally can be used to change computation of message and
+    /// constructor selectors of the implementation block.
+    salt: Option<ir2::Salt>,
 }
 
 impl ImplBlock {
@@ -189,7 +193,31 @@ impl TryFrom<syn::ItemImpl> for ImplBlock {
             .into_iter()
             .map(|impl_item| <ImplBlockItem as TryFrom<_>>::try_from(impl_item))
             .collect::<Result<Vec<_>, syn::Error>>()?;
-        let (_, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
+        let (ink_attrs, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
+        let salt = if !ink_attrs.is_empty() {
+            let normalized =
+                ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                    err.into_combine(format_err_span!(
+                        impl_block_span,
+                        "at this invokation",
+                    ))
+                })?;
+            normalized.ensure_no_conflicts(|arg| {
+                match arg.kind() {
+                    ir2::AttributeArgKind::Implementation
+                    | ir2::AttributeArgKind::Salt(_) => false,
+                    _ => true,
+                }
+            })?;
+            normalized.args().find_map(|arg| {
+                if let ir2::AttributeArgKind::Salt(salt) = arg.kind() {
+                    return Some(salt.clone())
+                }
+                None
+            })
+        } else {
+            None
+        };
         Ok(Self {
             attrs: other_attrs,
             defaultness: item_impl.defaultness,
@@ -200,6 +228,7 @@ impl TryFrom<syn::ItemImpl> for ImplBlock {
             self_ty: item_impl.self_ty,
             brace_token: item_impl.brace_token,
             items: impl_items,
+            salt: None,
         })
     }
 }
