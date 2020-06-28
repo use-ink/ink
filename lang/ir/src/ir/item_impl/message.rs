@@ -140,26 +140,18 @@ impl TryFrom<syn::ImplItemMethod> for Message {
 }
 
 impl Callable for Message {
-    /// Returns the identifier of the ink! message.
     fn ident(&self) -> &Ident {
         &self.item.sig.ident
     }
 
-    /// Returns the selector of the ink! message.
     fn selector(&self) -> Option<&ir::Selector> {
         self.selector.as_ref()
     }
 
-    /// Returns `true` if the message is flagged as payable.
-    ///
-    /// # Note
-    ///
-    /// Flagging as payable is done using the `#[ink(payable)]` attribute.
     fn is_payable(&self) -> bool {
         self.is_payable
     }
 
-    /// Returns the visibility of the message.
     fn visibility(&self) -> Visibility {
         match &self.item.vis {
             syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
@@ -168,11 +160,6 @@ impl Callable for Message {
         }
     }
 
-    /// Returns an iterator yielding all input parameters of the ink! message.
-    ///
-    /// # Note
-    ///
-    /// Does not yield the ink! message receiver, e.g. `&self`.
     fn inputs(&self) -> InputsIter {
         InputsIter::from(self)
     }

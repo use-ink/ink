@@ -147,26 +147,18 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
 }
 
 impl Callable for Constructor {
-    /// Returns the identifier of the ink! constructor.
     fn ident(&self) -> &Ident {
         &self.item.sig.ident
     }
 
-    /// Returns the selector of the ink! constructor.
     fn selector(&self) -> Option<&ir::Selector> {
         self.selector.as_ref()
     }
 
-    /// Returns `true` if the constructor is flagged as payable.
-    ///
-    /// # Note
-    ///
-    /// Flagging as payable is done using the `#[ink(payable)]` attribute.
     fn is_payable(&self) -> bool {
         self.is_payable
     }
 
-    /// Returns the visibility of the constructor.
     fn visibility(&self) -> Visibility {
         match &self.item.vis {
             syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
@@ -175,7 +167,6 @@ impl Callable for Constructor {
         }
     }
 
-    /// Returns an iterator yielding all input parameters of the ink! constructor.
     fn inputs(&self) -> InputsIter {
         InputsIter::from(self)
     }

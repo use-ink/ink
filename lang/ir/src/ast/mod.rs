@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Provides types and infrastructure for syntactical portions of ink! that
-//! require custom parsing that is not Rust conformant.
+//! Types and abstractions for ink! definitions that require custom syntax.
+//!
+//! # Note
 //!
 //! In general we try not to require any sort of custom non-standard Rust
 //! syntax.

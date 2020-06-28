@@ -26,7 +26,14 @@ impl ExtError for syn::Error {
     }
 }
 
-/// Creates a macro error.
+/// Spawns a spanned [`syn::Error`] using the provided arguments.
+///
+/// # Parameters
+///
+/// - The first argument must implement [`quote::ToTokens`] in order to
+///   infer a [`Span`].
+/// - The second argument is a format string.
+/// - The rest are format string arguments.
 ///
 /// # Note
 ///
@@ -39,7 +46,13 @@ macro_rules! format_err {
     }
 }
 
-/// Creates a macro error.
+/// Spawns a [`syn::Error`] using a concrete span and the provided arguments.
+///
+/// # Parameters
+///
+/// - The first argument must be a concrete [`Span`] instance.
+/// - The second argument is a format string.
+/// - The rest are format string arguments.
 ///
 /// # Note
 ///
