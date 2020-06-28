@@ -23,22 +23,46 @@ use syn::{
 /// The ink! module.
 ///
 /// This is the root of all ink! smart contracts and is defined similarly to
-/// a normal Rust module annotated with `#[ink::contract(version = *)]` attribute.
+/// a normal Rust module annotated with
+/// `#[ink::contract( /* optional configuration */ )]` attribute.
 ///
 /// It contains ink! specific items as well as normal Rust items.
 ///
-/// # Note
+/// # Example
 ///
-/// Structurally the ink! `Module` mirrors an inline Rust module, for example:
-/// ```no_compile
-/// mod rust_module { ... }
+/// ```rust, no_compile
+/// #[ink::contract] // <-- this line belongs to the ink! configuration!
+/// mod my_contract {
+///     #[ink(storage)]
+///     struct MyStorage { ... }
+///
+///     #[ink(event)]
+///     struct MyEvent { ... }
+///
+///     impl MyStorage {
+///         #[ink(constructor)]
+///         pub fn my_constructor() -> Self { ... }
+///
+///         #[ink(message)]
+///         pub fn my_message(&self) { ... }
+///     }
+/// }
 /// ```
-/// If the capabilities of an inline Rust module change we have to adjust for that.
 ///
 /// # Note
 ///
 /// This type has been named after [`syn::ItemMod`] and inherits all of the
 /// fields that are required for inline module definitions.
+///
+/// # Developer Note
+///
+/// Structurally the ink! `Module` mirrors an inline Rust module, for example:
+///
+/// ```rust, no_compile
+/// mod rust_module { ... }
+/// ```
+///
+/// If the capabilities of an inline Rust module change we have to adjust for that.
 pub struct ItemMod {
     attrs: Vec<syn::Attribute>,
     vis: syn::Visibility,
@@ -204,7 +228,8 @@ impl<'a> Iterator for IterInkItems<'a> {
     }
 }
 
-/// Iterator yielding ink! event definition of the ink! smart contract definition.
+/// Iterator yielding all ink! event definitions within the ink!
+/// [`ItemMod`](`crate::ir::ItemMod`).
 pub struct IterEvents<'a> {
     items_iter: IterInkItems<'a>,
 }
@@ -236,7 +261,8 @@ impl<'a> Iterator for IterEvents<'a> {
     }
 }
 
-/// Iterator yielding ink! `impl` blocks of the ink! smart contract definition.
+/// Iterator yielding all ink! implementation block definitions within the ink!
+/// [`ItemMod`](`crate::ir::ItemMod`).
 pub struct IterImplBlocks<'a> {
     items_iter: IterInkItems<'a>,
 }

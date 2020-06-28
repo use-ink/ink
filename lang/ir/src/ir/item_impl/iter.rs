@@ -18,7 +18,8 @@ use super::{
 };
 use crate::ir;
 
-/// Iterator yielding constructors of the ink! smart contract definition.
+/// Iterator yielding all ink! constructor within a source ink!
+/// [`ir::ItemImpl`](`crate::ir::ItemImpl`).
 pub struct IterConstructors<'a> {
     impl_items: core::slice::Iter<'a, ImplItem>,
 }
@@ -56,7 +57,8 @@ impl<'a> Iterator for IterConstructors<'a> {
     }
 }
 
-/// Iterator yielding messages of the ink! smart contract definition.
+/// Iterator yielding all ink! messages within a source ink!
+/// [`ir::ItemImpl`](`crate::ir::ItemImpl`).
 pub struct IterMessages<'a> {
     impl_items: core::slice::Iter<'a, ImplItem>,
 }
