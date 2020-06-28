@@ -34,7 +34,7 @@ pub struct Contract {
     /// Contains all Rust module items after parsing. Note that while parsing
     /// the ink! module all ink! specific items are moved out of this AST based
     /// representation.
-    pub ast: ir::ItemMod,
+    item: ir::ItemMod,
     /// The specified ink! configuration.
     config: ir::Config,
 }
@@ -56,7 +56,7 @@ impl Contract {
     ///
     /// In the above case the `module_ident` is `my_contract`.
     pub fn module(&self) -> &ir::ItemMod {
-        &self.ast
+        &self.item
     }
 
     /// Returns the configuration of the ink! smart contract.
