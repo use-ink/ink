@@ -15,5 +15,29 @@
 #[macro_use]
 mod error;
 
-pub mod ast;
-pub mod ir;
+mod ast;
+mod ir;
+
+pub use self::ir::{
+    Callable,
+    Config,
+    Constructor,
+    Contract,
+    EnvTypes,
+    Event,
+    ImplItem,
+    InkItem,
+    Item,
+    ItemImpl,
+    ItemMod,
+    IterConstructors,
+    IterEvents,
+    IterImplBlocks,
+    IterMessages,
+    Message,
+    Receiver,
+    Salt,
+    Selector,
+    Storage,
+    Visibility,
+};
