@@ -93,10 +93,7 @@ impl TryFrom<syn::Item> for Item {
                         ir::partition_attributes(item.attrs().iter().cloned())?;
                     assert!(!ink_attrs.is_empty());
                     fn into_err(attr: &ir::InkAttribute) -> syn::Error {
-                        format_err!(
-                            attr.span(),
-                            "encountered unexpected ink! attribute",
-                        )
+                        format_err!(attr.span(), "encountered unexpected ink! attribute",)
                     }
                     return Err(ink_attrs[1..]
                         .iter()

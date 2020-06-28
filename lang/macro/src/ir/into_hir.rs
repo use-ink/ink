@@ -21,8 +21,8 @@ use crate::{
 use core::convert::TryFrom;
 use either::Either;
 use ink_lang_ir::{
-    format_err_spanned,
     format_err,
+    format_err_spanned,
 };
 use itertools::Itertools as _;
 use proc_macro2::{
@@ -403,9 +403,7 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                             selector: ir::FunctionSelector::from(&method.sig.ident),
                         }))
                     }
-                    _unknown => {
-                        Err(format_err!(attr.span(), "unknown ink! marker",))
-                    }
+                    _unknown => Err(format_err!(attr.span(), "unknown ink! marker",)),
                 }?;
                 if kind == ir::FunctionKind::Method {
                     kind = new_kind;
@@ -721,7 +719,9 @@ fn split_items(
         n => {
             Err(storages
                 .iter()
-                .map(|storage| format_err_spanned!(storage.ident, "conflicting storage struct"))
+                .map(|storage| {
+                    format_err_spanned!(storage.ident, "conflicting storage struct")
+                })
                 .fold(
                     format_err!(
                         Span::call_site(),

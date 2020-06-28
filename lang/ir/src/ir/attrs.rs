@@ -501,10 +501,9 @@ impl TryFrom<syn::Attribute> for InkAttribute {
         if !attr.path.is_ident("ink") {
             return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
         }
-        match attr
-            .parse_meta()
-            .map_err(|_| format_err_spanned!(attr, "unexpected ink! attribute structure"))?
-        {
+        match attr.parse_meta().map_err(|_| {
+            format_err_spanned!(attr, "unexpected ink! attribute structure")
+        })? {
             syn::Meta::List(meta_list) => {
                 let args = meta_list
                     .nested
@@ -653,7 +652,10 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                         Err(format_err_spanned!(meta, "unknown ink! attribute (path)"))
                     }
                     syn::Meta::List(_) => {
-                        Err(format_err_spanned!(meta, "unknown ink! attribute argument (list)"))
+                        Err(format_err_spanned!(
+                            meta,
+                            "unknown ink! attribute argument (list)"
+                        ))
                     }
                 }
             }
