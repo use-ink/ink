@@ -26,6 +26,13 @@ use syn::spanned::Spanned as _;
 
 /// An item within an ink! implementation block.
 ///
+/// Can be either
+/// - an ink! [`ir::Constructor`](`crate::ir::Constructor`)
+/// - an ink! [`ir::Message`](`crate::ir::Message`)
+/// - or any other non-ink! item.
+///
+/// # Note
+///
 /// Based on [`syn::ImplItem`] with special variants for ink! impl items.
 #[derive(Debug, PartialEq, Eq)]
 #[allow(clippy::large_enum_variant)]

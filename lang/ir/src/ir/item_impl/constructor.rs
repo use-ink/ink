@@ -25,6 +25,26 @@ use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
+///
+/// # Example
+///
+/// ## Inherent implementation constructor:
+///
+/// ```rust, no_compile
+/// impl MyStorage {
+///     #[ink(constructor)]
+///     pub fn new(init_value: i32) -> Self { /* ... */ }
+/// }
+/// ```
+///
+/// ## Trait implementation constructor:
+///
+/// ```rust, no_compile
+/// impl MyTrait for MyStorage {
+///     #[ink(constructor)]
+///     fn new(init_value: i32) -> Self { /* ... */ }
+/// }
+/// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Constructor {
     /// The underlying Rust method item.

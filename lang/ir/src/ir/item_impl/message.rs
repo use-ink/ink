@@ -49,6 +49,26 @@ impl Receiver {
 }
 
 /// An ink! message definition.
+///
+/// # Example
+///
+/// ## Inherent implementation message:
+///
+/// ```rust, no_compile
+/// impl MyStorage {
+///     #[ink(message)]
+///     pub fn my_message(&self, input: i32) -> bool { /* ... */ }
+/// }
+/// ```
+///
+/// ## Trait implementation message:
+///
+/// ```rust, no_compile
+/// impl MyTrait for MyStorage {
+///     #[ink(message)]
+///     fn my_message(&mut self, input: bool) -> i32 { /* ... */ }
+/// }
+/// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Message {
     /// The underlying Rust method item.

@@ -195,14 +195,10 @@ impl InkAttribute {
     }
 
     /// Returns the first ink! attribute argument.
-    ///
-    /// # Panics
-    ///
-    /// If the ink! attribute argument list is empty.
     pub fn first(&self) -> &AttributeArg {
         self.args
             .first()
-            .expect("encountered empty ink! attribute list")
+            .expect("encountered invalid empty ink! attribute list")
     }
 
     /// Returns an iterator over the non-empty flags of the ink! attribute.

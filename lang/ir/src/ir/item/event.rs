@@ -23,6 +23,20 @@ use proc_macro2::{
 };
 use syn::spanned::Spanned as _;
 
+/// An ink! event struct definition.
+///
+/// # Example
+///
+/// ```rust, no_compile
+/// #[ink(event)]
+/// struct Transaction {
+///     #[ink(topic)]
+///     from: AccountId,
+///     #[ink(topic)]
+///     to: AccountId,
+///     value: Balance,
+/// }
+/// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Event {
     item: syn::ItemStruct,

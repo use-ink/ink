@@ -31,7 +31,7 @@ use crate::{
 use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
 
-/// An item in the root of the ink! module.
+/// An item in the root of the ink! module ([`ir::ItemMod`](`crate::ir::ItemMod`)).
 ///
 /// This is either an ink! specific item or a normal Rust item.
 #[derive(Debug, PartialEq, Eq)]
