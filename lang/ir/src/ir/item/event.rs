@@ -42,6 +42,14 @@ pub struct Event {
     item: syn::ItemStruct,
 }
 
+impl quote::ToTokens for Event {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        self.item.to_tokens(tokens)
+    }
+}
+
 impl Event {
     /// Returns `true` if the first ink! annotation on the given struct is
     /// `#[ink(event)]`.

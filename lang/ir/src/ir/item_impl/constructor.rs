@@ -60,6 +60,14 @@ pub struct Constructor {
     selector: Option<ir::Selector>,
 }
 
+impl quote::ToTokens for Constructor {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        self.item.to_tokens(tokens)
+    }
+}
+
 impl Constructor {
     /// Returns `true` if the given type is `Self`.
     fn type_is_self_val(ty: &syn::Type) -> bool {

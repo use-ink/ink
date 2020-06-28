@@ -42,6 +42,17 @@ pub enum Item {
     Rust(syn::Item),
 }
 
+impl quote::ToTokens for Item {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        match self {
+            Self::Ink(ink_item) => ink_item.to_tokens(tokens),
+            Self::Rust(rust_item) => rust_item.to_tokens(tokens),
+        }
+    }
+}
+
 impl TryFrom<syn::Item> for Item {
     type Error = syn::Error;
 
@@ -147,6 +158,18 @@ pub enum InkItem {
     Event(ir::Event),
     /// An ink! implementation block.
     ImplBlock(ir::ItemImpl),
+}
+
+impl quote::ToTokens for InkItem {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        match self {
+            Self::Storage(storage) => storage.to_tokens(tokens),
+            Self::Event(event) => event.to_tokens(tokens),
+            Self::ImplBlock(impl_block) => impl_block.to_tokens(tokens),
+        }
+    }
 }
 
 impl InkItem {

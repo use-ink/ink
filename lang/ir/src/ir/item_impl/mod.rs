@@ -19,7 +19,6 @@ use crate::{
 };
 use core::convert::TryFrom;
 use proc_macro2::Span;
-use syn::spanned::Spanned as _;
 
 mod callable;
 mod constructor;
@@ -51,6 +50,8 @@ pub use self::{
         Receiver,
     },
 };
+use quote::TokenStreamExt as _;
+use syn::spanned::Spanned;
 
 /// An ink! implementation block.
 ///
@@ -77,6 +78,37 @@ pub struct ItemImpl {
     /// names. Generally can be used to change computation of message and
     /// constructor selectors of the implementation block.
     salt: Option<ir::Salt>,
+}
+
+impl quote::ToTokens for ItemImpl {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        tokens.append_all(
+            self.attrs
+                .iter()
+                .filter(|attr| matches!(attr.style, syn::AttrStyle::Outer)),
+        );
+        self.defaultness.to_tokens(tokens);
+        self.unsafety.to_tokens(tokens);
+        self.impl_token.to_tokens(tokens);
+        self.generics.to_tokens(tokens);
+        if let Some((polarity, path, for_token)) = &self.trait_ {
+            polarity.to_tokens(tokens);
+            path.to_tokens(tokens);
+            for_token.to_tokens(tokens);
+        }
+        self.self_ty.to_tokens(tokens);
+        self.generics.where_clause.to_tokens(tokens);
+        self.brace_token.surround(tokens, |tokens| {
+            tokens.append_all(
+                self.attrs
+                    .iter()
+                    .filter(|attr| matches!(attr.style, syn::AttrStyle::Inner(_))),
+            );
+            tokens.append_all(&self.items);
+        });
+    }
 }
 
 impl ItemImpl {

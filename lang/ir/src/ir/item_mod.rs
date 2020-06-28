@@ -15,8 +15,9 @@
 use crate::ir;
 use core::convert::TryFrom;
 use proc_macro2::Ident;
+use quote::TokenStreamExt as _;
 use syn::{
-    spanned::Spanned as _,
+    spanned::Spanned,
     token,
 };
 
@@ -112,6 +113,29 @@ impl TryFrom<syn::ItemMod> for ItemMod {
             brace,
             items,
         })
+    }
+}
+
+impl quote::ToTokens for ItemMod {
+    /// We mainly implement this trait for ink! module to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        tokens.append_all(
+            self.attrs
+                .iter()
+                .filter(|attr| matches!(attr.style, syn::AttrStyle::Outer)),
+        );
+        self.vis.to_tokens(tokens);
+        self.mod_token.to_tokens(tokens);
+        self.ident.to_tokens(tokens);
+        self.brace.surround(tokens, |tokens| {
+            tokens.append_all(
+                self.attrs
+                    .iter()
+                    .filter(|attr| matches!(attr.style, syn::AttrStyle::Inner(_))),
+            );
+            tokens.append_all(&self.items);
+        });
     }
 }
 

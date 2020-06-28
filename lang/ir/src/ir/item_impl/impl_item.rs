@@ -45,6 +45,18 @@ pub enum ImplItem {
     Other(syn::ImplItem),
 }
 
+impl quote::ToTokens for ImplItem {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        match self {
+            Self::Constructor(constructor) => constructor.to_tokens(tokens),
+            Self::Message(message) => message.to_tokens(tokens),
+            Self::Other(other) => other.to_tokens(tokens),
+        }
+    }
+}
+
 impl TryFrom<syn::ImplItem> for ImplItem {
     type Error = syn::Error;
 
