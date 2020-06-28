@@ -32,6 +32,7 @@ impl ExtError for syn::Error {
 ///
 /// Takes some tokens that implement `ToTokens` trait in order to form a `Span`
 /// and also takes a format string plus arbitrary many formatting parameters.
+#[macro_export]
 macro_rules! format_err {
     ($tokens:expr, $($msg:tt)*) => {
         syn::parse::Error::new_spanned(&$tokens, format_args!($($msg)*))
@@ -44,6 +45,7 @@ macro_rules! format_err {
 ///
 /// Takes a concrete span as first argument followed by some format string plus
 /// some additional format parameters.
+#[macro_export]
 macro_rules! format_err_span {
     ($span:expr, $($msg:tt)*) => {
         syn::parse::Error::new($span, format_args!($($msg)*))
