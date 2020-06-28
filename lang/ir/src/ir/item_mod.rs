@@ -187,7 +187,7 @@ impl ItemMod {
     /// directly defined for the contract's storage struct if it includes at
     /// least one `#[ink(message)]` or `#[ink(constructor)]` annotation, e.g.:
     ///
-    /// ```no_compile
+    /// ```rust, no_compile
     /// #[ink(storage)]
     /// struct MyStorage { ... }
     ///
@@ -200,7 +200,7 @@ impl ItemMod {
     /// Also an implementation block can be defined as a trait implementation
     /// for the ink! storage struct using the `#[ink(extern)]` annotation, e.g.:
     ///
-    /// ```no_compile
+    /// ```rust, no_compile
     /// #[ink(storage)]
     /// struct MyStorage { ... }
     ///
