@@ -42,7 +42,10 @@ impl ExtError for syn::Error {
 #[macro_export]
 macro_rules! format_err {
     ($tokens:expr, $($msg:tt)*) => {
-        syn::parse::Error::new_spanned(&$tokens, format_args!($($msg)*))
+        ::syn::Error::new(
+            <_ as syn::spanned::Spanned>::span(&$tokens),
+            format_args!($($msg)*)
+        )
     }
 }
 
@@ -61,6 +64,6 @@ macro_rules! format_err {
 #[macro_export]
 macro_rules! format_err_span {
     ($span:expr, $($msg:tt)*) => {
-        syn::parse::Error::new($span, format_args!($($msg)*))
+        ::syn::Error::new($span, format_args!($($msg)*))
     }
 }
