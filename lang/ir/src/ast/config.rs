@@ -33,7 +33,7 @@ use syn::{
 /// in `#[ink::contract(version = "0.1.0", env_types = DefaultEnvTypes)]`.
 #[derive(Debug, PartialEq, Eq)]
 pub struct AttributeArgs {
-    pub args: Punctuated<MetaNameValue, Token![,]>,
+    args: Punctuated<MetaNameValue, Token![,]>,
 }
 
 /// A name-value pair within an attribute, like feature = "nightly".
