@@ -49,7 +49,7 @@ impl Parse for ir::Marker {
         if content.is_empty() {
             return Ok(ir::Marker::Simple(ir::SimpleMarker { paren_token, ident }))
         }
-        return Err(format_err_span!(
+        Err(format_err_span!(
             paren_token.span,
             "invalid ink! attribute in the given context",
         ))
@@ -581,7 +581,7 @@ impl TryFrom<syn::FnArg> for ir::FnArg {
                         }))
                     }
                     unsupported => {
-                        return Err(format_err!(
+                        Err(format_err!(
                     unsupported,
                     "encountered unsupported function argument syntax for ink! function",
                 ))
