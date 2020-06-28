@@ -18,8 +18,6 @@ use proc_macro2::Ident;
 use syn::{
     spanned::Spanned as _,
     token,
-    Attribute,
-    Visibility,
 };
 
 /// The ink! module.
@@ -36,9 +34,14 @@ use syn::{
 /// mod rust_module { ... }
 /// ```
 /// If the capabilities of an inline Rust module change we have to adjust for that.
+///
+/// # Note
+///
+/// This type has been named after [`syn::ItemMod`] and inherits all of the
+/// fields that are required for inline module definitions.
 pub struct ItemMod {
-    attrs: Vec<Attribute>,
-    vis: Visibility,
+    attrs: Vec<syn::Attribute>,
+    vis: syn::Visibility,
     mod_token: token::Mod,
     ident: Ident,
     brace: token::Brace,
