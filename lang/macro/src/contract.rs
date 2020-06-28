@@ -18,7 +18,7 @@ use crate::{
     lint,
 };
 use core::convert::TryFrom;
-use ink_lang_ir::format_err;
+use ink_lang_ir::format_err_spanned;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
@@ -34,7 +34,7 @@ pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenS
         input.clone(),
         move |ident| !ident.to_string().starts_with("__ink"),
         move |ident| {
-            format_err!(
+            format_err_spanned!(
                 ident,
                 "identifiers starting with `__ink` are forbidden in ink!"
             )

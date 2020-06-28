@@ -499,11 +499,11 @@ impl TryFrom<syn::Attribute> for InkAttribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path.is_ident("ink") {
-            return Err(format_err!(attr, "unexpected non-ink! attribute"))
+            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
         }
         match attr
             .parse_meta()
-            .map_err(|_| format_err!(attr, "unexpected ink! attribute structure"))?
+            .map_err(|_| format_err_spanned!(attr, "unexpected ink! attribute structure"))?
         {
             syn::Meta::List(meta_list) => {
                 let args = meta_list
@@ -513,14 +513,14 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                     .collect::<Result<Vec<_>, syn::Error>>()?;
                 Self::ensure_no_duplicate_flags(&args)?;
                 if args.is_empty() {
-                    return Err(format_err!(
+                    return Err(format_err_spanned!(
                         attr,
                         "encountered unsupported empty ink! attribute"
                     ))
                 }
                 Ok(InkAttribute { args })
             }
-            _ => Err(format_err!(attr, "unknown ink! attribute")),
+            _ => Err(format_err_spanned!(attr, "unknown ink! attribute")),
         }
     }
 }
@@ -590,7 +590,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 let regex = Regex::new(
                                     r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})"
                                 ).map_err(|_| {
-                                    format_err!(
+                                    format_err_spanned!(
                                         meta,
                                         "invalid selector bytes"
                                     )
@@ -628,7 +628,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 })
                             }
                         }
-                        Err(format_err!(
+                        Err(format_err_spanned!(
                             meta,
                             "unknown ink! attribute argument (name = value)",
                         ))
@@ -650,15 +650,15 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                         if let Some(kind) = kind {
                             return Ok(AttributeArg { ast: meta, kind })
                         }
-                        Err(format_err!(meta, "unknown ink! attribute (path)"))
+                        Err(format_err_spanned!(meta, "unknown ink! attribute (path)"))
                     }
                     syn::Meta::List(_) => {
-                        Err(format_err!(meta, "unknown ink! attribute argument (list)"))
+                        Err(format_err_spanned!(meta, "unknown ink! attribute argument (list)"))
                     }
                 }
             }
             syn::NestedMeta::Lit(_) => {
-                Err(format_err!(
+                Err(format_err_spanned!(
                     nested_meta,
                     "unknown ink! attribute argument (literal)"
                 ))

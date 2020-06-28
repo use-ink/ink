@@ -73,7 +73,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     storage_alloc = Some((lit_bool.value, arg))
                 } else {
-                    return Err(format_err!(
+                    return Err(format_err_spanned!(
                         arg,
                         "expected a bool literal for `storage_allocator` ink! config argument",
                     ))
@@ -85,7 +85,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     as_dependency = Some((lit_bool.value, arg))
                 } else {
-                    return Err(format_err!(
+                    return Err(format_err_spanned!(
                         arg,
                         "expected a bool literal for `compile_as_dependency` ink! config argument",
                     ))
@@ -102,13 +102,13 @@ impl TryFrom<ast::AttributeArgs> for Config {
                         arg,
                     ))
                 } else {
-                    return Err(format_err!(
+                    return Err(format_err_spanned!(
                         arg,
                         "expected a path for `env_types` ink! config argument",
                     ))
                 }
             } else {
-                return Err(format_err!(
+                return Err(format_err_spanned!(
                     arg,
                     "encountered unknown or unsupported ink! config argument",
                 ))

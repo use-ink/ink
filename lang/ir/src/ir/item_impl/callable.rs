@@ -250,49 +250,49 @@ pub(super) fn ensure_callable_invariants(
 ) -> Result<(), syn::Error> {
     if !matches!(method_item.vis, syn::Visibility::Public(_) | syn::Visibility::Inherited)
     {
-        return Err(format_err!(
+        return Err(format_err_spanned!(
             method_item.vis,
             "ink! {}s must have public or inherited visibility",
             kind,
         ))
     }
     if !method_item.sig.generics.params.is_empty() {
-        return Err(format_err!(
+        return Err(format_err_spanned!(
             method_item.sig.generics.params,
             "ink! {}s must not be generic",
             kind,
         ))
     }
     if method_item.sig.constness.is_some() {
-        return Err(format_err!(
+        return Err(format_err_spanned!(
             method_item.sig.constness,
             "ink! {}s must not be const",
             kind,
         ))
     }
     if method_item.sig.asyncness.is_some() {
-        return Err(format_err!(
+        return Err(format_err_spanned!(
             method_item.sig.asyncness,
             "ink! {}s must not be async",
             kind,
         ))
     }
     if method_item.sig.unsafety.is_some() {
-        return Err(format_err!(
+        return Err(format_err_spanned!(
             method_item.sig.unsafety,
             "ink! {}s must not be unsafe",
             kind,
         ))
     }
     if method_item.sig.abi.is_some() {
-        return Err(format_err!(
+        return Err(format_err_spanned!(
             method_item.sig.abi,
             "ink! {}s must have explicit ABI",
             kind,
         ))
     }
     if method_item.sig.variadic.is_some() {
-        return Err(format_err!(
+        return Err(format_err_spanned!(
             method_item.sig.variadic,
             "ink! {}s must not be variadic",
             kind,

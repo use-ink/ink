@@ -80,7 +80,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         let (brace, items) = match module.content {
             Some((brace, items)) => (brace, items),
             None => {
-                return Err(format_err!(
+                return Err(format_err_spanned!(
                     module,
                     "inline ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}",
                 ))

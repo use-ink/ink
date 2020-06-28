@@ -82,14 +82,14 @@ impl Constructor {
     ) -> Result<(), syn::Error> {
         match &method_item.sig.output {
             syn::ReturnType::Default => {
-                return Err(format_err!(
+                return Err(format_err_spanned!(
                     &method_item.sig,
                     "missing return for ink! constructor",
                 ))
             }
             syn::ReturnType::Type(_, return_type) => {
                 if !Self::type_is_self_val(return_type.as_ref()) {
-                    return Err(format_err!(
+                    return Err(format_err_spanned!(
                         return_type,
                         "ink! constructors must return Self",
                     ))
@@ -113,7 +113,7 @@ impl Constructor {
         match method_item.sig.inputs.iter().next() {
             None | Some(syn::FnArg::Typed(_)) => (),
             Some(syn::FnArg::Receiver(receiver)) => {
-                return Err(format_err!(
+                return Err(format_err_spanned!(
                     receiver,
                     "ink! constructors must have no `self` receiver",
                 ))

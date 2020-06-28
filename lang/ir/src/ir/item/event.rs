@@ -74,7 +74,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             |kind| !matches!(kind, ir::AttributeArgKind::Event),
         )?;
         if !item_struct.generics.params.is_empty() {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 item_struct.generics.params,
                 "generic ink! event structs are not supported",
             ))
@@ -83,7 +83,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             syn::Visibility::Inherited
             | syn::Visibility::Restricted(_)
             | syn::Visibility::Crate(_) => {
-                return Err(format_err!(
+                return Err(format_err_spanned!(
                     &item_struct.vis,
                     "non `pub` ink! event structs are not supported",
                 ))

@@ -18,7 +18,7 @@ use crate::ir::MetaVersion;
 use core::convert::TryFrom;
 use derive_more::From;
 use ink_lang_ir::{
-    format_err,
+    format_err_spanned,
     format_err_span,
 };
 use proc_macro2::{
@@ -291,7 +291,7 @@ impl Parse for ParamVersion {
     fn parse(input: ParseStream) -> Result<Self> {
         let version_ident = input.parse()?;
         if version_ident != "version" {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 version_ident,
                 "invalid identifier for meta version information",
             ))
@@ -320,7 +320,7 @@ impl Parse for ParamTypes {
     fn parse(input: ParseStream) -> Result<Self> {
         let env_ident = input.parse()?;
         if env_ident != "env" {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 env_ident,
                 "invalid identifier for meta environment information",
             ))
@@ -339,7 +339,7 @@ impl Parse for ParamCompileAsDependency {
     fn parse(input: ParseStream) -> Result<Self> {
         let env_ident = input.parse()?;
         if env_ident != "compile_as_dependency" {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 env_ident,
                 "invalid identifier for meta environment information",
             ))
@@ -357,7 +357,7 @@ impl Parse for ParamDynamicAllocations {
     fn parse(input: ParseStream) -> Result<Self> {
         let env_ident = input.parse()?;
         if env_ident != "dynamic_allocations" {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 env_ident,
                 "invalid identifier for meta environment information",
             ))

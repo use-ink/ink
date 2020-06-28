@@ -42,7 +42,7 @@ impl ExtError for syn::Error {
 /// - Source:
 /// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 #[macro_export]
-macro_rules! format_err {
+macro_rules! format_err_spanned {
     ($tokens:expr, $($msg:tt)*) => {
         ::syn::Error::new_spanned(
             &$tokens,

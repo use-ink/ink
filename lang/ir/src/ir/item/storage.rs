@@ -73,7 +73,7 @@ impl TryFrom<syn::ItemStruct> for Storage {
             |kind| !matches!(kind, ir::AttributeArgKind::Storage),
         )?;
         if !item_struct.generics.params.is_empty() {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 item_struct.generics.params,
                 "generic ink! storage structs are not supported",
             ))
@@ -82,7 +82,7 @@ impl TryFrom<syn::ItemStruct> for Storage {
             syn::Visibility::Inherited
             | syn::Visibility::Restricted(_)
             | syn::Visibility::Crate(_) => {
-                return Err(format_err!(
+                return Err(format_err_spanned!(
                     &item_struct.vis,
                     "non `pub` ink! storage structs are not supported",
                 ))

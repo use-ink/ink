@@ -67,7 +67,7 @@ impl TryFrom<syn::ImplItem> for ImplItem {
                             .map(Into::into)
                             .map(Self::Constructor)
                     }
-                    _ => Err(format_err!(
+                    _ => Err(format_err_spanned!(
                         method_item,
                         "encountered invalid ink! attribute at this point, expected either \
                         #[ink(message)] or #[ink(constructor) attributes"

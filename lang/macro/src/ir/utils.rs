@@ -15,7 +15,7 @@
 //! Contains general utilities for the ink! IR module.
 
 use crate::ir;
-use ink_lang_ir::format_err;
+use ink_lang_ir::format_err_spanned;
 use proc_macro2::Span;
 use syn::{
     parse::{
@@ -42,7 +42,7 @@ impl Parse for UnsuffixedLitInt {
     fn parse(input: ParseStream) -> Result<Self> {
         let lit_int: syn::LitInt = input.parse()?;
         if lit_int.suffix() != "" {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 lit_int,
                 "integer suffixes are not allowed here",
             ))

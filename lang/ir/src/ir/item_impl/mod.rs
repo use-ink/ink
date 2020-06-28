@@ -170,25 +170,25 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
     fn try_from(item_impl: syn::ItemImpl) -> Result<Self, Self::Error> {
         let impl_block_span = item_impl.span();
         if !Self::is_ink_impl_block(&item_impl)? {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 item_impl,
                 "missing ink! annotations on the impl block or on any of its items"
             ))
         }
         if let Some(defaultness) = item_impl.defaultness {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 defaultness,
                 "default implementations are unsupported for ink! implementation blocks",
             ))
         }
         if let Some(unsafety) = item_impl.unsafety {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 unsafety,
                 "unsafe ink! implementation blocks are not supported",
             ))
         }
         if !item_impl.generics.params.is_empty() {
-            return Err(format_err!(
+            return Err(format_err_spanned!(
                 item_impl.generics.params,
                 "generic ink! implementation blocks are not supported",
             ))
