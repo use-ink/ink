@@ -19,7 +19,7 @@ mod config;
 mod contract;
 mod item;
 mod item_impl;
-mod module;
+mod item_mod;
 mod selector;
 
 pub use self::{
@@ -52,6 +52,6 @@ pub use self::{
         Receiver,
         Visibility,
     },
-    module::ItemMod,
+    item_mod::ItemMod,
     selector::Selector,
 };
