@@ -287,8 +287,8 @@ impl ItemMod {
     ///    fn default() { ... }
     /// }
     /// ```
-    pub fn impl_blocks(&self) -> IterImplBlocks {
-        IterImplBlocks::new(self)
+    pub fn impl_blocks(&self) -> IterItemImpls {
+        IterItemImpls::new(self)
     }
 
     /// Returns an iterator yielding all event definitions in this ink! module.
@@ -364,11 +364,11 @@ impl<'a> Iterator for IterEvents<'a> {
 
 /// Iterator yielding all ink! implementation block definitions within the ink!
 /// [`ItemMod`](`crate::ir::ItemMod`).
-pub struct IterImplBlocks<'a> {
+pub struct IterItemImpls<'a> {
     items_iter: IterInkItems<'a>,
 }
 
-impl<'a> IterImplBlocks<'a> {
+impl<'a> IterItemImpls<'a> {
     /// Creates a new ink! implementation blocks iterator.
     fn new(ink_module: &'a ItemMod) -> Self {
         Self {
@@ -377,7 +377,7 @@ impl<'a> IterImplBlocks<'a> {
     }
 }
 
-impl<'a> Iterator for IterImplBlocks<'a> {
+impl<'a> Iterator for IterItemImpls<'a> {
     type Item = &'a ir::ItemImpl;
 
     fn next(&mut self) -> Option<Self::Item> {

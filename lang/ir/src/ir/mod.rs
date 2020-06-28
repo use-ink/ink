@@ -76,7 +76,7 @@ pub use self::{
     item_mod::{
         ItemMod,
         IterEvents,
-        IterImplBlocks,
+        IterItemImpls,
     },
     selector::Selector,
 };

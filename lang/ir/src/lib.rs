@@ -32,7 +32,7 @@ pub use self::ir::{
     ItemMod,
     IterConstructors,
     IterEvents,
-    IterImplBlocks,
+    IterItemImpls,
     IterMessages,
     Message,
     Receiver,
