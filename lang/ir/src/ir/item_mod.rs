@@ -88,12 +88,12 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         };
         let (ink_attrs, other_attrs) = ir::partition_attributes(module.attrs)?;
         if !ink_attrs.is_empty() {
-            let mut error = format_err_span!(
+            let mut error = format_err!(
                 module_span,
                 "encountered invalid ink! attributes on ink! module"
             );
             for ink_attr in ink_attrs {
-                error.combine(format_err_span!(
+                error.combine(format_err!(
                     ink_attr.span(),
                     "invalid ink! attribute on module"
                 ))

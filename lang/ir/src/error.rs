@@ -66,7 +66,7 @@ macro_rules! format_err_spanned {
 /// - Source:
 /// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 #[macro_export]
-macro_rules! format_err_span {
+macro_rules! format_err {
     ($spanned:expr, $($msg:tt)*) => {
         ::syn::Error::new(
             <_ as syn::spanned::Spanned>::span(&$spanned),

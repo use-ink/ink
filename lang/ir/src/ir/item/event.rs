@@ -98,17 +98,17 @@ impl TryFrom<syn::ItemStruct> for Event {
             }
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err_span!(field_span, "at this invokation",))
+                    err.into_combine(format_err!(field_span, "at this invokation",))
                 })?;
             if !matches!(normalized.first().kind(), ir::AttributeArgKind::Topic) {
-                return Err(format_err_span!(
+                return Err(format_err!(
                     field_span,
                     "first optional ink! attribute of an event field must be #[ink(topic)]",
                 ))
             }
             for arg in normalized.args() {
                 if !matches!(arg.kind(), ir::AttributeArgKind::Topic) {
-                    return Err(format_err_span!(
+                    return Err(format_err!(
                         arg.span(),
                         "encountered conflicting ink! attribute for event field",
                     ))

@@ -22,7 +22,7 @@ use core::convert::TryFrom;
 use either::Either;
 use ink_lang_ir::{
     format_err_spanned,
-    format_err_span,
+    format_err,
 };
 use itertools::Itertools as _;
 use proc_macro2::{
@@ -49,7 +49,7 @@ impl Parse for ir::Marker {
         if content.is_empty() {
             return Ok(ir::Marker::Simple(ir::SimpleMarker { paren_token, ident }))
         }
-        Err(format_err_span!(
+        Err(format_err!(
             paren_token.span,
             "invalid ink! attribute in the given context",
         ))
@@ -126,7 +126,7 @@ impl TryFrom<ir::Params> for ir::MetaInfo {
         for param in params.params.iter().cloned() {
             let name = param.ident().to_string();
             if !unique_params.insert(name) {
-                return Err(format_err_span!(
+                return Err(format_err!(
                     param.span(),
                     "encountered parameter multiple times",
                 ))
@@ -146,7 +146,7 @@ impl TryFrom<ir::Params> for ir::MetaInfo {
         }
         let ink_version = match ink_version {
             None => {
-                return Err(format_err_span!(
+                return Err(format_err!(
                     params.span(),
                     "expected `version` argument at `#[ink::contract(..)]`",
                 ))
@@ -191,7 +191,7 @@ impl TryFrom<syn::ItemStruct> for ir::ItemStorage {
             .filter_map(|attr| ir::Marker::try_from(attr.clone()).ok())
             .find(|ink_meta| !ink_meta.is_simple("storage"))
         {
-            return Err(format_err_span!(
+            return Err(format_err!(
                 invalid_meta.span(),
                 "invalid ink! attribute found for `#[ink(storage)]` struct",
             ))
@@ -238,7 +238,7 @@ impl TryFrom<syn::ItemStruct> for ir::ItemEvent {
             .filter_map(|attr| ir::Marker::try_from(attr.clone()).ok())
             .find(|ink_meta| !ink_meta.is_simple("event"))
         {
-            return Err(format_err_span!(
+            return Err(format_err!(
                 invalid_meta.span(),
                 "invalid ink! attribute found for `#[ink(event)]` struct",
             ))
@@ -318,7 +318,7 @@ impl TryFrom<syn::ItemImpl> for ir::ItemImpl {
                 .span()
                 .join(qself.gt_token.span())
                 .expect("all spans are in the same file; qed");
-            return Err(format_err_span!(
+            return Err(format_err!(
                 span,
                 "implementation blocks for self qualified paths are not supported in ink!",
             ))
@@ -404,14 +404,14 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                         }))
                     }
                     _unknown => {
-                        Err(format_err_span!(attr.span(), "unknown ink! marker",))
+                        Err(format_err!(attr.span(), "unknown ink! marker",))
                     }
                 }?;
                 if kind == ir::FunctionKind::Method {
                     kind = new_kind;
                     Ok(())
                 } else {
-                    Err(format_err_span!(attr.span(), "conflicting ink! marker",))
+                    Err(format_err!(attr.span(), "conflicting ink! marker",))
                 }
             })
             .filter_map(Result::err)
@@ -475,14 +475,14 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                 match sig.self_arg() {
                     Some(receiver) => {
                         if receiver.reference.is_none() {
-                            return Err(format_err_span!(
+                            return Err(format_err!(
                                 receiver.span(),
                                 "ink! messages and methods must have a `&self` or `&mut self` receiver",
                             ))
                         }
                     }
                     None => {
-                        return Err(format_err_span!(
+                        return Err(format_err!(
                             sig.span(),
                             "ink! messages and methods must have a `self` receiver",
                         ))
@@ -650,7 +650,7 @@ impl TryFrom<syn::Item> for ir::Item {
                         Err(markers
                             .iter()
                             .map(|marker| {
-                                format_err_span!(
+                                format_err!(
                                     marker.span(),
                                     "unsupported ink! marker for struct"
                                 )
@@ -708,7 +708,7 @@ fn split_items(
         });
     let storage = match storages.len() {
         0 => {
-            Err(format_err_span!(
+            Err(format_err!(
                 Span::call_site(),
                 "no #[ink(storage)] struct found but expected exactly 1"
             ))
@@ -723,7 +723,7 @@ fn split_items(
                 .iter()
                 .map(|storage| format_err_spanned!(storage.ident, "conflicting storage struct"))
                 .fold(
-                    format_err_span!(
+                    format_err!(
                         Span::call_site(),
                         "encountered {} conflicting storage structs",
                         n

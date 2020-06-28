@@ -126,7 +126,7 @@ impl InkAttribute {
     /// If the first ink! attribute argument is not of expected kind.
     pub fn ensure_first(&self, expected: &AttributeArgKind) -> Result<(), syn::Error> {
         if &self.first().kind != expected {
-            return Err(format_err_span!(
+            return Err(format_err!(
                 self.span(),
                 "unexpected first ink! attribute argument",
             ))
@@ -149,11 +149,11 @@ impl InkAttribute {
         let mut seen: HashSet<&AttributeArg> = HashSet::new();
         for arg in args.into_iter() {
             if let Some(seen) = seen.get(arg) {
-                return Err(format_err_span!(
+                return Err(format_err!(
                     arg.span(),
                     "encountered duplicate ink! attribute arguments"
                 )
-                .into_combine(format_err_span!(
+                .into_combine(format_err!(
                     seen.span(),
                     "first equal ink! attribute argument here"
                 )))
@@ -185,7 +185,7 @@ impl InkAttribute {
             .flatten()
             .collect::<Vec<_>>();
         if args.is_empty() {
-            return Err(format_err_span!(
+            return Err(format_err!(
                 Span::call_site(),
                 "encountered unexpected empty expanded ink! attribute arguments",
             ))
@@ -436,10 +436,10 @@ where
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-        err.into_combine(format_err_span!(parent_span, "at this invokation",))
+        err.into_combine(format_err!(parent_span, "at this invokation",))
     })?;
     normalized.ensure_first(is_valid_first).map_err(|err| {
-        err.into_combine(format_err_span!(
+        err.into_combine(format_err!(
             parent_span,
             "expected {} as first ink! attribute argument",
             is_valid_first,
@@ -465,11 +465,11 @@ impl Attribute {
         for attr in attrs.into_iter() {
             if let Some(seen) = seen.get(attr) {
                 use crate::error::ExtError as _;
-                return Err(format_err_span!(
+                return Err(format_err!(
                     attr.span(),
                     "encountered duplicate ink! attribute"
                 )
-                .into_combine(format_err_span!(seen.span(), "first ink! attribute here")))
+                .into_combine(format_err!(seen.span(), "first ink! attribute here")))
             }
             seen.insert(attr);
         }
@@ -540,11 +540,11 @@ impl InkAttribute {
         let mut seen: HashSet<&AttributeArg> = HashSet::new();
         for arg in args.into_iter() {
             if let Some(seen) = seen.get(arg) {
-                return Err(format_err_span!(
+                return Err(format_err!(
                     arg.span(),
                     "encountered duplicate ink! attribute arguments"
                 )
-                .into_combine(format_err_span!(
+                .into_combine(format_err!(
                     seen.span(),
                     "first equal ink! attribute argument here"
                 )))
@@ -567,7 +567,7 @@ impl InkAttribute {
     {
         for arg in self.args() {
             if is_conflicting(arg) {
-                return Err(format_err_span!(
+                return Err(format_err!(
                     arg.span(),
                     "encountered conflicting ink! attribute argument",
                 ))

@@ -46,12 +46,12 @@ where
     F: Spanned,
     S: Spanned,
 {
-    format_err_span!(
+    format_err!(
         snd.span(),
         "encountered duplicate ink! `{}` config argument",
         name,
     )
-    .into_combine(format_err_span!(
+    .into_combine(format_err!(
         fst.span(),
         "first `{}` config argument here",
         name

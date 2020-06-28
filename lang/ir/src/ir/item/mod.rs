@@ -68,7 +68,7 @@ impl TryFrom<syn::Item> for Item {
                             .map(Self::Ink)
                     }
                     _invalid => {
-                        Err(format_err_span!(
+                        Err(format_err!(
                             attr.span(),
                             "encountered unsupported ink! attribute argument on struct",
                         ))
@@ -93,7 +93,7 @@ impl TryFrom<syn::Item> for Item {
                         ir::partition_attributes(item.attrs().iter().cloned())?;
                     assert!(!ink_attrs.is_empty());
                     fn into_err(attr: &ir::InkAttribute) -> syn::Error {
-                        format_err_span!(
+                        format_err!(
                             attr.span(),
                             "encountered unexpected ink! attribute",
                         )

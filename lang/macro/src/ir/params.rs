@@ -18,8 +18,8 @@ use crate::ir::MetaVersion;
 use core::convert::TryFrom;
 use derive_more::From;
 use ink_lang_ir::{
+    format_err,
     format_err_spanned,
-    format_err_span,
 };
 use proc_macro2::{
     Ident,
@@ -234,7 +234,7 @@ impl Parse for MetaParam {
                 input.parse::<ParamDynamicAllocations>().map(Into::into)
             }
             unknown => {
-                Err(format_err_span!(
+                Err(format_err!(
                     ident.span(),
                     "unknown ink! meta information: {}",
                     unknown
@@ -300,7 +300,7 @@ impl Parse for ParamVersion {
         let value: LitStr = input.parse()?;
         let content: &str = &value.value();
         let data = MetaVersion::try_from(content).map_err(|_| {
-            format_err_span!(
+            format_err!(
                 value.span(),
                 "couldn't match provided version as semantic version string: {}.\n\
                  info: The format expects a number triplet x.y.z, e.g. \"0.1.0\"",

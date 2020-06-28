@@ -129,7 +129,7 @@ impl ItemImpl {
         if !ink_attrs.is_empty() {
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err_span!(
+                    err.into_combine(format_err!(
                         impl_block_span,
                         "at this invokation",
                     ))
@@ -215,7 +215,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             ) -> Result<(), syn::Error> {
                 let requires_pub = !is_trait_impl;
                 if requires_pub != vis.is_pub() {
-                    return Err(format_err_span!(
+                    return Err(format_err!(
                         span,
                         "ink! {} in {} impl blocks must have {} visibility",
                         what,
@@ -250,7 +250,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         if !ink_attrs.is_empty() {
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err_span!(
+                    err.into_combine(format_err!(
                         impl_block_span,
                         "at this invokation",
                     ))

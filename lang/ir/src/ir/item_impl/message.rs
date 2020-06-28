@@ -99,7 +99,7 @@ impl Message {
     ) -> Result<(), syn::Error> {
         let mut fn_args = method_item.sig.inputs.iter();
         fn bail(span: Span) -> syn::Error {
-            format_err_span!(
+            format_err!(
                 span,
                 "ink! messages must have `&self` or `&mut self` receiver",
             )
