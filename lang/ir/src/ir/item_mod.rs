@@ -287,7 +287,7 @@ impl ItemMod {
     ///    fn default() { ... }
     /// }
     /// ```
-    pub fn item_impls(&self) -> IterItemImpls {
+    pub fn impls(&self) -> IterItemImpls {
         IterItemImpls::new(self)
     }
 
