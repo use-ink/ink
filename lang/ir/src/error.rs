@@ -42,6 +42,7 @@ impl ExtError for syn::Error {
 /// than [`format_err`].
 /// - Source:
 /// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
+/// - Tracking issue: [`#54725`](https://github.com/rust-lang/rust/issues/54725)
 #[macro_export]
 macro_rules! format_err_spanned {
     ($tokens:expr, $($msg:tt)*) => {
@@ -67,6 +68,7 @@ macro_rules! format_err_spanned {
 /// than [`format_err_spanned`].
 /// - Source:
 /// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
+/// - Tracking issue: [`#54725`](https://github.com/rust-lang/rust/issues/54725)
 #[macro_export]
 macro_rules! format_err {
     ($spanned:expr, $($msg:tt)*) => {
