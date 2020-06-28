@@ -52,6 +52,6 @@ pub use self::{
         Receiver,
         Visibility,
     },
-    module::Module,
+    module::ItemMod,
     selector::Selector,
 };

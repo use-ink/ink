@@ -36,7 +36,7 @@ use syn::{
 /// mod rust_module { ... }
 /// ```
 /// If the capabilities of an inline Rust module change we have to adjust for that.
-pub struct Module {
+pub struct ItemMod {
     attrs: Vec<Attribute>,
     vis: Visibility,
     mod_token: token::Mod,
@@ -45,7 +45,7 @@ pub struct Module {
     items: Vec<ir2::Item>,
 }
 
-impl TryFrom<syn::ItemMod> for Module {
+impl TryFrom<syn::ItemMod> for ItemMod {
     type Error = syn::Error;
 
     fn try_from(module: syn::ItemMod) -> Result<Self, Self::Error> {
@@ -88,7 +88,7 @@ impl TryFrom<syn::ItemMod> for Module {
     }
 }
 
-impl Module {
+impl ItemMod {
     /// Returns the identifier of the ink! module.
     pub fn ident(&self) -> &Ident {
         &self.ident
@@ -176,7 +176,7 @@ pub struct IterInkItems<'a> {
 
 impl<'a> IterInkItems<'a> {
     /// Creates a new ink! module items iterator.
-    fn new(ink_module: &'a Module) -> Self {
+    fn new(ink_module: &'a ItemMod) -> Self {
         Self {
             items_iter: ink_module.items.iter(),
         }
@@ -208,7 +208,7 @@ pub struct IterEvents<'a> {
 
 impl<'a> IterEvents<'a> {
     /// Creates a new ink! events iterator.
-    fn new(ink_module: &'a Module) -> Self {
+    fn new(ink_module: &'a ItemMod) -> Self {
         Self {
             items_iter: IterInkItems::new(ink_module),
         }
@@ -240,7 +240,7 @@ pub struct IterImplBlocks<'a> {
 
 impl<'a> IterImplBlocks<'a> {
     /// Creates a new ink! implementation blocks iterator.
-    fn new(ink_module: &'a Module) -> Self {
+    fn new(ink_module: &'a ItemMod) -> Self {
         Self {
             items_iter: IterInkItems::new(ink_module),
         }
