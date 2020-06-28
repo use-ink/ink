@@ -53,6 +53,7 @@ pub use self::{
         Config,
         EnvTypes,
     },
+    contract::Contract,
     item::{
         Event,
         InkItem,
