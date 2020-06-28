@@ -69,6 +69,10 @@ pub use self::{
         Receiver,
         Visibility,
     },
-    item_mod::ItemMod,
+    item_mod::{
+        ItemMod,
+        IterEvents,
+        IterImplBlocks,
+    },
     selector::Selector,
 };

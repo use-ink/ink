@@ -89,7 +89,7 @@ impl ItemImpl {
     ///
     /// - The ink! implementation block has been annotatated as in:
     ///
-    /// ```no_compile
+    /// ```rust, no_compile
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_function(&self) { /* ... */ }
@@ -99,7 +99,7 @@ impl ItemImpl {
     /// - Or if any of the ink! implementation block methods do have ink!
     ///   specific annotations:
     ///
-    /// ```no_compile
+    /// ```rust, no_compile
     /// impl MyStorage {
     ///     #[ink(constructor)]
     ///     fn my_constructor() -> Self { /* ... */ }
