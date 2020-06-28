@@ -22,7 +22,7 @@ use syn::spanned::Spanned as _;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Event {
-    ast: syn::ItemStruct,
+    item: syn::ItemStruct,
 }
 
 impl Event {
@@ -99,7 +99,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             }
         }
         Ok(Self {
-            ast: syn::ItemStruct {
+            item: syn::ItemStruct {
                 attrs: other_attrs,
                 ..item_struct
             },
@@ -110,12 +110,12 @@ impl TryFrom<syn::ItemStruct> for Event {
 impl Event {
     /// Returns the identifier of the event struct.
     pub fn ident(&self) -> &Ident {
-        &self.ast.ident
+        &self.item.ident
     }
 
     /// Returns an iterator yielding all fields of the event struct.
     pub fn fields(&self) -> syn::punctuated::Iter<syn::Field> {
-        self.ast.fields.iter()
+        self.item.fields.iter()
     }
 
     /// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
