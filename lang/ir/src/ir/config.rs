@@ -95,12 +95,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     return Err(duplicate_config_err(ast, arg, "env_types"))
                 }
                 if let ast::PathOrLit::Path(path) = &arg.value {
-                    env_types = Some((
-                        EnvTypes {
-                            env_types: path.clone(),
-                        },
-                        arg,
-                    ))
+                    env_types = Some((EnvTypes { path: path.clone() }, arg))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
@@ -126,8 +121,12 @@ impl Config {
     /// Returns the environmental types definition if specified.
     /// Otherwise returns the default environmental types definition provided
     /// by ink!.
-    pub fn env_types(&self) -> EnvTypes {
-        self.env_types.as_ref().cloned().unwrap_or_default()
+    pub fn env_types(&self) -> syn::Path {
+        self.env_types
+            .as_ref()
+            .map(|env_types| &env_types.path)
+            .cloned()
+            .unwrap_or_else(|| EnvTypes::default().path)
     }
 
     /// Returns `true` if the dynamic storage allocator facilities are enabled
@@ -152,13 +151,13 @@ impl Config {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnvTypes {
     /// The underlying Rust type.
-    env_types: syn::Path,
+    pub path: syn::Path,
 }
 
 impl Default for EnvTypes {
     fn default() -> Self {
         Self {
-            env_types: syn::parse_quote! { ::ink_core::env::DefaultEnvTypes },
+            path: syn::parse_quote! { ::ink_core::env::DefaultEnvTypes },
         }
     }
 }
@@ -241,7 +240,7 @@ mod tests {
                 storage_alloc: None,
                 as_dependency: None,
                 env_types: Some(EnvTypes {
-                    env_types: syn::parse_quote! { ::my::env::Types },
+                    path: syn::parse_quote! { ::my::env::Types },
                 }),
             }),
         )
