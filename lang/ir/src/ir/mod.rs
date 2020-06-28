@@ -37,18 +37,17 @@ mod item_impl;
 mod item_mod;
 mod selector;
 
+use self::attrs::{
+    contains_ink_attributes,
+    first_ink_attribute,
+    partition_attributes,
+    sanitize_attributes,
+    AttributeArg,
+    AttributeArgKind,
+    InkAttribute,
+};
 pub use self::{
-    attrs::{
-        contains_ink_attributes,
-        first_ink_attribute,
-        partition_attributes,
-        sanitize_attributes,
-        Attribute,
-        AttributeArg,
-        AttributeArgKind,
-        InkAttribute,
-        Salt,
-    },
+    attrs::Salt,
     config::{
         Config,
         EnvTypes,
