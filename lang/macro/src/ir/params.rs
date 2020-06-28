@@ -289,10 +289,10 @@ impl Parse for ParamVersion {
     fn parse(input: ParseStream) -> Result<Self> {
         let version_ident = input.parse()?;
         if version_ident != "version" {
-            bail!(
+            return Err(format_err!(
                 version_ident,
                 "invalid identifier for meta version information",
-            )
+            ))
         }
         let eq_token = input.parse()?;
         let value: LitStr = input.parse()?;
@@ -318,10 +318,10 @@ impl Parse for ParamTypes {
     fn parse(input: ParseStream) -> Result<Self> {
         let env_ident = input.parse()?;
         if env_ident != "env" {
-            bail!(
+            return Err(format_err!(
                 env_ident,
                 "invalid identifier for meta environment information",
-            )
+            ))
         }
         let eq_token = input.parse()?;
         let ty = input.parse()?;
@@ -337,10 +337,10 @@ impl Parse for ParamCompileAsDependency {
     fn parse(input: ParseStream) -> Result<Self> {
         let env_ident = input.parse()?;
         if env_ident != "compile_as_dependency" {
-            bail!(
+            return Err(format_err!(
                 env_ident,
                 "invalid identifier for meta environment information",
-            )
+            ))
         }
         let eq_token = input.parse()?;
         let value = input.parse()?;
@@ -355,10 +355,10 @@ impl Parse for ParamDynamicAllocations {
     fn parse(input: ParseStream) -> Result<Self> {
         let env_ident = input.parse()?;
         if env_ident != "dynamic_allocations" {
-            bail!(
+            return Err(format_err!(
                 env_ident,
                 "invalid identifier for meta environment information",
-            )
+            ))
         }
         let eq_token = input.parse()?;
         let value = input.parse()?;

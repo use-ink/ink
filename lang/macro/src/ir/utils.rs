@@ -42,7 +42,10 @@ impl Parse for UnsuffixedLitInt {
     fn parse(input: ParseStream) -> Result<Self> {
         let lit_int: syn::LitInt = input.parse()?;
         if lit_int.suffix() != "" {
-            bail!(lit_int, "integer suffixes are not allowed here",)
+            return Err(format_err!(
+                lit_int,
+                "integer suffixes are not allowed here",
+            ))
         }
         Ok(Self { lit_int })
     }

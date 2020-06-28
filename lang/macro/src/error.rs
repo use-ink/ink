@@ -14,30 +14,6 @@
 
 //! Provide macros to simplify error reporting in procedural macros.
 
-pub trait ExtError {
-    /// Returns `self` combined with the other error.
-    fn into_combine(self, another: syn::Error) -> Self;
-}
-
-impl ExtError for syn::Error {
-    fn into_combine(mut self, another: syn::Error) -> Self {
-        self.combine(another);
-        self
-    }
-}
-
-/// Returns a generated error result directly to the caller.
-///
-/// # Note
-///
-/// Takes some tokens that implement `ToTokens` trait in order to form a `Span`
-/// and also takes a format string plus arbitrary many formatting parameters.
-macro_rules! bail {
-    ($($args:tt)*) => {
-        return Err(format_err!($($args)*).into())
-    }
-}
-
 /// Creates a macro error.
 ///
 /// # Note
@@ -47,18 +23,6 @@ macro_rules! bail {
 macro_rules! format_err {
     ($tokens:expr, $($msg:tt)*) => {
         syn::parse::Error::new_spanned(&$tokens, format_args!($($msg)*))
-    }
-}
-
-/// Returns a generated error result directory to the caller.
-///
-/// # Note
-///
-/// Takes a concrete span as first argument followed by some format string plus
-/// some additional format parameters.
-macro_rules! bail_span {
-    ($($args:tt)*) => {
-        return Err(format_err_span!($($args)*).into())
     }
 }
 
