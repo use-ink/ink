@@ -31,7 +31,7 @@ impl ExtError for syn::Error {
 /// # Parameters
 ///
 /// - The first argument must implement [`quote::ToTokens`] in order to
-///   infer a [`Span`].
+///   infer a [`Span`](`proc_macro2::Span`).
 /// - The second argument is a format string.
 /// - The rest are format string arguments.
 ///
@@ -50,7 +50,7 @@ macro_rules! format_err {
 ///
 /// # Parameters
 ///
-/// - The first argument must be a concrete [`Span`] instance.
+/// - The first argument must be a concrete [`Span`](`proc_macro2::Span`) instance.
 /// - The second argument is a format string.
 /// - The rest are format string arguments.
 ///
