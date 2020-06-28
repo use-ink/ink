@@ -65,6 +65,8 @@ pub use self::{
         Constructor,
         ImplItem,
         ItemImpl,
+        IterConstructors,
+        IterMessages,
         Message,
         Receiver,
         Visibility,
