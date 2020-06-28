@@ -37,13 +37,15 @@ impl ExtError for syn::Error {
 ///
 /// # Note
 ///
-/// Takes some tokens that implement `ToTokens` trait in order to form a `Span`
-/// and also takes a format string plus arbitrary many formatting parameters.
+/// On stable Rust this might yield higher quality error span information to the user
+/// than [`format_err_span`].
+/// - Source:
+/// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 #[macro_export]
 macro_rules! format_err {
     ($tokens:expr, $($msg:tt)*) => {
-        ::syn::Error::new(
-            <_ as syn::spanned::Spanned>::span(&$tokens),
+        ::syn::Error::new_spanned(
+            &$tokens,
             format_args!($($msg)*)
         )
     }
@@ -53,17 +55,22 @@ macro_rules! format_err {
 ///
 /// # Parameters
 ///
-/// - The first argument must be a concrete [`Span`](`proc_macro2::Span`) instance.
+/// - The first argument must be a type that implements [`syn::spanned::Spanned`].
 /// - The second argument is a format string.
 /// - The rest are format string arguments.
 ///
 /// # Note
 ///
-/// Takes a concrete span as first argument followed by some format string plus
-/// some additional format parameters.
+/// On stable Rust this might yield worse error span information to the user
+/// than [`format_err`].
+/// - Source:
+/// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 #[macro_export]
 macro_rules! format_err_span {
-    ($span:expr, $($msg:tt)*) => {
-        ::syn::Error::new($span, format_args!($($msg)*))
+    ($spanned:expr, $($msg:tt)*) => {
+        ::syn::Error::new(
+            <_ as syn::spanned::Spanned>::span(&$spanned),
+            format_args!($($msg)*)
+        )
     }
 }
