@@ -37,6 +37,9 @@ mod item_impl;
 mod item_mod;
 mod selector;
 
+#[cfg(test)]
+use self::attrs::Attribute;
+
 use self::attrs::{
     contains_ink_attributes,
     first_ink_attribute,
