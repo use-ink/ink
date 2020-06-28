@@ -14,6 +14,8 @@
 
 //! Contains general utilities for the ink! IR module.
 
+use crate::ir;
+use ink_lang_ir::format_err;
 use proc_macro2::Span;
 use syn::{
     parse::{
@@ -23,8 +25,6 @@ use syn::{
     spanned::Spanned,
     Result,
 };
-
-use crate::ir;
 
 /// An unsuffixed integer literal: `0` or `42` or `1337`
 #[derive(Debug, Clone)]

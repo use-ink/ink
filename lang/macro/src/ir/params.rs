@@ -14,9 +14,13 @@
 
 //! Contains data structures and parsing routines for parameters to the ink! macro.
 
+use crate::ir::MetaVersion;
 use core::convert::TryFrom;
-
 use derive_more::From;
+use ink_lang_ir::{
+    format_err,
+    format_err_span,
+};
 use proc_macro2::{
     Ident,
     Span,
@@ -33,8 +37,6 @@ use syn::{
     Result,
     Token,
 };
-
-use crate::ir::MetaVersion;
 
 /// Parameters given to ink!'s `#[contract(..)]` attribute.
 ///
