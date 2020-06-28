@@ -23,7 +23,6 @@ pub use self::ir::{
     Config,
     Constructor,
     Contract,
-    EnvTypes,
     Event,
     ImplItem,
     InkItem,

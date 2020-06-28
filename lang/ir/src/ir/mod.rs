@@ -51,10 +51,7 @@ use self::attrs::{
 };
 pub use self::{
     attrs::Salt,
-    config::{
-        Config,
-        EnvTypes,
-    },
+    config::Config,
     contract::Contract,
     item::{
         Event,
