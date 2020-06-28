@@ -179,18 +179,16 @@ impl<'a> Iterator for EventFieldsIter<'a> {
     type Item = EventField<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            match self.iter.next() {
-                None => return None,
-                Some(field) => {
-                    let is_topic = ir::first_ink_attribute(&field.attrs)
-                        .unwrap_or_default()
-                        .map(|attr| {
-                            matches!(attr.first().kind(), ir::AttributeArgKind::Topic)
-                        })
-                        .unwrap_or_default();
-                    return Some(EventField { is_topic, field })
-                }
+        match self.iter.next() {
+            None => None,
+            Some(field) => {
+                let is_topic = ir::first_ink_attribute(&field.attrs)
+                    .unwrap_or_default()
+                    .map(|attr| {
+                        matches!(attr.first().kind(), ir::AttributeArgKind::Topic)
+                    })
+                    .unwrap_or_default();
+                Some(EventField { is_topic, field })
             }
         }
     }
