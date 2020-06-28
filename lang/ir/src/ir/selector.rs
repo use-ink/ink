@@ -46,11 +46,3 @@ impl From<[u8; 4]> for Selector {
         Self::new(bytes)
     }
 }
-
-impl From<&'_ Ident> for Selector {
-    fn from(ident: &Ident) -> Self {
-        let hash =
-            <sha3::Keccak256 as sha3::Digest>::digest(ident.to_string().as_bytes());
-        Self::new([hash[0], hash[1], hash[2], hash[3]])
-    }
-}

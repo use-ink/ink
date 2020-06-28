@@ -14,8 +14,8 @@
 
 use crate::{
     error::ExtError as _,
-    ir2,
-    ir2::Selector,
+    ir,
+    ir::Selector,
 };
 use core::{
     convert::TryFrom,
@@ -142,7 +142,7 @@ impl InkAttribute {
     /// If the given iterator yields duplicate ink! attribute arguments.
     fn ensure_no_duplicate_args<'a, A>(args: A) -> Result<(), syn::Error>
     where
-        A: IntoIterator<Item = &'a ir2::AttributeArg>,
+        A: IntoIterator<Item = &'a ir::AttributeArg>,
     {
         use crate::error::ExtError as _;
         use std::collections::HashSet;
@@ -215,9 +215,9 @@ impl InkAttribute {
     }
 
     /// Returns the salt of the ink! attribute if any.
-    pub fn salt(&self) -> Option<ir2::Salt> {
+    pub fn salt(&self) -> Option<ir::Salt> {
         self.args().find_map(|arg| {
-            if let ir2::AttributeArgKind::Salt(salt) = arg.kind() {
+            if let ir::AttributeArgKind::Salt(salt) = arg.kind() {
                 return Some(salt.clone())
             }
             None
@@ -225,9 +225,9 @@ impl InkAttribute {
     }
 
     /// Returns the selector of the ink! attribute if any.
-    pub fn selector(&self) -> Option<ir2::Selector> {
+    pub fn selector(&self) -> Option<ir::Selector> {
         self.args().find_map(|arg| {
-            if let ir2::AttributeArgKind::Selector(selector) = arg.kind() {
+            if let ir::AttributeArgKind::Selector(selector) = arg.kind() {
                 return Some(*selector)
             }
             None
@@ -375,7 +375,7 @@ where
 /// Returns an error if the first ink! attribute is invalid.
 pub fn first_ink_attribute<'a, I>(
     attrs: I,
-) -> Result<Option<ir2::InkAttribute>, syn::Error>
+) -> Result<Option<ir::InkAttribute>, syn::Error>
 where
     I: IntoIterator<Item = &'a syn::Attribute>,
 {
@@ -431,15 +431,15 @@ where
 pub fn sanitize_attributes<I, C>(
     parent_span: Span,
     attrs: I,
-    is_valid_first: &ir2::AttributeArgKind,
+    is_valid_first: &ir::AttributeArgKind,
     mut is_conflicting_attr: C,
 ) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
 where
     I: IntoIterator<Item = syn::Attribute>,
     C: FnMut(&AttributeArgKind) -> bool,
 {
-    let (ink_attrs, other_attrs) = ir2::partition_attributes(attrs)?;
-    let normalized = ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+    let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
+    let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
         err.into_combine(format_err_span!(parent_span, "at this invokation",))
     })?;
     normalized.ensure_first(is_valid_first).map_err(|err| {
@@ -567,7 +567,7 @@ impl InkAttribute {
         mut is_conflicting: P,
     ) -> Result<(), syn::Error>
     where
-        P: FnMut(&'a ir2::AttributeArg) -> bool,
+        P: FnMut(&'a ir::AttributeArg) -> bool,
     {
         for arg in self.args() {
             if is_conflicting(arg) {
@@ -699,12 +699,12 @@ mod tests {
     /// Can be used to assert against the success and failure path.
     fn assert_first_ink_attribute(
         input: &[syn::Attribute],
-        expected: Result<Option<Vec<ir2::AttributeArgKind>>, &'static str>,
+        expected: Result<Option<Vec<ir::AttributeArgKind>>, &'static str>,
     ) {
         assert_eq!(
             first_ink_attribute(input)
-                .map(|maybe_attr: Option<ir2::InkAttribute>| {
-                    maybe_attr.map(|attr: ir2::InkAttribute| {
+                .map(|maybe_attr: Option<ir::InkAttribute>| {
+                    maybe_attr.map(|attr: ir::InkAttribute| {
                         attr.args
                             .into_iter()
                             .map(|arg| arg.kind)
@@ -730,19 +730,19 @@ mod tests {
     }
 
     mod test {
-        use crate::ir2;
+        use crate::ir;
 
-        /// Mock for `ir2::Attribute` to improve testability.
+        /// Mock for `ir::Attribute` to improve testability.
         #[derive(Debug, PartialEq, Eq)]
         pub enum Attribute {
-            Ink(Vec<ir2::AttributeArgKind>),
+            Ink(Vec<ir::AttributeArgKind>),
             Other(syn::Attribute),
         }
 
-        impl From<ir2::Attribute> for Attribute {
-            fn from(attr: ir2::Attribute) -> Self {
+        impl From<ir::Attribute> for Attribute {
+            fn from(attr: ir::Attribute) -> Self {
                 match attr {
-                    ir2::Attribute::Ink(ink_attr) => {
+                    ir::Attribute::Ink(ink_attr) => {
                         Self::Ink(
                             ink_attr
                                 .args
@@ -751,25 +751,25 @@ mod tests {
                                 .collect::<Vec<_>>(),
                         )
                     }
-                    ir2::Attribute::Other(other_attr) => Self::Other(other_attr),
+                    ir::Attribute::Other(other_attr) => Self::Other(other_attr),
                 }
             }
         }
 
-        impl From<ir2::InkAttribute> for Attribute {
-            fn from(ink_attr: ir2::InkAttribute) -> Self {
-                Attribute::from(ir2::Attribute::Ink(ink_attr))
+        impl From<ir::InkAttribute> for Attribute {
+            fn from(ink_attr: ir::InkAttribute) -> Self {
+                Attribute::from(ir::Attribute::Ink(ink_attr))
             }
         }
 
-        /// Mock for `ir2::InkAttribute` to improve testability.
+        /// Mock for `ir::InkAttribute` to improve testability.
         #[derive(Debug, PartialEq, Eq)]
         pub struct InkAttribute {
-            args: Vec<ir2::AttributeArgKind>,
+            args: Vec<ir::AttributeArgKind>,
         }
 
-        impl From<ir2::InkAttribute> for InkAttribute {
-            fn from(ink_attr: ir2::InkAttribute) -> Self {
+        impl From<ir::InkAttribute> for InkAttribute {
+            fn from(ink_attr: ir::InkAttribute) -> Self {
                 Self {
                     args: ink_attr
                         .args
@@ -782,7 +782,7 @@ mod tests {
 
         impl<I> From<I> for InkAttribute
         where
-            I: IntoIterator<Item = ir2::AttributeArgKind>,
+            I: IntoIterator<Item = ir::AttributeArgKind>,
         {
             fn from(args: I) -> Self {
                 Self {
@@ -793,13 +793,13 @@ mod tests {
     }
 
     /// Asserts that the given [`syn::Attribute`] is converted into the expected
-    /// [`ir2::Attribute]` or yields the expected error message.
+    /// [`ir::Attribute]` or yields the expected error message.
     fn assert_attribute_try_from(
         input: syn::Attribute,
         expected: Result<test::Attribute, &'static str>,
     ) {
         assert_eq!(
-            <ir2::Attribute as TryFrom<_>>::try_from(input)
+            <ir::Attribute as TryFrom<_>>::try_from(input)
                 .map(test::Attribute::from)
                 .map_err(|err| err.to_string()),
             expected.map_err(ToString::to_string),

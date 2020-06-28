@@ -24,9 +24,9 @@ fn simple_storage_works() {
         }
     };
     assert!(matches!(
-        <ir2::Item as TryFrom<_>>::try_from(storage_struct.clone())
+        <ir::Item as TryFrom<_>>::try_from(storage_struct.clone())
             .map_err(|err| err.to_string()),
-        Ok(ir2::Item::Ink(ir2::InkItem::Storage(_)))
+        Ok(ir::Item::Ink(ir::InkItem::Storage(_)))
     ))
 }
 
@@ -41,9 +41,9 @@ fn simple_event_works() {
         }
     };
     assert!(matches!(
-        <ir2::Item as TryFrom<_>>::try_from(event_struct.clone())
+        <ir::Item as TryFrom<_>>::try_from(event_struct.clone())
             .map_err(|err| err.to_string()),
-        Ok(ir2::Item::Ink(ir2::InkItem::Event(_)))
+        Ok(ir::Item::Ink(ir::InkItem::Event(_)))
     ))
 }
 
@@ -75,9 +75,9 @@ fn simple_rust_item_works() {
     ];
     for rust_item in rust_items {
         assert_eq!(
-            <ir2::Item as TryFrom<_>>::try_from(rust_item.clone())
+            <ir::Item as TryFrom<_>>::try_from(rust_item.clone())
                 .map_err(|err| err.to_string()),
-            Ok(ir2::Item::Rust(rust_item))
+            Ok(ir::Item::Rust(rust_item))
         )
     }
 }

@@ -15,7 +15,7 @@
 //! Utilities and helper routines that are useful for both ink! messages
 //! and ink! constructors.
 
-use crate::ir2;
+use crate::ir;
 use core::fmt;
 use proc_macro2::Ident;
 use quote::ToTokens as _;
@@ -46,7 +46,7 @@ pub trait Callable {
     fn ident(&self) -> &Ident;
 
     /// Returns the selector of the ink! callable if any has been manually set.
-    fn selector(&self) -> Option<&ir2::Selector>;
+    fn selector(&self) -> Option<&ir::Selector>;
 
     /// Returns `true` if the ink! callable is flagged as payable.
     ///
@@ -64,7 +64,7 @@ pub trait Callable {
 
 /// Returns the composed selector of the ink! callable.
 ///
-/// Composition takes into account the given [`ir2::ItemImpl`].
+/// Composition takes into account the given [`ir::ItemImpl`].
 ///
 /// # Details
 ///
@@ -184,7 +184,7 @@ pub trait Callable {
 ///   Only do this if nothing else helps and you need a very specific selector,
 ///   e.g. in case of backwards compatibility.
 /// - Do not use the salt unless required to disambiguate.
-pub fn compose_selector<C>(item_impl: &ir2::ItemImpl, callable: &C) -> ir2::Selector
+pub fn compose_selector<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Selector
 where
     C: Callable,
 {
@@ -229,7 +229,7 @@ where
         }
     };
     let hash = <blake2::Blake2b as blake2::Digest>::digest(&joined);
-    ir2::Selector::new([hash[0], hash[1], hash[2], hash[3]])
+    ir::Selector::new([hash[0], hash[1], hash[2], hash[3]])
 }
 
 /// Ensures that common invariants of externally callable ink! entities are met.
@@ -335,16 +335,16 @@ pub struct InputsIter<'a> {
     iter: syn::punctuated::Iter<'a, syn::FnArg>,
 }
 
-impl<'a> From<&'a ir2::Message> for InputsIter<'a> {
-    fn from(message: &'a ir2::Message) -> Self {
+impl<'a> From<&'a ir::Message> for InputsIter<'a> {
+    fn from(message: &'a ir::Message) -> Self {
         Self {
             iter: message.item.sig.inputs.iter(),
         }
     }
 }
 
-impl<'a> From<&'a ir2::Constructor> for InputsIter<'a> {
-    fn from(constructor: &'a ir2::Constructor) -> Self {
+impl<'a> From<&'a ir::Constructor> for InputsIter<'a> {
+    fn from(constructor: &'a ir::Constructor) -> Self {
         Self {
             iter: constructor.item.sig.inputs.iter(),
         }
@@ -391,12 +391,12 @@ mod tests {
     }
 
     impl ExpectedSelector {
-        pub fn expected_selector(self) -> ir2::Selector {
+        pub fn expected_selector(self) -> ir::Selector {
             match self {
-                Self::Raw(raw_selector) => ir2::Selector::new(raw_selector),
+                Self::Raw(raw_selector) => ir::Selector::new(raw_selector),
                 Self::Blake2(blake2_input) => {
                     let hash = <blake2::Blake2b as blake2::Digest>::digest(&blake2_input);
-                    ir2::Selector::new([hash[0], hash[1], hash[2], hash[3]])
+                    ir::Selector::new([hash[0], hash[1], hash[2], hash[3]])
                 }
             }
         }
@@ -415,7 +415,7 @@ mod tests {
     {
         assert_eq!(
             compose_selector(
-                &<ir2::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).unwrap(),
+                &<ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).unwrap(),
                 &<C as TryFrom<syn::ImplItemMethod>>::try_from(item_method).unwrap(),
             ),
             expected_selector.into().expected_selector(),
@@ -424,7 +424,7 @@ mod tests {
 
     #[test]
     fn compose_selector_works() {
-        assert_compose_selector::<ir2::Message, _>(
+        assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
                 #[ink(impl)]
                 impl MyStorage {}
@@ -435,7 +435,7 @@ mod tests {
             },
             b"my_message".to_vec(),
         );
-        assert_compose_selector::<ir2::Message, _>(
+        assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
                 #[ink(impl)]
                 impl MyTrait for MyStorage {}
@@ -446,7 +446,7 @@ mod tests {
             },
             b"MyTrait::my_message".to_vec(),
         );
-        assert_compose_selector::<ir2::Message, _>(
+        assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
                 #[ink(impl)]
                 impl ::my::full::path::MyTrait for MyStorage {}
@@ -457,7 +457,7 @@ mod tests {
             },
             b"::my::full::path::MyTrait::my_message".to_vec(),
         );
-        assert_compose_selector::<ir2::Message, _>(
+        assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
                 #[ink(impl, salt = "my_salt")]
                 impl MyTrait for MyStorage {}
@@ -468,7 +468,7 @@ mod tests {
             },
             b"my_salt::MyTrait::my_message".to_vec(),
         );
-        assert_compose_selector::<ir2::Message, _>(
+        assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
                 #[ink(impl)]
                 impl MyTrait for MyStorage {}

@@ -14,8 +14,8 @@
 
 use crate::{
     error::ExtError as _,
-    ir2,
-    ir2::attrs::Attrs as _,
+    ir,
+    ir::attrs::Attrs as _,
 };
 use core::convert::TryFrom;
 use proc_macro2::Span;
@@ -74,7 +74,7 @@ pub struct ItemImpl {
     /// A salt prefix to disambiguate trait implementation blocks with equal
     /// names. Generally can be used to change computation of message and
     /// constructor selectors of the implementation block.
-    salt: Option<ir2::Salt>,
+    salt: Option<ir::Salt>,
 }
 
 impl ItemImpl {
@@ -112,28 +112,28 @@ impl ItemImpl {
     pub fn is_ink_impl_block(item_impl: &syn::ItemImpl) -> Result<bool, syn::Error> {
         // Quick check in order to efficiently bail out in case where there are
         // no ink! attributes:
-        if !ir2::contains_ink_attributes(&item_impl.attrs)
+        if !ir::contains_ink_attributes(&item_impl.attrs)
             && item_impl
                 .items
                 .iter()
-                .all(|item| !ir2::contains_ink_attributes(item.attrs()))
+                .all(|item| !ir::contains_ink_attributes(item.attrs()))
         {
             return Ok(false)
         }
         // Check if the implementation block itself has been annotated with
         // `#[ink(impl)]` and return `true` if this is the case.
-        let (ink_attrs, _) = ir2::partition_attributes(item_impl.attrs.clone())?;
+        let (ink_attrs, _) = ir::partition_attributes(item_impl.attrs.clone())?;
         let impl_block_span = item_impl.span();
         if !ink_attrs.is_empty() {
             let normalized =
-                ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
                     err.into_combine(format_err_span!(
                         impl_block_span,
                         "at this invokation",
                     ))
                 })?;
             if normalized
-                .ensure_first(&ir2::AttributeArgKind::Implementation)
+                .ensure_first(&ir::AttributeArgKind::Implementation)
                 .is_ok()
             {
                 return Ok(true)
@@ -144,14 +144,14 @@ impl ItemImpl {
         'outer: for item in &item_impl.items {
             match item {
                 syn::ImplItem::Method(method_item) => {
-                    if !ir2::contains_ink_attributes(&method_item.attrs) {
+                    if !ir::contains_ink_attributes(&method_item.attrs) {
                         continue 'outer
                     }
-                    let attr = ir2::first_ink_attribute(&method_item.attrs)?
+                    let attr = ir::first_ink_attribute(&method_item.attrs)?
                         .expect("missing expected ink! attribute for struct");
                     match attr.first().kind() {
-                        ir2::AttributeArgKind::Constructor
-                        | ir2::AttributeArgKind::Message => return Ok(true),
+                        ir::AttributeArgKind::Constructor
+                        | ir::AttributeArgKind::Message => return Ok(true),
                         _ => continue 'outer,
                     }
                 }
@@ -206,7 +206,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             /// Trait implementation blocks expect inherited visibility
             /// while inherent implementation block expect public visibility.
             fn ensure_valid_visibility(
-                vis: ir2::Visibility,
+                vis: ir::Visibility,
                 span: Span,
                 what: &str,
                 is_trait_impl: bool,
@@ -224,7 +224,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 Ok(())
             }
             match impl_item {
-                ir2::ImplItem::Message(message) => {
+                ir::ImplItem::Message(message) => {
                     ensure_valid_visibility(
                         message.visibility(),
                         message.item.span(),
@@ -232,7 +232,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                         is_trait_impl,
                     )?;
                 }
-                ir2::ImplItem::Constructor(constructor) => {
+                ir::ImplItem::Constructor(constructor) => {
                     ensure_valid_visibility(
                         constructor.visibility(),
                         constructor.item.span(),
@@ -243,11 +243,11 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 _ => (),
             }
         }
-        let (ink_attrs, other_attrs) = ir2::partition_attributes(item_impl.attrs)?;
+        let (ink_attrs, other_attrs) = ir::partition_attributes(item_impl.attrs)?;
         let mut salt = None;
         if !ink_attrs.is_empty() {
             let normalized =
-                ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
                     err.into_combine(format_err_span!(
                         impl_block_span,
                         "at this invokation",
@@ -255,8 +255,8 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 })?;
             normalized.ensure_no_conflicts(|arg| {
                 match arg.kind() {
-                    ir2::AttributeArgKind::Implementation
-                    | ir2::AttributeArgKind::Salt(_) => false,
+                    ir::AttributeArgKind::Implementation
+                    | ir::AttributeArgKind::Salt(_) => false,
                     _ => true,
                 }
             })?;
@@ -291,7 +291,7 @@ impl ItemImpl {
     }
 
     /// Returns the salt of the implementation block if any has been provided.
-    pub fn salt(&self) -> Option<&ir2::Salt> {
+    pub fn salt(&self) -> Option<&ir::Salt> {
         self.salt.as_ref()
     }
 

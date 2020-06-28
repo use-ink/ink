@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir2;
+use crate::ir;
 
 /// The contract inline module `mod`.
 ///
@@ -32,9 +32,9 @@ pub struct Contract {
     /// Contains all Rust module items after parsing. Note that while parsing
     /// the ink! module all ink! specific items are moved out of this AST based
     /// representation.
-    pub ast: ir2::ItemMod,
+    pub ast: ir::ItemMod,
     /// The specified ink! configuration.
-    config: ir2::Config,
+    config: ir::Config,
 }
 
 impl Contract {
@@ -53,7 +53,7 @@ impl Contract {
     /// ```
     ///
     /// In the above case the `module_ident` is `my_contract`.
-    pub fn module(&self) -> &ir2::ItemMod {
+    pub fn module(&self) -> &ir::ItemMod {
         &self.ast
     }
 
@@ -75,7 +75,7 @@ impl Contract {
     ///                    if it was a dependency of another smart contract.
     ///                    This configuration is mainly needed for testing and
     ///                    the default is `false`.
-    pub fn config(&self) -> &ir2::Config {
+    pub fn config(&self) -> &ir::Config {
         &self.config
     }
 }

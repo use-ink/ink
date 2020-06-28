@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir2;
+use crate::ir;
 use core::convert::TryFrom;
 use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
@@ -49,17 +49,17 @@ impl Storage {
     ///
     /// If the first found ink! attribute is malformed.
     pub fn is_ink_storage(item_struct: &syn::ItemStruct) -> Result<bool, syn::Error> {
-        if !ir2::contains_ink_attributes(&item_struct.attrs) {
+        if !ir::contains_ink_attributes(&item_struct.attrs) {
             return Ok(false)
         }
         // At this point we know that there must be at least one ink!
         // attribute. This can be either the ink! storage struct,
         // an ink! event or an invalid ink! attribute.
-        let attr = ir2::first_ink_attribute(&item_struct.attrs)?
+        let attr = ir::first_ink_attribute(&item_struct.attrs)?
             .expect("missing expected ink! attribute for struct");
         Ok(matches!(
             attr.first().kind(),
-            ir2::AttributeArgKind::Storage
+            ir::AttributeArgKind::Storage
         ))
     }
 }
@@ -69,11 +69,11 @@ impl TryFrom<syn::ItemStruct> for Storage {
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         let struct_span = item_struct.span();
-        let (_ink_attrs, other_attrs) = ir2::sanitize_attributes(
+        let (_ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
             item_struct.attrs,
-            &ir2::AttributeArgKind::Storage,
-            |kind| !matches!(kind, ir2::AttributeArgKind::Storage),
+            &ir::AttributeArgKind::Storage,
+            |kind| !matches!(kind, ir::AttributeArgKind::Storage),
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err!(

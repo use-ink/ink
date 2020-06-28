@@ -25,8 +25,8 @@ pub use self::{
 
 use crate::{
     error::ExtError as _,
-    ir2,
-    ir2::attrs::Attrs as _,
+    ir,
+    ir::attrs::Attrs as _,
 };
 use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
@@ -48,22 +48,22 @@ impl TryFrom<syn::Item> for Item {
     fn try_from(item: syn::Item) -> Result<Self, Self::Error> {
         match item {
             syn::Item::Struct(item_struct) => {
-                if !ir2::contains_ink_attributes(&item_struct.attrs) {
+                if !ir::contains_ink_attributes(&item_struct.attrs) {
                     return Ok(Self::Rust(item_struct.into()))
                 }
                 // At this point we know that there must be at least one ink!
                 // attribute. This can be either the ink! storage struct,
                 // an ink! event or an invalid ink! attribute.
-                let attr = ir2::first_ink_attribute(&item_struct.attrs)?
+                let attr = ir::first_ink_attribute(&item_struct.attrs)?
                     .expect("missing expected ink! attribute for struct");
                 match attr.first().kind() {
-                    ir2::AttributeArgKind::Storage => {
-                        <ir2::Storage as TryFrom<_>>::try_from(item_struct)
+                    ir::AttributeArgKind::Storage => {
+                        <ir::Storage as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)
                     }
-                    ir2::AttributeArgKind::Event => {
-                        <ir2::Event as TryFrom<_>>::try_from(item_struct)
+                    ir::AttributeArgKind::Event => {
+                        <ir::Event as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)
                     }
@@ -76,23 +76,23 @@ impl TryFrom<syn::Item> for Item {
                 }
             }
             syn::Item::Impl(item_impl) => {
-                if !ir2::ItemImpl::is_ink_impl_block(&item_impl)? {
+                if !ir::ItemImpl::is_ink_impl_block(&item_impl)? {
                     return Ok(Self::Rust(item_impl.into()))
                 }
                 // At this point we know that there must be at least one ink!
                 // attribute on either the impl block itself or one of its items.
-                <ir2::ItemImpl as TryFrom<_>>::try_from(item_impl)
+                <ir::ItemImpl as TryFrom<_>>::try_from(item_impl)
                     .map(Into::into)
                     .map(Self::Ink)
             }
             item => {
                 // This is an error if the item contains any unexpected
                 // ink! attributes. Otherwise it is a normal Rust item.
-                if ir2::contains_ink_attributes(item.attrs()) {
+                if ir::contains_ink_attributes(item.attrs()) {
                     let (ink_attrs, _) =
-                        ir2::partition_attributes(item.attrs().iter().cloned())?;
+                        ir::partition_attributes(item.attrs().iter().cloned())?;
                     assert!(!ink_attrs.is_empty());
-                    fn into_err(attr: &ir2::InkAttribute) -> syn::Error {
+                    fn into_err(attr: &ir::InkAttribute) -> syn::Error {
                         format_err_span!(
                             attr.span(),
                             "encountered unexpected ink! attribute",
@@ -145,11 +145,11 @@ impl Item {
 #[derive(Debug, PartialEq, Eq)]
 pub enum InkItem {
     /// The ink! storage struct definition.
-    Storage(ir2::Storage),
+    Storage(ir::Storage),
     /// An ink! event definition.
-    Event(ir2::Event),
+    Event(ir::Event),
     /// An ink! implementation block.
-    ImplBlock(ir2::ItemImpl),
+    ImplBlock(ir::ItemImpl),
 }
 
 impl InkItem {
@@ -161,14 +161,14 @@ impl InkItem {
     pub fn is_ink_item(item: &syn::Item) -> Result<bool, syn::Error> {
         match item {
             syn::Item::Struct(item_struct) => {
-                if ir2::Storage::is_ink_storage(item_struct)?
-                    || ir2::Event::is_ink_event(item_struct)?
+                if ir::Storage::is_ink_storage(item_struct)?
+                    || ir::Event::is_ink_event(item_struct)?
                 {
                     return Ok(true)
                 }
             }
             syn::Item::Impl(item_impl) => {
-                return ir2::ItemImpl::is_ink_impl_block(item_impl)
+                return ir::ItemImpl::is_ink_impl_block(item_impl)
             }
             _ => (),
         }
@@ -176,20 +176,20 @@ impl InkItem {
     }
 }
 
-impl From<ir2::Storage> for InkItem {
-    fn from(storage: ir2::Storage) -> Self {
+impl From<ir::Storage> for InkItem {
+    fn from(storage: ir::Storage) -> Self {
         Self::Storage(storage)
     }
 }
 
-impl From<ir2::Event> for InkItem {
-    fn from(event: ir2::Event) -> Self {
+impl From<ir::Event> for InkItem {
+    fn from(event: ir::Event) -> Self {
         Self::Event(event)
     }
 }
 
-impl From<ir2::ItemImpl> for InkItem {
-    fn from(impl_block: ir2::ItemImpl) -> Self {
+impl From<ir::ItemImpl> for InkItem {
+    fn from(impl_block: ir::ItemImpl) -> Self {
         Self::ImplBlock(impl_block)
     }
 }
@@ -198,7 +198,7 @@ impl InkItem {
     /// Returns `Some` if `self` is the ink! storage struct definition.
     ///
     /// Otherwise, returns `None`.
-    pub fn filter_map_storage_item(&self) -> Option<&ir2::Storage> {
+    pub fn filter_map_storage_item(&self) -> Option<&ir::Storage> {
         match self {
             InkItem::Storage(storage) => Some(storage),
             _ => None,
@@ -213,7 +213,7 @@ impl InkItem {
     /// Returns `Some` if `self` is an ink! event struct definition.
     ///
     /// Otherwise, returns `None`.
-    pub fn filter_map_event_item(&self) -> Option<&ir2::Event> {
+    pub fn filter_map_event_item(&self) -> Option<&ir::Event> {
         match self {
             InkItem::Event(event) => Some(event),
             _ => None,
@@ -228,7 +228,7 @@ impl InkItem {
     /// Returns `Some` if `self` is an ink! implementation block.
     ///
     /// Otherwise, returns `None`.
-    pub fn filter_map_impl_block(&self) -> Option<&ir2::ItemImpl> {
+    pub fn filter_map_impl_block(&self) -> Option<&ir::ItemImpl> {
         match self {
             InkItem::ImplBlock(impl_block) => Some(impl_block),
             _ => None,

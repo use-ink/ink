@@ -6,6 +6,7 @@ members = [
     "core/derive",
     "lang",
     "lang/macro",
+    "lang/ir",
     "prelude",
     "primitives",
 ]

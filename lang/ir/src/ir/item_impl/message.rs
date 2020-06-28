@@ -19,7 +19,7 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::ir2;
+use crate::ir;
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -61,7 +61,7 @@ pub struct Message {
     ///
     /// This overrides the computed selector, even when using a manual salt
     /// for the parent implementation block.
-    selector: Option<ir2::Selector>,
+    selector: Option<ir::Selector>,
 }
 
 impl Message {
@@ -101,17 +101,17 @@ impl Message {
     /// Returns a tuple of ink! attributes and non-ink! attributes.
     fn sanitize_attributes(
         method_item: &syn::ImplItemMethod,
-    ) -> Result<(ir2::InkAttribute, Vec<syn::Attribute>), syn::Error> {
-        ir2::sanitize_attributes(
+    ) -> Result<(ir::InkAttribute, Vec<syn::Attribute>), syn::Error> {
+        ir::sanitize_attributes(
             method_item.span(),
             method_item.attrs.clone(),
-            &ir2::AttributeArgKind::Message,
+            &ir::AttributeArgKind::Message,
             |kind| {
                 match kind {
-                    ir2::AttributeArgKind::Message
-                    | ir2::AttributeArgKind::Payable
-                    | ir2::AttributeArgKind::Salt(_)
-                    | ir2::AttributeArgKind::Selector(_) => false,
+                    ir::AttributeArgKind::Message
+                    | ir::AttributeArgKind::Payable
+                    | ir::AttributeArgKind::Salt(_)
+                    | ir::AttributeArgKind::Selector(_) => false,
                     _ => true,
                 }
             },
@@ -146,7 +146,7 @@ impl Callable for Message {
     }
 
     /// Returns the selector of the ink! message.
-    fn selector(&self) -> Option<&ir2::Selector> {
+    fn selector(&self) -> Option<&ir::Selector> {
         self.selector.as_ref()
     }
 
@@ -236,7 +236,7 @@ mod tests {
             ),
         ];
         for (expected_output, item_method) in test_inputs {
-            let actual_output = <ir2::Message as TryFrom<_>>::try_from(item_method)
+            let actual_output = <ir::Message as TryFrom<_>>::try_from(item_method)
                 .unwrap()
                 .output()
                 .cloned();
@@ -284,7 +284,7 @@ mod tests {
             ),
         ];
         for (expected_inputs, item_method) in test_inputs {
-            let actual_inputs = <ir2::Message as TryFrom<_>>::try_from(item_method)
+            let actual_inputs = <ir::Message as TryFrom<_>>::try_from(item_method)
                 .unwrap()
                 .inputs()
                 .cloned()
@@ -333,7 +333,7 @@ mod tests {
             ),
         ];
         for (expect_payable, item_method) in test_inputs {
-            let is_payable = <ir2::Message as TryFrom<_>>::try_from(item_method)
+            let is_payable = <ir::Message as TryFrom<_>>::try_from(item_method)
                 .unwrap()
                 .is_payable();
             assert_eq!(is_payable, expect_payable);
@@ -359,7 +359,7 @@ mod tests {
             ),
         ];
         for (expected_receiver, item_method) in test_inputs {
-            let actual_receiver = <ir2::Message as TryFrom<_>>::try_from(item_method)
+            let actual_receiver = <ir::Message as TryFrom<_>>::try_from(item_method)
                 .unwrap()
                 .receiver();
             assert_eq!(actual_receiver, expected_receiver);
@@ -403,7 +403,7 @@ mod tests {
             ),
         ];
         for (is_pub, item_method) in test_inputs {
-            let visibility = <ir2::Message as TryFrom<_>>::try_from(item_method)
+            let visibility = <ir::Message as TryFrom<_>>::try_from(item_method)
                 .unwrap()
                 .visibility();
             assert_eq!(visibility.is_pub(), is_pub);
@@ -456,13 +456,13 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert!(<ir2::Message as TryFrom<_>>::try_from(item_method).is_ok());
+            assert!(<ir::Message as TryFrom<_>>::try_from(item_method).is_ok());
         }
     }
 
     fn assert_try_from_fails(item_method: syn::ImplItemMethod, expected_err: &str) {
         assert_eq!(
-            <ir2::Message as TryFrom<_>>::try_from(item_method)
+            <ir::Message as TryFrom<_>>::try_from(item_method)
                 .map_err(|err| err.to_string()),
             Err(expected_err.to_string()),
         );

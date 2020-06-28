@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir2;
+use crate::ir;
 use core::convert::TryFrom;
 use proc_macro2::Ident;
 use syn::{
@@ -45,7 +45,7 @@ pub struct ItemMod {
     mod_token: token::Mod,
     ident: Ident,
     brace: token::Brace,
-    items: Vec<ir2::Item>,
+    items: Vec<ir::Item>,
 }
 
 impl TryFrom<syn::ItemMod> for ItemMod {
@@ -62,7 +62,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
                 ))
             }
         };
-        let (ink_attrs, other_attrs) = ir2::partition_attributes(module.attrs)?;
+        let (ink_attrs, other_attrs) = ir::partition_attributes(module.attrs)?;
         if !ink_attrs.is_empty() {
             let mut error = format_err_span!(
                 module_span,
@@ -78,7 +78,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         }
         let items = items
             .into_iter()
-            .map(<ir2::Item as TryFrom<syn::Item>>::try_from)
+            .map(<ir::Item as TryFrom<syn::Item>>::try_from)
             .collect::<Result<Vec<_>, syn::Error>>()?;
         Ok(Self {
             attrs: other_attrs,
@@ -111,7 +111,7 @@ impl ItemMod {
     /// the ink! module. This can be expected to never happen since upon
     /// construction of an ink! module it is asserted that exactly one
     /// `#[ink(storage)]` struct exists.
-    pub fn storage(&self) -> &ir2::Storage {
+    pub fn storage(&self) -> &ir::Storage {
         let mut iter = IterInkItems::new(self)
             .filter_map(|ink_item| ink_item.filter_map_storage_item());
         let storage = iter
@@ -127,7 +127,7 @@ impl ItemMod {
     /// Returns the non-ink! item definitions of the ink! inline module.
     ///
     /// Also returns the brace pair that encompasses all ink! definitions.
-    pub fn items(&self) -> &[ir2::Item] {
+    pub fn items(&self) -> &[ir::Item] {
         self.items.as_slice()
     }
 
@@ -174,7 +174,7 @@ impl ItemMod {
 
 /// Iterator yielding ink! item definitions of the ink! smart contract.
 pub struct IterInkItems<'a> {
-    items_iter: core::slice::Iter<'a, ir2::Item>,
+    items_iter: core::slice::Iter<'a, ir::Item>,
 }
 
 impl<'a> IterInkItems<'a> {
@@ -187,7 +187,7 @@ impl<'a> IterInkItems<'a> {
 }
 
 impl<'a> Iterator for IterInkItems<'a> {
-    type Item = &'a ir2::InkItem;
+    type Item = &'a ir::InkItem;
 
     fn next(&mut self) -> Option<Self::Item> {
         'outer: loop {
@@ -219,7 +219,7 @@ impl<'a> IterEvents<'a> {
 }
 
 impl<'a> Iterator for IterEvents<'a> {
-    type Item = &'a ir2::Event;
+    type Item = &'a ir::Event;
 
     fn next(&mut self) -> Option<Self::Item> {
         'outer: loop {
@@ -251,7 +251,7 @@ impl<'a> IterImplBlocks<'a> {
 }
 
 impl<'a> Iterator for IterImplBlocks<'a> {
-    type Item = &'a ir2::ItemImpl;
+    type Item = &'a ir::ItemImpl;
 
     fn next(&mut self) -> Option<Self::Item> {
         'outer: loop {

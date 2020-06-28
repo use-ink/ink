@@ -16,7 +16,7 @@ use super::{
     ImplItem,
     ItemImpl,
 };
-use crate::ir2;
+use crate::ir;
 
 /// Iterator yielding constructors of the ink! smart contract definition.
 pub struct IterConstructors<'a> {
@@ -39,7 +39,7 @@ impl<'a> IterConstructors<'a> {
 }
 
 impl<'a> Iterator for IterConstructors<'a> {
-    type Item = &'a ir2::Constructor;
+    type Item = &'a ir::Constructor;
 
     fn next(&mut self) -> Option<Self::Item> {
         'outer: loop {
@@ -77,7 +77,7 @@ impl<'a> IterMessages<'a> {
 }
 
 impl<'a> Iterator for IterMessages<'a> {
-    type Item = &'a ir2::Message;
+    type Item = &'a ir::Message;
 
     fn next(&mut self) -> Option<Self::Item> {
         'outer: loop {

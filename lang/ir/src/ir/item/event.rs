@@ -14,7 +14,7 @@
 
 use crate::{
     error::ExtError as _,
-    ir2,
+    ir,
 };
 use core::convert::TryFrom;
 use proc_macro2::{
@@ -36,15 +36,15 @@ impl Event {
     ///
     /// If the first found ink! attribute is malformed.
     pub fn is_ink_event(item_struct: &syn::ItemStruct) -> Result<bool, syn::Error> {
-        if !ir2::contains_ink_attributes(&item_struct.attrs) {
+        if !ir::contains_ink_attributes(&item_struct.attrs) {
             return Ok(false)
         }
         // At this point we know that there must be at least one ink!
         // attribute. This can be either the ink! storage struct,
         // an ink! event or an invalid ink! attribute.
-        let attr = ir2::first_ink_attribute(&item_struct.attrs)?
+        let attr = ir::first_ink_attribute(&item_struct.attrs)?
             .expect("missing expected ink! attribute for struct");
-        Ok(matches!(attr.first().kind(), ir2::AttributeArgKind::Event))
+        Ok(matches!(attr.first().kind(), ir::AttributeArgKind::Event))
     }
 }
 
@@ -53,11 +53,11 @@ impl TryFrom<syn::ItemStruct> for Event {
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         let struct_span = item_struct.span();
-        let (_ink_attrs, other_attrs) = ir2::sanitize_attributes(
+        let (_ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
             item_struct.attrs,
-            &ir2::AttributeArgKind::Event,
-            |kind| !matches!(kind, ir2::AttributeArgKind::Event),
+            &ir::AttributeArgKind::Event,
+            |kind| !matches!(kind, ir::AttributeArgKind::Event),
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err!(
@@ -78,22 +78,22 @@ impl TryFrom<syn::ItemStruct> for Event {
         }
         'outer: for field in item_struct.fields.iter() {
             let field_span = field.span();
-            let (ink_attrs, _) = ir2::partition_attributes(field.attrs.clone())?;
+            let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
             if ink_attrs.is_empty() {
                 continue 'outer
             }
             let normalized =
-                ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
                     err.into_combine(format_err_span!(field_span, "at this invokation",))
                 })?;
-            if !matches!(normalized.first().kind(), ir2::AttributeArgKind::Topic) {
+            if !matches!(normalized.first().kind(), ir::AttributeArgKind::Topic) {
                 return Err(format_err_span!(
                     field_span,
                     "first optional ink! attribute of an event field must be #[ink(topic)]",
                 ))
             }
             for arg in normalized.args() {
-                if !matches!(arg.kind(), ir2::AttributeArgKind::Topic) {
+                if !matches!(arg.kind(), ir::AttributeArgKind::Topic) {
                     return Err(format_err_span!(
                         arg.span(),
                         "encountered conflicting ink! attribute for event field",
@@ -140,7 +140,7 @@ impl<'a> EventField<'a> {
 
     /// Returns all non-ink! attributes of the event field.
     pub fn attrs(self) -> Vec<syn::Attribute> {
-        let (_, non_ink_attrs) = ir2::partition_attributes(self.field.attrs.clone())
+        let (_, non_ink_attrs) = ir::partition_attributes(self.field.attrs.clone())
             .expect("encountered invalid event field attributes");
         non_ink_attrs
     }
@@ -183,10 +183,10 @@ impl<'a> Iterator for EventFieldsIter<'a> {
             match self.iter.next() {
                 None => return None,
                 Some(field) => {
-                    let is_topic = ir2::first_ink_attribute(&field.attrs)
+                    let is_topic = ir::first_ink_attribute(&field.attrs)
                         .unwrap_or_default()
                         .map(|attr| {
-                            matches!(attr.first().kind(), ir2::AttributeArgKind::Topic)
+                            matches!(attr.first().kind(), ir::AttributeArgKind::Topic)
                         })
                         .unwrap_or_default();
                     return Some(EventField { is_topic, field })

@@ -18,8 +18,8 @@ use super::{
 };
 use crate::{
     error::ExtError as _,
-    ir2,
-    ir2::attrs::Attrs as _,
+    ir,
+    ir::attrs::Attrs as _,
 };
 use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
@@ -44,18 +44,18 @@ impl TryFrom<syn::ImplItem> for ImplItem {
     fn try_from(impl_item: syn::ImplItem) -> Result<Self, Self::Error> {
         match impl_item {
             syn::ImplItem::Method(method_item) => {
-                if !ir2::contains_ink_attributes(&method_item.attrs) {
+                if !ir::contains_ink_attributes(&method_item.attrs) {
                     return Ok(Self::Other(method_item.into()))
                 }
-                let attr = ir2::first_ink_attribute(&method_item.attrs)?
+                let attr = ir::first_ink_attribute(&method_item.attrs)?
                     .expect("missing expected ink! attribute for struct");
                 match attr.first().kind() {
-                    ir2::AttributeArgKind::Message => {
+                    ir::AttributeArgKind::Message => {
                         <Message as TryFrom<_>>::try_from(method_item)
                             .map(Into::into)
                             .map(Self::Message)
                     }
-                    ir2::AttributeArgKind::Constructor => {
+                    ir::AttributeArgKind::Constructor => {
                         <Constructor as TryFrom<_>>::try_from(method_item)
                             .map(Into::into)
                             .map(Self::Constructor)
@@ -70,11 +70,11 @@ impl TryFrom<syn::ImplItem> for ImplItem {
             other_item => {
                 // This is an error if the impl item contains any unexpected
                 // ink! attributes. Otherwise it is a normal Rust item.
-                if ir2::contains_ink_attributes(other_item.attrs()) {
+                if ir::contains_ink_attributes(other_item.attrs()) {
                     let (ink_attrs, _) =
-                        ir2::partition_attributes(other_item.attrs().iter().cloned())?;
+                        ir::partition_attributes(other_item.attrs().iter().cloned())?;
                     assert!(!ink_attrs.is_empty());
-                    fn into_err(attr: &ir2::InkAttribute) -> syn::Error {
+                    fn into_err(attr: &ir::InkAttribute) -> syn::Error {
                         format_err_span!(
                             attr.span(),
                             "encountered unexpected ink! attribute",

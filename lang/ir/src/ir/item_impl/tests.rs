@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir2;
+use crate::ir;
 use core::convert::TryFrom;
 
 #[test]
@@ -27,7 +27,7 @@ fn is_ink_impl_block_eval_false_works() {
     ];
     for item_impl in &item_impls {
         assert_eq!(
-            ir2::ItemImpl::is_ink_impl_block(item_impl).map_err(|err| err.to_string()),
+            ir::ItemImpl::is_ink_impl_block(item_impl).map_err(|err| err.to_string()),
             Ok(false),
         )
     }
@@ -92,7 +92,7 @@ fn is_ink_impl_block_eval_true_works() {
     ];
     for item_impl in &item_impls {
         assert_eq!(
-            ir2::ItemImpl::is_ink_impl_block(item_impl).map_err(|err| err.to_string()),
+            ir::ItemImpl::is_ink_impl_block(item_impl).map_err(|err| err.to_string()),
             Ok(true),
         )
     }
@@ -100,7 +100,7 @@ fn is_ink_impl_block_eval_true_works() {
 
 fn assert_is_ink_impl_block_fails(impl_block: &syn::ItemImpl, expected: &str) {
     assert_eq!(
-        ir2::ItemImpl::is_ink_impl_block(impl_block).map_err(|err| err.to_string()),
+        ir::ItemImpl::is_ink_impl_block(impl_block).map_err(|err| err.to_string()),
         Err(expected.to_string())
     )
 }
@@ -161,7 +161,7 @@ fn is_ink_impl_block_fails() {
 /// fails with the expected error message.
 fn assert_try_from_item_impl_fails(item_impl: syn::ItemImpl, expected_err: &str) {
     assert_eq!(
-        <ir2::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl)
+        <ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl)
             .map_err(|err| err.to_string()),
         Err(expected_err.to_string())
     )
@@ -232,14 +232,14 @@ fn try_from_works() {
         },
     ];
     for item_impl in item_impls {
-        assert!(<ir2::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).is_ok())
+        assert!(<ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).is_ok())
     }
 }
 
 #[test]
 fn salt_works() {
-    let impl_block: ir2::ItemImpl =
-        <ir2::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    let impl_block: ir::ItemImpl =
+        <ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
             #[ink(salt = "this is my salt")]
             impl MyStorage {
                 #[ink(message)]
@@ -249,7 +249,7 @@ fn salt_works() {
         .unwrap();
     assert_eq!(
         impl_block.salt,
-        Some(ir2::Salt::from(
+        Some(ir::Salt::from(
             "this is my salt".to_string().as_bytes().to_vec()
         ))
     )
