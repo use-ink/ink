@@ -17,12 +17,10 @@ extern crate proc_macro;
 #[macro_use]
 mod error;
 
-mod ast;
 mod codegen;
 mod contract;
 mod extensions;
 mod ir;
-mod ir2;
 mod lint;
 
 use proc_macro::TokenStream;
