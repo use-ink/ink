@@ -14,7 +14,10 @@
 
 use crate::ir;
 use core::convert::TryFrom;
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use quote::TokenStreamExt as _;
 use syn::{
     spanned::Spanned,
@@ -73,6 +76,77 @@ pub struct ItemMod {
     items: Vec<ir::Item>,
 }
 
+impl ItemMod {
+    /// Ensures that the ink! storage struct is not missing and that there are
+    /// not multiple ink! storage struct definitions for the given slice of items.
+    fn ensure_storage_struct_quantity(
+        module_span: Span,
+        items: &[ir::Item],
+    ) -> Result<(), syn::Error> {
+        let storage_iter = items
+            .iter()
+            .filter(|item| matches!(item, ir::Item::Ink(ir::InkItem::Storage(_))));
+        if storage_iter.clone().next().is_none() {
+            return Err(format_err!(module_span, "missing ink! storage struct",))
+        }
+        if storage_iter.clone().count() >= 2 {
+            let mut error = format_err!(
+                module_span,
+                "encountered multiple ink! storage structs, expected exactly one"
+            );
+            for storage in storage_iter {
+                error.combine(format_err!(storage, "ink! storage struct here"))
+            }
+            return Err(error)
+        }
+        Ok(())
+    }
+
+    /// Ensures that the given slice of items contains at least one ink! message.
+    fn ensure_contains_message(
+        module_span: Span,
+        items: &[ir::Item],
+    ) -> Result<(), syn::Error> {
+        let found_message = items
+            .iter()
+            .filter_map(|item| {
+                match item {
+                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
+                        Some(item_impl.iter_messages())
+                    }
+                    _ => None,
+                }
+            })
+            .any(|mut messages| messages.next().is_some());
+        if !found_message {
+            return Err(format_err!(module_span, "missing ink! message"))
+        }
+        Ok(())
+    }
+
+    /// Ensures that the given slice of items contains at least one ink! constructor.
+    fn ensure_contains_constructor(
+        module_span: Span,
+        items: &[ir::Item],
+    ) -> Result<(), syn::Error> {
+        let found_constructor = items
+            .iter()
+            .filter_map(|item| {
+                match item {
+                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) => {
+                        Some(item_impl.iter_constructors())
+                    }
+                    _ => None,
+                }
+            })
+            .any(|mut constructors| constructors.next().is_some());
+        if !found_constructor {
+            return Err(format_err!(module_span, "missing ink! constructor"))
+        }
+        Ok(())
+    }
+}
+
 impl TryFrom<syn::ItemMod> for ItemMod {
     type Error = syn::Error;
 
@@ -105,6 +179,9 @@ impl TryFrom<syn::ItemMod> for ItemMod {
             .into_iter()
             .map(<ir::Item as TryFrom<syn::Item>>::try_from)
             .collect::<Result<Vec<_>, syn::Error>>()?;
+        Self::ensure_storage_struct_quantity(module_span, &items)?;
+        Self::ensure_contains_message(module_span, &items)?;
+        Self::ensure_contains_constructor(module_span, &items)?;
         Ok(Self {
             attrs: other_attrs,
             vis: module.vis,
