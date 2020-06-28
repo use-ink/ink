@@ -14,16 +14,18 @@
 
 use crate::ir;
 
-/// The contract inline module `mod`.
+/// An ink! contract definition consisting of the ink! configuration and module.
 ///
-/// Contains all of the ink! smart contract definitions.
+/// This is the root of any ink! smart contract definition. It contains every
+/// information accessible to the ink! smart contract macros. It is also used
+/// as the root source for the ink! code generation.
 ///
 /// # Example
 ///
-/// ```no_compile
-/// #[ink::contract(version = "0.1.0")]
+/// ```rust, no_compile
+/// #[ink::contract(/* optional ink! configurations */)]
 /// mod my_contract {
-///     // ... definitions
+///     // ... ink! definitions
 /// }
 /// ```
 pub struct Contract {
