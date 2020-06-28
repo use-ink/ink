@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{ast, ir};
+use proc_macro2::TokenStream as TokenStream2;
+use core::convert::TryFrom;
 
 /// An ink! contract definition consisting of the ink! configuration and module.
 ///
@@ -40,6 +42,35 @@ pub struct Contract {
 }
 
 impl Contract {
+    /// Creates a new ink! contract from the given ink! configuration and module
+    /// token streams.
+    ///
+    /// The ink! macro should use this constructor in order to setup ink!.
+    ///
+    /// # Note
+    ///
+    /// The `ink_config` token stream must properly decode into [`ast::AttributeArgs`].
+    ///
+    /// The `ink_module` token stream must properly decode into [`ir::ItemMod`].
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the provided token stream cannot be decoded properly
+    /// into a valid ink! configuration or ink! module respectively.
+    pub fn new(
+        ink_config: TokenStream2,
+        ink_module: TokenStream2,
+    ) -> Result<Self, syn::Error> {
+        let config = syn::parse2::<ast::AttributeArgs>(ink_config)?;
+        let module = syn::parse2::<syn::ItemMod>(ink_module)?;
+        let ink_config = ir::Config::try_from(config)?;
+        let ink_module = ir::ItemMod::try_from(module)?;
+        Ok(Self {
+            item: ink_module,
+            config: ink_config,
+        })
+    }
+
     /// Returns the identifier of the ink! inline module definition.
     ///
     /// # Note
