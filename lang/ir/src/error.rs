@@ -26,7 +26,8 @@ impl ExtError for syn::Error {
     }
 }
 
-/// Spawns a spanned [`syn::Error`] using the provided arguments.
+/// Creates a [`syn::Error`] with the format message and infers the
+/// [`Span`](`proc_macro2::Span`) using [`ToTokens`](`quote::ToTokens`).
 ///
 /// # Parameters
 ///
@@ -38,7 +39,7 @@ impl ExtError for syn::Error {
 /// # Note
 ///
 /// On stable Rust this might yield higher quality error span information to the user
-/// than [`format_err_span`].
+/// than [`format_err`].
 /// - Source:
 /// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 #[macro_export]
@@ -51,7 +52,8 @@ macro_rules! format_err_spanned {
     }
 }
 
-/// Spawns a [`syn::Error`] using a concrete span and the provided arguments.
+/// Creates a [`syn::Error`] with the format message and infers the
+/// [`Span`](`proc_macro2::Span`) using [`Spanned`](`syn::spanned::Spanned`).
 ///
 /// # Parameters
 ///
@@ -62,14 +64,14 @@ macro_rules! format_err_spanned {
 /// # Note
 ///
 /// On stable Rust this might yield worse error span information to the user
-/// than [`format_err`].
+/// than [`format_err_spanned`].
 /// - Source:
 /// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 #[macro_export]
 macro_rules! format_err {
     ($spanned:expr, $($msg:tt)*) => {
         ::syn::Error::new(
-            <_ as syn::spanned::Spanned>::span(&$spanned),
+            <_ as ::syn::spanned::Spanned>::span(&$spanned),
             format_args!($($msg)*)
         )
     }
