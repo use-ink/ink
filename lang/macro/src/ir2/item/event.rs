@@ -17,7 +17,10 @@ use crate::{
     ir2,
 };
 use core::convert::TryFrom;
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use syn::spanned::Spanned as _;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -73,24 +76,24 @@ impl TryFrom<syn::ItemStruct> for Event {
             }
             _ => (),
         }
-        for field in item_struct.fields.iter() {
+        'outer: for field in item_struct.fields.iter() {
             let field_span = field.span();
             let (ink_attrs, _) = ir2::partition_attributes(field.attrs.clone())?;
             if ink_attrs.is_empty() {
-                continue
+                continue 'outer
             }
             let normalized =
                 ir2::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
                     err.into_combine(format_err_span!(field_span, "at this invokation",))
                 })?;
-            if normalized.first().kind() != &ir2::AttributeArgKind::Topic {
+            if !matches!(normalized.first().kind(), ir2::AttributeArgKind::Topic) {
                 return Err(format_err_span!(
                     field_span,
                     "first optional ink! attribute of an event field must be #[ink(topic)]",
                 ))
             }
             for arg in normalized.args() {
-                if arg.kind() != &ir2::AttributeArgKind::Topic {
+                if !matches!(arg.kind(), ir2::AttributeArgKind::Topic) {
                     return Err(format_err_span!(
                         arg.span(),
                         "encountered conflicting ink! attribute for event field",
@@ -113,48 +116,80 @@ impl Event {
         &self.item.ident
     }
 
-    /// Returns an iterator yielding all fields of the event struct.
-    pub fn fields(&self) -> syn::punctuated::Iter<syn::Field> {
-        self.item.fields.iter()
-    }
-
     /// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
     /// of the event struct.
-    pub fn topic_fields(&self) -> TopicFieldsIter {
-        TopicFieldsIter::new(self)
+    pub fn fields(&self) -> EventFieldsIter {
+        EventFieldsIter::new(self)
+    }
+}
+
+/// An event field with a flag indicating if this field is an event topic.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct EventField<'a> {
+    /// The associated `field` is an event topic if this is `true`.
+    pub is_topic: bool,
+    /// The event field.
+    field: &'a syn::Field,
+}
+
+impl<'a> EventField<'a> {
+    /// Returns the span of the event field.
+    pub fn span(self) -> Span {
+        self.field.span()
+    }
+
+    /// Returns all non-ink! attributes of the event field.
+    pub fn attrs(self) -> Vec<syn::Attribute> {
+        let (_, non_ink_attrs) = ir2::partition_attributes(self.field.attrs.clone())
+            .expect("encountered invalid event field attributes");
+        non_ink_attrs
+    }
+
+    /// Returns the visibility of the event field.
+    pub fn vis(self) -> &'a syn::Visibility {
+        &self.field.vis
+    }
+
+    /// Returns the identifier of the event field if any.
+    pub fn ident(self) -> Option<&'a Ident> {
+        self.field.ident.as_ref()
+    }
+
+    /// Returns the type of the event field.
+    pub fn ty(self) -> &'a syn::Type {
+        &self.field.ty
     }
 }
 
 /// Iterator yielding all `#[ink(topic)]` annotated fields of an event struct.
-pub struct TopicFieldsIter<'a> {
+pub struct EventFieldsIter<'a> {
     iter: syn::punctuated::Iter<'a, syn::Field>,
 }
 
-impl<'a> TopicFieldsIter<'a> {
+impl<'a> EventFieldsIter<'a> {
     /// Creates a new topics fields iterator for the given ink! event struct.
     fn new(event: &'a Event) -> Self {
         Self {
-            iter: event.fields(),
+            iter: event.item.fields.iter(),
         }
     }
 }
 
-impl<'a> Iterator for TopicFieldsIter<'a> {
-    type Item = &'a syn::Field;
+impl<'a> Iterator for EventFieldsIter<'a> {
+    type Item = EventField<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        'outer: loop {
+        loop {
             match self.iter.next() {
                 None => return None,
                 Some(field) => {
-                    if let Some(attr) =
-                        ir2::first_ink_attribute(&field.attrs).unwrap_or_default()
-                    {
-                        if attr.first().kind() == &ir2::AttributeArgKind::Topic {
-                            return Some(field)
-                        }
-                    }
-                    continue 'outer
+                    let is_topic = ir2::first_ink_attribute(&field.attrs)
+                        .unwrap_or_default()
+                        .map(|attr| {
+                            matches!(attr.first().kind(), ir2::AttributeArgKind::Topic)
+                        })
+                        .unwrap_or_default();
+                    return Some(EventField { is_topic, field })
                 }
             }
         }
