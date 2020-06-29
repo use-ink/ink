@@ -18,6 +18,7 @@
 //! with the outside world through its sandbox boundaries.
 
 mod api;
+mod arithmetic;
 mod backend;
 pub mod call;
 mod engine;

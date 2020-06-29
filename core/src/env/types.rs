@@ -23,106 +23,16 @@
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
-    ops::{
-        Add,
-        AddAssign,
-        Div,
-        DivAssign,
-        Mul,
-        MulAssign,
-        Sub,
-        SubAssign,
-    },
 };
 use derive_more::From;
 use ink_prelude::vec::Vec;
-use num_traits::{
-    Bounded,
-    One,
-    Zero,
-};
 use scale::{
     Decode,
     Encode,
 };
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
-
-/// Types that allow for simple arithmetic operations.
-///
-/// Subset of all trait bounds copied over from what Substrate defines
-/// for its `SimpleArithmetic` types. We can extend this in the future
-/// if needed.
-pub trait SimpleArithmetic:
-    Sized
-    + From<u32>
-    + Bounded
-    + Ord
-    + PartialOrd<Self>
-    + Zero
-    + One
-    + Bounded
-    + Add<Self, Output = Self>
-    + AddAssign<Self>
-    + Sub<Self, Output = Self>
-    + SubAssign<Self>
-    + Mul<Self, Output = Self>
-    + MulAssign<Self>
-    + Div<Self, Output = Self>
-    + DivAssign<Self>
-// Further trait bounds from the original SimpleArithmetic trait
-// that we could use to extend ink!'s SimpleArithmetic trait.
-//
-// From<u8> +
-// From<u16> +
-// From<u32> +
-// TryFrom<u64> +
-// TryFrom<u128> +
-// TryFrom<usize> +
-// TryInto<u8> +
-// TryInto<u16> +
-// TryInto<u32> +
-// TryInto<u64> +
-// TryInto<u128> +
-// TryInto<usize> +
-// UniqueSaturatedInto<u8> +
-// UniqueSaturatedInto<u16> +
-// UniqueSaturatedInto<u32> +
-// UniqueSaturatedInto<u64> +
-// UniqueSaturatedInto<u128> +
-// UniqueSaturatedFrom<u64> +
-// UniqueSaturatedFrom<u128> +
-// Shl<u32, Output = Self> +
-// Shr<u32, Output = Self> +
-// CheckedAdd +
-// CheckedSub +
-// CheckedMul +
-// CheckedDiv +
-// CheckedShl +
-// CheckedShr +
-// IntegerSquareRoot +
-// Saturating +
-{
-}
-
-impl<T> SimpleArithmetic for T where
-    T: Sized
-        + From<u32>
-        + Bounded
-        + Ord
-        + PartialOrd<Self>
-        + Zero
-        + One
-        + Add<Self, Output = Self>
-        + AddAssign<Self>
-        + Sub<Self, Output = Self>
-        + SubAssign<Self>
-        + Mul<Self, Output = Self>
-        + MulAssign<Self>
-        + Div<Self, Output = Self>
-        + DivAssign<Self>
-{
-}
+use super::arithmetic::AtLeast32BitUnsigned;
 
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
@@ -135,7 +45,7 @@ pub trait EnvTypes {
         + Clone
         + PartialEq
         + Eq
-        + SimpleArithmetic;
+        + AtLeast32BitUnsigned;
     /// The type of hash.
     type Hash: 'static
         + scale::Codec
@@ -154,7 +64,7 @@ pub trait EnvTypes {
         + Clone
         + PartialEq
         + Eq
-        + SimpleArithmetic;
+        + AtLeast32BitUnsigned;
     /// The type of block number.
     type BlockNumber: 'static
         + scale::Codec
@@ -162,7 +72,7 @@ pub trait EnvTypes {
         + Clone
         + PartialEq
         + Eq
-        + SimpleArithmetic;
+        + AtLeast32BitUnsigned;
     /// The type of a call into the runtime
     type Call: 'static + scale::Codec;
 }
