@@ -41,6 +41,7 @@ pub use self::specs::{
     ReturnTypeSpec,
     TypeSpec,
 };
+use core::marker::PhantomData;
 #[cfg(feature = "derive")]
 use scale_info::{
     form::CompactForm,
@@ -52,6 +53,7 @@ use serde::Serialize;
 /// An entire ink! project for ABI file generation purposes.
 #[derive(Debug, Serialize)]
 pub struct InkProject {
+    metadata: InkProjectMetadata,
     registry: Registry,
     #[serde(rename = "storage")]
     layout: layout2::Layout<CompactForm>,
@@ -61,16 +63,66 @@ pub struct InkProject {
 
 impl InkProject {
     /// Creates a new ink! project.
-    pub fn new<L, S>(layout: L, spec: S) -> Self
+    pub fn new<M, L, S>(metadata: M, layout: L, spec: S) -> Self
     where
+        M: Into<InkProjectMetadata>,
         L: Into<layout2::Layout>,
         S: Into<ContractSpec>,
     {
         let mut registry = Registry::new();
         Self {
+            metadata: metadata.into(),
             layout: layout.into().into_compact(&mut registry),
             spec: spec.into().into_compact(&mut registry),
             registry,
         }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct InkProjectMetadata {
+    version: semver::Version
+}
+
+impl From<InkProjectMetadataBuilder<state::Version>> for InkProjectMetadata {
+    fn from(builder: InkProjectMetadataBuilder<state::Version>) -> Self {
+        builder.done()
+    }
+}
+
+/// Type state for builders to tell that some mandatory state has not yet been set
+/// yet or to fail upon setting the same state multiple times.
+pub struct Missing<S>(PhantomData<fn() -> S>);
+
+mod state {
+    //! Type states that tell what state of the project metadata has not
+    //! yet been set properly for a valid construction.
+
+    /// Type state for the version of the project metadata.
+    pub struct Version;
+}
+
+pub struct InkProjectMetadataBuilder<Version> {
+    metadata: InkProjectMetadata,
+    marker: PhantomData<fn() -> (Version)>
+}
+
+impl InkProjectMetadataBuilder<Missing<state::Version>> {
+    // todo: error type?
+    pub fn version<S>(self, version: S) -> Result<InkProjectMetadataBuilder<state::Version>, ()> {
+        let version = semver::Version::parse(version.as_ref()).map_err(|_| ())?;
+        Ok(InkProjectMetadataBuilder {
+            metadata: InkProjectMetadata {
+                version,
+                ..self.metadata
+            },
+            marker: PhantomData,
+        })
+    }
+}
+
+impl InkProjectMetadataBuilder<state::Version> {
+    fn done(self) -> InkProjectMetadata {
+        self.metadata
     }
 }
