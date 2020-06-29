@@ -174,3 +174,32 @@ where
             )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Saturating;
+
+    #[test]
+    fn saturating_add() {
+        assert_eq!(u64::max_value(), Saturating::saturating_add(u64::max_value(), 1))
+    }
+
+    #[test]
+    fn saturatiung_sub() {
+        assert_eq!(u64::min_value(), Saturating::saturating_sub(u64::min_value(), 1))
+    }
+
+    #[test]
+    fn saturating_mul() {
+        assert_eq!(u64::max_value(), Saturating::saturating_mul(u64::max_value(), 2));
+        assert_eq!(i64::min_value(), Saturating::saturating_mul(i64::min_value(), 2));
+        assert_eq!(i64::min_value(), Saturating::saturating_mul(2, i64::min_value()));
+    }
+
+    #[test]
+    fn saturating_pow() {
+        assert_eq!(u64::max_value(), Saturating::saturating_pow(u64::max_value(), 2));
+        assert_eq!(i64::max_value(), Saturating::saturating_pow(i64::min_value(), 2));
+        assert_eq!(i64::min_value(), Saturating::saturating_pow(i64::min_value(), 3));
+    }
+}
