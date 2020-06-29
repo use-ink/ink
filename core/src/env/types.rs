@@ -20,6 +20,7 @@
 //! Users are required to provide their own type definitions and `EnvTypes`
 //! implementations in order to write ink! contracts for other chain configurations.
 
+use super::arithmetic::AtLeast32BitUnsigned;
 use core::{
     array::TryFromSliceError,
     convert::TryFrom,
@@ -32,7 +33,6 @@ use scale::{
 };
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
-use super::arithmetic::AtLeast32BitUnsigned;
 
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {

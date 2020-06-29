@@ -14,19 +14,24 @@
 
 //! Primitive traits for runtime arithmetic, copied from substrate
 
-use core::{
-    ops::{
-        Add,
-        AddAssign,
-        Div,
-        DivAssign,
-        Mul,
-        MulAssign,
-        Sub,
-        SubAssign,
-    },
+use core::ops::{
+    Add,
+    AddAssign,
+    Div,
+    DivAssign,
+    Mul,
+    MulAssign,
+    Sub,
+    SubAssign,
 };
-use num_traits::{Bounded, checked_pow, One, Unsigned, Zero, CheckedMul};
+use num_traits::{
+    checked_pow,
+    Bounded,
+    CheckedMul,
+    One,
+    Unsigned,
+    Zero,
+};
 
 /// Types that allow for simple arithmetic operations.
 ///
@@ -34,24 +39,24 @@ use num_traits::{Bounded, checked_pow, One, Unsigned, Zero, CheckedMul};
 /// for its `BaseArithmetic` types. We can extend this in the future
 /// if needed.
 pub trait BaseArithmetic:
-Sized
-+ From<u32>
-+ Bounded
-+ Ord
-+ PartialOrd<Self>
-+ Zero
-+ One
-+ Bounded
-+ Add<Self, Output = Self>
-+ AddAssign<Self>
-+ Sub<Self, Output = Self>
-+ SubAssign<Self>
-+ Mul<Self, Output = Self>
-+ MulAssign<Self>
-+ Div<Self, Output = Self>
-+ DivAssign<Self>
-+ CheckedMul
-+ Saturating
+    Sized
+    + From<u32>
+    + Bounded
+    + Ord
+    + PartialOrd<Self>
+    + Zero
+    + One
+    + Bounded
+    + Add<Self, Output = Self>
+    + AddAssign<Self>
+    + Sub<Self, Output = Self>
+    + SubAssign<Self>
+    + Mul<Self, Output = Self>
+    + MulAssign<Self>
+    + Div<Self, Output = Self>
+    + DivAssign<Self>
+    + CheckedMul
+    + Saturating
 // Further trait bounds from the original BaseArithmetic trait
 // that we could use to extend ink!'s BaseArithmetic trait.
 //
@@ -87,22 +92,22 @@ Sized
 
 impl<T> BaseArithmetic for T where
     T: Sized
-    + From<u32>
-    + Bounded
-    + Ord
-    + PartialOrd<Self>
-    + Zero
-    + One
-    + Add<Self, Output = Self>
-    + AddAssign<Self>
-    + Sub<Self, Output = Self>
-    + SubAssign<Self>
-    + Mul<Self, Output = Self>
-    + MulAssign<Self>
-    + Div<Self, Output = Self>
-    + DivAssign<Self>
-    + CheckedMul
-    + Saturating
+        + From<u32>
+        + Bounded
+        + Ord
+        + PartialOrd<Self>
+        + Zero
+        + One
+        + Add<Self, Output = Self>
+        + AddAssign<Self>
+        + Sub<Self, Output = Self>
+        + SubAssign<Self>
+        + Mul<Self, Output = Self>
+        + MulAssign<Self>
+        + Div<Self, Output = Self>
+        + DivAssign<Self>
+        + CheckedMul
+        + Saturating
 {
 }
 
@@ -141,7 +146,7 @@ pub trait Saturating {
 
 impl<T> Saturating for T
 where
-    T: Clone + Zero + One + PartialOrd + CheckedMul + Bounded + num_traits::Saturating
+    T: Clone + Zero + One + PartialOrd + CheckedMul + Bounded + num_traits::Saturating,
 {
     fn saturating_add(self, o: Self) -> Self {
         <Self as num_traits::Saturating>::saturating_add(self, o)
@@ -152,26 +157,24 @@ where
     }
 
     fn saturating_mul(self, o: Self) -> Self {
-        self.checked_mul(&o)
-            .unwrap_or_else(||
-                if (self < T::zero()) != (o < T::zero()) {
-                    Bounded::min_value()
-                } else {
-                    Bounded::max_value()
-                }
-            )
+        self.checked_mul(&o).unwrap_or_else(|| {
+            if (self < T::zero()) != (o < T::zero()) {
+                Bounded::min_value()
+            } else {
+                Bounded::max_value()
+            }
+        })
     }
 
     fn saturating_pow(self, exp: usize) -> Self {
         let neg = self < T::zero() && exp % 2 != 0;
-        checked_pow(self, exp)
-            .unwrap_or_else(||
-                if neg {
-                    Bounded::min_value()
-                } else {
-                    Bounded::max_value()
-                }
-            )
+        checked_pow(self, exp).unwrap_or_else(|| {
+            if neg {
+                Bounded::min_value()
+            } else {
+                Bounded::max_value()
+            }
+        })
     }
 }
 
@@ -181,25 +184,49 @@ mod tests {
 
     #[test]
     fn saturating_add() {
-        assert_eq!(u64::max_value(), Saturating::saturating_add(u64::max_value(), 1))
+        assert_eq!(
+            u64::max_value(),
+            Saturating::saturating_add(u64::max_value(), 1)
+        )
     }
 
     #[test]
     fn saturatiung_sub() {
-        assert_eq!(u64::min_value(), Saturating::saturating_sub(u64::min_value(), 1))
+        assert_eq!(
+            u64::min_value(),
+            Saturating::saturating_sub(u64::min_value(), 1)
+        )
     }
 
     #[test]
     fn saturating_mul() {
-        assert_eq!(u64::max_value(), Saturating::saturating_mul(u64::max_value(), 2));
-        assert_eq!(i64::min_value(), Saturating::saturating_mul(i64::min_value(), 2));
-        assert_eq!(i64::min_value(), Saturating::saturating_mul(2, i64::min_value()));
+        assert_eq!(
+            u64::max_value(),
+            Saturating::saturating_mul(u64::max_value(), 2)
+        );
+        assert_eq!(
+            i64::min_value(),
+            Saturating::saturating_mul(i64::min_value(), 2)
+        );
+        assert_eq!(
+            i64::min_value(),
+            Saturating::saturating_mul(2, i64::min_value())
+        );
     }
 
     #[test]
     fn saturating_pow() {
-        assert_eq!(u64::max_value(), Saturating::saturating_pow(u64::max_value(), 2));
-        assert_eq!(i64::max_value(), Saturating::saturating_pow(i64::min_value(), 2));
-        assert_eq!(i64::min_value(), Saturating::saturating_pow(i64::min_value(), 3));
+        assert_eq!(
+            u64::max_value(),
+            Saturating::saturating_pow(u64::max_value(), 2)
+        );
+        assert_eq!(
+            i64::max_value(),
+            Saturating::saturating_pow(i64::min_value(), 2)
+        );
+        assert_eq!(
+            i64::min_value(),
+            Saturating::saturating_pow(i64::min_value(), 3)
+        );
     }
 }
