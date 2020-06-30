@@ -33,7 +33,7 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
     let mut previous_even_x = None;
     let inserts_each = inserts_each as i32;
 
-    xs.into_iter().for_each(|x| {
+    for x in 0..xs.len() as i32 {
         if x % 2 == 0 {
             // On even numbers we insert
             for key in x..x + inserts_each {
@@ -67,7 +67,7 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
             }
             previous_even_x = None;
         }
-    });
+    }
 }
 
 #[quickcheck]
@@ -92,11 +92,14 @@ fn removes(xs: Vec<i32>, xth: usize) {
 
         // when
         // 1) insert all
-        xs.iter().for_each(|i| {
+        for x in 0..xs.len() {
+            let i = xs.get(x).expect(
+                "x is always in bounds since we iterate over the vec length; qed",
+            );
             assert_eq!(map.insert(*i, i * 10), None);
             len += 1;
             assert_eq!(map.len(), len);
-        });
+        }
 
         // 2) remove every `xth` element of `xs` from the map
         for x in 0..xs.len() {
