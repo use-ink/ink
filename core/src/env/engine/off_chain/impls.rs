@@ -164,7 +164,7 @@ impl TypedEnv for EnvInstance {
             .gas_price::<T>()
             .map_err(|_| scale::Error::from("could not decode gas price"))?;
 
-        let gas = u32::try_from(gas).unwrap_or(u32::max_value().into());
+        let gas = u32::try_from(gas).unwrap_or_else(|_| { u32::max_value() });
         Ok(T::Balance::from(gas) * gas_price)
     }
 
