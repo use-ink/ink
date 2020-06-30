@@ -54,20 +54,32 @@ impl Receiver {
 ///
 /// ## Inherent implementation message:
 ///
-/// ```rust, no_compile
+/// ```
+/// # use core::convert::TryFrom;
+/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyStorage {
 ///     #[ink(message)]
-///     pub fn my_message(&self, input: i32) -> bool { /* ... */ }
+///     pub fn my_message(&self, input: i32) -> bool {
+///         /* message implementation goes here */
+/// #       todo!()
+///     }
 /// }
+/// # }).unwrap();
 /// ```
 ///
 /// ## Trait implementation message:
 ///
-/// ```rust, no_compile
+/// ```
+/// # use core::convert::TryFrom;
+/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyTrait for MyStorage {
 ///     #[ink(message)]
-///     fn my_message(&mut self, input: bool) -> i32 { /* ... */ }
+///     fn my_message(&mut self, input: bool) -> i32 {
+///         /* message implementation goes here */
+/// #       todo!()
+///     }
 /// }
+/// # }).unwrap();
 /// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Message {

@@ -30,20 +30,32 @@ use syn::spanned::Spanned as _;
 ///
 /// ## Inherent implementation constructor:
 ///
-/// ```rust, no_compile
+/// ```
+/// # use core::convert::TryFrom;
+/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyStorage {
 ///     #[ink(constructor)]
-///     pub fn new(init_value: i32) -> Self { /* ... */ }
+///     pub fn new(init_value: i32) -> Self {
+///         /* contract initialization goes here */
+/// #       todo!()
+///     }
 /// }
+/// # }).unwrap();
 /// ```
 ///
 /// ## Trait implementation constructor:
 ///
-/// ```rust, no_compile
+/// ```
+/// # use core::convert::TryFrom;
+/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyTrait for MyStorage {
 ///     #[ink(constructor)]
-///     fn new(init_value: i32) -> Self { /* ... */ }
+///     fn new(init_value: i32) -> Self {
+///         /* contract initialization goes here */
+/// #       todo!()
+///     }
 /// }
+/// # }).unwrap();
 /// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Constructor {
