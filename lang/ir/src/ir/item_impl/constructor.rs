@@ -37,7 +37,7 @@ use syn::spanned::Spanned as _;
 ///     #[ink(constructor)]
 ///     pub fn new(init_value: i32) -> Self {
 ///         /* contract initialization goes here */
-/// #       todo!()
+/// #       unimplemented!()
 ///     }
 /// }
 /// # }).unwrap();
@@ -52,7 +52,7 @@ use syn::spanned::Spanned as _;
 ///     #[ink(constructor)]
 ///     fn new(init_value: i32) -> Self {
 ///         /* contract initialization goes here */
-/// #       todo!()
+/// #       unimplemented!()
 ///     }
 /// }
 /// # }).unwrap();

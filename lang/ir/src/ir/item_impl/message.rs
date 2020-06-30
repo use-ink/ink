@@ -61,7 +61,7 @@ impl Receiver {
 ///     #[ink(message)]
 ///     pub fn my_message(&self, input: i32) -> bool {
 ///         /* message implementation goes here */
-/// #       todo!()
+/// #       unimplemented!()
 ///     }
 /// }
 /// # }).unwrap();
@@ -76,7 +76,7 @@ impl Receiver {
 ///     #[ink(message)]
 ///     fn my_message(&mut self, input: bool) -> i32 {
 ///         /* message implementation goes here */
-/// #       todo!()
+/// #       unimplemented!()
 ///     }
 /// }
 /// # }).unwrap();
