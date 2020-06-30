@@ -28,7 +28,7 @@ use syn::spanned::Spanned as _;
 ///
 /// # Example
 ///
-/// ```rust
+/// ```
 /// # use core::convert::TryFrom;
 /// # let event = <ink_lang_ir::Storage as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
 /// #[ink(storage)]
