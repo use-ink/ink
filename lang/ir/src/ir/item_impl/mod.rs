@@ -32,12 +32,12 @@ mod tests;
 use self::callable::{
     ensure_callable_invariants,
     CallableKind,
-    InputsIter,
 };
 pub use self::{
     callable::{
         Callable,
         Visibility,
+        InputsIter,
     },
     constructor::Constructor,
     impl_item::ImplItem,

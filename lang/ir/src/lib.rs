@@ -41,6 +41,7 @@ pub use self::ir::{
     Event,
     ImplItem,
     InkItem,
+    InputsIter,
     Item,
     ItemImpl,
     ItemMod,

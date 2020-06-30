@@ -48,6 +48,7 @@ pub use self::{
         Callable,
         Constructor,
         ImplItem,
+        InputsIter,
         ItemImpl,
         IterConstructors,
         IterMessages,
