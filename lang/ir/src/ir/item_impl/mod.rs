@@ -155,7 +155,7 @@ impl ItemImpl {
     /// # Errors
     ///
     /// Returns an error in case of encountered malformed ink! attributes.
-    pub fn is_ink_impl_block(item_impl: &syn::ItemImpl) -> Result<bool, syn::Error> {
+    pub(super) fn is_ink_impl_block(item_impl: &syn::ItemImpl) -> Result<bool, syn::Error> {
         // Quick check in order to efficiently bail out in case where there are
         // no ink! attributes:
         if !ir::contains_ink_attributes(&item_impl.attrs)
