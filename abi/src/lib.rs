@@ -48,34 +48,38 @@ use scale_info::{
     IntoCompact as _,
     Registry,
 };
+use semver::Version;
 use serde::Serialize;
+use url::Url;
+
+const METADATA_VERSION: &str = "0.1.0";
 
 /// An entire ink! project for ABI file generation purposes.
 #[derive(Debug, Serialize)]
 pub struct InkProject {
-    metadata_version: semver::Version,
-    source: InkProjectSource,
-    contract: InkProjectContract,
-    user: InkProjectUser,
+    metadata_version: Version,
+    #[serde(flatten)]
+    extension: InkProjectExtension,
     spec: InkProjectSpec,
 }
 
 impl InkProject {
-    /// Creates a new ink! project.
-    pub fn new<M, L, S>(metadata: M, layout: L, spec: S) -> Self
-    where
-        M: Into<InkProjectMetadata>,
-        L: Into<layout2::Layout>,
-        S: Into<ContractSpec>,
-    {
-        let mut registry = Registry::new();
-        Self {
-            metadata: metadata.into(),
-            layout: layout.into().into_compact(&mut registry),
-            spec: spec.into().into_compact(&mut registry),
-            registry,
+    pub fn new(extension: InkProjectExtension, spec: InkProjectSpec) -> Self {
+        let metadata_version= Version::parse(METADATA_VERSION).expect("METADATA_VERSION is a valid semver string");
+        InkProject {
+            metadata_version,
+            extension,
+            spec
         }
     }
+}
+
+/// Additional metadata supplied externally, e.g. by a tool such as `cargo-contract`
+#[derive(Debug, Serialize)]
+pub struct InkProjectExtension {
+    source: InkProjectSource,
+    contract: InkProjectContract,
+    user: InkProjectUser,
 }
 
 #[derive(Debug, Serialize)]
@@ -86,10 +90,21 @@ pub struct InkProjectSource {
 }
 
 #[derive(Debug, Serialize)]
-pub struct InkProjecContract {
+pub struct InkProjectContract {
     name: &'static str,
-    version: semver::Version,
+    version: Version,
     authors: Vec<&'static str>,
+    description: &'static str,
+    documentation: Url,
+    repository: Url,
+    homepage: Url,
+    license: &'static str,
+}
+
+#[derive(Debug, Serialize)]
+pub struct InkProjectUser {
+    #[serde(flatten)]
+    json: serde_json::Map<String, serde_json::Value>
 }
 
 impl From<InkProjectMetadataBuilder<state::Version>> for InkProjectMetadata {
@@ -98,12 +113,29 @@ impl From<InkProjectMetadataBuilder<state::Version>> for InkProjectMetadata {
     }
 }
 
+#[derive(Debug, Serialize)]
 struct InkProjectSpec {
     #[serde(flatten)] // should result in a only a "types" field
     registry: Registry,
     #[serde(rename = "storage")]
     layout: layout2::Layout<CompactForm>,
     spec: ContractSpec<CompactForm>,
+}
+
+impl InkProjectSpec {
+    /// Creates a new ink! project.
+    pub fn new<M, L, S>(layout: L, spec: S) -> Self
+    where
+        L: Into<layout2::Layout>,
+        S: Into<ContractSpec>,
+    {
+        let mut registry = Registry::new();
+        Self {
+            layout: layout.into().into_compact(&mut registry),
+            spec: spec.into().into_compact(&mut registry),
+            registry,
+        }
+    }
 }
 
 /// Type state for builders to tell that some mandatory state has not yet been set
@@ -126,7 +158,7 @@ pub struct InkProjectMetadataBuilder<Version> {
 impl InkProjectMetadataBuilder<Missing<state::Version>> {
     // todo: error type?
     pub fn version<S>(self, version: S) -> Result<InkProjectMetadataBuilder<state::Version>, ()> {
-        let version = semver::Version::parse(version.as_ref()).map_err(|_| ())?;
+        let version = Version::parse(version.as_ref()).map_err(|_| ())?;
         Ok(InkProjectMetadataBuilder {
             metadata: InkProjectMetadata {
                 version,

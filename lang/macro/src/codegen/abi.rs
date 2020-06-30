@@ -42,14 +42,15 @@ impl GenerateCode for GenerateAbi<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
-                pub fn __ink_generate_metadata(metadata: ::ink_abi::InkProjectMetadata) -> ::ink_abi::InkProject  {
+                pub fn __ink_generate_metadata(extension: ::ink_abi::InkProjectExtension) -> ::ink_abi::InkProject  {
                     let contract: ::ink_abi::ContractSpec = {
                         #contract
                     };
                     let layout: ::ink_abi::layout2::Layout = {
                         #layout
                     };
-                    ::ink_abi::InkProject::new(metadata, layout, contract)
+                    let spec = ::ink_abi::InkSpec::new(layout, spec)
+                    ::ink_abi::InkProject::new(extension, spec)
                 }
             };
         }
