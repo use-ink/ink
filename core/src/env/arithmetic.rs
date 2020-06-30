@@ -14,19 +14,21 @@
 
 //! Primitive traits for runtime arithmetic, copied from substrate
 
-use core::ops::{
-    Add,
-    AddAssign,
-    Div,
-    DivAssign,
-    Mul,
-    MulAssign,
-    Sub,
-    SubAssign,
-};
-use core::convert::{
-    TryFrom,
-    TryInto,
+use core::{
+    convert::{
+        TryFrom,
+        TryInto,
+    },
+    ops::{
+        Add,
+        AddAssign,
+        Div,
+        DivAssign,
+        Mul,
+        MulAssign,
+        Sub,
+        SubAssign,
+    },
 };
 use num_traits::{
     checked_pow,
