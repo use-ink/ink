@@ -14,7 +14,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::erc20::Erc20;
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]

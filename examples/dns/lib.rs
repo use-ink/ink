@@ -14,7 +14,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::dns::DomainNameService;
 use ink_lang as ink;
 
 #[ink::contract(version = "0.1.0")]

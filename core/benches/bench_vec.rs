@@ -84,7 +84,7 @@ mod populated_cache {
     pub fn set(test_values: &[u8]) {
         let mut vec = storage_vec_from_slice(&test_values);
         for (index, _value) in test_values.iter().enumerate() {
-            black_box(vec.set(index as u32, b'X'));
+            let _ = black_box(vec.set(index as u32, b'X'));
         }
     }
 
@@ -159,7 +159,7 @@ mod empty_cache {
         push_storage_vec();
         let mut vec = pull_storage_vec();
         for index in 0..vec.len() {
-            black_box(vec.set(index, b'X'));
+            let _ = black_box(vec.set(index, b'X'));
         }
     }
 }
