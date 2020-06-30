@@ -47,7 +47,7 @@ use syn::spanned::Spanned as _;
 ///
 /// ```
 /// # use core::convert::TryFrom;
-/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+/// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyTrait for MyStorage {
 ///     #[ink(constructor)]
 ///     fn new(init_value: i32) -> Self {

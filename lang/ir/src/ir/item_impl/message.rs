@@ -56,7 +56,7 @@ impl Receiver {
 ///
 /// ```
 /// # use core::convert::TryFrom;
-/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+/// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyStorage {
 ///     #[ink(message)]
 ///     pub fn my_message(&self, input: i32) -> bool {
