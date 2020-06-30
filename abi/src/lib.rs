@@ -53,12 +53,11 @@ use serde::Serialize;
 /// An entire ink! project for ABI file generation purposes.
 #[derive(Debug, Serialize)]
 pub struct InkProject {
-    metadata: InkProjectMetadata,
-    registry: Registry,
-    #[serde(rename = "storage")]
-    layout: layout2::Layout<CompactForm>,
-    #[serde(rename = "contract")]
-    spec: ContractSpec<CompactForm>,
+    metadata_version: semver::Version,
+    source: InkProjectSource,
+    contract: InkProjectContract,
+    user: InkProjectUser,
+    spec: InkProjectSpec,
 }
 
 impl InkProject {
@@ -80,14 +79,31 @@ impl InkProject {
 }
 
 #[derive(Debug, Serialize)]
-pub struct InkProjectMetadata {
-    version: semver::Version
+pub struct InkProjectSource {
+    hash: &'static str,
+    language: &'static str,
+    compiler: &'static str,
+}
+
+#[derive(Debug, Serialize)]
+pub struct InkProjecContract {
+    name: &'static str,
+    version: semver::Version,
+    authors: Vec<&'static str>,
 }
 
 impl From<InkProjectMetadataBuilder<state::Version>> for InkProjectMetadata {
     fn from(builder: InkProjectMetadataBuilder<state::Version>) -> Self {
         builder.done()
     }
+}
+
+struct InkProjectSpec {
+    #[serde(flatten)] // should result in a only a "types" field
+    registry: Registry,
+    #[serde(rename = "storage")]
+    layout: layout2::Layout<CompactForm>,
+    spec: ContractSpec<CompactForm>,
 }
 
 /// Type state for builders to tell that some mandatory state has not yet been set
