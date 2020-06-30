@@ -99,21 +99,27 @@ fn removes(xs: Vec<i32>, xth: usize) {
         });
 
         // 2) remove every `xth` element of `xs` from the map
-        xs.iter().enumerate().for_each(|(x, i)| {
+        for x in 0..xs.len() {
             if x % xth == 0 {
+                let i = xs.get(x).expect(
+                    "x is always in bounds since we iterate over the vec length; qed",
+                );
                 assert_eq!(map.take(&i), Some(i * 10));
                 len -= 1;
             }
             assert_eq!(map.len(), len);
-        });
+        }
 
         // then
         // everything else must still be get-able
-        xs.iter().enumerate().for_each(|(x, i)| {
+        for x in 0..xs.len() {
             if x % xth != 0 {
+                let i = xs.get(x).expect(
+                    "x is always in bounds since we iterate over the vec length; qed",
+                );
                 assert_eq!(map.get(&i), Some(&(i * 10)));
             }
-        });
+        }
 
         Ok(())
     })
