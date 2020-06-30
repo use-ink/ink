@@ -12,6 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! The ink! intermediate representation (IR) and abstractions.
+//!
+//! This module defines everything the ink! procedural macro needs in order to
+//! parse, analyze and generate code for ink! smart contracts.
+//!
+//! The entry point for every ink! smart contract is the [`Contract`](`crate::ir::Contract`)
+//! with its [`Config`](`crate::ir::Config`) provided in the initial invokation at
+//! `#[ink::contract(... configuration ...)]`.
+//!
+//! The ink! IR tries to stay close to the original Rust syntactic structure.
+//! All ink! definitions of an ink! smart contract are always defined within
+//! a so-called Rust inline modlue (`mod my_module { ... items ... }`).
+//! Therefore all ink! definition are found and accessed using the
+//! [`ItemMod`](`crate::ir::ItemMod`) data structure.
+
 #[macro_use]
 mod error;
 
