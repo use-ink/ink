@@ -27,12 +27,12 @@ use crate::{
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
-pub struct GenerateAbi<'a> {
+pub struct GenerateMetadata<'a> {
     /// The contract to generate code for.
     contract: &'a ir::Contract,
 }
 
-impl GenerateCode for GenerateAbi<'_> {
+impl GenerateCode for GenerateMetadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
@@ -56,7 +56,7 @@ impl GenerateCode for GenerateAbi<'_> {
     }
 }
 
-impl GenerateAbi<'_> {
+impl GenerateMetadata<'_> {
     fn generate_constructors<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract
             .functions

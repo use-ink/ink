@@ -41,7 +41,7 @@
 //!   not implement non-ink! traits if not necessary and instead rely optionally
 //!   on the user to define them.
 
-mod abi;
+mod metadata;
 mod contract;
 mod cross_calling;
 mod dispatch;
