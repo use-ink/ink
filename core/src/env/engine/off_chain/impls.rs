@@ -31,6 +31,7 @@ use crate::env::{
     TypedEnv,
 };
 use ink_primitives::Key;
+use core::convert::TryFrom;
 
 impl EnvInstance {
     /// Returns the callee account.
@@ -153,11 +154,18 @@ impl TypedEnv for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn gas_price<T: EnvTypes>(&mut self, _gas: u64) -> Result<T::Balance> {
-        self.chain_spec
+    /// Emulates gas price calculation, scaling price linearly up to `u32::max_value()`.
+    ///
+    /// # Panics
+    ///
+    /// If the resulting gas price overflows `u32::max_value()`
+    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
+        let gas_price = self.chain_spec
             .gas_price::<T>()
-            .map_err(|_| scale::Error::from("could not decode gas price"))
-            .map_err(Into::into)
+            .map_err(|_| scale::Error::from("could not decode gas price"))?;
+
+        let gas = u32::try_from(gas).unwrap_or(u32::max_value().into());
+        Ok(T::Balance::from(gas) * gas_price)
     }
 
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
