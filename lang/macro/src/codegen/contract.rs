@@ -18,7 +18,6 @@ use quote::quote;
 
 pub use crate::{
     codegen::{
-        abi::GenerateAbi,
         cross_calling::CrossCalling,
         dispatch::Dispatch,
         env_types::EnvTypes,
@@ -26,6 +25,7 @@ pub use crate::{
             EventHelpers,
             EventStructs,
         },
+        metadata::GenerateMetadata,
         storage::Storage,
         GenerateCode,
         GenerateCodeUsing,
@@ -54,7 +54,7 @@ impl GenerateCode for ContractModule<'_> {
         let env_types = self.generate_code_using::<EnvTypes>();
         let storage = self.generate_code_using::<Storage>();
         let dispatch = self.generate_code_using::<Dispatch>();
-        let generate_abi = self.generate_code_using::<GenerateAbi>();
+        let generate_metadata = self.generate_code_using::<GenerateMetadata>();
         let event_helpers = self.generate_code_using::<EventHelpers>();
         let event_structs = self.generate_code_using::<EventStructs>();
         let cross_calling = self.generate_code_using::<CrossCalling>();
@@ -66,7 +66,7 @@ impl GenerateCode for ContractModule<'_> {
                 #storage
                 #event_helpers
                 #dispatch
-                #generate_abi
+                #generate_metadata
                 #cross_calling
                 #event_structs
                 #( #non_ink_items )*

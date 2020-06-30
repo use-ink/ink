@@ -41,12 +41,12 @@
 //!   not implement non-ink! traits if not necessary and instead rely optionally
 //!   on the user to define them.
 
-mod abi;
 mod contract;
 mod cross_calling;
 mod dispatch;
 mod env_types;
 mod events;
+mod metadata;
 mod storage;
 
 use proc_macro2::TokenStream as TokenStream2;

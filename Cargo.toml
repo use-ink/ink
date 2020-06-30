@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "abi",
+    "metadata",
     "core",
     "lang",
     "prelude",

@@ -27,12 +27,12 @@ use crate::{
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
-pub struct GenerateAbi<'a> {
+pub struct GenerateMetadata<'a> {
     /// The contract to generate code for.
     contract: &'a ir::Contract,
 }
 
-impl GenerateCode for GenerateAbi<'_> {
+impl GenerateCode for GenerateMetadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
@@ -42,21 +42,21 @@ impl GenerateCode for GenerateAbi<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
-                pub fn __ink_generate_metadata() -> ::ink_abi::InkProject  {
-                    let contract: ::ink_abi::ContractSpec = {
+                pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
+                    let contract: ::ink_metadata::ContractSpec = {
                         #contract
                     };
-                    let layout: ::ink_abi::layout2::Layout = {
+                    let layout: ::ink_metadata::layout2::Layout = {
                         #layout
                     };
-                    ::ink_abi::InkProject::new(layout, contract)
+                    ::ink_metadata::InkProject::new(layout, contract)
                 }
             };
         }
     }
 }
 
-impl GenerateAbi<'_> {
+impl GenerateMetadata<'_> {
     fn generate_constructors<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract
             .functions
@@ -76,7 +76,7 @@ impl GenerateAbi<'_> {
                     .map(|fn_arg| self.generate_message_param(fn_arg));
 
                 quote_spanned!(span =>
-                    ::ink_abi::ConstructorSpec::new(#ident_lit)
+                    ::ink_metadata::ConstructorSpec::new(#ident_lit)
                         .selector([#(#selector_bytes),*])
                         .args(vec![
                             #(#args ,)*
@@ -91,7 +91,7 @@ impl GenerateAbi<'_> {
 
     fn generate_type_spec(&self, ty: &syn::Type) -> TokenStream2 {
         fn without_display_name(ty: &syn::Type) -> TokenStream2 {
-            quote! { ::ink_abi::TypeSpec::new::<#ty>() }
+            quote! { ::ink_metadata::TypeSpec::new::<#ty>() }
         }
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {
@@ -107,7 +107,7 @@ impl GenerateAbi<'_> {
                 .map(|seg| seg.ident.to_string())
                 .collect::<Vec<_>>();
             quote! {
-                ::ink_abi::TypeSpec::with_name_segs::<#ty, _>(
+                ::ink_metadata::TypeSpec::with_name_segs::<#ty, _>(
                     vec![#(#segs),*].into_iter().map(AsRef::as_ref)
                 )
             }
@@ -120,13 +120,13 @@ impl GenerateAbi<'_> {
         match ret_ty {
             syn::ReturnType::Default => {
                 quote! {
-                    ::ink_abi::ReturnTypeSpec::new(None)
+                    ::ink_metadata::ReturnTypeSpec::new(None)
                 }
             }
             syn::ReturnType::Type(_, ty) => {
                 let type_spec = self.generate_type_spec(ty);
                 quote! {
-                    ::ink_abi::ReturnTypeSpec::new(#type_spec)
+                    ::ink_metadata::ReturnTypeSpec::new(#type_spec)
                 }
             }
         }
@@ -137,7 +137,7 @@ impl GenerateAbi<'_> {
         let type_spec = self.generate_type_spec(&fn_arg.ty);
 
         quote! {
-            ::ink_abi::MessageParamSpec::new(#ident_lit)
+            ::ink_metadata::MessageParamSpec::new(#ident_lit)
                 .of_type(#type_spec)
                 .done()
         }
@@ -163,7 +163,7 @@ impl GenerateAbi<'_> {
                 let ret_ty = self.generate_return_type(&message.sig.output);
 
                 quote_spanned!(span =>
-                    ::ink_abi::MessageSpec::new(#ident_lit)
+                    ::ink_metadata::MessageSpec::new(#ident_lit)
                         .selector([#(#selector_bytes),*])
                         .mutates(#is_mut)
                         .args(vec![
@@ -204,7 +204,7 @@ impl GenerateAbi<'_> {
             let ty_spec = self.generate_type_spec(&field.ty);
 
             quote_spanned!(span =>
-                ::ink_abi::EventParamSpec::new(#ident_lit)
+                ::ink_metadata::EventParamSpec::new(#ident_lit)
                     .of_type(#ty_spec)
                     .indexed(#is_topic)
                     .docs(vec![
@@ -225,7 +225,7 @@ impl GenerateAbi<'_> {
             let args = self.generate_event_args(event);
 
             quote_spanned!(span =>
-                ::ink_abi::EventSpec::new(#ident_lit)
+                ::ink_metadata::EventSpec::new(#ident_lit)
                     .args(vec![
                         #( #args, )*
                     ])
@@ -250,7 +250,7 @@ impl GenerateAbi<'_> {
         let docs = self.generate_docs();
 
         quote! {
-            ::ink_abi::ContractSpec::new(#contract_ident_lit)
+            ::ink_metadata::ContractSpec::new(#contract_ident_lit)
                 .constructors(vec![
                     #(#constructors ,)*
                 ])

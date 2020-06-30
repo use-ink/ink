@@ -153,7 +153,7 @@ const _: () = {
         LayoutCryptoHasher,
         StorageLayout,
     };
-    use ink_abi::layout2::{
+    use ink_metadata::layout2::{
         CellLayout,
         HashLayout,
         HashingStrategy,

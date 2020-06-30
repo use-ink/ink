@@ -17,7 +17,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 [dependencies]
 ink_core = { version = "2.1.0", path = "../core", default-features = false }
 ink_primitives = { version = "2.1.0", path = "../primitives", default-features = false }
-ink_abi = { version = "2.1.0", path = "../abi", default-features = false, optional = true }
+ink_metadata = { version = "2.1.0", path = "../metadata", default-features = false, optional = true }
 ink_prelude = { version = "2.1.0", path = "../prelude/", default-features = false }
 ink_lang_macro = { version = "2.1.0", path = "macro", default-features = false }
 
@@ -27,8 +27,8 @@ derive_more = { version = "0.99", default-features = false, features = ["from"] 
 [features]
 default = ["std"]
 std = [
-    "ink_abi",
-    "ink_abi/std",
+    "ink_metadata",
+    "ink_metadata/std",
     "ink_prelude/std",
     "ink_primitives/std",
     "ink_core/std",
