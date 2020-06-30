@@ -29,7 +29,7 @@ regex = "1.3"
 sha3 = "0.8"
 
 [dev-dependencies]
-ink_abi = { version = "2.1.0", path = "../../abi/" }
+ink_metadata = { version = "2.1.0", path = "../../metadata/" }
 ink_core = { version = "2.1.0", path = "../../core/" }
 ink_lang = { version = "2.1.0", path = ".." }
 

@@ -24,7 +24,7 @@ use crate::{
         SpreadLayout,
     },
 };
-use ink_abi::layout2::{
+use ink_metadata::layout2::{
     ArrayLayout,
     CellLayout,
     Discriminant,

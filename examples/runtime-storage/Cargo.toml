@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 ink_primitives = { version = "2.1.0", path = "../../primitives", default-features = false }
 ink_prelude = { version = "2.1.0", path = "../../prelude", default-features = false }
-ink_abi = { version = "2.1.0", path = "../../abi", default-features = false, features = ["derive"], optional = true }
+ink_metadata = { version = "2.1.0", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
 ink_core = { version = "2.1.0", path = "../../core", default-features = false }
 ink_lang = { version = "2.1.0", path = "../../lang", default-features = false }
 
@@ -23,8 +23,8 @@ crate-type = ["cdylib"]
 default = ["std"]
 std = [
     "ink_primitives/std",
-    "ink_abi",
-    "ink_abi/std",
+    "ink_metadata",
+    "ink_metadata/std",
     "ink_core/std",
     "ink_lang/std",
     "scale/std",

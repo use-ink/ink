@@ -209,7 +209,7 @@ impl<V> LazyIndexMap<V> {
 #[cfg(feature = "std")]
 const _: () = {
     use crate::storage2::traits::StorageLayout;
-    use ink_abi::layout2::{
+    use ink_metadata::layout2::{
         ArrayLayout,
         CellLayout,
         Layout,
