@@ -344,4 +344,9 @@ impl ItemImpl {
     pub fn iter_constructors(&self) -> IterConstructors {
         IterConstructors::new(self)
     }
+
+    /// Returns a slice over the shared references of the items of the impl.
+    pub fn items(&self) -> &[ir::ImplItem] {
+        &self.items
+    }
 }
