@@ -121,21 +121,33 @@ impl ItemImpl {
     ///
     /// - The ink! implementation block has been annotatated as in:
     ///
-    /// ```rust, no_compile
+    /// ```
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
     /// #[ink(impl)]
     /// impl MyStorage {
-    ///     fn my_function(&self) { /* ... */ }
+    ///     fn my_function(&self) {
+    ///         /* inherent method implementation */
+    ///         unimplemented!()
+    ///     }
     /// }
+    /// # }).unwrap();
     /// ```
     ///
     /// - Or if any of the ink! implementation block methods do have ink!
     ///   specific annotations:
     ///
-    /// ```rust, no_compile
+    /// ```
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
     /// impl MyStorage {
     ///     #[ink(constructor)]
-    ///     fn my_constructor() -> Self { /* ... */ }
+    ///     pub fn my_constructor() -> Self {
+    ///         /* constructor implementation */
+    ///         unimplemented!()
+    ///     }
     /// }
+    /// # }).unwrap();
     /// ```
     ///
     /// The same rules apply to ink! trait implementation blocks.
