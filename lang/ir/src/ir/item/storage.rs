@@ -28,12 +28,15 @@ use syn::spanned::Spanned as _;
 ///
 /// # Example
 ///
-/// ```no_compile
+/// ```rust
+/// # use core::convert::TryFrom;
+/// # let event = <ink_lang_ir::Storage as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
 /// #[ink(storage)]
 /// pub struct MyStorage {
 ///     my_value: bool,
 //      counter: u32,
 /// }
+/// # }).unwrap();
 /// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Storage {
