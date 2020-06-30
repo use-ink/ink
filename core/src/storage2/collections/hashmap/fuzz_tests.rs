@@ -38,16 +38,16 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
             // On even numbers we insert
             for key in x..x + inserts_each {
                 let val = key * 10;
-                if let None = map.insert(key, val) {
+                if map.insert(key, val).is_none() {
                     assert_eq!(map.get(&key), Some(&val));
                     cnt_inserts += 1;
                 }
                 assert_eq!(map.len(), cnt_inserts);
             }
-            if let None = previous_even_x {
+            if previous_even_x.is_none() {
                 previous_even_x = Some(x);
             }
-        } else if x % 2 == 1 && previous_even_x.is_some() {
+        } else if previous_even_x.is_some() {
             // If it's an odd number and we inserted in a previous run we assert
             // that the last insert worked correctly and remove the elements again.
             //
