@@ -48,6 +48,8 @@ scale-info = { version = "0.2", default-features = false, features = ["derive"],
 criterion = { version = "0.3", optional = true }
 
 [dev-dependencies]
+quickcheck = "0.9"
+quickcheck_macros = "0.8"
 itertools = "0.9"
 
 [features]
@@ -70,6 +72,7 @@ std = [
     "sha3",
     "blake2",
 ]
+ink-fuzz-tests = ["std"]
 
 [[bench]]
 name = "bench_vec"
