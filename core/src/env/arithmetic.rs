@@ -24,6 +24,10 @@ use core::ops::{
     Sub,
     SubAssign,
 };
+use core::convert::{
+    TryFrom,
+    TryInto,
+};
 use num_traits::{
     checked_pow,
     Bounded,
@@ -40,7 +44,7 @@ use num_traits::{
 /// if needed.
 pub trait BaseArithmetic:
     Sized
-    + From<u32>
+    + From<u8>
     + Bounded
     + Ord
     + PartialOrd<Self>
@@ -57,21 +61,19 @@ pub trait BaseArithmetic:
     + DivAssign<Self>
     + CheckedMul
     + Saturating
+    + TryFrom<u16>
+    + TryFrom<u32>
+    + TryFrom<u64>
+    + TryFrom<u128>
+    + TryFrom<usize>
+    + TryInto<u16>
+    + TryInto<u32>
+    + TryInto<u64>
+    + TryInto<u128>
+    + TryInto<usize>
 // Further trait bounds from the original BaseArithmetic trait
 // that we could use to extend ink!'s BaseArithmetic trait.
 //
-// From<u8> +
-// From<u16> +
-// From<u32> +
-// TryFrom<u64> +
-// TryFrom<u128> +
-// TryFrom<usize> +
-// TryInto<u8> +
-// TryInto<u16> +
-// TryInto<u32> +
-// TryInto<u64> +
-// TryInto<u128> +
-// TryInto<usize> +
 // UniqueSaturatedInto<u8> +
 // UniqueSaturatedInto<u16> +
 // UniqueSaturatedInto<u32> +
@@ -92,7 +94,7 @@ pub trait BaseArithmetic:
 
 impl<T> BaseArithmetic for T where
     T: Sized
-        + From<u32>
+        + From<u8>
         + Bounded
         + Ord
         + PartialOrd<Self>
@@ -108,6 +110,16 @@ impl<T> BaseArithmetic for T where
         + DivAssign<Self>
         + CheckedMul
         + Saturating
+        + TryFrom<u16>
+        + TryFrom<u32>
+        + TryFrom<u64>
+        + TryFrom<u128>
+        + TryFrom<usize>
+        + TryInto<u16>
+        + TryInto<u32>
+        + TryInto<u64>
+        + TryInto<u128>
+        + TryInto<usize>
 {
 }
 
