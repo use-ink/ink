@@ -27,15 +27,18 @@ use syn::spanned::Spanned as _;
 ///
 /// # Example
 ///
-/// ```rust, no_compile
+/// ```rust
+/// # use core::convert::TryFrom;
+/// # let event = <ink_lang_ir::Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
 /// #[ink(event)]
-/// struct Transaction {
+/// pub struct Transaction {
 ///     #[ink(topic)]
 ///     from: AccountId,
 ///     #[ink(topic)]
 ///     to: AccountId,
 ///     value: Balance,
 /// }
+/// # }).unwrap();
 /// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Event {
