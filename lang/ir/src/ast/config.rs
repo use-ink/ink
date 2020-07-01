@@ -96,7 +96,7 @@ impl ToTokens for MetaNameValue {
 }
 
 impl MetaNameValue {
-    /// Like Path::parse_mod_style but accepts keywords in the path.
+    /// Like [`syn::Path::parse_mod_style`] but accepts keywords in the path.
     ///
     /// # Note
     ///
