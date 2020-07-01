@@ -191,7 +191,7 @@ impl Callable for Constructor {
         &self.item.sig.ident
     }
 
-    fn selector(&self) -> Option<&ir::Selector> {
+    fn user_provided_selector(&self) -> Option<&ir::Selector> {
         self.selector.as_ref()
     }
 

@@ -46,7 +46,7 @@ pub trait Callable {
     fn ident(&self) -> &Ident;
 
     /// Returns the selector of the ink! callable if any has been manually set.
-    fn selector(&self) -> Option<&ir::Selector>;
+    fn user_provided_selector(&self) -> Option<&ir::Selector>;
 
     /// Returns `true` if the ink! callable is flagged as payable.
     ///
@@ -188,7 +188,7 @@ pub fn compose_selector<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Select
 where
     C: Callable,
 {
-    if let Some(selector) = callable.selector() {
+    if let Some(selector) = callable.user_provided_selector() {
         return *selector
     }
     let callable_ident = callable.ident().to_string().into_bytes();
