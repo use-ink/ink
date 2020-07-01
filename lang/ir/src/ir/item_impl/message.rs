@@ -203,6 +203,10 @@ impl Callable for Message {
     fn inputs(&self) -> InputsIter {
         InputsIter::from(self)
     }
+
+    fn statements(&self) -> &[syn::Stmt] {
+        &self.item.block.stmts
+    }
 }
 
 impl Message {

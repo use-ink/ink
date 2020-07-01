@@ -94,6 +94,10 @@ where
     fn inputs(&self) -> InputsIter {
         <C as Callable>::inputs(&self.callable)
     }
+
+    fn statements(&self) -> &[syn::Stmt] {
+        <C as Callable>::statements(&self.callable)
+    }
 }
 
 impl<'a, C> ::core::ops::Deref for CallableWithSelector<'a, C> {
@@ -127,6 +131,9 @@ pub trait Callable {
 
     /// Returns an iterator yielding all input parameters of the ink! callable.
     fn inputs(&self) -> InputsIter;
+
+    /// Returns a slice over shared references to the statements of the callable.
+    fn statements(&self) -> &[syn::Stmt];
 }
 
 /// Returns the composed selector of the ink! callable.

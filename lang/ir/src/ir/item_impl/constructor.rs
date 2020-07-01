@@ -210,6 +210,10 @@ impl Callable for Constructor {
     fn inputs(&self) -> InputsIter {
         InputsIter::from(self)
     }
+
+    fn statements(&self) -> &[syn::Stmt] {
+        &self.item.block.stmts
+    }
 }
 
 #[cfg(test)]
