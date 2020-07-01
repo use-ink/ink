@@ -156,6 +156,19 @@ where
     pub fn get_mut(lazy: &mut Self) -> &mut T {
         lazy.cell.get_mut().expect("encountered empty storage cell")
     }
+
+    /// Sets the value to `value`, without executing any reads.
+    ///
+    /// # Note
+    ///
+    /// No loads will be executed.
+    ///
+    /// # Panics
+    ///
+    /// If accessing the inner value fails.
+    pub fn set(lazy: &mut Self, new_value: T) {
+        lazy.cell.set(new_value);
+    }
 }
 
 impl<T> From<T> for Lazy<T>

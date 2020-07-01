@@ -20,6 +20,7 @@ use super::{
 use crate::storage2::traits::{
     clear_spread_root_opt,
     pull_spread_root_opt,
+    push_spread_root_opt,
     ExtKeyPtr,
     KeyPtr,
     SpreadLayout,
@@ -307,6 +308,33 @@ where
     pub fn get_mut(&mut self) -> Option<&mut T> {
         self.load_entry_mut().value_mut().into()
     }
+
+    /// Sets the value in this cell to `value`, without executing any reads.
+    ///
+    /// # Note
+    ///
+    /// No loads will be executed.
+    ///
+    /// # Panics
+    ///
+    /// If accessing the inner value fails.
+    pub fn set(&mut self, new_value: T) {
+        // SAFETY: This is critical because we mutably access the entry.
+        let cache = unsafe { &mut *self.cache.get_ptr().as_ptr() };
+        if cache.is_none() {
+            // Write value to storage
+            let key = self
+                .key
+                .expect("key must exist when attempting to set a value");
+            push_spread_root_opt::<T>(Some(&new_value), &key);
+        } else {
+            cache
+                .as_mut()
+                .expect("unpopulated cache entry")
+                .put(Some(new_value));
+        }
+        debug_assert!(cache.is_some());
+    }
 }
 
 #[cfg(test)]
@@ -413,6 +441,26 @@ mod tests {
                 cell_a3.entry(),
                 Some(&Entry::new(None, EntryState::Preserved))
             );
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn set_works() {
+        let mut cell = <LazyCell<i32>>::new(Some(1));
+        cell.set(23);
+        assert_eq!(cell.get(), Some(&23));
+    }
+
+    #[test]
+    fn lazy_set_works() -> env::Result<()> {
+        run_test::<env::DefaultEnvTypes, _>(|_| {
+            let mut cell = <LazyCell<u8>>::lazy(Key::from([0x42; 32]));
+            let value = cell.get();
+            assert_eq!(value, None);
+
+            cell.set(13);
+            assert_eq!(cell.get(), Some(&13));
             Ok(())
         })
     }
