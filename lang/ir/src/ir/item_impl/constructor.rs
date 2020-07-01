@@ -67,7 +67,7 @@ pub struct Constructor {
     ///
     /// # Note
     ///
-    /// This overrides the computed selector, even when using a manual salt
+    /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
     selector: Option<ir::Selector>,
 }
@@ -156,7 +156,7 @@ impl Constructor {
                 match kind {
                     ir::AttributeArgKind::Constructor
                     | ir::AttributeArgKind::Payable
-                    | ir::AttributeArgKind::Salt(_)
+                    | ir::AttributeArgKind::Namespace(_)
                     | ir::AttributeArgKind::Selector(_) => false,
                     _ => false,
                 }

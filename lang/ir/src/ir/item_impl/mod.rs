@@ -74,10 +74,10 @@ pub struct ItemImpl {
     self_ty: Box<syn::Type>,
     brace_token: syn::token::Brace,
     items: Vec<ImplItem>,
-    /// A salt prefix to disambiguate trait implementation blocks with equal
+    /// A namespace to disambiguate trait implementation blocks with equal
     /// names. Generally can be used to change computation of message and
     /// constructor selectors of the implementation block.
-    salt: Option<ir::Salt>,
+    namespace: Option<ir::Namespace>,
 }
 
 impl quote::ToTokens for ItemImpl {
@@ -287,7 +287,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             }
         }
         let (ink_attrs, other_attrs) = ir::partition_attributes(item_impl.attrs)?;
-        let mut salt = None;
+        let mut namespace = None;
         if !ink_attrs.is_empty() {
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
@@ -296,11 +296,11 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             normalized.ensure_no_conflicts(|arg| {
                 match arg.kind() {
                     ir::AttributeArgKind::Implementation
-                    | ir::AttributeArgKind::Salt(_) => false,
+                    | ir::AttributeArgKind::Namespace(_) => false,
                     _ => true,
                 }
             })?;
-            salt = normalized.salt();
+            namespace = normalized.namespace();
         }
         Ok(Self {
             attrs: other_attrs,
@@ -312,7 +312,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             self_ty: item_impl.self_ty,
             brace_token: item_impl.brace_token,
             items: impl_items,
-            salt,
+            namespace,
         })
     }
 }
@@ -330,9 +330,9 @@ impl ItemImpl {
         self.trait_.as_ref().map(|(_, path, _)| path)
     }
 
-    /// Returns the salt of the implementation block if any has been provided.
-    pub fn salt(&self) -> Option<&ir::Salt> {
-        self.salt.as_ref()
+    /// Returns the namespace of the implementation block if any has been provided.
+    pub fn namespace(&self) -> Option<&ir::Namespace> {
+        self.namespace.as_ref()
     }
 
     /// Returns an iterator yielding the ink! messages of the implementation block.

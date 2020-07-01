@@ -91,7 +91,7 @@ pub struct Message {
     ///
     /// # Note
     ///
-    /// This overrides the computed selector, even when using a manual salt
+    /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
     selector: Option<ir::Selector>,
 }
@@ -150,7 +150,7 @@ impl Message {
                 match kind {
                     ir::AttributeArgKind::Message
                     | ir::AttributeArgKind::Payable
-                    | ir::AttributeArgKind::Salt(_)
+                    | ir::AttributeArgKind::Namespace(_)
                     | ir::AttributeArgKind::Selector(_) => false,
                     _ => true,
                 }

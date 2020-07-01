@@ -210,11 +210,11 @@ impl InkAttribute {
         self.args.iter()
     }
 
-    /// Returns the salt of the ink! attribute if any.
-    pub fn salt(&self) -> Option<ir::Salt> {
+    /// Returns the namespace of the ink! attribute if any.
+    pub fn namespace(&self) -> Option<ir::Namespace> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArgKind::Salt(salt) = arg.kind() {
-                return Some(salt.clone())
+            if let ir::AttributeArgKind::Namespace(namespace) = arg.kind() {
+                return Some(namespace.clone())
             }
             None
         })
@@ -293,11 +293,11 @@ pub enum AttributeArgKind {
     /// Applied on ink! constructors or messages to manually control their
     /// selectors.
     Selector(Selector),
-    /// `#[ink(salt = "my_salt_message")]`
+    /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
     /// implementation blocks with equal names.
-    Salt(Salt),
+    Namespace(Namespace),
     /// `#[ink(impl)]`
     ///
     /// This attribute supports a niche case that is rarely needed.
@@ -322,27 +322,27 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => write!(f, "selector = {:?}", selector.as_bytes()),
-            Self::Salt(salt) => write!(f, "salt = {:?}", salt.as_bytes()),
+            Self::Namespace(namespace) => write!(f, "namespace = {:?}", namespace.as_bytes()),
             Self::Implementation => write!(f, "impl"),
         }
     }
 }
 
-/// An ink! salt applicable to a trait implementation block.
+/// An ink! namespace applicable to a trait implementation block.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Salt {
+pub struct Namespace {
     /// The underlying bytes.
     bytes: Vec<u8>,
 }
 
-impl From<Vec<u8>> for Salt {
+impl From<Vec<u8>> for Namespace {
     fn from(bytes: Vec<u8>) -> Self {
         Self { bytes }
     }
 }
 
-impl Salt {
-    /// Returns the salt as bytes.
+impl Namespace {
+    /// Returns the namespace as bytes.
     pub fn as_bytes(&self) -> &[u8] {
         &self.bytes
     }
@@ -618,12 +618,12 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 })
                             }
                         }
-                        if name_value.path.is_ident("salt") {
+                        if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let bytes = lit_str.value().into_bytes();
                                 return Ok(AttributeArg {
                                     ast: meta,
-                                    kind: AttributeArgKind::Salt(Salt::from(bytes)),
+                                    kind: AttributeArgKind::Namespace(Namespace::from(bytes)),
                                 })
                             }
                         }
@@ -839,13 +839,13 @@ mod tests {
     }
 
     #[test]
-    fn salt_works() {
+    fn namespace_works() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(salt = "take my salt!")]
+                #[ink(namespace = "my_namespace")]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Salt(
-                Salt::from("take my salt!".to_string().into_bytes()),
+            Ok(test::Attribute::Ink(vec![AttributeArgKind::Namespace(
+                Namespace::from("my_namespace".to_string().into_bytes()),
             )])),
         );
     }
@@ -854,12 +854,12 @@ mod tests {
     fn compound_mixed_works() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(message, salt = "take my salt!")]
+                #[ink(message, namespace = "my_namespace")]
             },
             Ok(test::Attribute::Ink(vec![
                 AttributeArgKind::Message,
-                AttributeArgKind::Salt(Salt::from(
-                    "take my salt!".to_string().into_bytes(),
+                AttributeArgKind::Namespace(Namespace::from(
+                    "my_namespace".to_string().into_bytes(),
                 )),
             ])),
         )

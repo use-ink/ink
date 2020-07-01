@@ -237,10 +237,10 @@ fn try_from_works() {
 }
 
 #[test]
-fn salt_works() {
+fn namespace_works() {
     let impl_block: ir::ItemImpl =
         <ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-            #[ink(salt = "this is my salt")]
+            #[ink(namespace = "my_namespace")]
             impl MyStorage {
                 #[ink(message)]
                 pub fn my_message(&self) {}
@@ -248,9 +248,9 @@ fn salt_works() {
         })
         .unwrap();
     assert_eq!(
-        impl_block.salt,
-        Some(ir::Salt::from(
-            "this is my salt".to_string().as_bytes().to_vec()
+        impl_block.namespace,
+        Some(ir::Namespace::from(
+            "my_namespace".to_string().as_bytes().to_vec()
         ))
     )
 }

@@ -51,7 +51,7 @@ pub use self::ir::{
     IterMessages,
     Message,
     Receiver,
-    Salt,
+    Namespace,
     Selector,
     Storage,
     Visibility,

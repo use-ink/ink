@@ -35,7 +35,7 @@ use self::attrs::{
     InkAttribute,
 };
 pub use self::{
-    attrs::Salt,
+    attrs::Namespace,
     config::Config,
     contract::Contract,
     item::{

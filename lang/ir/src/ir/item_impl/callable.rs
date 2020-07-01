@@ -72,7 +72,7 @@ pub trait Callable {
 /// - the callable's identifier `i`
 /// - the optionally set callable's selector `s`
 /// - the impl blocks trait path in case it implements a trait, `P`
-/// - the impl blocks optional user provided salt `S`
+/// - the impl blocks optional user provided namespace `S`
 ///
 /// Then the selector is composed in the following way:
 ///
@@ -151,12 +151,12 @@ pub trait Callable {
 /// BLAKE2("::my_full::long_path::MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
 ///
-/// ## Using a salt
+/// ## Using a namespace
 ///
 /// Given
 ///
 /// ```no_compile
-/// #[ink(salt = "my_salt")]
+/// #[ink(namespace = "my_namespace")]
 /// impl MyTrait for MyStorage {
 ///     #[ink(message)]
 ///     fn my_message(&self) {}
@@ -165,7 +165,7 @@ pub trait Callable {
 ///
 /// ... then the selector of `my_message` is composed such as:
 /// ```no_compile
-/// BLAKE2("my_salt::MyTrait::my_message".to_string().as_bytes())[0..4]
+/// BLAKE2("my_namespace::MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
 ///
 /// ## Note
@@ -178,12 +178,12 @@ pub trait Callable {
 ///
 /// - The recommandation by the ink! team is to use the full-path approach
 /// wherever possible; OR import the trait and use only its identifier with
-/// an additional salt if required to disambiguate selectors.
+/// an additional namespace if required to disambiguate selectors.
 /// - Try not to intermix the above recommendations.
 /// - Avoid directly setting the selector of an ink! message or constuctor.
 ///   Only do this if nothing else helps and you need a very specific selector,
 ///   e.g. in case of backwards compatibility.
-/// - Do not use the salt unless required to disambiguate.
+/// - Do not use the namespace unless required to disambiguate.
 pub fn compose_selector<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Selector
 where
     C: Callable,
@@ -192,18 +192,18 @@ where
         return *selector
     }
     let callable_ident = callable.ident().to_string().into_bytes();
-    let salt_bytes = item_impl
-        .salt()
-        .map(|salt| salt.as_bytes().to_vec())
+    let namespace_bytes = item_impl
+        .namespace()
+        .map(|namespace| namespace.as_bytes().to_vec())
         .unwrap_or_default();
     let separator = &b"::"[..];
     let joined = match item_impl.trait_path() {
         None => {
             // Inherent implementation block:
-            if salt_bytes.is_empty() {
+            if namespace_bytes.is_empty() {
                 callable_ident
             } else {
-                [salt_bytes, callable_ident].join(separator)
+                [namespace_bytes, callable_ident].join(separator)
             }
         }
         Some(path) => {
@@ -221,10 +221,10 @@ where
                     .to_string()
                     .into_bytes()
             };
-            if salt_bytes.is_empty() {
+            if namespace_bytes.is_empty() {
                 [path_bytes, callable_ident].join(separator)
             } else {
-                [salt_bytes, path_bytes, callable_ident].join(separator)
+                [namespace_bytes, path_bytes, callable_ident].join(separator)
             }
         }
     };
@@ -459,14 +459,14 @@ mod tests {
         );
         assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
-                #[ink(impl, salt = "my_salt")]
+                #[ink(impl, namespace = "my_namespace")]
                 impl MyTrait for MyStorage {}
             },
             syn::parse_quote! {
                 #[ink(message)]
                 fn my_message(&self) {}
             },
-            b"my_salt::MyTrait::my_message".to_vec(),
+            b"my_namespace::MyTrait::my_message".to_vec(),
         );
         assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
