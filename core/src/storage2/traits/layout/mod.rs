@@ -25,7 +25,7 @@ use crate::{
     },
     storage2::traits::KeyPtr,
 };
-use ink_abi::layout2::{
+use ink_metadata::layout2::{
     CryptoHasher,
     Layout,
 };

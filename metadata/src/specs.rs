@@ -757,7 +757,7 @@ impl ReturnTypeSpec {
     /// # Examples
     ///
     /// ```no_run
-    /// # use ink_abi::{TypeSpec, ReturnTypeSpec};
+    /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
     /// ReturnTypeSpec::new(None); // no return type;
     /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
     /// ```
