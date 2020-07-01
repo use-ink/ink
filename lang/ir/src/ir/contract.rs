@@ -81,7 +81,7 @@ impl Contract {
     /// whole ink! smart contract, e.g.:
     ///
     /// ```no_compile
-    /// #[ink::contract(version = "0.1.0")]
+    /// #[ink::contract]
     /// mod my_contract {
     ///     // ... definitions
     /// }
@@ -97,8 +97,8 @@ impl Contract {
     /// # Note
     ///
     /// The configuration is given via the `#[ink::contract(config))]` attribute
-    /// macro annotation itself within the `(config)` part. The only mandatory
-    /// field there is `version`. Other fields include but are not limited to:
+    /// macro annotation itself within the `(config)` part. The available fields
+    /// are the following:
     ///
     /// - `types`: To specify `EnvTypes` different from the default environment
     ///            types.
@@ -110,6 +110,9 @@ impl Contract {
     ///                    if it was a dependency of another smart contract.
     ///                    This configuration is mainly needed for testing and
     ///                    the default is `false`.
+    ///
+    /// Note that we might add more configuration fields in the future if
+    /// necessary.
     pub fn config(&self) -> &ir::Config {
         &self.config
     }
