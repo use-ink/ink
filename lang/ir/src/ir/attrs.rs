@@ -512,7 +512,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                     .into_iter()
                     .map(<AttributeArg as TryFrom<_>>::try_from)
                     .collect::<Result<Vec<_>, syn::Error>>()?;
-                Self::ensure_no_duplicate_flags(&args)?;
+                Self::ensure_no_duplicate_args(&args)?;
                 if args.is_empty() {
                     return Err(format_err_spanned!(
                         attr,
@@ -527,34 +527,6 @@ impl TryFrom<syn::Attribute> for InkAttribute {
 }
 
 impl InkAttribute {
-    /// Returns `Ok` if the given iterator yields no duplicate attribute flags.
-    ///
-    /// # Errors
-    ///
-    /// If the given iterator yields duplicate attribute flags.
-    fn ensure_no_duplicate_flags<'a, I>(args: I) -> Result<(), syn::Error>
-    where
-        I: IntoIterator<Item = &'a AttributeArg>,
-    {
-        use crate::error::ExtError as _;
-        use std::collections::HashSet;
-        let mut seen: HashSet<&AttributeArg> = HashSet::new();
-        for arg in args.into_iter() {
-            if let Some(seen) = seen.get(arg) {
-                return Err(format_err!(
-                    arg.span(),
-                    "encountered duplicate ink! attribute arguments"
-                )
-                .into_combine(format_err!(
-                    seen.span(),
-                    "first equal ink! attribute argument here"
-                )))
-            }
-            seen.insert(arg);
-        }
-        Ok(())
-    }
-
     /// Ensures that there are no conflicting ink! attribute arguments in `self`.
     ///
     /// The given `is_conflicting` describes for every ink! attribute argument
