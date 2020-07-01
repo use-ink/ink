@@ -34,23 +34,35 @@ use syn::{
 ///
 /// # Example
 ///
-/// ```rust, no_compile
-/// #[ink::contract] // <-- this line belongs to the ink! configuration!
+/// ```
+/// // #[ink::contract] <-- this line belongs to the ink! configuration!
+/// # use core::convert::TryFrom;
+/// # use ink_lang_ir as ir;
+/// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
 /// mod my_contract {
 ///     #[ink(storage)]
-///     struct MyStorage { ... }
+///     pub struct MyStorage {
+///         /* storage fields */
+///     }
 ///
 ///     #[ink(event)]
-///     struct MyEvent { ... }
+///     pub struct MyEvent {
+///         /* event fields */
+///     }
 ///
 ///     impl MyStorage {
 ///         #[ink(constructor)]
-///         pub fn my_constructor() -> Self { ... }
+///         pub fn my_constructor() -> Self {
+///             /* constructor initialization */
+///         }
 ///
 ///         #[ink(message)]
-///         pub fn my_message(&self) { ... }
+///         pub fn my_message(&self) {
+///             /* message statements */
+///         }
 ///     }
 /// }
+/// # }).unwrap();
 /// ```
 ///
 /// # Note
@@ -62,8 +74,10 @@ use syn::{
 ///
 /// Structurally the ink! `Module` mirrors an inline Rust module, for example:
 ///
-/// ```rust, no_compile
-/// mod rust_module { ... }
+/// ```
+/// mod rust_module {
+///     /* some Rust item definitions */
+/// }
 /// ```
 ///
 /// If the capabilities of an inline Rust module change we have to adjust for that.
@@ -264,28 +278,64 @@ impl ItemMod {
     /// directly defined for the contract's storage struct if it includes at
     /// least one `#[ink(message)]` or `#[ink(constructor)]` annotation, e.g.:
     ///
-    /// ```rust, no_compile
-    /// #[ink(storage)]
-    /// struct MyStorage { ... }
-    ///
+    /// ```
+    /// # use core::convert::TryFrom;
+    /// # use ink_lang_ir as ir;
+    /// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+    /// # mod my_module {
+    /// # #[ink(storage)]
+    /// # pub struct MyStorage {
+    /// #     /* storage fields */
+    /// # }
+    /// #
     /// impl MyStorage {
-    ///    #[ink(message)]
-    ///    fn my_message(&self) { ... }
+    /// #   #[ink(constructor)]
+    /// #   pub fn my_constructor() -> Self {
+    /// #       /* constructor implementation */
+    /// #   }
+    /// #
+    ///     #[ink(message)]
+    ///     pub fn my_message(&self) {
+    ///         /* message implementation */
+    ///     }
     /// }
+    /// # }}).unwrap();
     /// ```
     ///
     /// Also an implementation block can be defined as a trait implementation
-    /// for the ink! storage struct using the `#[ink(extern)]` annotation, e.g.:
+    /// for the ink! storage struct using the `#[ink(impl)]` annotation even
+    /// if none of its interior items have any ink! specific attributes on them,
+    /// e.g.:
     ///
-    /// ```rust, no_compile
-    /// #[ink(storage)]
-    /// struct MyStorage { ... }
-    ///
-    /// #[ink(extern)]
-    /// impl Default for MyStorage {
-    ///    #[ink(constructor)]
-    ///    fn default() { ... }
+    /// ```
+    /// # use core::convert::TryFrom;
+    /// # use ink_lang_ir as ir;
+    /// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+    /// # mod my_module {
+    /// # #[ink(storage)]
+    /// # pub struct MyStorage {
+    /// #     /* storage fields */
+    /// # }
+    /// #
+    /// #[ink(impl)]
+    /// impl MyStorage {
+    ///     fn my_method(&self) -> i32 {
+    ///         /* method implementation */
+    ///     }
     /// }
+    /// #
+    /// # impl MyStorage {
+    /// #   #[ink(constructor)]
+    /// #   pub fn my_constructor() -> Self {
+    /// #       /* constructor implementation */
+    /// #   }
+    /// #
+    /// #   #[ink(message)]
+    /// #   pub fn my_message(&self) {
+    /// #       /* message implementation */
+    /// #   }
+    /// # }
+    /// # }}).unwrap();
     /// ```
     pub fn impls(&self) -> IterItemImpls {
         IterItemImpls::new(self)
