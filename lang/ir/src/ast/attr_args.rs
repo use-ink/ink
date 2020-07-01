@@ -29,8 +29,8 @@ use syn::{
 
 /// The attribute arguments for the configuration of an ink! smart contract.
 ///
-/// These are the segments `version = "0.1.0"` and `env_types = DefaultEnvTypes`
-/// in `#[ink::contract(version = "0.1.0", env_types = DefaultEnvTypes)]`.
+/// These are the segments `env_types = ::my::env_types::EnvTypes` and `compile_as_dependency = true`
+/// in `#[ink::contract(env_types = ::my::env_types::EnvTypes, compile_as_dependency = true`.
 #[derive(Debug, PartialEq, Eq)]
 pub struct AttributeArgs {
     args: Punctuated<MetaNameValue, Token![,]>,
