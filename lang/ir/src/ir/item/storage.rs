@@ -59,7 +59,9 @@ impl Storage {
     /// # Errors
     ///
     /// If the first found ink! attribute is malformed.
-    pub(super) fn is_ink_storage(item_struct: &syn::ItemStruct) -> Result<bool, syn::Error> {
+    pub(super) fn is_ink_storage(
+        item_struct: &syn::ItemStruct,
+    ) -> Result<bool, syn::Error> {
         if !ir::contains_ink_attributes(&item_struct.attrs) {
             return Ok(false)
         }

@@ -322,7 +322,9 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => write!(f, "selector = {:?}", selector.as_bytes()),
-            Self::Namespace(namespace) => write!(f, "namespace = {:?}", namespace.as_bytes()),
+            Self::Namespace(namespace) => {
+                write!(f, "namespace = {:?}", namespace.as_bytes())
+            }
             Self::Implementation => write!(f, "impl"),
         }
     }
@@ -623,7 +625,9 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 let bytes = lit_str.value().into_bytes();
                                 return Ok(AttributeArg {
                                     ast: meta,
-                                    kind: AttributeArgKind::Namespace(Namespace::from(bytes)),
+                                    kind: AttributeArgKind::Namespace(Namespace::from(
+                                        bytes,
+                                    )),
                                 })
                             }
                         }
