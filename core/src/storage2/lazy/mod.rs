@@ -147,7 +147,7 @@ where
     ///
     /// # Note
     ///
-    /// This loads the value from the contract storage if this did not happed before.
+    /// This loads the value from the contract storage if this did not happen before.
     ///
     /// # Panics
     ///
