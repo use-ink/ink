@@ -38,6 +38,7 @@ pub use self::{
         Callable,
         Visibility,
         InputsIter,
+        CallableWithSelector,
     },
     constructor::Constructor,
     impl_item::ImplItem,

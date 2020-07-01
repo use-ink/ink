@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    CallableWithSelector,
     ImplItem,
     ItemImpl,
 };
@@ -21,26 +22,22 @@ use crate::ir;
 /// Iterator yielding all ink! constructor within a source ink!
 /// [`ir::ItemImpl`](`crate::ir::ItemImpl`).
 pub struct IterConstructors<'a> {
+    item_impl: &'a ir::ItemImpl,
     impl_items: core::slice::Iter<'a, ImplItem>,
-}
-
-impl<'a> From<core::slice::Iter<'a, ImplItem>> for IterConstructors<'a> {
-    fn from(iter: core::slice::Iter<'a, ImplItem>) -> Self {
-        Self { impl_items: iter }
-    }
 }
 
 impl<'a> IterConstructors<'a> {
     /// Creates a new ink! messages iterator.
-    pub(super) fn new(impl_block: &'a ItemImpl) -> Self {
+    pub(super) fn new(item_impl: &'a ItemImpl) -> Self {
         Self {
-            impl_items: impl_block.items.iter(),
+            item_impl,
+            impl_items: item_impl.items.iter(),
         }
     }
 }
 
 impl<'a> Iterator for IterConstructors<'a> {
-    type Item = &'a ir::Constructor;
+    type Item = CallableWithSelector<'a, ir::Constructor>;
 
     fn next(&mut self) -> Option<Self::Item> {
         'outer: loop {
@@ -48,7 +45,10 @@ impl<'a> Iterator for IterConstructors<'a> {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(constructor) = impl_item.filter_map_constructor() {
-                        return Some(constructor)
+                        return Some(CallableWithSelector::new(
+                            self.item_impl,
+                            constructor,
+                        ))
                     }
                     continue 'outer
                 }
@@ -60,26 +60,22 @@ impl<'a> Iterator for IterConstructors<'a> {
 /// Iterator yielding all ink! messages within a source ink!
 /// [`ir::ItemImpl`](`crate::ir::ItemImpl`).
 pub struct IterMessages<'a> {
+    item_impl: &'a ir::ItemImpl,
     impl_items: core::slice::Iter<'a, ImplItem>,
-}
-
-impl<'a> From<core::slice::Iter<'a, ImplItem>> for IterMessages<'a> {
-    fn from(iter: core::slice::Iter<'a, ImplItem>) -> Self {
-        Self { impl_items: iter }
-    }
 }
 
 impl<'a> IterMessages<'a> {
     /// Creates a new ink! messages iterator.
-    pub(super) fn new(impl_block: &'a ItemImpl) -> Self {
+    pub(super) fn new(item_impl: &'a ItemImpl) -> Self {
         Self {
-            impl_items: impl_block.items.iter(),
+            item_impl,
+            impl_items: item_impl.items.iter(),
         }
     }
 }
 
 impl<'a> Iterator for IterMessages<'a> {
-    type Item = &'a ir::Message;
+    type Item = CallableWithSelector<'a, ir::Message>;
 
     fn next(&mut self) -> Option<Self::Item> {
         'outer: loop {
@@ -87,7 +83,7 @@ impl<'a> Iterator for IterMessages<'a> {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(message) = impl_item.filter_map_message() {
-                        return Some(message)
+                        return Some(CallableWithSelector::new(self.item_impl, message))
                     }
                     continue 'outer
                 }

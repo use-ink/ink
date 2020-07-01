@@ -46,6 +46,7 @@ pub use self::{
     },
     item_impl::{
         Callable,
+        CallableWithSelector,
         Constructor,
         ImplItem,
         InputsIter,

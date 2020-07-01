@@ -37,6 +37,68 @@ impl fmt::Display for CallableKind {
     }
 }
 
+/// Wrapper for a callable that adds its composed selector.
+pub struct CallableWithSelector<'a, C> {
+    /// The composed selector computed by the associated implementation block
+    /// and the given callable.
+    composed_selector: ir::Selector,
+    /// The actual callable.
+    callable: &'a C,
+}
+
+impl<'a, C> CallableWithSelector<'a, C>
+where
+    C: Callable,
+{
+    /// Creates a new wrapper around the given callable and parent impl block.
+    pub(super) fn new(item_impl: &ir::ItemImpl, callable: &'a C) -> Self {
+        Self {
+            composed_selector: compose_selector(item_impl, callable),
+            callable,
+        }
+    }
+}
+
+impl<'a, C> CallableWithSelector<'a, C> {
+    /// Returns the composed selector of the ink! callable the the impl block.
+    pub fn composed_selector(&self) -> ir::Selector {
+        self.composed_selector
+    }
+}
+
+impl<'a, C> Callable for CallableWithSelector<'a, C>
+where
+    C: Callable,
+{
+    fn ident(&self) -> &Ident {
+        <C as Callable>::ident(&self.callable)
+    }
+
+    fn user_provided_selector(&self) -> Option<&ir::Selector> {
+        <C as Callable>::user_provided_selector(&self.callable)
+    }
+
+    fn is_payable(&self) -> bool {
+        <C as Callable>::is_payable(&self.callable)
+    }
+
+    fn visibility(&self) -> Visibility {
+        <C as Callable>::visibility(&self.callable)
+    }
+
+    fn inputs(&self) -> InputsIter {
+        <C as Callable>::inputs(&self.callable)
+    }
+}
+
+impl<'a, C> ::core::ops::Deref for CallableWithSelector<'a, C> {
+    type Target = C;
+
+    fn deref(&self) -> &Self::Target {
+        &self.callable
+    }
+}
+
 /// An ink! callable.
 ///
 /// This is either an ink! message or an ink! constructor.

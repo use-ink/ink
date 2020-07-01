@@ -35,6 +35,7 @@ mod ir;
 
 pub use self::ir::{
     Callable,
+    CallableWithSelector,
     Config,
     Constructor,
     Contract,
@@ -50,8 +51,8 @@ pub use self::ir::{
     IterItemImpls,
     IterMessages,
     Message,
-    Receiver,
     Namespace,
+    Receiver,
     Selector,
     Storage,
     Visibility,
