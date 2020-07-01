@@ -414,7 +414,7 @@ where
 
 /// Sanitizes the given attributes.
 ///
-/// This paritions the attributes into ink! and non-ink! attributes.
+/// This partitions the attributes into ink! and non-ink! attributes.
 /// All ink! attributes are normalized, they are checked to have a valid first
 /// ink! attribute argument and no conflicts given the conflict predicate.
 ///
