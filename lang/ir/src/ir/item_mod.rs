@@ -19,6 +19,7 @@ use proc_macro2::{
     Span,
 };
 use quote::TokenStreamExt as _;
+use std::collections::HashMap;
 use syn::{
     spanned::Spanned,
     token,
@@ -81,6 +82,7 @@ use syn::{
 /// ```
 ///
 /// If the capabilities of an inline Rust module change we have to adjust for that.
+#[derive(Debug, PartialEq, Eq)]
 pub struct ItemMod {
     attrs: Vec<syn::Attribute>,
     vis: syn::Visibility,
@@ -159,6 +161,81 @@ impl ItemMod {
         }
         Ok(())
     }
+
+    /// Ensures that no ink! message or constructor selectors are overlapping.
+    ///
+    /// # Note
+    ///
+    /// We differentiate between ink! message and ink! constructor selectors
+    /// since they are dispatched independently from each other and thus are
+    /// allowed to have overlapping selectors.
+    fn ensure_no_overlapping_selectors(items: &[ir::Item]) -> Result<(), syn::Error> {
+        let mut messages = <HashMap<ir::Selector, &ir::Message>>::new();
+        let mut constructors = <HashMap<ir::Selector, &ir::Constructor>>::new();
+        for item_impl in items
+            .iter()
+            .filter_map(ir::Item::map_ink_item)
+            .filter_map(ir::InkItem::filter_map_impl_block)
+        {
+            use std::collections::hash_map::Entry;
+            /// Kind is either `"message"` or `"constructor"`.
+            fn compose_error(
+                first_span: Span,
+                second_span: Span,
+                selector: ir::Selector,
+                kind: &str,
+            ) -> syn::Error {
+                use crate::error::ExtError as _;
+                format_err!(
+                    second_span,
+                    "encountered ink! {}s with overlapping selectors (= {:X?})\n\
+                     hint: use #[ink(selector = \"0x...\")] on the callable or \
+                     #[ink(namespace = \"...\")] on the implementation block to \
+                     disambiguate overlapping selectors.",
+                    kind,
+                    selector.as_bytes(),
+                )
+                .into_combine(format_err!(
+                    first_span,
+                    "first ink! {} with overlapping selector here",
+                    kind,
+                ))
+            }
+            for message in item_impl.iter_messages() {
+                let selector = message.composed_selector();
+                match messages.entry(selector) {
+                    Entry::Occupied(overlap) => {
+                        return Err(compose_error(
+                            overlap.get().span(),
+                            message.item().span(),
+                            selector,
+                            "message",
+                        ))
+                    }
+                    Entry::Vacant(vacant) => {
+                        vacant.insert(message.item());
+                    }
+                }
+            }
+            for constructor in item_impl.iter_constructors() {
+                let selector = constructor.composed_selector();
+                match constructors.entry(selector) {
+                    Entry::Occupied(overlap) => {
+                        return Err(compose_error(
+                            overlap.get().span(),
+                            constructor.item().span(),
+                            selector,
+                            "constructor",
+                        ))
+                    }
+                    Entry::Vacant(vacant) => {
+                        vacant.insert(constructor.item());
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 impl TryFrom<syn::ItemMod> for ItemMod {
@@ -196,6 +273,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         Self::ensure_storage_struct_quantity(module_span, &items)?;
         Self::ensure_contains_message(module_span, &items)?;
         Self::ensure_contains_constructor(module_span, &items)?;
+        Self::ensure_no_overlapping_selectors(&items)?;
         Ok(Self {
             attrs: other_attrs,
             vis: module.vis,
@@ -442,5 +520,97 @@ impl<'a> Iterator for IterItemImpls<'a> {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn assert_fail(item_mod: syn::ItemMod, expected_err: &str) {
+        assert_eq!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item_mod)
+                .map_err(|err| err.to_string()),
+            Err(expected_err.to_string()),
+        );
+    }
+
+    #[test]
+    fn overlapping_messages_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = "0xDEADBEEF")]
+                        pub fn my_message_1(&self) {}
+                    }
+
+                    impl MyStorage {
+                        #[ink(message, selector = "0xDEADBEEF")]
+                        pub fn my_message_2(&self) {}
+                    }
+                }
+            },
+            "encountered ink! messages with overlapping selectors (= [DE, AD, BE, EF])\n\
+                hint: use #[ink(selector = \"0x...\")] on the callable or \
+                #[ink(namespace = \"...\")] on the implementation block to \
+                disambiguate overlapping selectors.",
+        );
+    }
+
+    #[test]
+    fn overlapping_constructors_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor, selector = "0xDEADBEEF")]
+                        pub fn my_constructor_1() -> Self {}
+
+                        #[ink(message)]
+                        pub fn my_message_1(&self) {}
+                    }
+
+                    impl MyStorage {
+                        #[ink(constructor, selector = "0xDEADBEEF")]
+                        pub fn my_constructor_2() -> Self {}
+                    }
+                }
+            },
+            "encountered ink! constructors with overlapping selectors (= [DE, AD, BE, EF])\n\
+                hint: use #[ink(selector = \"0x...\")] on the callable or \
+                #[ink(namespace = \"...\")] on the implementation block to \
+                disambiguate overlapping selectors.",
+        );
+    }
+
+    #[test]
+    fn allow_overlap_between_messages_and_constructors() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor, selector = "0xDEADBEEF")]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = "0xDEADBEEF")]
+                        pub fn my_message(&self) {}
+                    }
+                }
+            })
+            .is_ok()
+        )
     }
 }
