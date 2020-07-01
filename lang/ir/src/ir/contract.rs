@@ -27,10 +27,10 @@ use proc_macro2::TokenStream as TokenStream2;
 ///
 /// # Example
 ///
-/// ```rust, no_compile
+/// ```no_compile
 /// #[ink::contract(/* optional ink! configurations */)]
 /// mod my_contract {
-///     // ... ink! definitions
+///     /* ink! and Rust definitions */
 /// }
 /// ```
 pub struct Contract {
