@@ -1,0 +1,106 @@
+// Copyright 2019-2020 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use criterion::{
+    black_box,
+    criterion_group,
+    criterion_main,
+    BenchmarkId,
+    Criterion,
+};
+use ink_core::{
+    env,
+    storage2::{
+        lazy::LazyCell,
+        traits::{
+            KeyPtr,
+            SpreadLayout,
+        },
+    },
+};
+use ink_primitives::Key;
+
+criterion_group!(populated_cache, bench_set_populated_cache);
+criterion_group!(empty_cache, bench_set_empty_cache,);
+criterion_main!(populated_cache, empty_cache);
+
+/// For the populated cache benchmarks we use a loop of 100 ops, since
+/// for only one op the criterion benchmark might just show 0 ps and thus
+/// make it hard to estimate the difference between `deref_mut` and `set`.
+mod populated_cache {
+    use super::*;
+
+    pub fn set() {
+        let mut cell = <LazyCell<i32>>::new(Some(1));
+        for i in 0..100 {
+            black_box(cell.set(i));
+        }
+    }
+
+    pub fn deref_mut() {
+        let mut cell = <LazyCell<i32>>::new(Some(1));
+        for i in 0..100 {
+            let v = black_box(cell.get_mut().unwrap());
+            black_box(*v = i);
+        }
+    }
+}
+
+fn bench_set_populated_cache(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Compare: `set` and `deref_mut` (populated cache)");
+    group.bench_function(BenchmarkId::new("set", 0), |b| {
+        b.iter(|| populated_cache::set())
+    });
+    group.bench_function(BenchmarkId::new("deref_mut", 0), |b| {
+        b.iter(|| populated_cache::deref_mut())
+    });
+    group.finish();
+}
+
+/// Pushes a value to contract storage and creates a `LazyCell` pointing to it.
+fn push_storage_cell(value: i32) -> LazyCell<i32> {
+    let root_key = Key::from([0x00; 32]);
+    SpreadLayout::push_spread(&value, &mut KeyPtr::from(root_key));
+    <LazyCell<i32>>::lazy(root_key)
+}
+
+mod empty_cache {
+    use super::*;
+
+    pub fn set() {
+        let mut cell = push_storage_cell(1);
+        black_box(cell.set(13));
+    }
+
+    pub fn deref_mut() {
+        let mut cell = push_storage_cell(1);
+        let v = black_box(cell.get_mut().unwrap());
+        black_box(*v = 13);
+    }
+}
+
+fn bench_set_empty_cache(c: &mut Criterion) {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut group = c.benchmark_group("Compare: `set` and `deref_mut` (empty cache)");
+        group.bench_function(BenchmarkId::new("set", 0), |b| {
+            b.iter(|| empty_cache::set())
+        });
+        group.bench_function(BenchmarkId::new("deref_mut", 0), |b| {
+            b.iter(|| empty_cache::deref_mut())
+        });
+        group.finish();
+        Ok(())
+    })
+    .unwrap();
+}
