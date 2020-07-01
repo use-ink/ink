@@ -64,6 +64,11 @@ impl<'a, C> CallableWithSelector<'a, C> {
     pub fn composed_selector(&self) -> ir::Selector {
         self.composed_selector
     }
+
+    /// Returns a shared reference to the underlying callable.
+    pub fn item(&self) -> &'a C {
+        self.callable
+    }
 }
 
 impl<'a, C> Callable for CallableWithSelector<'a, C>
