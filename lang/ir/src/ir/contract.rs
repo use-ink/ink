@@ -52,9 +52,8 @@ impl Contract {
     ///
     /// # Note
     ///
-    /// The `ink_config` token stream must properly decode into [`ast::AttributeArgs`].
-    ///
-    /// The `ink_module` token stream must properly decode into [`ir::ItemMod`].
+    /// - The `ink_config` token stream must properly decode into [`ir::Config`].
+    /// - The `ink_module` token stream must properly decode into [`ir::ItemMod`].
     ///
     /// # Errors
     ///
