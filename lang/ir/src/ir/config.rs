@@ -24,7 +24,7 @@ use syn::spanned::Spanned;
 pub struct Config {
     /// If `true` enables the dynamic storage allocator
     /// facilities and code generation of the ink! smart
-    /// contract. Does incure some overhead. The default is
+    /// contract. Does incur some overhead. The default is
     /// `true`.
     storage_alloc: Option<bool>,
     /// If `true` compiles this ink! smart contract always as
