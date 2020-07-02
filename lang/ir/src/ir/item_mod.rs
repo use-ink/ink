@@ -248,7 +248,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
             None => {
                 return Err(format_err_spanned!(
                     module,
-                    "inline ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}",
+                    "out-of-line ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}`",
                 ))
             }
         };
