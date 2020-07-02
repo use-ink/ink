@@ -410,15 +410,24 @@ mod tests {
     #[test]
     fn event_fields_iter_works() {
         let expected_fields: Vec<(bool, NamedField)> = vec![
-            (true, syn::parse_quote! {
-                field_1: i32
-            }),
-            (false, syn::parse_quote! {
-                field_2: u64
-            }),
-            (true, syn::parse_quote! {
-                field_3: [u8; 32]
-            })
+            (
+                true,
+                syn::parse_quote! {
+                    field_1: i32
+                },
+            ),
+            (
+                false,
+                syn::parse_quote! {
+                    field_2: u64
+                },
+            ),
+            (
+                true,
+                syn::parse_quote! {
+                    field_3: [u8; 32]
+                },
+            ),
         ];
         let input = <Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
             #[ink(event)]
@@ -429,7 +438,8 @@ mod tests {
                 #[ink(topic)]
                 field_3: [u8; 32],
             }
-        }).unwrap();
+        })
+        .unwrap();
         let mut fields_iter = input.fields();
         for (is_topic, expected_field) in expected_fields {
             let field = fields_iter.next().unwrap();
