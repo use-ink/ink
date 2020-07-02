@@ -89,7 +89,7 @@ mod sys {
         pub fn ext_block_number();
         pub fn ext_address();
         pub fn ext_balance();
-        pub fn ext_gas_price();
+        pub fn ext_gas_price(gas: u64);
         pub fn ext_gas_left();
         pub fn ext_value_transferred();
         pub fn ext_now();
@@ -285,13 +285,16 @@ impl_ext_wrapper_for! {
     (block_number => ext_block_number),
     (address => ext_address),
     (balance => ext_balance),
-    (gas_price => ext_gas_price),
     (gas_left => ext_gas_left),
     (value_transferred => ext_value_transferred),
     (now => ext_now),
     (rent_allowance => ext_rent_allowance),
     (minimum_balance => ext_minimum_balance),
     (tombstone_deposit => ext_tombstone_deposit),
+}
+
+pub fn gas_price(gas: u64) {
+    unsafe { sys::ext_gas_price(gas) }
 }
 
 pub fn set_rent_allowance(value: &[u8]) {

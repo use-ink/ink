@@ -104,13 +104,13 @@ where
         env::transferred_balance::<T>().expect("couldn't decode transferred balance")
     }
 
-    /// Returns the current price for gas.
+    /// Returns the price for the specified amount of gas.
     ///
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::gas_price`]
-    pub fn gas_price(self) -> T::Balance {
-        env::gas_price::<T>().expect("couldn't decode gas price")
+    pub fn gas_price(self, gas: u64) -> T::Balance {
+        env::gas_price::<T>(gas).expect("couldn't decode gas price")
     }
 
     /// Returns the amount of gas left for the contract execution.

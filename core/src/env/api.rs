@@ -60,17 +60,17 @@ where
     })
 }
 
-/// Returns the current price for gas.
+/// Returns the price for the specified amount of gas.
 ///
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_price<T>() -> Result<T::Balance>
+pub fn gas_price<T>(gas: u64) -> Result<T::Balance>
 where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::gas_price::<T>(instance)
+        TypedEnv::gas_price::<T>(instance, gas)
     })
 }
 

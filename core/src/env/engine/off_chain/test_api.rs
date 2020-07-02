@@ -25,6 +25,7 @@ use super::{
 use crate::env::{
     EnvTypes,
     Result,
+    engine::off_chain::db::ChainSpec,
 };
 use ink_prelude::string::String;
 
@@ -208,6 +209,17 @@ where
         instance.current_block_mut()?.set_entropy::<T>(entropy)
     })
     .map_err(Into::into)
+}
+
+/// Update the [ChainSpec](`crate::env::engine::off_chain::db::ChainSpec`) for the test environment
+pub fn update_chain_spec<F>(f: F) -> Result<()>
+where
+    F: FnOnce(&mut ChainSpec)
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        f(instance.chain_spec_mut())
+    });
+    Ok(())
 }
 
 /// Returns the contents of the past performed environmental `println` in order.
