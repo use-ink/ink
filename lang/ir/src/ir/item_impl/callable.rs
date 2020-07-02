@@ -564,7 +564,7 @@ mod tests {
                 #[ink(message)]
                 fn my_message(&self) {}
             },
-            [234, 72, 9, 51],
+            b"MyTrait::my_message".to_vec(),
         );
     }
 }
