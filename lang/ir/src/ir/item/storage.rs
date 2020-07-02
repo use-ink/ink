@@ -19,7 +19,7 @@ use syn::spanned::Spanned as _;
 
 /// An ink! storage struct definition.
 ///
-/// Noticed by ink! throught the `#[ink(storage)]` annotation.
+/// Noticed by ink! through the `#[ink(storage)]` annotation.
 ///
 /// # Note
 ///
