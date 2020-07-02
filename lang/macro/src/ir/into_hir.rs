@@ -14,15 +14,22 @@
 
 //! Contains all conversion routines from Rust AST to ink! IR.
 
+use crate::{
+    ir,
+    ir::utils,
+};
 use core::convert::TryFrom;
-use std::collections::HashSet;
-
 use either::Either;
+use ink_lang_ir::{
+    format_err,
+    format_err_spanned,
+};
 use itertools::Itertools as _;
 use proc_macro2::{
     Ident,
     Span,
 };
+use std::collections::HashSet;
 use syn::{
     parse::{
         Parse,
@@ -34,11 +41,6 @@ use syn::{
     Token,
 };
 
-use crate::{
-    ir,
-    ir::utils,
-};
-
 impl Parse for ir::Marker {
     fn parse(input: ParseStream) -> Result<Self> {
         let content;
@@ -47,10 +49,10 @@ impl Parse for ir::Marker {
         if content.is_empty() {
             return Ok(ir::Marker::Simple(ir::SimpleMarker { paren_token, ident }))
         }
-        bail_span!(
+        Err(format_err!(
             paren_token.span,
             "invalid ink! attribute in the given context",
-        )
+        ))
     }
 }
 
@@ -59,17 +61,17 @@ impl TryFrom<(ir::Params, syn::ItemMod)> for ir::Contract {
 
     fn try_from((params, item_mod): (ir::Params, syn::ItemMod)) -> Result<Self> {
         if item_mod.vis != syn::Visibility::Inherited {
-            bail!(
+            return Err(format_err_spanned!(
                 item_mod.vis,
                 "contract module must have no visibility modifier",
-            )
+            ))
         }
         let items = match &item_mod.content {
             None => {
-                bail!(
+                return Err(format_err_spanned!(
                     item_mod,
                     "contract module must be inline, e.g. `mod m {{ ... }}`",
-                )
+                ))
             }
             Some((_brace, items)) => items.clone(),
         };
@@ -87,16 +89,16 @@ impl TryFrom<(ir::Params, syn::ItemMod)> for ir::Contract {
             });
         let (storage, events, functions) = split_items(ink_items)?;
         if functions.iter().filter(|f| f.is_constructor()).count() == 0 {
-            bail!(
+            return Err(format_err_spanned!(
                 &item_mod,
                 "ink! contracts require at least one `#[ink(constructor)]`"
-            )
+            ))
         }
         if functions.iter().filter(|f| f.is_message()).count() == 0 {
-            bail!(
+            return Err(format_err_spanned!(
                 &item_mod,
                 "ink! contracts require at least one `#[ink(message)]`"
-            )
+            ))
         }
         let meta_info = ir::MetaInfo::try_from(params)?;
         Ok(Self {
@@ -124,7 +126,10 @@ impl TryFrom<ir::Params> for ir::MetaInfo {
         for param in params.params.iter().cloned() {
             let name = param.ident().to_string();
             if !unique_params.insert(name) {
-                bail_span!(param.span(), "encountered parameter multiple times",)
+                return Err(format_err!(
+                    param.span(),
+                    "encountered parameter multiple times",
+                ))
             }
             match param {
                 ir::MetaParam::Types(param) => {
@@ -141,10 +146,10 @@ impl TryFrom<ir::Params> for ir::MetaInfo {
         }
         let ink_version = match ink_version {
             None => {
-                bail_span!(
+                return Err(format_err!(
                     params.span(),
                     "expected `version` argument at `#[ink::contract(..)]`",
-                )
+                ))
             }
             Some(ink_version) => ink_version,
         };
@@ -170,7 +175,7 @@ impl TryFrom<syn::Attribute> for ir::Marker {
 
     fn try_from(attr: syn::Attribute) -> Result<Self> {
         if !attr.path.is_ident("ink") {
-            bail!(attr, "encountered non-ink! attribute")
+            return Err(format_err_spanned!(attr, "encountered non-ink! attribute"))
         }
         syn::parse2::<Self>(attr.tokens)
     }
@@ -186,28 +191,31 @@ impl TryFrom<syn::ItemStruct> for ir::ItemStorage {
             .filter_map(|attr| ir::Marker::try_from(attr.clone()).ok())
             .find(|ink_meta| !ink_meta.is_simple("storage"))
         {
-            bail_span!(
+            return Err(format_err!(
                 invalid_meta.span(),
                 "invalid ink! attribute found for `#[ink(storage)]` struct",
-            )
+            ))
         }
         if item_struct.vis != syn::Visibility::Inherited {
-            bail!(
+            return Err(format_err_spanned!(
                 item_struct.vis,
                 "visibility modifiers are not allowed for `#[ink(storage)]` structs",
-            )
+            ))
         }
         let span = item_struct.span();
         let fields = match item_struct.fields {
             syn::Fields::Named(named_fields) => named_fields,
             syn::Fields::Unnamed(unnamed_fields) => {
-                bail!(
+                return Err(format_err_spanned!(
                     unnamed_fields,
                     "`#[ink(storage)]` tuple-structs are forbidden"
-                )
+                ))
             }
             syn::Fields::Unit => {
-                bail!(item_struct, "`#[ink(storage)]` unit-structs are forbidden")
+                return Err(format_err_spanned!(
+                    item_struct,
+                    "`#[ink(storage)]` unit-structs are forbidden"
+                ))
             }
         };
         Ok(ir::ItemStorage {
@@ -230,27 +238,30 @@ impl TryFrom<syn::ItemStruct> for ir::ItemEvent {
             .filter_map(|attr| ir::Marker::try_from(attr.clone()).ok())
             .find(|ink_meta| !ink_meta.is_simple("event"))
         {
-            bail_span!(
+            return Err(format_err!(
                 invalid_meta.span(),
                 "invalid ink! attribute found for `#[ink(event)]` struct",
-            )
+            ))
         }
         if item_struct.vis != syn::Visibility::Inherited {
-            bail!(
+            return Err(format_err_spanned!(
                 item_struct,
                 "visibility modifiers are not allowed for `#[ink(event)]` structs",
-            )
+            ))
         }
         let fields = match item_struct.fields {
             syn::Fields::Named(named_fields) => named_fields,
             syn::Fields::Unnamed(unnamed_fields) => {
-                bail!(
+                return Err(format_err_spanned!(
                     unnamed_fields,
                     "`#[ink(event)]` tuple-structs are forbidden",
-                )
+                ))
             }
             syn::Fields::Unit => {
-                bail!(item_struct, "`#[ink(event)]` unit-structs are forbidden",)
+                return Err(format_err_spanned!(
+                    item_struct,
+                    "`#[ink(event)]` unit-structs are forbidden",
+                ))
             }
         };
         Ok(ir::ItemEvent {
@@ -267,32 +278,38 @@ impl TryFrom<syn::ItemImpl> for ir::ItemImpl {
 
     fn try_from(item_impl: syn::ItemImpl) -> Result<Self> {
         if item_impl.defaultness.is_some() {
-            bail!(item_impl.defaultness, "`default` not supported in ink!",)
+            return Err(format_err_spanned!(
+                item_impl.defaultness,
+                "`default` not supported in ink!",
+            ))
         }
         if item_impl.unsafety.is_some() {
-            bail!(
+            return Err(format_err_spanned!(
                 item_impl.unsafety,
                 "`unsafe` implementation blocks are not supported in ink!",
-            )
+            ))
         }
         if !(item_impl.generics.params.is_empty()
             && item_impl.generics.where_clause.is_none())
         {
-            bail!(
+            return Err(format_err_spanned!(
                 item_impl.generics,
                 "generic implementation blocks are not supported in ink!",
-            )
+            ))
         }
         if item_impl.trait_.is_some() {
-            bail!(item_impl, "trait implementations are not supported in ink!",)
+            return Err(format_err_spanned!(
+                item_impl,
+                "trait implementations are not supported in ink!",
+            ))
         }
         let type_path = match &*item_impl.self_ty {
             syn::Type::Path(type_path) => type_path,
             _ => {
-                bail!(
+                return Err(format_err_spanned!(
                     item_impl.self_ty,
                     "encountered invalid ink! implementer type ascription",
-                )
+                ))
             }
         };
         if let Some(qself) = &type_path.qself {
@@ -301,28 +318,28 @@ impl TryFrom<syn::ItemImpl> for ir::ItemImpl {
                 .span()
                 .join(qself.gt_token.span())
                 .expect("all spans are in the same file; qed");
-            bail_span!(
+            return Err(format_err!(
                 span,
                 "implementation blocks for self qualified paths are not supported in ink!",
-            )
+            ))
         };
         let ident: Ident = match type_path.path.get_ident() {
             Some(ident) => ident.clone(),
             None => {
-                bail!(
+                return Err(format_err_spanned!(
                     type_path.path,
                     "encountered invalid ink! implementer type path",
-                )
+                ))
             }
         };
         for impl_item in item_impl.items.iter() {
             match impl_item {
                 syn::ImplItem::Method(_) => (),
                 unsupported_item => {
-                    bail!(
+                    return Err(format_err_spanned!(
                         unsupported_item,
                         "only methods are supported inside impl blocks in ink!",
-                    )
+                    ))
                 }
             }
         }
@@ -386,15 +403,13 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
                             selector: ir::FunctionSelector::from(&method.sig.ident),
                         }))
                     }
-                    _unknown => {
-                        Err(format_err_span!(attr.span(), "unknown ink! marker",))
-                    }
+                    _unknown => Err(format_err!(attr.span(), "unknown ink! marker",)),
                 }?;
                 if kind == ir::FunctionKind::Method {
                     kind = new_kind;
                     Ok(())
                 } else {
-                    Err(format_err_span!(attr.span(), "conflicting ink! marker",))
+                    Err(format_err!(attr.span(), "conflicting ink! marker",))
                 }
             })
             .filter_map(Result::err)
@@ -407,17 +422,17 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
         }
         // Visibility modifiers are currently not supported for ink! functions.
         if method.vis != syn::Visibility::Inherited {
-            bail!(
+            return Err(format_err_spanned!(
                 method.vis,
                 "encountered invalid visibility modifier for ink! function",
-            )
+            ))
         }
         // Functions in ink! must not be `default` since that is unsupported.
         if let Some(defaultness) = method.defaultness {
-            bail!(
+            return Err(format_err_spanned!(
                 defaultness,
                 "encountered invalid `default` modifier for ink! function",
-            )
+            ))
         }
         // Check and convert method signature into ink! function signature.
         let sig = ir::Signature::try_from(method.sig)?;
@@ -425,50 +440,50 @@ impl TryFrom<syn::ImplItemMethod> for ir::Function {
         match kind {
             ir::FunctionKind::Constructor(_) => {
                 if let Some(receiver) = sig.self_arg() {
-                    bail!(
+                    return Err(format_err_spanned!(
                         receiver,
                         "#[ink(constructor)] functions must not have any kind of `self` receiver",
-                    )
+                    ))
                 }
                 if let syn::ReturnType::Type(_, ty) = &sig.output {
                     let self_ty: syn::Type = syn::parse_quote!(Self);
                     if **ty != self_ty {
-                        bail!(
+                        return Err(format_err_spanned!(
                             sig.output,
                             "#[ink(constructor)] functions must have `Self` return type",
-                        )
+                        ))
                     }
                 } else {
-                    bail!(
+                    return Err(format_err_spanned!(
                         sig.output,
                         "#[ink(constructor)] functions must have `Self` return type",
-                    )
+                    ))
                 }
             }
             ir::FunctionKind::Message(_) | ir::FunctionKind::Method => {
                 if let syn::ReturnType::Type(_, ty) = &sig.output {
                     let self_ty: syn::Type = syn::parse_quote!(Self);
                     if **ty == self_ty {
-                        bail!(
+                        return Err(format_err_spanned!(
                             sig.output,
                             "ink! messages and methods must not return `Self`",
-                        )
+                        ))
                     }
                 }
                 match sig.self_arg() {
                     Some(receiver) => {
                         if receiver.reference.is_none() {
-                            bail_span!(
+                            return Err(format_err!(
                                 receiver.span(),
                                 "ink! messages and methods must have a `&self` or `&mut self` receiver",
-                            )
+                            ))
                         }
                     }
                     None => {
-                        bail_span!(
+                        return Err(format_err!(
                             sig.span(),
                             "ink! messages and methods must have a `self` receiver",
-                        )
+                        ))
                     }
                 }
             }
@@ -495,22 +510,34 @@ impl TryFrom<syn::Signature> for ir::Signature {
 
     fn try_from(sig: syn::Signature) -> Result<Self> {
         if let Some(constness) = sig.constness {
-            bail!(constness, "`const fn` is not supported for ink! functions",)
+            return Err(format_err_spanned!(
+                constness,
+                "`const fn` is not supported for ink! functions",
+            ))
         }
         if let Some(asyncness) = sig.asyncness {
-            bail!(asyncness, "`async fn` is not supported for ink! functions",)
+            return Err(format_err_spanned!(
+                asyncness,
+                "`async fn` is not supported for ink! functions",
+            ))
         }
         if let Some(unsafety) = sig.unsafety {
-            bail!(unsafety, "`unsafe fn` is not supported for ink! functions",)
+            return Err(format_err_spanned!(
+                unsafety,
+                "`unsafe fn` is not supported for ink! functions",
+            ))
         }
         if let Some(abi) = sig.abi {
-            bail!(abi, "specifying ABI is not allowed in ink! functions",)
+            return Err(format_err_spanned!(
+                abi,
+                "specifying ABI is not allowed in ink! functions",
+            ))
         }
         if let Some(variadic) = sig.variadic {
-            bail!(
+            return Err(format_err_spanned!(
                 variadic,
                 "variadic functions are not allowed as ink! functions",
-            )
+            ))
         }
         let inputs = sig
             .inputs
@@ -539,10 +566,10 @@ impl TryFrom<syn::FnArg> for ir::FnArg {
                 match *pat_type.pat {
                     syn::Pat::Ident(pat_ident) => {
                         if let Some(by_ref) = pat_ident.by_ref {
-                            bail!(
+                            return Err(format_err_spanned!(
                             by_ref,
                             "`ref` modifier is unsupported for ink! function arguments",
-                        )
+                        ))
                         }
                         Ok(ir::FnArg::Typed(ir::IdentType {
                             attrs: pat_ident.attrs,
@@ -552,10 +579,10 @@ impl TryFrom<syn::FnArg> for ir::FnArg {
                         }))
                     }
                     unsupported => {
-                        bail!(
+                        Err(format_err_spanned!(
                     unsupported,
                     "encountered unsupported function argument syntax for ink! function",
-                )
+                ))
                     }
                 }
             }
@@ -621,13 +648,13 @@ impl TryFrom<syn::Item> for ir::Item {
                         Err(markers
                             .iter()
                             .map(|marker| {
-                                format_err_span!(
+                                format_err!(
                                     marker.span(),
                                     "unsupported ink! marker for struct"
                                 )
                             })
                             .fold(
-                                format_err!(
+                                format_err_spanned!(
                                     item_struct,
                                     "encountered unsupported ink! markers for struct",
                                 ),
@@ -679,7 +706,7 @@ fn split_items(
         });
     let storage = match storages.len() {
         0 => {
-            Err(format_err_span!(
+            Err(format_err!(
                 Span::call_site(),
                 "no #[ink(storage)] struct found but expected exactly 1"
             ))
@@ -692,9 +719,11 @@ fn split_items(
         n => {
             Err(storages
                 .iter()
-                .map(|storage| format_err!(storage.ident, "conflicting storage struct"))
+                .map(|storage| {
+                    format_err_spanned!(storage.ident, "conflicting storage struct")
+                })
                 .fold(
-                    format_err_span!(
+                    format_err!(
                         Span::call_site(),
                         "encountered {} conflicting storage structs",
                         n
@@ -721,10 +750,10 @@ fn split_items(
     let storage_ident = &storage.ident;
     for item_impl in &impl_blocks {
         if &item_impl.self_ty != storage_ident {
-            bail!(
+            return Err(format_err_spanned!(
                 item_impl.self_ty,
                 "ink! impl blocks need to be implemented for the #[ink(storage)] struct"
-            )
+            ))
         }
     }
     let functions = impl_blocks

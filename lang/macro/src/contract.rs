@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::convert::TryFrom;
-use proc_macro2::TokenStream as TokenStream2;
-use syn::Result;
-
 use crate::{
     codegen::GenerateCode as _,
     ir,
     lint,
 };
+use core::convert::TryFrom;
+use ink_lang_ir::format_err_spanned;
+use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
 
 pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
     match generate_or_err(attr, input) {
@@ -34,7 +34,7 @@ pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenS
         input.clone(),
         move |ident| !ident.to_string().starts_with("__ink"),
         move |ident| {
-            format_err!(
+            format_err_spanned!(
                 ident,
                 "identifiers starting with `__ink` are forbidden in ink!"
             )

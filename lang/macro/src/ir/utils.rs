@@ -14,6 +14,8 @@
 
 //! Contains general utilities for the ink! IR module.
 
+use crate::ir;
+use ink_lang_ir::format_err_spanned;
 use proc_macro2::Span;
 use syn::{
     parse::{
@@ -23,8 +25,6 @@ use syn::{
     spanned::Spanned,
     Result,
 };
-
-use crate::ir;
 
 /// An unsuffixed integer literal: `0` or `42` or `1337`
 #[derive(Debug, Clone)]
@@ -42,7 +42,10 @@ impl Parse for UnsuffixedLitInt {
     fn parse(input: ParseStream) -> Result<Self> {
         let lit_int: syn::LitInt = input.parse()?;
         if lit_int.suffix() != "" {
-            bail!(lit_int, "integer suffixes are not allowed here",)
+            return Err(format_err_spanned!(
+                lit_int,
+                "integer suffixes are not allowed here",
+            ))
         }
         Ok(Self { lit_int })
     }
@@ -117,7 +120,7 @@ where
 /// Trims a doc string obtained from an attribute token stream into the actual doc string.
 ///
 /// Practically speaking this method removes the trailing start `" = \""` and end `\"`
-/// of documentation strings coming from Syn attribute token streams.
+/// of documentation strings coming from `syn` attribute token streams.
 pub fn to_trimmed_doc_string(attr: &syn::Attribute) -> String {
     attr.tokens
         .to_string()
