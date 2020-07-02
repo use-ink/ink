@@ -214,11 +214,12 @@ where
 /// Update the [ChainSpec](`crate::env::engine::off_chain::db::ChainSpec`) for the test environment
 pub fn update_chain_spec<F>(f: F) -> Result<()>
 where
-    F: FnOnce(&mut ChainSpec) -> ()
+    F: FnOnce(&mut ChainSpec)
 {
-    Ok(<EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
         f(instance.chain_spec_mut())
-    }))
+    });
+    Ok(())
 }
 
 /// Returns the contents of the past performed environmental `println` in order.
