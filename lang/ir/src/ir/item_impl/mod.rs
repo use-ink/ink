@@ -321,7 +321,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
 }
 
 impl ItemImpl {
-    /// Retursn the `Self` type of the implementation block.
+    /// Returns the `Self` type of the implementation block.
     pub fn self_type(&self) -> &syn::Type {
         self.self_ty.as_ref()
     }
