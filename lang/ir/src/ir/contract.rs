@@ -73,7 +73,7 @@ impl Contract {
         })
     }
 
-    /// Returns the identifier of the ink! inline module definition.
+    /// Returns the ink! inline module definition.
     ///
     /// # Note
     ///
