@@ -680,4 +680,32 @@ mod tests {
             )
         }
     }
+
+    #[test]
+    fn conflicting_attributes_fails() {
+        let item_methods: Vec<syn::ImplItemMethod> = vec![
+            // storage
+            syn::parse_quote! {
+                #[ink(message, storage)]
+                fn my_message(&self) {}
+            },
+            // namespace
+            syn::parse_quote! {
+                #[ink(message, namespace = "my_namespace")]
+                fn my_message(&self) {}
+            },
+            // event + multiple attributes
+            syn::parse_quote! {
+                #[ink(message)]
+                #[ink(event)]
+                fn my_message(&self) {}
+            },
+        ];
+        for item_method in item_methods {
+            assert_try_from_fails(
+                item_method,
+                "encountered conflicting ink! attribute argument",
+            )
+        }
+    }
 }
