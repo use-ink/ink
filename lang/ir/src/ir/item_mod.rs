@@ -341,7 +341,7 @@ impl ItemMod {
         storage
     }
 
-    /// Returns the non-ink! item definitions of the ink! inline module.
+    /// Returns all (ink! and non-ink! specific) item definitions of the ink! inline module.
     ///
     /// Also returns the brace pair that encompasses all ink! definitions.
     pub fn items(&self) -> &[ir::Item] {
