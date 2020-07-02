@@ -20,33 +20,35 @@ extern crate alloc;
 #[cfg(test)]
 mod tests;
 
-pub mod layout2;
 mod extension;
+pub mod layout2;
 mod specs;
 mod utils;
 
-pub use self::extension::{
-    InkProjectExtension,
-    InkProjectSource,
-    InkProjectContract,
-    InkProjectUser,
-};
-pub use self::specs::{
-    ConstructorSpec,
-    ConstructorSpecBuilder,
-    ContractSpec,
-    ContractSpecBuilder,
-    DisplayName,
-    EventParamSpec,
-    EventParamSpecBuilder,
-    EventSpec,
-    EventSpecBuilder,
-    MessageParamSpec,
-    MessageParamSpecBuilder,
-    MessageSpec,
-    MessageSpecBuilder,
-    ReturnTypeSpec,
-    TypeSpec,
+pub use self::{
+    extension::{
+        InkProjectContract,
+        InkProjectExtension,
+        InkProjectSource,
+        InkProjectUser,
+    },
+    specs::{
+        ConstructorSpec,
+        ConstructorSpecBuilder,
+        ContractSpec,
+        ContractSpecBuilder,
+        DisplayName,
+        EventParamSpec,
+        EventParamSpecBuilder,
+        EventSpec,
+        EventSpecBuilder,
+        MessageParamSpec,
+        MessageParamSpecBuilder,
+        MessageSpec,
+        MessageSpecBuilder,
+        ReturnTypeSpec,
+        TypeSpec,
+    },
 };
 
 #[cfg(feature = "derive")]
@@ -70,12 +72,12 @@ pub struct InkProject {
 
 impl InkProject {
     pub fn new(extension: InkProjectExtension, spec: InkProjectSpec) -> Self {
-        let metadata_version= semver::Version::parse(METADATA_VERSION)
+        let metadata_version = semver::Version::parse(METADATA_VERSION)
             .expect("METADATA_VERSION is a valid semver string");
         InkProject {
             metadata_version,
             extension,
-            spec
+            spec,
         }
     }
 }
@@ -92,9 +94,9 @@ pub struct InkProjectSpec {
 impl InkProjectSpec {
     /// Creates a new ink! project.
     pub fn new<M, L, S>(layout: L, spec: S) -> Self
-        where
-            L: Into<layout2::Layout>,
-            S: Into<ContractSpec>,
+    where
+        L: Into<layout2::Layout>,
+        S: Into<ContractSpec>,
     {
         let mut registry = Registry::new();
         Self {

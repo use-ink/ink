@@ -15,7 +15,10 @@
 use core::marker::PhantomData;
 use semver::Version;
 use serde::Serialize;
-use serde_json::{Map, Value};
+use serde_json::{
+    Map,
+    Value,
+};
 use url::Url;
 
 /// Additional metadata supplied externally, e.g. by `cargo-contract`.
@@ -29,8 +32,16 @@ pub struct InkProjectExtension {
 
 impl InkProjectExtension {
     /// Constructs a new InkProjectExtension.
-    pub fn new(source: InkProjectSource, contract: InkProjectContract, user: Option<InkProjectUser>) -> Self {
-        InkProjectExtension { source, contract, user }
+    pub fn new(
+        source: InkProjectSource,
+        contract: InkProjectContract,
+        user: Option<InkProjectUser>,
+    ) -> Self {
+        InkProjectExtension {
+            source,
+            contract,
+            user,
+        }
     }
 }
 
@@ -43,8 +54,16 @@ pub struct InkProjectSource {
 
 impl InkProjectSource {
     /// Constructs a new InkProjectSource.
-    pub fn new(hash: [u8; 32], language: SourceLanguage, compiler: SourceCompiler) -> Self {
-        InkProjectSource { hash, language, compiler }
+    pub fn new(
+        hash: [u8; 32],
+        language: SourceLanguage,
+        compiler: SourceCompiler,
+    ) -> Self {
+        InkProjectSource {
+            hash,
+            language,
+            compiler,
+        }
     }
 }
 
@@ -83,7 +102,10 @@ pub struct SourceCompiler {
 impl SourceCompiler {
     /// Constructs a new SourceCompiler.
     pub fn new(high_level: CompilerInfo, low_level: CompilerInfo) -> Self {
-        SourceCompiler { high_level, low_level }
+        SourceCompiler {
+            high_level,
+            low_level,
+        }
     }
 }
 
@@ -123,7 +145,11 @@ pub struct InkProjectContract {
 
 impl InkProjectContract {
     /// Constructs a new InkProjectContractBuilder.
-    pub fn build() -> InkProjectContractBuilder<Missing<state::Name>, Missing<state::Version>, Missing<state::Authors>> {
+    pub fn build() -> InkProjectContractBuilder<
+        Missing<state::Name>,
+        Missing<state::Version>,
+        Missing<state::Authors>,
+    > {
         InkProjectContractBuilder {
             contract: Self {
                 name: Default::default(),
@@ -133,9 +159,9 @@ impl InkProjectContract {
                 documentation: None,
                 repository: None,
                 homepage: None,
-                license: None
+                license: None,
             },
-            marker: Default::default()
+            marker: Default::default(),
         }
     }
 }
@@ -153,7 +179,7 @@ pub enum License {
 #[derive(Debug, Serialize)]
 pub struct InkProjectUser {
     #[serde(flatten)]
-    json: serde_json::Map<String, serde_json::Value>
+    json: serde_json::Map<String, serde_json::Value>,
 }
 
 impl InkProjectUser {
@@ -183,13 +209,13 @@ mod state {
 
 pub struct InkProjectContractBuilder<Name, Version, Authors> {
     contract: InkProjectContract,
-    marker: PhantomData<fn() -> (Name, Version, Authors)>
+    marker: PhantomData<fn() -> (Name, Version, Authors)>,
 }
 
 impl<V, A> InkProjectContractBuilder<Missing<state::Name>, V, A> {
     pub fn name<S>(self, name: S) -> InkProjectContractBuilder<state::Name, V, A>
     where
-        S: AsRef<str>
+        S: AsRef<str>,
     {
         InkProjectContractBuilder {
             contract: InkProjectContract {
@@ -202,7 +228,10 @@ impl<V, A> InkProjectContractBuilder<Missing<state::Name>, V, A> {
 }
 
 impl<N, A> InkProjectContractBuilder<N, Missing<state::Version>, A> {
-    pub fn version(self, version: Version) -> InkProjectContractBuilder<N, state::Version, A> {
+    pub fn version(
+        self,
+        version: Version,
+    ) -> InkProjectContractBuilder<N, state::Version, A> {
         InkProjectContractBuilder {
             contract: InkProjectContract {
                 version,
@@ -214,10 +243,13 @@ impl<N, A> InkProjectContractBuilder<N, Missing<state::Version>, A> {
 }
 
 impl<N, V> InkProjectContractBuilder<N, V, Missing<state::Authors>> {
-    pub fn authors<I, S>(self, authors: I) -> InkProjectContractBuilder<N, V, state::Authors>
+    pub fn authors<I, S>(
+        self,
+        authors: I,
+    ) -> InkProjectContractBuilder<N, V, state::Authors>
     where
         I: IntoIterator<Item = S>,
-        S: AsRef<str>
+        S: AsRef<str>,
     {
         InkProjectContractBuilder {
             contract: InkProjectContract {
