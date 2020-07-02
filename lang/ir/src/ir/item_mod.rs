@@ -188,7 +188,7 @@ impl ItemMod {
                 use crate::error::ExtError as _;
                 format_err!(
                     second_span,
-                    "encountered ink! {}s with overlapping selectors (= {:X?})\n\
+                    "encountered ink! {}s with overlapping selectors (= {:02X?})\n\
                      hint: use #[ink(selector = \"0x...\")] on the callable or \
                      #[ink(namespace = \"...\")] on the implementation block to \
                      disambiguate overlapping selectors.",
