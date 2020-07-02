@@ -524,6 +524,56 @@ impl<'a> Iterator for IterItemImpls<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate as ir;
+
+    #[test]
+    fn item_mod_try_from_works() {
+        let item_mods: Vec<syn::ItemMod> = vec![
+            syn::parse_quote! {
+                mod minimal {
+                    #[ink(storage)]
+                    pub struct Minimal {}
+
+                    impl Minimal {
+                        #[ink(constructor)]
+                        pub fn new() -> Self {}
+                        #[ink(message)]
+                        pub fn minimal_message(&self) {}
+                    }
+                }
+            },
+            syn::parse_quote! {
+                mod flipper {
+                    #[ink(storage)]
+                    pub struct Flipper {
+                        value: bool,
+                    }
+
+                    impl Default for Flipper {
+                        #[ink(constructor)]
+                        fn default() -> Self {
+                            Self { value: false }
+                        }
+                    }
+
+                    impl Flipper {
+                        #[ink(message)]
+                        pub fn flip(&mut self) {
+                            self.value = !self.value
+                        }
+
+                        #[ink(message)]
+                        pub fn get(&self) -> bool {
+                            self.value
+                        }
+                    }
+                }
+            },
+        ];
+        for item_mod in item_mods {
+            assert!(<ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item_mod).is_ok())
+        }
+    }
 
     fn assert_fail(item_mod: syn::ItemMod, expected_err: &str) {
         assert_eq!(
