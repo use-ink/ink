@@ -592,6 +592,62 @@ mod tests {
     }
 
     #[test]
+    fn overlapping_trait_impls_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl first::MyTrait for MyStorage {
+                        #[ink(constructor)]
+                        fn my_constructor() -> Self {}
+
+                        #[ink(message)]
+                        fn my_message(&self) {}
+                    }
+
+                    impl second::MyTrait for MyStorage {
+                        #[ink(message)]
+                        fn my_message(&self) {}
+                    }
+                }
+            },
+            "encountered ink! messages with overlapping selectors (= [EA, 48, 09, 33])\n\
+                hint: use #[ink(selector = \"0x...\")] on the callable or \
+                #[ink(namespace = \"...\")] on the implementation block to \
+                disambiguate overlapping selectors.",
+        );
+    }
+
+    #[test]
+    fn namespaced_overlapping_trait_impls_works() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    #[ink(namespace = "first")]
+                    impl first::MyTrait for MyStorage {
+                        #[ink(constructor)]
+                        fn my_constructor() -> Self {}
+
+                        #[ink(message)]
+                        fn my_message(&self) {}
+                    }
+
+                    impl second::MyTrait for MyStorage {
+                        #[ink(message)]
+                        fn my_message(&self) {}
+                    }
+                }
+            })
+            .is_ok()
+        );
+    }
+
+    #[test]
     fn allow_overlap_between_messages_and_constructors() {
         assert!(
             <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
@@ -609,6 +665,6 @@ mod tests {
                 }
             })
             .is_ok()
-        )
+        );
     }
 }
