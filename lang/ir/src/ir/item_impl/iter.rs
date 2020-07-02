@@ -40,7 +40,7 @@ impl<'a> Iterator for IterConstructors<'a> {
     type Item = CallableWithSelector<'a, ir::Constructor>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        'outer: loop {
+        'repeat: loop {
             match self.impl_items.next() {
                 None => return None,
                 Some(impl_item) => {
@@ -50,7 +50,7 @@ impl<'a> Iterator for IterConstructors<'a> {
                             constructor,
                         ))
                     }
-                    continue 'outer
+                    continue 'repeat
                 }
             }
         }
@@ -78,14 +78,14 @@ impl<'a> Iterator for IterMessages<'a> {
     type Item = CallableWithSelector<'a, ir::Message>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        'outer: loop {
+        'repeat: loop {
             match self.impl_items.next() {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(message) = impl_item.filter_map_message() {
                         return Some(CallableWithSelector::new(self.item_impl, message))
                     }
-                    continue 'outer
+                    continue 'repeat
                 }
             }
         }

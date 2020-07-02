@@ -187,21 +187,21 @@ impl ItemImpl {
         }
         // Check if any of the implementation block's methods either resembles
         // an ink! constructor or an ink! message:
-        'outer: for item in &item_impl.items {
+        'repeat: for item in &item_impl.items {
             match item {
                 syn::ImplItem::Method(method_item) => {
                     if !ir::contains_ink_attributes(&method_item.attrs) {
-                        continue 'outer
+                        continue 'repeat
                     }
                     let attr = ir::first_ink_attribute(&method_item.attrs)?
                         .expect("missing expected ink! attribute for struct");
                     match attr.first().kind() {
                         ir::AttributeArgKind::Constructor
                         | ir::AttributeArgKind::Message => return Ok(true),
-                        _ => continue 'outer,
+                        _ => continue 'repeat,
                     }
                 }
-                _ => continue 'outer,
+                _ => continue 'repeat,
             }
         }
         Ok(false)

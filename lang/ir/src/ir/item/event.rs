@@ -103,11 +103,11 @@ impl TryFrom<syn::ItemStruct> for Event {
             }
             _ => (),
         }
-        'outer: for field in item_struct.fields.iter() {
+        'repeat: for field in item_struct.fields.iter() {
             let field_span = field.span();
             let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
             if ink_attrs.is_empty() {
-                continue 'outer
+                continue 'repeat
             }
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {

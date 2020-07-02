@@ -429,11 +429,11 @@ impl<'a> Iterator for InputsIter<'a> {
     type Item = &'a syn::PatType;
 
     fn next(&mut self) -> Option<Self::Item> {
-        'outer: loop {
+        'repeat: loop {
             match self.iter.next() {
                 None => return None,
                 Some(syn::FnArg::Typed(pat_typed)) => return Some(pat_typed),
-                Some(syn::FnArg::Receiver(_)) => continue 'outer,
+                Some(syn::FnArg::Receiver(_)) => continue 'repeat,
             }
         }
     }
