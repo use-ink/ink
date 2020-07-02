@@ -555,5 +555,16 @@ mod tests {
             },
             [0xDE, 0xAD, 0xBE, 0xEF],
         );
+        assert_compose_selector::<ir::Message, _>(
+            syn::parse_quote! {
+                #[ink(impl)]
+                impl relative::path_to::MyTrait for MyStorage {}
+            },
+            syn::parse_quote! {
+                #[ink(message)]
+                fn my_message(&self) {}
+            },
+            [234, 72, 9, 51],
+        );
     }
 }
