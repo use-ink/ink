@@ -147,13 +147,11 @@ impl Message {
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Message,
             |kind| {
-                match kind {
+                !matches!(kind,
                     ir::AttributeArgKind::Message
                     | ir::AttributeArgKind::Payable
-                    | ir::AttributeArgKind::Namespace(_)
-                    | ir::AttributeArgKind::Selector(_) => false,
-                    _ => true,
-                }
+                    | ir::AttributeArgKind::Selector(_)
+                )
             },
         )
     }
