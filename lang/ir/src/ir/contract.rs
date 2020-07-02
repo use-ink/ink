@@ -86,8 +86,6 @@ impl Contract {
     ///     // ... definitions
     /// }
     /// ```
-    ///
-    /// In the above case the `module_ident` is `my_contract`.
     pub fn module(&self) -> &ir::ItemMod {
         &self.item
     }
