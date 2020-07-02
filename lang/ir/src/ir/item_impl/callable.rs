@@ -290,8 +290,10 @@ where
                 str_repr.retain(|c| !c.is_whitespace());
                 str_repr.into_bytes()
             } else {
-                path.get_ident()
-                    .expect("encountered trait path without identifier")
+                path.segments
+                    .last()
+                    .expect("encountered empty trait path")
+                    .ident
                     .to_string()
                     .into_bytes()
             };
