@@ -27,7 +27,7 @@ use crate::{
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
-pub struct l<'a> {
+pub struct GenerateMetadata<'a> {
     /// The contract to generate code for.
     contract: &'a ir::Contract,
 }

@@ -64,6 +64,7 @@ impl SourceLanguage {
 }
 
 /// The language in which the smart contract is written.
+#[derive(Debug, Serialize)]
 pub enum Language {
     Ink,
     Solidity,
@@ -87,12 +88,14 @@ impl SourceCompiler {
 }
 
 /// A compiler used to compile a smart contract.
+#[derive(Debug, Serialize)]
 pub struct CompilerInfo {
     compiler: Compiler,
     version: Version,
 }
 
 /// Compilers used to compile a smart contract.
+#[derive(Debug, Serialize)]
 pub enum Compiler {
     Ink,
     RustC,
@@ -137,9 +140,12 @@ impl InkProjectContract {
     }
 }
 
-/// The license of a smart contract.
+/// The license of a smart contract
+#[derive(Debug, Serialize)]
 pub enum License {
+    /// An [SPDX identifier](https://spdx.org/licenses/)
     SpdxId(String),
+    /// A URL to a custom license
     Link(Url),
 }
 
@@ -181,12 +187,12 @@ pub struct InkProjectContractBuilder<Name, Version, Authors> {
 }
 
 impl<V, A> InkProjectContractBuilder<Missing<state::Name>, V, A> {
-    pub fn name<S>(self, name: S) -> InkProjectMetadataBuilder<state::Name, V, A>
+    pub fn name<S>(self, name: S) -> InkProjectContractBuilder<state::Name, V, A>
     where
         S: AsRef<str>
     {
-        InkProjectMetadataBuilder {
-            metadata: InkProjectMetadata {
+        InkProjectContractBuilder {
+            contract: InkProjectContract {
                 name: name.as_ref().to_owned(),
                 ..self.contract
             },
@@ -196,9 +202,9 @@ impl<V, A> InkProjectContractBuilder<Missing<state::Name>, V, A> {
 }
 
 impl<N, A> InkProjectContractBuilder<N, Missing<state::Version>, A> {
-    pub fn version(self, version: Version) -> InkProjectMetadataBuilder<N, state::Version, A> {
-        InkProjectMetadataBuilder {
-            metadata: InkProjectMetadata {
+    pub fn version(self, version: Version) -> InkProjectContractBuilder<N, state::Version, A> {
+        InkProjectContractBuilder {
+            contract: InkProjectContract {
                 version,
                 ..self.contract
             },
@@ -208,14 +214,14 @@ impl<N, A> InkProjectContractBuilder<N, Missing<state::Version>, A> {
 }
 
 impl<N, V> InkProjectContractBuilder<N, V, Missing<state::Authors>> {
-    pub fn authors<I, S>(self, authors: I) -> InkProjectMetadataBuilder<N, V, state::Authors>
+    pub fn authors<I, S>(self, authors: I) -> InkProjectContractBuilder<N, V, state::Authors>
     where
         I: IntoIterator<Item = S>,
         S: AsRef<str>
     {
-        InkProjectMetadataBuilder {
-            metadata: InkProjectMetadata {
-                authors: authors.into_iter().map(Into::into).collect(),
+        InkProjectContractBuilder {
+            contract: InkProjectContract {
+                authors: authors.into_iter().map(|s| s.as_ref().into()).collect(),
                 ..self.contract
             },
             marker: PhantomData,
@@ -223,8 +229,8 @@ impl<N, V> InkProjectContractBuilder<N, V, Missing<state::Authors>> {
     }
 }
 
-impl InkProjectMetadataBuilder<state::Version> {
-    fn done(self) -> InkProjectMetadata {
-        self.metadata
+impl InkProjectContractBuilder<state::Name, state::Version, state::Authors> {
+    fn done(self) -> InkProjectContract {
+        self.contract
     }
 }
