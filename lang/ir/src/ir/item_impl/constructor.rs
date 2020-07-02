@@ -153,13 +153,11 @@ impl Constructor {
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
             |kind| {
-                match kind {
+                !matches!(kind,
                     ir::AttributeArgKind::Constructor
                     | ir::AttributeArgKind::Payable
-                    | ir::AttributeArgKind::Namespace(_)
-                    | ir::AttributeArgKind::Selector(_) => false,
-                    _ => true,
-                }
+                    | ir::AttributeArgKind::Selector(_)
+                )
             },
         )
     }
