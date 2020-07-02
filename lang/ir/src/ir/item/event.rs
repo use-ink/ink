@@ -383,4 +383,59 @@ mod tests {
             "encountered conflicting ink! attribute for event field",
         )
     }
+
+    /// Used for the event fields iterator unit test because `syn::Field` does
+    /// not provide a `syn::parse::Parse` implementation.
+    #[derive(Debug, PartialEq, Eq)]
+    struct NamedField(syn::Field);
+
+    impl syn::parse::Parse for NamedField {
+        fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+            Ok(Self(syn::Field::parse_named(input)?))
+        }
+    }
+
+    impl NamedField {
+        /// Returns the identifier of the named field.
+        pub fn ident(&self) -> &Ident {
+            self.0.ident.as_ref().unwrap()
+        }
+
+        /// Returns the type of the named field.
+        pub fn ty(&self) -> &syn::Type {
+            &self.0.ty
+        }
+    }
+
+    #[test]
+    fn event_fields_iter_works() {
+        let expected_fields: Vec<(bool, NamedField)> = vec![
+            (true, syn::parse_quote! {
+                field_1: i32
+            }),
+            (false, syn::parse_quote! {
+                field_2: u64
+            }),
+            (true, syn::parse_quote! {
+                field_3: [u8; 32]
+            })
+        ];
+        let input = <Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
+            #[ink(event)]
+            pub struct MyEvent {
+                #[ink(topic)]
+                field_1: i32,
+                field_2: u64,
+                #[ink(topic)]
+                field_3: [u8; 32],
+            }
+        }).unwrap();
+        let mut fields_iter = input.fields();
+        for (is_topic, expected_field) in expected_fields {
+            let field = fields_iter.next().unwrap();
+            assert_eq!(field.is_topic, is_topic);
+            assert_eq!(field.ident(), Some(expected_field.ident()));
+            assert_eq!(field.ty(), expected_field.ty());
+        }
+    }
 }
