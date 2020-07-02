@@ -584,6 +584,110 @@ mod tests {
     }
 
     #[test]
+    fn missing_storage_struct_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+                        #[ink(message)]
+                        pub fn my_message(&self) {}
+                    }
+                }
+            },
+            "missing ink! storage struct",
+        )
+    }
+
+    #[test]
+    fn multiple_storage_struct_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyFirstStorage {}
+                    #[ink(storage)]
+                    pub struct MySecondStorage {}
+                    impl MyFirstStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+                        #[ink(message)]
+                        pub fn my_message(&self) {}
+                    }
+                }
+            },
+            "encountered multiple ink! storage structs, expected exactly one",
+        )
+    }
+
+    #[test]
+    fn missing_constructor_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(message)]
+                        pub fn my_message(&self) {}
+                    }
+                }
+            },
+            "missing ink! constructor",
+        )
+    }
+
+    #[test]
+    fn missing_message_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+                    }
+                }
+            },
+            "missing ink! message",
+        )
+    }
+
+    #[test]
+    fn invalid_out_of_line_module_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module;
+            },
+            "out-of-line ink! modules are not supported, use `#[ink::contract] mod name { ... }`",
+        )
+    }
+
+    #[test]
+    fn conflicting_attributes_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                #[ink(namespace = "my_namespace")]
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+                        #[ink(message)]
+                        pub fn my_message(&self) {}
+                    }
+                }
+            },
+            "encountered invalid ink! attributes on ink! module",
+        )
+    }
+
+    #[test]
     fn overlapping_messages_fails() {
         assert_fail(
             syn::parse_quote! {
