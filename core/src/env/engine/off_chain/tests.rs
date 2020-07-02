@@ -68,3 +68,19 @@ fn key_add_sub() -> Result<()> {
         Ok(())
     })
 }
+
+#[test]
+fn gas_price() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let gas_price= 2u32;
+        env::test::update_chain_spec(|chain_spec| {
+            chain_spec.set_gas_price::<env::DefaultEnvTypes>(gas_price.into())
+        })?;
+
+        assert_eq!(2u128, env::gas_price::<env::DefaultEnvTypes>(1).unwrap());
+        assert_eq!(20u128, env::gas_price::<env::DefaultEnvTypes>(10).unwrap());
+        assert_eq!(6u128, env::gas_price::<env::DefaultEnvTypes>(3).unwrap());
+
+        Ok(())
+    })
+}

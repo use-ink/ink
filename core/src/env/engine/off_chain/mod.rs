@@ -254,6 +254,10 @@ impl EnvInstance {
             .last_mut()
             .ok_or_else(|| OffChainError::UninitializedBlocks)
     }
+
+    fn chain_spec_mut(&mut self) -> &mut ChainSpec {
+        &mut self.chain_spec
+    }
 }
 
 impl OnInstance for EnvInstance {

@@ -75,6 +75,14 @@ impl ChainSpec {
         self.gas_price.decode().map_err(Into::into)
     }
 
+    /// Set the gas price for the chain.
+    pub fn set_gas_price<T>(&mut self, gas_price: T::Balance)
+    where
+        T: EnvTypes
+    {
+        self.gas_price = OffBalance::new(&gas_price)
+    }
+
     /// Returns the minimum balance for an account on the chain.
     pub fn minimum_balance<T>(&self) -> Result<T::Balance>
     where
