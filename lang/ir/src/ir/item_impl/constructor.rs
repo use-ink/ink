@@ -158,7 +158,7 @@ impl Constructor {
                     | ir::AttributeArgKind::Payable
                     | ir::AttributeArgKind::Namespace(_)
                     | ir::AttributeArgKind::Selector(_) => false,
-                    _ => false,
+                    _ => true,
                 }
             },
         )
