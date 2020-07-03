@@ -39,8 +39,6 @@ use serde::Serialize;
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct ContractSpec<F: Form = MetaForm> {
-    /// The name of the contract.
-    name: &'static str,
     /// The set of constructors of the contract.
     constructors: Vec<ConstructorSpec<F>>,
     /// The external messages of the contract.
@@ -56,7 +54,6 @@ impl IntoCompact for ContractSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ContractSpec {
-            name: self.name,
             constructors: self
                 .constructors
                 .into_iter()
@@ -171,10 +168,9 @@ impl ContractSpecBuilder<Valid> {
 
 impl ContractSpec {
     /// Creates a new contract specification.
-    pub fn new(name: &'static str) -> ContractSpecBuilder {
+    pub fn new() -> ContractSpecBuilder {
         ContractSpecBuilder {
             spec: Self {
-                name,
                 constructors: Vec::new(),
                 messages: Vec::new(),
                 events: Vec::new(),
