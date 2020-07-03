@@ -25,6 +25,9 @@ pub mod layout2;
 mod specs;
 mod utils;
 
+pub use url::Url;
+pub use semver::Version;
+
 pub use self::{
     extension::{
         InkProjectContract,
