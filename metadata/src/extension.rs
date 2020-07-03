@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::fmt::{Display, Formatter, Result as DisplayResult};
 use core::marker::PhantomData;
 use semver::Version;
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 use serde_json::{
     Map,
     Value,
@@ -68,8 +69,7 @@ impl InkProjectSource {
 }
 
 /// The language and version in which a smart contract is written.
-// todo: custom serialize e.g. `ink! v0.3.0`
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct SourceLanguage {
     language: Language,
     version: Version,
@@ -82,8 +82,14 @@ impl SourceLanguage {
     }
 }
 
+impl Serialize for SourceLanguage {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        serializer.serialize_str(&format!("{} {}", self.language, self.version))
+    }
+}
+
 /// The language in which the smart contract is written.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub enum Language {
     Ink,
     Solidity,
@@ -91,12 +97,28 @@ pub enum Language {
     Other(&'static str),
 }
 
+impl Display for Language {
+    fn fmt(&self, f: &mut Formatter<'_>) -> DisplayResult {
+        match self {
+            Self::Ink => write!(f, "ink!"),
+            Self::Solidity => write!(f, "Solidity"),
+            Self::AssemblyScript => write!(f, "AssemblyScript"),
+            Self::Other(lang) => write!(f, "{}", lang),
+        }
+    }
+}
+
 /// The compilers used to compile a smart contract.
-// todo: custom serialize e.g. `ink! v0.3.0 (rustc 1.41.0)`
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct SourceCompiler {
     high_level: CompilerInfo,
     low_level: CompilerInfo,
+}
+
+impl Serialize for SourceCompiler {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        serializer.serialize_str(&format!("{} ({})", self.high_level, self.low_level))
+    }
 }
 
 impl SourceCompiler {
@@ -110,10 +132,16 @@ impl SourceCompiler {
 }
 
 /// A compiler used to compile a smart contract.
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct CompilerInfo {
     compiler: Compiler,
     version: Version,
+}
+
+impl Display for CompilerInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> DisplayResult {
+        write!(f, "{} {}", self.compiler, self.version)
+    }
 }
 
 impl CompilerInfo {
@@ -129,6 +157,17 @@ pub enum Compiler {
     RustC,
     Solang,
     LLVM,
+}
+
+impl Display for Compiler {
+    fn fmt(&self, f: &mut Formatter<'_>) -> DisplayResult {
+        match self {
+            Self::Ink => write!(f, "ink!"),
+            Self::RustC => write!(f, "rustc"),
+            Self::Solang => write!(f, "solang"),
+            Self::LLVM => write!(f, "llvm"),
+        }
+    }
 }
 
 /// Metadata about a smart contract.
@@ -302,7 +341,7 @@ impl<N, V, A> InkProjectContractBuilder<N, V, A> {
     /// Set the contract description (optional)
     pub fn description<S>(mut self, description: S) -> Self
     where
-        S: AsRef<str>
+        S: AsRef<str>,
     {
         self.contract.description = Some(description.as_ref().to_owned());
         self
