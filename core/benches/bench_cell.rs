@@ -22,6 +22,7 @@ use criterion::{
 use ink_core::{
     env,
     storage2::{
+        lazy::Lazy,
         lazy::LazyCell,
         traits::{
             KeyPtr,
@@ -49,10 +50,9 @@ mod populated_cache {
     }
 
     pub fn deref_mut() {
-        let mut cell = <LazyCell<i32>>::new(Some(1));
+        let mut lazy = <Lazy<i32>>::new(1);
         for i in 0..100 {
-            let v = black_box(cell.get_mut().unwrap());
-            black_box(*v = i);
+            black_box(*lazy = i);
         }
     }
 }
@@ -75,6 +75,13 @@ fn push_storage_cell(value: i32) -> LazyCell<i32> {
     <LazyCell<i32>>::lazy(root_key)
 }
 
+/// Pushes a value to contract storage and creates a `Lazy` pointing to it.
+fn push_storage_lazy(value: i32) -> Lazy<i32> {
+    let root_key = Key::from([0x00; 32]);
+    SpreadLayout::push_spread(&value, &mut KeyPtr::from(root_key));
+    <Lazy<i32>>::lazy(root_key)
+}
+
 mod empty_cache {
     use super::*;
 
@@ -84,9 +91,8 @@ mod empty_cache {
     }
 
     pub fn deref_mut() {
-        let mut cell = push_storage_cell(1);
-        let v = black_box(cell.get_mut().unwrap());
-        black_box(*v = 13);
+        let mut lazy = push_storage_lazy(1);
+        black_box(*lazy = 13);
     }
 }
 
