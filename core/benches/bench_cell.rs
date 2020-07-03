@@ -23,7 +23,6 @@ use ink_core::{
     env,
     storage2::{
         lazy::Lazy,
-        lazy::LazyCell,
         traits::{
             KeyPtr,
             SpreadLayout,
@@ -43,9 +42,9 @@ mod populated_cache {
     use super::*;
 
     pub fn set() {
-        let mut cell = <LazyCell<i32>>::new(Some(1));
+        let mut lazy = <Lazy<i32>>::new(1);
         for i in 0..100 {
-            black_box(cell.set(i));
+            black_box(Lazy::set(&mut lazy, i));
         }
     }
 
@@ -68,13 +67,6 @@ fn bench_set_populated_cache(c: &mut Criterion) {
     group.finish();
 }
 
-/// Pushes a value to contract storage and creates a `LazyCell` pointing to it.
-fn push_storage_cell(value: i32) -> LazyCell<i32> {
-    let root_key = Key::from([0x00; 32]);
-    SpreadLayout::push_spread(&value, &mut KeyPtr::from(root_key));
-    <LazyCell<i32>>::lazy(root_key)
-}
-
 /// Pushes a value to contract storage and creates a `Lazy` pointing to it.
 fn push_storage_lazy(value: i32) -> Lazy<i32> {
     let root_key = Key::from([0x00; 32]);
@@ -86,8 +78,8 @@ mod empty_cache {
     use super::*;
 
     pub fn set() {
-        let mut cell = push_storage_cell(1);
-        black_box(cell.set(13));
+        let mut lazy = push_storage_lazy(1);
+        black_box(Lazy::set(&mut lazy, 13));
     }
 
     pub fn deref_mut() {
