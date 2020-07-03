@@ -40,7 +40,7 @@ use serde::Serialize;
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct ContractSpec<F: Form = MetaForm> {
     /// The name of the contract.
-    name: F::String,
+    name: &'static str,
     /// The set of constructors of the contract.
     constructors: Vec<ConstructorSpec<F>>,
     /// The external messages of the contract.
@@ -56,7 +56,7 @@ impl IntoCompact for ContractSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ContractSpec {
-            name: registry.register_string(&self.name),
+            name: self.name,
             constructors: self
                 .constructors
                 .into_iter()
@@ -171,7 +171,7 @@ impl ContractSpecBuilder<Valid> {
 
 impl ContractSpec {
     /// Creates a new contract specification.
-    pub fn new(name: <MetaForm as Form>::String) -> ContractSpecBuilder {
+    pub fn new(name: &'static str) -> ContractSpecBuilder {
         ContractSpecBuilder {
             spec: Self {
                 name,
@@ -190,7 +190,7 @@ impl ContractSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
-    name: F::String,
+    name: &'static str,
     /// The selector hash of the message.
     #[serde(serialize_with = "serialize_as_byte_str")]
     selector: [u8; 4],
@@ -205,7 +205,7 @@ impl IntoCompact for ConstructorSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ConstructorSpec {
-            name: registry.register_string(&self.name),
+            name: self.name,
             selector: self.selector,
             args: self
                 .args
@@ -232,7 +232,7 @@ pub struct ConstructorSpecBuilder<Selector> {
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
     pub fn new(
-        name: <MetaForm as Form>::String,
+        name: &'static str,
     ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
         ConstructorSpecBuilder {
             spec: Self {
@@ -296,7 +296,7 @@ impl ConstructorSpecBuilder<state::Selector> {
 #[serde(rename_all = "camelCase")]
 pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
-    name: F::String,
+    name: &'static str,
     /// The selector hash of the message.
     #[serde(serialize_with = "serialize_as_byte_str")]
     selector: [u8; 4],
@@ -329,7 +329,7 @@ mod state {
 impl MessageSpec {
     /// Creates a new message spec builder.
     pub fn new(
-        name: <MetaForm as Form>::String,
+        name: &'static str,
     ) -> MessageSpecBuilder<
         Missing<state::Selector>,
         Missing<state::Mutates>,
@@ -443,7 +443,7 @@ impl IntoCompact for MessageSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         MessageSpec {
-            name: registry.register_string(&self.name),
+            name: self.name,
             selector: self.selector,
             mutates: self.mutates,
             args: self
@@ -462,7 +462,7 @@ impl IntoCompact for MessageSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct EventSpec<F: Form = MetaForm> {
     /// The name of the event.
-    name: F::String,
+    name: &'static str,
     /// The event arguments.
     args: Vec<EventParamSpec<F>>,
     /// The event documentation.
@@ -508,7 +508,7 @@ impl IntoCompact for EventSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
-            name: registry.register_string(&self.name),
+            name: self.name,
             args: self
                 .args
                 .into_iter()
@@ -549,7 +549,7 @@ impl EventSpec {
 /// default setup. Even though it would be useful for third party tools
 /// such as the Polkadot UI to know that we are handling with `Balance`
 /// types, we currently cannot communicate this without display names.
-pub type DisplayName<F> = scale_info::Path<F>;
+pub type DisplayName = scale_info::Path;
 
 /// A type specification.
 ///
@@ -575,7 +575,7 @@ pub struct TypeSpec<F: Form = MetaForm> {
     /// The actual type.
     id: F::TypeId,
     /// The compile-time known displayed representation of the type.
-    display_name: DisplayName<F>,
+    display_name: DisplayName,
 }
 
 impl IntoCompact for TypeSpec {
@@ -584,7 +584,7 @@ impl IntoCompact for TypeSpec {
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         TypeSpec {
             id: registry.register_type(&self.id),
-            display_name: self.display_name.into_compact(registry),
+            display_name: self.display_name,
         }
     }
 }
@@ -623,7 +623,7 @@ impl TypeSpec {
     pub fn with_name_segs<T, S>(segments: S) -> Self
     where
         T: TypeInfo + 'static,
-        S: IntoIterator<Item = <MetaForm as Form>::String>,
+        S: IntoIterator<Item = &'static str>,
     {
         Self {
             id: meta_type::<T>(),
@@ -649,7 +649,7 @@ impl TypeSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct EventParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
-    name: F::String,
+    name: &'static str,
     /// If the event parameter is indexed.
     indexed: bool,
     /// The type of the parameter.
@@ -664,7 +664,7 @@ impl IntoCompact for EventParamSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         EventParamSpec {
-            name: registry.register_string(self.name),
+            name: self.name,
             indexed: self.indexed,
             ty: self.ty.into_compact(registry),
             docs: self.docs,
@@ -776,7 +776,7 @@ impl ReturnTypeSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct MessageParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
-    name: F::String,
+    name: &'static str,
     /// The type of the parameter.
     #[serde(rename = "type")]
     ty: TypeSpec<F>,
@@ -787,7 +787,7 @@ impl IntoCompact for MessageParamSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         MessageParamSpec {
-            name: registry.register_string(self.name),
+            name: self.name,
             ty: self.ty.into_compact(registry),
         }
     }
