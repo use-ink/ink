@@ -1,8 +1,12 @@
 [workspace]
 members = [
     "metadata",
+    "alloc",
     "core",
+    "core/derive",
     "lang",
+    "lang/macro",
+    "lang/ir",
     "prelude",
     "primitives",
 ]
