@@ -12,10 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::fmt::{Display, Formatter, Result as DisplayResult};
-use core::marker::PhantomData;
+use core::{
+    fmt::{
+        Display,
+        Formatter,
+        Result as DisplayResult,
+    },
+    marker::PhantomData,
+};
 use semver::Version;
-use serde::{Serialize, Serializer};
+use serde::{
+    Serialize,
+    Serializer,
+};
 use serde_json::{
     Map,
     Value,
@@ -83,7 +92,10 @@ impl SourceLanguage {
 }
 
 impl Serialize for SourceLanguage {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
         serializer.serialize_str(&format!("{} {}", self.language, self.version))
     }
 }
@@ -116,7 +128,10 @@ pub struct SourceCompiler {
 }
 
 impl Serialize for SourceCompiler {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
         serializer.serialize_str(&format!("{} ({})", self.high_level, self.low_level))
     }
 }
