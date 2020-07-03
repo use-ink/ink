@@ -116,6 +116,12 @@ pub struct CompilerInfo {
     version: Version,
 }
 
+impl CompilerInfo {
+    pub fn new(compiler: Compiler, version: Version) -> Self {
+        CompilerInfo { compiler, version }
+    }
+}
+
 /// Compilers used to compile a smart contract.
 #[derive(Debug, Serialize)]
 pub enum Compiler {
@@ -207,12 +213,41 @@ mod state {
     pub struct Authors;
 }
 
+/// Build an [`InkProjectContract`], ensuring required fields are supplied
+///
+/// # Example
+///
+/// ```
+/// # use crate::ink_metadata::InkProjectContract;
+/// # use semver::Version;
+/// # use url::Url;
+/// // contract metadata with the minimum set of required fields
+/// let metadata1: InkProjectContract =
+///     InkProjectContract::build()
+///         .name("example")
+///         .version(Version::new(0, 1, 0))
+///         .authors(vec!["author@example.com"])
+///         .done();
+///
+/// // contract metadata with optional fields
+/// let metadata2: InkProjectContract =
+///     InkProjectContract::build()
+///         .name("example")
+///         .version(Version::new(0, 1, 0))
+///         .authors(vec!["author@example.com"])
+///         .description("description")
+///         .documentation(Url::parse("http://example.com").unwrap())
+///         .repository(Url::parse("http://example.com").unwrap())
+///         .homepage(Url::parse("http://example.com").unwrap())
+///         .done();
+/// ```
 pub struct InkProjectContractBuilder<Name, Version, Authors> {
     contract: InkProjectContract,
     marker: PhantomData<fn() -> (Name, Version, Authors)>,
 }
 
 impl<V, A> InkProjectContractBuilder<Missing<state::Name>, V, A> {
+    /// Set the contract name (required)
     pub fn name<S>(self, name: S) -> InkProjectContractBuilder<state::Name, V, A>
     where
         S: AsRef<str>,
@@ -228,6 +263,7 @@ impl<V, A> InkProjectContractBuilder<Missing<state::Name>, V, A> {
 }
 
 impl<N, A> InkProjectContractBuilder<N, Missing<state::Version>, A> {
+    /// Set the contract version (required)
     pub fn version(
         self,
         version: Version,
@@ -243,6 +279,7 @@ impl<N, A> InkProjectContractBuilder<N, Missing<state::Version>, A> {
 }
 
 impl<N, V> InkProjectContractBuilder<N, V, Missing<state::Authors>> {
+    /// Set the contract authors (required)
     pub fn authors<I, S>(
         self,
         authors: I,
@@ -261,8 +298,43 @@ impl<N, V> InkProjectContractBuilder<N, V, Missing<state::Authors>> {
     }
 }
 
+impl<N, V, A> InkProjectContractBuilder<N, V, A> {
+    /// Set the contract description (optional)
+    pub fn description<S>(mut self, description: S) -> Self
+    where
+        S: AsRef<str>
+    {
+        self.contract.description = Some(description.as_ref().to_owned());
+        self
+    }
+
+    /// Set the contract documentation url (optional)
+    pub fn documentation(mut self, documentation: Url) -> Self {
+        self.contract.documentation = Some(documentation);
+        self
+    }
+
+    /// Set the contract documentation url (optional)
+    pub fn repository(mut self, repository: Url) -> Self {
+        self.contract.repository = Some(repository);
+        self
+    }
+
+    /// Set the contract homepage url (optional)
+    pub fn homepage(mut self, homepage: Url) -> Self {
+        self.contract.homepage = Some(homepage);
+        self
+    }
+
+    /// Set the contract license (optional)
+    pub fn license(mut self, license: License) -> Self {
+        self.contract.license = Some(license);
+        self
+    }
+}
+
 impl InkProjectContractBuilder<state::Name, state::Version, state::Authors> {
-    fn done(self) -> InkProjectContract {
+    pub fn done(self) -> InkProjectContract {
         self.contract
     }
 }
