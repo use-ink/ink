@@ -76,42 +76,26 @@ pub struct InkProject {
     metadata_version: semver::Version,
     #[serde(flatten)]
     extension: InkProjectExtension,
-    spec: InkProjectSpec,
-}
-
-impl InkProject {
-    pub fn new(extension: InkProjectExtension, spec: InkProjectSpec) -> Self {
-        let metadata_version = semver::Version::parse(METADATA_VERSION)
-            .expect("METADATA_VERSION is a valid semver string");
-        InkProject {
-            metadata_version,
-            extension,
-            spec,
-        }
-    }
-}
-
-#[derive(Debug, Serialize)]
-pub struct InkProjectSpec {
-    #[serde(flatten)]
-    registry: Registry,
     #[serde(rename = "storage")]
     layout: layout2::Layout<CompactForm>,
     spec: ContractSpec<CompactForm>,
 }
 
-impl InkProjectSpec {
-    /// Creates a new ink! project.
-    pub fn new<L, S>(layout: L, spec: S) -> Self
+impl InkProject {
+    pub fn new<L, S>(extension: InkProjectExtension, layout: L, spec: S) -> Self
     where
         L: Into<layout2::Layout>,
         S: Into<ContractSpec>,
     {
+        let metadata_version = semver::Version::parse(METADATA_VERSION)
+            .expect("METADATA_VERSION is a valid semver string");
         let mut registry = Registry::new();
-        Self {
+
+        InkProject {
+            metadata_version,
+            extension,
             layout: layout.into().into_compact(&mut registry),
             spec: spec.into().into_compact(&mut registry),
-            registry,
         }
     }
 }

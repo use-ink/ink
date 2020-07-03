@@ -49,8 +49,7 @@ impl GenerateCode for GenerateMetadata<'_> {
                     let layout: ::ink_metadata::layout2::Layout = {
                         #layout
                     };
-                    let spec = ::ink_metadata::InkProjectSpec::new(layout, contract);
-                    ::ink_metadata::InkProject::new(extension, spec)
+                    ::ink_metadata::InkProject::new(extension, layout, contract)
                 }
             };
         }
