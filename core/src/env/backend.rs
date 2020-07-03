@@ -126,12 +126,12 @@ pub trait TypedEnv: Env {
     /// For more details visit: [`ink_core::env::transferred_balance`]
     fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
-    /// Returns the current price for gas.
+    /// Returns the price for the specified amount of gas.
     ///
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::gas_price`]
-    fn gas_price<T: EnvTypes>(&mut self) -> Result<T::Balance>;
+    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance>;
 
     /// Returns the amount of gas left for the contract execution.
     ///

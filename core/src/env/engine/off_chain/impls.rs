@@ -31,6 +31,8 @@ use crate::env::{
     TypedEnv,
 };
 use ink_primitives::Key;
+use core::convert::TryInto;
+use num_traits::Bounded;
 
 impl EnvInstance {
     /// Returns the callee account.
@@ -153,11 +155,15 @@ impl TypedEnv for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn gas_price<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.chain_spec
+    /// Emulates gas price calculation
+    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
+        use crate::env::arithmetic::Saturating as _;
+
+        let gas_price = self.chain_spec
             .gas_price::<T>()
-            .map_err(|_| scale::Error::from("could not decode gas price"))
-            .map_err(Into::into)
+            .map_err(|_| scale::Error::from("could not decode gas price"))?;
+
+        Ok(gas_price.saturating_mul(gas.try_into().unwrap_or_else(|_| Bounded::max_value())))
     }
 
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
