@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::utils::serialize_as_byte_str;
 use core::{
     fmt::{
         Display,
@@ -57,6 +58,7 @@ impl InkProjectExtension {
 
 #[derive(Debug, Serialize)]
 pub struct InkProjectSource {
+    #[serde(serialize_with = "serialize_as_byte_str")]
     hash: [u8; 32],
     language: SourceLanguage,
     compiler: SourceCompiler,
