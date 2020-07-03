@@ -161,7 +161,10 @@ where
     ///
     /// # Note
     ///
-    /// No loads will be executed.
+    /// No reads from contract storage will be executed.
+    ///
+    /// This method should be preferred over dereferencing or `get_mut`
+    /// in case the returned value is of no interest to the caller.
     ///
     /// # Panics
     ///
