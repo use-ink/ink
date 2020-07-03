@@ -112,6 +112,11 @@ impl TryFrom<syn::ItemStruct> for Storage {
 }
 
 impl Storage {
+    /// Returns the non-ink! attributes of the ink! storage struct.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.ast.attrs
+    }
+
     /// Returns the identifier of the storage struct.
     pub fn ident(&self) -> &Ident {
         &self.ast.ident

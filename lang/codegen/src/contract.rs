@@ -1,0 +1,64 @@
+// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use crate::{
+    codegen,
+    GenerateCode,
+    GenerateCodeUsing,
+};
+use derive_more::From;
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
+
+/// Generates code for the entirety of the ink! contract.
+#[derive(From)]
+pub struct Contract<'a> {
+    /// The contract to generate code for.
+    contract: &'a ir::Contract,
+}
+
+impl AsRef<ir::Contract> for Contract<'_> {
+    fn as_ref(&self) -> &ir::Contract {
+        self.contract
+    }
+}
+
+impl GenerateCode for Contract<'_> {
+    /// Generates ink! contract code.
+    fn generate_code(&self) -> TokenStream2 {
+        let ident = &self.contract.module().ident();
+
+        let env = self.generate_code_using::<codegen::Env>();
+        let storage = self.generate_code_using::<codegen::Storage>();
+        // let dispatch = self.generate_code_using::<Dispatch>();
+        // let generate_metadata = self.generate_code_using::<GenerateMetadata>();
+        // let event_helpers = self.generate_code_using::<EventHelpers>();
+        // let event_structs = self.generate_code_using::<EventStructs>();
+        // let cross_calling = self.generate_code_using::<CrossCalling>();
+        // let non_ink_items = &self.contract.non_ink_items;
+
+        quote! {
+            mod #ident {
+                #env
+                #storage
+                // #event_helpers
+                // #dispatch
+                // #generate_metadata
+                // #cross_calling
+                // #event_structs
+                // #( #non_ink_items )*
+            }
+        }
+    }
+}
