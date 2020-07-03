@@ -30,10 +30,16 @@ pub use semver::Version;
 
 pub use self::{
     extension::{
+        Compiler,
+        CompilerInfo,
         InkProjectContract,
         InkProjectExtension,
         InkProjectSource,
         InkProjectUser,
+        Language,
+        License,
+        SourceCompiler,
+        SourceLanguage,
     },
     specs::{
         ConstructorSpec,
@@ -96,7 +102,7 @@ pub struct InkProjectSpec {
 
 impl InkProjectSpec {
     /// Creates a new ink! project.
-    pub fn new<M, L, S>(layout: L, spec: S) -> Self
+    pub fn new<L, S>(layout: L, spec: S) -> Self
     where
         L: Into<layout2::Layout>,
         S: Into<ContractSpec>,
