@@ -295,6 +295,7 @@ mod state {
 ///         .homepage(Url::parse("http://example.com").unwrap())
 ///         .done();
 /// ```
+#[allow(clippy::type_complexity)]
 pub struct InkProjectContractBuilder<Name, Version, Authors> {
     contract: InkProjectContract,
     marker: PhantomData<fn() -> (Name, Version, Authors)>,
