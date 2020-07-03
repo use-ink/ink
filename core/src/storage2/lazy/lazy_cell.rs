@@ -20,7 +20,6 @@ use super::{
 use crate::storage2::traits::{
     clear_spread_root_opt,
     pull_spread_root_opt,
-    push_spread_root_opt,
     ExtKeyPtr,
     KeyPtr,
     SpreadLayout,
@@ -325,12 +324,13 @@ where
         // SAFETY: This is critical because we mutably access the entry.
         let cache = unsafe { &mut *self.cache.get_ptr().as_ptr() };
         if cache.is_none() {
-            // Write value to storage
-            let key = self
-                .key
-                .expect("key must exist when attempting to set a value");
-            push_spread_root_opt::<T>(Some(&new_value), &key);
+            // Cache is empty, so we simply set the cache to the value.
+            // The key does not need to exist for this to work, we only need to
+            // write the value into the cache and are done. Writing to contract
+            // storage happens during setup/teardown of a contract.
+            *cache = Some(Entry::new(Some(new_value), EntryState::Preserved));
         } else {
+            //  Cache is already populated we simply overwrite its already existing value.
             cache
                 .as_mut()
                 .expect("unpopulated cache entry")
