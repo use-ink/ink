@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use crate::GenerateCode;
+use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use derive_more::From;
 
 /// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
 #[derive(From)]

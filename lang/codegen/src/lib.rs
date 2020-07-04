@@ -21,8 +21,8 @@ mod traits;
 /// Module privately re-exporting all code generators through this namespace.
 mod codegen {
     pub use super::{
-        cross_calling::CrossCallingConflictCfg,
         contract::Contract,
+        cross_calling::CrossCallingConflictCfg,
         env::Env,
         storage::Storage,
     };
