@@ -37,10 +37,14 @@ impl AsRef<ir::Contract> for Contract<'_> {
 impl GenerateCode for Contract<'_> {
     /// Generates ink! contract code.
     fn generate_code(&self) -> TokenStream2 {
-        let ident = &self.contract.module().ident();
+        let module = self.contract.module();
+        let ident = module.ident();
+        let attrs = module.attrs();
+        let vis = module.vis();
 
         let env = self.generate_code_using::<codegen::Env>();
         let storage = self.generate_code_using::<codegen::Storage>();
+        // let item_impls = self.generate_code_using::<codegen::ItemImpls>();
         // let dispatch = self.generate_code_using::<Dispatch>();
         // let generate_metadata = self.generate_code_using::<GenerateMetadata>();
         // let event_helpers = self.generate_code_using::<EventHelpers>();
@@ -49,7 +53,8 @@ impl GenerateCode for Contract<'_> {
         // let non_ink_items = &self.contract.non_ink_items;
 
         quote! {
-            mod #ident {
+            #( #attrs )*
+            #vis mod #ident {
                 #env
                 #storage
                 // #event_helpers
