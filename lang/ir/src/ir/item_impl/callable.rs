@@ -78,7 +78,7 @@ impl<'a, C> CallableWithSelector<'a, C> {
     }
 
     /// Returns a shared reference to the underlying callable.
-    pub fn item(&self) -> &'a C {
+    pub fn callable(&self) -> &'a C {
         self.callable
     }
 }

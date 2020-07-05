@@ -207,13 +207,13 @@ impl ItemMod {
                     Entry::Occupied(overlap) => {
                         return Err(compose_error(
                             overlap.get().span(),
-                            message.item().span(),
+                            message.callable().span(),
                             selector,
                             "message",
                         ))
                     }
                     Entry::Vacant(vacant) => {
-                        vacant.insert(message.item());
+                        vacant.insert(message.callable());
                     }
                 }
             }
@@ -223,13 +223,13 @@ impl ItemMod {
                     Entry::Occupied(overlap) => {
                         return Err(compose_error(
                             overlap.get().span(),
-                            constructor.item().span(),
+                            constructor.callable().span(),
                             selector,
                             "constructor",
                         ))
                     }
                     Entry::Vacant(vacant) => {
-                        vacant.insert(constructor.item());
+                        vacant.insert(constructor.callable());
                     }
                 }
             }
