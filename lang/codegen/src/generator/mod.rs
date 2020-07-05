@@ -14,6 +14,7 @@
 
 mod contract;
 mod cross_calling;
+mod dispatch;
 mod env;
 mod events;
 mod storage;
@@ -21,6 +22,7 @@ mod storage;
 pub use self::{
     contract::Contract,
     cross_calling::CrossCallingConflictCfg,
+    dispatch::Dispatch,
     env::Env,
     events::Events,
     storage::Storage,
