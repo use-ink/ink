@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{
-    codegen,
+    generator,
     GenerateCode,
     GenerateCodeUsing,
 };
@@ -48,7 +48,7 @@ impl GenerateCode for Storage<'_> {
         } else {
             None
         };
-        let cfg = self.generate_code_using::<codegen::CrossCallingConflictCfg>();
+        let cfg = self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote_spanned!(storage_span =>
             #access_env_impls
             #storage_struct
@@ -70,7 +70,7 @@ impl GenerateCode for Storage<'_> {
 impl Storage<'_> {
     fn generate_access_env_trait_impls(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
-        let cfg = self.generate_code_using::<codegen::CrossCallingConflictCfg>();
+        let cfg = self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote! {
             #cfg
             const _: () = {
@@ -100,7 +100,7 @@ impl Storage<'_> {
         let ident = &storage.ident();
         let attrs = &storage.attrs();
         let fields = storage.fields();
-        let cfg = self.generate_code_using::<codegen::CrossCallingConflictCfg>();
+        let cfg = self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote_spanned!( span =>
             #cfg
             #(#attrs)*

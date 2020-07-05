@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{
-    codegen,
+    generator,
     GenerateCode,
     GenerateCodeUsing,
 };
@@ -42,9 +42,9 @@ impl GenerateCode for Contract<'_> {
         let attrs = module.attrs();
         let vis = module.vis();
 
-        let env = self.generate_code_using::<codegen::Env>();
-        let storage = self.generate_code_using::<codegen::Storage>();
-        // let item_impls = self.generate_code_using::<codegen::ItemImpls>();
+        let env = self.generate_code_using::<generator::Env>();
+        let storage = self.generate_code_using::<generator::Storage>();
+        // let item_impls = self.generate_code_using::<generator::ItemImpls>();
         // let dispatch = self.generate_code_using::<Dispatch>();
         // let generate_metadata = self.generate_code_using::<GenerateMetadata>();
         // let event_helpers = self.generate_code_using::<EventHelpers>();

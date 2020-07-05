@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod traits;
-mod generator;
-
-use self::traits::{
-    GenerateCode,
-    GenerateCodeUsing,
-};
-
+use crate::GenerateCode;
+use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
 
-/// Generates the entire code for the given ink! contract.
-pub fn generate_code(contract: &ir::Contract) -> TokenStream2 {
-    generator::Contract::from(contract).generate_code()
+/// Generates code for the ink! environment of the contract.
+#[derive(From)]
+pub struct Env<'a> {
+    contract: &'a ir::Contract,
 }

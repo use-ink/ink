@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod traits;
-mod generator;
+mod contract;
+mod cross_calling;
+mod env;
+mod events;
+mod storage;
 
-use self::traits::{
-    GenerateCode,
-    GenerateCodeUsing,
+pub use self::{
+    contract::Contract,
+    cross_calling::CrossCallingConflictCfg,
+    env::Env,
+    storage::Storage,
 };
-
-use proc_macro2::TokenStream as TokenStream2;
-
-/// Generates the entire code for the given ink! contract.
-pub fn generate_code(contract: &ir::Contract) -> TokenStream2 {
-    generator::Contract::from(contract).generate_code()
-}
