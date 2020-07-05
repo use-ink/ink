@@ -17,7 +17,10 @@
 
 use crate::ir;
 use core::fmt;
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use quote::ToTokens as _;
 
 /// The kind of externally callable smart contract entity.
@@ -111,6 +114,10 @@ where
         <C as Callable>::inputs(&self.callable)
     }
 
+    fn inputs_span(&self) -> Span {
+        <C as Callable>::inputs_span(&self.callable)
+    }
+
     fn statements(&self) -> &[syn::Stmt] {
         <C as Callable>::statements(&self.callable)
     }
@@ -150,6 +157,9 @@ pub trait Callable {
 
     /// Returns an iterator yielding all input parameters of the ink! callable.
     fn inputs(&self) -> InputsIter;
+
+    /// Returns the span of the inputs of the ink! callable.
+    fn inputs_span(&self) -> Span;
 
     /// Returns a slice over shared references to the statements of the callable.
     fn statements(&self) -> &[syn::Stmt];

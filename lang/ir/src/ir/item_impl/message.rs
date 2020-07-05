@@ -206,17 +206,16 @@ impl Callable for Message {
         InputsIter::from(self)
     }
 
+    fn inputs_span(&self) -> Span {
+        self.item.sig.inputs.span()
+    }
+
     fn statements(&self) -> &[syn::Stmt] {
         &self.item.block.stmts
     }
 }
 
 impl Message {
-    /// Returns the span for all inputs of the ink! message.
-    pub fn inputs_span(&self) -> Span {
-        self.item.sig.inputs.span()
-    }
-
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
         match self.item.sig.inputs.iter().next() {

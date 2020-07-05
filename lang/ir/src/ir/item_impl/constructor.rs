@@ -21,7 +21,10 @@ use super::{
 };
 use crate::ir;
 use core::convert::TryFrom;
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
@@ -211,6 +214,10 @@ impl Callable for Constructor {
 
     fn inputs(&self) -> InputsIter {
         InputsIter::from(self)
+    }
+
+    fn inputs_span(&self) -> Span {
+        self.item.sig.inputs.span()
     }
 
     fn statements(&self) -> &[syn::Stmt] {
