@@ -54,6 +54,7 @@ impl GenerateCode for Dispatch<'_> {
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
         let entry_points = self.generate_entry_points();
+        let dispatch_using_mode = self.generate_dispatch_using_mode();
         let message_dispatch_enum = self.generate_message_dispatch_enum();
         let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
         quote! {
@@ -64,6 +65,7 @@ impl GenerateCode for Dispatch<'_> {
             #no_cross_calling_cfg
             const _: () = {
                 #entry_points
+                #dispatch_using_mode
                 #message_dispatch_enum
                 #constructor_dispatch_enum
             };
@@ -79,7 +81,7 @@ impl Dispatch<'_> {
     /// Those are expected to exist by the smart contracts host module.
     /// They guide the dispatch, set-up and tear-down of a smart contract.
     fn generate_entry_points(&self) -> TokenStream2 {
-        let storage_ident = &self.contract.module().storage().ident();
+        let storage_ident = self.contract.module().storage().ident();
         quote! {
             #[cfg(not(test))]
             #[no_mangle]
@@ -101,6 +103,34 @@ impl Dispatch<'_> {
                     ),
                 )
                 .to_u32()
+            }
+        }
+    }
+
+    /// Generates the `DispatchUsingMode` trait implementation to guide contract dispatch.
+    fn generate_dispatch_using_mode(&self) -> TokenStream2 {
+        let storage_ident = self.contract.module().storage().ident();
+        quote! {
+            impl ::ink_lang::DispatchUsingMode for #storage_ident {
+                #[allow(unused_parens)]
+                fn dispatch_using_mode(
+                    mode: ::ink_lang::DispatchMode
+                ) -> core::result::Result<(), ::ink_lang::DispatchError> {
+                    match mode {
+                        ::ink_lang::DispatchMode::Instantiate => {
+                            <<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type as ::ink_lang::Execute>::execute(
+                                ::ink_core::env::decode_input::<<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type>()
+                                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
+                            )
+                        }
+                        ::ink_lang::DispatchMode::Call => {
+                            <<#storage_ident as ::ink_lang::MessageDispatcher>::Type as ::ink_lang::Execute>::execute(
+                                ::ink_core::env::decode_input::<<#storage_ident as ::ink_lang::MessageDispatcher>::Type>()
+                                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
+                            )
+                        }
+                    }
+                }
             }
         }
     }
