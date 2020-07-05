@@ -22,5 +22,6 @@ pub use self::{
     contract::Contract,
     cross_calling::CrossCallingConflictCfg,
     env::Env,
+    events::Events,
     storage::Storage,
 };
