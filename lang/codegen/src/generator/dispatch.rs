@@ -53,7 +53,8 @@ impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
-        let dispatch_enum = self.generate_message_dispatch_enum();
+        let message_dispatch_enum = self.generate_message_dispatch_enum();
+        let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
         quote! {
             // We do not generate contract dispatch code while the contract
             // is being tested or the contract is a dependency of another
@@ -61,7 +62,8 @@ impl GenerateCode for Dispatch<'_> {
             #[cfg(not(test))]
             #no_cross_calling_cfg
             const _: () = {
-                #dispatch_enum
+                #message_dispatch_enum
+                #constructor_dispatch_enum
             };
         }
     }
@@ -149,13 +151,13 @@ impl Dispatch<'_> {
         }
     }
 
-    /// Generates one match arm of the dispatch variant for the `execute` implementation.
+    /// Generates one match arm of the dispatch message for the `execute` implementation.
     ///
     /// # Note
     ///
     /// This is basically the code per ink! message that is going to be executed after
     /// the dispatch has already taken place.
-    fn generate_dispatch_execute_arm(
+    fn generate_dispatch_execute_message_arm(
         &self,
         cws: ir::CallableWithSelector<'_, ir::Message>,
     ) -> TokenStream2 {
@@ -192,7 +194,7 @@ impl Dispatch<'_> {
         }
     }
 
-    /// Returns an iterator over all ink! messages of the inK! contract.
+    /// Returns an iterator over all ink! messages of the ink! contract.
     fn contract_messages(
         &self,
     ) -> impl Iterator<Item = ir::CallableWithSelector<ir::Message>> {
@@ -214,7 +216,7 @@ impl Dispatch<'_> {
             .map(|message| self.generate_dispatch_variant_decode(message));
         let execute_variants = self
             .contract_messages()
-            .map(|message| self.generate_dispatch_execute_arm(message));
+            .map(|message| self.generate_dispatch_execute_message_arm(message));
         quote! {
             const _: () = {
                 pub enum MessageDispatchEnum {
@@ -235,6 +237,89 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink_lang::Execute for MessageDispatchEnum {
+                    fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                        match self {
+                            #( #execute_variants )*
+                        }
+                    }
+                }
+            };
+        }
+    }
+
+    /// Generates one match arm of the dispatch constructor for the `execute` implementation.
+    ///
+    /// # Note
+    ///
+    /// This is basically the code per ink! constructor that is going to be executed after
+    /// the dispatch has already taken place.
+    fn generate_dispatch_execute_constructor_arm(
+        &self,
+        cws: ir::CallableWithSelector<'_, ir::Constructor>,
+    ) -> TokenStream2 {
+        let ident = self.generate_dispatch_variant_ident(cws);
+        let constructor = cws.callable();
+        let arg_pats = constructor.inputs().map(|arg| &arg.pat).collect::<Vec<_>>();
+        let arg_inputs = if arg_pats.len() == 1 {
+            quote! { #(#arg_pats),* }
+        } else {
+            quote! { ( #(#arg_pats),* ) }
+        };
+        let selector_id = cws.composed_selector().unique_id();
+        quote! {
+            Self::#ident(#(#arg_pats),*) => {
+                ::ink_lang::execute_constructor::<Constr<[(); #selector_id]>, _>(move || {
+                    <Constr<[(); #selector_id]> as ::ink_lang::Constructor>::CALLABLE(
+                        #arg_inputs
+                    )
+                })
+            }
+        }
+    }
+
+    /// Returns an iterator over all ink! constructors of the ink! contract.
+    fn contract_constructors(
+        &self,
+    ) -> impl Iterator<Item = ir::CallableWithSelector<ir::Constructor>> {
+        self.contract
+            .module()
+            .impls()
+            .map(|impl_item| impl_item.iter_constructors())
+            .flatten()
+    }
+
+    /// Generates the entire dispatch variant enum for all ink! messages.
+    fn generate_constructor_dispatch_enum(&self) -> TokenStream2 {
+        let storage_ident = self.contract.module().storage().ident();
+        let message_variants = self
+            .contract_messages()
+            .map(|message| self.generate_dispatch_variant_arm(message));
+        let decode_message = self
+            .contract_messages()
+            .map(|message| self.generate_dispatch_variant_decode(message));
+        let execute_variants = self
+            .contract_constructors()
+            .map(|cws| self.generate_dispatch_execute_constructor_arm(cws));
+        quote! {
+            const _: () = {
+                pub enum ConstructorDispatchEnum {
+                    #( #message_variants ),*
+                }
+
+                impl ::ink_lang::ConstructorDispatcher for #storage_ident {
+                    type Type = ConstructorDispatchEnum;
+                }
+
+                impl ::scale::Decode for ConstructorDispatchEnum {
+                    fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
+                        match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                            #( #decode_message )*
+                            _invalid => Err(::scale::Error::from("encountered unknown ink! constructor selector"))
+                        }
+                    }
+                }
+
+                impl ::ink_lang::Execute for ConstructorDispatchEnum {
                     fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
                         match self {
                             #( #execute_variants )*
