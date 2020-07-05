@@ -55,6 +55,7 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
         let entry_points = self.generate_entry_points();
         let dispatch_using_mode = self.generate_dispatch_using_mode();
+        let trait_impl_namespaces = self.generate_trait_impl_namespaces();
         let message_dispatch_enum = self.generate_message_dispatch_enum();
         let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
         quote! {
@@ -66,6 +67,7 @@ impl GenerateCode for Dispatch<'_> {
             const _: () = {
                 #entry_points
                 #dispatch_using_mode
+                #trait_impl_namespaces
                 #message_dispatch_enum
                 #constructor_dispatch_enum
             };
@@ -131,6 +133,37 @@ impl Dispatch<'_> {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    /// Generates utility types to emulate namespaces to disambiguate dispatch trait
+    /// implementations for ink! messages and ink! constructors with overlapping
+    /// selectors.
+    fn generate_trait_impl_namespaces(&self) -> TokenStream2 {
+        quote! {
+            // Namespace for messages.
+            //
+            // # Note
+            //
+            // The `S` parameter is going to refer to array types `[(); N]`
+            // where `N` is the unique identifier of the associated message
+            // selector.
+            pub struct Msg<S> {
+                // We need to wrap inner because of Rust's orphan rules.
+                marker: core::marker::PhantomData<fn() -> S>,
+            }
+
+            // Namespace for constructors.
+            //
+            // # Note
+            //
+            // The `S` parameter is going to refer to array types `[(); N]`
+            // where `N` is the unique identifier of the associated constructor
+            // selector.
+            pub struct Constr<S> {
+                // We need to wrap inner because of Rust's orphan rules.
+                marker: core::marker::PhantomData<fn() -> S>,
             }
         }
     }
