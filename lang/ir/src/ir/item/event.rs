@@ -20,6 +20,7 @@ use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
     Span,
+    TokenStream as TokenStream2,
 };
 use syn::spanned::Spanned as _;
 
@@ -148,6 +149,11 @@ impl Event {
     pub fn fields(&self) -> EventFieldsIter {
         EventFieldsIter::new(self)
     }
+
+    /// Returns all non-ink! attributes.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.item.attrs
+    }
 }
 
 /// An event field with a flag indicating if this field is an event topic.
@@ -157,6 +163,12 @@ pub struct EventField<'a> {
     pub is_topic: bool,
     /// The event field.
     field: &'a syn::Field,
+}
+
+impl quote::ToTokens for EventField<'_> {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        self.field.to_tokens(tokens);
+    }
 }
 
 impl<'a> EventField<'a> {
