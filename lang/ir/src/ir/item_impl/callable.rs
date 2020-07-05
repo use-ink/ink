@@ -87,6 +87,10 @@ impl<'a, C> Callable for CallableWithSelector<'a, C>
 where
     C: Callable,
 {
+    fn kind(&self) -> CallableKind {
+        <C as Callable>::kind(&self.callable)
+    }
+
     fn ident(&self) -> &Ident {
         <C as Callable>::ident(&self.callable)
     }
@@ -125,6 +129,9 @@ impl<'a, C> ::core::ops::Deref for CallableWithSelector<'a, C> {
 /// This is either an ink! message or an ink! constructor.
 /// Used to share common behavior between different callable types.
 pub trait Callable {
+    /// Returns the kind of the ink! callable.
+    fn kind(&self) -> CallableKind;
+
     /// Returns the identifier of the ink! callable.
     fn ident(&self) -> &Ident;
 

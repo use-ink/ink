@@ -185,6 +185,10 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
 }
 
 impl Callable for Constructor {
+    fn kind(&self) -> CallableKind {
+        CallableKind::Constructor
+    }
+
     fn ident(&self) -> &Ident {
         &self.item.sig.ident
     }

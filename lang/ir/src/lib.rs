@@ -35,6 +35,7 @@ mod ir;
 
 pub use self::ir::{
     Callable,
+    CallableKind,
     CallableWithSelector,
     Config,
     Constructor,

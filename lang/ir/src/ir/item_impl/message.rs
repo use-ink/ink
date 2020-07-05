@@ -178,6 +178,10 @@ impl TryFrom<syn::ImplItemMethod> for Message {
 }
 
 impl Callable for Message {
+    fn kind(&self) -> CallableKind {
+        CallableKind::Message
+    }
+
     fn ident(&self) -> &Ident {
         &self.item.sig.ident
     }

@@ -31,11 +31,11 @@ mod tests;
 
 use self::callable::{
     ensure_callable_invariants,
-    CallableKind,
 };
 pub use self::{
     callable::{
         Callable,
+        CallableKind,
         CallableWithSelector,
         InputsIter,
         Visibility,
