@@ -175,27 +175,24 @@ impl Dispatch<'_> {
         }
     }
 
-    /// Generates all the dispatch trait implementations for the given ink! message.
-    fn generate_trait_impls_for_message(
+    /// Generates code for the dispatch trait impls for a generic ink! callable.
+    fn generate_trait_impls_for_callable<C>(
         &self,
-        cws: ir::CallableWithSelector<'_, ir::Message>,
-    ) -> TokenStream2 {
-        let message = cws.callable();
-        let message_span = message.span();
+        cws: ir::CallableWithSelector<'_, C>,
+    ) -> TokenStream2
+    where
+        C: ir::Callable + quote::ToTokens,
+    {
+        let callable = cws.callable();
+        let callable_span = callable.span();
         let selector = cws.composed_selector();
         let (selector_bytes, selector_id) = (selector.as_bytes(), selector.unique_id());
-        let input_types = message
+        let input_types = callable
             .inputs()
             .map(|pat_type| &pat_type.ty)
             .collect::<Vec<_>>();
-        let output_tokens = message
-            .output()
-            .map(quote::ToTokens::to_token_stream)
-            .unwrap_or_else(|| quote! { () });
-        let is_mut = message.receiver().is_ref_mut();
         let storage_ident = self.contract.module().storage().ident();
-        let message_ident = message.ident();
-        let namespace = quote! { Msg };
+        let namespace = quote! { Constr };
         let input_types_tuple = if input_types.len() != 1 {
             // Pack all types into a tuple if they are not exactly 1.
             // This results in `()` for zero input types.
@@ -204,38 +201,61 @@ impl Dispatch<'_> {
             // Return the single type without turning it into a tuple.
             quote! { #( #input_types )* }
         };
-        let fn_input_impl = quote_spanned!(message.inputs_span() =>
+        let fn_input_impl = quote_spanned!(callable.inputs_span() =>
             impl ::ink_lang::FnInput for #namespace<[(); #selector_id]> {
                 type Input = #input_types_tuple;
             }
         );
-        let fn_output_impl = quote_spanned!(message.output().span() =>
-            impl ::ink_lang::FnOutput for #namespace<[(); #selector_id]> {
-                #[allow(unused_parens)]
-                type Output = #output_tokens;
-            }
-        );
-        let fn_selector_impl = quote_spanned!(message_span =>
+        let fn_selector_impl = quote_spanned!(callable_span =>
             impl ::ink_lang::FnSelector for #namespace<[(); #selector_id]> {
                 const SELECTOR: ::ink_core::env::call::Selector = ::ink_core::env::call::Selector::new([
                     #( #selector_bytes ),*
                 ]);
             }
         );
-        let fn_state_impl = quote_spanned!(message_span =>
+        let fn_state_impl = quote_spanned!(callable_span =>
             impl ::ink_lang::FnState for #namespace<[(); #selector_id]> {
                 type State = #storage_ident;
             }
         );
-        let (mut_token, message_trait_ident) = if is_mut {
-            (
-                Some(syn::token::Mut::default()),
-                format_ident!("MessageMut"),
-            )
-        } else {
-            (None, format_ident!("MessageRef"))
-        };
-        let input_bindings = message
+        quote! {
+            #fn_input_impl
+            #fn_selector_impl
+            #fn_state_impl
+        }
+    }
+
+    /// Returns a tuple of:
+    ///
+    /// - Vector over the generated identifier bindings (`__ink_binding_N`) for all inputs.
+    /// - `TokenStream` representing the binding identifiers as tuple (for >=2 inputs),
+    ///   as single identifier (for exactly one input) or as wildcard (`_`) if there are
+    ///   no input bindings.
+    ///
+    /// # Examples
+    ///
+    /// **No inputs:**
+    /// ```no_compile
+    /// ( vec![],
+    ///   quote! { _ } )
+    /// ```
+    ///
+    /// **Exactly one input:**
+    /// ```
+    /// ( vec![__ink_binding_0],
+    ///   quote! { __ink_binding_0 } )
+    /// ```
+    ///
+    /// **Multiple (>=2) inputs:**
+    /// ```
+    /// ( vec![__ink_binding_0, __ink_binding_1, ..],
+    ///   quote! { (__ink_binding_0, __ink_binding_1, ..) } )
+    /// ```
+    fn generate_input_bindings<C>(callable: &C) -> (Vec<Ident>, TokenStream2)
+    where
+        C: ir::Callable,
+    {
+        let input_bindings = callable
             .inputs()
             .enumerate()
             .map(|(n, _pat_type)| format_ident!("__ink_binding_{}", n))
@@ -245,6 +265,43 @@ impl Dispatch<'_> {
             1 => quote! { #( #input_bindings ),* },
             _ => quote! { ( #( #input_bindings ),* ) },
         };
+        (input_bindings, inputs_as_tuple_or_wildcard)
+    }
+
+    /// Generates all the dispatch trait implementations for the given ink! message.
+    fn generate_trait_impls_for_message(
+        &self,
+        cws: ir::CallableWithSelector<'_, ir::Message>,
+    ) -> TokenStream2 {
+        let message = cws.callable();
+        let message_span = message.span();
+        let selector = cws.composed_selector();
+        let selector_id = selector.unique_id();
+        let output_tokens = message
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| quote! { () });
+        let is_mut = message.receiver().is_ref_mut();
+        let storage_ident = self.contract.module().storage().ident();
+        let message_ident = message.ident();
+        let namespace = quote! { Msg };
+        let fn_output_impl = quote_spanned!(message.output().span() =>
+            impl ::ink_lang::FnOutput for #namespace<[(); #selector_id]> {
+                #[allow(unused_parens)]
+                type Output = #output_tokens;
+            }
+        );
+        let callable_impl = self.generate_trait_impls_for_callable(cws);
+        let (mut_token, message_trait_ident) = if is_mut {
+            (
+                Some(syn::token::Mut::default()),
+                format_ident!("MessageMut"),
+            )
+        } else {
+            (None, format_ident!("MessageRef"))
+        };
+        let (input_bindings, inputs_as_tuple_or_wildcard) =
+            Self::generate_input_bindings(message);
         let message_impl = quote_spanned!(message_span =>
             impl ::ink_lang::#message_trait_ident for #namespace<[(); #selector_id]> {
                 const CALLABLE: fn(
@@ -256,10 +313,8 @@ impl Dispatch<'_> {
             }
         );
         quote_spanned!(message_span =>
-            #fn_input_impl
+            #callable_impl
             #fn_output_impl
-            #fn_selector_impl
-            #fn_state_impl
             #message_impl
         )
     }
@@ -267,9 +322,31 @@ impl Dispatch<'_> {
     /// Generates all the dispatch trait implementations for the given ink! constructor.
     fn generate_trait_impls_for_constructor(
         &self,
-        _cws: ir::CallableWithSelector<'_, ir::Constructor>,
+        cws: ir::CallableWithSelector<'_, ir::Constructor>,
     ) -> TokenStream2 {
-        quote! {}
+        let constructor = cws.callable();
+        let constructor_span = constructor.span();
+        let selector = cws.composed_selector();
+        let selector_id = selector.unique_id();
+        let storage_ident = self.contract.module().storage().ident();
+        let constructor_ident = constructor.ident();
+        let namespace = quote! { Constr };
+        let callable_impl = self.generate_trait_impls_for_callable(cws);
+        let (input_bindings, inputs_as_tuple_or_wildcard) =
+            Self::generate_input_bindings(constructor);
+        let message_impl = quote_spanned!(constructor_span =>
+            impl ::ink_lang::Constructor for #namespace<[(); #selector_id]> {
+                const CALLABLE: fn(
+                    <Self as ::ink_lang::FnInput>::Input
+                ) -> <Self as ::ink_lang::FnState>::State = |#inputs_as_tuple_or_wildcard| {
+                    #storage_ident::#constructor_ident(#( #input_bindings ),* )
+                };
+            }
+        );
+        quote_spanned!(constructor_span =>
+            #callable_impl
+            #message_impl
+        )
     }
 
     /// Generate all dispatch trait implementations for ink! messages and ink! constructors.
