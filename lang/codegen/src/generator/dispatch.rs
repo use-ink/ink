@@ -60,7 +60,8 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
         let entry_points = self.generate_entry_points();
         let dispatch_using_mode = self.generate_dispatch_using_mode();
-        let trait_impl_namespaces = self.generate_trait_impl_namespaces();
+        let dispatch_trait_impl_namespaces = self.generate_trait_impl_namespaces();
+        let dispatch_trait_impls = self.generate_dispatch_trait_impls();
         let message_dispatch_enum = self.generate_message_dispatch_enum();
         let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
         quote! {
@@ -72,7 +73,8 @@ impl GenerateCode for Dispatch<'_> {
             const _: () = {
                 #entry_points
                 #dispatch_using_mode
-                #trait_impl_namespaces
+                #dispatch_trait_impl_namespaces
+                #dispatch_trait_impls
                 #message_dispatch_enum
                 #constructor_dispatch_enum
             };
@@ -260,6 +262,28 @@ impl Dispatch<'_> {
             #fn_state_impl
             #message_impl
         )
+    }
+
+    /// Generates all the dispatch trait implementations for the given ink! constructor.
+    fn generate_trait_impls_for_constructor(
+        &self,
+        _cws: ir::CallableWithSelector<'_, ir::Constructor>,
+    ) -> TokenStream2 {
+        quote! {}
+    }
+
+    /// Generate all dispatch trait implementations for ink! messages and ink! constructors.
+    fn generate_dispatch_trait_impls(&self) -> TokenStream2 {
+        let message_impls = self
+            .contract_messages()
+            .map(|message| self.generate_trait_impls_for_message(message));
+        let constructor_impls = self
+            .contract_constructors()
+            .map(|constructor| self.generate_trait_impls_for_constructor(constructor));
+        quote! {
+            #( #message_impls )*
+            #( #constructor_impls )*
+        }
     }
 
     /// Generates variant identifiers for the generated dispatch enum.
