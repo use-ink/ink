@@ -212,6 +212,11 @@ impl Callable for Message {
 }
 
 impl Message {
+    /// Returns the span for all inputs of the ink! message.
+    pub fn inputs_span(&self) -> Span {
+        self.item.sig.inputs.span()
+    }
+
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
         match self.item.sig.inputs.iter().next() {
