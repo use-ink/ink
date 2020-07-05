@@ -23,7 +23,12 @@ use proc_macro2::{
     Ident,
     TokenStream as TokenStream2,
 };
-use quote::quote;
+use quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+};
+use syn::spanned::Spanned as _;
 
 /// Generates code for the message and constructor dispatcher.
 ///
@@ -166,6 +171,95 @@ impl Dispatch<'_> {
                 marker: core::marker::PhantomData<fn() -> S>,
             }
         }
+    }
+
+    /// Generates all the dispatch trait implementations for the given ink! message.
+    fn generate_trait_impls_for_message(
+        &self,
+        cws: ir::CallableWithSelector<'_, ir::Message>,
+    ) -> TokenStream2 {
+        let message = cws.callable();
+        let message_span = message.span();
+        let selector = cws.composed_selector();
+        let (selector_bytes, selector_id) = (selector.as_bytes(), selector.unique_id());
+        let input_types = message
+            .inputs()
+            .map(|pat_type| &pat_type.ty)
+            .collect::<Vec<_>>();
+        let output_tokens = message
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| quote! { () });
+        let is_mut = message.receiver().is_ref_mut();
+        let storage_ident = self.contract.module().storage().ident();
+        let message_ident = message.ident();
+        let namespace = quote! { Msg };
+        let input_types_tuple = if input_types.len() != 1 {
+            // Pack all types into a tuple if they are not exactly 1.
+            // This results in `()` for zero input types.
+            quote! { ( #( #input_types ),* ) }
+        } else {
+            // Return the single type without turning it into a tuple.
+            quote! { #( #input_types )* }
+        };
+        let fn_input_impl = quote_spanned!(message.inputs_span() =>
+            impl ::ink_lang::FnInput for #namespace<[(); #selector_id]> {
+                type Input = #input_types_tuple;
+            }
+        );
+        let fn_output_impl = quote_spanned!(message.output().span() =>
+            impl ::ink_lang::FnOutput for #namespace<[(); #selector_id]> {
+                #[allow(unused_parens)]
+                type Output = #output_tokens;
+            }
+        );
+        let fn_selector_impl = quote_spanned!(message_span =>
+            impl ::ink_lang::FnSelector for #namespace<[(); #selector_id]> {
+                const SELECTOR: ::ink_core::env::call::Selector = ::ink_core::env::call::Selector::new([
+                    #( #selector_bytes ),*
+                ]);
+            }
+        );
+        let fn_state_impl = quote_spanned!(message_span =>
+            impl ::ink_lang::FnState for #namespace<[(); #selector_id]> {
+                type State = #storage_ident;
+            }
+        );
+        let (mut_token, message_trait_ident) = if is_mut {
+            (
+                Some(syn::token::Mut::default()),
+                format_ident!("MessageMut"),
+            )
+        } else {
+            (None, format_ident!("MessageRef"))
+        };
+        let input_bindings = message
+            .inputs()
+            .enumerate()
+            .map(|(n, _pat_type)| format_ident!("__ink_binding_{}", n))
+            .collect::<Vec<_>>();
+        let inputs_as_tuple_or_wildcard = match input_bindings.len() {
+            0 => quote! { _ },
+            1 => quote! { #( #input_bindings ),* },
+            _ => quote! { ( #( #input_bindings ),* ) },
+        };
+        let message_impl = quote_spanned!(message_span =>
+            impl ::ink_lang::#message_trait_ident for #namespace<[(); #selector_id]> {
+                const CALLABLE: fn(
+                    &#mut_token <Self as ::ink_lang::FnState>::State,
+                    <Self as ::ink_lang::FnInput>::Input
+                ) -> <Self as ::ink_lang::FnOutput>::Output = |state, #inputs_as_tuple_or_wildcard| {
+                    #storage_ident::#message_ident(state, #( #input_bindings ),* )
+                };
+            }
+        );
+        quote_spanned!(message_span =>
+            #fn_input_impl
+            #fn_output_impl
+            #fn_selector_impl
+            #fn_state_impl
+            #message_impl
+        )
     }
 
     /// Generates variant identifiers for the generated dispatch enum.
