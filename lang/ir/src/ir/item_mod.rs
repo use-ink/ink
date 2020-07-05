@@ -421,6 +421,16 @@ impl ItemMod {
     pub fn events(&self) -> IterEvents {
         IterEvents::new(self)
     }
+
+    /// Returns all non-ink! attributes of the ink! module.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.attrs
+    }
+
+    /// Returns the visibility of the ink! module.
+    pub fn vis(&self) -> &syn::Visibility {
+        &self.vis
+    }
 }
 
 /// Iterator yielding ink! item definitions of the ink! smart contract.
