@@ -21,7 +21,8 @@ use proc_macro2::Ident;
 use quote::ToTokens as _;
 
 /// The kind of externally callable smart contract entity.
-pub(super) enum CallableKind {
+#[derive(Debug, Copy, Clone)]
+pub enum CallableKind {
     /// An ink! message externally callable.
     Message,
     /// An ink! constructor externally callable.
@@ -38,12 +39,23 @@ impl fmt::Display for CallableKind {
 }
 
 /// Wrapper for a callable that adds its composed selector.
+#[derive(Debug)]
 pub struct CallableWithSelector<'a, C> {
     /// The composed selector computed by the associated implementation block
     /// and the given callable.
     composed_selector: ir::Selector,
     /// The actual callable.
     callable: &'a C,
+}
+
+impl<C> Copy for CallableWithSelector<'_, C> {}
+impl<C> Clone for CallableWithSelector<'_, C> {
+    fn clone(&self) -> Self {
+        Self {
+            composed_selector: self.composed_selector,
+            callable: self.callable,
+        }
+    }
 }
 
 impl<'a, C> CallableWithSelector<'a, C>
