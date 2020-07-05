@@ -53,6 +53,7 @@ impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
+        let entry_points = self.generate_entry_points();
         let message_dispatch_enum = self.generate_message_dispatch_enum();
         let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
         quote! {
@@ -62,6 +63,7 @@ impl GenerateCode for Dispatch<'_> {
             #[cfg(not(test))]
             #no_cross_calling_cfg
             const _: () = {
+                #entry_points
                 #message_dispatch_enum
                 #constructor_dispatch_enum
             };
@@ -70,6 +72,39 @@ impl GenerateCode for Dispatch<'_> {
 }
 
 impl Dispatch<'_> {
+    /// Generates the static ink! contract entry points.
+    ///
+    /// # Note
+    ///
+    /// Those are expected to exist by the smart contracts host module.
+    /// They guide the dispatch, set-up and tear-down of a smart contract.
+    fn generate_entry_points(&self) -> TokenStream2 {
+        let storage_ident = &self.contract.module().storage().ident();
+        quote! {
+            #[cfg(not(test))]
+            #[no_mangle]
+            fn deploy() -> u32 {
+                ::ink_lang::DispatchRetCode::from(
+                    <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                        ::ink_lang::DispatchMode::Instantiate,
+                    ),
+                )
+                .to_u32()
+            }
+
+            #[cfg(not(test))]
+            #[no_mangle]
+            fn call() -> u32 {
+                ::ink_lang::DispatchRetCode::from(
+                    <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                        ::ink_lang::DispatchMode::Call,
+                    ),
+                )
+                .to_u32()
+            }
+        }
+    }
+
     /// Generates variant identifiers for the generated dispatch enum.
     ///
     /// Since we want to avoid generating random names we generate identifiers
