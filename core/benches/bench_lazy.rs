@@ -70,7 +70,7 @@ fn bench_set_populated_cache(c: &mut Criterion) {
 /// Pushes a value to contract storage and creates a `Lazy` pointing to it.
 fn push_storage_lazy(value: i32) -> Lazy<i32> {
     let root_key = Key::from([0x00; 32]);
-    SpreadLayout::push_spread(&value, &mut KeyPtr::from(root_key));
+    SpreadLayout::push_spread(&Lazy::new(value), &mut KeyPtr::from(root_key));
     <Lazy<i32>>::lazy(root_key)
 }
 
