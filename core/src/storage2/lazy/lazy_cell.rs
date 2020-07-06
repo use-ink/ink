@@ -328,7 +328,7 @@ where
             // The key does not need to exist for this to work, we only need to
             // write the value into the cache and are done. Writing to contract
             // storage happens during setup/teardown of a contract.
-            *cache = Some(Entry::new(Some(new_value), EntryState::Preserved));
+            *cache = Some(Entry::new(Some(new_value), EntryState::Mutated));
         } else {
             //  Cache is already populated we simply overwrite its already existing value.
             cache
