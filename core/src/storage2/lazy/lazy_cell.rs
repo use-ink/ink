@@ -350,9 +350,12 @@ mod tests {
     use crate::{
         env,
         env::test::run_test,
-        storage2::traits::{
-            KeyPtr,
-            SpreadLayout,
+        storage2::{
+            traits::{
+                KeyPtr,
+                SpreadLayout,
+            },
+            Lazy,
         },
     };
     use ink_primitives::Key;
@@ -464,6 +467,39 @@ mod tests {
 
             cell.set(13);
             assert_eq!(cell.get(), Some(&13));
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn lazy_set_works_with_spread_layout_push_pull() -> env::Result<()> {
+        run_test::<env::DefaultEnvTypes, _>(|_| {
+            type MaybeValue = Option<u8>;
+
+            // Initialize a LazyCell with None and push it to `k`
+            let k = Key::from([0x00; 32]);
+            let val: MaybeValue = None;
+            SpreadLayout::push_spread(&Lazy::new(val), &mut KeyPtr::from(k));
+
+            // Pull another instance `v` from `k`, check that it is `None`
+            let mut v =
+                <Lazy<MaybeValue> as SpreadLayout>::pull_spread(&mut KeyPtr::from(k));
+            assert_eq!(*v, None);
+
+            // Set `v` using `set` to an actual value
+            let actual_value: MaybeValue = Some(13);
+            Lazy::set(&mut v, actual_value);
+
+            // Push `v` to `k`
+            SpreadLayout::push_spread(&v, &mut KeyPtr::from(k));
+
+            // Load `v2` from `k`
+            let v2 =
+                <Lazy<MaybeValue> as SpreadLayout>::pull_spread(&mut KeyPtr::from(k));
+
+            // Check that V2 is the set value
+            assert_eq!(*v2, Some(13));
+
             Ok(())
         })
     }
