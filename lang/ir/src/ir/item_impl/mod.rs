@@ -29,9 +29,7 @@ mod message;
 #[cfg(test)]
 mod tests;
 
-use self::callable::{
-    ensure_callable_invariants,
-};
+use self::callable::ensure_callable_invariants;
 pub use self::{
     callable::{
         Callable,
