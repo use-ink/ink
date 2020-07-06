@@ -35,9 +35,6 @@ criterion_group!(populated_cache, bench_set_populated_cache);
 criterion_group!(empty_cache, bench_set_empty_cache,);
 criterion_main!(populated_cache, empty_cache);
 
-/// For the populated cache benchmarks we use a loop of 100 ops, since
-/// for only one op the criterion benchmark might just show 0 ps and thus
-/// make it hard to estimate the difference between `deref_mut` and `set`.
 mod populated_cache {
     use super::*;
     use core::ops::DerefMut;
