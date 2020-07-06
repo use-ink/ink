@@ -77,14 +77,14 @@ pub struct InkProject {
     #[serde(flatten)]
     extension: InkProjectExtension,
     #[serde(rename = "storage")]
-    layout: layout2::Layout<CompactForm>,
+    layout: layout2::StorageLayout<CompactForm>,
     spec: ContractSpec<CompactForm>,
 }
 
 impl InkProject {
     pub fn new<L, S>(extension: InkProjectExtension, layout: L, spec: S) -> Self
     where
-        L: Into<layout2::Layout>,
+        L: Into<layout2::StorageLayout>,
         S: Into<ContractSpec>,
     {
         let metadata_version = semver::Version::parse(METADATA_VERSION)

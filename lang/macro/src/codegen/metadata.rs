@@ -46,7 +46,7 @@ impl GenerateCode for GenerateMetadata<'_> {
                     let contract: ::ink_metadata::ContractSpec = {
                         #contract
                     };
-                    let layout: ::ink_metadata::layout2::Layout = {
+                    let layout: ::ink_metadata::layout2::StorageLayout = {
                         #layout
                     };
                     ::ink_metadata::InkProject::new(extension, layout, contract)
@@ -267,10 +267,13 @@ impl GenerateMetadata<'_> {
 
     fn generate_layout(&self) -> TokenStream2 {
         let contract_ident = &self.contract.storage.ident;
+        let contract_ident_lit = contract_ident.to_string();
         quote! {
-            <#contract_ident as ::ink_core::storage2::traits::StorageLayout>::layout(
-                &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key::from([0x00; 32]))
-            )
+            let layout =
+                <#contract_ident as ::ink_core::storage2::traits::StorageLayout>::layout(
+                    &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key::from([0x00; 32]))
+                );
+            ::ink_metadata::layout2::StorageLayout::new(#contract_ident_lit, layout)
         }
     }
 }

@@ -31,6 +31,34 @@ use scale_info::{
     TypeInfo,
 };
 
+/// The name and static storage layout of an ink! smart contract
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
+#[serde(bound = "F::TypeId: serde::Serialize")]
+pub struct StorageLayout<F: Form = MetaForm> {
+    /// The name of the storage data structure
+    name: &'static str,
+    /// The layout of the storage data structure
+    layout: Layout<F>,
+}
+
+impl IntoCompact for StorageLayout {
+    type Output = StorageLayout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        StorageLayout {
+            name: self.name,
+            layout: self.layout.into_compact(registry),
+        }
+    }
+}
+
+impl StorageLayout {
+    /// Create a new StorageLayout with the name of the storage data structure
+    pub fn new(name: &'static str, layout: Layout<MetaForm>) -> Self {
+        StorageLayout { name, layout }
+    }
+}
+
 /// Represents the static storage layout of an ink! smart contract.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
 #[serde(bound = "F::TypeId: serde::Serialize")]
