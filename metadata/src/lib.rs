@@ -31,7 +31,6 @@ pub use semver::Version;
 pub use self::{
     extension::{
         Compiler,
-        CompilerInfo,
         InkProjectContract,
         InkProjectExtension,
         InkProjectSource,

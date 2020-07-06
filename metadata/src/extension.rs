@@ -122,48 +122,25 @@ impl Display for Language {
     }
 }
 
-/// The compilers used to compile a smart contract.
-#[derive(Debug)]
-pub struct SourceCompiler {
-    high_level: CompilerInfo,
-    low_level: CompilerInfo,
-}
-
-impl Serialize for SourceCompiler {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str(&format!("{} ({})", self.high_level, self.low_level))
-    }
-}
-
-impl SourceCompiler {
-    /// Constructs a new SourceCompiler.
-    pub fn new(high_level: CompilerInfo, low_level: CompilerInfo) -> Self {
-        SourceCompiler {
-            high_level,
-            low_level,
-        }
-    }
-}
-
 /// A compiler used to compile a smart contract.
 #[derive(Debug)]
-pub struct CompilerInfo {
+pub struct SourceCompiler {
     compiler: Compiler,
     version: Version,
 }
 
-impl Display for CompilerInfo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> DisplayResult {
-        write!(f, "{} {}", self.compiler, self.version)
+impl Serialize for SourceCompiler {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        serializer.serialize_str(&format!("{} {}", self.compiler, self.version))
     }
 }
 
-impl CompilerInfo {
+impl SourceCompiler {
     pub fn new(compiler: Compiler, version: Version) -> Self {
-        CompilerInfo { compiler, version }
+        SourceCompiler { compiler, version }
     }
 }
 
