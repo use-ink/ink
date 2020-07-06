@@ -320,6 +320,7 @@ where
     /// # Panics
     ///
     /// If accessing the inner value fails.
+    #[inline]
     pub fn set(&mut self, new_value: T) {
         // SAFETY: This is critical because we mutably access the entry.
         let cache = unsafe { &mut *self.cache.get_ptr().as_ptr() };

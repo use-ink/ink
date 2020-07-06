@@ -169,6 +169,7 @@ where
     /// # Panics
     ///
     /// If accessing the inner value fails.
+    #[inline]
     pub fn set(lazy: &mut Self, new_value: T) {
         lazy.cell.set(new_value);
     }
