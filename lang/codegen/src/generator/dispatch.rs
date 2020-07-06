@@ -235,21 +235,31 @@ impl Dispatch<'_> {
     /// # Examples
     ///
     /// **No inputs:**
-    /// ```no_compile
+    /// ```
+    /// # use quote::quote;
+    /// # let x: (Vec<()>, _) =
     /// ( vec![],
     ///   quote! { _ } )
+    /// # ;
     /// ```
     ///
     /// **Exactly one input:**
     /// ```
+    /// # use quote::quote;
+    /// # let __ink_binding_0 = ();
     /// ( vec![__ink_binding_0],
     ///   quote! { __ink_binding_0 } )
+    /// # ;
     /// ```
     ///
     /// **Multiple (>=2) inputs:**
     /// ```
-    /// ( vec![__ink_binding_0, __ink_binding_1, ..],
+    /// # use quote::quote;
+    /// # let __ink_binding_0 = ();
+    /// # let __ink_binding_1 = ();
+    /// ( vec![__ink_binding_0, __ink_binding_1, /* ... */],
     ///   quote! { (__ink_binding_0, __ink_binding_1, ..) } )
+    /// # ;
     /// ```
     fn generate_input_bindings<C>(callable: &C) -> (Vec<Ident>, TokenStream2)
     where
