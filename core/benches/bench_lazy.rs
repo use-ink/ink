@@ -40,19 +40,18 @@ criterion_main!(populated_cache, empty_cache);
 /// make it hard to estimate the difference between `deref_mut` and `set`.
 mod populated_cache {
     use super::*;
+    use core::ops::DerefMut;
 
     pub fn set() {
         let mut lazy = <Lazy<i32>>::new(1);
-        for i in 0..100 {
-            black_box(Lazy::set(&mut lazy, i));
-        }
+        let lazy_mut = black_box(&mut lazy);
+        black_box(Lazy::set(lazy_mut, 17));
     }
 
     pub fn deref_mut() {
         let mut lazy = <Lazy<i32>>::new(1);
-        for i in 0..100 {
-            black_box(*lazy = i);
-        }
+        let i32_mut = black_box(lazy.deref_mut());
+        black_box(*i32_mut = 17);
     }
 }
 
