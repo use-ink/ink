@@ -144,10 +144,20 @@ impl Dispatch<'_> {
         }
     }
 
+    /// Returns the generated ink! namespace identifier for the given callable kind.
+    fn dispatch_trait_impl_namespace(kind: ir::CallableKind) -> Ident {
+        match kind {
+            ir::CallableKind::Constructor => format_ident!("__ink_Constr"),
+            ir::CallableKind::Message => format_ident!("__ink_Msg"),
+        }
+    }
+
     /// Generates utility types to emulate namespaces to disambiguate dispatch trait
     /// implementations for ink! messages and ink! constructors with overlapping
     /// selectors.
     fn generate_trait_impl_namespaces(&self) -> TokenStream2 {
+        let message_namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
+        let constructor_namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         quote! {
             // Namespace for messages.
             //
@@ -156,7 +166,7 @@ impl Dispatch<'_> {
             // The `S` parameter is going to refer to array types `[(); N]`
             // where `N` is the unique identifier of the associated message
             // selector.
-            pub struct Msg<S> {
+            pub struct #message_namespace<S> {
                 // We need to wrap inner because of Rust's orphan rules.
                 marker: core::marker::PhantomData<fn() -> S>,
             }
@@ -168,7 +178,7 @@ impl Dispatch<'_> {
             // The `S` parameter is going to refer to array types `[(); N]`
             // where `N` is the unique identifier of the associated constructor
             // selector.
-            pub struct Constr<S> {
+            pub struct #constructor_namespace<S> {
                 // We need to wrap inner because of Rust's orphan rules.
                 marker: core::marker::PhantomData<fn() -> S>,
             }
@@ -192,7 +202,7 @@ impl Dispatch<'_> {
             .map(|pat_type| &pat_type.ty)
             .collect::<Vec<_>>();
         let storage_ident = self.contract.module().storage().ident();
-        let namespace = quote! { Constr };
+        let namespace = Self::dispatch_trait_impl_namespace(cws.kind());
         let input_types_tuple = if input_types.len() != 1 {
             // Pack all types into a tuple if they are not exactly 1.
             // This results in `()` for zero input types.
@@ -294,7 +304,7 @@ impl Dispatch<'_> {
         let is_mut = message.receiver().is_ref_mut();
         let storage_ident = self.contract.module().storage().ident();
         let message_ident = message.ident();
-        let namespace = quote! { Msg };
+        let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
         let fn_output_impl = quote_spanned!(message.output().span() =>
             impl ::ink_lang::FnOutput for #namespace<[(); #selector_id]> {
                 #[allow(unused_parens)]
@@ -340,7 +350,7 @@ impl Dispatch<'_> {
         let selector_id = selector.unique_id();
         let storage_ident = self.contract.module().storage().ident();
         let constructor_ident = constructor.ident();
-        let namespace = quote! { Constr };
+        let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         let callable_impl = self.generate_trait_impls_for_callable(cws);
         let (input_bindings, inputs_as_tuple_or_wildcard) =
             Self::generate_input_bindings(constructor);
@@ -398,7 +408,7 @@ impl Dispatch<'_> {
             ir::CallableKind::Constructor => "Constructor",
         };
         quote::format_ident!(
-            "__{}_0x{:02X}{:02X}{:02X}{:02X}",
+            "__ink_{}_0x{:02X}{:02X}{:02X}{:02X}",
             prefix,
             selector_bytes[0],
             selector_bytes[1],
@@ -486,10 +496,11 @@ impl Dispatch<'_> {
             }
         };
         let selector_id = cws.composed_selector().unique_id();
+        let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
         quote! {
             Self::#ident(#(#arg_pats),*) => {
-                ::ink_lang::#exec_fn::<Msg<[(); #selector_id]>, _>(move |state: &#mut_mod #storage_ident| {
-                    <Msg<[(); #selector_id]> as ::ink_lang::#msg_trait>::CALLABLE(
+                ::ink_lang::#exec_fn::<#namespace<[(); #selector_id]>, _>(move |state: &#mut_mod #storage_ident| {
+                    <#namespace<[(); #selector_id]> as ::ink_lang::#msg_trait>::CALLABLE(
                         state, #arg_inputs
                     )
                 })
@@ -569,10 +580,11 @@ impl Dispatch<'_> {
             quote! { ( #(#arg_pats),* ) }
         };
         let selector_id = cws.composed_selector().unique_id();
+        let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         quote! {
             Self::#ident(#(#arg_pats),*) => {
-                ::ink_lang::execute_constructor::<Constr<[(); #selector_id]>, _>(move || {
-                    <Constr<[(); #selector_id]> as ::ink_lang::Constructor>::CALLABLE(
+                ::ink_lang::execute_constructor::<#namespace<[(); #selector_id]>, _>(move || {
+                    <#namespace<[(); #selector_id]> as ::ink_lang::Constructor>::CALLABLE(
                         #arg_inputs
                     )
                 })
@@ -595,10 +607,10 @@ impl Dispatch<'_> {
     fn generate_constructor_dispatch_enum(&self) -> TokenStream2 {
         let storage_ident = self.contract.module().storage().ident();
         let message_variants = self
-            .contract_messages()
+            .contract_constructors()
             .map(|message| self.generate_dispatch_variant_arm(message));
         let decode_message = self
-            .contract_messages()
+            .contract_constructors()
             .map(|message| self.generate_dispatch_variant_decode(message));
         let execute_variants = self
             .contract_constructors()
