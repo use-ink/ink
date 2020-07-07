@@ -20,9 +20,9 @@ use core::{
         Result as DisplayResult,
     },
     marker::PhantomData,
+    str::FromStr,
 };
 use proc_macro2::TokenStream;
-use semver::Version;
 use serde::{
     Serialize,
     Serializer,
@@ -46,7 +46,10 @@ pub struct InkProjectExtension {
 impl ToTokens for InkProjectExtension {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let source = &self.source;
-        let user = self.user.map_or(quote!(None), ToTokens::to_token_stream);
+        let user = match self.user {
+            Some(ref user) => quote! ( Some(#user) ),
+            None => quote! ( None ),
+        };
         let contract = &self.contract;
         quote! (
             ::ink_metadata::InkProjectExtension::new(#source, #contract, #user)
@@ -79,7 +82,7 @@ pub struct InkProjectSource {
 
 impl ToTokens for InkProjectSource {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let hash = &self.hash;
+        let hash = format!("{:?}", &self.hash);
         let language = &self.language;
         let compiler = &self.compiler;
         quote! (
@@ -113,7 +116,7 @@ pub struct SourceLanguage {
 impl ToTokens for SourceLanguage {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let language = &self.language;
-        let version = &self.version;
+        let version = self.version.to_string();
         quote! (
             ::ink_metadata::SourceLanguage::new(#language, #version)
         ).to_tokens(tokens);
@@ -133,6 +136,39 @@ impl Serialize for SourceLanguage {
         S: Serializer,
     {
         serializer.serialize_str(&format!("{} {}", self.language, self.version))
+    }
+}
+
+/// Wraps [`semver::Version`] for implementing ToTokens
+#[derive(Debug, Serialize)]
+pub struct Version(semver::Version);
+
+impl ToTokens for Version {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let version_lit = self.0.to_string();
+        quote! (
+            ::ink_metadata::Version::from_str(#version_lit).unwrap()
+        ).to_tokens(tokens)
+    }
+}
+
+impl Display for Version {
+    fn fmt(&self, f: &mut Formatter<'_>) -> DisplayResult {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<semver::Version> for Version {
+    fn from(version: semver::Version) -> Self {
+        Version(version)
+    }
+}
+
+impl FromStr for Version {
+    type Err = semver::SemVerError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        semver::Version::parse(s).map(Into::into)
     }
 }
 
@@ -179,7 +215,7 @@ impl ToTokens for SourceCompiler {
         let compiler = &self.compiler;
         let version = &self.version;
         quote! (
-            ::ink_metadata::SourceCompiler::new(#language, #version)
+            ::ink_metadata::SourceCompiler::new(#compiler, #version)
         ).to_tokens(tokens);
     }
 }
@@ -348,10 +384,24 @@ pub struct InkProjectUser {
     json: serde_json::Map<String, serde_json::Value>,
 }
 
+impl ToTokens for InkProjectUser {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let json = serde_json::to_string(&self.json)
+            .expect("json should be valid json");
+        quote! (
+            ::ink_metadata::InkProjectUser::from_str(#json).unwrap()
+        ).to_tokens(tokens)
+    }
+}
+
 impl InkProjectUser {
     /// Constructs a new InkProjectUser
     pub fn new(json: Map<String, Value>) -> Self {
         InkProjectUser { json }
+    }
+
+    pub fn from_str(json: &str) -> serde_json::Result<Self> {
+        serde_json::from_str(json.as_ref())
     }
 }
 

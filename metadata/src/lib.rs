@@ -26,7 +26,6 @@ mod specs;
 mod utils;
 
 pub use url::Url;
-pub use semver::Version;
 
 pub use self::{
     extension::{
@@ -39,6 +38,7 @@ pub use self::{
         License,
         SourceCompiler,
         SourceLanguage,
+        Version,
     },
     specs::{
         ConstructorSpec,
