@@ -225,6 +225,14 @@ impl Callable for Constructor {
     }
 }
 
+impl Constructor {
+    /// Returns a slice of all non-ink! attributes of the ink! constructor.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.item.attrs
+    }
+
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

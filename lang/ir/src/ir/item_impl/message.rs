@@ -216,6 +216,11 @@ impl Callable for Message {
 }
 
 impl Message {
+    /// Returns a slice of all non-ink! attributes of the ink! message.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.item.attrs
+    }
+
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
         match self.item.sig.inputs.iter().next() {
