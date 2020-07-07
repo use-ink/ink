@@ -34,6 +34,8 @@ impl GenerateCode for ItemImpls<'_> {
         let item_impls = self.contract.module().impls().map(Self::generate_item_impl);
         quote! {
             const _: () = {
+                use ::ink_lang::{Env, EmitEvent, StaticEnv};
+
                 #( #item_impls )*
             };
         }
