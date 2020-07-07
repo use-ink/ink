@@ -35,7 +35,6 @@ use serde_json::{
     Map,
     Value,
 };
-use url::Url;
 
 /// Additional metadata supplied externally, e.g. by `cargo-contract`.
 #[derive(Debug, Serialize)]
@@ -185,6 +184,39 @@ impl FromStr for Version {
     }
 }
 
+/// Wraps [`url::Url`] for implementing ToTokens
+#[derive(Debug, Serialize)]
+pub struct Url(url::Url);
+
+impl ToTokens for Url {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let url_lit = self.0.to_string();
+        quote! (
+            ::ink_metadata::Url::from_str(#url_lit).unwrap()
+        ).to_tokens(tokens)
+    }
+}
+
+impl Display for Url {
+    fn fmt(&self, f: &mut Formatter<'_>) -> DisplayResult {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<url::Url> for Url {
+    fn from(url: url::Url) -> Self {
+        Url(url)
+    }
+}
+
+impl FromStr for Url {
+    type Err = url::ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        url::Url::parse(s).map(Into::into)
+    }
+}
+
 /// The language in which the smart contract is written.
 #[derive(Debug)]
 pub enum Language {
@@ -315,37 +347,19 @@ impl ToTokens for InkProjectContract {
         .to_tokens(tokens);
         // append optional fields if present
         if let Some(ref description) = self.description {
-            quote!(
-                .description(#description)
-            )
-            .to_tokens(tokens)
+            quote! ( .description(#description)).to_tokens(tokens)
         }
         if let Some(ref documentation) = self.documentation {
-            let url_lit = documentation.to_string();
-            quote!(
-                .documentation(::ink_metadata::Url::parse(#url_lit).unwrap())
-            )
-            .to_tokens(tokens)
+            quote! ( .documentation(#documentation) ).to_tokens(tokens)
         }
         if let Some(ref repository) = self.repository {
-            let url_lit = repository.to_string();
-            quote!(
-                .repository(::ink_metadata::Url::parse(#url_lit).unwrap())
-            )
-            .to_tokens(tokens)
+            quote! ( .repository(#repository) ).to_tokens(tokens)
         }
         if let Some(ref homepage) = self.homepage {
-            let url_lit = homepage.to_string();
-            quote!(
-                .homepage(::ink_metadata::Url::parse(#url_lit).unwrap())
-            )
-            .to_tokens(tokens)
+            quote! ( .homepage(#homepage) ).to_tokens(tokens)
         }
         if let Some(ref license) = self.license {
-            quote! (
-                .license(#license)
-            )
-            .to_tokens(tokens)
+            quote! ( .license(#license) ).to_tokens(tokens)
         }
         // done building
         quote!( .done(); ).to_tokens(tokens)

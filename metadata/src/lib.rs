@@ -25,8 +25,6 @@ pub mod layout2;
 mod specs;
 mod utils;
 
-pub use url::Url;
-
 pub use self::{
     extension::{
         Compiler,
@@ -39,6 +37,7 @@ pub use self::{
         SourceCompiler,
         SourceLanguage,
         Version,
+        Url,
     },
     specs::{
         ConstructorSpec,
