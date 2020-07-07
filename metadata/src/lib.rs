@@ -36,8 +36,8 @@ pub use self::{
         License,
         SourceCompiler,
         SourceLanguage,
-        Version,
         Url,
+        Version,
     },
     specs::{
         ConstructorSpec,

@@ -201,7 +201,8 @@ impl ToTokens for Url {
         let url_lit = self.0.to_string();
         quote! (
             ::ink_metadata::Url::from_str(#url_lit).unwrap()
-        ).to_tokens(tokens)
+        )
+        .to_tokens(tokens)
     }
 }
 
@@ -518,12 +519,9 @@ impl<V, A> InkProjectContractBuilder<Missing<state::Name>, V, A> {
 
 impl<N, A> InkProjectContractBuilder<N, Missing<state::Version>, A> {
     /// Set the contract version (required)
-    pub fn version<V>(
-        self,
-        version: V,
-    ) -> InkProjectContractBuilder<N, state::Version, A>
+    pub fn version<V>(self, version: V) -> InkProjectContractBuilder<N, state::Version, A>
     where
-        V: Into<Version>
+        V: Into<Version>,
     {
         InkProjectContractBuilder {
             contract: InkProjectContract {
@@ -568,7 +566,7 @@ impl<N, V, A> InkProjectContractBuilder<N, V, A> {
     /// Set the contract documentation url (optional)
     pub fn documentation<U>(mut self, documentation: U) -> Self
     where
-        U: Into<Url>
+        U: Into<Url>,
     {
         self.contract.documentation = Some(documentation.into());
         self
@@ -577,7 +575,7 @@ impl<N, V, A> InkProjectContractBuilder<N, V, A> {
     /// Set the contract documentation url (optional)
     pub fn repository<u>(mut self, repository: U) -> Self
     where
-        U: Into<Url>
+        U: Into<Url>,
     {
         self.contract.repository = Some(repository.into());
         self
@@ -586,7 +584,7 @@ impl<N, V, A> InkProjectContractBuilder<N, V, A> {
     /// Set the contract homepage url (optional)
     pub fn homepage<U>(mut self, homepage: U) -> Self
     where
-        U: Into<Url>
+        U: Into<Url>,
     {
         self.contract.homepage = Some(homepage.into());
         self
