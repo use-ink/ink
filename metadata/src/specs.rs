@@ -227,9 +227,7 @@ pub struct ConstructorSpecBuilder<Selector> {
 
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
-    pub fn new(
-        name: &'static str,
-    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+    pub fn new(name: &'static str) -> ConstructorSpecBuilder<Missing<state::Selector>> {
         ConstructorSpecBuilder {
             spec: Self {
                 name,

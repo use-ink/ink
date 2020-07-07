@@ -23,6 +23,10 @@ use core::{
     str::FromStr,
 };
 use proc_macro2::TokenStream;
+use quote::{
+    quote,
+    ToTokens,
+};
 use serde::{
     Serialize,
     Serializer,
@@ -32,7 +36,6 @@ use serde_json::{
     Value,
 };
 use url::Url;
-use quote::{quote, ToTokens};
 
 /// Additional metadata supplied externally, e.g. by `cargo-contract`.
 #[derive(Debug, Serialize)]
@@ -48,12 +51,13 @@ impl ToTokens for InkProjectExtension {
         let source = &self.source;
         let user = match self.user {
             Some(ref user) => quote! ( Some(#user) ),
-            None => quote! ( None ),
+            None => quote!(None),
         };
         let contract = &self.contract;
         quote! (
             ::ink_metadata::InkProjectExtension::new(#source, #contract, #user)
-        ).to_tokens(tokens);
+        )
+        .to_tokens(tokens);
     }
 }
 
@@ -87,7 +91,8 @@ impl ToTokens for InkProjectSource {
         let compiler = &self.compiler;
         quote! (
             ::ink_metadata::InkProjectSource::new(#hash, #language, #compiler)
-        ).to_tokens(tokens);
+        )
+        .to_tokens(tokens);
     }
 }
 
@@ -119,7 +124,8 @@ impl ToTokens for SourceLanguage {
         let version = self.version.to_string();
         quote! (
             ::ink_metadata::SourceLanguage::new(#language, #version)
-        ).to_tokens(tokens);
+        )
+        .to_tokens(tokens);
     }
 }
 
@@ -154,7 +160,8 @@ impl ToTokens for Version {
         let version_lit = self.0.to_string();
         quote! (
             ::ink_metadata::Version::from_str(#version_lit).unwrap()
-        ).to_tokens(tokens)
+        )
+        .to_tokens(tokens)
     }
 }
 
@@ -190,11 +197,12 @@ pub enum Language {
 impl ToTokens for Language {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            Self::Ink => quote! ( ::ink_metadata::Language::Ink ),
-            Self::Solidity => quote! ( ::ink_metadata::Language::Solidity ),
-            Self::AssemblyScript => quote! ( ::ink_metadata::Language::AssemblyScript ),
+            Self::Ink => quote!(::ink_metadata::Language::Ink),
+            Self::Solidity => quote!(::ink_metadata::Language::Solidity),
+            Self::AssemblyScript => quote!(::ink_metadata::Language::AssemblyScript),
             Self::Other(other) => quote! ( ::ink_metadata::Language::Other(#other) ),
-        }.to_tokens(tokens)
+        }
+        .to_tokens(tokens)
     }
 }
 
@@ -222,14 +230,15 @@ impl ToTokens for SourceCompiler {
         let version = &self.version;
         quote! (
             ::ink_metadata::SourceCompiler::new(#compiler, #version)
-        ).to_tokens(tokens);
+        )
+        .to_tokens(tokens);
     }
 }
 
 impl Serialize for SourceCompiler {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         serializer.serialize_str(&format!("{} {}", self.compiler, self.version))
     }
@@ -252,10 +261,11 @@ pub enum Compiler {
 impl ToTokens for Compiler {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            Self::RustC => quote! ( ::ink_metadata::Compiler::Solidity ),
-            Self::Solang => quote! ( ::ink_metadata::Compiler::AssemblyScript ),
+            Self::RustC => quote!(::ink_metadata::Compiler::Solidity),
+            Self::Solang => quote!(::ink_metadata::Compiler::AssemblyScript),
             Self::Other(other) => quote! ( ::ink_metadata::Compiler::Other(#other) ),
-        }.to_tokens(tokens)
+        }
+        .to_tokens(tokens)
     }
 }
 
@@ -301,35 +311,41 @@ impl ToTokens for InkProjectContract {
                 .authors(vec![
                     #( #authors, )*
                 ])
-        ).to_tokens(tokens);
+        )
+        .to_tokens(tokens);
         // append optional fields if present
         if let Some(ref description) = self.description {
             quote!(
                 .description(#description)
-            ).to_tokens(tokens)
+            )
+            .to_tokens(tokens)
         }
         if let Some(ref documentation) = self.documentation {
             let url_lit = documentation.to_string();
             quote!(
                 .documentation(::ink_metadata::Url::parse(#url_lit).unwrap())
-            ).to_tokens(tokens)
+            )
+            .to_tokens(tokens)
         }
         if let Some(ref repository) = self.repository {
             let url_lit = repository.to_string();
             quote!(
                 .repository(::ink_metadata::Url::parse(#url_lit).unwrap())
-            ).to_tokens(tokens)
+            )
+            .to_tokens(tokens)
         }
         if let Some(ref homepage) = self.homepage {
             let url_lit = homepage.to_string();
             quote!(
                 .homepage(::ink_metadata::Url::parse(#url_lit).unwrap())
-            ).to_tokens(tokens)
+            )
+            .to_tokens(tokens)
         }
         if let Some(ref license) = self.license {
             quote! (
                 .license(#license)
-            ).to_tokens(tokens)
+            )
+            .to_tokens(tokens)
         }
         // done building
         quote!( .done(); ).to_tokens(tokens)
@@ -391,11 +407,11 @@ pub struct InkProjectUser {
 
 impl ToTokens for InkProjectUser {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let json = serde_json::to_string(&self.json)
-            .expect("json should be valid json");
+        let json = serde_json::to_string(&self.json).expect("json should be valid json");
         quote! (
             ::ink_metadata::InkProjectUser::from_str(#json).unwrap()
-        ).to_tokens(tokens)
+        )
+        .to_tokens(tokens)
     }
 }
 
