@@ -48,7 +48,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 #[test]
 fn spec_contract_json() {
     // given
-    let contract: ContractSpec = ContractSpec::new("incrementer")
+    let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
             ConstructorSpec::new("new")
                 .selector([94u8, 189u8, 136u8, 214u8])

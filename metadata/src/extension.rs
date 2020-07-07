@@ -573,7 +573,7 @@ impl<N, V, A> InkProjectContractBuilder<N, V, A> {
     }
 
     /// Set the contract documentation url (optional)
-    pub fn repository<u>(mut self, repository: U) -> Self
+    pub fn repository<U>(mut self, repository: U) -> Self
     where
         U: Into<Url>,
     {
