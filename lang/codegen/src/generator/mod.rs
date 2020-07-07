@@ -17,6 +17,7 @@ mod cross_calling;
 mod dispatch;
 mod env;
 mod events;
+mod item_impls;
 mod storage;
 
 pub use self::{
@@ -25,5 +26,6 @@ pub use self::{
     dispatch::Dispatch,
     env::Env,
     events::Events,
+    item_impls::ItemImpls,
     storage::Storage,
 };
