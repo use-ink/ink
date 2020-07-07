@@ -307,6 +307,35 @@ where
     pub fn get_mut(&mut self) -> Option<&mut T> {
         self.load_entry_mut().value_mut().into()
     }
+
+    /// Sets the value in this cell to `value`, without executing any reads.
+    ///
+    /// # Note
+    ///
+    /// No reads from contract storage will be executed.
+    ///
+    /// This method should be preferred over dereferencing or `get_mut`
+    /// in case the returned value is of no interest to the caller.
+    ///
+    /// # Panics
+    ///
+    /// If accessing the inner value fails.
+    #[inline]
+    pub fn set(&mut self, new_value: T) {
+        // SAFETY: This is critical because we mutably access the entry.
+        let cache = unsafe { &mut *self.cache.get_ptr().as_ptr() };
+        if let Some(cache) = cache.as_mut() {
+            //  Cache is already populated we simply overwrite its already existing value.
+            cache.put(Some(new_value));
+        } else {
+            // Cache is empty, so we simply set the cache to the value.
+            // The key does not need to exist for this to work, we only need to
+            // write the value into the cache and are done. Writing to contract
+            // storage happens during setup/teardown of a contract.
+            *cache = Some(Entry::new(Some(new_value), EntryState::Mutated));
+        }
+        debug_assert!(cache.is_some());
+    }
 }
 
 #[cfg(test)]
@@ -319,9 +348,12 @@ mod tests {
     use crate::{
         env,
         env::test::run_test,
-        storage2::traits::{
-            KeyPtr,
-            SpreadLayout,
+        storage2::{
+            traits::{
+                KeyPtr,
+                SpreadLayout,
+            },
+            Lazy,
         },
     };
     use ink_primitives::Key;
@@ -413,6 +445,59 @@ mod tests {
                 cell_a3.entry(),
                 Some(&Entry::new(None, EntryState::Preserved))
             );
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn set_works() {
+        let mut cell = <LazyCell<i32>>::new(Some(1));
+        cell.set(23);
+        assert_eq!(cell.get(), Some(&23));
+    }
+
+    #[test]
+    fn lazy_set_works() -> env::Result<()> {
+        run_test::<env::DefaultEnvTypes, _>(|_| {
+            let mut cell = <LazyCell<u8>>::lazy(Key::from([0x42; 32]));
+            let value = cell.get();
+            assert_eq!(value, None);
+
+            cell.set(13);
+            assert_eq!(cell.get(), Some(&13));
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn lazy_set_works_with_spread_layout_push_pull() -> env::Result<()> {
+        run_test::<env::DefaultEnvTypes, _>(|_| {
+            type MaybeValue = Option<u8>;
+
+            // Initialize a LazyCell with None and push it to `k`
+            let k = Key::from([0x00; 32]);
+            let val: MaybeValue = None;
+            SpreadLayout::push_spread(&Lazy::new(val), &mut KeyPtr::from(k));
+
+            // Pull another instance `v` from `k`, check that it is `None`
+            let mut v =
+                <Lazy<MaybeValue> as SpreadLayout>::pull_spread(&mut KeyPtr::from(k));
+            assert_eq!(*v, None);
+
+            // Set `v` using `set` to an actual value
+            let actual_value: MaybeValue = Some(13);
+            Lazy::set(&mut v, actual_value);
+
+            // Push `v` to `k`
+            SpreadLayout::push_spread(&v, &mut KeyPtr::from(k));
+
+            // Load `v2` from `k`
+            let v2 =
+                <Lazy<MaybeValue> as SpreadLayout>::pull_spread(&mut KeyPtr::from(k));
+
+            // Check that V2 is the set value
+            assert_eq!(*v2, Some(13));
+
             Ok(())
         })
     }

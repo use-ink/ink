@@ -75,6 +75,10 @@ std = [
 ink-fuzz-tests = ["std"]
 
 [[bench]]
+name = "bench_lazy"
+harness = false
+
+[[bench]]
 name = "bench_vec"
 harness = false
 
