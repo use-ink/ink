@@ -37,6 +37,14 @@ use serde_json::{
 };
 
 /// Additional metadata supplied externally, e.g. by `cargo-contract`.
+///
+/// # Usage
+///
+/// An instance can be constructed, and from this the code to construct an equivalent instance can
+/// be generated using [`quote::ToTokens`].
+///
+/// This can be used by a build tool such as `cargo-contract` for marshalling extra metadata
+/// into this contract's metadata generation routine.
 #[derive(Debug, Serialize)]
 pub struct InkProjectExtension {
     source: InkProjectSource,
@@ -510,13 +518,16 @@ impl<V, A> InkProjectContractBuilder<Missing<state::Name>, V, A> {
 
 impl<N, A> InkProjectContractBuilder<N, Missing<state::Version>, A> {
     /// Set the contract version (required)
-    pub fn version(
+    pub fn version<V>(
         self,
-        version: Version,
-    ) -> InkProjectContractBuilder<N, state::Version, A> {
+        version: V,
+    ) -> InkProjectContractBuilder<N, state::Version, A>
+    where
+        V: Into<Version>
+    {
         InkProjectContractBuilder {
             contract: InkProjectContract {
-                version,
+                version: version.into(),
                 ..self.contract
             },
             marker: PhantomData,
@@ -555,20 +566,29 @@ impl<N, V, A> InkProjectContractBuilder<N, V, A> {
     }
 
     /// Set the contract documentation url (optional)
-    pub fn documentation(mut self, documentation: Url) -> Self {
-        self.contract.documentation = Some(documentation);
+    pub fn documentation<U>(mut self, documentation: U) -> Self
+    where
+        U: Into<Url>
+    {
+        self.contract.documentation = Some(documentation.into());
         self
     }
 
     /// Set the contract documentation url (optional)
-    pub fn repository(mut self, repository: Url) -> Self {
-        self.contract.repository = Some(repository);
+    pub fn repository<u>(mut self, repository: U) -> Self
+    where
+        U: Into<Url>
+    {
+        self.contract.repository = Some(repository.into());
         self
     }
 
     /// Set the contract homepage url (optional)
-    pub fn homepage(mut self, homepage: Url) -> Self {
-        self.contract.homepage = Some(homepage);
+    pub fn homepage<U>(mut self, homepage: U) -> Self
+    where
+        U: Into<Url>
+    {
+        self.contract.homepage = Some(homepage.into());
         self
     }
 
