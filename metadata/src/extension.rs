@@ -21,6 +21,7 @@ use core::{
     },
     marker::PhantomData,
 };
+use proc_macro2::TokenStream;
 use semver::Version;
 use serde::{
     Serialize,
@@ -31,6 +32,7 @@ use serde_json::{
     Value,
 };
 use url::Url;
+use quote::{quote, ToTokens, TokenStreamExt};
 
 /// Additional metadata supplied externally, e.g. by `cargo-contract`.
 #[derive(Debug, Serialize)]
@@ -39,6 +41,17 @@ pub struct InkProjectExtension {
     contract: InkProjectContract,
     #[serde(skip_serializing_if = "Option::is_none")]
     user: Option<InkProjectUser>,
+}
+
+impl ToTokens for InkProjectExtension {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let source = &self.source;
+        let user = self.user.map_or(quote!(None), ToTokens::to_token_stream);
+        let contract = &self.contract;
+        quote! (
+            ::ink_metadata::InkProjectExtension::new(#source, #contract, #user)
+        ).to_tokens(tokens);
+    }
 }
 
 impl InkProjectExtension {
@@ -64,6 +77,17 @@ pub struct InkProjectSource {
     compiler: SourceCompiler,
 }
 
+impl ToTokens for InkProjectSource {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let hash = &self.hash;
+        let language = &self.language;
+        let compiler = &self.compiler;
+        quote! (
+            ::ink_metadata::InkProjectSource::new(#hash, #language, #compiler)
+        ).to_tokens(tokens);
+    }
+}
+
 impl InkProjectSource {
     /// Constructs a new InkProjectSource.
     pub fn new(
@@ -84,6 +108,16 @@ impl InkProjectSource {
 pub struct SourceLanguage {
     language: Language,
     version: Version,
+}
+
+impl ToTokens for SourceLanguage {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let language = &self.language;
+        let version = &self.version;
+        quote! (
+            ::ink_metadata::SourceLanguage::new(#language, #version)
+        ).to_tokens(tokens);
+    }
 }
 
 impl SourceLanguage {
@@ -111,6 +145,17 @@ pub enum Language {
     Other(&'static str),
 }
 
+impl ToTokens for Language {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Self::Ink => quote! ( ::ink_metadata::Language::Ink ),
+            Self::Solidity => quote! ( ::ink_metadata::Language::Solidity ),
+            Self::AssemblyScript => quote! ( ::ink_metadata::Language::AssemblyScript ),
+            Self::Other(other) => quote! ( ::ink_metadata::Language::Other(#other) ),
+        }.to_tokens(tokens)
+    }
+}
+
 impl Display for Language {
     fn fmt(&self, f: &mut Formatter<'_>) -> DisplayResult {
         match self {
@@ -127,6 +172,16 @@ impl Display for Language {
 pub struct SourceCompiler {
     compiler: Compiler,
     version: Version,
+}
+
+impl ToTokens for SourceCompiler {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let compiler = &self.compiler;
+        let version = &self.version;
+        quote! (
+            ::ink_metadata::SourceCompiler::new(#language, #version)
+        ).to_tokens(tokens);
+    }
 }
 
 impl Serialize for SourceCompiler {
@@ -147,19 +202,27 @@ impl SourceCompiler {
 /// Compilers used to compile a smart contract.
 #[derive(Debug, Serialize)]
 pub enum Compiler {
-    Ink,
     RustC,
     Solang,
-    LLVM,
+    Other(&'static str),
+}
+
+impl ToTokens for Compiler {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Self::RustC => quote! ( ::ink_metadata::Compiler::Solidity ),
+            Self::Solang => quote! ( ::ink_metadata::Compiler::AssemblyScript ),
+            Self::Other(other) => quote! ( ::ink_metadata::Compiler::Other(#other) ),
+        }.to_tokens(tokens)
+    }
 }
 
 impl Display for Compiler {
     fn fmt(&self, f: &mut Formatter<'_>) -> DisplayResult {
         match self {
-            Self::Ink => write!(f, "ink!"),
             Self::RustC => write!(f, "rustc"),
             Self::Solang => write!(f, "solang"),
-            Self::LLVM => write!(f, "llvm"),
+            Self::Other(other) => write!(f, "other"),
         }
     }
 }
@@ -180,6 +243,56 @@ pub struct InkProjectContract {
     homepage: Option<Url>,
     #[serde(skip_serializing_if = "Option::is_none")]
     license: Option<License>,
+}
+
+impl ToTokens for InkProjectContract {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let name = &self.name;
+        let version = self.version.to_string();
+        let authors = &self.authors;
+
+        // initialise builder with required fields
+        let mut builder_tokens =
+            quote! (
+                ::ink_metadata::InkProjectContract::build()
+                    .name(#name)
+                    .version(::ink_metadata::Version::parse(#version).unwrap())
+                    .authors(vec![
+                        #( #authors, )*
+                    ])
+            );
+        // append optional fields if present
+        if let Some(ref description) = self.description {
+            builder_tokens.append(quote!(
+                .description(#description)
+            ))
+        }
+        if let Some(ref documentation) = self.documentation {
+            let url_lit = documentation.to_string();
+            builder_tokens.append(quote!(
+                .documentation(::ink_metadata::Url::parse(#url_lit).unwrap())
+            ))
+        }
+        if let Some(ref repository) = self.repository {
+            let url_lit = repository.to_string();
+            builder_tokens.append(quote!(
+                .repository(::ink_metadata::Url::parse(#url_lit).unwrap())
+            ))
+        }
+        if let Some(ref homepage) = self.homepage {
+            let url_lit = homepage.to_string();
+            builder_tokens.append(quote!(
+                .homepage(::ink_metadata::Url::parse(#url_lit).unwrap())
+            ))
+        }
+        if let Some(ref license) = self.license {
+            builder_tokens.append(quote! (
+                .license(#license)
+            ))
+        }
+        // done building
+        builder_tokens.append(quote!( .done(); ))
+    }
 }
 
 impl InkProjectContract {
@@ -212,6 +325,20 @@ pub enum License {
     SpdxId(String),
     /// A URL to a custom license
     Link(Url),
+}
+
+impl ToTokens for License {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Self::SpdxId(spx_id) => quote! ( ::ink_metadata::License::SpxId(#spx_id) ),
+            Self::Link(url) => {
+                let url_lit = url.to_string();
+                quote! (
+                    ::ink_metadata::License::Link(::ink_metadata::Url::parse(#url_lit).unwrap())
+                )
+            },
+        }.to_tokens(tokens)
+    }
 }
 
 /// Additional user defined metadata, can be any valid json.
