@@ -32,7 +32,7 @@ use serde_json::{
     Value,
 };
 use url::Url;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, ToTokens};
 
 /// Additional metadata supplied externally, e.g. by `cargo-contract`.
 #[derive(Debug, Serialize)]
@@ -142,6 +142,12 @@ impl Serialize for SourceLanguage {
 /// Wraps [`semver::Version`] for implementing ToTokens
 #[derive(Debug, Serialize)]
 pub struct Version(semver::Version);
+
+impl Default for Version {
+    fn default() -> Self {
+        Version(semver::Version::new(0, 0, 0))
+    }
+}
 
 impl ToTokens for Version {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -258,7 +264,7 @@ impl Display for Compiler {
         match self {
             Self::RustC => write!(f, "rustc"),
             Self::Solang => write!(f, "solang"),
-            Self::Other(other) => write!(f, "other"),
+            Self::Other(other) => write!(f, "{}", other),
         }
     }
 }
@@ -288,46 +294,45 @@ impl ToTokens for InkProjectContract {
         let authors = &self.authors;
 
         // initialise builder with required fields
-        let mut builder_tokens =
-            quote! (
-                ::ink_metadata::InkProjectContract::build()
-                    .name(#name)
-                    .version(::ink_metadata::Version::parse(#version).unwrap())
-                    .authors(vec![
-                        #( #authors, )*
-                    ])
-            );
+        quote! (
+            ::ink_metadata::InkProjectContract::build()
+                .name(#name)
+                .version(::ink_metadata::Version::parse(#version).unwrap())
+                .authors(vec![
+                    #( #authors, )*
+                ])
+        ).to_tokens(tokens);
         // append optional fields if present
         if let Some(ref description) = self.description {
-            builder_tokens.append(quote!(
+            quote!(
                 .description(#description)
-            ))
+            ).to_tokens(tokens)
         }
         if let Some(ref documentation) = self.documentation {
             let url_lit = documentation.to_string();
-            builder_tokens.append(quote!(
+            quote!(
                 .documentation(::ink_metadata::Url::parse(#url_lit).unwrap())
-            ))
+            ).to_tokens(tokens)
         }
         if let Some(ref repository) = self.repository {
             let url_lit = repository.to_string();
-            builder_tokens.append(quote!(
+            quote!(
                 .repository(::ink_metadata::Url::parse(#url_lit).unwrap())
-            ))
+            ).to_tokens(tokens)
         }
         if let Some(ref homepage) = self.homepage {
             let url_lit = homepage.to_string();
-            builder_tokens.append(quote!(
+            quote!(
                 .homepage(::ink_metadata::Url::parse(#url_lit).unwrap())
-            ))
+            ).to_tokens(tokens)
         }
         if let Some(ref license) = self.license {
-            builder_tokens.append(quote! (
+            quote! (
                 .license(#license)
-            ))
+            ).to_tokens(tokens)
         }
         // done building
-        builder_tokens.append(quote!( .done(); ))
+        quote!( .done(); ).to_tokens(tokens)
     }
 }
 
@@ -341,7 +346,7 @@ impl InkProjectContract {
         InkProjectContractBuilder {
             contract: Self {
                 name: Default::default(),
-                version: Version::new(0, 0, 0),
+                version: Default::default(),
                 authors: vec![],
                 description: None,
                 documentation: None,
@@ -401,7 +406,7 @@ impl InkProjectUser {
     }
 
     pub fn from_str(json: &str) -> serde_json::Result<Self> {
-        serde_json::from_str(json.as_ref())
+        serde_json::from_str(json.as_ref()).map(Self::new)
     }
 }
 
