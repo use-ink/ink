@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::GenerateCode;
+use crate::{
+    generator,
+    GenerateCode,
+    GenerateCodeUsing as _,
+};
 use derive_more::From;
 use ir::Callable as _;
 use proc_macro2::TokenStream as TokenStream2;
@@ -29,10 +33,19 @@ pub struct ItemImpls<'a> {
     contract: &'a ir::Contract,
 }
 
+impl AsRef<ir::Contract> for ItemImpls<'_> {
+    fn as_ref(&self) -> &ir::Contract {
+        &self.contract
+    }
+}
+
 impl GenerateCode for ItemImpls<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let item_impls = self.contract.module().impls().map(Self::generate_item_impl);
+        let no_cross_calling_cfg =
+            self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote! {
+            #no_cross_calling_cfg
             const _: () = {
                 use ::ink_lang::{Env, EmitEvent, StaticEnv};
 
