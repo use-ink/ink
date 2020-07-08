@@ -20,42 +20,26 @@ extern crate alloc;
 #[cfg(test)]
 mod tests;
 
-mod extension;
 pub mod layout2;
 mod specs;
 mod utils;
 
-pub use self::{
-    extension::{
-        Compiler,
-        InkProjectContract,
-        InkProjectExtension,
-        InkProjectSource,
-        InkProjectUser,
-        Language,
-        License,
-        SourceCompiler,
-        SourceLanguage,
-        Url,
-        Version,
-    },
-    specs::{
-        ConstructorSpec,
-        ConstructorSpecBuilder,
-        ContractSpec,
-        ContractSpecBuilder,
-        DisplayName,
-        EventParamSpec,
-        EventParamSpecBuilder,
-        EventSpec,
-        EventSpecBuilder,
-        MessageParamSpec,
-        MessageParamSpecBuilder,
-        MessageSpec,
-        MessageSpecBuilder,
-        ReturnTypeSpec,
-        TypeSpec,
-    },
+pub use self::specs::{
+    ConstructorSpec,
+    ConstructorSpecBuilder,
+    ContractSpec,
+    ContractSpecBuilder,
+    DisplayName,
+    EventParamSpec,
+    EventParamSpecBuilder,
+    EventSpec,
+    EventSpecBuilder,
+    MessageParamSpec,
+    MessageParamSpecBuilder,
+    MessageSpec,
+    MessageSpecBuilder,
+    ReturnTypeSpec,
+    TypeSpec,
 };
 
 #[cfg(feature = "derive")]
@@ -66,34 +50,28 @@ use scale_info::{
 };
 use serde::Serialize;
 
-const METADATA_VERSION: &str = "0.1.0";
-
-/// An entire ink! project for ABI file generation purposes.
+/// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize)]
 pub struct InkProject {
-    metadata_version: semver::Version,
     #[serde(flatten)]
-    extension: InkProjectExtension,
+    registry: Registry,
     #[serde(rename = "storage")]
     layout: layout2::StorageLayout<CompactForm>,
     spec: ContractSpec<CompactForm>,
 }
 
 impl InkProject {
-    pub fn new<L, S>(extension: InkProjectExtension, layout: L, spec: S) -> Self
+    pub fn new<L, S>(layout: L, spec: S) -> Self
     where
         L: Into<layout2::StorageLayout>,
         S: Into<ContractSpec>,
     {
-        let metadata_version = semver::Version::parse(METADATA_VERSION)
-            .expect("METADATA_VERSION is a valid semver string");
         let mut registry = Registry::new();
 
         InkProject {
-            metadata_version,
-            extension,
             layout: layout.into().into_compact(&mut registry),
             spec: spec.into().into_compact(&mut registry),
+            registry,
         }
     }
 }

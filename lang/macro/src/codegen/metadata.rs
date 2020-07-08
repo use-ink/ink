@@ -42,14 +42,14 @@ impl GenerateCode for GenerateMetadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
-                pub fn __ink_generate_metadata(extension: ::ink_metadata::InkProjectExtension) -> ::ink_metadata::InkProject  {
+                pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
                     let contract: ::ink_metadata::ContractSpec = {
                         #contract
                     };
                     let layout: ::ink_metadata::layout2::StorageLayout = {
                         #layout
                     };
-                    ::ink_metadata::InkProject::new(extension, layout, contract)
+                    ::ink_metadata::InkProject::new(layout, contract)
                 }
             };
         }
