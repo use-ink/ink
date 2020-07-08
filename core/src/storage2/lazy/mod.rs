@@ -147,7 +147,7 @@ where
     ///
     /// # Note
     ///
-    /// This loads the value from the contract storage if this did not happed before.
+    /// This loads the value from the contract storage if this did not happen before.
     ///
     /// # Panics
     ///
@@ -155,6 +155,23 @@ where
     #[must_use]
     pub fn get_mut(lazy: &mut Self) -> &mut T {
         lazy.cell.get_mut().expect("encountered empty storage cell")
+    }
+
+    /// Sets the value to `value`, without executing any reads.
+    ///
+    /// # Note
+    ///
+    /// No reads from contract storage will be executed.
+    ///
+    /// This method should be preferred over dereferencing or `get_mut`
+    /// in case the returned value is of no interest to the caller.
+    ///
+    /// # Panics
+    ///
+    /// If accessing the inner value fails.
+    #[inline]
+    pub fn set(lazy: &mut Self, new_value: T) {
+        lazy.cell.set(new_value);
     }
 }
 
