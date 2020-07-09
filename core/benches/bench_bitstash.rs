@@ -55,7 +55,7 @@ mod populated_cache {
 
     pub fn fill_bitstash() {
         let mut stash = BitStash::default();
-        for i in 0..BENCH_ALLOCATIONS {
+        for _ in 0..BENCH_ALLOCATIONS {
             black_box(stash.put());
         }
     }
@@ -78,7 +78,7 @@ mod empty_cache {
     pub fn fill_bitstash() {
         push_stash();
         let mut stash = pull_stash();
-        for i in 0..BENCH_ALLOCATIONS {
+        for _ in 0..BENCH_ALLOCATIONS {
             black_box(stash.put());
         }
     }
