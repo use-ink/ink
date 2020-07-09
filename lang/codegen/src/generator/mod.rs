@@ -22,7 +22,10 @@ mod storage;
 
 pub use self::{
     contract::Contract,
-    cross_calling::CrossCallingConflictCfg,
+    cross_calling::{
+        CrossCalling,
+        CrossCallingConflictCfg,
+    },
     dispatch::Dispatch,
     env::Env,
     events::Events,

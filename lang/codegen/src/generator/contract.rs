@@ -47,8 +47,8 @@ impl GenerateCode for Contract<'_> {
         let events = self.generate_code_using::<generator::Events>();
         let dispatch = self.generate_code_using::<generator::Dispatch>();
         let item_impls = self.generate_code_using::<generator::ItemImpls>();
-        // let generate_metadata = self.generate_code_using::<GenerateMetadata>();
-        // let cross_calling = self.generate_code_using::<CrossCalling>();
+        let cross_calling = self.generate_code_using::<generator::CrossCalling>();
+        // let generate_metadata = self.generate_code_using::<generator::GenerateMetadata>();
         // let non_ink_items = &self.contract.non_ink_items;
 
         quote! {
@@ -59,8 +59,8 @@ impl GenerateCode for Contract<'_> {
                 #events
                 #dispatch
                 #item_impls
+                #cross_calling
                 // #generate_metadata
-                // #cross_calling
                 // #event_structs
                 // #( #non_ink_items )*
             }
