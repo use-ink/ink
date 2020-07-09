@@ -69,12 +69,11 @@ impl CountFree {
     /// Returns the position of the first free `u8` in the free counts.
     ///
     /// Returns `None` if all counts are `0xFF`.
-    pub fn position_first_zero(&mut self) -> Option<u8> {
+    pub fn position_first_zero(&self) -> Option<u8> {
         let i = (!self.full.0).leading_zeros();
         if i == 32 {
             return None
         }
-
         Some(i as u8)
     }
 
