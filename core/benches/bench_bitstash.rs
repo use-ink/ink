@@ -16,6 +16,7 @@ use criterion::{
     black_box,
     criterion_group,
     criterion_main,
+    BatchSize,
     Criterion,
 };
 
@@ -50,14 +51,29 @@ fn pull_stash() -> BitStash {
     <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key))
 }
 
+/// Returns a stash on which `100_000` `put` operations have been executed.
+fn create_large_stash() -> BitStash {
+    let mut stash = BitStash::default();
+    for _ in 0..100_000 {
+        stash.put();
+    }
+    stash
+}
+
 mod populated_cache {
     use super::*;
 
+    /// Executes `put` operations on a new `BitStash` exactly `BENCH_ALLOCATIONS` times.
     pub fn fill_bitstash() {
         let mut stash = BitStash::default();
         for _ in 0..BENCH_ALLOCATIONS {
             black_box(stash.put());
         }
+    }
+
+    /// Executes only a single `put` operation on the stash.
+    pub fn one_put(stash: &mut BitStash) {
+        black_box(stash.put());
     }
 }
 
@@ -65,6 +81,14 @@ fn bench_populated_cache(c: &mut Criterion) {
     let mut group = c.benchmark_group("Bench: `fill_bitstash` (populated cache)");
     group.bench_function("fill_bitstash", |b| {
         b.iter(|| populated_cache::fill_bitstash())
+    });
+
+    group.bench_function("one_put", |b| {
+        b.iter_batched(
+            || create_large_stash(),
+            |mut stash| populated_cache::one_put(&mut stash),
+            BatchSize::SmallInput,
+        )
     });
     group.finish();
 }
@@ -82,6 +106,11 @@ mod empty_cache {
             black_box(stash.put());
         }
     }
+
+    /// Executes only a single `put` operation on the stash.
+    pub fn one_put(stash: &mut BitStash) {
+        black_box(stash.put());
+    }
 }
 
 /// In this case we lazily instantiate a `BitStash` by first creating and storing
@@ -92,6 +121,14 @@ fn bench_empty_cache(c: &mut Criterion) {
         let mut group = c.benchmark_group("Bench: `fill_bitstash` (empty cache)");
         group
             .bench_function("fill_bitstash", |b| b.iter(|| empty_cache::fill_bitstash()));
+
+        group.bench_function("one_put", |b| {
+            b.iter_batched(
+                || create_large_stash(),
+                |mut stash| empty_cache::one_put(&mut stash),
+                BatchSize::SmallInput,
+            )
+        });
         group.finish();
         Ok(())
     })
