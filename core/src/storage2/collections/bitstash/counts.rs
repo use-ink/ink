@@ -76,14 +76,6 @@ impl CountFree {
         }
 
         Some(i as u8)
-
-        // Old version
-        // for (i, count) in self.counts.iter_mut().enumerate() {
-        // if !self.full.is_full(i as u8) {
-        // return Some(i as u8)
-        // }
-        // }
-        // None
     }
 
     /// Increases the number of set bits for the given index.
