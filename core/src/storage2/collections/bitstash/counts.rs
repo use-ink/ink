@@ -63,12 +63,6 @@ impl FullMask {
     pub fn reset_full(&mut self, index: u8) {
         self.0 &= !(1_u32 << (31 - index as u32));
     }
-
-    /// Returns `true` if there is no more space available at any of the indices
-    /// and hence all chunks are full.
-    pub fn is_completely_full(self) -> bool {
-        self.0 == u32::MAX
-    }
 }
 
 impl CountFree {
@@ -76,15 +70,9 @@ impl CountFree {
     ///
     /// Returns `None` if all counts are `0xFF`.
     pub fn position_first_zero(&mut self) -> Option<u8> {
-        if self.full.is_completely_full() {
-            return None
-        }
-
         let i = (!self.full.0).leading_zeros();
         if i == 32 {
-            unreachable!(
-                "if full we must already have exited right at the start of this function"
-            );
+            return None;
         }
 
         Some(i as u8)
