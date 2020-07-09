@@ -76,17 +76,44 @@ impl CountFree {
     ///
     /// Returns `None` if all counts are `0xFF`.
     pub fn position_first_zero(&mut self) -> Option<u8> {
-        for (i, count) in self.counts.iter_mut().enumerate() {
-            if !self.full.is_full(i as u8) {
-                if *count == !0 {
-                    self.full.set_full(i as u8);
-                } else {
-                    *count += 1;
-                }
-                return Some(i as u8)
-            }
+        if self.full.is_completely_full() {
+            return None
         }
-        None
+
+        let i = (!self.full.0).leading_zeros();
+        if i == 32 {
+            unreachable!(
+                "if full we must already have exited right at the start of this function"
+            );
+        }
+
+        Some(i as u8)
+
+        // Old version
+        // for (i, count) in self.counts.iter_mut().enumerate() {
+        // if !self.full.is_full(i as u8) {
+        // return Some(i as u8)
+        // }
+        // }
+        // None
+    }
+
+    /// Increases the number of set bits for the given index.
+    ///
+    /// # Panics
+    ///
+    /// - If the given index is out of bounds.
+    /// - If the increment would cause an overflow.
+    pub fn inc(&mut self, index: usize) {
+        assert!(index < 32, "index is out of bounds");
+        if self.counts[index] == !0 {
+            self.full.set_full(index as u8);
+        } else {
+            let new_value = self.counts[index]
+                .checked_add(1)
+                .expect("set bits increment overflowed");
+            self.counts[index] = new_value;
+        }
     }
 
     /// Decreases the number of set bits for the given index.

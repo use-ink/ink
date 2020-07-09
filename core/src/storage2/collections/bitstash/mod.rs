@@ -76,6 +76,7 @@ impl BitStash {
         // The counts list consists of packs of 32 counts per element.
         for (n, counts) in self.counts.iter_mut().enumerate() {
             if let Some(i) = counts.position_first_zero() {
+                counts.inc(i as usize);
                 let n = n as u64;
                 let i = i as u64;
                 return Some(n * (32 * 256) + i * 256)
