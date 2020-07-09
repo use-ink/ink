@@ -34,7 +34,7 @@ type Index = u32;
 
 /// A stash for bits operating on the contract storage.
 ///
-/// Allows to efficienty put and take bits and
+/// Allows to efficiently put and take bits and
 /// stores the underlying bits in an extremely compressed format.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct BitStash {

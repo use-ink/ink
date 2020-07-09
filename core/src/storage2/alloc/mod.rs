@@ -32,7 +32,7 @@
 //! This way we can reduce the problem of finding another region in our storage
 //! that fits certain requirements (e.g. a minimum size) to the problem of
 //! finding another uniform slot. Since we are on 32-bit WebAssembly we have
-//! memory limitations that makes it impractical to have more than 2^32 dynamic
+//! memory limitations that make it impractical to have more than 2^32 dynamic
 //! allocated entities and so we can create another limitation for having a
 //! total of 2^32 dynamic allocations at any point in time.
 //! This enables us to have 32-bit keys instead of 256-bit keys.
