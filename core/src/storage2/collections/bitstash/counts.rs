@@ -72,7 +72,7 @@ impl CountFree {
     pub fn position_first_zero(&mut self) -> Option<u8> {
         let i = (!self.full.0).leading_zeros();
         if i == 32 {
-            return None;
+            return None
         }
 
         Some(i as u8)
