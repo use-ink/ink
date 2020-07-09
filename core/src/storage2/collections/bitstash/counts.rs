@@ -88,10 +88,7 @@ impl CountFree {
         if self.counts[index] == !0 {
             self.full.set_full(index as u8);
         } else {
-            let new_value = self.counts[index]
-                .checked_add(1)
-                .expect("set bits increment overflowed");
-            self.counts[index] = new_value;
+            self.counts[index] = self.counts[index] + 1;
         }
     }
 
