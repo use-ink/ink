@@ -63,6 +63,12 @@ impl FullMask {
     pub fn reset_full(&mut self, index: u8) {
         self.0 &= !(1_u32 << (31 - index as u32));
     }
+
+    /// Returns `true` if there is no more space available at any of the indices
+    /// and hence all chunks are full.
+    pub fn is_completely_full(self) -> bool {
+        self.0 == u32::MAX
+    }
 }
 
 impl CountFree {
