@@ -91,7 +91,7 @@ fn bench_populated_cache(c: &mut Criterion) {
     group.bench_function("one_put", |b| {
         b.iter_batched_ref(
             || create_large_stash(),
-            |stash| black_box(one_put(stash)),
+            |stash| one_put(stash),
             BatchSize::SmallInput,
         )
     });
