@@ -120,13 +120,13 @@ fn bench_empty_cache(c: &mut Criterion) {
         group
             .bench_function("fill_bitstash", |b| b.iter(|| empty_cache::fill_bitstash()));
         group.bench_function("one_put", |b| {
-            b.iter_batched(
+            b.iter_batched_ref(
                 || {
                     let stash = create_large_stash();
                     push_stash_by_ref(&stash);
                     pull_stash()
                 },
-                |mut stash| one_put(&mut stash),
+                |stash| one_put(stash),
                 BatchSize::SmallInput,
             )
         });
