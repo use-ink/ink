@@ -45,10 +45,21 @@ fn push_stash() {
     SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
 }
 
+/// Creates a `BitStash` and pushes it to the contract storage.
+fn push_stash_by_ref(stash: &BitStash) {
+    let root_key = Key::from([0x00; 32]);
+    SpreadLayout::push_spread(stash, &mut KeyPtr::from(root_key));
+}
+
 /// Pulls a lazily loading `BitStash` instance from the contract storage.
 fn pull_stash() -> BitStash {
     let root_key = Key::from([0x00; 32]);
     <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key))
+}
+
+/// Executes only a single `put` operation on the stash.
+pub fn one_put(stash: &mut BitStash) {
+    black_box(stash.put());
 }
 
 /// Returns a stash on which `100_000` `put` operations have been executed.
@@ -70,11 +81,6 @@ mod populated_cache {
             black_box(stash.put());
         }
     }
-
-    /// Executes only a single `put` operation on the stash.
-    pub fn one_put(stash: &mut BitStash) {
-        black_box(stash.put());
-    }
 }
 
 fn bench_populated_cache(c: &mut Criterion) {
@@ -82,11 +88,10 @@ fn bench_populated_cache(c: &mut Criterion) {
     group.bench_function("fill_bitstash", |b| {
         b.iter(|| populated_cache::fill_bitstash())
     });
-
     group.bench_function("one_put", |b| {
         b.iter_batched(
             || create_large_stash(),
-            |mut stash| populated_cache::one_put(&mut stash),
+            |mut stash| one_put(&mut stash),
             BatchSize::SmallInput,
         )
     });
@@ -96,20 +101,13 @@ fn bench_populated_cache(c: &mut Criterion) {
 mod empty_cache {
     use super::*;
 
-    /// In this case we lazily load the stash from storage using `pull_spread`.
-    /// This will just load lazily and won't pull anything from the storage.
-    /// `take` will then result in loading from storage.
+    /// Executes `put` operations on a new `BitStash` exactly `BENCH_ALLOCATIONS` times.
     pub fn fill_bitstash() {
         push_stash();
         let mut stash = pull_stash();
         for _ in 0..BENCH_ALLOCATIONS {
             black_box(stash.put());
         }
-    }
-
-    /// Executes only a single `put` operation on the stash.
-    pub fn one_put(stash: &mut BitStash) {
-        black_box(stash.put());
     }
 }
 
@@ -121,11 +119,14 @@ fn bench_empty_cache(c: &mut Criterion) {
         let mut group = c.benchmark_group("Bench: `fill_bitstash` (empty cache)");
         group
             .bench_function("fill_bitstash", |b| b.iter(|| empty_cache::fill_bitstash()));
-
         group.bench_function("one_put", |b| {
             b.iter_batched(
-                || create_large_stash(),
-                |mut stash| empty_cache::one_put(&mut stash),
+                || {
+                    let stash = create_large_stash();
+                    push_stash_by_ref(&stash);
+                    pull_stash()
+                },
+                |mut stash| one_put(&mut stash),
                 BatchSize::SmallInput,
             )
         });
