@@ -69,18 +69,27 @@ impl CountFree {
     /// Returns the position of the first free `u8` in the free counts.
     ///
     /// Returns `None` if all counts are `0xFF`.
-    pub fn position_first_zero(&mut self) -> Option<u8> {
-        for (i, count) in self.counts.iter_mut().enumerate() {
-            if !self.full.is_full(i as u8) {
-                if *count == !0 {
-                    self.full.set_full(i as u8);
-                } else {
-                    *count += 1;
-                }
-                return Some(i as u8)
-            }
+    pub fn position_first_zero(&self) -> Option<u8> {
+        let i = (!self.full.0).leading_zeros();
+        if i == 32 {
+            return None
         }
-        None
+        Some(i as u8)
+    }
+
+    /// Increases the number of set bits for the given index.
+    ///
+    /// # Panics
+    ///
+    /// - If the given index is out of bounds.
+    /// - If the increment would cause an overflow.
+    pub fn inc(&mut self, index: usize) {
+        assert!(index < 32, "index is out of bounds");
+        if self.counts[index] == !0 {
+            self.full.set_full(index as u8);
+        } else {
+            self.counts[index] += 1;
+        }
     }
 
     /// Decreases the number of set bits for the given index.
