@@ -88,7 +88,7 @@ impl CountFree {
         if self.counts[index] == !0 {
             self.full.set_full(index as u8);
         } else {
-            self.counts[index] = self.counts[index] + 1;
+            self.counts[index] += 1;
         }
     }
 
