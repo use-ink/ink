@@ -23,6 +23,9 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
+#[cfg(all(test, feature = "ink-fuzz-tests"))]
+mod fuzz_tests;
+
 use self::counts::CountFree;
 use crate::storage2::collections::{
     Bitvec as StorageBitvec,
