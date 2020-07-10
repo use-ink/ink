@@ -84,7 +84,7 @@ mod populated_cache {
 }
 
 fn bench_populated_cache(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Bench: `fill_bitstash` (populated cache)");
+    let mut group = c.benchmark_group("Bench: populated cache");
     group.bench_function("fill_bitstash", |b| {
         b.iter(|| populated_cache::fill_bitstash())
     });
@@ -116,7 +116,7 @@ mod empty_cache {
 /// benchmark iteration.
 fn bench_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let mut group = c.benchmark_group("Bench: `fill_bitstash` (empty cache)");
+        let mut group = c.benchmark_group("Bench: empty cache");
         group
             .bench_function("fill_bitstash", |b| b.iter(|| empty_cache::fill_bitstash()));
         group.bench_function("one_put", |b| {
