@@ -89,9 +89,9 @@ fn bench_populated_cache(c: &mut Criterion) {
         b.iter(|| populated_cache::fill_bitstash())
     });
     group.bench_function("one_put", |b| {
-        b.iter_batched(
+        b.iter_batched_ref(
             || create_large_stash(),
-            |mut stash| one_put(&mut stash),
+            |stash| black_box(one_put(stash)),
             BatchSize::SmallInput,
         )
     });
