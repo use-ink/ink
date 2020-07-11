@@ -119,6 +119,78 @@ where
 }
 
 /// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call.
+///
+/// # Example
+///
+/// ## Example 1: No Return Value
+///
+/// The below example shows calling of a message of another contract that does
+/// not return any value back to its caller. The called function ...
+///
+/// - has a selector equal to `0xDEADBEEF`
+/// - is provided with 5000 units of gas for its execution
+/// - is provided with 10 units of transferred value for the contract instance
+/// - receives the following arguments in order
+///    1. an `i32` with value `42`
+///    2. a `bool` with value `true`
+///    3. an array of 32 `u8` with value `0x10`
+///
+/// ```
+/// # use ::ink_core::env::{
+/// #     EnvTypes,
+/// #     DefaultEnvTypes,
+/// #     call::{build_call, Selector, ExecutionInput}
+/// # };
+/// # type AccountId = <DefaultEnvTypes as EnvTypes>::AccountId;
+/// build_call::<DefaultEnvTypes>()
+///     .callee(AccountId::from([0x42; 32]))
+///     .gas_limit(5000)
+///     .transferred_value(10)
+///     .exec_input(
+///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
+///             .push_arg(&42)
+///             .push_arg(&true)
+///             .push_arg([0x10u8; 32])
+///     )
+///     .invoke_params()
+///     # ;
+///     // .invoke(); Error: The off-chain environment does not support cross-contract calls!
+/// ```
+///
+/// ## Example 2: With Return Value
+///
+/// The below example shows calling of a message of another contract that does
+/// return a `i32` value back to its caller. The called function ...
+///
+/// - has a selector equal to `0xDEADBEEF`
+/// - is provided with 5000 units of gas for its execution
+/// - is provided with 10 units of transferred value for the contract instance
+/// - receives the following arguments in order
+///    1. an `i32` with value `42`
+///    2. a `bool` with value `true`
+///    3. an array of 32 `u8` with value `0x10`
+///
+/// ```
+/// # use ::ink_core::env::{
+/// #     EnvTypes,
+/// #     DefaultEnvTypes,
+/// #     call::{build_call, Selector, ExecutionInput}
+/// # };
+/// # type AccountId = <DefaultEnvTypes as EnvTypes>::AccountId;
+/// let my_return_value = build_call::<DefaultEnvTypes>()
+///     .callee(AccountId::from([0x42; 32]))
+///     .gas_limit(5000)
+///     .transferred_value(10)
+///     .exec_input(
+///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
+///             .push_arg(&42)
+///             .push_arg(&true)
+///             .push_arg([0x10; 32])
+///     )
+///     .eval_params::<i32>()
+///     # ;
+///     // .eval(); Error: The off-chain environment does not support cross-contract calls!
+/// ```
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<E::AccountId>,
