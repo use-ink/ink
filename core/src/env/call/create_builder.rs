@@ -101,31 +101,37 @@ where
     }
 }
 
+#[cfg(
+    // We do not currently support cross-contract instantiation in the off-chain
+    // environment so we do not have to provide these getters in case of
+    // off-chain environment compilation.
+    all(not(feature = "std"), target_arch = "wasm32")
+)]
 impl<E, Args, R> CreateParams<E, Args, R>
 where
     E: EnvTypes,
 {
     /// The code hash of the contract.
     #[inline]
-    pub fn code_hash(&self) -> &E::Hash {
+    pub(crate) fn code_hash(&self) -> &E::Hash {
         &self.code_hash
     }
 
     /// The gas limit for the contract instantiation.
     #[inline]
-    pub fn gas_limit(&self) -> u64 {
+    pub(crate) fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// The endowment for the instantiated contract.
     #[inline]
-    pub fn endowment(&self) -> &E::Balance {
+    pub(crate) fn endowment(&self) -> &E::Balance {
         &self.endowment
     }
 
     /// The raw encoded input data.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
 }
