@@ -75,29 +75,26 @@ where
     return_type: ReturnType<R>,
 }
 
-impl<E> CreateParams<E, EmptyArgumentList, ()>
+/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract instantiation.
+pub fn build_create<E, R>() -> CreateBuilder<
+    E,
+    Unset<E::Hash>,
+    Unset<u64>,
+    Unset<E::Balance>,
+    Unset<ExecutionInput<EmptyArgumentList>>,
+    R,
+>
 where
     E: EnvTypes,
-    E::Balance: Default,
-    E::AccountId: Default,
+    R: FromAccountId<E>,
 {
-    /// Creates the default set of parameters for the cross-contract call.
-    pub fn build<R>() -> CreateBuilder<
-        E,
-        Unset<E::Hash>,
-        Unset<u64>,
-        Unset<E::Balance>,
-        Unset<ExecutionInput<EmptyArgumentList>>,
-        R,
-    > {
-        CreateBuilder {
-            env_types: Default::default(),
-            code_hash: Default::default(),
-            gas_limit: Default::default(),
-            endowment: Default::default(),
-            exec_input: Default::default(),
-            return_type: Default::default(),
-        }
+    CreateBuilder {
+        env_types: Default::default(),
+        code_hash: Default::default(),
+        gas_limit: Default::default(),
+        endowment: Default::default(),
+        exec_input: Default::default(),
+        return_type: Default::default(),
     }
 }
 

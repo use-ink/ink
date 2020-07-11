@@ -118,27 +118,23 @@ where
     }
 }
 
-impl<E> CallParams<E, EmptyArgumentList, ()>
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call.
+pub fn build_call<E>() -> CallBuilder<
+    E,
+    Unset<E::AccountId>,
+    Unset<u64>,
+    Unset<E::Balance>,
+    Unset<ExecutionInput<EmptyArgumentList>>,
+>
 where
     E: EnvTypes,
-    E::Balance: Default,
-    E::AccountId: Default,
 {
-    /// Creates the default set of parameters for the cross-contract call.
-    pub fn build() -> CallBuilder<
-        E,
-        Unset<E::AccountId>,
-        Unset<u64>,
-        Unset<E::Balance>,
-        Unset<ExecutionInput<EmptyArgumentList>>,
-    > {
-        CallBuilder {
-            env_types: Default::default(),
-            callee: Default::default(),
-            gas_limit: Default::default(),
-            transferred_value: Default::default(),
-            exec_input: Default::default(),
-        }
+    CallBuilder {
+        env_types: Default::default(),
+        callee: Default::default(),
+        gas_limit: Default::default(),
+        transferred_value: Default::default(),
+        exec_input: Default::default(),
     }
 }
 
