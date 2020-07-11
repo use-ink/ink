@@ -148,9 +148,9 @@ where
 ///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
-///             .push_arg(&42)
-///             .push_arg(&true)
-///             .push_arg([0x10u8; 32])
+///             .push_arg(42)
+///             .push_arg(true)
+///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .invoke_params()
 ///     # ;
@@ -183,9 +183,9 @@ where
 ///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
-///             .push_arg(&42)
-///             .push_arg(&true)
-///             .push_arg([0x10; 32])
+///             .push_arg(42)
+///             .push_arg(true)
+///             .push_arg(&[0x10; 32])
 ///     )
 ///     .eval_params::<i32>()
 ///     # ;
