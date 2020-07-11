@@ -12,18 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::env::{
-    call::{
-        utils::{
-            EmptyArgumentList,
-            Set,
-            Unset,
-            Unwrap,
-            ReturnType,
+use crate::{
+    env,
+    env::{
+        call::{
+            utils::{
+                EmptyArgumentList,
+                ReturnType,
+                Set,
+                Unset,
+                Unwrap,
+            },
+            ExecutionInput,
         },
-        ExecutionInput,
+        EnvTypes,
     },
-    EnvTypes,
 };
 use core::marker::PhantomData;
 
@@ -214,7 +217,7 @@ where
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Finalizes the call builder to call a function without return value.
-    pub fn invoke(self) -> Call<E, Args, ()> {
+    pub fn invoke_params(self) -> Call<E, Args, ()> {
         Call {
             callee: self.callee.value(),
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
@@ -226,8 +229,21 @@ where
         }
     }
 
+    /// Invokes the contract with the given built-up call parameters.
+    ///
+    /// # Note
+    ///
+    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
+    /// called contract message does not return anything because it is more efficient.
+    pub fn invoke(self) -> Result<(), env::EnvError>
+    where
+        Args: scale::Encode,
+    {
+        env::invoke_contract(&self.invoke_params())
+    }
+
     /// Finalizes the call builder to call a function with the given return value type.
-    pub fn eval<R>(self) -> Call<E, Args, ReturnType<R>>
+    pub fn eval_params<R>(self) -> Call<E, Args, ReturnType<R>>
     where
         R: scale::Decode,
     {
@@ -240,5 +256,21 @@ where
             return_type: Default::default(),
             exec_input: self.exec_input.value(),
         }
+    }
+
+    /// Evaluates the contract with the given built-up call parameters.
+    ///
+    /// Returns the result of the contract execution.
+    ///
+    /// # Note
+    ///
+    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
+    /// called contract message does not return anything because it is more efficient.
+    pub fn eval<R>(self) -> Result<R, env::EnvError>
+    where
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        env::eval_contract(&self.eval_params())
     }
 }
