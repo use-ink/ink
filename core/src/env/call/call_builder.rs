@@ -48,32 +48,68 @@ where
     exec_input: ExecutionInput<Args>,
 }
 
+#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
 impl<E, Args, R> Call<E, Args, R>
 where
     E: EnvTypes,
 {
     /// Returns the account ID of the called contract instance.
     #[inline]
-    pub fn callee(&self) -> &E::AccountId {
+    pub(crate) fn callee(&self) -> &E::AccountId {
         &self.callee
     }
 
     /// Returns the chosen gas limit for the called contract execution.
     #[inline]
-    pub fn gas_limit(&self) -> u64 {
+    pub(crate) fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// Returns the transferred value for the called contract.
     #[inline]
-    pub fn transferred_value(&self) -> &E::Balance {
+    pub(crate) fn transferred_value(&self) -> &E::Balance {
         &self.transferred_value
     }
 
     /// Returns the execution input.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
+    }
+}
+
+impl<E, Args> Call<E, Args, ()>
+where
+    E: EnvTypes,
+    Args: scale::Encode,
+{
+    /// Invokes the contract with the given built-up call parameters.
+    ///
+    /// # Note
+    ///
+    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
+    /// called contract message does not return anything because it is more efficient.
+    pub fn invoke(&self) -> Result<(), env::EnvError> {
+        env::invoke_contract(self)
+    }
+}
+
+impl<E, Args, R> Call<E, Args, ReturnType<R>>
+where
+    E: EnvTypes,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    /// Evaluates the contract with the given built-up call parameters.
+    ///
+    /// Returns the result of the contract execution.
+    ///
+    /// # Note
+    ///
+    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
+    /// called contract message does not return anything because it is more efficient.
+    pub fn eval(&self) -> Result<R, env::EnvError> {
+        env::eval_contract(self)
     }
 }
 
@@ -229,19 +265,6 @@ where
         }
     }
 
-    /// Invokes the contract with the given built-up call parameters.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(self) -> Result<(), env::EnvError>
-    where
-        Args: scale::Encode,
-    {
-        env::invoke_contract(&self.invoke_params())
-    }
-
     /// Finalizes the call builder to call a function with the given return value type.
     pub fn eval_params<R>(self) -> Call<E, Args, ReturnType<R>>
     where
@@ -256,21 +279,5 @@ where
             return_type: Default::default(),
             exec_input: self.exec_input.value(),
         }
-    }
-
-    /// Evaluates the contract with the given built-up call parameters.
-    ///
-    /// Returns the result of the contract execution.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn eval<R>(self) -> Result<R, env::EnvError>
-    where
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        env::eval_contract(&self.eval_params())
     }
 }
