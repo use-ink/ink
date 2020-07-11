@@ -17,7 +17,7 @@
 mod builder;
 mod execution_input;
 mod instantiate;
-mod utils;
+mod selector;
 
 /// The compile-time states of builder for calls and instantiations.
 #[doc(hidden)]
@@ -27,7 +27,7 @@ pub mod state {
             CodeHashAssigned,
             CodeHashUnassigned,
         },
-        utils::seal::{
+        selector::seal::{
             Sealed,
             Unsealed,
         },
@@ -53,5 +53,5 @@ pub use self::{
         InstantiateBuilder,
         InstantiateParams,
     },
-    utils::Selector,
+    selector::Selector,
 };
