@@ -68,6 +68,7 @@ pub use self::{
         EmptyArgumentList,
         ExecutionInput,
     },
+    execution_input::ExecutionInput,
     instantiate::{
         FromAccountId,
         InstantiateBuilder,
