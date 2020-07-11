@@ -15,6 +15,7 @@
 //! Utilities to call or instantiate contracts on the chain.
 
 mod builder;
+mod common;
 mod execution_input;
 mod instantiate;
 mod selector;
@@ -30,6 +31,25 @@ pub mod state {
         selector::seal::{
             Sealed,
             Unsealed,
+        },
+    };
+}
+
+/// Utility types for the cross-contract calling API.
+pub mod utils {
+    pub use super::{
+        common::{
+            ReturnType,
+            Set,
+            Unset,
+            Unwrap,
+        },
+        execution_input::{
+            ArgsList,
+            Argument,
+            ArgumentList,
+            ArgumentListEnd,
+            EmptyArgumentList,
         },
     };
 }
