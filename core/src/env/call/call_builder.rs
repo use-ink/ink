@@ -48,7 +48,12 @@ where
     exec_input: ExecutionInput<Args>,
 }
 
-#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+#[cfg(
+    // We do not currently support cross-contract calling in the off-chain
+    // environment so we do not have to provide these getters in case of
+    // off-chain environment compilation.
+    all(not(feature = "std"), target_arch = "wasm32")
+)]
 impl<E, Args, R> Call<E, Args, R>
 where
     E: EnvTypes,
