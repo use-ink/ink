@@ -23,16 +23,6 @@ pub struct ExecutionInput<Args> {
     args: Args,
 }
 
-impl Default for ExecutionInput<EmptyArgumentList> {
-    #[inline]
-    fn default() -> Self {
-        Self {
-            selector: Selector::new([0x00; 4]),
-            args: ArgumentList::empty(),
-        }
-    }
-}
-
 impl ExecutionInput<EmptyArgumentList> {
     /// Creates a new execution input with the given selector.
     #[inline]
