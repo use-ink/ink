@@ -19,8 +19,8 @@ use super::{
 use crate::env::{
     call::{
         CallParams,
-        InstantiateParams,
-        ReturnType,
+        CreateParams,
+        utils::ReturnType,
     },
     Env,
     EnvTypes,
@@ -115,7 +115,7 @@ impl EnvInstance {
         let callee = self.append_encode_into_buffer(call_params.callee());
         let transferred_value =
             self.append_encode_into_buffer(call_params.transferred_value());
-        let call_data = self.append_encode_into_buffer(call_params.input_data());
+        let call_data = self.append_encode_into_buffer(call_params.exec_input());
         // Resolve the encoded regions into actual byte slices.
         let callee = &self.buffer[callee];
         let transferred_value = &self.buffer[transferred_value];
@@ -301,7 +301,7 @@ impl TypedEnv for EnvInstance {
 
     fn instantiate_contract<T, Args, C>(
         &mut self,
-        params: &InstantiateParams<T, Args, C>,
+        params: &CreateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
@@ -313,7 +313,7 @@ impl TypedEnv for EnvInstance {
         // in order and remember their encoded regions within the buffer.
         let code_hash = self.append_encode_into_buffer(params.code_hash());
         let endowment = self.append_encode_into_buffer(params.endowment());
-        let create_data = self.append_encode_into_buffer(params.input_data());
+        let create_data = self.append_encode_into_buffer(params.exec_input());
         // Resolve the encoded regions into actual byte slices.
         let code_hash = &self.buffer[code_hash];
         let endowment = &self.buffer[endowment];
