@@ -14,14 +14,6 @@
 
 use derive_more::From;
 
-/// Seals to guard pushing arguments to already satisfied parameter builders.
-pub mod seal {
-    /// The call builder is sealed and won't accept further arguments.
-    pub enum Sealed {}
-    /// The call builder is unsealed and will accept further arguments.
-    pub enum Unsealed {}
-}
-
 /// The function selector.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, From, scale::Decode, scale::Encode)]
 pub struct Selector {

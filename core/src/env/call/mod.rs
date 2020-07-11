@@ -20,21 +20,6 @@ mod common;
 mod execution_input;
 mod selector;
 
-/// The compile-time states of builder for calls and instantiations.
-#[doc(hidden)]
-pub mod state {
-    pub use crate::env::call::{
-        instantiate::state::{
-            CodeHashAssigned,
-            CodeHashUnassigned,
-        },
-        selector::seal::{
-            Sealed,
-            Unsealed,
-        },
-    };
-}
-
 /// Utility types for the cross-contract calling API.
 pub mod utils {
     pub use super::{
