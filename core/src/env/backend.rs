@@ -16,7 +16,7 @@ use crate::env::{
     call::{
         CallParams,
         InstantiateParams,
-        ReturnType,
+        utils::ReturnType,
     },
     EnvTypes,
     Result,
