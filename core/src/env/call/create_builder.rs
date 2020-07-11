@@ -12,22 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::marker::PhantomData;
-
-use crate::env::{
-    call::{
-        utils::{
-            EmptyArgumentList,
-            ReturnType,
-            Set,
-            Unset,
-            Unwrap,
+use crate::{
+    env,
+    env::{
+        call::{
+            utils::{
+                EmptyArgumentList,
+                ReturnType,
+                Set,
+                Unset,
+                Unwrap,
+            },
+            ExecutionInput,
         },
-        ExecutionInput,
+        EnvTypes,
     },
-    EnvTypes,
-    Result,
 };
+use core::marker::PhantomData;
 
 /// Contracts that can be contructed from an `AccountId`.
 ///
@@ -126,6 +127,19 @@ where
     #[inline]
     pub fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
+    }
+}
+
+impl<E, Args, R> CreateParams<E, Args, R>
+where
+    E: EnvTypes,
+    Args: scale::Encode,
+    R: FromAccountId<E>,
+{
+    /// Instantiates the contract and returns its account ID back to the caller.
+    #[inline]
+    pub fn instantiate(&self) -> Result<R, env::EnvError> {
+        env::instantiate_contract(self).map(FromAccountId::from_account_id)
     }
 }
 
@@ -248,16 +262,5 @@ where
             exec_input: self.exec_input.value(),
             return_type: self.return_type,
         }
-    }
-
-    /// Instantiates the contract and returns its account ID back to the caller.
-    #[inline]
-    pub fn instantiate(self) -> Result<R>
-    where
-        Args: scale::Encode,
-        R: FromAccountId<E>,
-    {
-        crate::env::instantiate_contract(&self.params())
-            .map(FromAccountId::from_account_id)
     }
 }
