@@ -32,7 +32,7 @@ use core::marker::PhantomData;
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
-pub struct Call<E, Args, R>
+pub struct CallParams<E, Args, R>
 where
     E: EnvTypes,
 {
@@ -54,7 +54,7 @@ where
     // off-chain environment compilation.
     all(not(feature = "std"), target_arch = "wasm32")
 )]
-impl<E, Args, R> Call<E, Args, R>
+impl<E, Args, R> CallParams<E, Args, R>
 where
     E: EnvTypes,
 {
@@ -83,7 +83,7 @@ where
     }
 }
 
-impl<E, Args> Call<E, Args, ()>
+impl<E, Args> CallParams<E, Args, ()>
 where
     E: EnvTypes,
     Args: scale::Encode,
@@ -99,7 +99,7 @@ where
     }
 }
 
-impl<E, Args, R> Call<E, Args, ReturnType<R>>
+impl<E, Args, R> CallParams<E, Args, ReturnType<R>>
 where
     E: EnvTypes,
     Args: scale::Encode,
@@ -118,7 +118,7 @@ where
     }
 }
 
-impl<E> Call<E, EmptyArgumentList, ()>
+impl<E> CallParams<E, EmptyArgumentList, ()>
 where
     E: EnvTypes,
     E::Balance: Default,
@@ -258,8 +258,8 @@ where
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Finalizes the call builder to call a function without return value.
-    pub fn invoke_params(self) -> Call<E, Args, ()> {
-        Call {
+    pub fn invoke_params(self) -> CallParams<E, Args, ()> {
+        CallParams {
             callee: self.callee.value(),
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
             transferred_value: self
@@ -271,11 +271,11 @@ where
     }
 
     /// Finalizes the call builder to call a function with the given return value type.
-    pub fn eval_params<R>(self) -> Call<E, Args, ReturnType<R>>
+    pub fn eval_params<R>(self) -> CallParams<E, Args, ReturnType<R>>
     where
         R: scale::Decode,
     {
-        Call {
+        CallParams {
             callee: self.callee.value(),
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
             transferred_value: self
