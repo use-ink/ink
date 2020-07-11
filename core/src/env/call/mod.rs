@@ -18,7 +18,6 @@ mod call_builder;
 mod create_builder;
 mod common;
 mod execution_input;
-mod instantiate;
 mod selector;
 
 /// The compile-time states of builder for calls and instantiations.
@@ -62,12 +61,9 @@ pub use self::{
     },
     create_builder::{
     execution_input::ExecutionInput,
-    instantiate::{
         FromAccountId,
         CreateParams,
         CreateBuilder,
-        InstantiateBuilder,
-        InstantiateParams,
     },
     selector::Selector,
 };
