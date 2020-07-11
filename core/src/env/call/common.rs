@@ -70,8 +70,10 @@ impl<T> Default for Unset<T> {
     }
 }
 
-/// Implemented by [`Set`] and [`Unset`] in order to unwrap their value in case
-/// the use-size does not know if they are working with a set or unset value.
+/// Implemented by [`Set`] and [`Unset`] in order to unwrap their value.
+///
+/// This is useful in case the use-site does not know if it is working with
+/// a set or an unset value generically unwrap it using a closure for fallback.
 pub trait Unwrap {
     /// The output type of the `unwrap_or_else` operation.
     type Output;
