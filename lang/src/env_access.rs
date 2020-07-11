@@ -18,8 +18,8 @@ use ink_core::{
     env::{
         call::{
             CallParams,
-            InstantiateParams,
-            ReturnType,
+            CreateParams,
+            utils::ReturnType,
         },
         EnvTypes,
         Result,
@@ -254,7 +254,7 @@ where
     /// For more details visit: [`ink_core::env::instantiate_contract`]
     pub fn instantiate_contract<Args, C>(
         self,
-        params: &InstantiateParams<T, Args, C>,
+        params: &CreateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         Args: scale::Encode,
