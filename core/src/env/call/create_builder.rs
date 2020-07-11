@@ -257,6 +257,7 @@ where
         Args: scale::Encode,
         R: FromAccountId<E>,
     {
-        crate::env::instantiate_contract(&self.params()).map(FromAccountId::from_account_id)
+        crate::env::instantiate_contract(&self.params())
+            .map(FromAccountId::from_account_id)
     }
 }

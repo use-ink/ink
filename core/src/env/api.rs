@@ -20,9 +20,9 @@ use crate::env::{
         TypedEnv,
     },
     call::{
+        utils::ReturnType,
         CallParams,
         CreateParams,
-        utils::ReturnType,
     },
     engine::{
         EnvInstance,
