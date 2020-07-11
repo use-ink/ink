@@ -122,6 +122,10 @@ where
 ///
 /// # Example
 ///
+/// **Note:** The shown examples panic because there is currently no cross-calling
+///           support in the off-chain testing environment. However, this code
+///           should work fine in on-chain environments.
+///
 /// ## Example 1: No Return Value
 ///
 /// The below example shows calling of a message of another contract that does
@@ -135,7 +139,7 @@ where
 ///    2. a `bool` with value `true`
 ///    3. an array of 32 `u8` with value `0x10`
 ///
-/// ```
+/// ```should_panic
 /// # use ::ink_core::env::{
 /// #     EnvTypes,
 /// #     DefaultEnvTypes,
@@ -153,8 +157,8 @@ where
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .invoke_params()
-///     # ;
-///     // .invoke(); Error: The off-chain environment does not support cross-contract calls!
+///     .invoke()
+///     .unwrap();
 /// ```
 ///
 /// ## Example 2: With Return Value
@@ -170,14 +174,14 @@ where
 ///    2. a `bool` with value `true`
 ///    3. an array of 32 `u8` with value `0x10`
 ///
-/// ```
+/// ```should_panic
 /// # use ::ink_core::env::{
 /// #     EnvTypes,
 /// #     DefaultEnvTypes,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
 /// # type AccountId = <DefaultEnvTypes as EnvTypes>::AccountId;
-/// let my_return_value = build_call::<DefaultEnvTypes>()
+/// let my_return_value: i32 = build_call::<DefaultEnvTypes>()
 ///     .callee(AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
@@ -188,8 +192,8 @@ where
 ///             .push_arg(&[0x10; 32])
 ///     )
 ///     .eval_params::<i32>()
-///     # ;
-///     // .eval(); Error: The off-chain environment does not support cross-contract calls!
+///     .eval()
+///     .unwrap();
 /// ```
 pub fn build_call<E>() -> CallBuilder<
     E,
