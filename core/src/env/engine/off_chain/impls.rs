@@ -20,7 +20,7 @@ use super::{
 use crate::env::{
     call::{
         CallParams,
-        InstantiateParams,
+        CreateParams,
         utils::ReturnType,
     },
     Env,
@@ -275,7 +275,7 @@ impl TypedEnv for EnvInstance {
 
     fn instantiate_contract<T, Args, C>(
         &mut self,
-        _params: &InstantiateParams<T, Args, C>,
+        _params: &CreateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,

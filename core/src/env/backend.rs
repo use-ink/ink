@@ -15,7 +15,7 @@
 use crate::env::{
     call::{
         CallParams,
-        InstantiateParams,
+        CreateParams,
         utils::ReturnType,
     },
     EnvTypes,
@@ -251,7 +251,7 @@ pub trait TypedEnv: Env {
     /// For more details visit: [`ink_core::env::instantiate_contract`]
     fn instantiate_contract<T, Args, C>(
         &mut self,
-        params: &InstantiateParams<T, Args, C>,
+        params: &CreateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
