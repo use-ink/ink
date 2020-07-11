@@ -76,6 +76,51 @@ where
 }
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract instantiation.
+///
+/// # Example
+///
+/// The below example shows instantiation of contract of type `MyContract`.
+///
+/// The used constructor ...
+///
+/// - has a selector equal to `0xDEADBEEF`
+/// - is provided with 4000 units of gas for its execution
+/// - is provided with 25 units of transferred value for the new contract instance
+/// - receives the following arguments in order
+///    1. an `i32` with value `42`
+///    2. a `bool` with value `true`
+///    3. an array of 32 `u8` with value `0x10`
+///
+/// ```should_panic
+/// # use ::ink_core::env::{
+/// #     EnvTypes,
+/// #     DefaultEnvTypes,
+/// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
+/// # };
+/// # type Hash = <DefaultEnvTypes as EnvTypes>::Hash;
+/// # type AccountId = <DefaultEnvTypes as EnvTypes>::AccountId;
+/// # struct MyContract;
+/// # impl FromAccountId<DefaultEnvTypes> for MyContract {
+/// #     fn from_account_id(account_id: AccountId) -> Self { Self }
+/// # }
+/// let my_contract: MyContract = build_create::<DefaultEnvTypes, MyContract>()
+///     .code_hash(Hash::from([0x42; 32]))
+///     .gas_limit(4000)
+///     .endowment(25)
+///     .exec_input(
+///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
+///             .push_arg(42)
+///             .push_arg(true)
+///             .push_arg(&[0x10u8; 32])
+///     )
+///     .params()
+///     .instantiate()
+///     .unwrap();
+/// ```
+///
+/// **Note:** The shown example panics because there is currently no cross-calling
+///           support in the off-chain testing environment. However, this code
+///           should work fine in on-chain environments.
 pub fn build_create<E, R>() -> CreateBuilder<
     E,
     Unset<E::Hash>,
