@@ -37,7 +37,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
     assert_json_eq!(
         json,
         json!({
-            "name": 1,
+            "name": "foo",
             "selector": "0x075bcd15",
             "args": [],
             "docs": []
@@ -104,23 +104,23 @@ fn spec_contract_json() {
                 {
                     "args": [
                         {
-                            "name": 3,
+                            "name": "init_value",
                             "type": {
                                 "displayName": [
-                                    4
+                                    "i32"
                                 ],
                                 "id": 1
                             }
                         }
                     ],
                     "docs": [],
-                    "name": 2,
+                    "name": "new",
                     "selector": "0x5ebd88d6"
                 },
                 {
                     "args": [],
                     "docs": [],
-                    "name": 5,
+                    "name": "default",
                     "selector": "0x0222ff18"
                 }
             ],
@@ -130,10 +130,10 @@ fn spec_contract_json() {
                 {
                     "args": [
                         {
-                            "name": 7,
+                            "name": "by",
                             "type": {
                                 "displayName": [
-                                    4
+                                    "i32"
                                 ],
                                 "id": 1
                             }
@@ -141,7 +141,7 @@ fn spec_contract_json() {
                     ],
                     "docs": [],
                     "mutates": true,
-                    "name": 6,
+                    "name": "inc",
                     "returnType": null,
                     "selector": "0xe7d0590f"
                 },
@@ -149,17 +149,16 @@ fn spec_contract_json() {
                     "args": [],
                     "docs": [],
                     "mutates": false,
-                    "name": 8,
+                    "name": "get",
                     "returnType": {
                         "displayName": [
-                            4
+                            "i32"
                         ],
                         "id": 1
                     },
                     "selector": "0x25444afe"
                 }
             ],
-            "name": 1
         })
     )
 }
