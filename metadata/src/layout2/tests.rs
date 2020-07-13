@@ -14,6 +14,7 @@
 
 use super::*;
 use ink_primitives::KeyPtr;
+use pretty_assertions::assert_eq;
 
 #[test]
 fn layout_key_works() {
@@ -60,7 +61,7 @@ fn named_fields_work() {
                                 "ty": 1,
                             }
                         },
-                        "name": 1,
+                        "name": "a",
                     },
                     {
                         "layout": {
@@ -73,7 +74,7 @@ fn named_fields_work() {
                                 "ty": 2,
                             }
                         },
-                        "name": 2,
+                        "name": "b",
                     }
                 ]
             }
@@ -293,7 +294,7 @@ fn mixed_enum_work() {
                                         "ty": 1,
                                     }
                                 },
-                                "name": 1,
+                                "name": "a",
                             },
                             {
                                 "layout": {
@@ -306,7 +307,7 @@ fn mixed_enum_work() {
                                         "ty": 2,
                                     }
                                 },
-                                "name": 2,
+                                "name": "b",
                             }
                         ],
                     },

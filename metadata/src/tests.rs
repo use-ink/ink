@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::*;
-use assert_json_diff::assert_json_eq;
+use pretty_assertions::assert_eq;
 use scale_info::{
     IntoCompact,
     Registry,
@@ -34,7 +34,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
     let json = serde_json::to_value(&cs.into_compact(&mut registry)).unwrap();
 
     // then
-    assert_json_eq!(
+    assert_eq!(
         json,
         json!({
             "name": "foo",
@@ -97,7 +97,7 @@ fn spec_contract_json() {
     let json = serde_json::to_value(&contract.into_compact(&mut registry)).unwrap();
 
     // then
-    assert_json_eq!(
+    assert_eq!(
         json,
         json!({
             "constructors": [
