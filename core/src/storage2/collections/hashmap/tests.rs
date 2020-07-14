@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::HashMap as StorageHashMap;
+use super::{
+    Entry,
+    Entry::{
+        Occupied,
+        Vacant,
+    },
+    HashMap as StorageHashMap,
+};
+
 use crate::{
     env,
     storage2::traits::{
@@ -325,4 +333,266 @@ fn spread_layout_clear_works() {
         Ok(())
     })
     .unwrap()
+}
+
+#[test]
+fn entry_api_empty_works() {
+    let mut hmap = <StorageHashMap<i32, bool>>::new();
+    match hmap.entry(0) {
+        Occupied(_) => panic!(),
+        Vacant(_) => {}
+    }
+    assert!(*hmap.entry(0).or_insert(true));
+    assert_eq!(hmap.len(), 1);
+}
+
+#[test]
+fn entry_api_works() {
+    let test_values = [(b'A', 1), (b'B', 2)];
+    let mut hmap = test_values
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+
+    match hmap.entry(b'A') {
+        Vacant(_) => panic!(),
+        Occupied(_) => {}
+    }
+}
+
+#[test]
+fn entry_api_mutate_works_with_push_pull() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let hmap1 = [(b'A', 13)]
+            .iter()
+            .copied()
+            .collect::<StorageHashMap<u8, i32>>();
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&hmap1, &mut KeyPtr::from(root_key));
+
+        let mut hmap2: StorageHashMap<u8, i32> =
+            <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+        assert_eq!(hmap2.get(&b'A'), Some(&13));
+
+        let v = hmap2.entry(b'A').or_insert(42);
+        *v += 1;
+
+        assert_eq!(hmap2.get(&b'A'), Some(&14));
+        SpreadLayout::push_spread(&hmap2, &mut KeyPtr::from(root_key));
+
+        let hmap3 = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+        assert_eq!(hmap3.get(&b'A'), Some(&14));
+        Ok(())
+    })
+}
+
+#[test]
+fn entry_api_insert_mutate_remove_works() {
+    let test_values = [(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)];
+    // let mut map: HashMap<_, _> = xs.iter().cloned().collect();
+    let mut hmap = test_values
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+
+    // Existing key (insert)
+    match hmap.entry(1) {
+        Vacant(_) => unreachable!(),
+        Occupied(mut view) => {
+            assert_eq!(view.get(), &10);
+            assert_eq!(view.insert(100), 10);
+        }
+    }
+    assert_eq!(hmap.get(&1).unwrap(), &100);
+    assert_eq!(hmap.len(), 6);
+
+    // Existing key (update)
+    match hmap.entry(2) {
+        Vacant(_) => unreachable!(),
+        Occupied(mut view) => {
+            let v = view.get_mut();
+            let new_v = (*v) * 10;
+            *v = new_v;
+        }
+    }
+    assert_eq!(hmap.get(&2).unwrap(), &200);
+    assert_eq!(hmap.len(), 6);
+
+    // Existing key (take)
+    match hmap.entry(3) {
+        Vacant(_) => unreachable!(),
+        Occupied(view) => {
+            assert_eq!(view.remove(), 30);
+        }
+    }
+    assert_eq!(hmap.get(&3), None);
+    assert_eq!(hmap.len(), 5);
+
+    // Inexistent key (insert)
+    match hmap.entry(10) {
+        Occupied(_) => unreachable!(),
+        Vacant(view) => {
+            assert_eq!(*view.insert(1000), 1000);
+        }
+    }
+    assert_eq!(hmap.get(&10).unwrap(), &1000);
+    assert_eq!(hmap.len(), 6);
+}
+
+#[test]
+fn entry_api_simple_insert_with_works() {
+    let test_values = [(b'A', 1), (b'B', 2)];
+    let mut hmap = test_values
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+
+    let v = hmap.entry(b'C').or_insert_with(|| 42);
+    assert_eq!(*v, 42);
+    assert_eq!(hmap.get(&b'C').unwrap(), &42);
+    assert_eq!(hmap.len(), 3);
+}
+
+#[test]
+fn entry_api_insert_with_works_with_mutations() {
+    let mut hmap = <StorageHashMap<i32, i32>>::new();
+    let v = hmap.entry(0).or_insert_with(|| 42);
+    assert_eq!(*v, 42);
+
+    *v += 1;
+    assert_eq!(hmap.get(&0).unwrap(), &43);
+    assert_eq!(hmap.len(), 1);
+}
+
+#[test]
+fn entry_api_insert_with_works_with_push_pull() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut hmap1 = <StorageHashMap<i32, i32>>::new();
+        let value = hmap1.entry(0).or_insert_with(|| 42);
+        *value = 43;
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&hmap1, &mut KeyPtr::from(root_key));
+
+        let hmap2: StorageHashMap<i32, i32> =
+            <StorageHashMap<i32, i32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+        assert_eq!(hmap2.get(&0), Some(&43));
+        Ok(())
+    })
+}
+
+#[test]
+fn entry_api_simple_insert_with_key_works() {
+    let mut hmap = <StorageHashMap<i32, i32>>::new();
+    let _ = hmap.entry(2).or_insert_with_key(|key| key * 2);
+    assert_eq!(hmap.get(&2).unwrap(), &4);
+}
+
+#[test]
+fn entry_api_key_get_works_with_nonexistent() {
+    let mut hmap = <StorageHashMap<i32, i32>>::new();
+    assert_eq!(hmap.entry(0).key(), &0);
+}
+
+#[test]
+fn entry_api_key_get_works_with_existent() {
+    let test_values = [(b'A', 1)];
+    let mut hmap = test_values
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>();
+    assert_eq!(hmap.entry(b'A').key(), &b'A');
+    assert_eq!(hmap.entry(b'B').key(), &b'B');
+}
+
+#[test]
+fn entry_api_and_modify_works() {
+    let mut hmap = <StorageHashMap<u8, i32>>::new();
+    hmap.entry(b'B').and_modify(|e| *e += 1).or_insert(42);
+    assert_eq!(hmap.get(&b'B'), Some(&42));
+
+    hmap.entry(b'B').and_modify(|e| *e += 1).or_insert(42);
+    assert_eq!(hmap.get(&b'B'), Some(&43));
+}
+
+#[test]
+fn entry_api_occupied_entry_api_works_with_push_pull() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let test_values = [(b'A', 12)];
+        let mut hmap1 = test_values
+            .iter()
+            .copied()
+            .collect::<StorageHashMap<u8, i32>>();
+
+        match hmap1.entry(b'A') {
+            Entry::Occupied(mut o) => {
+                assert_eq!(o.key(), &b'A');
+                assert_eq!(o.insert(15), 12);
+            }
+            Entry::Vacant(_) => unreachable!(),
+        }
+
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&hmap1, &mut KeyPtr::from(root_key));
+        let mut hmap2: StorageHashMap<u8, i32> =
+            <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+        assert_eq!(hmap2.get(&b'A'), Some(&15));
+        match hmap2.entry(b'A') {
+            Entry::Occupied(o) => {
+                assert_eq!(o.remove_entry(), (b'A', 15));
+            }
+            Entry::Vacant(_) => unreachable!(),
+        }
+        SpreadLayout::push_spread(&hmap2, &mut KeyPtr::from(root_key));
+
+        let hmap3: StorageHashMap<u8, i32> =
+            <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+        assert_eq!(hmap3.get(&b'A'), None);
+
+        Ok(())
+    })
+}
+
+#[test]
+fn entry_api_vacant_api_works() {
+    let mut hmap = <StorageHashMap<i32, i32>>::new();
+    match hmap.entry(0) {
+        Entry::Occupied(_) => unreachable!(),
+        Entry::Vacant(v) => {
+            assert_eq!(v.key(), &0);
+            assert_eq!(v.into_key(), 0);
+        }
+    }
+}
+
+#[test]
+fn entry_api_vacant_api_works_with_push_pull() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut hmap1 = <StorageHashMap<i32, i32>>::new();
+        match hmap1.entry(0) {
+            Entry::Occupied(_) => unreachable!(),
+            Entry::Vacant(v) => {
+                let val = v.insert(42);
+                *val += 1;
+            }
+        }
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&hmap1, &mut KeyPtr::from(root_key));
+
+        let hmap2: StorageHashMap<i32, i32> =
+            <StorageHashMap<i32, i32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+        assert_eq!(hmap2.get(&0), Some(&43));
+        Ok(())
+    })
 }

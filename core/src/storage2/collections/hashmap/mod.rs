@@ -101,6 +101,48 @@ struct ValueEntry<V> {
     key_index: KeyIndex,
 }
 
+/// A vacant entry with previous and next vacant indices.
+pub struct OccupiedEntry<'a, K, V, H = Blake2x256Hasher>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    base: &'a mut HashMap<K, V, H>,
+    key_index: KeyIndex,
+    key: K,
+}
+
+/// A vacant entry with previous and next vacant indices.
+pub struct VacantEntry<'a, K, V, H = Blake2x256Hasher>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    base: &'a mut HashMap<K, V, H>,
+    key: K,
+}
+
+/// An entry within the stash.
+///
+/// The vacant entries within a storage stash form a doubly linked list of
+/// vacant entries that is used to quickly re-use their vacant storage.
+pub enum Entry<'a, K: 'a, V: 'a, H = Blake2x256Hasher>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// A vacant entry that holds the index to the next and previous vacant entry.
+    Vacant(VacantEntry<'a, K, V, H>),
+    /// An occupied entry that holds the value.
+    Occupied(OccupiedEntry<'a, K, V, H>),
+}
+
 impl<K, V, H> HashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
@@ -336,5 +378,196 @@ where
             value_entry.key_index = new_index;
         };
         self.keys.defrag(Some(max_iterations), callback)
+    }
+
+    /// Gets the given key's corresponding entry in the map for in-place manipulation.
+    pub fn entry(&'_ mut self, key: K) -> Entry<'_, K, V, H> {
+        let v = self.values.get(&key);
+        match v {
+            Some(_) => {
+                let occupied = self.values.get(&key).unwrap();
+                Entry::Occupied(OccupiedEntry {
+                    key,
+                    key_index: occupied.key_index,
+                    base: self,
+                })
+            }
+            None => {
+                Entry::Vacant(VacantEntry {
+                    key,
+                    base: self,
+                })
+            }
+        }
+    }
+}
+
+impl<'a, K, V, H> Entry<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout + core::fmt::Debug + core::cmp::Eq + Default,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// Returns a reference to this entry's key.
+    pub fn key(&'a self) -> &'a K {
+        match self {
+            Entry::Occupied(entry) => &entry.key,
+            Entry::Vacant(entry) => &entry.key,
+        }
+    }
+
+    /// Returns a reference to this entry's key.
+    pub fn or_default(self) -> &'a V {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => entry.insert(V::default()),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the default if empty, and returns
+    /// a mutable reference to the value in the entry.
+    pub fn or_insert(self, default: V) -> &'a mut V {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => entry.insert(default),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the result of the default function if empty,
+    /// and returns mutable references to the key and value in the entry.
+    pub fn or_insert_with<F>(self, default: F) -> &'a mut V
+    where
+        F: FnOnce() -> V,
+    {
+        match self {
+            Entry::Occupied(entry) => entry.into_value(),
+            Entry::Vacant(entry) => Entry::insert(default(), entry),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting, if empty, the result of the default
+    /// function, which takes the key as its argument, and returns a mutable reference to
+    /// the value in the entry.
+    pub fn or_insert_with_key<F>(self, default: F) -> &'a mut V
+    where
+        F: FnOnce(&K) -> V,
+    {
+        match self {
+            Entry::Occupied(entry) => entry.into_value(),
+            Entry::Vacant(entry) => Entry::insert(default(&entry.key), entry)
+        }
+    }
+
+    /// Provides in-place mutable access to an occupied entry before any
+    /// potential inserts into the map.
+    pub fn and_modify<F>(self, f: F) -> Self
+    where
+        F: FnOnce(&mut V),
+    {
+        match self {
+            Entry::Occupied(mut entry) => {
+                {
+                    let v = entry.get_mut();
+                    f(v);
+                }
+                Entry::Occupied(entry)
+            }
+            Entry::Vacant(entry) => Entry::Vacant(entry),
+        }
+    }
+
+    /// Inserts `value` into `entry`.
+    fn insert(value: V, entry: VacantEntry<'a, K, V, H>) -> &'a mut V {
+        let old_value = entry.base.insert(entry.key.clone(), value);
+        debug_assert_eq!(old_value, None);
+        match entry.base.entry(entry.key) {
+            Entry::Vacant(_) => unreachable!("entry was just inserted; qed"),
+            Entry::Occupied(entry) => entry.into_value(),
+        }
+    }
+}
+
+impl<'a, K, V, H> VacantEntry<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
+    pub fn key(&self) -> &K {
+        &self.key
+    }
+
+    /// Take ownership of the key.
+    pub fn into_key(self) -> K {
+        self.key
+    }
+
+    /// Sets the value of the entry with the VacantEntry's key, and returns a mutable reference to it.
+    pub fn insert(self, value: V) -> &'a mut V {
+        // At this point we know that `key` does not yet exist in the map.
+        let key_index = self.base.keys.put(self.key.clone());
+        self.base
+            .values
+            .put(self.key.clone(), Some(ValueEntry { value, key_index }));
+        self.base.get_mut(&self.key).unwrap()
+    }
+}
+
+impl<'a, K, V, H> OccupiedEntry<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// Gets a reference to the key in the entry.
+    pub fn key(&self) -> &K {
+        &self.key
+    }
+
+    /// Take the ownership of the key and value from the map.
+    pub fn remove_entry(self) -> (K, V) {
+        let v = self.base.take(&self.key).unwrap();
+        let k = self.key;
+        (k, v)
+    }
+
+    /// Gets a reference to the value in the entry.
+    pub fn get(&self) -> &V {
+        &self.base.get(&self.key).unwrap()
+    }
+
+    /// Gets a mutable reference to the value in the entry.
+    ///
+    /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
+    /// `Entry` value, see `into_mut`.
+    pub fn get_mut(&mut self) -> &mut V {
+        self.base.get_mut(&self.key).unwrap()
+    }
+
+    /// Sets the value of the entry, and returns the entry's old value.
+    pub fn insert(&mut self, new_value: V) -> V {
+        let occupied = self.base.values.get_mut(&self.key).unwrap();
+        core::mem::replace(&mut occupied.value, new_value)
+    }
+
+    /// Takes the value out of the entry, and returns it.
+    pub fn remove(self) -> V {
+        self.base.take(&self.key).unwrap()
+    }
+
+    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
+    /// with a lifetime bound to the map itself.
+    pub fn into_mut(self) -> &'a mut V {
+        self.base.get_mut(&self.key).unwrap()
+    }
+
+    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
+    /// with a lifetime bound to the map itself.
+    pub fn into_value(self) -> &'a mut V {
+        self.base.get_mut(&self.key).unwrap()
     }
 }
