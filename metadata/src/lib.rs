@@ -69,7 +69,7 @@ impl InkProject {
     {
         let mut registry = Registry::new();
 
-        InkProject {
+        Self {
             layout: layout.into().into_compact(&mut registry),
             spec: spec.into().into_compact(&mut registry),
             registry,
