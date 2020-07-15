@@ -20,11 +20,11 @@ ink_primitives = { version = "2.1.0", path = "../primitives/", default-features 
 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
-scale-info = { version = "0.2", default-features = false, features = ["derive"] }
+scale-info = { version = "0.3", default-features = false, features = ["derive"] }
 
 [dev-dependencies]
+pretty_assertions = "0.6.1"
 serde_json = "1.0"
-assert-json-diff = "1.0.1"
 
 [features]
 default = [

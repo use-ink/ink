@@ -242,15 +242,13 @@ impl GenerateMetadata<'_> {
     }
 
     fn generate_contract(&self) -> TokenStream2 {
-        let contract_ident_lit = self.contract.ident.to_string();
-
         let constructors = self.generate_constructors();
         let messages = self.generate_messages();
         let events = self.generate_events();
         let docs = self.generate_docs();
 
         quote! {
-            ::ink_metadata::ContractSpec::new(#contract_ident_lit)
+            ::ink_metadata::ContractSpec::new()
                 .constructors(vec![
                     #(#constructors ,)*
                 ])
