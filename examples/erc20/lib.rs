@@ -172,11 +172,16 @@ mod erc20 {
             .unwrap()
         }
 
-        fn assert_transfer_event<I>(raw_events: I, transfer_index: usize, expected_value: u128)
-        where
-            I: IntoIterator<Item = env::test::EmittedEvent>
+        fn assert_transfer_event<I>(
+            raw_events: I,
+            transfer_index: usize,
+            expected_value: u128,
+        ) where
+            I: IntoIterator<Item = env::test::EmittedEvent>,
         {
-            let raw_event = raw_events.into_iter().nth(transfer_index)
+            let raw_event = raw_events
+                .into_iter()
+                .nth(transfer_index)
                 .expect(&format!("No event at index {}", transfer_index));
             let event = <Event as scale::Decode>::decode(&mut &raw_event.data[..])
                 .expect("Invalid contract Event");
