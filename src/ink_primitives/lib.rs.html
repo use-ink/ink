@@ -30,15 +30,6 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -65,21 +56,12 @@
 
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
 
-<span class="kw">mod</span> <span class="ident">byte_utils</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hash</span>;
 <span class="kw">mod</span> <span class="ident">key</span>;
-<span class="kw">mod</span> <span class="ident">key2</span>;
 <span class="kw">mod</span> <span class="ident">key_ptr</span>;
-<span class="kw">mod</span> <span class="ident">key_ptr2</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">key</span>::{
-        <span class="ident">Key</span>,
-        <span class="ident">KeyDiff</span>,
-    },
-    <span class="ident">key2</span>::<span class="ident">Key</span> <span class="kw">as</span> <span class="ident">Key2</span>,
+    <span class="ident">key</span>::<span class="ident">Key</span>,
     <span class="ident">key_ptr</span>::<span class="ident">KeyPtr</span>,
-    <span class="ident">key_ptr2</span>::<span class="ident">KeyPtr</span> <span class="kw">as</span> <span class="ident">KeyPtr2</span>,
 };
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "ink_primitives";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

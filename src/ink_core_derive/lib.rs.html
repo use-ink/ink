@@ -27,12 +27,6 @@
 <span id="27">27</span>
 <span id="28">28</span>
 <span id="29">29</span>
-<span id="30">30</span>
-<span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -48,8 +42,6 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">mod</span> <span class="ident">allocate_using</span>;
-<span class="kw">mod</span> <span class="ident">flush</span>;
 <span class="kw">mod</span> <span class="ident">packed_layout</span>;
 <span class="kw">mod</span> <span class="ident">spread_layout</span>;
 <span class="kw">mod</span> <span class="ident">storage_layout</span>;
@@ -58,14 +50,10 @@
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
 <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">allocate_using</span>::<span class="ident">allocate_using_derive</span>,
-    <span class="ident">flush</span>::<span class="ident">flush_derive</span>,
     <span class="ident">packed_layout</span>::<span class="ident">packed_layout_derive</span>,
     <span class="ident">spread_layout</span>::<span class="ident">spread_layout_derive</span>,
     <span class="ident">storage_layout</span>::<span class="ident">storage_layout_derive</span>,
 };
-<span class="ident">synstructure</span>::<span class="macro">decl_derive</span><span class="macro">!</span>([<span class="ident">Flush</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="ident">flush_derive</span>);
-<span class="ident">synstructure</span>::<span class="macro">decl_derive</span><span class="macro">!</span>([<span class="ident">AllocateUsing</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="ident">allocate_using_derive</span>);
 <span class="ident">synstructure</span>::<span class="macro">decl_derive</span><span class="macro">!</span>([<span class="ident">SpreadLayout</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="ident">spread_layout_derive</span>);
 <span class="ident">synstructure</span>::<span class="macro">decl_derive</span><span class="macro">!</span>([<span class="ident">PackedLayout</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="ident">packed_layout_derive</span>);
 <span class="ident">synstructure</span>::<span class="macro">decl_derive</span><span class="macro">!</span>([<span class="ident">StorageLayout</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="ident">storage_layout_derive</span>);

@@ -290,6 +290,23 @@
 <span id="290">290</span>
 <span id="291">291</span>
 <span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -364,7 +381,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
-    <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::<span class="ident">Layout</span>;
+    <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout2</span>::<span class="ident">Layout</span>;
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -440,7 +457,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This loads the value from the contract storage if this did not happed before.</span>
+    <span class="doccomment">/// This loads the value from the contract storage if this did not happen before.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
@@ -448,6 +465,23 @@
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="ident">lazy</span>.<span class="ident">cell</span>.<span class="ident">get_mut</span>().<span class="ident">expect</span>(<span class="string">&quot;encountered empty storage cell&quot;</span>)
+    }
+
+    <span class="doccomment">/// Sets the value to `value`, without executing any reads.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// No reads from contract storage will be executed.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method should be preferred over dereferencing or `get_mut`</span>
+    <span class="doccomment">/// in case the returned value is of no interest to the caller.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If accessing the inner value fails.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">new_value</span>: <span class="ident">T</span>) {
+        <span class="ident">lazy</span>.<span class="ident">cell</span>.<span class="ident">set</span>(<span class="ident">new_value</span>);
     }
 }
 

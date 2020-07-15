@@ -331,6 +331,20 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -348,17 +362,20 @@
 
 <span class="doccomment">//! Operations on the off-chain testing environment.</span>
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">CallData</span>,
+    <span class="ident">EmittedEvent</span>,
+};
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">db</span>::<span class="ident">ExecContext</span>,
     <span class="ident">AccountError</span>,
-    <span class="ident">EmittedEvent</span>,
     <span class="ident">EnvInstance</span>,
     <span class="ident">OnInstance</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">env</span>::{
-    <span class="ident">call</span>::<span class="ident">CallData</span>,
     <span class="ident">EnvTypes</span>,
     <span class="prelude-ty">Result</span>,
+    <span class="ident">engine</span>::<span class="ident">off_chain</span>::<span class="ident">db</span>::<span class="ident">ChainSpec</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">string</span>::<span class="ident">String</span>;
 
@@ -542,6 +559,17 @@
         <span class="ident">instance</span>.<span class="ident">current_block_mut</span>()<span class="question-mark">?</span>.<span class="ident">set_entropy</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entropy</span>)
     })
     .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+}
+
+<span class="doccomment">/// Update the [ChainSpec](`crate::env::engine::off_chain::db::ChainSpec`) for the test environment</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_chain_spec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ChainSpec</span>)
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">f</span>(<span class="ident">instance</span>.<span class="ident">chain_spec_mut</span>())
+    });
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="doccomment">/// Returns the contents of the past performed environmental `println` in order.</span>

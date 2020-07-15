@@ -267,7 +267,7 @@
         <span class="ident">SpreadLayout</span>,
     },
 };
-<span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::{
+<span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout2</span>::{
     <span class="ident">ArrayLayout</span>,
     <span class="ident">CellLayout</span>,
     <span class="ident">Discriminant</span>,
@@ -284,7 +284,7 @@
     <span class="ident">vec</span>::<span class="ident">Vec</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
-<span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
+<span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>;
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_storage_layout_for_primitives</span> {
     ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) <span class="op">=</span><span class="op">&gt;</span> {
@@ -381,7 +381,7 @@
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
         <span class="kw">let</span> <span class="ident">dispatch_key</span> <span class="op">=</span> <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>);
         <span class="ident">Layout</span>::<span class="ident">Enum</span>(<span class="ident">EnumLayout</span>::<span class="ident">new</span>(
-            <span class="ident">dispatch_key</span>,
+            <span class="kw-2">*</span><span class="ident">dispatch_key</span>,
             <span class="macro">vec</span><span class="macro">!</span>[
                 (
                     <span class="ident">Discriminant</span>::<span class="ident">from</span>(<span class="number">0</span>),
@@ -404,7 +404,7 @@
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
         <span class="kw">let</span> <span class="ident">dispatch_key</span> <span class="op">=</span> <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>);
         <span class="ident">Layout</span>::<span class="ident">Enum</span>(<span class="ident">EnumLayout</span>::<span class="ident">new</span>(
-            <span class="ident">dispatch_key</span>,
+            <span class="kw-2">*</span><span class="ident">dispatch_key</span>,
             <span class="macro">vec</span><span class="macro">!</span>[
                 (
                     <span class="ident">Discriminant</span>::<span class="ident">from</span>(<span class="number">0</span>),
@@ -427,7 +427,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
         <span class="ident">Layout</span>::<span class="ident">Cell</span>(<span class="ident">CellLayout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey</span>::<span class="ident">from</span>(
@@ -438,8 +438,8 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">V</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">K</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">V</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
         <span class="ident">Layout</span>::<span class="ident">Cell</span>(<span class="ident">CellLayout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey</span>::<span class="ident">from</span>(
@@ -450,7 +450,7 @@
 
 <span class="comment">// impl&lt;T&gt; StorageLayout for BinaryHeap&lt;T&gt;</span>
 <span class="comment">// where</span>
-<span class="comment">//     T: Metadata + &#39;static,</span>
+<span class="comment">//     T: TypeInfo + &#39;static,</span>
 <span class="comment">// {</span>
 <span class="comment">//     fn layout(key_ptr: &amp;mut KeyPtr) -&gt; Layout {</span>
 <span class="comment">//         Layout::Cell(CellLayout::new::&lt;Self&gt;(LayoutKey::from(key_ptr.advance_by(1))))</span>
@@ -459,7 +459,7 @@
 
 <span class="comment">// impl&lt;T&gt; StorageLayout for BTreeSet&lt;T&gt;</span>
 <span class="comment">// where</span>
-<span class="comment">//     T: Metadata + &#39;static,</span>
+<span class="comment">//     T: TypeInfo + &#39;static,</span>
 <span class="comment">// {</span>
 <span class="comment">//     fn layout(key_ptr: &amp;mut KeyPtr) -&gt; Layout {</span>
 <span class="comment">//         Layout::Cell(CellLayout::new::&lt;Self&gt;(LayoutKey::from(key_ptr.advance_by(1))))</span>
@@ -468,7 +468,7 @@
 
 <span class="comment">// impl&lt;T&gt; StorageLayout for VecDeque&lt;T&gt;</span>
 <span class="comment">// where</span>
-<span class="comment">//     T: Metadata + &#39;static,</span>
+<span class="comment">//     T: TypeInfo + &#39;static,</span>
 <span class="comment">// {</span>
 <span class="comment">//     fn layout(key_ptr: &amp;mut KeyPtr) -&gt; Layout {</span>
 <span class="comment">//         Layout::Cell(CellLayout::new::&lt;Self&gt;(LayoutKey::from(key_ptr.advance_by(1))))</span>
@@ -477,7 +477,7 @@
 
 <span class="comment">// impl&lt;T&gt; StorageLayout for LinkedList&lt;T&gt;</span>
 <span class="comment">// where</span>
-<span class="comment">//     T: Metadata + &#39;static,</span>
+<span class="comment">//     T: TypeInfo + &#39;static,</span>
 <span class="comment">// {</span>
 <span class="comment">//     fn layout(key_ptr: &amp;mut KeyPtr) -&gt; Layout {</span>
 <span class="comment">//         Layout::Cell(CellLayout::new::&lt;Self&gt;(LayoutKey::from(key_ptr.advance_by(1))))</span>

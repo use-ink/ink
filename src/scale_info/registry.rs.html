@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-0.1.0/src/registry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>registry.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-0.3.0/src/registry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>registry.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -148,22 +148,6 @@
 <span id="148">148</span>
 <span id="149">149</span>
 <span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -179,22 +163,17 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="doccomment">//! The registry has the purpose to compactify types and strings found in type</span>
-<span class="doccomment">//! definitions and identifiers such as symbol names.</span>
+<span class="doccomment">//! The registry has the purpose to compactify types found in type definitions.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! This is done by deduplicating common strings and types in order to reuse</span>
+<span class="doccomment">//! This is done by deduplicating common types in order to reuse</span>
 <span class="doccomment">//! their definitions which can grow arbitrarily large. A type is uniquely</span>
 <span class="doccomment">//! identified by its type identifier that is therefore used to refer to types</span>
 <span class="doccomment">//! and their definitions.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Since symbol names etc. are often shared between different types they are</span>
-<span class="doccomment">//! as well deduplicated.</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! Types with the same name are uniquely identifiable by introducing</span>
 <span class="doccomment">//! namespaces. For this the normal Rust namespace of a type is used where it</span>
-<span class="doccomment">//! has been defined it. Rust prelude types live within the so-called root</span>
-<span class="doccomment">//! namespace that is just empty. In general namespaces are ordered sequences of</span>
-<span class="doccomment">//! symbols and thus also profit from string deduplication.</span>
+<span class="doccomment">//! has been defined. Rust prelude types live within the so-called root</span>
+<span class="doccomment">//! namespace that is just empty.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tm_std</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -216,8 +195,7 @@
 
 <span class="doccomment">/// The registry for compaction of type identifiers and definitions.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The registry consists of a cache for strings such as symbol names</span>
-<span class="doccomment">/// and a cache for already compactified type identifiers and definitions.</span>
+<span class="doccomment">/// The registry consists of a cache for already compactified type identifiers and definitions.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Whenever using the registry to compact a type all of its sub-types</span>
 <span class="doccomment">/// are going to be registered recursively as well. A type is a sub-type</span>
@@ -229,9 +207,6 @@
 <span class="doccomment">/// mechanism to stop recursion before going into an infinite loop.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Registry</span> {
-	<span class="doccomment">/// The cache for already registered strings.</span>
-	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;strings&quot;</span>)]</span>
-	<span class="ident">string_table</span>: <span class="ident">Interner</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
 	<span class="doccomment">/// The cache for already registered types.</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// This is just an accessor to the actual database</span>
@@ -268,16 +243,9 @@
 	<span class="doccomment">/// Creates a new empty registry.</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
 		<span class="self">Self</span> {
-			<span class="ident">string_table</span>: <span class="ident">Interner</span>::<span class="ident">new</span>(),
 			<span class="ident">type_table</span>: <span class="ident">Interner</span>::<span class="ident">new</span>(),
 			<span class="ident">types</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
 		}
-	}
-
-	<span class="doccomment">/// Registers the given string into the registry and returns</span>
-	<span class="doccomment">/// its respective associated string symbol.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-		<span class="self">self</span>.<span class="ident">string_table</span>.<span class="ident">intern_or_get</span>(<span class="ident">string</span>).<span class="number">1</span>.<span class="ident">into_untracked</span>()
 	}
 
 	<span class="doccomment">/// Registers the given type ID into the registry.</span>

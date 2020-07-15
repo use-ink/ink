@@ -101,7 +101,6 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">codegen</span>::{
-        <span class="ident">abi</span>::<span class="ident">GenerateAbi</span>,
         <span class="ident">cross_calling</span>::<span class="ident">CrossCalling</span>,
         <span class="ident">dispatch</span>::<span class="ident">Dispatch</span>,
         <span class="ident">env_types</span>::<span class="ident">EnvTypes</span>,
@@ -109,6 +108,7 @@
             <span class="ident">EventHelpers</span>,
             <span class="ident">EventStructs</span>,
         },
+        <span class="ident">metadata</span>::<span class="ident">GenerateMetadata</span>,
         <span class="ident">storage</span>::<span class="ident">Storage</span>,
         <span class="ident">GenerateCode</span>,
         <span class="ident">GenerateCodeUsing</span>,
@@ -137,7 +137,7 @@
         <span class="kw">let</span> <span class="ident">env_types</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">Storage</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">dispatch</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">Dispatch</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">generate_abi</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">GenerateAbi</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">generate_metadata</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">GenerateMetadata</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">event_helpers</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">EventHelpers</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">event_structs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">EventStructs</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">cross_calling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">CrossCalling</span><span class="op">&gt;</span>();
@@ -149,7 +149,7 @@
                 #<span class="ident">storage</span>
                 #<span class="ident">event_helpers</span>
                 #<span class="ident">dispatch</span>
-                #<span class="ident">generate_abi</span>
+                #<span class="ident">generate_metadata</span>
                 #<span class="ident">cross_calling</span>
                 #<span class="ident">event_structs</span>
                 #( #<span class="ident">non_ink_items</span> )<span class="op">*</span>

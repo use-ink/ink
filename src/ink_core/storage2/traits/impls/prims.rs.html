@@ -612,8 +612,8 @@
                     <span class="ident">run_test</span>(<span class="op">|</span><span class="op">|</span> {
                         $({
                             <span class="kw">let</span> <span class="ident">x</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>;
-                            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-                            <span class="kw">let</span> <span class="ident">key2</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x77</span>; <span class="number">32</span>]);
+                            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+                            <span class="kw">let</span> <span class="ident">key2</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x77</span>; <span class="number">32</span>]);
                             <span class="ident">push_spread_root</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>);
                             <span class="kw">let</span> <span class="ident">y</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">=</span> <span class="ident">pull_spread_root</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>);
                             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">x</span>, <span class="ident">y</span>);
@@ -631,7 +631,7 @@
                     <span class="ident">run_test</span>(<span class="op">|</span><span class="op">|</span> {
                         $({
                             <span class="kw">let</span> <span class="ident">x</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>;
-                            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+                            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
                             <span class="ident">push_spread_root</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>);
                             <span class="comment">// Works since we just populated the storage.</span>
                             <span class="kw">let</span> <span class="ident">y</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">=</span> <span class="ident">pull_spread_root</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>);

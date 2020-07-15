@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Entry","An entry of a storage map."]],"struct":[["BTreeMap","Mapping stored in the contract storage."]]});

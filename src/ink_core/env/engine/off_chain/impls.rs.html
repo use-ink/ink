@@ -329,6 +329,18 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -351,7 +363,6 @@
 };
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">env</span>::{
     <span class="ident">call</span>::{
-        <span class="ident">CallData</span>,
         <span class="ident">CallParams</span>,
         <span class="ident">InstantiateParams</span>,
         <span class="ident">ReturnType</span>,
@@ -364,6 +375,8 @@
     <span class="ident">TypedEnv</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">TryInto</span>;
+<span class="kw">use</span> <span class="ident">num_traits</span>::<span class="ident">Bounded</span>;
 
 <span class="kw">impl</span> <span class="ident">EnvInstance</span> {
     <span class="doccomment">/// Returns the callee account.</span>
@@ -392,27 +405,27 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Env</span> <span class="kw">for</span> <span class="ident">EnvInstance</span> {
-    <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>)
+    <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>)
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
     {
         <span class="self">self</span>.<span class="ident">callee_account_mut</span>()
-            .<span class="ident">set_storage</span>(<span class="ident">key</span>, <span class="ident">value</span>)
+            .<span class="ident">set_storage</span>(<span class="kw-2">*</span><span class="ident">key</span>, <span class="ident">value</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;callee account is not a smart contract&quot;</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
     {
         <span class="self">self</span>.<span class="ident">callee_account</span>()
-            .<span class="ident">get_storage</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">key</span>)
+            .<span class="ident">get_storage</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">*</span><span class="ident">key</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">clear_contract_storage</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_contract_storage</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="self">self</span>.<span class="ident">callee_account_mut</span>()
-            .<span class="ident">clear_storage</span>(<span class="ident">key</span>)
+            .<span class="ident">clear_storage</span>(<span class="kw-2">*</span><span class="ident">key</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;callee account is not a smart contract&quot;</span>);
     }
 
@@ -423,12 +436,19 @@
         <span class="self">self</span>.<span class="ident">runtime_storage</span>.<span class="ident">load</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">runtime_key</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">input</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CallData</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">decode_input</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
+    {
         <span class="self">self</span>.<span class="ident">exec_context</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">exec_ctx</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">exec_ctx</span>.<span class="ident">call_data</span>)
-            .<span class="ident">map</span>(<span class="ident">Clone</span>::<span class="ident">clone</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">scale</span>::<span class="ident">Error</span>::<span class="ident">from</span>(<span class="string">&quot;could not decode input call data&quot;</span>))
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">call_data</span><span class="op">|</span> <span class="ident">scale</span>::<span class="ident">Encode</span>::<span class="ident">encode</span>(<span class="ident">call_data</span>))
             .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">encoded</span><span class="op">|</span> {
+                <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Decode</span><span class="op">&gt;</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..])
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">scale</span>::<span class="ident">Error</span>::<span class="ident">from</span>(<span class="string">&quot;could not decode input call data&quot;</span>))
+                    .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+            })
     }
 
     <span class="kw">fn</span> <span class="ident">output</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">return_value</span>: <span class="kw-2">&amp;</span><span class="ident">R</span>)
@@ -479,11 +499,15 @@
             .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">gas_price</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">EnvTypes</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">chain_spec</span>
+    <span class="doccomment">/// Emulates gas price calculation</span>
+    <span class="kw">fn</span> <span class="ident">gas_price</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">EnvTypes</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">arithmetic</span>::<span class="ident">Saturating</span> <span class="kw">as</span> <span class="kw">_</span>;
+
+        <span class="kw">let</span> <span class="ident">gas_price</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain_spec</span>
             .<span class="ident">gas_price</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">scale</span>::<span class="ident">Error</span>::<span class="ident">from</span>(<span class="string">&quot;could not decode gas price&quot;</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">scale</span>::<span class="ident">Error</span>::<span class="ident">from</span>(<span class="string">&quot;could not decode gas price&quot;</span>))<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="ident">gas_price</span>.<span class="ident">saturating_mul</span>(<span class="ident">gas</span>.<span class="ident">try_into</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Bounded</span>::<span class="ident">max_value</span>())))
     }
 
     <span class="kw">fn</span> <span class="ident">gas_left</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">EnvTypes</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span> {

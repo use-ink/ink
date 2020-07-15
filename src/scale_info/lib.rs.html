@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-0.1.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-0.3.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -145,17 +145,6 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -182,13 +171,13 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Registry</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! At the heart of its functionality is the [`crate::Registry`] that acts as cache for</span>
-<span class="doccomment">//! known strings and types in order to efficiently deduplicate them and thus</span>
-<span class="doccomment">//! compactify the overall serialization.</span>
+<span class="doccomment">//! At the heart of its functionality is the [`Registry`](`crate::Registry`) that acts as cache for</span>
+<span class="doccomment">//! known types in order to efficiently deduplicate them and thus compactify the overall</span>
+<span class="doccomment">//! serialization.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Type Information</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Information about types is provided via the [`crate::TypeInfo`] trait.</span>
+<span class="doccomment">//! Information about types is provided via the [`TypeInfo`](`crate::TypeInfo`) trait.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This trait should be implemented for all types that are serializable.</span>
 <span class="doccomment">//! For this the library provides implementations for all commonly used Rust</span>
@@ -197,25 +186,25 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Compaction Forms</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! There is an uncompact form, called [`crate::form::MetaForm`] that acts as a bridge from</span>
-<span class="doccomment">//! compile-time type information at runtime in order to easily retrieve all</span>
-<span class="doccomment">//! information needed to uniquely identify types.</span>
-<span class="doccomment">//! The compact form is retrieved by the [`crate::IntoCompact`] trait and internally used</span>
-<span class="doccomment">//! by the [`crate::Registry`] in order to convert the uncompact strings and types into</span>
-<span class="doccomment">//! their compact form.</span>
+<span class="doccomment">//! There is an uncompact form, called [`MetaForm`](`crate::form::MetaForm`) that acts as a bridge</span>
+<span class="doccomment">//! from compile-time type information at runtime in order to easily retrieve all information needed</span>
+<span class="doccomment">//! to uniquely identify types.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The compact form is retrieved by the [`IntoCompact`](`crate::IntoCompact`) trait and internally</span>
+<span class="doccomment">//! used by the [`Registry`](`crate::Registry`) in order to convert the uncompact types</span>
+<span class="doccomment">//! into their compact form.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Symbols and Namespaces</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Since symbol names are often shared across type boundaries the [`crate::Registry`]</span>
-<span class="doccomment">//! also deduplicates them. To differentiate two types sharing the same name</span>
-<span class="doccomment">//! namespaces are used. Commonly the namespace is equal to the one where the</span>
-<span class="doccomment">//! type has been defined in. For Rust prelude types such as [`std::option::Option`] and</span>
-<span class="doccomment">//! [`std::result::Result`]  the root namespace (empty namespace) is used.</span>
+<span class="doccomment">//! To differentiate two types sharing the same name namespaces are used.</span>
+<span class="doccomment">//! Commonly the namespace is equal to the one where the type has been defined in. For Rust prelude</span>
+<span class="doccomment">//! types such as [`Option`](`std::option::Option`) and [`Result`](`std::result::Result`) the root</span>
+<span class="doccomment">//! namespace (empty namespace) is used.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! To use this library simply use the [`crate::form::MetaForm`] initially with your own data</span>
-<span class="doccomment">//! structures and at best make them generic over the [`crate::form::Form`] trait just as has</span>
-<span class="doccomment">//! been done in this crate with [`crate::TypeInfo`] in order to go for a simple</span>
-<span class="doccomment">//! implementation of [`crate::IntoCompact`]. Use a single instance of the [`crate::Registry`] for</span>
+<span class="doccomment">//! To use this library simply use the [`MetaForm`](`crate::form::MetaForm`) initially with your own data</span>
+<span class="doccomment">//! structures and at best make them generic over the [`Form`](`crate::form::Form`) trait just as has</span>
+<span class="doccomment">//! been done in this crate with [`TypeInfo`](`crate::TypeInfo`) in order to go for a simple</span>
+<span class="doccomment">//! implementation of [`IntoCompact`](`crate::IntoCompact`). Use a single instance of the [`Registry`](`crate::Registry`) for</span>
 <span class="doccomment">//! compaction and provide this registry instance upon serialization. Done.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! A usage example can be found in ink! here:</span>
@@ -225,9 +214,9 @@
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
 
 <span class="doccomment">/// Takes a number of types and returns a vector that contains their respective</span>
-<span class="doccomment">/// [`crate::MetaType`] instances.</span>
+<span class="doccomment">/// [`MetaType`](`crate::MetaType`) instances.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This is useful for places that require inputs of iterators over [`crate::MetaType`]</span>
+<span class="doccomment">/// This is useful for places that require inputs of iterators over [`MetaType`](`crate::MetaType`)</span>
 <span class="doccomment">/// instances and provide a way out of code bloat in these scenarious.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
@@ -289,17 +278,7 @@
 };
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">scale_info_derive</span>::<span class="ident">Metadata</span>;
-
-<span class="doccomment">/// A super trait that shall be implemented by all types implementing [`crate::TypeInfo`]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is automatically implemented for all `&#39;static` types that also</span>
-<span class="doccomment">/// implement [`crate::TypeInfo`]. Users of this library should use this trait directly</span>
-<span class="doccomment">/// instead of using the [`crate::TypeInfo`] trait.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Metadata</span>: <span class="ident">TypeInfo</span> {
-	<span class="doccomment">/// Returns the runtime bridge to the types compile-time type information.</span>
-	<span class="kw">fn</span> <span class="ident">meta_type</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetaType</span>;
-}
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">scale_info_derive</span>::<span class="ident">TypeInfo</span>;
 
 <span class="doccomment">/// Implementors return their meta type information.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TypeInfo</span> {
@@ -307,13 +286,12 @@
 	<span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Metadata</span> <span class="kw">for</span> <span class="ident">T</span>
+<span class="doccomment">/// Returns the runtime bridge to the types compile-time type information.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">meta_type</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetaType</span>
 <span class="kw">where</span>
 	<span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-	<span class="kw">fn</span> <span class="ident">meta_type</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetaType</span> {
-		<span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
-	}
+	<span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "scale_info";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

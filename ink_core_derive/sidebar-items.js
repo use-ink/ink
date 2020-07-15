@@ -1,1 +1,1 @@
-initSidebarItems({"derive":[["AllocateUsing",""],["Flush",""],["PackedLayout",""],["SpreadLayout",""],["StorageLayout",""]]});
+initSidebarItems({"derive":[["PackedLayout",""],["SpreadLayout",""],["StorageLayout",""]]});

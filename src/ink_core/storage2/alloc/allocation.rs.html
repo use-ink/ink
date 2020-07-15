@@ -122,7 +122,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(
     <span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>,
 )]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">Metadata</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DynamicAllocation</span>(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">u32</span>);
 
 <span class="kw">impl</span> <span class="ident">DynamicAllocation</span> {
@@ -172,8 +172,8 @@
             \xB9\x6D\xF9\x51\xB6\x1D\x4F\x3B\
             \x4E\x75\xAC\x3B\x14\x57\x47\x96&quot;</span>,
     ];
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">DynamicAllocation</span>(<span class="number">0</span>).<span class="ident">key</span>(), <span class="ident">Key</span>(<span class="kw-2">*</span><span class="ident">expected_keys</span>[<span class="number">0</span>]));
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">DynamicAllocation</span>(<span class="number">1</span>).<span class="ident">key</span>(), <span class="ident">Key</span>(<span class="kw-2">*</span><span class="ident">expected_keys</span>[<span class="number">1</span>]));
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">DynamicAllocation</span>(<span class="number">0</span>).<span class="ident">key</span>(), <span class="ident">Key</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">expected_keys</span>[<span class="number">0</span>]));
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">DynamicAllocation</span>(<span class="number">1</span>).<span class="ident">key</span>(), <span class="ident">Key</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">expected_keys</span>[<span class="number">1</span>]));
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../../";window.currentCrate = "ink_core";</script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>

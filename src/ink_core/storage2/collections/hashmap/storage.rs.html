@@ -182,17 +182,17 @@
             <span class="ident">StorageLayout</span>,
         },
     };
-    <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::{
+    <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout2</span>::{
         <span class="ident">FieldLayout</span>,
         <span class="ident">Layout</span>,
         <span class="ident">StructLayout</span>,
     };
-    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
+    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>;
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">StorageHashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">V</span>: <span class="ident">Metadata</span> <span class="op">+</span> <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">K</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">V</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">H</span>: <span class="ident">LayoutCryptoHasher</span> <span class="op">+</span> <span class="ident">Hasher</span>,
         <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
     {

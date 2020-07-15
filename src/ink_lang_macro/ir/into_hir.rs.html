@@ -734,6 +734,35 @@
 <span id="734">734</span>
 <span id="735">735</span>
 <span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -751,15 +780,22 @@
 
 <span class="doccomment">//! Contains all conversion routines from Rust AST to ink! IR.</span>
 
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">ir</span>,
+    <span class="ident">ir</span>::<span class="ident">utils</span>,
+};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
-
 <span class="kw">use</span> <span class="ident">either</span>::<span class="ident">Either</span>;
+<span class="kw">use</span> <span class="ident">ink_lang_ir</span>::{
+    <span class="ident">format_err</span>,
+    <span class="ident">format_err_spanned</span>,
+};
 <span class="kw">use</span> <span class="ident">itertools</span>::<span class="ident">Itertools</span> <span class="kw">as</span> <span class="kw">_</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Ident</span>,
     <span class="ident">Span</span>,
 };
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">syn</span>::{
     <span class="ident">parse</span>::{
         <span class="ident">Parse</span>,
@@ -771,11 +807,6 @@
     <span class="ident">Token</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ir</span>,
-    <span class="ident">ir</span>::<span class="ident">utils</span>,
-};
-
 <span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">ir</span>::<span class="ident">Marker</span> {
     <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">content</span>;
@@ -784,10 +815,10 @@
         <span class="kw">if</span> <span class="ident">content</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">ir</span>::<span class="ident">Marker</span>::<span class="ident">Simple</span>(<span class="ident">ir</span>::<span class="ident">SimpleMarker</span> { <span class="ident">paren_token</span>, <span class="ident">ident</span> }))
         }
-        <span class="macro">bail_span</span><span class="macro">!</span>(
+        <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
             <span class="ident">paren_token</span>.<span class="ident">span</span>,
             <span class="string">&quot;invalid ink! attribute in the given context&quot;</span>,
-        )
+        ))
     }
 }
 
@@ -796,17 +827,17 @@
 
     <span class="kw">fn</span> <span class="ident">try_from</span>((<span class="ident">params</span>, <span class="ident">item_mod</span>): (<span class="ident">ir</span>::<span class="ident">Params</span>, <span class="ident">syn</span>::<span class="ident">ItemMod</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">item_mod</span>.<span class="ident">vis</span> <span class="op">!</span><span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Visibility</span>::<span class="ident">Inherited</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">item_mod</span>.<span class="ident">vis</span>,
                 <span class="string">&quot;contract module must have no visibility modifier&quot;</span>,
-            )
+            ))
         }
         <span class="kw">let</span> <span class="ident">items</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">item_mod</span>.<span class="ident">content</span> {
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                     <span class="ident">item_mod</span>,
                     <span class="string">&quot;contract module must be inline, e.g. `mod m {{ ... }}`&quot;</span>,
-                )
+                ))
             }
             <span class="prelude-val">Some</span>((<span class="ident">_brace</span>, <span class="ident">items</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">items</span>.<span class="ident">clone</span>(),
         };
@@ -824,16 +855,16 @@
             });
         <span class="kw">let</span> (<span class="ident">storage</span>, <span class="ident">events</span>, <span class="ident">functions</span>) <span class="op">=</span> <span class="ident">split_items</span>(<span class="ident">ink_items</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">functions</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">is_constructor</span>()).<span class="ident">count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="kw-2">&amp;</span><span class="ident">item_mod</span>,
                 <span class="string">&quot;ink! contracts require at least one `#[ink(constructor)]`&quot;</span>
-            )
+            ))
         }
         <span class="kw">if</span> <span class="ident">functions</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">is_message</span>()).<span class="ident">count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="kw-2">&amp;</span><span class="ident">item_mod</span>,
                 <span class="string">&quot;ink! contracts require at least one `#[ink(message)]`&quot;</span>
-            )
+            ))
         }
         <span class="kw">let</span> <span class="ident">meta_info</span> <span class="op">=</span> <span class="ident">ir</span>::<span class="ident">MetaInfo</span>::<span class="ident">try_from</span>(<span class="ident">params</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
@@ -861,7 +892,10 @@
         <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="ident">params</span>.<span class="ident">params</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>() {
             <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">param</span>.<span class="ident">ident</span>().<span class="ident">to_string</span>();
             <span class="kw">if</span> <span class="op">!</span><span class="ident">unique_params</span>.<span class="ident">insert</span>(<span class="ident">name</span>) {
-                <span class="macro">bail_span</span><span class="macro">!</span>(<span class="ident">param</span>.<span class="ident">span</span>(), <span class="string">&quot;encountered parameter multiple times&quot;</span>,)
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                    <span class="ident">param</span>.<span class="ident">span</span>(),
+                    <span class="string">&quot;encountered parameter multiple times&quot;</span>,
+                ))
             }
             <span class="kw">match</span> <span class="ident">param</span> {
                 <span class="ident">ir</span>::<span class="ident">MetaParam</span>::<span class="ident">Types</span>(<span class="ident">param</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -878,10 +912,10 @@
         }
         <span class="kw">let</span> <span class="ident">ink_version</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ink_version</span> {
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">bail_span</span><span class="macro">!</span>(
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
                     <span class="ident">params</span>.<span class="ident">span</span>(),
                     <span class="string">&quot;expected `version` argument at `#[ink::contract(..)]`&quot;</span>,
-                )
+                ))
             }
             <span class="prelude-val">Some</span>(<span class="ident">ink_version</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ink_version</span>,
         };
@@ -907,7 +941,7 @@
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">attr</span>: <span class="ident">syn</span>::<span class="ident">Attribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;ink&quot;</span>) {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">attr</span>, <span class="string">&quot;encountered non-ink! attribute&quot;</span>)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(<span class="ident">attr</span>, <span class="string">&quot;encountered non-ink! attribute&quot;</span>))
         }
         <span class="ident">syn</span>::<span class="ident">parse2</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">attr</span>.<span class="ident">tokens</span>)
     }
@@ -923,28 +957,31 @@
             .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">ir</span>::<span class="ident">Marker</span>::<span class="ident">try_from</span>(<span class="ident">attr</span>.<span class="ident">clone</span>()).<span class="ident">ok</span>())
             .<span class="ident">find</span>(<span class="op">|</span><span class="ident">ink_meta</span><span class="op">|</span> <span class="op">!</span><span class="ident">ink_meta</span>.<span class="ident">is_simple</span>(<span class="string">&quot;storage&quot;</span>))
         {
-            <span class="macro">bail_span</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
                 <span class="ident">invalid_meta</span>.<span class="ident">span</span>(),
                 <span class="string">&quot;invalid ink! attribute found for `#[ink(storage)]` struct&quot;</span>,
-            )
+            ))
         }
         <span class="kw">if</span> <span class="ident">item_struct</span>.<span class="ident">vis</span> <span class="op">!</span><span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Visibility</span>::<span class="ident">Inherited</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">item_struct</span>.<span class="ident">vis</span>,
                 <span class="string">&quot;visibility modifiers are not allowed for `#[ink(storage)]` structs&quot;</span>,
-            )
+            ))
         }
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">item_struct</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">item_struct</span>.<span class="ident">fields</span> {
             <span class="ident">syn</span>::<span class="ident">Fields</span>::<span class="ident">Named</span>(<span class="ident">named_fields</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">named_fields</span>,
             <span class="ident">syn</span>::<span class="ident">Fields</span>::<span class="ident">Unnamed</span>(<span class="ident">unnamed_fields</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                     <span class="ident">unnamed_fields</span>,
                     <span class="string">&quot;`#[ink(storage)]` tuple-structs are forbidden&quot;</span>
-                )
+                ))
             }
             <span class="ident">syn</span>::<span class="ident">Fields</span>::<span class="ident">Unit</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">item_struct</span>, <span class="string">&quot;`#[ink(storage)]` unit-structs are forbidden&quot;</span>)
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                    <span class="ident">item_struct</span>,
+                    <span class="string">&quot;`#[ink(storage)]` unit-structs are forbidden&quot;</span>
+                ))
             }
         };
         <span class="prelude-val">Ok</span>(<span class="ident">ir</span>::<span class="ident">ItemStorage</span> {
@@ -967,27 +1004,30 @@
             .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">ir</span>::<span class="ident">Marker</span>::<span class="ident">try_from</span>(<span class="ident">attr</span>.<span class="ident">clone</span>()).<span class="ident">ok</span>())
             .<span class="ident">find</span>(<span class="op">|</span><span class="ident">ink_meta</span><span class="op">|</span> <span class="op">!</span><span class="ident">ink_meta</span>.<span class="ident">is_simple</span>(<span class="string">&quot;event&quot;</span>))
         {
-            <span class="macro">bail_span</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
                 <span class="ident">invalid_meta</span>.<span class="ident">span</span>(),
                 <span class="string">&quot;invalid ink! attribute found for `#[ink(event)]` struct&quot;</span>,
-            )
+            ))
         }
         <span class="kw">if</span> <span class="ident">item_struct</span>.<span class="ident">vis</span> <span class="op">!</span><span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Visibility</span>::<span class="ident">Inherited</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">item_struct</span>,
                 <span class="string">&quot;visibility modifiers are not allowed for `#[ink(event)]` structs&quot;</span>,
-            )
+            ))
         }
         <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">item_struct</span>.<span class="ident">fields</span> {
             <span class="ident">syn</span>::<span class="ident">Fields</span>::<span class="ident">Named</span>(<span class="ident">named_fields</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">named_fields</span>,
             <span class="ident">syn</span>::<span class="ident">Fields</span>::<span class="ident">Unnamed</span>(<span class="ident">unnamed_fields</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                     <span class="ident">unnamed_fields</span>,
                     <span class="string">&quot;`#[ink(event)]` tuple-structs are forbidden&quot;</span>,
-                )
+                ))
             }
             <span class="ident">syn</span>::<span class="ident">Fields</span>::<span class="ident">Unit</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">item_struct</span>, <span class="string">&quot;`#[ink(event)]` unit-structs are forbidden&quot;</span>,)
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                    <span class="ident">item_struct</span>,
+                    <span class="string">&quot;`#[ink(event)]` unit-structs are forbidden&quot;</span>,
+                ))
             }
         };
         <span class="prelude-val">Ok</span>(<span class="ident">ir</span>::<span class="ident">ItemEvent</span> {
@@ -1004,32 +1044,38 @@
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_impl</span>: <span class="ident">syn</span>::<span class="ident">ItemImpl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">item_impl</span>.<span class="ident">defaultness</span>.<span class="ident">is_some</span>() {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">item_impl</span>.<span class="ident">defaultness</span>, <span class="string">&quot;`default` not supported in ink!&quot;</span>,)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                <span class="ident">item_impl</span>.<span class="ident">defaultness</span>,
+                <span class="string">&quot;`default` not supported in ink!&quot;</span>,
+            ))
         }
         <span class="kw">if</span> <span class="ident">item_impl</span>.<span class="ident">unsafety</span>.<span class="ident">is_some</span>() {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">item_impl</span>.<span class="ident">unsafety</span>,
                 <span class="string">&quot;`unsafe` implementation blocks are not supported in ink!&quot;</span>,
-            )
+            ))
         }
         <span class="kw">if</span> <span class="op">!</span>(<span class="ident">item_impl</span>.<span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">is_empty</span>()
             <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">item_impl</span>.<span class="ident">generics</span>.<span class="ident">where_clause</span>.<span class="ident">is_none</span>())
         {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">item_impl</span>.<span class="ident">generics</span>,
                 <span class="string">&quot;generic implementation blocks are not supported in ink!&quot;</span>,
-            )
+            ))
         }
         <span class="kw">if</span> <span class="ident">item_impl</span>.<span class="ident">trait_</span>.<span class="ident">is_some</span>() {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">item_impl</span>, <span class="string">&quot;trait implementations are not supported in ink!&quot;</span>,)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                <span class="ident">item_impl</span>,
+                <span class="string">&quot;trait implementations are not supported in ink!&quot;</span>,
+            ))
         }
         <span class="kw">let</span> <span class="ident">type_path</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">item_impl</span>.<span class="ident">self_ty</span> {
             <span class="ident">syn</span>::<span class="ident">Type</span>::<span class="ident">Path</span>(<span class="ident">type_path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">type_path</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                     <span class="ident">item_impl</span>.<span class="ident">self_ty</span>,
                     <span class="string">&quot;encountered invalid ink! implementer type ascription&quot;</span>,
-                )
+                ))
             }
         };
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">qself</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">type_path</span>.<span class="ident">qself</span> {
@@ -1038,28 +1084,28 @@
                 .<span class="ident">span</span>()
                 .<span class="ident">join</span>(<span class="ident">qself</span>.<span class="ident">gt_token</span>.<span class="ident">span</span>())
                 .<span class="ident">expect</span>(<span class="string">&quot;all spans are in the same file; qed&quot;</span>);
-            <span class="macro">bail_span</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
                 <span class="ident">span</span>,
                 <span class="string">&quot;implementation blocks for self qualified paths are not supported in ink!&quot;</span>,
-            )
+            ))
         };
         <span class="kw">let</span> <span class="ident">ident</span>: <span class="ident">Ident</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">get_ident</span>() {
             <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ident</span>.<span class="ident">clone</span>(),
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                     <span class="ident">type_path</span>.<span class="ident">path</span>,
                     <span class="string">&quot;encountered invalid ink! implementer type path&quot;</span>,
-                )
+                ))
             }
         };
         <span class="kw">for</span> <span class="ident">impl_item</span> <span class="kw">in</span> <span class="ident">item_impl</span>.<span class="ident">items</span>.<span class="ident">iter</span>() {
             <span class="kw">match</span> <span class="ident">impl_item</span> {
                 <span class="ident">syn</span>::<span class="ident">ImplItem</span>::<span class="ident">Method</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (),
                 <span class="ident">unsupported_item</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">bail</span><span class="macro">!</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                         <span class="ident">unsupported_item</span>,
                         <span class="string">&quot;only methods are supported inside impl blocks in ink!&quot;</span>,
-                    )
+                    ))
                 }
             }
         }
@@ -1123,15 +1169,13 @@
                             <span class="ident">selector</span>: <span class="ident">ir</span>::<span class="ident">FunctionSelector</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">ident</span>),
                         }))
                     }
-                    <span class="ident">_unknown</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="prelude-val">Err</span>(<span class="macro">format_err_span</span><span class="macro">!</span>(<span class="ident">attr</span>.<span class="ident">span</span>(), <span class="string">&quot;unknown ink! marker&quot;</span>,))
-                    }
+                    <span class="ident">_unknown</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">attr</span>.<span class="ident">span</span>(), <span class="string">&quot;unknown ink! marker&quot;</span>,)),
                 }<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="ident">kind</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ir</span>::<span class="ident">FunctionKind</span>::<span class="ident">Method</span> {
                     <span class="ident">kind</span> <span class="op">=</span> <span class="ident">new_kind</span>;
                     <span class="prelude-val">Ok</span>(())
                 } <span class="kw">else</span> {
-                    <span class="prelude-val">Err</span>(<span class="macro">format_err_span</span><span class="macro">!</span>(<span class="ident">attr</span>.<span class="ident">span</span>(), <span class="string">&quot;conflicting ink! marker&quot;</span>,))
+                    <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">attr</span>.<span class="ident">span</span>(), <span class="string">&quot;conflicting ink! marker&quot;</span>,))
                 }
             })
             .<span class="ident">filter_map</span>(<span class="prelude-ty">Result</span>::<span class="ident">err</span>)
@@ -1144,17 +1188,17 @@
         }
         <span class="comment">// Visibility modifiers are currently not supported for ink! functions.</span>
         <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">vis</span> <span class="op">!</span><span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Visibility</span>::<span class="ident">Inherited</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">method</span>.<span class="ident">vis</span>,
                 <span class="string">&quot;encountered invalid visibility modifier for ink! function&quot;</span>,
-            )
+            ))
         }
         <span class="comment">// Functions in ink! must not be `default` since that is unsupported.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">defaultness</span>) <span class="op">=</span> <span class="ident">method</span>.<span class="ident">defaultness</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">defaultness</span>,
                 <span class="string">&quot;encountered invalid `default` modifier for ink! function&quot;</span>,
-            )
+            ))
         }
         <span class="comment">// Check and convert method signature into ink! function signature.</span>
         <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="ident">ir</span>::<span class="ident">Signature</span>::<span class="ident">try_from</span>(<span class="ident">method</span>.<span class="ident">sig</span>)<span class="question-mark">?</span>;
@@ -1162,50 +1206,50 @@
         <span class="kw">match</span> <span class="ident">kind</span> {
             <span class="ident">ir</span>::<span class="ident">FunctionKind</span>::<span class="ident">Constructor</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">sig</span>.<span class="ident">self_arg</span>() {
-                    <span class="macro">bail</span><span class="macro">!</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                         <span class="ident">receiver</span>,
                         <span class="string">&quot;#[ink(constructor)] functions must not have any kind of `self` receiver&quot;</span>,
-                    )
+                    ))
                 }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">output</span> {
                     <span class="kw">let</span> <span class="ident">self_ty</span>: <span class="ident">syn</span>::<span class="ident">Type</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span>(<span class="self">Self</span>);
                     <span class="kw">if</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">ty</span> <span class="op">!</span><span class="op">=</span> <span class="ident">self_ty</span> {
-                        <span class="macro">bail</span><span class="macro">!</span>(
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                             <span class="ident">sig</span>.<span class="ident">output</span>,
                             <span class="string">&quot;#[ink(constructor)] functions must have `Self` return type&quot;</span>,
-                        )
+                        ))
                     }
                 } <span class="kw">else</span> {
-                    <span class="macro">bail</span><span class="macro">!</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                         <span class="ident">sig</span>.<span class="ident">output</span>,
                         <span class="string">&quot;#[ink(constructor)] functions must have `Self` return type&quot;</span>,
-                    )
+                    ))
                 }
             }
             <span class="ident">ir</span>::<span class="ident">FunctionKind</span>::<span class="ident">Message</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">FunctionKind</span>::<span class="ident">Method</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">output</span> {
                     <span class="kw">let</span> <span class="ident">self_ty</span>: <span class="ident">syn</span>::<span class="ident">Type</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span>(<span class="self">Self</span>);
                     <span class="kw">if</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">ty</span> <span class="op">=</span><span class="op">=</span> <span class="ident">self_ty</span> {
-                        <span class="macro">bail</span><span class="macro">!</span>(
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                             <span class="ident">sig</span>.<span class="ident">output</span>,
                             <span class="string">&quot;ink! messages and methods must not return `Self`&quot;</span>,
-                        )
+                        ))
                     }
                 }
                 <span class="kw">match</span> <span class="ident">sig</span>.<span class="ident">self_arg</span>() {
                     <span class="prelude-val">Some</span>(<span class="ident">receiver</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="ident">receiver</span>.<span class="ident">reference</span>.<span class="ident">is_none</span>() {
-                            <span class="macro">bail_span</span><span class="macro">!</span>(
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
                                 <span class="ident">receiver</span>.<span class="ident">span</span>(),
                                 <span class="string">&quot;ink! messages and methods must have a `&amp;self` or `&amp;mut self` receiver&quot;</span>,
-                            )
+                            ))
                         }
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="macro">bail_span</span><span class="macro">!</span>(
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
                             <span class="ident">sig</span>.<span class="ident">span</span>(),
                             <span class="string">&quot;ink! messages and methods must have a `self` receiver&quot;</span>,
-                        )
+                        ))
                     }
                 }
             }
@@ -1232,22 +1276,34 @@
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">sig</span>: <span class="ident">syn</span>::<span class="ident">Signature</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">constness</span>) <span class="op">=</span> <span class="ident">sig</span>.<span class="ident">constness</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">constness</span>, <span class="string">&quot;`const fn` is not supported for ink! functions&quot;</span>,)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                <span class="ident">constness</span>,
+                <span class="string">&quot;`const fn` is not supported for ink! functions&quot;</span>,
+            ))
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">asyncness</span>) <span class="op">=</span> <span class="ident">sig</span>.<span class="ident">asyncness</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">asyncness</span>, <span class="string">&quot;`async fn` is not supported for ink! functions&quot;</span>,)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                <span class="ident">asyncness</span>,
+                <span class="string">&quot;`async fn` is not supported for ink! functions&quot;</span>,
+            ))
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unsafety</span>) <span class="op">=</span> <span class="ident">sig</span>.<span class="ident">unsafety</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">unsafety</span>, <span class="string">&quot;`unsafe fn` is not supported for ink! functions&quot;</span>,)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                <span class="ident">unsafety</span>,
+                <span class="string">&quot;`unsafe fn` is not supported for ink! functions&quot;</span>,
+            ))
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">abi</span>) <span class="op">=</span> <span class="ident">sig</span>.<span class="ident">abi</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">abi</span>, <span class="string">&quot;specifying ABI is not allowed in ink! functions&quot;</span>,)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                <span class="ident">abi</span>,
+                <span class="string">&quot;specifying ABI is not allowed in ink! functions&quot;</span>,
+            ))
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">variadic</span>) <span class="op">=</span> <span class="ident">sig</span>.<span class="ident">variadic</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">variadic</span>,
                 <span class="string">&quot;variadic functions are not allowed as ink! functions&quot;</span>,
-            )
+            ))
         }
         <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="ident">sig</span>
             .<span class="ident">inputs</span>
@@ -1276,10 +1332,10 @@
                 <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">pat_type</span>.<span class="ident">pat</span> {
                     <span class="ident">syn</span>::<span class="ident">Pat</span>::<span class="ident">Ident</span>(<span class="ident">pat_ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">by_ref</span>) <span class="op">=</span> <span class="ident">pat_ident</span>.<span class="ident">by_ref</span> {
-                            <span class="macro">bail</span><span class="macro">!</span>(
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                             <span class="ident">by_ref</span>,
                             <span class="string">&quot;`ref` modifier is unsupported for ink! function arguments&quot;</span>,
-                        )
+                        ))
                         }
                         <span class="prelude-val">Ok</span>(<span class="ident">ir</span>::<span class="ident">FnArg</span>::<span class="ident">Typed</span>(<span class="ident">ir</span>::<span class="ident">IdentType</span> {
                             <span class="ident">attrs</span>: <span class="ident">pat_ident</span>.<span class="ident">attrs</span>,
@@ -1289,10 +1345,10 @@
                         }))
                     }
                     <span class="ident">unsupported</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="macro">bail</span><span class="macro">!</span>(
+                        <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                     <span class="ident">unsupported</span>,
                     <span class="string">&quot;encountered unsupported function argument syntax for ink! function&quot;</span>,
-                )
+                ))
                     }
                 }
             }
@@ -1358,13 +1414,13 @@
                         <span class="prelude-val">Err</span>(<span class="ident">markers</span>
                             .<span class="ident">iter</span>()
                             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">marker</span><span class="op">|</span> {
-                                <span class="macro">format_err_span</span><span class="macro">!</span>(
+                                <span class="macro">format_err</span><span class="macro">!</span>(
                                     <span class="ident">marker</span>.<span class="ident">span</span>(),
                                     <span class="string">&quot;unsupported ink! marker for struct&quot;</span>
                                 )
                             })
                             .<span class="ident">fold</span>(
-                                <span class="macro">format_err</span><span class="macro">!</span>(
+                                <span class="macro">format_err_spanned</span><span class="macro">!</span>(
                                     <span class="ident">item_struct</span>,
                                     <span class="string">&quot;encountered unsupported ink! markers for struct&quot;</span>,
                                 ),
@@ -1416,7 +1472,7 @@
         });
     <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">storages</span>.<span class="ident">len</span>() {
         <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Err</span>(<span class="macro">format_err_span</span><span class="macro">!</span>(
+            <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
                 <span class="ident">Span</span>::<span class="ident">call_site</span>(),
                 <span class="string">&quot;no #[ink(storage)] struct found but expected exactly 1&quot;</span>
             ))
@@ -1429,9 +1485,11 @@
         <span class="ident">n</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="prelude-val">Err</span>(<span class="ident">storages</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">storage</span><span class="op">|</span> <span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">storage</span>.<span class="ident">ident</span>, <span class="string">&quot;conflicting storage struct&quot;</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">storage</span><span class="op">|</span> {
+                    <span class="macro">format_err_spanned</span><span class="macro">!</span>(<span class="ident">storage</span>.<span class="ident">ident</span>, <span class="string">&quot;conflicting storage struct&quot;</span>)
+                })
                 .<span class="ident">fold</span>(
-                    <span class="macro">format_err_span</span><span class="macro">!</span>(
+                    <span class="macro">format_err</span><span class="macro">!</span>(
                         <span class="ident">Span</span>::<span class="ident">call_site</span>(),
                         <span class="string">&quot;encountered {} conflicting storage structs&quot;</span>,
                         <span class="ident">n</span>
@@ -1458,10 +1516,10 @@
     <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">storage</span>.<span class="ident">ident</span>;
     <span class="kw">for</span> <span class="ident">item_impl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">impl_blocks</span> {
         <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">item_impl</span>.<span class="ident">self_ty</span> <span class="op">!</span><span class="op">=</span> <span class="ident">storage_ident</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
                 <span class="ident">item_impl</span>.<span class="ident">self_ty</span>,
                 <span class="string">&quot;ink! impl blocks need to be implemented for the #[ink(storage)] struct&quot;</span>
-            )
+            ))
         }
     }
     <span class="kw">let</span> <span class="ident">functions</span> <span class="op">=</span> <span class="ident">impl_blocks</span>

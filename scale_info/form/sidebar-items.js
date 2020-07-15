@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CompactForm","Compact form that has its lifetime untracked in association to its interner."],["MetaForm","A meta meta-type."]],"trait":[["Form","Trait to control the internal structures of type identifiers and definitions."]]});
+initSidebarItems({"enum":[["CompactForm","Compact form that has its lifetime untracked in association to its interner."],["MetaForm","A meta meta-type."]],"trait":[["Form","Trait to control the internal structures of type definitions."]]});

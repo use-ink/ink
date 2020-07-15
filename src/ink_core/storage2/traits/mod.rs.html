@@ -319,7 +319,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entity</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">*</span><span class="ident">root_key</span>)
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entity</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;storage entry was empty&quot;</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;could not properly decode storage entry&quot;</span>);
     <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span>::<span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
@@ -342,7 +342,7 @@
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
     <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span>::<span class="ident">push_packed</span>(<span class="ident">entity</span>, <span class="ident">root_key</span>);
-    <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">set_contract_storage</span>(<span class="kw-2">*</span><span class="ident">root_key</span>, <span class="ident">entity</span>);
+    <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">set_contract_storage</span>(<span class="ident">root_key</span>, <span class="ident">entity</span>);
 }
 
 <span class="doccomment">/// Clears the entity from the contract storage using packed layout.</span>
@@ -361,7 +361,7 @@
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
     <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span>::<span class="ident">clear_packed</span>(<span class="ident">entity</span>, <span class="ident">root_key</span>);
-    <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">clear_contract_storage</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
+    <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">clear_contract_storage</span>(<span class="ident">root_key</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../../";window.currentCrate = "ink_core";</script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>

@@ -304,6 +304,41 @@
 <span id="304">304</span>
 <span id="305">305</span>
 <span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -367,6 +402,10 @@
     <span class="doccomment">/// The synchronized cells to operate on the contract storage.</span>
     <span class="ident">elems</span>: <span class="ident">LazyIndexMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
+
+<span class="doccomment">/// The index is out of the bounds of this vector.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IndexOutOfBounds</span>;
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -451,7 +490,7 @@
         <span class="ident">IterMut</span>::<span class="ident">new</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Returns the index if it is witihn bounds or `None` otherwise.</span>
+    <span class="doccomment">/// Returns the index if it is within bounds or `None` otherwise.</span>
     <span class="kw">fn</span> <span class="ident">within_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">index</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>)
@@ -609,6 +648,37 @@
         <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">put</span>(<span class="ident">n</span>, <span class="ident">last</span>);
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span> <span class="op">=</span> <span class="ident">last_index</span>;
         <span class="prelude-val">Some</span>(())
+    }
+
+    <span class="doccomment">/// Sets the elements at the given index to the new value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Won&#39;t return the old element back to the caller.</span>
+    <span class="doccomment">/// Prefer this operation over other method of overriding an element</span>
+    <span class="doccomment">/// in the storage vector since this is more efficient.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>, <span class="ident">new_value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">IndexOutOfBounds</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">within_bounds</span>(<span class="ident">index</span>).<span class="ident">is_none</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">IndexOutOfBounds</span>)
+        }
+        <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">put</span>(<span class="ident">index</span>, <span class="prelude-val">Some</span>(<span class="ident">new_value</span>));
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Removes all elements from this vector.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Use this method to clear the vector instead of e.g. iterative `pop()`.</span>
+    <span class="doccomment">/// This method performs significantly better and does not actually read</span>
+    <span class="doccomment">/// any of the elements (whereas `pop()` does).</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span>
+        }
+        <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">len</span>() {
+            <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">put</span>(<span class="ident">index</span>, <span class="prelude-val">None</span>);
+        }
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
     }
 }
 </pre></div>

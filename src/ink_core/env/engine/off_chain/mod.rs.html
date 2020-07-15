@@ -267,6 +267,12 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -282,6 +288,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
+<span class="kw">mod</span> <span class="ident">call_data</span>;
 <span class="kw">mod</span> <span class="ident">db</span>;
 <span class="kw">mod</span> <span class="ident">hashing</span>;
 <span class="kw">mod</span> <span class="ident">impls</span>;
@@ -294,6 +301,15 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">call_data</span>::<span class="ident">CallData</span>,
+    <span class="ident">db</span>::{
+        <span class="ident">AccountError</span>,
+        <span class="ident">EmittedEvent</span>,
+        <span class="ident">PastPrints</span>,
+    },
+    <span class="ident">typed_encoded</span>::<span class="ident">TypedEncodedError</span>,
+};
 <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">db</span>::{
         <span class="ident">Account</span>,
@@ -301,7 +317,6 @@
         <span class="ident">Block</span>,
         <span class="ident">ChainSpec</span>,
         <span class="ident">Console</span>,
-        <span class="ident">EmittedEvent</span>,
         <span class="ident">EmittedEventsRecorder</span>,
         <span class="ident">ExecContext</span>,
     },
@@ -316,13 +331,6 @@
         <span class="ident">OffHash</span>,
         <span class="ident">OffTimestamp</span>,
     },
-};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">db</span>::{
-        <span class="ident">AccountError</span>,
-        <span class="ident">PastPrints</span>,
-    },
-    <span class="ident">typed_encoded</span>::<span class="ident">TypedEncodedError</span>,
 };
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">OnInstance</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">EnvTypes</span>;
@@ -468,17 +476,17 @@
             <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">20</span>),
         );
         <span class="comment">// Initialize the execution context for the first contract execution.</span>
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">call</span>::{
-            <span class="ident">CallData</span>,
-            <span class="ident">Selector</span>,
-        };
+        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>;
+        <span class="comment">// The below selector bytes are incorrect but since calling doesn&#39;t work</span>
+        <span class="comment">// yet we do not have to fix this now.</span>
+        <span class="kw">let</span> <span class="ident">selector_bytes_for_call</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">4</span>];
         <span class="self">self</span>.<span class="ident">exec_context</span>.<span class="ident">push</span>(
             <span class="ident">ExecContext</span>::<span class="ident">build</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
                 .<span class="ident">caller</span>(<span class="ident">default_accounts</span>.<span class="ident">alice</span>)
                 .<span class="ident">callee</span>(<span class="ident">contract_account_id</span>)
                 .<span class="ident">gas</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">500_000</span>))
                 .<span class="ident">transferred_value</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">500</span>))
-                .<span class="ident">call_data</span>(<span class="ident">CallData</span>::<span class="ident">new</span>(<span class="ident">Selector</span>::<span class="ident">from_str</span>(<span class="string">&quot;call&quot;</span>)))
+                .<span class="ident">call_data</span>(<span class="ident">CallData</span>::<span class="ident">new</span>(<span class="ident">Selector</span>::<span class="ident">new</span>(<span class="ident">selector_bytes_for_call</span>)))
                 .<span class="ident">finish</span>(),
         );
         <span class="prelude-val">Ok</span>(())
@@ -521,6 +529,10 @@
         <span class="self">self</span>.<span class="ident">blocks</span>
             .<span class="ident">last_mut</span>()
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">OffChainError</span>::<span class="ident">UninitializedBlocks</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">chain_spec_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ChainSpec</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">chain_spec</span>
     }
 }
 

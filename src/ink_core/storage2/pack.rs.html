@@ -518,16 +518,16 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">storage2</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
-    <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::{
+    <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout2</span>::{
         <span class="ident">CellLayout</span>,
         <span class="ident">Layout</span>,
         <span class="ident">LayoutKey</span>,
     };
-    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
+    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>;
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Metadata</span>,
+        <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
             <span class="ident">Layout</span>::<span class="ident">Cell</span>(<span class="ident">CellLayout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">LayoutKey</span>::<span class="ident">from</span>(<span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>))))
@@ -818,7 +818,7 @@
         <span class="ident">run_test</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">p1</span> <span class="op">=</span> <span class="ident">Pack</span>::<span class="ident">new</span>((<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">p1</span>, (<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
             <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">p1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
             <span class="comment">// Now load another instance of a pack from the same key and check</span>
             <span class="comment">// if both instances are equal:</span>
@@ -833,7 +833,7 @@
         <span class="ident">run_test</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">p1</span> <span class="op">=</span> <span class="ident">Pack</span>::<span class="ident">new</span>((<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">p1</span>, (<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
             <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">p1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
             <span class="comment">// Now load another instance of a pack from the same key and check</span>
             <span class="comment">// if both instances are equal:</span>
@@ -853,12 +853,12 @@
             <span class="comment">// Push as spread, pull as packed:</span>
             <span class="kw">let</span> <span class="ident">p1</span> <span class="op">=</span> <span class="ident">Pack</span>::<span class="ident">new</span>((<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">p1</span>, (<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
             <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">p1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
             <span class="kw">let</span> <span class="ident">p2</span> <span class="op">=</span> <span class="ident">pull_packed_root</span>::<span class="op">&lt;</span><span class="ident">Pack</span><span class="op">&lt;</span>(<span class="ident">u8</span>, [<span class="ident">i32</span>; <span class="number">4</span>], (<span class="ident">bool</span>, <span class="ident">i32</span>))<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>);
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">p1</span>, <span class="ident">p2</span>);
             <span class="comment">// Push as packed, pull as spread:</span>
-            <span class="kw">let</span> <span class="ident">root_key2</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x43</span>; <span class="number">32</span>]);
+            <span class="kw">let</span> <span class="ident">root_key2</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x43</span>; <span class="number">32</span>]);
             <span class="ident">push_packed_root</span>(<span class="kw-2">&amp;</span><span class="ident">p2</span>, <span class="kw-2">&amp;</span><span class="ident">root_key2</span>);
             <span class="kw">let</span> <span class="ident">p3</span> <span class="op">=</span> <span class="ident">SpreadLayout</span>::<span class="ident">pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key2</span>));
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">p2</span>, <span class="ident">p3</span>);

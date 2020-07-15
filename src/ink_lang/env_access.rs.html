@@ -432,13 +432,13 @@
         <span class="ident">env</span>::<span class="ident">transferred_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode transferred balance&quot;</span>)
     }
 
-    <span class="doccomment">/// Returns the current price for gas.</span>
+    <span class="doccomment">/// Returns the price for the specified amount of gas.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_core::env::gas_price`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_price</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>::<span class="ident">Balance</span> {
-        <span class="ident">env</span>::<span class="ident">gas_price</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode gas price&quot;</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_price</span>(<span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>::<span class="ident">Balance</span> {
+        <span class="ident">env</span>::<span class="ident">gas_price</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">gas</span>).<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode gas price&quot;</span>)
     }
 
     <span class="doccomment">/// Returns the amount of gas left for the contract execution.</span>

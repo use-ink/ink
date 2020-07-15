@@ -924,6 +924,12 @@
 <span id="924">924</span>
 <span id="925">925</span>
 <span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -1080,19 +1086,19 @@
         <span class="ident">LayoutCryptoHasher</span>,
         <span class="ident">StorageLayout</span>,
     };
-    <span class="kw">use</span> <span class="ident">ink_abi</span>::<span class="ident">layout2</span>::{
+    <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout2</span>::{
         <span class="ident">CellLayout</span>,
         <span class="ident">HashLayout</span>,
         <span class="ident">HashingStrategy</span>,
         <span class="ident">Layout</span>,
         <span class="ident">LayoutKey</span>,
     };
-    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">Metadata</span>;
+    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>;
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">LazyHashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Encode</span>,
-        <span class="ident">V</span>: <span class="ident">Metadata</span>,
+        <span class="ident">V</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">H</span>: <span class="ident">Hasher</span> <span class="op">+</span> <span class="ident">LayoutCryptoHasher</span>,
         <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
     {
@@ -1122,7 +1128,7 @@
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;
 
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">lazy</span>(<span class="ident">ExtKeyPtr</span>::<span class="ident">next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
+        <span class="self">Self</span>::<span class="ident">lazy</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr</span>::<span class="ident">next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
@@ -1382,7 +1388,7 @@
         } <span class="kw">else</span> {
             <span class="comment">// The type does not require deep clean-up so we can simply clean-up</span>
             <span class="comment">// its associated storage cell and be done without having to load it first.</span>
-            <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">clear_contract_storage</span>(<span class="ident">root_key</span>);
+            <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">clear_contract_storage</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>);
         }
     }
 
@@ -1532,7 +1538,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">key_at_works</span>() {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
 
         <span class="comment">// BLAKE2 256-bit hasher:</span>
         <span class="kw">let</span> <span class="ident">hmap1</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyHashMap</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">u8</span>, <span class="ident">Blake2x256Hasher</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">lazy</span>(<span class="ident">key</span>);
@@ -1545,20 +1551,22 @@
         \x96\x65\x0E\xCD\x1F\x2C\xE8\x5D\
         \xBF\x7E\xC0\xFF\x16\x40\x8A\xD8\
         \x75\x88\xDE\x52\xF5\x8B\x99\xAF&quot;</span>;
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap1</span>.<span class="ident">key_at</span>(<span class="kw-2">&amp;</span><span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Key</span>(<span class="kw-2">*</span><span class="ident">hmap1_at_0</span>)));
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap1</span>.<span class="ident">key_at</span>(<span class="kw-2">&amp;</span><span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Key</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">hmap1_at_0</span>)));
         <span class="comment">// Same parameters must yield the same key:</span>
         <span class="comment">//</span>
         <span class="comment">// This tests an actual regression that happened because the</span>
         <span class="comment">// hash accumulator was not reset after a hash finalization.</span>
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">hmap1</span>, <span class="kw-2">&amp;</span>[]);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap1</span>.<span class="ident">key_at</span>(<span class="kw-2">&amp;</span><span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Key</span>(<span class="kw-2">*</span><span class="ident">hmap1_at_0</span>)));
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap1</span>.<span class="ident">key_at</span>(<span class="kw-2">&amp;</span><span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">Key</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">hmap1_at_0</span>)));
         <span class="macro">assert_eq</span><span class="macro">!</span>(
             <span class="ident">hmap1</span>.<span class="ident">key_at</span>(<span class="kw-2">&amp;</span><span class="number">1</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">Key</span>(<span class="kw-2">*</span><span class="string">b&quot;\
+            <span class="prelude-val">Some</span>(<span class="ident">Key</span>::<span class="ident">from</span>(
+                <span class="kw-2">*</span><span class="string">b&quot;\
                 \x9A\x46\x1F\xB3\xA1\xC4\x20\xF8\
                 \xA0\xD9\xA7\x79\x2F\x07\xFB\x7D\
                 \x49\xDD\xAB\x08\x67\x90\x96\x15\
-                \xFB\x85\x36\x3B\x82\x94\x85\x3F&quot;</span>))
+                \xFB\x85\x36\x3B\x82\x94\x85\x3F&quot;</span>
+            ))
         );
         <span class="comment">// SHA2 256-bit hasher:</span>
         <span class="kw">let</span> <span class="ident">hmap2</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyHashMap</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">u8</span>, <span class="ident">Sha2x256Hasher</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">lazy</span>(<span class="ident">key</span>);
@@ -1568,19 +1576,23 @@
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">hmap2</span>, <span class="kw-2">&amp;</span>[]);
         <span class="macro">assert_eq</span><span class="macro">!</span>(
             <span class="ident">hmap1</span>.<span class="ident">key_at</span>(<span class="kw-2">&amp;</span><span class="number">0</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">Key</span>(<span class="kw-2">*</span><span class="string">b&quot;\
+            <span class="prelude-val">Some</span>(<span class="ident">Key</span>::<span class="ident">from</span>(
+                <span class="kw-2">*</span><span class="string">b&quot;\
                 \x67\x7E\xD3\xA4\x72\x2A\x83\x60\
                 \x96\x65\x0E\xCD\x1F\x2C\xE8\x5D\
                 \xBF\x7E\xC0\xFF\x16\x40\x8A\xD8\
-                \x75\x88\xDE\x52\xF5\x8B\x99\xAF&quot;</span>))
+                \x75\x88\xDE\x52\xF5\x8B\x99\xAF&quot;</span>
+            ))
         );
         <span class="macro">assert_eq</span><span class="macro">!</span>(
             <span class="ident">hmap1</span>.<span class="ident">key_at</span>(<span class="kw-2">&amp;</span><span class="number">1</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">Key</span>(<span class="kw-2">*</span><span class="string">b&quot;\
+            <span class="prelude-val">Some</span>(<span class="ident">Key</span>::<span class="ident">from</span>(
+                <span class="kw-2">*</span><span class="string">b&quot;\
                 \x9A\x46\x1F\xB3\xA1\xC4\x20\xF8\
                 \xA0\xD9\xA7\x79\x2F\x07\xFB\x7D\
                 \x49\xDD\xAB\x08\x67\x90\x96\x15\
-                \xFB\x85\x36\x3B\x82\x94\x85\x3F&quot;</span>))
+                \xFB\x85\x36\x3B\x82\x94\x85\x3F&quot;</span>
+            ))
         );
     }
 
@@ -1796,14 +1808,14 @@
             <span class="comment">// Push the lazy index map onto the contract storage and then load</span>
             <span class="comment">// another instance of it from the contract stoarge.</span>
             <span class="comment">// Then: Compare both instances to be equal.</span>
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
             <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">hmap</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
             <span class="kw">let</span> <span class="ident">hmap2</span> <span class="op">=</span>
                 <span class="op">&lt;</span><span class="ident">LazyHashMap</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">u8</span>, <span class="ident">Blake2x256Hasher</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(
                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>),
                 );
             <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">hmap2</span>, <span class="kw-2">&amp;</span>[]);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap2</span>.<span class="ident">key</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Key</span>([<span class="number">0x42</span>; <span class="number">32</span>])));
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap2</span>.<span class="ident">key</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>])));
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap2</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;A&#39;</span>));
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap2</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">2</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;B&#39;</span>));
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">hmap2</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">3</span>), <span class="prelude-val">None</span>);
