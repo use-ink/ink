@@ -18,6 +18,7 @@
 //! Users should generally use these collections in their contracts directly
 //! or as building blocks for their collections and algorithms.
 
+pub mod binary_heap;
 pub mod bitstash;
 pub mod bitvec;
 pub mod hashmap;
@@ -27,6 +28,7 @@ pub mod vec;
 
 #[doc(inline)]
 pub use self::{
+    binary_heap::BinaryHeap,
     bitstash::BitStash,
     bitvec::Bitvec,
     hashmap::HashMap,
