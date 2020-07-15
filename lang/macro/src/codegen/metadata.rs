@@ -269,11 +269,9 @@ impl GenerateMetadata<'_> {
         let contract_ident = &self.contract.storage.ident;
         let contract_ident_lit = contract_ident.to_string();
         quote! {
-            let layout =
-                <#contract_ident as ::ink_core::storage2::traits::StorageLayout>::layout(
-                    &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key::from([0x00; 32]))
-                );
-            ::ink_metadata::layout2::StorageLayout::new(#contract_ident_lit, layout)
+            <#contract_ident as ::ink_core::storage2::traits::StorageLayout>::layout(
+                &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key::from([0x00; 32]))
+            )
         }
     }
 }

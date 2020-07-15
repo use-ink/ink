@@ -56,14 +56,15 @@ pub struct InkProject {
     #[serde(flatten)]
     registry: Registry,
     #[serde(rename = "storage")]
-    layout: layout2::StorageLayout<CompactForm>,
+    /// The layout of the storage data structure
+    layout: layout2::Layout<CompactForm>,
     spec: ContractSpec<CompactForm>,
 }
 
 impl InkProject {
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
-        L: Into<layout2::StorageLayout>,
+        L: Into<layout2::Layout>,
         S: Into<ContractSpec>,
     {
         let mut registry = Registry::new();
