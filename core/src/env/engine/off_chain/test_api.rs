@@ -14,11 +14,13 @@
 
 //! Operations on the off-chain testing environment.
 
-pub use super::CallData;
+pub use super::{
+    CallData,
+    EmittedEvent,
+};
 use super::{
     db::ExecContext,
     AccountError,
-    EmittedEvent,
     EnvInstance,
     OnInstance,
 };

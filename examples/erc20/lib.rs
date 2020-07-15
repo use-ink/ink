@@ -179,8 +179,13 @@ mod erc20 {
                 // Constructor works.
                 let _erc20 = Erc20::new(100);
 
-                // Transfer event triggered during initial contruction.
-                let emitted_events = env::test::recorded_events().collect::<Vec<_>>();
+                use env::test::{
+                    recorded_events,
+                    EmittedEvent,
+                };
+
+                // Transfer event triggered during initial construction.
+                let emitted_events = recorded_events().collect::<Vec<EmittedEvent>>();
                 assert_eq!(1, emitted_events.len());
                 let raw_event = emitted_events.first().unwrap();
                 let event = <Event as scale::Decode>::decode(&mut &raw_event.data[..])
@@ -199,7 +204,7 @@ mod erc20 {
             run_test(|| {
                 // Constructor works.
                 let erc20 = Erc20::new(100);
-                // Transfer event triggered during initial contruction.
+                // Transfer event triggered during initial construction.
                 assert_eq!(env::test::recorded_events().count(), 1);
                 // Get the token total supply.
                 assert_eq!(erc20.total_supply(), 100);
@@ -212,7 +217,7 @@ mod erc20 {
             run_test(|| {
                 // Constructor works
                 let erc20 = Erc20::new(100);
-                // Transfer event triggered during initial contruction
+                // Transfer event triggered during initial construction
                 assert_eq!(env::test::recorded_events().count(), 1);
                 let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                     .expect("Cannot get accounts");
@@ -228,7 +233,7 @@ mod erc20 {
             run_test(|| {
                 // Constructor works.
                 let mut erc20 = Erc20::new(100);
-                // Transfer event triggered during initial contruction.
+                // Transfer event triggered during initial construction.
                 assert_eq!(1, env::test::recorded_events().count());
                 let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                     .expect("Cannot get accounts");
@@ -248,7 +253,7 @@ mod erc20 {
             run_test(|| {
                 // Constructor works.
                 let mut erc20 = Erc20::new(100);
-                // Transfer event triggered during initial contruction.
+                // Transfer event triggered during initial construction.
                 assert_eq!(env::test::recorded_events().count(), 1);
                 let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                     .expect("Cannot get accounts");
@@ -287,7 +292,7 @@ mod erc20 {
             run_test(|| {
                 // Constructor works.
                 let mut erc20 = Erc20::new(100);
-                // Transfer event triggered during initial contruction.
+                // Transfer event triggered during initial construction.
                 assert_eq!(env::test::recorded_events().count(), 1);
                 let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                     .expect("Cannot get accounts");

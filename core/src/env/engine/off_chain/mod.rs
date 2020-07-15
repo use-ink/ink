@@ -29,6 +29,7 @@ pub use self::{
     call_data::CallData,
     db::{
         AccountError,
+        EmittedEvent,
         PastPrints,
     },
     typed_encoded::TypedEncodedError,
@@ -40,7 +41,6 @@ use self::{
         Block,
         ChainSpec,
         Console,
-        EmittedEvent,
         EmittedEventsRecorder,
         ExecContext,
     },
