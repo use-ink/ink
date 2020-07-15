@@ -31,3 +31,29 @@ fn new_binary_heap_works() {
     // `BinaryHeap::new` and `BinaryHeap::default` should be equal.
     assert_eq!(heap, default);
 }
+
+#[test]
+fn from_iterator_works() {
+    let some_primes = [1, 2, 3, 5, 7, 11, 13];
+    assert_eq!(some_primes.iter().copied().collect::<BinaryHeap<_>>(), {
+        let mut vec = BinaryHeap::new();
+        for prime in &some_primes {
+            vec.push(*prime)
+        }
+        vec
+    });
+}
+
+#[test]
+fn from_empty_iterator_works() {
+    assert_eq!(
+        [].iter().copied().collect::<BinaryHeap<i32>>(),
+        BinaryHeap::new(),
+    );
+}
+
+// #[test]
+// fn peek_works() {
+//     let heap = <BinaryHeap<i32>>::new();
+//
+// }

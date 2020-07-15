@@ -94,3 +94,13 @@ where
         None
     }
 }
+
+impl<T> BinaryHeap<T>
+where
+    T: PackedLayout,
+{
+    /// Appends an element to the back of the vector.
+    pub fn push(&mut self, _value: T) {
+        todo!()
+    }
+}

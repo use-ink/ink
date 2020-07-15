@@ -16,6 +16,13 @@ use super::{
     BinaryHeap,
 };
 use crate::storage2::traits::PackedLayout;
+use core::{
+    cmp::{PartialEq, Eq},
+    iter::{
+        Extend,
+        FromIterator,
+    }
+};
 
 impl<T> Default for BinaryHeap<T>
 where
@@ -26,7 +33,35 @@ where
     }
 }
 
-impl<T> core::cmp::PartialEq for BinaryHeap<T>
+impl<T> Extend<T> for BinaryHeap<T>
+where
+    T: PackedLayout,
+{
+    fn extend<I>(&mut self, iter: I)
+        where
+            I: IntoIterator<Item = T>,
+    {
+        for item in iter {
+            self.push(item)
+        }
+    }
+}
+
+impl<T> FromIterator<T> for BinaryHeap<T>
+    where
+        T: PackedLayout,
+{
+    fn from_iter<I>(iter: I) -> Self
+        where
+            I: IntoIterator<Item = T>,
+    {
+        let mut vec = Self::new();
+        vec.extend(iter);
+        vec
+    }
+}
+
+impl<T> PartialEq for BinaryHeap<T>
 where
     T: PartialEq + PackedLayout,
 {
@@ -38,4 +73,4 @@ where
     }
 }
 
-impl<T> core::cmp::Eq for BinaryHeap<T> where T: Eq + PackedLayout {}
+impl<T> Eq for BinaryHeap<T> where T: Eq + PackedLayout {}
