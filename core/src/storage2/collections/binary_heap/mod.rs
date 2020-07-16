@@ -17,18 +17,15 @@
 //! todo: more module description (see original bit_stash and other collections)
 
 mod impls;
-mod iter;
 
 #[cfg(test)]
 mod tests;
 
-pub use self::iter::Iter;
-use crate::storage2::{
-    lazy::{
-        Lazy,
-        LazyIndexMap,
-    },
-    traits::PackedLayout,
+use crate::storage2::traits::PackedLayout;
+use super::vec::{
+    Vec as StorageVec,
+    Iter,
+    IterMut,
 };
 
 /// A binary heap type, providing `O(log(n))` push and pop operations.
@@ -43,10 +40,8 @@ pub struct BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    /// The length of the vector.
-    len: Lazy<u32>,
     /// The synchronized cells to operate on the contract storage.
-    elems: LazyIndexMap<T>,
+    elems: StorageVec<T>,
 }
 
 impl<T> BinaryHeap<T>
@@ -56,19 +51,18 @@ where
     /// Creates a new empty storage heap.
     pub fn new() -> Self {
         Self {
-            len: Lazy::new(0),
-            elems: LazyIndexMap::new(),
+            elems: StorageVec::new(),
         }
     }
 
     /// Returns the number of elements in the heap, also referred to as its 'length'.
     pub fn len(&self) -> u32 {
-        *self.len
+        self.elems.len()
     }
 
     /// Returns `true` if the heap contains no elements.
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.elems.is_empty()
     }
 }
 
@@ -84,106 +78,55 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
-        Iter::new(self)
+        self.elems.iter()
+    }
+
+    /// Returns an iterator yielding exclusive references to all elements of the heap.
+    ///
+    /// # Note
+    ///
+    /// Avoid unbounded iteration over big storage vectors.
+    /// Prefer using methods like `Iterator::take` in order to limit the number
+    /// of yielded elements.
+    pub fn iter_mut(&mut self) -> IterMut<T> {
+        self.elems.iter_mut()
     }
 
     /// Returns a shared reference to the greatest element of the heap
     ///
     /// Returns `None` if the heap is empty
     pub fn peek(&self) -> Option<&T> {
-        self.elems.get(0)
+        self.elems.first()
     }
 
-    // The implementations of sift_up and sift_down use unsafe blocks in
-    // order to move an element out of the vector (leaving behind a
-    // hole), shift along the others and move the removed element back into the
-    // vector at the final location of the hole.
-    // The `Hole` type is used to represent this, and make sure
-    // the hole is filled back at the end of its scope, even on panic.
-    // Using a hole reduces the constant factor compared to using swaps,
-    // which involves twice as many moves.
-    fn sift_up(&mut self, start: usize, pos: usize) -> usize {
-        unsafe {
-            // Take out the value at `pos` and create a hole.
-            let mut hole = Hole::new(&mut self.data, pos);
-
-            while hole.pos() > start {
-                let parent = (hole.pos() - 1) / 2;
-                if hole.element() <= hole.get(parent) {
-                    break;
-                }
-                hole.move_to(parent);
-            }
-            hole.pos()
-        }
-    }
-
-    /// Take an element at `pos` and move it all the way down the heap,
-    /// then sift it up to its position.
-    ///
-    /// Note: This is faster when the element is known to be large / should
-    /// be closer to the bottom.
-    fn sift_down_to_bottom(&mut self, mut pos: usize) {
+    /// Take an element at `pos` and move it down the heap,
+    /// while its children are larger.
+    fn sift_down(&mut self, mut pos: u32) {
         let end = self.len();
-        let start = pos;
-        unsafe {
-            let mut hole = Hole::new(&mut self.data, pos);
-            let mut child = 2 * pos + 1;
-            while child < end {
-                let right = child + 1;
-                // compare with the greater of the two children
-                if right < end && hole.get(child) <= hole.get(right) {
-                    child = right;
-                }
-                hole.move_to(child);
-                child = 2 * hole.pos() + 1;
+        let mut child = 2 * pos + 1;
+        while child < end {
+            let right = child + 1;
+            // compare with the greater of the two children
+            if right < end && self.elems.get(child) <= self.elems.get(right) {
+                child = right;
             }
-            pos = hole.pos;
+            // if we are already in order, stop.
+            if self.elems.get(pos) >= self.elems.get(child) {
+                break;
+            }
+            pos = child;
+            child = 2 * pos + 1;
         }
-        self.sift_up(start, pos);
-    }
-
-    fn max_heapify(&mut self, pos: u32) {
-        // Max-Heapify (A, i):
-        //     left ← 2×i     // ← means "assignment"
-        // right ← 2×i + 1
-        // largest ← i
-        //
-        // if left ≤ heap_length[A] and A[left] > A[largest] then:
-        //     largest ← left
-        //
-        // if right ≤ heap_length[A] and A[right] > A[largest] then:
-        //     largest ← right
-        //
-        // if largest ≠ i then:
-        //     swap A[i] and A[largest]
-        // Max-Heapify(A, largest)
-
-        let left = 2 * pos + 1;
-        let right = 2 * pos + 2;
-        let mut largest = pos;
-
-        if left < self.len() && self.elems.get(left) > self.elems.get(largest) {
-            largest = left
-        }
-
-        if right < self.len() && self.elems.get(right) > self.elems.get(largest) {
-            largest = right
-        }
-
-        if largest != pos {
-            self.elems.swap(pos, largest);
-        }
-        self.max_heapify(largest)
     }
 
     /// Pops greatest element from the heap and returns it
     ///
     /// Returns `None` if the heap is empty
     pub fn pop(&mut self) -> Option<T> {
-        // replace the root of the heap with the last element on the last level
-
-        self.elems.put_get(0, None)
+        // replace the root of the heap with the last element
+        let elem = self.elems.swap_remove(0);
+        self.sift_down(0);
+        elem
     }
 }
 
@@ -192,7 +135,7 @@ where
     T: PackedLayout + Ord,
 {
     // todo: optimize!
-    fn bubble_up(&mut self, index: u32) {
+    fn sift_up(&mut self, index: u32) {
         assert!(
             index > 0,
             "cannot bubble up the root element"
@@ -205,24 +148,14 @@ where
 
         if child > parent {
             self.elems.swap(parent_index, index);
-            self.bubble_up(parent_index);
+            self.sift_up(parent_index);
         }
     }
 
     /// Pushes the given element to the binary heap.
     pub fn push(&mut self, value: T) {
-        // todo: put on the left i.e. if len is even then add 1?
-        let index = self.len();
-        assert!(
-            index < core::u32::MAX,
-            "cannot push more elements into the heap"
-        );
-        *self.len += 1;
-
-        self.elems.put(index, Some(value));
-
-        if index > 0 {
-            self.bubble_up(index)
-        }
+        let old_len = self.len();
+        self.elems.push(value);
+        self.sift_up(old_len)
     }
 }
