@@ -30,6 +30,7 @@ use crate::{
 };
 use ink_primitives::Key;
 
+/// Returns a prefilled `HashMap` with `[('A', 13), ['B', 23])`.
 fn prefilled_hmap() -> StorageHashMap<u8, i32> {
     let test_values = [(b'A', 13), (b'B', 23)];
     test_values
@@ -38,15 +39,18 @@ fn prefilled_hmap() -> StorageHashMap<u8, i32> {
         .collect::<StorageHashMap<u8, i32>>()
 }
 
+/// Returns always the same `KeyPtr`.
 fn key_ptr() -> KeyPtr {
     let root_key = Key::from([0x42; 32]);
     KeyPtr::from(root_key)
 }
 
+/// Pushes a `HashMap` instance into the contract storage.
 fn push_hmap(hmap: &StorageHashMap<u8, i32>) {
     SpreadLayout::push_spread(hmap, &mut key_ptr());
 }
 
+/// Pulls a `HashMap` instance from the contract storage.
 fn pull_hmap() -> StorageHashMap<u8, i32> {
     <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(&mut key_ptr())
 }
@@ -466,6 +470,19 @@ fn entry_api_simple_insert_with_works() {
     assert_eq!(*v, 42);
     assert_eq!(hmap.get(&b'C').unwrap(), &42);
     assert_eq!(hmap.len(), 3);
+}
+
+#[test]
+fn entry_api_simple_default_insert_works() {
+    // given
+    let mut hmap = <StorageHashMap<i32, bool>>::new();
+
+    // when
+    let v = hmap.entry(1).or_default();
+
+    // then
+    assert_eq!(*v, false);
+    assert_eq!(hmap.get(&1).unwrap(), &false);
 }
 
 #[test]

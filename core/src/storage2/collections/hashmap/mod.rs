@@ -417,7 +417,8 @@ where
         }
     }
 
-    /// Returns a reference to this entry's key.
+    /// Ensures a value is in the entry by inserting the default value if empty, and returns
+    /// a reference to the value in the entry.
     pub fn or_default(self) -> &'a V {
         match self {
             Entry::Occupied(entry) => entry.into_mut(),
@@ -480,7 +481,7 @@ where
     /// Inserts `value` into `entry`.
     fn insert(value: V, entry: VacantEntry<'a, K, V, H>) -> &'a mut V {
         let old_value = entry.base.insert(entry.key.clone(), value);
-        debug_assert_eq!(old_value, None);
+        debug_assert!(old_value.is_none());
         match entry.base.entry(entry.key) {
             Entry::Vacant(_) => unreachable!("entry was just inserted; qed"),
             Entry::Occupied(entry) => entry.into_mut(),
