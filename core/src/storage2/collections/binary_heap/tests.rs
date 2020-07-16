@@ -52,8 +52,10 @@ fn from_empty_iterator_works() {
     );
 }
 
-// #[test]
-// fn peek_works() {
-//     let heap = <BinaryHeap<i32>>::new();
-//
-// }
+#[test]
+fn peek_works() {
+    let mut heap = <BinaryHeap<i32>>::new();
+    heap.push(33);
+
+    assert_eq!(heap.peek(), Some(&33));
+}

@@ -91,7 +91,7 @@ where
     ///
     /// Returns `None` if the heap is empty
     pub fn peek(&self) -> Option<&T> {
-        None
+        self.elems.get(0)
     }
 }
 
