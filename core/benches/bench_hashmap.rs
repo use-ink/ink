@@ -22,7 +22,10 @@ use criterion::{
 use ink_core::{
     env,
     storage2::{
-        collections::HashMap as StorageHashMap,
+        collections::{
+            hashmap::Entry,
+            HashMap as StorageHashMap,
+        },
         traits::{
             KeyPtr,
             SpreadLayout,
@@ -31,8 +34,12 @@ use ink_core::{
 };
 use ink_primitives::Key;
 
-criterion_group!(populated_cache, bench_insert_populated_cache,);
-criterion_group!(empty_cache, bench_insert,);
+criterion_group!(
+    populated_cache,
+    bench_insert_populated_cache,
+    bench_remove_populated_cache,
+);
+criterion_group!(empty_cache, bench_insert, bench_remove,);
 criterion_main!(populated_cache, empty_cache,);
 
 /// Returns some test values for use in benchmarks.
@@ -70,7 +77,7 @@ fn pull_storage_hashmap() -> StorageHashMap<i32, i32> {
 mod populated_cache {
     use super::*;
 
-    pub fn insert_if_nonexistent() {
+    pub fn insert_and_inc() {
         let test_values = test_values();
         let mut hmap = hashmap_from_slice(&test_values[..]);
         for key in 0..1000 {
@@ -83,7 +90,7 @@ mod populated_cache {
         }
     }
 
-    pub fn insert_if_nonexistent_entry_api() {
+    pub fn insert_and_inc_entry_api() {
         let test_values = test_values();
         let mut hmap = hashmap_from_slice(&test_values[..]);
         for key in 0..1000 {
@@ -93,18 +100,58 @@ mod populated_cache {
             });
         }
     }
+
+    pub fn remove() {
+        let test_values = test_values();
+        let mut hmap = hashmap_from_slice(&test_values[..]);
+        for key in 0..1000 {
+            black_box({
+                if hmap.contains_key(&key) {
+                    let _ = hmap.take(&key);
+                }
+            });
+        }
+    }
+
+    pub fn remove_entry_api() {
+        let test_values = test_values();
+        let mut hmap = hashmap_from_slice(&test_values[..]);
+        for key in 0..1000 {
+            black_box({
+                if let Entry::Occupied(o) = hmap.entry(key) {
+                    o.remove();
+                }
+            });
+        }
+    }
 }
 
 fn bench_insert_populated_cache(c: &mut Criterion) {
-    let mut group =
-        c.benchmark_group("Compare: `insert` and `insert_entry_api` (populated cache)");
-    group.bench_function("insert_if_nonexistent", |b| {
-        b.iter(|| populated_cache::insert_if_nonexistent())
+    let mut group = c.benchmark_group(
+        "Compare: `insert_and_inc` and `insert_and_inc_entry_api` (populated cache)",
+    );
+    group.bench_function("insert_and_inc", |b| {
+        b.iter(|| populated_cache::insert_and_inc())
     });
-    group.bench_function("insert_if_nonexistent_entry_api", |b| {
-        b.iter(|| populated_cache::insert_if_nonexistent_entry_api())
+    group.bench_function("insert_and_inc_entry_api", |b| {
+        b.iter(|| populated_cache::insert_and_inc_entry_api())
     });
     group.finish();
+}
+
+fn bench_remove_populated_cache(c: &mut Criterion) {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut group = c.benchmark_group(
+            "Compare: `remove` and `remove_entry_api` (populated cache)",
+        );
+        group.bench_function("remove", |b| b.iter(|| populated_cache::remove()));
+        group.bench_function("remove_entry_api", |b| {
+            b.iter(|| populated_cache::remove_entry_api())
+        });
+        group.finish();
+        Ok(())
+    })
+    .unwrap();
 }
 
 mod empty_cache {
@@ -112,7 +159,7 @@ mod empty_cache {
 
     /// In this case we lazily load the map from storage using `pull_spread`.
     /// This will just load lazily and won't pull anything from the storage.
-    pub fn insert_if_nonexistent() {
+    pub fn insert_and_inc() {
         push_storage_hashmap();
         let mut hmap = pull_storage_hashmap();
         for key in 0..1000 {
@@ -128,7 +175,7 @@ mod empty_cache {
     /// In this case we lazily load the map from storage using `pull_spread`.
     /// This will just load lazily and won't pull anything from the storage.
     /// `take` will then result in loading from storage.
-    pub fn insert_if_nonexistent_entry_api() {
+    pub fn insert_and_inc_entry_api() {
         push_storage_hashmap();
         let mut hmap = pull_storage_hashmap();
         for key in 0..1000 {
@@ -138,17 +185,56 @@ mod empty_cache {
             });
         }
     }
+
+    pub fn remove() {
+        let test_values = test_values();
+        let mut hmap = hashmap_from_slice(&test_values[..]);
+        for key in 0..500 {
+            black_box({
+                if hmap.contains_key(&key) {
+                    let _ = hmap.take(&key);
+                }
+            });
+        }
+    }
+
+    pub fn remove_entry_api() {
+        let test_values = test_values();
+        let mut hmap = hashmap_from_slice(&test_values[..]);
+        for key in 0..500 {
+            black_box({
+                if let Entry::Occupied(o) = hmap.entry(key) {
+                    o.remove();
+                }
+            });
+        }
+    }
 }
 
 fn bench_insert(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let mut group =
-            c.benchmark_group("Compare: `insert` and `insert_entry_api` (empty cache)");
-        group.bench_function("insert_if_nonexistent", |b| {
-            b.iter(|| empty_cache::insert_if_nonexistent())
+        let mut group = c.benchmark_group(
+            "Compare: `insert_and_inc` and `insert_and_inc_entry_api` (empty cache)",
+        );
+        group.bench_function("insert_and_inc", |b| {
+            b.iter(|| empty_cache::insert_and_inc())
         });
-        group.bench_function("insert_if_nonexistent_entry_api", |b| {
-            b.iter(|| empty_cache::insert_if_nonexistent_entry_api())
+        group.bench_function("insert_and_inc_entry_api", |b| {
+            b.iter(|| empty_cache::insert_and_inc_entry_api())
+        });
+        group.finish();
+        Ok(())
+    })
+    .unwrap();
+}
+
+fn bench_remove(c: &mut Criterion) {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut group =
+            c.benchmark_group("Compare: `remove` and `remove_entry_api` (empty cache)");
+        group.bench_function("remove", |b| b.iter(|| empty_cache::remove()));
+        group.bench_function("remove_entry_api", |b| {
+            b.iter(|| empty_cache::remove_entry_api())
         });
         group.finish();
         Ok(())
