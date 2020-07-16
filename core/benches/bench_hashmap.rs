@@ -44,7 +44,7 @@ fn test_values() -> Vec<(i32, i32)> {
     v
 }
 
-/// Creates a storage stash from the given slice.
+/// Creates a `StorageHashMap` from the given slice.
 fn hashmap_from_slice(slice: &[(i32, i32)]) -> StorageHashMap<i32, i32> {
     slice.iter().copied().collect::<StorageHashMap<i32, i32>>()
 }
@@ -55,14 +55,14 @@ fn key_ptr() -> KeyPtr {
     KeyPtr::from(root_key)
 }
 
-/// Creates a storage stash and pushes it to the contract storage.
+/// Creates a `StorageHashMap` and pushes it to the contract storage.
 fn push_storage_hashmap() {
     let test_values = test_values();
-    let stash = hashmap_from_slice(&test_values[..]);
-    SpreadLayout::push_spread(&stash, &mut key_ptr());
+    let hmap = hashmap_from_slice(&test_values[..]);
+    SpreadLayout::push_spread(&hmap, &mut key_ptr());
 }
 
-/// Pulls a lazily loading storage stash instance from the contract storage.
+/// Pulls a lazily loading `StorageHashMap` instance from the contract storage.
 fn pull_storage_hashmap() -> StorageHashMap<i32, i32> {
     <StorageHashMap<i32, i32> as SpreadLayout>::pull_spread(&mut key_ptr())
 }
@@ -110,7 +110,7 @@ fn bench_insert_populated_cache(c: &mut Criterion) {
 mod empty_cache {
     use super::*;
 
-    /// In this case we lazily load the stash from storage using `pull_spread`.
+    /// In this case we lazily load the map from storage using `pull_spread`.
     /// This will just load lazily and won't pull anything from the storage.
     pub fn insert_if_nonexistent() {
         push_storage_hashmap();
@@ -125,7 +125,7 @@ mod empty_cache {
         }
     }
 
-    /// In this case we lazily load the stash from storage using `pull_spread`.
+    /// In this case we lazily load the map from storage using `pull_spread`.
     /// This will just load lazily and won't pull anything from the storage.
     /// `take` will then result in loading from storage.
     pub fn insert_if_nonexistent_entry_api() {
@@ -140,9 +140,6 @@ mod empty_cache {
     }
 }
 
-/// In this case we lazily instantiate a `StorageStash` by first `create_and_store`-ing
-/// into the contract storage. We then load the stash from storage lazily in each
-/// benchmark iteration.
 fn bench_insert(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut group =
