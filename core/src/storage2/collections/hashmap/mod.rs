@@ -549,7 +549,7 @@ where
         &self
             .base
             .get(&self.key)
-            .expect("OccupiedEntry must always exist")
+            .expect("entry behind `OccupiedEntry` must always exist")
     }
 
     /// Gets a mutable reference to the value in the entry.
@@ -559,7 +559,7 @@ where
     pub fn get_mut(&mut self) -> &mut V {
         self.base
             .get_mut(&self.key)
-            .expect("OccupiedEntry must always exist")
+            .expect("entry behind `OccupiedEntry` must always exist")
     }
 
     /// Sets the value of the entry, and returns the entry's old value.
@@ -568,7 +568,7 @@ where
             .base
             .values
             .get_mut(&self.key)
-            .expect("OccupiedEntry must always exist");
+            .expect("entry behind `OccupiedEntry` must always exist");
         core::mem::replace(&mut occupied.value, new_value)
     }
 
@@ -582,6 +582,6 @@ where
     pub fn into_mut(self) -> &'a mut V {
         self.base
             .get_mut(&self.key)
-            .expect("OccupiedEntry must always exist")
+            .expect("entry behind `OccupiedEntry` must always exist")
     }
 }
