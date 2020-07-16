@@ -99,8 +99,14 @@ impl<T> BinaryHeap<T>
 where
     T: PackedLayout,
 {
-    /// Appends an element to the back of the vector.
-    pub fn push(&mut self, _value: T) {
-        todo!()
+    /// Pushes the given element to the binary heap.
+    pub fn push(&mut self, value: T) {
+        assert!(
+            self.len() < core::u32::MAX,
+            "cannot push more elements into the storage vector"
+        );
+        let last_index = self.len();
+        *self.len += 1;
+        self.elems.put(last_index, Some(value))
     }
 }
