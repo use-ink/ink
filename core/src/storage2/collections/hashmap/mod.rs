@@ -392,12 +392,7 @@ where
                     base: self,
                 })
             }
-            None => {
-                Entry::Vacant(VacantEntry {
-                    key,
-                    base: self,
-                })
-            }
+            None => Entry::Vacant(VacantEntry { key, base: self }),
         }
     }
 }
@@ -455,7 +450,7 @@ where
     {
         match self {
             Entry::Occupied(entry) => entry.into_value(),
-            Entry::Vacant(entry) => Entry::insert(default(&entry.key), entry)
+            Entry::Vacant(entry) => Entry::insert(default(&entry.key), entry),
         }
     }
 
@@ -512,7 +507,9 @@ where
         self.base
             .values
             .put(self.key.clone(), Some(ValueEntry { value, key_index }));
-        self.base.get_mut(&self.key).unwrap()
+        self.base
+            .get_mut(&self.key)
+            .expect("put was just executed; qed")
     }
 }
 
@@ -530,14 +527,20 @@ where
 
     /// Take the ownership of the key and value from the map.
     pub fn remove_entry(self) -> (K, V) {
-        let v = self.base.take(&self.key).unwrap();
+        let v = self
+            .base
+            .take(&self.key)
+            .expect("OccupiedEntry must always exist");
         let k = self.key;
         (k, v)
     }
 
     /// Gets a reference to the value in the entry.
     pub fn get(&self) -> &V {
-        &self.base.get(&self.key).unwrap()
+        &self
+            .base
+            .get(&self.key)
+            .expect("OccupiedEntry must always exist")
     }
 
     /// Gets a mutable reference to the value in the entry.
@@ -545,29 +548,41 @@ where
     /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
     /// `Entry` value, see `into_mut`.
     pub fn get_mut(&mut self) -> &mut V {
-        self.base.get_mut(&self.key).unwrap()
+        self.base
+            .get_mut(&self.key)
+            .expect("OccupiedEntry must always exist")
     }
 
     /// Sets the value of the entry, and returns the entry's old value.
     pub fn insert(&mut self, new_value: V) -> V {
-        let occupied = self.base.values.get_mut(&self.key).unwrap();
+        let occupied = self
+            .base
+            .values
+            .get_mut(&self.key)
+            .expect("OccupiedEntry must always exist");
         core::mem::replace(&mut occupied.value, new_value)
     }
 
     /// Takes the value out of the entry, and returns it.
     pub fn remove(self) -> V {
-        self.base.take(&self.key).unwrap()
+        self.base
+            .take(&self.key)
+            .expect("OccupiedEntry must always exist")
     }
 
     /// Converts the OccupiedEntry into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
-        self.base.get_mut(&self.key).unwrap()
+        self.base
+            .get_mut(&self.key)
+            .expect("OccupiedEntry must always exist")
     }
 
     /// Converts the OccupiedEntry into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_value(self) -> &'a mut V {
-        self.base.get_mut(&self.key).unwrap()
+        self.base
+            .get_mut(&self.key)
+            .expect("OccupiedEntry must always exist")
     }
 }
