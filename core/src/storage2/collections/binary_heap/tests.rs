@@ -14,20 +14,30 @@
 
 use super::BinaryHeap;
 
+// fn new_heap<I, T>(elems: I) -> BinaryHeap<T>
+// where
+//     I: IntoIterator<Item = T>,
+//     T: Clone + PackedLayout
+// {
+//     elems.into_iter().cloned().collect::<BinaryHeap<_>>()
+// }
+
 #[test]
 fn new_binary_heap_works() {
     // `BinaryHeap::new`
-    let heap = <BinaryHeap<i32>>::new();
+    let mut heap = <BinaryHeap<i32>>::new();
     assert!(heap.is_empty());
     assert_eq!(heap.len(), 0);
-    assert_eq!(heap.peek(), None);
     assert!(heap.iter().next().is_none());
+    assert_eq!(heap.peek(), None);
+    assert_eq!(heap.pop(), None);
     // `BinaryHeap::default`
-    let default = <BinaryHeap<i32> as Default>::default();
+    let mut default = <BinaryHeap<i32> as Default>::default();
     assert!(default.is_empty());
     assert_eq!(default.len(), 0);
-    assert_eq!(heap.peek(), None);
     assert!(default.iter().next().is_none());
+    assert_eq!(default.peek(), None);
+    assert_eq!(default.pop(), None);
     // `BinaryHeap::new` and `BinaryHeap::default` should be equal.
     assert_eq!(heap, default);
 }
@@ -53,9 +63,40 @@ fn from_empty_iterator_works() {
 }
 
 #[test]
+fn pop_returns_greatest_element() {
+    let mut heap = <BinaryHeap<i32>>::new();
+
+    // push in order
+    heap.push(1);
+    heap.push(2);
+
+    assert_eq!(heap.pop(), Some(2));
+    assert_eq!(heap.pop(), Some(1));
+    assert!(heap.is_empty());
+
+    // push out of order
+    heap.push(2);
+    heap.push(1);
+
+    assert_eq!(heap.pop(), Some(2));
+    assert_eq!(heap.pop(), Some(1));
+    assert!(heap.is_empty());
+}
+
+#[test]
 fn peek_works() {
     let mut heap = <BinaryHeap<i32>>::new();
     heap.push(33);
 
     assert_eq!(heap.peek(), Some(&33));
 }
+
+// not sure we should have peek_mut, because it could violate the heap property?
+// #[test]
+// fn peek_mut_works() {
+//     let mut heap = <BinaryHeap<i32>>::new();
+//     heap.push(33);
+//
+//     let elem = heap.peek_mut().unwrap();
+//     assert_eq!(heap.peek(), Some(&33));
+// }

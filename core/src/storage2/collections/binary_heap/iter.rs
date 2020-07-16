@@ -23,7 +23,7 @@ use crate::{
 #[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
     /// The storage vector to iterate over.
     heap: &'a BinaryHeap<T>,
@@ -35,7 +35,7 @@ where
 
 impl<'a, T> Iter<'a, T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given storage vector.
     pub(crate) fn new(heap: &'a BinaryHeap<T>) -> Self {
@@ -54,7 +54,7 @@ where
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
     type Item = &'a T;
 

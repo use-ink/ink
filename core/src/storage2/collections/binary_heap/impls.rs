@@ -26,7 +26,7 @@ use core::{
 
 impl<T> Default for BinaryHeap<T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
     fn default() -> Self {
         Self::new()
@@ -35,7 +35,7 @@ where
 
 impl<T> Extend<T> for BinaryHeap<T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
     fn extend<I>(&mut self, iter: I)
         where
@@ -48,8 +48,8 @@ where
 }
 
 impl<T> FromIterator<T> for BinaryHeap<T>
-    where
-        T: PackedLayout,
+where
+    T: PackedLayout + Ord,
 {
     fn from_iter<I>(iter: I) -> Self
         where
@@ -63,7 +63,7 @@ impl<T> FromIterator<T> for BinaryHeap<T>
 
 impl<T> PartialEq for BinaryHeap<T>
 where
-    T: PartialEq + PackedLayout,
+    T: PartialEq + PackedLayout + Ord,
 {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
@@ -73,4 +73,4 @@ where
     }
 }
 
-impl<T> Eq for BinaryHeap<T> where T: Eq + PackedLayout {}
+impl<T> Eq for BinaryHeap<T> where T: Eq + PackedLayout + Ord {}

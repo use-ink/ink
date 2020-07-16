@@ -41,7 +41,7 @@ use crate::storage2::{
 #[derive(Debug)]
 pub struct BinaryHeap<T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
     /// The length of the vector.
     len: Lazy<u32>,
@@ -51,7 +51,7 @@ where
 
 impl<T> BinaryHeap<T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
     /// Creates a new empty storage heap.
     pub fn new() -> Self {
@@ -74,7 +74,7 @@ where
 
 impl<T> BinaryHeap<T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
     /// Returns an iterator yielding shared references to all elements of the heap.
     ///
@@ -93,20 +93,46 @@ where
     pub fn peek(&self) -> Option<&T> {
         self.elems.get(0)
     }
+
+    /// Pops greatest element from the heap and returns it
+    ///
+    /// Returns `None` if the heap is empty
+    pub fn pop(&mut self) -> Option<T> {
+        self.elems.put_get(0, None)
+    }
 }
 
 impl<T> BinaryHeap<T>
 where
-    T: PackedLayout,
+    T: PackedLayout + Ord,
 {
+    // todo: optimize!
+    fn bubble_up(&mut self, index: u32) {
+        let parent_index = index.saturating_sub(1) / 2;
+        let parent = self.elems.get(parent_index)
+            .expect("parent must exist in fully compacted sequence of elements");
+        let child = self.elems.get(index)
+            .expect("child must exist, either just inserted or a previous parent");
+
+        if child > parent {
+            self.elems.swap(parent_index, index);
+            self.bubble_up(parent_index);
+        }
+    }
+
     /// Pushes the given element to the binary heap.
     pub fn push(&mut self, value: T) {
+        let index = self.len();
         assert!(
-            self.len() < core::u32::MAX,
-            "cannot push more elements into the storage vector"
+            index < core::u32::MAX,
+            "cannot push more elements into the heap"
         );
-        let last_index = self.len();
         *self.len += 1;
-        self.elems.put(last_index, Some(value))
+
+        self.elems.put(index, Some(value));
+
+        if index > 0 {
+            self.bubble_up(index)
+        }
     }
 }
