@@ -389,11 +389,10 @@ where
     pub fn entry(&'_ mut self, key: K) -> Entry<'_, K, V, H> {
         let v = self.values.get(&key);
         match v {
-            Some(_) => {
-                let occupied = self.values.get(&key).unwrap();
+            Some(entry) => {
                 Entry::Occupied(OccupiedEntry {
                     key,
-                    key_index: occupied.key_index,
+                    key_index: entry.key_index,
                     base: self,
                 })
             }
