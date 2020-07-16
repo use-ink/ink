@@ -109,8 +109,11 @@ where
     H: Hasher,
     Key: From<<H as Hasher>::Output>,
 {
+    /// A reference to the used `HashMap` instance.
     base: &'a mut HashMap<K, V, H>,
+    /// The index of the key associated with this value.
     key_index: KeyIndex,
+    /// The key stored in this entry.
     key: K,
 }
 
@@ -122,7 +125,9 @@ where
     H: Hasher,
     Key: From<<H as Hasher>::Output>,
 {
+    /// A reference to the used `HashMap` instance.
     base: &'a mut HashMap<K, V, H>,
+    /// The key stored in this entry.
     key: K,
 }
 
@@ -436,7 +441,7 @@ where
         F: FnOnce() -> V,
     {
         match self {
-            Entry::Occupied(entry) => entry.into_value(),
+            Entry::Occupied(entry) => entry.into_mut(),
             Entry::Vacant(entry) => Entry::insert(default(), entry),
         }
     }
@@ -449,7 +454,7 @@ where
         F: FnOnce(&K) -> V,
     {
         match self {
-            Entry::Occupied(entry) => entry.into_value(),
+            Entry::Occupied(entry) => entry.into_mut(),
             Entry::Vacant(entry) => Entry::insert(default(&entry.key), entry),
         }
     }
@@ -478,7 +483,7 @@ where
         debug_assert_eq!(old_value, None);
         match entry.base.entry(entry.key) {
             Entry::Vacant(_) => unreachable!("entry was just inserted; qed"),
-            Entry::Occupied(entry) => entry.into_value(),
+            Entry::Occupied(entry) => entry.into_mut(),
         }
     }
 }
@@ -527,12 +532,16 @@ where
 
     /// Take the ownership of the key and value from the map.
     pub fn remove_entry(self) -> (K, V) {
-        let v = self
+        let entry = self
             .base
-            .take(&self.key)
-            .expect("OccupiedEntry must always exist");
-        let k = self.key;
-        (k, v)
+            .values
+            .put_get(&self.key, None)
+            .expect("`key` must exist");
+        self.base
+            .keys
+            .take(self.key_index)
+            .expect("`key_index` must point to a valid key entry");
+        (self.key, entry.value)
     }
 
     /// Gets a reference to the value in the entry.
@@ -565,22 +574,12 @@ where
 
     /// Takes the value out of the entry, and returns it.
     pub fn remove(self) -> V {
-        self.base
-            .take(&self.key)
-            .expect("OccupiedEntry must always exist")
+        self.remove_entry().1
     }
 
     /// Converts the OccupiedEntry into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
-        self.base
-            .get_mut(&self.key)
-            .expect("OccupiedEntry must always exist")
-    }
-
-    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
-    /// with a lifetime bound to the map itself.
-    pub fn into_value(self) -> &'a mut V {
         self.base
             .get_mut(&self.key)
             .expect("OccupiedEntry must always exist")
