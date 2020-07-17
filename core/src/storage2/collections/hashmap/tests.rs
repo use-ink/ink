@@ -358,7 +358,7 @@ fn spread_layout_clear_works() {
 }
 
 #[test]
-fn entry_api_works_with_empty() {
+fn entry_api_insert_inexistent_works_with_empty() {
     // given
     let mut hmap = <StorageHashMap<i32, bool>>::new();
     match hmap.entry(0) {
@@ -376,12 +376,20 @@ fn entry_api_works_with_empty() {
 }
 
 #[test]
-fn entry_api_works_with_filled() {
+fn entry_api_insert_existent_works() {
+    // given
     let mut hmap = prefilled_hmap();
     match hmap.entry(b'A') {
         Vacant(_) => panic!(),
-        Occupied(_) => {}
+        Occupied(o) => assert_eq!(o.get(), &13),
     }
+
+    // when
+    hmap.entry(b'A').or_insert(77);
+
+    // then
+    assert_eq!(hmap.get(&b'A'), Some(&13));
+    assert_eq!(hmap.len(), 2);
 }
 
 #[test]
@@ -404,58 +412,6 @@ fn entry_api_mutations_work_with_push_pull() -> env::Result<()> {
         assert_eq!(hmap3.get(&b'A'), Some(&14));
         Ok(())
     })
-}
-
-#[test]
-fn entry_api_insert_mutate_remove_ops_work() {
-    let test_values = [(1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60)];
-    let mut hmap = test_values
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
-
-    // Existing key (insert)
-    match hmap.entry(1) {
-        Vacant(_) => panic!(),
-        Occupied(mut view) => {
-            assert_eq!(view.get(), &10);
-            assert_eq!(view.insert(100), 10);
-        }
-    }
-    assert_eq!(hmap.get(&1).unwrap(), &100);
-    assert_eq!(hmap.len(), 6);
-
-    // Existing key (update)
-    match hmap.entry(2) {
-        Vacant(_) => panic!(),
-        Occupied(mut view) => {
-            let v = view.get_mut();
-            let new_v = (*v) * 10;
-            *v = new_v;
-        }
-    }
-    assert_eq!(hmap.get(&2).unwrap(), &200);
-    assert_eq!(hmap.len(), 6);
-
-    // Existing key (take)
-    match hmap.entry(3) {
-        Vacant(_) => panic!(),
-        Occupied(view) => {
-            assert_eq!(view.remove(), 30);
-        }
-    }
-    assert_eq!(hmap.get(&3), None);
-    assert_eq!(hmap.len(), 5);
-
-    // Inexistent key (insert)
-    match hmap.entry(10) {
-        Occupied(_) => panic!(),
-        Vacant(view) => {
-            assert_eq!(*view.insert(1000), 1000);
-        }
-    }
-    assert_eq!(hmap.get(&10).unwrap(), &1000);
-    assert_eq!(hmap.len(), 6);
 }
 
 #[test]
