@@ -83,20 +83,53 @@ fn pull_storage_hashmap() -> StorageHashMap<i32, i32> {
     <StorageHashMap<i32, i32> as SpreadLayout>::pull_spread(&mut key_ptr())
 }
 
+fn bench_insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
+    for key in 0..ENTRIES * 2 {
+        black_box({
+            if !hmap.contains_key(&key) {
+                hmap.insert(key, key);
+            }
+            *hmap.get_mut(&key).unwrap() += 1;
+        });
+    }
+}
+
+fn bench_insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
+    for key in 0..ENTRIES * 2 {
+        black_box({
+            let v = hmap.entry(key).or_insert(key);
+            *v += 1;
+        });
+    }
+}
+
+fn bench_removal(hmap: &mut StorageHashMap<i32, i32>) {
+    for key in 0..ENTRIES {
+        black_box({
+            if hmap.contains_key(&key) {
+                let _ = hmap.take(&key);
+            }
+        });
+    }
+}
+
+fn bench_removal_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
+    for key in 0..ENTRIES * 2 {
+        black_box({
+            if let Entry::Occupied(o) = hmap.entry(key) {
+                o.remove();
+            }
+        });
+    }
+}
+
 mod populated_cache {
     use super::*;
 
     /// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
     /// is inserted. In either case it is incremented afterwards.
     pub fn insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
-        for key in 0..ENTRIES * 2 {
-            black_box({
-                if !hmap.contains_key(&key) {
-                    hmap.insert(key, key);
-                }
-                *hmap.get_mut(&key).unwrap() += 1;
-            });
-        }
+        bench_insert_and_inc(hmap);
     }
 
     /// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
@@ -104,24 +137,13 @@ mod populated_cache {
     ///
     /// Uses the Entry API.
     pub fn insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
-        for key in 0..ENTRIES * 2 {
-            black_box({
-                let v = hmap.entry(key).or_insert(key);
-                *v += 1;
-            });
-        }
+        bench_insert_and_inc_entry_api(hmap);
     }
 
     /// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
     /// is taken out.
     pub fn remove(hmap: &mut StorageHashMap<i32, i32>) {
-        for key in 0..ENTRIES * 2 {
-            black_box({
-                if hmap.contains_key(&key) {
-                    let _ = hmap.take(&key);
-                }
-            });
-        }
+        bench_removal(hmap);
     }
 
     /// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
@@ -129,13 +151,7 @@ mod populated_cache {
     ///
     /// Uses the Entry API.
     pub fn remove_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
-        for key in 0..ENTRIES * 2 {
-            black_box({
-                if let Entry::Occupied(o) = hmap.entry(key) {
-                    o.remove();
-                }
-            });
-        }
+        bench_removal_entry_api(hmap);
     }
 }
 
@@ -191,37 +207,19 @@ mod empty_cache {
     /// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
     /// is inserted. In either case it is incremented afterwards.
     pub fn insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
-        for key in 0..ENTRIES * 2 {
-            black_box({
-                if !hmap.contains_key(&key) {
-                    hmap.insert(key, key);
-                }
-                *hmap.get_mut(&key).unwrap() += 1;
-            });
-        }
+        bench_insert_and_inc(hmap);
     }
 
     /// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
     /// is inserted. In either case it is incremented afterwards.
     pub fn insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
-        for key in 0..ENTRIES * 2 {
-            black_box({
-                let v = hmap.entry(key).or_insert(key);
-                *v += 1;
-            });
-        }
+        bench_insert_and_inc_entry_api(hmap);
     }
 
     /// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
     /// is taken out.
     pub fn remove(hmap: &mut StorageHashMap<i32, i32>) {
-        for key in 0..ENTRIES {
-            black_box({
-                if hmap.contains_key(&key) {
-                    let _ = hmap.take(&key);
-                }
-            });
-        }
+        bench_removal(hmap);
     }
 
     /// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
@@ -229,13 +227,7 @@ mod empty_cache {
     ///
     /// Uses the Entry API.
     pub fn remove_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
-        for key in 0..ENTRIES {
-            black_box({
-                if let Entry::Occupied(o) = hmap.entry(key) {
-                    o.remove();
-                }
-            });
-        }
+        bench_removal_entry_api(hmap);
     }
 }
 
