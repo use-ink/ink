@@ -85,41 +85,33 @@ fn pull_storage_hashmap() -> StorageHashMap<i32, i32> {
 
 fn bench_insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
     for key in 0..ENTRIES * 2 {
-        black_box({
-            if !hmap.contains_key(&key) {
-                hmap.insert(key, key);
-            }
-            *hmap.get_mut(&key).unwrap() += 1;
-        });
+        if !black_box(hmap.contains_key(&key)) {
+            black_box(hmap.insert(key, key));
+        }
+        *black_box(hmap.get_mut(&key)).unwrap() += 1;
     }
 }
 
 fn bench_insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
     for key in 0..ENTRIES * 2 {
-        black_box({
-            let v = hmap.entry(key).or_insert(key);
-            *v += 1;
-        });
+        let v = black_box(hmap.entry(key).or_insert(key));
+        *v += 1;
     }
 }
 
 fn bench_removal(hmap: &mut StorageHashMap<i32, i32>) {
-        black_box({
-            if hmap.contains_key(&key) {
-                let _ = hmap.take(&key);
-            }
-        });
     for key in 0..ENTRIES * 2 {
+        if black_box(hmap.contains_key(&key)) {
+            let _ = black_box(hmap.take(&key));
+        }
     }
 }
 
 fn bench_removal_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
     for key in 0..ENTRIES * 2 {
-        black_box({
-            if let Entry::Occupied(o) = hmap.entry(key) {
-                o.remove();
-            }
-        });
+        if let Entry::Occupied(o) = black_box(hmap.entry(key)) {
+            o.remove();
+        }
     }
 }
 
