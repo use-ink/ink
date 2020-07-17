@@ -386,7 +386,7 @@ where
     }
 
     /// Gets the given key's corresponding entry in the map for in-place manipulation.
-    pub fn entry(&'_ mut self, key: K) -> Entry<'_, K, V, H> {
+    pub fn entry(&mut self, key: K) -> Entry<K, V, H> {
         let v = self.values.get(&key);
         match v {
             Some(entry) => {
@@ -409,7 +409,7 @@ where
     Key: From<<H as Hasher>::Output>,
 {
     /// Returns a reference to this entry's key.
-    pub fn key(&'a self) -> &'a K {
+    pub fn key(&self) -> &K {
         match self {
             Entry::Occupied(entry) => &entry.key,
             Entry::Vacant(entry) => &entry.key,

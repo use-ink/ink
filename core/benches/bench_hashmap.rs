@@ -49,11 +49,10 @@ const ENTRIES: i32 = 500;
 
 /// Returns some test values for use in benchmarks.
 fn test_values() -> Vec<(i32, i32)> {
-    let mut v = Vec::new();
-    for index in 0..ENTRIES {
-        v.push((index, index));
-    }
-    v
+    (0..ENTRIES)
+        .into_iter()
+        .map(|index| (index, index))
+        .collect::<Vec<_>>()
 }
 
 /// Creates a `StorageHashMap` from the given slice.

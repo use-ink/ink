@@ -29,6 +29,7 @@ use crate::{
     },
 };
 use ink_primitives::Key;
+use num_traits::ToPrimitive;
 
 /// Returns a prefilled `HashMap` with `[('A', 13), ['B', 23])`.
 fn prefilled_hmap() -> StorageHashMap<u8, i32> {
@@ -360,18 +361,15 @@ fn spread_layout_clear_works() {
 #[test]
 fn entry_api_insert_inexistent_works_with_empty() {
     // given
-    let mut hmap = <StorageHashMap<i32, bool>>::new();
-    match hmap.entry(0) {
-        Occupied(_) => panic!(),
-        Vacant(_) => {}
-    }
-    assert!(hmap.get(&0).is_none());
+    let mut hmap = <StorageHashMap<u8, bool>>::new();
+    assert!(matches!(hmap.entry(b'A'), Vacant(_)));
+    assert!(hmap.get(&b'A').is_none());
 
     // when
-    assert!(*hmap.entry(0).or_insert(true));
+    assert!(*hmap.entry(b'A').or_insert(true));
 
     // then
-    assert_eq!(hmap.get(&0), Some(&true));
+    assert_eq!(hmap.get(&b'A'), Some(&true));
     assert_eq!(hmap.len(), 1);
 }
 
@@ -397,7 +395,9 @@ fn entry_api_mutations_work_with_push_pull() -> env::Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let hmap1 = prefilled_hmap();
+        assert_eq!(hmap1.get(&b'A'), Some(&13));
         push_hmap(&hmap1);
+
         let mut hmap2 = pull_hmap();
         assert_eq!(hmap2.get(&b'A'), Some(&13));
 
@@ -420,39 +420,40 @@ fn entry_api_simple_insert_with_works() {
     let mut hmap = prefilled_hmap();
 
     // when
+    assert!(hmap.get(&b'C').is_none());
     let v = hmap.entry(b'C').or_insert_with(|| 42);
 
     // then
     assert_eq!(*v, 42);
-    assert_eq!(hmap.get(&b'C').unwrap(), &42);
+    assert_eq!(hmap.get(&b'C'), Some(&42));
     assert_eq!(hmap.len(), 3);
 }
 
 #[test]
 fn entry_api_simple_default_insert_works() {
     // given
-    let mut hmap = <StorageHashMap<i32, bool>>::new();
+    let mut hmap = <StorageHashMap<u8, bool>>::new();
 
     // when
-    let v = hmap.entry(1).or_default();
+    let v = hmap.entry(b'A').or_default();
 
     // then
     assert_eq!(*v, false);
-    assert_eq!(hmap.get(&1).unwrap(), &false);
+    assert_eq!(hmap.get(&b'A'), Some(&false));
 }
 
 #[test]
 fn entry_api_insert_with_works_with_mutations() {
     // given
-    let mut hmap = <StorageHashMap<i32, i32>>::new();
-    let v = hmap.entry(0).or_insert_with(|| 42);
+    let mut hmap = <StorageHashMap<u8, i32>>::new();
+    let v = hmap.entry(b'A').or_insert_with(|| 42);
     assert_eq!(*v, 42);
 
     // when
     *v += 1;
 
     // then
-    assert_eq!(hmap.get(&0).unwrap(), &43);
+    assert_eq!(hmap.get(&b'A'), Some(&43));
     assert_eq!(hmap.len(), 1);
 }
 
@@ -477,19 +478,21 @@ fn entry_api_insert_with_works_with_push_pull() -> env::Result<()> {
 #[test]
 fn entry_api_simple_insert_with_key_works() {
     // given
-    let mut hmap = <StorageHashMap<i32, i32>>::new();
+    let mut hmap = <StorageHashMap<u8, i32>>::new();
 
     // when
-    let _ = hmap.entry(2).or_insert_with_key(|key| key * 2);
+    let _ = hmap
+        .entry(b'A')
+        .or_insert_with_key(|key| key.to_i32().unwrap() * 2);
 
     // then
-    assert_eq!(hmap.get(&2).unwrap(), &4);
+    assert_eq!(hmap.get(&b'A'), Some(&130));
 }
 
 #[test]
 fn entry_api_key_get_works_with_nonexistent() {
-    let mut hmap = <StorageHashMap<i32, i32>>::new();
-    assert_eq!(hmap.entry(0).key(), &0);
+    let mut hmap = <StorageHashMap<u8, i32>>::new();
+    assert_eq!(hmap.entry(b'A').key(), &b'A');
 }
 
 #[test]
@@ -517,6 +520,7 @@ fn entry_api_and_modify_works_for_existent() {
     let mut hmap = prefilled_hmap();
 
     // when
+    assert_eq!(hmap.get(&b'B'), Some(&23));
     hmap.entry(b'B').and_modify(|e| *e += 1).or_insert(7);
 
     // then
@@ -528,6 +532,7 @@ fn entry_api_occupied_entry_api_works_with_push_pull() -> env::Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         // given
         let mut hmap1 = prefilled_hmap();
+        assert_eq!(hmap1.get(&b'A'), Some(&13));
         match hmap1.entry(b'A') {
             Entry::Occupied(mut o) => {
                 assert_eq!(o.key(), &b'A');
@@ -558,12 +563,12 @@ fn entry_api_occupied_entry_api_works_with_push_pull() -> env::Result<()> {
 
 #[test]
 fn entry_api_vacant_api_works() {
-    let mut hmap = <StorageHashMap<i32, i32>>::new();
-    match hmap.entry(0) {
+    let mut hmap = <StorageHashMap<u8, i32>>::new();
+    match hmap.entry(b'A') {
         Entry::Occupied(_) => panic!(),
         Entry::Vacant(v) => {
-            assert_eq!(v.key(), &0);
-            assert_eq!(v.into_key(), 0);
+            assert_eq!(v.key(), &b'A');
+            assert_eq!(v.into_key(), b'A');
         }
     }
 }
