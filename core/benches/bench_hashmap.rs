@@ -104,12 +104,12 @@ fn bench_insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
 }
 
 fn bench_removal(hmap: &mut StorageHashMap<i32, i32>) {
-    for key in 0..ENTRIES {
         black_box({
             if hmap.contains_key(&key) {
                 let _ = hmap.take(&key);
             }
         });
+    for key in 0..ENTRIES * 2 {
     }
 }
 
