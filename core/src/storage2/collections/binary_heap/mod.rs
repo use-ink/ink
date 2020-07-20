@@ -114,6 +114,7 @@ where
             if self.elems.get(pos) >= self.elems.get(child) {
                 break;
             }
+            self.elems.swap(child, pos);
             pos = child;
             child = 2 * pos + 1;
         }

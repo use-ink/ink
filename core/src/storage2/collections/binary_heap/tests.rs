@@ -69,15 +69,19 @@ fn pop_returns_greatest_element() {
     // push in order
     heap.push(1);
     heap.push(2);
+    heap.push(3);
 
+    assert_eq!(heap.pop(), Some(3));
     assert_eq!(heap.pop(), Some(2));
     assert_eq!(heap.pop(), Some(1));
     assert!(heap.is_empty());
 
     // push out of order
+    heap.push(3);
     heap.push(2);
     heap.push(1);
 
+    assert_eq!(heap.pop(), Some(3));
     assert_eq!(heap.pop(), Some(2));
     assert_eq!(heap.pop(), Some(1));
     assert!(heap.is_empty());
