@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::storage2::traits::PackedLayout;
 use super::BinaryHeap;
 
-// fn new_heap<I, T>(elems: I) -> BinaryHeap<T>
-// where
-//     I: IntoIterator<Item = T>,
-//     T: Clone + PackedLayout
-// {
-//     elems.into_iter().cloned().collect::<BinaryHeap<_>>()
-// }
+fn heap_from_slice<T>(slice: &[T]) -> BinaryHeap<T>
+where
+    T: Clone + PackedLayout + Ord
+{
+    slice.iter().copied().collect()
+}
 
 #[test]
 fn new_binary_heap_works() {
@@ -67,20 +67,18 @@ fn pop_returns_greatest_element() {
     let mut heap = <BinaryHeap<i32>>::new();
 
     // push in order
-    heap.push(1);
-    heap.push(2);
-    heap.push(3);
+    let mut heap = heap_from_slice(&[1, 2, 3]);
 
+    assert_eq!(heap.len(), 3);
     assert_eq!(heap.pop(), Some(3));
     assert_eq!(heap.pop(), Some(2));
     assert_eq!(heap.pop(), Some(1));
     assert!(heap.is_empty());
 
     // push out of order
-    heap.push(3);
-    heap.push(2);
-    heap.push(1);
+    let mut heap = heap_from_slice(&[3, 2, 1]);
 
+    assert_eq!(heap.len(), 3);
     assert_eq!(heap.pop(), Some(3));
     assert_eq!(heap.pop(), Some(2));
     assert_eq!(heap.pop(), Some(1));
