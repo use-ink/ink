@@ -89,3 +89,7 @@ harness = false
 [[bench]]
 name = "bench_bitstash"
 harness = false
+
+[[bench]]
+name = "bench_hashmap"
+harness = false
