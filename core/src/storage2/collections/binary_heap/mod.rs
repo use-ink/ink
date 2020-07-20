@@ -135,20 +135,14 @@ where
     T: PackedLayout + Ord,
 {
     // todo: optimize!
-    fn sift_up(&mut self, index: u32) {
-        assert!(
-            index > 0,
-            "cannot bubble up the root element"
-        );
-        let parent_index = (index - 1) / 2;
-        let parent = self.elems.get(parent_index)
-            .expect("parent must exist in fully compacted sequence of elements");
-        let child = self.elems.get(index)
-            .expect("child must exist, either just inserted or a previous parent");
-
-        if child > parent {
-            self.elems.swap(parent_index, index);
-            self.sift_up(parent_index);
+    fn sift_up(&mut self, mut pos: u32) {
+        while pos > 0 {
+            let parent = (pos - 1) / 2;
+            if self.elems.get(pos) <= self.elems.get(parent) {
+                break;
+            }
+            self.elems.swap(parent, pos);
+            pos = parent;
         }
     }
 
