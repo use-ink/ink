@@ -40,7 +40,11 @@ criterion_group!(
     bench_insert_populated_cache,
     bench_remove_populated_cache,
 );
-criterion_group!(empty_cache, bench_insert, bench_remove,);
+criterion_group!(
+    empty_cache,
+    bench_insert_empty_cache,
+    bench_remove_empty_cache,
+);
 criterion_main!(populated_cache, empty_cache,);
 
 /// The number of `ENTIRES` denotes how many test values are put into
@@ -83,7 +87,9 @@ fn pull_storage_hashmap() -> StorageHashMap<i32, i32> {
     <StorageHashMap<i32, i32> as SpreadLayout>::pull_spread(&mut key_ptr())
 }
 
-fn bench_insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
+/// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
+/// is inserted. In either case it is incremented afterwards.
+fn insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
     for key in 0..ENTRIES * 2 {
         if !black_box(hmap.contains_key(&key)) {
             black_box(hmap.insert(key, key));
@@ -92,14 +98,20 @@ fn bench_insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
     }
 }
 
-fn bench_insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
+/// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
+/// is inserted. In either case it is incremented afterwards.
+///
+/// Uses the Entry API.
+fn insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
     for key in 0..ENTRIES * 2 {
         let v = black_box(hmap.entry(key).or_insert(key));
         *v += 1;
     }
 }
 
-fn bench_removal(hmap: &mut StorageHashMap<i32, i32>) {
+/// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
+/// is taken out.
+fn remove(hmap: &mut StorageHashMap<i32, i32>) {
     for key in 0..ENTRIES * 2 {
         if black_box(hmap.contains_key(&key)) {
             let _ = black_box(hmap.take(&key));
@@ -107,43 +119,15 @@ fn bench_removal(hmap: &mut StorageHashMap<i32, i32>) {
     }
 }
 
-fn bench_removal_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
+/// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
+/// is taken out.
+///
+/// Uses the Entry API.
+fn remove_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
     for key in 0..ENTRIES * 2 {
         if let Entry::Occupied(o) = black_box(hmap.entry(key)) {
             o.remove();
         }
-    }
-}
-
-mod populated_cache {
-    use super::*;
-
-    /// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
-    /// is inserted. In either case it is incremented afterwards.
-    pub fn insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
-        bench_insert_and_inc(hmap);
-    }
-
-    /// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
-    /// is inserted. In either case it is incremented afterwards.
-    ///
-    /// Uses the Entry API.
-    pub fn insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
-        bench_insert_and_inc_entry_api(hmap);
-    }
-
-    /// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
-    /// is taken out.
-    pub fn remove(hmap: &mut StorageHashMap<i32, i32>) {
-        bench_removal(hmap);
-    }
-
-    /// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
-    /// is taken out.
-    ///
-    /// Uses the Entry API.
-    pub fn remove_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
-        bench_removal_entry_api(hmap);
     }
 }
 
@@ -154,14 +138,14 @@ fn bench_insert_populated_cache(c: &mut Criterion) {
     group.bench_function("insert_and_inc", |b| {
         b.iter_batched_ref(
             || setup_hashmap(),
-            |hmap| populated_cache::insert_and_inc(hmap),
+            |hmap| insert_and_inc(hmap),
             BatchSize::SmallInput,
         )
     });
     group.bench_function("insert_and_inc_entry_api", |b| {
         b.iter_batched_ref(
             || setup_hashmap(),
-            |hmap| populated_cache::insert_and_inc_entry_api(hmap),
+            |hmap| insert_and_inc_entry_api(hmap),
             BatchSize::SmallInput,
         )
     });
@@ -176,14 +160,14 @@ fn bench_remove_populated_cache(c: &mut Criterion) {
         group.bench_function("remove", |b| {
             b.iter_batched_ref(
                 || setup_hashmap(),
-                |hmap| populated_cache::remove(hmap),
+                |hmap| remove(hmap),
                 BatchSize::SmallInput,
             )
         });
         group.bench_function("remove_entry_api", |b| {
             b.iter_batched_ref(
                 || setup_hashmap(),
-                |hmap| populated_cache::remove_entry_api(hmap),
+                |hmap| remove_entry_api(hmap),
                 BatchSize::SmallInput,
             )
         });
@@ -193,37 +177,7 @@ fn bench_remove_populated_cache(c: &mut Criterion) {
     .unwrap();
 }
 
-mod empty_cache {
-    use super::*;
-
-    /// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
-    /// is inserted. In either case it is incremented afterwards.
-    pub fn insert_and_inc(hmap: &mut StorageHashMap<i32, i32>) {
-        bench_insert_and_inc(hmap);
-    }
-
-    /// Iteratively checks if an entry is in the `StorageHashMap`. If not, it
-    /// is inserted. In either case it is incremented afterwards.
-    pub fn insert_and_inc_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
-        bench_insert_and_inc_entry_api(hmap);
-    }
-
-    /// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
-    /// is taken out.
-    pub fn remove(hmap: &mut StorageHashMap<i32, i32>) {
-        bench_removal(hmap);
-    }
-
-    /// Iteratively checks if an entry is in the `StorageHashMap`. If yes, it
-    /// is taken out.
-    ///
-    /// Uses the Entry API.
-    pub fn remove_entry_api(hmap: &mut StorageHashMap<i32, i32>) {
-        bench_removal_entry_api(hmap);
-    }
-}
-
-fn bench_insert(c: &mut Criterion) {
+fn bench_insert_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut group = c.benchmark_group(
             "Compare: `insert_and_inc` and `insert_and_inc_entry_api` (empty cache)",
@@ -234,7 +188,7 @@ fn bench_insert(c: &mut Criterion) {
                     push_storage_hashmap();
                     pull_storage_hashmap()
                 },
-                |hmap| empty_cache::insert_and_inc(hmap),
+                |hmap| insert_and_inc(hmap),
                 BatchSize::SmallInput,
             )
         });
@@ -244,7 +198,7 @@ fn bench_insert(c: &mut Criterion) {
                     push_storage_hashmap();
                     pull_storage_hashmap()
                 },
-                |hmap| empty_cache::insert_and_inc_entry_api(hmap),
+                |hmap| insert_and_inc_entry_api(hmap),
                 BatchSize::SmallInput,
             )
         });
@@ -254,7 +208,7 @@ fn bench_insert(c: &mut Criterion) {
     .unwrap();
 }
 
-fn bench_remove(c: &mut Criterion) {
+fn bench_remove_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut group =
             c.benchmark_group("Compare: `remove` and `remove_entry_api` (empty cache)");
@@ -264,7 +218,7 @@ fn bench_remove(c: &mut Criterion) {
                     push_storage_hashmap();
                     pull_storage_hashmap()
                 },
-                |hmap| empty_cache::remove(hmap),
+                |hmap| remove(hmap),
                 BatchSize::SmallInput,
             )
         });
@@ -274,7 +228,7 @@ fn bench_remove(c: &mut Criterion) {
                     push_storage_hashmap();
                     pull_storage_hashmap()
                 },
-                |hmap| empty_cache::remove_entry_api(hmap),
+                |hmap| remove_entry_api(hmap),
                 BatchSize::SmallInput,
             )
         });
