@@ -481,10 +481,10 @@ where
     fn insert(value: V, entry: VacantEntry<'a, K, V, H>) -> &'a mut V {
         let old_value = entry.base.insert(entry.key.clone(), value);
         debug_assert!(old_value.is_none());
-        match entry.base.entry(entry.key) {
-            Entry::Vacant(_) => unreachable!("entry was just inserted; qed"),
-            Entry::Occupied(entry) => entry.into_mut(),
-        }
+        entry
+            .base
+            .get_mut(&entry.key)
+            .expect("encountered invalid vacant entry")
     }
 }
 
