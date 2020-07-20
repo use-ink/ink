@@ -17,6 +17,7 @@
 //! todo: more module description (see original bit_stash and other collections)
 
 mod impls;
+mod storage;
 
 #[cfg(test)]
 mod tests;
