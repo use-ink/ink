@@ -129,6 +129,17 @@ where
         self.sift_down(0);
         elem
     }
+
+    /// Removes all elements from this heap.
+    ///
+    /// # Note
+    ///
+    /// Use this method to clear the vector instead of e.g. iterative `pop()`.
+    /// This method performs significantly better and does not actually read
+    /// any of the elements (whereas `pop()` does).
+    pub fn clear(&mut self) {
+        self.elems.clear()
+    }
 }
 
 impl<T> BinaryHeap<T>

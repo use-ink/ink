@@ -19,7 +19,7 @@ fn heap_from_slice<T>(slice: &[T]) -> BinaryHeap<T>
 where
     T: Clone + PackedLayout + Ord
 {
-    slice.iter().copied().collect()
+    slice.iter().cloned().collect()
 }
 
 #[test]
@@ -64,8 +64,6 @@ fn from_empty_iterator_works() {
 
 #[test]
 fn pop_returns_greatest_element() {
-    let mut heap = <BinaryHeap<i32>>::new();
-
     // push in order
     let mut heap = heap_from_slice(&[1, 2, 3]);
 
@@ -102,3 +100,17 @@ fn peek_works() {
 //     let elem = heap.peek_mut().unwrap();
 //     assert_eq!(heap.peek(), Some(&33));
 // }
+
+#[test]
+fn clear_works_on_filled_heap() {
+    let mut heap = heap_from_slice(&[b'a', b'b', b'c', b'd']);
+    heap.clear();
+    assert!(heap.is_empty());
+}
+
+#[test]
+fn clear_works_on_empty_heap() {
+    let mut heap = BinaryHeap::<u8>::default();
+    heap.clear();
+    assert!(heap.is_empty());
+}
