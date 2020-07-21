@@ -93,3 +93,7 @@ harness = false
 [[bench]]
 name = "bench_hashmap"
 harness = false
+
+[[bench]]
+name = "bench_binary_heap"
+harness = false
