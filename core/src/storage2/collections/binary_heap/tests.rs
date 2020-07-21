@@ -12,8 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage2::traits::PackedLayout;
 use super::BinaryHeap;
+use crate::{
+    env,
+    storage2::traits::{
+        KeyPtr,
+        PackedLayout,
+        SpreadLayout,
+    },
+};
+use ink_primitives::Key;
 
 fn heap_from_slice<T>(slice: &[T]) -> BinaryHeap<T>
 where
@@ -100,6 +108,42 @@ fn peek_works() {
 //     let elem = heap.peek_mut().unwrap();
 //     assert_eq!(heap.peek(), Some(&33));
 // }
+
+#[test]
+fn spread_layout_push_pull_works() -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let heap1 = heap_from_slice(&[b'a', b'b', b'c', b'd']);
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
+        // Load the pushed binary heap into another instance and check that
+        // both instances are equal:
+        let heap2 =
+            <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert_eq!(heap1, heap2);
+        Ok(())
+    })
+}
+
+#[test]
+#[should_panic(expected = "encountered empty storage cell")]
+fn spread_layout_clear_works() {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let heap1 = heap_from_slice(&[b'a', b'b', b'c', b'd']);
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
+        // It has already been asserted that a valid instance can be pulled
+        // from contract storage after a push to the same storage region.
+        //
+        // Now clear the associated storage from `heap1` and check whether
+        // loading another instance from this storage will panic since the
+        // heap's length property cannot read a value:
+        SpreadLayout::clear_spread(&heap1, &mut KeyPtr::from(root_key));
+        let _ =
+            <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        Ok(())
+    })
+    .unwrap()
+}
 
 #[test]
 fn clear_works_on_filled_heap() {
