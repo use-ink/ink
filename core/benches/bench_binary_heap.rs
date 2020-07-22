@@ -13,8 +13,10 @@
 // limitations under the License.
 
 use criterion::{
+    black_box,
     criterion_group,
     criterion_main,
+    BatchSize,
     BenchmarkId,
     Criterion,
 };
@@ -69,30 +71,34 @@ fn bench_push_empty_cache(c: &mut Criterion) {
             env::test::set_clear_storage_disabled(true);
 
             group.bench_with_input(
-                BenchmarkId::new("push largest value", size),
+                BenchmarkId::new("largest value", size),
                 &largest_value,
                 |b, &value| {
-                    b.iter(|| {
-                        let mut heap =
+                    b.iter_batched(
+                        || {
                             <BinaryHeap<u32> as SpreadLayout>::pull_spread(
                                 &mut KeyPtr::from(root_key),
-                            );
-                        heap.push(value)
-                    });
+                            )
+                        },
+                        |mut heap| heap.push(value),
+                        BatchSize::SmallInput,
+                    );
                 },
             );
 
             group.bench_with_input(
-                BenchmarkId::new("push smallest value", size),
+                BenchmarkId::new("smallest value", size),
                 &0,
                 |b, &value| {
-                    b.iter(|| {
-                        let mut heap =
+                    b.iter_batched(
+                        || {
                             <BinaryHeap<u32> as SpreadLayout>::pull_spread(
                                 &mut KeyPtr::from(root_key),
-                            );
-                        heap.push(value)
-                    });
+                            )
+                        },
+                        |mut heap| heap.push(value),
+                        BatchSize::SmallInput,
+                    );
                 },
             );
         }
