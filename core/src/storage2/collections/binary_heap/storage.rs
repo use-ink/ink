@@ -16,12 +16,12 @@
 
 use super::BinaryHeap;
 use crate::storage2::{
+    collections::Vec as StorageVec,
     traits::{
         KeyPtr,
         PackedLayout,
         SpreadLayout,
     },
-    collections::Vec as StorageVec,
 };
 
 #[cfg(feature = "std")]
@@ -39,12 +39,10 @@ const _: () = {
         T: PackedLayout + Ord + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
-                FieldLayout::new(
-                    "elems",
-                    <StorageVec<T> as StorageLayout>::layout(key_ptr),
-                ),
-            ]))
+            Layout::Struct(StructLayout::new(vec![FieldLayout::new(
+                "elems",
+                <StorageVec<T> as StorageLayout>::layout(key_ptr),
+            )]))
         }
     }
 };

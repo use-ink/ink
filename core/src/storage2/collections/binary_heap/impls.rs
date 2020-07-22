@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    BinaryHeap,
-};
+use super::BinaryHeap;
 use crate::storage2::traits::PackedLayout;
 use core::{
-    cmp::{PartialEq, Eq},
+    cmp::{
+        Eq,
+        PartialEq,
+    },
     iter::{
         Extend,
         FromIterator,
-    }
+    },
 };
 
 impl<T> Default for BinaryHeap<T>
@@ -38,8 +39,8 @@ where
     T: PackedLayout + Ord,
 {
     fn extend<I>(&mut self, iter: I)
-        where
-            I: IntoIterator<Item = T>,
+    where
+        I: IntoIterator<Item = T>,
     {
         for item in iter {
             self.push(item)
@@ -52,8 +53,8 @@ where
     T: PackedLayout + Ord,
 {
     fn from_iter<I>(iter: I) -> Self
-        where
-            I: IntoIterator<Item = T>,
+    where
+        I: IntoIterator<Item = T>,
     {
         let mut vec = Self::new();
         vec.extend(iter);

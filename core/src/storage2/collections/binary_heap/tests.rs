@@ -25,7 +25,7 @@ use ink_primitives::Key;
 
 fn heap_from_slice<T>(slice: &[T]) -> BinaryHeap<T>
 where
-    T: Clone + PackedLayout + Ord
+    T: Clone + PackedLayout + Ord,
 {
     slice.iter().cloned().collect()
 }
@@ -153,8 +153,11 @@ fn push_works_on_lazily_loaded_heap() {
         SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
         {
-            let mut heap1 =
-                std::mem::ManuallyDrop::new(<BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key)));
+            let mut heap1 = std::mem::ManuallyDrop::new(
+                <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                    root_key,
+                )),
+            );
             heap1.push(5);
         }
 
@@ -163,12 +166,14 @@ fn push_works_on_lazily_loaded_heap() {
         // heap1.push(5);
 
         {
-            let mut heap2 =
-                <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            let mut heap2 = <BinaryHeap<u8> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
             heap2.push(5);
         }
         Ok(())
-    }).unwrap()
+    })
+    .unwrap()
 }
 
 #[test]

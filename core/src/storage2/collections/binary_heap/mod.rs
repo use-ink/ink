@@ -22,12 +22,12 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
-use crate::storage2::traits::PackedLayout;
 use super::vec::{
-    Vec as StorageVec,
     Iter,
     IterMut,
+    Vec as StorageVec,
 };
+use crate::storage2::traits::PackedLayout;
 
 /// A binary heap type, providing `O(log(n))` push and pop operations.
 ///
@@ -113,7 +113,7 @@ where
             }
             // if we are already in order, stop.
             if self.elems.get(pos) >= self.elems.get(child) {
-                break;
+                break
             }
             self.elems.swap(child, pos);
             pos = child;
@@ -152,7 +152,7 @@ where
         while pos > 0 {
             let parent = (pos - 1) / 2;
             if self.elems.get(pos) <= self.elems.get(parent) {
-                break;
+                break
             }
             self.elems.swap(parent, pos);
             pos = parent;
