@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use criterion::{
-    criterion_group,
-    criterion_main,
-    BenchmarkId,
-    Criterion,
-};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use ink_core::{
     env,
     storage2::{
@@ -29,6 +24,7 @@ use ink_core::{
     },
 };
 use ink_primitives::Key;
+use std::mem::ManuallyDrop;
 
 criterion_group!(push, bench_push_empty_cache,);
 criterion_main!(push,);
@@ -54,38 +50,23 @@ fn binary_heap_from_slice(slice: &[u32]) -> BinaryHeap<u32> {
 fn bench_push_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut group = c.benchmark_group("push");
-        // for (key, size) in [(0u8, 8), (1, 16), (2, 32), (3, 64), (4, 128), (5, 256)].iter() {
-        //
-        //     let test_values = test_values(*size);
-        //     let heap = binary_heap_from_slice(&test_values);
-        //     let root_key = Key::from([*key; 32]);
-        //     SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
-        //
-        //     let largest_value = size + 1;
-        //
-        //     group.bench_with_input(BenchmarkId::new("push largest value", size), &largest_value, |b, &value| {
-        //         b.iter(|| {
-        //             let mut lazily_loaded_heap = <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        //             lazily_loaded_heap.push(value)
-        //         });
-        //     });
-        // }
+        for (key, size) in [(0u8, 8), (1, 16), (2, 32), (3, 64), (4, 128), (5, 256)].iter() {
+            let largest_value = size + 1;
 
-        let size = 16;
-        let test_values = test_values(size);
-        let heap = binary_heap_from_slice(&test_values);
-        let root_key = Key::from([0x00; 32]);
-        SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
+            let test_values = test_values(*size);
+            let heap = binary_heap_from_slice(&test_values);
+            let root_key = Key::from([*key; 32]);
+            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
-        let largest_value = size + 1;
-
-        group.bench_with_input(BenchmarkId::new("push largest value", size), &largest_value, |b, &value| {
-            b.iter(|| {
-                let mut lazily_loaded_heap = <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-                lazily_loaded_heap.push(value)
+            group.bench_with_input(BenchmarkId::new("push largest value", size), &largest_value, |b, &value| {
+                b.iter(|| {
+                    // wrap the heap in `ManuallyDrop` to prevent initialized cells being cleared
+                    // between runs by `Drop`
+                    let mut heap = ManuallyDrop::new(<BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key)));
+                    heap.push(value)
+                });
             });
-        });
-
+        }
         group.finish();
         Ok(())
     }).unwrap();
