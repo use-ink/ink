@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use criterion::{
-    black_box,
     criterion_group,
     criterion_main,
     BatchSize,
@@ -55,91 +54,52 @@ fn binary_heap_from_slice(slice: &[u32]) -> BinaryHeap<u32> {
 
 fn bench_push_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let mut group = c.benchmark_group("push");
+        let mut group = c.benchmark_group("BinaryHeap::push");
         for (key, size) in
-            // [(0u8, 8), (1, 16), (2, 32), (3, 64), (4, 128), (5, 256)].iter()
-            [(5, 256)].iter()
+            [(0u8, 8), (1, 16), (2, 32), (3, 64), (4, 128), (5, 256)].iter()
         {
             let largest_value = size + 1;
 
-            // let test_values = test_values(*size);
-            // let heap = binary_heap_from_slice(&test_values);
-            // let root_key = Key::from([*key; 32]);
-            // SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
+            let test_values = test_values(*size);
+            let heap = binary_heap_from_slice(&test_values);
+            let root_key = Key::from([*key; 32]);
+            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
             // prevents storage for the test heap being cleared when the heap is dropped after each
             // benchmark iteration
-            // env::test::set_clear_storage_disabled(true);
+            env::test::set_clear_storage_disabled(true);
 
             group.bench_with_input(
                 BenchmarkId::new("largest value", size),
                 &largest_value,
                 |b, &value| {
-                    b.iter(
+                    b.iter_batched(
                         || {
-                            let test_values = test_values(*size);
-                            let heap = binary_heap_from_slice(&test_values);
-                            let root_key = Key::from([*key; 32]);
-                            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
-                            let mut heap = <BinaryHeap<u32> as SpreadLayout>::pull_spread(
+                            <BinaryHeap<u32> as SpreadLayout>::pull_spread(
                                 &mut KeyPtr::from(root_key),
-                            );
-                            black_box(heap.push(value))
+                            )
                         },
+                        |mut heap| heap.push(value),
+                        BatchSize::SmallInput,
                     );
                 },
             );
-
-            // group.bench_with_input(
-            //     BenchmarkId::new("largest value", size),
-            //     &largest_value,
-            //     |b, &value| {
-            //         b.iter_batched(
-            //             || {
-            //                 <BinaryHeap<u32> as SpreadLayout>::pull_spread(
-            //                     &mut KeyPtr::from(root_key),
-            //                 )
-            //             },
-            //             |mut heap| heap.push(value),
-            //             BatchSize::SmallInput,
-            //         );
-            //     },
-            // );
 
             group.bench_with_input(
                 BenchmarkId::new("smallest value", size),
                 &0,
                 |b, &value| {
-                    b.iter(
+                    b.iter_batched(
                         || {
-                            let test_values = test_values(*size);
-                            let heap = binary_heap_from_slice(&test_values);
-                            let root_key = Key::from([*key; 32]);
-                            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
-                            let mut heap = <BinaryHeap<u32> as SpreadLayout>::pull_spread(
+                            <BinaryHeap<u32> as SpreadLayout>::pull_spread(
                                 &mut KeyPtr::from(root_key),
-                            );
-                            black_box(heap.push(value))
+                            )
                         },
+                        |mut heap| heap.push(value),
+                        BatchSize::SmallInput,
                     );
                 },
             );
-
-            // group.bench_with_input(
-            //     BenchmarkId::new("smallest value", size),
-            //     &0,
-            //     |b, &value| {
-            //         b.iter_batched(
-            //             || {
-            //                 <BinaryHeap<u32> as SpreadLayout>::pull_spread(
-            //                     &mut KeyPtr::from(root_key),
-            //                 )
-            //             },
-            //             |mut heap| heap.push(value),
-            //             BatchSize::SmallInput,
-            //         );
-            //     },
-            // );
         }
         group.finish();
         Ok(())
