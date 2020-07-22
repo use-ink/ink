@@ -14,8 +14,8 @@
 
 use super::{
     CacheCell,
-    InternalEntry,
     EntryState,
+    InternalEntry,
 };
 use crate::storage2::traits::{
     clear_packed_root,
@@ -200,7 +200,8 @@ impl<V> LazyIndexMap<V> {
                 occupied.get_mut().put(new_value);
             }
             BTreeMapEntry::Vacant(vacant) => {
-                vacant.insert(Box::new(InternalEntry::new(new_value, EntryState::Mutated)));
+                vacant
+                    .insert(Box::new(InternalEntry::new(new_value, EntryState::Mutated)));
             }
         }
     }
@@ -344,8 +345,10 @@ where
                     .map(|key| pull_packed_root_opt::<V>(&key))
                     .unwrap_or(None);
                 NonNull::from(
-                    &mut **vacant
-                        .insert(Box::new(InternalEntry::new(value, EntryState::Preserved))),
+                    &mut **vacant.insert(Box::new(InternalEntry::new(
+                        value,
+                        EntryState::Preserved,
+                    ))),
                 )
             }
         }
@@ -447,8 +450,8 @@ where
 mod tests {
     use super::{
         super::{
-            InternalEntry,
             EntryState,
+            InternalEntry,
         },
         Index,
         LazyIndexMap,
@@ -463,7 +466,10 @@ mod tests {
     use ink_primitives::Key;
 
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
-    fn assert_cached_entries(imap: &LazyIndexMap<u8>, expected: &[(Index, InternalEntry<u8>)]) {
+    fn assert_cached_entries(
+        imap: &LazyIndexMap<u8>,
+        expected: &[(Index, InternalEntry<u8>)],
+    ) {
         assert_eq!(imap.entries().len(), expected.len());
         for (given, expected) in imap
             .entries()

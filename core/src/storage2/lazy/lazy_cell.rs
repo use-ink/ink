@@ -14,8 +14,8 @@
 
 use super::{
     CacheCell,
-    InternalEntry,
     EntryState,
+    InternalEntry,
 };
 use crate::storage2::traits::{
     clear_spread_root_opt,
@@ -341,8 +341,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::{
-        InternalEntry,
         EntryState,
+        InternalEntry,
         LazyCell,
     };
     use crate::{
@@ -372,7 +372,10 @@ mod tests {
         // Initialized as none:
         let mut b = <LazyCell<u8>>::new(None);
         assert_eq!(b.key(), None);
-        assert_eq!(b.entry(), Some(&InternalEntry::new(None, EntryState::Mutated)));
+        assert_eq!(
+            b.entry(),
+            Some(&InternalEntry::new(None, EntryState::Mutated))
+        );
         assert_eq!(b.get(), None);
         assert_eq!(b.get_mut(), None);
         // Same as default or from:

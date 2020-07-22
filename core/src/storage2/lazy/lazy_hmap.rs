@@ -14,8 +14,8 @@
 
 use super::{
     CacheCell,
-    InternalEntry,
     EntryState,
+    InternalEntry,
 };
 use crate::{
     hash::{
@@ -84,6 +84,50 @@ pub struct LazyHashMap<K, V, H> {
     cached_entries: CacheCell<EntryMap<K, V>>,
     /// The used hash builder.
     hash_builder: RefCell<HashBuilder<H, Vec<u8>>>,
+}
+
+/// A vacant entry with previous and next vacant indices.
+pub struct OccupiedEntry<'a, K, V, H>
+where
+    K: Clone,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// A reference to the used `HashMap` instance.
+    base: &'a mut LazyHashMap<K, V, H>,
+    /// The key stored in this entry.
+    key: K,
+}
+
+/// A vacant entry with previous and next vacant indices.
+pub struct VacantEntry<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// A reference to the used `HashMap` instance.
+    base: &'a mut LazyHashMap<K, V, H>,
+    /// The key stored in this entry.
+    key: K,
+}
+
+/// An entry within the stash.
+///
+/// The vacant entries within a storage stash form a doubly linked list of
+/// vacant entries that is used to quickly re-use their vacant storage.
+pub enum Entry<'a, K: 'a, V: 'a, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// A vacant entry that holds the index to the next and previous vacant entry.
+    Vacant(VacantEntry<'a, K, V, H>),
+    /// An occupied entry that holds the value.
+    Occupied(OccupiedEntry<'a, K, V, H>),
 }
 
 struct DebugEntryMap<'a, K, V>(&'a CacheCell<EntryMap<K, V>>);
@@ -296,8 +340,51 @@ where
     ///   with the underlying contract storage.
     /// - If the decoding of the old element at the given index failed.
     pub fn put(&mut self, key: K, new_value: Option<V>) {
-        self.entries_mut()
-            .insert(key, Box::new(InternalEntry::new(new_value, EntryState::Mutated)));
+        self.entries_mut().insert(
+            key,
+            Box::new(InternalEntry::new(new_value, EntryState::Mutated)),
+        );
+    }
+}
+
+impl<K, V, H> LazyHashMap<K, V, H>
+where
+    K: Clone + Ord + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// Gets the given key's corresponding entry in the map for in-place manipulation.
+    pub fn entry(&mut self, key: K) -> Entry<K, V, H> {
+        // SAFETY: We have put the whole `cached_entries` mapping into an
+        //         `UnsafeCell` because of this caching functionality. The
+        //         trick here is that due to using `Box<T>` internally
+        //         we are able to return references to the cached entries
+        //         while maintaining the invariant that mutating the caching
+        //         `BTreeMap` will never invalidate those references.
+        //         By returning a raw pointer we enforce an `unsafe` block at
+        //         the caller site to underline that guarantees are given by the
+        //         caller.
+        unsafe {
+            let cached_entries = &mut *self.cached_entries.get_ptr().as_ptr();
+            use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
+            // We have to clone the key here because we do not have access to the unsafe
+            // raw entry API for Rust hash maps, yet since it is unstable. We can remove
+            // the contraints on `K: Clone` once we have access to this API.
+            // Read more about the issue here: https://github.com/rust-lang/rust/issues/56167
+            // match cached_entries.entry(key.to_owned()) {
+            match cached_entries.entry(key.to_owned()) {
+                BTreeMapEntry::Occupied(occupied) => {
+                    match occupied.get().value() {
+                        Some(_) => Entry::Occupied(OccupiedEntry { key, base: self }),
+                        None => Entry::Vacant(VacantEntry { key, base: self }),
+                    }
+                }
+                BTreeMapEntry::Vacant(_) => {
+                    Entry::Vacant(VacantEntry { key, base: self })
+                }
+            }
+        }
     }
 }
 
@@ -399,8 +486,10 @@ where
                     .map(|key| pull_packed_root_opt::<V>(&key))
                     .unwrap_or(None);
                 NonNull::from(
-                    &mut **vacant
-                        .insert(Box::new(InternalEntry::new(value, EntryState::Preserved))),
+                    &mut **vacant.insert(Box::new(InternalEntry::new(
+                        value,
+                        EntryState::Preserved,
+                    ))),
                 )
             }
         }
@@ -549,11 +638,202 @@ where
     }
 }
 
+impl<'a, K, V, H> Entry<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout + core::fmt::Debug + core::cmp::Eq + Default,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// Returns a reference to this entry's key.
+    pub fn key(&self) -> &K {
+        match self {
+            Entry::Occupied(entry) => &entry.key,
+            Entry::Vacant(entry) => &entry.key,
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the default value if empty, and returns
+    /// a reference to the value in the entry.
+    pub fn or_default(self) -> &'a V {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => entry.insert(V::default()),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the default if empty, and returns
+    /// a mutable reference to the value in the entry.
+    pub fn or_insert(self, default: V) -> &'a mut V {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => entry.insert(default),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the result of the default function if empty,
+    /// and returns mutable references to the key and value in the entry.
+    pub fn or_insert_with<F>(self, default: F) -> &'a mut V
+    where
+        F: FnOnce() -> V,
+    {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => Entry::insert(default(), entry),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting, if empty, the result of the default
+    /// function, which takes the key as its argument, and returns a mutable reference to
+    /// the value in the entry.
+    pub fn or_insert_with_key<F>(self, default: F) -> &'a mut V
+    where
+        F: FnOnce(&K) -> V,
+    {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => Entry::insert(default(&entry.key), entry),
+        }
+    }
+
+    /// Provides in-place mutable access to an occupied entry before any
+    /// potential inserts into the map.
+    pub fn and_modify<F>(self, f: F) -> Self
+    where
+        F: FnOnce(&mut V),
+    {
+        match self {
+            Entry::Occupied(mut entry) => {
+                {
+                    let v = entry.get_mut();
+                    f(v);
+                }
+                Entry::Occupied(entry)
+            }
+            Entry::Vacant(entry) => Entry::Vacant(entry),
+        }
+    }
+
+    /// Inserts `value` into `entry`.
+    fn insert(value: V, entry: VacantEntry<'a, K, V, H>) -> &'a mut V {
+        let _old_value = entry.base.put(entry.key.clone(), Some(value));
+        // debug_assert!(old_value.is_none());
+        entry
+            .base
+            .get_mut(&entry.key)
+            .expect("encountered invalid vacant entry")
+    }
+}
+
+impl<'a, K, V, H> VacantEntry<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
+    pub fn key(&self) -> &K {
+        &self.key
+    }
+
+    /// Take ownership of the key.
+    pub fn into_key(self) -> K {
+        self.key
+    }
+
+    /// Sets the value of the entry with the VacantEntry's key, and returns a mutable reference to it.
+    pub fn insert(self, value: V) -> &'a mut V {
+        // At this point we know that `key` does not yet exist in the map.
+        // let key_index = self.base.keys.put(self.key.clone());
+        self.base
+            //.values
+            //.put(self.key.clone(), Some(ValueEntry { value, key_index }));
+            .put(self.key.clone(), Some(value));
+        self.base
+            .get_mut(&self.key)
+            .expect("put was just executed; qed")
+    }
+}
+
+impl<'a, K, V, H> OccupiedEntry<'a, K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// Gets a reference to the key in the entry.
+    pub fn key(&self) -> &K {
+        &self.key
+    }
+
+    /// Take the ownership of the key and value from the map.
+    pub fn remove_entry(self) -> (K, V) {
+        let value = self
+            .base
+            //.values
+            .put_get(&self.key, None)
+            .expect("`key` must exist");
+        // self.base
+        // .keys
+        // .take(self.key_index)
+        // .expect("`key_index` must point to a valid key entry");
+        (self.key, value)
+    }
+
+    /// Gets a reference to the value in the entry.
+    pub fn get(&self) -> &V {
+        &self
+            .base
+            .get(&self.key)
+            .expect("entry behind `OccupiedEntry` must always exist")
+    }
+
+    /// Gets a mutable reference to the value in the entry.
+    ///
+    /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
+    /// `Entry` value, see `into_mut`.
+    pub fn get_mut(&mut self) -> &mut V {
+        self.base
+            .get_mut(&self.key)
+            .expect("entry behind `OccupiedEntry` must always exist")
+    }
+
+    /// Sets the value of the entry, and returns the entry's old value.
+    pub fn insert(&mut self, new_value: V) -> V {
+        let mut occupied = self
+            .base
+            //.values
+            .get_mut(&self.key)
+            .expect("entry behind `OccupiedEntry` must always exist");
+        core::mem::replace(&mut occupied, new_value)
+    }
+
+    /// Takes the value out of the entry, and returns it.
+    pub fn remove(self) -> V {
+        self.remove_entry().1
+    }
+
+    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
+    /// with a lifetime bound to the map itself.
+    pub fn into_mut(self) -> &'a mut V {
+        self.base
+            .get_mut(&self.key)
+            .expect("entry behind `OccupiedEntry` must always exist")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
-        InternalEntry,
+        Entry,
+        Entry::{
+            Occupied,
+            Vacant,
+        },
         EntryState,
+        InternalEntry,
         LazyHashMap,
     };
     use crate::{
@@ -568,6 +848,7 @@ mod tests {
         },
     };
     use ink_primitives::Key;
+    use num_traits::ToPrimitive;
 
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
     fn assert_cached_entries<H>(
@@ -926,6 +1207,270 @@ mod tests {
                     (4, InternalEntry::new(None, EntryState::Preserved)),
                 ],
             );
+            Ok(())
+        })
+    }
+
+    /// Returns a prefilled `HashMap` with `[('A', 13), ['B', 23])`.
+    fn prefilled_hmap() -> LazyHashMap<u8, i32, Blake2x256Hasher> {
+        let mut hmap = <LazyHashMap<u8, i32, Blake2x256Hasher>>::new();
+        hmap.put(b'A', Some(13));
+        hmap.put(b'B', Some(23));
+        hmap
+    }
+
+    /// Returns always the same `KeyPtr`.
+    fn key_ptr() -> KeyPtr {
+        let root_key = Key::from([0x42; 32]);
+        KeyPtr::from(root_key)
+    }
+
+    /// Pushes a `HashMap` instance into the contract storage.
+    fn push_hmap(hmap: &LazyHashMap<u8, i32, Blake2x256Hasher>) {
+        SpreadLayout::push_spread(hmap, &mut key_ptr());
+    }
+
+    /// Pulls a `HashMap` instance from the contract storage.
+    fn pull_hmap() -> LazyHashMap<u8, i32, Blake2x256Hasher> {
+        <LazyHashMap<u8, i32, Blake2x256Hasher> as SpreadLayout>::pull_spread(
+            &mut key_ptr(),
+        )
+    }
+
+    #[test]
+    fn entry_api_insert_inexistent_works_with_empty() {
+        // given
+        let mut hmap = <LazyHashMap<u8, bool, Blake2x256Hasher>>::new();
+        assert!(matches!(hmap.entry(b'A'), Vacant(_)));
+        assert!(hmap.get(&b'A').is_none());
+
+        // when
+        assert!(*hmap.entry(b'A').or_insert(true));
+
+        // then
+        assert_eq!(hmap.get(&b'A'), Some(&true));
+        assert_eq!(hmap.entries().len(), 1);
+    }
+
+    #[test]
+    fn entry_api_insert_existent_works() {
+        // given
+        let mut hmap = prefilled_hmap();
+        match hmap.entry(b'A') {
+            Vacant(_) => panic!(),
+            Occupied(o) => assert_eq!(o.get(), &13),
+        }
+
+        // when
+        hmap.entry(b'A').or_insert(77);
+
+        // then
+        assert_eq!(hmap.get(&b'A'), Some(&13));
+        assert_eq!(hmap.entries().len(), 2);
+    }
+
+    #[test]
+    fn entry_api_mutations_work_with_push_pull() -> env::Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            // given
+            let hmap1 = prefilled_hmap();
+            assert_eq!(hmap1.get(&b'A'), Some(&13));
+            push_hmap(&hmap1);
+
+            let mut hmap2 = pull_hmap();
+            assert_eq!(hmap2.get(&b'A'), Some(&13));
+
+            // when
+            let v = hmap2.entry(b'A').or_insert(42);
+            *v += 1;
+            assert_eq!(hmap2.get(&b'A'), Some(&14));
+            push_hmap(&hmap2);
+
+            // then
+            let hmap3 = pull_hmap();
+            assert_eq!(hmap3.get(&b'A'), Some(&14));
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn entry_api_simple_insert_with_works() {
+        // given
+        let mut hmap = prefilled_hmap();
+
+        // when
+        assert!(hmap.get(&b'C').is_none());
+        let v = hmap.entry(b'C').or_insert_with(|| 42);
+
+        // then
+        assert_eq!(*v, 42);
+        assert_eq!(hmap.get(&b'C'), Some(&42));
+        assert_eq!(hmap.entries().len(), 3);
+    }
+
+    #[test]
+    fn entry_api_simple_default_insert_works() {
+        // given
+        let mut hmap = <LazyHashMap<u8, bool, Blake2x256Hasher>>::new();
+
+        // when
+        let v = hmap.entry(b'A').or_default();
+
+        // then
+        assert_eq!(*v, false);
+        assert_eq!(hmap.get(&b'A'), Some(&false));
+    }
+
+    #[test]
+    fn entry_api_insert_with_works_with_mutations() {
+        // given
+        let mut hmap = <LazyHashMap<u8, i32, Blake2x256Hasher>>::new();
+        let v = hmap.entry(b'A').or_insert_with(|| 42);
+        assert_eq!(*v, 42);
+
+        // when
+        *v += 1;
+
+        // then
+        assert_eq!(hmap.get(&b'A'), Some(&43));
+        assert_eq!(hmap.entries().len(), 1);
+    }
+
+    #[test]
+    fn entry_api_insert_with_works_with_push_pull() -> env::Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            // given
+            let mut hmap1 = <LazyHashMap<u8, i32, Blake2x256Hasher>>::new();
+            let value = hmap1.entry(b'A').or_insert_with(|| 42);
+
+            // when
+            *value = 43;
+            push_hmap(&hmap1);
+
+            // then
+            let hmap2 = pull_hmap();
+            assert_eq!(hmap2.get(&b'A'), Some(&43));
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn entry_api_simple_insert_with_key_works() {
+        // given
+        let mut hmap = <LazyHashMap<u8, i32, Blake2x256Hasher>>::new();
+
+        // when
+        let _ = hmap
+            .entry(b'A')
+            .or_insert_with_key(|key| key.to_i32().unwrap() * 2);
+
+        // then
+        assert_eq!(hmap.get(&b'A'), Some(&130));
+    }
+
+    #[test]
+    fn entry_api_key_get_works_with_nonexistent() {
+        let mut hmap = <LazyHashMap<u8, i32, Blake2x256Hasher>>::new();
+        assert_eq!(hmap.entry(b'A').key(), &b'A');
+    }
+
+    #[test]
+    fn entry_api_key_get_works_with_existent() {
+        let mut hmap = prefilled_hmap();
+        assert_eq!(hmap.entry(b'A').key(), &b'A');
+        assert_eq!(hmap.entry(b'B').key(), &b'B');
+    }
+
+    #[test]
+    fn entry_api_and_modify_has_no_effect_for_nonexistent() {
+        // given
+        let mut hmap = <LazyHashMap<u8, i32, Blake2x256Hasher>>::new();
+
+        // when
+        hmap.entry(b'B').and_modify(|e| *e += 1).or_insert(42);
+
+        // then
+        assert_eq!(hmap.get(&b'B'), Some(&42));
+    }
+
+    #[test]
+    fn entry_api_and_modify_works_for_existent() {
+        // given
+        let mut hmap = prefilled_hmap();
+
+        // when
+        assert_eq!(hmap.get(&b'B'), Some(&23));
+        hmap.entry(b'B').and_modify(|e| *e += 1).or_insert(7);
+
+        // then
+        assert_eq!(hmap.get(&b'B'), Some(&24));
+    }
+
+    #[test]
+    fn entry_api_occupied_entry_api_works_with_push_pull() -> env::Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            // given
+            let mut hmap1 = prefilled_hmap();
+            assert_eq!(hmap1.get(&b'A'), Some(&13));
+            match hmap1.entry(b'A') {
+                Entry::Occupied(mut o) => {
+                    assert_eq!(o.key(), &b'A');
+                    assert_eq!(o.insert(15), 13);
+                }
+                Entry::Vacant(_) => panic!(),
+            }
+            push_hmap(&hmap1);
+
+            // when
+            let mut hmap2 = pull_hmap();
+            assert_eq!(hmap2.get(&b'A'), Some(&15));
+            match hmap2.entry(b'A') {
+                Entry::Occupied(o) => {
+                    assert_eq!(o.remove_entry(), (b'A', 15));
+                }
+                Entry::Vacant(_) => panic!(),
+            }
+            push_hmap(&hmap2);
+
+            // then
+            let hmap3 = pull_hmap();
+            assert_eq!(hmap3.get(&b'A'), None);
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn entry_api_vacant_api_works() {
+        let mut hmap = <LazyHashMap<u8, i32, Blake2x256Hasher>>::new();
+        match hmap.entry(b'A') {
+            Entry::Occupied(_) => panic!(),
+            Entry::Vacant(v) => {
+                assert_eq!(v.key(), &b'A');
+                assert_eq!(v.into_key(), b'A');
+            }
+        }
+    }
+
+    #[test]
+    fn entry_api_vacant_api_works_with_push_pull() -> env::Result<()> {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            // given
+            let mut hmap1 = <LazyHashMap<u8, i32, Blake2x256Hasher>>::new();
+            match hmap1.entry(b'A') {
+                Entry::Occupied(_) => panic!(),
+                Entry::Vacant(v) => {
+                    let val = v.insert(42);
+                    *val += 1;
+                }
+            }
+            push_hmap(&hmap1);
+
+            // when
+            let hmap2 = pull_hmap();
+
+            // then
+            assert_eq!(hmap2.get(&b'A'), Some(&43));
             Ok(())
         })
     }

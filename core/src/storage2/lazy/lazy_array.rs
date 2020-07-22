@@ -14,8 +14,8 @@
 
 use super::{
     CacheCell,
-    InternalEntry,
     EntryState,
+    InternalEntry,
 };
 use crate::storage2::traits::{
     clear_packed_root,
@@ -53,8 +53,14 @@ pub trait LazyArrayLength<T>:
 {
 }
 impl<T> LazyArrayLength<T> for UTerm {}
-impl<T, N: ArrayLength<CacheCell<Option<InternalEntry<T>>>>> LazyArrayLength<T> for UInt<N, B0> {}
-impl<T, N: ArrayLength<CacheCell<Option<InternalEntry<T>>>>> LazyArrayLength<T> for UInt<N, B1> {}
+impl<T, N: ArrayLength<CacheCell<Option<InternalEntry<T>>>>> LazyArrayLength<T>
+    for UInt<N, B0>
+{
+}
+impl<T, N: ArrayLength<CacheCell<Option<InternalEntry<T>>>>> LazyArrayLength<T>
+    for UInt<N, B1>
+{
+}
 
 /// A lazy storage array that spans over N storage cells.
 ///
@@ -291,7 +297,11 @@ where
     }
 
     /// Inserts a new entry into the cache and returns an exclusive reference to it.
-    unsafe fn insert_entry(&self, at: Index, new_entry: InternalEntry<T>) -> NonNull<InternalEntry<T>> {
+    unsafe fn insert_entry(
+        &self,
+        at: Index,
+        new_entry: InternalEntry<T>,
+    ) -> NonNull<InternalEntry<T>> {
         let entry: &mut Option<InternalEntry<T>> =
             &mut *CacheCell::get_ptr(&self.entries[at as usize]).as_ptr();
         *entry = Some(new_entry);
@@ -589,8 +599,8 @@ where
 mod tests {
     use super::{
         super::{
-            InternalEntry,
             EntryState,
+            InternalEntry,
         },
         Index,
         LazyArray,
