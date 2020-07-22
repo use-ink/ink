@@ -95,6 +95,8 @@ pub struct EnvInstance {
     runtime_call_handler: RuntimeCallHandler,
     /// Emitted events recorder.
     emitted_events: EmittedEventsRecorder,
+    /// Set to true to disable clearing storage
+    clear_storage_disabled: bool,
 }
 
 impl EnvInstance {
@@ -109,6 +111,7 @@ impl EnvInstance {
             runtime_storage: RuntimeStorage::new(),
             runtime_call_handler: RuntimeCallHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
+            clear_storage_disabled: false,
         }
     }
 
@@ -140,6 +143,7 @@ impl EnvInstance {
         self.runtime_storage.reset();
         self.runtime_call_handler.reset();
         self.emitted_events.reset();
+        self.clear_storage_disabled = false;
     }
 
     /// Initializes the whole off-chain environment.

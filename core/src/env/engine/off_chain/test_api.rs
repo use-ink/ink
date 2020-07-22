@@ -266,6 +266,16 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| instance.advance_block::<T>())
 }
 
+/// Set to true to disable clearing storage
+///
+/// # Note
+///
+/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,
+/// because lazy storage structures automatically clear their associated cells when they are dropped.
+pub fn set_clear_storage_disabled(disable: bool) {
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.clear_storage_disabled = disable)
+}
+
 /// The default accounts.
 pub struct DefaultAccounts<T>
 where

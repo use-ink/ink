@@ -29,7 +29,6 @@ use ink_core::{
     },
 };
 use ink_primitives::Key;
-use std::mem::ManuallyDrop;
 
 criterion_group!(push, bench_push_empty_cache,);
 criterion_main!(push,);
@@ -65,18 +64,33 @@ fn bench_push_empty_cache(c: &mut Criterion) {
             let root_key = Key::from([*key; 32]);
             SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
+            // prevents storage for the test heap being cleared when the heap is dropped after each
+            // benchmark iteration
+            env::test::set_clear_storage_disabled(true);
+
             group.bench_with_input(
                 BenchmarkId::new("push largest value", size),
                 &largest_value,
                 |b, &value| {
                     b.iter(|| {
-                        // wrap the heap in `ManuallyDrop` to prevent initialized cells being cleared
-                        // between runs by `Drop`
-                        let mut heap = ManuallyDrop::new(
+                        let mut heap =
                             <BinaryHeap<u32> as SpreadLayout>::pull_spread(
                                 &mut KeyPtr::from(root_key),
-                            ),
-                        );
+                            );
+                        heap.push(value)
+                    });
+                },
+            );
+
+            group.bench_with_input(
+                BenchmarkId::new("push smallest value", size),
+                &0,
+                |b, &value| {
+                    b.iter(|| {
+                        let mut heap =
+                            <BinaryHeap<u32> as SpreadLayout>::pull_spread(
+                                &mut KeyPtr::from(root_key),
+                            );
                         heap.push(value)
                     });
                 },
@@ -87,9 +101,3 @@ fn bench_push_empty_cache(c: &mut Criterion) {
     })
     .unwrap();
 }
-
-// fn bench_push_populated_cache(c: &mut Criterion) {
-//     // todo: iterate over a sizes of N e.g. 2, 4, 6, 8, 10
-//     // iterate forwards and backwards (using rev)
-//     c.bench_function()
-// }
