@@ -31,8 +31,8 @@ use ink_core::{
 };
 use ink_primitives::Key;
 
-criterion_group!(binary_heap, bench_push_empty_cache,);
-criterion_main!(binary_heap,);
+criterion_group!(push, bench_push_empty_cache, bench_push_populated_cache);
+criterion_main!(push,);
 
 /// Returns some test values for use in benchmarks.
 fn test_values(n: u32) -> Vec<u32> {
@@ -54,12 +54,11 @@ fn binary_heap_from_slice(slice: &[u32]) -> BinaryHeap<u32> {
 
 fn bench_push_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let mut group = c.benchmark_group("BinaryHeap::push");
-        for (key, size) in
-            [(0u8, 8), (1, 16), (2, 32), (3, 64), (4, 128), (5, 256)].iter()
-        {
-            let largest_value = size + 1;
+        let mut group = c.benchmark_group("BinaryHeap::push (empty cache)");
 
+        for (key, size) in
+            [(0u8, 8), (1, 16), (2, 32), (3, 64)].iter()
+        {
             let test_values = test_values(*size);
             let heap = binary_heap_from_slice(&test_values);
             let root_key = Key::from([*key; 32]);
@@ -69,6 +68,7 @@ fn bench_push_empty_cache(c: &mut Criterion) {
             // benchmark iteration
             env::test::set_clear_storage_disabled(true);
 
+            let largest_value = size + 1;
             group.bench_with_input(
                 BenchmarkId::new("largest value", size),
                 &largest_value,
@@ -85,9 +85,10 @@ fn bench_push_empty_cache(c: &mut Criterion) {
                 },
             );
 
+            let smallest_value = 0;
             group.bench_with_input(
                 BenchmarkId::new("smallest value", size),
-                &0,
+                &smallest_value,
                 |b, &value| {
                     b.iter_batched(
                         || {
@@ -105,4 +106,48 @@ fn bench_push_empty_cache(c: &mut Criterion) {
         Ok(())
     })
     .unwrap();
+}
+
+fn bench_push_populated_cache(c: &mut Criterion) {
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut group = c.benchmark_group("BinaryHeap::push (populated cache)");
+
+        for size in [8, 16, 32, 64].iter()
+        {
+            let largest_value = size + 1;
+            group.bench_with_input(
+                BenchmarkId::new("largest value", size),
+                &largest_value,
+                |b, value| {
+                    b.iter_batched(
+                        || {
+                            let test_values = test_values(*size);
+                            binary_heap_from_slice(&test_values)
+                        },
+                        |mut heap| heap.push(*value),
+                        BatchSize::SmallInput,
+                    );
+                },
+            );
+
+            let smallest_value = 0;
+            group.bench_with_input(
+                BenchmarkId::new("smallest value", size),
+                &smallest_value,
+                |b, value| {
+                    b.iter_batched(
+                        || {
+                            let test_values = test_values(*size);
+                            binary_heap_from_slice(&test_values)
+                        },
+                        |mut heap| heap.push(*value),
+                        BatchSize::SmallInput,
+                    );
+                },
+            );
+        }
+        group.finish();
+        Ok(())
+    })
+        .unwrap();
 }
