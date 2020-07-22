@@ -317,6 +317,7 @@ where
     }
 
     /// Returns the length of the underlying entries.
+    #[cfg(test)]
     fn len(&self) -> usize {
         self.entries().len()
     }
@@ -860,7 +861,7 @@ mod tests {
         hmap: &LazyHashMap<i32, u8, H>,
         expected: &[(i32, InternalEntry<u8>)],
     ) {
-        assert_eq!(hmap.entries().len(), expected.len());
+        assert_eq!(hmap.len(), expected.len());
         for (given, expected) in hmap
             .entries()
             .iter()
@@ -1254,7 +1255,7 @@ mod tests {
 
         // then
         assert_eq!(hmap.get(&b'A'), Some(&true));
-        assert_eq!(hmap.entries().len(), 1);
+        assert_eq!(hmap.len(), 1);
     }
 
     #[test]
@@ -1271,7 +1272,7 @@ mod tests {
 
         // then
         assert_eq!(hmap.get(&b'A'), Some(&13));
-        assert_eq!(hmap.entries().len(), 2);
+        assert_eq!(hmap.len(), 2);
     }
 
     #[test]
@@ -1310,7 +1311,7 @@ mod tests {
         // then
         assert_eq!(*v, 42);
         assert_eq!(hmap.get(&b'C'), Some(&42));
-        assert_eq!(hmap.entries().len(), 3);
+        assert_eq!(hmap.len(), 3);
     }
 
     #[test]
@@ -1338,7 +1339,7 @@ mod tests {
 
         // then
         assert_eq!(hmap.get(&b'A'), Some(&43));
-        assert_eq!(hmap.entries().len(), 1);
+        assert_eq!(hmap.len(), 1);
     }
 
     #[test]
