@@ -316,6 +316,11 @@ where
         self.key.as_ref()
     }
 
+    /// Returns the length of the underlying entries.
+    fn len(&self) -> usize {
+        self.entries().len()
+    }
+
     /// Returns a shared reference to the underlying entries.
     fn entries(&self) -> &EntryMap<K, V> {
         self.cached_entries.as_inner()
