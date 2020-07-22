@@ -14,7 +14,7 @@
 
 use super::{
     CacheCell,
-    Entry,
+    InternalEntry,
     EntryState,
 };
 use crate::storage2::traits::{
@@ -61,7 +61,7 @@ where
     /// and the fact that ink! code is always run single-threaded.
     /// Being efficient is important here because this is intended to be
     /// a low-level primitive with lots of dependencies.
-    cache: CacheCell<Option<Entry<T>>>,
+    cache: CacheCell<Option<InternalEntry<T>>>,
 }
 
 impl<T> Debug for LazyCell<T>
@@ -194,7 +194,7 @@ where
     pub fn new(value: Option<T>) -> Self {
         Self {
             key: None,
-            cache: CacheCell::new(Some(Entry::new(value, EntryState::Mutated))),
+            cache: CacheCell::new(Some(InternalEntry::new(value, EntryState::Mutated))),
         }
     }
 
@@ -223,7 +223,7 @@ where
     }
 
     /// Returns the cached entry.
-    fn entry(&self) -> Option<&Entry<T>> {
+    fn entry(&self) -> Option<&InternalEntry<T>> {
         self.cache.as_inner().as_ref()
     }
 }
@@ -236,7 +236,7 @@ where
     ///
     /// Tries to load the entry from cache and falls back to lazily load the
     /// entry from the contract storage.
-    unsafe fn load_through_cache(&self) -> NonNull<Entry<T>> {
+    unsafe fn load_through_cache(&self) -> NonNull<InternalEntry<T>> {
         // SAFETY: This is critical because we mutably access the entry.
         //         However, we mutate the entry only if it is vacant.
         //         If the entry is occupied by a value we return early.
@@ -248,14 +248,14 @@ where
                 .key
                 .map(|key| pull_spread_root_opt::<T>(&key))
                 .unwrap_or(None);
-            *cache = Some(Entry::new(value, EntryState::Preserved));
+            *cache = Some(InternalEntry::new(value, EntryState::Preserved));
         }
         debug_assert!(cache.is_some());
         NonNull::from(cache.as_mut().expect("unpopulated cache entry"))
     }
 
     /// Returns a shared reference to the entry.
-    fn load_entry(&self) -> &Entry<T> {
+    fn load_entry(&self) -> &InternalEntry<T> {
         // SAFETY: We load the entry either from cache of from contract storage.
         //
         //         This is safe because we are just returning a shared reference
@@ -267,7 +267,7 @@ where
     }
 
     /// Returns an exclusive reference to the entry.
-    fn load_entry_mut(&mut self) -> &mut Entry<T> {
+    fn load_entry_mut(&mut self) -> &mut InternalEntry<T> {
         // SAFETY: We load the entry either from cache of from contract storage.
         //
         //         This is safe because we are just returning an exclusive reference
@@ -332,7 +332,7 @@ where
             // The key does not need to exist for this to work, we only need to
             // write the value into the cache and are done. Writing to contract
             // storage happens during setup/teardown of a contract.
-            *cache = Some(Entry::new(Some(new_value), EntryState::Mutated));
+            *cache = Some(InternalEntry::new(Some(new_value), EntryState::Mutated));
         }
         debug_assert!(cache.is_some());
     }
@@ -341,7 +341,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::{
-        Entry,
+        InternalEntry,
         EntryState,
         LazyCell,
     };
@@ -365,14 +365,14 @@ mod tests {
         assert_eq!(a.key(), None);
         assert_eq!(
             a.entry(),
-            Some(&Entry::new(Some(b'A'), EntryState::Mutated))
+            Some(&InternalEntry::new(Some(b'A'), EntryState::Mutated))
         );
         assert_eq!(a.get(), Some(&b'A'));
         assert_eq!(a.get_mut(), Some(&mut b'A'));
         // Initialized as none:
         let mut b = <LazyCell<u8>>::new(None);
         assert_eq!(b.key(), None);
-        assert_eq!(b.entry(), Some(&Entry::new(None, EntryState::Mutated)));
+        assert_eq!(b.entry(), Some(&InternalEntry::new(None, EntryState::Mutated)));
         assert_eq!(b.get(), None);
         assert_eq!(b.get_mut(), None);
         // Same as default or from:
@@ -427,7 +427,7 @@ mod tests {
             assert_eq!(cell_a1.get(), Some(&b'A'));
             assert_eq!(
                 cell_a1.entry(),
-                Some(&Entry::new(Some(b'A'), EntryState::Preserved))
+                Some(&InternalEntry::new(Some(b'A'), EntryState::Preserved))
             );
             // Also test if a lazily instantiated cell works:
             let cell_a2 = <LazyCell<u8>>::lazy(root_key);
@@ -435,7 +435,7 @@ mod tests {
             assert_eq!(cell_a2.get(), Some(&b'A'));
             assert_eq!(
                 cell_a2.entry(),
-                Some(&Entry::new(Some(b'A'), EntryState::Preserved))
+                Some(&InternalEntry::new(Some(b'A'), EntryState::Preserved))
             );
             // Test if clearing works:
             SpreadLayout::clear_spread(&cell_a1, &mut KeyPtr::from(root_key));
@@ -443,7 +443,7 @@ mod tests {
             assert_eq!(cell_a3.get(), None);
             assert_eq!(
                 cell_a3.entry(),
-                Some(&Entry::new(None, EntryState::Preserved))
+                Some(&InternalEntry::new(None, EntryState::Preserved))
             );
             Ok(())
         })

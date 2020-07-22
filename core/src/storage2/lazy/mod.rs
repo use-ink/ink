@@ -34,7 +34,7 @@ mod lazy_imap;
 use self::{
     cache_cell::CacheCell,
     entry::{
-        Entry,
+        InternalEntry,
         EntryState,
     },
 };
