@@ -223,7 +223,7 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed
-pub fn get_contract_storage<R>(key: &Key) -> Option<Result<R>>
+pub fn get_contract_storage<R>(key: &Key) -> Result<Option<R>>
 where
     R: scale::Decode,
 {

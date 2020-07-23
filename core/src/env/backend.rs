@@ -60,7 +60,7 @@ pub trait Env {
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
     where
         R: scale::Decode;
 
