@@ -160,17 +160,6 @@ impl EnvInstance {
         self.buffer.resize(new_len);
     }
 
-    /// Reads the current scratch buffer into the contract-side buffer.
-    ///
-    /// Returns the amount of bytes read.
-    fn read_scratch_buffer(&mut self) -> usize {
-        todo!()
-        // let req_len = ext::scratch_size();
-        // self.resize_buffer(req_len);
-        // ext::scratch_read(&mut self.buffer[0..req_len], 0);
-        // req_len
-    }
-
     /// Reads from the scratch buffer and directly decodes into a value of `T`.
     ///
     /// # Errors
