@@ -393,24 +393,30 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         Args: scale::Encode,
     {
-        todo!()
-        // // Reset the contract-side buffer to append onto clean slate.
-        // self.reset_buffer();
-        // // Append the encoded `code_hash`, `endowment` and `create_data`
-        // // in order and remember their encoded regions within the buffer.
-        // let code_hash = self.append_encode_into_buffer(params.code_hash());
-        // let endowment = self.append_encode_into_buffer(params.endowment());
-        // let create_data = self.append_encode_into_buffer(params.input_data());
-        // // Resolve the encoded regions into actual byte slices.
-        // let code_hash = &self.buffer[code_hash];
-        // let endowment = &self.buffer[endowment];
-        // let create_data = &self.buffer[create_data];
-        // // Do the actual contract instantiation.
-        // ext::create(code_hash, params.gas_limit(), endowment, create_data)?;
-        // // At this point our contract instantiation was successful
-        // // and we can now fetch the returned data and decode it for
-        // // the result value.
-        // self.decode_scratch_buffer().map_err(Into::into)
+        let mut scoped = self.scoped_buffer();
+        let gas_limit = params.gas_limit();
+        let enc_code_hash = scoped.take_encoded(params.code_hash());
+        let enc_endowment = scoped.take_encoded(params.endowment());
+        let enc_input = scoped.take_encoded(params.input_data());
+        // We support `AccountId` types with an encoding that requires up to
+        // 1024 bytes. Beyond that limit ink! contracts will trap for now.
+        // In the default configuration encoded `AccountId` require 32 bytes.
+        let out_address = &mut scoped.take(1024);
+        let out_return_value = &mut scoped.take_rest();
+        // We currently do nothing with the `out_return_value` buffer.
+        // This should change in the future but for that we need to add support
+        // for constructors that may return values.
+        // This is useful to support fallible constructors for example.
+        ext::instantiate(
+            enc_code_hash,
+            gas_limit,
+            enc_endowment,
+            enc_input,
+            out_address,
+            out_return_value,
+        )?;
+        let account_id = scale::Decode::decode(&mut &out_address[..])?;
+        Ok(account_id)
     }
 
     fn restore_contract<T>(
