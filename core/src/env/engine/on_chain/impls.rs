@@ -50,10 +50,11 @@ impl EnvInstance {
     ///
     /// Returns the amount of bytes read.
     fn read_scratch_buffer(&mut self) -> usize {
-        let req_len = ext::scratch_size();
-        self.resize_buffer(req_len);
-        ext::scratch_read(&mut self.buffer[0..req_len], 0);
-        req_len
+        todo!()
+        // let req_len = ext::scratch_size();
+        // self.resize_buffer(req_len);
+        // ext::scratch_read(&mut self.buffer[0..req_len], 0);
+        // req_len
     }
 
     /// Reads from the scratch buffer and directly decodes into a value of `T`.
@@ -65,8 +66,9 @@ impl EnvInstance {
     where
         T: scale::Decode,
     {
-        let req_len = self.read_scratch_buffer();
-        scale::Decode::decode(&mut &self.buffer[0..req_len]).map_err(Into::into)
+        todo!()
+        // let req_len = self.read_scratch_buffer();
+        // scale::Decode::decode(&mut &self.buffer[0..req_len]).map_err(Into::into)
     }
 
     /// Encodes the value into the contract-side scratch buffer.
@@ -120,13 +122,14 @@ impl EnvInstance {
         let callee = &self.buffer[callee];
         let transferred_value = &self.buffer[transferred_value];
         let call_data = &self.buffer[call_data];
-        // Perform the actual contract call.
-        ext::call(
-            callee,
-            call_params.gas_limit(),
-            transferred_value,
-            call_data,
-        )
+        // // Perform the actual contract call.
+        // ext::call(
+        //     callee,
+        //     call_params.gas_limit(),
+        //     transferred_value,
+        //     call_data,
+        // )
+        todo!()
     }
 }
 
@@ -143,10 +146,11 @@ impl Env for EnvInstance {
     where
         R: scale::Decode,
     {
-        if ext::get_storage(key.as_bytes()).is_err() {
-            return None
-        }
-        Some(self.decode_scratch_buffer().map_err(Into::into))
+        todo!()
+        // if ext::get_storage(key.as_bytes()).is_err() {
+        //     return None
+        // }
+        // Some(self.decode_scratch_buffer().map_err(Into::into))
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
@@ -157,15 +161,17 @@ impl Env for EnvInstance {
     where
         T: scale::Decode,
     {
-        self.get_property::<T>(|| ())
+        // self.get_property::<T>(|| ())
+        todo!()
     }
 
     fn output<R>(&mut self, return_value: &R)
     where
         R: scale::Encode,
     {
-        self.encode_into_buffer(return_value);
-        ext::scratch_write(&self.buffer[..]);
+        todo!()
+        // self.encode_into_buffer(return_value);
+        // ext::scratch_write(&self.buffer[..]);
     }
 
     fn println(&mut self, content: &str) {
@@ -191,43 +197,53 @@ impl Env for EnvInstance {
 
 impl TypedEnv for EnvInstance {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<T::AccountId>(ext::caller)
+        // self.get_property::<T::AccountId>(ext::caller)
+        todo!()
     }
 
     fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::value_transferred)
+        // self.get_property::<T::Balance>(ext::value_transferred)
+        todo!()
     }
 
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::gas_left)
+        // self.get_property::<T::Balance>(ext::gas_left)
+        todo!()
     }
 
     fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::Timestamp> {
-        self.get_property::<T::Timestamp>(ext::now)
+        // self.get_property::<T::Timestamp>(ext::now)
+        todo!()
     }
 
     fn account_id<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<T::AccountId>(ext::address)
+        // self.get_property::<T::AccountId>(ext::address)
+        todo!()
     }
 
     fn balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::balance)
+        // self.get_property::<T::Balance>(ext::balance)
+        todo!()
     }
 
     fn rent_allowance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::rent_allowance)
+        // self.get_property::<T::Balance>(ext::rent_allowance)
+        todo!()
     }
 
     fn block_number<T: EnvTypes>(&mut self) -> Result<T::BlockNumber> {
-        self.get_property::<T::BlockNumber>(ext::block_number)
+        // self.get_property::<T::BlockNumber>(ext::block_number)
+        todo!()
     }
 
     fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::minimum_balance)
+        // self.get_property::<T::Balance>(ext::minimum_balance)
+        todo!()
     }
 
     fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::tombstone_deposit)
+        // self.get_property::<T::Balance>(ext::tombstone_deposit)
+        todo!()
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
@@ -264,7 +280,8 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         Args: scale::Encode,
     {
-        self.invoke_contract_impl(call_params)
+        // self.invoke_contract_impl(call_params)
+        todo!()
     }
 
     fn eval_contract<T, Args, R>(
@@ -276,8 +293,9 @@ impl TypedEnv for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        self.invoke_contract_impl(call_params)?;
-        self.decode_scratch_buffer().map_err(Into::into)
+        // self.invoke_contract_impl(call_params)?;
+        // self.decode_scratch_buffer().map_err(Into::into)
+        todo!()
     }
 
     fn instantiate_contract<T, Args, C>(
@@ -288,23 +306,24 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         Args: scale::Encode,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `code_hash`, `endowment` and `create_data`
-        // in order and remember their encoded regions within the buffer.
-        let code_hash = self.append_encode_into_buffer(params.code_hash());
-        let endowment = self.append_encode_into_buffer(params.endowment());
-        let create_data = self.append_encode_into_buffer(params.input_data());
-        // Resolve the encoded regions into actual byte slices.
-        let code_hash = &self.buffer[code_hash];
-        let endowment = &self.buffer[endowment];
-        let create_data = &self.buffer[create_data];
-        // Do the actual contract instantiation.
-        ext::create(code_hash, params.gas_limit(), endowment, create_data)?;
-        // At this point our contract instantiation was successful
-        // and we can now fetch the returned data and decode it for
-        // the result value.
-        self.decode_scratch_buffer().map_err(Into::into)
+        todo!()
+        // // Reset the contract-side buffer to append onto clean slate.
+        // self.reset_buffer();
+        // // Append the encoded `code_hash`, `endowment` and `create_data`
+        // // in order and remember their encoded regions within the buffer.
+        // let code_hash = self.append_encode_into_buffer(params.code_hash());
+        // let endowment = self.append_encode_into_buffer(params.endowment());
+        // let create_data = self.append_encode_into_buffer(params.input_data());
+        // // Resolve the encoded regions into actual byte slices.
+        // let code_hash = &self.buffer[code_hash];
+        // let endowment = &self.buffer[endowment];
+        // let create_data = &self.buffer[create_data];
+        // // Do the actual contract instantiation.
+        // ext::create(code_hash, params.gas_limit(), endowment, create_data)?;
+        // // At this point our contract instantiation was successful
+        // // and we can now fetch the returned data and decode it for
+        // // the result value.
+        // self.decode_scratch_buffer().map_err(Into::into)
     }
 
     fn restore_contract<T>(
@@ -344,29 +363,32 @@ impl TypedEnv for EnvInstance {
     where
         T: EnvTypes,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `destination` and `value` in order and remember
-        // their encoded regions within the buffer.
-        let destination = self.append_encode_into_buffer(destination);
-        let value = self.append_encode_into_buffer(value);
-        // Resolve the encoded regions into actual byte slices.
-        let destination = &self.buffer[destination];
-        let value = &self.buffer[value];
-        // Perform the actual transfer call.
-        ext::transfer(destination, value)
+        todo!()
+        // // Reset the contract-side buffer to append onto clean slate.
+        // self.reset_buffer();
+        // // Append the encoded `destination` and `value` in order and remember
+        // // their encoded regions within the buffer.
+        // let destination = self.append_encode_into_buffer(destination);
+        // let value = self.append_encode_into_buffer(value);
+        // // Resolve the encoded regions into actual byte slices.
+        // let destination = &self.buffer[destination];
+        // let value = &self.buffer[value];
+        // // Perform the actual transfer call.
+        // ext::transfer(destination, value)
     }
 
     fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
-        ext::gas_price(gas);
-        self.decode_scratch_buffer().map_err(Into::into)
+        todo!()
+        // ext::gas_price(gas);
+        // self.decode_scratch_buffer().map_err(Into::into)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: EnvTypes,
     {
-        ext::random_seed(subject);
-        self.decode_scratch_buffer().map_err(Into::into)
+        todo!()
+        // ext::random_seed(subject);
+        // self.decode_scratch_buffer().map_err(Into::into)
     }
 }
