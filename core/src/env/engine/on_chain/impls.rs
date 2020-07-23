@@ -207,12 +207,13 @@ impl EnvInstance {
     }
 
     /// Returns the contract property value.
-    fn get_property<T>(&mut self, ext_fn: fn()) -> Result<T>
+    fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
         T: scale::Decode,
     {
-        ext_fn();
-        self.decode_scratch_buffer().map_err(Into::into)
+        let full_scope = &mut self.scoped_buffer().take_rest();
+        ext_fn(full_scope);
+        scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
 
     /// Reusable implementation for invoking another contract message.
@@ -311,53 +312,43 @@ impl Env for EnvInstance {
 
 impl TypedEnv for EnvInstance {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
-        // self.get_property::<T::AccountId>(ext::caller)
-        todo!()
+        self.get_property::<T::AccountId>(ext::caller)
     }
 
     fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        // self.get_property::<T::Balance>(ext::value_transferred)
-        todo!()
+        self.get_property::<T::Balance>(ext::value_transferred)
     }
 
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        // self.get_property::<T::Balance>(ext::gas_left)
-        todo!()
+        self.get_property::<T::Balance>(ext::gas_left)
     }
 
     fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::Timestamp> {
-        // self.get_property::<T::Timestamp>(ext::now)
-        todo!()
+        self.get_property::<T::Timestamp>(ext::now)
     }
 
     fn account_id<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
-        // self.get_property::<T::AccountId>(ext::address)
-        todo!()
+        self.get_property::<T::AccountId>(ext::address)
     }
 
     fn balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        // self.get_property::<T::Balance>(ext::balance)
-        todo!()
+        self.get_property::<T::Balance>(ext::balance)
     }
 
     fn rent_allowance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        // self.get_property::<T::Balance>(ext::rent_allowance)
-        todo!()
+        self.get_property::<T::Balance>(ext::rent_allowance)
     }
 
     fn block_number<T: EnvTypes>(&mut self) -> Result<T::BlockNumber> {
-        // self.get_property::<T::BlockNumber>(ext::block_number)
-        todo!()
+        self.get_property::<T::BlockNumber>(ext::block_number)
     }
 
     fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        // self.get_property::<T::Balance>(ext::minimum_balance)
-        todo!()
+        self.get_property::<T::Balance>(ext::minimum_balance)
     }
 
     fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance> {
-        // self.get_property::<T::Balance>(ext::tombstone_deposit)
-        todo!()
+        self.get_property::<T::Balance>(ext::tombstone_deposit)
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
