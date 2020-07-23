@@ -206,34 +206,30 @@ impl EnvInstance {
     }
 
     /// Reusable implementation for invoking another contract message.
-    fn invoke_contract_impl<T, Args, RetType>(
+    fn invoke_contract_impl<T, Args, RetType, R>(
         &mut self,
-        call_params: &CallParams<T, Args, RetType>,
-    ) -> Result<()>
+        params: &CallParams<T, Args, RetType>,
+    ) -> Result<R>
     where
         T: EnvTypes,
         Args: scale::Encode,
+        R: scale::Decode,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `call_data`, `endowment` and `call_data`
-        // in order and remember their encoded regions within the buffer.
-        let callee = self.append_encode_into_buffer(call_params.callee());
-        let transferred_value =
-            self.append_encode_into_buffer(call_params.transferred_value());
-        let call_data = self.append_encode_into_buffer(call_params.input_data());
-        // Resolve the encoded regions into actual byte slices.
-        let callee = &self.buffer[callee];
-        let transferred_value = &self.buffer[transferred_value];
-        let call_data = &self.buffer[call_data];
-        // // Perform the actual contract call.
-        // ext::call(
-        //     callee,
-        //     call_params.gas_limit(),
-        //     transferred_value,
-        //     call_data,
-        // )
-        todo!()
+        let mut scope = self.scoped_buffer();
+        let gas_limit = params.gas_limit();
+        let enc_callee = scope.take_encoded(params.callee());
+        let enc_transferred_value = scope.take_encoded(params.transferred_value());
+        let enc_input = scope.take_encoded(params.input_data());
+        let output = &mut scope.take_rest();
+        ext::call(
+            enc_callee,
+            gas_limit,
+            enc_transferred_value,
+            enc_input,
+            output,
+        )?;
+        let decoded = scale::Decode::decode(&mut &output[..])?;
+        Ok(decoded)
     }
 }
 
@@ -374,8 +370,7 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         Args: scale::Encode,
     {
-        // self.invoke_contract_impl(call_params)
-        todo!()
+        self.invoke_contract_impl(call_params)
     }
 
     fn eval_contract<T, Args, R>(
@@ -387,9 +382,7 @@ impl TypedEnv for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        // self.invoke_contract_impl(call_params)?;
-        // self.decode_scratch_buffer().map_err(Into::into)
-        todo!()
+        self.invoke_contract_impl(call_params)
     }
 
     fn instantiate_contract<T, Args, C>(
