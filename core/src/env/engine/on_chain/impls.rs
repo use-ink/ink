@@ -265,13 +265,13 @@ impl Env for EnvInstance {
         self.get_property::<T>(ext::input)
     }
 
-    fn output<R>(&mut self, return_value: &R)
+    fn output<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        todo!()
-        // self.encode_into_buffer(return_value);
-        // ext::scratch_write(&self.buffer[..]);
+        let mut scope = self.scoped_buffer();
+        let enc_return_value = scope.take_encoded(return_value);
+        ext::return_value(flags, enc_return_value);
     }
 
     fn println(&mut self, content: &str) {
