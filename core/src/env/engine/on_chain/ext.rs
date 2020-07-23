@@ -16,14 +16,83 @@
 //!
 //! Refer to substrate SRML contract module for more documentation.
 
-use crate::env::{
-    EnvError,
-    Result,
-};
 use ink_primitives::Key;
 
-/// Returned by the host environment if a contract call trapped.
-const TRAP_RETURN_CODE: u32 = 0x0100;
+macro_rules! define_error_codes {
+    (
+        $(
+            $( #[$attr:meta] )*
+            $name:ident = $discr:literal,
+        )*
+    ) => {
+        /// Either success or any error that can be returned from a runtime API call.
+        #[repr(u32)]
+        pub enum ReturnCode {
+            /// API call successful.
+            Success = 0,
+            $(
+                $( #[$attr] )*
+                $name = $discr,
+            )*
+            /// Returns if an unknown error was received from the host module.
+            UnknownError,
+        }
+
+        impl From<u32> for ReturnCode {
+            /// Returns a new return code from the given raw value if valid.
+            ///
+            /// Returns `None` if the raw value is not a valid discriminant.
+            #[inline]
+            fn from(raw: u32) -> Self {
+                match raw {
+                    0 => Self::Success,
+                    $(
+                        $discr => Self::$name,
+                    )*
+                    _ => Self::UnknownError,
+                }
+            }
+        }
+
+        /// Every error that can be returned from a runtime API call.
+        #[repr(u32)]
+        pub enum Error {
+            $(
+                $( #[$attr] )*
+                $name = $discr,
+            )*
+            /// Returns if an unknown error was received from the host module.
+            UnknownError,
+        }
+
+        impl From<ReturnCode> for Result {
+            #[inline]
+            fn from(return_code: ReturnCode) -> Self {
+                match return_code {
+                    ReturnCode::Success => Ok(()),
+                    $(
+                        ReturnCode::$name => Err(Error::$name),
+                    )*
+                    ReturnCode::UnknownError => Err(Error::UnknownError),
+                }
+            }
+        }
+    };
+}
+define_error_codes! {
+    /// The called function trapped and has its state changes reverted.
+    /// In this case no output buffer is returned.
+    /// Can only be returned from `ext_call` and `ext_instantiate`.
+    CalleeTrapped = 1,
+    /// The called function ran to completion but decided to revert its state.
+    /// An output buffer is returned when one was supplied.
+    /// Can only be returned from `ext_call` and `ext_instantiate`.
+    CalleeReverted = 2,
+    /// The passed key does not exist in storage.
+    KeyNotFound = 3,
+}
+
+type Result = core::result::Result<(), Error>;
 
 mod sys {
     extern "C" {
@@ -31,28 +100,34 @@ mod sys {
             init_code_ptr: u32,
             init_code_len: u32,
             gas: u64,
-            value_ptr: u32,
-            value_len: u32,
-            input_data_ptr: u32,
-            input_data_len: u32,
+            endowment_ptr: u32,
+            endowment_len: u32,
+            input_ptr: u32,
+            input_len: u32,
+            address_ptr: u32,
+            address_len_ptr: u32,
+            output_ptr: u32,
+            output_len_ptr: u32,
         ) -> u32;
 
         pub fn ext_call(
             callee_ptr: u32,
             callee_len: u32,
             gas: u64,
-            value_ptr: u32,
-            value_len: u32,
-            input_data_ptr: u32,
-            input_data_len: u32,
+            transferred_value_ptr: u32,
+            transferred_value_len: u32,
+            input_ptr: u32,
+            input_len: u32,
+            output_ptr: u32,
+            output_len_ptr: u32,
         ) -> u32;
 
         pub fn ext_transfer(
             account_id_ptr: u32,
             account_id_len: u32,
-            value_ptr: u32,
-            value_len: u32,
-        ) -> u32;
+            transferred_value_ptr: u32,
+            transferred_value_len: u32,
+        );
 
         pub fn ext_deposit_event(
             topics_ptr: u32,
@@ -62,10 +137,9 @@ mod sys {
         );
 
         pub fn ext_set_storage(key_ptr: u32, value_ptr: u32, value_len: u32);
+        pub fn ext_get_storage(key_ptr: u32, output_ptr: u32, output_len_ptr: u32)
+            -> u32;
         pub fn ext_clear_storage(key_ptr: u32);
-        pub fn ext_get_storage(key_ptr: u32) -> u32;
-
-        pub fn ext_get_runtime_storage(key_ptr: u32, key_len: u32) -> u32;
 
         pub fn ext_restore_to(
             dest_ptr: u32,
@@ -79,27 +153,37 @@ mod sys {
         );
         pub fn ext_terminate(beneficiary_ptr: u32, beneficiary_len: u32) -> !;
 
-        pub fn ext_dispatch_call(call_ptr: u32, call_len: u32);
+        pub fn ext_call_chain_extension(
+            func_id: u32,
+            input_ptr: u32,
+            input_len: u32,
+            output_ptr: u32,
+            output_len_ptr: u32,
+        ) -> u32;
 
-        pub fn ext_scratch_size() -> u32;
-        pub fn ext_scratch_read(dst_ptr: u32, offset: u32, len: u32);
-        pub fn ext_scratch_write(src_ptr: u32, len: u32);
+        pub fn ext_input(buf_ptr: u32, buf_len_ptr: u32);
+        pub fn ext_return(flags: u32, data_ptr: u32, data_len: u32) -> !;
 
-        pub fn ext_caller();
-        pub fn ext_block_number();
-        pub fn ext_address();
-        pub fn ext_balance();
-        pub fn ext_gas_price(gas: u64);
-        pub fn ext_gas_left();
-        pub fn ext_value_transferred();
-        pub fn ext_now();
-        pub fn ext_rent_allowance();
-        pub fn ext_minimum_balance();
-        pub fn ext_tombstone_deposit();
+        pub fn ext_caller(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_block_number(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_address(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_balance(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_weight_to_fee(gas: u64, output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_gas_left(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_value_transferred(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_now(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_rent_allowance(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_minimum_balance(output_ptr: u32, output_len_ptr: u32);
+        pub fn ext_tombstone_deposit(output_ptr: u32, output_len_ptr: u32);
 
         pub fn ext_set_rent_allowance(value_ptr: u32, value_len: u32);
 
-        pub fn ext_random_seed(subject_ptr: u32, subject_len: u32);
+        pub fn ext_random(
+            subject_ptr: u32,
+            subject_len: u32,
+            output_ptr: u32,
+            output_len_ptr: u32,
+        );
         pub fn ext_println(str_ptr: u32, str_len: u32);
 
         pub fn ext_hash_keccak_256(input_ptr: u32, input_len: u32, output_ptr: u32);
@@ -109,64 +193,82 @@ mod sys {
     }
 }
 
-pub fn create(
+fn extract_from_slice(output: &mut &mut [u8], new_len: usize) {
+    debug_assert!(new_len <= output.len());
+    let tmp = core::mem::take(output);
+    *output = &mut tmp[..new_len];
+}
+
+pub fn instantiate(
     code_hash: &[u8],
     gas_limit: u64,
+    endowment: &[u8],
+    input: &[u8],
+    out_address: &mut &mut [u8],
+    out_return_value: &mut &mut [u8],
+) -> Result {
+    let mut address_len = out_address.len() as u32;
+    let mut return_value_len = out_return_value.len() as u32;
+    let ret_code = {
+        let address_len_ptr: *mut u32 = &mut address_len;
+        let return_value_len_ptr: *mut u32 = &mut return_value_len;
+        unsafe {
+            sys::ext_instantiate(
+                code_hash.as_ptr() as u32,
+                code_hash.len() as u32,
+                gas_limit,
+                endowment.as_ptr() as u32,
+                endowment.len() as u32,
+                input.as_ptr() as u32,
+                input.len() as u32,
+                out_address.as_ptr() as u32,
+                address_len_ptr as u32,
+                out_return_value.as_ptr() as u32,
+                return_value_len_ptr as u32,
+            )
+        }
+    };
+    extract_from_slice(out_address, address_len as usize);
+    extract_from_slice(out_return_value, return_value_len as usize);
+    ReturnCode::from(ret_code).into()
+}
+
+pub fn call(
+    callee: &[u8],
+    gas_limit: u64,
     value: &[u8],
-    create_data: &[u8],
-) -> Result<()> {
-    let ret_code = unsafe {
-        sys::ext_instantiate(
-            code_hash.as_ptr() as u32,
-            code_hash.len() as u32,
-            gas_limit,
-            value.as_ptr() as u32,
-            value.len() as u32,
-            create_data.as_ptr() as u32,
-            create_data.len() as u32,
-        )
+    input: &[u8],
+    output: &mut &mut [u8],
+) -> Result {
+    let mut output_len = output.len() as u32;
+    let ret_code = {
+        let output_len_ptr: *mut u32 = &mut output_len;
+        unsafe {
+            sys::ext_call(
+                callee.as_ptr() as u32,
+                callee.len() as u32,
+                gas_limit,
+                value.as_ptr() as u32,
+                value.len() as u32,
+                input.as_ptr() as u32,
+                input.len() as u32,
+                output.as_ptr() as u32,
+                output_len_ptr as u32,
+            )
+        }
     };
-    match ret_code {
-        0 => Ok(()),
-        c if c == TRAP_RETURN_CODE => Err(EnvError::ContractInstantiationTrapped),
-        err if err <= 0xFF => Err(EnvError::ContractInstantiationFailState(err as u8)),
-        _unknown => panic!("encountered unknown error code upon contract call"),
-    }
+    extract_from_slice(output, output_len as usize);
+    ReturnCode::from(ret_code).into()
 }
 
-pub fn call(callee: &[u8], gas_limit: u64, value: &[u8], call_data: &[u8]) -> Result<()> {
-    let ret_code = unsafe {
-        sys::ext_call(
-            callee.as_ptr() as u32,
-            callee.len() as u32,
-            gas_limit,
-            value.as_ptr() as u32,
-            value.len() as u32,
-            call_data.as_ptr() as u32,
-            call_data.len() as u32,
-        )
-    };
-    match ret_code {
-        0 => Ok(()),
-        c if c == TRAP_RETURN_CODE => Err(EnvError::ContractInstantiationTrapped),
-        err if err <= 0xFF => Err(EnvError::ContractInstantiationFailState(err as u8)),
-        _unknown => panic!("encountered unknown error code upon contract call"),
-    }
-}
-
-pub fn transfer(account_id: &[u8], value: &[u8]) -> Result<()> {
-    let ret_code = unsafe {
+pub fn transfer(account_id: &[u8], value: &[u8]) {
+    unsafe {
         sys::ext_transfer(
             account_id.as_ptr() as u32,
             account_id.len() as u32,
             value.as_ptr() as u32,
             value.len() as u32,
         )
-    };
-    match ret_code {
-        0 => Ok(()),
-        1 => Err(EnvError::TransferCallFailed),
-        _unknown => panic!("encountered unknown error code upon transfer"),
     }
 }
 
@@ -195,27 +297,20 @@ pub fn clear_storage(key: &[u8]) {
     unsafe { sys::ext_clear_storage(key.as_ptr() as u32) }
 }
 
-pub fn get_storage(key: &[u8]) -> Result<()> {
-    let ret_code = unsafe { sys::ext_get_storage(key.as_ptr() as u32) };
-    match ret_code {
-        0 => Ok(()),
-        1 => Err(EnvError::MissingContractStorageEntry),
-        _unknown => panic!("encountered unexpected return code"),
-    }
-}
-
-pub fn get_runtime_storage(runtime_key: &[u8]) -> Result<()> {
-    let ret_code = unsafe {
-        sys::ext_get_runtime_storage(
-            runtime_key.as_ptr() as u32,
-            runtime_key.len() as u32,
-        )
+pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
+    let mut output_len = output.len() as u32;
+    let ret_code = {
+        let output_len_ptr: *mut u32 = &mut output_len;
+        unsafe {
+            sys::ext_get_storage(
+                key.as_ptr() as u32,
+                output.as_ptr() as u32,
+                output_len_ptr as u32,
+            )
+        }
     };
-    match ret_code {
-        0 => Ok(()),
-        1 => Err(EnvError::MissingRuntimeStorageEntry),
-        _unknown => panic!("encountered unsupported return code"),
-    }
+    extract_from_slice(output, output_len as usize);
+    ReturnCode::from(ret_code).into()
 }
 
 /// Restores a tombstone to the original smart contract.
@@ -253,29 +348,83 @@ pub fn terminate(beneficiary: &[u8]) -> ! {
     unsafe { sys::ext_terminate(beneficiary.as_ptr() as u32, beneficiary.len() as u32) }
 }
 
-pub fn dispatch_call(call: &[u8]) {
-    unsafe { sys::ext_dispatch_call(call.as_ptr() as u32, call.len() as u32) }
+pub fn call_chain_extension(
+    func_id: u32,
+    input: &[u8],
+    output: &mut &mut [u8],
+) -> Result {
+    let mut output_len = output.len() as u32;
+    let ret_code = {
+        let output_len_ptr: *mut u32 = &mut output_len;
+        unsafe {
+            sys::ext_call_chain_extension(
+                func_id,
+                input.as_ptr() as u32,
+                input.len() as u32,
+                output.as_ptr() as u32,
+                output_len_ptr as u32,
+            )
+        }
+    };
+    extract_from_slice(output, output_len as usize);
+    ReturnCode::from(ret_code).into()
 }
 
-pub fn scratch_size() -> usize {
-    (unsafe { sys::ext_scratch_size() }) as usize
+pub fn ext_input(output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        let output_len_ptr: *mut u32 = &mut output_len;
+        unsafe { sys::ext_input(output.as_ptr() as u32, output_len_ptr as u32) };
+    }
+    extract_from_slice(output, output_len as usize);
 }
 
-pub fn scratch_read(dest: &mut [u8], offset: u32) {
-    unsafe { sys::ext_scratch_read(dest.as_mut_ptr() as u32, offset, dest.len() as u32) }
+pub struct ReturnFlags {
+    value: u32,
 }
 
-pub fn scratch_write(src: &[u8]) {
-    unsafe { sys::ext_scratch_write(src.as_ptr() as u32, src.len() as u32) }
+impl Default for ReturnFlags {
+    fn default() -> Self {
+        Self { value: 0 }
+    }
+}
+
+impl ReturnFlags {
+    pub fn set_trapped(mut self, has_trapped: bool) -> Self {
+        self.value |= has_trapped as u32;
+        self
+    }
+
+    pub fn into_u32(self) -> u32 {
+        self.value
+    }
+}
+
+pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
+    unsafe {
+        sys::ext_return(
+            flags.into_u32(),
+            return_value.as_ptr() as u32,
+            return_value.len() as u32,
+        )
+    }
 }
 
 macro_rules! impl_ext_wrapper_for {
     ( $( ($name:ident => $ext_name:ident), )* ) => {
         $(
-            pub fn $name() {
-                unsafe {
-                    sys::$ext_name()
+            pub fn $name(output: &mut &mut [u8]) {
+                let mut output_len = output.len() as u32;
+                {
+                    let output_len_ptr: *mut u32 = &mut output_len;
+                    unsafe {
+                        sys::$ext_name(
+                            output.as_ptr() as u32,
+                            output_len_ptr as u32,
+                        )
+                    };
                 }
+                extract_from_slice(output, output_len as usize);
             }
         )*
     }
@@ -293,16 +442,35 @@ impl_ext_wrapper_for! {
     (tombstone_deposit => ext_tombstone_deposit),
 }
 
-pub fn gas_price(gas: u64) {
-    unsafe { sys::ext_gas_price(gas) }
+pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        let output_len_ptr: *mut u32 = &mut output_len;
+        unsafe {
+            sys::ext_weight_to_fee(gas, output.as_ptr() as u32, output_len_ptr as u32)
+        };
+    }
+    extract_from_slice(output, output_len as usize);
 }
 
 pub fn set_rent_allowance(value: &[u8]) {
     unsafe { sys::ext_set_rent_allowance(value.as_ptr() as u32, value.len() as u32) }
 }
 
-pub fn random_seed(subject: &[u8]) {
-    unsafe { sys::ext_random_seed(subject.as_ptr() as u32, subject.len() as u32) }
+pub fn random(subject: &[u8], output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        let output_len_ptr: *mut u32 = &mut output_len;
+        unsafe {
+            sys::ext_random(
+                subject.as_ptr() as u32,
+                subject.len() as u32,
+                output.as_ptr() as u32,
+                output_len_ptr as u32,
+            )
+        };
+    }
+    extract_from_slice(output, output_len as usize);
 }
 
 pub fn println(content: &str) {
