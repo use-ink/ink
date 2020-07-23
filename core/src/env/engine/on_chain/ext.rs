@@ -371,7 +371,7 @@ pub fn call_chain_extension(
     ReturnCode::from(ret_code).into()
 }
 
-pub fn ext_input(output: &mut &mut [u8]) {
+pub fn input(output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
     {
         let output_len_ptr: *mut u32 = &mut output_len;
