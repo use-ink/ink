@@ -85,13 +85,6 @@ impl Env for EnvInstance {
             .expect("callee account is not a smart contract");
     }
 
-    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
-    where
-        R: scale::Decode,
-    {
-        self.runtime_storage.load::<R>(runtime_key)
-    }
-
     fn decode_input<T>(&mut self) -> Result<T>
     where
         T: scale::Decode,
@@ -252,13 +245,6 @@ impl TypedEnv for EnvInstance {
         Args: scale::Encode,
     {
         unimplemented!("off-chain environment does not support contract invokation")
-    }
-
-    fn invoke_runtime<T>(&mut self, params: &T::Call) -> Result<()>
-    where
-        T: EnvTypes,
-    {
-        self.runtime_call_handler.invoke::<T>(params)
     }
 
     fn eval_contract<T, Args, R>(
