@@ -262,8 +262,7 @@ impl Env for EnvInstance {
     where
         T: scale::Decode,
     {
-        // self.get_property::<T>(|| ())
-        todo!()
+        self.get_property::<T>(ext::input)
     }
 
     fn output<R>(&mut self, return_value: &R)
