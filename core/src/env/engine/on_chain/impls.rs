@@ -153,16 +153,6 @@ impl Env for EnvInstance {
         ext::clear_storage(key.as_bytes())
     }
 
-    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
-    where
-        R: scale::Decode,
-    {
-        if ext::get_runtime_storage(runtime_key).is_err() {
-            return None
-        }
-        Some(self.decode_scratch_buffer().map_err(Into::into))
-    }
-
     fn decode_input<T>(&mut self) -> Result<T>
     where
         T: scale::Decode,
@@ -264,15 +254,6 @@ impl TypedEnv for EnvInstance {
     {
         self.encode_into_buffer(&new_value);
         ext::set_rent_allowance(&self.buffer[..])
-    }
-
-    fn invoke_runtime<T>(&mut self, call: &T::Call) -> Result<()>
-    where
-        T: EnvTypes,
-    {
-        self.encode_into_buffer(call);
-        ext::dispatch_call(&self.buffer[..]);
-        Ok(())
     }
 
     fn invoke_contract<T, Args>(

@@ -43,15 +43,6 @@ pub trait Env {
     /// Clears the contract's storage key entry.
     fn clear_contract_storage(&mut self, key: &Key);
 
-    /// Returns the value from the *runtime* storage at the position of the key if any.
-    ///
-    /// # Errors
-    ///
-    /// - If the decoding of the typed value failed
-    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
-    where
-        R: scale::Decode;
-
     /// Returns the execution input to the executed contract and decodes it as `T`.
     ///
     /// # Note
@@ -205,15 +196,6 @@ pub trait TypedEnv: Env {
     ///
     /// For more details visit: [`ink_core::env::set_rent_allowance`]
     fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
-    where
-        T: EnvTypes;
-
-    /// Invokes a call of the runtime.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_core::env::invoke_runtime`]
-    fn invoke_runtime<T>(&mut self, call: &T::Call) -> Result<()>
     where
         T: EnvTypes;
 

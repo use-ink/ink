@@ -238,25 +238,6 @@ pub fn clear_contract_storage(key: &Key) {
     })
 }
 
-/// Invokes a call to the runtime.
-///
-/// # Note
-///
-/// The call is not guaranteed to execute immediately but might be deferred
-/// to the end of the contract execution.
-///
-/// # Errors
-///
-/// - If the called runtime function does not exist.
-pub fn invoke_runtime<T>(params: &T::Call) -> Result<()>
-where
-    T: EnvTypes,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::invoke_runtime::<T>(instance, params)
-    })
-}
-
 /// Invokes a contract message.
 ///
 /// # Note
@@ -503,20 +484,6 @@ where
 /// Prints the given contents to the environmental log.
 pub fn println(content: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| Env::println(instance, content))
-}
-
-/// Returns the value from the *runtime* storage at the position of the key if any.
-///
-/// # Errors
-///
-/// - If the decoding of the typed value failed
-pub fn get_runtime_storage<R>(runtime_key: &[u8]) -> Option<Result<R>>
-where
-    R: scale::Decode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::get_runtime_storage::<R>(instance, runtime_key)
-    })
 }
 
 /// Built-in efficient cryptographic hash functions.
