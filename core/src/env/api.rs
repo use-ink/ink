@@ -16,6 +16,7 @@
 
 use crate::env::{
     backend::{
+        ReturnFlags,
         Env,
         TypedEnv,
     },
@@ -453,12 +454,12 @@ where
 ///
 /// This call must be the last call to the contract
 /// environment for every contract execution.
-pub fn output<R>(return_value: &R)
+pub fn output<R>(return_flags: ReturnFlags, return_value: &R)
 where
     R: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::output::<R>(instance, return_value)
+        Env::output::<R>(instance, return_flags, return_value)
     })
 }
 

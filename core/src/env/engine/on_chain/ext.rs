@@ -17,6 +17,7 @@
 //! Refer to substrate SRML contract module for more documentation.
 
 use ink_primitives::Key;
+use crate::env::ReturnFlags;
 
 macro_rules! define_error_codes {
     (
@@ -377,27 +378,6 @@ pub fn ext_input(output: &mut &mut [u8]) {
         unsafe { sys::ext_input(output.as_ptr() as u32, output_len_ptr as u32) };
     }
     extract_from_slice(output, output_len as usize);
-}
-
-pub struct ReturnFlags {
-    value: u32,
-}
-
-impl Default for ReturnFlags {
-    fn default() -> Self {
-        Self { value: 0 }
-    }
-}
-
-impl ReturnFlags {
-    pub fn set_trapped(mut self, has_trapped: bool) -> Self {
-        self.value |= has_trapped as u32;
-        self
-    }
-
-    pub fn into_u32(self) -> u32 {
-        self.value
-    }
 }
 
 pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {

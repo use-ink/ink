@@ -24,6 +24,30 @@ use crate::env::{
 };
 use ink_primitives::Key;
 
+/// The flags to indicate further information about the end of a contract execution.
+pub struct ReturnFlags {
+    value: u32,
+}
+
+impl Default for ReturnFlags {
+    fn default() -> Self {
+        Self { value: 0 }
+    }
+}
+
+impl ReturnFlags {
+    /// Sets the bit to indicate that the execution has trapped.
+    pub fn set_trapped(mut self, has_trapped: bool) -> Self {
+        self.value |= has_trapped as u32;
+        self
+    }
+
+    /// Returns the underlying `u32` representation.
+    pub fn into_u32(self) -> u32 {
+        self.value
+    }
+}
+
 /// Environmental contract functionality that does not require `EnvTypes`.
 pub trait Env {
     /// Writes the value to the contract storage under the given key.
@@ -77,7 +101,7 @@ pub trait Env {
     /// The setting of this property must be the last interaction between
     /// the executed contract and its environment.
     /// The environment access asserts this guarantee.
-    fn output<R>(&mut self, return_value: &R)
+    fn output<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode;
 

@@ -37,6 +37,7 @@ use self::backend::{
     TypedEnv,
 };
 pub use self::{
+    backend::ReturnFlags,
     api::*,
     error::{
         EnvError,

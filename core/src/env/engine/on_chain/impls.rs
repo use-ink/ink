@@ -25,6 +25,7 @@ use crate::env::{
     Env,
     EnvTypes,
     Result,
+    ReturnFlags,
     Topics,
     TypedEnv,
 };
