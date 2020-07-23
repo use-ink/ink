@@ -56,9 +56,7 @@ fn bench_push_empty_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut group = c.benchmark_group("BinaryHeap::push (empty cache)");
 
-        for (key, size) in
-            [(0u8, 8), (1, 16), (2, 32), (3, 64)].iter()
-        {
+        for (key, size) in [(0u8, 8), (1, 16), (2, 32), (3, 64)].iter() {
             let test_values = test_values(*size);
             let heap = binary_heap_from_slice(&test_values);
             let root_key = Key::from([*key; 32]);
@@ -112,8 +110,7 @@ fn bench_push_populated_cache(c: &mut Criterion) {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut group = c.benchmark_group("BinaryHeap::push (populated cache)");
 
-        for size in [8, 16, 32, 64].iter()
-        {
+        for size in [8, 16, 32, 64].iter() {
             let largest_value = size + 1;
             group.bench_with_input(
                 BenchmarkId::new("largest value", size),
@@ -149,5 +146,5 @@ fn bench_push_populated_cache(c: &mut Criterion) {
         group.finish();
         Ok(())
     })
-        .unwrap();
+    .unwrap();
 }
