@@ -27,6 +27,8 @@ pub enum EnvError {
     OffChain(OffChainError),
     /// The call to another contract has trapped.
     ContractCallTrapped,
+    /// The call to another contract has been reverted.
+    ContractCallReverted,
     /// A called contract returned a custom error code.
     #[from(ignore)]
     ContractCallFailState(u8),
@@ -41,6 +43,8 @@ pub enum EnvError {
     MissingContractStorageEntry,
     /// A call to transfer value from the contract failed.
     TransferCallFailed,
+    /// An unknown error has occured.
+    UnknownError,
 }
 
 /// A result of environmental operations.

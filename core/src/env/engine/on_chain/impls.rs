@@ -23,6 +23,7 @@ use crate::env::{
         ReturnType,
     },
     Env,
+    EnvError,
     EnvTypes,
     Result,
     ReturnFlags,
@@ -31,6 +32,16 @@ use crate::env::{
 };
 use ink_primitives::Key;
 
+impl From<ext::Error> for EnvError {
+    fn from(ext_error: ext::Error) -> Self {
+        match ext_error {
+            ext::Error::UnknownError => Self::UnknownError,
+            ext::Error::CalleeTrapped => Self::ContractCallTrapped,
+            ext::Error::CalleeReverted => Self::ContractCallReverted,
+            ext::Error::KeyNotFound => Self::MissingContractStorageEntry,
+        }
+    }
+}
 impl EnvInstance {
     /// Empties the contract-side scratch buffer.
     ///
