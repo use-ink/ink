@@ -40,6 +40,7 @@ use core::{
     },
     fmt,
     fmt::Debug,
+    iter::FromIterator,
     ptr::NonNull,
 };
 use ink_prelude::{
@@ -274,6 +275,40 @@ where
 {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl<K, V, H> FromIterator<(K, V)> for LazyHashMap<K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+    {
+        let mut hmap = LazyHashMap::new();
+        hmap.extend(iter);
+        hmap
+    }
+}
+
+impl<K, V, H> Extend<(K, V)> for LazyHashMap<K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = (K, V)>,
+    {
+        for (key, value) in iter {
+            self.put(key, Some(value));
+        }
     }
 }
 
