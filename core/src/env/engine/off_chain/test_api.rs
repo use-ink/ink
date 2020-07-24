@@ -177,24 +177,9 @@ where
     })
 }
 
-/// Sets the runtime storage to value for the given key.
-pub fn set_runtime_storage<T>(key: &[u8], value: T)
 where
-    T: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.runtime_storage.store(key.to_vec(), value)
-    })
-}
-
-/// Sets the call handler for runtime calls.
-pub fn set_runtime_call_handler<T, F>(f: F)
-where
-    T: EnvTypes,
-    F: FnMut(<T as EnvTypes>::Call) + 'static,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.runtime_call_handler.register::<T, F>(f)
     })
 }
 
