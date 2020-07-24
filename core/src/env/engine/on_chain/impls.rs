@@ -155,11 +155,6 @@ impl EnvInstance {
         self.buffer.clear();
     }
 
-    /// Resizes the amount of used bytes of the internal buffer.
-    fn resize_buffer(&mut self, new_len: usize) {
-        self.buffer.resize(new_len);
-    }
-
     /// Reads from the scratch buffer and directly decodes into a value of `T`.
     ///
     /// # Errors

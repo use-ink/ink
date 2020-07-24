@@ -38,18 +38,6 @@ impl StaticBuffer {
         self.len
     }
 
-    /// Resizes the static buffer to the given length.
-    ///
-    /// # Panics
-    ///
-    /// Panics for lengths greater than its capacity.
-    pub fn resize(&mut self, new_len: usize) {
-        if new_len > Self::CAPACITY {
-            panic!("static buffer overflowed")
-        }
-        self.len = new_len;
-    }
-
     /// Resets the length of the buffer to 0.
     pub fn clear(&mut self) {
         self.len = 0;
