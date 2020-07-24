@@ -96,7 +96,7 @@ where
     H: Hasher,
     Key: From<<H as Hasher>::Output>,
 {
-    /// A reference to the used `HashMap` instance.
+    /// A reference to the used `LazyHashMap` instance.
     base: &'a mut LazyHashMap<K, V, H>,
     /// The key stored in this entry.
     key: K,
@@ -110,7 +110,7 @@ where
     H: Hasher,
     Key: From<<H as Hasher>::Output>,
 {
-    /// A reference to the used `HashMap` instance.
+    /// A reference to the used `LazyHashMap` instance.
     base: &'a mut LazyHashMap<K, V, H>,
     /// The key stored in this entry.
     key: K,
@@ -815,13 +815,8 @@ where
     pub fn remove_entry(self) -> (K, V) {
         let value = self
             .base
-            //.values
             .put_get(&self.key, None)
             .expect("`key` must exist");
-        // self.base
-        // .keys
-        // .take(self.key_index)
-        // .expect("`key_index` must point to a valid key entry");
         (self.key, value)
     }
 
@@ -847,7 +842,6 @@ where
     pub fn insert(&mut self, new_value: V) -> V {
         let mut occupied = self
             .base
-            //.values
             .get_mut(&self.key)
             .expect("entry behind `OccupiedEntry` must always exist");
         core::mem::replace(&mut occupied, new_value)

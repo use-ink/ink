@@ -23,7 +23,6 @@
 //!
 //! These low-level collections are not aware of the elements they manage thus
 //! extra care has to be taken when operating directly on them.
-//!
 
 pub mod lazy_hmap;
 

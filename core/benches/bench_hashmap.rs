@@ -111,7 +111,6 @@ macro_rules! gen_tests_for_backend {
         fn remove(hmap: &mut $backend) {
             for key in 0..ENTRIES * 2 {
                 if black_box(contains_key(hmap, &key)) {
-                    //let _ = black_box(hmap.take(&key));
                     let _ = black_box(take(hmap, &key));
                 }
             }
@@ -244,10 +243,6 @@ mod lazyhmap_backend {
         hash::hasher::Blake2x256Hasher,
         storage2::lazy::lazy_hmap::{
             Entry,
-            Entry::{
-                Occupied,
-                Vacant,
-            },
             LazyHashMap,
         },
     };

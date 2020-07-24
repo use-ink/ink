@@ -25,7 +25,7 @@ use ink_primitives::Key;
 #[cfg(test)]
 macro_rules! gen_tests_for_backend {
     ( $backend:ty ) => {
-        /// Returns a prefilled `HashMap` with `[('A', 13), ['B', 23])`.
+        /// Returns a prefilled hashmap with `[('A', 13), ['B', 23])`.
         fn prefilled_hmap() -> $backend {
             let test_values = [(b'A', 13), (b'B', 23)];
             test_values.iter().copied().collect::<$backend>()
