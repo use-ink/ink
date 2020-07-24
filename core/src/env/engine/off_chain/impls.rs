@@ -27,11 +27,12 @@ use crate::env::{
     EnvError,
     EnvTypes,
     Result,
+    ReturnFlags,
     Topics,
     TypedEnv,
 };
-use ink_primitives::Key;
 use core::convert::TryInto;
+use ink_primitives::Key;
 use num_traits::Bounded;
 
 impl EnvInstance {
@@ -100,7 +101,7 @@ impl Env for EnvInstance {
             })
     }
 
-    fn output<R>(&mut self, return_value: &R)
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode,
     {
@@ -108,6 +109,7 @@ impl Env for EnvInstance {
             .exec_context_mut()
             .expect("uninitialized execution context");
         ctx.output = Some(return_value.encode());
+        std::process::exit(flags.into_u32() as i32)
     }
 
     fn println(&mut self, content: &str) {
@@ -129,6 +131,46 @@ impl Env for EnvInstance {
     fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
         hashing::sha2_256(input, output)
     }
+
+    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
+    where
+        I: scale::Encode,
+        O: scale::Decode,
+    {
+        unimplemented!(
+            "calling chain extensions is not supported in the off-chain environment"
+        )
+    }
+}
+
+impl EnvInstance {
+    fn transfer_impl<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    where
+        T: EnvTypes,
+    {
+        let src_id = self.account_id::<T>()?;
+        let src_value = self
+            .accounts
+            .get_account::<T>(&src_id)
+            .expect("account of executed contract must exist")
+            .balance::<T>()?;
+        if src_value < value {
+            return Err(EnvError::TransferCallFailed)
+        }
+        let dst_value = self
+            .accounts
+            .get_or_create_account::<T>(&destination)
+            .balance::<T>()?;
+        self.accounts
+            .get_account_mut::<T>(&src_id)
+            .expect("account of executed contract must exist")
+            .set_balance::<T>(src_value - value)?;
+        self.accounts
+            .get_account_mut::<T>(&destination)
+            .expect("the account must exist already or has just been created")
+            .set_balance::<T>(dst_value + value)?;
+        Ok(())
+    }
 }
 
 impl TypedEnv for EnvInstance {
@@ -149,14 +191,16 @@ impl TypedEnv for EnvInstance {
     }
 
     /// Emulates gas price calculation
-    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
+    fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
         use crate::env::arithmetic::Saturating as _;
 
-        let gas_price = self.chain_spec
+        let gas_price = self
+            .chain_spec
             .gas_price::<T>()
             .map_err(|_| scale::Error::from("could not decode gas price"))?;
 
-        Ok(gas_price.saturating_mul(gas.try_into().unwrap_or_else(|_| Bounded::max_value())))
+        Ok(gas_price
+            .saturating_mul(gas.try_into().unwrap_or_else(|_| Bounded::max_value())))
     }
 
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
@@ -289,32 +333,12 @@ impl TypedEnv for EnvInstance {
         unimplemented!("off-chain environment does not support contract restoration")
     }
 
-    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance)
     where
         T: EnvTypes,
     {
-        let src_id = self.account_id::<T>()?;
-        let src_value = self
-            .accounts
-            .get_account::<T>(&src_id)
-            .expect("account of executed contract must exist")
-            .balance::<T>()?;
-        if src_value < value {
-            return Err(EnvError::TransferCallFailed)
-        }
-        let dst_value = self
-            .accounts
-            .get_or_create_account::<T>(&destination)
-            .balance::<T>()?;
-        self.accounts
-            .get_account_mut::<T>(&src_id)
-            .expect("account of executed contract must exist")
-            .set_balance::<T>(src_value - value)?;
-        self.accounts
-            .get_account_mut::<T>(&destination)
-            .expect("the account must exist already or has just been created")
-            .set_balance::<T>(dst_value + value)?;
-        Ok(())
+        self.transfer_impl::<T>(destination, value)
+            .expect("encountered invalid transfer call")
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
