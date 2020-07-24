@@ -50,51 +50,6 @@ impl EnvInstance {
         ScopedBuffer::from(&mut self.buffer[..])
     }
 
-    /// Empties the contract-side scratch buffer.
-    ///
-    /// # Note
-    ///
-    /// This is useful to perform before invoking a series of
-    /// [`WasmEnv::append_encode_into_buffer`].
-    fn reset_buffer(&mut self) {
-        self.buffer.clear();
-    }
-
-    /// Reads from the scratch buffer and directly decodes into a value of `T`.
-    ///
-    /// # Errors
-    ///
-    /// If the decoding into a value of `T` failed.
-    fn decode_scratch_buffer<T>(&mut self) -> Result<T>
-    where
-        T: scale::Decode,
-    {
-        todo!()
-        // let req_len = self.read_scratch_buffer();
-        // scale::Decode::decode(&mut &self.buffer[0..req_len]).map_err(Into::into)
-    }
-
-    /// Encodes the value into the contract-side scratch buffer.
-    fn encode_into_buffer<T>(&mut self, value: T)
-    where
-        T: scale::Encode,
-    {
-        self.reset_buffer();
-        scale::Encode::encode_to(&value, &mut self.buffer);
-    }
-
-    /// Appends the encoded value into the contract-side scratch buffer
-    /// and returns the byte ranges into the encoded region.
-    fn append_encode_into_buffer<T>(&mut self, value: T) -> core::ops::Range<usize>
-    where
-        T: scale::Encode,
-    {
-        let start = self.buffer.len();
-        scale::Encode::encode_to(&value, &mut self.buffer);
-        let end = self.buffer.len();
-        core::ops::Range { start, end }
-    }
-
     /// Returns the contract property value.
     fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where

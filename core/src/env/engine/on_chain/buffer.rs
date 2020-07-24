@@ -32,16 +32,6 @@ impl StaticBuffer {
             len: 0,
         }
     }
-
-    /// Returns the current length of the static buffer.
-    pub fn len(&self) -> usize {
-        self.len
-    }
-
-    /// Resets the length of the buffer to 0.
-    pub fn clear(&mut self) {
-        self.len = 0;
-    }
 }
 
 impl scale::Output for StaticBuffer {
