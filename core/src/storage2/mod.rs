@@ -21,6 +21,9 @@ mod memory;
 mod pack;
 pub mod traits;
 
+#[cfg(test)]
+mod hashmap_entry_api_tests;
+
 #[doc(inline)]
 pub use self::{
     alloc::Box,
