@@ -116,10 +116,7 @@ where
     key: K,
 }
 
-/// An entry within the stash.
-///
-/// The vacant entries within a storage stash form a doubly linked list of
-/// vacant entries that is used to quickly re-use their vacant storage.
+/// An entry within the `LazyHashMap`.
 pub enum Entry<'a, K: 'a, V: 'a, H>
 where
     K: Ord + Clone + PackedLayout,
