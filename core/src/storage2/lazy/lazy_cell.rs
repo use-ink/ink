@@ -342,8 +342,8 @@ where
 mod tests {
     use super::{
         EntryState,
-        StorageEntry,
         LazyCell,
+        StorageEntry,
     };
     use crate::{
         env,

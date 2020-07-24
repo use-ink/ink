@@ -871,8 +871,8 @@ where
 mod tests {
     use super::{
         EntryState,
-        StorageEntry,
         LazyHashMap,
+        StorageEntry,
     };
     use crate::{
         env,
