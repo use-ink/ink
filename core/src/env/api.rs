@@ -430,8 +430,8 @@ where
 /// - If some chain extension specific conditions are not met.
 pub fn call_chain_extension<I, O>(func_id: u32, input: &I) -> Result<O>
 where
-    I: scale::Encode,
-    O: scale::Decode,
+    I: scale::Codec + 'static,
+    O: scale::Codec + 'static,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         Env::call_chain_extension(instance, func_id, input)

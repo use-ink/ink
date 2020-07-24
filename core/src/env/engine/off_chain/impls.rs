@@ -134,12 +134,10 @@ impl Env for EnvInstance {
 
     fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
     where
-        I: scale::Encode,
-        O: scale::Decode,
+        I: scale::Codec + 'static,
+        O: scale::Codec + 'static,
     {
-        unimplemented!(
-            "calling chain extensions is not supported in the off-chain environment"
-        )
+        self.chain_extension_handler.invoke(func_id, input)
     }
 }
 

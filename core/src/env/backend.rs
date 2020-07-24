@@ -140,8 +140,8 @@ pub trait Env {
         input: &I,
     ) -> Result<O>
     where
-        I: scale::Encode,
-        O: scale::Decode;
+        I: scale::Codec + 'static,
+        O: scale::Codec + 'static;
 }
 
 /// Environmental contract functionality.

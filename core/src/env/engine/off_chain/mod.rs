@@ -18,6 +18,7 @@ mod hashing;
 mod impls;
 pub mod test_api;
 mod typed_encoded;
+mod chain_extension;
 mod types;
 
 #[cfg(test)]
@@ -42,6 +43,7 @@ use self::{
         EmittedEventsRecorder,
         ExecContext,
     },
+    chain_extension::ChainExtensionHandler,
     typed_encoded::TypedEncoded,
     types::{
         OffAccountId,
@@ -84,6 +86,8 @@ pub struct EnvInstance {
     blocks: Vec<Block>,
     /// The console to print debug contents.
     console: Console,
+    /// Handler for registered chain extensions.
+    chain_extension_handler: ChainExtensionHandler,
     /// Emitted events recorder.
     emitted_events: EmittedEventsRecorder,
 }
@@ -97,6 +101,7 @@ impl EnvInstance {
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
             console: Console::new(),
+            chain_extension_handler: ChainExtensionHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
         }
     }
@@ -126,6 +131,7 @@ impl EnvInstance {
         self.chain_spec.reset();
         self.blocks.clear();
         self.console.reset();
+        self.chain_extension_handler.reset();
         self.emitted_events.reset();
     }
 
