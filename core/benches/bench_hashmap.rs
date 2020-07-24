@@ -130,7 +130,7 @@ macro_rules! gen_tests_for_backend {
 
         fn bench_insert_populated_cache(c: &mut Criterion) {
             let mut group = c.benchmark_group(
-                "Compare: `insert_and_inc` and `insert_and_inc_entry_api` (populated cache)",
+                format!("{} Compare: `insert_and_inc` and `insert_and_inc_entry_api` (populated cache)", stringify!($backend))
             );
             group.bench_function("insert_and_inc", |b| {
                 b.iter_batched_ref(
@@ -152,7 +152,7 @@ macro_rules! gen_tests_for_backend {
         fn bench_remove_populated_cache(c: &mut Criterion) {
             let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 let mut group = c.benchmark_group(
-                    "Compare: `remove` and `remove_entry_api` (populated cache)",
+                    format!("{} Compare: `remove` and `remove_entry_api` (populated cache)", stringify!($backend))
                 );
                 group.bench_function("remove", |b| {
                     b.iter_batched_ref(
@@ -177,7 +177,7 @@ macro_rules! gen_tests_for_backend {
         fn bench_insert_empty_cache(c: &mut Criterion) {
             let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 let mut group = c.benchmark_group(
-                    "Compare: `insert_and_inc` and `insert_and_inc_entry_api` (empty cache)",
+                    format!("{} Compare: `insert_and_inc` and `insert_and_inc_entry_api` (empty cache)", stringify!($backend))
                 );
                 group.bench_function("insert_and_inc", |b| {
                     b.iter_batched_ref(
@@ -208,7 +208,7 @@ macro_rules! gen_tests_for_backend {
         fn bench_remove_empty_cache(c: &mut Criterion) {
             let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 let mut group =
-                    c.benchmark_group("Compare: `remove` and `remove_entry_api` (empty cache)");
+                    c.benchmark_group(format!("{} Compare: `remove` and `remove_entry_api` (empty cache)", stringify!($backend)));
                 group.bench_function("remove", |b| {
                     b.iter_batched_ref(
                         || {
