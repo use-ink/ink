@@ -17,9 +17,10 @@
 pub use super::{
     CallData,
     EmittedEvent,
+    chain_extension::ChainExtension,
+    db::ChainSpec,
 };
 use super::{
-    chain_extension::ChainExtension,
     db::ExecContext,
     AccountError,
     EnvInstance,
@@ -28,7 +29,6 @@ use super::{
 use crate::env::{
     EnvTypes,
     Result,
-    engine::off_chain::db::ChainSpec,
 };
 use ink_prelude::string::String;
 
