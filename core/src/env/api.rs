@@ -16,8 +16,8 @@
 
 use crate::env::{
     backend::{
-        ReturnFlags,
         Env,
+        ReturnFlags,
         TypedEnv,
     },
     call::{
@@ -415,6 +415,26 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnv::transfer::<T>(instance, destination, value)
+    })
+}
+
+/// Calls the chain extension with the given ID and inputs.
+///
+/// Returns the given output type.
+///
+/// # Errors
+///
+/// - If the given function ID does not exist in the runtime.
+/// - If the given inputs cannot be properly decoded by the runtime.
+/// - If the given output type cannot be properly decoded by the contract.
+/// - If some chain extension specific conditions are not met.
+pub fn call_chain_extension<I, O>(func_id: u32, input: &I) -> Result<O>
+where
+    I: scale::Encode,
+    O: scale::Decode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        Env::call_chain_extension(instance, func_id, input)
     })
 }
 
