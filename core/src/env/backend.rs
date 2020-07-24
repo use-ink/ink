@@ -123,6 +123,25 @@ pub trait Env {
     /// Conducts the BLAKE2 128-bit hash of the input
     /// puts the result into the output buffer.
     fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]);
+
+    /// Calls the chain extension with the given ID and inputs.
+    ///
+    /// Returns the output of the chain extension of the specified type.
+    ///
+    /// # Errors
+    ///
+    /// - If the chain extension with the given ID does not exist.
+    /// - If the inputs had an unexpected encoding.
+    /// - If the output could not be properly decoded.
+    /// - If some extension specific condition has not been met.
+    fn call_chain_extension<I, O>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+    ) -> Result<O>
+    where
+        I: scale::Encode,
+        O: scale::Decode;
 }
 
 /// Environmental contract functionality.
