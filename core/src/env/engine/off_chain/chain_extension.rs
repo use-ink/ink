@@ -42,12 +42,19 @@ pub trait ChainExtension {
     fn call(&mut self, input: &Self::Input) -> Result<Self::Output>;
 }
 
+/// A raw chain extension function.
+///
+/// This is mostly a wrapper closure around the real chain extension function
+/// that handles marshalling of types between their encoded and decoded
+/// representations.
+type ChainExtensionFn = Box<dyn FnMut(Vec<u8>) -> Result<Vec<u8>>>;
+
 /// Runtime call handler.
 ///
 /// More generically a mapping from bytes to bytes.
 pub struct ChainExtensionHandler {
     /// The currently registered runtime call handler.
-    registered: HashMap<FuncId, Box<dyn FnMut(Vec<u8>) -> Result<Vec<u8>>>>,
+    registered: HashMap<FuncId, ChainExtensionFn>,
 }
 
 impl ChainExtensionHandler {
