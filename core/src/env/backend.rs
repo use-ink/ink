@@ -101,7 +101,7 @@ pub trait Env {
     /// The setting of this property must be the last interaction between
     /// the executed contract and its environment.
     /// The environment access asserts this guarantee.
-    fn output<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode;
 

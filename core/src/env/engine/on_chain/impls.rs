@@ -120,7 +120,7 @@ impl Env for EnvInstance {
         self.get_property::<T>(ext::input)
     }
 
-    fn output<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode,
     {
