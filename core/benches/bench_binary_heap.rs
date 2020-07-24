@@ -30,6 +30,7 @@ use ink_core::{
     },
 };
 use ink_primitives::Key;
+use std::time::Duration;
 
 criterion_group!(push, bench_push_empty_cache, bench_push_populated_cache);
 criterion_main!(push,);
@@ -83,6 +84,8 @@ where
 {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let mut group = c.benchmark_group(name);
+        group.warm_up_time(Duration::from_secs(6));
+        group.measurement_time(Duration::from_secs(10));
 
         for (key, size) in [(0u8, 8u32), (1, 16), (2, 32), (3, 64)].iter() {
             let root_key = Key::from([*key; 32]);
