@@ -38,7 +38,7 @@ use crate::{
     },
     storage2::{
         collections::Stash,
-        lazy::{
+        lazy::lazy_hmap::{
             Entry as LazyEntry,
             LazyHashMap,
             OccupiedEntry as LazyOccupiedEntry,

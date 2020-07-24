@@ -23,12 +23,14 @@
 //!
 //! These low-level collections are not aware of the elements they manage thus
 //! extra care has to be taken when operating directly on them.
+//!
+
+pub mod lazy_hmap;
 
 mod cache_cell;
 mod entry;
 mod lazy_array;
 mod lazy_cell;
-mod lazy_hmap;
 mod lazy_imap;
 
 use self::{
@@ -44,12 +46,7 @@ pub use self::{
         LazyArrayLength,
     },
     lazy_cell::LazyCell,
-    lazy_hmap::{
-        Entry,
-        LazyHashMap,
-        OccupiedEntry,
-        VacantEntry,
-    },
+    lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,
 };
 use crate::storage2::traits::{
