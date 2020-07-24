@@ -15,9 +15,7 @@
 use criterion::{
     criterion_group,
     criterion_main,
-    measurement::WallTime,
     BatchSize,
-    BenchmarkGroup,
     BenchmarkId,
     Criterion,
 };
@@ -55,67 +53,53 @@ fn binary_heap_from_slice(slice: &[u32]) -> BinaryHeap<u32> {
 // push should be average O(1), worst case O(log n)
 
 fn bench_push_empty_cache(c: &mut Criterion) {
-    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let mut group = c.benchmark_group("BinaryHeap::push (empty cache)");
+    let init = |root_key: Key, test_values: &[u32]| {
+        let heap = binary_heap_from_slice(test_values);
+        SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
-        for (key, size) in [(0u8, 8), (1, 16), (2, 32), (3, 64)].iter() {
-            // initialize heap values and write to storage
-            let test_values = test_values(*size);
-            let heap = binary_heap_from_slice(&test_values);
-            let root_key = Key::from([*key; 32]);
-            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
+        // prevents storage for the test heap being cleared when the heap is dropped after each
+        // benchmark iteration
+        env::test::set_clear_storage_disabled(true);
+    };
 
-            let setup_lazy_binary_heap = || {
-                <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-                    root_key,
-                ))
-            };
+    let setup = |root_key: Key, _: &[u32]| {
+        <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key))
+    };
 
-            // prevents storage for the test heap being cleared when the heap is dropped after each
-            // benchmark iteration
-            env::test::set_clear_storage_disabled(true);
-
-            let largest_value = size + 1;
-            bench_push(
-                &mut group,
-                "largest value",
-                *size,
-                largest_value,
-                setup_lazy_binary_heap,
-            );
-
-            let smallest_value = 0;
-            bench_push(
-                &mut group,
-                "smallest value",
-                *size,
-                smallest_value,
-                setup_lazy_binary_heap,
-            );
-        }
-
-        group.finish();
-        Ok(())
-    })
-    .unwrap();
+    bench_push(c, "BinaryHeap::push (empty cache)", init, setup);
 }
 
 fn bench_push_populated_cache(c: &mut Criterion) {
-    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let mut group = c.benchmark_group("BinaryHeap::push (populated cache)");
+    let init = |_: Key, _: &[u32]| {};
+    let setup = |_: Key, test_values: &[u32]| binary_heap_from_slice(test_values);
 
-        for size in [8, 16, 32, 64].iter() {
+    bench_push(c, "BinaryHeap::push (populated cache)", init, setup)
+}
+
+fn bench_push<I, S>(c: &mut Criterion, name: &str, init: I, mut setup: S)
+where
+    I: FnOnce(Key, &[u32]) + Copy,
+    S: FnMut(Key, &[u32]) -> BinaryHeap<u32>,
+{
+    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut group = c.benchmark_group(name);
+
+        for (key, size) in [(0u8, 8u32), (1, 16), (2, 32), (3, 64)].iter() {
+            let root_key = Key::from([*key; 32]);
+            let test_values = test_values(*size);
+
+            // perform one time initialization for this heap size
+            init(root_key, &test_values);
+
             let largest_value = size + 1;
+            // bench_push(&mut group, "largest value", *size, largest_value, setup);
             group.bench_with_input(
-                BenchmarkId::new("largest value", size),
+                BenchmarkId::new("largest value", *size),
                 &largest_value,
-                |b, value| {
+                |b, &value| {
                     b.iter_batched(
-                        || {
-                            let test_values = test_values(*size);
-                            binary_heap_from_slice(&test_values)
-                        },
-                        |mut heap| heap.push(*value),
+                        || setup(root_key, &test_values),
+                        |mut heap| heap.push(value),
                         BatchSize::SmallInput,
                     );
                 },
@@ -123,40 +107,20 @@ fn bench_push_populated_cache(c: &mut Criterion) {
 
             let smallest_value = 0;
             group.bench_with_input(
-                BenchmarkId::new("smallest value", size),
+                BenchmarkId::new("smallest value", *size),
                 &smallest_value,
-                |b, value| {
+                |b, &value| {
                     b.iter_batched(
-                        || {
-                            let test_values = test_values(*size);
-                            binary_heap_from_slice(&test_values)
-                        },
-                        |mut heap| heap.push(*value),
+                        || setup(root_key, &test_values),
+                        |mut heap| heap.push(value),
                         BatchSize::SmallInput,
                     );
                 },
             );
         }
+
         group.finish();
         Ok(())
     })
     .unwrap();
-}
-
-fn bench_push<F>(
-    group: &mut BenchmarkGroup<WallTime>,
-    name: &str,
-    size: u32,
-    value: u32,
-    setup: F,
-) where
-    F: FnMut() -> BinaryHeap<u32> + Clone,
-{
-    group.bench_with_input(BenchmarkId::new(name, size), &value, |b, &value| {
-        b.iter_batched(
-            setup.clone(),
-            |mut heap| heap.push(value),
-            BatchSize::SmallInput,
-        );
-    });
 }
