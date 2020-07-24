@@ -71,13 +71,13 @@ impl Env for EnvInstance {
             .expect("callee account is not a smart contract");
     }
 
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
     where
         R: scale::Decode,
     {
         self.callee_account()
             .get_storage::<R>(*key)
-            .map(|result| result.map_err(Into::into))
+            .map_err(Into::into)
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
