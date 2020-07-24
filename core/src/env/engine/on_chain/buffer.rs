@@ -74,7 +74,10 @@ impl<'a> EncodeScope<'a> {
 
 impl<'a> scale::Output for EncodeScope<'a> {
     fn write(&mut self, bytes: &[u8]) {
-        assert!(self.len() + bytes.len() <= self.capacity());
+        assert!(
+            self.len() + bytes.len() <= self.capacity(),
+            "encode scope buffer overflowed",
+        );
         let start = self.len;
         let len_bytes = bytes.len();
         self.buffer[start..(start + len_bytes)].copy_from_slice(bytes);
@@ -82,7 +85,11 @@ impl<'a> scale::Output for EncodeScope<'a> {
     }
 
     fn push_byte(&mut self, byte: u8) {
-        assert_ne!(self.len(), self.capacity());
+        assert_ne!(
+            self.len(),
+            self.capacity(),
+            "encode scope buffer overflowed",
+        );
         self.buffer[self.len] = byte;
         self.len += 1;
     }
