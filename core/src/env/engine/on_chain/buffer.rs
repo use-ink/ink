@@ -16,9 +16,6 @@
 pub struct StaticBuffer {
     /// The static buffer with a total capacity of 16kB.
     buffer: [u8; Self::CAPACITY],
-    /// The number of elements currently in use by the buffer
-    /// counting from the start.
-    len: usize,
 }
 
 impl StaticBuffer {
@@ -29,42 +26,21 @@ impl StaticBuffer {
     pub const fn new() -> Self {
         Self {
             buffer: [0; Self::CAPACITY],
-            len: 0,
         }
     }
 }
 
-impl scale::Output for StaticBuffer {
-    fn write(&mut self, bytes: &[u8]) {
-        if self.len + bytes.len() > Self::CAPACITY {
-            panic!("static buffer overflowed")
-        }
-        let start = self.len;
-        let len_bytes = bytes.len();
-        self.buffer[start..(start + len_bytes)].copy_from_slice(bytes);
-        self.len += len_bytes;
-    }
+impl core::ops::Index<core::ops::RangeFull> for StaticBuffer {
+    type Output = [u8];
 
-    fn push_byte(&mut self, byte: u8) {
-        if self.len == Self::CAPACITY {
-            panic!("static buffer overflowed")
-        }
-        self.buffer[self.len] = byte;
-        self.len += 1;
+    fn index(&self, index: core::ops::RangeFull) -> &Self::Output {
+        core::ops::Index::index(&self.buffer[..], index)
     }
 }
 
-impl<I: core::slice::SliceIndex<[u8]>> core::ops::Index<I> for StaticBuffer {
-    type Output = I::Output;
-
-    fn index(&self, index: I) -> &Self::Output {
-        core::ops::Index::index(&self.buffer[..self.len], index)
-    }
-}
-
-impl<I: core::slice::SliceIndex<[u8]>> core::ops::IndexMut<I> for StaticBuffer {
-    fn index_mut(&mut self, index: I) -> &mut Self::Output {
-        core::ops::IndexMut::index_mut(&mut self.buffer[..self.len], index)
+impl core::ops::IndexMut<core::ops::RangeFull> for StaticBuffer {
+    fn index_mut(&mut self, index: core::ops::RangeFull) -> &mut Self::Output {
+        core::ops::IndexMut::index_mut(&mut self.buffer[..], index)
     }
 }
 
