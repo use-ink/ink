@@ -146,37 +146,6 @@ fn spread_layout_clear_works() {
 }
 
 #[test]
-fn push_works_on_lazily_loaded_heap() {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let root_key = Key::from([0x42; 32]);
-        let heap: BinaryHeap<u32> = heap_from_slice(&[1, 2, 3, 4]);
-        SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
-
-        {
-            let mut heap1 = std::mem::ManuallyDrop::new(
-                <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-                    root_key,
-                )),
-            );
-            heap1.push(5);
-        }
-
-        // let mut heap1 =
-        //     <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        // heap1.push(5);
-
-        {
-            let mut heap2 = <BinaryHeap<u8> as SpreadLayout>::pull_spread(
-                &mut KeyPtr::from(root_key),
-            );
-            heap2.push(5);
-        }
-        Ok(())
-    })
-    .unwrap()
-}
-
-#[test]
 fn clear_works_on_filled_heap() {
     let mut heap = heap_from_slice(&[b'a', b'b', b'c', b'd']);
     heap.clear();
