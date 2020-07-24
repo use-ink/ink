@@ -50,6 +50,11 @@ fn test_values(n: u32) -> Vec<u32> {
 mod binary_heap {
     use super::*;
 
+    /// Initialize the contract storage at the given key with the provided values.
+    ///
+    /// Use for testing lazy loading of a binary heap: an instance with an associated key which is
+    /// yet to load any elements from storage. This is the state a binary heap instance will be in
+    /// at the start of contract execution.
     pub fn init_storage(root_key: Key, values: &[u32]) {
         let heap = from_slice(values);
         SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
@@ -133,8 +138,18 @@ where
     .unwrap();
 }
 
+/// Strategies for constructing a binary heap instance for a benchmark routine
 enum NewHeap {
+    /// Create a binary heap with an empty cache, values at the given key are loaded from storage
+    /// upon access.
+    ///
+    /// This simulates the state of a binary heap at the beginning of a smart
+    /// contract's execution.
     Lazy(Key),
+    /// Create a binary heap with all the values loaded into the cache.
+    ///
+    /// This simulates the state of a binary heap once all elements have been accessed during smart
+    /// contract execution and loaded into the cache.
     Populated(Vec<u32>),
 }
 
@@ -159,6 +174,7 @@ impl NewHeap {
     }
 }
 
+/// Define a benchmark for an operation to be run against different size binary heaps
 trait Benchmark {
     fn bench(group: &mut BenchmarkGroup<WallTime>, size: u32, new_heap: NewHeap);
 }
