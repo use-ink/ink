@@ -81,17 +81,21 @@ fn bench_push_populated_cache(c: &mut Criterion) {
 }
 
 fn bench_pop_empty_cache(c: &mut Criterion) {
-    // let init = binary_heap::init_storage;
-    // let setup = |root_key: Key, _: &[u32]| binary_heap::lazy_load(root_key);
-    //
-    // bench_heap_sizes(c, "BinaryHeap::pop (empty cache)", init, setup, binary_heap::pop);
+    bench_heap_sizes::<_, _, Pop>(
+        c,
+        "BinaryHeap::pop (empty cache)",
+        binary_heap::init_storage,
+        NewHeap::lazy
+    );
 }
 
 fn bench_pop_populated_cache(c: &mut Criterion) {
-    // let init = |_: Key, _: &[u32]| {};
-    // let setup = |_: Key, test_values: &[u32]| binary_heap_from_slice(test_values);
-    //
-    // bench_heap_sizes(c, "BinaryHeap::push (populated cache)", init, setup, binary_heap::pop)
+    bench_heap_sizes::<_, _, Pop>(
+        c,
+        "BinaryHeap::pop (populated cache)",
+        |_: Key, _: &[u32]| {},
+        NewHeap::populated
+    );
 }
 
 fn bench_heap_sizes<I, H, B>(c: &mut Criterion, name: &str, init: I, new_test_heap: H)
@@ -150,6 +154,7 @@ trait Benchmark {
     fn bench(group: &mut BenchmarkGroup<WallTime>, size: u32, new_heap: NewHeap);
 }
 
+/// Benchmark [`BinaryHeap::push`]
 enum Push {}
 
 impl Benchmark for Push {
@@ -175,6 +180,24 @@ impl Benchmark for Push {
                 b.iter_batched(
                     || new_heap.create_heap(),
                     |mut heap| heap.push(value),
+                    BatchSize::SmallInput,
+                );
+            },
+        );
+    }
+}
+
+/// Benchmark [`BinaryHeap::pop`]
+enum Pop {}
+
+impl Benchmark for Pop {
+    fn bench(group: &mut BenchmarkGroup<WallTime>, size: u32, new_heap: NewHeap) {
+        group.bench_function(
+            BenchmarkId::new("largest value", size),
+            |b| {
+                b.iter_batched(
+                    || new_heap.create_heap(),
+                    |mut heap| heap.pop(),
                     BatchSize::SmallInput,
                 );
             },
