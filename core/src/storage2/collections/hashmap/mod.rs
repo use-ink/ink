@@ -38,7 +38,12 @@ use crate::{
     },
     storage2::{
         collections::Stash,
-        lazy::LazyHashMap,
+        lazy::{
+            Entry as LazyEntry,
+            LazyHashMap,
+            OccupiedEntry as LazyOccupiedEntry,
+            VacantEntry as LazyVacantEntry,
+        },
         traits::PackedLayout,
     },
 };
@@ -109,12 +114,10 @@ where
     H: Hasher,
     Key: From<<H as Hasher>::Output>,
 {
-    /// A reference to the used `HashMap` instance.
-    base: &'a mut HashMap<K, V, H>,
-    /// The index of the key associated with this value.
-    key_index: KeyIndex,
-    /// The key stored in this entry.
-    key: K,
+    /// A reference to the `Stash` instance, containing the keys.
+    keys: &'a mut Stash<K>,
+    /// The `LazyHashMap::OccupiedEntry`.
+    values_entry: LazyOccupiedEntry<'a, K, ValueEntry<V>, H>,
 }
 
 /// A vacant entry with previous and next vacant indices.
@@ -125,10 +128,10 @@ where
     H: Hasher,
     Key: From<<H as Hasher>::Output>,
 {
-    /// A reference to the used `HashMap` instance.
-    base: &'a mut HashMap<K, V, H>,
-    /// The key stored in this entry.
-    key: K,
+    /// A reference to the `Stash` instance, containing the keys.
+    keys: &'a mut Stash<K>,
+    /// The `LazyHashMap::VacantEntry`.
+    values_entry: LazyVacantEntry<'a, K, ValueEntry<V>, H>,
 }
 
 /// An entry within the stash.
@@ -387,16 +390,20 @@ where
 
     /// Gets the given key's corresponding entry in the map for in-place manipulation.
     pub fn entry(&mut self, key: K) -> Entry<K, V, H> {
-        let v = self.values.get(&key);
-        match v {
-            Some(entry) => {
+        let entry = self.values.entry(key);
+        match entry {
+            LazyEntry::Occupied(o) => {
                 Entry::Occupied(OccupiedEntry {
-                    key,
-                    key_index: entry.key_index,
-                    base: self,
+                    keys: &mut self.keys,
+                    values_entry: o,
                 })
             }
-            None => Entry::Vacant(VacantEntry { key, base: self }),
+            LazyEntry::Vacant(v) => {
+                Entry::Vacant(VacantEntry {
+                    keys: &mut self.keys,
+                    values_entry: v,
+                })
+            }
         }
     }
 }
@@ -411,8 +418,8 @@ where
     /// Returns a reference to this entry's key.
     pub fn key(&self) -> &K {
         match self {
-            Entry::Occupied(entry) => &entry.key,
-            Entry::Vacant(entry) => &entry.key,
+            Entry::Occupied(entry) => &entry.values_entry.key(),
+            Entry::Vacant(entry) => &entry.values_entry.key(),
         }
     }
 
@@ -420,7 +427,7 @@ where
     /// a reference to the value in the entry.
     pub fn or_default(self) -> &'a V {
         match self {
-            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Occupied(entry) => &mut entry.values_entry.into_mut().value,
             Entry::Vacant(entry) => entry.insert(V::default()),
         }
     }
@@ -429,7 +436,7 @@ where
     /// a mutable reference to the value in the entry.
     pub fn or_insert(self, default: V) -> &'a mut V {
         match self {
-            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Occupied(entry) => &mut entry.values_entry.into_mut().value,
             Entry::Vacant(entry) => entry.insert(default),
         }
     }
@@ -441,7 +448,7 @@ where
         F: FnOnce() -> V,
     {
         match self {
-            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Occupied(entry) => &mut entry.values_entry.into_mut().value,
             Entry::Vacant(entry) => Entry::insert(default(), entry),
         }
     }
@@ -454,8 +461,8 @@ where
         F: FnOnce(&K) -> V,
     {
         match self {
-            Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => Entry::insert(default(&entry.key), entry),
+            Entry::Occupied(entry) => &mut entry.values_entry.into_mut().value,
+            Entry::Vacant(entry) => Entry::insert(default(&entry.key()), entry),
         }
     }
 
@@ -468,8 +475,8 @@ where
         match self {
             Entry::Occupied(mut entry) => {
                 {
-                    let v = entry.get_mut();
-                    f(v);
+                    let v = entry.values_entry.get_mut();
+                    f(&mut v.value);
                 }
                 Entry::Occupied(entry)
             }
@@ -479,12 +486,7 @@ where
 
     /// Inserts `value` into `entry`.
     fn insert(value: V, entry: VacantEntry<'a, K, V, H>) -> &'a mut V {
-        let old_value = entry.base.insert(entry.key.clone(), value);
-        debug_assert!(old_value.is_none());
-        entry
-            .base
-            .get_mut(&entry.key)
-            .expect("encountered invalid vacant entry")
+        entry.insert(value)
     }
 }
 
@@ -497,24 +499,22 @@ where
 {
     /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
     pub fn key(&self) -> &K {
-        &self.key
+        &self.values_entry.key()
     }
 
     /// Take ownership of the key.
     pub fn into_key(self) -> K {
-        self.key
+        self.values_entry.into_key()
     }
 
-    /// Sets the value of the entry with the VacantEntry's key, and returns a mutable reference to it.
+    /// Sets the value of the entry with the `VacantEntry`'s key, and returns a mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
         // At this point we know that `key` does not yet exist in the map.
-        let key_index = self.base.keys.put(self.key.clone());
-        self.base
-            .values
-            .put(self.key.clone(), Some(ValueEntry { value, key_index }));
-        self.base
-            .get_mut(&self.key)
-            .expect("put was just executed; qed")
+        let key_index = self.keys.put(self.key().to_owned());
+        &mut self
+            .values_entry
+            .insert(ValueEntry { value, key_index })
+            .value
     }
 }
 
@@ -527,29 +527,22 @@ where
 {
     /// Gets a reference to the key in the entry.
     pub fn key(&self) -> &K {
-        &self.key
+        &self.values_entry.key()
     }
 
     /// Take the ownership of the key and value from the map.
     pub fn remove_entry(self) -> (K, V) {
-        let entry = self
-            .base
-            .values
-            .put_get(&self.key, None)
-            .expect("`key` must exist");
-        self.base
-            .keys
-            .take(self.key_index)
+        let k = self.values_entry.key().to_owned();
+        let v = self.values_entry.remove();
+        self.keys
+            .take(v.key_index)
             .expect("`key_index` must point to a valid key entry");
-        (self.key, entry.value)
+        (k, v.value)
     }
 
     /// Gets a reference to the value in the entry.
     pub fn get(&self) -> &V {
-        &self
-            .base
-            .get(&self.key)
-            .expect("entry behind `OccupiedEntry` must always exist")
+        &self.values_entry.get().value
     }
 
     /// Gets a mutable reference to the value in the entry.
@@ -557,19 +550,12 @@ where
     /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
     /// `Entry` value, see `into_mut`.
     pub fn get_mut(&mut self) -> &mut V {
-        self.base
-            .get_mut(&self.key)
-            .expect("entry behind `OccupiedEntry` must always exist")
+        &mut self.values_entry.get_mut().value
     }
 
     /// Sets the value of the entry, and returns the entry's old value.
     pub fn insert(&mut self, new_value: V) -> V {
-        let occupied = self
-            .base
-            .values
-            .get_mut(&self.key)
-            .expect("entry behind `OccupiedEntry` must always exist");
-        core::mem::replace(&mut occupied.value, new_value)
+        core::mem::replace(&mut self.values_entry.get_mut().value, new_value)
     }
 
     /// Takes the value out of the entry, and returns it.
@@ -580,8 +566,6 @@ where
     /// Converts the OccupiedEntry into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
-        self.base
-            .get_mut(&self.key)
-            .expect("entry behind `OccupiedEntry` must always exist")
+        &mut self.values_entry.into_mut().value
     }
 }

@@ -44,7 +44,12 @@ pub use self::{
         LazyArrayLength,
     },
     lazy_cell::LazyCell,
-    lazy_hmap::LazyHashMap,
+    lazy_hmap::{
+        Entry,
+        LazyHashMap,
+        OccupiedEntry,
+        VacantEntry,
+    },
     lazy_imap::LazyIndexMap,
 };
 use crate::storage2::traits::{
