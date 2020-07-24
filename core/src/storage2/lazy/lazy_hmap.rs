@@ -15,7 +15,7 @@
 use super::{
     CacheCell,
     EntryState,
-    InternalEntry,
+    StorageEntry,
 };
 use crate::{
     hash::{
@@ -58,7 +58,7 @@ use ink_primitives::Key;
 /// We keep the whole entry in a `Box<T>` in order to prevent pointer
 /// invalidation upon updating the cache through `&self` methods as in
 /// [`LazyMap::get`].
-pub type EntryMap<K, V> = BTreeMap<K, Box<InternalEntry<V>>>;
+pub type EntryMap<K, V> = BTreeMap<K, Box<StorageEntry<V>>>;
 
 /// A lazy storage mapping that stores entries under their SCALE encoded key hashes.
 ///
@@ -383,7 +383,7 @@ where
     pub fn put(&mut self, key: K, new_value: Option<V>) {
         self.entries_mut().insert(
             key,
-            Box::new(InternalEntry::new(new_value, EntryState::Mutated)),
+            Box::new(StorageEntry::new(new_value, EntryState::Mutated)),
         );
     }
 }
@@ -497,7 +497,7 @@ where
     /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
     /// within internal use only and should never be given outside of the lazy
     /// entity for public `&self` methods.
-    unsafe fn lazily_load<Q>(&self, key: &Q) -> NonNull<InternalEntry<V>>
+    unsafe fn lazily_load<Q>(&self, key: &Q) -> NonNull<StorageEntry<V>>
     where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
@@ -527,7 +527,7 @@ where
                     .map(|key| pull_packed_root_opt::<V>(&key))
                     .unwrap_or(None);
                 NonNull::from(
-                    &mut **vacant.insert(Box::new(InternalEntry::new(
+                    &mut **vacant.insert(Box::new(StorageEntry::new(
                         value,
                         EntryState::Preserved,
                     ))),
@@ -547,7 +547,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the lazy chunk is not in a state that allows lazy loading.
-    fn lazily_load_mut<Q>(&mut self, index: &Q) -> &mut InternalEntry<V>
+    fn lazily_load_mut<Q>(&mut self, index: &Q) -> &mut StorageEntry<V>
     where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
@@ -869,7 +869,7 @@ where
 mod tests {
     use super::{
         EntryState,
-        InternalEntry,
+        StorageEntry,
         LazyHashMap,
     };
     use crate::{
@@ -888,7 +888,7 @@ mod tests {
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
     fn assert_cached_entries<H>(
         hmap: &LazyHashMap<i32, u8, H>,
-        expected: &[(i32, InternalEntry<u8>)],
+        expected: &[(i32, StorageEntry<u8>)],
     ) {
         assert_eq!(hmap.len(), expected.len());
         for (given, expected) in hmap
@@ -989,9 +989,9 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-                (4, InternalEntry::new(Some(b'C'), EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (4, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
             ],
         );
         // Put none values.
@@ -1000,11 +1000,11 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-                (3, InternalEntry::new(None, EntryState::Preserved)),
-                (4, InternalEntry::new(Some(b'C'), EntryState::Mutated)),
-                (5, InternalEntry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
+                (4, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
+                (5, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Override some values with none.
@@ -1013,11 +1013,11 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, InternalEntry::new(None, EntryState::Mutated)),
-                (3, InternalEntry::new(None, EntryState::Preserved)),
-                (4, InternalEntry::new(None, EntryState::Mutated)),
-                (5, InternalEntry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(None, EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
+                (4, StorageEntry::new(None, EntryState::Mutated)),
+                (5, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Override none values with some.
@@ -1026,11 +1026,11 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, InternalEntry::new(None, EntryState::Mutated)),
-                (3, InternalEntry::new(Some(b'X'), EntryState::Mutated)),
-                (4, InternalEntry::new(None, EntryState::Mutated)),
-                (5, InternalEntry::new(Some(b'Y'), EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(None, EntryState::Mutated)),
+                (3, StorageEntry::new(Some(b'X'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Mutated)),
+                (5, StorageEntry::new(Some(b'Y'), EntryState::Mutated)),
             ],
         );
     }
@@ -1039,10 +1039,10 @@ mod tests {
     fn get_works() {
         let mut hmap = new_hmap();
         let nothing_changed = &[
-            (1, InternalEntry::new(None, EntryState::Preserved)),
-            (2, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-            (3, InternalEntry::new(None, EntryState::Preserved)),
-            (4, InternalEntry::new(Some(b'D'), EntryState::Mutated)),
+            (1, StorageEntry::new(None, EntryState::Preserved)),
+            (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+            (3, StorageEntry::new(None, EntryState::Preserved)),
+            (4, StorageEntry::new(Some(b'D'), EntryState::Mutated)),
         ];
         // Put some values.
         assert_eq!(hmap.put_get(&1, None), None);
@@ -1081,9 +1081,9 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(None, EntryState::Mutated)),
-                (2, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-                (4, InternalEntry::new(None, EntryState::Mutated)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Mutated)),
             ],
         );
         // Overwrite entries:
@@ -1092,9 +1092,9 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, InternalEntry::new(None, EntryState::Mutated)),
-                (4, InternalEntry::new(None, EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(None, EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Mutated)),
             ],
         );
     }
@@ -1103,10 +1103,10 @@ mod tests {
     fn swap_works() {
         let mut hmap = new_hmap();
         let nothing_changed = &[
-            (1, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-            (2, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-            (3, InternalEntry::new(None, EntryState::Preserved)),
-            (4, InternalEntry::new(None, EntryState::Preserved)),
+            (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+            (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+            (3, StorageEntry::new(None, EntryState::Preserved)),
+            (4, StorageEntry::new(None, EntryState::Preserved)),
         ];
         // Put some values.
         assert_eq!(hmap.put_get(&1, Some(b'A')), None);
@@ -1128,10 +1128,10 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(None, EntryState::Mutated)),
-                (2, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-                (3, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (4, InternalEntry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Swap `Some` and `Some`:
@@ -1139,10 +1139,10 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(None, EntryState::Mutated)),
-                (2, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (3, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-                (4, InternalEntry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (3, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Swap out of bounds: `None` and `None`
@@ -1150,11 +1150,11 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(None, EntryState::Mutated)),
-                (2, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (3, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-                (4, InternalEntry::new(None, EntryState::Preserved)),
-                (5, InternalEntry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (3, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
+                (5, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Swap out of bounds: `Some` and `None`
@@ -1162,12 +1162,12 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, InternalEntry::new(None, EntryState::Mutated)),
-                (2, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (3, InternalEntry::new(None, EntryState::Mutated)),
-                (4, InternalEntry::new(None, EntryState::Preserved)),
-                (5, InternalEntry::new(None, EntryState::Preserved)),
-                (6, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
+                (5, StorageEntry::new(None, EntryState::Preserved)),
+                (6, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
             ],
         );
     }
@@ -1177,10 +1177,10 @@ mod tests {
         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let mut hmap = new_hmap();
             let nothing_changed = &[
-                (1, InternalEntry::new(Some(b'A'), EntryState::Mutated)),
-                (2, InternalEntry::new(Some(b'B'), EntryState::Mutated)),
-                (3, InternalEntry::new(None, EntryState::Preserved)),
-                (4, InternalEntry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
             ];
             // Put some values.
             assert_eq!(hmap.put_get(&1, Some(b'A')), None);
@@ -1206,10 +1206,10 @@ mod tests {
             assert_cached_entries(
                 &hmap2,
                 &[
-                    (1, InternalEntry::new(Some(b'A'), EntryState::Preserved)),
-                    (2, InternalEntry::new(Some(b'B'), EntryState::Preserved)),
-                    (3, InternalEntry::new(None, EntryState::Preserved)),
-                    (4, InternalEntry::new(None, EntryState::Preserved)),
+                    (1, StorageEntry::new(Some(b'A'), EntryState::Preserved)),
+                    (2, StorageEntry::new(Some(b'B'), EntryState::Preserved)),
+                    (3, StorageEntry::new(None, EntryState::Preserved)),
+                    (4, StorageEntry::new(None, EntryState::Preserved)),
                 ],
             );
             // Clear the first lazy index map instance and reload another instance
@@ -1236,10 +1236,10 @@ mod tests {
             assert_cached_entries(
                 &hmap3,
                 &[
-                    (1, InternalEntry::new(None, EntryState::Preserved)),
-                    (2, InternalEntry::new(None, EntryState::Preserved)),
-                    (3, InternalEntry::new(None, EntryState::Preserved)),
-                    (4, InternalEntry::new(None, EntryState::Preserved)),
+                    (1, StorageEntry::new(None, EntryState::Preserved)),
+                    (2, StorageEntry::new(None, EntryState::Preserved)),
+                    (3, StorageEntry::new(None, EntryState::Preserved)),
+                    (4, StorageEntry::new(None, EntryState::Preserved)),
                 ],
             );
             Ok(())

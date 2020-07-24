@@ -289,7 +289,7 @@ mod lazyhmap_backend {
     use super::*;
     use crate::{
         hash::hasher::Blake2x256Hasher,
-        storage2::lazy::{
+        storage2::lazy::lazy_hmap::{
             Entry,
             Entry::{
                 Occupied,

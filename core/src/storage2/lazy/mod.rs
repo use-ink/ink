@@ -35,7 +35,7 @@ use self::{
     cache_cell::CacheCell,
     entry::{
         EntryState,
-        InternalEntry,
+        StorageEntry,
     },
 };
 pub use self::{
