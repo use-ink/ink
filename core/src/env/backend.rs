@@ -134,11 +134,7 @@ pub trait Env {
     /// - If the inputs had an unexpected encoding.
     /// - If the output could not be properly decoded.
     /// - If some extension specific condition has not been met.
-    fn call_chain_extension<I, O>(
-        &mut self,
-        func_id: u32,
-        input: &I,
-    ) -> Result<O>
+    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
     where
         I: scale::Codec + 'static,
         O: scale::Codec + 'static;
