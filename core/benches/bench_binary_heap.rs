@@ -56,18 +56,6 @@ mod binary_heap {
     pub fn from_slice(slice: &[u32]) -> BinaryHeap<u32> {
         slice.iter().copied().collect::<BinaryHeap<u32>>()
     }
-
-    pub fn lazy_load(root_key: Key) -> BinaryHeap<u32> {
-        <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key))
-    }
-
-    pub fn push(mut heap: BinaryHeap<u32>, value: u32) {
-        heap.push(value)
-    }
-
-    pub fn pop(mut heap: BinaryHeap<u32>) -> Option<u32> {
-        heap.pop()
-    }
 }
 
 // TODO: small steps - basic push/pop benches with varying sizes and ordering
@@ -75,20 +63,20 @@ mod binary_heap {
 // push should be average O(1), worst case O(log n)
 
 fn bench_push_empty_cache(c: &mut Criterion) {
-    bench_heap_sizes(
+    bench_heap_sizes::<_, _, Push>(
         c,
         "BinaryHeap::push (empty cache)",
         binary_heap::init_storage,
-        Push { new_heap: NewHeap::Lazy }
+        NewHeap::lazy
     );
 }
 
 fn bench_push_populated_cache(c: &mut Criterion) {
-    bench_heap_sizes(
+    bench_heap_sizes::<_, _, Push>(
         c,
         "BinaryHeap::push (populated cache)",
         |_: Key, _: &[u32]| {},
-        Push { new_heap: NewHeap::Populated }
+        NewHeap::populated
     );
 }
 
@@ -106,57 +94,10 @@ fn bench_pop_populated_cache(c: &mut Criterion) {
     // bench_heap_sizes(c, "BinaryHeap::push (populated cache)", init, setup, binary_heap::pop)
 }
 
-enum NewHeap {
-    Lazy,
-    Populated,
-}
-
-trait Benchmark {
-    fn bench(&self, group: &mut BenchmarkGroup<WallTime>, size: u32, root_key: Key, values: &[u32]);
-}
-
-struct Push {
-    new_heap: NewHeap,
-}
-
-impl Benchmark for Push {
-    fn bench(&self, group: &mut BenchmarkGroup<WallTime>, size: u32, root_key: Key, values: &[u32]) {
-        let setup = || match self.new_heap {
-            NewHeap::Lazy => binary_heap::lazy_load(root_key),
-            NewHeap::Populated => binary_heap::from_slice(values),
-        };
-
-        let largest_value = size + 1;
-        group.bench_with_input(
-            BenchmarkId::new("largest value", size),
-            &largest_value,
-            |b, &value| {
-                b.iter_batched(
-                    setup,
-                    |mut heap| heap.push(value),
-                    BatchSize::SmallInput,
-                );
-            },
-        );
-
-        let smallest_value = 0;
-        group.bench_with_input(
-            BenchmarkId::new("smallest value", size),
-            &smallest_value,
-            |b, &value| {
-                b.iter_batched(
-                    setup,
-                    |mut heap| heap.push(value),
-                    BatchSize::SmallInput,
-                );
-            },
-        );
-    }
-}
-
-fn bench_heap_sizes<I, B>(c: &mut Criterion, name: &str, init: I, benchmark: B)
+fn bench_heap_sizes<I, H, B>(c: &mut Criterion, name: &str, init: I, new_test_heap: H)
 where
-    I: FnOnce(Key, &[u32]) + Copy,
+    I: Fn(Key, &[u32]),
+    H: Fn(Key, Vec<u32>) -> NewHeap,
     B: Benchmark,
 {
     let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
@@ -171,11 +112,72 @@ where
             // perform one time initialization for this heap size
             init(root_key, &test_values);
 
-            benchmark.bench(&mut group, *size, root_key, &test_values)
+            let test_heap = new_test_heap(root_key, test_values);
+            <B as Benchmark>::bench(&mut group, *size, test_heap)
         }
 
         group.finish();
         Ok(())
     })
     .unwrap();
+}
+
+enum NewHeap {
+    Lazy(Key),
+    Populated(Vec<u32>),
+}
+
+impl NewHeap {
+    pub fn lazy(key: Key, _values: Vec<u32>) -> Self {
+        Self::Lazy(key)
+    }
+
+    pub fn populated(_key: Key, values: Vec<u32>) -> Self {
+        Self::Populated(values)
+    }
+
+    pub fn create_heap(&self) -> BinaryHeap<u32> {
+        match self {
+            NewHeap::Lazy(root_key) => {
+                <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(*root_key))
+            },
+            NewHeap::Populated(ref values) => binary_heap::from_slice(values),
+        }
+    }
+}
+
+trait Benchmark {
+    fn bench(group: &mut BenchmarkGroup<WallTime>, size: u32, new_heap: NewHeap);
+}
+
+enum Push {}
+
+impl Benchmark for Push {
+    fn bench(group: &mut BenchmarkGroup<WallTime>, size: u32, new_heap: NewHeap) {
+        let largest_value = size + 1;
+        group.bench_with_input(
+            BenchmarkId::new("largest value", size),
+            &largest_value,
+            |b, &value| {
+                b.iter_batched(
+                    || new_heap.create_heap(),
+                    |mut heap| heap.push(value),
+                    BatchSize::SmallInput,
+                );
+            },
+        );
+
+        let smallest_value = 0;
+        group.bench_with_input(
+            BenchmarkId::new("smallest value", size),
+            &smallest_value,
+            |b, &value| {
+                b.iter_batched(
+                    || new_heap.create_heap(),
+                    |mut heap| heap.push(value),
+                    BatchSize::SmallInput,
+                );
+            },
+        );
+    }
 }
