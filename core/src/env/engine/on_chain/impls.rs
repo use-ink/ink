@@ -138,8 +138,8 @@ impl Env for EnvInstance {
     where
         V: scale::Encode,
     {
-        self.encode_into_buffer(value);
-        ext::set_storage(key.as_bytes(), &self.buffer[..]);
+        let buffer = self.scoped_buffer().take_encoded(value);
+        ext::set_storage(key.as_bytes(), &buffer[..]);
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
@@ -193,6 +193,22 @@ impl Env for EnvInstance {
     fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
         ext::hash_sha2_256(input, output)
     }
+
+    fn call_chain_extension<I, O>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+    ) -> Result<O>
+    where
+        I: scale::Encode,
+        O: scale::Decode,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_input = scope.take_encoded(input);
+        let output = &mut scope.take_rest();
+        ext::call_chain_extension(func_id, enc_input, output)?;
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
+    }
 }
 
 impl TypedEnv for EnvInstance {
@@ -241,25 +257,18 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         Event: Topics<T> + scale::Encode,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `topics` and the raw encoded `data`
-        // in order and remember their encoded regions within the buffer.
-        let topics = self.append_encode_into_buffer(event.topics());
-        let data = self.append_encode_into_buffer(event);
-        // Resolve the encoded regions into actual byte slices.
-        let topics = &self.buffer[topics];
-        let data = &self.buffer[data];
-        // Do the actual depositing of the event.
-        ext::deposit_event(topics, data);
+        let mut scope = self.scoped_buffer();
+        let enc_topics = scope.take_encoded(&event.topics());
+        let enc_data = scope.take_encoded(&event);
+        ext::deposit_event(enc_topics, enc_data);
     }
 
     fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
     where
         T: EnvTypes,
     {
-        self.encode_into_buffer(&new_value);
-        ext::set_rent_allowance(&self.buffer[..])
+        let buffer = self.scoped_buffer().take_encoded(&new_value);
+        ext::set_rent_allowance(&buffer[..])
     }
 
     fn invoke_contract<T, Args>(
@@ -328,60 +337,50 @@ impl TypedEnv for EnvInstance {
     ) where
         T: EnvTypes,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `account_id`, `code_hash` and `rent_allowance`
-        // and `filtered_keys` in order and remember their encoded regions
-        // within the buffer.
-        let account_id = self.append_encode_into_buffer(account_id);
-        let code_hash = self.append_encode_into_buffer(code_hash);
-        let rent_allowance = self.append_encode_into_buffer(rent_allowance);
-        // Resolve the encoded regions into actual byte slices.
-        let account_id = &self.buffer[account_id];
-        let code_hash = &self.buffer[code_hash];
-        let rent_allowance = &self.buffer[rent_allowance];
-        // Perform the actual contract restoration.
-        ext::restore_to(account_id, code_hash, rent_allowance, filtered_keys);
+        let mut scope = self.scoped_buffer();
+        let enc_account_id = scope.take_encoded(&account_id);
+        let enc_code_hash = scope.take_encoded(&code_hash);
+        let enc_rent_allowance = scope.take_encoded(&rent_allowance);
+        ext::restore_to(
+            enc_account_id,
+            enc_code_hash,
+            enc_rent_allowance,
+            filtered_keys,
+        );
     }
 
     fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
     where
         T: EnvTypes,
     {
-        self.encode_into_buffer(beneficiary);
-        ext::terminate(&self.buffer[..]);
+        let buffer = self.scoped_buffer().take_encoded(&beneficiary);
+        ext::terminate(&buffer[..]);
     }
 
-    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance)
     where
         T: EnvTypes,
     {
-        todo!()
-        // // Reset the contract-side buffer to append onto clean slate.
-        // self.reset_buffer();
-        // // Append the encoded `destination` and `value` in order and remember
-        // // their encoded regions within the buffer.
-        // let destination = self.append_encode_into_buffer(destination);
-        // let value = self.append_encode_into_buffer(value);
-        // // Resolve the encoded regions into actual byte slices.
-        // let destination = &self.buffer[destination];
-        // let value = &self.buffer[value];
-        // // Perform the actual transfer call.
-        // ext::transfer(destination, value)
+        let mut scope = self.scoped_buffer();
+        let enc_destination = scope.take_encoded(&destination);
+        let enc_value = scope.take_encoded(&value);
+        ext::transfer(enc_destination, enc_value);
     }
 
-    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
-        todo!()
-        // ext::gas_price(gas);
-        // self.decode_scratch_buffer().map_err(Into::into)
+    fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
+        let output = &mut self.scoped_buffer().take_rest();
+        ext::weight_to_fee(gas, output);
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: EnvTypes,
     {
-        todo!()
-        // ext::random_seed(subject);
-        // self.decode_scratch_buffer().map_err(Into::into)
+        let mut scope = self.scoped_buffer();
+        let enc_subject = scope.take_bytes(subject);
+        let output = &mut scope.take_rest();
+        ext::random(enc_subject, output);
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 }

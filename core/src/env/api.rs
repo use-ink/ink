@@ -66,12 +66,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_price<T>(gas: u64) -> Result<T::Balance>
+pub fn weight_to_fee<T>(gas: u64) -> Result<T::Balance>
 where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::gas_price::<T>(instance, gas)
+        TypedEnv::weight_to_fee::<T>(instance, gas)
     })
 }
 
@@ -406,10 +406,10 @@ where
 /// contract call or invoke a runtime function that performs the
 /// transaction.
 ///
-/// # Errors
+/// # Panics
 ///
 /// If the contract doesn't have sufficient funds.
-pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
+pub fn transfer<T>(destination: T::AccountId, value: T::Balance)
 where
     T: EnvTypes,
 {

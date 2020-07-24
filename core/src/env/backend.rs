@@ -146,7 +146,7 @@ pub trait TypedEnv: Env {
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::gas_price`]
-    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance>;
+    fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance>;
 
     /// Returns the amount of gas left for the contract execution.
     ///
@@ -291,7 +291,7 @@ pub trait TypedEnv: Env {
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::transfer`]
-    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance)
     where
         T: EnvTypes;
 
