@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, BenchmarkGroup};
+use criterion::{
+    criterion_group,
+    criterion_main,
+    measurement::WallTime,
+    BatchSize,
+    BenchmarkGroup,
+    BenchmarkId,
+    Criterion,
+};
 use ink_core::{
     env,
     storage2::{
@@ -25,7 +33,6 @@ use ink_core::{
 };
 use ink_primitives::Key;
 use std::time::Duration;
-use criterion::measurement::WallTime;
 
 criterion_group!(push, bench_push_empty_cache, bench_push_populated_cache);
 criterion_group!(pop, bench_pop_empty_cache, bench_pop_populated_cache);
@@ -67,7 +74,7 @@ fn bench_push_empty_cache(c: &mut Criterion) {
         c,
         "BinaryHeap::push (empty cache)",
         binary_heap::init_storage,
-        NewHeap::lazy
+        NewHeap::lazy,
     );
 }
 
@@ -76,7 +83,7 @@ fn bench_push_populated_cache(c: &mut Criterion) {
         c,
         "BinaryHeap::push (populated cache)",
         |_: Key, _: &[u32]| {},
-        NewHeap::populated
+        NewHeap::populated,
     );
 }
 
@@ -85,7 +92,7 @@ fn bench_pop_empty_cache(c: &mut Criterion) {
         c,
         "BinaryHeap::pop (empty cache)",
         binary_heap::init_storage,
-        NewHeap::lazy
+        NewHeap::lazy,
     );
 }
 
@@ -94,7 +101,7 @@ fn bench_pop_populated_cache(c: &mut Criterion) {
         c,
         "BinaryHeap::pop (populated cache)",
         |_: Key, _: &[u32]| {},
-        NewHeap::populated
+        NewHeap::populated,
     );
 }
 
@@ -143,8 +150,10 @@ impl NewHeap {
     pub fn create_heap(&self) -> BinaryHeap<u32> {
         match self {
             NewHeap::Lazy(root_key) => {
-                <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(*root_key))
-            },
+                <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                    *root_key,
+                ))
+            }
             NewHeap::Populated(ref values) => binary_heap::from_slice(values),
         }
     }
@@ -192,15 +201,12 @@ enum Pop {}
 
 impl Benchmark for Pop {
     fn bench(group: &mut BenchmarkGroup<WallTime>, size: u32, new_heap: NewHeap) {
-        group.bench_function(
-            BenchmarkId::new("largest value", size),
-            |b| {
-                b.iter_batched(
-                    || new_heap.create_heap(),
-                    |mut heap| heap.pop(),
-                    BatchSize::SmallInput,
-                );
-            },
-        );
+        group.bench_function(BenchmarkId::new("largest value", size), |b| {
+            b.iter_batched(
+                || new_heap.create_heap(),
+                |mut heap| heap.pop(),
+                BatchSize::SmallInput,
+            );
+        });
     }
 }
