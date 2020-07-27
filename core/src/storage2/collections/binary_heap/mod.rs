@@ -147,7 +147,6 @@ impl<T> BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    // todo: optimize!
     fn sift_up(&mut self, mut pos: u32) {
         while pos > 0 {
             let parent = (pos - 1) / 2;

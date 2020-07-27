@@ -70,10 +70,6 @@ mod binary_heap {
     }
 }
 
-// TODO: small steps - basic push/pop benches with varying sizes and ordering
-// idea: add quickcheck tests for properties e.g. pop always greatest
-// push should be average O(1), worst case O(log n)
-
 fn bench_push_empty_cache(c: &mut Criterion) {
     bench_heap_sizes::<_, _, Push>(
         c,
