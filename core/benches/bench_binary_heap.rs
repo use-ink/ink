@@ -185,9 +185,9 @@ impl Benchmark for Push {
             BenchmarkId::new("largest value", size),
             &largest_value,
             |b, &value| {
-                b.iter_batched(
+                b.iter_batched_ref(
                     || new_heap.create_heap(),
-                    |mut heap| heap.push(value),
+                    |heap| heap.push(value),
                     BatchSize::SmallInput,
                 );
             },
@@ -198,9 +198,9 @@ impl Benchmark for Push {
             BenchmarkId::new("smallest value", size),
             &smallest_value,
             |b, &value| {
-                b.iter_batched(
+                b.iter_batched_ref(
                     || new_heap.create_heap(),
-                    |mut heap| heap.push(value),
+                    |heap| heap.push(value),
                     BatchSize::SmallInput,
                 );
             },
@@ -214,9 +214,9 @@ enum Pop {}
 impl Benchmark for Pop {
     fn bench(group: &mut BenchmarkGroup<WallTime>, size: u32, new_heap: NewHeap) {
         group.bench_function(BenchmarkId::new("largest value", size), |b| {
-            b.iter_batched(
+            b.iter_batched_ref(
                 || new_heap.create_heap(),
-                |mut heap| heap.pop(),
+                |heap| heap.pop(),
                 BatchSize::SmallInput,
             );
         });
