@@ -213,7 +213,7 @@ enum Pop {}
 
 impl Benchmark for Pop {
     fn bench(group: &mut BenchmarkGroup<WallTime>, size: u32, new_heap: NewHeap) {
-        group.bench_function(BenchmarkId::new("largest value", size), |b| {
+        group.bench_function(BenchmarkId::from_parameter(size), |b| {
             b.iter_batched_ref(
                 || new_heap.create_heap(),
                 |heap| heap.pop(),
