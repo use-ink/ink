@@ -177,12 +177,16 @@ fn push_largest_value_big_o_log_n() -> env::Result<()> {
             let heap1 = heap_of_size(*n);
             let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
-            let contract_account = env::test::get_current_contract_account_id::<env::DefaultEnvTypes>()?;
+            let contract_account =
+                env::test::get_current_contract_account_id::<env::DefaultEnvTypes>()?;
 
-            let mut lazy_heap =
-                <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            let mut lazy_heap = <BinaryHeap<u32> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
 
-            let (base_reads, base_writes) = env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(&contract_account)?;
+            let (base_reads, base_writes) = env::test::get_contract_storage_rw::<
+                env::DefaultEnvTypes,
+            >(&contract_account)?;
             assert_eq!((base_reads as u32, base_writes as u32), (0, n + 1));
 
             let largest_value = n + 1;
@@ -191,7 +195,9 @@ fn push_largest_value_big_o_log_n() -> env::Result<()> {
             // write back to storage so we can see how many writes required
             SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
 
-            let (reads, writes) = env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(&contract_account)?;
+            let (reads, writes) = env::test::get_contract_storage_rw::<
+                env::DefaultEnvTypes,
+            >(&contract_account)?;
             let net_reads = reads - CONST_READ_WRITES - base_reads;
             let net_writes = writes - CONST_READ_WRITES - base_writes;
 
