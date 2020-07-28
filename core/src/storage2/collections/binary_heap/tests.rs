@@ -30,6 +30,15 @@ where
     slice.iter().cloned().collect()
 }
 
+/// Creates a heap populated with `n` consecutive values.
+fn heap_of_size(n: u32) -> BinaryHeap<u32> {
+    std::iter::repeat(0u32)
+        .take(n as usize)
+        .enumerate()
+        .map(|(i, _)| i as u32 + 1)
+        .collect()
+}
+
 #[test]
 fn new_binary_heap_works() {
     // `BinaryHeap::new`
@@ -157,4 +166,39 @@ fn clear_works_on_empty_heap() {
     let mut heap = BinaryHeap::<u8>::default();
     heap.clear();
     assert!(heap.is_empty());
+}
+
+#[test]
+fn push_largest_value_big_o_log_n() -> env::Result<()> {
+    const CONST_READ_WRITES: usize = 2;
+
+    for (n, log_n) in &[(2, 1usize), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
+        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            let heap1 = heap_of_size(*n);
+            let root_key = Key::from([0x42; 32]);
+            SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
+            let contract_account = env::test::get_current_contract_account_id::<env::DefaultEnvTypes>()?;
+
+            let mut lazy_heap =
+                <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+
+            let (base_reads, base_writes) = env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(&contract_account)?;
+            assert_eq!((base_reads as u32, base_writes as u32), (0, n + 1));
+
+            let largest_value = n + 1;
+            lazy_heap.push(largest_value);
+
+            // write back to storage so we can see how many writes required
+            SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
+
+            let (reads, writes) = env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(&contract_account)?;
+            let net_reads = reads - CONST_READ_WRITES - base_reads;
+            let net_writes = writes - CONST_READ_WRITES - base_writes;
+
+            assert_eq!(net_reads, *log_n, "Reads should be O(log n)");
+            assert_eq!(net_writes, *log_n, "Writes should be O(log n)");
+            Ok(())
+        })?
+    }
+    Ok(())
 }

@@ -355,3 +355,15 @@ where
             .and_then(|account| account.get_storage_rw().map_err(Into::into))
     })
 }
+
+/// Returns the account id of the currently executing contract.
+pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
+where
+    T: EnvTypes
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let exec_context = instance.exec_context()?;
+        let callee = exec_context.callee.decode()?;
+        Ok(callee)
+    })
+}
