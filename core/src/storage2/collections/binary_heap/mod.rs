@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Binary heap data structure and utilities.
+//! A priority queue implemented with a binary heap.
 //!
-//! todo: more module description (see original bit_stash and other collections)
+//! Insertion and popping the largest element have `O(log(n))` complexity.
+//! Checking the largest element is `O(1)`.
 
 mod impls;
 mod storage;
@@ -29,19 +30,20 @@ use super::vec::{
 };
 use crate::storage2::traits::PackedLayout;
 
-/// A binary heap type, providing `O(log(n))` push and pop operations.
+//! A priority queue implemented with a binary heap.
 ///
 /// # Note
 ///
 /// The heap is a *max-heap* by default, i.e. the first element is the largest.
-/// In order to make it a *min-heap*, implement the `Ord` trait explicitly on the type
-/// which is stored in the heap.
+/// Either `core::cmp::Reverse` or a custom `Ord` implementation can be used to
+/// make `BinaryHeap` a *min-heap*. This makes `heap.pop()` return the smallest
+/// value instead of the largest one.
 #[derive(Debug)]
 pub struct BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    /// The synchronized cells to operate on the contract storage.
+    /// The underlying storage vec.
     elems: StorageVec<T>,
 }
 
@@ -86,7 +88,7 @@ where
     ///
     /// # Note
     ///
-    /// Avoid unbounded iteration over big storage vectors.
+    /// Avoid unbounded iteration over big heaps.
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
