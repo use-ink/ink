@@ -216,8 +216,7 @@ fn push_largest_value_big_o_log_n() -> env::Result<()> {
 
             assert_eq!(net_reads, *log_n, "Reads should be O(log n)");
             assert_eq!(net_writes, *log_n, "Writes should be O(log n)");
-            // println!("READS: {} {}", net_reads, log_n);
-            // println!("WRITES: {} {}", net_writes, log_n);
+
             Ok(())
         })?
     }

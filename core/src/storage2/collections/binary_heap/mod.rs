@@ -100,8 +100,7 @@ where
         self.elems.first()
     }
 
-    /// Take an element at `pos` and move it down the heap,
-    /// while its children are larger.
+    /// Take an element at `pos` and move it down the heap, while its children are smaller.
     fn sift_down(&mut self, mut pos: u32) {
         let end = self.len();
         let mut child = 2 * pos + 1;
@@ -147,6 +146,7 @@ impl<T> BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
+    /// Take an element at `pos` and move it up the heap, while its parent is larger.
     fn sift_up(&mut self, mut pos: u32) {
         while pos > 0 {
             let parent = (pos - 1) / 2;
