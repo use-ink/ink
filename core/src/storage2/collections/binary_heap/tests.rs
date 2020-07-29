@@ -102,32 +102,23 @@ fn push_works() {
 }
 
 #[test]
-fn pop_returns_greatest_element() {
-    // push in order
-    let mut heap = heap_from_slice(&[1, 2, 3]);
-
-    assert_eq!(heap.len(), 3);
-    assert_eq!(heap.pop(), Some(3));
-    assert_eq!(heap.pop(), Some(2));
-    assert_eq!(heap.pop(), Some(1));
-    assert!(heap.is_empty());
-
-    // push out of order
-    let mut heap = heap_from_slice(&[3, 2, 1]);
-
-    assert_eq!(heap.len(), 3);
-    assert_eq!(heap.pop(), Some(3));
-    assert_eq!(heap.pop(), Some(2));
-    assert_eq!(heap.pop(), Some(1));
-    assert!(heap.is_empty());
-}
-
-#[test]
 fn peek_works() {
     let mut heap = <BinaryHeap<i32>>::new();
     heap.push(33);
 
     assert_eq!(heap.peek(), Some(&33));
+}
+
+#[test]
+fn peek_and_pop_works() {
+    let data = vec![2, 4, 6, 2, 1, 8, 10, 3, 5, 7, 0, 9, 1];
+    let mut sorted = data.clone();
+    sorted.sort();
+    let mut heap = heap_from_slice(&data);
+    while !heap.is_empty() {
+        assert_eq!(heap.peek().unwrap(), sorted.last().unwrap());
+        assert_eq!(heap.pop().unwrap(), sorted.pop().unwrap());
+    }
 }
 
 // not sure we should have peek_mut, because it could violate the heap property?
@@ -225,6 +216,8 @@ fn push_largest_value_big_o_log_n() -> env::Result<()> {
 
             assert_eq!(net_reads, *log_n, "Reads should be O(log n)");
             assert_eq!(net_writes, *log_n, "Writes should be O(log n)");
+            // println!("READS: {} {}", net_reads, log_n);
+            // println!("WRITES: {} {}", net_writes, log_n);
             Ok(())
         })?
     }
