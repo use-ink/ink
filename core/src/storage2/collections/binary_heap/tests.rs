@@ -80,6 +80,28 @@ fn from_empty_iterator_works() {
 }
 
 #[test]
+fn push_works() {
+    let mut heap = heap_from_slice(&[2, 4, 9]);
+    assert_eq!(heap.len(), 3);
+    assert_eq!(*heap.peek().unwrap(), 9);
+    heap.push(11);
+    assert_eq!(heap.len(), 4);
+    assert_eq!(*heap.peek().unwrap(), 11);
+    heap.push(5);
+    assert_eq!(heap.len(), 5);
+    assert_eq!(*heap.peek().unwrap(), 11);
+    heap.push(27);
+    assert_eq!(heap.len(), 6);
+    assert_eq!(*heap.peek().unwrap(), 27);
+    heap.push(3);
+    assert_eq!(heap.len(), 7);
+    assert_eq!(*heap.peek().unwrap(), 27);
+    heap.push(103);
+    assert_eq!(heap.len(), 8);
+    assert_eq!(*heap.peek().unwrap(), 103);
+}
+
+#[test]
 fn pop_returns_greatest_element() {
     // push in order
     let mut heap = heap_from_slice(&[1, 2, 3]);
