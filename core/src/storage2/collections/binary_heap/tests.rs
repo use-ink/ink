@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::BinaryHeap;
+use super::{BinaryHeap, Reverse};
 use crate::{
     env,
     storage2::traits::{
@@ -130,6 +130,19 @@ fn peek_and_pop_works() {
 //     let elem = heap.peek_mut().unwrap();
 //     assert_eq!(heap.peek(), Some(&33));
 // }
+
+#[test]
+fn min_heap_works() {
+    let data = vec![2, 4, 6, 2, 1, 8, 10, 3, 5, 7, 0, 9, 1]
+        .iter().map(|x| Reverse::new(*x)).collect::<Vec<_>>();
+    let mut sorted = data.clone();
+    sorted.sort();
+    let mut heap = heap_from_slice(&data);
+    while !heap.is_empty() {
+        assert_eq!(heap.peek().unwrap(), sorted.last().unwrap());
+        assert_eq!(heap.pop().unwrap(), sorted.pop().unwrap());
+    }
+}
 
 #[test]
 fn spread_layout_push_pull_works() -> env::Result<()> {

@@ -19,6 +19,7 @@
 
 mod impls;
 mod storage;
+mod reverse;
 
 #[cfg(test)]
 mod tests;
@@ -29,8 +30,9 @@ use super::vec::{
     Vec as StorageVec,
 };
 use crate::storage2::traits::PackedLayout;
+pub use reverse::Reverse;
 
-//! A priority queue implemented with a binary heap.
+/// A priority queue implemented with a binary heap.
 ///
 /// # Note
 ///
