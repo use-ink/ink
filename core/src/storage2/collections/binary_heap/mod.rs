@@ -18,8 +18,8 @@
 //! Checking the largest element is `O(1)`.
 
 mod impls;
-mod storage;
 mod reverse;
+mod storage;
 
 #[cfg(test)]
 mod tests;
