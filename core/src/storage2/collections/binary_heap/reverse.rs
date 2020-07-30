@@ -26,6 +26,7 @@ use crate::storage2::{
         SpreadLayout,
     },
 };
+use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
 /// Wrapper for [`core::cmp::Reverse`] for using a [`BinaryHeap`] as a min-heap
