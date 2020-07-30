@@ -360,6 +360,7 @@ fn pop_complexity_big_o_log_n() -> env::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "ink-fuzz-tests")]
 #[quickcheck]
 fn pop_always_returns_largest_element(xs: Vec<i32>) {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
