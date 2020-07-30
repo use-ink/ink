@@ -214,6 +214,26 @@ fn spread_layout_clear_works() {
 }
 
 #[test]
+#[should_panic(expected = "encountered empty storage cell")]
+fn drop_works() {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let root_key = Key::from([0x42; 32]);
+        {
+            let heap = heap_from_slice(&[23, 25, 65]);
+            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
+
+            let _ =
+                <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            // heap is dropped which should clear the cells
+        }
+
+        let _ =
+            <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        Ok(())
+    }).unwrap()
+}
+
+#[test]
 fn clear_works_on_filled_heap() {
     let mut heap = heap_from_slice(&[b'a', b'b', b'c', b'd']);
     heap.clear();
@@ -227,7 +247,15 @@ fn clear_works_on_empty_heap() {
     assert!(heap.is_empty());
 }
 
-fn check_complexity_read_writes(heap_size: u32, push_value: u32, expected_net_reads: usize, expected_net_writes: usize) -> env::Result<()> {
+fn check_complexity_read_writes<F>(
+    heap_size: u32,
+    heap_op: F,
+    expected_net_reads: usize,
+    expected_net_writes: usize
+) -> env::Result<()>
+where
+    F: FnOnce(&mut BinaryHeap<u32>),
+{
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let heap1 = heap_of_size(heap_size);
         let root_key = Key::from([0x42; 32]);
@@ -244,7 +272,7 @@ fn check_complexity_read_writes(heap_size: u32, push_value: u32, expected_net_re
         >(&contract_account)?;
         assert_eq!((base_reads as u32, base_writes as u32), (0, heap_size + 1));
 
-        lazy_heap.push(push_value);
+        heap_op(&mut lazy_heap);
 
         // write back to storage so we can see how many writes required
         SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
@@ -255,7 +283,7 @@ fn check_complexity_read_writes(heap_size: u32, push_value: u32, expected_net_re
         let net_reads = reads - base_reads;
         let net_writes = writes - base_writes;
 
-        // println!("{}: READS {}, WRITES {}", heap_size, net_reads, net_writes);
+        // println!("{}: reads {}, writes {}", heap_size, net_reads, net_writes);
         assert_eq!(net_reads, expected_net_reads, "size {}: storage reads", heap_size);
         assert_eq!(net_writes, expected_net_writes, "size {}: storage writes", heap_size);
 
@@ -273,7 +301,7 @@ fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
         let expected_writes = log_n + CONST_READ_WRITES;
         check_complexity_read_writes(
             *n,
-            largest_value,
+            |heap| heap.push(largest_value),
             expected_reads,
             expected_writes
         )?;
@@ -290,9 +318,26 @@ fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
     for n in &[2, 4, 8, 16, 32, 64] {
         check_complexity_read_writes(
             *n,
-            SMALLEST_VALUE,
+            |heap| heap.push(SMALLEST_VALUE),
             EXPECTED_READS,
             EXPECTED_WRITES
+        )?;
+    }
+    Ok(())
+}
+
+#[test]
+fn pop_complexity_big_o_log_n() -> env::Result<()> {
+    const CONST_READ_WRITES: usize = 2;
+
+    for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
+        let expected_reads = log_n * 2 + CONST_READ_WRITES;
+        let expected_writes = log_n + CONST_READ_WRITES;
+        check_complexity_read_writes(
+            *n,
+            |heap| { heap.pop(); },
+            expected_reads,
+            expected_writes
         )?;
     }
     Ok(())
