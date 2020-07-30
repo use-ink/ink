@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{BinaryHeap, Reverse};
+use super::{BinaryHeap, PeekMut, Reverse};
 use crate::{
     env,
     storage2::traits::{
@@ -121,15 +121,30 @@ fn peek_and_pop_works() {
     }
 }
 
-// not sure we should have peek_mut, because it could violate the heap property?
-// #[test]
-// fn peek_mut_works() {
-//     let mut heap = <BinaryHeap<i32>>::new();
-//     heap.push(33);
-//
-//     let elem = heap.peek_mut().unwrap();
-//     assert_eq!(heap.peek(), Some(&33));
-// }
+#[test]
+fn peek_mut_works() {
+    let data = vec![2, 4, 6, 2, 1, 8, 10, 3, 5, 7, 0, 9, 1];
+    let mut heap = heap_from_slice(&data);
+    assert_eq!(heap.peek(), Some(&10));
+    {
+        let mut top = heap.peek_mut().unwrap();
+        *top -= 2;
+    }
+    assert_eq!(heap.peek(), Some(&9));
+}
+
+#[test]
+fn peek_mut_pop_works() {
+    let data = vec![2, 4, 6, 2, 1, 8, 10, 3, 5, 7, 0, 9, 1];
+    let mut heap = heap_from_slice(&data);
+    assert_eq!(heap.peek(), Some(&10));
+    {
+        let mut top = heap.peek_mut().unwrap();
+        *top -= 2;
+        assert_eq!(PeekMut::pop(top), 8);
+    }
+    assert_eq!(heap.peek(), Some(&9));
+}
 
 #[test]
 fn min_heap_works() {
@@ -195,7 +210,7 @@ fn clear_works_on_empty_heap() {
 }
 
 #[test]
-fn push_largest_value_big_o_log_n() -> env::Result<()> {
+fn push_largest_value_time_complexity_big_o_log_n() -> env::Result<()> {
     const CONST_READ_WRITES: usize = 2;
 
     for (n, log_n) in &[(2, 1usize), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {

@@ -24,13 +24,13 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
+pub use reverse::Reverse;
 use super::vec::{
     Iter,
     IterMut,
     Vec as StorageVec,
 };
 use crate::storage2::traits::PackedLayout;
-pub use reverse::Reverse;
 
 /// A priority queue implemented with a binary heap.
 ///
@@ -104,7 +104,41 @@ where
         self.elems.first()
     }
 
-    /// Take an element at `pos` and move it down the heap, while its children are smaller.
+    /// Returns an exclusive reference to the greatest element of the heap
+    ///
+    /// Returns `None` if the heap is empty
+    ///
+    /// # Note:
+    ///
+    /// If the `PeekMut` value is leaked, the heap may be in an inconsistent state.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_core::storage2::collections::BinaryHeap;
+    /// let mut heap = BinaryHeap::new();
+    /// assert!(heap.peek_mut().is_none());
+    ///
+    /// heap.push(1);
+    /// heap.push(5);
+    /// heap.push(2);
+    /// {
+    ///     let mut val = heap.peek_mut().unwrap();
+    ///     *val = 0;
+    /// }
+    /// assert_eq!(heap.peek(), Some(&2));
+    /// ```
+    pub fn peek_mut(&mut self) -> Option<PeekMut<'_, T>> {
+        if self.is_empty() {
+            None
+        } else {
+            Some(PeekMut { heap: self, sift: true })
+        }
+    }
+
+
+    /// Take an element at `pos` and move it down the heap, while its children
+    /// are smaller.
     fn sift_down(&mut self, mut pos: u32) {
         let end = self.len();
         let mut child = 2 * pos + 1;
@@ -150,7 +184,8 @@ impl<T> BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    /// Take an element at `pos` and move it up the heap, while its parent is larger.
+    /// Take an element at `pos` and move it up the heap, while its parent is
+    /// larger.
     fn sift_up(&mut self, mut pos: u32) {
         while pos > 0 {
             let parent = (pos - 1) / 2;
@@ -167,5 +202,59 @@ where
         let old_len = self.len();
         self.elems.push(value);
         self.sift_up(old_len)
+    }
+}
+
+/// Structure wrapping a mutable reference to the greatest item on a
+/// [`BinaryHeap`].
+///
+/// This `struct` is created by the [`BinaryHeap::peek_mut`] method.
+pub struct PeekMut<'a, T>
+where
+    T: 'a + PackedLayout + Ord,
+{
+    heap: &'a mut BinaryHeap<T>,
+    sift: bool,
+}
+
+impl<T> Drop for PeekMut<'_, T>
+where
+    T: PackedLayout + Ord,
+{
+    fn drop(&mut self) {
+        if self.sift {
+            self.heap.sift_down(0);
+        }
+    }
+}
+
+impl<T> core::ops::Deref for PeekMut<'_, T>
+where
+    T: PackedLayout + Ord,
+{
+    type Target = T;
+    fn deref(&self) -> &T {
+        self.heap.elems.first().expect("PeekMut is only instantiated for non-empty heaps")
+    }
+}
+
+impl<T> core::ops::DerefMut for PeekMut<'_, T>
+where
+    T: PackedLayout + Ord,
+{
+    fn deref_mut(&mut self) -> &mut T {
+        self.heap.elems.first_mut().expect("PeekMut is only instantiated for non-empty heaps")
+    }
+}
+
+impl<'a, T> PeekMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// Removes the peeked value from the heap and returns it.
+    pub fn pop(mut this: PeekMut<'a, T>) -> T {
+        let value = this.heap.pop().expect("PeekMut is only instantiated for non-empty heaps");
+        this.sift = false;
+        value
     }
 }
