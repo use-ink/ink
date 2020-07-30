@@ -19,12 +19,10 @@
 //! [`Reverse`] simply wraps [`core::cmp::Reverse`] and implements all the required traits for use
 //! as a storage struct.
 
-use crate::storage2::{
-    traits::{
-        KeyPtr,
-        PackedLayout,
-        SpreadLayout,
-    },
+use crate::storage2::traits::{
+    KeyPtr,
+    PackedLayout,
+    SpreadLayout,
 };
 use ink_prelude::vec::Vec;
 use ink_primitives::Key;
@@ -111,7 +109,7 @@ where
 
 impl<T> scale::Decode for Reverse<T>
 where
-    T: PackedLayout + Ord + scale::Decode
+    T: PackedLayout + Ord + scale::Decode,
 {
     fn decode<I: scale::Input>(value: &mut I) -> Result<Self, scale::Error> {
         let value = <T as scale::Decode>::decode(value)?;

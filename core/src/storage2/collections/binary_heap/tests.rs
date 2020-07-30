@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{BinaryHeap, PeekMut, Reverse};
+use super::{
+    BinaryHeap,
+    PeekMut,
+    Reverse,
+};
 use crate::{
     env,
     storage2::traits::{
@@ -167,7 +171,9 @@ fn peek_mut_pop_works() {
 #[test]
 fn min_heap_works() {
     let data = vec![2, 4, 6, 2, 1, 8, 10, 3, 5, 7, 0, 9, 1]
-        .iter().map(|x| Reverse::new(*x)).collect::<Vec<_>>();
+        .iter()
+        .map(|x| Reverse::new(*x))
+        .collect::<Vec<_>>();
     let mut sorted = data.clone();
     sorted.sort();
     let mut heap = heap_from_slice(&data);
@@ -222,15 +228,17 @@ fn drop_works() {
             let heap = heap_from_slice(&[23, 25, 65]);
             SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
-            let _ =
-                <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            let _ = <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
             // heap is dropped which should clear the cells
         }
 
         let _ =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())
-    }).unwrap()
+    })
+    .unwrap()
 }
 
 #[test]
@@ -251,7 +259,7 @@ fn check_complexity_read_writes<F>(
     heap_size: u32,
     heap_op: F,
     expected_net_reads: usize,
-    expected_net_writes: usize
+    expected_net_writes: usize,
 ) -> env::Result<()>
 where
     F: FnOnce(&mut BinaryHeap<u32>),
@@ -263,9 +271,8 @@ where
         let contract_account =
             env::test::get_current_contract_account_id::<env::DefaultEnvTypes>()?;
 
-        let mut lazy_heap = <BinaryHeap<u32> as SpreadLayout>::pull_spread(
-            &mut KeyPtr::from(root_key),
-        );
+        let mut lazy_heap =
+            <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
 
         let (base_reads, base_writes) = env::test::get_contract_storage_rw::<
             env::DefaultEnvTypes,
@@ -277,15 +284,23 @@ where
         // write back to storage so we can see how many writes required
         SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
 
-        let (reads, writes) = env::test::get_contract_storage_rw::<
-            env::DefaultEnvTypes,
-        >(&contract_account)?;
+        let (reads, writes) = env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+            &contract_account,
+        )?;
         let net_reads = reads - base_reads;
         let net_writes = writes - base_writes;
 
         // println!("{}: reads {}, writes {}", heap_size, net_reads, net_writes);
-        assert_eq!(net_reads, expected_net_reads, "size {}: storage reads", heap_size);
-        assert_eq!(net_writes, expected_net_writes, "size {}: storage writes", heap_size);
+        assert_eq!(
+            net_reads, expected_net_reads,
+            "size {}: storage reads",
+            heap_size
+        );
+        assert_eq!(
+            net_writes, expected_net_writes,
+            "size {}: storage writes",
+            heap_size
+        );
 
         Ok(())
     })
@@ -303,7 +318,7 @@ fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
             *n,
             |heap| heap.push(largest_value),
             expected_reads,
-            expected_writes
+            expected_writes,
         )?;
     }
     Ok(())
@@ -320,7 +335,7 @@ fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
             *n,
             |heap| heap.push(SMALLEST_VALUE),
             EXPECTED_READS,
-            EXPECTED_WRITES
+            EXPECTED_WRITES,
         )?;
     }
     Ok(())
@@ -335,9 +350,11 @@ fn pop_complexity_big_o_log_n() -> env::Result<()> {
         let expected_writes = log_n + CONST_READ_WRITES;
         check_complexity_read_writes(
             *n,
-            |heap| { heap.pop(); },
+            |heap| {
+                heap.pop();
+            },
             expected_reads,
-            expected_writes
+            expected_writes,
         )?;
     }
     Ok(())
@@ -355,5 +372,6 @@ fn pop_always_returns_largest_element(xs: Vec<i32>) {
         }
 
         Ok(())
-    }).unwrap()
+    })
+    .unwrap()
 }
