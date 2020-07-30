@@ -43,7 +43,7 @@ where
 
     /// Return a shared reference to the inner value
     pub fn value(&self) -> &T {
-        &self.0.0
+        &(self.0).0
     }
 }
 
@@ -71,15 +71,15 @@ where
     T: PackedLayout + Ord,
 {
     fn pull_packed(&mut self, at: &Key) {
-        <T as PackedLayout>::pull_packed(&mut self.0.0, at)
+        <T as PackedLayout>::pull_packed(&mut (self.0).0, at)
     }
 
     fn push_packed(&self, at: &Key) {
-        <T as PackedLayout>::push_packed(&self.0.0, at)
+        <T as PackedLayout>::push_packed(&(self.0).0, at)
     }
 
     fn clear_packed(&self, at: &Key) {
-        <T as PackedLayout>::clear_packed(&self.0.0, at)
+        <T as PackedLayout>::clear_packed(&(self.0).0, at)
     }
 }
 
