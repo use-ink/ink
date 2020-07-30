@@ -227,44 +227,73 @@ fn clear_works_on_empty_heap() {
     assert!(heap.is_empty());
 }
 
+fn check_complexity_read_writes(heap_size: u32, push_value: u32, expected_net_reads: usize, expected_net_writes: usize) -> env::Result<()> {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let heap1 = heap_of_size(heap_size);
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
+        let contract_account =
+            env::test::get_current_contract_account_id::<env::DefaultEnvTypes>()?;
+
+        let mut lazy_heap = <BinaryHeap<u32> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+
+        let (base_reads, base_writes) = env::test::get_contract_storage_rw::<
+            env::DefaultEnvTypes,
+        >(&contract_account)?;
+        assert_eq!((base_reads as u32, base_writes as u32), (0, heap_size + 1));
+
+        lazy_heap.push(push_value);
+
+        // write back to storage so we can see how many writes required
+        SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
+
+        let (reads, writes) = env::test::get_contract_storage_rw::<
+            env::DefaultEnvTypes,
+        >(&contract_account)?;
+        let net_reads = reads - base_reads;
+        let net_writes = writes - base_writes;
+
+        // println!("{}: READS {}, WRITES {}", heap_size, net_reads, net_writes);
+        assert_eq!(net_reads, expected_net_reads, "size {}: storage reads", heap_size);
+        assert_eq!(net_writes, expected_net_writes, "size {}: storage writes", heap_size);
+
+        Ok(())
+    })
+}
+
 #[test]
-fn push_largest_value_time_complexity_big_o_log_n() -> env::Result<()> {
+fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
     const CONST_READ_WRITES: usize = 2;
 
-    for (n, log_n) in &[(2, 1usize), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
-        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-            let heap1 = heap_of_size(*n);
-            let root_key = Key::from([0x42; 32]);
-            SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
-            let contract_account =
-                env::test::get_current_contract_account_id::<env::DefaultEnvTypes>()?;
+    for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
+        let largest_value = n + 1;
+        let expected_reads = log_n + CONST_READ_WRITES;
+        let expected_writes = log_n + CONST_READ_WRITES;
+        check_complexity_read_writes(
+            *n,
+            largest_value,
+            expected_reads,
+            expected_writes
+        )?;
+    }
+    Ok(())
+}
 
-            let mut lazy_heap = <BinaryHeap<u32> as SpreadLayout>::pull_spread(
-                &mut KeyPtr::from(root_key),
-            );
+#[test]
+fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
+    const SMALLEST_VALUE: u32 = 0;
+    const EXPECTED_READS: usize = 3;
+    const EXPECTED_WRITES: usize = 2;
 
-            let (base_reads, base_writes) = env::test::get_contract_storage_rw::<
-                env::DefaultEnvTypes,
-            >(&contract_account)?;
-            assert_eq!((base_reads as u32, base_writes as u32), (0, n + 1));
-
-            let largest_value = n + 1;
-            lazy_heap.push(largest_value);
-
-            // write back to storage so we can see how many writes required
-            SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
-
-            let (reads, writes) = env::test::get_contract_storage_rw::<
-                env::DefaultEnvTypes,
-            >(&contract_account)?;
-            let net_reads = reads - CONST_READ_WRITES - base_reads;
-            let net_writes = writes - CONST_READ_WRITES - base_writes;
-
-            assert_eq!(net_reads, *log_n, "Reads should be O(log n)");
-            assert_eq!(net_writes, *log_n, "Writes should be O(log n)");
-
-            Ok(())
-        })?
+    for n in &[2, 4, 8, 16, 32, 64] {
+        check_complexity_read_writes(
+            *n,
+            SMALLEST_VALUE,
+            EXPECTED_READS,
+            EXPECTED_WRITES
+        )?;
     }
     Ok(())
 }
