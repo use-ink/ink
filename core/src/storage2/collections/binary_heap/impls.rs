@@ -15,24 +15,11 @@
 use super::BinaryHeap;
 use crate::storage2::traits::PackedLayout;
 use core::{
-    cmp::{
-        Eq,
-        PartialEq,
-    },
     iter::{
         Extend,
         FromIterator,
     },
 };
-
-impl<T> Default for BinaryHeap<T>
-where
-    T: PackedLayout + Ord,
-{
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 impl<T> Extend<T> for BinaryHeap<T>
 where
@@ -61,17 +48,3 @@ where
         vec
     }
 }
-
-impl<T> PartialEq for BinaryHeap<T>
-where
-    T: PartialEq + PackedLayout + Ord,
-{
-    fn eq(&self, other: &Self) -> bool {
-        if self.len() != other.len() {
-            return false
-        }
-        self.iter().zip(other.iter()).all(|(lhs, rhs)| lhs == rhs)
-    }
-}
-
-impl<T> Eq for BinaryHeap<T> where T: Eq + PackedLayout + Ord {}

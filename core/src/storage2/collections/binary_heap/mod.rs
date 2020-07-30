@@ -40,7 +40,7 @@ pub use reverse::Reverse;
 /// Either [`Reverse`] or a custom `Ord` implementation can be used to
 /// make `BinaryHeap` a *min-heap*. This makes `heap.pop()` return the smallest
 /// value instead of the largest one.
-#[derive(Debug)]
+#[derive(Default, PartialEq, Eq, Debug)]
 pub struct BinaryHeap<T>
 where
     T: PackedLayout + Ord,
