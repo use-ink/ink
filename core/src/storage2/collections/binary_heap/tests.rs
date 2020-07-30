@@ -342,3 +342,18 @@ fn pop_complexity_big_o_log_n() -> env::Result<()> {
     }
     Ok(())
 }
+
+#[quickcheck]
+fn pop_always_returns_largest_element(xs: Vec<i32>) {
+    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        let mut sorted = xs.clone();
+        sorted.sort();
+        let mut heap = heap_from_slice(&xs);
+
+        for x in sorted.iter().rev() {
+            assert_eq!(Some(*x), heap.pop())
+        }
+
+        Ok(())
+    }).unwrap()
+}
