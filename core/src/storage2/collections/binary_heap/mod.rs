@@ -24,13 +24,13 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
-pub use reverse::Reverse;
 use super::vec::{
     Iter,
     IterMut,
     Vec as StorageVec,
 };
 use crate::storage2::traits::PackedLayout;
+pub use reverse::Reverse;
 
 /// A priority queue implemented with a binary heap.
 ///
@@ -132,10 +132,12 @@ where
         if self.is_empty() {
             None
         } else {
-            Some(PeekMut { heap: self, sift: true })
+            Some(PeekMut {
+                heap: self,
+                sift: true,
+            })
         }
     }
-
 
     /// Take an element at `pos` and move it down the heap, while its children
     /// are smaller.
@@ -234,7 +236,10 @@ where
 {
     type Target = T;
     fn deref(&self) -> &T {
-        self.heap.elems.first().expect("PeekMut is only instantiated for non-empty heaps")
+        self.heap
+            .elems
+            .first()
+            .expect("PeekMut is only instantiated for non-empty heaps")
     }
 }
 
@@ -243,7 +248,10 @@ where
     T: PackedLayout + Ord,
 {
     fn deref_mut(&mut self) -> &mut T {
-        self.heap.elems.first_mut().expect("PeekMut is only instantiated for non-empty heaps")
+        self.heap
+            .elems
+            .first_mut()
+            .expect("PeekMut is only instantiated for non-empty heaps")
     }
 }
 
@@ -253,7 +261,10 @@ where
 {
     /// Removes the peeked value from the heap and returns it.
     pub fn pop(mut this: PeekMut<'a, T>) -> T {
-        let value = this.heap.pop().expect("PeekMut is only instantiated for non-empty heaps");
+        let value = this
+            .heap
+            .pop()
+            .expect("PeekMut is only instantiated for non-empty heaps");
         this.sift = false;
         value
     }
