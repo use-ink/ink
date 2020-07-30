@@ -42,21 +42,39 @@ fn heap_of_size(n: u32) -> BinaryHeap<u32> {
 #[test]
 fn new_binary_heap_works() {
     // `BinaryHeap::new`
-    let mut heap = <BinaryHeap<i32>>::new();
+    let heap = <BinaryHeap<i32>>::new();
     assert!(heap.is_empty());
     assert_eq!(heap.len(), 0);
-    assert!(heap.iter().next().is_none());
-    assert_eq!(heap.peek(), None);
-    assert_eq!(heap.pop(), None);
     // `BinaryHeap::default`
-    let mut default = <BinaryHeap<i32> as Default>::default();
+    let default = <BinaryHeap<i32> as Default>::default();
     assert!(default.is_empty());
     assert_eq!(default.len(), 0);
-    assert!(default.iter().next().is_none());
-    assert_eq!(default.peek(), None);
-    assert_eq!(default.pop(), None);
     // `BinaryHeap::new` and `BinaryHeap::default` should be equal.
     assert_eq!(heap, default);
+}
+
+#[test]
+fn empty_pop_works() {
+    let mut heap = BinaryHeap::<i32>::new();
+    assert!(heap.pop().is_none());
+}
+
+#[test]
+fn empty_peek_works() {
+    let empty = BinaryHeap::<i32>::new();
+    assert!(empty.peek().is_none());
+}
+
+#[test]
+fn empty_peek_mut_works() {
+    let mut empty = BinaryHeap::<i32>::new();
+    assert!(empty.peek_mut().is_none());
+}
+
+#[test]
+fn empty_iter_works() {
+    let empty = BinaryHeap::<i32>::new();
+    assert!(empty.iter().next().is_none());
 }
 
 #[test]

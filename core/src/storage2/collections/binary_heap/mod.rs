@@ -37,7 +37,7 @@ pub use reverse::Reverse;
 /// # Note
 ///
 /// The heap is a *max-heap* by default, i.e. the first element is the largest.
-/// Either `core::cmp::Reverse` or a custom `Ord` implementation can be used to
+/// Either [`Reverse`] or a custom `Ord` implementation can be used to
 /// make `BinaryHeap` a *min-heap*. This makes `heap.pop()` return the smallest
 /// value instead of the largest one.
 #[derive(Debug)]
