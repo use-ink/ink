@@ -14,11 +14,9 @@
 
 use super::BinaryHeap;
 use crate::storage2::traits::PackedLayout;
-use core::{
-    iter::{
-        Extend,
-        FromIterator,
-    },
+use core::iter::{
+    Extend,
+    FromIterator,
 };
 
 impl<T> Extend<T> for BinaryHeap<T>
