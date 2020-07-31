@@ -28,7 +28,8 @@ use crate::storage2::traits::{
 use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
-/// Wrapper for [`core::cmp::Reverse`] for using a [`BinaryHeap`](`super::BinaryHeap`) as a min-heap
+/// Wrapper for [`core::cmp::Reverse`] for using a [`BinaryHeap`](`super::BinaryHeap`) as a
+/// min-heap.
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Copy, Clone, Default)]
 pub struct Reverse<T>(core::cmp::Reverse<T>);
 
@@ -36,12 +37,12 @@ impl<T> Reverse<T>
 where
     T: PackedLayout + Ord,
 {
-    /// Construct a new [`Reverse`] from the given value
+    /// Construct a new [`Reverse`] from the given value.
     pub fn new(value: T) -> Self {
         Self(core::cmp::Reverse(value))
     }
 
-    /// Return a shared reference to the inner value
+    /// Return a shared reference to the inner value.
     pub fn value(&self) -> &T {
         &(self.0).0
     }
