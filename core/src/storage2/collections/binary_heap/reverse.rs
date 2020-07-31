@@ -14,7 +14,7 @@
 
 //! [`BinaryHeap`](`super::BinaryHeap`) is a max-heap by default, where the *largest* element will
 //! be returned by `heap.pop()`. To use a [`BinaryHeap`](`super::BinaryHeap`) as a min-heap, where
-//! the *smallest* element returned by `heap.pop()`, the type `T` of the binary tree can be wrapped
+//! the *smallest* element returned by `heap.pop()`, the type `T` of the binary heap can be wrapped
 //! in a `Reverse<T>`.
 //!
 //! [`Reverse`] simply wraps [`core::cmp::Reverse`] and implements all the required traits for use

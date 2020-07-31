@@ -216,6 +216,11 @@ where
     T: 'a + PackedLayout + Ord,
 {
     heap: &'a mut BinaryHeap<T>,
+    /// If `true`, on `drop()` will sift the peeked value down the tree if after mutation it is no
+    /// longer the largest value, in order to keep the heap in a consistent state.
+    ///
+    /// If the peeked value is consumed via `PeekMut::pop()` then this is set to false to prevent
+    /// a redundant reorg which would already have happened via `BinaryHeap::pop()`.
     sift: bool,
 }
 
