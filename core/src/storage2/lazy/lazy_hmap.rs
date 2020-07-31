@@ -112,9 +112,13 @@ where
 {
     /// The key stored in this entry.
     key: K,
-    /// The entry within the `LazyHashMap`. This entry can be either occupied or
-    /// vacant.
-    entry: ink_prelude::collections::btree_map::Entry<'a, K, Box<StorageEntry<V>>>,
+    /// The entry within the `LazyHashMap`. This entry can be either occupied or vacant.
+    /// In an `BTreeMapEntry::Occupied` state the entry has been marked to
+    /// be removed (with `None`), but we still want to expose the `VacantEntry` API
+    /// to the use.
+    /// In an `BTreeMapEntry::Vacant` state the entry is vacant and we want to expose
+    /// the `VacantEntry` API.
+    entry: BTreeMapEntry<'a, K, Box<StorageEntry<V>>>,
 }
 
 /// An entry within the `LazyHashMap`.
