@@ -789,7 +789,11 @@ where
             }
             BTreeMapEntry::Occupied(mut occupied) => {
                 occupied.insert(new);
-                occupied.into_mut().value_mut().as_mut().unwrap()
+                occupied
+                    .into_mut()
+                    .value_mut()
+                    .as_mut()
+                    .expect("insert was just executed; qed")
             }
         }
     }
