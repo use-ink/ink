@@ -78,7 +78,7 @@ pub struct LazyHashMap<K, V, H> {
     ///
     /// This offsets the mapping for the entries stored in the contract storage
     /// so that all lazy hash map instances store equal entries at different
-    /// locations of the contract storage and avoid collissions.
+    /// locations of the contract storage and avoid collisions.
     key: Option<Key>,
     /// The currently cached entries of the lazy storage mapping.
     ///
@@ -410,7 +410,7 @@ where
             use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
             // We have to clone the key here because we do not have access to the unsafe
             // raw entry API for Rust hash maps, yet since it is unstable. We can remove
-            // the contraints on `K: Clone` once we have access to this API.
+            // the constraints on `K: Clone` once we have access to this API.
             // Read more about the issue here: https://github.com/rust-lang/rust/issues/56167
             // match cached_entries.entry(key.to_owned()) {
             match cached_entries.entry(key.to_owned()) {
