@@ -25,10 +25,14 @@ use ink_primitives::Key;
 #[cfg(test)]
 macro_rules! gen_tests_for_backend {
     ( $backend:ty ) => {
+        /// Returns some test values.
+        fn test_values() -> [(u8, i32); 2] {
+            [(b'A', 13), (b'B', 23)]
+        }
+
         /// Returns a prefilled hashmap with `[('A', 13), ['B', 23])`.
         fn prefilled_hmap() -> $backend {
-            let test_values = [(b'A', 13), (b'B', 23)];
-            test_values.iter().copied().collect::<$backend>()
+            test_values().iter().copied().collect::<$backend>()
         }
 
         /// Returns always the same `KeyPtr`.
@@ -279,6 +283,27 @@ macro_rules! gen_tests_for_backend {
 
                 // then
                 assert_eq!(hmap2.get(&b'A'), Some(&43));
+                Ok(())
+            })
+        }
+
+        #[test]
+        fn pulling_occupied_entry_must_succeed() -> env::Result<()> {
+            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                // given
+                let hmap1 = prefilled_hmap();
+                push_hmap(&hmap1);
+
+                // when
+                let mut hmap2 = pull_hmap();
+
+                // then
+                for (k, _v) in test_values().iter() {
+                    match hmap2.entry(*k) {
+                        Entry::Occupied(_) => (),
+                        Entry::Vacant(_) => panic!("the entry must be occupied"),
+                    }
+                }
                 Ok(())
             })
         }

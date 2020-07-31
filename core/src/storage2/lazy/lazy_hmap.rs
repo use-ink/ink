@@ -427,11 +427,16 @@ where
                         }
                     }
                 }
-                BTreeMapEntry::Vacant(entry) => {
-                    Entry::Vacant(VacantEntry {
-                        key,
-                        entry: BTreeMapEntry::Vacant(entry),
-                    })
+                BTreeMapEntry::Vacant(vacant) => {
+                    let value = self
+                        .key_at(&key)
+                        .map(|key| pull_packed_root_opt::<V>(&key))
+                        .unwrap_or(None);
+                    vacant.insert(Box::new(StorageEntry::new(
+                        value,
+                        EntryState::Preserved,
+                    )));
+                    self.entry(key)
                 }
             }
         }
