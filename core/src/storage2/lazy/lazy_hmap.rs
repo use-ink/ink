@@ -408,36 +408,31 @@ where
         //         By returning a raw pointer we enforce an `unsafe` block at
         //         the caller site to underline that guarantees are given by the
         //         caller.
-        unsafe {
-            let cached_entries = &mut *self.cached_entries.get_ptr().as_ptr();
-            // We have to clone the key here because we do not have access to the unsafe
-            // raw entry API for Rust hash maps, yet since it is unstable. We can remove
-            // the constraints on `K: Clone` once we have access to this API.
-            // Read more about the issue here: https://github.com/rust-lang/rust/issues/56167
-            match cached_entries.entry(key.to_owned()) {
-                BTreeMapEntry::Occupied(entry) => {
-                    match entry.get().value() {
-                        Some(_) => Entry::Occupied(OccupiedEntry { key, entry }),
-                        None => {
-                            // value is already marked as to be removed
-                            Entry::Vacant(VacantEntry {
-                                key,
-                                entry: BTreeMapEntry::Occupied(entry),
-                            })
-                        }
+        let cached_entries = unsafe { &mut *self.cached_entries.get_ptr().as_ptr() };
+        // We have to clone the key here because we do not have access to the unsafe
+        // raw entry API for Rust hash maps, yet since it is unstable. We can remove
+        // the constraints on `K: Clone` once we have access to this API.
+        // Read more about the issue here: https://github.com/rust-lang/rust/issues/56167
+        match cached_entries.entry(key.to_owned()) {
+            BTreeMapEntry::Occupied(entry) => {
+                match entry.get().value() {
+                    Some(_) => Entry::Occupied(OccupiedEntry { key, entry }),
+                    None => {
+                        // value is already marked as to be removed
+                        Entry::Vacant(VacantEntry {
+                            key,
+                            entry: BTreeMapEntry::Occupied(entry),
+                        })
                     }
                 }
-                BTreeMapEntry::Vacant(vacant) => {
-                    let value = self
-                        .key_at(&key)
-                        .map(|key| pull_packed_root_opt::<V>(&key))
-                        .unwrap_or(None);
-                    vacant.insert(Box::new(StorageEntry::new(
-                        value,
-                        EntryState::Preserved,
-                    )));
-                    self.entry(key)
-                }
+            }
+            BTreeMapEntry::Vacant(vacant) => {
+                let value = self
+                    .key_at(&key)
+                    .map(|key| pull_packed_root_opt::<V>(&key))
+                    .unwrap_or(None);
+                vacant.insert(Box::new(StorageEntry::new(value, EntryState::Preserved)));
+                self.entry(key)
             }
         }
     }
