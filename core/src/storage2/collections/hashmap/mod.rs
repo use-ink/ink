@@ -107,48 +107,42 @@ struct ValueEntry<V> {
 }
 
 /// A vacant entry with previous and next vacant indices.
-pub struct OccupiedEntry<'a, K, V, H = Blake2x256Hasher>
+pub struct OccupiedEntry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// A reference to the `Stash` instance, containing the keys.
     keys: &'a mut Stash<K>,
     /// The `LazyHashMap::OccupiedEntry`.
-    values_entry: LazyOccupiedEntry<'a, K, ValueEntry<V>, H>,
+    values_entry: LazyOccupiedEntry<'a, K, ValueEntry<V>>,
 }
 
 /// A vacant entry with previous and next vacant indices.
-pub struct VacantEntry<'a, K, V, H = Blake2x256Hasher>
+pub struct VacantEntry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// A reference to the `Stash` instance, containing the keys.
     keys: &'a mut Stash<K>,
     /// The `LazyHashMap::VacantEntry`.
-    values_entry: LazyVacantEntry<'a, K, ValueEntry<V>, H>,
+    values_entry: LazyVacantEntry<'a, K, ValueEntry<V>>,
 }
 
 /// An entry within the stash.
 ///
 /// The vacant entries within a storage stash form a doubly linked list of
 /// vacant entries that is used to quickly re-use their vacant storage.
-pub enum Entry<'a, K: 'a, V: 'a, H = Blake2x256Hasher>
+pub enum Entry<'a, K: 'a, V: 'a>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// A vacant entry that holds the index to the next and previous vacant entry.
-    Vacant(VacantEntry<'a, K, V, H>),
+    Vacant(VacantEntry<'a, K, V>),
     /// An occupied entry that holds the value.
-    Occupied(OccupiedEntry<'a, K, V, H>),
+    Occupied(OccupiedEntry<'a, K, V>),
 }
 
 impl<K, V, H> HashMap<K, V, H>
@@ -389,7 +383,7 @@ where
     }
 
     /// Gets the given key's corresponding entry in the map for in-place manipulation.
-    pub fn entry(&mut self, key: K) -> Entry<K, V, H> {
+    pub fn entry(&mut self, key: K) -> Entry<K, V> {
         let entry = self.values.entry(key);
         match entry {
             LazyEntry::Occupied(o) => {
@@ -408,12 +402,10 @@ where
     }
 }
 
-impl<'a, K, V, H> Entry<'a, K, V, H>
+impl<'a, K, V> Entry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout + core::fmt::Debug + core::cmp::Eq + Default,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// Returns a reference to this entry's key.
     pub fn key(&self) -> &K {
@@ -485,17 +477,15 @@ where
     }
 
     /// Inserts `value` into `entry`.
-    fn insert(value: V, entry: VacantEntry<'a, K, V, H>) -> &'a mut V {
+    fn insert(value: V, entry: VacantEntry<'a, K, V>) -> &'a mut V {
         entry.insert(value)
     }
 }
 
-impl<'a, K, V, H> VacantEntry<'a, K, V, H>
+impl<'a, K, V> VacantEntry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
     pub fn key(&self) -> &K {
@@ -518,12 +508,10 @@ where
     }
 }
 
-impl<'a, K, V, H> OccupiedEntry<'a, K, V, H>
+impl<'a, K, V> OccupiedEntry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// Gets a reference to the key in the entry.
     pub fn key(&self) -> &K {

@@ -48,7 +48,10 @@ use core::{
 use ink_prelude::{
     borrow::ToOwned,
     boxed::Box,
-    collections::BTreeMap,
+    collections::btree_map::{
+        BTreeMap,
+        Entry as BTreeMapEntry,
+    },
     vec::Vec,
 };
 use ink_primitives::Key;
@@ -90,44 +93,40 @@ pub struct LazyHashMap<K, V, H> {
 }
 
 /// A vacant entry with previous and next vacant indices.
-pub struct OccupiedEntry<'a, K, V, H>
+pub struct OccupiedEntry<'a, K, V>
 where
     K: Clone,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
-    /// A reference to the used `LazyHashMap` instance.
-    base: &'a mut LazyHashMap<K, V, H>,
     /// The key stored in this entry.
     key: K,
+    /// The occupied `EntryMap` entry that holds the value.
+    entry:
+        ink_prelude::collections::btree_map::OccupiedEntry<'a, K, Box<StorageEntry<V>>>,
 }
 
 /// A vacant entry with previous and next vacant indices.
-pub struct VacantEntry<'a, K, V, H>
+pub struct VacantEntry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
-    /// A reference to the used `LazyHashMap` instance.
-    base: &'a mut LazyHashMap<K, V, H>,
     /// The key stored in this entry.
     key: K,
+    /// The entry within the `LazyHashMap`. This entry can be either occupied or
+    /// vacant.
+    entry: ink_prelude::collections::btree_map::Entry<'a, K, Box<StorageEntry<V>>>,
 }
 
 /// An entry within the `LazyHashMap`.
-pub enum Entry<'a, K: 'a, V: 'a, H>
+pub enum Entry<'a, K: 'a, V: 'a>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// A vacant entry that holds the index to the next and previous vacant entry.
-    Vacant(VacantEntry<'a, K, V, H>),
+    Vacant(VacantEntry<'a, K, V>),
     /// An occupied entry that holds the value.
-    Occupied(OccupiedEntry<'a, K, V, H>),
+    Occupied(OccupiedEntry<'a, K, V>),
 }
 
 struct DebugEntryMap<'a, K, V>(&'a CacheCell<EntryMap<K, V>>);
@@ -395,7 +394,7 @@ where
     Key: From<<H as Hasher>::Output>,
 {
     /// Gets the given key's corresponding entry in the map for in-place manipulation.
-    pub fn entry(&mut self, key: K) -> Entry<K, V, H> {
+    pub fn entry(&mut self, key: K) -> Entry<K, V> {
         // SAFETY: We have put the whole `cached_entries` mapping into an
         //         `UnsafeCell` because of this caching functionality. The
         //         trick here is that due to using `Box<T>` internally
@@ -407,21 +406,28 @@ where
         //         caller.
         unsafe {
             let cached_entries = &mut *self.cached_entries.get_ptr().as_ptr();
-            use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
             // We have to clone the key here because we do not have access to the unsafe
             // raw entry API for Rust hash maps, yet since it is unstable. We can remove
             // the constraints on `K: Clone` once we have access to this API.
             // Read more about the issue here: https://github.com/rust-lang/rust/issues/56167
-            // match cached_entries.entry(key.to_owned()) {
             match cached_entries.entry(key.to_owned()) {
-                BTreeMapEntry::Occupied(occupied) => {
-                    match occupied.get().value() {
-                        Some(_) => Entry::Occupied(OccupiedEntry { key, base: self }),
-                        None => Entry::Vacant(VacantEntry { key, base: self }),
+                BTreeMapEntry::Occupied(entry) => {
+                    match entry.get().value() {
+                        Some(_) => Entry::Occupied(OccupiedEntry { key, entry }),
+                        None => {
+                            // value is already marked as to be removed
+                            Entry::Vacant(VacantEntry {
+                                key,
+                                entry: BTreeMapEntry::Occupied(entry),
+                            })
+                        }
                     }
                 }
-                BTreeMapEntry::Vacant(_) => {
-                    Entry::Vacant(VacantEntry { key, base: self })
+                BTreeMapEntry::Vacant(entry) => {
+                    Entry::Vacant(VacantEntry {
+                        key,
+                        entry: BTreeMapEntry::Vacant(entry),
+                    })
                 }
             }
         }
@@ -511,7 +517,6 @@ where
         //         the caller site to underline that guarantees are given by the
         //         caller.
         let cached_entries = &mut *self.cached_entries.get_ptr().as_ptr();
-        use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         // We have to clone the key here because we do not have access to the unsafe
         // raw entry API for Rust hash maps, yet since it is unstable. We can remove
         // the contraints on `K: Clone` once we have access to this API.
@@ -678,12 +683,10 @@ where
     }
 }
 
-impl<'a, K, V, H> Entry<'a, K, V, H>
+impl<'a, K, V> Entry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout + core::fmt::Debug + core::cmp::Eq + Default,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// Returns a reference to this entry's key.
     pub fn key(&self) -> &K {
@@ -719,7 +722,7 @@ where
     {
         match self {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => Entry::insert(default(), entry),
+            Entry::Vacant(entry) => entry.insert(default()),
         }
     }
 
@@ -732,7 +735,10 @@ where
     {
         match self {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => Entry::insert(default(&entry.key), entry),
+            Entry::Vacant(entry) => {
+                let value = default(&entry.key);
+                entry.insert(value)
+            }
         }
     }
 
@@ -753,24 +759,12 @@ where
             Entry::Vacant(entry) => Entry::Vacant(entry),
         }
     }
-
-    /// Inserts `value` into `entry`.
-    fn insert(value: V, entry: VacantEntry<'a, K, V, H>) -> &'a mut V {
-        let _old_value = entry.base.put(entry.key.clone(), Some(value));
-        // debug_assert!(old_value.is_none());
-        entry
-            .base
-            .get_mut(&entry.key)
-            .expect("encountered invalid vacant entry")
-    }
 }
 
-impl<'a, K, V, H> VacantEntry<'a, K, V, H>
+impl<'a, K, V> VacantEntry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
     pub fn key(&self) -> &K {
@@ -784,24 +778,27 @@ where
 
     /// Sets the value of the entry with the VacantEntry's key, and returns a mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
-        // At this point we know that `key` does not yet exist in the map.
-        // let key_index = self.base.keys.put(self.key.clone());
-        self.base
-            //.values
-            //.put(self.key.clone(), Some(ValueEntry { value, key_index }));
-            .put(self.key.clone(), Some(value));
-        self.base
-            .get_mut(&self.key)
-            .expect("put was just executed; qed")
+        let new = Box::new(StorageEntry::new(Some(value), EntryState::Mutated));
+        match self.entry {
+            BTreeMapEntry::Vacant(vacant) => {
+                vacant
+                    .insert(new)
+                    .value_mut()
+                    .as_mut()
+                    .expect("insert was just executed; qed")
+            }
+            BTreeMapEntry::Occupied(mut occupied) => {
+                occupied.insert(new);
+                occupied.into_mut().value_mut().as_mut().unwrap()
+            }
+        }
     }
 }
 
-impl<'a, K, V, H> OccupiedEntry<'a, K, V, H>
+impl<'a, K, V> OccupiedEntry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
 {
     /// Gets a reference to the key in the entry.
     pub fn key(&self) -> &K {
@@ -809,19 +806,18 @@ where
     }
 
     /// Take the ownership of the key and value from the map.
-    pub fn remove_entry(self) -> (K, V) {
-        let value = self
-            .base
-            .put_get(&self.key, None)
-            .expect("`key` must exist");
-        (self.key, value)
+    pub fn remove_entry(mut self) -> (K, V) {
+        let old = core::mem::replace(self.entry.get_mut().value_mut(), None)
+            .expect("entry behind `OccupiedEntry` must always exist");
+        (self.key, old)
     }
 
     /// Gets a reference to the value in the entry.
     pub fn get(&self) -> &V {
-        &self
-            .base
-            .get(&self.key)
+        self.entry
+            .get()
+            .value()
+            .as_ref()
             .expect("entry behind `OccupiedEntry` must always exist")
     }
 
@@ -830,18 +826,20 @@ where
     /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
     /// `Entry` value, see `into_mut`.
     pub fn get_mut(&mut self) -> &mut V {
-        self.base
-            .get_mut(&self.key)
+        self.entry
+            .get_mut()
+            .value_mut()
+            .as_mut()
             .expect("entry behind `OccupiedEntry` must always exist")
     }
 
     /// Sets the value of the entry, and returns the entry's old value.
     pub fn insert(&mut self, new_value: V) -> V {
-        let mut occupied = self
-            .base
-            .get_mut(&self.key)
-            .expect("entry behind `OccupiedEntry` must always exist");
-        core::mem::replace(&mut occupied, new_value)
+        let new_value = Box::new(StorageEntry::new(Some(new_value), EntryState::Mutated));
+        self.entry
+            .insert(new_value)
+            .into_value()
+            .expect("entry behind `OccupiedEntry` must always exist")
     }
 
     /// Takes the value out of the entry, and returns it.
@@ -852,8 +850,10 @@ where
     /// Converts the OccupiedEntry into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
-        self.base
-            .get_mut(&self.key)
+        self.entry
+            .into_mut()
+            .value_mut()
+            .as_mut()
             .expect("entry behind `OccupiedEntry` must always exist")
     }
 }
