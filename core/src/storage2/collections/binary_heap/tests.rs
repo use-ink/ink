@@ -226,16 +226,15 @@ fn drop_works() {
         let root_key = Key::from([0x42; 32]);
 
         // if the setup panics it should not cause the test to pass
-        let setup_result =
-            std::panic::catch_unwind(|| {
-                let heap = heap_from_slice(&[23, 25, 65]);
-                SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
+        let setup_result = std::panic::catch_unwind(|| {
+            let heap = heap_from_slice(&[23, 25, 65]);
+            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
-                let _ = <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-                    root_key,
-                ));
-                // heap is dropped which should clear the cells
-            });
+            let _ = <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+            // heap is dropped which should clear the cells
+        });
 
         assert!(setup_result.is_ok(), "setup should not panic");
 
