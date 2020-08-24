@@ -96,6 +96,7 @@ define_error_codes! {
 type Result = core::result::Result<(), Error>;
 
 mod sys {
+    #[link(wasm_import_module = "seal0")]
     extern "C" {
         pub fn seal_instantiate(
             init_code_ptr: u32,
