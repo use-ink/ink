@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@ pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     core::intrinsics::abort()
 }
 
-// `extern` fn uses type `core::alloc::Layout`, which is not FFI-safe
-#[allow(improper_ctypes)]
 #[alloc_error_handler]
-pub extern "C" fn oom(_: core::alloc::Layout) -> ! {
+pub fn oom(_: core::alloc::Layout) -> ! {
     core::intrinsics::abort()
 }
