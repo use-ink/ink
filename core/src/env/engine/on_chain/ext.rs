@@ -83,11 +83,11 @@ macro_rules! define_error_codes {
 define_error_codes! {
     /// The called function trapped and has its state changes reverted.
     /// In this case no output buffer is returned.
-    /// Can only be returned from `ext_call` and `ext_instantiate`.
+    /// Can only be returned from `seal_call` and `seal_instantiate`.
     CalleeTrapped = 1,
     /// The called function ran to completion but decided to revert its state.
     /// An output buffer is returned when one was supplied.
-    /// Can only be returned from `ext_call` and `ext_instantiate`.
+    /// Can only be returned from `seal_call` and `seal_instantiate`.
     CalleeReverted = 2,
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
@@ -97,7 +97,7 @@ type Result = core::result::Result<(), Error>;
 
 mod sys {
     extern "C" {
-        pub fn ext_instantiate(
+        pub fn seal_instantiate(
             init_code_ptr: u32,
             init_code_len: u32,
             gas: u64,
@@ -111,7 +111,7 @@ mod sys {
             output_len_ptr: u32,
         ) -> u32;
 
-        pub fn ext_call(
+        pub fn seal_call(
             callee_ptr: u32,
             callee_len: u32,
             gas: u64,
@@ -123,26 +123,26 @@ mod sys {
             output_len_ptr: u32,
         ) -> u32;
 
-        pub fn ext_transfer(
+        pub fn seal_transfer(
             account_id_ptr: u32,
             account_id_len: u32,
             transferred_value_ptr: u32,
             transferred_value_len: u32,
         );
 
-        pub fn ext_deposit_event(
+        pub fn seal_deposit_event(
             topics_ptr: u32,
             topics_len: u32,
             data_ptr: u32,
             data_len: u32,
         );
 
-        pub fn ext_set_storage(key_ptr: u32, value_ptr: u32, value_len: u32);
-        pub fn ext_get_storage(key_ptr: u32, output_ptr: u32, output_len_ptr: u32)
+        pub fn seal_set_storage(key_ptr: u32, value_ptr: u32, value_len: u32);
+        pub fn seal_get_storage(key_ptr: u32, output_ptr: u32, output_len_ptr: u32)
             -> u32;
-        pub fn ext_clear_storage(key_ptr: u32);
+        pub fn seal_clear_storage(key_ptr: u32);
 
-        pub fn ext_restore_to(
+        pub fn seal_restore_to(
             dest_ptr: u32,
             dest_len: u32,
             code_hash_ptr: u32,
@@ -152,9 +152,9 @@ mod sys {
             delta_ptr: u32,
             delta_count: u32,
         );
-        pub fn ext_terminate(beneficiary_ptr: u32, beneficiary_len: u32) -> !;
+        pub fn seal_terminate(beneficiary_ptr: u32, beneficiary_len: u32) -> !;
 
-        pub fn ext_call_chain_extension(
+        pub fn seal_call_chain_extension(
             func_id: u32,
             input_ptr: u32,
             input_len: u32,
@@ -162,35 +162,35 @@ mod sys {
             output_len_ptr: u32,
         ) -> u32;
 
-        pub fn ext_input(buf_ptr: u32, buf_len_ptr: u32);
-        pub fn ext_return(flags: u32, data_ptr: u32, data_len: u32) -> !;
+        pub fn seal_input(buf_ptr: u32, buf_len_ptr: u32);
+        pub fn seal_return(flags: u32, data_ptr: u32, data_len: u32) -> !;
 
-        pub fn ext_caller(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_block_number(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_address(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_balance(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_weight_to_fee(gas: u64, output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_gas_left(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_value_transferred(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_now(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_rent_allowance(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_minimum_balance(output_ptr: u32, output_len_ptr: u32);
-        pub fn ext_tombstone_deposit(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_caller(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_block_number(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_address(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_balance(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_weight_to_fee(gas: u64, output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_gas_left(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_value_transferred(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_now(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_rent_allowance(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_minimum_balance(output_ptr: u32, output_len_ptr: u32);
+        pub fn seal_tombstone_deposit(output_ptr: u32, output_len_ptr: u32);
 
-        pub fn ext_set_rent_allowance(value_ptr: u32, value_len: u32);
+        pub fn seal_set_rent_allowance(value_ptr: u32, value_len: u32);
 
-        pub fn ext_random(
+        pub fn seal_random(
             subject_ptr: u32,
             subject_len: u32,
             output_ptr: u32,
             output_len_ptr: u32,
         );
-        pub fn ext_println(str_ptr: u32, str_len: u32);
+        pub fn seal_println(str_ptr: u32, str_len: u32);
 
-        pub fn ext_hash_keccak_256(input_ptr: u32, input_len: u32, output_ptr: u32);
-        pub fn ext_hash_blake2_256(input_ptr: u32, input_len: u32, output_ptr: u32);
-        pub fn ext_hash_blake2_128(input_ptr: u32, input_len: u32, output_ptr: u32);
-        pub fn ext_hash_sha2_256(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn seal_hash_keccak_256(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn seal_hash_blake2_256(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn seal_hash_blake2_128(input_ptr: u32, input_len: u32, output_ptr: u32);
+        pub fn seal_hash_sha2_256(input_ptr: u32, input_len: u32, output_ptr: u32);
     }
 }
 
@@ -214,7 +214,7 @@ pub fn instantiate(
         let address_len_ptr: *mut u32 = &mut address_len;
         let return_value_len_ptr: *mut u32 = &mut return_value_len;
         unsafe {
-            sys::ext_instantiate(
+            sys::seal_instantiate(
                 code_hash.as_ptr() as u32,
                 code_hash.len() as u32,
                 gas_limit,
@@ -245,7 +245,7 @@ pub fn call(
     let ret_code = {
         let output_len_ptr: *mut u32 = &mut output_len;
         unsafe {
-            sys::ext_call(
+            sys::seal_call(
                 callee.as_ptr() as u32,
                 callee.len() as u32,
                 gas_limit,
@@ -264,7 +264,7 @@ pub fn call(
 
 pub fn transfer(account_id: &[u8], value: &[u8]) {
     unsafe {
-        sys::ext_transfer(
+        sys::seal_transfer(
             account_id.as_ptr() as u32,
             account_id.len() as u32,
             value.as_ptr() as u32,
@@ -275,7 +275,7 @@ pub fn transfer(account_id: &[u8], value: &[u8]) {
 
 pub fn deposit_event(topics: &[u8], data: &[u8]) {
     unsafe {
-        sys::ext_deposit_event(
+        sys::seal_deposit_event(
             topics.as_ptr() as u32,
             topics.len() as u32,
             data.as_ptr() as u32,
@@ -286,7 +286,7 @@ pub fn deposit_event(topics: &[u8], data: &[u8]) {
 
 pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
     unsafe {
-        sys::ext_set_storage(
+        sys::seal_set_storage(
             key.as_ptr() as u32,
             encoded_value.as_ptr() as u32,
             encoded_value.len() as u32,
@@ -295,7 +295,7 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
 }
 
 pub fn clear_storage(key: &[u8]) {
-    unsafe { sys::ext_clear_storage(key.as_ptr() as u32) }
+    unsafe { sys::seal_clear_storage(key.as_ptr() as u32) }
 }
 
 pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
@@ -303,7 +303,7 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     let ret_code = {
         let output_len_ptr: *mut u32 = &mut output_len;
         unsafe {
-            sys::ext_get_storage(
+            sys::seal_get_storage(
                 key.as_ptr() as u32,
                 output.as_ptr() as u32,
                 output_len_ptr as u32,
@@ -332,7 +332,7 @@ pub fn restore_to(
     filtered_keys: &[Key],
 ) {
     unsafe {
-        sys::ext_restore_to(
+        sys::seal_restore_to(
             account_id.as_ptr() as u32,
             account_id.len() as u32,
             code_hash.as_ptr() as u32,
@@ -346,7 +346,7 @@ pub fn restore_to(
 }
 
 pub fn terminate(beneficiary: &[u8]) -> ! {
-    unsafe { sys::ext_terminate(beneficiary.as_ptr() as u32, beneficiary.len() as u32) }
+    unsafe { sys::seal_terminate(beneficiary.as_ptr() as u32, beneficiary.len() as u32) }
 }
 
 pub fn call_chain_extension(
@@ -358,7 +358,7 @@ pub fn call_chain_extension(
     let ret_code = {
         let output_len_ptr: *mut u32 = &mut output_len;
         unsafe {
-            sys::ext_call_chain_extension(
+            sys::seal_call_chain_extension(
                 func_id,
                 input.as_ptr() as u32,
                 input.len() as u32,
@@ -375,14 +375,14 @@ pub fn input(output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
     {
         let output_len_ptr: *mut u32 = &mut output_len;
-        unsafe { sys::ext_input(output.as_ptr() as u32, output_len_ptr as u32) };
+        unsafe { sys::seal_input(output.as_ptr() as u32, output_len_ptr as u32) };
     }
     extract_from_slice(output, output_len as usize);
 }
 
 pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
     unsafe {
-        sys::ext_return(
+        sys::seal_return(
             flags.into_u32(),
             return_value.as_ptr() as u32,
             return_value.len() as u32,
@@ -390,15 +390,15 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
     }
 }
 
-macro_rules! impl_ext_wrapper_for {
-    ( $( ($name:ident => $ext_name:ident), )* ) => {
+macro_rules! impl_seal_wrapper_for {
+    ( $( ($name:ident => $seal_name:ident), )* ) => {
         $(
             pub fn $name(output: &mut &mut [u8]) {
                 let mut output_len = output.len() as u32;
                 {
                     let output_len_ptr: *mut u32 = &mut output_len;
                     unsafe {
-                        sys::$ext_name(
+                        sys::$seal_name(
                             output.as_ptr() as u32,
                             output_len_ptr as u32,
                         )
@@ -409,17 +409,17 @@ macro_rules! impl_ext_wrapper_for {
         )*
     }
 }
-impl_ext_wrapper_for! {
-    (caller => ext_caller),
-    (block_number => ext_block_number),
-    (address => ext_address),
-    (balance => ext_balance),
-    (gas_left => ext_gas_left),
-    (value_transferred => ext_value_transferred),
-    (now => ext_now),
-    (rent_allowance => ext_rent_allowance),
-    (minimum_balance => ext_minimum_balance),
-    (tombstone_deposit => ext_tombstone_deposit),
+impl_seal_wrapper_for! {
+    (caller => seal_caller),
+    (block_number => seal_block_number),
+    (address => seal_address),
+    (balance => seal_balance),
+    (gas_left => seal_gas_left),
+    (value_transferred => seal_value_transferred),
+    (now => seal_now),
+    (rent_allowance => seal_rent_allowance),
+    (minimum_balance => seal_minimum_balance),
+    (tombstone_deposit => seal_tombstone_deposit),
 }
 
 pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
@@ -427,14 +427,14 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
     {
         let output_len_ptr: *mut u32 = &mut output_len;
         unsafe {
-            sys::ext_weight_to_fee(gas, output.as_ptr() as u32, output_len_ptr as u32)
+            sys::seal_weight_to_fee(gas, output.as_ptr() as u32, output_len_ptr as u32)
         };
     }
     extract_from_slice(output, output_len as usize);
 }
 
 pub fn set_rent_allowance(value: &[u8]) {
-    unsafe { sys::ext_set_rent_allowance(value.as_ptr() as u32, value.len() as u32) }
+    unsafe { sys::seal_set_rent_allowance(value.as_ptr() as u32, value.len() as u32) }
 }
 
 pub fn random(subject: &[u8], output: &mut &mut [u8]) {
@@ -442,7 +442,7 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     {
         let output_len_ptr: *mut u32 = &mut output_len;
         unsafe {
-            sys::ext_random(
+            sys::seal_random(
                 subject.as_ptr() as u32,
                 subject.len() as u32,
                 output.as_ptr() as u32,
@@ -455,7 +455,7 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
 
 pub fn println(content: &str) {
     let bytes = content.as_bytes();
-    unsafe { sys::ext_println(bytes.as_ptr() as u32, bytes.len() as u32) }
+    unsafe { sys::seal_println(bytes.as_ptr() as u32, bytes.len() as u32) }
 }
 
 macro_rules! impl_hash_fn {
@@ -463,7 +463,7 @@ macro_rules! impl_hash_fn {
         paste::item! {
             pub fn [<hash_ $name>](input: &[u8], output: &mut [u8; $bytes_result]) {
                 unsafe {
-                    sys::[<ext_hash_ $name>](
+                    sys::[<seal_hash_ $name>](
                         input.as_ptr() as u32,
                         input.len() as u32,
                         output.as_ptr() as u32,
