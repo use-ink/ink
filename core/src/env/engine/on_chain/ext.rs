@@ -89,16 +89,22 @@ define_error_codes! {
 /// Does not allow accessing the internal `u32` value.
 #[derive(Debug)]
 #[repr(transparent)]
-pub struct Ptr32<'a> {
+pub struct Ptr32<'a, T>
+where
+    T: ?Sized,
+{
     /// The internal Wasm32 raw pointer value.
     ///
     /// Must not be readable or directly usable by any safe Rust code.
     value: u32,
     /// We handle types like these as if the associated lifetime was exclusive.
-    marker: PhantomData<fn() -> &'a ()>,
+    marker: PhantomData<fn() -> &'a T>,
 }
 
-impl<'a> Ptr32<'a> {
+impl<'a, T> Ptr32<'a, T>
+where
+    T: ?Sized,
+{
     /// Creates a new Wasm32 pointer for the given raw pointer value.
     fn new(value: u32) -> Self {
         Self {
@@ -106,17 +112,12 @@ impl<'a> Ptr32<'a> {
             marker: Default::default(),
         }
     }
-
-    /// Creates a new Wasm32 pointer from the given shared slice.
-    pub fn from_slice<T>(slice: &'a [T]) -> Self {
-        Self::new(slice.as_ptr() as u32)
-    }
 }
 
-impl<'a, T> From<&'a T> for Ptr32<'a> {
-    fn from(a_ref: &'a T) -> Self {
-        let a_ptr: *const T = a_ref;
-        Self::new(a_ptr as u32)
+impl<'a, T> Ptr32<'a, [T]> {
+    /// Creates a new Wasm32 pointer from the given shared slice.
+    pub fn from_slice(slice: &'a [T]) -> Self {
+        Self::new(slice.as_ptr() as u32)
     }
 }
 
@@ -131,16 +132,22 @@ impl<'a, T> From<&'a T> for Ptr32<'a> {
 /// Does not allow accessing the internal `u32` value.
 #[derive(Debug)]
 #[repr(transparent)]
-pub struct Ptr32Mut<'a> {
+pub struct Ptr32Mut<'a, T>
+where
+    T: ?Sized,
+{
     /// The internal Wasm32 raw pointer value.
     ///
     /// Must not be readable or directly usable by any safe Rust code.
     value: u32,
     /// We handle types like these as if the associated lifetime was exclusive.
-    marker: PhantomData<fn() -> &'a mut ()>,
+    marker: PhantomData<fn() -> &'a mut T>,
 }
 
-impl<'a> Ptr32Mut<'a> {
+impl<'a, T> Ptr32Mut<'a, T>
+where
+    T: ?Sized,
+{
     /// Creates a new Wasm32 pointer for the given raw pointer value.
     fn new(value: u32) -> Self {
         Self {
@@ -148,17 +155,23 @@ impl<'a> Ptr32Mut<'a> {
             marker: Default::default(),
         }
     }
+}
 
+impl<'a, T> Ptr32Mut<'a, [T]> {
     /// Creates a new Wasm32 pointer from the given exclusive slice.
-    pub fn from_slice_mut<T>(slice: &'a mut [T]) -> Self {
-        Self::new(slice.as_mut_ptr() as u32)
+    pub fn from_slice(slice: &'a mut [T]) -> Self {
+        Self::new(slice.as_ptr() as u32)
     }
 }
 
-impl<'a, T> From<&'a mut T> for Ptr32Mut<'a> {
-    fn from(a_ref_mut: &'a mut T) -> Self {
-        let a_ptr_mut: *mut T = a_ref_mut;
-        Self::new(a_ptr_mut as u32)
+impl<'a, T> Ptr32Mut<'a, T>
+where
+    T: Sized,
+{
+    /// Creates a new Wasm32 pointer from the given exclusive reference.
+    pub fn from_ref(a_ref: &'a mut T) -> Self {
+        let a_ptr: *mut T = a_ref;
+        Self::new(a_ptr as u32)
     }
 }
 
@@ -170,6 +183,7 @@ type Result = core::result::Result<(), Error>;
 
 mod sys {
     use super::{
+        Key,
         Ptr32,
         Ptr32Mut,
         ReturnCode,
@@ -178,119 +192,138 @@ mod sys {
     #[link(wasm_import_module = "seal0")]
     extern "C" {
         pub fn seal_instantiate(
-            init_code_ptr: Ptr32,
+            init_code_ptr: Ptr32<[u8]>,
             init_code_len: u32,
             gas: u64,
-            endowment_ptr: Ptr32,
+            endowment_ptr: Ptr32<[u8]>,
             endowment_len: u32,
-            input_ptr: Ptr32,
+            input_ptr: Ptr32<[u8]>,
             input_len: u32,
-            address_ptr: Ptr32Mut,
-            address_len_ptr: Ptr32Mut,
-            output_ptr: Ptr32Mut,
-            output_len_ptr: Ptr32Mut,
+            address_ptr: Ptr32Mut<[u8]>,
+            address_len_ptr: Ptr32Mut<u32>,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
         pub fn seal_call(
-            callee_ptr: Ptr32,
+            callee_ptr: Ptr32<[u8]>,
             callee_len: u32,
             gas: u64,
-            transferred_value_ptr: Ptr32,
+            transferred_value_ptr: Ptr32<[u8]>,
             transferred_value_len: u32,
-            input_ptr: Ptr32,
+            input_ptr: Ptr32<[u8]>,
             input_len: u32,
-            output_ptr: Ptr32Mut,
-            output_len_ptr: Ptr32Mut,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
         pub fn seal_transfer(
-            account_id_ptr: Ptr32,
+            account_id_ptr: Ptr32<[u8]>,
             account_id_len: u32,
-            transferred_value_ptr: Ptr32,
+            transferred_value_ptr: Ptr32<[u8]>,
             transferred_value_len: u32,
         ) -> ReturnCode;
 
         pub fn seal_deposit_event(
-            topics_ptr: Ptr32,
+            topics_ptr: Ptr32<[u8]>,
             topics_len: u32,
-            data_ptr: Ptr32,
+            data_ptr: Ptr32<[u8]>,
             data_len: u32,
         );
 
-        pub fn seal_set_storage(key_ptr: Ptr32, value_ptr: Ptr32, value_len: u32);
+        pub fn seal_set_storage(key_ptr: Ptr32<[u8]>, value_ptr: Ptr32<[u8]>, value_len: u32);
         pub fn seal_get_storage(
-            key_ptr: Ptr32,
-            output_ptr: Ptr32Mut,
-            output_len_ptr: Ptr32Mut,
+            key_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
-        pub fn seal_clear_storage(key_ptr: Ptr32);
+        pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>);
 
         pub fn seal_restore_to(
-            dest_ptr: Ptr32,
+            dest_ptr: Ptr32<[u8]>,
             dest_len: u32,
-            code_hash_ptr: Ptr32,
+            code_hash_ptr: Ptr32<[u8]>,
             code_hash_len: u32,
-            rent_allowance_ptr: Ptr32,
+            rent_allowance_ptr: Ptr32<[u8]>,
             rent_allowance_len: u32,
-            delta_ptr: Ptr32,
+            delta_ptr: Ptr32<[Key]>,
             delta_count: u32,
         );
-        pub fn seal_terminate(beneficiary_ptr: Ptr32, beneficiary_len: u32) -> !;
+        pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>, beneficiary_len: u32) -> !;
 
         #[cfg(feature = "ink-unstable-chain-extensions")]
         pub fn seal_call_chain_extension(
             func_id: u32,
-            input_ptr: Ptr32,
+            input_ptr: Ptr32<[u8]>,
             input_len: u32,
-            output_ptr: Ptr32Mut,
-            output_len_ptr: Ptr32Mut,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
-        pub fn seal_input(buf_ptr: Ptr32Mut, buf_len_ptr: Ptr32Mut);
-        pub fn seal_return(flags: u32, data_ptr: Ptr32, data_len: u32) -> !;
+        pub fn seal_input(buf_ptr: Ptr32Mut<[u8]>, buf_len_ptr: Ptr32Mut<u32>);
+        pub fn seal_return(flags: u32, data_ptr: Ptr32<[u8]>, data_len: u32) -> !;
 
-        pub fn seal_caller(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
-        pub fn seal_block_number(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
-        pub fn seal_address(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
-        pub fn seal_balance(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
+        pub fn seal_caller(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn seal_block_number(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+        pub fn seal_address(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn seal_balance(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
         pub fn seal_weight_to_fee(
             gas: u64,
-            output_ptr: Ptr32Mut,
-            output_len_ptr: Ptr32Mut,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
         );
-        pub fn seal_gas_left(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
-        pub fn seal_value_transferred(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
-        pub fn seal_now(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
-        pub fn seal_rent_allowance(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
-        pub fn seal_minimum_balance(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
-        pub fn seal_tombstone_deposit(output_ptr: Ptr32Mut, output_len_ptr: Ptr32Mut);
+        pub fn seal_gas_left(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn seal_value_transferred(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+        pub fn seal_now(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn seal_rent_allowance(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+        pub fn seal_minimum_balance(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+        pub fn seal_tombstone_deposit(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
 
-        pub fn seal_set_rent_allowance(value_ptr: Ptr32, value_len: u32);
+        pub fn seal_set_rent_allowance(value_ptr: Ptr32<[u8]>, value_len: u32);
 
         pub fn seal_random(
-            subject_ptr: Ptr32,
+            subject_ptr: Ptr32<[u8]>,
             subject_len: u32,
-            output_ptr: Ptr32Mut,
-            output_len_ptr: Ptr32Mut,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
         );
-        pub fn seal_println(str_ptr: Ptr32, str_len: u32);
+        pub fn seal_println(str_ptr: Ptr32<[u8]>, str_len: u32);
 
         pub fn seal_hash_keccak_256(
-            input_ptr: Ptr32,
+            input_ptr: Ptr32<[u8]>,
             input_len: u32,
-            output_ptr: Ptr32Mut,
+            output_ptr: Ptr32Mut<[u8]>,
         );
         pub fn seal_hash_blake2_256(
-            input_ptr: Ptr32,
+            input_ptr: Ptr32<[u8]>,
             input_len: u32,
-            output_ptr: Ptr32Mut,
+            output_ptr: Ptr32Mut<[u8]>,
         );
         pub fn seal_hash_blake2_128(
-            input_ptr: Ptr32,
+            input_ptr: Ptr32<[u8]>,
             input_len: u32,
-            output_ptr: Ptr32Mut,
+            output_ptr: Ptr32Mut<[u8]>,
         );
-        pub fn seal_hash_sha2_256(input_ptr: Ptr32, input_len: u32, output_ptr: Ptr32Mut);
+        pub fn seal_hash_sha2_256(
+            input_ptr: Ptr32<[u8]>,
+            input_len: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+        );
     }
 }
 
@@ -320,10 +353,10 @@ pub fn instantiate(
                 endowment.len() as u32,
                 Ptr32::from_slice(input),
                 input.len() as u32,
-                Ptr32Mut::from_slice_mut(out_address),
-                Ptr32Mut::from(&mut address_len),
-                Ptr32Mut::from_slice_mut(out_return_value),
-                Ptr32Mut::from(&mut return_value_len),
+                Ptr32Mut::from_slice(out_address),
+                Ptr32Mut::from_ref(&mut address_len),
+                Ptr32Mut::from_slice(out_return_value),
+                Ptr32Mut::from_ref(&mut return_value_len),
             )
         }
     };
@@ -350,8 +383,8 @@ pub fn call(
                 value.len() as u32,
                 Ptr32::from_slice(input),
                 input.len() as u32,
-                Ptr32Mut::from_slice_mut(output),
-                Ptr32Mut::from(&mut output_len),
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
             )
         }
     };
@@ -402,8 +435,8 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
         unsafe {
             sys::seal_get_storage(
                 Ptr32::from_slice(key),
-                Ptr32Mut::from_slice_mut(output),
-                Ptr32Mut::from(&mut output_len),
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
             )
         }
     };
@@ -461,8 +494,8 @@ pub fn call_chain_extension(
                 func_id,
                 Ptr32::from_slice(input),
                 input.len() as u32,
-                Ptr32Mut::from_slice_mut(output),
-                Ptr32Mut::from(&mut output_len),
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
             )
         }
     };
@@ -475,8 +508,8 @@ pub fn input(output: &mut &mut [u8]) {
     {
         unsafe {
             sys::seal_input(
-                Ptr32Mut::from_slice_mut(output),
-                Ptr32Mut::from(&mut output_len),
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
             )
         };
     }
@@ -501,8 +534,8 @@ macro_rules! impl_seal_wrapper_for {
                 {
                     unsafe {
                         sys::$seal_name(
-                            Ptr32Mut::from_slice_mut(output),
-                            Ptr32Mut::from(&mut output_len),
+                            Ptr32Mut::from_slice(output),
+                            Ptr32Mut::from_ref(&mut output_len),
                         )
                     };
                 }
@@ -530,8 +563,8 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
         unsafe {
             sys::seal_weight_to_fee(
                 gas,
-                Ptr32Mut::from_slice_mut(output),
-                Ptr32Mut::from(&mut output_len),
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
             )
         };
     }
@@ -549,8 +582,8 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
             sys::seal_random(
                 Ptr32::from_slice(subject),
                 subject.len() as u32,
-                Ptr32Mut::from_slice_mut(output),
-                Ptr32Mut::from(&mut output_len),
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
             )
         };
     }
@@ -570,7 +603,7 @@ macro_rules! impl_hash_fn {
                     sys::[<seal_hash_ $name>](
                         Ptr32::from_slice(input),
                         input.len() as u32,
-                        Ptr32Mut::from_slice_mut(output),
+                        Ptr32Mut::from_slice(output),
                     )
                 }
             }
