@@ -62,6 +62,19 @@ macro_rules! define_error_codes {
                 }
             }
         }
+
+        impl From<RawReturnCode> for ReturnCode {
+            #[inline]
+            fn from(raw: RawReturnCode) -> Self {
+                match raw.0 {
+                    0 => ReturnCode::Success,
+                    $(
+                        $discr => ReturnCode::$name,
+                    )*
+                    _ => ReturnCode::UnknownError,
+                }
+            }
+        }
     };
 }
 define_error_codes! {
@@ -90,10 +103,14 @@ define_error_codes! {
     NotCallable = 8,
 }
 
+/// The raw return code returned by the host side.
+#[repr(transparent)]
+pub struct RawReturnCode(u32);
+
 type Result = core::result::Result<(), Error>;
 
 mod sys {
-    use super::ReturnCode;
+    use super::RawReturnCode;
 
     #[link(wasm_import_module = "seal0")]
     extern "C" {
@@ -109,7 +126,7 @@ mod sys {
             address_len_ptr: u32,
             output_ptr: u32,
             output_len_ptr: u32,
-        ) -> ReturnCode;
+        ) -> RawReturnCode;
 
         pub fn seal_call(
             callee_ptr: u32,
@@ -121,14 +138,14 @@ mod sys {
             input_len: u32,
             output_ptr: u32,
             output_len_ptr: u32,
-        ) -> ReturnCode;
+        ) -> RawReturnCode;
 
         pub fn seal_transfer(
             account_id_ptr: u32,
             account_id_len: u32,
             transferred_value_ptr: u32,
             transferred_value_len: u32,
-        ) -> ReturnCode;
+        ) -> RawReturnCode;
 
         pub fn seal_deposit_event(
             topics_ptr: u32,
@@ -139,7 +156,7 @@ mod sys {
 
         pub fn seal_set_storage(key_ptr: u32, value_ptr: u32, value_len: u32);
         pub fn seal_get_storage(key_ptr: u32, output_ptr: u32, output_len_ptr: u32)
-            -> ReturnCode;
+            -> RawReturnCode;
         pub fn seal_clear_storage(key_ptr: u32);
 
         pub fn seal_restore_to(
@@ -161,7 +178,7 @@ mod sys {
             input_len: u32,
             output_ptr: u32,
             output_len_ptr: u32,
-        ) -> ReturnCode;
+        ) -> RawReturnCode;
 
         pub fn seal_input(buf_ptr: u32, buf_len_ptr: u32);
         pub fn seal_return(flags: u32, data_ptr: u32, data_len: u32) -> !;
@@ -232,7 +249,7 @@ pub fn instantiate(
     };
     extract_from_slice(out_address, address_len as usize);
     extract_from_slice(out_return_value, return_value_len as usize);
-    ret_code.into()
+    ReturnCode::from(ret_code).into()
 }
 
 pub fn call(
@@ -260,7 +277,7 @@ pub fn call(
         }
     };
     extract_from_slice(output, output_len as usize);
-    ret_code.into()
+    ReturnCode::from(ret_code).into()
 }
 
 pub fn transfer(account_id: &[u8], value: &[u8]) -> Result {
@@ -272,7 +289,7 @@ pub fn transfer(account_id: &[u8], value: &[u8]) -> Result {
             value.len() as u32,
         )
     };
-    ret_code.into()
+    ReturnCode::from(ret_code).into()
 }
 
 pub fn deposit_event(topics: &[u8], data: &[u8]) {
@@ -313,7 +330,7 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
         }
     };
     extract_from_slice(output, output_len as usize);
-    ret_code.into()
+    ReturnCode::from(ret_code).into()
 }
 
 /// Restores a tombstone to the original smart contract.
@@ -371,7 +388,7 @@ pub fn call_chain_extension(
         }
     };
     extract_from_slice(output, output_len as usize);
-    ret_code.into()
+    ReturnCode::from(ret_code).into()
 }
 
 pub fn input(output: &mut &mut [u8]) {
