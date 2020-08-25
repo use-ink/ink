@@ -40,6 +40,14 @@ impl From<ext::Error> for EnvError {
             ext::Error::CalleeTrapped => Self::ContractCallTrapped,
             ext::Error::CalleeReverted => Self::ContractCallReverted,
             ext::Error::KeyNotFound => Self::MissingContractStorageEntry,
+            ext::Error::CalleeTrapped => Self::CalleeTrapped,
+            ext::Error::CalleeReverted => Self::CalleeReverted,
+            ext::Error::KeyNotFound => Self::KeyNotFound,
+            ext::Error::BelowSubsistenceThreshold => Self::BelowSubsistenceThreshold,
+            ext::Error::TransferFailed => Self::TransferFailed,
+            ext::Error::NewContractNotFunded => Self::NewContractNotFunded,
+            ext::Error::CodeNotFound => Self::CodeNotFound,
+            ext::Error::NotCallable => Self::NotCallable,
         }
     }
 }

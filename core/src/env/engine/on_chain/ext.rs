@@ -91,6 +91,19 @@ define_error_codes! {
     CalleeReverted = 2,
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
+    /// Transfer failed because it would have brought the sender's total balance
+    /// bwlow the subsistence threshold.
+    BelowSubsistenceThreshold = 4,
+    /// Transfer failed for other not further specified reason. Most probably
+    /// reserved or locked balance of the sender that was preventing the transfer.
+    TransferFailed = 5,
+    /// The newly created contract is below the subsistence threshold after executing
+    /// its constructor so no usable contract instance will be created.
+    NewContractNotFunded = 6,
+    /// No code could be found at the supplied code hash.
+    CodeNotFound = 7,
+    /// The account that was called is either no contract (e.g. user account) or is a tombstone.
+    NotCallable = 8,
 }
 
 type Result = core::result::Result<(), Error>;

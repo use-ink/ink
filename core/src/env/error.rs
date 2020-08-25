@@ -43,6 +43,26 @@ pub enum EnvError {
     MissingContractStorageEntry,
     /// A call to transfer value from the contract failed.
     TransferCallFailed,
+
+    /// The call to another contract has trapped.
+    CalleeTrapped,
+    /// The call to another contract has been reverted.
+    CalleeReverted,
+    /// The queried contract storage entry is missing.
+    KeyNotFound,
+    /// Transfer failed because it would have brought the sender's total balance
+    /// bwlow the subsistence threshold.
+    BelowSubsistenceThreshold,
+    /// Transfer failed for other not further specified reason. Most probably
+    /// reserved or locked balance of the sender that was preventing the transfer.
+    TransferFailed,
+    /// The newly created contract is below the subsistence threshold after executing
+    /// its constructor so no usable contract instance will be created.
+    NewContractNotFunded,
+    /// No code could be found at the supplied code hash.
+    CodeNotFound,
+    /// The account that was called is either no contract (e.g. user account) or is a tombstone.
+    NotCallable,
     /// An unknown error has occured.
     UnknownError,
 }
