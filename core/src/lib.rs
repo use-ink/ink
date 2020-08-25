@@ -49,7 +49,9 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
     // SAFETY: We only use this operation if we are guaranteed to be in Wasm32 compilation.
     //         This is used in order to make any panic a direct abort avoiding Rust's general
     //         panic infrastructure.
-    unsafe { core::arch::wasm32::unreachable(); }
+    unsafe {
+        core::arch::wasm32::unreachable();
+    }
 }
 
 // This extern crate definition is required since otherwise rustc
