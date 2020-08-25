@@ -209,6 +209,10 @@ where
 }
 
 /// Writes the value to the contract storage under the given key.
+///
+/// # Panics
+///
+/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
 pub fn set_contract_storage<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
@@ -222,7 +226,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the decoding of the typed value failed
+/// - If the decoding of the typed value failed (`KeyNotFound`)
 pub fn get_contract_storage<R>(key: &Key) -> Result<Option<R>>
 where
     R: scale::Decode,
@@ -250,7 +254,8 @@ pub fn clear_contract_storage(key: &Key) {
 ///
 /// # Errors
 ///
-/// - If the called contract does not exist.
+/// - If the called account does not exist.
+/// - If the called account is not a contract.
 /// - If the called contract is a tombstone.
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
@@ -274,7 +279,8 @@ where
 ///
 /// # Errors
 ///
-/// - If the called contract does not exist.
+/// - If the called account does not exist.
+/// - If the called account is not a contract.
 /// - If the called contract is a tombstone.
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
