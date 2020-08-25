@@ -132,6 +132,7 @@ impl Env for EnvInstance {
         hashing::sha2_256(input, output)
     }
 
+    #[cfg(feature = "ink-unstable-chain-extensions")]
     fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
     where
         I: scale::Codec + 'static,

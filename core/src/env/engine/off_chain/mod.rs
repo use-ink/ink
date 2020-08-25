@@ -18,6 +18,7 @@ mod hashing;
 mod impls;
 pub mod test_api;
 mod typed_encoded;
+#[cfg(feature = "ink-unstable-chain-extensions")]
 mod chain_extension;
 mod types;
 
@@ -43,7 +44,6 @@ use self::{
         EmittedEventsRecorder,
         ExecContext,
     },
-    chain_extension::ChainExtensionHandler,
     typed_encoded::TypedEncoded,
     types::{
         OffAccountId,
@@ -53,6 +53,8 @@ use self::{
         OffTimestamp,
     },
 };
+#[cfg(feature = "ink-unstable-chain-extensions")]
+use self::chain_extension::ChainExtensionHandler;
 use super::OnInstance;
 use crate::env::EnvTypes;
 use core::cell::RefCell;
@@ -87,6 +89,7 @@ pub struct EnvInstance {
     /// The console to print debug contents.
     console: Console,
     /// Handler for registered chain extensions.
+    #[cfg(feature = "ink-unstable-chain-extensions")]
     chain_extension_handler: ChainExtensionHandler,
     /// Emitted events recorder.
     emitted_events: EmittedEventsRecorder,
@@ -101,6 +104,7 @@ impl EnvInstance {
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
             console: Console::new(),
+            #[cfg(feature = "ink-unstable-chain-extensions")]
             chain_extension_handler: ChainExtensionHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
         }
@@ -131,6 +135,7 @@ impl EnvInstance {
         self.chain_spec.reset();
         self.blocks.clear();
         self.console.reset();
+        #[cfg(feature = "ink-unstable-chain-extensions")]
         self.chain_extension_handler.reset();
         self.emitted_events.reset();
     }

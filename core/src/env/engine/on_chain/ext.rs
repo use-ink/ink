@@ -154,6 +154,7 @@ mod sys {
         );
         pub fn seal_terminate(beneficiary_ptr: u32, beneficiary_len: u32) -> !;
 
+        #[cfg(feature = "ink-unstable-chain-extensions")]
         pub fn seal_call_chain_extension(
             func_id: u32,
             input_ptr: u32,
@@ -350,6 +351,7 @@ pub fn terminate(beneficiary: &[u8]) -> ! {
     unsafe { sys::seal_terminate(beneficiary.as_ptr() as u32, beneficiary.len() as u32) }
 }
 
+#[cfg(feature = "ink-unstable-chain-extensions")]
 pub fn call_chain_extension(
     func_id: u32,
     input: &[u8],

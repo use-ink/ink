@@ -157,6 +157,7 @@ impl Env for EnvInstance {
         ext::hash_sha2_256(input, output)
     }
 
+    #[cfg(feature = "ink-unstable-chain-extensions")]
     fn call_chain_extension<I, O>(
         &mut self,
         func_id: u32,

@@ -17,9 +17,10 @@
 pub use super::{
     CallData,
     EmittedEvent,
-    chain_extension::ChainExtension,
     db::ChainSpec,
 };
+#[cfg(feature = "ink-unstable-chain-extensions")]
+use super::chain_extension::ChainExtension;
 use super::{
     db::ExecContext,
     AccountError,
@@ -179,6 +180,7 @@ where
 }
 
 /// Registers a new chain extension.
+#[cfg(feature = "ink-unstable-chain-extensions")]
 pub fn register_chain_extension<E, I, O>(extension: E)
 where
     E: ChainExtension<Input = I, Output = O> + 'static,
