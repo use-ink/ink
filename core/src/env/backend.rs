@@ -306,7 +306,7 @@ pub trait TypedEnv: Env {
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::transfer`]
-    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance)
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
         T: EnvTypes;
 

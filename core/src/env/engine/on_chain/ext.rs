@@ -262,15 +262,16 @@ pub fn call(
     ret_code.into()
 }
 
-pub fn transfer(account_id: &[u8], value: &[u8]) {
-    unsafe {
+pub fn transfer(account_id: &[u8], value: &[u8]) -> Result {
+    let ret_code = unsafe {
         sys::seal_transfer(
             account_id.as_ptr() as u32,
             account_id.len() as u32,
             value.as_ptr() as u32,
             value.len() as u32,
         )
-    }
+    };
+    ret_code.into()
 }
 
 pub fn deposit_event(topics: &[u8], data: &[u8]) {

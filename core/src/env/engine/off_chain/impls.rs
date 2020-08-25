@@ -331,12 +331,11 @@ impl TypedEnv for EnvInstance {
         unimplemented!("off-chain environment does not support contract restoration")
     }
 
-    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance)
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
         T: EnvTypes,
     {
         self.transfer_impl::<T>(destination, value)
-            .expect("encountered invalid transfer call")
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>

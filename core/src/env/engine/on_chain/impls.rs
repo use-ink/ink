@@ -320,14 +320,14 @@ impl TypedEnv for EnvInstance {
         ext::terminate(&buffer[..]);
     }
 
-    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance)
+    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
         T: EnvTypes,
     {
         let mut scope = self.scoped_buffer();
         let enc_destination = scope.take_encoded(&destination);
         let enc_value = scope.take_encoded(&value);
-        ext::transfer(enc_destination, enc_value);
+        ext::transfer(enc_destination, enc_value).map_err(Into::into)
     }
 
     fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
