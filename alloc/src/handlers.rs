@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[panic_handler]
-pub fn panic(_info: &core::panic::PanicInfo) -> ! {
-    core::intrinsics::abort()
-}
-
 #[alloc_error_handler]
 fn oom(_: core::alloc::Layout) -> ! {
     core::intrinsics::abort()
