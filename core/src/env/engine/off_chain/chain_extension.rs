@@ -91,8 +91,10 @@ impl ChainExtensionHandler {
         );
     }
 
-    /// Invokes the chain extension with the given parameters.
-    pub fn invoke<I, O>(&mut self, func_id: FuncId, input: &I) -> Result<O>
+    /// Evaluates the chain extension with the given parameters.
+    ///
+    /// Upon success returns the values returned by the evaluated chain extension.
+    pub fn eval<I, O>(&mut self, func_id: FuncId, input: &I) -> Result<O>
     where
         I: scale::Codec + 'static,
         O: scale::Codec + 'static,

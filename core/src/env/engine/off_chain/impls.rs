@@ -138,7 +138,7 @@ impl Env for EnvInstance {
         I: scale::Codec + 'static,
         O: scale::Codec + 'static,
     {
-        self.chain_extension_handler.invoke(func_id, input)
+        self.chain_extension_handler.eval(func_id, input)
     }
 }
 
