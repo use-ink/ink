@@ -66,8 +66,7 @@ pub enum OffChainError {
     UninitializedBlocks,
     #[from(ignore)]
     UninitializedExecutionContext,
-    #[from(ignore)]
-    UnregisteredRuntimeCallHandler,
+    UnregisteredChainExtension,
 }
 
 pub type Result<T> = core::result::Result<T, OffChainError>;

@@ -153,7 +153,7 @@ impl EnvInstance {
             .expect("account of executed contract must exist")
             .balance::<T>()?;
         if src_value < value {
-            return Err(EnvError::TransferCallFailed)
+            return Err(EnvError::TransferFailed)
         }
         let dst_value = self
             .accounts

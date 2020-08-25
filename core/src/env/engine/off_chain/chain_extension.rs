@@ -105,7 +105,7 @@ impl ChainExtensionHandler {
                 scale::Decode::decode(&mut &encoded_output[..]).map_err(Into::into)
             }
             Entry::Vacant(_vacant) => {
-                Err(OffChainError::UnregisteredRuntimeCallHandler.into())
+                Err(OffChainError::UnregisteredChainExtension.into())
             }
         }
     }

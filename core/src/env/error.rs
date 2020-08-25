@@ -25,19 +25,6 @@ pub enum EnvError {
     /// An error that can only occure in the off-chain environment.
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),
-    /// A called contract returned a custom error code.
-    #[from(ignore)]
-    ContractCallFailState(u8),
-    /// The instantiation of another contract has trapped.
-    ContractInstantiationTrapped,
-    /// The instantiated contract returned a custom error code.
-    #[from(ignore)]
-    ContractInstantiationFailState(u8),
-    /// The queried runtime storage entry is missing.
-    MissingRuntimeStorageEntry,
-    /// A call to transfer value from the contract failed.
-    TransferCallFailed,
-
     /// The call to another contract has trapped.
     CalleeTrapped,
     /// The call to another contract has been reverted.
