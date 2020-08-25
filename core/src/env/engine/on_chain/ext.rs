@@ -369,7 +369,7 @@ pub fn call_chain_extension(
         }
     };
     extract_from_slice(output, output_len as usize);
-    ReturnCode::from(ret_code).into()
+    ret_code.into()
 }
 
 pub fn input(output: &mut &mut [u8]) {
