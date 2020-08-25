@@ -271,8 +271,6 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -292,10 +290,10 @@
 <span class="kw">mod</span> <span class="ident">db</span>;
 <span class="kw">mod</span> <span class="ident">hashing</span>;
 <span class="kw">mod</span> <span class="ident">impls</span>;
-<span class="kw">mod</span> <span class="ident">runtime_calls</span>;
-<span class="kw">mod</span> <span class="ident">runtime_storage</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test_api</span>;
 <span class="kw">mod</span> <span class="ident">typed_encoded</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">chain_extension</span>;
 <span class="kw">mod</span> <span class="ident">types</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -320,18 +318,17 @@
         <span class="ident">EmittedEventsRecorder</span>,
         <span class="ident">ExecContext</span>,
     },
-    <span class="ident">runtime_calls</span>::<span class="ident">RuntimeCallHandler</span>,
-    <span class="ident">runtime_storage</span>::<span class="ident">RuntimeStorage</span>,
     <span class="ident">typed_encoded</span>::<span class="ident">TypedEncoded</span>,
     <span class="ident">types</span>::{
         <span class="ident">OffAccountId</span>,
         <span class="ident">OffBalance</span>,
         <span class="ident">OffBlockNumber</span>,
-        <span class="ident">OffCall</span>,
         <span class="ident">OffHash</span>,
         <span class="ident">OffTimestamp</span>,
     },
 };
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">chain_extension</span>::<span class="ident">ChainExtensionHandler</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">OnInstance</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">env</span>::<span class="ident">EnvTypes</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
@@ -346,7 +343,7 @@
     <span class="attribute">#[<span class="ident">from</span>(<span class="ident">ignore</span>)]</span>
     <span class="ident">UninitializedExecutionContext</span>,
     <span class="attribute">#[<span class="ident">from</span>(<span class="ident">ignore</span>)]</span>
-    <span class="ident">UnregisteredRuntimeCallHandler</span>,
+    <span class="ident">UnregisteredChainExtension</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OffChainError</span><span class="op">&gt;</span>;
@@ -365,10 +362,9 @@
     <span class="ident">blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The console to print debug contents.</span>
     <span class="ident">console</span>: <span class="ident">Console</span>,
-    <span class="doccomment">/// The emulated runtime storage.</span>
-    <span class="ident">runtime_storage</span>: <span class="ident">RuntimeStorage</span>,
-    <span class="doccomment">/// The runtime calls handler.</span>
-    <span class="ident">runtime_call_handler</span>: <span class="ident">RuntimeCallHandler</span>,
+    <span class="doccomment">/// Handler for registered chain extensions.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
+    <span class="ident">chain_extension_handler</span>: <span class="ident">ChainExtensionHandler</span>,
     <span class="doccomment">/// Emitted events recorder.</span>
     <span class="ident">emitted_events</span>: <span class="ident">EmittedEventsRecorder</span>,
 }
@@ -382,8 +378,8 @@
             <span class="ident">chain_spec</span>: <span class="ident">ChainSpec</span>::<span class="ident">uninitialized</span>(),
             <span class="ident">blocks</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">console</span>: <span class="ident">Console</span>::<span class="ident">new</span>(),
-            <span class="ident">runtime_storage</span>: <span class="ident">RuntimeStorage</span>::<span class="ident">new</span>(),
-            <span class="ident">runtime_call_handler</span>: <span class="ident">RuntimeCallHandler</span>::<span class="ident">new</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
+            <span class="ident">chain_extension_handler</span>: <span class="ident">ChainExtensionHandler</span>::<span class="ident">new</span>(),
             <span class="ident">emitted_events</span>: <span class="ident">EmittedEventsRecorder</span>::<span class="ident">new</span>(),
         }
     }
@@ -413,8 +409,8 @@
         <span class="self">self</span>.<span class="ident">chain_spec</span>.<span class="ident">reset</span>();
         <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">clear</span>();
         <span class="self">self</span>.<span class="ident">console</span>.<span class="ident">reset</span>();
-        <span class="self">self</span>.<span class="ident">runtime_storage</span>.<span class="ident">reset</span>();
-        <span class="self">self</span>.<span class="ident">runtime_call_handler</span>.<span class="ident">reset</span>();
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
+        <span class="self">self</span>.<span class="ident">chain_extension_handler</span>.<span class="ident">reset</span>();
         <span class="self">self</span>.<span class="ident">emitted_events</span>.<span class="ident">reset</span>();
     }
 

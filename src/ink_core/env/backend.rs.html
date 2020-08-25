@@ -298,6 +298,33 @@
 <span id="298">298</span>
 <span id="299">299</span>
 <span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -325,6 +352,33 @@
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
 
+<span class="doccomment">/// The flags to indicate further information about the end of a contract execution.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReturnFlags</span> {
+    <span class="ident">value</span>: <span class="ident">u32</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ReturnFlags</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> { <span class="ident">value</span>: <span class="number">0</span> }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ReturnFlags</span> {
+    <span class="doccomment">/// Sets the bit to indicate that the execution is going to be reverted.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_reverted</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">has_reverted</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="ident">has_reverted</span> {
+            <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">value</span> <span class="op">|</span><span class="op">=</span> <span class="ident">has_reverted</span> <span class="kw">as</span> <span class="ident">u32</span>,
+            <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">value</span> <span class="kw-2">&amp;</span><span class="op">=</span> <span class="op">!</span><span class="ident">has_reverted</span> <span class="kw">as</span> <span class="ident">u32</span>,
+        }
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Returns the underlying `u32` representation.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+        <span class="self">self</span>.<span class="ident">value</span>
+    }
+}
+
 <span class="doccomment">/// Environmental contract functionality that does not require `EnvTypes`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Env</span> {
     <span class="doccomment">/// Writes the value to the contract storage under the given key.</span>
@@ -337,21 +391,12 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// - If the decoding of the typed value failed</span>
-    <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>;
 
     <span class="doccomment">/// Clears the contract&#39;s storage key entry.</span>
     <span class="kw">fn</span> <span class="ident">clear_contract_storage</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>);
-
-    <span class="doccomment">/// Returns the value from the *runtime* storage at the position of the key if any.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the decoding of the typed value failed</span>
-    <span class="kw">fn</span> <span class="ident">get_runtime_storage</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">runtime_key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>;
 
     <span class="doccomment">/// Returns the execution input to the executed contract and decodes it as `T`.</span>
     <span class="doccomment">///</span>
@@ -384,10 +429,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// The setting of this property must be the last interaction between</span>
-    <span class="doccomment">/// the executed contract and its environment.</span>
-    <span class="doccomment">/// The environment access asserts this guarantee.</span>
-    <span class="kw">fn</span> <span class="ident">output</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">return_value</span>: <span class="kw-2">&amp;</span><span class="ident">R</span>)
+    <span class="doccomment">/// Calling this method will end contract execution immediately.</span>
+    <span class="doccomment">/// It will return the given return value back to its caller.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `flags` parameter can be used to revert the state changes of the</span>
+    <span class="doccomment">/// entire execution if necessary.</span>
+    <span class="kw">fn</span> <span class="ident">return_value</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">flags</span>: <span class="ident">ReturnFlags</span>, <span class="ident">return_value</span>: <span class="kw-2">&amp;</span><span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span>
     <span class="kw">where</span>
         <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>;
 
@@ -409,6 +456,22 @@
     <span class="doccomment">/// Conducts the BLAKE2 128-bit hash of the input</span>
     <span class="doccomment">/// puts the result into the output buffer.</span>
     <span class="kw">fn</span> <span class="ident">hash_blake2_128</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">16</span>]);
+
+    <span class="doccomment">/// Calls the chain extension with the given ID and inputs.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the output of the chain extension of the specified type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the chain extension with the given ID does not exist.</span>
+    <span class="doccomment">/// - If the inputs had an unexpected encoding.</span>
+    <span class="doccomment">/// - If the output could not be properly decoded.</span>
+    <span class="doccomment">/// - If some extension specific condition has not been met.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">call_chain_extension</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">func_id</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>;
 }
 
 <span class="doccomment">/// Environmental contract functionality.</span>
@@ -432,7 +495,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_core::env::gas_price`]</span>
-    <span class="kw">fn</span> <span class="ident">gas_price</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">EnvTypes</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">weight_to_fee</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">EnvTypes</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns the amount of gas left for the contract execution.</span>
     <span class="doccomment">///</span>
@@ -506,15 +569,6 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_core::env::set_rent_allowance`]</span>
     <span class="kw">fn</span> <span class="ident">set_rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">T</span>::<span class="ident">Balance</span>)
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>;
-
-    <span class="doccomment">/// Invokes a call of the runtime.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`ink_core::env::invoke_runtime`]</span>
-    <span class="kw">fn</span> <span class="ident">invoke_runtime</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">call</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">Call</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">EnvTypes</span>;
 

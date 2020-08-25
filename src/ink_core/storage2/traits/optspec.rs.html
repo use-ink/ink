@@ -130,6 +130,9 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -166,6 +169,8 @@
     <span class="comment">// In case the contract storage is occupied we handle</span>
     <span class="comment">// the Option&lt;T&gt; as if it was a T.</span>
     <span class="ident">env</span>::<span class="ident">get_contract_storage</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="ident">root_key</span>)
+        .<span class="ident">ok</span>()
+        .<span class="ident">flatten</span>()
         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">super</span>::<span class="ident">pull_spread_root</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>))
 }
 
@@ -233,11 +238,12 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
-    <span class="kw">match</span> <span class="ident">env</span>::<span class="ident">get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>) {
-        <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    <span class="kw">match</span> <span class="ident">env</span>::<span class="ident">get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>)
+        .<span class="ident">expect</span>(<span class="string">&quot;decoding does not match expected type&quot;</span>)
+    {
+        <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// In case the contract storage is occupied we handle</span>
             <span class="comment">// the Option&lt;T&gt; as if it was a T.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">expect</span>(<span class="string">&quot;decoding does not match expected type&quot;</span>);
             <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span>::<span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="ident">root_key</span>);
             <span class="prelude-val">Some</span>(<span class="ident">value</span>)
         }

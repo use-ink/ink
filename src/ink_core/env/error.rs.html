@@ -45,6 +45,11 @@
 <span id="45">45</span>
 <span id="46">46</span>
 <span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -74,21 +79,26 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">test</span>, <span class="ident">doc</span>))]</span>
     <span class="ident">OffChain</span>(<span class="ident">OffChainError</span>),
     <span class="doccomment">/// The call to another contract has trapped.</span>
-    <span class="ident">ContractCallTrapped</span>,
-    <span class="doccomment">/// A called contract returned a custom error code.</span>
-    <span class="attribute">#[<span class="ident">from</span>(<span class="ident">ignore</span>)]</span>
-    <span class="ident">ContractCallFailState</span>(<span class="ident">u8</span>),
-    <span class="doccomment">/// The instantiation of another contract has trapped.</span>
-    <span class="ident">ContractInstantiationTrapped</span>,
-    <span class="doccomment">/// The instantiated contract returned a custom error code.</span>
-    <span class="attribute">#[<span class="ident">from</span>(<span class="ident">ignore</span>)]</span>
-    <span class="ident">ContractInstantiationFailState</span>(<span class="ident">u8</span>),
-    <span class="doccomment">/// The queried runtime storage entry is missing.</span>
-    <span class="ident">MissingRuntimeStorageEntry</span>,
+    <span class="ident">CalleeTrapped</span>,
+    <span class="doccomment">/// The call to another contract has been reverted.</span>
+    <span class="ident">CalleeReverted</span>,
     <span class="doccomment">/// The queried contract storage entry is missing.</span>
-    <span class="ident">MissingContractStorageEntry</span>,
-    <span class="doccomment">/// A call to transfer value from the contract failed.</span>
-    <span class="ident">TransferCallFailed</span>,
+    <span class="ident">KeyNotFound</span>,
+    <span class="doccomment">/// Transfer failed because it would have brought the sender&#39;s total balance</span>
+    <span class="doccomment">/// bwlow the subsistence threshold.</span>
+    <span class="ident">BelowSubsistenceThreshold</span>,
+    <span class="doccomment">/// Transfer failed for other not further specified reason. Most probably</span>
+    <span class="doccomment">/// reserved or locked balance of the sender that was preventing the transfer.</span>
+    <span class="ident">TransferFailed</span>,
+    <span class="doccomment">/// The newly created contract is below the subsistence threshold after executing</span>
+    <span class="doccomment">/// its constructor so no usable contract instance will be created.</span>
+    <span class="ident">NewContractNotFunded</span>,
+    <span class="doccomment">/// No code could be found at the supplied code hash.</span>
+    <span class="ident">CodeNotFound</span>,
+    <span class="doccomment">/// The account that was called is either no contract (e.g. user account) or is a tombstone.</span>
+    <span class="ident">NotCallable</span>,
+    <span class="doccomment">/// An unknown error has occured.</span>
+    <span class="ident">UnknownError</span>,
 }
 
 <span class="doccomment">/// A result of environmental operations.</span>

@@ -348,7 +348,6 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
-<span id="351">351</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -599,13 +598,12 @@
     }
 
     <span class="doccomment">/// Returns the value stored in the contract storage at the given key.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_storage</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_storage</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
     {
         <span class="self">self</span>.<span class="ident">contract_or_err</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">contract</span><span class="op">|</span> <span class="ident">contract</span>.<span class="ident">storage</span>.<span class="ident">get_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">at</span>))
-            .<span class="ident">transpose</span>()
     }
 
     <span class="doccomment">/// Returns the total number of reads and write from and to the contract&#39;s storage.</span>
