@@ -479,9 +479,8 @@ where
 ///
 /// # Note
 ///
-/// This call must be the last call to the contract
-/// environment for every contract execution.
-pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R)
+/// This function  stops the execution of the contract immediately.
+pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
     R: scale::Encode,
 {
