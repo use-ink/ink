@@ -37,9 +37,6 @@ impl From<ext::Error> for EnvError {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
             ext::Error::UnknownError => Self::UnknownError,
-            ext::Error::CalleeTrapped => Self::ContractCallTrapped,
-            ext::Error::CalleeReverted => Self::ContractCallReverted,
-            ext::Error::KeyNotFound => Self::MissingContractStorageEntry,
             ext::Error::CalleeTrapped => Self::CalleeTrapped,
             ext::Error::CalleeReverted => Self::CalleeReverted,
             ext::Error::KeyNotFound => Self::KeyNotFound,
