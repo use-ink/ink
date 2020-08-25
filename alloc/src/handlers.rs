@@ -18,6 +18,6 @@ pub fn panic(_info: &core::panic::PanicInfo) -> ! {
 }
 
 #[alloc_error_handler]
-pub fn oom(_: core::alloc::Layout) -> ! {
+fn oom(_: core::alloc::Layout) -> ! {
     core::intrinsics::abort()
 }
