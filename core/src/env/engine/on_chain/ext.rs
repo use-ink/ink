@@ -129,8 +129,11 @@ mod sys {
         );
 
         pub fn seal_set_storage(key_ptr: u32, value_ptr: u32, value_len: u32);
-        pub fn seal_get_storage(key_ptr: u32, output_ptr: u32, output_len_ptr: u32)
-            -> ReturnCode;
+        pub fn seal_get_storage(
+            key_ptr: u32,
+            output_ptr: u32,
+            output_len_ptr: u32,
+        ) -> ReturnCode;
         pub fn seal_clear_storage(key_ptr: u32);
 
         pub fn seal_restore_to(
