@@ -15,6 +15,7 @@
 use super::{
     ext,
     EnvInstance,
+    Error as ExtError,
     ScopedBuffer,
 };
 use crate::env::{
@@ -107,8 +108,10 @@ impl Env for EnvInstance {
         R: scale::Decode,
     {
         let output = &mut self.scoped_buffer().take_rest();
-        if ext::get_storage(key.as_bytes(), output).is_err() {
-            return Ok(None)
+        match ext::get_storage(key.as_bytes(), output) {
+            Ok(_) => (),
+            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
         }
         let decoded = scale::Decode::decode(&mut &output[..])?;
         Ok(Some(decoded))

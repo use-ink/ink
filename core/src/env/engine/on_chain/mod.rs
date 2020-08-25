@@ -16,9 +16,12 @@ mod buffer;
 mod ext;
 mod impls;
 
-use self::buffer::{
-    ScopedBuffer,
-    StaticBuffer,
+use self::{
+    buffer::{
+        ScopedBuffer,
+        StaticBuffer,
+    },
+    ext::Error,
 };
 use super::OnInstance;
 
