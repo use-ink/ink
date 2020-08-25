@@ -26,19 +26,6 @@ macro_rules! define_error_codes {
             $name:ident = $discr:literal,
         )*
     ) => {
-        /// Either success or any error that can be returned from a runtime API call.
-        #[repr(u32)]
-        pub enum ReturnCode {
-            /// API call successful.
-            Success = 0,
-            $(
-                $( #[$attr] )*
-                $name = $discr,
-            )*
-            /// Returns if an unknown error was received from the host module.
-            UnknownError,
-        }
-
         /// Every error that can be returned to a contract when it calls any of the host functions.
         #[repr(u32)]
         pub enum Error {
@@ -50,28 +37,15 @@ macro_rules! define_error_codes {
             UnknownError,
         }
 
-        impl From<ReturnCode> for Result {
+        impl From<RawReturnCode> for Result {
             #[inline]
-            fn from(return_code: ReturnCode) -> Self {
-                match return_code {
-                    ReturnCode::Success => Ok(()),
+            fn from(return_code: RawReturnCode) -> Self {
+                match return_code.0 {
+                    0 => Ok(()),
                     $(
-                        ReturnCode::$name => Err(Error::$name),
+                        $discr => Err(Error::$name),
                     )*
-                    ReturnCode::UnknownError => Err(Error::UnknownError),
-                }
-            }
-        }
-
-        impl From<RawReturnCode> for ReturnCode {
-            #[inline]
-            fn from(raw: RawReturnCode) -> Self {
-                match raw.0 {
-                    0 => ReturnCode::Success,
-                    $(
-                        $discr => ReturnCode::$name,
-                    )*
-                    _ => ReturnCode::UnknownError,
+                    _ => Err(Error::UnknownError),
                 }
             }
         }
@@ -249,7 +223,7 @@ pub fn instantiate(
     };
     extract_from_slice(out_address, address_len as usize);
     extract_from_slice(out_return_value, return_value_len as usize);
-    ReturnCode::from(ret_code).into()
+    ret_code.into()
 }
 
 pub fn call(
@@ -277,7 +251,7 @@ pub fn call(
         }
     };
     extract_from_slice(output, output_len as usize);
-    ReturnCode::from(ret_code).into()
+    ret_code.into()
 }
 
 pub fn transfer(account_id: &[u8], value: &[u8]) -> Result {
@@ -289,7 +263,7 @@ pub fn transfer(account_id: &[u8], value: &[u8]) -> Result {
             value.len() as u32,
         )
     };
-    ReturnCode::from(ret_code).into()
+    ret_code.into()
 }
 
 pub fn deposit_event(topics: &[u8], data: &[u8]) {
@@ -330,7 +304,7 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
         }
     };
     extract_from_slice(output, output_len as usize);
-    ReturnCode::from(ret_code).into()
+    ret_code.into()
 }
 
 /// Restores a tombstone to the original smart contract.
@@ -388,7 +362,7 @@ pub fn call_chain_extension(
         }
     };
     extract_from_slice(output, output_len as usize);
-    ReturnCode::from(ret_code).into()
+    ret_code.into()
 }
 
 pub fn input(output: &mut &mut [u8]) {
