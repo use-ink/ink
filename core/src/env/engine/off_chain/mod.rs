@@ -66,6 +66,7 @@ pub enum OffChainError {
     UninitializedBlocks,
     #[from(ignore)]
     UninitializedExecutionContext,
+    #[from(ignore)]
     UnregisteredChainExtension,
 }
 
