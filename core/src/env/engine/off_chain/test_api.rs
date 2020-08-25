@@ -17,7 +17,10 @@
 pub use super::{
     CallData,
     EmittedEvent,
+    db::ChainSpec,
 };
+#[cfg(feature = "ink-unstable-chain-extensions")]
+use super::chain_extension::ChainExtension;
 use super::{
     db::ExecContext,
     AccountError,
@@ -27,7 +30,6 @@ use super::{
 use crate::env::{
     EnvTypes,
     Result,
-    engine::off_chain::db::ChainSpec,
 };
 use ink_prelude::string::String;
 
@@ -177,24 +179,16 @@ where
     })
 }
 
-/// Sets the runtime storage to value for the given key.
-pub fn set_runtime_storage<T>(key: &[u8], value: T)
+/// Registers a new chain extension.
+#[cfg(feature = "ink-unstable-chain-extensions")]
+pub fn register_chain_extension<E, I, O>(extension: E)
 where
-    T: scale::Encode,
+    E: ChainExtension<Input = I, Output = O> + 'static,
+    I: scale::Codec + 'static,
+    O: scale::Codec + 'static,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.runtime_storage.store(key.to_vec(), value)
-    })
-}
-
-/// Sets the call handler for runtime calls.
-pub fn set_runtime_call_handler<T, F>(f: F)
-where
-    T: EnvTypes,
-    F: FnMut(<T as EnvTypes>::Call) + 'static,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.runtime_call_handler.register::<T, F>(f)
+        instance.chain_extension_handler.register(Box::new(extension));
     })
 }
 

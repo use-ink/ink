@@ -26,21 +26,26 @@ pub enum EnvError {
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),
     /// The call to another contract has trapped.
-    ContractCallTrapped,
-    /// A called contract returned a custom error code.
-    #[from(ignore)]
-    ContractCallFailState(u8),
-    /// The instantiation of another contract has trapped.
-    ContractInstantiationTrapped,
-    /// The instantiated contract returned a custom error code.
-    #[from(ignore)]
-    ContractInstantiationFailState(u8),
-    /// The queried runtime storage entry is missing.
-    MissingRuntimeStorageEntry,
+    CalleeTrapped,
+    /// The call to another contract has been reverted.
+    CalleeReverted,
     /// The queried contract storage entry is missing.
-    MissingContractStorageEntry,
-    /// A call to transfer value from the contract failed.
-    TransferCallFailed,
+    KeyNotFound,
+    /// Transfer failed because it would have brought the sender's total balance
+    /// bwlow the subsistence threshold.
+    BelowSubsistenceThreshold,
+    /// Transfer failed for other not further specified reason. Most probably
+    /// reserved or locked balance of the sender that was preventing the transfer.
+    TransferFailed,
+    /// The newly created contract is below the subsistence threshold after executing
+    /// its constructor so no usable contract instance will be created.
+    NewContractNotFunded,
+    /// No code could be found at the supplied code hash.
+    CodeNotFound,
+    /// The account that was called is either no contract (e.g. user account) or is a tombstone.
+    NotCallable,
+    /// An unknown error has occured.
+    UnknownError,
 }
 
 /// A result of environmental operations.

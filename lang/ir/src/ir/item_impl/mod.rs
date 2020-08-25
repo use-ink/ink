@@ -297,11 +297,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                     err.into_combine(format_err!(impl_block_span, "at this invokation",))
                 })?;
             normalized.ensure_no_conflicts(|arg| {
-                match arg.kind() {
-                    ir::AttributeArgKind::Implementation
-                    | ir::AttributeArgKind::Namespace(_) => false,
-                    _ => true,
-                }
+                !matches!(arg.kind(), ir::AttributeArgKind::Implementation | ir::AttributeArgKind::Namespace(_))
             })?;
             namespace = normalized.namespace();
         }

@@ -16,10 +16,10 @@ mod call_data;
 mod db;
 mod hashing;
 mod impls;
-mod runtime_calls;
-mod runtime_storage;
 pub mod test_api;
 mod typed_encoded;
+#[cfg(feature = "ink-unstable-chain-extensions")]
+mod chain_extension;
 mod types;
 
 #[cfg(test)]
@@ -44,18 +44,17 @@ use self::{
         EmittedEventsRecorder,
         ExecContext,
     },
-    runtime_calls::RuntimeCallHandler,
-    runtime_storage::RuntimeStorage,
     typed_encoded::TypedEncoded,
     types::{
         OffAccountId,
         OffBalance,
         OffBlockNumber,
-        OffCall,
         OffHash,
         OffTimestamp,
     },
 };
+#[cfg(feature = "ink-unstable-chain-extensions")]
+use self::chain_extension::ChainExtensionHandler;
 use super::OnInstance;
 use crate::env::EnvTypes;
 use core::cell::RefCell;
@@ -70,7 +69,7 @@ pub enum OffChainError {
     #[from(ignore)]
     UninitializedExecutionContext,
     #[from(ignore)]
-    UnregisteredRuntimeCallHandler,
+    UnregisteredChainExtension,
 }
 
 pub type Result<T> = core::result::Result<T, OffChainError>;
@@ -89,10 +88,9 @@ pub struct EnvInstance {
     blocks: Vec<Block>,
     /// The console to print debug contents.
     console: Console,
-    /// The emulated runtime storage.
-    runtime_storage: RuntimeStorage,
-    /// The runtime calls handler.
-    runtime_call_handler: RuntimeCallHandler,
+    /// Handler for registered chain extensions.
+    #[cfg(feature = "ink-unstable-chain-extensions")]
+    chain_extension_handler: ChainExtensionHandler,
     /// Emitted events recorder.
     emitted_events: EmittedEventsRecorder,
 }
@@ -106,8 +104,8 @@ impl EnvInstance {
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
             console: Console::new(),
-            runtime_storage: RuntimeStorage::new(),
-            runtime_call_handler: RuntimeCallHandler::new(),
+            #[cfg(feature = "ink-unstable-chain-extensions")]
+            chain_extension_handler: ChainExtensionHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
         }
     }
@@ -137,8 +135,8 @@ impl EnvInstance {
         self.chain_spec.reset();
         self.blocks.clear();
         self.console.reset();
-        self.runtime_storage.reset();
-        self.runtime_call_handler.reset();
+        #[cfg(feature = "ink-unstable-chain-extensions")]
+        self.chain_extension_handler.reset();
         self.emitted_events.reset();
     }
 

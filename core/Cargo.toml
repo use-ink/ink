@@ -73,6 +73,7 @@ std = [
     "blake2",
 ]
 ink-fuzz-tests = ["std"]
+ink-unstable-chain-extensions = []
 
 [[bench]]
 name = "bench_lazy"

@@ -24,12 +24,15 @@ use core::{
     any::TypeId,
     mem::ManuallyDrop,
 };
-use ink_core::storage2::{
-    alloc,
-    alloc::ContractPhase,
-    traits::{
-        pull_spread_root,
-        push_spread_root,
+use ink_core::{
+    env::ReturnFlags,
+    storage2::{
+        alloc,
+        alloc::ContractPhase,
+        traits::{
+            pull_spread_root,
+            push_spread_root,
+        },
     },
 };
 use ink_primitives::Key;
@@ -76,7 +79,10 @@ where
     let result = f(&state);
     alloc::finalize();
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        ink_core::env::output::<<M as FnOutput>::Output>(&result)
+        ink_core::env::return_value::<<M as FnOutput>::Output>(
+            ReturnFlags::default(),
+            &result,
+        )
     }
     Ok(())
 }
@@ -100,7 +106,10 @@ where
     push_spread_root::<<M as FnState>::State>(&state, &root_key);
     alloc::finalize();
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        ink_core::env::output::<<M as FnOutput>::Output>(&result)
+        ink_core::env::return_value::<<M as FnOutput>::Output>(
+            ReturnFlags::default(),
+            &result,
+        )
     }
     Ok(())
 }

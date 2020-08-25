@@ -22,14 +22,14 @@ use ink_primitives::Key;
 fn store_load_clear() -> Result<()> {
     env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
         let key = Key::from([0x42; 32]);
-        assert_eq!(env::get_contract_storage::<()>(&key), None,);
+        assert_eq!(env::get_contract_storage::<()>(&key), Ok(None));
         env::set_contract_storage(&key, &[0x05_u8; 5]);
         assert_eq!(
             env::get_contract_storage::<[i8; 5]>(&key),
-            Some(Ok([0x05; 5])),
+            Ok(Some([0x05; 5])),
         );
         env::clear_contract_storage(&key);
-        assert_eq!(env::get_contract_storage::<[u8; 5]>(&key), None,);
+        assert_eq!(env::get_contract_storage::<[u8; 5]>(&key), Ok(None));
         Ok(())
     })
 }
@@ -42,9 +42,9 @@ fn key_add() -> Result<()> {
         let key10 = key00 + 10_u64; // -> 10         | same as key55
         let key55 = key05 + 05_u64; // -> 5 + 5 = 10 | same as key10
         env::set_contract_storage(&key55, &42);
-        assert_eq!(env::get_contract_storage::<i32>(&key10), Some(Ok(42)));
+        assert_eq!(env::get_contract_storage::<i32>(&key10), Ok(Some(42)));
         env::set_contract_storage(&key10, &1337);
-        assert_eq!(env::get_contract_storage::<i32>(&key55), Some(Ok(1337)));
+        assert_eq!(env::get_contract_storage::<i32>(&key55), Ok(Some(1337)));
         Ok(())
     })
 }
@@ -77,9 +77,9 @@ fn gas_price() -> env::Result<()> {
             chain_spec.set_gas_price::<env::DefaultEnvTypes>(gas_price.into())
         })?;
 
-        assert_eq!(2u128, env::gas_price::<env::DefaultEnvTypes>(1).unwrap());
-        assert_eq!(20u128, env::gas_price::<env::DefaultEnvTypes>(10).unwrap());
-        assert_eq!(6u128, env::gas_price::<env::DefaultEnvTypes>(3).unwrap());
+        assert_eq!(2u128, env::weight_to_fee::<env::DefaultEnvTypes>(1).unwrap());
+        assert_eq!(20u128, env::weight_to_fee::<env::DefaultEnvTypes>(10).unwrap());
+        assert_eq!(6u128, env::weight_to_fee::<env::DefaultEnvTypes>(3).unwrap());
 
         Ok(())
     })

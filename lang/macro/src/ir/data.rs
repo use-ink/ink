@@ -420,10 +420,7 @@ impl Function {
     /// Returns `true` if the function is a method.
     #[allow(unused)]
     pub fn is_method(&self) -> bool {
-        match self.kind() {
-            FunctionKind::Method => true,
-            _ => false,
-        }
+        matches!(self.kind(), FunctionKind::Method)
     }
 }
 

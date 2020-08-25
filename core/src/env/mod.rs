@@ -38,6 +38,7 @@ use self::backend::{
 };
 pub use self::{
     api::*,
+    backend::ReturnFlags,
     error::{
         EnvError,
         Result,

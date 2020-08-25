@@ -16,9 +16,14 @@ mod buffer;
 mod ext;
 mod impls;
 
+use self::{
+    buffer::{
+        ScopedBuffer,
+        StaticBuffer,
+    },
+    ext::Error,
+};
 use super::OnInstance;
-
-use self::buffer::StaticBuffer;
 
 /// The on-chain environment.
 pub struct EnvInstance {
