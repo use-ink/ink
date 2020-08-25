@@ -37,9 +37,9 @@ macro_rules! define_error_codes {
             UnknownError,
         }
 
-        impl From<RawReturnCode> for Result {
+        impl From<ReturnCode> for Result {
             #[inline]
-            fn from(return_code: RawReturnCode) -> Self {
+            fn from(return_code: ReturnCode) -> Self {
                 match return_code.0 {
                     0 => Ok(()),
                     $(
@@ -79,12 +79,12 @@ define_error_codes! {
 
 /// The raw return code returned by the host side.
 #[repr(transparent)]
-pub struct RawReturnCode(u32);
+pub struct ReturnCode(u32);
 
 type Result = core::result::Result<(), Error>;
 
 mod sys {
-    use super::RawReturnCode;
+    use super::ReturnCode;
 
     #[link(wasm_import_module = "seal0")]
     extern "C" {
@@ -100,7 +100,7 @@ mod sys {
             address_len_ptr: u32,
             output_ptr: u32,
             output_len_ptr: u32,
-        ) -> RawReturnCode;
+        ) -> ReturnCode;
 
         pub fn seal_call(
             callee_ptr: u32,
@@ -112,14 +112,14 @@ mod sys {
             input_len: u32,
             output_ptr: u32,
             output_len_ptr: u32,
-        ) -> RawReturnCode;
+        ) -> ReturnCode;
 
         pub fn seal_transfer(
             account_id_ptr: u32,
             account_id_len: u32,
             transferred_value_ptr: u32,
             transferred_value_len: u32,
-        ) -> RawReturnCode;
+        ) -> ReturnCode;
 
         pub fn seal_deposit_event(
             topics_ptr: u32,
@@ -130,7 +130,7 @@ mod sys {
 
         pub fn seal_set_storage(key_ptr: u32, value_ptr: u32, value_len: u32);
         pub fn seal_get_storage(key_ptr: u32, output_ptr: u32, output_len_ptr: u32)
-            -> RawReturnCode;
+            -> ReturnCode;
         pub fn seal_clear_storage(key_ptr: u32);
 
         pub fn seal_restore_to(
@@ -152,7 +152,7 @@ mod sys {
             input_len: u32,
             output_ptr: u32,
             output_len_ptr: u32,
-        ) -> RawReturnCode;
+        ) -> ReturnCode;
 
         pub fn seal_input(buf_ptr: u32, buf_len_ptr: u32);
         pub fn seal_return(flags: u32, data_ptr: u32, data_len: u32) -> !;
