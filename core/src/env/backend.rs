@@ -36,14 +36,17 @@ impl Default for ReturnFlags {
 }
 
 impl ReturnFlags {
-    /// Sets the bit to indicate that the execution has trapped.
-    pub fn set_trapped(mut self, has_trapped: bool) -> Self {
-        self.value |= has_trapped as u32;
+    /// Sets the bit to indicate that the execution is going to be reverted.
+    pub fn set_reverted(mut self, has_reverted: bool) -> Self {
+        match has_reverted {
+            true => self.value |= has_reverted as u32,
+            false => self.value &= !has_reverted as u32,
+        }
         self
     }
 
     /// Returns the underlying `u32` representation.
-    pub fn into_u32(self) -> u32 {
+    pub(crate) fn into_u32(self) -> u32 {
         self.value
     }
 }
