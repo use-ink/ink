@@ -17,6 +17,7 @@
 use crate::env::{
     backend::{
         Env,
+        ReturnFlags,
         TypedEnv,
     },
     call::{
@@ -65,12 +66,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_price<T>(gas: u64) -> Result<T::Balance>
+pub fn weight_to_fee<T>(gas: u64) -> Result<T::Balance>
 where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::gas_price::<T>(instance, gas)
+        TypedEnv::weight_to_fee::<T>(instance, gas)
     })
 }
 
@@ -208,6 +209,10 @@ where
 }
 
 /// Writes the value to the contract storage under the given key.
+///
+/// # Panics
+///
+/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
 pub fn set_contract_storage<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
@@ -221,8 +226,8 @@ where
 ///
 /// # Errors
 ///
-/// - If the decoding of the typed value failed
-pub fn get_contract_storage<R>(key: &Key) -> Option<Result<R>>
+/// - If the decoding of the typed value failed (`KeyNotFound`)
+pub fn get_contract_storage<R>(key: &Key) -> Result<Option<R>>
 where
     R: scale::Decode,
 {
@@ -238,25 +243,6 @@ pub fn clear_contract_storage(key: &Key) {
     })
 }
 
-/// Invokes a call to the runtime.
-///
-/// # Note
-///
-/// The call is not guaranteed to execute immediately but might be deferred
-/// to the end of the contract execution.
-///
-/// # Errors
-///
-/// - If the called runtime function does not exist.
-pub fn invoke_runtime<T>(params: &T::Call) -> Result<()>
-where
-    T: EnvTypes,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::invoke_runtime::<T>(instance, params)
-    })
-}
-
 /// Invokes a contract message.
 ///
 /// # Note
@@ -268,7 +254,8 @@ where
 ///
 /// # Errors
 ///
-/// - If the called contract does not exist.
+/// - If the called account does not exist.
+/// - If the called account is not a contract.
 /// - If the called contract is a tombstone.
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
@@ -292,7 +279,8 @@ where
 ///
 /// # Errors
 ///
-/// - If the called contract does not exist.
+/// - If the called account does not exist.
+/// - If the called account is not a contract.
 /// - If the called contract is a tombstone.
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
@@ -424,7 +412,7 @@ where
 /// contract call or invoke a runtime function that performs the
 /// transaction.
 ///
-/// # Errors
+/// # Panics
 ///
 /// If the contract doesn't have sufficient funds.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
@@ -433,6 +421,27 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnv::transfer::<T>(instance, destination, value)
+    })
+}
+
+/// Calls the chain extension with the given ID and inputs.
+///
+/// Returns the given output type.
+///
+/// # Errors
+///
+/// - If the given function ID does not exist in the runtime.
+/// - If the given inputs cannot be properly decoded by the runtime.
+/// - If the given output type cannot be properly decoded by the contract.
+/// - If some chain extension specific conditions are not met.
+#[cfg(feature = "ink-unstable-chain-extensions")]
+pub fn call_chain_extension<I, O>(func_id: u32, input: &I) -> Result<O>
+where
+    I: scale::Codec + 'static,
+    O: scale::Codec + 'static,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        Env::call_chain_extension(instance, func_id, input)
     })
 }
 
@@ -470,14 +479,13 @@ where
 ///
 /// # Note
 ///
-/// This call must be the last call to the contract
-/// environment for every contract execution.
-pub fn output<R>(return_value: &R)
+/// This function  stops the execution of the contract immediately.
+pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
     R: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::output::<R>(instance, return_value)
+        Env::return_value::<R>(instance, return_flags, return_value)
     })
 }
 
@@ -503,20 +511,6 @@ where
 /// Prints the given contents to the environmental log.
 pub fn println(content: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| Env::println(instance, content))
-}
-
-/// Returns the value from the *runtime* storage at the position of the key if any.
-///
-/// # Errors
-///
-/// - If the decoding of the typed value failed
-pub fn get_runtime_storage<R>(runtime_key: &[u8]) -> Option<Result<R>>
-where
-    R: scale::Decode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::get_runtime_storage::<R>(instance, runtime_key)
-    })
 }
 
 /// Built-in efficient cryptographic hash functions.

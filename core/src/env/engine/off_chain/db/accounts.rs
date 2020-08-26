@@ -247,13 +247,12 @@ impl Account {
     }
 
     /// Returns the value stored in the contract storage at the given key.
-    pub fn get_storage<T>(&self, at: Key) -> Option<Result<T>>
+    pub fn get_storage<T>(&self, at: Key) -> Result<Option<T>>
     where
         T: scale::Decode,
     {
         self.contract_or_err()
             .and_then(|contract| contract.storage.get_storage::<T>(at))
-            .transpose()
     }
 
     /// Returns the total number of reads and write from and to the contract's storage.

@@ -300,7 +300,7 @@ pub struct FieldLayout<F: Form = MetaForm> {
     /// The name of the field.
     ///
     /// Can be missing, e.g. in case of an enum tuple struct variant.
-    name: Option<F::String>,
+    name: Option<&'static str>,
     /// The kind of the field.
     ///
     /// This is either a direct layout bound
@@ -312,7 +312,7 @@ impl FieldLayout {
     /// Creates a new field layout.
     pub fn new<N, L>(name: N, layout: L) -> Self
     where
-        N: Into<Option<<MetaForm as Form>::String>>,
+        N: Into<Option<&'static str>>,
         L: Into<Layout>,
     {
         Self {
@@ -327,7 +327,7 @@ impl IntoCompact for FieldLayout {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         FieldLayout {
-            name: self.name.map(|name| registry.register_string(name)),
+            name: self.name,
             layout: self.layout.into_compact(registry),
         }
     }

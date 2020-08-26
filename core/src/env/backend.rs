@@ -24,6 +24,33 @@ use crate::env::{
 };
 use ink_primitives::Key;
 
+/// The flags to indicate further information about the end of a contract execution.
+pub struct ReturnFlags {
+    value: u32,
+}
+
+impl Default for ReturnFlags {
+    fn default() -> Self {
+        Self { value: 0 }
+    }
+}
+
+impl ReturnFlags {
+    /// Sets the bit to indicate that the execution is going to be reverted.
+    pub fn set_reverted(mut self, has_reverted: bool) -> Self {
+        match has_reverted {
+            true => self.value |= has_reverted as u32,
+            false => self.value &= !has_reverted as u32,
+        }
+        self
+    }
+
+    /// Returns the underlying `u32` representation.
+    pub(crate) fn into_u32(self) -> u32 {
+        self.value
+    }
+}
+
 /// Environmental contract functionality that does not require `EnvTypes`.
 pub trait Env {
     /// Writes the value to the contract storage under the given key.
@@ -36,21 +63,12 @@ pub trait Env {
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
     where
         R: scale::Decode;
 
     /// Clears the contract's storage key entry.
     fn clear_contract_storage(&mut self, key: &Key);
-
-    /// Returns the value from the *runtime* storage at the position of the key if any.
-    ///
-    /// # Errors
-    ///
-    /// - If the decoding of the typed value failed
-    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
-    where
-        R: scale::Decode;
 
     /// Returns the execution input to the executed contract and decodes it as `T`.
     ///
@@ -83,10 +101,12 @@ pub trait Env {
     ///
     /// # Note
     ///
-    /// The setting of this property must be the last interaction between
-    /// the executed contract and its environment.
-    /// The environment access asserts this guarantee.
-    fn output<R>(&mut self, return_value: &R)
+    /// Calling this method will end contract execution immediately.
+    /// It will return the given return value back to its caller.
+    ///
+    /// The `flags` parameter can be used to revert the state changes of the
+    /// entire execution if necessary.
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode;
 
@@ -108,6 +128,22 @@ pub trait Env {
     /// Conducts the BLAKE2 128-bit hash of the input
     /// puts the result into the output buffer.
     fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]);
+
+    /// Calls the chain extension with the given ID and inputs.
+    ///
+    /// Returns the output of the chain extension of the specified type.
+    ///
+    /// # Errors
+    ///
+    /// - If the chain extension with the given ID does not exist.
+    /// - If the inputs had an unexpected encoding.
+    /// - If the output could not be properly decoded.
+    /// - If some extension specific condition has not been met.
+    #[cfg(feature = "ink-unstable-chain-extensions")]
+    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
+    where
+        I: scale::Codec + 'static,
+        O: scale::Codec + 'static;
 }
 
 /// Environmental contract functionality.
@@ -131,7 +167,7 @@ pub trait TypedEnv: Env {
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::gas_price`]
-    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance>;
+    fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance>;
 
     /// Returns the amount of gas left for the contract execution.
     ///
@@ -205,15 +241,6 @@ pub trait TypedEnv: Env {
     ///
     /// For more details visit: [`ink_core::env::set_rent_allowance`]
     fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
-    where
-        T: EnvTypes;
-
-    /// Invokes a call of the runtime.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_core::env::invoke_runtime`]
-    fn invoke_runtime<T>(&mut self, call: &T::Call) -> Result<()>
     where
         T: EnvTypes;
 

@@ -33,6 +33,8 @@ where
     // In case the contract storage is occupied we handle
     // the Option<T> as if it was a T.
     env::get_contract_storage::<()>(root_key)
+        .ok()
+        .flatten()
         .map(|_| super::pull_spread_root::<T>(root_key))
 }
 
@@ -100,11 +102,12 @@ pub fn pull_packed_root_opt<T>(root_key: &Key) -> Option<T>
 where
     T: PackedLayout,
 {
-    match env::get_contract_storage::<T>(root_key) {
-        Some(value) => {
+    match env::get_contract_storage::<T>(root_key)
+        .expect("decoding does not match expected type")
+    {
+        Some(mut value) => {
             // In case the contract storage is occupied we handle
             // the Option<T> as if it was a T.
-            let mut value = value.expect("decoding does not match expected type");
             <T as PackedLayout>::pull_packed(&mut value, root_key);
             Some(value)
         }

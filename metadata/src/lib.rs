@@ -41,6 +41,7 @@ pub use self::specs::{
     ReturnTypeSpec,
     TypeSpec,
 };
+
 #[cfg(feature = "derive")]
 use scale_info::{
     form::CompactForm,
@@ -49,24 +50,25 @@ use scale_info::{
 };
 use serde::Serialize;
 
-/// An entire ink! project for ABI file generation purposes.
+/// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize)]
 pub struct InkProject {
+    #[serde(flatten)]
     registry: Registry,
     #[serde(rename = "storage")]
+    /// The layout of the storage data structure
     layout: layout2::Layout<CompactForm>,
-    #[serde(rename = "contract")]
     spec: ContractSpec<CompactForm>,
 }
 
 impl InkProject {
-    /// Creates a new ink! project.
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
         L: Into<layout2::Layout>,
         S: Into<ContractSpec>,
     {
         let mut registry = Registry::new();
+
         Self {
             layout: layout.into().into_compact(&mut registry),
             spec: spec.into().into_compact(&mut registry),

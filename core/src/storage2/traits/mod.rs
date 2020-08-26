@@ -137,8 +137,8 @@ where
     T: PackedLayout,
 {
     let mut entity = crate::env::get_contract_storage::<T>(root_key)
-        .expect("storage entry was empty")
-        .expect("could not properly decode storage entry");
+        .expect("could not properly decode storage entry")
+        .expect("storage entry was empty");
     <T as PackedLayout>::pull_packed(&mut entity, root_key);
     entity
 }
