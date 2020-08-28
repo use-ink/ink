@@ -307,6 +307,122 @@ macro_rules! gen_tests_for_backend {
                 Ok(())
             })
         }
+
+        #[test]
+        fn value_not_in_cache_but_in_storage_get() -> env::Result<()> {
+            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                // given
+                let hmap1 = prefilled_hmap();
+                assert_eq!(hmap1.get(&b'A'), Some(&13));
+                push_hmap(&hmap1);
+
+                // when
+                let mut hmap2 = pull_hmap();
+
+                // then
+                match hmap2.entry(b'A') {
+                    Entry::Occupied(o) => assert_eq!(o.get(), &mut 13),
+                    Entry::Vacant(_) => panic!(),
+                }
+
+                Ok(())
+            })
+        }
+
+        #[test]
+        fn value_not_in_cache_but_in_storage_get_mut() -> env::Result<()> {
+            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                // given
+                let hmap1 = prefilled_hmap();
+                assert_eq!(hmap1.get(&b'A'), Some(&13));
+                push_hmap(&hmap1);
+
+                // when
+                let mut hmap2 = pull_hmap();
+
+                // then
+                match hmap2.entry(b'A') {
+                    Entry::Occupied(mut o) => {
+                        assert_eq!(o.get_mut(), &mut 13);
+                    }
+                    Entry::Vacant(_) => panic!(),
+                }
+
+                Ok(())
+            })
+        }
+
+        #[test]
+        fn value_not_in_cache_but_in_storage_insert() -> env::Result<()> {
+            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                // given
+                let hmap1 = prefilled_hmap();
+                assert_eq!(hmap1.get(&b'A'), Some(&13));
+                push_hmap(&hmap1);
+
+                // when
+                let mut hmap2 = pull_hmap();
+
+                // then
+                match hmap2.entry(b'A') {
+                    Entry::Occupied(mut o) => {
+                        assert_eq!(o.insert(999), 13);
+                    }
+                    Entry::Vacant(_) => panic!(),
+                }
+                assert_eq!(hmap2.get(&b'A'), Some(&999));
+
+                Ok(())
+            })
+        }
+
+        #[test]
+        fn value_not_in_cache_but_in_storage_remove_entry() -> env::Result<()> {
+            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                // given
+                let hmap1 = prefilled_hmap();
+                assert_eq!(hmap1.get(&b'A'), Some(&13));
+                push_hmap(&hmap1);
+
+                // when
+                let mut hmap2 = pull_hmap();
+
+                // then
+                match hmap2.entry(b'A') {
+                    Entry::Occupied(o) => {
+                        assert_eq!(o.remove_entry(), (b'A', 13));
+                        assert_eq!(hmap2.get(&b'A'), None);
+                        push_hmap(&hmap2);
+                    }
+                    Entry::Vacant(_) => panic!(),
+                }
+
+                let hmap3 = pull_hmap();
+                assert_eq!(hmap3.get(&b'A'), None);
+                Ok(())
+            })
+        }
+
+        #[test]
+        fn value_not_in_cache_but_in_storage_into_mut() -> env::Result<()> {
+            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                // given
+                let hmap1 = prefilled_hmap();
+                assert_eq!(hmap1.get(&b'A'), Some(&13));
+                push_hmap(&hmap1);
+
+                // when
+                let mut hmap2 = pull_hmap();
+
+                // then
+                match hmap2.entry(b'A') {
+                    Entry::Occupied(o) => assert_eq!(o.into_mut(), &mut 13),
+                    Entry::Vacant(_) => panic!(),
+                }
+
+                Ok(())
+            })
+        }
     };
 }
 

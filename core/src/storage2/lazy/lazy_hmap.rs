@@ -51,6 +51,7 @@ use ink_prelude::{
     collections::btree_map::{
         BTreeMap,
         Entry as BTreeMapEntry,
+        OccupiedEntry as BTreeMapOccupiedEntry,
     },
     vec::Vec,
 };
@@ -92,6 +93,29 @@ pub struct LazyHashMap<K, V, H> {
     hash_builder: RefCell<HashBuilder<H, Vec<u8>>>,
 }
 
+/// When querying `entry()` there is a case which needs special treatment:
+/// In `entry()` we first do a look-up in the cache. If the requested key is
+/// in the cache we return the found object.
+/// If it is not in the cache we query the storage. If we find the element
+/// in storage we insert it into the cache.
+///
+/// The problem now is that in this case we only have the `Vacant` object
+/// which we got from searching in the cache, but we need to return an
+/// `Occupied` here, since the object is now in the cache. We could do this
+/// by querying the cache another time -- but this would be an additional
+/// search. So what we do instead is to save a reference to the inserted
+/// cache value in the `Occupied`. As a consequence all Entry API operations
+/// (`get`, `remove`, ...) need to distinguish both cases.
+enum EntryOrMutableValue<E, V> {
+    /// An occupied `EntryMap` entry that holds a value.
+    Entry(E),
+    /// A reference to the mutable value behind a cache entry.
+    MutableValue(V),
+}
+
+/// An occupied `EntryMap` entry that holds a value.
+type OccupiedCache<'a, K, V> = BTreeMapOccupiedEntry<'a, K, Box<StorageEntry<V>>>;
+
 /// A vacant entry with previous and next vacant indices.
 pub struct OccupiedEntry<'a, K, V>
 where
@@ -99,9 +123,9 @@ where
 {
     /// The key stored in this entry.
     key: K,
-    /// The occupied `EntryMap` entry that holds the value.
-    entry:
-        ink_prelude::collections::btree_map::OccupiedEntry<'a, K, Box<StorageEntry<V>>>,
+    /// Either the occupied `EntryMap` entry that holds the value or a mutable reference
+    /// to the value behind a cache entry.
+    entry: EntryOrMutableValue<OccupiedCache<'a, K, V>, &'a mut Box<StorageEntry<V>>>,
 }
 
 /// A vacant entry with previous and next vacant indices.
@@ -416,7 +440,12 @@ where
         match cached_entries.entry(key.to_owned()) {
             BTreeMapEntry::Occupied(entry) => {
                 match entry.get().value() {
-                    Some(_) => Entry::Occupied(OccupiedEntry { key, entry }),
+                    Some(_) => {
+                        Entry::Occupied(OccupiedEntry {
+                            key,
+                            entry: EntryOrMutableValue::Entry(entry),
+                        })
+                    }
                     None => {
                         // value is already marked as to be removed
                         Entry::Vacant(VacantEntry {
@@ -426,13 +455,32 @@ where
                     }
                 }
             }
-            BTreeMapEntry::Vacant(vacant) => {
+            BTreeMapEntry::Vacant(entry) => {
                 let value = self
                     .key_at(&key)
                     .map(|key| pull_packed_root_opt::<V>(&key))
                     .unwrap_or(None);
-                vacant.insert(Box::new(StorageEntry::new(value, EntryState::Preserved)));
-                self.entry(key)
+                match value.is_some() {
+                    // The entry was not in the cache, but in the storage. This results in
+                    // a problem: We only have `Vacant` here, but need to return `Occupied`,
+                    // to reflect this.
+                    true => {
+                        let v_mut = entry.insert(Box::new(StorageEntry::new(
+                            value,
+                            EntryState::Preserved,
+                        )));
+                        Entry::Occupied(OccupiedEntry {
+                            key,
+                            entry: EntryOrMutableValue::MutableValue(v_mut),
+                        })
+                    }
+                    false => {
+                        Entry::Vacant(VacantEntry {
+                            key,
+                            entry: BTreeMapEntry::Vacant(entry),
+                        })
+                    }
+                }
             }
         }
     }
@@ -814,19 +862,37 @@ where
     }
 
     /// Take the ownership of the key and value from the map.
-    pub fn remove_entry(mut self) -> (K, V) {
-        let old = core::mem::replace(self.entry.get_mut().value_mut(), None)
-            .expect("entry behind `OccupiedEntry` must always exist");
+    pub fn remove_entry(self) -> (K, V) {
+        let old = match self.entry {
+            EntryOrMutableValue::Entry(mut entry) => {
+                core::mem::replace(entry.get_mut().value_mut(), None)
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValue(v_mut) => {
+                core::mem::replace(v_mut.value_mut(), None)
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        };
         (self.key, old)
     }
 
     /// Gets a reference to the value in the entry.
     pub fn get(&self) -> &V {
-        self.entry
-            .get()
-            .value()
-            .as_ref()
-            .expect("entry behind `OccupiedEntry` must always exist")
+        match &self.entry {
+            EntryOrMutableValue::Entry(entry) => {
+                entry
+                    .get()
+                    .value()
+                    .as_ref()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValue(v_mut) => {
+                v_mut
+                    .value()
+                    .as_ref()
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        }
     }
 
     /// Gets a mutable reference to the value in the entry.
@@ -834,20 +900,39 @@ where
     /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
     /// `Entry` value, see `into_mut`.
     pub fn get_mut(&mut self) -> &mut V {
-        self.entry
-            .get_mut()
-            .value_mut()
-            .as_mut()
-            .expect("entry behind `OccupiedEntry` must always exist")
+        match &mut self.entry {
+            EntryOrMutableValue::Entry(entry) => {
+                entry
+                    .get_mut()
+                    .value_mut()
+                    .as_mut()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValue(v_mut) => {
+                v_mut
+                    .value_mut()
+                    .as_mut()
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        }
     }
 
     /// Sets the value of the entry, and returns the entry's old value.
     pub fn insert(&mut self, new_value: V) -> V {
-        let new_value = Box::new(StorageEntry::new(Some(new_value), EntryState::Mutated));
-        self.entry
-            .insert(new_value)
-            .into_value()
-            .expect("entry behind `OccupiedEntry` must always exist")
+        match &mut self.entry {
+            EntryOrMutableValue::Entry(entry) => {
+                let new_value =
+                    Box::new(StorageEntry::new(Some(new_value), EntryState::Mutated));
+                entry
+                    .insert(new_value)
+                    .into_value()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValue(v_mut) => {
+                core::mem::replace(v_mut.value_mut(), Some(new_value))
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        }
     }
 
     /// Takes the value out of the entry, and returns it.
@@ -858,11 +943,21 @@ where
     /// Converts the OccupiedEntry into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
-        self.entry
-            .into_mut()
-            .value_mut()
-            .as_mut()
-            .expect("entry behind `OccupiedEntry` must always exist")
+        match self.entry {
+            EntryOrMutableValue::Entry(entry) => {
+                entry
+                    .into_mut()
+                    .value_mut()
+                    .as_mut()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValue(v_mut) => {
+                v_mut
+                    .value_mut()
+                    .as_mut()
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        }
     }
 }
 
