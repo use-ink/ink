@@ -379,7 +379,7 @@ where
 
     /// Returns the length of the cached entries.
     #[cfg(test)]
-    pub fn len_cached_entries(&self) -> usize {
+    pub(crate) fn len_cached_entries(&self) -> usize {
         self.entries().len()
     }
 

@@ -167,7 +167,7 @@ where
 
     /// Returns the number of key-value pairs stored in the hash map.
     #[cfg(test)]
-    pub fn len_cached_entries(&self) -> u32 {
+    pub(crate) fn len_cached_entries(&self) -> u32 {
         self.keys.len()
     }
 
