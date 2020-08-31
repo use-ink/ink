@@ -160,7 +160,7 @@ where
         }
     }
 
-    /// Returns the number of key- value pairs stored in the hash map.
+    /// Returns the number of key-value pairs stored in the hash map.
     pub fn len(&self) -> u32 {
         self.keys.len()
     }
