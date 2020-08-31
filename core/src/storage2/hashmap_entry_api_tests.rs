@@ -63,7 +63,7 @@ macro_rules! gen_tests_for_backend {
 
             // then
             assert_eq!(hmap.get(&b'A'), Some(&77));
-            assert_eq!(hmap.len(), 1);
+            assert_eq!(hmap.len_cached_entries(), 1);
         }
 
         #[test]
@@ -80,7 +80,7 @@ macro_rules! gen_tests_for_backend {
 
             // then
             assert_eq!(hmap.get(&b'A'), Some(&13));
-            assert_eq!(hmap.len(), 2);
+            assert_eq!(hmap.len_cached_entries(), 2);
         }
 
         #[test]
@@ -119,7 +119,7 @@ macro_rules! gen_tests_for_backend {
             // then
             assert_eq!(*v, 42);
             assert_eq!(hmap.get(&b'C'), Some(&42));
-            assert_eq!(hmap.len(), 3);
+            assert_eq!(hmap.len_cached_entries(), 3);
         }
 
         #[test]
@@ -147,7 +147,7 @@ macro_rules! gen_tests_for_backend {
 
             // then
             assert_eq!(hmap.get(&b'A'), Some(&43));
-            assert_eq!(hmap.len(), 1);
+            assert_eq!(hmap.len_cached_entries(), 1);
         }
 
         #[test]

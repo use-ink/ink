@@ -165,6 +165,12 @@ where
         self.keys.len()
     }
 
+    /// Returns the number of key-value pairs stored in the hash map.
+    #[cfg(test)]
+    pub fn len_cached_entries(&self) -> u32 {
+        self.keys.len()
+    }
+
     /// Returns `true` if the hash map is empty.
     pub fn is_empty(&self) -> bool {
         self.keys.is_empty()

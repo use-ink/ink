@@ -377,9 +377,9 @@ where
         self.key.as_ref()
     }
 
-    /// Returns the length of the underlying entries.
+    /// Returns the length of the cached entries.
     #[cfg(test)]
-    pub fn len(&self) -> usize {
+    pub fn len_cached_entries(&self) -> usize {
         self.entries().len()
     }
 
@@ -986,7 +986,7 @@ mod tests {
         hmap: &LazyHashMap<i32, u8, H>,
         expected: &[(i32, StorageEntry<u8>)],
     ) {
-        assert_eq!(hmap.len(), expected.len());
+        assert_eq!(hmap.len_cached_entries(), expected.len());
         for (given, expected) in hmap
             .entries()
             .iter()
