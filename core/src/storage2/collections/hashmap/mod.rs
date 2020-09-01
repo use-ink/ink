@@ -106,7 +106,7 @@ struct ValueEntry<V> {
     key_index: KeyIndex,
 }
 
-/// A vacant entry with previous and next vacant indices.
+/// An occupied entry that holds the value.
 pub struct OccupiedEntry<'a, K, V>
 where
     K: Ord + Clone + PackedLayout,
@@ -165,7 +165,7 @@ where
         self.keys.len()
     }
 
-    /// Returns the number of key-value pairs stored in the hash map.
+    /// Returns the number of key-value pairs stored in the cache.
     #[cfg(test)]
     pub(crate) fn len_cached_entries(&self) -> u32 {
         self.keys.len()
