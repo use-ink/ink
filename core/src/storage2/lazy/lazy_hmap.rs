@@ -109,10 +109,10 @@ pub struct LazyHashMap<K, V, H> {
 enum EntryOrMutableValue<E, V> {
     /// An occupied `EntryMap` entry that holds a value.
     /// This represents the case where the key was in the cache.
-    EntryFromCache(E),
+    EntryElementWasInCache(E),
     /// A reference to the mutable value behind a cache entry.
     /// This represents the case where the key was not in the cache, but in storage.
-    MutableValueFromStorage(V),
+    MutableValueElementWasNotInCache(V),
 }
 
 /// An occupied `EntryMap` entry that holds a value.
@@ -445,7 +445,7 @@ where
                     Some(_) => {
                         Entry::Occupied(OccupiedEntry {
                             key,
-                            entry: EntryOrMutableValue::EntryFromCache(entry),
+                            entry: EntryOrMutableValue::EntryElementWasInCache(entry),
                         })
                     }
                     None => {
@@ -473,7 +473,9 @@ where
                         )));
                         Entry::Occupied(OccupiedEntry {
                             key,
-                            entry: EntryOrMutableValue::MutableValueFromStorage(v_mut),
+                            entry: EntryOrMutableValue::MutableValueElementWasNotInCache(
+                                v_mut,
+                            ),
                         })
                     }
                     false => {
@@ -866,14 +868,14 @@ where
     /// Take the ownership of the key and value from the map.
     pub fn remove_entry(self) -> (K, V) {
         let old = match self.entry {
-            EntryOrMutableValue::EntryFromCache(mut entry) => {
+            EntryOrMutableValue::EntryElementWasInCache(mut entry) => {
                 entry
                     .get_mut()
                     .value_mut()
                     .take()
                     .expect("entry behind `OccupiedEntry` must always exist")
             }
-            EntryOrMutableValue::MutableValueFromStorage(v_mut) => {
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
                 v_mut
                     .value_mut()
                     .take()
@@ -886,14 +888,14 @@ where
     /// Gets a reference to the value in the entry.
     pub fn get(&self) -> &V {
         match &self.entry {
-            EntryOrMutableValue::EntryFromCache(entry) => {
+            EntryOrMutableValue::EntryElementWasInCache(entry) => {
                 entry
                     .get()
                     .value()
                     .as_ref()
                     .expect("entry behind `OccupiedEntry` must always exist")
             }
-            EntryOrMutableValue::MutableValueFromStorage(v_mut) => {
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
                 v_mut
                     .value()
                     .as_ref()
@@ -908,14 +910,14 @@ where
     /// `Entry` value, see `into_mut`.
     pub fn get_mut(&mut self) -> &mut V {
         match &mut self.entry {
-            EntryOrMutableValue::EntryFromCache(entry) => {
+            EntryOrMutableValue::EntryElementWasInCache(entry) => {
                 entry
                     .get_mut()
                     .value_mut()
                     .as_mut()
                     .expect("entry behind `OccupiedEntry` must always exist")
             }
-            EntryOrMutableValue::MutableValueFromStorage(v_mut) => {
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
                 v_mut
                     .value_mut()
                     .as_mut()
@@ -927,7 +929,7 @@ where
     /// Sets the value of the entry, and returns the entry's old value.
     pub fn insert(&mut self, new_value: V) -> V {
         match &mut self.entry {
-            EntryOrMutableValue::EntryFromCache(entry) => {
+            EntryOrMutableValue::EntryElementWasInCache(entry) => {
                 let new_value =
                     Box::new(StorageEntry::new(Some(new_value), EntryState::Mutated));
                 entry
@@ -935,7 +937,7 @@ where
                     .into_value()
                     .expect("entry behind `OccupiedEntry` must always exist")
             }
-            EntryOrMutableValue::MutableValueFromStorage(v_mut) => {
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
                 core::mem::replace(v_mut.value_mut(), Some(new_value))
                     .expect("entry behind `MutableValue` must always exist")
             }
@@ -951,14 +953,14 @@ where
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
         match self.entry {
-            EntryOrMutableValue::EntryFromCache(entry) => {
+            EntryOrMutableValue::EntryElementWasInCache(entry) => {
                 entry
                     .into_mut()
                     .value_mut()
                     .as_mut()
                     .expect("entry behind `OccupiedEntry` must always exist")
             }
-            EntryOrMutableValue::MutableValueFromStorage(v_mut) => {
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
                 v_mut
                     .value_mut()
                     .as_mut()
