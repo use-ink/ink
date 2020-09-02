@@ -51,6 +51,13 @@ macro_rules! gen_tests_for_backend {
             <$backend as SpreadLayout>::pull_spread(&mut key_ptr())
         }
 
+        fn push_pull_prefilled_hmap() -> $backend {
+            let hmap1 = prefilled_hmap();
+            assert_eq!(hmap1.get(&b'A'), Some(&13));
+            push_hmap(&hmap1);
+            pull_hmap()
+        }
+
         #[test]
         fn insert_inexistent_works_with_empty() {
             // given
@@ -312,12 +319,7 @@ macro_rules! gen_tests_for_backend {
         fn value_not_in_cache_but_in_storage_get_and_get_mut() -> env::Result<()> {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 // given
-                let hmap1 = prefilled_hmap();
-                assert_eq!(hmap1.get(&b'A'), Some(&13));
-                push_hmap(&hmap1);
-
-                // when
-                let mut hmap2 = pull_hmap();
+                let mut hmap2 = push_pull_prefilled_hmap();
 
                 // then
                 match hmap2.entry(b'A') {
@@ -336,12 +338,7 @@ macro_rules! gen_tests_for_backend {
         fn value_not_in_cache_but_in_storage_insert() -> env::Result<()> {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 // given
-                let hmap1 = prefilled_hmap();
-                assert_eq!(hmap1.get(&b'A'), Some(&13));
-                push_hmap(&hmap1);
-
-                // when
-                let mut hmap2 = pull_hmap();
+                let mut hmap2 = push_pull_prefilled_hmap();
 
                 // then
                 match hmap2.entry(b'A') {
@@ -360,12 +357,7 @@ macro_rules! gen_tests_for_backend {
         fn value_not_in_cache_but_in_storage_remove_entry() -> env::Result<()> {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 // given
-                let hmap1 = prefilled_hmap();
-                assert_eq!(hmap1.get(&b'A'), Some(&13));
-                push_hmap(&hmap1);
-
-                // when
-                let mut hmap2 = pull_hmap();
+                let mut hmap2 = push_pull_prefilled_hmap();
 
                 // then
                 match hmap2.entry(b'A') {
@@ -387,12 +379,9 @@ macro_rules! gen_tests_for_backend {
         fn value_not_in_cache_is_properly_flushed_after_insert() -> env::Result<()> {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 // given
-                let hmap1 = prefilled_hmap();
-                assert_eq!(hmap1.get(&b'A'), Some(&13));
-                push_hmap(&hmap1);
+                let mut hmap2 = push_pull_prefilled_hmap();
 
                 // when
-                let mut hmap2 = pull_hmap();
                 match hmap2.entry(b'A') {
                     Entry::Occupied(mut o) => {
                         assert_eq!(o.insert(999), 13);
@@ -405,7 +394,7 @@ macro_rules! gen_tests_for_backend {
                 // then
                 // the value must have been flushed, which implies that after the
                 // insert is was marked as `Mutated`.
-                let mut hmap3 = pull_hmap();
+                let hmap3 = pull_hmap();
                 assert_eq!(hmap3.get(&b'A'), Some(&999));
 
                 Ok(())
@@ -416,12 +405,7 @@ macro_rules! gen_tests_for_backend {
         fn value_not_in_cache_but_in_storage_into_mut() -> env::Result<()> {
             env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                 // given
-                let hmap1 = prefilled_hmap();
-                assert_eq!(hmap1.get(&b'A'), Some(&13));
-                push_hmap(&hmap1);
-
-                // when
-                let mut hmap2 = pull_hmap();
+                let mut hmap2 = push_pull_prefilled_hmap();
 
                 // then
                 match hmap2.entry(b'A') {
