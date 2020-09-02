@@ -109,8 +109,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_core::env::gas_price`]
-    pub fn gas_price(self, gas: u64) -> T::Balance {
-        env::gas_price::<T>(gas).expect("couldn't decode gas price")
+    pub fn weight_to_fee(self, gas: u64) -> T::Balance {
+        env::weight_to_fee::<T>(gas).expect("couldn't decode weight fee")
     }
 
     /// Returns the amount of gas left for the contract execution.
@@ -210,15 +210,6 @@ where
         env::set_rent_allowance::<T>(new_value)
     }
 
-    /// Invokes a call to the runtime.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_core::env::invoke_runtime`]
-    pub fn invoke_runtime(self, params: &T::Call) -> Result<()> {
-        env::invoke_runtime::<T>(params)
-    }
-
     /// Invokes a contract message.
     ///
     /// # Note
@@ -311,17 +302,5 @@ where
         T: EnvTypes,
     {
         env::random::<T>(subject).expect("couldn't decode randomized hash")
-    }
-
-    /// Returns the value from the *runtime* storage at the position of the key if any.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_core::env::get_runtime_storage`]
-    pub fn get_runtime_storage<R>(self, runtime_key: &[u8]) -> Option<Result<R>>
-    where
-        R: scale::Decode,
-    {
-        env::get_runtime_storage::<R>(runtime_key)
     }
 }

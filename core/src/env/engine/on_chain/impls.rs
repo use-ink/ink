@@ -15,6 +15,8 @@
 use super::{
     ext,
     EnvInstance,
+    Error as ExtError,
+    ScopedBuffer,
 };
 use crate::env::{
     call::{
@@ -23,110 +25,72 @@ use crate::env::{
         ReturnType,
     },
     Env,
+    EnvError,
     EnvTypes,
     Result,
+    ReturnFlags,
     Topics,
     TypedEnv,
 };
 use ink_primitives::Key;
 
+impl From<ext::Error> for EnvError {
+    fn from(ext_error: ext::Error) -> Self {
+        match ext_error {
+            ext::Error::UnknownError => Self::UnknownError,
+            ext::Error::CalleeTrapped => Self::CalleeTrapped,
+            ext::Error::CalleeReverted => Self::CalleeReverted,
+            ext::Error::KeyNotFound => Self::KeyNotFound,
+            ext::Error::BelowSubsistenceThreshold => Self::BelowSubsistenceThreshold,
+            ext::Error::TransferFailed => Self::TransferFailed,
+            ext::Error::NewContractNotFunded => Self::NewContractNotFunded,
+            ext::Error::CodeNotFound => Self::CodeNotFound,
+            ext::Error::NotCallable => Self::NotCallable,
+        }
+    }
+}
+
 impl EnvInstance {
-    /// Empties the contract-side scratch buffer.
-    ///
-    /// # Note
-    ///
-    /// This is useful to perform before invoking a series of
-    /// [`WasmEnv::append_encode_into_buffer`].
-    fn reset_buffer(&mut self) {
-        self.buffer.clear();
-    }
-
-    /// Resizes the amount of used bytes of the internal buffer.
-    fn resize_buffer(&mut self, new_len: usize) {
-        self.buffer.resize(new_len);
-    }
-
-    /// Reads the current scratch buffer into the contract-side buffer.
-    ///
-    /// Returns the amount of bytes read.
-    fn read_scratch_buffer(&mut self) -> usize {
-        let req_len = ext::scratch_size();
-        self.resize_buffer(req_len);
-        ext::scratch_read(&mut self.buffer[0..req_len], 0);
-        req_len
-    }
-
-    /// Reads from the scratch buffer and directly decodes into a value of `T`.
-    ///
-    /// # Errors
-    ///
-    /// If the decoding into a value of `T` failed.
-    fn decode_scratch_buffer<T>(&mut self) -> Result<T>
-    where
-        T: scale::Decode,
-    {
-        let req_len = self.read_scratch_buffer();
-        scale::Decode::decode(&mut &self.buffer[0..req_len]).map_err(Into::into)
-    }
-
-    /// Encodes the value into the contract-side scratch buffer.
-    fn encode_into_buffer<T>(&mut self, value: T)
-    where
-        T: scale::Encode,
-    {
-        self.reset_buffer();
-        scale::Encode::encode_to(&value, &mut self.buffer);
-    }
-
-    /// Appends the encoded value into the contract-side scratch buffer
-    /// and returns the byte ranges into the encoded region.
-    fn append_encode_into_buffer<T>(&mut self, value: T) -> core::ops::Range<usize>
-    where
-        T: scale::Encode,
-    {
-        let start = self.buffer.len();
-        scale::Encode::encode_to(&value, &mut self.buffer);
-        let end = self.buffer.len();
-        core::ops::Range { start, end }
+    /// Returns a new scoped buffer for the entire scope of the static 16kB buffer.
+    fn scoped_buffer(&mut self) -> ScopedBuffer {
+        ScopedBuffer::from(&mut self.buffer[..])
     }
 
     /// Returns the contract property value.
-    fn get_property<T>(&mut self, ext_fn: fn()) -> Result<T>
+    fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
         T: scale::Decode,
     {
-        ext_fn();
-        self.decode_scratch_buffer().map_err(Into::into)
+        let full_scope = &mut self.scoped_buffer().take_rest();
+        ext_fn(full_scope);
+        scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
 
     /// Reusable implementation for invoking another contract message.
-    fn invoke_contract_impl<T, Args, RetType>(
+    fn invoke_contract_impl<T, Args, RetType, R>(
         &mut self,
-        call_params: &CallParams<T, Args, RetType>,
-    ) -> Result<()>
+        params: &CallParams<T, Args, RetType>,
+    ) -> Result<R>
     where
         T: EnvTypes,
         Args: scale::Encode,
+        R: scale::Decode,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `call_data`, `endowment` and `call_data`
-        // in order and remember their encoded regions within the buffer.
-        let callee = self.append_encode_into_buffer(call_params.callee());
-        let transferred_value =
-            self.append_encode_into_buffer(call_params.transferred_value());
-        let call_data = self.append_encode_into_buffer(call_params.input_data());
-        // Resolve the encoded regions into actual byte slices.
-        let callee = &self.buffer[callee];
-        let transferred_value = &self.buffer[transferred_value];
-        let call_data = &self.buffer[call_data];
-        // Perform the actual contract call.
+        let mut scope = self.scoped_buffer();
+        let gas_limit = params.gas_limit();
+        let enc_callee = scope.take_encoded(params.callee());
+        let enc_transferred_value = scope.take_encoded(params.transferred_value());
+        let enc_input = scope.take_encoded(params.input_data());
+        let output = &mut scope.take_rest();
         ext::call(
-            callee,
-            call_params.gas_limit(),
-            transferred_value,
-            call_data,
-        )
+            enc_callee,
+            gas_limit,
+            enc_transferred_value,
+            enc_input,
+            output,
+        )?;
+        let decoded = scale::Decode::decode(&mut &output[..])?;
+        Ok(decoded)
     }
 }
 
@@ -135,47 +99,42 @@ impl Env for EnvInstance {
     where
         V: scale::Encode,
     {
-        self.encode_into_buffer(value);
-        ext::set_storage(key.as_bytes(), &self.buffer[..]);
+        let buffer = self.scoped_buffer().take_encoded(value);
+        ext::set_storage(key.as_bytes(), &buffer[..]);
     }
 
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Option<Result<R>>
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
     where
         R: scale::Decode,
     {
-        if ext::get_storage(key.as_bytes()).is_err() {
-            return None
+        let output = &mut self.scoped_buffer().take_rest();
+        match ext::get_storage(key.as_bytes(), output) {
+            Ok(_) => (),
+            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
         }
-        Some(self.decode_scratch_buffer().map_err(Into::into))
+        let decoded = scale::Decode::decode(&mut &output[..])?;
+        Ok(Some(decoded))
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
         ext::clear_storage(key.as_bytes())
     }
 
-    fn get_runtime_storage<R>(&mut self, runtime_key: &[u8]) -> Option<Result<R>>
-    where
-        R: scale::Decode,
-    {
-        if ext::get_runtime_storage(runtime_key).is_err() {
-            return None
-        }
-        Some(self.decode_scratch_buffer().map_err(Into::into))
-    }
-
     fn decode_input<T>(&mut self) -> Result<T>
     where
         T: scale::Decode,
     {
-        self.get_property::<T>(|| ())
+        self.get_property::<T>(ext::input)
     }
 
-    fn output<R>(&mut self, return_value: &R)
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        self.encode_into_buffer(return_value);
-        ext::scratch_write(&self.buffer[..]);
+        let mut scope = self.scoped_buffer();
+        let enc_return_value = scope.take_encoded(return_value);
+        ext::return_value(flags, enc_return_value);
     }
 
     fn println(&mut self, content: &str) {
@@ -196,6 +155,23 @@ impl Env for EnvInstance {
 
     fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
         ext::hash_sha2_256(input, output)
+    }
+
+    #[cfg(feature = "ink-unstable-chain-extensions")]
+    fn call_chain_extension<I, O>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+    ) -> Result<O>
+    where
+        I: scale::Encode,
+        O: scale::Decode,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_input = scope.take_encoded(input);
+        let output = &mut scope.take_rest();
+        ext::call_chain_extension(func_id, enc_input, output)?;
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 }
 
@@ -245,34 +221,18 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         Event: Topics<T> + scale::Encode,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `topics` and the raw encoded `data`
-        // in order and remember their encoded regions within the buffer.
-        let topics = self.append_encode_into_buffer(event.topics());
-        let data = self.append_encode_into_buffer(event);
-        // Resolve the encoded regions into actual byte slices.
-        let topics = &self.buffer[topics];
-        let data = &self.buffer[data];
-        // Do the actual depositing of the event.
-        ext::deposit_event(topics, data);
+        let mut scope = self.scoped_buffer();
+        let enc_topics = scope.take_encoded(&event.topics());
+        let enc_data = scope.take_encoded(&event);
+        ext::deposit_event(enc_topics, enc_data);
     }
 
     fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
     where
         T: EnvTypes,
     {
-        self.encode_into_buffer(&new_value);
-        ext::set_rent_allowance(&self.buffer[..])
-    }
-
-    fn invoke_runtime<T>(&mut self, call: &T::Call) -> Result<()>
-    where
-        T: EnvTypes,
-    {
-        self.encode_into_buffer(call);
-        ext::dispatch_call(&self.buffer[..]);
-        Ok(())
+        let buffer = self.scoped_buffer().take_encoded(&new_value);
+        ext::set_rent_allowance(&buffer[..])
     }
 
     fn invoke_contract<T, Args>(
@@ -295,8 +255,7 @@ impl TypedEnv for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        self.invoke_contract_impl(call_params)?;
-        self.decode_scratch_buffer().map_err(Into::into)
+        self.invoke_contract_impl(call_params)
     }
 
     fn instantiate_contract<T, Args, C>(
@@ -307,23 +266,30 @@ impl TypedEnv for EnvInstance {
         T: EnvTypes,
         Args: scale::Encode,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `code_hash`, `endowment` and `create_data`
-        // in order and remember their encoded regions within the buffer.
-        let code_hash = self.append_encode_into_buffer(params.code_hash());
-        let endowment = self.append_encode_into_buffer(params.endowment());
-        let create_data = self.append_encode_into_buffer(params.input_data());
-        // Resolve the encoded regions into actual byte slices.
-        let code_hash = &self.buffer[code_hash];
-        let endowment = &self.buffer[endowment];
-        let create_data = &self.buffer[create_data];
-        // Do the actual contract instantiation.
-        ext::create(code_hash, params.gas_limit(), endowment, create_data)?;
-        // At this point our contract instantiation was successful
-        // and we can now fetch the returned data and decode it for
-        // the result value.
-        self.decode_scratch_buffer().map_err(Into::into)
+        let mut scoped = self.scoped_buffer();
+        let gas_limit = params.gas_limit();
+        let enc_code_hash = scoped.take_encoded(params.code_hash());
+        let enc_endowment = scoped.take_encoded(params.endowment());
+        let enc_input = scoped.take_encoded(params.input_data());
+        // We support `AccountId` types with an encoding that requires up to
+        // 1024 bytes. Beyond that limit ink! contracts will trap for now.
+        // In the default configuration encoded `AccountId` require 32 bytes.
+        let out_address = &mut scoped.take(1024);
+        let out_return_value = &mut scoped.take_rest();
+        // We currently do nothing with the `out_return_value` buffer.
+        // This should change in the future but for that we need to add support
+        // for constructors that may return values.
+        // This is useful to support fallible constructors for example.
+        ext::instantiate(
+            enc_code_hash,
+            gas_limit,
+            enc_endowment,
+            enc_input,
+            out_address,
+            out_return_value,
+        )?;
+        let account_id = scale::Decode::decode(&mut &out_address[..])?;
+        Ok(account_id)
     }
 
     fn restore_contract<T>(
@@ -335,57 +301,50 @@ impl TypedEnv for EnvInstance {
     ) where
         T: EnvTypes,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `account_id`, `code_hash` and `rent_allowance`
-        // and `filtered_keys` in order and remember their encoded regions
-        // within the buffer.
-        let account_id = self.append_encode_into_buffer(account_id);
-        let code_hash = self.append_encode_into_buffer(code_hash);
-        let rent_allowance = self.append_encode_into_buffer(rent_allowance);
-        // Resolve the encoded regions into actual byte slices.
-        let account_id = &self.buffer[account_id];
-        let code_hash = &self.buffer[code_hash];
-        let rent_allowance = &self.buffer[rent_allowance];
-        // Perform the actual contract restoration.
-        ext::restore_to(account_id, code_hash, rent_allowance, filtered_keys);
+        let mut scope = self.scoped_buffer();
+        let enc_account_id = scope.take_encoded(&account_id);
+        let enc_code_hash = scope.take_encoded(&code_hash);
+        let enc_rent_allowance = scope.take_encoded(&rent_allowance);
+        ext::restore_to(
+            enc_account_id,
+            enc_code_hash,
+            enc_rent_allowance,
+            filtered_keys,
+        );
     }
 
     fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
     where
         T: EnvTypes,
     {
-        self.encode_into_buffer(beneficiary);
-        ext::terminate(&self.buffer[..]);
+        let buffer = self.scoped_buffer().take_encoded(&beneficiary);
+        ext::terminate(&buffer[..]);
     }
 
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
         T: EnvTypes,
     {
-        // Reset the contract-side buffer to append onto clean slate.
-        self.reset_buffer();
-        // Append the encoded `destination` and `value` in order and remember
-        // their encoded regions within the buffer.
-        let destination = self.append_encode_into_buffer(destination);
-        let value = self.append_encode_into_buffer(value);
-        // Resolve the encoded regions into actual byte slices.
-        let destination = &self.buffer[destination];
-        let value = &self.buffer[value];
-        // Perform the actual transfer call.
-        ext::transfer(destination, value)
+        let mut scope = self.scoped_buffer();
+        let enc_destination = scope.take_encoded(&destination);
+        let enc_value = scope.take_encoded(&value);
+        ext::transfer(enc_destination, enc_value).map_err(Into::into)
     }
 
-    fn gas_price<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
-        ext::gas_price(gas);
-        self.decode_scratch_buffer().map_err(Into::into)
+    fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
+        let output = &mut self.scoped_buffer().take_rest();
+        ext::weight_to_fee(gas, output);
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: EnvTypes,
     {
-        ext::random_seed(subject);
-        self.decode_scratch_buffer().map_err(Into::into)
+        let mut scope = self.scoped_buffer();
+        let enc_subject = scope.take_bytes(subject);
+        let output = &mut scope.take_rest();
+        ext::random(enc_subject, output);
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 }
