@@ -18,6 +18,7 @@ mod dispatch;
 mod env;
 mod events;
 mod item_impls;
+mod metadata;
 mod storage;
 
 pub use self::{
@@ -26,6 +27,7 @@ pub use self::{
         CrossCalling,
         CrossCallingConflictCfg,
     },
+    metadata::Metadata,
     dispatch::Dispatch,
     env::Env,
     events::Events,
