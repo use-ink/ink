@@ -47,14 +47,15 @@ use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
+    RegistryReadOnly,
 };
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 /// An entire ink! project for metadata file generation purposes.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct InkProject {
     #[serde(flatten)]
-    pub registry: Registry,
+    pub registry: RegistryReadOnly,
     #[serde(rename = "storage")]
     /// The layout of the storage data structure
     pub layout: layout2::Layout<CompactForm>,
@@ -72,7 +73,7 @@ impl InkProject {
         Self {
             layout: layout.into().into_compact(&mut registry),
             spec: spec.into().into_compact(&mut registry),
-            registry,
+            registry: registry.into(),
         }
     }
 }
