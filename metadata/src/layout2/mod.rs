@@ -61,7 +61,7 @@ pub enum Layout<F: Form = MetaForm> {
 #[serde(transparent)]
 pub struct LayoutKey {
     #[serde(serialize_with = "serialize_as_byte_str")]
-    key: [u8; 32],
+    pub key: [u8; 32],
 }
 
 impl<'a> From<&'a Key> for LayoutKey {
@@ -85,9 +85,9 @@ impl From<Key> for LayoutKey {
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub struct CellLayout<F: Form = MetaForm> {
     /// The offset key into the storage.
-    key: LayoutKey,
+    pub key: LayoutKey,
     /// The type of the encoded entity.
-    ty: <F as Form>::TypeId,
+    pub ty: <F as Form>::TypeId,
 }
 
 impl CellLayout {
@@ -141,11 +141,11 @@ impl IntoCompact for Layout {
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub struct HashLayout<F: Form = MetaForm> {
     /// The key offset used by the strategy.
-    offset: LayoutKey,
+    pub offset: LayoutKey,
     /// The hashing strategy to layout the underlying elements.
-    strategy: HashingStrategy,
+    pub strategy: HashingStrategy,
     /// The storage layout of the unbounded layout elements.
-    layout: Box<Layout<F>>,
+    pub layout: Box<Layout<F>>,
 }
 
 impl HashLayout {
@@ -183,13 +183,13 @@ impl IntoCompact for HashLayout {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
 pub struct HashingStrategy {
     /// One of the supported crypto hashers.
-    hasher: CryptoHasher,
+    pub hasher: CryptoHasher,
     /// An optional prefix to the computed hash.
     #[serde(serialize_with = "serialize_as_byte_str")]
-    prefix: Vec<u8>,
+    pub prefix: Vec<u8>,
     /// An optional postfix to the computed hash.
     #[serde(serialize_with = "serialize_as_byte_str")]
-    postfix: Vec<u8>,
+    pub postfix: Vec<u8>,
 }
 
 impl HashingStrategy {
@@ -221,13 +221,13 @@ pub struct ArrayLayout<F: Form = MetaForm> {
     /// The offset key of the array layout.
     ///
     /// This is the same key as the 0-th element of the array layout.
-    offset: LayoutKey,
+    pub offset: LayoutKey,
     /// The number of elements in the array layout.
-    len: u32,
+    pub len: u32,
     /// The number of cells each element in the array layout consists of.
-    cells_per_elem: u64,
+    pub cells_per_elem: u64,
     /// The layout of the elements stored in the array layout.
-    layout: Box<Layout<F>>,
+    pub layout: Box<Layout<F>>,
 }
 
 impl ArrayLayout {
@@ -264,7 +264,7 @@ impl IntoCompact for ArrayLayout {
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub struct StructLayout<F: Form = MetaForm> {
     /// The fields of the struct layout.
-    fields: Vec<FieldLayout<F>>,
+    pub fields: Vec<FieldLayout<F>>,
 }
 
 impl StructLayout {
@@ -300,12 +300,12 @@ pub struct FieldLayout<F: Form = MetaForm> {
     /// The name of the field.
     ///
     /// Can be missing, e.g. in case of an enum tuple struct variant.
-    name: Option<&'static str>,
+    pub name: Option<&'static str>,
     /// The kind of the field.
     ///
     /// This is either a direct layout bound
     /// or another recursive layout sub-struct.
-    layout: Layout<F>,
+    pub layout: Layout<F>,
 }
 
 impl FieldLayout {
@@ -358,9 +358,9 @@ impl From<usize> for Discriminant {
 #[serde(bound = "F::TypeId: serde::Serialize")]
 pub struct EnumLayout<F: Form = MetaForm> {
     /// The key where the discriminant is stored to dispatch the variants.
-    dispatch_key: LayoutKey,
+    pub dispatch_key: LayoutKey,
     /// The variants of the enum.
-    variants: BTreeMap<Discriminant, StructLayout<F>>,
+    pub variants: BTreeMap<Discriminant, StructLayout<F>>,
 }
 
 impl EnumLayout {
