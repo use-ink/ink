@@ -40,13 +40,13 @@ use serde::Serialize;
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct ContractSpec<F: Form = MetaForm> {
     /// The set of constructors of the contract.
-    constructors: Vec<ConstructorSpec<F>>,
+    pub constructors: Vec<ConstructorSpec<F>>,
     /// The external messages of the contract.
-    messages: Vec<MessageSpec<F>>,
+    pub messages: Vec<MessageSpec<F>>,
     /// The events of the contract.
-    events: Vec<EventSpec<F>>,
+    pub events: Vec<EventSpec<F>>,
     /// The contract documentation.
-    docs: Vec<&'static str>,
+    pub docs: Vec<&'static str>,
 }
 
 impl IntoCompact for ContractSpec {
@@ -186,14 +186,14 @@ impl ContractSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
-    name: &'static str,
+    pub name: &'static str,
     /// The selector hash of the message.
     #[serde(serialize_with = "serialize_as_byte_str")]
-    selector: [u8; 4],
+    pub selector: [u8; 4],
     /// The parameters of the deploy handler.
-    args: Vec<MessageParamSpec<F>>,
+    pub args: Vec<MessageParamSpec<F>>,
     /// The deploy handler documentation.
-    docs: Vec<&'static str>,
+    pub docs: Vec<&'static str>,
 }
 
 impl IntoCompact for ConstructorSpec {
@@ -290,18 +290,18 @@ impl ConstructorSpecBuilder<state::Selector> {
 #[serde(rename_all = "camelCase")]
 pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
-    name: &'static str,
+    pub name: &'static str,
     /// The selector hash of the message.
     #[serde(serialize_with = "serialize_as_byte_str")]
-    selector: [u8; 4],
+    pub selector: [u8; 4],
     /// If the message is allowed to mutate the contract state.
-    mutates: bool,
+    pub mutates: bool,
     /// The parameters of the message.
-    args: Vec<MessageParamSpec<F>>,
+    pub args: Vec<MessageParamSpec<F>>,
     /// The return type of the message.
-    return_type: ReturnTypeSpec<F>,
+    pub return_type: ReturnTypeSpec<F>,
     /// The message documentation.
-    docs: Vec<&'static str>,
+    pub docs: Vec<&'static str>,
 }
 
 /// Type state for builders to tell that some mandatory state has not yet been set
@@ -456,11 +456,11 @@ impl IntoCompact for MessageSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct EventSpec<F: Form = MetaForm> {
     /// The name of the event.
-    name: &'static str,
+    pub name: &'static str,
     /// The event arguments.
-    args: Vec<EventParamSpec<F>>,
+    pub args: Vec<EventParamSpec<F>>,
     /// The event documentation.
-    docs: Vec<&'static str>,
+    pub docs: Vec<&'static str>,
 }
 
 /// An event specification builder.
@@ -567,9 +567,9 @@ pub type DisplayName = scale_info::Path;
 #[serde(rename_all = "camelCase")]
 pub struct TypeSpec<F: Form = MetaForm> {
     /// The actual type.
-    id: F::TypeId,
+    pub id: F::TypeId,
     /// The compile-time known displayed representation of the type.
-    display_name: DisplayName,
+    pub display_name: DisplayName,
 }
 
 impl IntoCompact for TypeSpec {
@@ -643,14 +643,14 @@ impl TypeSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct EventParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
-    name: &'static str,
+    pub name: &'static str,
     /// If the event parameter is indexed.
-    indexed: bool,
+    pub indexed: bool,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: TypeSpec<F>,
+    pub ty: TypeSpec<F>,
     /// The documentation associated with the arguments.
-    docs: Vec<&'static str>,
+    pub docs: Vec<&'static str>,
 }
 
 impl IntoCompact for EventParamSpec {
@@ -770,10 +770,10 @@ impl ReturnTypeSpec {
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct MessageParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
-    name: &'static str,
+    pub name: &'static str,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    ty: TypeSpec<F>,
+    pub ty: TypeSpec<F>,
 }
 
 impl IntoCompact for MessageParamSpec {

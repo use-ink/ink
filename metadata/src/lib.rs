@@ -54,11 +54,11 @@ use serde::Serialize;
 #[derive(Debug, Serialize)]
 pub struct InkProject {
     #[serde(flatten)]
-    registry: Registry,
+    pub registry: Registry,
     #[serde(rename = "storage")]
     /// The layout of the storage data structure
-    layout: layout2::Layout<CompactForm>,
-    spec: ContractSpec<CompactForm>,
+    pub layout: layout2::Layout<CompactForm>,
+    pub spec: ContractSpec<CompactForm>,
 }
 
 impl InkProject {
