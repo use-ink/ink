@@ -30,10 +30,14 @@ use scale_info::{
     Registry,
     TypeInfo,
 };
+use serde::{Serialize, Deserialize, de::DeserializeOwned};
 
 /// Represents the static storage layout of an ink! smart contract.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub enum Layout<F: Form = MetaForm> {
     /// An encoded cell.
     ///
@@ -57,7 +61,7 @@ pub enum Layout<F: Form = MetaForm> {
 }
 
 /// A pointer into some storage region.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct LayoutKey {
     #[serde(serialize_with = "serialize_as_byte_str")]
@@ -81,8 +85,11 @@ impl From<Key> for LayoutKey {
 }
 
 /// An encoded cell.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct CellLayout<F: Form = MetaForm> {
     /// The offset key into the storage.
     pub key: LayoutKey,
@@ -137,8 +144,11 @@ impl IntoCompact for Layout {
 /// A hashing layout potentially hitting all cells of the storage.
 ///
 /// Every hashing layout has an offset and a strategy to compute its keys.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct HashLayout<F: Form = MetaForm> {
     /// The key offset used by the strategy.
     pub offset: LayoutKey,
@@ -180,7 +190,7 @@ impl IntoCompact for HashLayout {
 /// The offset key is used as another postfix for the computation.
 /// So the actual formula is: `hasher(prefix + encoded(key) + offset + postfix)`
 /// Where `+` in this contexts means append of the byte slices.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct HashingStrategy {
     /// One of the supported crypto hashers.
     pub hasher: CryptoHasher,
@@ -204,7 +214,7 @@ impl HashingStrategy {
 }
 
 /// One of the supported crypto hashers.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum CryptoHasher {
     /// The BLAKE-2 crypto hasher with an output of 256 bits.
     Blake2x256,
@@ -215,8 +225,11 @@ pub enum CryptoHasher {
 }
 
 /// A layout for an array of associated cells with the same encoding.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct ArrayLayout<F: Form = MetaForm> {
     /// The offset key of the array layout.
     ///
@@ -260,8 +273,11 @@ impl IntoCompact for ArrayLayout {
 }
 
 /// A struct layout with consecutive fields of different layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct StructLayout<F: Form = MetaForm> {
     /// The fields of the struct layout.
     pub fields: Vec<FieldLayout<F>>,
@@ -294,13 +310,16 @@ impl IntoCompact for StructLayout {
 }
 
 /// The layout for a particular field of a struct layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct FieldLayout<F: Form = MetaForm> {
     /// The name of the field.
     ///
     /// Can be missing, e.g. in case of an enum tuple struct variant.
-    pub name: Option<&'static str>,
+    pub name: Option<F::String>,
     /// The kind of the field.
     ///
     /// This is either a direct layout bound
@@ -327,7 +346,7 @@ impl IntoCompact for FieldLayout {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         FieldLayout {
-            name: self.name,
+            name: self.name.map(|name| name.into_compact(registry)),
             layout: self.layout.into_compact(registry),
         }
     }
@@ -342,8 +361,8 @@ impl IntoCompact for FieldLayout {
     Eq,
     PartialOrd,
     Ord,
-    serde::Serialize,
-    serde::Deserialize,
+    Serialize,
+    Deserialize,
 )]
 pub struct Discriminant(usize);
 
@@ -354,8 +373,11 @@ impl From<usize> for Discriminant {
 }
 
 /// An enum storage layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct EnumLayout<F: Form = MetaForm> {
     /// The key where the discriminant is stored to dispatch the variants.
     pub dispatch_key: LayoutKey,
