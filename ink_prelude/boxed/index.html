@@ -71,11 +71,13 @@ cannot be null.</p>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Foo</span>;
 
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">improper_ctypes_definitions</span>)]</span>
 <span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">foo_new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Foo</span><span class="op">&gt;</span> {
     <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Foo</span>)
 }
 
 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">improper_ctypes_definitions</span>)]</span>
 <span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">foo_delete</span>(<span class="kw">_</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Foo</span><span class="op">&gt;</span><span class="op">&gt;</span>) {}</pre></div>
 <p>Even though <code>Box&lt;T&gt;</code> has the same representation and C ABI as a C pointer,
 this does not mean that you can convert an arbitrary <code>T*</code> into a <code>Box&lt;T&gt;</code>

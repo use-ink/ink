@@ -307,6 +307,7 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
+<span id="310">310</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -334,18 +335,19 @@
 <span class="doccomment">//! These low-level collections are not aware of the elements they manage thus</span>
 <span class="doccomment">//! extra care has to be taken when operating directly on them.</span>
 
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">lazy_hmap</span>;
+
 <span class="kw">mod</span> <span class="ident">cache_cell</span>;
 <span class="kw">mod</span> <span class="ident">entry</span>;
 <span class="kw">mod</span> <span class="ident">lazy_array</span>;
 <span class="kw">mod</span> <span class="ident">lazy_cell</span>;
-<span class="kw">mod</span> <span class="ident">lazy_hmap</span>;
 <span class="kw">mod</span> <span class="ident">lazy_imap</span>;
 
 <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">cache_cell</span>::<span class="ident">CacheCell</span>,
     <span class="ident">entry</span>::{
-        <span class="ident">Entry</span>,
         <span class="ident">EntryState</span>,
+        <span class="ident">StorageEntry</span>,
     },
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
