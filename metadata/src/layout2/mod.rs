@@ -34,6 +34,7 @@ use scale_info::{
 /// Represents the static storage layout of an ink! smart contract.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
 #[serde(bound = "F::TypeId: serde::Serialize")]
+#[serde(rename_all = "camelCase")]
 pub enum Layout<F: Form = MetaForm> {
     /// An encoded cell.
     ///
