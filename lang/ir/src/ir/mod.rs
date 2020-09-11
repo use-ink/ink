@@ -36,6 +36,7 @@ use self::attrs::{
     InkAttribute,
 };
 pub use self::{
+    trait_def::InkTrait,
     attrs::Namespace,
     config::Config,
     contract::Contract,

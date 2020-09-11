@@ -43,6 +43,7 @@ pub use self::ir::{
     Event,
     ImplItem,
     InkItem,
+    InkTrait,
     InputsIter,
     Item,
     ItemImpl,
