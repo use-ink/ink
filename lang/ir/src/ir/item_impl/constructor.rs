@@ -230,7 +230,6 @@ impl Constructor {
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.item.attrs
     }
-
 }
 
 #[cfg(test)]
