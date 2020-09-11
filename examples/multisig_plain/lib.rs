@@ -457,14 +457,9 @@ mod multisig_plain {
             self.ensure_caller_is_owner();
             let caller = self.env().caller();
             if self.confirmations.take(&(trans_id, caller)).is_some() {
-                if self.confirmation_count.contains_key(&trans_id) {
-                    if let Some(value) = self.confirmation_count.get_mut(&trans_id) {
-                        *value -= 1;
-                    } else {
-                        unreachable!()
-                    }
-                } else {
-                    self.confirmation_count.insert(trans_id, 0);
+                let v_mut = self.confirmation_count.entry(trans_id).or_insert(1);
+                if *v_mut > 0 {
+                    *v_mut -= 1;
                 }
                 self.env().emit_event(Revokation {
                     transaction: trans_id,
@@ -532,13 +527,7 @@ mod multisig_plain {
             confirmer: AccountId,
             transaction: TransactionId,
         ) -> ConfirmationStatus {
-            if !self.confirmation_count.contains_key(&transaction) {
-                self.confirmation_count.insert(transaction, 0);
-            }
-            let count = self
-                .confirmation_count
-                .get_mut(&transaction)
-                .expect("just inserted if missing");
+            let count = self.confirmation_count.entry(transaction).or_insert(0);
             let new_confirmation = self
                 .confirmations
                 .insert((transaction, confirmer), ())
@@ -598,13 +587,7 @@ mod multisig_plain {
                     })
             {
                 if self.confirmations.take(&(trans_id, *owner)).is_some() {
-                    if !self.confirmation_count.contains_key(&trans_id) {
-                        self.confirmation_count.insert(trans_id, 0);
-                    }
-                    *self
-                        .confirmation_count
-                        .get_mut(&trans_id)
-                        .expect("just inserted if missing") += 1;
+                    *self.confirmation_count.entry(trans_id).or_insert(0) += 1;
                 }
             }
         }
