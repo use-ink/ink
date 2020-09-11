@@ -12,24 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod codegen;
-mod contract;
-mod extensions;
-mod trait_def;
-mod ir;
-mod lint;
+use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
 
-use proc_macro::TokenStream;
-
-#[proc_macro_attribute]
-pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
-    contract::generate(attr.into(), item.into()).into()
+pub fn analyse(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    match analyse_or_err(attr, input) {
+        Ok(tokens) => tokens,
+        Err(err) => err.to_compile_error(),
+    }
 }
 
-#[proc_macro_attribute]
-pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
-    trait_def::analyse(attr.into(), item.into()).into()
+pub fn analyse_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+    ink_lang_ir::InkTrait::new(attr, input)
 }
-
-#[cfg(test)]
-pub use contract::generate_or_err;
