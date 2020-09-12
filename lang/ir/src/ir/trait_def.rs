@@ -91,13 +91,13 @@ impl InkTrait {
                 syn::TraitItem::Const(const_trait_item) => {
                     return Err(format_err_spanned!(
                         const_trait_item,
-                        "const items in ink! traits are not supported, yet"
+                        "associated constants in ink! trait definitions are not supported, yet"
                     ))
                 }
                 syn::TraitItem::Macro(macro_trait_item) => {
                     return Err(format_err_spanned!(
                         macro_trait_item,
-                        "macros in ink! trait definitions are not supported, yet"
+                        "macros in ink! trait definitions are not supported"
                     ))
                 }
                 syn::TraitItem::Type(type_trait_item) => {
@@ -139,7 +139,7 @@ impl InkTrait {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
                 default_impl,
-                "default ink! trait implementations are not supported"
+                "ink! trait methods with default implementations are not supported"
             ))
         }
         if let Some(constness) = &method.sig.constness {
