@@ -216,14 +216,26 @@ impl InkTrait {
         match &constructor.sig.inputs.first() {
             None => (),
             Some(syn::FnArg::Typed(pat_type)) => {
-                if let syn::Pat::Path(pat_path) = &*pat_type.pat {
-                    // Check if there is no `this: Self` etc as first argument.
-                    if pat_path.path.is_ident("Self") {
-                        return Err(format_err_spanned!(
-                            pat_path.path,
-                            "encountered invalid `Self` receiver for ink! constructor"
-                        ))
+                match &*pat_type.ty {
+                    syn::Type::Path(type_path) => {
+                        if type_path.path.is_ident("Self") {
+                            return Err(format_err_spanned!(
+                                type_path.path,
+                                "encountered invalid `Self` receiver for ink! constructor"
+                            ))
+                        }
                     }
+                    syn::Type::Reference(type_reference) => {
+                        if let syn::Type::Path(type_path) = &*type_reference.elem {
+                            if type_path.path.is_ident("Self") {
+                                return Err(format_err_spanned!(
+                                    type_path.path,
+                                    "encountered invalid `Self` receiver for ink! constructor"
+                                ))
+                            }
+                        }
+                    }
+                    _ => (),
                 }
             }
             Some(syn::FnArg::Receiver(receiver)) => {
