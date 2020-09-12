@@ -36,7 +36,6 @@ use self::attrs::{
     InkAttribute,
 };
 pub use self::{
-    trait_def::InkTrait,
     attrs::Namespace,
     config::Config,
     contract::Contract,
@@ -66,4 +65,5 @@ pub use self::{
         IterItemImpls,
     },
     selector::Selector,
+    trait_def::InkTrait,
 };
