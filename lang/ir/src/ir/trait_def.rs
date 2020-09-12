@@ -342,4 +342,182 @@ mod tests {
             trait MyTrait<T> {}
         );
     }
+
+    #[test]
+    fn trait_def_containing_const_item_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "associated constants in ink! trait definitions are not supported, yet",
+            pub trait MyTrait {
+                const T: i32;
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_associated_type_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "associated types in ink! trait definitions are not supported, yet",
+            pub trait MyTrait {
+                type Type;
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_macro_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "macros in ink! trait definitions are not supported",
+            pub trait MyTrait {
+                my_macro_call!();
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_non_flagged_method_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method",
+            pub trait MyTrait {
+                fn non_flagged_1(&self);
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method",
+            pub trait MyTrait {
+                fn non_flagged_2(&mut self);
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method",
+            pub trait MyTrait {
+                fn non_flagged_3() -> Self;
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_default_implemented_methods_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "ink! trait methods with default implementations are not supported",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn default_implemented() -> Self {}
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "ink! trait methods with default implementations are not supported",
+            pub trait MyTrait {
+                #[ink(message)]
+                fn default_implemented(&self) {}
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_const_methods_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "const ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                const fn const_constructor() -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "const ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(message)]
+                const fn const_message(&self);
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_async_methods_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "async ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                async fn const_constructor() -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "async ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(message)]
+                async fn const_message(&self);
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_unsafe_methods_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "unsafe ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                unsafe fn const_constructor() -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "unsafe ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(message)]
+                unsafe fn const_message(&self);
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_methods_using_explicit_abi_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "ink! trait methods with non default ABI are not supported",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                extern fn const_constructor() -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "ink! trait methods with non default ABI are not supported",
+            pub trait MyTrait {
+                #[ink(message)]
+                extern fn const_message(&self);
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_variadic_methods_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "variadic ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn const_constructor(...) -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "variadic ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(message)]
+                fn const_message(&self, ...);
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_generic_methods_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "generic ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn const_constructor<T>() -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "generic ink! trait methods are not supported",
+            pub trait MyTrait {
+                #[ink(message)]
+                fn const_message<T>(&self);
+            }
+        );
+    }
 }
