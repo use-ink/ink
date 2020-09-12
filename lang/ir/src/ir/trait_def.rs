@@ -603,4 +603,39 @@ mod tests {
             }
         );
     }
+
+    #[test]
+    fn trait_def_containing_invalid_message_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "missing `&self` or `&mut self` receiver for ink! message",
+            pub trait MyTrait {
+                #[ink(message)]
+                fn does_not_return_self();
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "self receiver of ink! message must be `&self` or `&mut self`",
+            pub trait MyTrait {
+                #[ink(message)]
+                fn does_not_return_self(self);
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_is_ok() {
+        assert!(
+            <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+                pub trait MyTrait {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self;
+                    #[ink(message)]
+                    fn my_message(&self);
+                    #[ink(message)]
+                    fn my_message_mut(&mut self);
+                }
+            })
+            .is_ok()
+        )
+    }
 }
