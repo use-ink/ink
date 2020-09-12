@@ -190,7 +190,7 @@ impl InkTrait {
                     _unsupported => {
                         return Err(format_err_spanned!(
                             method,
-                            "encountered unsupported ink! attriute for ink! trait method",
+                            "encountered unsupported ink! attribute for ink! trait method",
                         ))
                     }
                 }
