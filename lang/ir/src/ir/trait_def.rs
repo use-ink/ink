@@ -532,4 +532,75 @@ mod tests {
             }
         );
     }
+
+    #[test]
+    fn trait_def_containing_method_with_unsupported_ink_attribute_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "encountered unsupported ink! attribute for ink! trait method",
+            pub trait MyTrait {
+                #[ink(payable)]
+                fn unsupported_ink_attribute(&self);
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "unknown ink! attribute (path)",
+            pub trait MyTrait {
+                #[ink(unknown)]
+                fn unknown_ink_attribute(&self);
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_invalid_constructor_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "ink! constructors must not have a `self` receiver",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn has_self_receiver(&self) -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "ink! constructors must not have a `self` receiver",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn has_self_receiver(&mut self) -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "ink! constructors must not have a `self` receiver",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn has_self_receiver(self) -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "encountered invalid `Self` receiver for ink! constructor",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn has_self_receiver(this: &Self) -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "encountered invalid `Self` receiver for ink! constructor",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn has_self_receiver(this: Self) -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "ink! constructors must return Self",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn does_not_return_self();
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "ink! constructors must return Self",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn does_not_return_self() -> i32;
+            }
+        );
+    }
 }
