@@ -1,7 +1,10 @@
 use crate::ir;
 use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
-use syn::Result;
+use syn::{
+    spanned::Spanned as _,
+    Result,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct InkTrait {
@@ -213,6 +216,17 @@ impl InkTrait {
     /// - If the constructor has a `self` receiver as first argument.
     /// - If the constructor has no `Self` return type.
     fn analyse_constructor(constructor: &syn::TraitItemMethod) -> Result<()> {
+        ir::sanitize_attributes(
+            constructor.span(),
+            constructor.attrs.clone(),
+            &ir::AttributeArgKind::Constructor,
+            |c| {
+                match c {
+                    ir::AttributeArgKind::Constructor => false,
+                    _ => true,
+                }
+            },
+        )?;
         match &constructor.sig.inputs.first() {
             None => (),
             Some(syn::FnArg::Typed(pat_type)) => {
@@ -280,6 +294,17 @@ impl InkTrait {
     ///
     /// - If the message has no `&self` or `&mut self` receiver.
     fn analyse_message(message: &syn::TraitItemMethod) -> Result<()> {
+        ir::sanitize_attributes(
+            message.span(),
+            message.attrs.clone(),
+            &ir::AttributeArgKind::Message,
+            |c| {
+                match c {
+                    ir::AttributeArgKind::Message => false,
+                    _ => true,
+                }
+            },
+        )?;
         match message.sig.inputs.first() {
             None | Some(syn::FnArg::Typed(_)) => {
                 return Err(format_err_spanned!(
