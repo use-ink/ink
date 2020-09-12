@@ -648,6 +648,62 @@ mod tests {
     }
 
     #[test]
+    fn trait_def_containing_constructor_with_invalid_ink_attributes_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "encountered duplicate ink! attribute",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                #[ink(constructor)]
+                fn does_not_return_self() -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "encountered conflicting ink! attribute argument",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                #[ink(message)]
+                fn does_not_return_self() -> Self;
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "encountered conflicting ink! attribute argument",
+            pub trait MyTrait {
+                #[ink(constructor)]
+                #[ink(payable)]
+                fn does_not_return_self() -> Self;
+            }
+        );
+    }
+
+    #[test]
+    fn trait_def_containing_message_with_invalid_ink_attributes_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "encountered duplicate ink! attribute",
+            pub trait MyTrait {
+                #[ink(message)]
+                #[ink(message)]
+                fn does_not_return_self(&self);
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "encountered conflicting ink! attribute argument",
+            pub trait MyTrait {
+                #[ink(message)]
+                #[ink(constructor)]
+                fn does_not_return_self(&self);
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "encountered conflicting ink! attribute argument",
+            pub trait MyTrait {
+                #[ink(message)]
+                #[ink(payable)]
+                fn does_not_return_self(&self);
+            }
+        );
+    }
+
+    #[test]
     fn trait_def_is_ok() {
         assert!(
             <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
