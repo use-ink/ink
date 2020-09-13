@@ -26,6 +26,35 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
     }
 }
 
+impl InkTrait {
+    /// Returns the hash to verify that the trait definition has been checked.
+    pub fn verify_hash(&self) -> [u8; 32] {
+        let ident_str = self.ident().to_string();
+        let len_constructors = self
+            .iter_items()
+            .flat_map(InkTraitItem::filter_map_constructor)
+            .count()
+            .to_string();
+        let len_messages = self
+            .iter_items()
+            .flat_map(InkTraitItem::filter_map_message)
+            .count()
+            .to_string();
+        let buffer = [
+            "trait_definition",
+            &ident_str,
+            &len_constructors,
+            &len_messages,
+        ]
+        .join("::")
+        .into_bytes();
+        use blake2::digest::generic_array::sequence::Split as _;
+        let (head_32, _rest) =
+            <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
+        head_32.into()
+    }
+}
+
 /// Iterator over all the ink! trait items of an ink! trait definition.
 pub struct IterInkTraitItems<'a> {
     iter: core::slice::Iter<'a, syn::TraitItem>,
@@ -74,6 +103,7 @@ impl<'a> Iterator for IterInkTraitItems<'a> {
         }
     }
 }
+
 /// An ink! item within an ink! trait definition.
 #[derive(Debug, Clone)]
 pub enum InkTraitItem<'a> {
@@ -99,6 +129,48 @@ impl<'a> InkTraitItem<'a> {
     }
 }
 
+/// Returns all non-ink! attributes.
+///
+/// # Panics
+///
+/// If there are malformed ink! attributes in the input.
+fn extract_rust_attributes(attributes: &[syn::Attribute]) -> Vec<syn::Attribute> {
+    let (_ink_attrs, rust_attrs) = ir::partition_attributes(attributes.to_vec())
+        .expect("encountered unexpected invalid ink! attributes");
+    rust_attrs
+}
+
+/// Returns the hash for the ink! method to check for the `#[ink::contract]` proc. macro.
+fn compute_verify_hash(namespace: &str, signature: &syn::Signature) -> [u8; 32] {
+    let ident_str = signature.ident.to_string();
+    let len_inputs = signature.inputs.len().to_string();
+    let mutability = signature.receiver().map(|fn_arg| {
+        match fn_arg {
+            syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => {
+                "mutates".as_ref()
+            }
+            syn::FnArg::Typed(pat_type) => {
+                match &*pat_type.ty {
+                    syn::Type::Reference(reference) if reference.mutability.is_some() => {
+                        "mutates".as_ref()
+                    }
+                    _ => "read-only".as_ref(),
+                }
+            }
+            _ => "read-only".as_ref(),
+        }
+    });
+    let mut buffer = vec![namespace, &ident_str];
+    if let Some(mutability) = mutability {
+        buffer.push(mutability);
+    }
+    buffer.push(&len_inputs);
+    let buffer = buffer.join("::").into_bytes();
+    use blake2::digest::generic_array::sequence::Split as _;
+    let (head_32, _rest) = <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
+    head_32.into()
+}
+
 /// A checked ink! constructor of an ink! trait definition.
 #[derive(Debug, Clone)]
 pub struct InkTraitConstructor<'a> {
@@ -108,9 +180,7 @@ pub struct InkTraitConstructor<'a> {
 impl<'a> InkTraitConstructor<'a> {
     /// Returns all non-ink! attributes.
     pub fn attrs(&self) -> Vec<syn::Attribute> {
-        let (_ink_attrs, rust_attrs) = ir::partition_attributes(self.item.attrs.clone())
-            .expect("encountered unexpected invalid ink! attributes");
-        rust_attrs
+        extract_rust_attributes(&self.item.attrs)
     }
 
     /// Returns the original signature of the ink! constructor.
@@ -121,6 +191,11 @@ impl<'a> InkTraitConstructor<'a> {
     /// Returns the span of the ink! constructor.
     pub fn span(&self) -> Span {
         self.item.span()
+    }
+
+    /// Returns the hash for the ink! constructor to check for the `#[ink::contract]` proc. macro.
+    pub fn verify_hash(&self) -> [u8; 32] {
+        compute_verify_hash("constructor", self.sig())
     }
 }
 
@@ -133,9 +208,7 @@ pub struct InkTraitMessage<'a> {
 impl<'a> InkTraitMessage<'a> {
     /// Returns all non-ink! attributes.
     pub fn attrs(&self) -> Vec<syn::Attribute> {
-        let (_ink_attrs, rust_attrs) = ir::partition_attributes(self.item.attrs.clone())
-            .expect("encountered unexpected invalid ink! attributes");
-        rust_attrs
+        extract_rust_attributes(&self.item.attrs)
     }
 
     /// Returns the original signature of the ink! message.
@@ -146,6 +219,11 @@ impl<'a> InkTraitMessage<'a> {
     /// Returns the span of the ink! message.
     pub fn span(&self) -> Span {
         self.item.span()
+    }
+
+    /// Returns the hash for the ink! message to check for the `#[ink::contract]` proc. macro.
+    pub fn verify_hash(&self) -> [u8; 32] {
+        compute_verify_hash("message", self.sig())
     }
 }
 
@@ -910,5 +988,88 @@ mod tests {
             .collect::<Vec<_>>();
         let expected = vec!["message_1".to_string(), "message_2".to_string()];
         assert_eq!(actual, expected);
+    }
+
+    fn verify_hash_setup() -> InkTrait {
+        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn constructor_1() -> Self;
+                #[ink(constructor)]
+                fn constructor_2(a: i32, b: i32) -> Self;
+                #[ink(message)]
+                fn message_1(&self);
+                #[ink(message)]
+                fn message_2(&mut self, a: i32, b: i32) -> i32;
+            }
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn verify_hash_works() {
+        let ink_trait = verify_hash_setup();
+        let actual = ink_trait.verify_hash();
+        let from_buffer: [u8; 32] = {
+            let input = b"trait_definition::MyTrait::2::2";
+            use blake2::digest::generic_array::sequence::Split as _;
+            let (head_32, _rest) =
+                <blake2::Blake2b as blake2::Digest>::digest(input).split();
+            head_32.into()
+        };
+        let expected = b"\
+            \x3F\x21\x54\xAF\xCD\x75\xAD\xBD\
+            \xE1\xF7\x23\xBE\x0B\x80\x5B\x55\
+            \xED\x41\xFC\x19\x43\x52\x20\xE0\
+            \xA0\x10\x54\x1C\xE2\xA2\x77\x8A";
+        assert_eq!(actual, *expected);
+        assert_eq!(actual, from_buffer);
+    }
+
+    #[test]
+    fn verify_hash_of_constructors_works() {
+        let ink_trait = verify_hash_setup();
+        let expected = [
+            b"constructor::constructor_1::0",
+            b"constructor::constructor_2::2",
+        ];
+        for (constructor, expected) in ink_trait
+            .iter_items()
+            .filter_map(InkTraitItem::filter_map_constructor)
+            .zip(expected.iter().copied())
+        {
+            let actual = constructor.verify_hash();
+            let expected: [u8; 32] = {
+                use blake2::digest::generic_array::sequence::Split as _;
+                let (head_32, _rest) =
+                    <blake2::Blake2b as blake2::Digest>::digest(expected).split();
+                head_32.into()
+            };
+            assert_eq!(actual, expected);
+        }
+    }
+
+    #[test]
+    fn verify_hash_of_messages_works() {
+        let ink_trait = verify_hash_setup();
+        let expected = [
+            b"message::message_1::read-only::1".as_ref(),
+            b"message::message_2::mutates::3".as_ref(),
+        ];
+        for (message, expected) in ink_trait
+            .iter_items()
+            .filter_map(InkTraitItem::filter_map_message)
+            .zip(expected.iter().copied())
+            .take(1)
+        {
+            let actual = message.verify_hash();
+            let expected: [u8; 32] = {
+                use blake2::digest::generic_array::sequence::Split as _;
+                let (head_32, _rest) =
+                    <blake2::Blake2b as blake2::Digest>::digest(expected).split();
+                head_32.into()
+            };
+            assert_eq!(actual, expected);
+        }
     }
 }
