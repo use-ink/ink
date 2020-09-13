@@ -1,11 +1,15 @@
 use crate::ir;
 use core::convert::TryFrom;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
 use syn::{
     spanned::Spanned as _,
     Result,
 };
 
+/// A checked ink! trait definition.
 #[derive(Debug, PartialEq, Eq)]
 pub struct InkTrait {
     item: syn::ItemTrait,
@@ -21,6 +25,129 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
     }
 }
 
+/// Iterator over all the ink! trait items of an ink! trait definition.
+pub struct IterInkTraitItems<'a> {
+    iter: core::slice::Iter<'a, syn::TraitItem>,
+}
+
+impl<'a> IterInkTraitItems<'a> {
+    /// Creates a new iterator yielding ink! trait items.
+    fn new(item_trait: &'a InkTrait) -> Self {
+        Self {
+            iter: item_trait.item.items.iter(),
+        }
+    }
+}
+
+impl<'a> Iterator for IterInkTraitItems<'a> {
+    type Item = InkTraitItem<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        'outer: loop {
+            match self.iter.next() {
+                None => return None,
+                Some(syn::TraitItem::Method(method)) => {
+                    let first_attr = ir::first_ink_attribute(&method.attrs)
+                        .ok()
+                        .flatten()
+                        .expect("unexpected missing ink! attribute for trait method")
+                        .first()
+                        .kind()
+                        .clone();
+                    match first_attr {
+                        ir::AttributeArgKind::Constructor => {
+                            return Some(InkTraitItem::Constructor(InkTraitConstructor {
+                                item: method,
+                            }))
+                        }
+                        ir::AttributeArgKind::Message => {
+                            return Some(InkTraitItem::Message(InkTraitMessage {
+                                item: method,
+                            }))
+                        }
+                        _ => continue 'outer,
+                    }
+                }
+                Some(_) => continue 'outer,
+            }
+        }
+    }
+}
+/// An ink! item within an ink! trait definition.
+#[derive(Debug, Clone)]
+pub enum InkTraitItem<'a> {
+    Constructor(InkTraitConstructor<'a>),
+    Message(InkTraitMessage<'a>),
+}
+
+impl<'a> InkTraitItem<'a> {
+    /// Returns `Some` if the ink! trait item is a constructor.
+    pub fn filter_map_constructor(self) -> Option<InkTraitConstructor<'a>> {
+        match self {
+            Self::Constructor(ink_trait_constructor) => Some(ink_trait_constructor),
+            _ => None,
+        }
+    }
+
+    /// Returns `Some` if the ink! trait item is a message.
+    pub fn filter_map_message(self) -> Option<InkTraitMessage<'a>> {
+        match self {
+            Self::Message(ink_trait_message) => Some(ink_trait_message),
+            _ => None,
+        }
+    }
+}
+
+/// A checked ink! constructor of an ink! trait definition.
+#[derive(Debug, Clone)]
+pub struct InkTraitConstructor<'a> {
+    item: &'a syn::TraitItemMethod,
+}
+
+impl<'a> InkTraitConstructor<'a> {
+    /// Returns all non-ink! attributes.
+    pub fn attrs(&self) -> Vec<syn::Attribute> {
+        let (_ink_attrs, rust_attrs) = ir::partition_attributes(self.item.attrs.clone())
+            .expect("encountered unexpected invalid ink! attributes");
+        rust_attrs
+    }
+
+    /// Returns the original signature of the ink! constructor.
+    pub fn sig(&self) -> &syn::Signature {
+        &self.item.sig
+    }
+
+    /// Returns the span of the ink! constructor.
+    pub fn span(&self) -> Span {
+        self.item.span()
+    }
+}
+
+/// A checked ink! message of an ink! trait definition.
+#[derive(Debug, Clone)]
+pub struct InkTraitMessage<'a> {
+    item: &'a syn::TraitItemMethod,
+}
+
+impl<'a> InkTraitMessage<'a> {
+    /// Returns all non-ink! attributes.
+    pub fn attrs(&self) -> Vec<syn::Attribute> {
+        let (_ink_attrs, rust_attrs) = ir::partition_attributes(self.item.attrs.clone())
+            .expect("encountered unexpected invalid ink! attributes");
+        rust_attrs
+    }
+
+    /// Returns the original signature of the ink! message.
+    pub fn sig(&self) -> &syn::Signature {
+        &self.item.sig
+    }
+
+    /// Returns the span of the ink! message.
+    pub fn span(&self) -> Span {
+        self.item.span()
+    }
+}
+
 impl InkTrait {
     /// Returns `Ok` if the trait matches all requirements for an ink! trait definition.
     pub fn new(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
@@ -33,6 +160,11 @@ impl InkTrait {
         let item_trait = syn::parse2::<syn::ItemTrait>(input.clone())?;
         let _ink_trait = InkTrait::try_from(item_trait)?;
         Ok(input)
+    }
+
+    /// Returns an iterator yielding the ink! specific items of the ink! trait definition.
+    pub fn iter_items(&self) -> IterInkTraitItems {
+        IterInkTraitItems::new(self)
     }
 
     /// Analyses the properties of the ink! trait definition.
@@ -282,9 +414,9 @@ impl InkTrait {
         match message.sig.receiver() {
             None | Some(syn::FnArg::Typed(_)) => {
                 return Err(format_err_spanned!(
-                    message.sig,
-                    "missing or malformed `&self` or `&mut self` receiver for ink! message",
-                ))
+                message.sig,
+                "missing or malformed `&self` or `&mut self` receiver for ink! message",
+            ))
             }
             Some(syn::FnArg::Receiver(receiver)) => {
                 if receiver.reference.is_none() {
@@ -699,5 +831,59 @@ mod tests {
             })
             .is_ok()
         )
+    }
+
+    #[test]
+    fn iter_constructors_works() {
+        let ink_trait =
+            <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+                pub trait MyTrait {
+                    #[ink(constructor)]
+                    fn constructor_1() -> Self;
+                    #[ink(constructor)]
+                    fn constructor_2() -> Self;
+                    #[ink(message)]
+                    fn message_1(&self);
+                    #[ink(message)]
+                    fn message_2(&mut self);
+                }
+            })
+            .unwrap();
+        let actual = ink_trait
+            .iter_items()
+            .flat_map(|item| {
+                item.filter_map_constructor()
+                    .map(|constructor| constructor.sig().ident.to_string())
+            })
+            .collect::<Vec<_>>();
+        let expected = vec!["constructor_1".to_string(), "constructor_2".to_string()];
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn iter_messages_works() {
+        let ink_trait =
+            <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+                pub trait MyTrait {
+                    #[ink(constructor)]
+                    fn constructor_1() -> Self;
+                    #[ink(constructor)]
+                    fn constructor_2() -> Self;
+                    #[ink(message)]
+                    fn message_1(&self);
+                    #[ink(message)]
+                    fn message_2(&mut self);
+                }
+            })
+            .unwrap();
+        let actual = ink_trait
+            .iter_items()
+            .flat_map(|item| {
+                item.filter_map_message()
+                    .map(|message| message.sig().ident.to_string())
+            })
+            .collect::<Vec<_>>();
+        let expected = vec!["message_1".to_string(), "message_2".to_string()];
+        assert_eq!(actual, expected);
     }
 }
