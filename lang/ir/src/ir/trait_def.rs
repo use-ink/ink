@@ -1,6 +1,7 @@
 use crate::ir;
 use core::convert::TryFrom;
 use proc_macro2::{
+    Ident,
     Span,
     TokenStream as TokenStream2,
 };
@@ -160,6 +161,16 @@ impl InkTrait {
         let item_trait = syn::parse2::<syn::ItemTrait>(input.clone())?;
         let _ink_trait = InkTrait::try_from(item_trait)?;
         Ok(input)
+    }
+
+    /// Returns span of the ink! trait definition.
+    pub fn span(&self) -> Span {
+        self.item.span()
+    }
+
+    /// Returns the identifier of the ink! trait definition.
+    pub fn ident(&self) -> &Ident {
+        &self.item.ident
     }
 
     /// Returns an iterator yielding the ink! specific items of the ink! trait definition.
