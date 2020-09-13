@@ -493,7 +493,7 @@ mod tests {
     fn generic_trait_def_is_denied() {
         assert_ink_trait_eq_err!(
             error: "ink! trait definitions must not be generic",
-            trait MyTrait<T> {}
+            pub trait MyTrait<T> {}
         );
     }
 
