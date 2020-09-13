@@ -227,37 +227,11 @@ impl InkTrait {
                 }
             },
         )?;
-        match &constructor.sig.inputs.first() {
-            None => (),
-            Some(syn::FnArg::Typed(pat_type)) => {
-                match &*pat_type.ty {
-                    syn::Type::Path(type_path) => {
-                        if type_path.path.is_ident("Self") {
-                            return Err(format_err_spanned!(
-                                type_path.path,
-                                "encountered invalid `Self` receiver for ink! constructor"
-                            ))
-                        }
-                    }
-                    syn::Type::Reference(type_reference) => {
-                        if let syn::Type::Path(type_path) = &*type_reference.elem {
-                            if type_path.path.is_ident("Self") {
-                                return Err(format_err_spanned!(
-                                    type_path.path,
-                                    "encountered invalid `Self` receiver for ink! constructor"
-                                ))
-                            }
-                        }
-                    }
-                    _ => (),
-                }
-            }
-            Some(syn::FnArg::Receiver(receiver)) => {
-                return Err(format_err_spanned!(
-                    receiver,
-                    "ink! constructors must not have a `self` receiver",
-                ))
-            }
+        if let Some(receiver) = constructor.sig.receiver() {
+            return Err(format_err_spanned!(
+                receiver,
+                "ink! constructors must not have a `self` receiver",
+            ))
         }
         match &constructor.sig.output {
             syn::ReturnType::Default => {
@@ -305,11 +279,11 @@ impl InkTrait {
                 }
             },
         )?;
-        match message.sig.inputs.first() {
+        match message.sig.receiver() {
             None | Some(syn::FnArg::Typed(_)) => {
                 return Err(format_err_spanned!(
                     message.sig,
-                    "missing `&self` or `&mut self` receiver for ink! message",
+                    "missing or malformed `&self` or `&mut self` receiver for ink! message",
                 ))
             }
             Some(syn::FnArg::Receiver(receiver)) => {
@@ -600,17 +574,17 @@ mod tests {
             }
         );
         assert_ink_trait_eq_err!(
-            error: "encountered invalid `Self` receiver for ink! constructor",
+            error: "ink! constructors must not have a `self` receiver",
             pub trait MyTrait {
                 #[ink(constructor)]
-                fn has_self_receiver(this: &Self) -> Self;
+                fn has_self_receiver(self: &Self) -> Self;
             }
         );
         assert_ink_trait_eq_err!(
-            error: "encountered invalid `Self` receiver for ink! constructor",
+            error: "ink! constructors must not have a `self` receiver",
             pub trait MyTrait {
                 #[ink(constructor)]
-                fn has_self_receiver(this: Self) -> Self;
+                fn has_self_receiver(self: Self) -> Self;
             }
         );
         assert_ink_trait_eq_err!(
@@ -632,10 +606,17 @@ mod tests {
     #[test]
     fn trait_def_containing_invalid_message_is_denied() {
         assert_ink_trait_eq_err!(
-            error: "missing `&self` or `&mut self` receiver for ink! message",
+            error: "missing or malformed `&self` or `&mut self` receiver for ink! message",
             pub trait MyTrait {
                 #[ink(message)]
                 fn does_not_return_self();
+            }
+        );
+        assert_ink_trait_eq_err!(
+            error: "missing or malformed `&self` or `&mut self` receiver for ink! message",
+            pub trait MyTrait {
+                #[ink(message)]
+                fn does_not_return_self(self: &Self);
             }
         );
         assert_ink_trait_eq_err!(
