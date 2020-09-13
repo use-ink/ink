@@ -211,6 +211,12 @@ impl InkTrait {
                 "ink! trait definitions must have public visibility"
             ))
         }
+        if !item_trait.supertraits.is_empty() {
+            return Err(format_err_spanned!(
+                item_trait.supertraits,
+                "ink! trait definitions with supertraits are not supported, yet"
+            ))
+        }
         Ok(())
     }
 
@@ -494,6 +500,14 @@ mod tests {
         assert_ink_trait_eq_err!(
             error: "ink! trait definitions must not be generic",
             pub trait MyTrait<T> {}
+        );
+    }
+
+    #[test]
+    fn trait_def_with_supertraits_is_denied() {
+        assert_ink_trait_eq_err!(
+            error: "ink! trait definitions with supertraits are not supported, yet",
+            pub trait MyTrait: SuperTrait {}
         );
     }
 
