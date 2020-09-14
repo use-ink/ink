@@ -65,5 +65,11 @@ pub use self::{
         IterItemImpls,
     },
     selector::Selector,
-    trait_def::InkTrait,
+    trait_def::{
+        InkTrait,
+        InkTraitItem,
+        InkTraitConstructor,
+        InkTraitMessage,
+        IterInkTraitItems,
+    }
 };
