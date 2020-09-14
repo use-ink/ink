@@ -29,25 +29,46 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
 impl InkTrait {
     /// Returns the hash to verify that the trait definition has been checked.
     pub fn verify_hash(&self) -> [u8; 32] {
-        let ident_str = self.ident().to_string();
-        let len_constructors = self
+        let trait_name = self.ident();
+        let mut constructors = self
             .iter_items()
             .flat_map(InkTraitItem::filter_map_constructor)
-            .count()
-            .to_string();
-        let len_messages = self
+            .map(|constructor| {
+                let name = &constructor.sig().ident;
+                let len_inputs = constructor.sig().inputs.len();
+                [name.to_string(), len_inputs.to_string()].join(":")
+            })
+            .collect::<Vec<_>>();
+        let mut messages = self
             .iter_items()
             .flat_map(InkTraitItem::filter_map_message)
-            .count()
-            .to_string();
-        let buffer = [
-            "trait_definition",
-            &ident_str,
-            &len_constructors,
-            &len_messages,
-        ]
-        .join("::")
-        .into_bytes();
+            .map(|message| {
+                let name = &message.sig().ident;
+                let len_inputs = message.sig().inputs.len();
+                let mutability = match message.mutates() {
+                    true => "w",
+                    false => "r",
+                };
+                [
+                    name.to_string(),
+                    len_inputs.to_string(),
+                    mutability.to_string(),
+                ]
+                .join(":")
+            })
+            .collect::<Vec<_>>();
+        constructors.sort_unstable();
+        messages.sort_unstable();
+        let joined_constructors = constructors.join(",");
+        let joined_messages = messages.join(",");
+        let mut buffer = vec!["__ink_trait".to_string(), trait_name.to_string()];
+        if !joined_constructors.is_empty() {
+            buffer.push(joined_constructors);
+        }
+        if !joined_messages.is_empty() {
+            buffer.push(joined_messages);
+        }
+        let buffer = buffer.join("::").into_bytes();
         use blake2::digest::generic_array::sequence::Split as _;
         let (head_32, _rest) =
             <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
@@ -140,37 +161,6 @@ fn extract_rust_attributes(attributes: &[syn::Attribute]) -> Vec<syn::Attribute>
     rust_attrs
 }
 
-/// Returns the hash for the ink! method to check for the `#[ink::contract]` proc. macro.
-fn compute_verify_hash(namespace: &str, signature: &syn::Signature) -> [u8; 32] {
-    let ident_str = signature.ident.to_string();
-    let len_inputs = signature.inputs.len().to_string();
-    let mutability = signature.receiver().map(|fn_arg| {
-        match fn_arg {
-            syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => {
-                "mutates".as_ref()
-            }
-            syn::FnArg::Typed(pat_type) => {
-                match &*pat_type.ty {
-                    syn::Type::Reference(reference) if reference.mutability.is_some() => {
-                        "mutates".as_ref()
-                    }
-                    _ => "read-only".as_ref(),
-                }
-            }
-            _ => "read-only".as_ref(),
-        }
-    });
-    let mut buffer = vec![namespace, &ident_str];
-    if let Some(mutability) = mutability {
-        buffer.push(mutability);
-    }
-    buffer.push(&len_inputs);
-    let buffer = buffer.join("::").into_bytes();
-    use blake2::digest::generic_array::sequence::Split as _;
-    let (head_32, _rest) = <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
-    head_32.into()
-}
-
 /// A checked ink! constructor of an ink! trait definition.
 #[derive(Debug, Clone)]
 pub struct InkTraitConstructor<'a> {
@@ -191,11 +181,6 @@ impl<'a> InkTraitConstructor<'a> {
     /// Returns the span of the ink! constructor.
     pub fn span(&self) -> Span {
         self.item.span()
-    }
-
-    /// Returns the hash for the ink! constructor to check for the `#[ink::contract]` proc. macro.
-    pub fn verify_hash(&self) -> [u8; 32] {
-        compute_verify_hash("constructor", self.sig())
     }
 }
 
@@ -221,9 +206,29 @@ impl<'a> InkTraitMessage<'a> {
         self.item.span()
     }
 
-    /// Returns the hash for the ink! message to check for the `#[ink::contract]` proc. macro.
-    pub fn verify_hash(&self) -> [u8; 32] {
-        compute_verify_hash("message", self.sig())
+    /// Returns `true` if the ink! message may mutate the contract storage.
+    pub fn mutates(&self) -> bool {
+        self.sig()
+            .receiver()
+            .map(|fn_arg| {
+                match fn_arg {
+                    syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => {
+                        true
+                    }
+                    syn::FnArg::Typed(pat_type) => {
+                        match &*pat_type.ty {
+                            syn::Type::Reference(reference)
+                                if reference.mutability.is_some() =>
+                            {
+                                true
+                            }
+                            _ => false,
+                        }
+                    }
+                    _ => false,
+                }
+            })
+            .expect("encountered missing receiver for ink! message")
     }
 }
 
@@ -949,7 +954,7 @@ mod tests {
                     fn message_1(&self);
                     #[ink(message)]
                     fn message_2(&mut self);
-                }
+                 }
             })
             .unwrap();
         let actual = ink_trait
@@ -990,8 +995,30 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
-    fn verify_hash_setup() -> InkTrait {
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+    fn assert_verify_hash2_works_with(ink_trait: InkTrait, expected: &str) {
+        let expected = expected.to_string().into_bytes();
+        let actual = ink_trait.verify_hash();
+        let expected: [u8; 32] = {
+            use blake2::digest::generic_array::sequence::Split as _;
+            let (head_32, _rest) =
+                <blake2::Blake2b as blake2::Digest>::digest(&expected).split();
+            head_32.into()
+        };
+        assert_eq!(actual, expected);
+    }
+
+    macro_rules! ink_trait {
+        ( $($tt:tt)* ) => {{
+            <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+                $( $tt )*
+            })
+            .unwrap()
+        }};
+    }
+
+    #[test]
+    fn verify_hash_works() {
+        let ink_trait = ink_trait! {
             pub trait MyTrait {
                 #[ink(constructor)]
                 fn constructor_1() -> Self;
@@ -1002,74 +1029,42 @@ mod tests {
                 #[ink(message)]
                 fn message_2(&mut self, a: i32, b: i32) -> i32;
             }
-        })
-        .unwrap()
-    }
-
-    #[test]
-    fn verify_hash_works() {
-        let ink_trait = verify_hash_setup();
-        let actual = ink_trait.verify_hash();
-        let from_buffer: [u8; 32] = {
-            let input = b"trait_definition::MyTrait::2::2";
-            use blake2::digest::generic_array::sequence::Split as _;
-            let (head_32, _rest) =
-                <blake2::Blake2b as blake2::Digest>::digest(input).split();
-            head_32.into()
         };
-        let expected = b"\
-            \x3F\x21\x54\xAF\xCD\x75\xAD\xBD\
-            \xE1\xF7\x23\xBE\x0B\x80\x5B\x55\
-            \xED\x41\xFC\x19\x43\x52\x20\xE0\
-            \xA0\x10\x54\x1C\xE2\xA2\x77\x8A";
-        assert_eq!(actual, *expected);
-        assert_eq!(actual, from_buffer);
+        assert_verify_hash2_works_with(
+            ink_trait,
+            "__ink_trait::MyTrait::constructor_1:0,constructor_2:2::message_1:1:r,message_2:3:w"
+        );
     }
 
     #[test]
-    fn verify_hash_of_constructors_works() {
-        let ink_trait = verify_hash_setup();
-        let expected = [
-            b"constructor::constructor_1::0",
-            b"constructor::constructor_2::2",
-        ];
-        for (constructor, expected) in ink_trait
-            .iter_items()
-            .filter_map(InkTraitItem::filter_map_constructor)
-            .zip(expected.iter().copied())
-        {
-            let actual = constructor.verify_hash();
-            let expected: [u8; 32] = {
-                use blake2::digest::generic_array::sequence::Split as _;
-                let (head_32, _rest) =
-                    <blake2::Blake2b as blake2::Digest>::digest(expected).split();
-                head_32.into()
-            };
-            assert_eq!(actual, expected);
-        }
+    fn verify_hash_works_without_constructors() {
+        let ink_trait = ink_trait! {
+            pub trait MyTrait {
+                #[ink(message)]
+                fn message_1(&self);
+                #[ink(message)]
+                fn message_2(&mut self, a: i32, b: i32) -> i32;
+            }
+        };
+        assert_verify_hash2_works_with(
+            ink_trait,
+            "__ink_trait::MyTrait::message_1:1:r,message_2:3:w",
+        );
     }
 
     #[test]
-    fn verify_hash_of_messages_works() {
-        let ink_trait = verify_hash_setup();
-        let expected = [
-            b"message::message_1::read-only::1".as_ref(),
-            b"message::message_2::mutates::3".as_ref(),
-        ];
-        for (message, expected) in ink_trait
-            .iter_items()
-            .filter_map(InkTraitItem::filter_map_message)
-            .zip(expected.iter().copied())
-            .take(1)
-        {
-            let actual = message.verify_hash();
-            let expected: [u8; 32] = {
-                use blake2::digest::generic_array::sequence::Split as _;
-                let (head_32, _rest) =
-                    <blake2::Blake2b as blake2::Digest>::digest(expected).split();
-                head_32.into()
-            };
-            assert_eq!(actual, expected);
-        }
+    fn verify_hash_works_without_messages() {
+        let ink_trait = ink_trait! {
+            pub trait MyTrait {
+                #[ink(constructor)]
+                fn constructor_1() -> Self;
+                #[ink(constructor)]
+                fn constructor_2(a: i32, b: i32) -> Self;
+            }
+        };
+        assert_verify_hash2_works_with(
+            ink_trait,
+            "__ink_trait::MyTrait::constructor_1:0,constructor_2:2",
+        );
     }
 }
