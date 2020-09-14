@@ -251,6 +251,11 @@ impl InkTrait {
         self.item.span()
     }
 
+    /// Returns the attributes of the ink! trait definition.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.item.attrs
+    }
+
     /// Returns the identifier of the ink! trait definition.
     pub fn ident(&self) -> &Ident {
         &self.item.ident
