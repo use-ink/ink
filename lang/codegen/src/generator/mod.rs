@@ -20,6 +20,7 @@ mod events;
 mod item_impls;
 mod metadata;
 mod storage;
+mod trait_def;
 
 pub use self::{
     contract::Contract,
