@@ -36,6 +36,16 @@ pub enum Receiver {
     RefMut,
 }
 
+impl quote::ToTokens for Receiver {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        let receiver = match self {
+            Self::Ref => quote::quote! { &self },
+            Self::RefMut => quote::quote! { &mut self },
+        };
+        tokens.extend(receiver);
+    }
+}
+
 impl Receiver {
     /// Returns `true` if the receiver is `&self`.
     pub fn is_ref(self) -> bool {
