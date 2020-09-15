@@ -94,20 +94,12 @@ impl TryFrom<syn::ItemStruct> for Storage {
         let bad_visibility = match &item_struct.vis {
             syn::Visibility::Inherited => {
                 Some(struct_span)
-                // return Err(format_err!(
-                //     struct_span,
-                //     "non `pub` ink! storage structs are not supported",
-                // ))
             }
             | syn::Visibility::Restricted(vis_restricted) => {
                 Some(vis_restricted.span())
             }
             | syn::Visibility::Crate(vis_crate) => {
                 Some(vis_crate.span())
-                // return Err(format_err!(
-                //     struct_span,
-                //     "non `pub` ink! storage structs are not supported",
-                // ))
             }
             syn::Visibility::Public(_) => None,
         };
