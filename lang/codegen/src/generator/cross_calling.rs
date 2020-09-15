@@ -235,12 +235,17 @@ impl CrossCalling<'_> {
 
     /// Generates the code to allow short-hand cross-chain contract calls for messages.
     fn generate_short_hand_message(
+        &self,
         message: ir::CallableWithSelector<ir::Message>,
     ) -> TokenStream2 {
+        let storage_ident_str = self.contract.module().storage().ident().to_string();
         let span = message.span();
         let ident = message.ident();
         let ident_str = ident.to_string();
-        let error_str = format!("encountered error while calling {}", ident_str);
+        let error_str = format!(
+            "encountered error while calling {}::{}",
+            storage_ident_str, ident_str
+        );
         let inputs_sig = message.inputs();
         let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);
         let output_sig = message.output().map(|output| quote! { -> #output });
@@ -276,7 +281,7 @@ impl CrossCalling<'_> {
             .module()
             .impls()
             .filter(|impl_block| impl_block.trait_path().is_none())
-            .map(|impl_block| {
+            .map(move |impl_block| {
                 let span = impl_block.span();
                 let trait_path = impl_block
                     .trait_path()
@@ -284,7 +289,7 @@ impl CrossCalling<'_> {
                 let self_type = impl_block.self_type();
                 let messages = impl_block
                     .iter_messages()
-                    .map(|message| Self::generate_short_hand_message(message));
+                    .map(|message| self.generate_short_hand_message(message));
                 let constructors = impl_block.iter_constructors().map(|constructor| {
                     Self::generate_short_hand_constructor(constructor)
                 });
