@@ -234,7 +234,7 @@ impl<'a> InkTraitMessage<'a> {
 
 impl InkTrait {
     /// Returns `Ok` if the trait matches all requirements for an ink! trait definition.
-    pub fn new(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+    pub fn new(attr: TokenStream2, input: TokenStream2) -> Result<Self> {
         if !attr.is_empty() {
             return Err(format_err_spanned!(
                 attr,
@@ -242,8 +242,7 @@ impl InkTrait {
             ))
         }
         let item_trait = syn::parse2::<syn::ItemTrait>(input.clone())?;
-        let _ink_trait = InkTrait::try_from(item_trait)?;
-        Ok(input)
+        InkTrait::try_from(item_trait)
     }
 
     /// Returns span of the ink! trait definition.
