@@ -13,12 +13,12 @@
 // limitations under the License.
 
 use crate::GenerateCode;
+use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
     quote_spanned,
 };
-use derive_more::From;
 
 /// Generator to create the ink! storage struct and important trait impls.
 #[derive(From)]

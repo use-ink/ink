@@ -67,9 +67,9 @@ pub use self::{
     selector::Selector,
     trait_def::{
         InkTrait,
-        InkTraitItem,
         InkTraitConstructor,
+        InkTraitItem,
         InkTraitMessage,
         IterInkTraitItems,
-    }
+    },
 };

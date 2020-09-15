@@ -156,8 +156,10 @@ impl Dispatch<'_> {
     /// implementations for ink! messages and ink! constructors with overlapping
     /// selectors.
     fn generate_trait_impl_namespaces(&self) -> TokenStream2 {
-        let message_namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
-        let constructor_namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
+        let message_namespace =
+            Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
+        let constructor_namespace =
+            Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         quote! {
             // Namespace for messages.
             //
@@ -350,7 +352,8 @@ impl Dispatch<'_> {
         let selector_id = selector.unique_id();
         let storage_ident = self.contract.module().storage().ident();
         let constructor_ident = constructor.ident();
-        let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
+        let namespace =
+            Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         let callable_impl = self.generate_trait_impls_for_callable(cws);
         let (input_bindings, inputs_as_tuple_or_wildcard) =
             Self::generate_input_bindings(constructor);
@@ -580,7 +583,8 @@ impl Dispatch<'_> {
             quote! { ( #(#arg_pats),* ) }
         };
         let selector_id = cws.composed_selector().unique_id();
-        let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
+        let namespace =
+            Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         quote! {
             Self::#ident(#(#arg_pats),*) => {
                 ::ink_lang::execute_constructor::<#namespace<[(); #selector_id]>, _>(move || {

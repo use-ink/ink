@@ -17,9 +17,9 @@ use ink_core::{
     env,
     env::{
         call::{
+            utils::ReturnType,
             CallParams,
             CreateParams,
-            utils::ReturnType,
         },
         EnvTypes,
         Result,
