@@ -168,6 +168,7 @@ impl Dispatch<'_> {
             // The `S` parameter is going to refer to array types `[(); N]`
             // where `N` is the unique identifier of the associated message
             // selector.
+            #[doc(hidden)]
             pub struct #message_namespace<S> {
                 // We need to wrap inner because of Rust's orphan rules.
                 marker: core::marker::PhantomData<fn() -> S>,
@@ -180,6 +181,7 @@ impl Dispatch<'_> {
             // The `S` parameter is going to refer to array types `[(); N]`
             // where `N` is the unique identifier of the associated constructor
             // selector.
+            #[doc(hidden)]
             pub struct #constructor_namespace<S> {
                 // We need to wrap inner because of Rust's orphan rules.
                 marker: core::marker::PhantomData<fn() -> S>,
