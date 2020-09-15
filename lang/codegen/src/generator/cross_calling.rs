@@ -258,6 +258,7 @@ impl CrossCalling<'_> {
             ir::Receiver::RefMut => Some(quote! { mut }),
         };
         quote_spanned!(span =>
+            #[inline]
             pub fn #ident( #receiver #(, #inputs_sig )* ) #output_sig {
                 <&#opt_mut Self as ::ink_lang::#forward_trait>::#forward_ident(self)
                     .#ident( #( #inputs_params ),* )
