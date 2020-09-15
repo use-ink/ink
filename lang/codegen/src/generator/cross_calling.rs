@@ -52,10 +52,12 @@ impl GenerateCode for CrossCalling<'_> {
         let storage = self.generate_storage();
         let standard_impls = self.generate_standard_impls();
         let call_forwarder = self.generate_call_forwarder();
+        let short_hand_impls = self.generate_short_hand_impls();
         quote! {
             #storage
             #standard_impls
             #call_forwarder
+            #short_hand_impls
         }
     }
 }
@@ -216,6 +218,89 @@ impl CrossCalling<'_> {
     /// Returns the identifier for the generated call forwarder utility.
     fn call_forwarder_ident() -> Ident {
         format_ident!("__ink_CallForwarder")
+    }
+
+    /// Generates the code to allow short-hand cross-chain contract calls for constructors.
+    ///
+    /// # Note
+    ///
+    /// For constructors this is the only way they are able to be called.
+    fn generate_short_hand_constructor(
+        constructor: ir::CallableWithSelector<ir::Constructor>,
+    ) -> TokenStream2 {
+        let span = constructor.span();
+        quote_spanned!(span =>
+        )
+    }
+
+    /// Generates the code to allow short-hand cross-chain contract calls for messages.
+    fn generate_short_hand_message(
+        message: ir::CallableWithSelector<ir::Message>,
+    ) -> TokenStream2 {
+        let span = message.span();
+        let ident = message.ident();
+        let ident_str = ident.to_string();
+        let error_str = format!("encountered error while calling {}", ident_str);
+        let inputs_sig = message.inputs();
+        let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);
+        let output_sig = message.output().map(|output| quote! { -> #output });
+        let receiver = message.receiver();
+        let forward_ident = match receiver {
+            ir::Receiver::Ref => format_ident!("call"),
+            ir::Receiver::RefMut => format_ident!("call_mut"),
+        };
+        let forward_trait = match receiver {
+            ir::Receiver::Ref => format_ident!("ForwardCall"),
+            ir::Receiver::RefMut => format_ident!("ForwardCallMut"),
+        };
+        let opt_mut = match receiver {
+            ir::Receiver::Ref => None,
+            ir::Receiver::RefMut => Some(quote! { mut }),
+        };
+        quote_spanned!(span =>
+            pub fn #ident( #receiver #(, #inputs_sig )* ) #output_sig {
+                <&#opt_mut Self as ::ink_lang::#forward_trait>::#forward_ident(self)
+                    .#ident( #( #inputs_params ),* )
+                    .fire()
+                    .expect(#error_str)
+            }
+        )
+    }
+
+    /// Generates all non-trait implementation blocks and their short-hand message implementations.
+    fn generate_short_hand_impl_blocks<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = TokenStream2> + 'a {
+        self.contract
+            .module()
+            .impls()
+            .filter(|impl_block| impl_block.trait_path().is_none())
+            .map(|impl_block| {
+                let span = impl_block.span();
+                let trait_path = impl_block
+                    .trait_path()
+                    .map(|trait_path| quote! { #trait_path for });
+                let self_type = impl_block.self_type();
+                let messages = impl_block
+                    .iter_messages()
+                    .map(|message| Self::generate_short_hand_message(message));
+                let constructors = impl_block.iter_constructors().map(|constructor| {
+                    Self::generate_short_hand_constructor(constructor)
+                });
+                quote_spanned!(span =>
+                    impl #trait_path #self_type {
+                        #( #messages )*
+                        #( #constructors )*
+                    }
+                )
+            })
+    }
+
+    fn generate_short_hand_impls(&self) -> TokenStream2 {
+        let impl_blocks = self.generate_short_hand_impl_blocks();
+        quote! {
+            #( #impl_blocks )*
+        }
     }
 
     /// Generates code for the call forwarder utility struct.
