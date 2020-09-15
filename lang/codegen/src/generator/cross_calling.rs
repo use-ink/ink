@@ -136,17 +136,6 @@ impl CrossCalling<'_> {
         }
     }
 
-    /// Returns the identifier of a forwarded ink! message.
-    ///
-    /// These need to be dependending on the message's selector instead of their
-    /// display name to disambiguate especially in case of trait implementations.
-    ///
-    /// We use the unique ID of the selector because it is simpler to convert to
-    /// an identifier.
-    fn forwarded_message_ident(callable: ir::CallableWithSelector<ir::Message>) -> Ident {
-        format_ident!("__ink_message_{}", callable.composed_selector().unique_id())
-    }
-
     /// Builds up the [`ink_core::env::call::ArgumentList`] type structure for the given types.
     fn generate_arg_list<'a, Args>(args: Args) -> TokenStream2
     where
@@ -154,9 +143,9 @@ impl CrossCalling<'_> {
         <Args as IntoIterator>::IntoIter: DoubleEndedIterator,
     {
         args.into_iter().rev().fold(
-            quote! { ::ink_core::env::call::EmptyArgumentList },
+            quote! { ::ink_core::env::call::utils::EmptyArgumentList },
             |rest, arg| quote! {
-                ::ink_core::env::call::ArgumentList<::ink_core::env::call::Argument<#arg>, #rest>
+                ::ink_core::env::call::utils::ArgumentList<::ink_core::env::call::utils::Argument<#arg>, #rest>
             }
         )
     }
@@ -167,7 +156,7 @@ impl CrossCalling<'_> {
     ) -> TokenStream2 {
         let message = callable.callable();
         let span = message.span();
-        let ident = Self::forwarded_message_ident(callable);
+        let ident = callable.ident();
         let composed_selector = callable.composed_selector().as_bytes().to_owned();
         let attrs = message.attrs();
         let input_bindings = message
@@ -181,16 +170,10 @@ impl CrossCalling<'_> {
             .collect::<Vec<_>>();
         let arg_list = Self::generate_arg_list(input_types.iter().cloned());
         let output = message.output();
-        let output_param =
-            output.map_or_else(|| quote! { () }, |output| quote! { #output });
         let output_sig = output.map_or_else(
             || quote! { () },
-            |output| quote! { ::ink_core::env::call::ReturnType<#output> },
+            |output| quote! { ::ink_core::env::call::utils::ReturnType<#output> },
         );
-        let instantiate_ident = match output {
-            Some(_) => format_ident!("eval"),
-            None => format_ident!("invoke"),
-        };
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]
@@ -198,16 +181,24 @@ impl CrossCalling<'_> {
                 self,
                 #( #input_bindings : #input_types ),*
             ) -> ::ink_core::env::call::CallBuilder<
-                EnvTypes, #arg_list, #output_sig, ::ink_core::env::call::state::Sealed
+                EnvTypes,
+                ::ink_core::env::call::utils::Set<AccountId>,
+                ::ink_core::env::call::utils::Unset<u64>,
+                ::ink_core::env::call::utils::Unset<Balance>,
+                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
+                ::ink_core::env::call::utils::Set<#output_sig>,
             > {
-                ::ink_core::env::call::CallParams::<EnvTypes, ::ink_core::env::call::EmptyArgumentList, #output_param>::#instantiate_ident(
-                    ::ink_lang::ToAccountId::to_account_id(self.contract),
-                    ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ]),
-                )
-                #(
-                    .push_arg(#input_bindings)
-                )*
-                .seal()
+                ::ink_core::env::call::build_call::<EnvTypes>()
+                    .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
+                    .exec_input(
+                        ::ink_core::env::call::ExecutionInput::new(
+                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        )
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
+                    )
+                    .returns::<#output_sig>()
             }
         )
     }
