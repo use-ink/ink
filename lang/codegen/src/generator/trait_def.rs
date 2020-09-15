@@ -80,7 +80,7 @@ impl GenerateCode for TraitDefinition<'_> {
             .map(Self::generate_for_message);
         quote_spanned!(span =>
             #(#attrs)*
-            pub trait #ident: ::ink_lang::Checked<[(); #verify_hash_id]> {
+            pub trait #ident: ::ink_lang::CheckedInkTrait<[(); #verify_hash_id]> {
                 type Output;
                 #[doc(hidden)]
                 type __ink_Checksum: #helper_ident;

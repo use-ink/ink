@@ -57,6 +57,7 @@ pub use self::{
         EmitEvent,
     },
     traits::{
+        CheckedInkTrait,
         Constructor,
         FnInput,
         FnOutput,

@@ -17,6 +17,10 @@ use ink_core::{
     storage2::traits::SpreadLayout,
 };
 
+/// Trait used to indicate that an ink! trait definition has been checked
+/// by the `#[ink::trait_definition]` proc. macro.
+pub unsafe trait CheckedInkTrait<T> {}
+
 /// Dispatchable functions that have inputs.
 pub trait FnInput {
     /// The tuple-type of all inputs.
