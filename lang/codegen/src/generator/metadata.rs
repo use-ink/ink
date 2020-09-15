@@ -245,7 +245,7 @@ impl Metadata<'_> {
                         ])
                         .returns(#ret_ty)
                         .mutates(#mutates)
-                        .is_payable(#is_payable)
+                        .payable(#is_payable)
                         .docs(vec![
                             #(#docs ,)*
                         ])
