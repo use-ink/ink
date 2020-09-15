@@ -440,7 +440,7 @@ impl<S, P, R> MessageSpecBuilder<S, Missing<state::Mutates>, P, R> {
 
 impl<S, M, R> MessageSpecBuilder<S, M, Missing<state::IsPayable>, R> {
     /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
-    pub fn is_payable(
+    pub fn payable(
         self,
         is_payable: bool,
     ) -> MessageSpecBuilder<S, M, state::IsPayable, R> {

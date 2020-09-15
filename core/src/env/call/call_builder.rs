@@ -195,6 +195,7 @@ where
 ///     .eval()
 ///     .unwrap();
 /// ```
+#[allow(clippy::type_complexity)]
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<E::AccountId>,

@@ -121,6 +121,7 @@ where
 /// **Note:** The shown example panics because there is currently no cross-calling
 ///           support in the off-chain testing environment. However, this code
 ///           should work fine in on-chain environments.
+#[allow(clippy::type_complexity)]
 pub fn build_create<E, R>() -> CreateBuilder<
     E,
     Unset<E::Hash>,

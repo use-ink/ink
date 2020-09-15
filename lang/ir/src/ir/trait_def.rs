@@ -241,7 +241,7 @@ impl InkTrait {
                 "unexpected attribute input for ink! trait definition"
             ))
         }
-        let item_trait = syn::parse2::<syn::ItemTrait>(input.clone())?;
+        let item_trait = syn::parse2::<syn::ItemTrait>(input)?;
         InkTrait::try_from(item_trait)
     }
 
@@ -457,10 +457,7 @@ impl InkTrait {
             constructor.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
             |c| {
-                match c {
-                    ir::AttributeArgKind::Constructor => false,
-                    _ => true,
-                }
+                !matches!(c, ir::AttributeArgKind::Constructor)
             },
         )?;
         if let Some(receiver) = constructor.sig.receiver() {
@@ -509,10 +506,7 @@ impl InkTrait {
             message.attrs.clone(),
             &ir::AttributeArgKind::Message,
             |c| {
-                match c {
-                    ir::AttributeArgKind::Message => false,
-                    _ => true,
-                }
+                !matches!(c, ir::AttributeArgKind::Message)
             },
         )?;
         match message.sig.receiver() {

@@ -250,7 +250,7 @@ impl EnvInstance {
     fn current_block_mut(&mut self) -> Result<&mut Block> {
         self.blocks
             .last_mut()
-            .ok_or_else(|| OffChainError::UninitializedBlocks)
+            .ok_or(OffChainError::UninitializedBlocks)
     }
 
     fn chain_spec_mut(&mut self) -> &mut ChainSpec {

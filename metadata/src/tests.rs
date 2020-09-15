@@ -69,7 +69,7 @@ fn spec_contract_json() {
             MessageSpec::name("inc")
                 .selector([231u8, 208u8, 89u8, 15u8])
                 .mutates(true)
-                .is_payable(true)
+                .payable(true)
                 .args(vec![MessageParamSpec::new("by")
                     .of_type(TypeSpec::with_name_segs::<i32, _>(
                         vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -81,7 +81,7 @@ fn spec_contract_json() {
             MessageSpec::name("get")
                 .selector([37u8, 68u8, 74u8, 254u8])
                 .mutates(false)
-                .is_payable(false)
+                .payable(false)
                 .args(Vec::new())
                 .docs(Vec::new())
                 .returns(ReturnTypeSpec::new(TypeSpec::with_name_segs::<i32, _>(

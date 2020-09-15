@@ -213,9 +213,9 @@ impl CrossCalling<'_> {
     }
 
     /// Returns an iterator over all ink! messages of the contract and their selectors.
-    fn contract_messages<'a>(
-        &'a self,
-    ) -> impl Iterator<Item = ir::CallableWithSelector<'a, ir::Message>> {
+    fn contract_messages(
+        &self,
+    ) -> impl Iterator<Item = ir::CallableWithSelector<ir::Message>> {
         self.contract
             .module()
             .impls()

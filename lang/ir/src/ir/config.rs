@@ -126,7 +126,7 @@ impl Config {
             .as_ref()
             .map(|env_types| &env_types.path)
             .cloned()
-            .unwrap_or_else(|| EnvTypes::default().path)
+            .unwrap_or(EnvTypes::default().path)
     }
 
     /// Returns `true` if the dynamic storage allocator facilities are enabled

@@ -48,11 +48,11 @@ fn named_fields_work() {
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
-            "Struct": {
+            "struct": {
                 "fields": [
                     {
                         "layout": {
-                            "Cell": {
+                            "cell": {
                                 "key": "0x\
                                     0000000000000000\
                                     0000000000000000\
@@ -65,7 +65,7 @@ fn named_fields_work() {
                     },
                     {
                         "layout": {
-                            "Cell": {
+                            "cell": {
                                 "key": "0x\
                                     0100000000000000\
                                     0000000000000000\
@@ -105,11 +105,11 @@ fn tuple_struct_work() {
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
-            "Struct": {
+            "struct": {
                 "fields": [
                     {
                         "layout": {
-                            "Cell": {
+                            "cell": {
                                 "key": "0x\
                                     0000000000000000\
                                     0000000000000000\
@@ -122,7 +122,7 @@ fn tuple_struct_work() {
                     },
                     {
                         "layout": {
-                            "Cell": {
+                            "cell": {
                                 "key": "0x\
                                     0100000000000000\
                                     0000000000000000\
@@ -160,7 +160,7 @@ fn clike_enum_work() {
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
-            "Enum": {
+            "enum": {
                 "dispatch_key": "0x\
                     0000000000000000\
                     0000000000000000\
@@ -241,7 +241,7 @@ fn mixed_enum_work() {
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
-            "Enum": {
+            "enum": {
                 "dispatch_key": "0x\
                     0000000000000000\
                     0000000000000000\
@@ -255,7 +255,7 @@ fn mixed_enum_work() {
                         "fields": [
                             {
                                 "layout": {
-                                    "Cell": {
+                                    "cell": {
                                         "key": "0x\
                                             0100000000000000\
                                             0000000000000000\
@@ -268,7 +268,7 @@ fn mixed_enum_work() {
                             },
                             {
                                 "layout": {
-                                    "Cell": {
+                                    "cell": {
                                         "key": "0x\
                                             0200000000000000\
                                             0000000000000000\
@@ -285,7 +285,7 @@ fn mixed_enum_work() {
                         "fields": [
                             {
                                 "layout": {
-                                    "Cell": {
+                                    "cell": {
                                         "key": "0x\
                                             0100000000000000\
                                             0000000000000000\
@@ -298,7 +298,7 @@ fn mixed_enum_work() {
                             },
                             {
                                 "layout": {
-                                    "Cell": {
+                                    "cell": {
                                         "key": "0x\
                                             0200000000000000\
                                             0000000000000000\
@@ -340,9 +340,9 @@ fn unbounded_layout_works() {
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
-            "Hash": {
+            "hash": {
                 "layout": {
-                    "Cell": {
+                    "cell": {
                         "key": "0x\
                             0000000000000000\
                             0000000000000000\

@@ -92,7 +92,7 @@ impl Metadata<'_> {
         attributes: &'a [syn::Attribute],
     ) -> impl Iterator<Item = String> + 'a {
         attributes
-            .into_iter()
+            .iter()
             .filter_map(|attribute| {
                 match attribute.parse_meta() {
                     Ok(syn::Meta::NameValue(name_value)) => Some(name_value),
