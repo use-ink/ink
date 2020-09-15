@@ -50,6 +50,12 @@ impl GenerateCode for Contract<'_> {
         let cross_calling = self.generate_code_using::<generator::CrossCalling>();
         let metadata = self.generate_code_using::<generator::Metadata>();
         // let non_ink_items = &self.contract.non_ink_items;
+        let non_ink_items = self
+            .contract
+            .module()
+            .items()
+            .iter()
+            .filter_map(ir::Item::map_rust_item);
 
         quote! {
             #( #attrs )*
@@ -62,7 +68,7 @@ impl GenerateCode for Contract<'_> {
                 #cross_calling
                 #metadata
                 // #event_structs
-                // #( #non_ink_items )*
+                #( #non_ink_items )*
             }
         }
     }
