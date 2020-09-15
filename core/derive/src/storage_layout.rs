@@ -104,8 +104,9 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
 }
 
 pub fn storage_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
-    s.bind_with(|_| synstructure::BindStyle::Move);
-    s.add_bounds(synstructure::AddBounds::Generics);
+    s.bind_with(|_| synstructure::BindStyle::Move)
+        .add_bounds(synstructure::AddBounds::Generics)
+        .underscore_const(true);
     match s.ast().data {
         syn::Data::Struct(_) => storage_layout_struct(&s),
         syn::Data::Enum(_) => storage_layout_enum(&s),
