@@ -264,6 +264,7 @@ impl CrossCalling<'_> {
                 }
 
                 // Forwards contract messages to the chain.
+                #[doc(hidden)]
                 pub struct #forwarder_ident<T> {
                     contract: T,
                 }
