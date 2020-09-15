@@ -219,8 +219,7 @@ impl CrossCalling<'_> {
         self.contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
+            .flat_map(ir::ItemImpl::iter_messages)
     }
 
     /// Returns the identifier for the generated call forwarder utility.
