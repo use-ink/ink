@@ -25,8 +25,8 @@ use crate::{
             },
             ExecutionInput,
         },
-        EnvTypes,
         EnvError,
+        EnvTypes,
     },
 };
 use core::marker::PhantomData;

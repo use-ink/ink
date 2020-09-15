@@ -92,15 +92,9 @@ impl TryFrom<syn::ItemStruct> for Storage {
             ))
         }
         let bad_visibility = match &item_struct.vis {
-            syn::Visibility::Inherited => {
-                Some(struct_span)
-            }
-            | syn::Visibility::Restricted(vis_restricted) => {
-                Some(vis_restricted.span())
-            }
-            | syn::Visibility::Crate(vis_crate) => {
-                Some(vis_crate.span())
-            }
+            syn::Visibility::Inherited => Some(struct_span),
+            syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
+            syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
             syn::Visibility::Public(_) => None,
         };
         if let Some(bad_visibility) = bad_visibility {

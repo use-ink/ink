@@ -23,6 +23,7 @@ mod selector;
 /// Utility types for the cross-contract calling API.
 pub mod utils {
     pub use super::{
+        call_builder::IndicateReturnType,
         common::{
             ReturnType,
             Set,
@@ -36,7 +37,6 @@ pub mod utils {
             ArgumentListEnd,
             EmptyArgumentList,
         },
-        call_builder::IndicateReturnType,
     };
 }
 
