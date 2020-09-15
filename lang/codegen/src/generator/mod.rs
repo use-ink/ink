@@ -28,10 +28,11 @@ pub use self::{
         CrossCalling,
         CrossCallingConflictCfg,
     },
-    metadata::Metadata,
     dispatch::Dispatch,
     env::Env,
     events::Events,
     item_impls::ItemImpls,
+    metadata::Metadata,
     storage::Storage,
+    trait_def::TraitDefinition,
 };

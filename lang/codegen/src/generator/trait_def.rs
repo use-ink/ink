@@ -18,8 +18,10 @@ use quote::{
     format_ident,
     quote_spanned,
 };
+use derive_more::From;
 
 /// Generator to create the ink! storage struct and important trait impls.
+#[derive(From)]
 pub struct TraitDefinition<'a> {
     trait_def: &'a ir::InkTrait,
 }
