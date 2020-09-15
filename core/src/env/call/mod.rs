@@ -36,6 +36,7 @@ pub mod utils {
             ArgumentListEnd,
             EmptyArgumentList,
         },
+        call_builder::IndicateReturnType,
     };
 }
 

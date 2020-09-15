@@ -26,6 +26,7 @@ use crate::{
             ExecutionInput,
         },
         EnvTypes,
+        EnvError,
     },
 };
 use core::marker::PhantomData;
@@ -156,8 +157,8 @@ where
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32])
 ///     )
-///     .invoke_params()
-///     .invoke()
+///     .returns::<()>()
+///     .fire()
 ///     .unwrap();
 /// ```
 ///
@@ -178,7 +179,7 @@ where
 /// # use ::ink_core::env::{
 /// #     EnvTypes,
 /// #     DefaultEnvTypes,
-/// #     call::{build_call, Selector, ExecutionInput}
+/// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType},
 /// # };
 /// # type AccountId = <DefaultEnvTypes as EnvTypes>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvTypes>()
@@ -191,8 +192,8 @@ where
 ///             .push_arg(true)
 ///             .push_arg(&[0x10; 32])
 ///     )
-///     .eval_params::<i32>()
-///     .eval()
+///     .returns::<ReturnType<i32>>()
+///     .fire()
 ///     .unwrap();
 /// ```
 #[allow(clippy::type_complexity)]
@@ -202,6 +203,7 @@ pub fn build_call<E>() -> CallBuilder<
     Unset<u64>,
     Unset<E::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
+    Unset<ReturnType<()>>,
 >
 where
     E: EnvTypes,
@@ -212,11 +214,12 @@ where
         gas_limit: Default::default(),
         transferred_value: Default::default(),
         exec_input: Default::default(),
+        return_type: Default::default(),
     }
 }
 
 /// Builds up a cross contract call.
-pub struct CallBuilder<E, Callee, GasLimit, TransferredValue, Args>
+pub struct CallBuilder<E, Callee, GasLimit, TransferredValue, Args, RetType>
 where
     E: EnvTypes,
 {
@@ -226,10 +229,11 @@ where
     gas_limit: GasLimit,
     transferred_value: TransferredValue,
     exec_input: Args,
+    return_type: RetType,
 }
 
-impl<E, GasLimit, TransferredValue, Args>
-    CallBuilder<E, Unset<E::AccountId>, GasLimit, TransferredValue, Args>
+impl<E, GasLimit, TransferredValue, Args, RetType>
+    CallBuilder<E, Unset<E::AccountId>, GasLimit, TransferredValue, Args, RetType>
 where
     E: EnvTypes,
 {
@@ -238,19 +242,21 @@ where
     pub fn callee(
         self,
         callee: E::AccountId,
-    ) -> CallBuilder<E, Set<E::AccountId>, GasLimit, TransferredValue, Args> {
+    ) -> CallBuilder<E, Set<E::AccountId>, GasLimit, TransferredValue, Args, RetType>
+    {
         CallBuilder {
             env_types: Default::default(),
             callee: Set(callee),
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
             exec_input: self.exec_input,
+            return_type: self.return_type,
         }
     }
 }
 
-impl<E, Callee, TransferredValue, Args>
-    CallBuilder<E, Callee, Unset<u64>, TransferredValue, Args>
+impl<E, Callee, TransferredValue, Args, RetType>
+    CallBuilder<E, Callee, Unset<u64>, TransferredValue, Args, RetType>
 where
     E: EnvTypes,
 {
@@ -259,18 +265,20 @@ where
     pub fn gas_limit(
         self,
         gas_limit: u64,
-    ) -> CallBuilder<E, Callee, Set<u64>, TransferredValue, Args> {
+    ) -> CallBuilder<E, Callee, Set<u64>, TransferredValue, Args, RetType> {
         CallBuilder {
             env_types: Default::default(),
             callee: self.callee,
             gas_limit: Set(gas_limit),
             transferred_value: self.transferred_value,
             exec_input: self.exec_input,
+            return_type: self.return_type,
         }
     }
 }
 
-impl<E, Callee, GasLimit, Args> CallBuilder<E, Callee, GasLimit, Unset<E::Balance>, Args>
+impl<E, Callee, GasLimit, Args, RetType>
+    CallBuilder<E, Callee, GasLimit, Unset<E::Balance>, Args, RetType>
 where
     E: EnvTypes,
 {
@@ -279,24 +287,67 @@ where
     pub fn transferred_value(
         self,
         transferred_value: E::Balance,
-    ) -> CallBuilder<E, Callee, GasLimit, Set<E::Balance>, Args> {
+    ) -> CallBuilder<E, Callee, GasLimit, Set<E::Balance>, Args, RetType> {
         CallBuilder {
             env_types: Default::default(),
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value: Set(transferred_value),
             exec_input: self.exec_input,
+            return_type: self.return_type,
         }
     }
 }
 
-impl<E, Callee, GasLimit, TransferredValue>
+mod seal {
+    /// Used to prevent users from implementing `IndicateReturnType` for their own types.
+    pub trait Sealed {}
+    impl Sealed for () {}
+    impl<T> Sealed for super::ReturnType<T> {}
+}
+/// Types that can be used in [`CallBuilder::returns`] to signal return type.
+pub trait IndicateReturnType: Default + self::seal::Sealed {}
+impl IndicateReturnType for () {}
+impl<T> IndicateReturnType for ReturnType<T> {}
+
+impl<E, Callee, GasLimit, TransferredValue, Args>
+    CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Unset<ReturnType<()>>>
+where
+    E: EnvTypes,
+{
+    /// Sets the value transferred upon the execution of the call.
+    ///
+    /// # Note
+    ///
+    /// Either use `.returns::<()>` to signal that the call does not return a value
+    /// or use `.returns::<ReturnType<T>>` to signal that the call returns a value of
+    /// type `T`.
+    #[inline]
+    pub fn returns<R>(
+        self,
+    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Set<R>>
+    where
+        R: IndicateReturnType,
+    {
+        CallBuilder {
+            env_types: Default::default(),
+            callee: self.callee,
+            gas_limit: self.gas_limit,
+            transferred_value: self.transferred_value,
+            exec_input: self.exec_input,
+            return_type: Set(Default::default()),
+        }
+    }
+}
+
+impl<E, Callee, GasLimit, TransferredValue, RetType>
     CallBuilder<
         E,
         Callee,
         GasLimit,
         TransferredValue,
         Unset<ExecutionInput<EmptyArgumentList>>,
+        RetType,
     >
 where
     E: EnvTypes,
@@ -305,14 +356,49 @@ where
     pub fn exec_input<Args>(
         self,
         exec_input: ExecutionInput<Args>,
-    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Set<ExecutionInput<Args>>>
-    {
+    ) -> CallBuilder<
+        E,
+        Callee,
+        GasLimit,
+        TransferredValue,
+        Set<ExecutionInput<Args>>,
+        RetType,
+    > {
         CallBuilder {
             env_types: Default::default(),
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
             exec_input: Set(exec_input),
+            return_type: self.return_type,
+        }
+    }
+}
+
+impl<E, GasLimit, TransferredValue, Args, RetType>
+    CallBuilder<
+        E,
+        Set<E::AccountId>,
+        GasLimit,
+        TransferredValue,
+        Set<ExecutionInput<Args>>,
+        Set<RetType>,
+    >
+where
+    E: EnvTypes,
+    GasLimit: Unwrap<Output = u64>,
+    TransferredValue: Unwrap<Output = E::Balance>,
+{
+    /// Finalizes the call builder to call a function.
+    pub fn params(self) -> CallParams<E, Args, RetType> {
+        CallParams {
+            callee: self.callee.value(),
+            gas_limit: self.gas_limit.unwrap_or_else(|| 0),
+            transferred_value: self
+                .transferred_value
+                .unwrap_or_else(|| E::Balance::from(0)),
+            return_type: Default::default(),
+            exec_input: self.exec_input.value(),
         }
     }
 }
@@ -324,38 +410,38 @@ impl<E, GasLimit, TransferredValue, Args>
         GasLimit,
         TransferredValue,
         Set<ExecutionInput<Args>>,
+        Set<()>,
     >
 where
     E: EnvTypes,
     GasLimit: Unwrap<Output = u64>,
+    Args: scale::Encode,
     TransferredValue: Unwrap<Output = E::Balance>,
 {
-    /// Finalizes the call builder to call a function without return value.
-    pub fn invoke_params(self) -> CallParams<E, Args, ()> {
-        CallParams {
-            callee: self.callee.value(),
-            gas_limit: self.gas_limit.unwrap_or_else(|| 0),
-            transferred_value: self
-                .transferred_value
-                .unwrap_or_else(|| E::Balance::from(0)),
-            return_type: Default::default(),
-            exec_input: self.exec_input.value(),
-        }
+    /// Invokes the cross-chain function call.
+    pub fn fire(self) -> Result<(), EnvError> {
+        self.params().invoke()
     }
+}
 
-    /// Finalizes the call builder to call a function with the given return value type.
-    pub fn eval_params<R>(self) -> CallParams<E, Args, ReturnType<R>>
-    where
-        R: scale::Decode,
-    {
-        CallParams {
-            callee: self.callee.value(),
-            gas_limit: self.gas_limit.unwrap_or_else(|| 0),
-            transferred_value: self
-                .transferred_value
-                .unwrap_or_else(|| E::Balance::from(0)),
-            return_type: Default::default(),
-            exec_input: self.exec_input.value(),
-        }
+impl<E, GasLimit, TransferredValue, Args, R>
+    CallBuilder<
+        E,
+        Set<E::AccountId>,
+        GasLimit,
+        TransferredValue,
+        Set<ExecutionInput<Args>>,
+        Set<ReturnType<R>>,
+    >
+where
+    E: EnvTypes,
+    GasLimit: Unwrap<Output = u64>,
+    Args: scale::Encode,
+    R: scale::Decode,
+    TransferredValue: Unwrap<Output = E::Balance>,
+{
+    /// Invokes the cross-chain function call and returns the result.
+    pub fn fire(self) -> Result<R, EnvError> {
+        self.params().eval()
     }
 }
