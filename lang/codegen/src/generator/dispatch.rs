@@ -536,15 +536,16 @@ impl Dispatch<'_> {
             .map(|message| self.generate_dispatch_execute_message_arm(message));
         quote! {
             const _: () = {
-                pub enum MessageDispatchEnum {
+                #[doc(hidden)]
+                pub enum __ink_MessageDispatchEnum {
                     #( #message_variants ),*
                 }
 
                 impl ::ink_lang::MessageDispatcher for #storage_ident {
-                    type Type = MessageDispatchEnum;
+                    type Type = __ink_MessageDispatchEnum;
                 }
 
-                impl ::scale::Decode for MessageDispatchEnum {
+                impl ::scale::Decode for __ink_MessageDispatchEnum {
                     fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
                         match <[u8; 4] as ::scale::Decode>::decode(input)? {
                             #( #decode_message )*
@@ -553,7 +554,7 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink_lang::Execute for MessageDispatchEnum {
+                impl ::ink_lang::Execute for __ink_MessageDispatchEnum {
                     fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
                         match self {
                             #( #execute_variants )*
@@ -621,15 +622,16 @@ impl Dispatch<'_> {
             .map(|cws| self.generate_dispatch_execute_constructor_arm(cws));
         quote! {
             const _: () = {
-                pub enum ConstructorDispatchEnum {
+                #[doc(hidden)]
+                pub enum __ink_ConstructorDispatchEnum {
                     #( #message_variants ),*
                 }
 
                 impl ::ink_lang::ConstructorDispatcher for #storage_ident {
-                    type Type = ConstructorDispatchEnum;
+                    type Type = __ink_ConstructorDispatchEnum;
                 }
 
-                impl ::scale::Decode for ConstructorDispatchEnum {
+                impl ::scale::Decode for __ink_ConstructorDispatchEnum {
                     fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
                         match <[u8; 4] as ::scale::Decode>::decode(input)? {
                             #( #decode_message )*
@@ -638,7 +640,7 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink_lang::Execute for ConstructorDispatchEnum {
+                impl ::ink_lang::Execute for __ink_ConstructorDispatchEnum {
                     fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
                         match self {
                             #( #execute_variants )*
