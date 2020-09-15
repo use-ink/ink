@@ -277,6 +277,7 @@ impl CrossCalling<'_> {
     fn generate_short_hand_impl_blocks<'a>(
         &'a self,
     ) -> impl Iterator<Item = TokenStream2> + 'a {
+        let cfg = self.generate_cfg();
         self.contract
             .module()
             .impls()
@@ -294,6 +295,7 @@ impl CrossCalling<'_> {
                     Self::generate_short_hand_constructor(constructor)
                 });
                 quote_spanned!(span =>
+                    #cfg
                     impl #trait_path #self_type {
                         #( #messages )*
                         #( #constructors )*
