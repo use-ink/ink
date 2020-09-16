@@ -15,7 +15,7 @@
 #[cfg(test)]
 mod tests;
 
-use crate::utils::serialize_as_byte_str;
+use crate::serde_hex;
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
@@ -64,7 +64,7 @@ pub enum Layout<F: Form = MetaForm> {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct LayoutKey {
-    #[serde(serialize_with = "serialize_as_byte_str")]
+    #[serde(serialize_with = "serde_hex::serialize")]
     pub key: [u8; 32],
 }
 
@@ -195,10 +195,10 @@ pub struct HashingStrategy {
     /// One of the supported crypto hashers.
     pub hasher: CryptoHasher,
     /// An optional prefix to the computed hash.
-    #[serde(serialize_with = "serialize_as_byte_str")]
+    #[serde(serialize_with = "serde_hex::serialize")]
     pub prefix: Vec<u8>,
     /// An optional postfix to the computed hash.
-    #[serde(serialize_with = "serialize_as_byte_str")]
+    #[serde(serialize_with = "serde_hex::serialize")]
     pub postfix: Vec<u8>,
 }
 

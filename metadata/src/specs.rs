@@ -14,7 +14,7 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-use crate::utils::serialize_as_byte_str;
+use crate::serde_hex;
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
@@ -194,8 +194,7 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
     pub name: F::String,
     /// The selector hash of the message.
-    #[serde(serialize_with = "serialize_as_byte_str")]
-    pub selector: [u8; 4],
+    pub selector: Selector,
     /// The parameters of the deploy handler.
     pub args: Vec<MessageParamSpec<F>>,
     /// The deploy handler documentation.
@@ -237,7 +236,7 @@ impl ConstructorSpec {
         ConstructorSpecBuilder {
             spec: Self {
                 name,
-                selector: [0u8; 4],
+                selector: Selector::default(),
                 args: Vec::new(),
                 docs: Vec::new(),
             },
@@ -251,7 +250,7 @@ impl ConstructorSpecBuilder<Missing<state::Selector>> {
     pub fn selector(self, selector: [u8; 4]) -> ConstructorSpecBuilder<state::Selector> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
-                selector,
+                selector: selector.into(),
                 ..self.spec
             },
             marker: PhantomData,
@@ -301,8 +300,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message.
     pub name: F::String,
     /// The selector hash of the message.
-    #[serde(serialize_with = "serialize_as_byte_str")]
-    pub selector: [u8; 4],
+    pub selector: Selector,
     /// If the message is allowed to mutate the contract state.
     pub mutates: bool,
     /// The parameters of the message.
@@ -341,7 +339,7 @@ impl MessageSpec {
         MessageSpecBuilder {
             spec: Self {
                 name,
-                selector: [0u8; 4],
+                selector: Selector::default(),
                 mutates: false,
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
@@ -373,7 +371,7 @@ impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
     ) -> MessageSpecBuilder<state::Selector, M, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
-                selector,
+                selector: selector.into(),
                 ..self.spec
             },
             marker: PhantomData,
@@ -535,6 +533,24 @@ impl EventSpec {
                 docs: Vec::new(),
             },
         }
+    }
+}
+
+/// The 4 byte selector to identify constructors and messages
+#[derive(Debug, Default, PartialEq, Eq, derive_more::From)]
+pub struct Selector([u8; 4]);
+
+impl serde::Serialize for Selector {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: serde::Serializer {
+        serde_hex::serialize(&self.0, serializer)
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for Selector {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error> where D: serde::Deserializer<'de> {
+        let mut arr = [0; 4];
+        serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
+        Ok(arr.into())
     }
 }
 

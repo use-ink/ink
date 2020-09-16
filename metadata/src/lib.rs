@@ -22,7 +22,6 @@ mod tests;
 
 pub mod layout2;
 mod specs;
-mod utils;
 
 pub use self::specs::{
     ConstructorSpec,
@@ -41,6 +40,8 @@ pub use self::specs::{
     ReturnTypeSpec,
     TypeSpec,
 };
+
+use impl_serde::serialize as serde_hex;
 
 #[cfg(feature = "derive")]
 use scale_info::{

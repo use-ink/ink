@@ -19,6 +19,7 @@ ink_prelude = { version = "2.1.0", path = "../prelude/", default-features = fals
 ink_primitives = { version = "2.1.0", path = "../primitives/", default-features = false }
 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+impl-serde = "0.3.1"
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 scale-info = { git = "https://github.com/paritytech/scale-info", branch = "aj-pub-types", default-features = false, features = ["derive"] }
 
