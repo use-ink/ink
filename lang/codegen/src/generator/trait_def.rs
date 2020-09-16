@@ -88,7 +88,6 @@ impl GenerateCode for TraitDefinition<'_> {
         quote_spanned!(span =>
             #(#attrs)*
             pub trait #ident: ::ink_lang::CheckedInkTrait<[(); #verify_hash_id]> {
-                type Output;
                 #[doc(hidden)]
                 type __ink_Checksum: #helper_ident;
 
