@@ -61,11 +61,23 @@ pub enum Layout<F: Form = MetaForm> {
 }
 
 /// A pointer into some storage region.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(transparent)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From)]
 pub struct LayoutKey {
-    #[serde(serialize_with = "serde_hex::serialize")]
     pub key: [u8; 32],
+}
+
+impl serde::Serialize for LayoutKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: serde::Serializer {
+        serde_hex::serialize(&self.key, serializer)
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for LayoutKey {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error> where D: serde::Deserializer<'de> {
+        let mut arr = [0; 32];
+        serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
+        Ok(arr.into())
+    }
 }
 
 impl<'a> From<&'a Key> for LayoutKey {
@@ -195,10 +207,16 @@ pub struct HashingStrategy {
     /// One of the supported crypto hashers.
     pub hasher: CryptoHasher,
     /// An optional prefix to the computed hash.
-    #[serde(serialize_with = "serde_hex::serialize")]
+    #[serde(
+        serialize_with = "serde_hex::serialize",
+        deserialize_with = "serde_hex::deserialize"
+    )]
     pub prefix: Vec<u8>,
     /// An optional postfix to the computed hash.
-    #[serde(serialize_with = "serde_hex::serialize")]
+    #[serde(
+        serialize_with = "serde_hex::serialize",
+        deserialize_with = "serde_hex::deserialize"
+    )]
     pub postfix: Vec<u8>,
 }
 
