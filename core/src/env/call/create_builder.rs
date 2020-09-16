@@ -26,6 +26,7 @@ use crate::{
             ExecutionInput,
         },
         EnvTypes,
+        EnvError,
     },
 };
 use core::marker::PhantomData;
@@ -311,5 +312,27 @@ where
             exec_input: self.exec_input.value(),
             return_type: self.return_type,
         }
+    }
+}
+
+impl<E, GasLimit, Args, R>
+    CreateBuilder<
+        E,
+        Set<E::Hash>,
+        GasLimit,
+        Set<E::Balance>,
+        Set<ExecutionInput<Args>>,
+        R,
+    >
+where
+    E: EnvTypes,
+    GasLimit: Unwrap<Output = u64>,
+    Args: scale::Encode,
+    R: FromAccountId<E>,
+{
+    /// Instantiates the contract using the given instantiation parameters.
+    #[inline]
+    pub fn instantiate(self) -> Result<R, EnvError> {
+        self.params().instantiate()
     }
 }
