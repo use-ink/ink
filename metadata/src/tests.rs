@@ -27,11 +27,12 @@ fn spec_constructor_selector_must_serialize_to_hex() {
     let cs = ConstructorSpec::new(name)
         .selector(123_456_789u32.to_be_bytes())
         .done();
-
     let mut registry = Registry::new();
+    let compact_spec = cs.into_compact(&mut registry);
 
     // when
-    let json = serde_json::to_value(&cs.into_compact(&mut registry)).unwrap();
+    let json = serde_json::to_value(&compact_spec).unwrap();
+    let deserialized: ConstructorSpec<CompactForm> = serde_json::from_value(json.clone()).unwrap();
 
     // then
     assert_eq!(
@@ -43,6 +44,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
             "docs": []
         })
     );
+    assert_eq!(deserialized, compact_spec);
 }
 
 #[test]
