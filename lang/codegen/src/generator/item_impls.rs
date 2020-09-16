@@ -18,9 +18,11 @@ use crate::{
     GenerateCodeUsing as _,
 };
 use derive_more::From;
+use heck::CamelCase as _;
 use ir::Callable as _;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
+    format_ident,
     quote,
     quote_spanned,
     ToTokens,
@@ -81,8 +83,79 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates the code for the given ink! constructor within an implementation block.
-    fn generate_constructor(constructor: &ir::Constructor) -> TokenStream2 {
+    /// Generates the code for the given ink! constructor within a trait implementation block.
+    fn generate_trait_constructor(constructor: &ir::Constructor) -> TokenStream2 {
+        let span = constructor.span();
+        let attrs = constructor.attrs();
+        let vis = match constructor.visibility() {
+            ir::Visibility::Inherited => None,
+            ir::Visibility::Public(vis_public) => Some(vis_public),
+        };
+        let ident = constructor.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let inputs = constructor.inputs();
+        let statements = constructor.statements();
+        quote_spanned!(span =>
+            type #output_ident = Self;
+
+            #( #attrs )*
+            #vis fn #ident( #( #inputs ),* ) -> Self::#output_ident {
+                #( #statements )*
+            }
+        )
+    }
+
+    fn generate_trait_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
+        assert!(item_impl.trait_path().is_some());
+        let span = item_impl.span();
+        let messages = item_impl
+            .iter_messages()
+            .map(|cws| Self::generate_message(cws.callable()));
+        let constructors = item_impl
+            .iter_constructors()
+            .map(|cws| Self::generate_trait_constructor(cws.callable()));
+        let other_items = item_impl
+            .items()
+            .iter()
+            .filter_map(ir::ImplItem::filter_map_other_item)
+            .map(ToTokens::to_token_stream);
+        let trait_path = item_impl
+            .trait_path()
+            .expect("encountered missing trait path for trait impl block");
+        let trait_ident = item_impl
+            .trait_ident()
+            .expect("encountered missing trait identifier for trait impl block");
+        let self_type = item_impl.self_type();
+        let hash = ir::InkTrait::compute_verify_hash(
+            trait_ident,
+            item_impl.iter_constructors().map(|constructor| {
+                let ident = constructor.ident().clone();
+                let len_inputs = constructor.inputs().count();
+                (ident, len_inputs)
+            }),
+            item_impl.iter_messages().map(|message| {
+                let ident = message.ident().clone();
+                let len_inputs = message.inputs().count() + 1;
+                let is_mut = message.receiver().is_ref_mut();
+                (ident, len_inputs, is_mut)
+            }),
+        );
+        let checksum = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
+        quote_spanned!(span =>
+            unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
+
+            impl #trait_path for #self_type {
+                type __ink_Checksum = [(); #checksum];
+
+                #( #constructors )*
+                #( #messages )*
+                #( #other_items )*
+            }
+        )
+    }
+
+    /// Generates the code for the given ink! constructor within an inherent implementation block.
+    fn generate_inherent_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
         let vis = match constructor.visibility() {
@@ -100,29 +173,35 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates code for the given ink! implementation block.
-    fn generate_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
+    fn generate_inherent_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
+        assert!(item_impl.trait_path().is_none());
         let span = item_impl.span();
         let messages = item_impl
             .iter_messages()
             .map(|cws| Self::generate_message(cws.callable()));
         let constructors = item_impl
             .iter_constructors()
-            .map(|cws| Self::generate_constructor(cws.callable()));
+            .map(|cws| Self::generate_inherent_constructor(cws.callable()));
         let other_items = item_impl
             .items()
             .iter()
             .filter_map(ir::ImplItem::filter_map_other_item)
             .map(ToTokens::to_token_stream);
-        let trait_path = item_impl.trait_path();
-        let trait_for = item_impl.trait_path().map(|_| quote! { for });
         let self_type = item_impl.self_type();
         quote_spanned!(span =>
-            impl #trait_path #trait_for #self_type {
+            impl #self_type {
                 #( #constructors )*
                 #( #messages )*
                 #( #other_items )*
             }
         )
+    }
+
+    /// Generates code for the given ink! implementation block.
+    fn generate_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
+        match item_impl.trait_path() {
+            Some(_) => Self::generate_trait_item_impl(item_impl),
+            None => Self::generate_inherent_item_impl(item_impl),
+        }
     }
 }
