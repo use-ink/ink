@@ -18,7 +18,10 @@ use crate::{
     ir::attrs::Attrs as _,
 };
 use core::convert::TryFrom;
-use proc_macro2::Span;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 
 mod callable;
 mod constructor;
@@ -325,6 +328,16 @@ impl ItemImpl {
     /// Returns `None` if this is an inherent implementation block.
     pub fn trait_path(&self) -> Option<&syn::Path> {
         self.trait_.as_ref().map(|(_, path, _)| path)
+    }
+
+    /// Returns the trait identifier if this is a trait implementation block.
+    ///
+    /// Returns `None` if this is an inherent implementation block.
+    pub fn trait_ident(&self) -> Option<&Ident> {
+        self.trait_path()
+            .map(|trait_path| trait_path.segments.last())
+            .flatten()
+            .map(|segment| &segment.ident)
     }
 
     /// Returns the namespace of the implementation block if any has been provided.
