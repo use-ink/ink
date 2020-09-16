@@ -89,6 +89,7 @@ impl GenerateCode for TraitDefinition<'_> {
             #(#attrs)*
             pub trait #ident: ::ink_lang::CheckedInkTrait<[(); #verify_hash_id]> {
                 #[doc(hidden)]
+                #[allow(non_camel_case_types)]
                 type __ink_Checksum: #helper_ident;
 
                 #(#constructors)*
