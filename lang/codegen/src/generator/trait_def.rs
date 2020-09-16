@@ -42,7 +42,7 @@ impl<'a> TraitDefinition<'a> {
             type #output_ident;
 
             #(#attrs)*
-            fn #ident(#inputs) -> #output_ident;
+            fn #ident(#inputs) -> Self::#output_ident;
         )
     }
 
