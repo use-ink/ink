@@ -42,24 +42,25 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
 
 impl InkTrait {
     /// Returns the hash to verify that the trait definition has been checked.
-    pub fn verify_hash(&self) -> [u8; 32] {
-        let trait_name = self.ident();
-        let mut constructors = self
-            .iter_items()
-            .flat_map(InkTraitItem::filter_map_constructor)
-            .map(|constructor| {
-                let name = &constructor.sig().ident;
-                let len_inputs = constructor.sig().inputs.len();
+    pub fn compute_verify_hash<'a, C, M>(
+        trait_name: &'a Ident,
+        constructors: C,
+        messages: M,
+    ) -> [u8; 32]
+    where
+        // Name and number of inputs.
+        C: Iterator<Item = (Ident, usize)>,
+        // Name, number of inputs and true if message may mutate storage.
+        M: Iterator<Item = (Ident, usize, bool)>,
+    {
+        let mut constructors = constructors
+            .map(|(name, len_inputs)| {
                 [name.to_string(), len_inputs.to_string()].join(":")
             })
             .collect::<Vec<_>>();
-        let mut messages = self
-            .iter_items()
-            .flat_map(InkTraitItem::filter_map_message)
-            .map(|message| {
-                let name = &message.sig().ident;
-                let len_inputs = message.sig().inputs.len();
-                let mutability = match message.mutates() {
+        let mut messages = messages
+            .map(|(name, len_inputs, mutability)| {
+                let mutability = match mutability {
                     true => "w",
                     false => "r",
                 };
@@ -87,6 +88,29 @@ impl InkTrait {
         let (head_32, _rest) =
             <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
         head_32.into()
+    }
+
+    /// Returns the hash to verify that the trait definition has been checked.
+    pub fn verify_hash(&self) -> [u8; 32] {
+        let trait_name = self.ident();
+        Self::compute_verify_hash(
+            trait_name,
+            self.iter_items()
+                .flat_map(InkTraitItem::filter_map_constructor)
+                .map(|constructor| {
+                    let name = constructor.sig().ident.clone();
+                    let len_inputs = constructor.sig().inputs.len();
+                    (name, len_inputs)
+                }),
+            self.iter_items()
+                .flat_map(InkTraitItem::filter_map_message)
+                .map(|message| {
+                    let name = message.sig().ident.clone();
+                    let len_inputs = message.sig().inputs.len();
+                    let mutability = message.mutates();
+                    (name, len_inputs, mutability)
+                }),
+        )
     }
 }
 
