@@ -55,7 +55,7 @@ impl<'a> TraitDefinition<'a> {
         let output = &sig.output;
         quote_spanned!(span =>
             #(#attrs)*
-            fn #ident(#inputs) -> #output;
+            fn #ident(#inputs) #output;
         )
     }
 }
@@ -74,7 +74,7 @@ impl GenerateCode for TraitDefinition<'_> {
             hash[2],
             hash[3]
         );
-        let verify_hash_id = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]);
+        let verify_hash_id = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
         let constructors = self
             .trait_def
             .iter_items()
