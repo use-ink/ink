@@ -229,7 +229,42 @@ impl CrossCalling<'_> {
         constructor: ir::CallableWithSelector<ir::Constructor>,
     ) -> TokenStream2 {
         let span = constructor.span();
+        let attrs = constructor.attrs();
+        let ident = constructor.ident();
+        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let input_bindings = constructor
+            .inputs()
+            .enumerate()
+            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
+            .collect::<Vec<_>>();
+        let input_types = constructor
+            .inputs()
+            .map(|pat_type| &*pat_type.ty)
+            .collect::<Vec<_>>();
+        let arg_list = Self::generate_arg_list(input_types.iter().cloned());
         quote_spanned!(span =>
+            #( #attrs )*
+            #[inline]
+            pub fn #ident(
+                #( #input_bindings : #input_types ),*
+            ) -> ::ink_core::env::call::CreateBuilder<
+                EnvTypes,
+                ::ink_core::env::call::utils::Unset<Hash>,
+                ::ink_core::env::call::utils::Unset<u64>,
+                ::ink_core::env::call::utils::Unset<Balance>,
+                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
+                Self,
+            > {
+                ::ink_core::env::call::build_create::<EnvTypes, Self>()
+                    .exec_input(
+                        ::ink_core::env::call::ExecutionInput::new(
+                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        )
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
+                    )
+            }
         )
     }
 
