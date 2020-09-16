@@ -23,6 +23,7 @@ mod events;
 mod traits;
 
 pub use ink_lang_macro::contract;
+pub use ink_lang_macro::trait_definition;
 
 pub use self::{
     contract::{
