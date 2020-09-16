@@ -14,6 +14,7 @@
 
 use crate::GenerateCode;
 use derive_more::From;
+use heck::CamelCase as _;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -34,10 +35,14 @@ impl<'a> TraitDefinition<'a> {
         let attrs = constructor.attrs();
         let sig = constructor.sig();
         let ident = &sig.ident;
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let inputs = &sig.inputs;
         quote_spanned!(span =>
+            /// Output type of the respective constructor.
+            type #output_ident;
+
             #(#attrs)*
-            fn #ident(#inputs) -> Self::Output;
+            fn #ident(#inputs) -> #output_ident;
         )
     }
 
