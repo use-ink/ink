@@ -14,6 +14,7 @@
 
 use crate::GenerateCode;
 use derive_more::From;
+use heck::CamelCase as _;
 use ir::Callable;
 use proc_macro2::{
     Ident,
@@ -308,34 +309,142 @@ impl CrossCalling<'_> {
         )
     }
 
-    /// Generates all non-trait implementation blocks and their short-hand message implementations.
+    /// Generates all non-trait implementation blocks and their short-hand implementations.
+    fn generate_short_hand_non_trait_impl_block<'a>(
+        &'a self,
+        impl_block: &'a ir::ItemImpl,
+    ) -> TokenStream2 {
+        assert!(impl_block.trait_path().is_none());
+        let cfg = self.generate_cfg();
+        let span = impl_block.span();
+        let self_type = impl_block.self_type();
+        let messages = impl_block
+            .iter_messages()
+            .map(|message| self.generate_short_hand_message(message));
+        let constructors = impl_block
+            .iter_constructors()
+            .map(|constructor| Self::generate_short_hand_constructor(constructor));
+        quote_spanned!(span =>
+            #cfg
+            impl #self_type {
+                #( #messages )*
+                #( #constructors )*
+            }
+        )
+    }
+
+    /// Generates the code to allow short-hand cross-chain contract calls for trait constructors.
+    fn generate_short_hand_trait_constructor<'a>(
+        constructor: ir::CallableWithSelector<ir::Constructor>,
+    ) -> TokenStream2 {
+        let span = constructor.span();
+        let attrs = constructor.attrs();
+        let ident = constructor.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let input_bindings = constructor
+            .inputs()
+            .enumerate()
+            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
+            .collect::<Vec<_>>();
+        let input_types = constructor
+            .inputs()
+            .map(|pat_type| &*pat_type.ty)
+            .collect::<Vec<_>>();
+        let arg_list = Self::generate_arg_list(input_types.iter().cloned());
+        quote_spanned!(span =>
+            type #output_ident = ::ink_core::env::call::CreateBuilder<
+                EnvTypes,
+                ::ink_core::env::call::utils::Unset<Hash>,
+                ::ink_core::env::call::utils::Unset<u64>,
+                ::ink_core::env::call::utils::Unset<Balance>,
+                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
+                Self,
+            >;
+
+            #( #attrs )*
+            #[inline]
+            pub fn #ident(
+                #( #input_bindings : #input_types ),*
+            ) -> Self::#output_ident {
+                ::ink_core::env::call::build_create::<EnvTypes, Self>()
+                    .exec_input(
+                        ::ink_core::env::call::ExecutionInput::new(
+                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        )
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
+                    )
+            }
+        )
+    }
+
+    /// Generates all trait implementation blocks and their short-hand implementations.
+    fn generate_short_hand_trait_impl_block<'a>(
+        &'a self,
+        impl_block: &'a ir::ItemImpl,
+    ) -> TokenStream2 {
+        assert!(impl_block.trait_path().is_some());
+        let cfg = self.generate_cfg();
+        let span = impl_block.span();
+        let trait_path = impl_block
+            .trait_path()
+            .expect("encountered missing trait path");
+        let trait_ident = impl_block
+            .trait_ident()
+            .expect("encountered missing trait identifier");
+        let self_type = impl_block.self_type();
+        let messages = impl_block
+            .iter_messages()
+            .map(|message| self.generate_short_hand_message(message));
+        let constructors = impl_block
+            .iter_constructors()
+            .map(|constructor| Self::generate_short_hand_trait_constructor(constructor));
+        let hash = ir::InkTrait::compute_verify_hash(
+            trait_ident,
+            impl_block.iter_constructors().map(|constructor| {
+                let ident = constructor.ident().clone();
+                let len_inputs = constructor.inputs().count();
+                (ident, len_inputs)
+            }),
+            impl_block.iter_messages().map(|message| {
+                let ident = message.ident().clone();
+                let len_inputs = message.inputs().count() + 1;
+                let is_mut = message.receiver().is_ref_mut();
+                (ident, len_inputs, is_mut)
+            }),
+        );
+        let checksum = u32::from_be_bytes([
+            hash[0],
+            hash[1],
+            hash[2],
+            hash[3],
+        ]) as usize;
+        quote_spanned!(span =>
+            #cfg
+            impl #trait_path for #self_type {
+                type Checksum = [(); #checksum];
+
+                #( #messages )*
+                #( #constructors )*
+            }
+        )
+    }
+
+    /// Generates all implementation blocks and their short-hand implementations.
     fn generate_short_hand_impl_blocks<'a>(
         &'a self,
     ) -> impl Iterator<Item = TokenStream2> + 'a {
-        let cfg = self.generate_cfg();
         self.contract
             .module()
             .impls()
             .filter(|impl_block| impl_block.trait_path().is_none())
             .map(move |impl_block| {
-                let span = impl_block.span();
-                let trait_path = impl_block
-                    .trait_path()
-                    .map(|trait_path| quote! { #trait_path for });
-                let self_type = impl_block.self_type();
-                let messages = impl_block
-                    .iter_messages()
-                    .map(|message| self.generate_short_hand_message(message));
-                let constructors = impl_block.iter_constructors().map(|constructor| {
-                    Self::generate_short_hand_constructor(constructor)
-                });
-                quote_spanned!(span =>
-                    #cfg
-                    impl #trait_path #self_type {
-                        #( #messages )*
-                        #( #constructors )*
-                    }
-                )
+                match impl_block.trait_path() {
+                    Some(_) => self.generate_short_hand_trait_impl_block(impl_block),
+                    None => self.generate_short_hand_non_trait_impl_block(impl_block),
+                }
             })
     }
 
