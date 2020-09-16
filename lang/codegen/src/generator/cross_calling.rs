@@ -144,7 +144,7 @@ impl CrossCalling<'_> {
         Args: IntoIterator<Item = &'a syn::Type>,
         <Args as IntoIterator>::IntoIter: DoubleEndedIterator,
     {
-        args.into_iter().rev().fold(
+        args.into_iter().fold(
             quote! { ::ink_core::env::call::utils::EmptyArgumentList },
             |rest, arg| quote! {
                 ::ink_core::env::call::utils::ArgumentList<::ink_core::env::call::utils::Argument<#arg>, #rest>
