@@ -355,7 +355,7 @@ mod multisig_plain {
             ensure_requirement_is_valid(len, requirement);
             self.owners.swap_remove(self.owner_index(&owner));
             self.is_owner.take(&owner);
-            *self.requirement = requirement;
+            Lazy::set(&mut self.requirement, requirement);
             self.clean_owner_confirmations(&owner);
             self.env().emit_event(OwnerRemoval { owner });
         }
@@ -392,7 +392,7 @@ mod multisig_plain {
         fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
             ensure_requirement_is_valid(self.owners.len(), new_requirement);
-            *self.requirement = new_requirement;
+            Lazy::set(&mut self.requirement, new_requirement);
             self.env().emit_event(RequirementChange { new_requirement });
         }
 
