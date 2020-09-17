@@ -369,6 +369,7 @@ impl CrossCalling<'_> {
         assert!(impl_block.trait_path().is_some());
         let cfg = self.generate_cfg();
         let span = impl_block.span();
+        let attrs = impl_block.attrs();
         let trait_path = impl_block
             .trait_path()
             .expect("encountered missing trait path");
@@ -401,6 +402,7 @@ impl CrossCalling<'_> {
             unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
 
             #cfg
+            #( #attrs )*
             impl #trait_path for #self_type {
                 type __ink_Checksum = [(); #checksum];
 
@@ -462,6 +464,7 @@ impl CrossCalling<'_> {
         assert!(impl_block.trait_path().is_none());
         let cfg = self.generate_cfg();
         let span = impl_block.span();
+        let attrs = impl_block.attrs();
         let self_type = impl_block.self_type();
         let messages = impl_block
             .iter_messages()
@@ -471,6 +474,7 @@ impl CrossCalling<'_> {
             .map(|constructor| Self::generate_impl_block_constructor(constructor));
         quote_spanned!(span =>
             #cfg
+            #( #attrs )*
             impl #self_type {
                 #( #messages )*
                 #( #constructors )*
