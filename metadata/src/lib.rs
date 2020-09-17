@@ -39,6 +39,7 @@ pub use self::specs::{
     MessageSpecBuilder,
     ReturnTypeSpec,
     TypeSpec,
+    Selector,
 };
 
 use impl_serde::serialize as serde_hex;

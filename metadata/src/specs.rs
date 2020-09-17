@@ -554,6 +554,12 @@ impl<'de> serde::Deserialize<'de> for Selector {
     }
 }
 
+impl Selector {
+    pub fn to_vec(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+}
+
 /// Describes the syntactical name of a type at a given type position.
 ///
 /// This is important when trying to work with type aliases.
