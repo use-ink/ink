@@ -52,7 +52,7 @@ impl GenerateCode for CrossCalling<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let storage = self.generate_storage();
         let standard_impls = self.generate_standard_impls();
-        let call_forwarder = self.generate_call_forwarder();
+        let call_forwarder = self.generate_call_forwarders();
         let impl_blocks = self.generate_impl_blocks();
         quote! {
             #storage
@@ -154,14 +154,29 @@ impl CrossCalling<'_> {
         )
     }
 
-    /// Generates code for call forwarding for the given message and its selector.
-    fn generate_call_forwarding_for_message(
-        callable: ir::CallableWithSelector<ir::Message>,
+    /// Returns the identifier for the generated call forwarder utility.
+    fn call_forwarder_ident() -> Ident {
+        format_ident!("__ink_CallForwarder")
+    }
+
+    /// Generates code for a single call forwarder trait implementation block.
+    ///
+    /// The `mutable` parameter indicates whether only read-only (`false`) or
+    /// write-only (`true`) messages and constructors are to be considered.
+    fn generate_call_forwarder_trait_impl_block(
+        &self,
+        mutable: bool,
+        item_impl: &ir::ItemImpl,
     ) -> TokenStream2 {
-        let message = callable.callable();
+        quote! {}
+    }
+
+    fn generate_call_forwarder_inherent_message(
+        message: ir::CallableWithSelector<ir::Message>,
+    ) -> TokenStream2 {
         let span = message.span();
-        let ident = callable.ident();
-        let composed_selector = callable.composed_selector().as_bytes().to_owned();
+        let ident = message.ident();
+        let composed_selector = message.composed_selector().as_bytes().to_owned();
         let attrs = message.attrs();
         let input_bindings = message
             .inputs()
@@ -207,35 +222,56 @@ impl CrossCalling<'_> {
         )
     }
 
-    /// Returns an iterator over all ink! messages of the contract and their selectors.
-    fn contract_messages(
+    /// Generates code for a single call forwarder inherent implementation block.
+    ///
+    /// The `mutable` parameter indicates whether only read-only (`false`) or
+    /// write-only (`true`) messages and constructors are to be considered.
+    fn generate_call_forwarder_inherent_impl_block(
         &self,
-    ) -> impl Iterator<Item = ir::CallableWithSelector<ir::Message>> {
-        self.contract
-            .module()
-            .impls()
-            .flat_map(ir::ItemImpl::iter_messages)
+        mutable: bool,
+        item_impl: &ir::ItemImpl,
+    ) -> TokenStream2 {
+        let span = item_impl.span();
+        let attrs = item_impl.attrs();
+        let forwarder_ident = Self::call_forwarder_ident();
+        let storage_ident = self.contract.module().storage().ident();
+        let mut_tok = if mutable { Some(quote! { mut }) } else { None };
+        let messages = item_impl.iter_messages().filter(|message| {
+            mutable == message.receiver().is_ref_mut()
+        }).map(|message| Self::generate_call_forwarder_inherent_message(message));
+        quote_spanned!(span =>
+            #( #attrs )*
+            impl<'a> #forwarder_ident<&'a #mut_tok #storage_ident> {
+                #( #messages )*
+            }
+        )
     }
 
-    /// Returns the identifier for the generated call forwarder utility.
-    fn call_forwarder_ident() -> Ident {
-        format_ident!("__ink_CallForwarder")
+    /// Generates code for the call forwarder implementation blocks.
+    ///
+    /// The `mutable` parameter indicates whether only read-only (`false`) or
+    /// write-only (`true`) messages and constructors are to be considered.
+    fn generate_call_forwarder_impl_blocks(&self, mutable: bool) -> TokenStream2 {
+        let impl_blocks = self.contract.module().impls().map(|item_impl| {
+            match item_impl.trait_path() {
+                Some(_) => {
+                    self.generate_call_forwarder_trait_impl_block(mutable, item_impl)
+                }
+                None => {
+                    self.generate_call_forwarder_inherent_impl_block(mutable, item_impl)
+                }
+            }
+        });
+        quote! { #( #impl_blocks )* }
     }
 
     /// Generates code for the call forwarder utility struct.
-    fn generate_call_forwarder(&self) -> TokenStream2 {
+    fn generate_call_forwarders(&self) -> TokenStream2 {
         let forwarder_ident = Self::call_forwarder_ident();
         let storage_ident = self.contract.module().storage().ident();
-        let ref_self_messages = self
-            .contract_messages()
-            .filter(|cws| cws.callable().receiver().is_ref())
-            .map(Self::generate_call_forwarding_for_message);
-        let ref_mut_self_messages = self
-            .contract_messages()
-            .filter(|cws| cws.callable().receiver().is_ref_mut())
-            .map(Self::generate_call_forwarding_for_message);
+        let impl_blocks_ref = self.generate_call_forwarder_impl_blocks(false);
+        let impl_blocks_refmut = self.generate_call_forwarder_impl_blocks(true);
         let cfg = self.generate_cfg();
-
         quote! {
             #cfg
             const _: () = {
@@ -263,13 +299,8 @@ impl CrossCalling<'_> {
                     contract: T,
                 }
 
-                impl<'a> #forwarder_ident<&'a #storage_ident> {
-                    #( #ref_self_messages )*
-                }
-
-                impl<'a> #forwarder_ident<&'a mut #storage_ident> {
-                    #( #ref_mut_self_messages )*
-                }
+                #impl_blocks_ref
+                #impl_blocks_refmut
             };
         }
     }
