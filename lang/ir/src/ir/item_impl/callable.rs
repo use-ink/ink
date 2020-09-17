@@ -47,6 +47,8 @@ pub struct CallableWithSelector<'a, C> {
     /// The composed selector computed by the associated implementation block
     /// and the given callable.
     composed_selector: ir::Selector,
+    /// The parent implementation block.
+    item_impl: &'a ir::ItemImpl,
     /// The actual callable.
     callable: &'a C,
 }
@@ -56,6 +58,7 @@ impl<C> Clone for CallableWithSelector<'_, C> {
     fn clone(&self) -> Self {
         Self {
             composed_selector: self.composed_selector,
+            item_impl: self.item_impl,
             callable: self.callable,
         }
     }
@@ -66,9 +69,10 @@ where
     C: Callable,
 {
     /// Creates a new wrapper around the given callable and parent impl block.
-    pub(super) fn new(item_impl: &ir::ItemImpl, callable: &'a C) -> Self {
+    pub(super) fn new(item_impl: &'a ir::ItemImpl, callable: &'a C) -> Self {
         Self {
             composed_selector: compose_selector(item_impl, callable),
+            item_impl,
             callable,
         }
     }
@@ -83,6 +87,11 @@ impl<'a, C> CallableWithSelector<'a, C> {
     /// Returns a shared reference to the underlying callable.
     pub fn callable(&self) -> &'a C {
         self.callable
+    }
+
+    /// Returns the parent implementation block of the ink! callable.
+    pub fn item_impl(&self) -> &'a ir::ItemImpl {
+        self.item_impl
     }
 }
 
