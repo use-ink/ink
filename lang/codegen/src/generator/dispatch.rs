@@ -326,13 +326,18 @@ impl Dispatch<'_> {
         };
         let (input_bindings, inputs_as_tuple_or_wildcard) =
             Self::generate_input_bindings(message);
+        let as_trait = cws.item_impl().trait_path().map(|trait_path| {
+            quote_spanned!(message_span =>
+                as #trait_path
+            )
+        });
         let message_impl = quote_spanned!(message_span =>
             impl ::ink_lang::#message_trait_ident for #namespace<[(); #selector_id]> {
                 const CALLABLE: fn(
                     &#mut_token <Self as ::ink_lang::FnState>::State,
                     <Self as ::ink_lang::FnInput>::Input
                 ) -> <Self as ::ink_lang::FnOutput>::Output = |state, #inputs_as_tuple_or_wildcard| {
-                    #storage_ident::#message_ident(state, #( #input_bindings ),* )
+                    <#storage_ident #as_trait>::#message_ident(state, #( #input_bindings ),* )
                 };
             }
         );
@@ -359,18 +364,23 @@ impl Dispatch<'_> {
         let callable_impl = self.generate_trait_impls_for_callable(cws);
         let (input_bindings, inputs_as_tuple_or_wildcard) =
             Self::generate_input_bindings(constructor);
-        let message_impl = quote_spanned!(constructor_span =>
+        let as_trait = cws.item_impl().trait_path().map(|trait_path| {
+            quote_spanned!(constructor_span =>
+                as #trait_path
+            )
+        });
+        let constructor_impl = quote_spanned!(constructor_span =>
             impl ::ink_lang::Constructor for #namespace<[(); #selector_id]> {
                 const CALLABLE: fn(
                     <Self as ::ink_lang::FnInput>::Input
                 ) -> <Self as ::ink_lang::FnState>::State = |#inputs_as_tuple_or_wildcard| {
-                    #storage_ident::#constructor_ident(#( #input_bindings ),* )
+                    <#storage_ident #as_trait>::#constructor_ident(#( #input_bindings ),* )
                 };
             }
         );
         quote_spanned!(constructor_span =>
             #callable_impl
-            #message_impl
+            #constructor_impl
         )
     }
 
