@@ -53,12 +53,13 @@ impl GenerateCode for CrossCalling<'_> {
         let storage = self.generate_storage();
         let standard_impls = self.generate_standard_impls();
         let call_forwarder = self.generate_call_forwarder();
-        let short_hand_impls = self.generate_short_hand_impls();
+        let impl_blocks = self.generate_impl_blocks();
         quote! {
             #storage
             #standard_impls
             #call_forwarder
-            #short_hand_impls
+            // #short_hand_impls
+            #impl_blocks
         }
     }
 }
@@ -221,240 +222,6 @@ impl CrossCalling<'_> {
         format_ident!("__ink_CallForwarder")
     }
 
-    /// Generates the code to allow short-hand cross-chain contract calls for constructors.
-    ///
-    /// # Note
-    ///
-    /// For constructors this is the only way they are able to be called.
-    fn generate_short_hand_constructor(
-        constructor: ir::CallableWithSelector<ir::Constructor>,
-    ) -> TokenStream2 {
-        let span = constructor.span();
-        let attrs = constructor.attrs();
-        let ident = constructor.ident();
-        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
-        let input_bindings = constructor
-            .inputs()
-            .enumerate()
-            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
-            .collect::<Vec<_>>();
-        let input_types = constructor
-            .inputs()
-            .map(|pat_type| &*pat_type.ty)
-            .collect::<Vec<_>>();
-        let arg_list = Self::generate_arg_list(input_types.iter().cloned());
-        quote_spanned!(span =>
-            #( #attrs )*
-            #[inline]
-            pub fn #ident(
-                #( #input_bindings : #input_types ),*
-            ) -> ::ink_core::env::call::CreateBuilder<
-                EnvTypes,
-                ::ink_core::env::call::utils::Unset<Hash>,
-                ::ink_core::env::call::utils::Unset<u64>,
-                ::ink_core::env::call::utils::Unset<Balance>,
-                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
-                Self,
-            > {
-                ::ink_core::env::call::build_create::<EnvTypes, Self>()
-                    .exec_input(
-                        ::ink_core::env::call::ExecutionInput::new(
-                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
-                        )
-                        #(
-                            .push_arg(#input_bindings)
-                        )*
-                    )
-            }
-        )
-    }
-
-    /// Generates the code to allow short-hand cross-chain contract calls for messages.
-    fn generate_short_hand_message(
-        &self,
-        message: ir::CallableWithSelector<ir::Message>,
-    ) -> TokenStream2 {
-        let storage_ident_str = self.contract.module().storage().ident().to_string();
-        let span = message.span();
-        let ident = message.ident();
-        let ident_str = ident.to_string();
-        let error_str = format!(
-            "encountered error while calling {}::{}",
-            storage_ident_str, ident_str
-        );
-        let inputs_sig = message.inputs();
-        let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);
-        let output_sig = message.output().map(|output| quote! { -> #output });
-        let receiver = message.receiver();
-        let forward_ident = match receiver {
-            ir::Receiver::Ref => format_ident!("call"),
-            ir::Receiver::RefMut => format_ident!("call_mut"),
-        };
-        let forward_trait = match receiver {
-            ir::Receiver::Ref => format_ident!("ForwardCall"),
-            ir::Receiver::RefMut => format_ident!("ForwardCallMut"),
-        };
-        let opt_mut = match receiver {
-            ir::Receiver::Ref => None,
-            ir::Receiver::RefMut => Some(quote! { mut }),
-        };
-        quote_spanned!(span =>
-            #[inline]
-            pub fn #ident( #receiver #(, #inputs_sig )* ) #output_sig {
-                <&#opt_mut Self as ::ink_lang::#forward_trait>::#forward_ident(self)
-                    .#ident( #( #inputs_params ),* )
-                    .fire()
-                    .expect(#error_str)
-            }
-        )
-    }
-
-    /// Generates all non-trait implementation blocks and their short-hand implementations.
-    fn generate_short_hand_non_trait_impl_block<'a>(
-        &'a self,
-        impl_block: &'a ir::ItemImpl,
-    ) -> TokenStream2 {
-        assert!(impl_block.trait_path().is_none());
-        let cfg = self.generate_cfg();
-        let span = impl_block.span();
-        let self_type = impl_block.self_type();
-        let messages = impl_block
-            .iter_messages()
-            .map(|message| self.generate_short_hand_message(message));
-        let constructors = impl_block
-            .iter_constructors()
-            .map(|constructor| Self::generate_short_hand_constructor(constructor));
-        quote_spanned!(span =>
-            #cfg
-            impl #self_type {
-                #( #messages )*
-                #( #constructors )*
-            }
-        )
-    }
-
-    /// Generates the code to allow short-hand cross-chain contract calls for trait constructors.
-    fn generate_short_hand_trait_constructor<'a>(
-        constructor: ir::CallableWithSelector<ir::Constructor>,
-    ) -> TokenStream2 {
-        let span = constructor.span();
-        let attrs = constructor.attrs();
-        let ident = constructor.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
-        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
-        let input_bindings = constructor
-            .inputs()
-            .enumerate()
-            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
-            .collect::<Vec<_>>();
-        let input_types = constructor
-            .inputs()
-            .map(|pat_type| &*pat_type.ty)
-            .collect::<Vec<_>>();
-        let arg_list = Self::generate_arg_list(input_types.iter().cloned());
-        quote_spanned!(span =>
-            type #output_ident = ::ink_core::env::call::CreateBuilder<
-                EnvTypes,
-                ::ink_core::env::call::utils::Unset<Hash>,
-                ::ink_core::env::call::utils::Unset<u64>,
-                ::ink_core::env::call::utils::Unset<Balance>,
-                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
-                Self,
-            >;
-
-            #( #attrs )*
-            #[inline]
-            pub fn #ident(
-                #( #input_bindings : #input_types ),*
-            ) -> Self::#output_ident {
-                ::ink_core::env::call::build_create::<EnvTypes, Self>()
-                    .exec_input(
-                        ::ink_core::env::call::ExecutionInput::new(
-                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
-                        )
-                        #(
-                            .push_arg(#input_bindings)
-                        )*
-                    )
-            }
-        )
-    }
-
-    /// Generates all trait implementation blocks and their short-hand implementations.
-    fn generate_short_hand_trait_impl_block<'a>(
-        &'a self,
-        impl_block: &'a ir::ItemImpl,
-    ) -> TokenStream2 {
-        assert!(impl_block.trait_path().is_some());
-        let cfg = self.generate_cfg();
-        let span = impl_block.span();
-        let trait_path = impl_block
-            .trait_path()
-            .expect("encountered missing trait path");
-        let trait_ident = impl_block
-            .trait_ident()
-            .expect("encountered missing trait identifier");
-        let self_type = impl_block.self_type();
-        let messages = impl_block
-            .iter_messages()
-            .map(|message| self.generate_short_hand_message(message));
-        let constructors = impl_block
-            .iter_constructors()
-            .map(|constructor| Self::generate_short_hand_trait_constructor(constructor));
-        let hash = ir::InkTrait::compute_verify_hash(
-            trait_ident,
-            impl_block.iter_constructors().map(|constructor| {
-                let ident = constructor.ident().clone();
-                let len_inputs = constructor.inputs().count();
-                (ident, len_inputs)
-            }),
-            impl_block.iter_messages().map(|message| {
-                let ident = message.ident().clone();
-                let len_inputs = message.inputs().count() + 1;
-                let is_mut = message.receiver().is_ref_mut();
-                (ident, len_inputs, is_mut)
-            }),
-        );
-        let checksum = u32::from_be_bytes([
-            hash[0],
-            hash[1],
-            hash[2],
-            hash[3],
-        ]) as usize;
-        quote_spanned!(span =>
-            #cfg
-            impl #trait_path for #self_type {
-                type Checksum = [(); #checksum];
-
-                #( #messages )*
-                #( #constructors )*
-            }
-        )
-    }
-
-    /// Generates all implementation blocks and their short-hand implementations.
-    fn generate_short_hand_impl_blocks<'a>(
-        &'a self,
-    ) -> impl Iterator<Item = TokenStream2> + 'a {
-        self.contract
-            .module()
-            .impls()
-            .filter(|impl_block| impl_block.trait_path().is_none())
-            .map(move |impl_block| {
-                match impl_block.trait_path() {
-                    Some(_) => self.generate_short_hand_trait_impl_block(impl_block),
-                    None => self.generate_short_hand_non_trait_impl_block(impl_block),
-                }
-            })
-    }
-
-    fn generate_short_hand_impls(&self) -> TokenStream2 {
-        let impl_blocks = self.generate_short_hand_impl_blocks();
-        quote! {
-            #( #impl_blocks )*
-        }
-    }
-
     /// Generates code for the call forwarder utility struct.
     fn generate_call_forwarder(&self) -> TokenStream2 {
         let forwarder_ident = Self::call_forwarder_ident();
@@ -504,6 +271,222 @@ impl CrossCalling<'_> {
                     #( #ref_mut_self_messages )*
                 }
             };
+        }
+    }
+
+    /// Generates the code to allow short-hand cross-chain contract calls for messages.
+    fn generate_impl_block_message(
+        &self,
+        message: ir::CallableWithSelector<ir::Message>,
+    ) -> TokenStream2 {
+        let storage_ident_str = self.contract.module().storage().ident().to_string();
+        let span = message.span();
+        let ident = message.ident();
+        let ident_str = ident.to_string();
+        let error_str = format!(
+            "encountered error while calling {}::{}",
+            storage_ident_str, ident_str
+        );
+        let inputs_sig = message.inputs();
+        let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);
+        let output_sig = message.output().map(|output| quote! { -> #output });
+        let receiver = message.receiver();
+        let forward_ident = match receiver {
+            ir::Receiver::Ref => format_ident!("call"),
+            ir::Receiver::RefMut => format_ident!("call_mut"),
+        };
+        let forward_trait = match receiver {
+            ir::Receiver::Ref => format_ident!("ForwardCall"),
+            ir::Receiver::RefMut => format_ident!("ForwardCallMut"),
+        };
+        let opt_mut = match receiver {
+            ir::Receiver::Ref => None,
+            ir::Receiver::RefMut => Some(quote! { mut }),
+        };
+        let opt_pub = match message.item_impl().trait_path() {
+            None => Some(quote! { pub }),
+            Some(_) => None,
+        };
+        quote_spanned!(span =>
+            #[inline]
+            #opt_pub fn #ident( #receiver #(, #inputs_sig )* ) #output_sig {
+                <&#opt_mut Self as ::ink_lang::#forward_trait>::#forward_ident(self)
+                    .#ident( #( #inputs_params ),* )
+                    .fire()
+                    .expect(#error_str)
+            }
+        )
+    }
+
+    /// Generates the code to allow cross-chain contract calls for trait constructors.
+    fn generate_trait_impl_block_constructor(
+        constructor: ir::CallableWithSelector<ir::Constructor>,
+    ) -> TokenStream2 {
+        let span = constructor.span();
+        let attrs = constructor.attrs();
+        let ident = constructor.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let input_bindings = constructor
+            .inputs()
+            .enumerate()
+            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
+            .collect::<Vec<_>>();
+        let input_types = constructor
+            .inputs()
+            .map(|pat_type| &*pat_type.ty)
+            .collect::<Vec<_>>();
+        let arg_list = Self::generate_arg_list(input_types.iter().cloned());
+        quote_spanned!(span =>
+            type #output_ident = ::ink_core::env::call::CreateBuilder<
+                EnvTypes,
+                ::ink_core::env::call::utils::Unset<Hash>,
+                ::ink_core::env::call::utils::Unset<u64>,
+                ::ink_core::env::call::utils::Unset<Balance>,
+                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
+                Self,
+            >;
+
+            #( #attrs )*
+            #[inline]
+            fn #ident(
+                #( #input_bindings : #input_types ),*
+            ) -> Self::#output_ident {
+                ::ink_core::env::call::build_create::<EnvTypes, Self>()
+                    .exec_input(
+                        ::ink_core::env::call::ExecutionInput::new(
+                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        )
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
+                    )
+            }
+        )
+    }
+
+    fn generate_trait_impl_block(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
+        assert!(impl_block.trait_path().is_some());
+        let cfg = self.generate_cfg();
+        let span = impl_block.span();
+        let trait_path = impl_block
+            .trait_path()
+            .expect("encountered missing trait path");
+        let trait_ident = impl_block
+            .trait_ident()
+            .expect("encountered missing trait identifier");
+        let self_type = impl_block.self_type();
+        let messages = impl_block
+            .iter_messages()
+            .map(|message| self.generate_impl_block_message(message));
+        let constructors = impl_block
+            .iter_constructors()
+            .map(|constructor| Self::generate_trait_impl_block_constructor(constructor));
+        let hash = ir::InkTrait::compute_verify_hash(
+            trait_ident,
+            impl_block.iter_constructors().map(|constructor| {
+                let ident = constructor.ident().clone();
+                let len_inputs = constructor.inputs().count();
+                (ident, len_inputs)
+            }),
+            impl_block.iter_messages().map(|message| {
+                let ident = message.ident().clone();
+                let len_inputs = message.inputs().count() + 1;
+                let is_mut = message.receiver().is_ref_mut();
+                (ident, len_inputs, is_mut)
+            }),
+        );
+        let checksum = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
+        quote_spanned!(span =>
+            unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
+
+            #cfg
+            impl #trait_path for #self_type {
+                type __ink_Checksum = [(); #checksum];
+
+                #( #messages )*
+                #( #constructors )*
+            }
+        )
+    }
+
+    /// Generates the code to allow short-hand cross-chain contract calls for constructors.
+    ///
+    /// # Note
+    ///
+    /// For constructors this is the only way they are able to be called.
+    fn generate_impl_block_constructor(
+        constructor: ir::CallableWithSelector<ir::Constructor>,
+    ) -> TokenStream2 {
+        let span = constructor.span();
+        let attrs = constructor.attrs();
+        let ident = constructor.ident();
+        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let input_bindings = constructor
+            .inputs()
+            .enumerate()
+            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
+            .collect::<Vec<_>>();
+        let input_types = constructor
+            .inputs()
+            .map(|pat_type| &*pat_type.ty)
+            .collect::<Vec<_>>();
+        let arg_list = Self::generate_arg_list(input_types.iter().cloned());
+        quote_spanned!(span =>
+            #( #attrs )*
+            #[inline]
+            pub fn #ident(
+                #( #input_bindings : #input_types ),*
+            ) -> ::ink_core::env::call::CreateBuilder<
+                EnvTypes,
+                ::ink_core::env::call::utils::Unset<Hash>,
+                ::ink_core::env::call::utils::Unset<u64>,
+                ::ink_core::env::call::utils::Unset<Balance>,
+                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
+                Self,
+            > {
+                ::ink_core::env::call::build_create::<EnvTypes, Self>()
+                    .exec_input(
+                        ::ink_core::env::call::ExecutionInput::new(
+                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        )
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
+                    )
+            }
+        )
+    }
+
+    fn generate_inherent_impl_block(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
+        assert!(impl_block.trait_path().is_none());
+        let cfg = self.generate_cfg();
+        let span = impl_block.span();
+        let self_type = impl_block.self_type();
+        let messages = impl_block
+            .iter_messages()
+            .map(|message| self.generate_impl_block_message(message));
+        let constructors = impl_block
+            .iter_constructors()
+            .map(|constructor| Self::generate_impl_block_constructor(constructor));
+        quote_spanned!(span =>
+            #cfg
+            impl #self_type {
+                #( #messages )*
+                #( #constructors )*
+            }
+        )
+    }
+
+    fn generate_impl_blocks(&self) -> TokenStream2 {
+        let impl_blocks = self.contract.module().impls().map(|impl_block| {
+            match impl_block.trait_path() {
+                Some(_) => self.generate_trait_impl_block(impl_block),
+                None => self.generate_inherent_impl_block(impl_block),
+            }
+        });
+        quote! {
+            #( #impl_blocks )*
         }
     }
 }
