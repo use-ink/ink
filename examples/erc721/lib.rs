@@ -418,10 +418,10 @@ mod erc721 {
     }
 
     fn decrease_counter_of(
-        foo: &mut StorageHashMap<AccountId, u32>,
+        hmap: &mut StorageHashMap<AccountId, u32>,
         of: &AccountId,
     ) -> Result<(), Error> {
-        let count = (*foo).get_mut(of).ok_or(Error::CannotFetchValue)?;
+        let count = (*hmap).get_mut(of).ok_or(Error::CannotFetchValue)?;
         *count -= 1;
         Ok(())
     }
