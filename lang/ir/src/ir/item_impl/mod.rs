@@ -318,6 +318,11 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
 }
 
 impl ItemImpl {
+    /// Returns all non-ink! specific attributes of the implementation block.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.attrs
+    }
+
     /// Returns the `Self` type of the implementation block.
     pub fn self_type(&self) -> &syn::Type {
         self.self_ty.as_ref()
