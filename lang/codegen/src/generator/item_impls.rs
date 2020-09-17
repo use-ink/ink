@@ -108,6 +108,7 @@ impl ItemImpls<'_> {
     fn generate_trait_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
         assert!(item_impl.trait_path().is_some());
         let span = item_impl.span();
+        let attrs = item_impl.attrs();
         let messages = item_impl
             .iter_messages()
             .map(|cws| Self::generate_message(cws.callable()));
@@ -144,6 +145,7 @@ impl ItemImpls<'_> {
         quote_spanned!(span =>
             unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
 
+            #( #attrs )*
             impl #trait_path for #self_type {
                 type __ink_Checksum = [(); #checksum];
 
@@ -176,6 +178,7 @@ impl ItemImpls<'_> {
     fn generate_inherent_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
         assert!(item_impl.trait_path().is_none());
         let span = item_impl.span();
+        let attrs = item_impl.attrs();
         let messages = item_impl
             .iter_messages()
             .map(|cws| Self::generate_message(cws.callable()));
@@ -189,6 +192,7 @@ impl ItemImpls<'_> {
             .map(ToTokens::to_token_stream);
         let self_type = item_impl.self_type();
         quote_spanned!(span =>
+            #( #attrs )*
             impl #self_type {
                 #( #constructors )*
                 #( #messages )*
