@@ -31,6 +31,7 @@ pub use self::{
         DispatchUsingMode,
     },
     cross_calling::{
+        NeverReturns,
         ForwardCall,
         ForwardCallMut,
         ToAccountId,

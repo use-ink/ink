@@ -14,6 +14,9 @@
 
 use ink_core::env::EnvTypes;
 
+/// The type that can never be returned because it is not possible to craft an instance of it.
+pub enum NeverReturns {}
+
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// This allows to forward `&self` calls to a call forwarder
