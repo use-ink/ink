@@ -22,8 +22,10 @@ mod error;
 mod events;
 mod traits;
 
-pub use ink_lang_macro::contract;
-pub use ink_lang_macro::trait_definition;
+pub use ink_lang_macro::{
+    contract,
+    trait_definition,
+};
 
 pub use self::{
     contract::{
@@ -31,9 +33,9 @@ pub use self::{
         DispatchUsingMode,
     },
     cross_calling::{
-        NeverReturns,
         ForwardCall,
         ForwardCallMut,
+        NeverReturns,
         ToAccountId,
     },
     dispatcher::{
@@ -60,12 +62,12 @@ pub use self::{
     },
     traits::{
         CheckedInkTrait,
-        ImpliesReturn,
         Constructor,
         FnInput,
         FnOutput,
         FnSelector,
         FnState,
+        ImpliesReturn,
         MessageMut,
         MessageRef,
     },

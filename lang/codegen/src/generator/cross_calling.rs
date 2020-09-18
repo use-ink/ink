@@ -16,6 +16,7 @@ use crate::GenerateCode;
 use derive_more::From;
 use heck::CamelCase as _;
 use ir::Callable;
+use itertools::Itertools as _;
 use proc_macro2::{
     Ident,
     TokenStream as TokenStream2,
@@ -26,7 +27,6 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
-use itertools::Itertools as _;
 
 /// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
 #[derive(From)]
@@ -554,9 +554,7 @@ impl CrossCalling<'_> {
             .join("::");
         let error_str = format!(
             "encountered error while calling <{} as {}>::{}",
-            storage_ident_str,
-            trait_path,
-            ident_str
+            storage_ident_str, trait_path, ident_str
         );
         let inputs_sig = message.inputs();
         let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);

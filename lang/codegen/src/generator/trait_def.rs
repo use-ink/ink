@@ -17,8 +17,8 @@ use derive_more::From;
 use heck::CamelCase as _;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
-    quote,
     format_ident,
+    quote,
     quote_spanned,
 };
 
@@ -82,7 +82,8 @@ impl GenerateCode for TraitDefinition<'_> {
             hash[2],
             hash[3]
         );
-        let verify_hash_id = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
+        let verify_hash_id =
+            u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
         let constructors = self
             .trait_def
             .iter_items()
