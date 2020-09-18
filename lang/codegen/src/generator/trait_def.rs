@@ -17,6 +17,7 @@ use derive_more::From;
 use heck::CamelCase as _;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
+    quote,
     format_ident,
     quote_spanned,
 };
@@ -38,7 +39,7 @@ impl<'a> TraitDefinition<'a> {
         let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let inputs = &sig.inputs;
         quote_spanned!(span =>
-            /// Output type of the respective constructor.
+            /// Output type of the respective trait constructor.
             type #output_ident;
 
             #(#attrs)*
@@ -52,10 +53,17 @@ impl<'a> TraitDefinition<'a> {
         let sig = message.sig();
         let ident = &sig.ident;
         let inputs = &sig.inputs;
-        let output = &sig.output;
+        let output = match &sig.output {
+            syn::ReturnType::Default => quote! { () },
+            syn::ReturnType::Type(_, ty) => quote! { #ty },
+        };
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         quote_spanned!(span =>
+            /// Output type of the respective trait message.
+            type #output_ident: ::ink_lang::ImpliesReturn<#output>;
+
             #(#attrs)*
-            fn #ident(#inputs) #output;
+            fn #ident(#inputs) -> Self::#output_ident;
         )
     }
 }

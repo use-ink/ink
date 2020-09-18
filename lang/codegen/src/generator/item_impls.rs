@@ -58,31 +58,6 @@ impl GenerateCode for ItemImpls<'_> {
 }
 
 impl ItemImpls<'_> {
-    /// Generates the code for the given ink! message within an implementation block.
-    fn generate_message(message: &ir::Message) -> TokenStream2 {
-        let span = message.span();
-        let attrs = message.attrs();
-        let vis = match message.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
-        let receiver = match message.receiver() {
-            ir::Receiver::RefMut => quote! { &mut self },
-            ir::Receiver::Ref => quote! { &self },
-        };
-        let ident = message.ident();
-        let inputs = message.inputs();
-        let output_arrow = message.output().map(|_| quote! { -> });
-        let output = message.output();
-        let statements = message.statements();
-        quote_spanned!(span =>
-            #( #attrs )*
-            #vis fn #ident(#receiver, #( #inputs ),* ) #output_arrow #output {
-                #( #statements )*
-            }
-        )
-    }
-
     /// Generates the code for the given ink! constructor within a trait implementation block.
     fn generate_trait_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
@@ -105,13 +80,43 @@ impl ItemImpls<'_> {
         )
     }
 
+    /// Generates the code for the given ink! message within a trait implementation block.
+    fn generate_trait_message(message: &ir::Message) -> TokenStream2 {
+        let span = message.span();
+        let attrs = message.attrs();
+        let vis = match message.visibility() {
+            ir::Visibility::Inherited => None,
+            ir::Visibility::Public(vis_public) => Some(vis_public),
+        };
+        let receiver = match message.receiver() {
+            ir::Receiver::RefMut => quote! { &mut self },
+            ir::Receiver::Ref => quote! { &self },
+        };
+        let ident = message.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let inputs = message.inputs();
+        let output = message
+            .output()
+            .cloned()
+            .unwrap_or_else(|| syn::parse_quote! { () });
+        let statements = message.statements();
+        quote_spanned!(span =>
+            type #output_ident = #output;
+
+            #( #attrs )*
+            #vis fn #ident(#receiver #(, #inputs )* ) -> Self::#output_ident {
+                #( #statements )*
+            }
+        )
+    }
+
     fn generate_trait_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
         assert!(item_impl.trait_path().is_some());
         let span = item_impl.span();
         let attrs = item_impl.attrs();
         let messages = item_impl
             .iter_messages()
-            .map(|cws| Self::generate_message(cws.callable()));
+            .map(|cws| Self::generate_trait_message(cws.callable()));
         let constructors = item_impl
             .iter_constructors()
             .map(|cws| Self::generate_trait_constructor(cws.callable()));
@@ -175,13 +180,38 @@ impl ItemImpls<'_> {
         )
     }
 
+    /// Generates the code for the given ink! message within an inherent implementation block.
+    fn generate_inherent_message(message: &ir::Message) -> TokenStream2 {
+        let span = message.span();
+        let attrs = message.attrs();
+        let vis = match message.visibility() {
+            ir::Visibility::Inherited => None,
+            ir::Visibility::Public(vis_public) => Some(vis_public),
+        };
+        let receiver = match message.receiver() {
+            ir::Receiver::RefMut => quote! { &mut self },
+            ir::Receiver::Ref => quote! { &self },
+        };
+        let ident = message.ident();
+        let inputs = message.inputs();
+        let output_arrow = message.output().map(|_| quote! { -> });
+        let output = message.output();
+        let statements = message.statements();
+        quote_spanned!(span =>
+            #( #attrs )*
+            #vis fn #ident(#receiver, #( #inputs ),* ) #output_arrow #output {
+                #( #statements )*
+            }
+        )
+    }
+
     fn generate_inherent_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
         assert!(item_impl.trait_path().is_none());
         let span = item_impl.span();
         let attrs = item_impl.attrs();
         let messages = item_impl
             .iter_messages()
-            .map(|cws| Self::generate_message(cws.callable()));
+            .map(|cws| Self::generate_inherent_message(cws.callable()));
         let constructors = item_impl
             .iter_constructors()
             .map(|cws| Self::generate_inherent_constructor(cws.callable()));

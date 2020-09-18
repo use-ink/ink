@@ -13,13 +13,57 @@
 // limitations under the License.
 
 use ink_core::{
-    env::call::Selector,
+    env::{
+        call::{
+            utils::{
+                ReturnType,
+                Set,
+            },
+            CallBuilder,
+            ExecutionInput,
+            Selector,
+        },
+        EnvTypes,
+    },
     storage2::traits::SpreadLayout,
 };
 
 /// Trait used to indicate that an ink! trait definition has been checked
 /// by the `#[ink::trait_definition]` proc. macro.
 pub unsafe trait CheckedInkTrait<T> {}
+
+/// Trait used by `#[ink::trait_definition]` to ensure that the associated
+/// return type for each trait message is correct.
+pub trait ImpliesReturn<T> {}
+
+impl<T> ImpliesReturn<T> for T {}
+impl<T, E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<T>
+    for CallBuilder<
+        E,
+        Callee,
+        GasCost,
+        TransferredValue,
+        Set<ExecutionInput<Args>>,
+        Set<ReturnType<T>>,
+    >
+where
+    E: EnvTypes,
+{
+}
+
+impl<E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<()>
+    for CallBuilder<
+        E,
+        Callee,
+        GasCost,
+        TransferredValue,
+        Set<ExecutionInput<Args>>,
+        Set<()>,
+    >
+where
+    E: EnvTypes,
+{
+}
 
 /// Dispatchable functions that have inputs.
 pub trait FnInput {

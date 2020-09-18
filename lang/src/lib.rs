@@ -59,6 +59,7 @@ pub use self::{
     },
     traits::{
         CheckedInkTrait,
+        ImpliesReturn,
         Constructor,
         FnInput,
         FnOutput,
