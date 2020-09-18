@@ -467,7 +467,7 @@ impl CrossCalling<'_> {
         let messages = item_impl
             .iter_messages()
             .filter(|message| mutable == message.receiver().is_ref_mut())
-            .map(|message| Self::generate_call_forwarder_inherent_message(message));
+            .map(Self::generate_call_forwarder_inherent_message);
         quote_spanned!(span =>
             #( #attrs )*
             impl<'a> #forwarder_ident<&'a #mut_tok #storage_ident> {
@@ -656,7 +656,7 @@ impl CrossCalling<'_> {
             .map(|message| self.generate_trait_impl_block_message(message));
         let constructors = impl_block
             .iter_constructors()
-            .map(|constructor| Self::generate_trait_impl_block_constructor(constructor));
+            .map(Self::generate_trait_impl_block_constructor);
         let hash = ir::InkTrait::compute_verify_hash(
             trait_ident,
             impl_block.iter_constructors().map(|constructor| {
