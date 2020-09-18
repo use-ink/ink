@@ -26,6 +26,7 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
+use itertools::Itertools as _;
 
 /// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
 #[derive(From)]
@@ -183,7 +184,10 @@ impl CrossCalling<'_> {
             .inputs()
             .map(|pat_type| &*pat_type.ty)
             .collect::<Vec<_>>();
-        let output_ty = message.output().cloned().unwrap_or_else(|| syn::parse_quote! { () });
+        let output_ty = message
+            .output()
+            .cloned()
+            .unwrap_or_else(|| syn::parse_quote! { () });
         let pub_tok = match message.item_impl().trait_path() {
             Some(_) => None,
             None => Some(quote! { pub }),
@@ -463,9 +467,7 @@ impl CrossCalling<'_> {
         let messages = item_impl
             .iter_messages()
             .filter(|message| mutable == message.receiver().is_ref_mut())
-            .map(|message| {
-                Self::generate_call_forwarder_inherent_message(message)
-            });
+            .map(|message| Self::generate_call_forwarder_inherent_message(message));
         quote_spanned!(span =>
             #( #attrs )*
             impl<'a> #forwarder_ident<&'a #mut_tok #storage_ident> {
@@ -533,21 +535,35 @@ impl CrossCalling<'_> {
     }
 
     /// Generates the code to allow short-hand cross-chain contract calls for messages.
-    fn generate_impl_block_message(
+    fn generate_trait_impl_block_message(
         &self,
         message: ir::CallableWithSelector<ir::Message>,
     ) -> TokenStream2 {
         let storage_ident_str = self.contract.module().storage().ident().to_string();
         let span = message.span();
         let ident = message.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let ident_str = ident.to_string();
+        let trait_path = message
+            .item_impl()
+            .trait_path()
+            .expect("encountered missing trait path for trait impl block")
+            .segments
+            .iter()
+            .map(|path_segment| path_segment.ident.to_string())
+            .join("::");
         let error_str = format!(
-            "encountered error while calling {}::{}",
-            storage_ident_str, ident_str
+            "encountered error while calling <{} as {}>::{}",
+            storage_ident_str,
+            trait_path,
+            ident_str
         );
         let inputs_sig = message.inputs();
         let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);
-        let output_sig = message.output().map(|output| quote! { -> #output });
+        let output_ty = message
+            .output()
+            .cloned()
+            .unwrap_or_else(|| syn::parse_quote! { () });
         let receiver = message.receiver();
         let forward_ident = match receiver {
             ir::Receiver::Ref => format_ident!("call"),
@@ -566,8 +582,10 @@ impl CrossCalling<'_> {
             Some(_) => None,
         };
         quote_spanned!(span =>
+            type #output_ident = #output_ty;
+
             #[inline]
-            #opt_pub fn #ident( #receiver #(, #inputs_sig )* ) #output_sig {
+            #opt_pub fn #ident( #receiver #(, #inputs_sig )* ) -> Self::#output_ident {
                 <&#opt_mut Self as ::ink_lang::#forward_trait>::#forward_ident(self)
                     .#ident( #( #inputs_params ),* )
                     .fire()
@@ -637,7 +655,7 @@ impl CrossCalling<'_> {
         let self_type = impl_block.self_type();
         let messages = impl_block
             .iter_messages()
-            .map(|message| self.generate_impl_block_message(message));
+            .map(|message| self.generate_trait_impl_block_message(message));
         let constructors = impl_block
             .iter_constructors()
             .map(|constructor| Self::generate_trait_impl_block_constructor(constructor));
@@ -676,7 +694,7 @@ impl CrossCalling<'_> {
     /// # Note
     ///
     /// For constructors this is the only way they are able to be called.
-    fn generate_impl_block_constructor(
+    fn generate_inherent_impl_block_constructor(
         constructor: ir::CallableWithSelector<ir::Constructor>,
     ) -> TokenStream2 {
         let span = constructor.span();
@@ -719,6 +737,50 @@ impl CrossCalling<'_> {
         )
     }
 
+    /// Generates the code to allow short-hand cross-chain contract calls for messages.
+    fn generate_inherent_impl_block_message(
+        &self,
+        message: ir::CallableWithSelector<ir::Message>,
+    ) -> TokenStream2 {
+        let storage_ident_str = self.contract.module().storage().ident().to_string();
+        let span = message.span();
+        let ident = message.ident();
+        let ident_str = ident.to_string();
+        let error_str = format!(
+            "encountered error while calling {}::{}",
+            storage_ident_str, ident_str
+        );
+        let inputs_sig = message.inputs();
+        let inputs_params = message.inputs().map(|pat_type| &pat_type.pat);
+        let output_sig = message.output().map(|output| quote! { -> #output });
+        let receiver = message.receiver();
+        let forward_ident = match receiver {
+            ir::Receiver::Ref => format_ident!("call"),
+            ir::Receiver::RefMut => format_ident!("call_mut"),
+        };
+        let forward_trait = match receiver {
+            ir::Receiver::Ref => format_ident!("ForwardCall"),
+            ir::Receiver::RefMut => format_ident!("ForwardCallMut"),
+        };
+        let opt_mut = match receiver {
+            ir::Receiver::Ref => None,
+            ir::Receiver::RefMut => Some(quote! { mut }),
+        };
+        let opt_pub = match message.item_impl().trait_path() {
+            None => Some(quote! { pub }),
+            Some(_) => None,
+        };
+        quote_spanned!(span =>
+            #[inline]
+            #opt_pub fn #ident( #receiver #(, #inputs_sig )* ) #output_sig {
+                <&#opt_mut Self as ::ink_lang::#forward_trait>::#forward_ident(self)
+                    .#ident( #( #inputs_params ),* )
+                    .fire()
+                    .expect(#error_str)
+            }
+        )
+    }
+
     fn generate_inherent_impl_block(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
         assert!(impl_block.trait_path().is_none());
         let cfg = self.generate_cfg();
@@ -727,10 +789,10 @@ impl CrossCalling<'_> {
         let self_type = impl_block.self_type();
         let messages = impl_block
             .iter_messages()
-            .map(|message| self.generate_impl_block_message(message));
-        let constructors = impl_block
-            .iter_constructors()
-            .map(|constructor| Self::generate_impl_block_constructor(constructor));
+            .map(|message| self.generate_inherent_impl_block_message(message));
+        let constructors = impl_block.iter_constructors().map(|constructor| {
+            Self::generate_inherent_impl_block_constructor(constructor)
+        });
         quote_spanned!(span =>
             #cfg
             #( #attrs )*
