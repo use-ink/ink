@@ -159,6 +159,182 @@ impl CrossCalling<'_> {
         format_ident!("__ink_CallForwarder")
     }
 
+    fn generate_call_forwarder_trait_ghost_message(
+        message: ir::CallableWithSelector<ir::Message>,
+    ) -> TokenStream2 {
+        let span = message.span();
+        let ident = message.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let composed_selector = message.composed_selector().as_bytes().to_owned();
+        let linker_error_ident = format_ident!(
+            "__ink_enforce_error_for_message_0x{:02X}{:02X}{:02X}{:02X}",
+            composed_selector[0],
+            composed_selector[1],
+            composed_selector[2],
+            composed_selector[3]
+        );
+        let attrs = message.attrs();
+        let input_bindings = message
+            .inputs()
+            .enumerate()
+            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
+            .collect::<Vec<_>>();
+        let input_types = message
+            .inputs()
+            .map(|pat_type| &*pat_type.ty)
+            .collect::<Vec<_>>();
+        let output_ty = message.output().cloned().unwrap_or_else(|| syn::parse_quote! { () });
+        let pub_tok = match message.item_impl().trait_path() {
+            Some(_) => None,
+            None => Some(quote! { pub }),
+        };
+        let mut_tok = match message.receiver() {
+            ir::Receiver::Ref => None,
+            ir::Receiver::RefMut => Some(quote! { mut }),
+        };
+        quote_spanned!(span=>
+            type #output_ident = #output_ty;
+
+            #( #attrs )*
+            #[cold]
+            #[doc(hidden)]
+            #pub_tok fn #ident(
+                & #mut_tok self,
+                #( #input_bindings : #input_types ),*
+            ) -> Self::#output_ident {
+                extern {
+                    fn #linker_error_ident() -> !;
+                }
+                unsafe { #linker_error_ident() }
+            }
+        )
+    }
+
+    fn generate_call_forwarder_trait_proper_message(
+        message: ir::CallableWithSelector<ir::Message>,
+    ) -> TokenStream2 {
+        let span = message.span();
+        let ident = message.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let composed_selector = message.composed_selector().as_bytes().to_owned();
+        let attrs = message.attrs();
+        let input_bindings = message
+            .inputs()
+            .enumerate()
+            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
+            .collect::<Vec<_>>();
+        let input_types = message
+            .inputs()
+            .map(|pat_type| &*pat_type.ty)
+            .collect::<Vec<_>>();
+        let arg_list = Self::generate_arg_list(input_types.iter().cloned());
+        let output = message.output();
+        let output_sig = output.map_or_else(
+            || quote! { () },
+            |output| quote! { ::ink_core::env::call::utils::ReturnType<#output> },
+        );
+        let pub_tok = match message.item_impl().trait_path() {
+            Some(_) => None,
+            None => Some(quote! { pub }),
+        };
+        let receiver = match message.receiver() {
+            ir::Receiver::Ref => Some(quote! { &self }),
+            ir::Receiver::RefMut => Some(quote! { &mut self }),
+        };
+        quote_spanned!(span=>
+            type #output_ident = ::ink_core::env::call::CallBuilder<
+                EnvTypes,
+                ::ink_core::env::call::utils::Set<AccountId>,
+                ::ink_core::env::call::utils::Unset<u64>,
+                ::ink_core::env::call::utils::Unset<Balance>,
+                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
+                ::ink_core::env::call::utils::Set<#output_sig>,
+            >;
+
+            #( #attrs )*
+            #[inline]
+            #pub_tok fn #ident(
+                #receiver #(, #input_bindings : #input_types )*
+            ) -> Self::#output_ident {
+                ::ink_core::env::call::build_call::<EnvTypes>()
+                    .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
+                    .exec_input(
+                        ::ink_core::env::call::ExecutionInput::new(
+                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        )
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
+                    )
+                    .returns::<#output_sig>()
+            }
+        )
+    }
+
+    /// Generates code for a single call forwarder trait message.
+    ///
+    /// The `mutable` parameter indicates whether only read-only (`false`) or
+    /// write-only (`true`) messages shall be valid calls. For non valid messages
+    /// an invalid implementation is provided so that actually calling those
+    /// will result in a compiler or linker error.
+    fn generate_call_forwarder_trait_message(
+        mutable: bool,
+        message: ir::CallableWithSelector<ir::Message>,
+    ) -> TokenStream2 {
+        if mutable == message.receiver().is_ref_mut() {
+            Self::generate_call_forwarder_trait_proper_message(message)
+        } else {
+            Self::generate_call_forwarder_trait_ghost_message(message)
+        }
+    }
+
+    /// Generates code for a single call forwarder trait constructor.
+    ///
+    /// Note that constructors never need to be forwarded and that we only
+    /// provide their implementations to satisfy the implementation block.
+    /// We generally try to generate code in a way that actually calling
+    /// those constructors will result in a compiler or linker error.
+    fn generate_call_forwarder_trait_constructor(
+        constructor: ir::CallableWithSelector<ir::Constructor>,
+    ) -> TokenStream2 {
+        let span = constructor.span();
+        let attrs = constructor.attrs();
+        let ident = constructor.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let linker_error_ident = format_ident!(
+            "__ink_enforce_error_for_constructor_0x{:02X}{:02X}{:02X}{:02X}",
+            composed_selector[0],
+            composed_selector[1],
+            composed_selector[2],
+            composed_selector[3]
+        );
+        let input_bindings = constructor
+            .inputs()
+            .enumerate()
+            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
+            .collect::<Vec<_>>();
+        let input_types = constructor
+            .inputs()
+            .map(|pat_type| &*pat_type.ty)
+            .collect::<Vec<_>>();
+        quote_spanned!(span =>
+            type #output_ident = ::ink_lang::NeverReturns;
+
+            #( #attrs )*
+            #[cold]
+            #[doc(hidden)]
+            fn #ident(
+                #( #input_bindings : #input_types ),*
+            ) -> Self::#output_ident {
+                extern {
+                    fn #linker_error_ident() -> !;
+                }
+                unsafe { #linker_error_ident() }
+            }
+        )
+    }
+
     /// Generates code for a single call forwarder trait implementation block.
     ///
     /// The `mutable` parameter indicates whether only read-only (`false`) or
@@ -168,7 +344,50 @@ impl CrossCalling<'_> {
         mutable: bool,
         item_impl: &ir::ItemImpl,
     ) -> TokenStream2 {
-        quote! {}
+        assert!(item_impl.trait_path().is_some());
+        let span = item_impl.span();
+        let attrs = item_impl.attrs();
+        let forwarder_ident = Self::call_forwarder_ident();
+        let storage_ident = self.contract.module().storage().ident();
+        let mut_tok = if mutable { Some(quote! { mut }) } else { None };
+        let constructors = item_impl.iter_constructors().map(|constructor| {
+            Self::generate_call_forwarder_trait_constructor(constructor)
+        });
+        let messages = item_impl
+            .iter_messages()
+            .map(|message| Self::generate_call_forwarder_trait_message(mutable, message));
+        let trait_path = item_impl
+            .trait_path()
+            .expect("encountered missing trait path for trait impl block");
+        let trait_ident = item_impl
+            .trait_ident()
+            .expect("encountered missing trait identifier for trait impl block");
+        let hash = ir::InkTrait::compute_verify_hash(
+            trait_ident,
+            item_impl.iter_constructors().map(|constructor| {
+                let ident = constructor.ident().clone();
+                let len_inputs = constructor.inputs().count();
+                (ident, len_inputs)
+            }),
+            item_impl.iter_messages().map(|message| {
+                let ident = message.ident().clone();
+                let len_inputs = message.inputs().count() + 1;
+                let is_mut = message.receiver().is_ref_mut();
+                (ident, len_inputs, is_mut)
+            }),
+        );
+        let checksum = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
+        quote_spanned!(span =>
+            unsafe impl<'a> ::ink_lang::CheckedInkTrait<[(); #checksum]> for #forwarder_ident<&'a #mut_tok #storage_ident> {}
+
+            #( #attrs )*
+            impl<'a> #trait_path for #forwarder_ident<&'a #mut_tok #storage_ident> {
+                type __ink_Checksum = [(); #checksum];
+
+                #( #constructors )*
+                #( #messages )*
+            }
+        )
     }
 
     fn generate_call_forwarder_inherent_message(
@@ -193,10 +412,14 @@ impl CrossCalling<'_> {
             || quote! { () },
             |output| quote! { ::ink_core::env::call::utils::ReturnType<#output> },
         );
+        let pub_tok = match message.item_impl().trait_path() {
+            Some(_) => None,
+            None => Some(quote! { pub }),
+        };
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]
-            pub fn #ident(
+            #pub_tok fn #ident(
                 self,
                 #( #input_bindings : #input_types ),*
             ) -> ::ink_core::env::call::CallBuilder<
@@ -231,14 +454,18 @@ impl CrossCalling<'_> {
         mutable: bool,
         item_impl: &ir::ItemImpl,
     ) -> TokenStream2 {
+        assert!(item_impl.trait_path().is_none());
         let span = item_impl.span();
         let attrs = item_impl.attrs();
         let forwarder_ident = Self::call_forwarder_ident();
         let storage_ident = self.contract.module().storage().ident();
         let mut_tok = if mutable { Some(quote! { mut }) } else { None };
-        let messages = item_impl.iter_messages().filter(|message| {
-            mutable == message.receiver().is_ref_mut()
-        }).map(|message| Self::generate_call_forwarder_inherent_message(message));
+        let messages = item_impl
+            .iter_messages()
+            .filter(|message| mutable == message.receiver().is_ref_mut())
+            .map(|message| {
+                Self::generate_call_forwarder_inherent_message(message)
+            });
         quote_spanned!(span =>
             #( #attrs )*
             impl<'a> #forwarder_ident<&'a #mut_tok #storage_ident> {
@@ -430,6 +657,7 @@ impl CrossCalling<'_> {
         );
         let checksum = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
         quote_spanned!(span =>
+            #cfg
             unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
 
             #cfg
