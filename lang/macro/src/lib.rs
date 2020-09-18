@@ -17,7 +17,6 @@ mod contract;
 mod extensions;
 mod ir;
 mod trait_def;
-mod lint;
 
 use proc_macro::TokenStream;
 
