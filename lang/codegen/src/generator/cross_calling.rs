@@ -550,7 +550,8 @@ impl CrossCalling<'_> {
             .expect("encountered missing trait path for trait impl block")
             .segments
             .iter()
-            .map(|path_segment| path_segment.ident.to_string())
+            .map(|path_segment| &path_segment.ident)
+            .map(ToString::to_string)
             .join("::");
         let error_str = format!(
             "encountered error while calling <{} as {}>::{}",
