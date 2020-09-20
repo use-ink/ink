@@ -160,6 +160,8 @@ mod erc20 {
         use super::*;
         use ink_core::env;
 
+        type Event = <Erc20 as ::ink_lang::BaseEvent>::Type;
+
         /// Executes the given test through the off-chain environment.
         fn run_test<F>(test_fn: F)
         where
