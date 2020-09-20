@@ -168,7 +168,17 @@ impl Events<'_> {
             let span = event.span();
             let ident = event.ident();
             let attrs = event.attrs();
-            let fields = event.fields();
+            let fields = event.fields().map(|event_field| {
+                let span = event_field.span();
+                let attrs = event_field.attrs();
+                let vis = event_field.vis();
+                let ident = event_field.ident();
+                let ty = event_field.ty();
+                quote_spanned!(span=>
+                    #( #attrs )*
+                    #vis #ident : #ty
+                )
+            });
             quote_spanned!(span =>
                 #no_cross_calling_cfg
                 #( #attrs )*
