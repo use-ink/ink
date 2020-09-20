@@ -64,8 +64,11 @@ impl Events<'_> {
     /// them first into the automatically generated base trait of the contract.
     fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
+        let no_cross_calling_cfg =
+            self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote! {
             const _: () = {
+                #no_cross_calling_cfg
                 impl<'a> ::ink_lang::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, EnvTypes> {
                     fn emit_event<E>(self, event: E)
                     where
@@ -128,7 +131,7 @@ impl Events<'_> {
                         match self {
                             #(
                                 Self::#event_idents(event) => {
-                                    <#event_idents as ::ink_core::env::Topics<EnvTypes>>::topics(event),
+                                    <#event_idents as ::ink_core::env::Topics<EnvTypes>>::topics(event)
                                 }
                             )*
                         }
