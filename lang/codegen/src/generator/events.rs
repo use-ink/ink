@@ -73,7 +73,7 @@ impl Events<'_> {
                     {
                         ::ink_core::env::emit_event::<
                             EnvTypes,
-                            <#storage_ident as ::ink_lang::BaseEvent>::Type,
+                            <#storage_ident as ::ink_lang::BaseEvent>::Type
                         >(event.into());
                     }
                 }
