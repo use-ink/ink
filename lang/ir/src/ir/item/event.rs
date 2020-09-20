@@ -93,16 +93,17 @@ impl TryFrom<syn::ItemStruct> for Event {
                 "generic ink! event structs are not supported",
             ))
         }
-        match &item_struct.vis {
-            syn::Visibility::Inherited
-            | syn::Visibility::Restricted(_)
-            | syn::Visibility::Crate(_) => {
-                return Err(format_err_spanned!(
-                    &item_struct.vis,
-                    "non `pub` ink! event structs are not supported",
-                ))
-            }
-            _ => (),
+        let bad_visibility = match &item_struct.vis {
+            syn::Visibility::Inherited => Some(struct_span),
+            syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
+            syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
+            syn::Visibility::Public(_) => None,
+        };
+        if let Some(bad_visibility) = bad_visibility {
+            return Err(format_err!(
+                bad_visibility,
+                "non `pub` ink! event structs are not supported",
+            ))
         }
         'repeat: for field in item_struct.fields.iter() {
             let field_span = field.span();
