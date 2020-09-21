@@ -766,7 +766,7 @@ mod erc721 {
         }
 
         #[test]
-        fn burn_fails_token_not_found() {
+        fn burn_fails_not_owner() {
             run_test(|| {
                 let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
                     .expect("Cannot get accounts");
