@@ -457,10 +457,14 @@ mod multisig_plain {
             self.ensure_caller_is_owner();
             let caller = self.env().caller();
             if self.confirmations.take(&(trans_id, caller)).is_some() {
-                let v_mut = self.confirmation_count.entry(trans_id).or_insert(1);
-                if *v_mut > 0 {
-                    *v_mut -= 1;
-                }
+                self.confirmation_count
+                    .entry(trans_id)
+                    .and_modify(|v| {
+                        if *v > 0 {
+                            *v -= 1;
+                        }
+                    })
+                    .or_insert(1);
                 self.env().emit_event(Revokation {
                     transaction: trans_id,
                     from: caller,

@@ -428,17 +428,8 @@ mod erc721 {
 
     /// Increase token counter from the `of` AccountId.
     fn increase_counter_of(entry: Entry<AccountId, u32>) -> Result<(), Error> {
-        match entry {
-            Entry::Occupied(mut occupied) => {
-                let count = occupied.get_mut();
-                *count += 1;
-                Ok(())
-            }
-            Entry::Vacant(vacant) => {
-                vacant.insert(1);
-                Ok(())
-            }
-        }
+        entry.and_modify(|v| *v += 1).or_insert(1);
+        Ok(())
     }
 
     /// Unit tests
@@ -756,8 +747,6 @@ mod erc721 {
         #[test]
         fn burn_fails_token_not_found() {
             run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
                 // Create a new contract instance.
                 let mut erc721 = Erc721::new();
                 // Try burning a non existent token
