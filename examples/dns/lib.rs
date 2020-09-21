@@ -20,6 +20,7 @@ use ink_lang as ink;
 mod dns {
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_core::storage2::{
+        collections::hashmap::Entry,
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
     };
@@ -107,11 +108,14 @@ mod dns {
         #[ink(message)]
         fn register(&mut self, name: Hash) -> Result<()> {
             let caller = self.env().caller();
-            if self.is_name_assigned(name) {
-                return Err(Error::NameAlreadyExists)
+            let entry = self.name_to_owner.entry(name);
+            match entry {
+                Entry::Occupied(_) => return Err(Error::NameAlreadyExists),
+                Entry::Vacant(vacant) => {
+                    vacant.insert(caller);
+                    self.env().emit_event(Register { name, from: caller });
+                }
             }
-            self.name_to_owner.insert(name, caller);
-            self.env().emit_event(Register { name, from: caller });
             Ok(())
         }
 
@@ -155,12 +159,6 @@ mod dns {
         #[ink(message)]
         fn get_address(&self, name: Hash) -> AccountId {
             self.get_address_or_default(name)
-        }
-
-        /// Returns `true` if the name already assigned.
-        #[ink(message)]
-        fn is_name_assigned(&self, name: Hash) -> bool {
-            self.name_to_owner.get(&name).is_some()
         }
 
         /// Returns the owner given the hash or the default address.
