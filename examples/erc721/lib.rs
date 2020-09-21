@@ -446,7 +446,13 @@ mod erc721 {
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
-        use ink_core::env;
+        use ink_core::{
+            env,
+            env::{
+                call,
+                test,
+            },
+        };
 
         /// Executes the given test through the off-chain environment.
         fn run_test<F>(test_fn: F)
@@ -745,6 +751,45 @@ mod erc721 {
                 // Token Id 1 does not exists
                 assert_eq!(erc721.owner_of(1), None);
             })
+        }
+
+        #[test]
+        fn burn_fails_token_not_found() {
+            run_test(|| {
+                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+                    .expect("Cannot get accounts");
+                // Create a new contract instance.
+                let mut erc721 = Erc721::new();
+                // Try burning a non existent token
+                assert_eq!(erc721.burn(1), Err(Error::TokenNotFound));
+            })
+        }
+
+        #[test]
+        fn burn_fails_token_not_found() {
+            run_test(|| {
+                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+                    .expect("Cannot get accounts");
+                // Create a new contract instance.
+                let mut erc721 = Erc721::new();
+                // Create token Id 1 for Alice
+                assert_eq!(erc721.mint(1), Ok(()));
+                // Try burning this token with a different account
+                set_sender(accounts.eve);
+                assert_eq!(erc721.burn(1), Err(Error::NotOwner));
+            })
+        }
+
+        fn set_sender(sender: AccountId) {
+            let callee =
+                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            test::push_execution_context::<EnvTypes>(
+                sender,
+                callee,
+                1000000,
+                1000000,
+                test::CallData::new(call::Selector::new([0x00; 4])), // dummy
+            );
         }
     }
 }

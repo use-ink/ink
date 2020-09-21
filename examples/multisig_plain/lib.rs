@@ -942,6 +942,28 @@ mod multisig_plain {
         }
 
         #[test]
+        fn revoke_confirmations() {
+            // given
+            let mut contract = submit_transaction();
+            let accounts = default_accounts();
+            // Confirm by Bob
+            set_sender(accounts.bob);
+            contract.confirm_transaction(0);
+            // Confirm by Eve
+            set_sender(accounts.eve);
+            contract.confirm_transaction(0);
+            assert_eq!(contract.confirmations.len(), 3);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 3);
+            // Revoke from Eve
+            contract.revoke_confirmation(0);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 2);
+            // Revoke from Bob
+            set_sender(accounts.bob);
+            contract.revoke_confirmation(0);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
+        }
+
+        #[test]
         fn confirm_transaction_already_confirmed() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
