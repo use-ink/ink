@@ -534,7 +534,7 @@ impl Dispatch<'_> {
         // the message dispatch which is more efficient.
         let accepts_payments = cws.is_payable() || self.all_messages_deny_payment();
         let is_dynamic_storage_allocation_enabled =
-            self.contract.config().is_storage_allocator_enabled();
+            self.contract.config().is_dynamic_storage_allocator_enabled();
         quote! {
             Self::#ident(#(#arg_pats),*) => {
                 ::ink_lang::#exec_fn::<<#storage_ident as ::ink_lang::ContractEnv>::Env, #namespace<[(); #selector_id]>, _>(
@@ -626,7 +626,7 @@ impl Dispatch<'_> {
         let namespace =
             Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         let is_dynamic_storage_allocation_enabled =
-            self.contract.config().is_storage_allocator_enabled();
+            self.contract.config().is_dynamic_storage_allocator_enabled();
         quote! {
             Self::#ident(#(#arg_pats),*) => {
                 ::ink_lang::execute_constructor::<#namespace<[(); #selector_id]>, _>(
