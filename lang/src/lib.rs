@@ -42,6 +42,7 @@ pub use self::{
         execute_constructor,
         execute_message,
         execute_message_mut,
+        deny_payment,
         AcceptsPayments,
         ConstructorDispatcher,
         EnablesDynamicStorageAllocator,
