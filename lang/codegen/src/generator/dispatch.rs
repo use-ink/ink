@@ -513,7 +513,8 @@ impl Dispatch<'_> {
         let selector_id = cws.composed_selector().unique_id();
         let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
         let accepts_payments = cws.is_payable();
-        let is_dynamic_storage_allocation_enabled = self.contract.config().is_storage_allocator_enabled();
+        let is_dynamic_storage_allocation_enabled =
+            self.contract.config().is_storage_allocator_enabled();
         quote! {
             Self::#ident(#(#arg_pats),*) => {
                 ::ink_lang::#exec_fn::<<#storage_ident as ::ink_lang::ContractEnv>::Env, #namespace<[(); #selector_id]>, _>(
@@ -604,7 +605,8 @@ impl Dispatch<'_> {
         let selector_id = cws.composed_selector().unique_id();
         let namespace =
             Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
-        let is_dynamic_storage_allocation_enabled = self.contract.config().is_storage_allocator_enabled();
+        let is_dynamic_storage_allocation_enabled =
+            self.contract.config().is_storage_allocator_enabled();
         quote! {
             Self::#ident(#(#arg_pats),*) => {
                 ::ink_lang::execute_constructor::<#namespace<[(); #selector_id]>, _>(
