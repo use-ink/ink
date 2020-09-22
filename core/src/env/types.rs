@@ -37,7 +37,6 @@ use core::{
     convert::TryFrom,
 };
 use derive_more::From;
-use ink_prelude::vec::Vec;
 use scale::{
     Decode,
     Encode,
@@ -49,6 +48,7 @@ use scale_info::TypeInfo;
 pub trait EnvTypes {
     /// The type of an address.
     type AccountId: 'static + scale::Codec + Clone + PartialEq + Eq + Ord;
+
     /// The type of balances.
     type Balance: 'static
         + scale::Codec
@@ -57,6 +57,7 @@ pub trait EnvTypes {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned;
+
     /// The type of hash.
     type Hash: 'static
         + scale::Codec
@@ -68,6 +69,7 @@ pub trait EnvTypes {
         + Ord
         + AsRef<[u8]>
         + AsMut<[u8]>;
+
     /// The type of timestamps.
     type Timestamp: 'static
         + scale::Codec
@@ -76,6 +78,7 @@ pub trait EnvTypes {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned;
+
     /// The type of block number.
     type BlockNumber: 'static
         + scale::Codec
@@ -84,8 +87,6 @@ pub trait EnvTypes {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned;
-    /// The type of a call into the runtime
-    type Call: 'static + scale::Codec;
 }
 
 /// Implemented by event types to communicate their topic hashes.
@@ -108,7 +109,6 @@ impl EnvTypes for DefaultEnvTypes {
     type Hash = Hash;
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
-    type Call = Call;
 }
 
 /// The default balance type.
@@ -119,39 +119,6 @@ pub type Timestamp = u64;
 
 /// The default block number type.
 pub type BlockNumber = u64;
-
-/// This call type guarantees to never be constructed.
-///
-/// This has the effect that users of the default env types are
-/// not able to call back into the runtime.
-/// This operation is generally unsupported because of the currently
-/// implied additional overhead.
-///
-/// # Note
-///
-/// A user defined `Call` type is required for calling into the runtime.
-/// For more info visit: https://github.com/paritytech/ink-types-node-runtime
-#[derive(Debug)]
-pub enum Call {}
-
-impl Encode for Call {
-    fn encode(&self) -> Vec<u8> {
-        // The implementation enforces at runtime that `Encode` is not called
-        // for the default SRML `Call` type but for performance reasons this check
-        // is removed for the on-chain (release mode) version.
-        debug_assert!(false, "cannot encode default `Call` type");
-        Vec::new()
-    }
-}
-
-impl scale::Decode for Call {
-    fn decode<I: scale::Input>(_value: &mut I) -> Result<Self, scale::Error> {
-        // This implementation is only to satisfy the Decode constraint in the
-        // test environment. Since Call cannot be constructed then just return
-        // None, but this should never be called.
-        Err("The default `Call` type cannot be used for runtime calls".into())
-    }
-}
 
 /// The default environment `AccountId` type.
 ///
