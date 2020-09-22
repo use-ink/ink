@@ -355,7 +355,7 @@ mod multisig_plain {
             ensure_requirement_is_valid(len, requirement);
             self.owners.swap_remove(self.owner_index(&owner));
             self.is_owner.take(&owner);
-            *self.requirement = requirement;
+            Lazy::set(&mut self.requirement, requirement);
             self.clean_owner_confirmations(&owner);
             self.env().emit_event(OwnerRemoval { owner });
         }
@@ -392,7 +392,7 @@ mod multisig_plain {
         fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
             ensure_requirement_is_valid(self.owners.len(), new_requirement);
-            *self.requirement = new_requirement;
+            Lazy::set(&mut self.requirement, new_requirement);
             self.env().emit_event(RequirementChange { new_requirement });
         }
 
@@ -457,15 +457,14 @@ mod multisig_plain {
             self.ensure_caller_is_owner();
             let caller = self.env().caller();
             if self.confirmations.take(&(trans_id, caller)).is_some() {
-                if self.confirmation_count.contains_key(&trans_id) {
-                    if let Some(value) = self.confirmation_count.get_mut(&trans_id) {
-                        *value -= 1;
-                    } else {
-                        unreachable!()
-                    }
-                } else {
-                    self.confirmation_count.insert(trans_id, 0);
-                }
+                self.confirmation_count
+                    .entry(trans_id)
+                    .and_modify(|v| {
+                        if *v > 0 {
+                            *v -= 1;
+                        }
+                    })
+                    .or_insert(1);
                 self.env().emit_event(Revokation {
                     transaction: trans_id,
                     from: caller,
@@ -532,13 +531,7 @@ mod multisig_plain {
             confirmer: AccountId,
             transaction: TransactionId,
         ) -> ConfirmationStatus {
-            if !self.confirmation_count.contains_key(&transaction) {
-                self.confirmation_count.insert(transaction, 0);
-            }
-            let count = self
-                .confirmation_count
-                .get_mut(&transaction)
-                .expect("just inserted if missing");
+            let count = self.confirmation_count.entry(transaction).or_insert(0);
             let new_confirmation = self
                 .confirmations
                 .insert((transaction, confirmer), ())
@@ -598,13 +591,7 @@ mod multisig_plain {
                     })
             {
                 if self.confirmations.take(&(trans_id, *owner)).is_some() {
-                    if !self.confirmation_count.contains_key(&trans_id) {
-                        self.confirmation_count.insert(trans_id, 0);
-                    }
-                    *self
-                        .confirmation_count
-                        .get_mut(&trans_id)
-                        .expect("just inserted if missing") += 1;
+                    *self.confirmation_count.entry(trans_id).or_insert(0) += 1;
                 }
             }
         }
@@ -956,6 +943,28 @@ mod multisig_plain {
             contract.confirmations.get(&(0, accounts.bob)).unwrap();
             assert_eq!(contract.confirmations.len(), 2);
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 2);
+        }
+
+        #[test]
+        fn revoke_confirmations() {
+            // given
+            let mut contract = submit_transaction();
+            let accounts = default_accounts();
+            // Confirm by Bob
+            set_sender(accounts.bob);
+            contract.confirm_transaction(0);
+            // Confirm by Eve
+            set_sender(accounts.eve);
+            contract.confirm_transaction(0);
+            assert_eq!(contract.confirmations.len(), 3);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 3);
+            // Revoke from Eve
+            contract.revoke_confirmation(0);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 2);
+            // Revoke from Bob
+            set_sender(accounts.bob);
+            contract.revoke_confirmation(0);
+            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
         #[test]

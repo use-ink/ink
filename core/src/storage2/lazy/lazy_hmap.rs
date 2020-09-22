@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! A lazy storage mapping that stores entries under their SCALE encoded key hashes.
+
 use super::{
     CacheCell,
-    Entry,
     EntryState,
+    StorageEntry,
 };
 use crate::{
     hash::{
@@ -40,12 +42,17 @@ use core::{
     },
     fmt,
     fmt::Debug,
+    iter::FromIterator,
     ptr::NonNull,
 };
 use ink_prelude::{
     borrow::ToOwned,
     boxed::Box,
-    collections::BTreeMap,
+    collections::btree_map::{
+        BTreeMap,
+        Entry as BTreeMapEntry,
+        OccupiedEntry as BTreeMapOccupiedEntry,
+    },
     vec::Vec,
 };
 use ink_primitives::Key;
@@ -57,7 +64,7 @@ use ink_primitives::Key;
 /// We keep the whole entry in a `Box<T>` in order to prevent pointer
 /// invalidation upon updating the cache through `&self` methods as in
 /// [`LazyMap::get`].
-pub type EntryMap<K, V> = BTreeMap<K, Box<Entry<V>>>;
+pub type EntryMap<K, V> = BTreeMap<K, Box<StorageEntry<V>>>;
 
 /// A lazy storage mapping that stores entries under their SCALE encoded key hashes.
 ///
@@ -75,7 +82,7 @@ pub struct LazyHashMap<K, V, H> {
     ///
     /// This offsets the mapping for the entries stored in the contract storage
     /// so that all lazy hash map instances store equal entries at different
-    /// locations of the contract storage and avoid collissions.
+    /// locations of the contract storage and avoid collisions.
     key: Option<Key>,
     /// The currently cached entries of the lazy storage mapping.
     ///
@@ -84,6 +91,72 @@ pub struct LazyHashMap<K, V, H> {
     cached_entries: CacheCell<EntryMap<K, V>>,
     /// The used hash builder.
     hash_builder: RefCell<HashBuilder<H, Vec<u8>>>,
+}
+
+/// When querying `entry()` there is a case which needs special treatment:
+/// In `entry()` we first do a look-up in the cache. If the requested key is
+/// in the cache we return the found object.
+/// If it is not in the cache we query the storage. If we find the element
+/// in storage we insert it into the cache.
+///
+/// The problem now is that in this case we only have the `Vacant` object
+/// which we got from searching in the cache, but we need to return an
+/// `Occupied` here, since the object is now in the cache. We could do this
+/// by querying the cache another time -- but this would be an additional
+/// search. So what we do instead is to save a reference to the inserted
+/// cache value in the `Occupied`. As a consequence all Entry API operations
+/// (`get`, `remove`, ...) need to distinguish both cases.
+enum EntryOrMutableValue<E, V> {
+    /// An occupied `EntryMap` entry that holds a value.
+    /// This represents the case where the key was in the cache.
+    EntryElementWasInCache(E),
+    /// A reference to the mutable value behind a cache entry.
+    /// This represents the case where the key was not in the cache, but in storage.
+    MutableValueElementWasNotInCache(V),
+}
+
+/// An occupied `EntryMap` entry that holds a value.
+type OccupiedCache<'a, K, V> = BTreeMapOccupiedEntry<'a, K, Box<StorageEntry<V>>>;
+
+/// An occupied entry that holds the value.
+pub struct OccupiedEntry<'a, K, V>
+where
+    K: Clone,
+{
+    /// The key stored in this entry.
+    key: K,
+    /// Either the occupied `EntryMap` entry that holds the value or a mutable reference
+    /// to the value behind a cache entry.
+    entry: EntryOrMutableValue<OccupiedCache<'a, K, V>, &'a mut Box<StorageEntry<V>>>,
+}
+
+/// A vacant entry with previous and next vacant indices.
+pub struct VacantEntry<'a, K, V>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+{
+    /// The key stored in this entry.
+    key: K,
+    /// The entry within the `LazyHashMap`. This entry can be either occupied or vacant.
+    /// In an `BTreeMapEntry::Occupied` state the entry has been marked to
+    /// be removed (with `None`), but we still want to expose the `VacantEntry` API
+    /// to the use.
+    /// In an `BTreeMapEntry::Vacant` state the entry is vacant and we want to expose
+    /// the `VacantEntry` API.
+    entry: BTreeMapEntry<'a, K, Box<StorageEntry<V>>>,
+}
+
+/// An entry within the `LazyHashMap`.
+pub enum Entry<'a, K: 'a, V: 'a>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+{
+    /// A vacant entry that holds the index to the next and previous vacant entry.
+    Vacant(VacantEntry<'a, K, V>),
+    /// An occupied entry that holds the value.
+    Occupied(OccupiedEntry<'a, K, V>),
 }
 
 struct DebugEntryMap<'a, K, V>(&'a CacheCell<EntryMap<K, V>>);
@@ -233,6 +306,40 @@ where
     }
 }
 
+impl<K, V, H> FromIterator<(K, V)> for LazyHashMap<K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+    {
+        let mut hmap = LazyHashMap::new();
+        hmap.extend(iter);
+        hmap
+    }
+}
+
+impl<K, V, H> Extend<(K, V)> for LazyHashMap<K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = (K, V)>,
+    {
+        for (key, value) in iter {
+            self.put(key, Some(value));
+        }
+    }
+}
+
 impl<K, V, H> LazyHashMap<K, V, H>
 where
     K: Ord,
@@ -272,6 +379,12 @@ where
         self.key.as_ref()
     }
 
+    /// Returns the length of the cached entries.
+    #[cfg(test)]
+    pub(crate) fn len_cached_entries(&self) -> usize {
+        self.entries().len()
+    }
+
     /// Returns a shared reference to the underlying entries.
     fn entries(&self) -> &EntryMap<K, V> {
         self.cached_entries.as_inner()
@@ -296,8 +409,84 @@ where
     ///   with the underlying contract storage.
     /// - If the decoding of the old element at the given index failed.
     pub fn put(&mut self, key: K, new_value: Option<V>) {
-        self.entries_mut()
-            .insert(key, Box::new(Entry::new(new_value, EntryState::Mutated)));
+        self.entries_mut().insert(
+            key,
+            Box::new(StorageEntry::new(new_value, EntryState::Mutated)),
+        );
+    }
+}
+
+impl<K, V, H> LazyHashMap<K, V, H>
+where
+    K: Clone + Ord + PackedLayout,
+    V: PackedLayout,
+    H: Hasher,
+    Key: From<<H as Hasher>::Output>,
+{
+    /// Gets the given key's corresponding entry in the map for in-place manipulation.
+    pub fn entry(&mut self, key: K) -> Entry<K, V> {
+        // SAFETY: We have put the whole `cached_entries` mapping into an
+        //         `UnsafeCell` because of this caching functionality. The
+        //         trick here is that due to using `Box<T>` internally
+        //         we are able to return references to the cached entries
+        //         while maintaining the invariant that mutating the caching
+        //         `BTreeMap` will never invalidate those references.
+        //         By returning a raw pointer we enforce an `unsafe` block at
+        //         the caller site to underline that guarantees are given by the
+        //         caller.
+        let cached_entries = unsafe { &mut *self.cached_entries.get_ptr().as_ptr() };
+        // We have to clone the key here because we do not have access to the unsafe
+        // raw entry API for Rust hash maps, yet since it is unstable. We can remove
+        // the constraints on `K: Clone` once we have access to this API.
+        // Read more about the issue here: https://github.com/rust-lang/rust/issues/56167
+        match cached_entries.entry(key.to_owned()) {
+            BTreeMapEntry::Occupied(entry) => {
+                match entry.get().value() {
+                    Some(_) => {
+                        Entry::Occupied(OccupiedEntry {
+                            key,
+                            entry: EntryOrMutableValue::EntryElementWasInCache(entry),
+                        })
+                    }
+                    None => {
+                        // value is already marked as to be removed
+                        Entry::Vacant(VacantEntry {
+                            key,
+                            entry: BTreeMapEntry::Occupied(entry),
+                        })
+                    }
+                }
+            }
+            BTreeMapEntry::Vacant(entry) => {
+                let value = self
+                    .key_at(&key)
+                    .map(|key| pull_packed_root_opt::<V>(&key))
+                    .unwrap_or(None);
+                match value.is_some() {
+                    true => {
+                        // The entry was not in the cache, but in the storage. This results in
+                        // a problem: We only have `Vacant` here, but need to return `Occupied`,
+                        // to reflect this.
+                        let v_mut = entry.insert(Box::new(StorageEntry::new(
+                            value,
+                            EntryState::Preserved,
+                        )));
+                        Entry::Occupied(OccupiedEntry {
+                            key,
+                            entry: EntryOrMutableValue::MutableValueElementWasNotInCache(
+                                v_mut,
+                            ),
+                        })
+                    }
+                    false => {
+                        Entry::Vacant(VacantEntry {
+                            key,
+                            entry: BTreeMapEntry::Vacant(entry),
+                        })
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -369,7 +558,7 @@ where
     /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
     /// within internal use only and should never be given outside of the lazy
     /// entity for public `&self` methods.
-    unsafe fn lazily_load<Q>(&self, key: &Q) -> NonNull<Entry<V>>
+    unsafe fn lazily_load<Q>(&self, key: &Q) -> NonNull<StorageEntry<V>>
     where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
@@ -384,7 +573,6 @@ where
         //         the caller site to underline that guarantees are given by the
         //         caller.
         let cached_entries = &mut *self.cached_entries.get_ptr().as_ptr();
-        use ink_prelude::collections::btree_map::Entry as BTreeMapEntry;
         // We have to clone the key here because we do not have access to the unsafe
         // raw entry API for Rust hash maps, yet since it is unstable. We can remove
         // the contraints on `K: Clone` once we have access to this API.
@@ -399,8 +587,10 @@ where
                     .map(|key| pull_packed_root_opt::<V>(&key))
                     .unwrap_or(None);
                 NonNull::from(
-                    &mut **vacant
-                        .insert(Box::new(Entry::new(value, EntryState::Preserved))),
+                    &mut **vacant.insert(Box::new(StorageEntry::new(
+                        value,
+                        EntryState::Preserved,
+                    ))),
                 )
             }
         }
@@ -417,7 +607,7 @@ where
     ///
     /// - If the lazy chunk is in an invalid state that forbids interaction.
     /// - If the lazy chunk is not in a state that allows lazy loading.
-    fn lazily_load_mut<Q>(&mut self, index: &Q) -> &mut Entry<V>
+    fn lazily_load_mut<Q>(&mut self, index: &Q) -> &mut StorageEntry<V>
     where
         K: Borrow<Q>,
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
@@ -549,12 +739,243 @@ where
     }
 }
 
+impl<'a, K, V> Entry<'a, K, V>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout + core::fmt::Debug + core::cmp::Eq + Default,
+{
+    /// Returns a reference to this entry's key.
+    pub fn key(&self) -> &K {
+        match self {
+            Entry::Occupied(entry) => &entry.key,
+            Entry::Vacant(entry) => &entry.key,
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the default value if empty, and returns
+    /// a reference to the value in the entry.
+    pub fn or_default(self) -> &'a V {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => entry.insert(V::default()),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the default if empty, and returns
+    /// a mutable reference to the value in the entry.
+    pub fn or_insert(self, default: V) -> &'a mut V {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => entry.insert(default),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the result of the default function if empty,
+    /// and returns mutable references to the key and value in the entry.
+    pub fn or_insert_with<F>(self, default: F) -> &'a mut V
+    where
+        F: FnOnce() -> V,
+    {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => entry.insert(default()),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting, if empty, the result of the default
+    /// function, which takes the key as its argument, and returns a mutable reference to
+    /// the value in the entry.
+    pub fn or_insert_with_key<F>(self, default: F) -> &'a mut V
+    where
+        F: FnOnce(&K) -> V,
+    {
+        match self {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => {
+                let value = default(&entry.key);
+                entry.insert(value)
+            }
+        }
+    }
+
+    /// Provides in-place mutable access to an occupied entry before any
+    /// potential inserts into the map.
+    pub fn and_modify<F>(self, f: F) -> Self
+    where
+        F: FnOnce(&mut V),
+    {
+        match self {
+            Entry::Occupied(mut entry) => {
+                {
+                    let v = entry.get_mut();
+                    f(v);
+                }
+                Entry::Occupied(entry)
+            }
+            Entry::Vacant(entry) => Entry::Vacant(entry),
+        }
+    }
+}
+
+impl<'a, K, V> VacantEntry<'a, K, V>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+{
+    /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
+    pub fn key(&self) -> &K {
+        &self.key
+    }
+
+    /// Take ownership of the key.
+    pub fn into_key(self) -> K {
+        self.key
+    }
+
+    /// Sets the value of the entry with the VacantEntry's key, and returns a mutable reference to it.
+    pub fn insert(self, value: V) -> &'a mut V {
+        let new = Box::new(StorageEntry::new(Some(value), EntryState::Mutated));
+        match self.entry {
+            BTreeMapEntry::Vacant(vacant) => {
+                vacant
+                    .insert(new)
+                    .value_mut()
+                    .as_mut()
+                    .expect("insert was just executed; qed")
+            }
+            BTreeMapEntry::Occupied(mut occupied) => {
+                occupied.insert(new);
+                occupied
+                    .into_mut()
+                    .value_mut()
+                    .as_mut()
+                    .expect("insert was just executed; qed")
+            }
+        }
+    }
+}
+
+impl<'a, K, V> OccupiedEntry<'a, K, V>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+{
+    /// Gets a reference to the key in the entry.
+    pub fn key(&self) -> &K {
+        &self.key
+    }
+
+    /// Take the ownership of the key and value from the map.
+    pub fn remove_entry(self) -> (K, V) {
+        let old = match self.entry {
+            EntryOrMutableValue::EntryElementWasInCache(mut entry) => {
+                entry
+                    .get_mut()
+                    .value_mut()
+                    .take()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
+                v_mut
+                    .value_mut()
+                    .take()
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        };
+        (self.key, old)
+    }
+
+    /// Gets a reference to the value in the entry.
+    pub fn get(&self) -> &V {
+        match &self.entry {
+            EntryOrMutableValue::EntryElementWasInCache(entry) => {
+                entry
+                    .get()
+                    .value()
+                    .as_ref()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
+                v_mut
+                    .value()
+                    .as_ref()
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        }
+    }
+
+    /// Gets a mutable reference to the value in the entry.
+    ///
+    /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
+    /// `Entry` value, see `into_mut`.
+    pub fn get_mut(&mut self) -> &mut V {
+        match &mut self.entry {
+            EntryOrMutableValue::EntryElementWasInCache(entry) => {
+                entry
+                    .get_mut()
+                    .value_mut()
+                    .as_mut()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
+                v_mut
+                    .value_mut()
+                    .as_mut()
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        }
+    }
+
+    /// Sets the value of the entry, and returns the entry's old value.
+    pub fn insert(&mut self, new_value: V) -> V {
+        match &mut self.entry {
+            EntryOrMutableValue::EntryElementWasInCache(entry) => {
+                let new_value =
+                    Box::new(StorageEntry::new(Some(new_value), EntryState::Mutated));
+                entry
+                    .insert(new_value)
+                    .into_value()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
+                core::mem::replace(v_mut.value_mut(), Some(new_value))
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        }
+    }
+
+    /// Takes the value out of the entry, and returns it.
+    pub fn remove(self) -> V {
+        self.remove_entry().1
+    }
+
+    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
+    /// with a lifetime bound to the map itself.
+    pub fn into_mut(self) -> &'a mut V {
+        match self.entry {
+            EntryOrMutableValue::EntryElementWasInCache(entry) => {
+                entry
+                    .into_mut()
+                    .value_mut()
+                    .as_mut()
+                    .expect("entry behind `OccupiedEntry` must always exist")
+            }
+            EntryOrMutableValue::MutableValueElementWasNotInCache(v_mut) => {
+                v_mut
+                    .value_mut()
+                    .as_mut()
+                    .expect("entry behind `MutableValue` must always exist")
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
-        Entry,
         EntryState,
         LazyHashMap,
+        StorageEntry,
     };
     use crate::{
         env,
@@ -572,9 +993,9 @@ mod tests {
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
     fn assert_cached_entries<H>(
         hmap: &LazyHashMap<i32, u8, H>,
-        expected: &[(i32, Entry<u8>)],
+        expected: &[(i32, StorageEntry<u8>)],
     ) {
-        assert_eq!(hmap.entries().len(), expected.len());
+        assert_eq!(hmap.len_cached_entries(), expected.len());
         for (given, expected) in hmap
             .entries()
             .iter()
@@ -673,9 +1094,9 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (4, Entry::new(Some(b'C'), EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (4, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
             ],
         );
         // Put none values.
@@ -684,11 +1105,11 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Preserved)),
-                (4, Entry::new(Some(b'C'), EntryState::Mutated)),
-                (5, Entry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
+                (4, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
+                (5, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Override some values with none.
@@ -697,11 +1118,11 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (2, Entry::new(None, EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Preserved)),
-                (4, Entry::new(None, EntryState::Mutated)),
-                (5, Entry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(None, EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
+                (4, StorageEntry::new(None, EntryState::Mutated)),
+                (5, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Override none values with some.
@@ -710,11 +1131,11 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (2, Entry::new(None, EntryState::Mutated)),
-                (3, Entry::new(Some(b'X'), EntryState::Mutated)),
-                (4, Entry::new(None, EntryState::Mutated)),
-                (5, Entry::new(Some(b'Y'), EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(None, EntryState::Mutated)),
+                (3, StorageEntry::new(Some(b'X'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Mutated)),
+                (5, StorageEntry::new(Some(b'Y'), EntryState::Mutated)),
             ],
         );
     }
@@ -723,10 +1144,10 @@ mod tests {
     fn get_works() {
         let mut hmap = new_hmap();
         let nothing_changed = &[
-            (1, Entry::new(None, EntryState::Preserved)),
-            (2, Entry::new(Some(b'B'), EntryState::Mutated)),
-            (3, Entry::new(None, EntryState::Preserved)),
-            (4, Entry::new(Some(b'D'), EntryState::Mutated)),
+            (1, StorageEntry::new(None, EntryState::Preserved)),
+            (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+            (3, StorageEntry::new(None, EntryState::Preserved)),
+            (4, StorageEntry::new(Some(b'D'), EntryState::Mutated)),
         ];
         // Put some values.
         assert_eq!(hmap.put_get(&1, None), None);
@@ -765,9 +1186,9 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(None, EntryState::Mutated)),
-                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (4, Entry::new(None, EntryState::Mutated)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Mutated)),
             ],
         );
         // Overwrite entries:
@@ -776,9 +1197,9 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (2, Entry::new(None, EntryState::Mutated)),
-                (4, Entry::new(None, EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(None, EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Mutated)),
             ],
         );
     }
@@ -787,10 +1208,10 @@ mod tests {
     fn swap_works() {
         let mut hmap = new_hmap();
         let nothing_changed = &[
-            (1, Entry::new(Some(b'A'), EntryState::Mutated)),
-            (2, Entry::new(Some(b'B'), EntryState::Mutated)),
-            (3, Entry::new(None, EntryState::Preserved)),
-            (4, Entry::new(None, EntryState::Preserved)),
+            (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+            (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+            (3, StorageEntry::new(None, EntryState::Preserved)),
+            (4, StorageEntry::new(None, EntryState::Preserved)),
         ];
         // Put some values.
         assert_eq!(hmap.put_get(&1, Some(b'A')), None);
@@ -812,10 +1233,10 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(None, EntryState::Mutated)),
-                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (3, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (4, Entry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Swap `Some` and `Some`:
@@ -823,10 +1244,10 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(None, EntryState::Mutated)),
-                (2, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (3, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (4, Entry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (3, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Swap out of bounds: `None` and `None`
@@ -834,11 +1255,11 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(None, EntryState::Mutated)),
-                (2, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (3, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (4, Entry::new(None, EntryState::Preserved)),
-                (5, Entry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (3, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
+                (5, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Swap out of bounds: `Some` and `None`
@@ -846,12 +1267,12 @@ mod tests {
         assert_cached_entries(
             &hmap,
             &[
-                (1, Entry::new(None, EntryState::Mutated)),
-                (2, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Mutated)),
-                (4, Entry::new(None, EntryState::Preserved)),
-                (5, Entry::new(None, EntryState::Preserved)),
-                (6, Entry::new(Some(b'B'), EntryState::Mutated)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Mutated)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
+                (5, StorageEntry::new(None, EntryState::Preserved)),
+                (6, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
             ],
         );
     }
@@ -861,10 +1282,10 @@ mod tests {
         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let mut hmap = new_hmap();
             let nothing_changed = &[
-                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Preserved)),
-                (4, Entry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
+                (4, StorageEntry::new(None, EntryState::Preserved)),
             ];
             // Put some values.
             assert_eq!(hmap.put_get(&1, Some(b'A')), None);
@@ -890,10 +1311,10 @@ mod tests {
             assert_cached_entries(
                 &hmap2,
                 &[
-                    (1, Entry::new(Some(b'A'), EntryState::Preserved)),
-                    (2, Entry::new(Some(b'B'), EntryState::Preserved)),
-                    (3, Entry::new(None, EntryState::Preserved)),
-                    (4, Entry::new(None, EntryState::Preserved)),
+                    (1, StorageEntry::new(Some(b'A'), EntryState::Preserved)),
+                    (2, StorageEntry::new(Some(b'B'), EntryState::Preserved)),
+                    (3, StorageEntry::new(None, EntryState::Preserved)),
+                    (4, StorageEntry::new(None, EntryState::Preserved)),
                 ],
             );
             // Clear the first lazy index map instance and reload another instance
@@ -920,10 +1341,10 @@ mod tests {
             assert_cached_entries(
                 &hmap3,
                 &[
-                    (1, Entry::new(None, EntryState::Preserved)),
-                    (2, Entry::new(None, EntryState::Preserved)),
-                    (3, Entry::new(None, EntryState::Preserved)),
-                    (4, Entry::new(None, EntryState::Preserved)),
+                    (1, StorageEntry::new(None, EntryState::Preserved)),
+                    (2, StorageEntry::new(None, EntryState::Preserved)),
+                    (3, StorageEntry::new(None, EntryState::Preserved)),
+                    (4, StorageEntry::new(None, EntryState::Preserved)),
                 ],
             );
             Ok(())

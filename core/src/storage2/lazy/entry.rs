@@ -39,7 +39,7 @@ use ink_primitives::Key;
 
 /// The entry of a single cached value of a lazy storage data structure.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Entry<T> {
+pub struct StorageEntry<T> {
     /// The value or `None` if the value has been removed.
     value: Option<T>,
     /// This is [`EntryState::Mutated`] if the value has been mutated and is in
@@ -49,7 +49,7 @@ pub struct Entry<T> {
     state: Cell<EntryState>,
 }
 
-impl<T> Debug for Entry<T>
+impl<T> Debug for StorageEntry<T>
 where
     T: Debug,
 {
@@ -63,12 +63,12 @@ where
 
 #[test]
 fn debug_impl_works() {
-    let e1 = <Entry<i32>>::new(None, EntryState::Preserved);
+    let e1 = <StorageEntry<i32>>::new(None, EntryState::Preserved);
     assert_eq!(
         format!("{:?}", &e1),
         "Entry { value: None, state: Preserved }",
     );
-    let e2 = Entry::new(Some(42), EntryState::Mutated);
+    let e2 = StorageEntry::new(Some(42), EntryState::Mutated);
     assert_eq!(
         format!("{:?}", &e2),
         "Entry { value: Some(42), state: Mutated }",
@@ -99,7 +99,7 @@ impl EntryState {
     }
 }
 
-impl<T> SpreadLayout for Entry<T>
+impl<T> SpreadLayout for StorageEntry<T>
 where
     T: SpreadLayout,
 {
@@ -124,7 +124,7 @@ where
     }
 }
 
-impl<T> scale::Encode for Entry<T>
+impl<T> scale::Encode for StorageEntry<T>
 where
     T: scale::Encode,
 {
@@ -149,7 +149,7 @@ where
     }
 }
 
-impl<T> scale::Decode for Entry<T>
+impl<T> scale::Decode for StorageEntry<T>
 where
     T: scale::Decode,
 {
@@ -161,7 +161,7 @@ where
     }
 }
 
-impl<T> PackedLayout for Entry<T>
+impl<T> PackedLayout for StorageEntry<T>
 where
     T: PackedLayout,
 {
@@ -181,7 +181,7 @@ where
     }
 }
 
-impl<T> Entry<T>
+impl<T> StorageEntry<T>
 where
     T: PackedLayout,
 {
@@ -220,7 +220,7 @@ where
     }
 }
 
-impl<T> Entry<T> {
+impl<T> StorageEntry<T> {
     /// Creates a new entry with the value and state.
     pub fn new(value: Option<T>, state: EntryState) -> Self {
         Self {
