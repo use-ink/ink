@@ -141,6 +141,43 @@ impl Events<'_> {
         }
     }
 
+    /// Generate checks to guard against too many topics in event definitions.
+    fn generate_topics_guard(&self, event: &ir::Event) -> TokenStream2 {
+        let storage_ident = self.contract.module().storage().ident();
+        let len_topics = event.fields().filter(|event| event.is_topic).count();
+        let span = event.span();
+        quote_spanned!(span=>
+            const _: () = {
+                pub enum EventTopicsOutOfBounds {}
+                pub enum EventTopicsWithinBounds {}
+                impl ::ink_lang::False for EventTopicsOutOfBounds {}
+
+                #[allow(non_camel_case_types)]
+                pub trait __ink_RenameBool {
+                    type Type;
+                }
+                impl __ink_RenameBool for [(); 1] {
+                    type Type = EventTopicsOutOfBounds;
+                }
+                impl __ink_RenameBool for [(); 0] {
+                    type Type = EventTopicsWithinBounds;
+                }
+
+                #[allow(non_upper_case_globals)]
+                const __ink_MAX_EVENT_TOPICS: usize = <
+                    <#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes
+                >::MAX_EVENT_TOPICS;
+
+                fn __ink_ensure_max_event_topics<T>(_: T)
+                where
+                    T: __ink_RenameBool,
+                    <T as __ink_RenameBool>::Type: ::ink_lang::False,
+                {}
+                let _ = __ink_ensure_max_event_topics::<[(); (#len_topics <= __ink_MAX_EVENT_TOPICS) as usize]>;
+            };
+        )
+    }
+
     /// Generates the `Topics` trait implementations for the user defined events.
     fn generate_topics_impls<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         let no_cross_calling_cfg =
@@ -148,10 +185,13 @@ impl Events<'_> {
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let ident = event.ident();
+            let topics_guard = self.generate_topics_guard(event);
 
             quote_spanned!(span =>
                 #no_cross_calling_cfg
                 const _: () = {
+                    #topics_guard
+
                     impl ::ink_core::env::Topics<EnvTypes> for #ident {
                         fn topics(&self) -> &'static [Hash] {
                             // Issue: https://github.com/paritytech/ink/issues/105
