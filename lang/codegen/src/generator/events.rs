@@ -189,9 +189,10 @@ impl Events<'_> {
 
             quote_spanned!(span =>
                 #no_cross_calling_cfg
-                const _: () = {
-                    #topics_guard
+                #topics_guard
 
+                #no_cross_calling_cfg
+                const _: () = {
                     impl ::ink_core::env::Topics<EnvTypes> for #ident {
                         fn topics(&self) -> &'static [Hash] {
                             // Issue: https://github.com/paritytech/ink/issues/105
