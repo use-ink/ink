@@ -47,6 +47,7 @@ pub use self::{
         MessageDispatcher,
     },
     env_access::{
+        ContractEnv,
         Env,
         EnvAccess,
         StaticEnv,

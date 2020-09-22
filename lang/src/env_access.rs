@@ -27,6 +27,12 @@ use ink_core::{
 };
 use ink_primitives::Key;
 
+/// The environment of the compiled ink! smart contract.
+pub trait ContractEnv {
+    /// The environment type.
+    type Env: ::ink_core::env::EnvTypes;
+}
+
 /// Simplifies interaction with the host environment via `self`.
 ///
 /// # Note

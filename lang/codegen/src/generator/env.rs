@@ -26,14 +26,19 @@ pub struct Env<'a> {
 impl GenerateCode for Env<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let env_types = self.contract.config().env_types();
+        let storage_ident = self.contract.module().storage().ident();
         quote! {
-            type EnvTypes = #env_types;
+            impl ::ink_lang::ContractEnv for #storage_ident {
+                type Env = #env_types;
+            }
 
-            type AccountId = <#env_types as ::ink_core::env::EnvTypes>::AccountId;
-            type Balance = <#env_types as ::ink_core::env::EnvTypes>::Balance;
-            type Hash = <#env_types as ::ink_core::env::EnvTypes>::Hash;
-            type Timestamp = <#env_types as ::ink_core::env::EnvTypes>::Timestamp;
-            type BlockNumber = <#env_types as ::ink_core::env::EnvTypes>::BlockNumber;
+            type EnvTypes = <#storage_ident as ::ink_lang::ContractEnv>::Env;
+
+            type AccountId = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::AccountId;
+            type Balance = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Balance;
+            type Hash = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Hash;
+            type Timestamp = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Timestamp;
+            type BlockNumber = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::BlockNumber;
         }
     }
 }
