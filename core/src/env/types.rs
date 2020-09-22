@@ -46,6 +46,11 @@ use scale_info::TypeInfo;
 
 /// The environmental types usable by contracts defined with ink!.
 pub trait EnvTypes {
+    /// The maximum number of supported event topics provided by the runtime.
+    ///
+    /// The value must match the maximum number of supported event topics of the used runtime.
+    const MAX_EVENT_TOPICS: usize;
+
     /// The type of an address.
     type AccountId: 'static + scale::Codec + Clone + PartialEq + Eq + Ord;
 
@@ -95,6 +100,8 @@ where
     T: EnvTypes,
 {
     /// Returns the topic hashes of `self`.
+    ///
+    /// The length of the slice must be less than or equal to `<T as EvnTypes>::MAX_EVENT_TOPICS`.
     fn topics(&self) -> &'static [<T as EnvTypes>::Hash];
 }
 
@@ -104,6 +111,8 @@ where
 pub enum DefaultEnvTypes {}
 
 impl EnvTypes for DefaultEnvTypes {
+    const MAX_EVENT_TOPICS: usize = 4;
+
     type AccountId = AccountId;
     type Balance = Balance;
     type Hash = Hash;
