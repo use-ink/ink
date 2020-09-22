@@ -69,7 +69,10 @@ use ink_lang as ink;
 #[ink::contract(version = "0.1.0")]
 mod erc721 {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage2::collections::HashMap as StorageHashMap;
+    use ink_core::storage2::collections::{
+        hashmap::Entry,
+        HashMap as StorageHashMap,
+    };
     use scale::{
         Decode,
         Encode,
@@ -230,10 +233,20 @@ mod erc721 {
         #[ink(message)]
         fn burn(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
-            if self.token_owner.get(&id) != Some(&caller) {
+            let Self {
+                token_owner,
+                owned_tokens_count,
+                ..
+            } = self;
+            let occupied = match token_owner.entry(id) {
+                Entry::Vacant(_) => return Err(Error::TokenNotFound),
+                Entry::Occupied(occupied) => occupied,
+            };
+            if occupied.get() != &caller {
                 return Err(Error::NotOwner)
             };
-            self.remove_token_from(&caller, id)?;
+            decrease_counter_of(owned_tokens_count, &caller)?;
+            occupied.remove_entry();
             self.env().emit_event(Transfer {
                 from: Some(caller),
                 to: Some(AccountId::from([0x0; 32])),
@@ -273,26 +286,37 @@ mod erc721 {
             from: &AccountId,
             id: TokenId,
         ) -> Result<(), Error> {
-            if !self.exists(id) {
-                return Err(Error::TokenNotFound)
-            }
-            self.decrease_counter_of(from)?;
-            self.token_owner.take(&id).ok_or(Error::CannotRemove)?;
+            let Self {
+                token_owner,
+                owned_tokens_count,
+                ..
+            } = self;
+            let occupied = match token_owner.entry(id) {
+                Entry::Vacant(_) => return Err(Error::TokenNotFound),
+                Entry::Occupied(occupied) => occupied,
+            };
+            decrease_counter_of(owned_tokens_count, from)?;
+            occupied.remove_entry();
             Ok(())
         }
 
         /// Adds the token `id` to the `to` AccountID.
         fn add_token_to(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
-            if self.exists(id) {
-                return Err(Error::TokenExists)
+            let Self {
+                token_owner,
+                owned_tokens_count,
+                ..
+            } = self;
+            let vacant_token_owner = match token_owner.entry(id) {
+                Entry::Vacant(vacant) => vacant,
+                Entry::Occupied(_) => return Err(Error::TokenExists),
             };
             if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::NotAllowed)
             };
-            self.increase_counter_of(to)?;
-            if self.token_owner.insert(id, *to).is_some() {
-                return Err(Error::CannotInsert)
-            }
+            let entry = owned_tokens_count.entry(*to);
+            increase_counter_of(entry)?;
+            vacant_token_owner.insert(*to);
             Ok(())
         }
 
@@ -350,33 +374,6 @@ mod erc721 {
             Ok(())
         }
 
-        /// Increase token counter from the `of` AccountId.
-        fn increase_counter_of(&mut self, of: &AccountId) -> Result<(), Error> {
-            if self.balance_of_or_zero(of) > 0 {
-                let count = self
-                    .owned_tokens_count
-                    .get_mut(of)
-                    .ok_or(Error::CannotFetchValue)?;
-                *count += 1;
-                Ok(())
-            } else {
-                match self.owned_tokens_count.insert(*of, 1) {
-                    Some(_) => Err(Error::CannotInsert),
-                    None => Ok(()),
-                }
-            }
-        }
-
-        /// Decrease token counter from the `of` AccountId.
-        fn decrease_counter_of(&mut self, of: &AccountId) -> Result<(), Error> {
-            let count = self
-                .owned_tokens_count
-                .get_mut(of)
-                .ok_or(Error::CannotFetchValue)?;
-            *count -= 1;
-            Ok(())
-        }
-
         /// Removes existing approval from token `id`.
         fn clear_approval(&mut self, id: TokenId) -> Result<(), Error> {
             if !self.token_approvals.contains_key(&id) {
@@ -420,12 +417,33 @@ mod erc721 {
         }
     }
 
+    fn decrease_counter_of(
+        hmap: &mut StorageHashMap<AccountId, u32>,
+        of: &AccountId,
+    ) -> Result<(), Error> {
+        let count = (*hmap).get_mut(of).ok_or(Error::CannotFetchValue)?;
+        *count -= 1;
+        Ok(())
+    }
+
+    /// Increase token counter from the `of` AccountId.
+    fn increase_counter_of(entry: Entry<AccountId, u32>) -> Result<(), Error> {
+        entry.and_modify(|v| *v += 1).or_insert(1);
+        Ok(())
+    }
+
     /// Unit tests
     #[cfg(test)]
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
-        use ink_core::env;
+        use ink_core::{
+            env,
+            env::{
+                call,
+                test,
+            },
+        };
 
         /// Executes the given test through the off-chain environment.
         fn run_test<F>(test_fn: F)
@@ -724,6 +742,43 @@ mod erc721 {
                 // Token Id 1 does not exists
                 assert_eq!(erc721.owner_of(1), None);
             })
+        }
+
+        #[test]
+        fn burn_fails_token_not_found() {
+            run_test(|| {
+                // Create a new contract instance.
+                let mut erc721 = Erc721::new();
+                // Try burning a non existent token
+                assert_eq!(erc721.burn(1), Err(Error::TokenNotFound));
+            })
+        }
+
+        #[test]
+        fn burn_fails_not_owner() {
+            run_test(|| {
+                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+                    .expect("Cannot get accounts");
+                // Create a new contract instance.
+                let mut erc721 = Erc721::new();
+                // Create token Id 1 for Alice
+                assert_eq!(erc721.mint(1), Ok(()));
+                // Try burning this token with a different account
+                set_sender(accounts.eve);
+                assert_eq!(erc721.burn(1), Err(Error::NotOwner));
+            })
+        }
+
+        fn set_sender(sender: AccountId) {
+            let callee =
+                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            test::push_execution_context::<EnvTypes>(
+                sender,
+                callee,
+                1000000,
+                1000000,
+                test::CallData::new(call::Selector::new([0x00; 4])), // dummy
+            );
         }
     }
 }

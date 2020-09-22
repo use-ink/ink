@@ -14,8 +14,8 @@
 
 use super::{
     CacheCell,
-    Entry,
     EntryState,
+    StorageEntry,
 };
 use crate::storage2::traits::{
     clear_packed_root,
@@ -49,12 +49,18 @@ pub type Index = u32;
 
 /// Utility trait for helping with lazy array construction.
 pub trait LazyArrayLength<T>:
-    ArrayLength<CacheCell<Option<Entry<T>>>> + Unsigned
+    ArrayLength<CacheCell<Option<StorageEntry<T>>>> + Unsigned
 {
 }
 impl<T> LazyArrayLength<T> for UTerm {}
-impl<T, N: ArrayLength<CacheCell<Option<Entry<T>>>>> LazyArrayLength<T> for UInt<N, B0> {}
-impl<T, N: ArrayLength<CacheCell<Option<Entry<T>>>>> LazyArrayLength<T> for UInt<N, B1> {}
+impl<T, N: ArrayLength<CacheCell<Option<StorageEntry<T>>>>> LazyArrayLength<T>
+    for UInt<N, B0>
+{
+}
+impl<T, N: ArrayLength<CacheCell<Option<StorageEntry<T>>>>> LazyArrayLength<T>
+    for UInt<N, B1>
+{
+}
 
 /// A lazy storage array that spans over N storage cells.
 ///
@@ -202,12 +208,12 @@ where
     N: LazyArrayLength<T>,
 {
     /// The cache entries of the entry array.
-    entries: GenericArray<CacheCell<Option<Entry<T>>>, N>,
+    entries: GenericArray<CacheCell<Option<StorageEntry<T>>>, N>,
 }
 
 #[derive(Debug)]
 pub struct EntriesIter<'a, T> {
-    iter: core::slice::Iter<'a, CacheCell<Option<Entry<T>>>>,
+    iter: core::slice::Iter<'a, CacheCell<Option<StorageEntry<T>>>>,
 }
 
 impl<'a, T> EntriesIter<'a, T> {
@@ -222,7 +228,7 @@ impl<'a, T> EntriesIter<'a, T> {
 }
 
 impl<'a, T> Iterator for EntriesIter<'a, T> {
-    type Item = &'a Option<Entry<T>>;
+    type Item = &'a Option<StorageEntry<T>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next().map(|cell| cell.as_inner())
@@ -284,15 +290,19 @@ where
     fn put(&self, at: Index, new_value: Option<T>) -> Option<T> {
         mem::replace(
             unsafe { self.entries.as_slice()[at as usize].get_ptr().as_mut() },
-            Some(Entry::new(new_value, EntryState::Mutated)),
+            Some(StorageEntry::new(new_value, EntryState::Mutated)),
         )
-        .map(Entry::into_value)
+        .map(StorageEntry::into_value)
         .flatten()
     }
 
     /// Inserts a new entry into the cache and returns an exclusive reference to it.
-    unsafe fn insert_entry(&self, at: Index, new_entry: Entry<T>) -> NonNull<Entry<T>> {
-        let entry: &mut Option<Entry<T>> =
+    unsafe fn insert_entry(
+        &self,
+        at: Index,
+        new_entry: StorageEntry<T>,
+    ) -> NonNull<StorageEntry<T>> {
+        let entry: &mut Option<StorageEntry<T>> =
             &mut *CacheCell::get_ptr(&self.entries[at as usize]).as_ptr();
         *entry = Some(new_entry);
         entry
@@ -302,7 +312,7 @@ where
     }
 
     /// Returns an exclusive reference to the entry at the given index if any.
-    unsafe fn get_entry_mut(&self, at: Index) -> Option<&mut Entry<T>> {
+    unsafe fn get_entry_mut(&self, at: Index) -> Option<&mut StorageEntry<T>> {
         if at >= Self::capacity() {
             return None
         }
@@ -470,7 +480,7 @@ where
     ///
     /// Tries to load the entry from cache and falls back to lazily load the
     /// entry from the contract storage.
-    fn load_through_cache(&self, at: Index) -> NonNull<Entry<T>> {
+    fn load_through_cache(&self, at: Index) -> NonNull<StorageEntry<T>> {
         assert!(at < self.capacity(), "index is out of bounds");
         match unsafe { self.cached_entries.get_entry_mut(at) } {
             Some(entry) => {
@@ -484,7 +494,7 @@ where
                     .key_at(at)
                     .map(|key| pull_packed_root_opt::<T>(&key))
                     .unwrap_or(None);
-                let entry = Entry::new(value, EntryState::Preserved);
+                let entry = StorageEntry::new(value, EntryState::Preserved);
                 unsafe { self.cached_entries.insert_entry(at, entry) }
             }
         }
@@ -499,7 +509,7 @@ where
     ///
     /// - If the lazy array is in a state that forbids lazy loading.
     /// - If the given index is out of bounds.
-    fn load_through_cache_mut(&mut self, index: Index) -> &mut Entry<T> {
+    fn load_through_cache_mut(&mut self, index: Index) -> &mut StorageEntry<T> {
         // SAFETY:
         // Returning a `&mut Entry<T>` from within a `&mut self` function
         // won't allow creating aliasing between exclusive references.
@@ -589,8 +599,8 @@ where
 mod tests {
     use super::{
         super::{
-            Entry,
             EntryState,
+            StorageEntry,
         },
         Index,
         LazyArray,
@@ -609,7 +619,7 @@ mod tests {
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
     fn assert_cached_entries<N>(
         larray: &LazyArray<u8, N>,
-        expected: &[(Index, Entry<u8>)],
+        expected: &[(Index, StorageEntry<u8>)],
     ) where
         N: LazyArrayLength<u8>,
     {
@@ -666,10 +676,10 @@ mod tests {
     fn get_works() {
         let mut larray = <LazyArray<u8, U4>>::new();
         let nothing_changed = &[
-            (0, Entry::new(None, EntryState::Preserved)),
-            (1, Entry::new(Some(b'B'), EntryState::Mutated)),
-            (2, Entry::new(None, EntryState::Preserved)),
-            (3, Entry::new(Some(b'D'), EntryState::Mutated)),
+            (0, StorageEntry::new(None, EntryState::Preserved)),
+            (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+            (2, StorageEntry::new(None, EntryState::Preserved)),
+            (3, StorageEntry::new(Some(b'D'), EntryState::Mutated)),
         ];
         // Put some values.
         assert_eq!(larray.put_get(0, None), None);
@@ -710,9 +720,9 @@ mod tests {
         assert_cached_entries(
             &larray,
             &[
-                (0, Entry::new(None, EntryState::Preserved)),
-                (1, Entry::new(None, EntryState::Preserved)),
-                (3, Entry::new(None, EntryState::Preserved)),
+                (0, StorageEntry::new(None, EntryState::Preserved)),
+                (1, StorageEntry::new(None, EntryState::Preserved)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Override with some values.
@@ -722,9 +732,9 @@ mod tests {
         assert_cached_entries(
             &larray,
             &[
-                (0, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (1, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Preserved)),
+                (0, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Override some values with none.
@@ -733,9 +743,9 @@ mod tests {
         assert_cached_entries(
             &larray,
             &[
-                (0, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (1, Entry::new(None, EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Preserved)),
+                (0, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
     }
@@ -761,9 +771,9 @@ mod tests {
         assert_cached_entries(
             &larray,
             &[
-                (0, Entry::new(None, EntryState::Mutated)),
-                (1, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Mutated)),
+                (0, StorageEntry::new(None, EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Mutated)),
             ],
         );
         // Overwrite entries:
@@ -774,10 +784,10 @@ mod tests {
         assert_cached_entries(
             &larray,
             &[
-                (0, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (1, Entry::new(None, EntryState::Mutated)),
-                (2, Entry::new(Some(b'C'), EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Mutated)),
+                (0, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (1, StorageEntry::new(None, EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'C'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Mutated)),
             ],
         );
     }
@@ -793,10 +803,10 @@ mod tests {
     fn swap_works() {
         let mut larray = <LazyArray<u8, U4>>::new();
         let nothing_changed = &[
-            (0, Entry::new(Some(b'A'), EntryState::Mutated)),
-            (1, Entry::new(Some(b'B'), EntryState::Mutated)),
-            (2, Entry::new(None, EntryState::Preserved)),
-            (3, Entry::new(None, EntryState::Preserved)),
+            (0, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+            (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+            (2, StorageEntry::new(None, EntryState::Preserved)),
+            (3, StorageEntry::new(None, EntryState::Preserved)),
         ];
         // Put some values.
         assert_eq!(larray.put_get(0, Some(b'A')), None);
@@ -818,10 +828,10 @@ mod tests {
         assert_cached_entries(
             &larray,
             &[
-                (0, Entry::new(None, EntryState::Mutated)),
-                (1, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (2, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Preserved)),
+                (0, StorageEntry::new(None, EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
         // Swap `Some` and `Some`:
@@ -829,10 +839,10 @@ mod tests {
         assert_cached_entries(
             &larray,
             &[
-                (0, Entry::new(None, EntryState::Mutated)),
-                (1, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (2, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (3, Entry::new(None, EntryState::Preserved)),
+                (0, StorageEntry::new(None, EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (2, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
             ],
         );
     }
@@ -856,10 +866,10 @@ mod tests {
         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
             let mut larray = <LazyArray<u8, U4>>::new();
             let nothing_changed = &[
-                (0, Entry::new(Some(b'A'), EntryState::Mutated)),
-                (1, Entry::new(Some(b'B'), EntryState::Mutated)),
-                (2, Entry::new(None, EntryState::Preserved)),
-                (3, Entry::new(None, EntryState::Preserved)),
+                (0, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
+                (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
+                (2, StorageEntry::new(None, EntryState::Preserved)),
+                (3, StorageEntry::new(None, EntryState::Preserved)),
             ];
             // Put some values.
             assert_eq!(larray.put_get(0, Some(b'A')), None);
@@ -883,10 +893,10 @@ mod tests {
             assert_cached_entries(
                 &larray2,
                 &[
-                    (0, Entry::new(Some(b'A'), EntryState::Preserved)),
-                    (1, Entry::new(Some(b'B'), EntryState::Preserved)),
-                    (2, Entry::new(None, EntryState::Preserved)),
-                    (3, Entry::new(None, EntryState::Preserved)),
+                    (0, StorageEntry::new(Some(b'A'), EntryState::Preserved)),
+                    (1, StorageEntry::new(Some(b'B'), EntryState::Preserved)),
+                    (2, StorageEntry::new(None, EntryState::Preserved)),
+                    (3, StorageEntry::new(None, EntryState::Preserved)),
                 ],
             );
             // Clear the first lazy index map instance and reload another instance
@@ -912,10 +922,10 @@ mod tests {
             assert_cached_entries(
                 &larray3,
                 &[
-                    (0, Entry::new(None, EntryState::Preserved)),
-                    (1, Entry::new(None, EntryState::Preserved)),
-                    (2, Entry::new(None, EntryState::Preserved)),
-                    (3, Entry::new(None, EntryState::Preserved)),
+                    (0, StorageEntry::new(None, EntryState::Preserved)),
+                    (1, StorageEntry::new(None, EntryState::Preserved)),
+                    (2, StorageEntry::new(None, EntryState::Preserved)),
+                    (3, StorageEntry::new(None, EntryState::Preserved)),
                 ],
             );
             Ok(())
