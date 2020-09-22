@@ -91,6 +91,7 @@ impl Dispatch<'_> {
     /// They guide the dispatch, set-up and tear-down of a smart contract.
     fn generate_entry_points(&self) -> TokenStream2 {
         let storage_ident = self.contract.module().storage().ident();
+        let all_messages_deny_payment = self.all_messages_deny_payment();
         quote! {
             #[cfg(not(test))]
             #[no_mangle]
@@ -106,6 +107,10 @@ impl Dispatch<'_> {
             #[cfg(not(test))]
             #[no_mangle]
             fn call() -> u32 {
+                if #all_messages_deny_payment {
+                    ::ink_lang::deny_payment::<<#storage_ident as ::ink_lang::ContractEnv>::Env>()
+                        .expect("caller transferred value even though all ink! message deny payments")
+                }
                 ::ink_lang::DispatchRetCode::from(
                     <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                         ::ink_lang::DispatchMode::Call,
@@ -479,6 +484,19 @@ impl Dispatch<'_> {
         }
     }
 
+    /// Returns `true` if all ink! messages of `self` deny payments.
+    ///
+    /// # Note
+    ///
+    /// This information is used to produce better code in this scenario.
+    fn all_messages_deny_payment(&self) -> bool {
+        self.contract
+            .module()
+            .impls()
+            .flat_map(ir::ItemImpl::iter_messages)
+            .all(|message| !message.is_payable())
+    }
+
     /// Generates one match arm of the dispatch message for the `execute` implementation.
     ///
     /// # Note
@@ -512,7 +530,9 @@ impl Dispatch<'_> {
         };
         let selector_id = cws.composed_selector().unique_id();
         let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
-        let accepts_payments = cws.is_payable();
+        // If all ink! messages deny payment we can move the payment check to before
+        // the message dispatch which is more efficient.
+        let accepts_payments = cws.is_payable() || self.all_messages_deny_payment();
         let is_dynamic_storage_allocation_enabled =
             self.contract.config().is_storage_allocator_enabled();
         quote! {

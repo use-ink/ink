@@ -16,7 +16,7 @@
 pub type DispatchResult = core::result::Result<(), DispatchError>;
 
 /// A dispatch error.
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum DispatchError {
     UnknownSelector,
     UnknownInstantiateSelector,

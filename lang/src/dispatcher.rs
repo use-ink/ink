@@ -132,6 +132,24 @@ where
     Ok(())
 }
 
+/// Returns `Ok` if the caller did not transfer additional value to the callee.
+///
+/// # Errors
+///
+/// If the caller did send some amount of transferred value to the callee.
+#[inline]
+pub fn deny_payment<E>() -> Result<()>
+where
+    E: EnvTypes,
+{
+    let transferred = ink_core::env::transferred_balance::<E>()
+        .expect("encountered error while querying transferred balance");
+    if transferred != <E as EnvTypes>::Balance::from(0) {
+        return Err(DispatchError::PaidUnpayableMessage)
+    }
+    Ok(())
+}
+
 /// Executes the given `&mut self` message closure.
 ///
 /// # Note
@@ -153,11 +171,7 @@ where
     let enables_dynamic_storage_allocator: bool =
         enables_dynamic_storage_allocator.into();
     if !accepts_payments {
-        let transferred = ink_core::env::transferred_balance::<E>()
-            .expect("encountered error while querying transferred balance");
-        if transferred != <E as EnvTypes>::Balance::from(0) {
-            return Err(DispatchError::PaidUnpayableMessage)
-        }
+        deny_payment::<E>()?;
     }
     if enables_dynamic_storage_allocator {
         alloc::initialize(ContractPhase::Call);
