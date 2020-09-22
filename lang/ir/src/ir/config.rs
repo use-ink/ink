@@ -26,7 +26,7 @@ pub struct Config {
     /// facilities and code generation of the ink! smart
     /// contract. Does incur some overhead. The default is
     /// `true`.
-    storage_alloc: Option<bool>,
+    dynamic_storage_allocator: Option<bool>,
     /// If `true` compiles this ink! smart contract always as
     /// if it was a dependency of another smart contract.
     /// This configuration is mainly needed for testing and
@@ -62,20 +62,20 @@ impl TryFrom<ast::AttributeArgs> for Config {
     type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
-        let mut storage_alloc: Option<(bool, ast::MetaNameValue)> = None;
+        let mut dynamic_storage_allocator: Option<(bool, ast::MetaNameValue)> = None;
         let mut as_dependency: Option<(bool, ast::MetaNameValue)> = None;
         let mut env_types: Option<(EnvTypes, ast::MetaNameValue)> = None;
         for arg in args.into_iter() {
-            if arg.name.is_ident("storage_alloc") {
-                if let Some((_, ast)) = storage_alloc {
-                    return Err(duplicate_config_err(ast, arg, "storage_allocator"))
+            if arg.name.is_ident("dynamic_storage_allocator") {
+                if let Some((_, ast)) = dynamic_storage_allocator {
+                    return Err(duplicate_config_err(ast, arg, "dynamic_storage_allocator"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
-                    storage_alloc = Some((lit_bool.value, arg))
+                    dynamic_storage_allocator = Some((lit_bool.value, arg))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a bool literal for `storage_allocator` ink! config argument",
+                        "expected a bool literal for `dynamic_storage_allocator` ink! config argument",
                     ))
                 }
             } else if arg.name.is_ident("compile_as_dependency") {
@@ -110,9 +110,9 @@ impl TryFrom<ast::AttributeArgs> for Config {
             }
         }
         Ok(Config {
-            storage_alloc: storage_alloc.map(|(storage_alloc, _)| storage_alloc),
-            as_dependency: as_dependency.map(|(as_dependency, _)| as_dependency),
-            env_types: env_types.map(|(env_types, _)| env_types),
+            dynamic_storage_allocator: dynamic_storage_allocator.map(|(value, _)| value),
+            as_dependency: as_dependency.map(|(value, _)| value),
+            env_types: env_types.map(|(value, _)| value),
         })
     }
 }
@@ -132,9 +132,9 @@ impl Config {
     /// Returns `true` if the dynamic storage allocator facilities are enabled
     /// for the ink! smart contract, `false` otherwise.
     ///
-    /// If nothing has been specified returns the default which is `true`.
-    pub fn is_storage_allocator_enabled(&self) -> bool {
-        self.storage_alloc.unwrap_or(true)
+    /// If nothing has been specified returns the default which is `false`.
+    pub fn is_dynamic_storage_allocator_enabled(&self) -> bool {
+        self.dynamic_storage_allocator.unwrap_or(false)
     }
 
     /// Return `true` if this ink! smart contract shall always be compiled as
@@ -188,10 +188,10 @@ mod tests {
     fn storage_alloc_works() {
         assert_try_from(
             syn::parse_quote! {
-                storage_alloc = true
+                dynamic_storage_allocator = true
             },
             Ok(Config {
-                storage_alloc: Some(true),
+                dynamic_storage_allocator: Some(true),
                 as_dependency: None,
                 env_types: None,
             }),
@@ -201,8 +201,8 @@ mod tests {
     #[test]
     fn storage_alloc_invalid_value_fails() {
         assert_try_from(
-            syn::parse_quote! { storage_alloc = "invalid" },
-            Err("expected a bool literal for `storage_allocator` ink! config argument"),
+            syn::parse_quote! { dynamic_storage_allocator = "invalid" },
+            Err("expected a bool literal for `dynamic_storage_allocator` ink! config argument"),
         )
     }
 
@@ -213,7 +213,7 @@ mod tests {
                 compile_as_dependency = false
             },
             Ok(Config {
-                storage_alloc: None,
+                dynamic_storage_allocator: None,
                 as_dependency: Some(false),
                 env_types: None,
             }),
@@ -237,7 +237,7 @@ mod tests {
                 env_types = ::my::env::Types
             },
             Ok(Config {
-                storage_alloc: None,
+                dynamic_storage_allocator: None,
                 as_dependency: None,
                 env_types: Some(EnvTypes {
                     path: syn::parse_quote! { ::my::env::Types },
