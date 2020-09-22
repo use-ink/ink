@@ -32,7 +32,8 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 
     // when
     let json = serde_json::to_value(&compact_spec).unwrap();
-    let deserialized: ConstructorSpec<CompactForm> = serde_json::from_value(json.clone()).unwrap();
+    let deserialized: ConstructorSpec<CompactForm> =
+        serde_json::from_value(json.clone()).unwrap();
 
     // then
     assert_eq!(

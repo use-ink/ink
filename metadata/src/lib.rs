@@ -38,8 +38,8 @@ pub use self::specs::{
     MessageSpec,
     MessageSpecBuilder,
     ReturnTypeSpec,
-    TypeSpec,
     Selector,
+    TypeSpec,
 };
 
 use impl_serde::serialize as serde_hex;
@@ -51,7 +51,10 @@ use scale_info::{
     Registry,
     RegistryReadOnly,
 };
-use serde::{Serialize, Deserialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize)]

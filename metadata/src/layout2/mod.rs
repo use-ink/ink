@@ -30,7 +30,11 @@ use scale_info::{
     Registry,
     TypeInfo,
 };
-use serde::{Serialize, Deserialize, de::DeserializeOwned};
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 
 /// Represents the static storage layout of an ink! smart contract.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
@@ -67,13 +71,19 @@ pub struct LayoutKey {
 }
 
 impl serde::Serialize for LayoutKey {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: serde::Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
         serde_hex::serialize(&self.key, serializer)
     }
 }
 
 impl<'de> serde::Deserialize<'de> for LayoutKey {
-    fn deserialize<D>(d: D) -> Result<Self, D::Error> where D: serde::Deserializer<'de> {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
         let mut arr = [0; 32];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
         Ok(arr.into())
@@ -371,17 +381,7 @@ impl IntoCompact for FieldLayout {
 }
 
 /// The discriminant of an enum variant.
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Serialize,
-    Deserialize,
-)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Discriminant(usize);
 
 impl From<usize> for Discriminant {

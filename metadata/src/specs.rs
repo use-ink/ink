@@ -33,13 +33,17 @@ use scale_info::{
     Registry,
     TypeInfo,
 };
-use serde::{Serialize, Deserialize, de::DeserializeOwned};
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-	serialize = "F::TypeId: Serialize, F::String: Serialize",
-	deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct ContractSpec<F: Form = MetaForm> {
     /// The set of constructors of the contract.
@@ -187,8 +191,8 @@ impl ContractSpec {
 /// Describes a constructor of a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-	serialize = "F::TypeId: Serialize, F::String: Serialize",
-	deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
@@ -292,8 +296,8 @@ impl ConstructorSpecBuilder<state::Selector> {
 /// Describes a contract message.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-	serialize = "F::TypeId: Serialize, F::String: Serialize",
-	deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 #[serde(rename_all = "camelCase")]
 pub struct MessageSpec<F: Form = MetaForm> {
@@ -461,8 +465,8 @@ impl IntoCompact for MessageSpec {
 /// Describes an event definition.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-	serialize = "F::TypeId: Serialize, F::String: Serialize",
-	deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct EventSpec<F: Form = MetaForm> {
     /// The name of the event.
@@ -541,13 +545,19 @@ impl EventSpec {
 pub struct Selector([u8; 4]);
 
 impl serde::Serialize for Selector {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: serde::Serializer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
         serde_hex::serialize(&self.0, serializer)
     }
 }
 
 impl<'de> serde::Deserialize<'de> for Selector {
-    fn deserialize<D>(d: D) -> Result<Self, D::Error> where D: serde::Deserializer<'de> {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
         let mut arr = [0; 4];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
         Ok(arr.into())
@@ -598,8 +608,8 @@ pub type DisplayName<F> = scale_info::Path<F>;
 /// simply be a type alias to `fn(i32, i32) -> Ordering`.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-	serialize = "F::TypeId: Serialize, F::String: Serialize",
-	deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeSpec<F: Form = MetaForm> {
@@ -678,8 +688,8 @@ impl TypeSpec {
 /// Describes a pair of parameter name and type.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-	serialize = "F::TypeId: Serialize, F::String: Serialize",
-	deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct EventParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
@@ -768,8 +778,8 @@ impl EventParamSpecBuilder {
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(transparent)]
 #[serde(bound(
-	serialize = "F::TypeId: Serialize, F::String: Serialize",
-	deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
@@ -811,8 +821,8 @@ impl ReturnTypeSpec {
 /// Describes a pair of parameter name and type.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-	serialize = "F::TypeId: Serialize, F::String: Serialize",
-	deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::TypeId: Serialize, F::String: Serialize",
+    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct MessageParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
