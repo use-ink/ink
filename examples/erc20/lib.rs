@@ -252,8 +252,7 @@ mod erc20 {
             let callee =
                 env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
             // Create call
-            let mut data =
-                env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data = env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
             assert_eq!(
@@ -296,8 +295,7 @@ mod erc20 {
             let callee =
                 env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
             // Create call.
-            let mut data =
-                env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data = env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller.
             assert_eq!(
