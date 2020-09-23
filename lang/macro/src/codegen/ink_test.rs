@@ -59,8 +59,12 @@ impl GenerateCode for InkTest<'_> {
                     #[test]
                     #vis fn #fn_name( #fn_args ) {
                         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-                            #fn_block
-                            Ok(())
+                            {
+                                let _: () = {
+                                    #fn_block
+                                };
+                                Ok(())
+                            }
                         })
                         .expect(#expect_msg);
                     }
