@@ -16,20 +16,18 @@ use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-pub use crate::{
-    codegen::{
-        cross_calling::CrossCalling,
-        dispatch::Dispatch,
-        env_types::EnvTypes,
-        events::{
-            EventHelpers,
-            EventStructs,
-        },
-        metadata::GenerateMetadata,
-        storage::Storage,
-        GenerateCode,
-        GenerateCodeUsing,
+pub use crate::codegen::{
+    cross_calling::CrossCalling,
+    dispatch::Dispatch,
+    env_types::EnvTypes,
+    events::{
+        EventHelpers,
+        EventStructs,
     },
+    metadata::GenerateMetadata,
+    storage::Storage,
+    GenerateCode,
+    GenerateCodeUsing,
 };
 
 /// Generates code for the `[ink::test]` macro.
@@ -50,7 +48,10 @@ impl GenerateCode for InkTest<'_> {
         let fn_block = &item_fn.block;
         let vis = &item_fn.vis;
         let fn_args = &sig.inputs;
-        let expect_msg = format!("{}: the off-chain testing environment returned an error", stringify!(#fn_name));
+        let expect_msg = format!(
+            "{}: the off-chain testing environment returned an error",
+            stringify!(#fn_name)
+        );
         match fn_return_type {
             syn::ReturnType::Default => {
                 quote! {
