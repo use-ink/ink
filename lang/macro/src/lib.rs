@@ -17,6 +17,7 @@ extern crate proc_macro;
 mod codegen;
 mod contract;
 mod extensions;
+mod ink_test;
 mod ir;
 mod lint;
 
@@ -29,3 +30,11 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 #[cfg(test)]
 pub use contract::generate_or_err;
+
+#[proc_macro_attribute]
+pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
+    ink_test::generate(attr.into(), item.into()).into()
+}
+
+#[cfg(test)]
+pub use ink_test::generate_or_err;

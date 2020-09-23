@@ -22,7 +22,10 @@ mod error;
 mod events;
 mod traits;
 
-pub use ink_lang_macro::contract;
+pub use ink_lang_macro::{
+    contract,
+    test,
+};
 
 pub use self::{
     contract::{

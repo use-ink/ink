@@ -24,6 +24,7 @@ use quote::ToTokens;
 use syn::{
     punctuated::Punctuated,
     spanned::Spanned as _,
+    ItemFn,
     Token,
 };
 
@@ -48,6 +49,12 @@ pub struct Contract {
     /// These generally will just be carried and re-generated
     /// and not be restricted by any ink! related analysis.
     pub non_ink_items: Vec<RustItem>,
+}
+
+/// The ink! test with all required information.
+pub struct InkTest {
+    /// The function which was annotated.
+    pub item_fn: ItemFn,
 }
 
 /// The meta information for a contract.
