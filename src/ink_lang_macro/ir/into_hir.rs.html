@@ -763,6 +763,14 @@
 <span id="763">763</span>
 <span id="764">764</span>
 <span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -819,6 +827,14 @@
             <span class="ident">paren_token</span>.<span class="ident">span</span>,
             <span class="string">&quot;invalid ink! attribute in the given context&quot;</span>,
         ))
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ItemFn</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ir</span>::<span class="ident">InkTest</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Error</span>;
+
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_fn</span>: <span class="ident">syn</span>::<span class="ident">ItemFn</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">item_fn</span> })
     }
 }
 

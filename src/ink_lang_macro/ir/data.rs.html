@@ -528,6 +528,12 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -579,6 +585,12 @@
     <span class="doccomment">/// These generally will just be carried and re-generated</span>
     <span class="doccomment">/// and not be restricted by any ink! related analysis.</span>
     <span class="kw">pub</span> <span class="ident">non_ink_items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RustItem</span><span class="op">&gt;</span>,
+}
+
+<span class="doccomment">/// The ink! test with all required information.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InkTest</span> {
+    <span class="doccomment">/// The function which was annotated.</span>
+    <span class="kw">pub</span> <span class="ident">item_fn</span>: <span class="ident">syn</span>::<span class="ident">ItemFn</span>,
 }
 
 <span class="doccomment">/// The meta information for a contract.</span>

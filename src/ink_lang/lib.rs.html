@@ -66,6 +66,9 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2019 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -91,7 +94,10 @@
 <span class="kw">mod</span> <span class="ident">events</span>;
 <span class="kw">mod</span> <span class="ident">traits</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_lang_macro</span>::<span class="ident">contract</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_lang_macro</span>::{
+    <span class="ident">contract</span>,
+    <span class="ident">test</span>,
+};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">contract</span>::{
