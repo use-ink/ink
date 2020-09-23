@@ -70,11 +70,11 @@ impl GenerateCode for InkTest<'_> {
                     }
                 }
             }
-            syn::ReturnType::Type(_rarrow, _type) => {
+            syn::ReturnType::Type(rarrow, ret_type) => {
                 quote! {
                     #( #attrs )*
                     #[test]
-                    #vis fn #fn_name( #fn_args ) -> env::Result<()> {
+                    #vis fn #fn_name( #fn_args ) #rarrow #ret_type {
                         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                             #fn_block
                             Ok(())
