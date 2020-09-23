@@ -23,6 +23,7 @@ use crate::{
         },
     },
 };
+use ink_lang_macro as ink;
 use ink_primitives::Key;
 
 #[test]
@@ -360,43 +361,34 @@ fn swap_remove_drop_works() {
     assert_eq_slice(&vec, &[]);
 }
 
-#[test]
+#[ink::test]
 fn spread_layout_push_pull_works() -> env::Result<()> {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-        let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
-        // Load the pushed storage vector into another instance and check that
-        // both instances are equal:
-        let vec2 =
-            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        assert_eq!(vec1, vec2);
-        Ok(())
-    })
+    let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+    let root_key = Key::from([0x42; 32]);
+    SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
+    // Load the pushed storage vector into another instance and check that
+    // both instances are equal:
+    let vec2 = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+    assert_eq!(vec1, vec2);
 }
 
-#[test]
+#[ink::test]
 #[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-        let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-        let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
-        // It has already been asserted that a valid instance can be pulled
-        // from contract storage after a push to the same storage region.
-        //
-        // Now clear the associated storage from `vec1` and check whether
-        // loading another instance from this storage will panic since the
-        // vector's length property cannot read a value:
-        SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
-        let _ =
-            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        Ok(())
-    })
-    .unwrap()
+    let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+    let root_key = Key::from([0x42; 32]);
+    SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
+    // It has already been asserted that a valid instance can be pulled
+    // from contract storage after a push to the same storage region.
+    //
+    // Now clear the associated storage from `vec1` and check whether
+    // loading another instance from this storage will panic since the
+    // vector's length property cannot read a value:
+    SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
+    let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
 }
 
-#[test]
+#[ink::test]
 fn set_works() {
     let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
     let _ = vec.set(0, b'x').unwrap();
