@@ -24,7 +24,6 @@ use quote::ToTokens;
 use syn::{
     punctuated::Punctuated,
     spanned::Spanned as _,
-    ItemFn,
     Token,
 };
 
@@ -54,7 +53,7 @@ pub struct Contract {
 /// The ink! test with all required information.
 pub struct InkTest {
     /// The function which was annotated.
-    pub item_fn: ItemFn,
+    pub item_fn: syn::ItemFn,
 }
 
 /// The meta information for a contract.
