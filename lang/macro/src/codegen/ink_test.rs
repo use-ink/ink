@@ -68,7 +68,6 @@ impl GenerateCode for InkTest<'_> {
                     #vis fn #fn_name( #fn_args ) #rarrow #ret_type {
                         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                             #fn_block
-                            Ok(())
                         })
                     }
                 }
