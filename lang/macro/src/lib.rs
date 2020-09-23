@@ -32,9 +32,6 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 pub use contract::generate_or_err;
 
 #[proc_macro_attribute]
-pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
-    ink_test::generate(attr.into(), item.into()).into()
+pub fn test(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    ink_test::generate(item.into()).into()
 }
-
-#[cfg(test)]
-pub use ink_test::generate_or_err;

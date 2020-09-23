@@ -22,14 +22,14 @@ use ink_lang_ir::format_err_spanned;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
-pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
-    match generate_or_err(attr, input) {
+pub fn generate(input: TokenStream2) -> TokenStream2 {
+    match generate_or_err(input) {
         Ok(tokens) => tokens,
         Err(err) => err.to_compile_error(),
     }
 }
 
-pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
     lint::idents_respect_pred(
         input.clone(),
         move |ident| !ident.to_string().starts_with("__ink"),
@@ -40,8 +40,7 @@ pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenS
             )
         },
     )?;
-    let params = syn::parse2::<ir::Params>(attr)?;
     let rust_fn = syn::parse2::<syn::ItemFn>(input)?;
-    let ink_ir = ir::InkTest::try_from((params, rust_fn))?;
+    let ink_ir = ir::InkTest::try_from(rust_fn)?;
     Ok(ink_ir.generate_code())
 }

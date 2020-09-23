@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,38 +30,38 @@ pub use crate::{
         GenerateCode,
         GenerateCodeUsing,
     },
-    ir::InkTest,
 };
 
 /// Generates code for the `[ink::test]` macro.
 #[derive(From)]
-pub struct InkTestModule<'a> {
+pub struct InkTest<'a> {
     /// The test function to generate code for.
-    ink_test: &'a InkTest,
+    test: &'a crate::ir::InkTest,
 }
 
-impl GenerateCode for InkTestModule<'_> {
+impl GenerateCode for InkTest<'_> {
     /// Generates the code for `#[ink:test]`.
     fn generate_code(&self) -> TokenStream2 {
-        let item_fn = &self.ink_test.item_fn;
+        let item_fn = &self.test.item_fn;
         let attrs = &item_fn.attrs;
         let sig = &item_fn.sig;
         let fn_name = &sig.ident;
         let fn_return_type = &sig.output;
         let fn_block = &item_fn.block;
-        let _vis = &item_fn.vis;
-        let _fn_args = &sig.inputs;
+        let vis = &item_fn.vis;
+        let fn_args = &sig.inputs;
+        let expect_msg = format!("{}: the off-chain testing environment returned an error", stringify!(#fn_name));
         match fn_return_type {
             syn::ReturnType::Default => {
                 quote! {
                     #( #attrs )*
                     #[test]
-                    fn #fn_name() {
+                    #vis fn #fn_name( #fn_args ) {
                         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                             #fn_block
                             Ok(())
                         })
-                        .expect(&format!("{}: the off-chain testing environment returned an error", stringify!(#fn_name)));
+                        .expect(#expect_msg);
                     }
                 }
             }
@@ -69,7 +69,7 @@ impl GenerateCode for InkTestModule<'_> {
                 quote! {
                     #( #attrs )*
                     #[test]
-                    fn #fn_name() -> env::Result<()> {
+                    #vis fn #fn_name( #fn_args ) -> env::Result<()> {
                         env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
                             #fn_block
                             Ok(())
@@ -81,8 +81,8 @@ impl GenerateCode for InkTestModule<'_> {
     }
 }
 
-impl GenerateCode for InkTest {
+impl GenerateCode for crate::ir::InkTest {
     fn generate_code(&self) -> TokenStream2 {
-        InkTestModule::from(self).generate_code()
+        InkTest::from(self).generate_code()
     }
 }

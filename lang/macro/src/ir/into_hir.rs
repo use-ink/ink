@@ -56,10 +56,10 @@ impl Parse for ir::Marker {
     }
 }
 
-impl TryFrom<(ir::Params, syn::ItemFn)> for ir::InkTest {
+impl TryFrom<syn::ItemFn> for ir::InkTest {
     type Error = syn::Error;
 
-    fn try_from((_params, item_fn): (ir::Params, syn::ItemFn)) -> Result<Self> {
+    fn try_from(item_fn: syn::ItemFn) -> Result<Self> {
         Ok(Self { item_fn })
     }
 }
