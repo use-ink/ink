@@ -20,7 +20,6 @@ ink_alloc = { version = "2.1.0", path = "../alloc/", default-features = false }
 ink_primitives = { version = "2.1.0", path = "../primitives/", default-features = false }
 ink_core_derive = { version = "2.1.0", path = "derive", default-features = false }
 ink_prelude = { version = "2.1.0", path = "../prelude/", default-features = false }
-ink_lang_macro = { version = "2.1.0", path = "../lang/macro/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
@@ -62,7 +61,6 @@ std = [
     "ink_alloc/std",
     "ink_prelude/std",
     "ink_primitives/std",
-    "ink_lang_macro/std",
     "scale/std",
     "scale-info",
     "scale-info/std",
