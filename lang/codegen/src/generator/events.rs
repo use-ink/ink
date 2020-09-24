@@ -48,18 +48,20 @@ impl GenerateCode for Events<'_> {
         }
         let emit_event_trait_impl = self.generate_emit_event_trait_impl();
         let event_base = self.generate_event_base();
+        let topic_guards = self.generate_topic_guards();
         let topics_impls = self.generate_topics_impls();
         let event_structs = self.generate_event_structs();
         quote! {
             #emit_event_trait_impl
             #event_base
+            #( #topic_guards )*
             #( #event_structs )*
             #( #topics_impls )*
         }
     }
 }
 
-impl Events<'_> {
+impl<'a> Events<'a> {
     /// Used to allow emitting user defined events directly instead of converting
     /// them first into the automatically generated base trait of the contract.
     fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
@@ -178,19 +180,28 @@ impl Events<'_> {
         )
     }
 
+    /// Generates the guard code that protects against having too many topics defined on an ink! event.
+    fn generate_topic_guards(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+        let no_cross_calling_cfg =
+            self.generate_code_using::<generator::CrossCallingConflictCfg>();
+        self.contract.module().events().map(move |event| {
+            let span = event.span();
+            let topics_guard = self.generate_topics_guard(event);
+            quote_spanned!(span =>
+                #no_cross_calling_cfg
+                #topics_guard
+            )
+        })
+    }
+
     /// Generates the `Topics` trait implementations for the user defined events.
-    fn generate_topics_impls<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+    fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let ident = event.ident();
-            let topics_guard = self.generate_topics_guard(event);
-
             quote_spanned!(span =>
-                #no_cross_calling_cfg
-                #topics_guard
-
                 #no_cross_calling_cfg
                 const _: () = {
                     impl ::ink_core::env::Topics<EnvTypes> for #ident {
@@ -205,7 +216,7 @@ impl Events<'_> {
     }
 
     /// Generates all the user defined event struct definitions.
-    fn generate_event_structs<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+    fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
         self.contract.module().events().map(move |event| {
