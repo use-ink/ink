@@ -12,29 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod codegen;
-mod contract;
-mod extensions;
-mod ink_test;
-mod ir;
-mod trait_def;
+use crate::{
+    codegen::GenerateCode as _,
+    ir,
+};
+use core::convert::TryFrom;
+use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
 
-use proc_macro::TokenStream;
-
-#[proc_macro_attribute]
-pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
-    contract::generate(attr.into(), item.into()).into()
+pub fn generate(input: TokenStream2) -> TokenStream2 {
+    match generate_or_err(input) {
+        Ok(tokens) => tokens,
+        Err(err) => err.to_compile_error(),
+    }
 }
 
-#[proc_macro_attribute]
-pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
-    trait_def::analyse(attr.into(), item.into()).into()
-}
-
-#[cfg(test)]
-pub use contract::generate_or_err;
-
-#[proc_macro_attribute]
-pub fn test(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    ink_test::generate(item.into()).into()
+pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
+    let rust_fn = syn::parse2::<syn::ItemFn>(input)?;
+    let ink_ir = ir::InkTest::try_from(rust_fn)?;
+    Ok(ink_ir.generate_code())
 }
