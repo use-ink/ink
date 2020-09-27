@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #[test]
+#[ignore]
 fn compile_tests() {
     let t = trybuild::TestCases::new();
     t.pass("tests/ui/pass/01-noop-contract.rs");
