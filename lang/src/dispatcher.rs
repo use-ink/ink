@@ -108,11 +108,7 @@ where
     let enables_dynamic_storage_allocator: bool =
         enables_dynamic_storage_allocator.into();
     if !accepts_payments {
-        let transferred = ink_core::env::transferred_balance::<E>()
-            .expect("encountered error while querying transferred balance");
-        if transferred != <E as EnvTypes>::Balance::from(0) {
-            return Err(DispatchError::PaidUnpayableMessage)
-        }
+        deny_payment::<E>()?;
     }
     if enables_dynamic_storage_allocator {
         alloc::initialize(ContractPhase::Call);
