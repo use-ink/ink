@@ -68,7 +68,11 @@ impl TryFrom<ast::AttributeArgs> for Config {
         for arg in args.into_iter() {
             if arg.name.is_ident("dynamic_storage_allocator") {
                 if let Some((_, ast)) = dynamic_storage_allocator {
-                    return Err(duplicate_config_err(ast, arg, "dynamic_storage_allocator"))
+                    return Err(duplicate_config_err(
+                        ast,
+                        arg,
+                        "dynamic_storage_allocator",
+                    ))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     dynamic_storage_allocator = Some((lit_bool.value, arg))

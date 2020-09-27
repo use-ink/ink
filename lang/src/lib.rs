@@ -24,8 +24,8 @@ mod traits;
 
 pub use ink_lang_macro::{
     contract,
-    trait_definition,
     test,
+    trait_definition,
 };
 
 pub use self::{
@@ -40,10 +40,10 @@ pub use self::{
         ToAccountId,
     },
     dispatcher::{
+        deny_payment,
         execute_constructor,
         execute_message,
         execute_message_mut,
-        deny_payment,
         AcceptsPayments,
         ConstructorDispatcher,
         EnablesDynamicStorageAllocator,
@@ -62,10 +62,10 @@ pub use self::{
         DispatchRetCode,
     },
     events::{
-        True,
-        False,
         BaseEvent,
         EmitEvent,
+        False,
+        True,
     },
     traits::{
         CheckedInkTrait,
