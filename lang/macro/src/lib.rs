@@ -15,6 +15,7 @@
 mod codegen;
 mod contract;
 mod extensions;
+mod ink_test;
 mod ir;
 mod lint;
 mod trait_def;
@@ -33,3 +34,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 #[cfg(test)]
 pub use contract::generate_or_err;
+
+#[proc_macro_attribute]
+pub fn test(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    ink_test::generate(item.into()).into()
+}

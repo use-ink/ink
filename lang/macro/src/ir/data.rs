@@ -50,6 +50,12 @@ pub struct Contract {
     pub non_ink_items: Vec<RustItem>,
 }
 
+/// The ink! test with all required information.
+pub struct InkTest {
+    /// The function which was annotated.
+    pub item_fn: syn::ItemFn,
+}
+
 /// The meta information for a contract.
 ///
 /// # Note

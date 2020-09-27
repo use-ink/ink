@@ -25,6 +25,7 @@ mod traits;
 pub use ink_lang_macro::{
     contract,
     trait_definition,
+    test,
 };
 
 pub use self::{
