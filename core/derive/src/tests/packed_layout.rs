@@ -21,8 +21,7 @@ fn unit_struct_works() {
             struct UnitStruct;
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_UnitStruct: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::PackedLayout for UnitStruct {
                     fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                         match self {
@@ -59,8 +58,7 @@ fn struct_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_NamedFields: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::PackedLayout for NamedFields {
                     fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                         match self {
@@ -137,8 +135,7 @@ fn enum_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_MixedEnum: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::PackedLayout for MixedEnum {
                     fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                         match self {
@@ -229,8 +226,7 @@ fn generic_struct_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_GenericStruct: () = {
+            const _: () = {
                 impl<T1, T2> ::ink_core::storage2::traits::PackedLayout for GenericStruct<T1, T2>
                 where
                     T1: ::ink_core::storage2::traits::PackedLayout,
@@ -298,8 +294,7 @@ fn generic_enum_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_GenericEnum: () = {
+            const _: () = {
                 impl<T1, T2> ::ink_core::storage2::traits::PackedLayout for GenericEnum<T1, T2>
                 where
                     T1: ::ink_core::storage2::traits::PackedLayout,

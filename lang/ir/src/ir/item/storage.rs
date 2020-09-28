@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{
+    ir,
+    ir::utils,
+};
 use core::convert::TryFrom;
 use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
@@ -91,17 +94,7 @@ impl TryFrom<syn::ItemStruct> for Storage {
                 "generic ink! storage structs are not supported",
             ))
         }
-        match &item_struct.vis {
-            syn::Visibility::Inherited
-            | syn::Visibility::Restricted(_)
-            | syn::Visibility::Crate(_) => {
-                return Err(format_err_spanned!(
-                    &item_struct.vis,
-                    "non `pub` ink! storage structs are not supported",
-                ))
-            }
-            _ => (),
-        }
+        utils::ensure_pub_visibility("storage structs", struct_span, &item_struct.vis)?;
         Ok(Self {
             ast: syn::ItemStruct {
                 attrs: other_attrs,
@@ -112,6 +105,11 @@ impl TryFrom<syn::ItemStruct> for Storage {
 }
 
 impl Storage {
+    /// Returns the non-ink! attributes of the ink! storage struct.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.ast.attrs
+    }
+
     /// Returns the identifier of the storage struct.
     pub fn ident(&self) -> &Ident {
         &self.ast.ident

@@ -25,6 +25,7 @@ mod traits;
 pub use ink_lang_macro::{
     contract,
     test,
+    trait_definition,
 };
 
 pub use self::{
@@ -35,17 +36,22 @@ pub use self::{
     cross_calling::{
         ForwardCall,
         ForwardCallMut,
+        NeverReturns,
         ToAccountId,
     },
     dispatcher::{
+        deny_payment,
         execute_constructor,
         execute_message,
         execute_message_mut,
+        AcceptsPayments,
         ConstructorDispatcher,
+        EnablesDynamicStorageAllocator,
         Execute,
         MessageDispatcher,
     },
     env_access::{
+        ContractEnv,
         Env,
         EnvAccess,
         StaticEnv,
@@ -58,13 +64,17 @@ pub use self::{
     events::{
         BaseEvent,
         EmitEvent,
+        False,
+        True,
     },
     traits::{
+        CheckedInkTrait,
         Constructor,
         FnInput,
         FnOutput,
         FnSelector,
         FnState,
+        ImpliesReturn,
         MessageMut,
         MessageRef,
     },

@@ -207,13 +207,13 @@ impl ItemMod {
                     Entry::Occupied(overlap) => {
                         return Err(compose_error(
                             overlap.get().span(),
-                            message.item().span(),
+                            message.callable().span(),
                             selector,
                             "message",
                         ))
                     }
                     Entry::Vacant(vacant) => {
-                        vacant.insert(message.item());
+                        vacant.insert(message.callable());
                     }
                 }
             }
@@ -223,18 +223,60 @@ impl ItemMod {
                     Entry::Occupied(overlap) => {
                         return Err(compose_error(
                             overlap.get().span(),
-                            constructor.item().span(),
+                            constructor.callable().span(),
                             selector,
                             "constructor",
                         ))
                     }
                     Entry::Vacant(vacant) => {
-                        vacant.insert(constructor.item());
+                        vacant.insert(constructor.callable());
                     }
                 }
             }
         }
         Ok(())
+    }
+
+    /// Returns `Ok` if there are no occurrences of identifiers starting with `__ink_`.
+    ///
+    /// # Errors
+    ///
+    /// Returns a combined error for every instance of `__ink_` prefixed identifier found.
+    fn ensure_no_ink_identifiers(item_mod: &syn::ItemMod) -> Result<(), syn::Error> {
+        #[derive(Default)]
+        struct IdentVisitor {
+            errors: Vec<syn::Error>,
+        }
+        impl IdentVisitor {
+            /// Converts the visitor into the errors it found if any.
+            ///
+            /// Returns `Ok` if it found no errors during visitation.
+            pub fn into_result(self) -> Result<(), syn::Error> {
+                match self.errors.split_first() {
+                    None => Ok(()),
+                    Some((first, rest)) => {
+                        let mut combined = first.clone();
+                        for error in rest {
+                            combined.combine(error.clone());
+                        }
+                        Err(combined)
+                    }
+                }
+            }
+        }
+        impl<'ast> syn::visit::Visit<'ast> for IdentVisitor {
+            fn visit_ident(&mut self, ident: &'ast Ident) {
+                if ident.to_string().starts_with("__ink_") {
+                    self.errors.push(format_err!(
+                        ident,
+                        "encountered invalid identifier starting with __ink_",
+                    ))
+                }
+            }
+        }
+        let mut visitor = IdentVisitor::default();
+        syn::visit::visit_item_mod(&mut visitor, item_mod);
+        visitor.into_result()
     }
 }
 
@@ -243,6 +285,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
 
     fn try_from(module: syn::ItemMod) -> Result<Self, Self::Error> {
         let module_span = module.span();
+        Self::ensure_no_ink_identifiers(&module)?;
         let (brace, items) = match module.content {
             Some((brace, items)) => (brace, items),
             None => {
@@ -420,6 +463,16 @@ impl ItemMod {
     /// Returns an iterator yielding all event definitions in this ink! module.
     pub fn events(&self) -> IterEvents {
         IterEvents::new(self)
+    }
+
+    /// Returns all non-ink! attributes of the ink! module.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.attrs
+    }
+
+    /// Returns the visibility of the ink! module.
+    pub fn vis(&self) -> &syn::Visibility {
+        &self.vis
     }
 }
 

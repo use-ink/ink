@@ -16,7 +16,7 @@
 pub type DispatchResult = core::result::Result<(), DispatchError>;
 
 /// A dispatch error.
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum DispatchError {
     UnknownSelector,
     UnknownInstantiateSelector,
@@ -27,6 +27,7 @@ pub enum DispatchError {
     InvalidCallParameters,
 
     CouldNotReadInput,
+    PaidUnpayableMessage,
 }
 
 impl DispatchError {
@@ -70,6 +71,7 @@ impl From<DispatchError> for DispatchRetCode {
             DispatchError::InvalidInstantiateParameters => Self(0x05),
             DispatchError::InvalidCallParameters => Self(0x06),
             DispatchError::CouldNotReadInput => Self(0x07),
+            DispatchError::PaidUnpayableMessage => Self(0x08),
         }
     }
 }

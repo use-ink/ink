@@ -25,7 +25,10 @@ use core::{
     mem::ManuallyDrop,
 };
 use ink_core::{
-    env::ReturnFlags,
+    env::{
+        EnvTypes,
+        ReturnFlags,
+    },
     storage2::{
         alloc,
         alloc::ContractPhase,
@@ -62,27 +65,83 @@ pub trait Execute {
     fn execute(self) -> Result<()>;
 }
 
+/// Yields `true` if the message accepts payments.
+#[derive(Copy, Clone)]
+pub struct AcceptsPayments(pub bool);
+
+impl From<AcceptsPayments> for bool {
+    #[inline]
+    fn from(accepts_payments: AcceptsPayments) -> Self {
+        accepts_payments.0
+    }
+}
+
+/// Yields `true` if the dynamic storage allocator is enabled for the given call.
+#[derive(Copy, Clone)]
+pub struct EnablesDynamicStorageAllocator(pub bool);
+
+impl From<EnablesDynamicStorageAllocator> for bool {
+    #[inline]
+    fn from(enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator) -> Self {
+        enables_dynamic_storage_allocator.0
+    }
+}
+
 /// Executes the given `&self` message closure.
 ///
 /// # Note
 ///
 /// The closure is supposed to already contain all the arguments that the real
 /// message requires and forwards them.
-pub fn execute_message<M, F>(f: F) -> Result<()>
+#[inline]
+pub fn execute_message<E, M, F>(
+    accepts_payments: AcceptsPayments,
+    enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
+    f: F,
+) -> Result<()>
 where
+    E: EnvTypes,
     M: MessageRef,
     F: FnOnce(&<M as FnState>::State) -> <M as FnOutput>::Output,
 {
-    alloc::initialize(ContractPhase::Call);
+    let accepts_payments: bool = accepts_payments.into();
+    let enables_dynamic_storage_allocator: bool =
+        enables_dynamic_storage_allocator.into();
+    if !accepts_payments {
+        deny_payment::<E>()?;
+    }
+    if enables_dynamic_storage_allocator {
+        alloc::initialize(ContractPhase::Call);
+    }
     let root_key = Key::from([0x00; 32]);
     let state = ManuallyDrop::new(pull_spread_root::<<M as FnState>::State>(&root_key));
     let result = f(&state);
-    alloc::finalize();
+    if enables_dynamic_storage_allocator {
+        alloc::finalize();
+    }
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
         ink_core::env::return_value::<<M as FnOutput>::Output>(
             ReturnFlags::default(),
             &result,
         )
+    }
+    Ok(())
+}
+
+/// Returns `Ok` if the caller did not transfer additional value to the callee.
+///
+/// # Errors
+///
+/// If the caller did send some amount of transferred value to the callee.
+#[inline]
+pub fn deny_payment<E>() -> Result<()>
+where
+    E: EnvTypes,
+{
+    let transferred = ink_core::env::transferred_balance::<E>()
+        .expect("encountered error while querying transferred balance");
+    if transferred != <E as EnvTypes>::Balance::from(0) {
+        return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())
 }
@@ -93,18 +152,34 @@ where
 ///
 /// The closure is supposed to already contain all the arguments that the real
 /// message requires and forwards them.
-pub fn execute_message_mut<M, F>(f: F) -> Result<()>
+#[inline]
+pub fn execute_message_mut<E, M, F>(
+    accepts_payments: AcceptsPayments,
+    enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
+    f: F,
+) -> Result<()>
 where
+    E: EnvTypes,
     M: MessageMut,
     F: FnOnce(&mut <M as FnState>::State) -> <M as FnOutput>::Output,
 {
-    alloc::initialize(ContractPhase::Call);
+    let accepts_payments: bool = accepts_payments.into();
+    let enables_dynamic_storage_allocator: bool =
+        enables_dynamic_storage_allocator.into();
+    if !accepts_payments {
+        deny_payment::<E>()?;
+    }
+    if enables_dynamic_storage_allocator {
+        alloc::initialize(ContractPhase::Call);
+    }
     let root_key = Key::from([0x00; 32]);
     let mut state =
         ManuallyDrop::new(pull_spread_root::<<M as FnState>::State>(&root_key));
     let result = f(&mut state);
     push_spread_root::<<M as FnState>::State>(&state, &root_key);
-    alloc::finalize();
+    if enables_dynamic_storage_allocator {
+        alloc::finalize();
+    }
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
         ink_core::env::return_value::<<M as FnOutput>::Output>(
             ReturnFlags::default(),
@@ -120,15 +195,25 @@ where
 ///
 /// The closure is supposed to already contain all the arguments that the real
 /// constructor message requires and forwards them.
-pub fn execute_constructor<C, F>(f: F) -> Result<()>
+#[inline]
+pub fn execute_constructor<C, F>(
+    enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
+    f: F,
+) -> Result<()>
 where
     C: Constructor,
     F: FnOnce() -> <C as FnState>::State,
 {
-    alloc::initialize(ContractPhase::Deploy);
+    let enables_dynamic_storage_allocator: bool =
+        enables_dynamic_storage_allocator.into();
+    if enables_dynamic_storage_allocator {
+        alloc::initialize(ContractPhase::Deploy);
+    }
     let state = ManuallyDrop::new(f());
     let root_key = Key::from([0x00; 32]);
     push_spread_root::<<C as FnState>::State>(&state, &root_key);
-    alloc::finalize();
+    if enables_dynamic_storage_allocator {
+        alloc::finalize();
+    }
     Ok(())
 }

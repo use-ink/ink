@@ -12,23 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    codegen::GenerateCode as _,
-    ir,
-};
-use core::convert::TryFrom;
+use ink_lang_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
-pub fn generate(input: TokenStream2) -> TokenStream2 {
-    match generate_or_err(input) {
+pub fn analyze(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    match analyze_or_err(attr, input) {
         Ok(tokens) => tokens,
         Err(err) => err.to_compile_error(),
     }
 }
 
-pub fn generate_or_err(input: TokenStream2) -> Result<TokenStream2> {
-    let rust_fn = syn::parse2::<syn::ItemFn>(input)?;
-    let ink_ir = ir::InkTest::try_from(rust_fn)?;
-    Ok(ink_ir.generate_code())
+pub fn analyze_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+    let trait_definition = ink_lang_ir::InkTrait::new(attr, input)?;
+    Ok(generate_code(&trait_definition))
 }

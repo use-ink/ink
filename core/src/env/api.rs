@@ -21,9 +21,9 @@ use crate::env::{
         TypedEnv,
     },
     call::{
+        utils::ReturnType,
         CallParams,
-        InstantiateParams,
-        ReturnType,
+        CreateParams,
     },
     engine::{
         EnvInstance,
@@ -313,7 +313,7 @@ where
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<T, Args, C>(
-    params: &InstantiateParams<T, Args, C>,
+    params: &CreateParams<T, Args, C>,
 ) -> Result<T::AccountId>
 where
     T: EnvTypes,

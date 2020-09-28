@@ -21,8 +21,7 @@ fn unit_struct_works() {
             struct UnitStruct;
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_SpreadLayout_FOR_UnitStruct: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::SpreadLayout for UnitStruct {
                     #[allow(unused_comparisons)]
                     const FOOTPRINT: u64 = [0u64, 0u64][(0u64 < 0u64) as usize];
@@ -61,8 +60,7 @@ fn struct_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_SpreadLayout_FOR_NamedFields: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::SpreadLayout for NamedFields {
                     #[allow(unused_comparisons)]
                     const FOOTPRINT: u64 = [
@@ -172,8 +170,7 @@ fn enum_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_SpreadLayout_FOR_MixedEnum: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::SpreadLayout for MixedEnum {
                     #[allow(unused_comparisons)]
                     const FOOTPRINT : u64 = 1 + [
@@ -447,8 +444,7 @@ fn generic_struct_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_SpreadLayout_FOR_GenericStruct: () = {
+            const _: () = {
                 impl<T1, T2> ::ink_core::storage2::traits::SpreadLayout for GenericStruct<T1, T2>
                 where
                     T1: ::ink_core::storage2::traits::SpreadLayout,
@@ -544,8 +540,7 @@ fn generic_enum_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_SpreadLayout_FOR_GenericEnum: () = {
+            const _: () = {
                 impl<T1, T2> ::ink_core::storage2::traits::SpreadLayout for GenericEnum<T1, T2>
                 where
                     T1: ::ink_core::storage2::traits::SpreadLayout,

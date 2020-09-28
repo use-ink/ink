@@ -21,8 +21,7 @@ fn unit_struct_works() {
             struct UnitStruct;
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_UnitStruct: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::StorageLayout for UnitStruct {
                     fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
                         ::ink_metadata::layout2::Layout::Struct(
@@ -42,8 +41,7 @@ fn tuple_struct_works() {
             struct TupleStruct(bool, u32, i64);
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_TupleStruct: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::StorageLayout for TupleStruct {
                     fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
                         ::ink_metadata::layout2::Layout::Struct(
@@ -80,8 +78,7 @@ fn named_fields_struct_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_NamedFieldsStruct: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::StorageLayout for NamedFieldsStruct {
                     fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
                         ::ink_metadata::layout2::Layout::Struct(
@@ -114,8 +111,7 @@ fn clike_enum_works() {
             enum ClikeEnum { A, B, C }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_ClikeEnum: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::StorageLayout for ClikeEnum {
                     fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
                         let dispatch_key = __key_ptr.advance_by(1);
@@ -172,8 +168,7 @@ fn mixed_enum_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_MixedEnum: () = {
+            const _: () = {
                 impl ::ink_core::storage2::traits::StorageLayout for MixedEnum {
                     fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
                         let dispatch_key = __key_ptr.advance_by(1);

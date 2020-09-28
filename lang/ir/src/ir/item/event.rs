@@ -15,6 +15,7 @@
 use crate::{
     error::ExtError as _,
     ir,
+    ir::utils,
 };
 use core::convert::TryFrom;
 use proc_macro2::{
@@ -92,17 +93,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                 "generic ink! event structs are not supported",
             ))
         }
-        match &item_struct.vis {
-            syn::Visibility::Inherited
-            | syn::Visibility::Restricted(_)
-            | syn::Visibility::Crate(_) => {
-                return Err(format_err_spanned!(
-                    &item_struct.vis,
-                    "non `pub` ink! event structs are not supported",
-                ))
-            }
-            _ => (),
-        }
+        utils::ensure_pub_visibility("event structs", struct_span, &item_struct.vis)?;
         'repeat: for field in item_struct.fields.iter() {
             let field_span = field.span();
             let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
@@ -147,6 +138,11 @@ impl Event {
     /// of the event struct.
     pub fn fields(&self) -> EventFieldsIter {
         EventFieldsIter::new(self)
+    }
+
+    /// Returns all non-ink! attributes.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.item.attrs
     }
 }
 

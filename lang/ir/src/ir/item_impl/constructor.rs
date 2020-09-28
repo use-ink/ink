@@ -21,7 +21,10 @@ use super::{
 };
 use crate::ir;
 use core::convert::TryFrom;
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
@@ -61,8 +64,6 @@ use syn::spanned::Spanned as _;
 pub struct Constructor {
     /// The underlying Rust method item.
     pub(super) item: syn::ImplItemMethod,
-    /// If the ink! constructor can receive funds.
-    is_payable: bool,
     /// An optional user provided selector.
     ///
     /// # Note
@@ -155,7 +156,6 @@ impl Constructor {
             |kind| {
                 !matches!(kind,
                     ir::AttributeArgKind::Constructor
-                    | ir::AttributeArgKind::Payable
                     | ir::AttributeArgKind::Selector(_)
                 )
             },
@@ -171,10 +171,8 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
         Self::ensure_valid_return_type(&method_item)?;
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
-        let is_payable = ink_attrs.is_payable();
         let selector = ink_attrs.selector();
         Ok(Constructor {
-            is_payable,
             selector,
             item: syn::ImplItemMethod {
                 attrs: other_attrs,
@@ -185,6 +183,10 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
 }
 
 impl Callable for Constructor {
+    fn kind(&self) -> CallableKind {
+        CallableKind::Constructor
+    }
+
     fn ident(&self) -> &Ident {
         &self.item.sig.ident
     }
@@ -194,7 +196,7 @@ impl Callable for Constructor {
     }
 
     fn is_payable(&self) -> bool {
-        self.is_payable
+        true
     }
 
     fn visibility(&self) -> Visibility {
@@ -209,8 +211,19 @@ impl Callable for Constructor {
         InputsIter::from(self)
     }
 
+    fn inputs_span(&self) -> Span {
+        self.item.sig.inputs.span()
+    }
+
     fn statements(&self) -> &[syn::Stmt] {
         &self.item.block.stmts
+    }
+}
+
+impl Constructor {
+    /// Returns a slice of all non-ink! attributes of the ink! constructor.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.item.attrs
     }
 }
 
@@ -265,52 +278,6 @@ mod tests {
                 .map(|pat_type| syn::FnArg::Typed(pat_type))
                 .collect::<Vec<_>>();
             assert_eq!(actual_inputs, expected_inputs);
-        }
-    }
-
-    #[test]
-    fn is_payable_works() {
-        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
-            // Not payable.
-            (
-                false,
-                syn::parse_quote! {
-                    #[ink(constructor)]
-                    fn my_constructor() -> Self {}
-                },
-            ),
-            // Normalized ink! attribute.
-            (
-                true,
-                syn::parse_quote! {
-                    #[ink(constructor, payable)]
-                    fn my_constructor() -> Self {}
-                },
-            ),
-            // Different ink! attributes.
-            (
-                true,
-                syn::parse_quote! {
-                    #[ink(constructor)]
-                    #[ink(payable)]
-                    fn my_constructor() -> Self {}
-                },
-            ),
-            // Another ink! attribute, separate and normalized attribute.
-            (
-                true,
-                syn::parse_quote! {
-                    #[ink(constructor)]
-                    #[ink(selector = "0xDEADBEEF", payable)]
-                    fn my_constructor() -> Self {}
-                },
-            ),
-        ];
-        for (expect_payable, item_method) in test_inputs {
-            let is_payable = <ir::Constructor as TryFrom<_>>::try_from(item_method)
-                .unwrap()
-                .is_payable();
-            assert_eq!(is_payable, expect_payable);
         }
     }
 
@@ -584,6 +551,12 @@ mod tests {
             syn::parse_quote! {
                 #[ink(constructor)]
                 #[ink(event)]
+                fn my_constructor() -> Self {}
+            },
+            // constructor + payable
+            syn::parse_quote! {
+                #[ink(constructor)]
+                #[ink(payable)]
                 fn my_constructor() -> Self {}
             },
         ];
