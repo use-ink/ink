@@ -153,16 +153,17 @@ impl<'a> Events<'a> {
                 pub enum EventTopicsOutOfBounds {}
                 pub enum EventTopicsWithinBounds {}
                 impl ::ink_lang::False for EventTopicsOutOfBounds {}
+                impl ::ink_lang::True for EventTopicsWithinBounds {}
 
                 #[allow(non_camel_case_types)]
                 pub trait __ink_RenameBool {
                     type Type;
                 }
                 impl __ink_RenameBool for [(); 1] {
-                    type Type = EventTopicsOutOfBounds;
+                    type Type = EventTopicsWithinBounds;
                 }
                 impl __ink_RenameBool for [(); 0] {
-                    type Type = EventTopicsWithinBounds;
+                    type Type = EventTopicsOutOfBounds;
                 }
 
                 #[allow(non_upper_case_globals)]
@@ -173,7 +174,7 @@ impl<'a> Events<'a> {
                 fn __ink_ensure_max_event_topics<T>(_: T)
                 where
                     T: __ink_RenameBool,
-                    <T as __ink_RenameBool>::Type: ::ink_lang::False,
+                    <T as __ink_RenameBool>::Type: ::ink_lang::True,
                 {}
                 let _ = __ink_ensure_max_event_topics::<[(); (#len_topics <= __ink_MAX_EVENT_TOPICS) as usize]>;
             };

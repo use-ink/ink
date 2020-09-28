@@ -15,6 +15,7 @@
 use crate::{
     error::ExtError as _,
     ir,
+    ir::utils,
 };
 use core::convert::TryFrom;
 use proc_macro2::{
@@ -92,18 +93,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                 "generic ink! event structs are not supported",
             ))
         }
-        let bad_visibility = match &item_struct.vis {
-            syn::Visibility::Inherited => Some(struct_span),
-            syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
-            syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
-            syn::Visibility::Public(_) => None,
-        };
-        if let Some(bad_visibility) = bad_visibility {
-            return Err(format_err!(
-                bad_visibility,
-                "non `pub` ink! event structs are not supported",
-            ))
-        }
+        utils::ensure_pub_visibility("event structs", struct_span, &item_struct.vis)?;
         'repeat: for field in item_struct.fields.iter() {
             let field_span = field.span();
             let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;

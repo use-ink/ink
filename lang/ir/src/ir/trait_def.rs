@@ -42,8 +42,8 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
 
 impl InkTrait {
     /// Returns the hash to verify that the trait definition has been checked.
-    pub fn compute_verify_hash<'a, C, M>(
-        trait_name: &'a Ident,
+    pub fn compute_verify_hash<C, M>(
+        trait_name: &Ident,
         constructors: C,
         messages: M,
     ) -> [u8; 32]

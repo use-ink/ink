@@ -28,7 +28,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
-    trait_def::analyse(attr.into(), item.into()).into()
+    trait_def::analyze(attr.into(), item.into()).into()
 }
 
 #[cfg(test)]

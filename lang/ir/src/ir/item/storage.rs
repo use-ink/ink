@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{
+    ir,
+    ir::utils,
+};
 use core::convert::TryFrom;
 use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
@@ -91,18 +94,7 @@ impl TryFrom<syn::ItemStruct> for Storage {
                 "generic ink! storage structs are not supported",
             ))
         }
-        let bad_visibility = match &item_struct.vis {
-            syn::Visibility::Inherited => Some(struct_span),
-            syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
-            syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
-            syn::Visibility::Public(_) => None,
-        };
-        if let Some(bad_visibility) = bad_visibility {
-            return Err(format_err!(
-                bad_visibility,
-                "non `pub` ink! storage structs are not supported",
-            ))
-        }
+        utils::ensure_pub_visibility("storage structs", struct_span, &item_struct.vis)?;
         Ok(Self {
             ast: syn::ItemStruct {
                 attrs: other_attrs,

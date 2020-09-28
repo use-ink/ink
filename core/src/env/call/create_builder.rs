@@ -63,6 +63,54 @@ where
     return_type: ReturnType<R>,
 }
 
+#[cfg(
+    // We do not currently support cross-contract instantiation in the off-chain
+    // environment so we do not have to provide these getters in case of
+    // off-chain environment compilation.
+    all(not(feature = "std"), target_arch = "wasm32")
+)]
+impl<E, Args, R> CreateParams<E, Args, R>
+where
+    E: EnvTypes,
+{
+    /// The code hash of the contract.
+    #[inline]
+    pub(crate) fn code_hash(&self) -> &E::Hash {
+        &self.code_hash
+    }
+
+    /// The gas limit for the contract instantiation.
+    #[inline]
+    pub(crate) fn gas_limit(&self) -> u64 {
+        self.gas_limit
+    }
+
+    /// The endowment for the instantiated contract.
+    #[inline]
+    pub(crate) fn endowment(&self) -> &E::Balance {
+        &self.endowment
+    }
+
+    /// The raw encoded input data.
+    #[inline]
+    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+        &self.exec_input
+    }
+}
+
+impl<E, Args, R> CreateParams<E, Args, R>
+where
+    E: EnvTypes,
+    Args: scale::Encode,
+    R: FromAccountId<E>,
+{
+    /// Instantiates the contract and returns its account ID back to the caller.
+    #[inline]
+    pub fn instantiate(&self) -> Result<R, env::EnvError> {
+        env::instantiate_contract(self).map(FromAccountId::from_account_id)
+    }
+}
+
 /// Builds up contract instantiations.
 pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, R>
 where
@@ -142,54 +190,6 @@ where
         endowment: Default::default(),
         exec_input: Default::default(),
         return_type: Default::default(),
-    }
-}
-
-#[cfg(
-    // We do not currently support cross-contract instantiation in the off-chain
-    // environment so we do not have to provide these getters in case of
-    // off-chain environment compilation.
-    all(not(feature = "std"), target_arch = "wasm32")
-)]
-impl<E, Args, R> CreateParams<E, Args, R>
-where
-    E: EnvTypes,
-{
-    /// The code hash of the contract.
-    #[inline]
-    pub(crate) fn code_hash(&self) -> &E::Hash {
-        &self.code_hash
-    }
-
-    /// The gas limit for the contract instantiation.
-    #[inline]
-    pub(crate) fn gas_limit(&self) -> u64 {
-        self.gas_limit
-    }
-
-    /// The endowment for the instantiated contract.
-    #[inline]
-    pub(crate) fn endowment(&self) -> &E::Balance {
-        &self.endowment
-    }
-
-    /// The raw encoded input data.
-    #[inline]
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
-        &self.exec_input
-    }
-}
-
-impl<E, Args, R> CreateParams<E, Args, R>
-where
-    E: EnvTypes,
-    Args: scale::Encode,
-    R: FromAccountId<E>,
-{
-    /// Instantiates the contract and returns its account ID back to the caller.
-    #[inline]
-    pub fn instantiate(&self) -> Result<R, env::EnvError> {
-        env::instantiate_contract(self).map(FromAccountId::from_account_id)
     }
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ impl GenerateCode for Contract<'_> {
         let ident = module.ident();
         let attrs = module.attrs();
         let vis = module.vis();
-
         let env = self.generate_code_using::<generator::Env>();
         let storage = self.generate_code_using::<generator::Storage>();
         let events = self.generate_code_using::<generator::Events>();
@@ -49,14 +48,12 @@ impl GenerateCode for Contract<'_> {
         let item_impls = self.generate_code_using::<generator::ItemImpls>();
         let cross_calling = self.generate_code_using::<generator::CrossCalling>();
         let metadata = self.generate_code_using::<generator::Metadata>();
-        // let non_ink_items = &self.contract.non_ink_items;
         let non_ink_items = self
             .contract
             .module()
             .items()
             .iter()
             .filter_map(ir::Item::map_rust_item);
-
         quote! {
             #( #attrs )*
             #vis mod #ident {
@@ -67,7 +64,6 @@ impl GenerateCode for Contract<'_> {
                 #item_impls
                 #cross_calling
                 #metadata
-                // #event_structs
                 #( #non_ink_items )*
             }
         }

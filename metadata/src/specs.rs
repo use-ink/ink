@@ -317,8 +317,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
     /// If the message is payable by the caller.
-    #[serde(rename = "isPayable")]
-    is_payable: bool,
+    payable: bool,
     /// The parameters of the message.
     args: Vec<MessageParamSpec<F>>,
     /// The return type of the message.
@@ -361,7 +360,7 @@ impl MessageSpec {
                 name: segments,
                 selector: [0u8; 4],
                 mutates: false,
-                is_payable: false,
+                payable: false,
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
@@ -446,7 +445,7 @@ impl<S, M, R> MessageSpecBuilder<S, M, Missing<state::IsPayable>, R> {
     ) -> MessageSpecBuilder<S, M, state::IsPayable, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
-                is_payable,
+                payable: is_payable,
                 ..self.spec
             },
             marker: PhantomData,
@@ -511,7 +510,7 @@ impl IntoCompact for MessageSpec {
             name: self.name,
             selector: self.selector,
             mutates: self.mutates,
-            is_payable: self.is_payable,
+            payable: self.payable,
             args: self
                 .args
                 .into_iter()
