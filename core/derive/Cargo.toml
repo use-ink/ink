@@ -1,6 +1,6 @@
 [package]
 name = "ink_core_derive"
-version = "2.1.0"
+version = "3.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
@@ -17,6 +17,6 @@ proc-macro2 = "1.0"
 synstructure = "0.12.4"
 
 [dev-dependencies]
-ink_primitives = { version = "2.1.0", path = "../../primitives" }
-ink_metadata = { version = "2.1.0", path = "../../metadata" }
-ink_core = { version = "2.1.0", path = ".." }
+ink_primitives = { version = "3.0.0", path = "../../primitives" }
+ink_metadata = { version = "3.0.0", path = "../../metadata" }
+ink_core = { version = "3.0.0", path = ".." }
