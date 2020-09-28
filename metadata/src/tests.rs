@@ -143,7 +143,7 @@ fn spec_contract_json() {
                     ],
                     "docs": [],
                     "mutates": true,
-                    "isPayable": true,
+                    "payable": true,
                     "name": ["inc"],
                     "returnType": null,
                     "selector": "0xe7d0590f"
@@ -152,7 +152,7 @@ fn spec_contract_json() {
                     "args": [],
                     "docs": [],
                     "mutates": false,
-                    "isPayable": false,
+                    "payable": false,
                     "name": ["get"],
                     "returnType": {
                         "displayName": [
