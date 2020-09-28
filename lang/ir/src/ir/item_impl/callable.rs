@@ -22,6 +22,7 @@ use proc_macro2::{
     Span,
 };
 use quote::ToTokens as _;
+use syn::spanned::Spanned as _;
 
 /// The kind of externally callable smart contract entity.
 #[derive(Debug, Copy, Clone)]
@@ -362,12 +363,17 @@ pub(super) fn ensure_callable_invariants(
     method_item: &syn::ImplItemMethod,
     kind: CallableKind,
 ) -> Result<(), syn::Error> {
-    if !matches!(method_item.vis, syn::Visibility::Public(_) | syn::Visibility::Inherited)
-    {
-        return Err(format_err_spanned!(
-            method_item.vis,
+    let bad_visibility = match &method_item.vis {
+        syn::Visibility::Inherited => None,
+        syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
+        syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
+        syn::Visibility::Public(_) => None,
+    };
+    if let Some(bad_visibility) = bad_visibility {
+        return Err(format_err!(
+            bad_visibility,
             "ink! {}s must have public or inherited visibility",
-            kind,
+            kind
         ))
     }
     if !method_item.sig.generics.params.is_empty() {
@@ -439,6 +445,14 @@ impl Visibility {
     /// Messages in trait implementation blocks must have inherited visibility.
     pub fn is_inherited(&self) -> bool {
         matches!(self, Self::Inherited)
+    }
+
+    /// Returns the associated span if any.
+    pub fn span(&self) -> Option<Span> {
+        match self {
+            Self::Public(vis_public) => Some(vis_public.span()),
+            Self::Inherited => None,
+        }
     }
 }
 
