@@ -315,7 +315,7 @@ impl<E, Callee, GasLimit, TransferredValue, Args>
 where
     E: EnvTypes,
 {
-    /// Sets the value transferred upon the execution of the call.
+    /// Sets the type of the returned value upon the execution of the call.
     ///
     /// # Note
     ///
