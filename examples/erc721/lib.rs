@@ -66,7 +66,7 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod erc721 {
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_core::storage2::collections::{
@@ -83,7 +83,7 @@ mod erc721 {
 
     #[ink(storage)]
     #[derive(Default)]
-    struct Erc721 {
+    pub struct Erc721 {
         /// Mapping from token to owner.
         token_owner: StorageHashMap<TokenId, AccountId>,
         /// Mapping from token to approvals users.
@@ -109,7 +109,7 @@ mod erc721 {
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
-    struct Transfer {
+    pub struct Transfer {
         #[ink(topic)]
         from: Option<AccountId>,
         #[ink(topic)]
@@ -120,7 +120,7 @@ mod erc721 {
 
     /// Event emited when a token approve occurs.
     #[ink(event)]
-    struct Approval {
+    pub struct Approval {
         #[ink(topic)]
         from: AccountId,
         #[ink(topic)]
@@ -132,7 +132,7 @@ mod erc721 {
     /// Event emitted when an operator is enabled or disabled for an owner.
     /// The operator can manage all NFTs of the owner.
     #[ink(event)]
-    struct ApprovalForAll {
+    pub struct ApprovalForAll {
         #[ink(topic)]
         owner: AccountId,
         #[ink(topic)]
@@ -143,7 +143,7 @@ mod erc721 {
     impl Erc721 {
         /// Creates a new ERC721 token contract.
         #[ink(constructor)]
-        fn new() -> Self {
+        pub fn new() -> Self {
             Self {
                 token_owner: Default::default(),
                 token_approvals: Default::default(),
@@ -156,31 +156,31 @@ mod erc721 {
         ///
         /// This represents the amount of unique tokens the owner has.
         #[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> u32 {
+        pub fn balance_of(&self, owner: AccountId) -> u32 {
             self.balance_of_or_zero(&owner)
         }
 
         /// Returns the owner of the token.
         #[ink(message)]
-        fn owner_of(&self, id: TokenId) -> Option<AccountId> {
+        pub fn owner_of(&self, id: TokenId) -> Option<AccountId> {
             self.token_owner.get(&id).cloned()
         }
 
         /// Returns the approved account ID for this token if any.
         #[ink(message)]
-        fn get_approved(&self, id: TokenId) -> Option<AccountId> {
+        pub fn get_approved(&self, id: TokenId) -> Option<AccountId> {
             self.token_approvals.get(&id).cloned()
         }
 
         /// Returns `true` if the operator is approved by the owner.
         #[ink(message)]
-        fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
+        pub fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
             self.approved_for_all(owner, operator)
         }
 
         /// Approves or disapproves the operator for all tokens of the caller.
         #[ink(message)]
-        fn set_approval_for_all(
+        pub fn set_approval_for_all(
             &mut self,
             to: AccountId,
             approved: bool,
@@ -191,14 +191,14 @@ mod erc721 {
 
         /// Approves the account to transfer the specified token on behalf of the caller.
         #[ink(message)]
-        fn approve(&mut self, to: AccountId, id: TokenId) -> Result<(), Error> {
+        pub fn approve(&mut self, to: AccountId, id: TokenId) -> Result<(), Error> {
             self.approve_for(&to, id)?;
             Ok(())
         }
 
         /// Transfers the token from the caller to the given destination.
         #[ink(message)]
-        fn transfer(&mut self, destination: AccountId, id: TokenId) -> Result<(), Error> {
+        pub fn transfer(&mut self, destination: AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.transfer_token_from(&caller, &destination, id)?;
             Ok(())
@@ -206,7 +206,7 @@ mod erc721 {
 
         /// Transfer approved or owned token.
         #[ink(message)]
-        fn transfer_from(
+        pub fn transfer_from(
             &mut self,
             from: AccountId,
             to: AccountId,
@@ -218,7 +218,7 @@ mod erc721 {
 
         /// Creates a new token.
         #[ink(message)]
-        fn mint(&mut self, id: TokenId) -> Result<(), Error> {
+        pub fn mint(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.add_token_to(&caller, id)?;
             self.env().emit_event(Transfer {
@@ -231,7 +231,7 @@ mod erc721 {
 
         /// Deletes an existing token. Only the owner can burn the token.
         #[ink(message)]
-        fn burn(&mut self, id: TokenId) -> Result<(), Error> {
+        pub fn burn(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             let Self {
                 token_owner,
