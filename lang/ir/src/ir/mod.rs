@@ -22,6 +22,7 @@ mod item_impl;
 mod item_mod;
 mod selector;
 mod trait_def;
+pub mod utils;
 
 #[cfg(test)]
 use self::attrs::Attribute;
