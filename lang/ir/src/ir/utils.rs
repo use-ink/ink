@@ -22,7 +22,11 @@ use syn::spanned::Spanned as _;
 ///
 /// The `name` parameter is given to improve the resulting error message. It denotes the
 /// entity which cannot have non-public visibility.
-pub fn ensure_pub_visibility(name: &str, parent_span: Span, vis: &syn::Visibility) -> Result<(), syn::Error> {
+pub fn ensure_pub_visibility(
+    name: &str,
+    parent_span: Span,
+    vis: &syn::Visibility,
+) -> Result<(), syn::Error> {
     let bad_visibility = match vis {
         syn::Visibility::Inherited => Some(parent_span),
         syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
