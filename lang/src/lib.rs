@@ -24,7 +24,6 @@ mod traits;
 
 pub use ink_lang_macro::{
     contract,
-    trait_definition,
     test,
     trait_definition,
 };
@@ -63,8 +62,6 @@ pub use self::{
         DispatchRetCode,
     },
     events::{
-        True,
-        False,
         BaseEvent,
         EmitEvent,
         False,
