@@ -81,8 +81,8 @@ build-std:
   needs:
     - check-std
   script:
-    - for crate in crates/${ALL_CRATES}; do
-        cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+    - for crate in ${ALL_CRATES}; do
+        cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
       done
 
 build-wasm:
@@ -91,8 +91,8 @@ build-wasm:
   needs:
     - check-wasm
   script:
-    - for crate in crates/${ALL_CRATES}; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+    - for crate in ${ALL_CRATES}; do
+        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
 test:
@@ -142,8 +142,8 @@ clippy-std:
   needs:
     - check-std
   script:
-    - for crate in crates/${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -152,8 +152,8 @@ clippy-wasm:
   needs:
     - check-wasm
   script:
-    - for crate in crates/${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:
