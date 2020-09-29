@@ -17,10 +17,14 @@
 mod attrs;
 mod config;
 mod contract;
+mod idents_lint;
+mod ink_test;
 mod item;
 mod item_impl;
 mod item_mod;
 mod selector;
+mod trait_def;
+pub mod utils;
 
 #[cfg(test)]
 use self::attrs::Attribute;
@@ -38,6 +42,7 @@ pub use self::{
     attrs::Namespace,
     config::Config,
     contract::Contract,
+    ink_test::InkTest,
     item::{
         Event,
         InkItem,
@@ -46,6 +51,7 @@ pub use self::{
     },
     item_impl::{
         Callable,
+        CallableKind,
         CallableWithSelector,
         Constructor,
         ImplItem,
@@ -63,4 +69,11 @@ pub use self::{
         IterItemImpls,
     },
     selector::Selector,
+    trait_def::{
+        InkTrait,
+        InkTraitConstructor,
+        InkTraitItem,
+        InkTraitMessage,
+        IterInkTraitItems,
+    },
 };

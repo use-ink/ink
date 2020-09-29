@@ -17,15 +17,21 @@ use ink_core::{
     env,
     env::{
         call::{
+            utils::ReturnType,
             CallParams,
-            InstantiateParams,
-            ReturnType,
+            CreateParams,
         },
         EnvTypes,
         Result,
     },
 };
 use ink_primitives::Key;
+
+/// The environment of the compiled ink! smart contract.
+pub trait ContractEnv {
+    /// The environment type.
+    type Env: ::ink_core::env::EnvTypes;
+}
 
 /// Simplifies interaction with the host environment via `self`.
 ///
@@ -245,7 +251,7 @@ where
     /// For more details visit: [`ink_core::env::instantiate_contract`]
     pub fn instantiate_contract<Args, C>(
         self,
-        params: &InstantiateParams<T, Args, C>,
+        params: &CreateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         Args: scale::Encode,

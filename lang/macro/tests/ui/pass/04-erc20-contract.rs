@@ -1,19 +1,19 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod erc20 {
-    use ink_core::storage2::collections::HashMap as StorageHashMap;
-    use ink_core::storage2::Lazy;
+    use ink_core::storage::collections::HashMap as StorageHashMap;
+    use ink_core::storage::Lazy;
 
     #[ink(storage)]
-    struct Erc20 {
+    pub struct Erc20 {
         total_supply: Lazy<Balance>,
         balances: StorageHashMap<AccountId, Balance>,
         allowances: StorageHashMap<(AccountId, AccountId), Balance>,
     }
 
     #[ink(event)]
-    struct Transferred {
+    pub struct Transferred {
         #[ink(topic)]
         from: Option<AccountId>,
         #[ink(topic)]
@@ -23,7 +23,7 @@ mod erc20 {
     }
 
     #[ink(event)]
-    struct Approved {
+    pub struct Approved {
         #[ink(topic)]
         owner: AccountId,
         #[ink(topic)]
@@ -34,7 +34,7 @@ mod erc20 {
 
     impl Erc20 {
         #[ink(constructor)]
-        fn new(initial_supply: Balance) -> Self {
+        pub fn new(initial_supply: Balance) -> Self {
             let caller = Self::env().caller();
             let mut balances = StorageHashMap::new();
             balances.insert(caller, initial_supply);
@@ -52,23 +52,23 @@ mod erc20 {
         }
 
         #[ink(message)]
-        fn total_supply(&self) -> Balance {
+        pub fn total_supply(&self) -> Balance {
             *self.total_supply
         }
 
         #[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> Balance {
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
             self.balance_of_or_zero(&owner)
         }
 
         #[ink(message)]
-        fn transfer(&mut self, to: AccountId, amount: Balance) -> bool {
+        pub fn transfer(&mut self, to: AccountId, amount: Balance) -> bool {
             let from = self.env().caller();
             self.transfer_from_to(from, to, amount)
         }
 
         #[ink(message)]
-        fn approve(&mut self, spender: AccountId, amount: Balance) -> bool {
+        pub fn approve(&mut self, spender: AccountId, amount: Balance) -> bool {
             let owner = self.env().caller();
             self.allowances.insert((owner, spender), amount);
             self.env().emit_event(Approved {
@@ -80,7 +80,7 @@ mod erc20 {
         }
 
         #[ink(message)]
-        fn transfer_from(
+        pub fn transfer_from(
             &mut self,
             from: AccountId,
             to: AccountId,

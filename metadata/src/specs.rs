@@ -196,7 +196,9 @@ impl ContractSpec {
 ))]
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
-    pub name: F::String,
+    ///
+    /// In case of a trait provided constructor the trait name is prefixed.
+    name: Vec<F::String>,
     /// The selector hash of the message.
     pub selector: Selector,
     /// The parameters of the deploy handler.
@@ -236,16 +238,31 @@ pub struct ConstructorSpecBuilder<Selector> {
 
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
-    pub fn new(name: &'static str) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+    fn from_name_segments(
+        segments: Vec<&'static str>,
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
         ConstructorSpecBuilder {
             spec: Self {
-                name,
+                name: segments,
                 selector: Selector::default(),
                 args: Vec::new(),
                 docs: Vec::new(),
             },
             marker: PhantomData,
         }
+    }
+
+    /// Creates a new constructor spec builder.
+    pub fn name(name: &'static str) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+        Self::from_name_segments(vec![name])
+    }
+
+    /// Creates a new constructor spec builder for a trait provided constructor.
+    pub fn trait_and_name(
+        trait_name: &'static str,
+        constructor_name: &'static str,
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+        Self::from_name_segments(vec![trait_name, constructor_name])
     }
 }
 
@@ -301,12 +318,17 @@ impl ConstructorSpecBuilder<state::Selector> {
 ))]
 #[serde(rename_all = "camelCase")]
 pub struct MessageSpec<F: Form = MetaForm> {
-    /// The name of the message.
-    pub name: F::String,
+    /// The name of the message and some optional prefixes.
+    ///
+    /// In case of trait provided messages and constructors the prefix
+    /// by convention in ink! is the name of the trait.
+    pub name: Vec<F::String>,
     /// The selector hash of the message.
     pub selector: Selector,
     /// If the message is allowed to mutate the contract state.
     pub mutates: bool,
+    /// If the message is payable by the caller.
+    pub payable: bool,
     /// The parameters of the message.
     pub args: Vec<MessageParamSpec<F>>,
     /// The return type of the message.
@@ -327,30 +349,59 @@ mod state {
     pub struct Selector;
     /// Type state for the mutability of a message.
     pub struct Mutates;
+    /// Type state for telling if the message is payable.
+    pub struct IsPayable;
     /// Type state for the return type of a message.
     pub struct Returns;
 }
 
 impl MessageSpec {
-    /// Creates a new message spec builder.
-    pub fn new(
-        name: &'static str,
+    /// Creates a new message spec from the given name segments.
+    fn from_name_segments(
+        segments: Vec<&'static str>,
     ) -> MessageSpecBuilder<
         Missing<state::Selector>,
         Missing<state::Mutates>,
+        Missing<state::IsPayable>,
         Missing<state::Returns>,
     > {
         MessageSpecBuilder {
             spec: Self {
-                name,
+                name: segments,
                 selector: Selector::default(),
                 mutates: false,
+                payable: false,
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
             },
             marker: PhantomData,
         }
+    }
+
+    /// Creates a new message spec builder.
+    pub fn name(
+        name: &'static str,
+    ) -> MessageSpecBuilder<
+        Missing<state::Selector>,
+        Missing<state::Mutates>,
+        Missing<state::IsPayable>,
+        Missing<state::Returns>,
+    > {
+        Self::from_name_segments(vec![name])
+    }
+
+    /// Creates a new message spec builder for a trait provided message.
+    pub fn trait_and_name(
+        trait_name: &'static str,
+        message_name: &'static str,
+    ) -> MessageSpecBuilder<
+        Missing<state::Selector>,
+        Missing<state::Mutates>,
+        Missing<state::IsPayable>,
+        Missing<state::Returns>,
+    > {
+        Self::from_name_segments(vec![trait_name, message_name])
     }
 }
 
@@ -362,17 +413,17 @@ impl MessageSpec {
 /// fail at compile-time instead of at run-time. This is useful
 /// to better debug code-gen macros.
 #[allow(clippy::type_complexity)]
-pub struct MessageSpecBuilder<Selector, Mutates, Returns> {
+pub struct MessageSpecBuilder<Selector, Mutates, IsPayable, Returns> {
     spec: MessageSpec,
-    marker: PhantomData<fn() -> (Selector, Mutates, Returns)>,
+    marker: PhantomData<fn() -> (Selector, Mutates, IsPayable, Returns)>,
 }
 
-impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
+impl<M, P, R> MessageSpecBuilder<Missing<state::Selector>, M, P, R> {
     /// Sets the function selector of the message.
     pub fn selector(
         self,
         selector: [u8; 4],
-    ) -> MessageSpecBuilder<state::Selector, M, R> {
+    ) -> MessageSpecBuilder<state::Selector, M, P, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 selector: selector.into(),
@@ -383,9 +434,9 @@ impl<M, R> MessageSpecBuilder<Missing<state::Selector>, M, R> {
     }
 }
 
-impl<S, R> MessageSpecBuilder<S, Missing<state::Mutates>, R> {
+impl<S, P, R> MessageSpecBuilder<S, Missing<state::Mutates>, P, R> {
     /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
-    pub fn mutates(self, mutates: bool) -> MessageSpecBuilder<S, state::Mutates, R> {
+    pub fn mutates(self, mutates: bool) -> MessageSpecBuilder<S, state::Mutates, P, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 mutates,
@@ -396,12 +447,28 @@ impl<S, R> MessageSpecBuilder<S, Missing<state::Mutates>, R> {
     }
 }
 
-impl<M, S> MessageSpecBuilder<S, M, Missing<state::Returns>> {
+impl<S, M, R> MessageSpecBuilder<S, M, Missing<state::IsPayable>, R> {
+    /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
+    pub fn payable(
+        self,
+        is_payable: bool,
+    ) -> MessageSpecBuilder<S, M, state::IsPayable, R> {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                payable: is_payable,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<M, S, P> MessageSpecBuilder<S, M, P, Missing<state::Returns>> {
     /// Sets the return type of the message.
     pub fn returns(
         self,
         return_type: ReturnTypeSpec,
-    ) -> MessageSpecBuilder<S, M, state::Returns> {
+    ) -> MessageSpecBuilder<S, M, P, state::Returns> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 return_type,
@@ -412,7 +479,7 @@ impl<M, S> MessageSpecBuilder<S, M, Missing<state::Returns>> {
     }
 }
 
-impl<S, M, R> MessageSpecBuilder<S, M, R> {
+impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
     where
@@ -436,7 +503,9 @@ impl<S, M, R> MessageSpecBuilder<S, M, R> {
     }
 }
 
-impl MessageSpecBuilder<state::Selector, state::Mutates, state::Returns> {
+impl
+    MessageSpecBuilder<state::Selector, state::Mutates, state::IsPayable, state::Returns>
+{
     /// Finishes construction of the message.
     pub fn done(self) -> MessageSpec {
         self.spec
@@ -451,6 +520,7 @@ impl IntoCompact for MessageSpec {
             name: self.name.into_compact(registry),
             selector: self.selector,
             mutates: self.mutates,
+            payable: self.payable,
             args: self
                 .args
                 .into_iter()

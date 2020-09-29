@@ -1,20 +1,21 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod forbidden_indents {
     #[ink(storage)]
-    struct ForbiddenIndents {}
+    pub struct ForbiddenIndents {}
 
     impl ForbiddenIndents {
         #[ink(constructor)]
-        fn constructor() -> Self {
+        pub fn constructor() -> Self {
             Self {}
         }
 
+        /// An ink! message starting with __ink_ prefix.
         #[ink(message)]
-        fn message(&self) {
-            // All identifiers starting with `__ink` are forbidden to use in ink!.
-            let __ink_noop = ();
+        pub fn __ink_message(&self) {
+            // All identifiers starting with `__ink_` are forbidden to use in ink!.
+            let __ink_first = ();
         }
     }
 }

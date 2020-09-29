@@ -1,7 +1,11 @@
-error: no #[ink(storage)] struct found but expected exactly 1
- --> $DIR/S-01-missing-storage-struct.rs:3:1
-  |
-3 | #[ink::contract(version = "0.1.0")]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in an attribute macro (in Nightly builds, run with -Z macro-backtrace for more info)
+error: missing ink! storage struct
+  --> $DIR/S-01-missing-storage-struct.rs:4:1
+   |
+4  | / mod missing_storage_struct {
+5  | |     // We are missing the #[ink(storage)] attribute here
+6  | |     pub struct MissingStorageStruct {}
+7  | |
+...  |
+14 | |     }
+15 | | }
+   | |_^

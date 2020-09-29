@@ -14,44 +14,44 @@
 
 //! Utilities to call or instantiate contracts on the chain.
 
-mod builder;
+mod call_builder;
+mod common;
+mod create_builder;
 mod execution_input;
-mod instantiate;
-mod utils;
+mod selector;
 
-/// The compile-time states of builder for calls and instantiations.
-#[doc(hidden)]
-pub mod state {
-    pub use crate::env::call::{
-        instantiate::state::{
-            CodeHashAssigned,
-            CodeHashUnassigned,
+/// Utility types for the cross-contract calling API.
+pub mod utils {
+    pub use super::{
+        call_builder::IndicateReturnType,
+        common::{
+            ReturnType,
+            Set,
+            Unset,
+            Unwrap,
         },
-        utils::seal::{
-            Sealed,
-            Unsealed,
+        execution_input::{
+            ArgsList,
+            Argument,
+            ArgumentList,
+            ArgumentListEnd,
+            EmptyArgumentList,
         },
     };
 }
 
 pub use self::{
-    builder::{
+    call_builder::{
+        build_call,
         CallBuilder,
         CallParams,
-        ReturnType,
     },
-    execution_input::{
-        ArgsList,
-        Argument,
-        ArgumentList,
-        ArgumentListEnd,
-        EmptyArgumentList,
-        ExecutionInput,
-    },
-    instantiate::{
+    create_builder::{
+        build_create,
+        CreateBuilder,
+        CreateParams,
         FromAccountId,
-        InstantiateBuilder,
-        InstantiateParams,
     },
-    utils::Selector,
+    execution_input::ExecutionInput,
+    selector::Selector,
 };

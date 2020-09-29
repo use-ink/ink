@@ -1,21 +1,21 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod unknown_method_ink_marker {
     #[ink(storage)]
-    struct UnknownMethodInkMarker {}
+    pub struct UnknownMethodInkMarker {}
 
     impl UnknownMethodInkMarker {
         #[ink(constructor)]
-        fn constructor() -> Self {
+        pub fn constructor() -> Self {
             Self {}
         }
 
         #[ink(message)]
-        fn message(&self) {}
+        pub fn message(&self) {}
 
         #[ink(unknown_marker)]
-        fn method(&self) {}
+        pub fn method(&self) {}
     }
 }
 

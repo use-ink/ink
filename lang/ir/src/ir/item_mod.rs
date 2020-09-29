@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{
+    ir,
+    ir::idents_lint,
+};
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -207,13 +210,13 @@ impl ItemMod {
                     Entry::Occupied(overlap) => {
                         return Err(compose_error(
                             overlap.get().span(),
-                            message.item().span(),
+                            message.callable().span(),
                             selector,
                             "message",
                         ))
                     }
                     Entry::Vacant(vacant) => {
-                        vacant.insert(message.item());
+                        vacant.insert(message.callable());
                     }
                 }
             }
@@ -223,13 +226,13 @@ impl ItemMod {
                     Entry::Occupied(overlap) => {
                         return Err(compose_error(
                             overlap.get().span(),
-                            constructor.item().span(),
+                            constructor.callable().span(),
                             selector,
                             "constructor",
                         ))
                     }
                     Entry::Vacant(vacant) => {
-                        vacant.insert(constructor.item());
+                        vacant.insert(constructor.callable());
                     }
                 }
             }
@@ -243,6 +246,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
 
     fn try_from(module: syn::ItemMod) -> Result<Self, Self::Error> {
         let module_span = module.span();
+        idents_lint::ensure_no_ink_identifiers(&module)?;
         let (brace, items) = match module.content {
             Some((brace, items)) => (brace, items),
             None => {
@@ -420,6 +424,16 @@ impl ItemMod {
     /// Returns an iterator yielding all event definitions in this ink! module.
     pub fn events(&self) -> IterEvents {
         IterEvents::new(self)
+    }
+
+    /// Returns all non-ink! attributes of the ink! module.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.attrs
+    }
+
+    /// Returns the visibility of the ink! module.
+    pub fn vis(&self) -> &syn::Visibility {
+        &self.vis
     }
 }
 

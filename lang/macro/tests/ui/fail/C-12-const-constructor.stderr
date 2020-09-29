@@ -1,5 +1,5 @@
-error: `const fn` is not supported for ink! functions
-  --> $DIR/C-12-const-constructor.rs:10:9
+error: ink! constructors must not be const
+  --> $DIR/C-12-const-constructor.rs:10:13
    |
-10 |         const fn const_constructor() -> Self {
-   |         ^^^^^
+10 |         pub const fn const_constructor() -> Self {
+   |             ^^^^^

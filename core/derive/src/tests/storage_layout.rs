@@ -21,12 +21,11 @@ fn unit_struct_works() {
             struct UnitStruct;
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_UnitStruct: () = {
-                impl ::ink_core::storage2::traits::StorageLayout for UnitStruct {
-                    fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
-                        ::ink_metadata::layout2::Layout::Struct(
-                            ::ink_metadata::layout2::StructLayout::new(vec![])
+            const _: () = {
+                impl ::ink_core::storage::traits::StorageLayout for UnitStruct {
+                    fn layout(__key_ptr: &mut ::ink_core::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+                        ::ink_metadata::layout::Layout::Struct(
+                            ::ink_metadata::layout::StructLayout::new(vec![])
                         )
                     }
                 }
@@ -42,23 +41,22 @@ fn tuple_struct_works() {
             struct TupleStruct(bool, u32, i64);
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_TupleStruct: () = {
-                impl ::ink_core::storage2::traits::StorageLayout for TupleStruct {
-                    fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
-                        ::ink_metadata::layout2::Layout::Struct(
-                            ::ink_metadata::layout2::StructLayout::new(vec![
-                                ::ink_metadata::layout2::FieldLayout::new(
+            const _: () = {
+                impl ::ink_core::storage::traits::StorageLayout for TupleStruct {
+                    fn layout(__key_ptr: &mut ::ink_core::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+                        ::ink_metadata::layout::Layout::Struct(
+                            ::ink_metadata::layout::StructLayout::new(vec![
+                                ::ink_metadata::layout::FieldLayout::new(
                                     None,
-                                    <bool as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                    <bool as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
-                                ::ink_metadata::layout2::FieldLayout::new(
+                                ::ink_metadata::layout::FieldLayout::new(
                                     None,
-                                    <u32 as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                    <u32 as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
-                                ::ink_metadata::layout2::FieldLayout::new(
+                                ::ink_metadata::layout::FieldLayout::new(
                                     None,
-                                    <i64 as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                    <i64 as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                             ])
                         )
@@ -80,23 +78,22 @@ fn named_fields_struct_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_NamedFieldsStruct: () = {
-                impl ::ink_core::storage2::traits::StorageLayout for NamedFieldsStruct {
-                    fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
-                        ::ink_metadata::layout2::Layout::Struct(
-                            ::ink_metadata::layout2::StructLayout::new(vec![
-                                ::ink_metadata::layout2::FieldLayout::new(
+            const _: () = {
+                impl ::ink_core::storage::traits::StorageLayout for NamedFieldsStruct {
+                    fn layout(__key_ptr: &mut ::ink_core::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+                        ::ink_metadata::layout::Layout::Struct(
+                            ::ink_metadata::layout::StructLayout::new(vec![
+                                ::ink_metadata::layout::FieldLayout::new(
                                     Some("a"),
-                                    <bool as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                    <bool as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
-                                ::ink_metadata::layout2::FieldLayout::new(
+                                ::ink_metadata::layout::FieldLayout::new(
                                     Some("b"),
-                                    <u32 as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                    <u32 as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
-                                ::ink_metadata::layout2::FieldLayout::new(
+                                ::ink_metadata::layout::FieldLayout::new(
                                     Some("c"),
-                                    <i64 as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                    <i64 as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                             ])
                         )
@@ -114,37 +111,36 @@ fn clike_enum_works() {
             enum ClikeEnum { A, B, C }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_ClikeEnum: () = {
-                impl ::ink_core::storage2::traits::StorageLayout for ClikeEnum {
-                    fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
+            const _: () = {
+                impl ::ink_core::storage::traits::StorageLayout for ClikeEnum {
+                    fn layout(__key_ptr: &mut ::ink_core::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         let dispatch_key = __key_ptr.advance_by(1);
-                        ::ink_metadata::layout2::Layout::Enum(
-                            ::ink_metadata::layout2::EnumLayout::new(
-                                ::ink_metadata::layout2::LayoutKey::from(dispatch_key),
+                        ::ink_metadata::layout::Layout::Enum(
+                            ::ink_metadata::layout::EnumLayout::new(
+                                ::ink_metadata::layout::LayoutKey::from(dispatch_key),
                                 vec![
                                     {
                                         let mut __variant_key_ptr = __key_ptr.clone();
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
-                                            ::ink_metadata::layout2::Discriminant::from(0usize),
-                                            ::ink_metadata::layout2::StructLayout::new(vec![]),
+                                            ::ink_metadata::layout::Discriminant::from(0usize),
+                                            ::ink_metadata::layout::StructLayout::new(vec![]),
                                         )
                                     },
                                     {
                                         let mut __variant_key_ptr = __key_ptr.clone();
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
-                                            ::ink_metadata::layout2::Discriminant::from(1usize),
-                                            ::ink_metadata::layout2::StructLayout::new(vec![]),
+                                            ::ink_metadata::layout::Discriminant::from(1usize),
+                                            ::ink_metadata::layout::StructLayout::new(vec![]),
                                         )
                                     },
                                     {
                                         let mut __variant_key_ptr = __key_ptr.clone();
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
-                                            ::ink_metadata::layout2::Discriminant::from(2usize),
-                                            ::ink_metadata::layout2::StructLayout::new(vec![]),
+                                            ::ink_metadata::layout::Discriminant::from(2usize),
+                                            ::ink_metadata::layout::StructLayout::new(vec![]),
                                         )
                                     },
                                 ]
@@ -172,40 +168,39 @@ fn mixed_enum_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_StorageLayout_FOR_MixedEnum: () = {
-                impl ::ink_core::storage2::traits::StorageLayout for MixedEnum {
-                    fn layout(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> ::ink_metadata::layout2::Layout {
+            const _: () = {
+                impl ::ink_core::storage::traits::StorageLayout for MixedEnum {
+                    fn layout(__key_ptr: &mut ::ink_core::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         let dispatch_key = __key_ptr.advance_by(1);
-                        ::ink_metadata::layout2::Layout::Enum(
-                            ::ink_metadata::layout2::EnumLayout::new(
-                                ::ink_metadata::layout2::LayoutKey::from(dispatch_key),
+                        ::ink_metadata::layout::Layout::Enum(
+                            ::ink_metadata::layout::EnumLayout::new(
+                                ::ink_metadata::layout::LayoutKey::from(dispatch_key),
                                 vec![
                                     {
                                         let mut __variant_key_ptr = __key_ptr.clone();
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
-                                            ::ink_metadata::layout2::Discriminant::from(0usize),
-                                            ::ink_metadata::layout2::StructLayout::new(vec![]),
+                                            ::ink_metadata::layout::Discriminant::from(0usize),
+                                            ::ink_metadata::layout::StructLayout::new(vec![]),
                                         )
                                     },
                                     {
                                         let mut __variant_key_ptr = __key_ptr.clone();
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
-                                            ::ink_metadata::layout2::Discriminant::from(1usize),
-                                            ::ink_metadata::layout2::StructLayout::new(vec![
-                                                ::ink_metadata::layout2::FieldLayout::new(
+                                            ::ink_metadata::layout::Discriminant::from(1usize),
+                                            ::ink_metadata::layout::StructLayout::new(vec![
+                                                ::ink_metadata::layout::FieldLayout::new(
                                                     None,
-                                                    <bool as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                                    <bool as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
-                                                ::ink_metadata::layout2::FieldLayout::new(
+                                                ::ink_metadata::layout::FieldLayout::new(
                                                     None,
-                                                    <u32 as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                                    <u32 as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
-                                                ::ink_metadata::layout2::FieldLayout::new(
+                                                ::ink_metadata::layout::FieldLayout::new(
                                                     None,
-                                                    <i64 as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                                    <i64 as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                             ]),
                                         )
@@ -214,19 +209,19 @@ fn mixed_enum_works() {
                                         let mut __variant_key_ptr = __key_ptr.clone();
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
-                                            ::ink_metadata::layout2::Discriminant::from(2usize),
-                                            ::ink_metadata::layout2::StructLayout::new(vec![
-                                                ::ink_metadata::layout2::FieldLayout::new(
+                                            ::ink_metadata::layout::Discriminant::from(2usize),
+                                            ::ink_metadata::layout::StructLayout::new(vec![
+                                                ::ink_metadata::layout::FieldLayout::new(
                                                     Some("a"),
-                                                    <bool as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                                    <bool as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
-                                                ::ink_metadata::layout2::FieldLayout::new(
+                                                ::ink_metadata::layout::FieldLayout::new(
                                                     Some("b"),
-                                                    <u32 as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                                    <u32 as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
-                                                ::ink_metadata::layout2::FieldLayout::new(
+                                                ::ink_metadata::layout::FieldLayout::new(
                                                     Some("c"),
-                                                    <i64 as ::ink_core::storage2::traits::StorageLayout>::layout(__key_ptr),
+                                                    <i64 as ::ink_core::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                             ]),
                                         )

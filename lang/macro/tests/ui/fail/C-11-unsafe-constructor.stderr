@@ -1,5 +1,5 @@
-error: `unsafe fn` is not supported for ink! functions
-  --> $DIR/C-11-unsafe-constructor.rs:10:9
+error: ink! constructors must not be unsafe
+  --> $DIR/C-11-unsafe-constructor.rs:10:13
    |
-10 |         unsafe fn unsafe_constructor() -> Self {
-   |         ^^^^^^
+10 |         pub unsafe fn unsafe_constructor() -> Self {
+   |             ^^^^^^

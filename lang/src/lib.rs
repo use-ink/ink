@@ -22,8 +22,6 @@ mod error;
 mod events;
 mod traits;
 
-pub use ink_lang_macro::contract;
-
 pub use self::{
     contract::{
         DispatchMode,
@@ -32,17 +30,22 @@ pub use self::{
     cross_calling::{
         ForwardCall,
         ForwardCallMut,
+        NeverReturns,
         ToAccountId,
     },
     dispatcher::{
+        deny_payment,
         execute_constructor,
         execute_message,
         execute_message_mut,
+        AcceptsPayments,
         ConstructorDispatcher,
+        EnablesDynamicStorageAllocator,
         Execute,
         MessageDispatcher,
     },
     env_access::{
+        ContractEnv,
         Env,
         EnvAccess,
         StaticEnv,
@@ -55,14 +58,24 @@ pub use self::{
     events::{
         BaseEvent,
         EmitEvent,
+        False,
+        True,
     },
     traits::{
+        CheckedInkTrait,
         Constructor,
         FnInput,
         FnOutput,
         FnSelector,
         FnState,
+        ImpliesReturn,
         MessageMut,
         MessageRef,
     },
+};
+pub use ::static_assertions;
+pub use ink_lang_macro::{
+    contract,
+    test,
+    trait_definition,
 };

@@ -65,4 +65,4 @@ extern crate quickcheck_macros;
 
 pub mod env;
 pub mod hash;
-pub mod storage2;
+pub mod storage;

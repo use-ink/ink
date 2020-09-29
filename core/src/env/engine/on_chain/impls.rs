@@ -21,8 +21,8 @@ use super::{
 use crate::env::{
     call::{
         CallParams,
-        InstantiateParams,
-        ReturnType,
+        CreateParams,
+        utils::ReturnType,
     },
     Env,
     EnvError,
@@ -80,7 +80,7 @@ impl EnvInstance {
         let gas_limit = params.gas_limit();
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
-        let enc_input = scope.take_encoded(params.input_data());
+        let enc_input = scope.take_encoded(params.exec_input());
         let output = &mut scope.take_rest();
         ext::call(
             enc_callee,
@@ -260,7 +260,7 @@ impl TypedEnv for EnvInstance {
 
     fn instantiate_contract<T, Args, C>(
         &mut self,
-        params: &InstantiateParams<T, Args, C>,
+        params: &CreateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
         T: EnvTypes,
@@ -270,7 +270,7 @@ impl TypedEnv for EnvInstance {
         let gas_limit = params.gas_limit();
         let enc_code_hash = scoped.take_encoded(params.code_hash());
         let enc_endowment = scoped.take_encoded(params.endowment());
-        let enc_input = scoped.take_encoded(params.input_data());
+        let enc_input = scoped.take_encoded(params.exec_input());
         // We support `AccountId` types with an encoding that requires up to
         // 1024 bytes. Beyond that limit ink! contracts will trap for now.
         // In the default configuration encoded `AccountId` require 32 bytes.

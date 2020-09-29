@@ -18,7 +18,10 @@ use crate::{
     ir::attrs::Attrs as _,
 };
 use core::convert::TryFrom;
-use proc_macro2::Span;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 
 mod callable;
 mod constructor;
@@ -29,13 +32,11 @@ mod message;
 #[cfg(test)]
 mod tests;
 
-use self::callable::{
-    ensure_callable_invariants,
-    CallableKind,
-};
+use self::callable::ensure_callable_invariants;
 pub use self::{
     callable::{
         Callable,
+        CallableKind,
         CallableWithSelector,
         InputsIter,
         Visibility,
@@ -317,6 +318,11 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
 }
 
 impl ItemImpl {
+    /// Returns all non-ink! specific attributes of the implementation block.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.attrs
+    }
+
     /// Returns the `Self` type of the implementation block.
     pub fn self_type(&self) -> &syn::Type {
         self.self_ty.as_ref()
@@ -327,6 +333,16 @@ impl ItemImpl {
     /// Returns `None` if this is an inherent implementation block.
     pub fn trait_path(&self) -> Option<&syn::Path> {
         self.trait_.as_ref().map(|(_, path, _)| path)
+    }
+
+    /// Returns the trait identifier if this is a trait implementation block.
+    ///
+    /// Returns `None` if this is an inherent implementation block.
+    pub fn trait_ident(&self) -> Option<&Ident> {
+        self.trait_path()
+            .map(|trait_path| trait_path.segments.last())
+            .flatten()
+            .map(|segment| &segment.ident)
     }
 
     /// Returns the namespace of the implementation block if any has been provided.

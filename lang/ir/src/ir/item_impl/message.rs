@@ -36,6 +36,16 @@ pub enum Receiver {
     RefMut,
 }
 
+impl quote::ToTokens for Receiver {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        let receiver = match self {
+            Self::Ref => quote::quote! { &self },
+            Self::RefMut => quote::quote! { &mut self },
+        };
+        tokens.extend(receiver);
+    }
+}
+
 impl Receiver {
     /// Returns `true` if the receiver is `&self`.
     pub fn is_ref(self) -> bool {
@@ -136,6 +146,30 @@ impl Message {
         Ok(())
     }
 
+    /// Ensures that the ink! message does not return `Self`.
+    ///
+    /// # Errors
+    ///
+    /// If the given Rust method has a `Self` return type.
+    fn ensure_not_return_self(
+        method_item: &syn::ImplItemMethod,
+    ) -> Result<(), syn::Error> {
+        match &method_item.sig.output {
+            syn::ReturnType::Default => (),
+            syn::ReturnType::Type(_arrow, ret_type) => {
+                if let syn::Type::Path(type_path) = &**ret_type {
+                    if type_path.path.is_ident("Self") {
+                        return Err(format_err!(
+                            ret_type,
+                            "ink! messages must not return `Self`"
+                        ))
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Sanitizes the attributes for the ink! message.
     ///
     /// Returns a tuple of ink! attributes and non-ink! attributes.
@@ -163,6 +197,7 @@ impl TryFrom<syn::ImplItemMethod> for Message {
     fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
         ensure_callable_invariants(&method_item, CallableKind::Message)?;
         Self::ensure_receiver_is_self_ref(&method_item)?;
+        Self::ensure_not_return_self(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
         let selector = ink_attrs.selector();
@@ -178,6 +213,10 @@ impl TryFrom<syn::ImplItemMethod> for Message {
 }
 
 impl Callable for Message {
+    fn kind(&self) -> CallableKind {
+        CallableKind::Message
+    }
+
     fn ident(&self) -> &Ident {
         &self.item.sig.ident
     }
@@ -202,12 +241,21 @@ impl Callable for Message {
         InputsIter::from(self)
     }
 
+    fn inputs_span(&self) -> Span {
+        self.item.sig.inputs.span()
+    }
+
     fn statements(&self) -> &[syn::Stmt] {
         &self.item.block.stmts
     }
 }
 
 impl Message {
+    /// Returns a slice of all non-ink! attributes of the ink! message.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.item.attrs
+    }
+
     /// Returns the `self` receiver of the ink! message.
     pub fn receiver(&self) -> Receiver {
         match self.item.sig.inputs.iter().next() {

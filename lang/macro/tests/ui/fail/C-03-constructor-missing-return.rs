@@ -1,16 +1,16 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod noop {
     #[ink(storage)]
-    struct Noop {}
+    pub struct Noop {}
 
     impl Noop {
         #[ink(constructor)]
-        fn missing_return() {}
+        pub fn missing_return() {}
 
         #[ink(message)]
-        fn noop(&self) {}
+        pub fn noop(&self) {}
     }
 }
 

@@ -1,19 +1,19 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod storage_as_event {
     #[ink(storage)]
     #[ink(event)] // We cannot have #[ink(event)] if we already have #[ink(storage)]
-    struct StorageAsEvent {}
+    pub struct StorageAsEvent {}
 
     impl StorageAsEvent {
         #[ink(constructor)]
-        fn constructor() -> Self {
+        pub fn constructor() -> Self {
             Self {}
         }
 
         #[ink(message)]
-        fn message(&self) {}
+        pub fn message(&self) {}
     }
 }
 

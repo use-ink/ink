@@ -1,9 +1,9 @@
-error: ink! contracts require at least one `#[ink(message)]`
+error: missing ink! message
   --> $DIR/M-01-missing-message.rs:4:1
    |
 4  | / mod missing_message {
 5  | |     #[ink(storage)]
-6  | |     struct MissingMessage {}
+6  | |     pub struct MissingMessage {}
 7  | |
 ...  |
 13 | |     }

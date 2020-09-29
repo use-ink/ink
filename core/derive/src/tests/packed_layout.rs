@@ -21,9 +21,8 @@ fn unit_struct_works() {
             struct UnitStruct;
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_UnitStruct: () = {
-                impl ::ink_core::storage2::traits::PackedLayout for UnitStruct {
+            const _: () = {
+                impl ::ink_core::storage::traits::PackedLayout for UnitStruct {
                     fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                         match self {
                             UnitStruct => {}
@@ -59,9 +58,8 @@ fn struct_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_NamedFields: () = {
-                impl ::ink_core::storage2::traits::PackedLayout for NamedFields {
+            const _: () = {
+                impl ::ink_core::storage::traits::PackedLayout for NamedFields {
                     fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                         match self {
                             NamedFields {
@@ -70,13 +68,13 @@ fn struct_works() {
                                 d: __binding_2,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_1, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_2, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_2, __key);
                                 }
                             }
                         }
@@ -89,13 +87,13 @@ fn struct_works() {
                                 d: __binding_2,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_1, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_2, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_2, __key);
                                 }
                             }
                         }
@@ -108,13 +106,13 @@ fn struct_works() {
                                 d: __binding_2,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_1, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_2, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_2, __key);
                                 }
                             }
                         }
@@ -137,18 +135,17 @@ fn enum_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_MixedEnum: () = {
-                impl ::ink_core::storage2::traits::PackedLayout for MixedEnum {
+            const _: () = {
+                impl ::ink_core::storage::traits::PackedLayout for MixedEnum {
                     fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                         match self {
                             MixedEnum::A => {}
                             MixedEnum::B(__binding_0, __binding_1,) => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_1, __key);
                                 }
                             }
                             MixedEnum::C {
@@ -156,10 +153,10 @@ fn enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_1, __key);
                                 }
                             }
                         }
@@ -169,10 +166,10 @@ fn enum_works() {
                             MixedEnum::A => {}
                             MixedEnum::B(__binding_0, __binding_1,) => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_1, __key);
                                 }
                             }
                             MixedEnum::C {
@@ -180,10 +177,10 @@ fn enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_1, __key);
                                 }
                             }
                         }
@@ -193,10 +190,10 @@ fn enum_works() {
                             MixedEnum::A => {}
                             MixedEnum::B(__binding_0, __binding_1,) => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_1, __key);
                                 }
                             }
                             MixedEnum::C {
@@ -204,10 +201,10 @@ fn enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_1, __key);
                                 }
                             }
                         }
@@ -229,12 +226,11 @@ fn generic_struct_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_GenericStruct: () = {
-                impl<T1, T2> ::ink_core::storage2::traits::PackedLayout for GenericStruct<T1, T2>
+            const _: () = {
+                impl<T1, T2> ::ink_core::storage::traits::PackedLayout for GenericStruct<T1, T2>
                 where
-                    T1: ::ink_core::storage2::traits::PackedLayout,
-                    T2: ::ink_core::storage2::traits::PackedLayout
+                    T1: ::ink_core::storage::traits::PackedLayout,
+                    T2: ::ink_core::storage::traits::PackedLayout
                 {
                     fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                         match self {
@@ -243,10 +239,10 @@ fn generic_struct_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_1, __key);
                                 }
                             }
                         }
@@ -258,10 +254,10 @@ fn generic_struct_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_1, __key);
                                 }
                             }
                         }
@@ -273,10 +269,10 @@ fn generic_struct_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_1, __key);
                                 }
                             }
                         }
@@ -298,21 +294,20 @@ fn generic_enum_works() {
             }
         }
         expands to {
-            #[allow(non_upper_case_globals)]
-            const _DERIVE_ink_core_storage2_traits_PackedLayout_FOR_GenericEnum: () = {
-                impl<T1, T2> ::ink_core::storage2::traits::PackedLayout for GenericEnum<T1, T2>
+            const _: () = {
+                impl<T1, T2> ::ink_core::storage::traits::PackedLayout for GenericEnum<T1, T2>
                 where
-                    T1: ::ink_core::storage2::traits::PackedLayout,
-                    T2: ::ink_core::storage2::traits::PackedLayout
+                    T1: ::ink_core::storage::traits::PackedLayout,
+                    T2: ::ink_core::storage::traits::PackedLayout
                 {
                     fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_1, __key);
                                 }
                             }
                             GenericEnum::Named {
@@ -320,10 +315,10 @@ fn generic_enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::pull_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::pull_packed(__binding_1, __key);
                                 }
                             }
                         }
@@ -332,10 +327,10 @@ fn generic_enum_works() {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_1, __key);
                                 }
                             }
                             GenericEnum::Named {
@@ -343,10 +338,10 @@ fn generic_enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::push_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::push_packed(__binding_1, __key);
                                 }
                             }
                         }
@@ -355,10 +350,10 @@ fn generic_enum_works() {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_1, __key);
                                 }
                             }
                             GenericEnum::Named {
@@ -366,10 +361,10 @@ fn generic_enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_0, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_0, __key);
                                 }
                                 {
-                                    ::ink_core::storage2::traits::PackedLayout::clear_packed(__binding_1, __key);
+                                    ::ink_core::storage::traits::PackedLayout::clear_packed(__binding_1, __key);
                                 }
                             }
                         }

@@ -17,11 +17,16 @@
 
 use crate::ir;
 use core::fmt;
-use proc_macro2::Ident;
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use quote::ToTokens as _;
+use syn::spanned::Spanned as _;
 
 /// The kind of externally callable smart contract entity.
-pub(super) enum CallableKind {
+#[derive(Debug, Copy, Clone)]
+pub enum CallableKind {
     /// An ink! message externally callable.
     Message,
     /// An ink! constructor externally callable.
@@ -38,12 +43,26 @@ impl fmt::Display for CallableKind {
 }
 
 /// Wrapper for a callable that adds its composed selector.
+#[derive(Debug)]
 pub struct CallableWithSelector<'a, C> {
     /// The composed selector computed by the associated implementation block
     /// and the given callable.
     composed_selector: ir::Selector,
+    /// The parent implementation block.
+    item_impl: &'a ir::ItemImpl,
     /// The actual callable.
     callable: &'a C,
+}
+
+impl<C> Copy for CallableWithSelector<'_, C> {}
+impl<C> Clone for CallableWithSelector<'_, C> {
+    fn clone(&self) -> Self {
+        Self {
+            composed_selector: self.composed_selector,
+            item_impl: self.item_impl,
+            callable: self.callable,
+        }
+    }
 }
 
 impl<'a, C> CallableWithSelector<'a, C>
@@ -51,9 +70,10 @@ where
     C: Callable,
 {
     /// Creates a new wrapper around the given callable and parent impl block.
-    pub(super) fn new(item_impl: &ir::ItemImpl, callable: &'a C) -> Self {
+    pub(super) fn new(item_impl: &'a ir::ItemImpl, callable: &'a C) -> Self {
         Self {
             composed_selector: compose_selector(item_impl, callable),
+            item_impl,
             callable,
         }
     }
@@ -66,8 +86,13 @@ impl<'a, C> CallableWithSelector<'a, C> {
     }
 
     /// Returns a shared reference to the underlying callable.
-    pub fn item(&self) -> &'a C {
+    pub fn callable(&self) -> &'a C {
         self.callable
+    }
+
+    /// Returns the parent implementation block of the ink! callable.
+    pub fn item_impl(&self) -> &'a ir::ItemImpl {
+        self.item_impl
     }
 }
 
@@ -75,6 +100,10 @@ impl<'a, C> Callable for CallableWithSelector<'a, C>
 where
     C: Callable,
 {
+    fn kind(&self) -> CallableKind {
+        <C as Callable>::kind(&self.callable)
+    }
+
     fn ident(&self) -> &Ident {
         <C as Callable>::ident(&self.callable)
     }
@@ -95,6 +124,10 @@ where
         <C as Callable>::inputs(&self.callable)
     }
 
+    fn inputs_span(&self) -> Span {
+        <C as Callable>::inputs_span(&self.callable)
+    }
+
     fn statements(&self) -> &[syn::Stmt] {
         <C as Callable>::statements(&self.callable)
     }
@@ -113,6 +146,9 @@ impl<'a, C> ::core::ops::Deref for CallableWithSelector<'a, C> {
 /// This is either an ink! message or an ink! constructor.
 /// Used to share common behavior between different callable types.
 pub trait Callable {
+    /// Returns the kind of the ink! callable.
+    fn kind(&self) -> CallableKind;
+
     /// Returns the identifier of the ink! callable.
     fn ident(&self) -> &Ident;
 
@@ -131,6 +167,9 @@ pub trait Callable {
 
     /// Returns an iterator yielding all input parameters of the ink! callable.
     fn inputs(&self) -> InputsIter;
+
+    /// Returns the span of the inputs of the ink! callable.
+    fn inputs_span(&self) -> Span;
 
     /// Returns a slice over shared references to the statements of the callable.
     fn statements(&self) -> &[syn::Stmt];
@@ -324,12 +363,17 @@ pub(super) fn ensure_callable_invariants(
     method_item: &syn::ImplItemMethod,
     kind: CallableKind,
 ) -> Result<(), syn::Error> {
-    if !matches!(method_item.vis, syn::Visibility::Public(_) | syn::Visibility::Inherited)
-    {
-        return Err(format_err_spanned!(
-            method_item.vis,
+    let bad_visibility = match &method_item.vis {
+        syn::Visibility::Inherited => None,
+        syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
+        syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
+        syn::Visibility::Public(_) => None,
+    };
+    if let Some(bad_visibility) = bad_visibility {
+        return Err(format_err!(
+            bad_visibility,
             "ink! {}s must have public or inherited visibility",
-            kind,
+            kind
         ))
     }
     if !method_item.sig.generics.params.is_empty() {
@@ -401,6 +445,14 @@ impl Visibility {
     /// Messages in trait implementation blocks must have inherited visibility.
     pub fn is_inherited(&self) -> bool {
         matches!(self, Self::Inherited)
+    }
+
+    /// Returns the associated span if any.
+    pub fn span(&self) -> Option<Span> {
+        match self {
+            Self::Public(vis_public) => Some(vis_public.span()),
+            Self::Inherited => None,
+        }
     }
 }
 

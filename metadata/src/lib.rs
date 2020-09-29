@@ -20,7 +20,7 @@ extern crate alloc;
 #[cfg(test)]
 mod tests;
 
-pub mod layout2;
+pub mod layout;
 mod specs;
 
 pub use self::specs::{
@@ -63,14 +63,14 @@ pub struct InkProject {
     pub registry: RegistryReadOnly,
     #[serde(rename = "storage")]
     /// The layout of the storage data structure
-    pub layout: layout2::Layout<CompactForm>,
+    pub layout: layout::Layout<CompactForm>,
     pub spec: ContractSpec<CompactForm>,
 }
 
 impl InkProject {
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
-        L: Into<layout2::Layout>,
+        L: Into<layout::Layout>,
         S: Into<ContractSpec>,
     {
         let mut registry = Registry::new();
