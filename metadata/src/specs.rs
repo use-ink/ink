@@ -212,7 +212,7 @@ impl IntoCompact for ConstructorSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ConstructorSpec {
-            name: self.name.into_compact(registry),
+            name: registry.map_into_compact(self.name),
             selector: self.selector,
             args: self
                 .args
@@ -517,7 +517,7 @@ impl IntoCompact for MessageSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         MessageSpec {
-            name: self.name.into_compact(registry),
+            name: registry.map_into_compact(self.name),
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
