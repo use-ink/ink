@@ -60,16 +60,16 @@ check-std:
   stage:                           check
   <<:                              *docker-env
   script:
-    - for crate in crates/${ALL_CRATES}; do
-        cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
 
 check-wasm:
   stage:                           check
   <<:                              *docker-env
   script:
-    - for crate in crates/${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
 
