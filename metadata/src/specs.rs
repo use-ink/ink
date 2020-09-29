@@ -198,7 +198,7 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
     ///
     /// In case of a trait provided constructor the trait name is prefixed.
-    name: Vec<F::String>,
+    pub name: Vec<F::String>,
     /// The selector hash of the message.
     pub selector: Selector,
     /// The parameters of the deploy handler.
