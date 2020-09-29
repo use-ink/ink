@@ -2,7 +2,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc721 {
-    use ink_core::storage2::collections::HashMap as StorageHashMap;
+    use ink_core::storage::collections::HashMap as StorageHashMap;
 
     /// A token ID.
     pub type TokenId = u32;

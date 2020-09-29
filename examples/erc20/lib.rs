@@ -19,7 +19,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod erc20 {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage2::{
+    use ink_core::storage::{
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
     };

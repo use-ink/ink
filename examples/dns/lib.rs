@@ -19,7 +19,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod dns {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage2::{
+    use ink_core::storage::{
         collections::hashmap::Entry,
         collections::HashMap as StorageHashMap,
         lazy::Lazy,

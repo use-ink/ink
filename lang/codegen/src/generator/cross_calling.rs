@@ -98,14 +98,14 @@ impl CrossCalling<'_> {
                 Debug,
                 ::scale::Encode,
                 ::scale::Decode,
-                ::ink_core::storage2::traits::SpreadLayout,
-                ::ink_core::storage2::traits::PackedLayout,
+                ::ink_core::storage::traits::SpreadLayout,
+                ::ink_core::storage::traits::PackedLayout,
             )]
             #[cfg_attr(
                 feature = "std",
                 derive(
                     ::scale_info::TypeInfo,
-                    ::ink_core::storage2::traits::StorageLayout,
+                    ::ink_core::storage::traits::StorageLayout,
                 )
             )]
             pub struct #ident {

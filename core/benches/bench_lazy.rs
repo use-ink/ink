@@ -21,7 +21,7 @@ use criterion::{
 };
 use ink_core::{
     env,
-    storage2::{
+    storage::{
         lazy::Lazy,
         traits::{
             KeyPtr,

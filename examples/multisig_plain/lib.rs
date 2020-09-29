@@ -84,7 +84,7 @@ mod multisig_plain {
             utils::ReturnType,
             ExecutionInput,
         },
-        storage2::{
+        storage::{
             collections::{
                 HashMap as StorageHashMap,
                 Stash as StorageStash,
@@ -122,7 +122,7 @@ mod multisig_plain {
     #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_core::storage2::traits::StorageLayout)
+        derive(scale_info::TypeInfo, ink_core::storage::traits::StorageLayout)
     )]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
@@ -141,7 +141,7 @@ mod multisig_plain {
             PartialEq,
             Eq,
             scale_info::TypeInfo,
-            ink_core::storage2::traits::StorageLayout
+            ink_core::storage::traits::StorageLayout
         )
     )]
     pub struct Transaction {
@@ -585,7 +585,7 @@ mod multisig_plain {
         /// Remove all confirmation state associated with `owner`.
         /// Also adjusts the `self.confirmation_count` variable.
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
-            use ::ink_core::storage2::collections::stash::Entry as StashEntry;
+            use ::ink_core::storage::collections::stash::Entry as StashEntry;
             for (trans_id, _) in
                 self.transactions
                     .entries()

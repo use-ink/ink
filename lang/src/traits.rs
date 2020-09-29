@@ -25,7 +25,7 @@ use ink_core::{
         },
         EnvTypes,
     },
-    storage2::traits::SpreadLayout,
+    storage::traits::SpreadLayout,
 };
 
 /// Trait used to indicate that an ink! trait definition has been checked

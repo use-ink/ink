@@ -22,7 +22,7 @@ use criterion::{
 
 use ink_core::{
     env,
-    storage2::{
+    storage::{
         collections::BitStash,
         traits::{
             KeyPtr,

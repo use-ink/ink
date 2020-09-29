@@ -69,7 +69,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod erc721 {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage2::collections::{
+    use ink_core::storage::collections::{
         hashmap::Entry,
         HashMap as StorageHashMap,
     };

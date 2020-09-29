@@ -29,7 +29,7 @@ use ink_core::{
         EnvTypes,
         ReturnFlags,
     },
-    storage2::{
+    storage::{
         alloc,
         alloc::ContractPhase,
         traits::{
