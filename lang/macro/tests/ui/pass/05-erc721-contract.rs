@@ -1,6 +1,6 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod erc721 {
     use ink_core::storage2::collections::HashMap as StorageHashMap;
 
@@ -27,7 +27,7 @@ mod erc721 {
     /// The storage items for a typical ERC721 token implementation.
     #[ink(storage)]
     #[derive(Default)]
-    struct Erc721 {
+    pub struct Erc721 {
         /// Stores one owner for every token.
         token_owner: StorageHashMap<TokenId, AccountId>,
         /// Mapping from token ID to approved address.
@@ -40,7 +40,7 @@ mod erc721 {
 
     /// Notifies about token approvals.
     #[ink(event)]
-    struct Approval {
+    pub struct Approval {
         /// The owner of the token.
         owner: AccountId,
         /// The approved account.
@@ -51,7 +51,7 @@ mod erc721 {
 
     /// Notifies about approval for all tokens.
     #[ink(event)]
-    struct ApprovalForAll {
+    pub struct ApprovalForAll {
         /// The source.
         from: AccountId,
         /// The destination.
@@ -62,7 +62,7 @@ mod erc721 {
 
     /// Notifies about token transfers.
     #[ink(event)]
-    struct Transfer {
+    pub struct Transfer {
         /// The source of the transfered token.
         from: Option<AccountId>,
         /// The destination of the transfered token.
@@ -74,7 +74,7 @@ mod erc721 {
     impl Erc721 {
         /// Nothing to do for initialization.
         #[ink(constructor)]
-        fn new() -> Self {
+        pub fn new() -> Self {
             Default::default()
         }
 
@@ -84,13 +84,13 @@ mod erc721 {
         ///
         /// The returned amount represents the number of owned tokens by the address.
         #[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> u32 {
+        pub fn balance_of(&self, owner: AccountId) -> u32 {
             *self.owned_tokens_count.get(&owner).unwrap_or(&0)
         }
 
         /// Returns the owner of the specified token ID if any.
         #[ink(message)]
-        fn owner_of(&self, token: TokenId) -> Option<AccountId> {
+        pub fn owner_of(&self, token: TokenId) -> Option<AccountId> {
             self.token_owner.get(&token).cloned()
         }
 
@@ -99,7 +99,7 @@ mod erc721 {
         /// There can only be one approved address per token at a given time.
         /// Can only be called by the token owner or an approved operator.
         #[ink(message)]
-        fn approve(&mut self, to: AccountId, token: TokenId) -> Result<()> {
+        pub fn approve(&mut self, to: AccountId, token: TokenId) -> Result<()> {
             let owner = self
                 .owner_of(token)
                 .ok_or(Error::SpecifiedTokenHasNoOwner)?;
@@ -119,7 +119,7 @@ mod erc721 {
         ///
         /// Reverts if the token ID does not exist.
         #[ink(message)]
-        fn get_approved(&self, token: TokenId) -> Result<AccountId> {
+        pub fn get_approved(&self, token: TokenId) -> Result<AccountId> {
             self.token_owner
                 .get(&token)
                 .ok_or(Error::ApprovedQueryForNonexistentToken)
@@ -130,7 +130,7 @@ mod erc721 {
         ///
         /// An operator is allowed to transfer all tokens of the sender on their behalf.
         #[ink(message)]
-        fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<()> {
+        pub fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<()> {
             let caller = self.env().caller();
             if to == caller {
                 return Err(Error::ApproveToCaller)
@@ -146,7 +146,7 @@ mod erc721 {
 
         /// Returns `true` if an operator is approved by a given owner.
         #[ink(message)]
-        fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
+        pub fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
             *self
                 .operator_approvals
                 .get(&(owner, operator))
@@ -163,7 +163,7 @@ mod erc721 {
         ///
         /// If the caller is not the owner, approved or operator.
         #[ink(message)]
-        fn transfer_from(
+        pub fn transfer_from(
             &mut self,
             from: AccountId,
             to: AccountId,

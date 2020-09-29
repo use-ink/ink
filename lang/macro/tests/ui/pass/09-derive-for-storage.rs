@@ -1,19 +1,19 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod derive_for_storage {
     #[ink(storage)]
     #[derive(Default)]
-    struct DeriveForStorage {}
+    pub struct DeriveForStorage {}
 
     impl DeriveForStorage {
         #[ink(constructor)]
-        fn constructor() -> Self {
+        pub fn constructor() -> Self {
             Default::default()
         }
 
         #[ink(message)]
-        fn message(&self) {}
+        pub fn message(&self) {}
     }
 }
 
