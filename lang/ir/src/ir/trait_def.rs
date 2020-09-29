@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{
+    ir,
+    ir::idents_lint,
+};
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -34,6 +37,7 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
     type Error = syn::Error;
 
     fn try_from(item_trait: syn::ItemTrait) -> core::result::Result<Self, Self::Error> {
+        idents_lint::ensure_no_ink_identifiers(&item_trait)?;
         Self::analyse_properties(&item_trait)?;
         Self::analyse_items(&item_trait)?;
         Ok(Self { item: item_trait })

@@ -38,7 +38,7 @@ mod private {
     /// Seals the implementation of `VisitBy`.
     pub trait Sealed {}
     impl Sealed for syn::ItemMod {}
-    impl Sealed for syn::ItemImpl {}
+    impl Sealed for syn::ItemTrait {}
     impl Sealed for syn::ItemFn {}
 
     impl VisitBy for syn::ItemMod {
@@ -47,9 +47,9 @@ mod private {
         }
     }
 
-    impl VisitBy for syn::ItemImpl {
+    impl VisitBy for syn::ItemTrait {
         fn visit_by(&self, visitor: &mut IdentVisitor) {
-            syn::visit::visit_item_impl(visitor, self);
+            syn::visit::visit_item_trait(visitor, self);
         }
     }
 

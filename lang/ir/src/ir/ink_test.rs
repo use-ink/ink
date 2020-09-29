@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use core::convert::TryFrom;
+use crate::ir::idents_lint;
 
 /// The ink! test with all required information.
 pub struct InkTest {
@@ -24,6 +25,7 @@ impl TryFrom<syn::ItemFn> for InkTest {
     type Error = syn::Error;
 
     fn try_from(item_fn: syn::ItemFn) -> Result<Self, Self::Error> {
+        idents_lint::ensure_no_ink_identifiers(&item_fn)?;
         Ok(Self { item_fn })
     }
 }
