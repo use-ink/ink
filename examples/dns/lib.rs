@@ -16,10 +16,10 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod dns {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage2::{
+    use ink_core::storage::{
         collections::hashmap::Entry,
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
@@ -27,7 +27,7 @@ mod dns {
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
-    struct Register {
+    pub struct Register {
         #[ink(topic)]
         name: Hash,
         #[ink(topic)]
@@ -36,7 +36,7 @@ mod dns {
 
     /// Emitted whenever an address changes.
     #[ink(event)]
-    struct SetAddress {
+    pub struct SetAddress {
         #[ink(topic)]
         name: Hash,
         from: AccountId,
@@ -48,7 +48,7 @@ mod dns {
 
     /// Emitted whenver a name is being transferred.
     #[ink(event)]
-    struct Transfer {
+    pub struct Transfer {
         #[ink(topic)]
         name: Hash,
         from: AccountId,
@@ -75,7 +75,7 @@ mod dns {
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
     #[derive(Default)]
-    struct DomainNameService {
+    pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
         name_to_address: StorageHashMap<Hash, AccountId>,
         /// A hashmap to store all name to owners mapping.
@@ -100,13 +100,13 @@ mod dns {
     impl DomainNameService {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
-        fn new() -> Self {
+        pub fn new() -> Self {
             Default::default()
         }
 
         /// Register specific name with caller as owner.
         #[ink(message)]
-        fn register(&mut self, name: Hash) -> Result<()> {
+        pub fn register(&mut self, name: Hash) -> Result<()> {
             let caller = self.env().caller();
             let entry = self.name_to_owner.entry(name);
             match entry {
@@ -121,7 +121,7 @@ mod dns {
 
         /// Set address for specific name.
         #[ink(message)]
-        fn set_address(&mut self, name: Hash, new_address: AccountId) -> Result<()> {
+        pub fn set_address(&mut self, name: Hash, new_address: AccountId) -> Result<()> {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
@@ -139,7 +139,7 @@ mod dns {
 
         /// Transfer owner to another address.
         #[ink(message)]
-        fn transfer(&mut self, name: Hash, to: AccountId) -> Result<()> {
+        pub fn transfer(&mut self, name: Hash, to: AccountId) -> Result<()> {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
@@ -157,7 +157,7 @@ mod dns {
 
         /// Get address for specific name.
         #[ink(message)]
-        fn get_address(&self, name: Hash) -> AccountId {
+        pub fn get_address(&self, name: Hash) -> AccountId {
             self.get_address_or_default(name)
         }
 

@@ -22,12 +22,6 @@ mod error;
 mod events;
 mod traits;
 
-pub use ink_lang_macro::{
-    contract,
-    test,
-    trait_definition,
-};
-
 pub use self::{
     contract::{
         DispatchMode,
@@ -78,4 +72,10 @@ pub use self::{
         MessageMut,
         MessageRef,
     },
+};
+pub use ::static_assertions;
+pub use ink_lang_macro::{
+    contract,
+    test,
+    trait_definition,
 };

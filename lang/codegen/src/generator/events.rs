@@ -146,23 +146,28 @@ impl<'a> Events<'a> {
     /// Generate checks to guard against too many topics in event definitions.
     fn generate_topics_guard(&self, event: &ir::Event) -> TokenStream2 {
         let storage_ident = self.contract.module().storage().ident();
+        let event_ident = event.ident();
         let len_topics = event.fields().filter(|event| event.is_topic).count();
         let span = event.span();
         quote_spanned!(span=>
             const _: () = {
-                pub enum EventTopicsOutOfBounds {}
+                #[allow(non_camel_case_types)]
+                pub enum __ink_CheckSatisfied {}
                 pub enum EventTopicsWithinBounds {}
-                impl ::ink_lang::False for EventTopicsOutOfBounds {}
+                impl ::ink_lang::True for __ink_CheckSatisfied {}
+                #[doc(hidden)]
+                pub trait CompliesWithTopicLimit {}
+                impl CompliesWithTopicLimit for __ink_CheckSatisfied {}
 
                 #[allow(non_camel_case_types)]
                 pub trait __ink_RenameBool {
                     type Type;
                 }
-                impl __ink_RenameBool for [(); 1] {
-                    type Type = EventTopicsOutOfBounds;
+                impl __ink_RenameBool for [(); true as usize] {
+                    type Type = __ink_CheckSatisfied;
                 }
-                impl __ink_RenameBool for [(); 0] {
-                    type Type = EventTopicsWithinBounds;
+                impl __ink_RenameBool for [(); false as usize] {
+                    type Type = #event_ident;
                 }
 
                 #[allow(non_upper_case_globals)]
@@ -173,7 +178,7 @@ impl<'a> Events<'a> {
                 fn __ink_ensure_max_event_topics<T>(_: T)
                 where
                     T: __ink_RenameBool,
-                    <T as __ink_RenameBool>::Type: ::ink_lang::False,
+                    <T as __ink_RenameBool>::Type: CompliesWithTopicLimit,
                 {}
                 let _ = __ink_ensure_max_event_topics::<[(); (#len_topics <= __ink_MAX_EVENT_TOPICS) as usize]>;
             };

@@ -1,20 +1,20 @@
 [package]
 name = "delegator"
-version = "2.1.0"
+version = "3.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_primitives = { version = "2.1.0", path = "../../primitives", default-features = false }
-ink_metadata = { version = "2.1.0", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
-ink_core = { version = "2.1.0", path = "../../core", default-features = false }
-ink_lang = { version = "2.1.0", path = "../../lang", default-features = false }
+ink_primitives = { version = "3.0.0", path = "../../primitives", default-features = false }
+ink_metadata = { version = "3.0.0", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
+ink_core = { version = "3.0.0", path = "../../core", default-features = false }
+ink_lang = { version = "3.0.0", path = "../../lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive"] }
 
-adder = { version = "2.1.0", path = "adder", default-features = false, features = ["ink-as-dependency"] }
-subber = { version = "2.1.0", path = "subber", default-features = false, features = ["ink-as-dependency"] }
-accumulator = { version = "2.1.0", path = "accumulator", default-features = false, features = ["ink-as-dependency"] }
+adder = { version = "3.0.0", path = "adder", default-features = false, features = ["ink-as-dependency"] }
+subber = { version = "3.0.0", path = "subber", default-features = false, features = ["ink-as-dependency"] }
+accumulator = { version = "3.0.0", path = "accumulator", default-features = false, features = ["ink-as-dependency"] }
 scale-info = { version = "0.3", default-features = false, features = ["derive"], optional = true }
 
 [lib]

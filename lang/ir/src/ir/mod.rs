@@ -17,6 +17,8 @@
 mod attrs;
 mod config;
 mod contract;
+mod idents_lint;
+mod ink_test;
 mod item;
 mod item_impl;
 mod item_mod;
@@ -40,6 +42,7 @@ pub use self::{
     attrs::Namespace,
     config::Config,
     contract::Contract,
+    ink_test::InkTest,
     item::{
         Event,
         InkItem,

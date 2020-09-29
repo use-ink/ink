@@ -36,6 +36,10 @@ impl<'a> CodeGenerator for &'a ir::InkTrait {
     type Generator = generator::TraitDefinition<'a>;
 }
 
+impl<'a> CodeGenerator for &'a ir::InkTest {
+    type Generator = generator::InkTest<'a>;
+}
+
 /// Generates the entire code for the given ink! contract.
 pub fn generate_code<T>(entity: T) -> TokenStream2
 where

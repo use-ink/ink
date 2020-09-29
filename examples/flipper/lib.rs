@@ -16,31 +16,35 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
-mod flipper {
+#[ink::contract]
+pub mod flipper {
     #[ink(storage)]
-    struct Flipper {
+    pub struct Flipper {
         value: bool,
     }
 
     impl Flipper {
+        /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
-        fn new(init_value: bool) -> Self {
+        pub fn new(init_value: bool) -> Self {
             Self { value: init_value }
         }
 
+        /// Creates a new flipper smart contract initialized to `false`.
         #[ink(constructor)]
-        fn default() -> Self {
+        pub fn default() -> Self {
             Self::new(Default::default())
         }
 
+        /// Flips the current value of the Flipper's bool.
         #[ink(message)]
-        fn flip(&mut self) {
+        pub fn flip(&mut self) {
             self.value = !self.value;
         }
 
+        /// Returns the current value of the Flipper's bool.
         #[ink(message)]
-        fn get(&self) -> bool {
+        pub fn get(&self) -> bool {
             self.value
         }
     }

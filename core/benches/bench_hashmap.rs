@@ -22,7 +22,7 @@ use criterion::{
 
 use ink_core::{
     env,
-    storage2::traits::{
+    storage::traits::{
         KeyPtr,
         SpreadLayout,
     },
@@ -241,7 +241,7 @@ mod lazyhmap_backend {
     use super::*;
     use ink_core::{
         hash::hasher::Blake2x256Hasher,
-        storage2::lazy::lazy_hmap::{
+        storage::lazy::lazy_hmap::{
             Entry,
             LazyHashMap,
         },
@@ -278,7 +278,7 @@ mod lazyhmap_backend {
 
 mod hashmap_backend {
     use super::*;
-    use ink_core::storage2::collections::{
+    use ink_core::storage::collections::{
         hashmap::Entry,
         HashMap as StorageHashMap,
     };

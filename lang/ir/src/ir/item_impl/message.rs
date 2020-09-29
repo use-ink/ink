@@ -146,6 +146,30 @@ impl Message {
         Ok(())
     }
 
+    /// Ensures that the ink! message does not return `Self`.
+    ///
+    /// # Errors
+    ///
+    /// If the given Rust method has a `Self` return type.
+    fn ensure_not_return_self(
+        method_item: &syn::ImplItemMethod,
+    ) -> Result<(), syn::Error> {
+        match &method_item.sig.output {
+            syn::ReturnType::Default => (),
+            syn::ReturnType::Type(_arrow, ret_type) => {
+                if let syn::Type::Path(type_path) = &**ret_type {
+                    if type_path.path.is_ident("Self") {
+                        return Err(format_err!(
+                            ret_type,
+                            "ink! messages must not return `Self`"
+                        ))
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Sanitizes the attributes for the ink! message.
     ///
     /// Returns a tuple of ink! attributes and non-ink! attributes.
@@ -173,6 +197,7 @@ impl TryFrom<syn::ImplItemMethod> for Message {
     fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
         ensure_callable_invariants(&method_item, CallableKind::Message)?;
         Self::ensure_receiver_is_self_ref(&method_item)?;
+        Self::ensure_not_return_self(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
         let selector = ink_attrs.selector();

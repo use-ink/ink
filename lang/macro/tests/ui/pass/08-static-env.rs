@@ -1,19 +1,19 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod static_env {
     #[ink(storage)]
-    struct StaticEnv {}
+    pub struct UsesStaticEnv {}
 
-    impl StaticEnv {
+    impl UsesStaticEnv {
         #[ink(constructor)]
-        fn new() -> Self {
+        pub fn new() -> Self {
             assert!(Self::env().balance() > 0);
             Self {}
         }
 
         #[ink(message)]
-        fn gas_left(&mut self) -> Balance {
+        pub fn gas_left(&mut self) -> Balance {
             Self::env().gas_left()
         }
     }

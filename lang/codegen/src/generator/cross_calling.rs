@@ -59,7 +59,6 @@ impl GenerateCode for CrossCalling<'_> {
             #storage
             #standard_impls
             #call_forwarder
-            // #short_hand_impls
             #impl_blocks
         }
     }
@@ -99,14 +98,14 @@ impl CrossCalling<'_> {
                 Debug,
                 ::scale::Encode,
                 ::scale::Decode,
-                ::ink_core::storage2::traits::SpreadLayout,
-                ::ink_core::storage2::traits::PackedLayout,
+                ::ink_core::storage::traits::SpreadLayout,
+                ::ink_core::storage::traits::PackedLayout,
             )]
             #[cfg_attr(
                 feature = "std",
                 derive(
                     ::scale_info::TypeInfo,
-                    ::ink_core::storage2::traits::StorageLayout,
+                    ::ink_core::storage::traits::StorageLayout,
                 )
             )]
             pub struct #ident {
@@ -246,6 +245,7 @@ impl CrossCalling<'_> {
             ir::Receiver::RefMut => Some(quote! { &mut self }),
         };
         quote_spanned!(span=>
+            #[allow(clippy::type_complexity)]
             type #output_ident = ::ink_core::env::call::CallBuilder<
                 EnvTypes,
                 ::ink_core::env::call::utils::Set<AccountId>,
@@ -423,6 +423,7 @@ impl CrossCalling<'_> {
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]
+            #[allow(clippy::type_complexity)]
             #pub_tok fn #ident(
                 self,
                 #( #input_bindings : #input_types ),*
@@ -613,6 +614,7 @@ impl CrossCalling<'_> {
             .collect::<Vec<_>>();
         let arg_list = Self::generate_arg_list(input_types.iter().cloned());
         quote_spanned!(span =>
+            #[allow(clippy::type_complexity)]
             type #output_ident = ::ink_core::env::call::CreateBuilder<
                 EnvTypes,
                 ::ink_core::env::call::utils::Unset<Hash>,
@@ -713,6 +715,7 @@ impl CrossCalling<'_> {
         quote_spanned!(span =>
             #( #attrs )*
             #[inline]
+            #[allow(clippy::type_complexity)]
             pub fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> ::ink_core::env::call::CreateBuilder<

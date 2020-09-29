@@ -49,7 +49,7 @@ fn footprint(s: &synstructure::Structure) -> TokenStream2 {
                 .fields
                 .iter()
                 .map(|field| &field.ty)
-                .map(|ty| quote! { <#ty as ::ink_core::storage2::traits::SpreadLayout>::FOOTPRINT })
+                .map(|ty| quote! { <#ty as ::ink_core::storage::traits::SpreadLayout>::FOOTPRINT })
                 .fold(quote! { 0u64 }, |lhs, rhs| {
                     quote! { (#lhs + #rhs) }
                 })
@@ -68,7 +68,7 @@ fn requires_deep_clean_up(s: &synstructure::Structure) -> TokenStream2 {
             .fields
             .iter()
             .map(|field| &field.ty)
-            .map(|ty| quote! { <#ty as ::ink_core::storage2::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP })
+            .map(|ty| quote! { <#ty as ::ink_core::storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP })
             .fold(quote! { false }, |lhs, rhs| {
                 quote! { (#lhs || #rhs) }
             })
@@ -87,32 +87,32 @@ fn spread_layout_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
     let pull_body = variant.construct(|field, _index| {
         let ty = &field.ty;
         quote! {
-            <#ty as ::ink_core::storage2::traits::SpreadLayout>::pull_spread(__key_ptr)
+            <#ty as ::ink_core::storage::traits::SpreadLayout>::pull_spread(__key_ptr)
         }
     });
     let push_body = variant.each(|binding| {
         quote! {
-            ::ink_core::storage2::traits::SpreadLayout::push_spread(#binding, __key_ptr);
+            ::ink_core::storage::traits::SpreadLayout::push_spread(#binding, __key_ptr);
         }
     });
     let clear_body = s.each(|field| {
         quote! {
-            ::ink_core::storage2::traits::SpreadLayout::clear_spread(#field, __key_ptr);
+            ::ink_core::storage::traits::SpreadLayout::clear_spread(#field, __key_ptr);
         }
     });
     s.gen_impl(quote! {
-        gen impl ::ink_core::storage2::traits::SpreadLayout for @Self {
+        gen impl ::ink_core::storage::traits::SpreadLayout for @Self {
             #[allow(unused_comparisons)]
             const FOOTPRINT: u64 = #footprint_body;
             const REQUIRES_DEEP_CLEAN_UP: bool = #requires_deep_clean_up_body;
 
-            fn pull_spread(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> Self {
+            fn pull_spread(__key_ptr: &mut ::ink_core::storage::traits::KeyPtr) -> Self {
                 #pull_body
             }
-            fn push_spread(&self, __key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) {
+            fn push_spread(&self, __key_ptr: &mut ::ink_core::storage::traits::KeyPtr) {
                 match self { #push_body }
             }
-            fn clear_spread(&self, __key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) {
+            fn clear_spread(&self, __key_ptr: &mut ::ink_core::storage::traits::KeyPtr) {
                 match self { #clear_body }
             }
         }
@@ -131,7 +131,7 @@ fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             variant.construct(|field, _index| {
                 let ty = &field.ty;
                 quote! {
-                    <#ty as ::ink_core::storage2::traits::SpreadLayout>::pull_spread(__key_ptr)
+                    <#ty as ::ink_core::storage::traits::SpreadLayout>::pull_spread(__key_ptr)
                 }
             })
         })
@@ -149,12 +149,12 @@ fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
         let index = index as u8;
         let fields = variant.bindings().iter().map(|field| {
             quote! {
-                ::ink_core::storage2::traits::SpreadLayout::push_spread(#field, __key_ptr);
+                ::ink_core::storage::traits::SpreadLayout::push_spread(#field, __key_ptr);
             }
         });
         quote! {
             #pat => {
-                { <u8 as ::ink_core::storage2::traits::SpreadLayout>::push_spread(&#index, __key_ptr); }
+                { <u8 as ::ink_core::storage::traits::SpreadLayout>::push_spread(&#index, __key_ptr); }
                 #(
                     { #fields }
                 )*
@@ -163,30 +163,30 @@ fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
     });
     let clear_body = s.each(|field| {
         quote! {
-            ::ink_core::storage2::traits::SpreadLayout::clear_spread(#field, __key_ptr);
+            ::ink_core::storage::traits::SpreadLayout::clear_spread(#field, __key_ptr);
         }
     });
     s.gen_impl(quote! {
-        gen impl ::ink_core::storage2::traits::SpreadLayout for @Self {
+        gen impl ::ink_core::storage::traits::SpreadLayout for @Self {
             #[allow(unused_comparisons)]
             const FOOTPRINT: u64 = 1 + #footprint_body;
 
             const REQUIRES_DEEP_CLEAN_UP: bool = #requires_deep_clean_up_body;
 
-            fn pull_spread(__key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) -> Self {
-                match <u8 as ::ink_core::storage2::traits::SpreadLayout>::pull_spread(__key_ptr) {
+            fn pull_spread(__key_ptr: &mut ::ink_core::storage::traits::KeyPtr) -> Self {
+                match <u8 as ::ink_core::storage::traits::SpreadLayout>::pull_spread(__key_ptr) {
                     #pull_body
                     _ => unreachable!("encountered invalid enum discriminant"),
                 }
             }
-            fn push_spread(&self, __key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) {
+            fn push_spread(&self, __key_ptr: &mut ::ink_core::storage::traits::KeyPtr) {
                 match self {
                     #(
                         #push_body
                     )*
                 }
             }
-            fn clear_spread(&self, __key_ptr: &mut ::ink_core::storage2::traits::KeyPtr) {
+            fn clear_spread(&self, __key_ptr: &mut ::ink_core::storage::traits::KeyPtr) {
                 match self {
                     #clear_body
                 }

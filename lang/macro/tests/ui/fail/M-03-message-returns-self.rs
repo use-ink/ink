@@ -1,18 +1,18 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
-mod missing_message_returns_self {
+#[ink::contract]
+mod message_returns_self {
     #[ink(storage)]
-    struct MissingMessageReturnsSelf {}
+    pub struct MessageReturnsSelf {}
 
-    impl MissingMessageReturnsSelf {
+    impl MessageReturnsSelf {
         #[ink(constructor)]
-        fn constructor() -> Self {
+        pub fn constructor() -> Self {
             Self {}
         }
 
         #[ink(message)]
-        fn missing_self_arg(&self) -> Self {}
+        pub fn returns_self(&self) -> Self {}
     }
 }
 

@@ -1,5 +1,5 @@
-error: ink! messages and methods must not return `Self`
-  --> $DIR/M-03-message-returns-self.rs:15:36
+error: ink! messages must not return `Self`
+  --> $DIR/M-03-message-returns-self.rs:15:39
    |
-15 |         fn missing_self_arg(&self) -> Self {}
-   |                                    ^^^^^^^
+15 |         pub fn returns_self(&self) -> Self {}
+   |                                       ^^^^

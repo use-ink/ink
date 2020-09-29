@@ -1,13 +1,13 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod missing_message {
     #[ink(storage)]
-    struct MissingMessage {}
+    pub struct MissingMessage {}
 
     impl MissingMessage {
         #[ink(constructor)]
-        fn constructor() -> Self {
+        pub fn constructor() -> Self {
             Self {}
         }
     }

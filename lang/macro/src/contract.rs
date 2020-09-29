@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    codegen::GenerateCode as _,
-    ir,
-    lint,
-};
-use core::convert::TryFrom;
-use ink_lang_ir::format_err_spanned;
+use ink_lang_codegen::generate_code;
+use ink_lang_ir::Contract;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
@@ -30,18 +25,6 @@ pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
 }
 
 pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
-    lint::idents_respect_pred(
-        input.clone(),
-        move |ident| !ident.to_string().starts_with("__ink"),
-        move |ident| {
-            format_err_spanned!(
-                ident,
-                "identifiers starting with `__ink` are forbidden in ink!"
-            )
-        },
-    )?;
-    let params = syn::parse2::<ir::Params>(attr)?;
-    let rust_mod = syn::parse2::<syn::ItemMod>(input)?;
-    let ink_ir = ir::Contract::try_from((params, rust_mod))?;
-    Ok(ink_ir.generate_code())
+    let contract = Contract::new(attr, input)?;
+    Ok(generate_code(&contract))
 }

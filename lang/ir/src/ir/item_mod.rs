@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{
+    ir,
+    ir::idents_lint,
+};
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -236,48 +239,6 @@ impl ItemMod {
         }
         Ok(())
     }
-
-    /// Returns `Ok` if there are no occurrences of identifiers starting with `__ink_`.
-    ///
-    /// # Errors
-    ///
-    /// Returns a combined error for every instance of `__ink_` prefixed identifier found.
-    fn ensure_no_ink_identifiers(item_mod: &syn::ItemMod) -> Result<(), syn::Error> {
-        #[derive(Default)]
-        struct IdentVisitor {
-            errors: Vec<syn::Error>,
-        }
-        impl IdentVisitor {
-            /// Converts the visitor into the errors it found if any.
-            ///
-            /// Returns `Ok` if it found no errors during visitation.
-            pub fn into_result(self) -> Result<(), syn::Error> {
-                match self.errors.split_first() {
-                    None => Ok(()),
-                    Some((first, rest)) => {
-                        let mut combined = first.clone();
-                        for error in rest {
-                            combined.combine(error.clone());
-                        }
-                        Err(combined)
-                    }
-                }
-            }
-        }
-        impl<'ast> syn::visit::Visit<'ast> for IdentVisitor {
-            fn visit_ident(&mut self, ident: &'ast Ident) {
-                if ident.to_string().starts_with("__ink_") {
-                    self.errors.push(format_err!(
-                        ident,
-                        "encountered invalid identifier starting with __ink_",
-                    ))
-                }
-            }
-        }
-        let mut visitor = IdentVisitor::default();
-        syn::visit::visit_item_mod(&mut visitor, item_mod);
-        visitor.into_result()
-    }
 }
 
 impl TryFrom<syn::ItemMod> for ItemMod {
@@ -285,7 +246,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
 
     fn try_from(module: syn::ItemMod) -> Result<Self, Self::Error> {
         let module_span = module.span();
-        Self::ensure_no_ink_identifiers(&module)?;
+        idents_lint::ensure_no_ink_identifiers(&module)?;
         let (brace, items) = match module.content {
             Some((brace, items)) => (brace, items),
             None => {
