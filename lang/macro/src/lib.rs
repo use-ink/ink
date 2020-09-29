@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod codegen;
 mod contract;
-mod extensions;
 mod ink_test;
-mod ir;
 mod trait_def;
 
 use proc_macro::TokenStream;
