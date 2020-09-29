@@ -17,11 +17,11 @@ mod cross_calling;
 mod dispatch;
 mod env;
 mod events;
+mod ink_test;
 mod item_impls;
 mod metadata;
 mod storage;
 mod trait_def;
-mod ink_test;
 
 pub use self::{
     contract::Contract,
@@ -32,8 +32,8 @@ pub use self::{
     dispatch::Dispatch,
     env::Env,
     events::Events,
-    item_impls::ItemImpls,
     ink_test::InkTest,
+    item_impls::ItemImpls,
     metadata::Metadata,
     storage::Storage,
     trait_def::TraitDefinition,

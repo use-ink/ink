@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::convert::TryFrom;
 use crate::ir::idents_lint;
+use core::convert::TryFrom;
 
 /// The ink! test with all required information.
 pub struct InkTest {

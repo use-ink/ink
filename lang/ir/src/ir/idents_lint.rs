@@ -32,8 +32,8 @@ pub trait VisitBy: private::Sealed {
 }
 
 mod private {
-    use proc_macro2::Ident;
     use super::VisitBy;
+    use proc_macro2::Ident;
 
     /// Seals the implementation of `VisitBy`.
     pub trait Sealed {}
