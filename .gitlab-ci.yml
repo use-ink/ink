@@ -61,7 +61,7 @@ check-std:
   <<:                              *docker-env
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
+        cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
 
 check-wasm:
@@ -69,7 +69,7 @@ check-wasm:
   <<:                              *docker-env
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
 
@@ -82,7 +82,7 @@ build-std:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
+        cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
       done
 
 build-wasm:
@@ -92,7 +92,7 @@ build-wasm:
     - check-wasm
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
+        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
 test:
@@ -143,7 +143,7 @@ clippy-std:
     - check-std
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -153,7 +153,7 @@ clippy-wasm:
     - check-wasm
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:

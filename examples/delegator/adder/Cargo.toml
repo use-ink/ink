@@ -5,10 +5,10 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_primitives = { version = "3.0.0", path = "../../../primitives", default-features = false }
-ink_metadata = { version = "3.0.0", path = "../../../metadata", default-features = false, features = ["derive"], optional = true }
-ink_core = { version = "3.0.0", path = "../../../core", default-features = false }
-ink_lang = { version = "3.0.0", path = "../../../lang", default-features = false }
+ink_primitives = { version = "3.0.0", path = "../../../crates/primitives", default-features = false }
+ink_metadata = { version = "3.0.0", path = "../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_core = { version = "3.0.0", path = "../../../crates/core", default-features = false }
+ink_lang = { version = "3.0.0", path = "../../../crates/lang", default-features = false }
 
 accumulator = { version = "3.0.0", path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
 

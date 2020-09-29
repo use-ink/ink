@@ -4,7 +4,7 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
 17 |         pub fn returns_non_codec_type(&self) -> NonCodec {}
    |                                                 ^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodec`
    |
-  ::: $WORKSPACE/lang/src/traits.rs
+  ::: $WORKSPACE/crates/lang/src/traits.rs
    |
    |     type Output: scale::Encode + 'static;
    |                  ------------- required by this bound in `FnOutput`
