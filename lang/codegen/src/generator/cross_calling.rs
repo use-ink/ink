@@ -59,7 +59,6 @@ impl GenerateCode for CrossCalling<'_> {
             #storage
             #standard_impls
             #call_forwarder
-            // #short_hand_impls
             #impl_blocks
         }
     }
