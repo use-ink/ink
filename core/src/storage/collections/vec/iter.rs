@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{
-    storage as storage,
+    storage,
     storage::{
         collections::extend_lifetime,
         traits::PackedLayout,
