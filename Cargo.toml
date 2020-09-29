@@ -1,15 +1,15 @@
 [workspace]
 members = [
-    "metadata",
-    "alloc",
-    "core",
-    "core/derive",
-    "lang",
-    "lang/macro",
-    "lang/ir",
-    "lang/codegen",
-    "prelude",
-    "primitives",
+    "crates/metadata",
+    "crates/alloc",
+    "crates/core",
+    "crates/core/derive",
+    "crates/lang",
+    "crates/lang/macro",
+    "crates/lang/ir",
+    "crates/lang/codegen",
+    "crates/prelude",
+    "crates/primitives",
 ]
 exclude = [
     "examples/",
