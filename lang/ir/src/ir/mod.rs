@@ -17,6 +17,7 @@
 mod attrs;
 mod config;
 mod contract;
+mod idents_lint;
 mod ink_test;
 mod item;
 mod item_impl;
