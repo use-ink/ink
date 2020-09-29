@@ -43,7 +43,7 @@ impl GenerateCode for Metadata<'_> {
                     let contract: ::ink_metadata::ContractSpec = {
                         #contract
                     };
-                    let layout: ::ink_metadata::layout2::Layout = {
+                    let layout: ::ink_metadata::layout::Layout = {
                         #layout
                     };
                     ::ink_metadata::InkProject::new(layout, contract)

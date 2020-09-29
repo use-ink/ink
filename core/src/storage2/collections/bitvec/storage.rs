@@ -36,7 +36,7 @@ const _: () = {
         lazy::Lazy,
         traits::StorageLayout,
     };
-    use ink_metadata::layout2::{
+    use ink_metadata::layout::{
         FieldLayout,
         Layout,
         StructLayout,

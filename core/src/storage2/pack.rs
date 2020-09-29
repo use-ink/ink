@@ -84,7 +84,7 @@ impl<T> Pack<T> {
 #[cfg(feature = "std")]
 const _: () = {
     use crate::storage2::traits::StorageLayout;
-    use ink_metadata::layout2::{
+    use ink_metadata::layout::{
         CellLayout,
         Layout,
         LayoutKey,

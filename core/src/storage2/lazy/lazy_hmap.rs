@@ -226,7 +226,7 @@ const _: () = {
         LayoutCryptoHasher,
         StorageLayout,
     };
-    use ink_metadata::layout2::{
+    use ink_metadata::layout::{
         CellLayout,
         HashLayout,
         HashingStrategy,

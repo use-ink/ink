@@ -72,7 +72,7 @@ where
 #[cfg(feature = "std")]
 const _: () = {
     use crate::storage2::traits::StorageLayout;
-    use ink_metadata::layout2::Layout;
+    use ink_metadata::layout::Layout;
 
     impl<T> StorageLayout for Lazy<T>
     where

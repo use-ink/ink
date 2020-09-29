@@ -38,7 +38,7 @@ const _: () = {
         collections::Vec as StorageVec,
         traits::StorageLayout,
     };
-    use ink_metadata::layout2::{
+    use ink_metadata::layout::{
         CellLayout,
         FieldLayout,
         Layout,

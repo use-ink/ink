@@ -35,7 +35,7 @@ use ink_primitives::Key;
 #[cfg(feature = "std")]
 const _: () = {
     use crate::storage2::traits::StorageLayout;
-    use ink_metadata::layout2::{
+    use ink_metadata::layout::{
         FieldLayout,
         Layout,
         StructLayout,
